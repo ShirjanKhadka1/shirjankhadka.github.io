@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Coverage Check — NEPSE Alpha Lab | Shirjan Khadka</title>
+<meta name="description" content="Live verification of every listed NEPSE security in the Alpha Lab: data source, history depth, last price, live-quote presence and verdict status for all listed symbols.">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-chart/data-check.html">
+<meta name="robots" content="index, follow">
+<link rel="icon" href="/favicon.ico">
+<link rel="stylesheet" href="chart.css?v=20260924f">
+<style>
+.dc-wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+.dc-sub{color:var(--muted);margin:6px 0 0}
+.dc-new{display:none;margin:18px 0;padding:14px 18px;border-radius:14px;background:#f0fdf4;border:1px solid #86efac;color:#15803d;font-weight:600}
+.dc-new.show{display:block}
+.dc-prev{display:none;margin:18px 0;padding:14px 18px;border-radius:14px;background:#fffbeb;border:1px solid #fcd34d;color:#92400e;font-size:.9rem}
+.dc-prev.show{display:block}
+.dc-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:20px 0}
+.dc-controls input[type=search]{flex:1;min-width:200px;padding:10px 14px;border:1px solid var(--line);border-radius:10px;font-size:.95rem;background:#fff;color:var(--ink)}
+.dc-controls select{padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:.95rem;background:#fff;color:var(--ink)}
+.dc-btn{padding:10px 18px;border:none;border-radius:10px;background:#0f172a;color:#fff;font-weight:700;font-size:.95rem;cursor:pointer}
+.dc-btn:disabled{opacity:.5;cursor:default}
+.dc-progress{display:none;margin:6px 0 14px}
+.dc-progress.show{display:block}
+.dc-progress .bar{height:10px;border-radius:999px;background:#f1f5f9;overflow:hidden}
+.dc-progress .fill{height:100%;width:0;background:linear-gradient(90deg,#4ade80,#16a34a);transition:width .2s}
+.dc-progress p{margin:8px 0 0;color:var(--muted);font-size:.9rem}
+.dc-result{display:none;margin:0 0 14px;padding:12px 16px;border-radius:12px;font-size:.88rem;line-height:1.5}
+.dc-result.show{display:block}
+.dc-result.ok{background:#f0fdf4;border:1px solid #86efac;color:#166534}
+.dc-result.warn{background:#fffbeb;border:1px solid #fcd34d;color:#92400e}
+.dc-tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:#fff;box-shadow:var(--shadow)}
+table.dc{width:100%;border-collapse:collapse;font-size:.86rem;min-width:900px}
+table.dc thead th{position:sticky;top:0;background:#f8fafc;text-align:left;padding:10px 12px;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--line);z-index:1;white-space:nowrap}
+table.dc tbody td{padding:9px 12px;border-bottom:1px solid #f1f5f9;vertical-align:top}
+table.dc tbody tr:last-child td{border-bottom:none}
+td.sym{font-weight:800;white-space:nowrap}
+td.num{white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums}
+th.num{text-align:right}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.75rem;font-weight:700;white-space:nowrap}
+.pill.ohlc{background:#dcfce7;color:#15803d}
+.pill.ltp{background:#fef3c7;color:#b45309}
+.pill.none{background:#fee2e2;color:#b91c1c}
+.pill.live{background:#e0f2fe;color:#0369a1}
+.pill.nolive{background:#f1f5f9;color:#94a3b8}
+.pill.new{background:#0f172a;color:#fff}
+.fchk{display:block;margin-top:4px;font-size:.72rem;font-weight:600;white-space:nowrap}
+.fchk.ok{color:#15803d}
+.fchk.missing{color:#b45309}
+.fchk.blocked{color:#b91c1c}
+.v{font-weight:700;white-space:nowrap}
+.v.sbuy{color:#15803d}.v.buy{color:#16a34a}.v.hold{color:#b45309}
+.v.exit{color:#dc2626}.v.sexit{color:#991b1b}.v.insufficient{color:#94a3b8}
+.dc-legend{display:flex;gap:16px;flex-wrap:wrap;margin:16px 0 4px;font-size:.82rem;color:var(--muted)}
+.dc-legend span{display:inline-flex;align-items:center;gap:6px}
+.dc-note{color:var(--muted);font-size:.85rem;margin:18px 0 40px;line-height:1.6}
+.dc-count{color:var(--muted);font-size:.85rem;margin:0 0 10px}
+@media(max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap topbar-in">
+    <a class="back" href="./" aria-label="Back to Alpha Lab">← Alpha Lab</a>
+    <span class="brand">Data coverage check</span>
+  </div>
+</header>
+
+<main class="dc-wrap">
+  <h1 style="margin:26px 0 0">Data coverage check</h1>
+  <p class="dc-sub" id="dcAsof">Verifying every listed NEPSE security…</p>
+
+  <div class="stats" id="dcStats" style="grid-template-columns:repeat(5,1fr)"></div>
+
+  <div class="dc-new" id="dcNew"></div>
+  <div class="dc-prev" id="dcPrev"></div>
+
+  <div class="dc-legend" aria-label="What the data labels mean">
+    <span><span class="pill ohlc">Full history</span> daily open/high/low/close from the OHLC archive</span>
+    <span><span class="pill ltp">LTP-only</span> newer listing — daily closing prices from the live-feed history, no OHLC yet</span>
+    <span><span class="pill none">No data</span> listed but no price history found in any source</span>
+  </div>
+
+  <div class="dc-controls">
+    <input type="search" id="dcSearch" placeholder="Search symbol or company…" aria-label="Search symbols">
+    <select id="dcFilter" aria-label="Filter by data status">
+      <option value="all">All</option>
+      <option value="ohlc">Full OHLC history</option>
+      <option value="ltp">LTP-only</option>
+      <option value="none">No data</option>
+      <option value="new">New listings</option>
+    </select>
+    <button class="dc-btn" id="dcRun">Run live check</button>
+  </div>
+
+  <div class="dc-progress" id="dcProg">
+    <div class="bar"><div class="fill" id="dcFill"></div></div>
+    <p id="dcProgText">Starting…</p>
+  </div>
+  <div class="dc-result" id="dcResult"></div>
+
+  <p class="dc-count" id="dcCount"></p>
+  <div class="dc-tablewrap">
+    <table class="dc">
+      <thead><tr>
+        <th>Symbol</th><th>Company</th><th>Type</th><th>Data</th><th class="num">Sessions</th><th class="num">Last price</th><th>Last session</th><th>Live quote</th><th>Verdict</th>
+      </tr></thead>
+      <tbody id="dcBody"><tr><td colspan="9" style="text-align:center;color:var(--muted);padding:30px">Loading audit…</td></tr></tbody>
+    </table>
+  </div>
+
+  <p class="dc-note" id="dcNote">Automated check rebuilds daily after market close from the Nepse-All-Scraper OHLC archive, the yonepse LTP history and the live quote feed. “Run live check” re-verifies every symbol’s source file in your browser: OHLC files on the scraper archive, LTP files on this site. Newly listed IPOs are picked up automatically from the live feed — they appear as <strong>LTP-only</strong> until the OHLC archive covers them.</p>
+</main>
+
+<script>
+(function () {
+  'use strict';
+  var body = document.getElementById('dcBody'),
+      asofEl = document.getElementById('dcAsof'),
+      statsEl = document.getElementById('dcStats'),
+      newEl = document.getElementById('dcNew'),
+      prevEl = document.getElementById('dcPrev'),
+      searchEl = document.getElementById('dcSearch'),
+      filterEl = document.getElementById('dcFilter'),
+      runBtn = document.getElementById('dcRun'),
+      progEl = document.getElementById('dcProg'),
+      fillEl = document.getElementById('dcFill'),
+      progText = document.getElementById('dcProgText'),
+      resultEl = document.getElementById('dcResult'),
+      countEl = document.getElementById('dcCount');
+
+  var rows = [], asof = '', liveDone = false, fileChecked = false, isPreview = false;
+
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function vcls(v) {
+    return v === 'Strong Buy' ? 'sbuy' : v === 'Buy' ? 'buy' : v === 'Hold' ? 'hold'
+      : v === 'Exit / Reduce' ? 'exit' : v === 'Strong Exit' ? 'sexit' : 'insufficient';
+  }
+  function fmtPrice(p) {
+    if (p == null) return '—';
+    return Number(p).toLocaleString('en-US', { maximumFractionDigits: 2 });
+  }
+  function dataPill(r) {
+    if (r.src === 'ohlc') return '<span class="pill ohlc">Full history</span>';
+    if (r.src === 'ltp') return '<span class="pill ltp">LTP-only</span>';
+    return '<span class="pill none">No data</span>';
+  }
+  function fileNote(r) {
+    if (!fileChecked || !r.file) return '';
+    if (r.file === 'ok') return '<span class="fchk ok">✓ source file reachable</span>';
+    if (r.file === 'missing') return '<span class="fchk missing">⚠ file not published yet (404)</span>';
+    return '<span class="fchk blocked">⚠ could not reach file (network blocked)</span>';
+  }
+  function render() {
+    var q = searchEl.value.trim().toLowerCase(), f = filterEl.value;
+    var html = '', shown = 0;
+    for (var i = 0; i < rows.length; i++) {
+      var r = rows[i];
+      if (f === 'ohlc' && r.src !== 'ohlc') continue;
+      if (f === 'ltp' && r.src !== 'ltp') continue;
+      if (f === 'none' && r.src !== 'none') continue;
+      if (f === 'new' && !r.isNew) continue;
+      if (q && r.s.toLowerCase().indexOf(q) < 0 && r.n.toLowerCase().indexOf(q) < 0) continue;
+      shown++;
+      html += '<tr data-sym="' + esc(r.s) + '">'
+        + '<td class="sym">' + esc(r.s) + (r.isNew ? ' <span class="pill new">NEW</span>' : '') + '</td>'
+        + '<td>' + esc(r.n) + '</td>'
+        + '<td>' + esc(r.t) + '</td>'
+        + '<td>' + dataPill(r) + fileNote(r) + '</td>'
+        + '<td class="num">' + (r.days ? r.days.toLocaleString('en-US') : '—') + '</td>'
+        + '<td class="num">' + fmtPrice(r.lp) + '</td>'
+        + '<td style="white-space:nowrap">' + esc(r.ld || '—') + '</td>'
+        + '<td>' + (liveDone
+            ? (r.live ? '<span class="pill live">Yes</span>' : '<span class="pill nolive">No</span>')
+            : '<span style="color:var(--muted)">—</span>') + '</td>'
+        + '<td><span class="v ' + vcls(r.verdict) + '">' + esc(r.verdict) + '</span></td>'
+        + '</tr>';
+    }
+    body.innerHTML = html || '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:30px">No matches.</td></tr>';
+    countEl.textContent = 'Showing ' + shown + ' of ' + rows.length + ' listed securities';
+  }
+  function stats() {
+    var ohlc = 0, ltp = 0, none = 0, nw = 0, i;
+    for (i = 0; i < rows.length; i++) {
+      if (rows[i].src === 'ohlc') ohlc++;
+      else if (rows[i].src === 'ltp') ltp++;
+      else none++;
+      if (rows[i].isNew) nw++;
+    }
+    var cards = [
+      ['Listed', rows.length], ['Full history', ohlc], ['LTP-only', ltp],
+      ['No data', none], ['New listings', nw]
+    ];
+    statsEl.innerHTML = cards.map(function (c) {
+      return '<div class="stat"><span class="nl-stat-k">' + c[0] + '</span><span class="nl-stat-v">' + c[1] + '</span></div>';
+    }).join('');
+    filterEl.options[0].text = 'All ' + rows.length;
+  }
+
+  function loadAudit(a) {
+    asof = a.asof || '';
+    rows = (a.rows || []).map(function (r) {
+      return { s: r.s, n: r.n, t: r.t, src: r.src, days: r.days, lp: r.lp, ld: r.ld,
+               verdict: r.verdict, live: !!r.live, isNew: !!r.isNew, file: null };
+    });
+    asofEl.textContent = 'Last automated check: data as of ' + asof + ' · ' + rows.length + ' listed securities.';
+    if (a.newListings && a.newListings.length) {
+      newEl.innerHTML = 'New listing' + (a.newListings.length > 1 ? 's' : '') + ' detected: <strong>' + a.newListings.map(esc).join(', ') + '</strong> — added automatically.';
+      newEl.classList.add('show');
+    }
+    stats(); render();
+  }
+
+  // ---- snapshot (daily automated audit) ----
+  //__AUDIT_PROMISE__
+  fetch('data/audit.json', { cache: 'no-store' }).then(function (r) {
+    if (!r.ok) throw new Error('audit.json missing');
+    return r.json();
+  }).then(loadAudit).catch(function () {
+    body.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:30px">Audit not published yet — run the data refresh first.</td></tr>';
+    asofEl.textContent = 'No automated check published yet.';
+  });
+  //__AUDIT_THEN__
+
+  searchEl.addEventListener('input', render);
+  filterEl.addEventListener('change', render);
+
+  // ---- live check: re-verify every symbol's source file, with progress ----
+  function pool(items, n, fn) {
+    return new Promise(function (resolve) {
+      var i = 0, active = 0, done = 0;
+      function next() {
+        if (done >= items.length) return resolve();
+        while (active < n && i < items.length) {
+          (function (k) {
+            active++;
+            Promise.resolve().then(function () { return fn(items[k], k); })
+              .catch(function () {})
+              .then(function () { active--; done++; next(); });
+          })(i++);
+        }
+      }
+      next();
+    });
+  }
+  // Precise probe: distinguishes "file not published (404)" from "network blocked",
+  // so a missing file is never misreported as missing data.
+  function probe(url) {
+    return fetch(url, { cache: 'no-store' }).then(function (r) {
+      if (r.body && r.body.cancel) { try { r.body.cancel(); } catch (e) {} }
+      if (r.ok) return 'ok';
+      return r.status === 404 ? 'missing' : 'blocked';
+    }).catch(function () { return 'blocked'; });
+  }
+  function fileUrl(r) {
+    var f = r.s.replace('/', '-') + '.json';
+    return r.src === 'ohlc'
+      ? 'https://samirwagle.github.io/Nepse-All-Scraper/docs/api/prices/' + f
+      : 'https://shirjankhadka.com.np/nepse-chart/data/ltp/' + f;
+  }
+
+  runBtn.addEventListener('click', function () {
+    if (!rows.length || runBtn.disabled) return;
+    runBtn.disabled = true;
+    resultEl.className = 'dc-result';
+    resultEl.innerHTML = '';
+    progEl.classList.add('show');
+    var done = 0, okO = 0, missO = 0, blkO = 0, okL = 0, missL = 0, blkL = 0;
+    function tick(r) {
+      done++;
+      if (r.src === 'ohlc') {
+        if (r.file === 'ok') okO++; else if (r.file === 'missing') missO++; else blkO++;
+      } else if (r.src === 'ltp') {
+        if (r.file === 'ok') okL++; else if (r.file === 'missing') missL++; else blkL++;
+      }
+      fillEl.style.width = Math.round(done / rows.length * 100) + '%';
+      progText.textContent = 'Checking ' + done + ' / ' + rows.length + '…';
+      if (done >= rows.length) {
+        fileChecked = true;
+        var parts = [];
+        parts.push('OHLC files: ' + okO + ' reachable' + (missO ? ', ' + missO + ' not published yet' : '') + (blkO ? ', ' + blkO + ' blocked by network' : ''));
+        parts.push('LTP files: ' + okL + ' reachable' + (missL ? ', ' + missL + ' not published yet' : '') + (blkL ? ', ' + blkL + ' blocked by network' : ''));
+        var warn = (missO + missL + blkO + blkL) > 0;
+        resultEl.className = 'dc-result show ' + (warn ? 'warn' : 'ok');
+        resultEl.innerHTML = '<strong>Live check complete:</strong> ' + parts.join(' · ') + '.'
+          + (warn ? ' “Not published yet” means the data exists in the audit but the file is not on the live site' + (isPreview ? ' (you are viewing a preview copy — these verify once the batch is published)' : '') + '; “blocked” means this browser could not reach the host at all.' : ' Every source file verified reachable.');
+        progText.textContent = 'Live check complete: ' + rows.length + ' checked.';
+        runBtn.disabled = false;
+        runBtn.textContent = 'Re-run live check';
+        render();
+      }
+    }
+    // refresh live-quote presence from the live feed first
+    fetch('https://shubhamnpk.github.io/yonepse/data/market/live.json', { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .catch(function () { return []; })
+      .then(function (live) {
+        var set = {};
+        (Array.isArray(live) ? live : []).forEach(function (q) { if (q && q.symbol) set[q.symbol] = 1; });
+        rows.forEach(function (r) { r.live = !!set[r.s]; });
+        liveDone = true;
+        return pool(rows, 6, function (r) {
+          if (r.src === 'none') { r.file = 'missing'; tick(r); return; }
+          return probe(fileUrl(r)).then(function (st) { r.file = st; tick(r); });
+        });
+      })
+      .then(render)
+      .catch(function () { runBtn.disabled = false; });
+  });
+})();
+</script>
+</body>
+</html>
