@@ -10,9 +10,9 @@ name: Refresh NEPSE Alpha Lab data
 
 on:
   schedule:
-    # 16:15 NPT daily (10:30 UTC), after NEPSE close at 15:00 NPT.
-    # Runs Fri/Sat too; the job commits only when data actually changed.
-    - cron: '30 10 * * *'
+    # 15:20 NPT (09:35 UTC), Sunday–Thursday — right after NEPSE close at 15:00 NPT.
+    # The job commits only when data actually changed.
+    - cron: '35 9 * * 0-4'
   workflow_dispatch: {}
 
 permissions:
