@@ -20,12 +20,15 @@
     return n.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: n % 1 ? 2 : 0 });
   }
 
-  // Key annotations: [isoDate, label]
+  // Key annotations on the monthly-close line
   var NOTES = [
     { date: '2008-08-31', label: '2008 peak · 1,175' },
-    { date: '2020-05-13', label: 'COVID crash · 1,202' },
-    { date: '2021-07-29', label: 'All-time high · 3,080' }
+    { date: '2020-05-13', label: 'COVID crash · 1,202' }
   ];
+
+  // True all-time high: 3,199.03 daily close (Sep 2021). Plotted as its own
+  // marker above the monthly-close line, since monthly closes never print it.
+  var ATH = { date: '2021-09-02', value: 3199.03, label: 'All-time high · 3,199' };
 
   var W = 0, H = 0, dpr = 1;
   var padL = 52, padR = 14, padT = 26, padB = 34;
@@ -48,7 +51,7 @@
     });
     var span = maxV - minV;
     minV = Math.max(0, minV - span * 0.08);
-    maxV = maxV + span * 0.10;
+    maxV = Math.max(maxV + span * 0.10, ATH.value + span * 0.06);
 
     pts = DATA.map(function (d, i) {
       return {
@@ -134,7 +137,7 @@
     // Annotations (fade in near the end)
     if (progress > 0.75) {
       ctx.globalAlpha = Math.min(1, (progress - 0.75) / 0.25);
-      NOTES.forEach(function (nt, k) {
+      NOTES.forEach(function (nt) {
         var p = xForDate(nt.date);
         if (!p) return;
         ctx.beginPath();
@@ -146,11 +149,31 @@
         ctx.stroke();
         ctx.fillStyle = 'rgba(255,255,255,0.75)';
         ctx.font = '11px -apple-system, "SF Pro Text", Inter, sans-serif';
-        ctx.textAlign = k === 2 ? 'right' : 'center';
-        var lx = k === 2 ? p.x - 8 : p.x;
-        var ly = k === 1 ? p.y + 16 : p.y - 12;
-        ctx.fillText(nt.label, lx, ly);
+        ctx.textAlign = 'center';
+        ctx.fillText(nt.label, p.x, p.date === '2020-05-13' ? p.y + 16 : p.y - 12);
       });
+      // All-time high marker: gold diamond above the monthly line
+      var ap = xForDate(ATH.date);
+      if (ap) {
+        var ay = padT + (H - padT - padB) * (1 - (ATH.value - minV) / (maxV - minV));
+        ctx.beginPath();
+        ctx.arc(ap.x, ay, 10, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(212,175,55,0.22)';
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(ap.x, ay - 6);
+        ctx.lineTo(ap.x + 6, ay);
+        ctx.lineTo(ap.x, ay + 6);
+        ctx.lineTo(ap.x - 6, ay);
+        ctx.closePath();
+        ctx.fillStyle = '#d4af37';
+        ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,0.9)';
+        ctx.font = '600 11px -apple-system, "SF Pro Text", Inter, sans-serif';
+        ctx.textAlign = 'center';
+        var alx = Math.max(ap.x, padL + 70);
+        ctx.fillText(ATH.label, alx, ay - 15);
+      }
       ctx.globalAlpha = 1;
     }
 
