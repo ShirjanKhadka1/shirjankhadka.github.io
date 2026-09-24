@@ -135,6 +135,18 @@ async function main() {
   console.log('> union universe (currently listed):', symbols.length, 'symbols');
   console.log('  monthly-only historical symbols (excluded):', monthlyOnly.length);
 
+  // New listings: symbols in today's union that were absent from the last
+  // published universe (e.g. newly listed IPOs). Only computed when a
+  // previous universe exists, so the very first build flags nothing.
+  let prevSymbols = new Set();
+  try {
+    const prev = JSON.parse(fs.readFileSync(path.join(OUT, 'universe.json'), 'utf8'));
+    prevSymbols = new Set((prev.symbols || []).map((x) => x.s));
+  } catch (e) { /* first build — no baseline */ }
+  const newListings = prevSymbols.size ? symbols.filter((s) => !prevSymbols.has(s)) : [];
+  const newSet = new Set(newListings);
+  if (newListings.length) console.log('  NEW listings vs last build:', newListings.join(', '));
+
   // ---- OHLC per symbol ----
   console.log('> scraper OHLC per symbol…');
   const ohlcRows = new Map();
@@ -167,6 +179,7 @@ async function main() {
 
   const universe = { asof: manifest.latestDate || fmtD(idxDaily[idxDaily.length - 1][0]), count: symbols.length, symbols: [] };
   const verdicts = {};
+  const audit = []; // per-stock data-check rows for data-check.html
   const report = {
     total: symbols.length, ohlc: ohlcCount, ltpOnly: [], insufficient: [], failures: [],
     byType: {}, byVerdict: {}, debByType: {}
@@ -197,12 +210,15 @@ async function main() {
 
     universe.symbols.push({ s: sym, n: name, t: type, o: rows ? 1 : 0 });
     report.byType[type] = (report.byType[type] || 0) + 1;
+    const liveFlag = liveMap[sym] ? 1 : 0;
+    const isNew = newSet.has(sym) ? 1 : 0;
 
     if (!series || !series.length) {
       report.failures.push(sym);
       verdicts[sym] = { v: 'Insufficient history', s: null, p: null, ch: null, h52: null, l52: null, pos: null, rsi: null, n: 0, l: 0, asof: universe.asof };
       report.byVerdict['Insufficient history'] = (report.byVerdict['Insufficient history'] || 0) + 1;
       report.insufficient.push(sym + ' (0)');
+      audit.push({ s: sym, n: name, t: type, src: 'none', days: 0, lp: null, ld: null, verdict: 'Insufficient history', live: liveFlag, isNew });
       continue;
     }
 
@@ -233,12 +249,21 @@ async function main() {
       h52: r2(h52), l52: r2(l52), pos: r2(pos), rsi: r2(rsi),
       n: n, l: ltpOnly ? 1 : 0, asof: fmtD(last[0])
     };
+    audit.push({ s: sym, n: name, t: type, src: ltpOnly ? 'ltp' : 'ohlc', days: n, lp: r2(price), ld: fmtD(last[0]), verdict: v.label, live: liveFlag, isNew });
 
     if (++done % 100 === 0) console.log('  verdicts: ' + done + '/' + symbols.length);
   }
 
   fs.writeFileSync(path.join(OUT, 'universe.json'), JSON.stringify(universe));
   fs.writeFileSync(path.join(OUT, 'verdicts.json'), JSON.stringify({ asof: universe.asof, count: symbols.length, verdicts }));
+  // Per-stock data-check audit: one row per listed security (source, history
+  // depth, live-quote presence, verdict, new-listing flag). Consumed by
+  // nepse-chart/data-check.html. Deterministic (no timestamps) so scheduled
+  // runs only commit on real data changes.
+  fs.writeFileSync(path.join(OUT, 'audit.json'), JSON.stringify({
+    asof: universe.asof, count: symbols.length,
+    newListings: newListings, rows: audit
+  }));
   // Deterministic build id: only changes when the underlying data changes,
   // so scheduled runs commit (and trigger a Pages rebuild) only on real updates.
   const crypto = require('crypto');
@@ -259,6 +284,7 @@ async function main() {
   lines.push('');
   lines.push('universe symbols (currently listed): ' + report.total);
   lines.push('  monthly-only historical symbols excluded: ' + monthlyOnly.length);
+  lines.push('  new listings vs last build: ' + (newListings.length ? newListings.join(', ') : 'none'));
   lines.push('  with scraper OHLC : ' + report.ohlc);
   lines.push('  LTP-only fallback : ' + report.ltpOnly.length + ' (files in data/ltp: ' + ltpFiles + ')');
   lines.push('  no data at all    : ' + report.failures.length);
