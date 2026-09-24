@@ -38,6 +38,10 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add nepse-chart/data/live.json
-          git diff --cached --quiet || git commit -m "Alpha Lab: live quote snapshot (automated)"
-          git push
+          if [ -f nepse-chart/data/live.json ]; then
+            git add nepse-chart/data/live.json
+            git diff --cached --quiet || git commit -m "Alpha Lab: live quote snapshot (automated)"
+            git push
+          else
+            echo "live.json absent (market closed or fetch skipped) — nothing to commit"
+          fi
