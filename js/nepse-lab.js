@@ -455,7 +455,7 @@
   }
   function marketOpenNPT() {
     var t = todayNPT(), d = t.getUTCDay(), mins = t.getUTCHours() * 60 + t.getUTCMinutes();
-    return d >= 0 && d <= 4 && mins >= 570 && mins < 900; // Sun–Thu 09:30–15:00
+    return d >= 0 && d <= 4 && mins >= 645 && mins < 900; // Sun–Thu 10:45–15:00 (pre-open 10:45, regular 11:00–15:00)
   }
   function fetchJSON(url, timeout) {
     return new Promise(function (res, rej) {
