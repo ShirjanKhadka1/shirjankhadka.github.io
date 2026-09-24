@@ -148,6 +148,71 @@
     onScrollProgress();
   }
 
+  /* ---------- Events lightbox ---------- */
+  (function () {
+    var groups = document.querySelectorAll(".event-gallery");
+    if (!groups.length) return;
+
+    var overlay = document.createElement("div");
+    overlay.className = "lightbox";
+    overlay.setAttribute("role", "dialog");
+    overlay.setAttribute("aria-label", "Photo viewer");
+    overlay.innerHTML =
+      '<button class="lightbox-close" aria-label="Close">✕</button>' +
+      '<button class="lightbox-btn lightbox-prev" aria-label="Previous photo">‹</button>' +
+      '<img alt="">' +
+      '<button class="lightbox-btn lightbox-next" aria-label="Next photo">›</button>' +
+      '<p class="lightbox-caption"></p>';
+    document.body.appendChild(overlay);
+
+    var lbImg = overlay.querySelector("img");
+    var lbCap = overlay.querySelector(".lightbox-caption");
+    var current = [];
+    var index = 0;
+
+    function show(i) {
+      index = (i + current.length) % current.length;
+      var item = current[index];
+      lbImg.src = item.src;
+      lbImg.alt = item.alt;
+      lbCap.textContent = item.cap;
+    }
+    function open(group, i) {
+      current = [];
+      group.querySelectorAll(".event-photo").forEach(function (fig) {
+        var img = fig.querySelector("img");
+        var cap = fig.querySelector("figcaption");
+        current.push({ src: img.src, alt: img.alt, cap: cap ? cap.textContent : "" });
+      });
+      if (!current.length) return;
+      overlay.classList.add("open");
+      document.body.style.overflow = "hidden";
+      show(i);
+    }
+    function close() {
+      overlay.classList.remove("open");
+      document.body.style.overflow = "";
+    }
+
+    groups.forEach(function (group) {
+      group.querySelectorAll(".event-photo img").forEach(function (img, i) {
+        img.addEventListener("click", function () { open(group, i); });
+        img.style.cursor = "zoom-in";
+      });
+    });
+
+    overlay.querySelector(".lightbox-close").addEventListener("click", close);
+    overlay.querySelector(".lightbox-prev").addEventListener("click", function (e) { e.stopPropagation(); show(index - 1); });
+    overlay.querySelector(".lightbox-next").addEventListener("click", function (e) { e.stopPropagation(); show(index + 1); });
+    overlay.addEventListener("click", function (e) { if (e.target === overlay) close(); });
+    document.addEventListener("keydown", function (e) {
+      if (!overlay.classList.contains("open")) return;
+      if (e.key === "Escape") close();
+      if (e.key === "ArrowLeft") show(index - 1);
+      if (e.key === "ArrowRight") show(index + 1);
+    });
+  })();
+
   /* ---------- Footer year ---------- */
   var year = document.getElementById("year");
   if (year) year.textContent = new Date().getFullYear();
