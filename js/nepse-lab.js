@@ -15,6 +15,7 @@
     prices: function (s) { return 'https://samirwagle.github.io/Nepse-All-Scraper/docs/api/prices/' + s.replace('/', '-') + '.json'; },
     latest: 'https://samirwagle.github.io/Nepse-All-Scraper/docs/api/latest.json',
     live: 'https://shubhamnpk.github.io/yonepse/data/market/live.json',
+    liveOwn: 'data/live.json', // our own 15-min official-API snapshot (Actions job)
     status: 'https://shubhamnpk.github.io/yonepse/data/market/status.json',
     universe: 'data/universe.json',
     verdicts: 'data/verdicts.json',
@@ -499,7 +500,15 @@
   function loadLive() {
     var now = Date.now();
     if (now - liveCache.at < 60000 && Object.keys(liveCache.map).length) return Promise.resolve(liveCache.map);
-    return fetchJSON(SRC.live).then(function (arr) {
+    // Prefer our own 15-min official-API snapshot (same origin, no CORS issues,
+    // refreshed by the nepse-live-quotes workflow); fall back to yonepse.
+    return fetch(SRC.liveOwn, { cache: 'no-store' }).then(function (r) {
+      if (!r.ok) throw new Error('no own feed'); return r.json();
+    }).then(function (j) {
+      var arr = (j && j.quotes) || [];
+      if (!arr.length) throw new Error('empty own feed');
+      return arr;
+    }).catch(function () { return fetchJSON(SRC.live); }).then(function (arr) {
       var map = {};
       (arr || []).forEach(function (q) { if (q && q.symbol) { map[q.symbol] = q; if (q.name) state.names[q.symbol] = q.name; } });
       liveCache = { at: now, map: map };
@@ -1213,9 +1222,9 @@
     var start = m ? m[1].toUpperCase() : 'NEPSE';
     if (input) input.value = start;
     setSymbol(start);
-    // live auto-refresh during market hours
+    // live auto-refresh during market hours (skipped when tab is hidden)
     setInterval(function () {
-      if (!marketOpenNPT() || state.mode !== 'stock') return;
+      if (document.hidden || !marketOpenNPT() || state.mode !== 'stock') return;
       loadLive().then(function () {
         var rows = histCache[state.sym] || [];
         if (!rows.length) return;
