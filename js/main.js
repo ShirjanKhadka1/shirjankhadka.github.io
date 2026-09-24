@@ -1,13 +1,105 @@
 /* ============================================================
    Shirjan Khadka — Portfolio interactions (vanilla JS)
-   Lightweight: reveals, counters, carousel, progress, menu.
+   Reveals, counters, carousels, parallax, lightbox, menu.
+   All motion disabled under prefers-reduced-motion.
    ============================================================ */
 (function () {
   "use strict";
 
   var prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  /* ---------- Sticky nav state ---------- */
+  /* ---------- Progressive enhancement flag (no-JS-safe reveals) ---------- */
+  document.documentElement.classList.add("js");
+
+  /* ---------- Hero masked headline: start the line reveal on load ---------- */
+  function markLoaded() {
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        document.body.classList.add("loaded");
+      });
+    });
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", markLoaded);
+  } else {
+    markLoaded();
+  }
+
+  /* ---------- Magnetic buttons (fine pointers only) ---------- */
+  if (window.matchMedia("(pointer: fine)").matches && !prefersReduced) {
+    document.querySelectorAll(".magnetic").forEach(function (btn) {
+      btn.addEventListener("pointermove", function (e) {
+        var r = btn.getBoundingClientRect();
+        var x = e.clientX - (r.left + r.width / 2);
+        var y = e.clientY - (r.top + r.height / 2);
+        btn.style.transform = "translate(" + (x * 0.22).toFixed(1) + "px," + (y * 0.22).toFixed(1) + "px)";
+      });
+      btn.addEventListener("pointerleave", function () { btn.style.transform = ""; });
+    });
+  }
+
+  /* ---------- Scroll-spy: highlight the nav link of the section in view ---------- */
+  var navAnchors = {};
+  document.querySelectorAll('.nav-links a[href^="#"]').forEach(function (a) {
+    navAnchors[a.getAttribute("href").slice(1)] = a;
+  });
+  var spyTargets = Object.keys(navAnchors)
+    .map(function (id) { return document.getElementById(id); })
+    .filter(Boolean);
+  if ("IntersectionObserver" in window && spyTargets.length) {
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) {
+          Object.keys(navAnchors).forEach(function (k) { navAnchors[k].removeAttribute("aria-current"); });
+          var a = navAnchors[en.target.id];
+          if (a) a.setAttribute("aria-current", "true");
+        }
+      });
+    }, { rootMargin: "-40% 0px -55% 0px" });
+    spyTargets.forEach(function (s) { spy.observe(s); });
+  }
+
+  /* ---------- Scroll-drawn timeline ---------- */
+  var timeline = document.querySelector(".timeline");
+  if (timeline && "IntersectionObserver" in window && !prefersReduced) {
+    var tlObs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) {
+          timeline.classList.add("in");
+          tlObs.disconnect();
+        }
+      });
+    }, { threshold: 0.2 });
+    tlObs.observe(timeline);
+  } else if (timeline) {
+    timeline.classList.add("in");
+  }
+
+  /* ---------- Scroll progress bar (fallback when CSS scroll timelines unsupported) ---------- */
+  var prog = document.getElementById("scrollProgress");
+  if (prog && !(window.CSS && CSS.supports && CSS.supports("animation-timeline: scroll()")) && !prefersReduced) {
+    var progTicking = false;
+    var progUpdate = function () {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      prog.style.transform = "scaleX(" + (max > 0 ? h.scrollTop / max : 0) + ")";
+      progTicking = false;
+    };
+    window.addEventListener("scroll", function () {
+      if (!progTicking) { progTicking = true; requestAnimationFrame(progUpdate); }
+    }, { passive: true });
+    progUpdate();
+  }
+
+  /* ---------- Ticker: pause when the tab is hidden (battery) ---------- */
+  var tickerTrack = document.querySelector(".ticker-track");
+  if (tickerTrack) {
+    document.addEventListener("visibilitychange", function () {
+      tickerTrack.classList.toggle("paused", document.hidden);
+    });
+  }
+
+  /* ---------- Sticky nav state (blur intensifies on scroll) ---------- */
   var nav = document.getElementById("nav");
   function onScrollNav() {
     if (!nav) return;
@@ -32,13 +124,22 @@
         links.classList.remove("open");
         toggle.classList.remove("open");
         toggle.setAttribute("aria-expanded", "false");
+        toggle.setAttribute("aria-label", "Open menu");
         document.body.style.overflow = "";
       });
     });
   }
 
-  /* ---------- Scroll reveals ---------- */
-  var revealEls = document.querySelectorAll(".reveal, .reveal-stagger");
+  /* ---------- Staggered entrances: children of [data-stagger] rise in sequence ---------- */
+  document.querySelectorAll("[data-stagger]").forEach(function (group) {
+    var step = parseInt(group.getAttribute("data-stagger"), 10) || 90;
+    group.querySelectorAll(".reveal").forEach(function (el, i) {
+      el.style.transitionDelay = (i * step) + "ms";
+    });
+  });
+
+  /* ---------- Scroll reveals: drag up from below + settle ---------- */
+  var revealEls = document.querySelectorAll(".reveal");
   if ("IntersectionObserver" in window && !prefersReduced) {
     var revealObs = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
@@ -95,22 +196,8 @@
     counters.forEach(animateCount);
   }
 
-  /* ---------- Work carousel: buttons + drag ---------- */
-  var carousel = document.getElementById("workCarousel");
-  if (carousel) {
-    var prev = document.getElementById("workPrev");
-    var next = document.getElementById("workNext");
-    function cardStep() {
-      var card = carousel.querySelector(".work-card");
-      return card ? card.getBoundingClientRect().width + 24 : 320;
-    }
-    if (prev) prev.addEventListener("click", function () {
-      carousel.scrollBy({ left: -cardStep(), behavior: prefersReduced ? "auto" : "smooth" });
-    });
-    if (next) next.addEventListener("click", function () {
-      carousel.scrollBy({ left: cardStep(), behavior: prefersReduced ? "auto" : "smooth" });
-    });
-
+  /* ---------- Carousels: drag to scroll (all .carousel) ---------- */
+  document.querySelectorAll(".carousel").forEach(function (carousel) {
     var isDown = false, startX = 0, startLeft = 0, moved = false;
     carousel.addEventListener("pointerdown", function (e) {
       isDown = true; moved = false;
@@ -129,9 +216,33 @@
         carousel.classList.remove("dragging");
       });
     });
+    /* Swallow the click that ends a drag so it never opens the lightbox. */
     carousel.addEventListener("click", function (e) {
       if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; }
     }, true);
+  });
+
+  /* ---------- Gentle parallax via rAF (data-parallax = speed) ---------- */
+  var pxEls = document.querySelectorAll("[data-parallax]");
+  if (pxEls.length && !prefersReduced) {
+    var pxTicking = false;
+    function updateParallax() {
+      pxTicking = false;
+      var vh = window.innerHeight;
+      pxEls.forEach(function (el) {
+        var r = el.getBoundingClientRect();
+        if (r.bottom < -200 || r.top > vh + 200) return;
+        var speed = parseFloat(el.getAttribute("data-parallax")) || 0.08;
+        var offset = (r.top + r.height / 2 - vh / 2) * speed;
+        el.style.setProperty("--py", (-offset).toFixed(1) + "px");
+      });
+    }
+    function requestParallax() {
+      if (!pxTicking) { pxTicking = true; requestAnimationFrame(updateParallax); }
+    }
+    window.addEventListener("scroll", requestParallax, { passive: true });
+    window.addEventListener("resize", requestParallax);
+    updateParallax();
   }
 
   /* ---------- Article reading progress ---------- */
@@ -197,7 +308,6 @@
     groups.forEach(function (group) {
       group.querySelectorAll(".event-photo img").forEach(function (img, i) {
         img.addEventListener("click", function () { open(group, i); });
-        img.style.cursor = "zoom-in";
       });
     });
 
@@ -216,4 +326,27 @@
   /* ---------- Footer year ---------- */
   var year = document.getElementById("year");
   if (year) year.textContent = new Date().getFullYear();
+
+  /* ---------- Giant background section numerals (kinetic typography) ---------- */
+  (function () {
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    document.querySelectorAll("section.section").forEach(function (sec) {
+      var numEl = sec.querySelector(".sec-num");
+      if (!numEl) return;
+      var giant = document.createElement("span");
+      giant.className = "sec-giant";
+      giant.setAttribute("aria-hidden", "true");
+      giant.textContent = numEl.textContent.trim();
+      sec.insertBefore(giant, sec.firstChild);
+      if (reduce || !("IntersectionObserver" in window)) {
+        giant.classList.add("in");
+        return;
+      }
+      new IntersectionObserver(function (entries, io) {
+        entries.forEach(function (en) {
+          if (en.isIntersecting) { giant.classList.add("in"); io.disconnect(); }
+        });
+      }, { threshold: 0.12 }).observe(sec);
+    });
+  })();
 })();
