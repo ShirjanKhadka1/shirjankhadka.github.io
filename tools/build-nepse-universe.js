@@ -239,6 +239,14 @@ async function main() {
 
   fs.writeFileSync(path.join(OUT, 'universe.json'), JSON.stringify(universe));
   fs.writeFileSync(path.join(OUT, 'verdicts.json'), JSON.stringify({ asof: universe.asof, count: symbols.length, verdicts }));
+  // Deterministic build id: only changes when the underlying data changes,
+  // so scheduled runs commit (and trigger a Pages rebuild) only on real updates.
+  const crypto = require('crypto');
+  const sig = crypto.createHash('sha1')
+    .update(fs.readFileSync(path.join(OUT, 'universe.json')))
+    .update(fs.readFileSync(path.join(OUT, 'verdicts.json')))
+    .digest('hex').slice(0, 12);
+  fs.writeFileSync(path.join(OUT, 'version.json'), JSON.stringify({ v: universe.asof + '-' + sig, asof: universe.asof }));
 
   const uBytes = fs.statSync(path.join(OUT, 'universe.json')).size;
   const vBytes = fs.statSync(path.join(OUT, 'verdicts.json')).size;
