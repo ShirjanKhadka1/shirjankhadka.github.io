@@ -1,0 +1,43 @@
+# NEPSE Alpha Lab — live quote snapshots (near-real-time)
+#
+# Polls NEPSE's official API server-side every 15 minutes during trading hours
+# (Sun–Thu, 09:30–15:00 NPT = 03:45–09:15 UTC) and publishes a compact
+# nepse-chart/data/live.json snapshot that the static site polls each minute.
+# The fetcher is fail-safe: market closed, auth/token change, rate limit or
+# any error -> exit 0 WITHOUT touching live.json, so the site keeps serving
+# the last good snapshot and falls back to the community feed. Commits only
+# when live.json actually changed.
+
+name: Refresh NEPSE live quotes
+
+on:
+  schedule:
+    # 03:45–09:15 UTC = 09:30–15:00 NPT (NEPSE trading hours), Sun–Thu.
+    - cron: '45 3 * * 0-4'
+    - cron: '0,15,30,45 4-8 * * 0-4'
+    - cron: '0,15 9 * * 0-4'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Fetch official live quotes
+        run: node tools/fetch-nepse-live.js
+
+      - name: Commit live snapshot if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add nepse-chart/data/live.json
+          git diff --cached --quiet || git commit -m "Alpha Lab: live quote snapshot (automated)"
+          git push
