@@ -15,8 +15,12 @@
     prices: function (s) { return 'https://samirwagle.github.io/Nepse-All-Scraper/docs/api/prices/' + s.replace('/', '-') + '.json'; },
     latest: 'https://samirwagle.github.io/Nepse-All-Scraper/docs/api/latest.json',
     live: 'https://shubhamnpk.github.io/yonepse/data/market/live.json',
-    status: 'https://shubhamnpk.github.io/yonepse/data/market/status.json'
+    status: 'https://shubhamnpk.github.io/yonepse/data/market/status.json',
+    universe: 'data/universe.json',
+    verdicts: 'data/verdicts.json',
+    ltp: function (s) { return 'data/ltp/' + s.replace('/', '-') + '.json'; }
   };
+  var UNIVERSE_V = '20260924a'; // bump when data/universe.json is rebuilt
 
   /* ================= pure math / indicators ================= */
   function smaArr(vals, n) {
@@ -303,7 +307,7 @@
   function computeVerdict(pack) {
     var rows = pack.rows, n = rows.length, factors = [];
     function F(name, pts, note) { factors.push({ name: name, pts: pts, note: note }); }
-    if (n < 60) return { score: 0, label: 'Hold', cls: 'hold', factors: factors, note: 'Not enough history to score.' };
+    if (n < 60) return { score: null, label: 'Insufficient history', cls: 'insufficient', factors: factors, sessions: n, note: 'Only ' + n + ' sessions on record — not enough history to score reliably.' };
     var closes = rows.map(function (r) { return r[4]; });
     var s20 = smaArr(closes, 20), s50 = smaArr(closes, 50), s200 = smaArr(closes, 200);
     var rsiA = rsiArr(closes, 14), mR = macd(closes);
@@ -415,10 +419,30 @@
     mode: 'index', sym: 'NEPSE', symName: 'NEPSE Index',
     tf: '1Y', style: 'candles', sma: true, rsi: true, signals: true,
     hover: -1, rows: [], live: null, liveAt: 0, liveBadge: 'eod',
-    companies: [], names: {}, loading: false, err: ''
+    companies: [], universe: [], universeAsof: '', typeMap: {}, names: {}, loading: false, err: '',
+    ltpOnly: false, styleForced: false
   };
   var TF_SESSIONS = { '1M': 22, '3M': 66, '6M': 132, '1Y': 252, '2Y': 504 };
   var histCache = {}, liveCache = { at: 0, map: {} };
+  /* memoized detections + shell: hover re-renders must not recompute or rebuild DOM */
+  var detCache = { key: '', divs: [], pats: [] };
+  var shellCache = { key: '' };
+  function getDetections(view) {
+    // weekly views scan the daily series so scanner indices map back to daily rows
+    var rows = view.isWeekly ? view.daily : view.rows;
+    var last = rows[rows.length - 1];
+    var key = state.sym + '|' + rows.length + '|' + (last ? last[0] : 0) + '|' +
+      state.tf + '|' + state.signals + '|' + (state.ltpOnly ? 'ltp' : 'ohlc');
+    if (detCache.key === key) return detCache;
+    if (typeof API !== 'undefined' && API._testHooks) API._testHooks.detRecomputes++;
+    var divs = [], pats = [];
+    if (state.signals && !state.ltpOnly && rows.length) {
+      divs = detectDivergences(rows);
+      pats = detectPatterns(rows);
+    }
+    detCache = { key: key, divs: divs, pats: pats };
+    return detCache;
+  }
 
   function indexRows() {
     return (window.NEPSE_DAILY || []).map(function (r) { return [r[0], r[1], r[2], r[3], r[4], 0, r[5]]; });
@@ -440,10 +464,28 @@
         .catch(function (e) { clearTimeout(to); rej(e); });
     });
   }
-  function loadCompanies() {
-    return fetchJSON(SRC.companies).then(function (arr) {
-      if (Array.isArray(arr)) state.companies = arr;
-    }).catch(function () { state.companies = ['NABIL', 'NICA', 'HIDCL', 'UPPER', 'NIFRA', 'NTC', 'CIT', 'CHCL']; });
+  function loadUniverse() {
+    function apply(u) {
+      state.universe = (u && u.symbols) || [];
+      state.universeAsof = (u && u.asof) || '';
+      state.companies = state.universe.map(function (it) { return it.s; });
+      state.typeMap = {};
+      state.universe.forEach(function (it) {
+        if (it.s && !state.names[it.s]) state.names[it.s] = it.n || it.s;
+        if (it.s) state.typeMap[it.s] = it.t || '';
+      });
+    }
+    var cached = null;
+    try { cached = JSON.parse(localStorage.getItem('nl-universe') || 'null'); } catch (e) {}
+    if (cached && cached.v === UNIVERSE_V && cached.u) { apply(cached.u); return Promise.resolve(); }
+    return fetchJSON(SRC.universe + '?v=' + UNIVERSE_V).then(function (u) {
+      apply(u);
+      try { localStorage.setItem('nl-universe', JSON.stringify({ v: UNIVERSE_V, u: u })); } catch (e) {}
+    }).catch(function () {
+      if (cached && cached.u) { apply(cached.u); return; }
+      state.universe = [];
+      state.companies = ['NABIL', 'NICA', 'HIDCL', 'UPPER', 'NIFRA', 'NTC', 'CIT', 'CHCL'];
+    });
   }
   function loadLive() {
     var now = Date.now();
@@ -463,6 +505,21 @@
       }).filter(function (r) { return r[4] > 0; });
       rows.sort(function (a, b) { return a[0] - b[0]; });
       histCache[sym] = rows;
+      return rows;
+    });
+  }
+  function loadLTP(sym) {
+    // LTP-only fallback for listed securities the scraper has no OHLC for.
+    // File holds compact [ymd, ltp, volume, turnover, trades]; open/high/low are
+    // never fabricated — o=h=l=c=ltp and the UI flags the series as LTP-only.
+    var ck = 'ltp:' + sym;
+    if (histCache[ck]) return Promise.resolve(histCache[ck]);
+    return fetchJSON(SRC.ltp(sym)).then(function (j) {
+      var rows = (j.rows || []).map(function (d) {
+        return [d[0], d[1], d[1], d[1], d[1], d[2] || 0, d[3] || 0];
+      }).filter(function (r) { return r[4] > 0; });
+      rows.sort(function (a, b) { return a[0] - b[0]; });
+      histCache[ck] = rows;
       return rows;
     });
   }
@@ -487,16 +544,27 @@
     if (!sym) return;
     state.loading = true; state.err = ''; renderShell();
     if (sym === 'NEPSE' || sym === 'NEPSE INDEX') {
-      state.mode = 'index'; state.sym = 'NEPSE'; state.symName = 'NEPSE Index';
+      state.mode = 'index'; state.sym = 'NEPSE'; state.symName = 'NEPSE Index'; state.ltpOnly = false;
       state.rows = indexRows(); state.loading = false;
       afterData();
       return;
     }
-    state.mode = 'stock'; state.sym = sym;
+    state.mode = 'stock'; state.sym = sym; state.ltpOnly = false;
     state.symName = state.names[sym] || sym;
-    Promise.all([loadStock(sym), loadLive()]).then(function (res) {
-      var rows = res[0];
+    loadStock(sym).catch(function () { return null; }).then(function (rows) {
+      if (rows && rows.length) return { rows: rows, ltpOnly: false };
+      return loadLTP(sym).then(function (lr) {
+        if (lr && lr.length) return { rows: lr, ltpOnly: true };
+        throw new Error('empty');
+      });
+    }).then(function (got) {
+      return loadLive().then(function () { return got; }); // live quotes lazy: only for stock views
+    }).then(function (got) {
+      var rows = got.rows;
       if (!rows.length) throw new Error('empty');
+      state.ltpOnly = got.ltpOnly;
+      if (state.ltpOnly && state.style === 'candles') { state.style = 'line'; state.styleForced = true; syncSeg('nl-style', 'line'); }
+      else if (!state.ltpOnly && state.styleForced) { state.style = 'candles'; state.styleForced = false; syncSeg('nl-style', 'candles'); }
       var merged = applyLiveCandle(rows, sym);
       state.rows = merged.rows;
       state.live = merged.quote || liveCache.map[sym] || null;
@@ -516,11 +584,18 @@
 
   /* ================= series ================= */
   function toWeekly(rows) {
-    var out = [], cur = null;
+    // group by actual calendar weeks (Sunday-start; NEPSE trades Sun–Thu).
+    // The old numeric `r[0] - cur.w0 > 6` on YYYYMMDD integers broke across
+    // month/year boundaries (e.g. 20260101 - 20251231 = 8870).
+    var out = [], cur = null, wk = -1;
     rows.forEach(function (r) {
-      if (!cur || r[0] - cur.w0 > 6) {
+      var s = String(r[0]);
+      var dayNum = Math.floor(Date.UTC(+s.slice(0, 4), +s.slice(4, 6) - 1, +s.slice(6, 8)) / 86400000);
+      var w = dayNum - ((dayNum + 4) % 7); // 0 = Sunday
+      if (w !== wk) {
         if (cur) out.push([cur.d0, cur.o, cur.h, cur.l, cur.c, cur.q, cur.t]);
-        cur = { d0: r[0], w0: r[0], o: r[1], h: r[2], l: r[3], c: r[4], q: r[5], t: r[6] };
+        wk = w;
+        cur = { d0: r[0], o: r[1], h: r[2], l: r[3], c: r[4], q: r[5], t: r[6] };
       } else { cur.h = Math.max(cur.h, r[2]); cur.l = Math.min(cur.l, r[3]); cur.c = r[4]; cur.q += r[5]; cur.t += r[6]; }
     });
     if (cur) out.push([cur.d0, cur.o, cur.h, cur.l, cur.c, cur.q, cur.t]);
@@ -717,9 +792,8 @@
         g.closePath(); g.fill();
       }
     }
-    // analysis overlays
-    var divs = state.signals ? detectDivergences(rows) : [];
-    var pats = state.signals ? detectPatterns(rows) : [];
+    // analysis overlays — memoized: hover re-renders must NOT recompute detections
+    var det = getDetections(S), divs = det.divs, pats = det.pats;
     drawAnnotations(g, X, Y, H, W, { rows: rows, viewStart: S.viewStart, isWeekly: S.isWeekly }, divs, pats);
     // hover crosshair
     if (state.hover >= 0 && state.hover < n) {
@@ -731,9 +805,23 @@
       g.fillStyle = '#fff'; g.beginPath(); g.arc(hx, Y(closes[state.hover]), 1.8, 0, 7); g.fill();
     }
     drawRSI(closes);
-    renderShell(S, divs, pats);
+    maybeRenderShell(S, divs, pats);
     // stash for pointer handlers
     cv._geom = { X: X, Y: Y, n: n, rows: rows, padT: padT, ph: ph };
+  }
+  function maybeRenderShell(S, divs, pats) {
+    // the verdict/scanner/stats DOM is rebuilt only when the underlying data
+    // changes — hover crosshair moves must not rebuild it (jank). The verdict
+    // always renders in a single pass: loading, error, insufficient-history or
+    // the final stable score — never staged partial states.
+    var last = state.rows[state.rows.length - 1];
+    var key = state.sym + '|' + state.rows.length + '|' + (last ? last[0] : 0) + '|' +
+      state.tf + '|' + state.signals + '|' + state.loading + '|' + state.err + '|' +
+      (state.ltpOnly ? 'ltp' : 'ohlc') + '|' + state.liveBadge + '|' +
+      (state.live && state.live.last_updated ? state.live.last_updated : '');
+    if (shellCache.key === key) return;
+    shellCache.key = key;
+    renderShell(S, divs, pats);
   }
   function drawRSI(closes) {
     var wrap = document.getElementById('nl-rsi-wrap');
@@ -789,7 +877,7 @@
         '<div class="nl-lb-sym"><b>' + esc(state.sym) + '</b><span>' + esc(state.symName) + '</span></div>' +
         '<div class="nl-lb-px"><b class="' + (chg >= 0 ? 'up' : 'dn') + '">' + num(px, 2) + '</b>' +
         '<span class="' + (chg >= 0 ? 'up' : 'dn') + '">' + (chg >= 0 ? '+' : '') + num(chg, 2) + ' (' + (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%)</span></div>' +
-        '<div class="nl-lb-badge">' + badge + '<small>' + (q && q.last_updated ? 'as of ' + esc(String(q.last_updated).slice(11, 16)) : fmtD(n ? rows[n - 1][0] : 0)) + '</small></div>';
+        '<div class="nl-lb-badge">' + badge + '<small>' + (q && q.last_updated ? 'as of ' + esc(String(q.last_updated).slice(11, 16)) + ' NPT' : fmtD(n ? rows[n - 1][0] : 0)) + '</small></div>';
       }
     }
     // verdict
@@ -810,8 +898,19 @@
           '<div class="nl-v-meterwrap"><div class="nl-v-meter"><div class="nl-v-fill ' + v.cls + '" style="width:' + pctW + '%"></div></div>' +
           '<div class="nl-v-score">score ' + (v.score > 0 ? '+' : '') + v.score + ' / ±10</div></div></div>' +
           '<table class="nl-v-factors"><tbody>' + frows + '</tbody></table>' +
-          '<div class="nl-v-foot">Rule-based model on daily data — educational only, not financial advice. ' +
+          '<div class="nl-v-foot">' +
+          (state.ltpOnly ? '<span class="nl-ltp-note">LTP-only history — intraday candles and pattern/divergence detection are unavailable for this security.</span> ' : '') +
+          'Rule-based model on daily data — educational only, not financial advice. ' +
           (state.liveBadge === 'live' ? 'Includes the live session in progress.' : 'Based on the last closed session.') + '</div>';
+      }
+      else if (n > 0) {
+        var v0 = computeVerdict({ rows: state.rows, divs: [], pats: [], isIndex: state.mode === 'index', idxRegime: null });
+        vc.innerHTML =
+          '<div class="nl-v-top"><div><div class="nl-v-k">Signal engine verdict</div>' +
+          '<div class="nl-v-label ' + v0.cls + '">' + v0.label + '</div></div>' +
+          '<div class="nl-v-meterwrap"><div class="nl-v-score">' + esc(v0.note) + '</div></div></div>' +
+          (state.ltpOnly ? '<div class="nl-v-foot"><span class="nl-ltp-note">LTP-only history — intraday candles and pattern/divergence detection are unavailable for this security.</span></div>' : '') +
+          '<div class="nl-v-foot">Rule-based model on daily data — educational only, not financial advice.</div>';
       }
     }
     // scanner
@@ -841,7 +940,7 @@
       setT('nl-last', num(last[4], 2));
       var ch = last[4] - prev[4], pc = prev[4] ? ch / prev[4] * 100 : 0;
       var ce = document.getElementById('nl-chg');
-      if (ce) { ce.textContent = (ch >= 0 ? '+' : '') + num(ch, 2) + ' (' + (pc >= 0 ? '+' : '') + pc.toFixed(2) + '%)'; ce.className = 'stat-v ' + (ch >= 0 ? 'up' : 'dn'); }
+      if (ce) { ce.textContent = (ch >= 0 ? '+' : '') + num(ch, 2) + ' (' + (pc >= 0 ? '+' : '') + pc.toFixed(2) + '%)'; ce.className = 'nl-stat-v ' + (ch >= 0 ? 'up' : 'dn'); }
       var win = rows.slice(-252), h52 = -Infinity, l52 = Infinity;
       win.forEach(function (x) { h52 = Math.max(h52, x[2]); l52 = Math.min(l52, x[3]); });
       setT('nl-52h', num(h52, 2)); setT('nl-52l', num(l52, 2));
@@ -853,7 +952,7 @@
       if (rg) {
         var above = s200[n - 1] != null && last[4] >= s200[n - 1];
         rg.textContent = s200[n - 1] == null ? '–' : (above ? 'Above SMA 200' : 'Below SMA 200');
-        rg.className = 'stat-v ' + (above ? 'up' : 'dn');
+        rg.className = 'nl-stat-v small ' + (above ? 'up' : 'dn');
       }
       setT('nl-asof', fmtD(last[0]) + (state.liveBadge === 'live' ? ' · live' : ''));
     }
@@ -868,6 +967,144 @@
     // scroll chart into view
     var el = document.getElementById('nl-chart');
     if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  /* ================= market scan (every listed stock) =================
+     verdicts.json is lazy-loaded: on scroll into view (IntersectionObserver)
+     or on first filter interaction — never on initial page load. Cached in
+     localStorage keyed by the snapshot date. */
+  var ms = { data: null, asof: '', filter: 'all', q: '', sortK: 's', sortD: 1, loaded: false, loading: false };
+  var VCLS = { 'Strong Buy': 'sbuy', 'Buy': 'buy', 'Hold': 'hold', 'Exit / Reduce': 'exit', 'Strong Exit': 'sexit', 'Insufficient history': 'insufficient' };
+  function loadVerdicts() {
+    if (ms.loaded) return Promise.resolve(ms.data);
+    if (ms.loading) return ms.loading;
+    var cached = null;
+    try { cached = JSON.parse(localStorage.getItem('nl-verdicts') || 'null'); } catch (e) {}
+    ms.loading = fetchJSON(SRC.verdicts + '?v=' + UNIVERSE_V).then(function (j) {
+      if (cached && cached.asof === j.asof && cached.data && Date.now() - cached.at < 24 * 3600e3) {
+        ms.data = cached.data;
+      } else {
+        ms.data = j.verdicts || {};
+        try { localStorage.setItem('nl-verdicts', JSON.stringify({ asof: j.asof, at: Date.now(), data: ms.data })); } catch (e) {}
+      }
+      ms.asof = j.asof || (cached && cached.asof) || '';
+      ms.loaded = true; ms.loading = false;
+      return ms.data;
+    }).catch(function () {
+      ms.loading = false;
+      if (cached && cached.data) { ms.data = cached.data; ms.asof = cached.asof || ''; ms.loaded = true; return ms.data; }
+      throw new Error('scan unavailable');
+    });
+    return ms.loading;
+  }
+  function renderMS() {
+    var wrap = document.getElementById('nl-ms-wrap');
+    if (!wrap || !ms.data) return;
+    var syms = Object.keys(ms.data);
+    var q = ms.q.trim().toUpperCase();
+    var rows = syms.filter(function (s) {
+      var v = ms.data[s];
+      if (ms.filter !== 'all' && v.v !== ms.filter) return false;
+      if (q && s.indexOf(q) < 0 && String(state.names[s] || '').toUpperCase().indexOf(q) < 0) return false;
+      return true;
+    });
+    var K = ms.sortK, D = ms.sortD;
+    function val(s, k) {
+      var v = ms.data[s];
+      if (k === 's') return s;
+      if (k === 'n') return String(state.names[s] || s).toLowerCase();
+      if (k === 't') return state.typeMap[s] || '';
+      if (k === 'v') return v.v || '';
+      if (k === 'score') return v.s == null ? -Infinity : v.s;
+      if (k === 'rsi') return v.rsi == null ? -Infinity : v.rsi;
+      if (k === 'p') return v.p == null ? -Infinity : v.p;
+      if (k === 'ch') return v.ch == null ? -Infinity : v.ch;
+      return -Infinity;
+    }
+    rows.sort(function (a, b) {
+      var va = val(a, K), vb = val(b, K);
+      return (va < vb ? -1 : va > vb ? 1 : 0) * D;
+    });
+    setT('nl-ms-asof', ms.asof || '');
+    setT('nl-ms-count', rows.length + ' of ' + syms.length + ' securities');
+    if (!rows.length) { wrap.innerHTML = '<div class="nl-ms-empty">No securities match this filter.</div>'; return; }
+    function th(k, label) {
+      var arrow = K === k ? (D > 0 ? ' ▲' : ' ▼') : '';
+      return '<th data-k="' + k + '" class="' + (K === k ? 'sorted' : '') + '">' + label + arrow + '</th>';
+    }
+    var html = '<div class="nl-ms-tablewrap"><table class="nl-ms-table"><thead><tr>' +
+      th('s', 'Symbol') + th('n', 'Name') + th('t', 'Type') + th('p', 'Price') +
+      th('ch', 'Day chg%') + th('v', 'Verdict') + th('score', 'Score') + th('rsi', 'RSI') +
+      '</tr></thead><tbody>';
+    rows.forEach(function (s) {
+      var v = ms.data[s];
+      var chg = v.ch == null ? '–' : (v.ch >= 0 ? '+' : '') + v.ch.toFixed(2) + '%';
+      var chgCls = v.ch == null ? '' : (v.ch >= 0 ? 'up' : 'dn');
+      var score = v.s == null ? '–' : (v.s > 0 ? '+' : '') + v.s;
+      html += '<tr data-s="' + s + '"><td class="ms-sym">' + s + '</td>' +
+        '<td class="ms-name">' + esc(state.names[s] || s) + '</td>' +
+        '<td class="ms-type">' + esc(state.typeMap[s] || '') + '</td>' +
+        '<td class="num">' + (v.p == null ? '–' : num(v.p, 2)) + '</td>' +
+        '<td class="num ' + chgCls + '">' + chg + '</td>' +
+        '<td><span class="ms-v ' + (VCLS[v.v] || 'hold') + '">' + esc(v.v) + '</span></td>' +
+        '<td class="num">' + score + '</td>' +
+        '<td class="num">' + (v.rsi == null ? '–' : v.rsi.toFixed(1)) + '</td></tr>';
+    });
+    wrap.innerHTML = html + '</tbody></table></div>';
+    wrap.querySelectorAll('th[data-k]').forEach(function (h) {
+      h.addEventListener('click', function () {
+        var k = h.getAttribute('data-k');
+        if (ms.sortK === k) ms.sortD = -ms.sortD; else { ms.sortK = k; ms.sortD = 1; }
+        renderMS();
+      });
+    });
+    var input = document.getElementById('nl-sym');
+    wrap.querySelectorAll('tr[data-s]').forEach(function (tr) {
+      tr.addEventListener('click', function () {
+        var s = tr.getAttribute('data-s');
+        if (input) input.value = s;
+        setSymbol(s);
+        var lab = document.getElementById('nl-lab');
+        if (lab && lab.scrollIntoView) lab.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  }
+  function initMarketScan() {
+    var sec = document.getElementById('nl-mscan');
+    if (!sec) return;
+    var started = false;
+    function start() {
+      if (started) return; started = true;
+      var wrap = document.getElementById('nl-ms-wrap');
+      if (wrap) wrap.innerHTML = '<div class="nl-ms-loading">Loading market scan…</div>';
+      loadVerdicts().then(function () { renderMS(); }).catch(function () {
+        if (wrap) wrap.innerHTML = '<div class="nl-ms-empty">Market scan is unavailable right now — try the symbol search above.</div>';
+      });
+    }
+    if (typeof IntersectionObserver !== 'undefined') {
+      var io = new IntersectionObserver(function (es) {
+        if (es.some(function (e) { return e.isIntersecting; })) { start(); io.disconnect(); }
+      }, { rootMargin: '500px' });
+      io.observe(sec);
+    } else start();
+    var chips = document.getElementById('nl-ms-chips');
+    if (chips) chips.addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      start();
+      chips.querySelectorAll('button').forEach(function (x) { x.classList.remove('on'); x.setAttribute('aria-pressed', 'false'); });
+      b.classList.add('on'); b.setAttribute('aria-pressed', 'true');
+      ms.filter = b.getAttribute('data-f');
+      loadVerdicts().then(function () { renderMS(); }).catch(function () {});
+    });
+    var qi = document.getElementById('nl-ms-q');
+    if (qi) {
+      qi.addEventListener('focus', start);
+      var deb;
+      qi.addEventListener('input', function () {
+        start(); clearTimeout(deb);
+        deb = setTimeout(function () { ms.q = qi.value; loadVerdicts().then(function () { renderMS(); }).catch(function () {}); }, 160);
+      });
+    }
   }
 
   /* ================= pointer ================= */
@@ -902,40 +1139,47 @@
   /* ================= UI ================= */
   function syncSeg(id, val) {
     var el = document.getElementById(id);
-    if (el) el.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b.dataset.v === val); });
+    if (el) el.querySelectorAll('button').forEach(function (b) {
+      var on = b.dataset.v === val;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
   }
   function seg(id, cur, fn) {
     var el = document.getElementById(id);
     if (!el) return cur;
     el.addEventListener('click', function (e) {
       var b = e.target.closest('button'); if (!b) return;
-      el.querySelectorAll('button').forEach(function (x) { x.classList.remove('on'); });
-      b.classList.add('on'); fn(b.dataset.v);
+      el.querySelectorAll('button').forEach(function (x) { x.classList.remove('on'); x.setAttribute('aria-pressed', 'false'); });
+      b.classList.add('on'); b.setAttribute('aria-pressed', 'true'); fn(b.dataset.v);
     });
     return cur;
   }
-  function tgl(id, cur, fn) {
-    var el = document.getElementById(id);
+  function tgl(sel, cur, fn) {
+    var el = document.querySelector(sel);
     if (!el) return cur;
-    el.addEventListener('click', function () { el.classList.toggle('on'); fn(el.classList.contains('on')); });
+    el.addEventListener('click', function () {
+      var on = el.classList.toggle('on');
+      el.setAttribute('aria-pressed', on ? 'true' : 'false');
+      fn(on);
+    });
     return cur;
   }
   function init() {
     cv = document.getElementById('nl-chart'); rcv = document.getElementById('nl-rsi');
     tip = document.getElementById('nl-tip');
     if (!cv || !window.NEPSE_DAILY) return;
-    // search
+    // search — full listed universe from local data/universe.json (built by tools/build-nepse-universe.js)
     var input = document.getElementById('nl-sym'), dl = document.getElementById('nl-syms');
     function fillDL() {
       if (!dl) return;
-      dl.innerHTML = '<option value="NEPSE">NEPSE Index</option>' + state.companies.map(function (s) {
-        return '<option value="' + s + '">' + esc(state.names[s] || s) + '</option>';
+      dl.innerHTML = '<option value="NEPSE">NEPSE Index</option>' + state.universe.map(function (it) {
+        return '<option value="' + it.s + '">' + esc((state.names[it.s] || it.s) + (it.t ? ' · ' + it.t : '')) + '</option>';
       }).join('');
     }
-    loadCompanies().then(function () { fillDL(); return loadLive(); }).then(function () {
-      fillDL();
-      (state.companies).forEach(function (s) { if (!state.names[s]) state.names[s] = s; });
-    });
+    // live quotes are fetched lazily (stock views / market-open refresh only),
+    // so the initial critical path is: nepse-daily.js + universe.json + render.
+    loadUniverse().then(function () { fillDL(); initMarketScan(); });
     function go() { var v = input.value.trim().toUpperCase(); if (v) setSymbol(v === 'NEPSE INDEX' ? 'NEPSE' : v); }
     if (input) {
       document.getElementById('nl-go').addEventListener('click', go);
@@ -947,9 +1191,9 @@
     // controls
     seg('nl-tf', state.tf, function (v) { state.tf = v; state.hover = -1; render(); });
     seg('nl-style', state.style, function (v) { state.style = v; render(); });
-    tgl('tgl-sma', state.sma, function (v) { state.sma = v; render(); });
-    tgl('tgl-rsi', state.rsi, function (v) { state.rsi = v; render(); });
-    tgl('tgl-sig', state.signals, function (v) { state.signals = v; render(); });
+    tgl('[data-tgl="sma"]', state.sma, function (v) { state.sma = v; render(); });
+    tgl('[data-tgl="rsi"]', state.rsi, function (v) { state.rsi = v; render(); });
+    tgl('[data-tgl="signals"]', state.signals, function (v) { state.signals = v; render(); });
     bindPointer();
     var rsz; window.addEventListener('resize', function () { clearTimeout(rsz); rsz = setTimeout(render, 150); });
     if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -982,9 +1226,10 @@
   /* node test exports */
   var API = {
     smaArr: smaArr, emaArr: emaArr, rsiArr: rsiArr, macd: macd, atrArr: atrArr,
-    fractalPivots: fractalPivots, swingPivots: swingPivots,
+    fractalPivots: fractalPivots, swingPivots: swingPivots, toWeekly: toWeekly,
     detectDivergences: detectDivergences, detectPatterns: detectPatterns,
-    computeVerdict: computeVerdict, setSymbol: setSymbol, SRC: SRC
+    computeVerdict: computeVerdict, setSymbol: setSymbol, SRC: SRC,
+    _testHooks: { detRecomputes: 0 }
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   else window.NL_ANALYTICS = API;
