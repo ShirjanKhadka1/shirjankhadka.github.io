@@ -7,6 +7,16 @@
 <meta name="description" content="Live verification of every listed NEPSE security in the Alpha Lab: data source, history depth, last price, live-quote presence and verdict status for all listed symbols.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-chart/data-check.html">
 <meta name="robots" content="index, follow">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Shirjan Khadka">
+<meta property="og:title" content="Data Coverage Check — NEPSE Alpha Lab">
+<meta property="og:description" content="Live verification of every listed NEPSE security: data source, history depth, last price and verdict status for all 410 listed symbols.">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-chart/data-check.html">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Data Coverage Check — NEPSE Alpha Lab">
+<meta name="twitter:description" content="Live verification of every listed NEPSE security: data source, history depth, last price and verdict status for all 410 listed symbols.">
+<meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
 <link rel="icon" href="/favicon.ico">
 <link rel="stylesheet" href="chart.css?v=20260924f">
 <style>
@@ -56,8 +66,20 @@ th.num{text-align:right}
 .dc-legend span{display:inline-flex;align-items:center;gap:6px}
 .dc-note{color:var(--muted);font-size:.85rem;margin:18px 0 40px;line-height:1.6}
 .dc-count{color:var(--muted);font-size:.85rem;margin:0 0 10px}
+.dc-foot{margin:0 0 40px;padding-top:16px;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+.dc-foot a{color:var(--ink);font-weight:600;text-decoration:none}
+.dc-foot a:hover{text-decoration:underline}
 @media(max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}}
 </style>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Data coverage check","url":"https://shirjankhadka.com.np/nepse-chart/data-check.html","description":"Live verification of every listed NEPSE security in the Alpha Lab: data source, history depth, last price, live-quote presence and verdict status for all listed symbols."}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
+{"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
+{"@type":"ListItem","position":2,"name":"NEPSE Alpha Lab","item":"https://shirjankhadka.com.np/nepse-chart/"},
+{"@type":"ListItem","position":3,"name":"Data coverage check","item":"https://shirjankhadka.com.np/nepse-chart/data-check.html"}]}
+</script>
 </head>
 <body>
 <header class="topbar">
@@ -76,6 +98,7 @@ th.num{text-align:right}
   <div class="dc-new" id="dcNew"></div>
   <div class="dc-prev" id="dcPrev"></div>
 
+  <h2>What the data labels mean</h2>
   <div class="dc-legend" aria-label="What the data labels mean">
     <span><span class="pill ohlc">Full history</span> daily open/high/low/close from the OHLC archive</span>
     <span><span class="pill ltp">LTP-only</span> newer listing — daily closing prices from the live-feed history, no OHLC yet</span>
@@ -100,6 +123,7 @@ th.num{text-align:right}
   </div>
   <div class="dc-result" id="dcResult"></div>
 
+  <h2>All listed securities</h2>
   <p class="dc-count" id="dcCount"></p>
   <div class="dc-tablewrap">
     <table class="dc">
@@ -111,6 +135,10 @@ th.num{text-align:right}
   </div>
 
   <p class="dc-note" id="dcNote">Automated check rebuilds daily after market close from the Nepse-All-Scraper OHLC archive, the yonepse LTP history and the live quote feed. “Run live check” re-verifies every symbol’s source file in your browser: OHLC files on the scraper archive, LTP files on this site. Newly listed IPOs are picked up automatically from the live feed — they appear as <strong>LTP-only</strong> until the OHLC archive covers them.</p>
+
+  <footer class="dc-foot">
+    <a href="/">← Home</a> · <a href="./">NEPSE Alpha Lab</a> · <a href="/blog/">Blog</a>
+  </footer>
 </main>
 
 <script>

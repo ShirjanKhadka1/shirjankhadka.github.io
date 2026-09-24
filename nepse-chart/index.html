@@ -1,181 +1,301 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NEPSE Alpha Lab — Chart Patterns, Divergences &amp; Buy/Hold/Exit Signals | Shirjan Khadka</title>
-<meta name="description" content="Free NEPSE analysis lab: search any listed stock for live quotes, candlestick charts, SMA & RSI, automatic chart-pattern and RSI/MACD divergence detection, and a transparent rule-based buy/hold/exit signal engine.">
-<link rel="canonical" href="https://shirjankhadka.com.np/nepse-chart/">
-<meta name="robots" content="index, follow">
-<meta name="theme-color" content="#ffffff">
-<meta property="og:type" content="website">
-<meta property="og:title" content="NEPSE Alpha Lab — Patterns, Divergences &amp; Buy/Hold/Exit Signals">
-<meta property="og:description" content="Search any NEPSE stock: live quotes, chart patterns, divergences and a transparent rule-based buy/hold/exit engine. Free, no login.">
-<meta property="og:url" content="https://shirjankhadka.com.np/nepse-chart/">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="NEPSE Alpha Lab — Patterns, Divergences &amp; Buy/Hold/Exit Signals">
-<meta name="twitter:description" content="Free NEPSE stock lab: live quotes, chart patterns, RSI/MACD divergences and a transparent buy/hold/exit signal engine.">
-<link rel="icon" href="/favicon.ico">
-<link rel="preconnect" href="https://samirwagle.github.io">
-<link rel="preconnect" href="https://shubhamnpk.github.io">
-<link rel="dns-prefetch" href="https://samirwagle.github.io">
-<link rel="dns-prefetch" href="https://shubhamnpk.github.io">
-<link rel="stylesheet" href="chart.css?v=20260924f">
-<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"NEPSE Alpha Lab","url":"https://shirjankhadka.com.np/nepse-chart/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Free NEPSE analysis lab: live quotes for any listed stock, candlestick charts with SMA and RSI, automatic chart-pattern and divergence detection, and a transparent rule-based buy/hold/exit signal engine. Educational use only.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
-</script>
-<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
-{"@type":"Question","name":"Does the NEPSE Alpha Lab give buy or sell signals?","acceptedAnswer":{"@type":"Answer","text":"It shows a rule-based verdict — Strong Buy, Buy, Hold, Exit/Reduce or Strong Exit — computed in your browser from ten transparent factors: trend vs moving averages, RSI, MACD, turnover, 52-week position, divergences, chart patterns, market backdrop and support/resistance. Every factor and its contribution is listed, so nothing is a black box. It is educational, not investment advice."}},
-{"@type":"Question","name":"Is the data real-time?","acceptedAnswer":{"@type":"Answer","text":"During NEPSE trading hours (Sunday–Thursday, 9:30–15:00 NPT) the quote panel refreshes from a free community live feed and shows a LIVE badge; the chart appends the in-progress session. Outside market hours it shows the last closed session. NEPSE publishes no free official real-time API, so this uses community mirrors and may be delayed."}},
-{"@type":"Question","name":"Which patterns and divergences are detected?","acceptedAnswer":{"@type":"Answer","text":"Double tops and bottoms, head & shoulders and inverse head & shoulders, ascending/descending/symmetrical triangles and rising/falling wedges, plus regular and hidden bullish/bearish divergences on RSI(14) and the MACD histogram. Detections are drawn on the chart and listed with dates and plain-English notes."}},
-{"@type":"Question","name":"Where does the data come from?","acceptedAnswer":{"@type":"Answer","text":"Per-stock daily OHLC history from the open Nepse-All-Scraper dataset (Samir Wagle, MIT), live quotes and monthly LTP history from the yonepse open API, and the NEPSE index daily history (2003–2026, 5,333 sessions) from the nepse-open-data archive. Coverage spans every currently listed security — equities, mutual funds, debentures and preference shares. Securities without scraper OHLC (e.g. newer listings) use LTP-only history and are clearly flagged; pattern and divergence detection is disabled for those."}},
-{"@type":"Question","name":"Is this financial advice?","acceptedAnswer":{"@type":"Answer","text":"No. Everything here is a mechanical, rule-based illustration for education. Markets are uncertain and past patterns do not guarantee future results. Do your own research before any investment decision."}}]}
-</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nepali Date Converter (Miti Converter) — BS to AD &amp; AD to BS</title>
+  <meta name="description" content="Free Nepali date converter (Miti converter): instantly convert Bikram Sambat (BS) dates to AD/English (Gregorian) dates and vice versa. Includes Nepali date difference calculator and age calculator. Accurate BS 2000–2090 calendar data.">
+  <meta name="author" content="Shirjan Khadka">
+  <link rel="canonical" href="https://shirjankhadka.com.np/nepali-date-converter/">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="keywords" content="nepali date converter, bs to ad converter, ad to bs converter, miti converter, nepali calendar converter, bikram sambat to ad, english date to nepali date, nepali date today, nepali age calculator, date difference calculator nepal">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Shirjan Khadka">
+  <meta property="og:title" content="Nepali Date Converter — BS to AD & AD to BS">
+  <meta property="og:description" content="Convert Bikram Sambat (BS) to Gregorian (AD) dates instantly — plus date difference and age calculators. Free, fast, accurate.">
+  <meta property="og:url" content="https://shirjankhadka.com.np/nepali-date-converter/">
+  <meta property="og:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
+  <meta name="twitter:title" content="Nepali Date Converter — BS to AD & AD to BS">
+  <meta name="twitter:description" content="Instant Bikram Sambat ↔ Gregorian date conversion, date difference & age calculators.">
+
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b5c3f'/%3E%3Ctext x='32' y='42' font-family='-apple-system,Helvetica,Arial,sans-serif' font-size='24' font-weight='700' text-anchor='middle' fill='%23ffffff'%3E%E0%A4%AE%E0%A4%BF%E0%A4%A4%E0%A4%BF%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="converter.css?v=20260924d">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Nepali Date Converter",
+    "alternateName": ["Miti Converter", "BS to AD Converter", "Nepali Calendar Date Converter"],
+    "url": "https://shirjankhadka.com.np/nepali-date-converter/",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "NPR" },
+    "author": { "@type": "Person", "name": "Shirjan Khadka", "url": "https://shirjankhadka.com.np/" },
+    "description": "Convert dates between Bikram Sambat (BS) and Gregorian (AD) calendars instantly. Includes date difference and age calculators."
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How do I convert a BS date to AD?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Select BS as the source calendar, choose the year, month and day, and the equivalent Gregorian (AD) date appears instantly — no button needed." }
+      },
+      {
+        "@type": "Question",
+        "name": "How accurate is this Nepali date converter?",
+        "acceptedAnswer": { "@type": "Answer", "text": "It uses a published Bikram Sambat month-length dataset for BS 2000–2090, the same reference data used by popular open-source Nepali date libraries, verified against known anchors such as 2000-01-01 BS = 14 April 1943 AD." }
+      },
+      {
+        "@type": "Question",
+        "name": "What date range is supported?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Bikram Sambat 2000 to 2090, which corresponds to 14 April 1943 AD to 13 April 2034 AD." }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I calculate age from a Nepali date of birth?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Open the Age tab, enter the date of birth in BS or AD, and get the exact age in years, months and days, plus total days lived and the next birthday." }
+      },
+      {
+        "@type": "Question",
+        "name": "How does the age calculator BS work?",
+        "acceptedAnswer": { "@type": "Answer", "text": "The Age tab works as a dedicated age calculator for BS dates: pick the date of birth in Bikram Sambat (or AD), and it computes the exact age in years, months and days against today's BS date, with total days lived and the next birthday countdown. All calculations use the same verified BS 2000–2090 calendar data." }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I find the difference between two Nepali dates?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. The Difference tab computes the exact gap between any two BS or AD dates in years, months and days, plus the total number of days." }
+      }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://shirjankhadka.com.np/" },
+      { "@type": "ListItem", "position": 2, "name": "Nepali Date Converter", "item": "https://shirjankhadka.com.np/nepali-date-converter/" }
+    ]
+  }
+  </script>
 </head>
 <body>
-<a class="skip" href="#main">Skip to content</a>
+  <a class="skip-link" href="#main">Skip to converter</a>
 
-<header class="topbar">
-  <div class="wrap topbar-in">
-    <a class="back" href="/" aria-label="Back to homepage">← Home</a>
-    <span class="brand">NEPSE Alpha Lab</span>
-    <a class="dc-link" href="data-check.html">Coverage check</a>
-  </div>
-</header>
-
-<main id="main" class="wrap">
-  <section class="hero">
-    <p class="eyebrow">Side project · Technical analysis</p>
-    <h1>NEPSE Alpha Lab</h1>
-    <p class="lede">Search any NEPSE-listed stock for live quotes, candlestick charts, automatic chart-pattern &amp; divergence detection, and a transparent rule-based <strong>buy / hold / exit</strong> engine. Or study the full 23-year NEPSE index history. Everything runs in your browser — free, no login, no tracking.</p>
-    <p class="asof" id="nl-asof">Loading data…</p>
-  </section>
-
-  <section class="nl-search" id="nl-lab" aria-label="Symbol search">
-    <div class="nl-search-row">
-      <input id="nl-sym" list="nl-syms" placeholder="Search symbol — e.g. NABIL, HIDCL, UPPER… (NEPSE = index)" autocomplete="off" spellcheck="false" aria-label="Stock symbol">
-      <datalist id="nl-syms"></datalist>
-      <button id="nl-go" class="nl-go">Analyze</button>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/" class="brand" aria-label="Shirjan Khadka — home">
+        <span class="brand-mark">SK</span>
+        <span class="brand-name">Shirjan Khadka</span>
+      </a>
+      <a href="/" class="topbar-link">← Portfolio</a>
     </div>
-    <div class="nl-chips">
-      <button data-chip="NEPSE">NEPSE index</button>
-      <button data-chip="NABIL">NABIL</button>
-      <button data-chip="NICA">NICA</button>
-      <button data-chip="HIDCL">HIDCL</button>
-      <button data-chip="UPPER">UPPER</button>
-      <button data-chip="NIFRA">NIFRA</button>
-    </div>
-  </section>
+  </header>
 
-  <section class="nl-livebar" id="nl-livebar" aria-label="Live quote"></section>
-
-  <section class="nl-verdict" id="nl-verdict" aria-label="Signal engine verdict"></section>
-
-  <section class="stats" aria-label="Market snapshot">
-    <div class="stat"><span class="nl-stat-k">Last close</span><span class="nl-stat-v" id="nl-last">—</span></div>
-    <div class="stat"><span class="nl-stat-k">Day change</span><span class="nl-stat-v" id="nl-chg">—</span></div>
-    <div class="stat"><span class="nl-stat-k">52-week high</span><span class="nl-stat-v" id="nl-52h">—</span></div>
-    <div class="stat"><span class="nl-stat-k">52-week low</span><span class="nl-stat-v" id="nl-52l">—</span></div>
-    <div class="stat"><span class="nl-stat-k">RSI (14)</span><span class="nl-stat-v" id="nl-rsi-v">—</span></div>
-    <div class="stat"><span class="nl-stat-k">Trend regime</span><span class="nl-stat-v small" id="nl-regime">—</span></div>
-  </section>
-
-  <section class="chart-card">
-    <div class="controls">
-      <div class="seg" id="nl-tf" role="group" aria-label="Timeframe">
-        <button data-v="1M">1M</button><button data-v="3M">3M</button><button data-v="6M">6M</button>
-        <button data-v="1Y" class="on" aria-pressed="true">1Y</button><button data-v="2Y">2Y</button><button data-v="5Y">5Y</button><button data-v="All">All</button>
+  <main id="main">
+    <section class="hero">
+      <div class="wrap">
+        <h1>Nepali Date Converter</h1>
+        <p class="lede">Instantly convert between <strong>Bikram Sambat (BS)</strong> and <strong>Gregorian (AD)</strong> dates — plus date difference and age calculators. Free, fast, and accurate.</p>
       </div>
-      <div class="seg" id="nl-style" role="group" aria-label="Chart style">
-        <button data-v="candles" class="on" aria-pressed="true">Candles</button><button data-v="line">Line</button>
-      </div>
-      <div class="toggles" role="group" aria-label="Overlays">
-        <button data-tgl="sma" class="on" aria-pressed="true">SMA 20/50</button>
-        <button data-tgl="rsi" class="on" aria-pressed="true">RSI</button>
-        <button data-tgl="signals" class="on" aria-pressed="true" id="tgl-sig">Patterns</button>
-      </div>
-    </div>
-    <div class="chart-wrap">
-      <canvas id="nl-chart" role="img" aria-label="Price chart. Hover or touch to inspect values."></canvas>
-      <div class="nl-tip" id="nl-tip" style="display:none"></div>
-    </div>
-    <div class="legend">
-      <span><i class="sw up"></i>Up day</span>
-      <span><i class="sw down"></i>Down day</span>
-      <span><i class="ln sma20"></i>SMA 20</span>
-      <span><i class="ln sma50"></i>SMA 50</span>
-      <span><i class="mk buy"></i>▲ Golden cross</span>
-      <span><i class="mk sell"></i>▼ Death cross</span>
-      <span><i class="ln divb"></i>Divergence</span>
-      <span><i class="ln pat"></i>Pattern</span>
-      <span class="ath">- - ATH 3,199</span>
-    </div>
-    <div class="chart-wrap rsi" id="nl-rsi-wrap">
-      <canvas id="nl-rsi" role="img" aria-label="RSI 14 indicator"></canvas>
-    </div>
-    <p class="hint">Hover or drag across the chart to inspect any session.</p>
-  </section>
+    </section>
 
-  <section class="nl-scan" aria-label="Pattern and divergence scanner">
-    <h2>Pattern &amp; divergence scanner</h2>
-    <p class="nl-scan-sub">Latest automatic detections on daily data — double tops/bottoms, head &amp; shoulders, triangles, wedges, and RSI/MACD divergences. <strong>Locate</strong> jumps the chart to a finding.</p>
-    <div id="nl-scan-list"></div>
-  </section>
+    <section class="tool" aria-label="Date conversion tools">
+      <div class="wrap">
+        <!-- Tabs -->
+        <div class="tabs" role="tablist" aria-label="Converter modes">
+          <span class="tabs-thumb" id="tabsThumb" aria-hidden="true"></span>
+          <button class="tab is-active" role="tab" id="tabbtn-convert" aria-selected="true" aria-controls="panel-convert" data-tab="convert">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l4 4-4 4"/><path d="M21 7H8"/><path d="M7 21l-4-4 4-4"/><path d="M3 17h13"/></svg>
+            Convert
+          </button>
+          <button class="tab" role="tab" id="tabbtn-difference" aria-selected="false" aria-controls="panel-difference" data-tab="difference" tabindex="-1">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            Difference
+          </button>
+          <button class="tab" role="tab" id="tabbtn-age" aria-selected="false" aria-controls="panel-age" data-tab="age" tabindex="-1">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Age
+          </button>
+        </div>
 
-  <section class="nl-mscan" id="nl-mscan" aria-label="Market scan — every listed stock">
-    <h2>Market scan</h2>
-    <p class="nl-scan-sub">Every listed security scored by the same rule-based engine — snapshot as of <span id="nl-ms-asof">…</span>. <span id="nl-ms-count"></span>. Select a row for the full deep analysis.</p>
-    <div class="nl-ms-controls">
-      <div class="nl-ms-chips" id="nl-ms-chips" role="group" aria-label="Filter by verdict">
-        <button data-f="all" class="on" aria-pressed="true">All</button>
-        <button data-f="Strong Buy" aria-pressed="false">Strong Buy</button>
-        <button data-f="Buy" aria-pressed="false">Buy</button>
-        <button data-f="Hold" aria-pressed="false">Hold</button>
-        <button data-f="Exit / Reduce" aria-pressed="false">Exit-Reduce</button>
-        <button data-f="Strong Exit" aria-pressed="false">Strong Exit</button>
-        <button data-f="Insufficient history" aria-pressed="false">New listings</button>
+        <!-- CONVERT PANEL -->
+        <div class="panel is-active" id="panel-convert" role="tabpanel" aria-labelledby="tabbtn-convert" tabindex="0">
+          <div class="card">
+            <div class="card-head">
+              <label class="field-label" id="convertDateLabel">Date</label>
+              <div class="seg" role="group" aria-label="Source calendar">
+                <button type="button" class="seg-btn is-active" data-mode="BS" aria-pressed="true">BS</button>
+                <button type="button" class="seg-btn" data-mode="AD" aria-pressed="false">AD</button>
+              </div>
+            </div>
+            <div class="selects" role="group" aria-labelledby="convertDateLabel">
+              <div class="select-wrap">
+                <label for="cYear">Year</label>
+                <select id="cYear"></select>
+              </div>
+              <div class="select-wrap">
+                <label for="cMonth">Month</label>
+                <select id="cMonth"></select>
+              </div>
+              <div class="select-wrap">
+                <label for="cDay">Day</label>
+                <select id="cDay"></select>
+              </div>
+            </div>
+            <div class="quick-row">
+              <button type="button" class="btn-ghost" id="btnToday">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                Today
+              </button>
+              <button type="button" class="btn-ghost" id="btnSwap">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l4 4-4 4"/><path d="M21 7H8"/><path d="M7 21l-4-4 4-4"/><path d="M3 17h13"/></svg>
+                Swap BS ⇄ AD
+              </button>
+            </div>
+            <div class="results">
+              <div class="result" id="resBs">
+                <div class="result-top">
+                  <span class="result-kicker">Bikram Sambat</span>
+                  <button type="button" class="copy-btn" data-copy="resBs" aria-label="Copy Bikram Sambat date">Copy</button>
+                </div>
+                <p class="result-date" id="resBsDate">—</p>
+                <p class="result-sub" id="resBsDay">—</p>
+              </div>
+              <div class="result" id="resAd">
+                <div class="result-top">
+                  <span class="result-kicker">Gregorian (AD)</span>
+                  <button type="button" class="copy-btn" data-copy="resAd" aria-label="Copy Gregorian date">Copy</button>
+                </div>
+                <p class="result-date" id="resAdDate">—</p>
+                <p class="result-sub" id="resAdDay">—</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DIFFERENCE PANEL -->
+        <div class="panel" id="panel-difference" role="tabpanel" aria-labelledby="tabbtn-difference" tabindex="0" hidden>
+          <div class="card">
+            <div class="diff-grid">
+              <div>
+                <div class="card-head">
+                  <span class="field-label">Start date</span>
+                  <div class="seg seg-sm" role="group" aria-label="Start date calendar">
+                    <button type="button" class="seg-btn is-active" data-dp="dpA" data-mode="BS" aria-pressed="true">BS</button>
+                    <button type="button" class="seg-btn" data-dp="dpA" data-mode="AD" aria-pressed="false">AD</button>
+                  </div>
+                </div>
+                <div class="selects" id="dpA"></div>
+              </div>
+              <div>
+                <div class="card-head">
+                  <span class="field-label">End date</span>
+                  <div class="seg seg-sm" role="group" aria-label="End date calendar">
+                    <button type="button" class="seg-btn is-active" data-dp="dpB" data-mode="BS" aria-pressed="true">BS</button>
+                    <button type="button" class="seg-btn" data-dp="dpB" data-mode="AD" aria-pressed="false">AD</button>
+                  </div>
+                </div>
+                <div class="selects" id="dpB"></div>
+              </div>
+            </div>
+            <div class="result-single">
+              <span class="result-kicker">Difference</span>
+              <p class="result-big" id="diffOut">—</p>
+              <div class="chips" id="diffChips"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AGE PANEL -->
+        <div class="panel" id="panel-age" role="tabpanel" aria-labelledby="tabbtn-age" tabindex="0" hidden>
+          <div class="card">
+            <h2 class="card-title">Nepali age calculator — age calculator BS</h2>
+            <div class="card-head">
+              <span class="field-label">Date of birth</span>
+              <div class="seg seg-sm" role="group" aria-label="Date of birth calendar">
+                <button type="button" class="seg-btn is-active" data-dp="dpDob" data-mode="BS" aria-pressed="true">BS</button>
+                <button type="button" class="seg-btn" data-dp="dpDob" data-mode="AD" aria-pressed="false">AD</button>
+              </div>
+            </div>
+            <div class="selects" id="dpDob"></div>
+            <div class="result-single">
+              <span class="result-kicker">Your age</span>
+              <p class="result-big" id="ageOut">—</p>
+              <div class="chips" id="ageChips"></div>
+            </div>
+          </div>
+        </div>
       </div>
-      <input id="nl-ms-q" type="search" placeholder="Filter by symbol or name…" aria-label="Filter market scan by symbol or name">
+    </section>
+
+    <section class="about">
+      <div class="wrap narrow">
+        <h2>About the Nepali Date Converter</h2>
+        <p><strong>Nepali Date Converter</strong> (Miti converter) converts dates between <strong>Bikram Sambat (BS)</strong> — the official calendar of Nepal — and the <strong>Gregorian calendar (AD)</strong>, instantly and in both directions. It is useful for converting a date of birth, historical Nepali dates, passport and visa dates, and dates in document translation.</p>
+        <h3>How BS to AD conversion works</h3>
+        <p>The Bikram Sambat calendar does not follow a fixed formula: month lengths vary from year to year. This converter uses a published BS month-length dataset for <strong>BS 2000–2090</strong> (14 April 1943 AD – 13 April 2034 AD) — the same reference data used by popular open-source Nepali date libraries — verified against known anchors such as 2000-01-01 BS = 14 April 1943 AD.</p>
+        <h2>English to Nepali Date Converter (AD to BS)</h2>
+        <p>To convert an <strong>English date to a Nepali date</strong>, switch the source calendar to <strong>AD</strong>, pick the year, month and day, and the Bikram Sambat equivalent appears instantly. This direction is what most people need for citizenship dates of birth, passport applications, and filling Nepali forms with English-calendar dates.</p>
+        <h2>Nepali to English Date Converter (BS to AD)</h2>
+        <p>To convert a <strong>Nepali date to an English date</strong>, keep <strong>BS</strong> selected as the source and choose the Nepali year, month and day — the Gregorian (AD) equivalent shows immediately. Useful for visa forms, WES/ECE credential evaluations, and translating dates on Nepali documents.</p>
+        <h3>More than a BS to AD converter</h3>
+        <p>Use the <strong>Difference</strong> tab to find the exact gap between any two Nepali or English dates in years, months and days, and the <strong>Age</strong> tab as a Nepali age calculator — enter a date of birth in BS or AD to get the precise age, total days lived, and the next birthday.</p>
+      </div>
+    </section>
+
+    <section class="faq">
+      <div class="wrap narrow">
+        <h2>Frequently asked questions</h2>
+        <details class="faq-item" open>
+          <summary>How do I convert a BS date to AD?</summary>
+          <p>Keep <strong>BS</strong> selected as the source calendar, pick the year, month and day from the dropdowns — the equivalent Gregorian (AD) date appears instantly below. No convert button needed.</p>
+        </details>
+        <details class="faq-item">
+          <summary>How do I convert an AD (English) date to Nepali date?</summary>
+          <p>Switch the source calendar to <strong>AD</strong>, choose the English date, and the Bikram Sambat equivalent appears instantly in the result card.</p>
+        </details>
+        <details class="faq-item">
+          <summary>How accurate is this converter?</summary>
+          <p>It uses a published Bikram Sambat month-length dataset for BS 2000–2090 — the same reference data behind popular open-source Nepali date libraries — verified against known anchors (e.g. 2000-01-01 BS = 14 April 1943 AD) and 2,000 round-trip conversion tests.</p>
+        </details>
+        <details class="faq-item">
+          <summary>What is aaja ko miti (today's Nepali date)?</summary>
+          <p>The converter opens on today's date in both calendars, so the current Nepali date (aaja ko miti) is always shown at the top of the page without any input.</p>
+        </details>
+        <details class="faq-item">
+          <summary>What date range is supported?</summary>
+          <p>Bikram Sambat <strong>2000 to 2090</strong>, corresponding to <strong>14 April 1943 AD – 13 April 2034 AD</strong>.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Can I calculate age from a Nepali date of birth?</summary>
+          <p>Yes — the <strong>Age</strong> tab is a Nepali age calculator. Enter the date of birth in BS or AD to get the exact age in years, months and days, plus total days lived and a countdown to the next birthday.</p>
+        </details>
+        <details class="faq-item">
+          <summary>How does the age calculator BS work?</summary>
+          <p>The <strong>Age</strong> tab works as a dedicated age calculator for BS dates: pick the date of birth in Bikram Sambat (or AD), and it computes the exact age in years, months and days against today's BS date — with total days lived and the next birthday countdown. All calculations use the same verified BS 2000–2090 calendar data.</p>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <p>Built by <a href="/">Shirjan Khadka</a> · Kathmandu, Nepal</p>
+      <p class="footer-sub">Accurate Bikram Sambat ↔ Gregorian conversion · BS 2000–2090</p>
     </div>
-    <div class="nl-ms-wrap" id="nl-ms-wrap"><div class="nl-ms-loading">Scroll to load the full market scan…</div></div>
-  </section>
-
-  <section class="explain">
-    <h2>How the signal engine works</h2>
-    <div class="cards">
-      <div class="ecard">
-        <h3>Ten transparent factors</h3>
-        <p>Trend vs SMA 50/200, recent golden/death crosses, RSI zone, MACD momentum, turnover participation, 52-week position, divergences, chart patterns, the NEPSE index backdrop, and support/resistance proximity. Each factor's points are shown — no black box.</p>
-      </div>
-      <div class="ecard">
-        <h3>Buy / Hold / Exit</h3>
-        <p>Factor scores add up to a verdict from <strong>Strong Buy</strong> to <strong>Strong Exit</strong>. It is a mechanical summary of what the daily chart looks like right now — a starting point for research, not a recommendation.</p>
-      </div>
-      <div class="ecard">
-        <h3>Live when the market is open</h3>
-        <p>During NEPSE hours (Sun–Thu, 9:30–15:00 NPT) the quote panel refreshes from a free community feed and the chart includes the session in progress. Otherwise you see the last closed session.</p>
-      </div>
-    </div>
-    <p class="honest"><strong>An honest note:</strong> NEPSE publishes no free official real-time API, so tick-level data like broker terminals show is not possible here — quotes come from free community mirrors and can be delayed. What this lab does instead: full daily history for any listed stock, professional indicators, pattern/divergence detection and a fully transparent scoring model, all computed in your browser.</p>
-    <p class="disclaimer">All signals are mechanical outputs of published rules, shown for education. They are not investment advice, not AI predictions, and past performance does not guarantee future results.</p>
-  </section>
-
-  <section class="faq">
-    <h2>Questions</h2>
-    <details><summary>Does this give buy or sell signals?</summary><p>It shows a rule-based verdict — Strong Buy, Buy, Hold, Exit/Reduce or Strong Exit — with every contributing factor listed. Transparent and educational; not financial advice.</p></details>
-    <details><summary>Which patterns are detected?</summary><p>Double tops and bottoms, head &amp; shoulders (and inverse), ascending/descending/symmetrical triangles, rising/falling wedges, plus regular and hidden bullish/bearish divergences on RSI(14) and the MACD histogram.</p></details>
-    <details><summary>Is the data real-time?</summary><p>Quotes refresh during market hours from a free community feed (LIVE badge); outside hours you see the last closed session. History is daily OHLC per stock.</p></details>
-    <details><summary>What timeframes are available?</summary><p>1M, 3M, 6M, 1Y, 2Y on daily candles; 5Y and All switch to weekly candles so long histories stay readable.</p></details>
-    <details><summary>Where does the data come from?</summary><p>Per-stock daily OHLC from the open Nepse-All-Scraper dataset, live quotes and monthly LTP history from the yonepse open API, and the NEPSE index daily history (2003–2026, 5,333 sessions) from the nepse-open-data archive. Coverage spans every currently listed security — equities, mutual funds, debentures and preference shares. Securities without scraper OHLC (e.g. newer listings) use LTP-only history and are clearly flagged, with pattern/divergence detection disabled for those. With thanks to both open-data projects.</p></details>
-  </section>
-
-  <footer class="foot">
-    <p>Built by <a href="/">Shirjan Khadka</a> · Data: <a href="https://github.com/samirwagle/nepse-all-scraper" rel="noopener">Nepse-All-Scraper</a> · <a href="https://github.com/shubhamnpk/yonepse" rel="noopener">yonepse</a> · <a href="/nepali-date-converter/">Nepali Date Converter</a></p>
   </footer>
-</main>
 
-<script src="/js/nepse-daily.js?v=20260924d" defer></script>
-<script src="/js/nepse-lab.js?v=20260924g" defer></script>
+  <script src="../js/bs-calendar.js?v=20260924d" defer></script>
+  <script src="../js/date-converter.js?v=20260924d" defer></script>
 </body>
 </html>
