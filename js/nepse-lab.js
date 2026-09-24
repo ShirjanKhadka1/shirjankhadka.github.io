@@ -18,9 +18,9 @@
     status: 'https://shubhamnpk.github.io/yonepse/data/market/status.json',
     universe: 'data/universe.json',
     verdicts: 'data/verdicts.json',
-    ltp: function (s) { return 'data/ltp/' + s.replace('/', '-') + '.json'; }
+    ltp: function (s) { return 'data/ltp/' + s.replace('/', '-') + '.json?v=' + UNIVERSE_V; }
   };
-  var UNIVERSE_V = '20260924a'; // bump when data/universe.json is rebuilt
+  var UNIVERSE_V = '20260924g'; // bump when data/universe.json is rebuilt
 
   /* ================= pure math / indicators ================= */
   function smaArr(vals, n) {
@@ -463,6 +463,15 @@
         .then(function (j) { clearTimeout(to); res(j); })
         .catch(function (e) { clearTimeout(to); rej(e); });
     });
+  }
+  // Fetch the current data-build version (never cached) so automated daily
+  // rebuilds invalidate the cached universe/verdicts/LTP snapshots.
+  function resolveDataVersion() {
+    return fetch('data/version.json', { cache: 'no-store' }).then(function (r) {
+      if (!r.ok) throw new Error('no version'); return r.json();
+    }).then(function (j) {
+      if (j && j.v) UNIVERSE_V = String(j.v);
+    }).catch(function () { /* keep built-in fallback version */ });
   }
   function loadUniverse() {
     function apply(u) {
@@ -1179,7 +1188,7 @@
     }
     // live quotes are fetched lazily (stock views / market-open refresh only),
     // so the initial critical path is: nepse-daily.js + universe.json + render.
-    loadUniverse().then(function () { fillDL(); initMarketScan(); });
+    resolveDataVersion().then(loadUniverse).then(function () { fillDL(); initMarketScan(); });
     function go() { var v = input.value.trim().toUpperCase(); if (v) setSymbol(v === 'NEPSE INDEX' ? 'NEPSE' : v); }
     if (input) {
       document.getElementById('nl-go').addEventListener('click', go);
