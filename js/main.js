@@ -222,6 +222,39 @@
     }, true);
   });
 
+  /* ---------- Carousel scroll hints (event galleries) ---------- */
+  document.querySelectorAll(".event-gallery").forEach(function (carousel) {
+    function makeHint(cls, label, dir) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "carousel-hint " + cls + " is-hidden";
+      b.setAttribute("aria-label", label);
+      b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+      b.addEventListener("pointerdown", function (e) { e.stopPropagation(); });
+      b.addEventListener("click", function () {
+        var card = carousel.querySelector(".event-photo");
+        var step = card ? card.offsetWidth + 16 : Math.round(carousel.clientWidth * 0.8);
+        carousel.scrollBy({ left: dir * step, behavior: prefersReduced ? "auto" : "smooth" });
+      });
+      return b;
+    }
+    var prev = makeHint("hint-prev", "Scroll to earlier photos", -1);
+    var next = makeHint("hint-next", "Scroll for more photos", 1);
+    carousel.prepend(prev);
+    carousel.append(next);
+    function updateHints() {
+      var max = carousel.scrollWidth - carousel.clientWidth;
+      prev.classList.toggle("is-hidden", carousel.scrollLeft <= 8);
+      next.classList.toggle("is-hidden", carousel.scrollLeft >= max - 8);
+    }
+    carousel.addEventListener("scroll", updateHints, { passive: true });
+    window.addEventListener("resize", updateHints);
+    /* Re-check after images load, since widths change. */
+    if (document.fonts && document.fonts.ready) { document.fonts.ready.then(updateHints); }
+    window.addEventListener("load", updateHints);
+    updateHints();
+  });
+
   /* ---------- Gentle parallax via rAF (data-parallax = speed) ---------- */
   var pxEls = document.querySelectorAll("[data-parallax]");
   if (pxEls.length && !prefersReduced) {
