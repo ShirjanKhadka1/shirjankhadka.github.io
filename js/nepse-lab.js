@@ -1,30 +1,44 @@
-/* NEPSE Chart Lab — interactive candlestick chart engine.
-   Data: window.NEPSE_DAILY = [YYYYMMDD, open, high, low, close, volume], daily sessions.
-   Indicators (SMA20/50, RSI14) and SMA-crossover markers are computed client-side
-   from the same daily series. Rule-based and educational — not AI, not advice. */
+/* NEPSE Alpha Lab — chart + pattern/divergence scanner + rules-based verdict engine.
+   Index data: window.NEPSE_DAILY = [YYYYMMDD, o, h, l, c, turnoverNPR], daily sessions.
+   Stock data: fetched live from free community APIs (samirwagle/Nepse-All-Scraper
+   per-symbol OHLC JSON + shubhamnpk/yonepse live quotes). All analysis is computed
+   client-side, rule-based and educational — not AI predictions, not advice. */
 (function () {
   'use strict';
-  var DAILY = window.NEPSE_DAILY || [];
-  if (!DAILY.length) return;
 
   var UP = '#16a34a', DOWN = '#dc2626', GRID = '#e8edf3', TXT = '#64748b',
-      SMA20C = '#2563eb', SMA50C = '#d97706', ATHC = '#c9a227';
+      SMA20C = '#2563eb', SMA50C = '#d97706', ATHC = '#c9a227',
+      BULLC = '#16a34a', BEARC = '#dc2626';
 
-  var state = { tf: '1Y', style: 'candles', sma: true, rsi: true, signals: true, hover: -1 };
+  var SRC = {
+    companies: 'https://samirwagle.github.io/Nepse-All-Scraper/docs/api/companies.json',
+    prices: function (s) { return 'https://samirwagle.github.io/Nepse-All-Scraper/docs/api/prices/' + s.replace('/', '-') + '.json'; },
+    latest: 'https://samirwagle.github.io/Nepse-All-Scraper/docs/api/latest.json',
+    live: 'https://shubhamnpk.github.io/yonepse/data/market/live.json',
+    status: 'https://shubhamnpk.github.io/yonepse/data/market/status.json'
+  };
 
-  var TF_SESSIONS = { '1M': 22, '3M': 66, '6M': 132, '1Y': 252 };
-  var WARM = 80; // extra sessions before the visible window for indicator warm-up
-
-  function sma(vals, n) {
-    var out = new Array(vals.length).fill(null), s = 0;
-    for (var i = 0; i < vals.length; i++) {
+  /* ================= pure math / indicators ================= */
+  function smaArr(vals, n) {
+    var out = new Array(vals.length).fill(null), s = 0, i;
+    for (i = 0; i < vals.length; i++) {
       s += vals[i];
       if (i >= n) s -= vals[i - n];
       if (i >= n - 1) out[i] = s / n;
     }
     return out;
   }
-  function rsi(closes, n) {
+  function emaArr(vals, n) {
+    var out = new Array(vals.length).fill(null);
+    if (!vals.length) return out;
+    var k = 2 / (n + 1), e = vals[0], i;
+    for (i = 0; i < vals.length; i++) {
+      e = i === 0 ? vals[0] : vals[i] * k + e * (1 - k);
+      if (i >= n - 1) out[i] = e;
+    }
+    return out;
+  }
+  function rsiArr(closes, n) {
     var out = new Array(closes.length).fill(null);
     if (closes.length < n + 1) return out;
     var g = 0, l = 0, i;
@@ -38,304 +52,940 @@
     }
     return out;
   }
-  function isoWeekKey(ymd) {
-    var y = Math.floor(ymd / 10000), m = Math.floor(ymd / 100) % 100, d = ymd % 100;
-    var dt = new Date(Date.UTC(y, m - 1, d));
-    var day = (dt.getUTCDay() + 6) % 7; // Mon=0
-    dt.setUTCDate(dt.getUTCDate() - day + 3); // Thursday of this week
-    var firstThu = new Date(Date.UTC(dt.getUTCFullYear(), 0, 4));
-    var fday = (firstThu.getUTCDay() + 6) % 7;
-    firstThu.setUTCDate(firstThu.getUTCDate() - fday + 3);
-    var wk = 1 + Math.round((dt - firstThu) / (7 * 864e5));
-    return dt.getUTCFullYear() * 100 + wk;
+  function macd(closes) {
+    var e12 = emaArr(closes, 12), e26 = emaArr(closes, 26), n = closes.length;
+    var line = new Array(n).fill(null), i;
+    for (i = 0; i < n; i++) line[i] = (e12[i] == null || e26[i] == null) ? null : e12[i] - e26[i];
+    var lv = line.filter(function (v) { return v != null; });
+    var se = emaArr(lv, 9), signal = new Array(n).fill(null), hist = new Array(n).fill(null), k = 0;
+    for (i = 0; i < n; i++) {
+      if (line[i] == null) continue;
+      signal[i] = se[k]; hist[i] = se[k] == null ? null : line[i] - se[k]; k++;
+    }
+    return { line: line, signal: signal, hist: hist };
   }
-  function toWeekly(rows) {
-    var out = [], cur = null, key = -1;
-    rows.forEach(function (r) {
-      var k = isoWeekKey(r[0]);
-      if (k !== key) { if (cur) out.push(cur); key = k; cur = [r[0], r[1], r[2], r[3], r[4], r[5]]; }
-      else {
-        cur[0] = r[0];
-        if (r[2] > cur[2]) cur[2] = r[2];
-        if (r[3] < cur[3]) cur[3] = r[3];
-        cur[4] = r[4]; cur[5] += r[5];
-      }
-    });
-    if (cur) out.push(cur);
+  function atrArr(rows, n) {
+    var out = new Array(rows.length).fill(null), trs = [], i;
+    for (i = 1; i < rows.length; i++) {
+      var h = rows[i][2], l = rows[i][3], pc = rows[i - 1][4];
+      trs.push(Math.max(h - l, Math.abs(h - pc), Math.abs(l - pc)));
+    }
+    var a = 0;
+    for (i = 0; i < trs.length; i++) {
+      a = i < n ? a + trs[i] / Math.min(n, i + 1) : (a * (n - 1) + trs[i]) / n;
+      if (i >= n - 1) out[i + 1] = a;
+    }
     return out;
   }
-  function fmtDate(ymd) {
-    var s = String(ymd);
-    return s.slice(0, 4) + '-' + s.slice(4, 6) + '-' + s.slice(6, 8);
+  function linfit(pts) { // pts: [{i,p}] -> {slope (per bar, relative), r2}
+    var n = pts.length, sx = 0, sy = 0, sxx = 0, sxy = 0, i;
+    for (i = 0; i < n; i++) { sx += pts[i].i; sy += pts[i].p; sxx += pts[i].i * pts[i].i; sxy += pts[i].i * pts[i].p; }
+    var den = n * sxx - sx * sx;
+    if (!den) return { slope: 0, r2: 0 };
+    var slope = (n * sxy - sx * sy) / den, mean = sy / n, ss = 0, sr = 0;
+    for (i = 0; i < n; i++) { ss += (pts[i].p - mean) * (pts[i].p - mean); var f = slope * (pts[i].i - sx / n) + mean; sr += (pts[i].p - f) * (pts[i].p - f); }
+    var p0 = mean || 1;
+    return { slope: slope / p0, r2: ss ? 1 - sr / ss : 0 };
   }
+
+  /* fractal pivots, then alternation + min-move filter => swing pivots */
+  function fractalPivots(rows, k) {
+    var out = [], n = rows.length, i, j;
+    for (i = k; i < n - k; i++) {
+      var hi = true, lo = true;
+      for (j = i - k; j <= i + k; j++) {
+        if (j === i) continue;
+        if (rows[j][2] >= rows[i][2]) hi = false;
+        if (rows[j][3] <= rows[i][3]) lo = false;
+      }
+      if (hi) out.push({ i: i, t: 'H', p: rows[i][2] });
+      else if (lo) out.push({ i: i, t: 'L', p: rows[i][3] });
+    }
+    return out;
+  }
+  function swingPivots(rows, k, minMoveRel) {
+    var fr = fractalPivots(rows, k), out = [], i, p, last;
+    for (i = 0; i < fr.length; i++) {
+      p = fr[i]; last = out[out.length - 1];
+      if (!last || last.t !== p.t) out.push(p);
+      else if (p.t === 'H' && p.p > last.p) out[out.length - 1] = p;
+      else if (p.t === 'L' && p.p < last.p) out[out.length - 1] = p;
+    }
+    var f2 = [];
+    for (i = 0; i < out.length; i++) {
+      p = out[i]; last = f2[f2.length - 1];
+      if (!last) { f2.push(p); continue; }
+      var mv = Math.abs(p.p - last.p) / last.p;
+      if (mv >= minMoveRel) f2.push(p);
+      else if ((p.t === 'H' && p.p > last.p) || (p.t === 'L' && p.p < last.p)) f2[f2.length - 1] = p;
+    }
+    return f2;
+  }
+  function recentATR(rows) {
+    var a = atrArr(rows, 14), vals = [];
+    for (var i = Math.max(0, a.length - 60); i < a.length; i++) if (a[i] != null) vals.push(a[i]);
+    if (!vals.length) return 0;
+    vals.sort(function (x, y) { return x - y; });
+    return vals[Math.floor(vals.length / 2)];
+  }
+
+  /* ================= divergence scanner =================
+     Regular + hidden divergences on RSI(14) and MACD histogram. */
+  function detectDivergences(rows) {
+    var out = [], n = rows.length;
+    if (n < 80) return out;
+    var from = Math.max(0, n - 340);
+    var closes = rows.map(function (r) { return r[4]; });
+    var rsiA = rsiArr(closes, 14), mR = macd(closes);
+    var piv = fractalPivots(rows, 3).filter(function (p) { return p.i >= from + 3; });
+    var hAbs = 0, i;
+    for (i = Math.max(0, n - 120); i < n; i++) if (mR.hist[i] != null) hAbs = Math.max(hAbs, Math.abs(mR.hist[i]));
+    function mk(bias, sub, ind, a, b) {
+      return {
+        kind: 'divergence', bias: bias, sub: sub, ind: ind,
+        i1: a.i, i2: b.i, d1: rows[a.i][0], d2: rows[b.i][0], p1: a.p, p2: b.p,
+        label: (bias === 'bullish' ? 'Bullish' : 'Bearish') + ' divergence (' + ind + ', ' + sub + ')',
+        note: bias === 'bullish'
+          ? 'Price made a lower low while ' + ind + ' made a higher low — selling pressure may be fading.'
+          : 'Price made a higher high while ' + ind + ' made a lower high — buying pressure may be fading.'
+      };
+    }
+    function scan(ind, name, thr) {
+      var highs = piv.filter(function (p) { return p.t === 'H'; });
+      var lows = piv.filter(function (p) { return p.t === 'L'; });
+      function pairs(list, isHigh) {
+        for (var k = Math.max(0, list.length - 5); k < list.length - 1; k++) {
+          var a = list[k], b = list[k + 1];
+          if (b.i - a.i < 6) continue;
+          var va = ind[a.i], vb = ind[b.i];
+          if (va == null || vb == null) continue;
+          if (isHigh) {
+            if (b.p > a.p * 1.004 && vb < va - thr) out.push(mk('bearish', 'regular', name, a, b));
+            else if (b.p < a.p * 0.996 && vb > va + thr) out.push(mk('bullish', 'hidden', name, a, b));
+          } else {
+            if (b.p < a.p * 0.996 && vb > va + thr) out.push(mk('bullish', 'regular', name, a, b));
+            else if (b.p > a.p * 1.004 && vb < va - thr) out.push(mk('bearish', 'hidden', name, a, b));
+          }
+        }
+      }
+      pairs(highs, true); pairs(lows, false);
+    }
+    scan(rsiA, 'RSI', 0.8);
+    if (hAbs > 0) scan(mR.hist, 'MACD', Math.max(hAbs * 0.12, 1e-9));
+    // dedupe overlapping same-bias detections, keep most recent; cap at 4
+    out.sort(function (a, b) { return b.i2 - a.i2; });
+    var kept = [];
+    out.forEach(function (d) {
+      var clash = kept.some(function (k) {
+        return k.bias === d.bias && k.ind === d.ind && Math.abs(k.i2 - d.i2) < 25;
+      });
+      if (!clash) kept.push(d);
+    });
+    return kept.slice(0, 4);
+  }
+
+  /* ================= chart-pattern scanner =================
+     Double top/bottom, head & shoulders (and inverse), triangles, wedges. */
+  function detectPatterns(rows) {
+    var out = [], n = rows.length;
+    if (n < 120) return out;
+    var atrV = recentATR(rows), refP = rows[n - 1][4] || 1;
+    var minMove = Math.max(0.02, (atrV * 1.6) / refP);
+    var sw = swingPivots(rows, 5, minMove).filter(function (p) { return p.i > n - 520; });
+    var closes = rows.map(function (r) { return r[4]; });
+    function brokeLevel(level, afterI, dirn, look) {
+      // dirn -1: broke below; +1: broke above
+      for (var i = afterI + 1; i < Math.min(n, afterI + 1 + look); i++) {
+        if (dirn < 0 && closes[i] < level * 0.995) return i;
+        if (dirn > 0 && closes[i] > level * 1.005) return i;
+      }
+      return -1;
+    }
+    function base(kind, label, bias, i1, i2, d1, d2, note, conf) {
+      return { kind: 'pattern', pkind: kind, label: label, bias: bias, i1: i1, i2: i2, d1: d1, d2: d2, note: note, conf: conf || 'medium' };
+    }
+    var i, a, b, c, d, e;
+    // --- double tops / bottoms: H,L,H and L,H,L triples ---
+    for (i = 0; i + 2 < sw.length; i++) {
+      a = sw[i]; b = sw[i + 1]; c = sw[i + 2];
+      if (a.t === 'H' && b.t === 'L' && c.t === 'H' && c.i - a.i >= 10) {
+        if (Math.abs(a.p - c.p) / a.p <= 0.025) {
+          var lvl = b.p, brk = brokeLevel(lvl, c.i, -1, 45);
+          out.push(base('double-top', 'Double Top', 'bearish', a.i, c.i, rows[a.i][0], rows[c.i][0],
+            brk > 0 ? 'Confirmed: closed below the neckline ' + fmtD(rows[brk][0]) + '. Measured target ≈ ' + num(lvl - (Math.max(a.p, c.p) - lvl), 0) + '.'
+                    : 'Forming: two similar highs with a neckline at ' + num(lvl, 0) + '. A close below the neckline would confirm.',
+            brk > 0 ? 'high' : 'medium'));
+          out[out.length - 1].draw = { hline: (a.p + c.p) / 2, nline: lvl, iEnd: brk > 0 ? brk : c.i };
+        }
+      }
+      if (a.t === 'L' && b.t === 'H' && c.t === 'L' && c.i - a.i >= 10) {
+        if (Math.abs(a.p - c.p) / a.p <= 0.025) {
+          var lvl2 = b.p, brk2 = brokeLevel(lvl2, c.i, 1, 45);
+          out.push(base('double-bottom', 'Double Bottom', 'bullish', a.i, c.i, rows[a.i][0], rows[c.i][0],
+            brk2 > 0 ? 'Confirmed: closed above the neckline ' + fmtD(rows[brk2][0]) + '. Measured target ≈ ' + num(lvl2 + (lvl2 - Math.min(a.p, c.p)), 0) + '.'
+                     : 'Forming: two similar lows with a neckline at ' + num(lvl2, 0) + '. A close above the neckline would confirm.',
+            brk2 > 0 ? 'high' : 'medium'));
+          out[out.length - 1].draw = { hline: (a.p + c.p) / 2, nline: lvl2, iEnd: brk2 > 0 ? brk2 : c.i };
+        }
+      }
+    }
+    // --- head & shoulders / inverse: 5-pivot windows ---
+    for (i = 0; i + 4 < sw.length; i++) {
+      var w = sw.slice(i, i + 5);
+      if (w[0].t === 'H' && w[1].t === 'L' && w[2].t === 'H' && w[3].t === 'L' && w[4].t === 'H' && w[4].i - w[0].i >= 20) {
+        var s1 = w[0].p, head = w[2].p, s2 = w[4].p;
+        if (head > s1 * 1.015 && head > s2 * 1.015 && Math.abs(s1 - s2) / s1 <= 0.05) {
+          var nl = (w[1].p + w[3].p) / 2, brk3 = brokeLevel(nl, w[4].i, -1, 45);
+          out.push(base('head-shoulders', 'Head & Shoulders', 'bearish', w[0].i, w[4].i, rows[w[0].i][0], rows[w[4].i][0],
+            brk3 > 0 ? 'Confirmed: neckline broke ' + fmtD(rows[brk3][0]) + ' — classic reversal lower.'
+                     : 'Forming: left shoulder, head, right shoulder with neckline near ' + num(nl, 0) + '.',
+            brk3 > 0 ? 'high' : 'medium'));
+          out[out.length - 1].draw = { nline: nl, iEnd: brk3 > 0 ? brk3 : w[4].i, neck: [{ i: w[1].i, p: w[1].p }, { i: w[3].i, p: w[3].p }] };
+        }
+      }
+      if (w[0].t === 'L' && w[1].t === 'H' && w[2].t === 'L' && w[3].t === 'H' && w[4].t === 'L' && w[4].i - w[0].i >= 20) {
+        var s1b = w[0].p, headb = w[2].p, s2b = w[4].p;
+        if (headb < s1b * 0.985 && headb < s2b * 0.985 && Math.abs(s1b - s2b) / s1b <= 0.05) {
+          var nlb = (w[1].p + w[3].p) / 2, brk4 = brokeLevel(nlb, w[4].i, 1, 45);
+          out.push(base('inv-head-shoulders', 'Inverse Head & Shoulders', 'bullish', w[0].i, w[4].i, rows[w[0].i][0], rows[w[4].i][0],
+            brk4 > 0 ? 'Confirmed: neckline broke ' + fmtD(rows[brk4][0]) + ' — classic reversal higher.'
+                     : 'Forming: inverse head & shoulders with neckline near ' + num(nlb, 0) + '.',
+            brk4 > 0 ? 'high' : 'medium'));
+          out[out.length - 1].draw = { nline: nlb, iEnd: brk4 > 0 ? brk4 : w[4].i, neck: [{ i: w[1].i, p: w[1].p }, { i: w[3].i, p: w[3].p }] };
+        }
+      }
+    }
+    // --- triangles & wedges: converging boundary lines through recent swings ---
+    (function () {
+      var wsw = sw.filter(function (p) { return p.i > n - 260; });
+      var highs = wsw.filter(function (p) { return p.t === 'H'; }).slice(-4);
+      var lows = wsw.filter(function (p) { return p.t === 'L'; }).slice(-4);
+      if (highs.length < 2 || lows.length < 2) return;
+      var fU = linfit(highs), fL = linfit(lows);
+      var span = Math.max(highs[highs.length - 1].i, lows[lows.length - 1].i) - Math.min(highs[0].i, lows[0].i);
+      if (span < 30) return;
+      var firstW = Math.max(highs[0].p, lows[0].p) - Math.min(highs[0].p, lows[0].p);
+      var lastW = highs[highs.length - 1].p - lows[lows.length - 1].p;
+      if (!(lastW < firstW * 0.8)) return; // not contracting
+      var sU = fU.slope, sL = fL.slope, T = 0.0006, kind = null, bias = 'neutral', label = '';
+      // goodness: fitted boundary lines must hug the pivots (R² is meaningless for flat lines)
+      function maxDev(pts, f) {
+        var m = meanP(pts), aS = f.slope * m, p0 = pts[0], md = 0;
+        pts.forEach(function (pt) { md = Math.max(md, Math.abs(pt.p - (p0.p + aS * (pt.i - p0.i)))); });
+        return md / m;
+      }
+      if (maxDev(highs, fU) > 0.022 || maxDev(lows, fL) > 0.022) return;
+      if (Math.abs(sU) < T && sL > T) { kind = 'triangle-asc'; bias = 'bullish'; label = 'Ascending Triangle'; }
+      else if (sU < -T && Math.abs(sL) < T) { kind = 'triangle-desc'; bias = 'bearish'; label = 'Descending Triangle'; }
+      else if (sU < -T && sL > T) { kind = 'triangle-sym'; bias = 'neutral'; label = 'Symmetrical Triangle'; }
+      else if (sU > T && sL > sU + T * 0.5) { kind = 'wedge-rising'; bias = 'bearish'; label = 'Rising Wedge'; }
+      else if (sL < -T && sU < sL - T * 0.5) { kind = 'wedge-falling'; bias = 'bullish'; label = 'Falling Wedge'; }
+      if (!kind) return;
+      var i1 = Math.min(highs[0].i, lows[0].i), i2 = Math.max(highs[highs.length - 1].i, lows[lows.length - 1].i);
+      var notes = {
+        'triangle-asc': 'Flat resistance above, rising support below — buyers pressing higher. Bullish on an upside break.',
+        'triangle-desc': 'Flat support below, falling resistance above — sellers pressing lower. Bearish on a downside break.',
+        'triangle-sym': 'Coiling range — a sharp expansion move usually follows the break, either way.',
+        'wedge-rising': 'Rising but converging — momentum is tiring. Often resolves downward.',
+        'wedge-falling': 'Falling but converging — selling is tiring. Often resolves upward.'
+      };
+      var it = base(kind, label, bias, i1, i2, rows[i1][0], rows[i2][0], notes[kind], 'medium');
+      it.draw = { upper: highs, lower: lows, iEnd: i2 };
+      out.push(it);
+    })();
+    out.sort(function (x, y) { return y.i2 - x.i2; });
+    return out.slice(0, 6);
+  }
+
+  /* ================= verdict engine =================
+     Transparent multi-factor score. Positive = constructive, negative = weak.
+     Rule-based and educational — not financial advice. */
+  function computeVerdict(pack) {
+    var rows = pack.rows, n = rows.length, factors = [];
+    function F(name, pts, note) { factors.push({ name: name, pts: pts, note: note }); }
+    if (n < 60) return { score: 0, label: 'Hold', cls: 'hold', factors: factors, note: 'Not enough history to score.' };
+    var closes = rows.map(function (r) { return r[4]; });
+    var s20 = smaArr(closes, 20), s50 = smaArr(closes, 50), s200 = smaArr(closes, 200);
+    var rsiA = rsiArr(closes, 14), mR = macd(closes);
+    var last = rows[n - 1], c = last[4], i, score = 0;
+    function add(pts, name, note) { score += pts; F(name, pts, note); }
+
+    // 1. trend vs SMA50 / SMA200
+    var v50 = s50[n - 1], v200 = s200[n - 1];
+    if (v50 != null) add(c >= v50 ? 1.5 : -1.5, 'Trend vs SMA 50', c >= v50 ? 'Price above the 50-day average — uptrend.' : 'Price below the 50-day average — downtrend.');
+    if (v200 != null) add(c >= v200 ? 1.5 : -1.5, 'Trend vs SMA 200', c >= v200 ? 'Above the 200-day average — long-term uptrend.' : 'Below the 200-day average — long-term downtrend.');
+
+    // 2. recent SMA20/50 cross
+    var cross = 0;
+    for (i = Math.max(1, n - 20); i < n; i++) {
+      var a0 = s20[i - 1], a1 = s20[i], b0 = s50[i - 1], b1 = s50[i];
+      if (a0 == null || b0 == null || a1 == null || b1 == null) continue;
+      if (a0 <= b0 && a1 > b1) cross = 2;
+      else if (a0 >= b0 && a1 < b1) cross = -2;
+    }
+    if (cross !== 0) add(cross, 'SMA 20/50 crossover', cross > 0 ? 'Golden cross in the last 20 sessions — momentum turning up.' : 'Death cross in the last 20 sessions — momentum turning down.');
+
+    // 3. RSI zone
+    var r = rsiA[n - 1];
+    if (r != null) {
+      if (r >= 70) add(-1, 'RSI ' + r.toFixed(0), 'Overbought zone — upside may be stretched.');
+      else if (r <= 30) add(1.5, 'RSI ' + r.toFixed(0), 'Oversold zone — selling may be exhausted.');
+      else if (r >= 55) add(0.5, 'RSI ' + r.toFixed(0), 'Firm momentum above 55.');
+      else if (r <= 45) add(-0.5, 'RSI ' + r.toFixed(0), 'Soft momentum below 45.');
+      else add(0, 'RSI ' + r.toFixed(0), 'Neutral momentum.');
+    }
+
+    // 4. MACD histogram
+    var h0 = mR.hist[n - 1], h1 = mR.hist[n - 2];
+    if (h0 != null && h1 != null) {
+      if (h0 > 0 && h0 >= h1) add(1, 'MACD momentum', 'Positive and rising — buyers in control.');
+      else if (h0 > 0) add(0.5, 'MACD momentum', 'Positive but fading.');
+      else if (h0 < h1) add(-1, 'MACD momentum', 'Negative and falling — sellers in control.');
+      else add(-0.5, 'MACD momentum', 'Negative but improving.');
+    }
+
+    // 5. volume / turnover participation
+    var vols = rows.map(function (x) { return x[6] || 0; });
+    var v5 = avg(vols.slice(-5)), v20 = avg(vols.slice(-20));
+    if (v20 > 0) {
+      if (v5 > v20 * 1.5 && c >= rows[n - 5][4]) add(1, 'Turnover surge', 'Turnover running hot on rising prices — participation confirms the move.');
+      else if (v5 < v20 * 0.6) add(-0.5, 'Turnover drought', 'Turnover well below average — moves lack conviction.');
+    }
+
+    // 6. 52-week position
+    var win = rows.slice(-252), h52 = -Infinity, l52 = Infinity;
+    win.forEach(function (x) { if (x[2] > h52) h52 = x[2]; if (x[3] < l52) l52 = x[3]; });
+    if (h52 > 0) {
+      if (c >= h52 * 0.95) add(1, 'Near 52-week high', 'Trading within 5% of the yearly high — strong.');
+      else if (c <= l52 * 1.1) add(-1, 'Near 52-week low', 'Trading within 10% of the yearly low — weak.');
+    }
+
+    // 7. divergences
+    var bullD = pack.divs.filter(function (d) { return d.bias === 'bullish'; })[0];
+    var bearD = pack.divs.filter(function (d) { return d.bias === 'bearish'; })[0];
+    if (bullD && (!bearD || bullD.i2 >= bearD.i2)) add(bullD.sub === 'regular' ? 1.5 : 1, 'Bullish divergence', bullD.label + ' ending ' + fmtD(bullD.d2) + '.');
+    else if (bearD) add(bearD.sub === 'regular' ? -1.5 : -1, 'Bearish divergence', bearD.label + ' ending ' + fmtD(bearD.d2) + '.');
+
+    // 8. chart patterns (most recent completed)
+    var done = pack.pats.filter(function (p) { return /Confirmed/.test(p.note); })[0] || pack.pats[0];
+    if (done) add(done.bias === 'bullish' ? 1.5 : done.bias === 'bearish' ? -1.5 : 0, done.label, done.note);
+
+    // 9. market regime (stocks only)
+    if (!pack.isIndex && pack.idxRegime) add(pack.idxRegime === 'up' ? 0.5 : -0.5, 'Market backdrop', pack.idxRegime === 'up' ? 'NEPSE index above its 200-day average — tailwind.' : 'NEPSE index below its 200-day average — headwind.');
+
+    // 10. support / resistance proximity
+    var piv = fractalPivots(rows, 4).slice(-8);
+    var sup = null, res = null;
+    piv.forEach(function (p) {
+      if (p.t === 'L' && p.p < c && (sup == null || p.p > sup)) sup = p.p;
+      if (p.t === 'H' && p.p > c && (res == null || p.p < res)) res = p.p;
+    });
+    if (sup != null && c < sup * 1.03) add(0.5, 'Holding support', 'Price sitting just above support near ' + num(sup, 0) + '.');
+    if (res != null && c > res * 0.97) add(-0.5, 'Under resistance', 'Overhead resistance near ' + num(res, 0) + '.');
+
+    score = Math.round(score * 10) / 10;
+    var label, cls;
+    if (score >= 5) { label = 'Strong Buy'; cls = 'sbuy'; }
+    else if (score >= 2) { label = 'Buy'; cls = 'buy'; }
+    else if (score > -2) { label = 'Hold'; cls = 'hold'; }
+    else if (score > -5) { label = 'Exit / Reduce'; cls = 'exit'; }
+    else { label = 'Strong Exit'; cls = 'sexit'; }
+    return { score: score, label: label, cls: cls, factors: factors };
+  }
+  function avg(a) { var s = 0, k = 0; for (var i = 0; i < a.length; i++) if (a[i] > 0) { s += a[i]; k++; } return k ? s / k : 0; }
+
+  /* ================= formatting ================= */
+  function fmtD(ymd) { var s = String(ymd); return s.slice(0, 4) + '-' + s.slice(4, 6) + '-' + s.slice(6, 8); }
   function fmtTick(ymd, weekly) {
     var s = String(ymd), m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+s.slice(4, 6) - 1];
     return weekly ? m + " '" + s.slice(2, 4) : m + ' ' + s.slice(6, 8);
   }
-  function num(n, d) { return n.toLocaleString('en-US', { minimumFractionDigits: d || 2, maximumFractionDigits: d || 2 }); }
-  function bigVol(v) {
-    if (v >= 1e9) return (v / 1e9).toFixed(2) + 'B';
-    if (v >= 1e6) return (v / 1e6).toFixed(1) + 'M';
-    if (v >= 1e3) return (v / 1e3).toFixed(0) + 'K';
-    return String(v);
+  function num(n, d) { return (+n).toLocaleString('en-US', { minimumFractionDigits: d == null ? 2 : d, maximumFractionDigits: d == null ? 2 : d }); }
+  function bigMoney(v) {
+    v = +v || 0;
+    if (v >= 1e9) return 'Rs ' + (v / 1e9).toFixed(2) + 'B';
+    if (v >= 1e7) return 'Rs ' + (v / 1e7).toFixed(2) + ' Cr';
+    if (v >= 1e5) return 'Rs ' + (v / 1e5).toFixed(1) + ' L';
+    return 'Rs ' + Math.round(v).toLocaleString('en-US');
+  }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+  /* ================= state & data ================= */
+  var state = {
+    mode: 'index', sym: 'NEPSE', symName: 'NEPSE Index',
+    tf: '1Y', style: 'candles', sma: true, rsi: true, signals: true,
+    hover: -1, rows: [], live: null, liveAt: 0, liveBadge: 'eod',
+    companies: [], names: {}, loading: false, err: ''
+  };
+  var TF_SESSIONS = { '1M': 22, '3M': 66, '6M': 132, '1Y': 252, '2Y': 504 };
+  var histCache = {}, liveCache = { at: 0, map: {} };
+
+  function indexRows() {
+    return (window.NEPSE_DAILY || []).map(function (r) { return [r[0], r[1], r[2], r[3], r[4], 0, r[5]]; });
+  }
+  function ymdNum(dstr) { return +dstr.replace(/-/g, ''); }
+  function todayNPT() {
+    // Kathmandu wall-clock exposed via the UTC getters: NPT = UTC + 5:45
+    return new Date(Date.now() + 5.75 * 3600e3);
+  }
+  function marketOpenNPT() {
+    var t = todayNPT(), d = t.getUTCDay(), mins = t.getUTCHours() * 60 + t.getUTCMinutes();
+    return d >= 0 && d <= 4 && mins >= 570 && mins < 900; // Sun–Thu 09:30–15:00
+  }
+  function fetchJSON(url, timeout) {
+    return new Promise(function (res, rej) {
+      var to = setTimeout(function () { rej(new Error('timeout')); }, timeout || 15000);
+      fetch(url).then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
+        .then(function (j) { clearTimeout(to); res(j); })
+        .catch(function (e) { clearTimeout(to); rej(e); });
+    });
+  }
+  function loadCompanies() {
+    return fetchJSON(SRC.companies).then(function (arr) {
+      if (Array.isArray(arr)) state.companies = arr;
+    }).catch(function () { state.companies = ['NABIL', 'NICA', 'HIDCL', 'UPPER', 'NIFRA', 'NTC', 'CIT', 'CHCL']; });
+  }
+  function loadLive() {
+    var now = Date.now();
+    if (now - liveCache.at < 60000 && Object.keys(liveCache.map).length) return Promise.resolve(liveCache.map);
+    return fetchJSON(SRC.live).then(function (arr) {
+      var map = {};
+      (arr || []).forEach(function (q) { if (q && q.symbol) { map[q.symbol] = q; if (q.name) state.names[q.symbol] = q.name; } });
+      liveCache = { at: now, map: map };
+      return map;
+    }).catch(function () { return liveCache.map; });
+  }
+  function loadStock(sym) {
+    if (histCache[sym]) return Promise.resolve(histCache[sym]);
+    return fetchJSON(SRC.prices(sym)).then(function (j) {
+      var rows = (j.data || []).map(function (d) {
+        return [ymdNum(d.date), +d.open || 0, +d.high || 0, +d.low || 0, +d.ltp || 0, +d.qty || 0, +d.turnover || 0];
+      }).filter(function (r) { return r[4] > 0; });
+      rows.sort(function (a, b) { return a[0] - b[0]; });
+      histCache[sym] = rows;
+      return rows;
+    });
+  }
+  function applyLiveCandle(rows, sym) {
+    var q = liveCache.map[sym];
+    if (!q || !q.last_updated) return { rows: rows, live: false };
+    var t = todayNPT();
+    var ymd = t.getUTCFullYear() * 10000 + (t.getUTCMonth() + 1) * 100 + t.getUTCDate();
+    var ageMin = (Date.now() - new Date(q.last_updated).getTime()) / 60000;
+    if (ageMin > 180) return { rows: rows, live: false }; // stale quote
+    var last = rows[rows.length - 1];
+    var candle = [ymd, q.previous_close || q.ltp, q.high || q.ltp, q.low || q.ltp, q.ltp, q.volume || 0, q.turnover || 0];
+    var out = rows.slice();
+    if (last && last[0] === ymd) out[out.length - 1] = candle;
+    else if (!last || ymd > last[0]) out.push(candle);
+    else return { rows: rows, live: false };
+    return { rows: out, live: marketOpenNPT() && ageMin < 45, quote: q, provisional: !last || ymd >= last[0] };
   }
 
-  /* ---- series for current timeframe (with warm-up history for indicators) ---- */
-  function currentSeries() {
-    var tf = state.tf, rows, weekly = false, viewLen;
-    if (tf === '5Y' || tf === 'All') {
-      weekly = true;
-      var all = toWeekly(DAILY);
-      viewLen = tf === '5Y' ? 262 : all.length;
-      rows = all.slice(Math.max(0, all.length - viewLen - 70));
-      return { rows: rows, warm: 70, weekly: true };
+  function setSymbol(sym, name) {
+    sym = String(sym || '').trim().toUpperCase();
+    if (!sym) return;
+    state.loading = true; state.err = ''; renderShell();
+    if (sym === 'NEPSE' || sym === 'NEPSE INDEX') {
+      state.mode = 'index'; state.sym = 'NEPSE'; state.symName = 'NEPSE Index';
+      state.rows = indexRows(); state.loading = false;
+      afterData();
+      return;
     }
-    viewLen = TF_SESSIONS[tf];
-    rows = DAILY.slice(Math.max(0, DAILY.length - viewLen - WARM));
-    return { rows: rows, warm: WARM, weekly: false };
+    state.mode = 'stock'; state.sym = sym;
+    state.symName = state.names[sym] || sym;
+    Promise.all([loadStock(sym), loadLive()]).then(function (res) {
+      var rows = res[0];
+      if (!rows.length) throw new Error('empty');
+      var merged = applyLiveCandle(rows, sym);
+      state.rows = merged.rows;
+      state.live = merged.quote || liveCache.map[sym] || null;
+      state.liveBadge = merged.live ? 'live' : 'eod';
+      state.symName = state.names[sym] || sym;
+      state.loading = false;
+      afterData();
+    }).catch(function () {
+      state.loading = false; state.err = 'Could not load data for ' + esc(sym) + '. Check the symbol and retry.';
+      renderShell();
+    });
+  }
+  function afterData() {
+    try { history.replaceState(null, '', state.mode === 'stock' ? '?s=' + state.sym : location.pathname); } catch (e) {}
+    render();
   }
 
-  /* ---- canvases ---- */
-  var mainC = document.getElementById('nl-chart'),
-      rsiC = document.getElementById('nl-rsi'),
-      tip = document.getElementById('nl-tip');
-  if (!mainC) return;
-  var mctx = mainC.getContext('2d'), rctx = rsiC.getContext('2d');
-  var plot = { xs: [], view: null, geom: null, rsiGeom: null };
-
-  function sizeCanvas(c, hCss) {
-    var w = c.parentElement.clientWidth, dpr = Math.min(2, window.devicePixelRatio || 1);
-    c.width = Math.round(w * dpr); c.height = Math.round(hCss * dpr);
-    c.style.width = w + 'px'; c.style.height = hCss + 'px';
-    var x = c.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0);
-    return { w: w, h: hCss };
+  /* ================= series ================= */
+  function toWeekly(rows) {
+    var out = [], cur = null;
+    rows.forEach(function (r) {
+      if (!cur || r[0] - cur.w0 > 6) {
+        if (cur) out.push([cur.d0, cur.o, cur.h, cur.l, cur.c, cur.q, cur.t]);
+        cur = { d0: r[0], w0: r[0], o: r[1], h: r[2], l: r[3], c: r[4], q: r[5], t: r[6] };
+      } else { cur.h = Math.max(cur.h, r[2]); cur.l = Math.min(cur.l, r[3]); cur.c = r[4]; cur.q += r[5]; cur.t += r[6]; }
+    });
+    if (cur) out.push([cur.d0, cur.o, cur.h, cur.l, cur.c, cur.q, cur.t]);
+    return out;
   }
+  function currentSeries() {
+    var rows = state.rows, n = rows.length, view;
+    var want = TF_SESSIONS[state.tf];
+    if (state.tf === 'All' || state.tf === '5Y') {
+      view = state.tf === '5Y' ? rows.slice(-1260) : rows.slice();
+      return { rows: toWeekly(view), weekly: true, daily: rows, viewStart: 0, isWeekly: true };
+    }
+    var start = Math.max(0, n - (want || 252));
+    view = rows.slice(start);
+    if (view.length > 420) return { rows: toWeekly(view), weekly: true, daily: rows, viewStart: 0, isWeekly: true };
+    return { rows: view, weekly: false, daily: rows, viewStart: start, isWeekly: false };
+  }
+
+  /* ================= chart ================= */
+  var cv, cx, rcv, rcx, tip;
+  function fitCanvas(c) {
+    var dpr = Math.min(2, window.devicePixelRatio || 1);
+    var w = c.clientWidth, h = c.clientHeight;
+    if (!w || !h) return null;
+    c.width = Math.round(w * dpr); c.height = Math.round(h * dpr);
+    var g = c.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return { g: g, w: w, h: h };
+  }
+  function pill(g, x, y, text, fg, bg) {
+    g.font = '600 10px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif';
+    var w = g.measureText(text).width + 12;
+    x = Math.max(4, Math.min(x - w / 2, (g.canvas.clientWidth || 800) - w - 4));
+    g.fillStyle = bg; g.strokeStyle = fg; g.lineWidth = 1;
+    g.beginPath();
+    if (g.roundRect) g.roundRect(x, y - 9, w, 18, 9); else g.rect(x, y - 9, w, 18);
+    g.fill(); g.stroke();
+    g.fillStyle = fg; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText(text, x + w / 2, y + 0.5);
+  }
+  function drawAnnotations(g, X, Y, H, W, view, divs, pats) {
+    if (!state.signals) return;
+    var vs = view.viewStart;
+    function inView(i) { return view.isWeekly ? true : (i >= vs && i < vs + view.rows.length); }
+    function VX(i) { return view.isWeekly ? null : X(i - vs); }
+    // divergences
+    divs.forEach(function (d) {
+      if (view.isWeekly || !inView(d.i1) || !inView(d.i2)) return;
+      var x1 = VX(d.i1), x2 = VX(d.i2), col = d.bias === 'bullish' ? BULLC : BEARC;
+      g.save(); g.strokeStyle = col; g.lineWidth = 1.5; g.setLineDash([5, 4]);
+      g.beginPath(); g.moveTo(x1, Y(d.p1)); g.lineTo(x2, Y(d.p2)); g.stroke(); g.restore();
+      [d.i1, d.i2].forEach(function (ii, k) {
+        var x = VX(ii), y = Y(k ? d.p2 : d.p1);
+        g.fillStyle = col; g.beginPath(); g.arc(x, y, 3.5, 0, 7); g.fill();
+        g.fillStyle = '#fff'; g.beginPath(); g.arc(x, y, 1.6, 0, 7); g.fill();
+      });
+      pill(g, x2, Y(d.p2) + (d.bias === 'bullish' ? 16 : -16),
+        (d.bias === 'bullish' ? '▲ ' : '▼ ') + d.ind + ' div', col, '#fff');
+    });
+    // patterns
+    pats.forEach(function (p) {
+      if (view.isWeekly || !inView(p.i1) || !inView(p.i2)) return;
+      var col = p.bias === 'bullish' ? BULLC : p.bias === 'bearish' ? BEARC : '#7c3aed';
+      var x1 = VX(p.i1), x2 = VX(Math.min(p.draw && p.draw.iEnd != null ? p.draw.iEnd : p.i2, vs + view.rows.length - 1));
+      g.save(); g.strokeStyle = col; g.lineWidth = 1.4;
+      function hline(y, dash) {
+        g.setLineDash(dash || []); g.beginPath(); g.moveTo(x1, Y(y)); g.lineTo(x2, Y(y)); g.stroke(); g.setLineDash([]);
+      }
+      function segline(a, b) {
+        var xe = Math.min(b.i, vs + view.rows.length - 1);
+        g.setLineDash([]); g.beginPath(); g.moveTo(VX(a.i), Y(a.p)); g.lineTo(VX(xe), Y(b.p)); g.stroke();
+      }
+      var dr = p.draw || {};
+      if (p.pkind === 'double-top' || p.pkind === 'double-bottom') {
+        hline(dr.hline, [6, 4]); hline(dr.nline, []);
+      } else if (dr.neck) {
+        g.setLineDash([]); g.beginPath();
+        g.moveTo(VX(dr.neck[0].i), Y(dr.neck[0].p)); g.lineTo(x2, Y(dr.nline)); g.stroke();
+      } else if (dr.upper) {
+        var fU = linfit(dr.upper), fL = linfit(dr.lower);
+        var viewEnd = vs + view.rows.length - 1;
+        var iA = Math.min(dr.upper[0].i, dr.lower[0].i);
+        var iB = Math.min((p.draw.iEnd || p.i2) + 10, viewEnd);
+        function bline(pts, f, dash) {
+          var p0 = pts[0], aS = f.slope * meanP(pts);
+          g.setLineDash(dash); g.beginPath();
+          g.moveTo(VX(Math.max(iA, vs)), Y(p0.p + aS * (Math.max(iA, vs) - p0.i)));
+          g.lineTo(VX(iB), Y(p0.p + aS * (iB - p0.i)));
+          g.stroke(); g.setLineDash([]);
+        }
+        bline(dr.upper, fU, [6, 4]); bline(dr.lower, fL, [6, 4]);
+      }
+      g.restore();
+      pill(g, VX(p.i2), 14, p.label, col, '#fff');
+    });
+  }
+  function meanP(pts) { var s = 0; pts.forEach(function (p) { s += p.p; }); return s / pts.length; }
 
   function render() {
-    var ser = currentSeries(), rows = ser.rows, warm = ser.warm, weekly = ser.weekly;
-    var n = Math.max(5, rows.length - warm);
-    var view = rows.slice(rows.length - n);
-    var closesAll = rows.map(function (r) { return r[4]; });
-    var s20 = sma(closesAll, 20), s50 = sma(closesAll, 50), r14 = rsi(closesAll, 14);
-    var vS20 = s20.slice(s20.length - n), vS50 = s50.slice(s50.length - n), vRsi = r14.slice(r14.length - n);
-
-    var R = sizeCanvas(mainC, window.innerWidth < 640 ? 340 : 440);
-    var padL = 8, padR = 64, padT = 14, padBv = 26;
-    var volH = Math.round(R.h * 0.18), priceH = R.h - padT - volH - padBv - 8;
-    var lo = Infinity, hi = -Infinity, vMax = 0, i;
-    view.forEach(function (r) {
-      if (r[3] < lo) lo = r[3]; if (r[2] > hi) hi = r[2];
-      if (r[5] > vMax) vMax = r[5];
-    });
-    if (state.sma) {
-      vS20.forEach(function (v) { if (v != null) { if (v < lo) lo = v; if (v > hi) hi = v; } });
-      vS50.forEach(function (v) { if (v != null) { if (v < lo) lo = v; if (v > hi) hi = v; } });
+    if (!cv) return;
+    var S = currentSeries(), rows = S.rows, n = rows.length;
+    if (!n) return;
+    var box = fitCanvas(cv); if (!box) return;
+    var g = box.g, W = box.w, H = box.h;
+    var padL = 8, padR = 64, padT = 14, padB = 30;
+    var pw = W - padL - padR, ph = H - padT - padB - 46;
+    var closes = rows.map(function (r) { return r[4]; });
+    var sma20 = smaArr(closes, 20), sma50 = smaArr(closes, 50);
+    var lo = Infinity, hi = -Infinity, i;
+    for (i = 0; i < n; i++) { lo = Math.min(lo, rows[i][3]); hi = Math.max(hi, rows[i][2]); }
+    var span = (hi - lo) || 1; lo -= span * 0.08; hi += span * 0.08;
+    function X(i) { return padL + (n === 1 ? pw / 2 : i / (n - 1) * pw); }
+    function Y(p) { return padT + (1 - (p - lo) / (hi - lo)) * ph; }
+    g.clearRect(0, 0, W, H);
+    // grid + y labels
+    g.strokeStyle = GRID; g.fillStyle = TXT; g.lineWidth = 1;
+    g.font = '11px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif';
+    g.textAlign = 'left'; g.textBaseline = 'middle';
+    var step = Math.pow(10, Math.floor(Math.log10(span / 4)));
+    var v0 = Math.ceil(lo / step) * step;
+    for (var v = v0; v < hi; v += step) {
+      g.beginPath(); g.moveTo(padL, Y(v)); g.lineTo(W - padR, Y(v)); g.stroke();
+      g.fillText(num(v, v >= 100 ? 0 : 1), W - padR + 8, Y(v));
     }
-    var span = (hi - lo) || 1; lo -= span * 0.06; hi += span * 0.06;
-    var pw = R.w - padL - padR;
-    var step = pw / n, bw = Math.max(1, Math.min(14, step * 0.62));
-    var X = function (idx) { return padL + step * idx + step / 2; };
-    var Y = function (p) { return padT + priceH - (p - lo) / (hi - lo) * priceH; };
-
-    mctx.clearRect(0, 0, R.w, R.h);
-    mctx.font = '11px -apple-system, Inter, sans-serif';
-
-    // gridlines + y labels
-    mctx.strokeStyle = GRID; mctx.fillStyle = TXT; mctx.lineWidth = 1; mctx.textAlign = 'left';
-    for (var gLine = 0; gLine <= 4; gLine++) {
-      var pv = lo + (hi - lo) * gLine / 4, gy = Y(pv);
-      mctx.beginPath(); mctx.moveTo(padL, gy); mctx.lineTo(R.w - padR + 8, gy); mctx.stroke();
-      mctx.fillText(num(pv, 0), R.w - padR + 12, gy + 4);
+    // x ticks
+    g.textAlign = 'center';
+    var tickN = Math.max(2, Math.floor(pw / 90));
+    for (i = 0; i < tickN; i++) {
+      var idx = Math.round(i * (n - 1) / (tickN - 1));
+      g.fillText(fmtTick(rows[idx][0], S.weekly), X(idx), H - 46 - 12);
     }
-    // ATH line
-    var ath = 3199.03;
-    if (ath < hi && ath > lo) {
-      var ay = Y(ath);
-      mctx.strokeStyle = ATHC; mctx.setLineDash([5, 4]); mctx.lineWidth = 1.2;
-      mctx.beginPath(); mctx.moveTo(padL, ay); mctx.lineTo(R.w - padR + 8, ay); mctx.stroke();
-      mctx.setLineDash([]); mctx.fillStyle = ATHC;
-      mctx.fillText('ATH ' + num(ath, 0), R.w - padR + 12, ay - 6);
+    // turnover bars
+    var vmax = 0;
+    for (i = 0; i < n; i++) vmax = Math.max(vmax, rows[i][6] || 0);
+    var vbT = H - 46, vbH = 40;
+    if (vmax > 0) for (i = 0; i < n; i++) {
+      var bv = (rows[i][6] || 0) / vmax * vbH;
+      g.fillStyle = rows[i][4] >= rows[i][1] ? 'rgba(22,163,74,.45)' : 'rgba(220,38,38,.45)';
+      var bw = Math.max(1, pw / n * 0.7);
+      g.fillRect(X(i) - bw / 2, vbT - bv, bw, bv);
     }
-    // x labels
-    mctx.fillStyle = TXT; mctx.textAlign = 'center';
-    var ticks = 6;
-    for (var t = 0; t < ticks; t++) {
-      var ti = Math.round(t * (n - 1) / (ticks - 1));
-      mctx.fillText(fmtTick(view[ti][0], weekly), X(ti), R.h - 8);
-    }
-    // volume bars
-    if (vMax > 0) {
-      var vy0 = padT + priceH + 8;
-      view.forEach(function (r, idx) {
-        var vh = r[5] / vMax * volH;
-        mctx.fillStyle = r[4] >= r[1] ? 'rgba(22,163,74,.45)' : 'rgba(220,38,38,.45)';
-        mctx.fillRect(X(idx) - bw / 2, vy0 + volH - vh, bw, vh);
-      });
-      mctx.fillStyle = TXT; mctx.textAlign = 'left';
-      mctx.fillText('Vol ' + bigVol(vMax), padL + 2, vy0 + 10);
-    }
+    g.fillStyle = TXT; g.textAlign = 'left';
+    g.fillText('Turnover', padL, vbT - vbH - 6);
     // candles / line
-    plot.xs = [];
     if (state.style === 'candles') {
-      view.forEach(function (r, idx) {
-        var up = r[4] >= r[1], cx = X(idx);
-        mctx.strokeStyle = up ? UP : DOWN; mctx.fillStyle = up ? UP : DOWN; mctx.lineWidth = 1;
-        mctx.beginPath(); mctx.moveTo(cx, Y(r[2])); mctx.lineTo(cx, Y(r[3])); mctx.stroke();
-        var bT = Y(Math.max(r[1], r[4])), bB = Y(Math.min(r[1], r[4]));
-        mctx.fillRect(cx - bw / 2, bT, bw, Math.max(1, bB - bT));
-        plot.xs.push(cx);
-      });
+      var cw = Math.max(2, Math.min(14, pw / n * 0.7));
+      for (i = 0; i < n; i++) {
+        var r = rows[i], up = r[4] >= r[1], col = up ? UP : DOWN;
+        g.strokeStyle = col; g.fillStyle = up ? '#fff' : col; g.lineWidth = 1;
+        g.beginPath(); g.moveTo(X(i), Y(r[2])); g.lineTo(X(i), Y(r[3])); g.stroke();
+        var yO = Y(r[1]), yC = Y(r[4]);
+        g.fillRect(X(i) - cw / 2, Math.min(yO, yC), cw, Math.max(1.5, Math.abs(yC - yO)));
+        g.strokeRect(X(i) - cw / 2, Math.min(yO, yC), cw, Math.max(1.5, Math.abs(yC - yO)));
+      }
     } else {
-      mctx.strokeStyle = '#0f172a'; mctx.lineWidth = 1.8; mctx.beginPath();
-      view.forEach(function (r, idx) { var cx = X(idx), cy = Y(r[4]); idx ? mctx.lineTo(cx, cy) : mctx.moveTo(cx, cy); plot.xs.push(cx); });
-      mctx.stroke();
+      g.strokeStyle = '#2563eb'; g.lineWidth = 2; g.beginPath();
+      for (i = 0; i < n; i++) { var xx = X(i), yy = Y(closes[i]); i ? g.lineTo(xx, yy) : g.moveTo(xx, yy); }
+      g.stroke();
+      var grd = g.createLinearGradient(0, padT, 0, padT + ph);
+      grd.addColorStop(0, 'rgba(37,99,235,.18)'); grd.addColorStop(1, 'rgba(37,99,235,0)');
+      g.lineTo(X(n - 1), padT + ph); g.lineTo(X(0), padT + ph); g.closePath(); g.fillStyle = grd; g.fill();
     }
     // SMA overlays
-    function smaLine(vals, color) {
-      mctx.strokeStyle = color; mctx.lineWidth = 1.4; mctx.beginPath();
-      var started = false;
-      vals.forEach(function (v, idx) {
-        if (v == null) { started = false; return; }
-        var cx = X(idx), cy = Y(v);
-        started ? mctx.lineTo(cx, cy) : mctx.moveTo(cx, cy); started = true;
-      });
-      mctx.stroke();
-    }
-    if (state.sma) { smaLine(vS20, SMA20C); smaLine(vS50, SMA50C); }
-
-    // crossover markers
-    var markers = [];
-    if (state.signals) {
-      for (var mIdx = 1; mIdx < n; mIdx++) {
-        var a0 = vS20[mIdx - 1], a1 = vS20[mIdx], b0 = vS50[mIdx - 1], b1 = vS50[mIdx];
-        if (a0 == null || b0 == null || a1 == null || b1 == null) continue;
-        if (a0 <= b0 && a1 > b1) markers.push({ i: mIdx, type: 'buy' });
-        else if (a0 >= b0 && a1 < b1) markers.push({ i: mIdx, type: 'sell' });
+    function smaLine(arr, col) {
+      g.strokeStyle = col; g.lineWidth = 1.6; g.beginPath(); var st = false;
+      for (var k = 0; k < n; k++) {
+        if (arr[k] == null) { st = false; continue; }
+        st ? g.lineTo(X(k), Y(arr[k])) : g.moveTo(X(k), Y(arr[k])); st = true;
       }
-      markers.forEach(function (mk) {
-        var r = view[mk.i], cx = X(mk.i);
-        mctx.fillStyle = mk.type === 'buy' ? UP : DOWN;
-        if (mk.type === 'buy') {
-          var by = Y(r[3]) + 12;
-          mctx.beginPath(); mctx.moveTo(cx, by - 7); mctx.lineTo(cx - 5, by + 2); mctx.lineTo(cx + 5, by + 2); mctx.closePath(); mctx.fill();
-        } else {
-          var sy = Y(r[2]) - 12;
-          mctx.beginPath(); mctx.moveTo(cx, sy + 7); mctx.lineTo(cx - 5, sy - 2); mctx.lineTo(cx + 5, sy - 2); mctx.closePath(); mctx.fill();
-        }
+      g.stroke();
+    }
+    if (state.sma) { smaLine(sma20, SMA20C); smaLine(sma50, SMA50C); }
+    // ATH line (index only)
+    if (state.mode === 'index') {
+      var ATH = 3199.03;
+      if (ATH > lo && ATH < hi) {
+        g.save(); g.strokeStyle = ATHC; g.setLineDash([6, 4]); g.lineWidth = 1.2;
+        g.beginPath(); g.moveTo(padL, Y(ATH)); g.lineTo(W - padR, Y(ATH)); g.stroke(); g.setLineDash([]);
+        g.fillStyle = ATHC; g.font = '600 10px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif';
+        g.textAlign = 'right'; g.textBaseline = 'bottom';
+        g.fillText('ATH 3,199', W - padR - 4, Y(ATH) - 4); g.restore();
+      }
+    }
+    // SMA 20/50 crossover markers
+    if (state.sma) {
+      for (i = 21; i < n; i++) {
+        var a0 = sma20[i - 1], a1 = sma20[i], b0 = sma50[i - 1], b1 = sma50[i];
+        if (a0 == null || b0 == null || a1 == null || b1 == null) continue;
+        var golden = a0 <= b0 && a1 > b1, death = a0 >= b0 && a1 < b1;
+        if (!golden && !death) continue;
+        var xx = X(i), yy = Y(closes[i]) + (golden ? 12 : -12);
+        g.fillStyle = golden ? UP : DOWN; g.beginPath();
+        if (golden) { g.moveTo(xx, yy - 5); g.lineTo(xx - 4.5, yy + 3.5); g.lineTo(xx + 4.5, yy + 3.5); }
+        else { g.moveTo(xx, yy + 5); g.lineTo(xx - 4.5, yy - 3.5); g.lineTo(xx + 4.5, yy - 3.5); }
+        g.closePath(); g.fill();
+      }
+    }
+    // analysis overlays
+    var divs = state.signals ? detectDivergences(rows) : [];
+    var pats = state.signals ? detectPatterns(rows) : [];
+    drawAnnotations(g, X, Y, H, W, { rows: rows, viewStart: S.viewStart, isWeekly: S.isWeekly }, divs, pats);
+    // hover crosshair
+    if (state.hover >= 0 && state.hover < n) {
+      var hx = X(state.hover);
+      g.strokeStyle = '#94a3b8'; g.setLineDash([4, 4]); g.lineWidth = 1;
+      g.beginPath(); g.moveTo(hx, padT); g.lineTo(hx, padT + ph); g.stroke(); g.setLineDash([]);
+      g.fillStyle = '#0f172a';
+      g.beginPath(); g.arc(hx, Y(closes[state.hover]), 4, 0, 7); g.fill();
+      g.fillStyle = '#fff'; g.beginPath(); g.arc(hx, Y(closes[state.hover]), 1.8, 0, 7); g.fill();
+    }
+    drawRSI(closes);
+    renderShell(S, divs, pats);
+    // stash for pointer handlers
+    cv._geom = { X: X, Y: Y, n: n, rows: rows, padT: padT, ph: ph };
+  }
+  function drawRSI(closes) {
+    var wrap = document.getElementById('nl-rsi-wrap');
+    if (!wrap || !state.rsi) { if (wrap) wrap.style.display = 'none'; return; }
+    wrap.style.display = '';
+    var box = fitCanvas(rcv); if (!box) return;
+    var g = box.g, W = box.w, H = box.h, n = closes.length;
+    var rsi = rsiArr(closes, 14);
+    function X(i) { return 8 + (n === 1 ? (W - 72) / 2 : i / (n - 1) * (W - 80)); }
+    function Y(v) { return 8 + (1 - v / 100) * (H - 16); }
+    g.clearRect(0, 0, W, H);
+    g.strokeStyle = GRID; g.lineWidth = 1;
+    [70, 50, 30].forEach(function (z) {
+      g.setLineDash(z === 50 ? [] : [4, 4]); g.strokeStyle = z === 50 ? '#cbd5e1' : '#f1c40f';
+      g.beginPath(); g.moveTo(8, Y(z)); g.lineTo(W - 64, Y(z)); g.stroke(); g.setLineDash([]);
+    });
+    g.fillStyle = TXT; g.font = '10px system-ui,sans-serif'; g.textAlign = 'left'; g.textBaseline = 'middle';
+    g.fillText('70', W - 58, Y(70)); g.fillText('30', W - 58, Y(30));
+    g.strokeStyle = '#7c3aed'; g.lineWidth = 1.6; g.beginPath();
+    var st = false;
+    for (var i = 0; i < n; i++) {
+      if (rsi[i] == null) { st = false; continue; }
+      st ? g.lineTo(X(i), Y(rsi[i])) : g.moveTo(X(i), Y(rsi[i])); st = true;
+    }
+    g.stroke();
+    if (state.hover >= 0 && state.hover < n && rsi[state.hover] != null) {
+      g.fillStyle = '#0f172a'; g.beginPath(); g.arc(X(state.hover), Y(rsi[state.hover]), 3.5, 0, 7); g.fill();
+    }
+  }
+
+  /* ================= verdict card + scanner + stats ================= */
+  function idxRegime() {
+    var rows = indexRows();
+    var c = rows.map(function (r) { return r[4]; }), s200 = smaArr(c, 200);
+    return c[c.length - 1] >= s200[s200.length - 1] ? 'up' : 'down';
+  }
+  function renderShell(S, divs, pats) {
+    var wrap = document.getElementById('nl-lab'); if (!wrap) return;
+    var rows = state.rows, n = rows.length;
+    // live bar + verdict
+    var lb = document.getElementById('nl-livebar');
+    if (lb) {
+      if (state.loading) { lb.innerHTML = '<div class="nl-lb-sym"><b>Loading…</b><span>Fetching market data</span></div>'; }
+      else if (state.err) { lb.innerHTML = '<div class="nl-lb-sym"><b>' + esc(state.sym) + '</b><span>' + state.err + '</span></div>'; }
+      else {
+      var q = state.live, px = q ? q.ltp : (n ? rows[n - 1][4] : 0);
+      var chg = q ? q.change : (n > 1 ? rows[n - 1][4] - rows[n - 2][4] : 0);
+      var pct = q && q.percent_change != null ? q.percent_change : (n > 1 && rows[n - 2][4] ? chg / rows[n - 2][4] * 100 : 0);
+      var badge = state.liveBadge === 'live'
+        ? '<span class="nl-badge live"><span class="nl-pulse"></span>LIVE</span>'
+        : '<span class="nl-badge eod">END OF DAY</span>';
+      lb.innerHTML =
+        '<div class="nl-lb-sym"><b>' + esc(state.sym) + '</b><span>' + esc(state.symName) + '</span></div>' +
+        '<div class="nl-lb-px"><b class="' + (chg >= 0 ? 'up' : 'dn') + '">' + num(px, 2) + '</b>' +
+        '<span class="' + (chg >= 0 ? 'up' : 'dn') + '">' + (chg >= 0 ? '+' : '') + num(chg, 2) + ' (' + (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%)</span></div>' +
+        '<div class="nl-lb-badge">' + badge + '<small>' + (q && q.last_updated ? 'as of ' + esc(String(q.last_updated).slice(11, 16)) : fmtD(n ? rows[n - 1][0] : 0)) + '</small></div>';
+      }
+    }
+    // verdict
+    var vc = document.getElementById('nl-verdict');
+    if (vc) {
+      if (state.loading) { vc.innerHTML = '<div class="nl-v-loading">Loading market data…</div>'; }
+      else if (state.err) { vc.innerHTML = '<div class="nl-v-err">' + state.err + '</div>'; }
+      else if (n >= 60) {
+        var v = computeVerdict({ rows: state.rows, divs: divs || [], pats: pats || [], isIndex: state.mode === 'index', idxRegime: state.mode === 'stock' ? idxRegime() : null });
+        var pctW = Math.min(100, Math.abs(v.score) / 8 * 100);
+        var frows = v.factors.map(function (f) {
+          return '<tr><td>' + esc(f.name) + '<small>' + esc(f.note) + '</small></td>' +
+            '<td class="nl-fpts ' + (f.pts > 0 ? 'up' : f.pts < 0 ? 'dn' : '') + '">' + (f.pts > 0 ? '+' : '') + f.pts + '</td></tr>';
+        }).join('');
+        vc.innerHTML =
+          '<div class="nl-v-top"><div><div class="nl-v-k">Signal engine verdict</div>' +
+          '<div class="nl-v-label ' + v.cls + '">' + v.label + '</div></div>' +
+          '<div class="nl-v-meterwrap"><div class="nl-v-meter"><div class="nl-v-fill ' + v.cls + '" style="width:' + pctW + '%"></div></div>' +
+          '<div class="nl-v-score">score ' + (v.score > 0 ? '+' : '') + v.score + ' / ±10</div></div></div>' +
+          '<table class="nl-v-factors"><tbody>' + frows + '</tbody></table>' +
+          '<div class="nl-v-foot">Rule-based model on daily data — educational only, not financial advice. ' +
+          (state.liveBadge === 'live' ? 'Includes the live session in progress.' : 'Based on the last closed session.') + '</div>';
+      }
+    }
+    // scanner
+    var sc = document.getElementById('nl-scan-list');
+    if (sc) {
+      var items = [];
+      (divs || []).forEach(function (d) {
+        items.push({ bias: d.bias, title: d.label, dates: fmtD(d.d1) + ' → ' + fmtD(d.d2), note: d.note, i2: d.i2, kind: 'div' });
+      });
+      (pats || []).forEach(function (p) {
+        items.push({ bias: p.bias, title: p.label + (p.conf === 'high' ? ' ✓' : ''), dates: fmtD(p.d1) + ' → ' + fmtD(p.d2), note: p.note, i2: p.i2, kind: 'pat' });
+      });
+      items.sort(function (a, b) { return b.i2 - a.i2; });
+      sc.innerHTML = items.length ? items.map(function (it, k) {
+        return '<div class="nl-scan-item"><span class="nl-dot ' + it.bias + '"></span>' +
+          '<div class="nl-scan-body"><b>' + esc(it.title) + '</b><span class="nl-scan-dates">' + it.dates + '</span>' +
+          '<p>' + esc(it.note) + '</p></div>' +
+          '<button class="nl-scan-go" data-k="' + k + '" data-i2="' + it.i2 + '">Locate</button></div>';
+      }).join('') : '<div class="nl-scan-empty">No clear divergences or chart patterns in this view. Try the 1Y or All timeframe.</div>';
+      sc.querySelectorAll('.nl-scan-go').forEach(function (btn) {
+        btn.addEventListener('click', function () { locate(+btn.getAttribute('data-i2')); });
       });
     }
-    plot.view = view; plot.vS20 = vS20; plot.vS50 = vS50; plot.markers = markers;
-    plot.geom = { padL: padL, padR: padR, padT: padT, priceH: priceH, lo: lo, hi: hi, n: n, X: X, Y: Y, R: R };
-
-    // RSI pane
-    var rWrap = document.getElementById('nl-rsi-wrap');
-    if (state.rsi) {
-      rWrap.style.display = '';
-      var RR = sizeCanvas(rsiC, 110);
-      var rpT = 8, rpH = RR.h - rpT - 20, rY = function (v) { return rpT + rpH - v / 100 * rpH; };
-      rctx.clearRect(0, 0, RR.w, RR.h);
-      rctx.font = '11px -apple-system, Inter, sans-serif';
-      [70, 50, 30].forEach(function (lv) {
-        rctx.strokeStyle = lv === 50 ? '#cbd5e1' : GRID; rctx.lineWidth = 1;
-        if (lv !== 50) rctx.setLineDash([4, 4]);
-        rctx.beginPath(); rctx.moveTo(padL, rY(lv)); rctx.lineTo(RR.w - padR + 8, rY(lv)); rctx.stroke();
-        rctx.setLineDash([]); rctx.fillStyle = TXT; rctx.textAlign = 'left';
-        rctx.fillText(String(lv), RR.w - padR + 12, rY(lv) + 4);
-      });
-      rctx.strokeStyle = '#7c3aed'; rctx.lineWidth = 1.6; rctx.beginPath();
-      var rs = false;
-      vRsi.forEach(function (v, idx) {
-        if (v == null) { rs = false; return; }
-        var cx = X(idx) * (RR.w / R.w), cy = rY(v);
-        rs ? rctx.lineTo(cx, cy) : rctx.moveTo(cx, cy); rs = true;
-      });
-      rctx.stroke();
-      rctx.fillStyle = TXT; rctx.textAlign = 'left';
-      rctx.fillText('RSI (14)', padL + 2, rpT + 10);
-      plot.rsiGeom = { X: X, wRatio: RR.w / R.w };
-    } else { rWrap.style.display = 'none'; plot.rsiGeom = null; }
-
-    renderStats(view, vRsi);
-    drawHover();
-  }
-
-  function renderStats(view, vRsi) {
-    var last = DAILY[DAILY.length - 1], prev = DAILY[DAILY.length - 2];
-    var chg = last[4] - prev[4], pct = chg / prev[4] * 100;
-    var win = DAILY.slice(-252), h52 = -Infinity, l52 = Infinity;
-    win.forEach(function (r) { if (r[2] > h52) h52 = r[2]; if (r[3] < l52) l52 = r[3]; });
-    var lastRsi = vRsi[vRsi.length - 1];
-    var closes = DAILY.map(function (r) { return r[4]; });
-    var s200 = sma(closes, 200), s200v = s200[s200.length - 1];
-    var regime = last[4] >= s200v ? 'Above SMA 200 · uptrend regime' : 'Below SMA 200 · caution regime';
-    function set(id, html, cls) {
-      var el = document.getElementById(id); if (!el) return;
-      el.innerHTML = html; el.className = 'nl-stat-v' + (cls ? ' ' + cls : '');
+    // stats bar
+    if (n) {
+      var last = rows[n - 1], prev = rows[n - 2] || last;
+      setT('nl-last', num(last[4], 2));
+      var ch = last[4] - prev[4], pc = prev[4] ? ch / prev[4] * 100 : 0;
+      var ce = document.getElementById('nl-chg');
+      if (ce) { ce.textContent = (ch >= 0 ? '+' : '') + num(ch, 2) + ' (' + (pc >= 0 ? '+' : '') + pc.toFixed(2) + '%)'; ce.className = 'stat-v ' + (ch >= 0 ? 'up' : 'dn'); }
+      var win = rows.slice(-252), h52 = -Infinity, l52 = Infinity;
+      win.forEach(function (x) { h52 = Math.max(h52, x[2]); l52 = Math.min(l52, x[3]); });
+      setT('nl-52h', num(h52, 2)); setT('nl-52l', num(l52, 2));
+      var rsiA = rsiArr(rows.map(function (r) { return r[4]; }), 14);
+      var rv = rsiA[n - 1];
+      setT('nl-rsi-v', rv == null ? '–' : rv.toFixed(1));
+      var s200 = smaArr(rows.map(function (r) { return r[4]; }), 200);
+      var rg = document.getElementById('nl-regime');
+      if (rg) {
+        var above = s200[n - 1] != null && last[4] >= s200[n - 1];
+        rg.textContent = s200[n - 1] == null ? '–' : (above ? 'Above SMA 200' : 'Below SMA 200');
+        rg.className = 'stat-v ' + (above ? 'up' : 'dn');
+      }
+      setT('nl-asof', fmtD(last[0]) + (state.liveBadge === 'live' ? ' · live' : ''));
     }
-    set('nl-last', num(last[4]));
-    set('nl-chg', (chg >= 0 ? '+' : '') + num(chg) + ' (' + (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%)', chg >= 0 ? 'up' : 'down');
-    set('nl-52h', num(h52, 0)); set('nl-52l', num(l52, 0));
-    set('nl-rsi-v', lastRsi == null ? '—' : lastRsi.toFixed(1),
-        lastRsi == null ? '' : (lastRsi >= 70 ? 'down' : lastRsi <= 30 ? 'up' : ''));
-    set('nl-regime', regime, last[4] >= s200v ? 'up' : 'down');
-    var ld = document.getElementById('nl-asof');
-    if (ld) ld.textContent = 'Daily data through ' + fmtDate(last[0]) + ' · NEPSE index';
+  }
+  function setT(id, t) { var e = document.getElementById(id); if (e) e.textContent = t; }
+  function locate(i2) {
+    var n = state.rows.length;
+    var tf = (n - 1 - i2) < 260 ? '1Y' : 'All';
+    if (state.tf !== tf) { state.tf = tf; syncSeg('nl-tf', tf); }
+    state.hover = -1;
+    render();
+    // scroll chart into view
+    var el = document.getElementById('nl-chart');
+    if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
-  /* ---- crosshair ---- */
-  function drawHover() {
-    if (!plot.view || state.hover < 0 || state.hover >= plot.view.length) { tip.style.display = 'none'; return; }
-    var g = plot.geom, idx = state.hover, r = plot.view[idx], cx = g.X(idx);
-    mctx.save();
-    mctx.strokeStyle = '#94a3b8'; mctx.setLineDash([4, 4]); mctx.lineWidth = 1;
-    mctx.beginPath(); mctx.moveTo(cx, g.padT); mctx.lineTo(cx, g.padT + g.priceH); mctx.stroke();
-    var cy = g.Y(r[4]);
-    mctx.beginPath(); mctx.moveTo(g.padL, cy); mctx.lineTo(g.R.w - g.padR + 8, cy); mctx.stroke();
-    mctx.setLineDash([]); mctx.restore();
-    var chg = (r[4] - r[1]) / r[1] * 100;
-    tip.innerHTML = '<b>' + fmtDate(r[0]) + '</b><span>O ' + num(r[1]) + ' · H ' + num(r[2]) +
-      ' · L ' + num(r[3]) + ' · C ' + num(r[4]) + '</span><span class="' + (chg >= 0 ? 'up' : 'down') + '">' +
-      (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%</span>';
-    tip.style.display = 'block';
-    var tw = tip.offsetWidth, wrapW = mainC.parentElement.clientWidth;
-    tip.style.left = Math.min(Math.max(8, cx - tw / 2), wrapW - tw - 8) + 'px';
-    tip.style.top = '8px';
+  /* ================= pointer ================= */
+  function bindPointer() {
+    if (!cv) return;
+    function pos(e) {
+      var r = cv.getBoundingClientRect(), g = cv._geom;
+      if (!g) return -1;
+      var x = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+      var i = Math.round((x - 8) / ((r.width - 72) / Math.max(1, g.n - 1)));
+      return Math.max(0, Math.min(g.n - 1, i));
+    }
+    function show(e) {
+      var i = pos(e); if (i < 0) return;
+      state.hover = i; render();
+      var g = cv._geom, r = g.rows[i];
+      tip.style.display = 'block';
+      tip.innerHTML = '<b>' + fmtD(r[0]) + '</b><br>O ' + num(r[1], 2) + ' · H ' + num(r[2], 2) + '<br>L ' + num(r[3], 2) + ' · C ' + num(r[4], 2) + '<br>Turnover ' + bigMoney(r[6]);
+      var cr = cv.getBoundingClientRect();
+      var cxp = (e.touches ? e.touches[0].clientX : e.clientX) - cr.left;
+      tip.style.left = Math.min(cxp + 14, cr.width - 150) + 'px';
+      tip.style.top = '12px';
+    }
+    function hide() { state.hover = -1; tip.style.display = 'none'; render(); }
+    cv.addEventListener('mousemove', show);
+    cv.addEventListener('mouseleave', hide);
+    cv.addEventListener('touchstart', show, { passive: true });
+    cv.addEventListener('touchmove', show, { passive: true });
+    cv.addEventListener('touchend', hide);
   }
-  function nearestIdx(clientX) {
-    var rect = mainC.getBoundingClientRect(), x = clientX - rect.left, best = -1, bd = 1e9;
-    plot.xs.forEach(function (cx, i) { var d = Math.abs(cx - x); if (d < bd) { bd = d; best = i; } });
-    return best;
-  }
-  mainC.addEventListener('mousemove', function (e) { state.hover = nearestIdx(e.clientX); render(); });
-  mainC.addEventListener('mouseleave', function () { state.hover = -1; render(); });
-  mainC.addEventListener('touchmove', function (e) {
-    if (e.touches.length) { state.hover = nearestIdx(e.touches[0].clientX); render(); }
-  }, { passive: true });
-  mainC.addEventListener('touchend', function () { state.hover = -1; render(); });
 
-  /* ---- controls ---- */
-  function segBtns(id, key, cb) {
-    var wrap = document.getElementById(id); if (!wrap) return;
-    wrap.addEventListener('click', function (e) {
+  /* ================= UI ================= */
+  function syncSeg(id, val) {
+    var el = document.getElementById(id);
+    if (el) el.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b.dataset.v === val); });
+  }
+  function seg(id, cur, fn) {
+    var el = document.getElementById(id);
+    if (!el) return cur;
+    el.addEventListener('click', function (e) {
       var b = e.target.closest('button'); if (!b) return;
-      wrap.querySelectorAll('button').forEach(function (x) { x.classList.remove('on'); x.setAttribute('aria-pressed', 'false'); });
-      b.classList.add('on'); b.setAttribute('aria-pressed', 'true');
-      state[key] = b.dataset.v; state.hover = -1; render(); if (cb) cb();
+      el.querySelectorAll('button').forEach(function (x) { x.classList.remove('on'); });
+      b.classList.add('on'); fn(b.dataset.v);
     });
+    return cur;
   }
-  segBtns('nl-tf', 'tf');
-  segBtns('nl-style', 'style');
-  document.querySelectorAll('[data-tgl]').forEach(function (b) {
-    b.addEventListener('click', function () {
-      var k = b.dataset.tgl;
-      state[k] = !state[k];
-      b.classList.toggle('on', state[k]); b.setAttribute('aria-pressed', String(state[k]));
-      state.hover = -1; render();
+  function tgl(id, cur, fn) {
+    var el = document.getElementById(id);
+    if (!el) return cur;
+    el.addEventListener('click', function () { el.classList.toggle('on'); fn(el.classList.contains('on')); });
+    return cur;
+  }
+  function init() {
+    cv = document.getElementById('nl-chart'); rcv = document.getElementById('nl-rsi');
+    tip = document.getElementById('nl-tip');
+    if (!cv || !window.NEPSE_DAILY) return;
+    // search
+    var input = document.getElementById('nl-sym'), dl = document.getElementById('nl-syms');
+    function fillDL() {
+      if (!dl) return;
+      dl.innerHTML = '<option value="NEPSE">NEPSE Index</option>' + state.companies.map(function (s) {
+        return '<option value="' + s + '">' + esc(state.names[s] || s) + '</option>';
+      }).join('');
+    }
+    loadCompanies().then(function () { fillDL(); return loadLive(); }).then(function () {
+      fillDL();
+      (state.companies).forEach(function (s) { if (!state.names[s]) state.names[s] = s; });
     });
-  });
+    function go() { var v = input.value.trim().toUpperCase(); if (v) setSymbol(v === 'NEPSE INDEX' ? 'NEPSE' : v); }
+    if (input) {
+      document.getElementById('nl-go').addEventListener('click', go);
+      input.addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
+    }
+    document.querySelectorAll('[data-chip]').forEach(function (ch) {
+      ch.addEventListener('click', function () { setSymbol(ch.getAttribute('data-chip')); if (input) input.value = ch.getAttribute('data-chip'); });
+    });
+    // controls
+    seg('nl-tf', state.tf, function (v) { state.tf = v; state.hover = -1; render(); });
+    seg('nl-style', state.style, function (v) { state.style = v; render(); });
+    tgl('tgl-sma', state.sma, function (v) { state.sma = v; render(); });
+    tgl('tgl-rsi', state.rsi, function (v) { state.rsi = v; render(); });
+    tgl('tgl-sig', state.signals, function (v) { state.signals = v; render(); });
+    bindPointer();
+    var rsz; window.addEventListener('resize', function () { clearTimeout(rsz); rsz = setTimeout(render, 150); });
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.documentElement.classList.add('rm');
+    }
+    // deep link ?s=SYMBOL
+    var m = /[?&]s=([A-Za-z0-9/-]+)/.exec(location.search);
+    var start = m ? m[1].toUpperCase() : 'NEPSE';
+    if (input) input.value = start;
+    setSymbol(start);
+    // live auto-refresh during market hours
+    setInterval(function () {
+      if (!marketOpenNPT() || state.mode !== 'stock') return;
+      loadLive().then(function () {
+        var rows = histCache[state.sym] || [];
+        if (!rows.length) return;
+        var merged = applyLiveCandle(rows, state.sym);
+        state.rows = merged.rows;
+        state.live = merged.quote || liveCache.map[state.sym] || null;
+        state.liveBadge = merged.live ? 'live' : 'eod';
+        render();
+      });
+    }, 60000);
+  }
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+  }
 
-  var rT;
-  window.addEventListener('resize', function () { clearTimeout(rT); rT = setTimeout(function () { state.hover = -1; render(); }, 120); });
-
-  render();
+  /* node test exports */
+  var API = {
+    smaArr: smaArr, emaArr: emaArr, rsiArr: rsiArr, macd: macd, atrArr: atrArr,
+    fractalPivots: fractalPivots, swingPivots: swingPivots,
+    detectDivergences: detectDivergences, detectPatterns: detectPatterns,
+    computeVerdict: computeVerdict, setSymbol: setSymbol, SRC: SRC
+  };
+  if (typeof module !== 'undefined' && module.exports) module.exports = API;
+  else window.NL_ANALYTICS = API;
 })();
