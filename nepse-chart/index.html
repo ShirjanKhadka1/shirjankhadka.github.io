@@ -16,7 +16,7 @@
 <meta name="twitter:title" content="NEPSE Alpha Lab — Patterns, Divergences &amp; Buy/Hold/Exit Signals">
 <meta name="twitter:description" content="Free NEPSE stock lab: live quotes, chart patterns, RSI/MACD divergences and a transparent buy/hold/exit signal engine.">
 <link rel="icon" href="/favicon.ico">
-<link rel="stylesheet" href="chart.css?v=20260924e">
+<link rel="stylesheet" href="chart.css?v=20260924f">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"NEPSE Alpha Lab","url":"https://shirjankhadka.com.np/nepse-chart/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Free NEPSE analysis lab: live quotes for any listed stock, candlestick charts with SMA and RSI, automatic chart-pattern and divergence detection, and a transparent rule-based buy/hold/exit signal engine. Educational use only.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
 </script>
@@ -25,7 +25,7 @@
 {"@type":"Question","name":"Does the NEPSE Alpha Lab give buy or sell signals?","acceptedAnswer":{"@type":"Answer","text":"It shows a rule-based verdict — Strong Buy, Buy, Hold, Exit/Reduce or Strong Exit — computed in your browser from ten transparent factors: trend vs moving averages, RSI, MACD, turnover, 52-week position, divergences, chart patterns, market backdrop and support/resistance. Every factor and its contribution is listed, so nothing is a black box. It is educational, not investment advice."}},
 {"@type":"Question","name":"Is the data real-time?","acceptedAnswer":{"@type":"Answer","text":"During NEPSE trading hours (Sunday–Thursday, 9:30–15:00 NPT) the quote panel refreshes from a free community live feed and shows a LIVE badge; the chart appends the in-progress session. Outside market hours it shows the last closed session. NEPSE publishes no free official real-time API, so this uses community mirrors and may be delayed."}},
 {"@type":"Question","name":"Which patterns and divergences are detected?","acceptedAnswer":{"@type":"Answer","text":"Double tops and bottoms, head & shoulders and inverse head & shoulders, ascending/descending/symmetrical triangles and rising/falling wedges, plus regular and hidden bullish/bearish divergences on RSI(14) and the MACD histogram. Detections are drawn on the chart and listed with dates and plain-English notes."}},
-{"@type":"Question","name":"Where does the data come from?","acceptedAnswer":{"@type":"Answer","text":"Per-stock daily OHLC history from the open Nepse-All-Scraper dataset (Samir Wagle, MIT), live quotes from the yonepse open API, and the NEPSE index daily history (2003–2026, 5,333 sessions) from the nepse-open-data archive."}},
+{"@type":"Question","name":"Where does the data come from?","acceptedAnswer":{"@type":"Answer","text":"Per-stock daily OHLC history from the open Nepse-All-Scraper dataset (Samir Wagle, MIT), live quotes and monthly LTP history from the yonepse open API, and the NEPSE index daily history (2003–2026, 5,333 sessions) from the nepse-open-data archive. Coverage spans every currently listed security — equities, mutual funds, debentures and preference shares. Securities without scraper OHLC (e.g. newer listings) use LTP-only history and are clearly flagged; pattern and divergence detection is disabled for those."}},
 {"@type":"Question","name":"Is this financial advice?","acceptedAnswer":{"@type":"Answer","text":"No. Everything here is a mechanical, rule-based illustration for education. Markets are uncertain and past patterns do not guarantee future results. Do your own research before any investment decision."}}]}
 </script>
 </head>
@@ -114,8 +114,26 @@
 
   <section class="nl-scan" aria-label="Pattern and divergence scanner">
     <h2>Pattern &amp; divergence scanner</h2>
-    <p class="nl-scan-sub">Detected automatically on the chart above — double tops/bottoms, head &amp; shoulders, triangles, wedges, and RSI/MACD divergences. <strong>Locate</strong> jumps the chart to a finding.</p>
+    <p class="nl-scan-sub">Latest automatic detections on daily data — double tops/bottoms, head &amp; shoulders, triangles, wedges, and RSI/MACD divergences. <strong>Locate</strong> jumps the chart to a finding.</p>
     <div id="nl-scan-list"></div>
+  </section>
+
+  <section class="nl-mscan" id="nl-mscan" aria-label="Market scan — every listed stock">
+    <h2>Market scan</h2>
+    <p class="nl-scan-sub">Every listed security scored by the same rule-based engine — snapshot as of <span id="nl-ms-asof">…</span>. <span id="nl-ms-count"></span>. Select a row for the full deep analysis.</p>
+    <div class="nl-ms-controls">
+      <div class="nl-ms-chips" id="nl-ms-chips" role="group" aria-label="Filter by verdict">
+        <button data-f="all" class="on" aria-pressed="true">All</button>
+        <button data-f="Strong Buy" aria-pressed="false">Strong Buy</button>
+        <button data-f="Buy" aria-pressed="false">Buy</button>
+        <button data-f="Hold" aria-pressed="false">Hold</button>
+        <button data-f="Exit / Reduce" aria-pressed="false">Exit-Reduce</button>
+        <button data-f="Strong Exit" aria-pressed="false">Strong Exit</button>
+        <button data-f="Insufficient history" aria-pressed="false">New listings</button>
+      </div>
+      <input id="nl-ms-q" type="search" placeholder="Filter by symbol or name…" aria-label="Filter market scan by symbol or name">
+    </div>
+    <div class="nl-ms-wrap" id="nl-ms-wrap"><div class="nl-ms-loading">Scroll to load the full market scan…</div></div>
   </section>
 
   <section class="explain">
@@ -144,7 +162,7 @@
     <details><summary>Which patterns are detected?</summary><p>Double tops and bottoms, head &amp; shoulders (and inverse), ascending/descending/symmetrical triangles, rising/falling wedges, plus regular and hidden bullish/bearish divergences on RSI(14) and the MACD histogram.</p></details>
     <details><summary>Is the data real-time?</summary><p>Quotes refresh during market hours from a free community feed (LIVE badge); outside hours you see the last closed session. History is daily OHLC per stock.</p></details>
     <details><summary>What timeframes are available?</summary><p>1M, 3M, 6M, 1Y, 2Y on daily candles; 5Y and All switch to weekly candles so long histories stay readable.</p></details>
-    <details><summary>Where does the data come from?</summary><p>Per-stock daily OHLC from the open Nepse-All-Scraper dataset, live quotes from the yonepse open API, and the NEPSE index daily history (2003–2026, 5,333 sessions) from the nepse-open-data archive. With thanks to both open-data projects.</p></details>
+    <details><summary>Where does the data come from?</summary><p>Per-stock daily OHLC from the open Nepse-All-Scraper dataset, live quotes and monthly LTP history from the yonepse open API, and the NEPSE index daily history (2003–2026, 5,333 sessions) from the nepse-open-data archive. Coverage spans every currently listed security — equities, mutual funds, debentures and preference shares. Securities without scraper OHLC (e.g. newer listings) use LTP-only history and are clearly flagged, with pattern/divergence detection disabled for those. With thanks to both open-data projects.</p></details>
   </section>
 
   <footer class="foot">
@@ -153,6 +171,6 @@
 </main>
 
 <script src="/js/nepse-daily.js?v=20260924d"></script>
-<script src="/js/nepse-lab.js?v=20260924e"></script>
+<script src="/js/nepse-lab.js?v=20260924f"></script>
 </body>
 </html>
