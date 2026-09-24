@@ -1,0 +1,40 @@
+# NEPSE Alpha Lab — daily data refresh
+#
+# Rebuilds the 410-security universe snapshot (universe.json, verdicts.json,
+# data/ltp/*.json, version.json) every day after NEPSE close and pushes the
+# result to main. GitHub Pages redeploys automatically, and the analyzer picks
+# up the new build version on next visit — no manual updates needed.
+# Newly listed securities are discovered dynamically by the builder.
+
+name: Refresh NEPSE Alpha Lab data
+
+on:
+  schedule:
+    # 16:15 NPT daily (10:30 UTC), after NEPSE close at 15:00 NPT.
+    # Runs Fri/Sat too; the job commits only when data actually changed.
+    - cron: '30 10 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Rebuild universe snapshot
+        run: node tools/build-nepse-universe.js
+
+      - name: Commit updated data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add nepse-chart/data
+          git diff --cached --quiet || git commit -m "Alpha Lab: daily data refresh (automated)"
+          git push
