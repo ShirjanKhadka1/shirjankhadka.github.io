@@ -1,7 +1,8 @@
 # NEPSE Alpha Lab — live quote snapshots (near-real-time)
 #
 # Polls NEPSE's official API server-side every 15 minutes during trading hours
-# (Sun–Thu, 09:30–15:00 NPT = 03:45–09:15 UTC) and publishes a compact
+# (Sun–Thu, 10:45–15:00 NPT = 05:00–09:15 UTC; pre-open 10:45, regular session
+# 11:00–15:00) and publishes a compact
 # nepse-chart/data/live.json snapshot that the static site polls each minute.
 # The fetcher is fail-safe: market closed, auth/token change, rate limit or
 # any error -> exit 0 WITHOUT touching live.json, so the site keeps serving
@@ -12,9 +13,8 @@ name: Refresh NEPSE live quotes
 
 on:
   schedule:
-    # 03:45–09:15 UTC = 09:30–15:00 NPT (NEPSE trading hours), Sun–Thu.
-    - cron: '45 3 * * 0-4'
-    - cron: '0,15,30,45 4-8 * * 0-4'
+    # 05:00–09:15 UTC = 10:45–15:00 NPT (NEPSE trading hours: pre-open 10:45, regular 11:00–15:00), Sun–Thu.
+    - cron: '0,15,30,45 5-8 * * 0-4'
     - cron: '0,15 9 * * 0-4'
   workflow_dispatch: {}
 
