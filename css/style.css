@@ -360,6 +360,35 @@ a.feature-media:hover { transform: scale(1.015); box-shadow: var(--shadow-hover)
 .event-photo figcaption { font-size: 13px; color: var(--secondary); margin-top: 10px; transition: color .3s, transform .5s var(--ease); }
 .event-photo:hover figcaption { color: var(--text); transform: translateY(-2px); }
 
+/* ---------- Carousel scroll hints ---------- */
+.carousel-hint {
+  position: sticky;
+  flex: 0 0 auto;
+  align-self: center;
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, .94);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--text);
+  display: grid; place-items: center;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .14);
+  z-index: 5;
+  transition: opacity .35s var(--ease), background .2s, color .2s, border-color .2s;
+  animation: hintNudgeR 2.6s ease-in-out infinite;
+}
+.carousel-hint:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+.carousel-hint:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.carousel-hint svg { width: 20px; height: 20px; }
+.hint-next { right: 12px; margin-left: -58px; }
+.hint-prev { left: 12px; margin-right: -58px; animation-name: hintNudgeL; }
+.hint-prev svg { transform: scaleX(-1); }
+.carousel-hint.is-hidden { opacity: 0; pointer-events: none; animation: none; }
+@keyframes hintNudgeR { 0%, 100% { translate: 0 0; } 50% { translate: 5px 0; } }
+@keyframes hintNudgeL { 0%, 100% { translate: 0 0; } 50% { translate: -5px 0; } }
+
 /* ---------- Lightbox ---------- */
 .lightbox {
   position: fixed; inset: 0; z-index: 400; display: flex; align-items: center; justify-content: center;
