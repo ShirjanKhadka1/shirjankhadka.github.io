@@ -567,3 +567,69 @@ a:focus-visible, button:focus-visible, summary:focus-visible {
   .reveal, .reveal-stagger > *, .hero-name-line > span { opacity: 1 !important; transform: none !important; }
   .sparkline-path { stroke-dashoffset: 0 !important; }
 }
+
+/* ---------- Events / Leadership ---------- */
+.event-card {
+  display: grid; grid-template-columns: .9fr 1.1fr; gap: 44px; align-items: start;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: clamp(26px, 3.5vw, 44px); box-shadow: var(--shadow); margin-bottom: 28px;
+}
+.event-card:last-child { margin-bottom: 0; }
+.event-index {
+  font-family: var(--font-serif); font-weight: 600; font-size: .95rem;
+  color: var(--green); letter-spacing: .12em; margin-bottom: 10px;
+}
+.event-body h3 {
+  font-family: var(--font-serif); font-weight: 500; font-size: clamp(1.5rem, 2.6vw, 2rem);
+  letter-spacing: -0.01em; line-height: 1.2; margin-bottom: 8px;
+}
+.event-meta { color: var(--muted); font-size: .92rem; margin-bottom: 18px; }
+.event-points { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.event-points li {
+  position: relative; padding-left: 22px; color: var(--ink-soft); font-size: .96rem; line-height: 1.6;
+}
+.event-points li::before {
+  content: ""; position: absolute; left: 2px; top: .62em; width: 8px; height: 8px;
+  border-radius: 50%; background: var(--green); flex: none;
+}
+.event-gallery { padding-bottom: 8px; }
+.event-photo { flex: 0 0 min(300px, 80vw); scroll-snap-align: start; margin: 0; }
+.event-photo img {
+  width: 100%; height: 230px; object-fit: cover; border-radius: var(--radius-sm);
+  cursor: zoom-in; background: var(--paper-tint); transition: transform .3s var(--ease);
+}
+.event-photo img:hover { transform: scale(1.02); }
+.event-photo figcaption { font-size: .82rem; color: var(--muted); margin-top: 8px; }
+@media (max-width: 900px) {
+  .event-card { grid-template-columns: 1fr; gap: 28px; }
+}
+
+/* ---------- Lightbox ---------- */
+.lightbox {
+  position: fixed; inset: 0; z-index: 400; display: flex; align-items: center; justify-content: center;
+  background: rgba(18, 14, 10, .94); opacity: 0; visibility: hidden; transition: opacity .25s, visibility .25s;
+}
+.lightbox.open { opacity: 1; visibility: visible; }
+.lightbox img {
+  max-width: min(92vw, 1100px); max-height: 82vh; border-radius: 12px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, .5);
+}
+.lightbox-caption {
+  position: absolute; bottom: 26px; left: 0; right: 0; text-align: center;
+  color: #EDE6D8; font-size: .92rem; padding: 0 70px;
+}
+.lightbox-btn {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 52px; height: 52px; border-radius: 50%; border: 1px solid rgba(255,255,255,.35);
+  background: rgba(255,255,255,.08); color: #fff; font-size: 1.3rem; cursor: pointer;
+  transition: background .2s;
+}
+.lightbox-btn:hover { background: rgba(255,255,255,.22); }
+.lightbox-prev { left: 22px; }
+.lightbox-next { right: 22px; }
+.lightbox-close {
+  position: absolute; top: 20px; right: 22px; width: 46px; height: 46px; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.35); background: rgba(255,255,255,.08);
+  color: #fff; font-size: 1.2rem; cursor: pointer;
+}
+.lightbox-close:hover { background: rgba(255,255,255,.22); }
