@@ -371,9 +371,11 @@
     if (bullD && (!bearD || bullD.i2 >= bearD.i2)) add(2, 'Bullish divergence', bullD.label + ' ending ' + fmtD(bullD.d2) + ' — timed entry.');
     else if (bearD) add(bearD.sub === 'regular' ? -1.5 : -1, 'Bearish divergence', bearD.label + ' ending ' + fmtD(bearD.d2) + '.');
 
-    // 8. chart patterns (most recent completed)
-    var done = pack.pats.filter(function (p) { return /Confirmed/.test(p.note); })[0] || pack.pats[0];
+    // 8. chart patterns (most recent CONFIRMED only — a pattern is not a
+    // signal until its neckline/boundary actually breaks)
+    var done = pack.pats.filter(function (p) { return /Confirmed/.test(p.note); })[0];
     if (done) add(done.bias === 'bullish' ? 1 : done.bias === 'bearish' ? -1 : 0, done.label, done.note);
+    else if (pack.pats[0]) F(pack.pats[0].label + ' (forming)', 0, 'Pattern still forming — no points until confirmation.');
 
     // 9. market regime (stocks only)
     if (!pack.isIndex && pack.idxRegime) add(pack.idxRegime === 'up' ? 0.5 : -0.5, 'Market backdrop', pack.idxRegime === 'up' ? 'NEPSE index above its 200-day average — tailwind.' : 'NEPSE index below its 200-day average — headwind.');
