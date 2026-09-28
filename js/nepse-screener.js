@@ -1,0 +1,230 @@
+/* NEPSE Stock Screener — client-side ranking table.
+ *
+ * Data: ../nepse-chart/data/verdicts.json (daily rule-based signals, built by
+ * tools/build-nepse-universe.js) + ../nepse-chart/data/universe.json (names).
+ * Everything rendered here comes from those files; no fabricated values.
+ * Educational use only — not investment advice.
+ */
+(function () {
+  'use strict';
+
+  var PER_PAGE = 25;
+  var RANK = { 'Strong Buy': 0, 'Buy': 1, 'Hold': 2, 'Exit / Reduce': 3, 'Strong Exit': 4, 'Insufficient history': 5 };
+  var CLS = { 'Strong Buy': 'sbuy', 'Buy': 'buy', 'Hold': 'hold', 'Exit / Reduce': 'exit', 'Strong Exit': 'sexit', 'Insufficient history': 'insufficient' };
+  var DISP = { 'Strong Buy': 'Strong Buy', 'Buy': 'Buy', 'Hold': 'Hold', 'Exit / Reduce': 'Sell', 'Strong Exit': 'Strong Sell', 'Insufficient history': 'No signal' };
+
+  var state = { rows: [], q: '', sector: '', verdict: '', sortK: 'sig', sortD: 1, page: 1 };
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function num2(x) {
+    return x == null ? '–' : (+x).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function fmtVol(x) { return x == null ? '–' : Math.round(+x).toLocaleString('en-US'); }
+  function pct(x) { return (x >= 0 ? '+' : '') + x.toFixed(1) + '%'; }
+
+  function slCell(r) {
+    if (r.sl == null || r.p == null || !r.p) return '<span class="sc-dash">–</span>';
+    var d = (r.sl - r.p) / r.p * 100;
+    return '<b class="sc-sl">' + num2(r.sl) + '</b> <span class="sc-dist dn">(' + pct(d) + ')</span>';
+  }
+  function tpCell(r) {
+    if (r.tp == null || r.p == null || !r.p) return '<span class="sc-dash">–</span>';
+    var d = (r.tp - r.p) / r.p * 100;
+    return '<b class="sc-tp">' + num2(r.tp) + '</b> <span class="sc-dist up">(' + pct(d) + ')</span>';
+  }
+
+  function badge(v) {
+    return '<span class="ms-v ' + (CLS[v] || 'insufficient') + '">' + esc(DISP[v] || v) + '</span>';
+  }
+
+  function filtered() {
+    var q = state.q.trim().toUpperCase();
+    var out = state.rows.filter(function (r) {
+      if (state.verdict && r.v !== state.verdict) return false;
+      if (state.sector && r.sec !== state.sector) return false;
+      if (q && r.sym.indexOf(q) < 0 && (r.name || '').toUpperCase().indexOf(q) < 0) return false;
+      return true;
+    });
+    var k = state.sortK, d = state.sortD;
+    out.sort(function (a, b) {
+      var x, y;
+      switch (k) {
+        case 'sn': return 0; // S.N. follows the ranking order
+        case 'sec': x = a.sec || ''; y = b.sec || ''; return (x < y ? -1 : x > y ? 1 : 0) * d || rankCmp(a, b);
+        case 'sym': x = a.sym; y = b.sym; return (x < y ? -1 : x > y ? 1 : 0) * d || rankCmp(a, b);
+        case 'p': x = a.p || -1; y = b.p || -1; return (x - y) * d || rankCmp(a, b);
+        case 'vol': x = a.vol || -1; y = b.vol || -1; return (x - y) * d || rankCmp(a, b);
+        case 'sig': return rankCmp(a, b) * d;
+        case 'sl': x = a.sl == null ? -1 : a.sl; y = b.sl == null ? -1 : b.sl; return (x - y) * d || rankCmp(a, b);
+        case 'tp': x = a.tp == null ? -1 : a.tp; y = b.tp == null ? -1 : b.tp; return (x - y) * d || rankCmp(a, b);
+        default: return 0;
+      }
+    });
+    return out;
+  }
+
+  function rankCmp(a, b) {
+    var ra = RANK[a.v] == null ? 9 : RANK[a.v], rb = RANK[b.v] == null ? 9 : RANK[b.v];
+    if (ra !== rb) return ra - rb;
+    var sa = a.s == null ? -999 : a.s, sb = b.s == null ? -999 : b.s;
+    return sb - sa || (a.sym < b.sym ? -1 : 1);
+  }
+
+  function render() {
+    var rows = filtered();
+    var pages = Math.max(1, Math.ceil(rows.length / PER_PAGE));
+    if (state.page > pages) state.page = pages;
+    var start = (state.page - 1) * PER_PAGE;
+    var slice = rows.slice(start, start + PER_PAGE);
+
+    var html = slice.map(function (r, i) {
+      var sn = start + i + 1;
+      return '<tr>' +
+        '<td class="num sc-sn">' + sn + '</td>' +
+        '<td>' + (r.sec ? '<span class="sc-sector">' + esc(r.sec) + '</span>' : '<span class="sc-dash">–</span>') + '</td>' +
+        '<td><a class="sc-sym" href="/nepse-chart/?s=' + esc(r.sym) + '">' + esc(r.sym) + '</a>' +
+          (r.l ? ' <span class="sc-ltp" title="LTP-only history">LTP</span>' : '') + '</td>' +
+        '<td class="num"><b>' + num2(r.p) + '</b></td>' +
+        '<td class="num">' + fmtVol(r.vol) + '</td>' +
+        '<td>' + badge(r.v) + (r.setup ? '<div class="sc-setup">' + esc(r.setup) + '</div>' : '') + '</td>' +
+        '<td class="num">' + slCell(r) + '</td>' +
+        '<td class="num">' + tpCell(r) + '</td>' +
+        '</tr>';
+    }).join('');
+    $('sc-body').innerHTML = html || '<tr><td colspan="8" class="sc-empty">No securities match the current filters.</td></tr>';
+
+    // sort indicators
+    var ths = document.querySelectorAll('#sc-table th[data-k]');
+    ths.forEach(function (th) {
+      var k = th.getAttribute('data-k');
+      th.classList.toggle('sorted', k === state.sortK);
+      th.setAttribute('aria-sort', k === state.sortK ? (state.sortD > 0 ? 'ascending' : 'descending') : 'none');
+    });
+
+    renderPager(rows.length, pages);
+  }
+
+  function renderPager(total, pages) {
+    var el = $('sc-pager');
+    if (pages <= 1) { el.innerHTML = '<span class="sc-count">' + total + ' securities</span>'; return; }
+    var h = '<span class="sc-count">' + total + ' securities</span>';
+    h += '<button class="sc-pg" data-pg="prev"' + (state.page <= 1 ? ' disabled' : '') + '>‹ Prev</button>';
+    var win = pageWindow(state.page, pages);
+    win.forEach(function (p) {
+      if (p === '…') h += '<span class="sc-gap">…</span>';
+      else h += '<button class="sc-pg' + (p === state.page ? ' is-on' : '') + '" data-pg="' + p + '">' + p + '</button>';
+    });
+    h += '<button class="sc-pg" data-pg="next"' + (state.page >= pages ? ' disabled' : '') + '>Next ›</button>';
+    el.innerHTML = h;
+    el.querySelectorAll('.sc-pg').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var v = b.getAttribute('data-pg');
+        if (v === 'prev') state.page = Math.max(1, state.page - 1);
+        else if (v === 'next') state.page = Math.min(pages, state.page + 1);
+        else state.page = +v;
+        render();
+        document.getElementById('sc-table').scrollIntoView({ block: 'start', behavior: 'smooth' });
+      });
+    });
+  }
+
+  function pageWindow(cur, total) {
+    var set = [1, total, cur - 1, cur, cur + 1];
+    var nums = set.filter(function (p) { return p >= 1 && p <= total; })
+      .sort(function (a, b) { return a - b; })
+      .filter(function (p, i, a) { return a.indexOf(p) === i; });
+    var out = [], prev = 0;
+    nums.forEach(function (p) { if (p - prev > 1) out.push('…'); out.push(p); prev = p; });
+    return out;
+  }
+
+  function bindControls() {
+    var q = $('sc-q'), deb = null;
+    q.addEventListener('input', function () {
+      clearTimeout(deb);
+      deb = setTimeout(function () { state.q = q.value; state.page = 1; render(); }, 160);
+    });
+    $('sc-sector').addEventListener('change', function (e) { state.sector = e.target.value; state.page = 1; render(); });
+    document.querySelectorAll('.sc-chip').forEach(function (c) {
+      c.addEventListener('click', function () {
+        document.querySelectorAll('.sc-chip').forEach(function (x) { x.classList.remove('is-on'); });
+        c.classList.add('is-on');
+        state.verdict = c.getAttribute('data-v');
+        state.page = 1; render();
+      });
+    });
+    document.querySelectorAll('#sc-table th[data-k]').forEach(function (th) {
+      th.addEventListener('click', function () {
+        var k = th.getAttribute('data-k');
+        if (k === 'sn') return; // S.N. always follows the ranking
+        if (state.sortK === k) state.sortD = -state.sortD;
+        else { state.sortK = k; state.sortD = (k === 'sym' || k === 'sec') ? 1 : -1; }
+        state.page = 1; render();
+      });
+    });
+  }
+
+  function load() {
+    function get(url) {
+      return fetch(url, { cache: 'no-store' }).then(function (r) {
+        if (!r.ok) throw new Error('http ' + r.status + ' ' + url);
+        return r.json();
+      });
+    }
+    return Promise.all([
+      get('../nepse-chart/data/verdicts.json'),
+      get('../nepse-chart/data/universe.json').catch(function () { return null; })
+    ]).then(function (res) {
+      var vj = res[0], uj = res[1];
+      var names = {};
+      if (uj && uj.symbols) uj.symbols.forEach(function (it) { if (it.s) names[it.s] = it.n || it.s; });
+      var v = vj.verdicts || {};
+      state.rows = Object.keys(v).map(function (sym) {
+        var e = v[sym];
+        return {
+          sym: sym, name: names[sym] || sym, v: e.v, s: e.s, p: e.p,
+          vol: e.vol, sec: e.sec || null, sl: e.sl, tp: e.tp,
+          setup: e.setup || null, l: e.l || 0
+        };
+      });
+      var asof = vj.asof || '';
+      $('sc-asof').textContent = asof
+        ? 'Signals as of ' + asof + ' · ' + state.rows.length + ' securities ranked'
+        : state.rows.length + ' securities ranked';
+      $('sc-asof2').textContent = asof || 'the last close';
+
+      // summary cards
+      var c = { 'Strong Buy': 0, 'Buy': 0, 'Hold': 0, 'Exit / Reduce': 0, 'Strong Exit': 0 };
+      state.rows.forEach(function (r) { if (c[r.v] != null) c[r.v]++; });
+      $('sc-n-sbuy').textContent = c['Strong Buy'];
+      $('sc-n-buy').textContent = c['Buy'];
+      $('sc-n-hold').textContent = c['Hold'];
+      $('sc-n-exit').textContent = c['Exit / Reduce'];
+      $('sc-n-sexit').textContent = c['Strong Exit'];
+      $('sc-n-total').textContent = state.rows.length;
+
+      // sector dropdown
+      var secs = {};
+      state.rows.forEach(function (r) { if (r.sec) secs[r.sec] = 1; });
+      var sel = $('sc-sector');
+      Object.keys(secs).sort().forEach(function (s) {
+        var o = document.createElement('option');
+        o.value = s; o.textContent = s;
+        sel.appendChild(o);
+      });
+
+      bindControls();
+      render();
+    }).catch(function (e) {
+      $('sc-body').innerHTML = '<tr><td colspan="8" class="sc-empty">Could not load the ranking data. Please retry in a moment.</td></tr>';
+      $('sc-asof').textContent = 'Data unavailable';
+    });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', load);
+  else load();
+})();
