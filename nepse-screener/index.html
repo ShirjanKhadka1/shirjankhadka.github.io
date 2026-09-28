@@ -3,28 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NEPSE Stock Screener — Daily Ranked Signals</title>
-<meta name="description" content="Free NEPSE stock screener: every listed security ranked daily by a transparent rule-based signal engine — Strong Buy to Strong Sell — with ATR-based stop loss and target levels, sector filter and search. Educational use only.">
+<title>NEPSE Stock Screener: Daily Ranked Signals</title>
+<meta name="description" content="Free NEPSE stock screener: every listed security ranked daily by a transparent rule-based engine, with ATR-based stop loss and targets. Educational only.">
 <meta name="author" content="Shirjan Khadka">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-screener/">
-<meta name="robots" content="index, follow">
+<meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="theme-color" content="#ffffff">
 <meta name="keywords" content="nepse screener, nepse stock ranking, nepal stock screener, nepse signals, nepse buy sell signals, nepse stop loss target, nse nepal screener">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Shirjan Khadka">
-<meta property="og:title" content="NEPSE Stock Screener — Daily Ranked Signals">
+<meta property="og:title" content="NEPSE Stock Screener: Daily Ranked Signals">
 <meta property="og:description" content="Every NEPSE-listed security ranked daily by a transparent rule-based engine, with stop-loss and target levels. Free, no login. Educational use only.">
 <meta property="og:url" content="https://shirjankhadka.com.np/nepse-screener/">
 <meta property="og:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="NEPSE Stock Screener — Daily Ranked Signals">
+<meta name="twitter:title" content="NEPSE Stock Screener, Daily Ranked Signals">
 <meta name="twitter:description" content="Daily ranked NEPSE signals with stop-loss and target levels. Rule-based, transparent, educational.">
 <link rel="icon" type="image/svg+xml" href="/assets/nepse-favicon.svg">
   <link rel="apple-touch-icon" href="/assets/nepse-apple-touch-icon.png">
 <link rel="stylesheet" href="../nepse-chart/chart.css?v=20260924f">
 <link rel="stylesheet" href="../css/style.css?v=20260928f">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"NEPSE Stock Screener","url":"https://shirjankhadka.com.np/nepse-screener/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Daily ranked NEPSE stock screener: every listed security scored by a transparent rule-based engine (Strong Buy to Strong Sell) with ATR-based stop-loss and target levels, sector filter and search. Educational use only, not investment advice.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
+{"@context":"https://schema.org","@type":"WebApplication","name":"NEPSE Stock Screener","url":"https://shirjankhadka.com.np/nepse-screener/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Daily ranked NEPSE stock screener: every listed security scored by a transparent rule-based engine (Strong Buy to Strong Sell) with ATR-based stop-loss and target levels, sector filter and search. Educational use only, not investment advice.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/",
+      "sameAs": ["https://www.linkedin.com/in/shirjankhadkab/"]}}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
@@ -54,7 +57,7 @@
   <section class="hero">
     <p class="eyebrow">Side project · Daily ranking</p>
     <h1>NEPSE Stock Screener</h1>
-    <p class="lede">Every NEPSE-listed security, ranked daily by a transparent rule-based signal engine — with ATR-based stop-loss and target levels. Click any symbol for the full chart, pattern and divergence breakdown in the Alpha Lab.</p>
+    <p class="lede">Every NEPSE-listed security, ranked daily by a transparent rule-based signal engine, with ATR-based stop-loss and target levels. Click any symbol for the full chart, pattern and divergence breakdown in the Alpha Lab.</p>
     <p class="asof" id="sc-asof">Loading data…</p>
   </section>
 
@@ -134,8 +137,8 @@
   </section>
 
   <section class="sc-note" aria-label="Methodology note">
-    <p><strong>How to read this table.</strong> Signals come from a rule-based engine (trend, RSI, MACD, turnover, 52-week position, divergences, chart patterns, market backdrop, support/resistance) — the same engine behind the Alpha Lab. Buy signals are gated: no Buy is issued while the price sits below its 200-day average — entries only fire in long-term stock uptrends. Hit rates are regime-dependent, and both regimes are published: across the older 250-session window (NEPSE +31.0%) the engine’s buy calls hit 31.0%; across the most recent 250 sessions (NEPSE −6.2%) they hit 11.4%. Stop-loss = last close − 2 × ATR(14); target = last close + 4 × ATR(14), a 1:2 risk-reward frame. “Setup” names the most recent chart pattern or divergence detected. <strong>Hit rate</strong> replays the engine’s past Buy/Strong Buy calls on equity securities over the last 250 sessions: a call is a hit when its own target was touched before its stop within the next 20 sessions. Calls touching neither level are excluded; under 5 decided calls shows “–”.</p>
-    <p class="sc-disclaim">Rule-based screening for education only — not investment advice. Signals computed from the last close (<span id="sc-asof2">–</span>). Securities with under 60 sessions of history get no signal.</p>
+    <p><strong>How to read this table.</strong> Signals come from a rule-based engine (trend, RSI, MACD, turnover, 52-week position, divergences, chart patterns, market backdrop, support/resistance), the same engine behind the Alpha Lab. Buy signals are gated: no Buy is issued while the price sits below its 200-day average, entries only fire in long-term stock uptrends. Hit rates are regime-dependent, and both regimes are published: across the older 250-session window (NEPSE +31.0%) the engine’s buy calls hit 31.0%; across the most recent 250 sessions (NEPSE −6.2%) they hit 11.4%. Stop-loss = last close − 2 × ATR(14); target = last close + 4 × ATR(14), a 1:2 risk-reward frame. “Setup” names the most recent chart pattern or divergence detected. <strong>Hit rate</strong> replays the engine’s past Buy/Strong Buy calls on equity securities over the last 250 sessions: a call is a hit when its own target was touched before its stop within the next 20 sessions. Calls touching neither level are excluded; under 5 decided calls shows “–”.</p>
+    <p class="sc-disclaim">Rule-based screening for education only, not investment advice. Signals computed from the last close (<span id="sc-asof2">–</span>). Securities with under 60 sessions of history get no signal.</p>
   </section>
 </main>
 

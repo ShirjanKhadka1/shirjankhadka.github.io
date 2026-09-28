@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Data Coverage Check — NEPSE Alpha Lab | Shirjan Khadka</title>
+<title>Data Coverage Check: NEPSE Alpha Lab | Shirjan Khadka</title>
 <meta name="description" content="Live verification of every listed NEPSE security in the Alpha Lab: data source, history depth, last price, live-quote presence and verdict status for all listed symbols.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-chart/data-check.html">
-<meta name="robots" content="index, follow">
+<meta name="robots" content="noindex, follow">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Shirjan Khadka">
-<meta property="og:title" content="Data Coverage Check — NEPSE Alpha Lab">
+<meta property="og:title" content="Data Coverage Check: NEPSE Alpha Lab">
 <meta property="og:description" content="Live verification of every listed NEPSE security: data source, history depth, last price and verdict status for all 410 listed symbols.">
 <meta property="og:url" content="https://shirjankhadka.com.np/nepse-chart/data-check.html">
 <meta property="og:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Data Coverage Check — NEPSE Alpha Lab">
+<meta name="twitter:title" content="Data Coverage Check: NEPSE Alpha Lab">
 <meta name="twitter:description" content="Live verification of every listed NEPSE security: data source, history depth, last price and verdict status for all 410 listed symbols.">
 <meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
 <link rel="icon" href="/favicon.ico">
@@ -101,7 +101,7 @@ th.num{text-align:right}
   <h2>What the data labels mean</h2>
   <div class="dc-legend" aria-label="What the data labels mean">
     <span><span class="pill ohlc">Full history</span> daily open/high/low/close from the OHLC archive</span>
-    <span><span class="pill ltp">LTP-only</span> newer listing — daily closing prices from the live-feed history, no OHLC yet</span>
+    <span><span class="pill ltp">LTP-only</span> newer listing: daily closing prices from the live-feed history, no OHLC yet</span>
     <span><span class="pill none">No data</span> listed but no price history found in any source</span>
   </div>
 
@@ -134,7 +134,7 @@ th.num{text-align:right}
     </table>
   </div>
 
-  <p class="dc-note" id="dcNote">Automated check rebuilds daily after market close from the Nepse-All-Scraper OHLC archive, the yonepse LTP history and the live quote feed. “Run live check” re-verifies every symbol’s source file in your browser: OHLC files on the scraper archive, LTP files on this site. Newly listed IPOs are picked up automatically from the live feed — they appear as <strong>LTP-only</strong> until the OHLC archive covers them.</p>
+  <p class="dc-note" id="dcNote">Automated check rebuilds daily after market close from the Nepse-All-Scraper OHLC archive, the yonepse LTP history and the live quote feed. “Run live check” re-verifies every symbol’s source file in your browser: OHLC files on the scraper archive, LTP files on this site. Newly listed IPOs are picked up automatically from the live feed: they appear as <strong>LTP-only</strong> until the OHLC archive covers them.</p>
 
   <footer class="dc-foot">
     <a href="/">← Home</a> · <a href="./">NEPSE Alpha Lab</a> · <a href="/blog/">Blog</a>
@@ -166,7 +166,7 @@ th.num{text-align:right}
       : v === 'Exit / Reduce' ? 'exit' : v === 'Strong Exit' ? 'sexit' : 'insufficient';
   }
   function fmtPrice(p) {
-    if (p == null) return '—';
+    if (p == null) return '-';
     return Number(p).toLocaleString('en-US', { maximumFractionDigits: 2 });
   }
   function dataPill(r) {
@@ -196,12 +196,12 @@ th.num{text-align:right}
         + '<td>' + esc(r.n) + '</td>'
         + '<td>' + esc(r.t) + '</td>'
         + '<td>' + dataPill(r) + fileNote(r) + '</td>'
-        + '<td class="num">' + (r.days ? r.days.toLocaleString('en-US') : '—') + '</td>'
+        + '<td class="num">' + (r.days ? r.days.toLocaleString('en-US') : '-') + '</td>'
         + '<td class="num">' + fmtPrice(r.lp) + '</td>'
-        + '<td style="white-space:nowrap">' + esc(r.ld || '—') + '</td>'
+        + '<td style="white-space:nowrap">' + esc(r.ld || '-') + '</td>'
         + '<td>' + (liveDone
             ? (r.live ? '<span class="pill live">Yes</span>' : '<span class="pill nolive">No</span>')
-            : '<span style="color:var(--muted)">—</span>') + '</td>'
+            : '<span style="color:var(--muted)">-</span>') + '</td>'
         + '<td><span class="v ' + vcls(r.verdict) + '">' + esc(r.verdict) + '</span></td>'
         + '</tr>';
     }
@@ -234,7 +234,7 @@ th.num{text-align:right}
     });
     asofEl.textContent = 'Last automated check: data as of ' + asof + ' · ' + rows.length + ' listed securities.';
     if (a.newListings && a.newListings.length) {
-      newEl.innerHTML = 'New listing' + (a.newListings.length > 1 ? 's' : '') + ' detected: <strong>' + a.newListings.map(esc).join(', ') + '</strong> — added automatically.';
+      newEl.innerHTML = 'New listing' + (a.newListings.length > 1 ? 's' : '') + ' detected: <strong>' + a.newListings.map(esc).join(', ') + '</strong>: added automatically.';
       newEl.classList.add('show');
     }
     stats(); render();
@@ -246,7 +246,7 @@ th.num{text-align:right}
     if (!r.ok) throw new Error('audit.json missing');
     return r.json();
   }).then(loadAudit).catch(function () {
-    body.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:30px">Audit not published yet — run the data refresh first.</td></tr>';
+    body.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:30px">Audit not published yet: run the data refresh first.</td></tr>';
     asofEl.textContent = 'No automated check published yet.';
   });
   //__AUDIT_THEN__
@@ -312,7 +312,7 @@ th.num{text-align:right}
         var warn = (missO + missL + blkO + blkL) > 0;
         resultEl.className = 'dc-result show ' + (warn ? 'warn' : 'ok');
         resultEl.innerHTML = '<strong>Live check complete:</strong> ' + parts.join(' · ') + '.'
-          + (warn ? ' “Not published yet” means the data exists in the audit but the file is not on the live site' + (isPreview ? ' (you are viewing a preview copy — these verify once the batch is published)' : '') + '; “blocked” means this browser could not reach the host at all.' : ' Every source file verified reachable.');
+          + (warn ? ' “Not published yet” means the data exists in the audit but the file is not on the live site' + (isPreview ? ' (you are viewing a preview copy: these verify once the batch is published)' : '') + '; “blocked” means this browser could not reach the host at all.' : ' Every source file verified reachable.');
         progText.textContent = 'Live check complete: ' + rows.length + ' checked.';
         runBtn.disabled = false;
         runBtn.textContent = 'Re-run live check';

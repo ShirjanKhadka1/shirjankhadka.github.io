@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nepali Date Converter (Miti Converter) — BS to AD &amp; AD to BS</title>
-  <meta name="description" content="Free Nepali date converter (Miti converter): instantly convert Bikram Sambat (BS) dates to AD/English (Gregorian) dates and vice versa. Includes Nepali date difference calculator and age calculator. Accurate BS 2000–2090 calendar data.">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <title>Nepali Date Converter (Miti Converter): BS to AD and AD to BS</title>
+  <meta name="description" content="Free Nepali date converter: convert Bikram Sambat (BS) dates to AD/English dates and vice versa. Includes date difference and age calculator. BS 2000-2090.">
   <meta name="author" content="Shirjan Khadka">
   <link rel="canonical" href="https://shirjankhadka.com.np/nepali-date-converter/">
   <meta name="theme-color" content="#ffffff">
@@ -12,18 +13,18 @@
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Shirjan Khadka">
-  <meta property="og:title" content="Nepali Date Converter — BS to AD & AD to BS">
-  <meta property="og:description" content="Convert Bikram Sambat (BS) to Gregorian (AD) dates instantly — plus date difference and age calculators. Free, fast, accurate.">
+  <meta property="og:title" content="Nepali Date Converter: BS to AD and AD to BS">
+  <meta property="og:description" content="Convert Bikram Sambat (BS) to Gregorian (AD) dates instantly, plus date difference and age calculators. Free, fast, accurate.">
   <meta property="og:url" content="https://shirjankhadka.com.np/nepali-date-converter/">
   <meta property="og:image" content="https://shirjankhadka.com.np/assets/images/blog/nepali-date-converter.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Nepali Date Converter — convert BS to AD and AD to BS">
+  <meta property="og:image:alt" content="Nepali Date Converter, convert BS to AD and AD to BS">
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/blog/nepali-date-converter.jpg">
-  <meta name="twitter:image:alt" content="Nepali Date Converter — convert BS to AD and AD to BS">
-  <meta name="twitter:title" content="Nepali Date Converter — BS to AD & AD to BS">
+  <meta name="twitter:image:alt" content="Nepali Date Converter, convert BS to AD and AD to BS">
+  <meta name="twitter:title" content="Nepali Date Converter, BS to AD & AD to BS">
   <meta name="twitter:description" content="Instant Bikram Sambat ↔ Gregorian date conversion, date difference & age calculators.">
 
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b5c3f'/%3E%3Ctext x='32' y='42' font-family='-apple-system,Helvetica,Arial,sans-serif' font-size='24' font-weight='700' text-anchor='middle' fill='%23ffffff'%3E%E0%A4%AE%E0%A4%BF%E0%A4%A4%E0%A4%BF%3C/text%3E%3C/svg%3E">
@@ -39,7 +40,8 @@
     "applicationCategory": "UtilitiesApplication",
     "operatingSystem": "Any",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "NPR" },
-    "author": { "@type": "Person", "name": "Shirjan Khadka", "url": "https://shirjankhadka.com.np/" },
+    "author": { "@type": "Person", "name": "Shirjan Khadka", "url": "https://shirjankhadka.com.np/",
+      "sameAs": ["https://www.linkedin.com/in/shirjankhadkab/"] },
     "description": "Convert dates between Bikram Sambat (BS) and Gregorian (AD) calendars instantly. Includes date difference and age calculators."
   }
   </script>
@@ -51,7 +53,7 @@
       {
         "@type": "Question",
         "name": "How do I convert a BS date to AD?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Select BS as the source calendar, choose the year, month and day, and the equivalent Gregorian (AD) date appears instantly — no button needed." }
+        "acceptedAnswer": { "@type": "Answer", "text": "Select BS as the source calendar, choose the year, month and day, and the equivalent Gregorian (AD) date appears instantly, no button needed." }
       },
       {
         "@type": "Question",
@@ -97,7 +99,7 @@
 
   <header class="topbar">
     <div class="topbar-inner">
-      <a href="/" class="brand" aria-label="Shirjan Khadka — home">
+      <a href="/" class="brand" aria-label="Shirjan Khadka, home">
         <span class="brand-mark">SK</span>
         <span class="brand-name">Shirjan Khadka</span>
       </a>
@@ -109,7 +111,7 @@
     <section class="hero">
       <div class="wrap">
         <h1>Nepali Date Converter</h1>
-        <p class="lede">Instantly convert between <strong>Bikram Sambat (BS)</strong> and <strong>Gregorian (AD)</strong> dates — plus date difference and age calculators. Free, fast, and accurate.</p>
+        <p class="lede">Instantly convert between <strong>Bikram Sambat (BS)</strong> and <strong>Gregorian (AD)</strong> dates, plus date difference and age calculators. Free, fast, and accurate.</p>
       </div>
     </section>
 
@@ -172,16 +174,16 @@
                   <span class="result-kicker">Bikram Sambat</span>
                   <button type="button" class="copy-btn" data-copy="resBs" aria-label="Copy Bikram Sambat date">Copy</button>
                 </div>
-                <p class="result-date" id="resBsDate">—</p>
-                <p class="result-sub" id="resBsDay">—</p>
+                <p class="result-date" id="resBsDate">-</p>
+                <p class="result-sub" id="resBsDay">-</p>
               </div>
               <div class="result" id="resAd">
                 <div class="result-top">
                   <span class="result-kicker">Gregorian (AD)</span>
                   <button type="button" class="copy-btn" data-copy="resAd" aria-label="Copy Gregorian date">Copy</button>
                 </div>
-                <p class="result-date" id="resAdDate">—</p>
-                <p class="result-sub" id="resAdDay">—</p>
+                <p class="result-date" id="resAdDate">-</p>
+                <p class="result-sub" id="resAdDay">-</p>
               </div>
             </div>
           </div>
@@ -214,7 +216,7 @@
             </div>
             <div class="result-single">
               <span class="result-kicker">Difference</span>
-              <p class="result-big" id="diffOut">—</p>
+              <p class="result-big" id="diffOut">-</p>
               <div class="chips" id="diffChips"></div>
             </div>
           </div>
@@ -223,7 +225,7 @@
         <!-- AGE PANEL -->
         <div class="panel" id="panel-age" role="tabpanel" aria-labelledby="tabbtn-age" tabindex="0" hidden>
           <div class="card">
-            <h2 class="card-title">Nepali age calculator — age calculator BS</h2>
+            <h2 class="card-title">Nepali age calculator, age calculator BS</h2>
             <div class="card-head">
               <span class="field-label">Date of birth</span>
               <div class="seg seg-sm" role="group" aria-label="Date of birth calendar">
@@ -234,7 +236,7 @@
             <div class="selects" id="dpDob"></div>
             <div class="result-single">
               <span class="result-kicker">Your age</span>
-              <p class="result-big" id="ageOut">—</p>
+              <p class="result-big" id="ageOut">-</p>
               <div class="chips" id="ageChips"></div>
             </div>
           </div>
@@ -245,15 +247,15 @@
     <section class="about">
       <div class="wrap narrow">
         <h2>About the Nepali Date Converter</h2>
-        <p><strong>Nepali Date Converter</strong> (Miti converter) converts dates between <strong>Bikram Sambat (BS)</strong> — the official calendar of Nepal — and the <strong>Gregorian calendar (AD)</strong>, instantly and in both directions. It is useful for converting a date of birth, historical Nepali dates, passport and visa dates, and dates in document translation.</p>
+        <p><strong>Nepali Date Converter</strong> (Miti converter) converts dates between <strong>Bikram Sambat (BS)</strong>, the official calendar of Nepal, and the <strong>Gregorian calendar (AD)</strong>, instantly and in both directions. It is useful for converting a date of birth, historical Nepali dates, passport and visa dates, and dates in document translation.</p>
         <h3>How BS to AD conversion works</h3>
-        <p>The Bikram Sambat calendar does not follow a fixed formula: month lengths vary from year to year. This converter uses a published BS month-length dataset for <strong>BS 2000–2090</strong> (14 April 1943 AD – 13 April 2034 AD) — the same reference data used by popular open-source Nepali date libraries — verified against known anchors such as 2000-01-01 BS = 14 April 1943 AD.</p>
+        <p>The Bikram Sambat calendar does not follow a fixed formula: month lengths vary from year to year. This converter uses a published BS month-length dataset for <strong>BS 2000–2090</strong> (14 April 1943 AD – 13 April 2034 AD), the same reference data used by popular open-source Nepali date libraries, verified against known anchors such as 2000-01-01 BS = 14 April 1943 AD.</p>
         <h2>English to Nepali Date Converter (AD to BS)</h2>
         <p>To convert an <strong>English date to a Nepali date</strong>, switch the source calendar to <strong>AD</strong>, pick the year, month and day, and the Bikram Sambat equivalent appears instantly. This direction is what most people need for citizenship dates of birth, passport applications, and filling Nepali forms with English-calendar dates.</p>
         <h2>Nepali to English Date Converter (BS to AD)</h2>
-        <p>To convert a <strong>Nepali date to an English date</strong>, keep <strong>BS</strong> selected as the source and choose the Nepali year, month and day — the Gregorian (AD) equivalent shows immediately. Useful for visa forms, WES/ECE credential evaluations, and translating dates on Nepali documents.</p>
+        <p>To convert a <strong>Nepali date to an English date</strong>, keep <strong>BS</strong> selected as the source and choose the Nepali year, month and day, the Gregorian (AD) equivalent shows immediately. Useful for visa forms, WES/ECE credential evaluations, and translating dates on Nepali documents.</p>
         <h3>More than a BS to AD converter</h3>
-        <p>Use the <strong>Difference</strong> tab to find the exact gap between any two Nepali or English dates in years, months and days, and the <strong>Age</strong> tab as a Nepali age calculator — enter a date of birth in BS or AD to get the precise age, total days lived, and the next birthday.</p>
+        <p>Use the <strong>Difference</strong> tab to find the exact gap between any two Nepali or English dates in years, months and days, and the <strong>Age</strong> tab as a Nepali age calculator, enter a date of birth in BS or AD to get the precise age, total days lived, and the next birthday.</p>
       </div>
     </section>
 
@@ -262,7 +264,7 @@
         <h2>Frequently asked questions</h2>
         <details class="faq-item" open>
           <summary>How do I convert a BS date to AD?</summary>
-          <p>Keep <strong>BS</strong> selected as the source calendar, pick the year, month and day from the dropdowns — the equivalent Gregorian (AD) date appears instantly below. No convert button needed.</p>
+          <p>Keep <strong>BS</strong> selected as the source calendar, pick the year, month and day from the dropdowns, the equivalent Gregorian (AD) date appears instantly below. No convert button needed.</p>
         </details>
         <details class="faq-item">
           <summary>How do I convert an AD (English) date to Nepali date?</summary>
@@ -270,7 +272,7 @@
         </details>
         <details class="faq-item">
           <summary>How accurate is this converter?</summary>
-          <p>It uses a published Bikram Sambat month-length dataset for BS 2000–2090 — the same reference data behind popular open-source Nepali date libraries — verified against known anchors (e.g. 2000-01-01 BS = 14 April 1943 AD) and 2,000 round-trip conversion tests.</p>
+          <p>It uses a published Bikram Sambat month-length dataset for BS 2000–2090, the same reference data behind popular open-source Nepali date libraries, verified against known anchors (e.g. 2000-01-01 BS = 14 April 1943 AD) and 2,000 round-trip conversion tests.</p>
         </details>
         <details class="faq-item">
           <summary>What is aaja ko miti (today's Nepali date)?</summary>
@@ -282,13 +284,18 @@
         </details>
         <details class="faq-item">
           <summary>Can I calculate age from a Nepali date of birth?</summary>
-          <p>Yes — the <strong>Age</strong> tab is a Nepali age calculator. Enter the date of birth in BS or AD to get the exact age in years, months and days, plus total days lived and a countdown to the next birthday.</p>
+          <p>Yes, the <strong>Age</strong> tab is a Nepali age calculator. Enter the date of birth in BS or AD to get the exact age in years, months and days, plus total days lived and a countdown to the next birthday.</p>
         </details>
         <details class="faq-item">
           <summary>How does the age calculator BS work?</summary>
-          <p>The <strong>Age</strong> tab works as a dedicated age calculator for BS dates: pick the date of birth in Bikram Sambat (or AD), and it computes the exact age in years, months and days against today's BS date — with total days lived and the next birthday countdown. All calculations use the same verified BS 2000–2090 calendar data.</p>
+          <p>The <strong>Age</strong> tab works as a dedicated age calculator for BS dates: pick the date of birth in Bikram Sambat (or AD), and it computes the exact age in years, months and days against today's BS date, with total days lived and the next birthday countdown. All calculations use the same verified BS 2000–2090 calendar data.</p>
         </details>
       </div>
+    </section>
+
+    <section class="related-tools" aria-label="Related tools">
+      <h2>Related tools</h2>
+      <p>Just need today's date? <a href="/nepali-date-today/">Aaja ko miti: Nepali date today</a> shows the current BS date, the AD equivalent, and the weekday, updated daily.</p>
     </section>
   </main>
 
