@@ -97,9 +97,12 @@ function classify(sym, name, assetType) {
 }
 
 // ---- buy-call track record (no-lookahead backtest) ----
-// For each security with >= 80 OHLC sessions: replay the engine over the
+// For each EQUITY security with >= 80 OHLC sessions: replay the engine over the
 // last TR_LOOKBACK sessions, using only data available at each session
 // (sliced series + the index regime as of that date — no future data).
+// Debentures, preference shares, mutual funds and promoter shares are
+// excluded: their prices do not trend, so ATR-based hit rates on them are
+// microstructure noise, not meaningful buy calls.
 // Every historical Buy/Strong Buy is scored against its own frame:
 //   WIN  = +4xATR target touched before the -2xATR stop within 20 sessions
 //   LOSS = stop touched first (same-session double touch counts as a loss)
@@ -130,9 +133,9 @@ function bumpSetup(stats, label, win) {
   s.n++;
   s.w += win ? 1 : 0;
 }
-function trackRecord(ENGINE, IDX, series) {
+function trackRecord(ENGINE, IDX, series, isEquity) {
   const n = series.length;
-  if (n < TR_MINN) return null;
+  if (!isEquity || n < TR_MINN) return null;
   // Replay one window of signal sessions. Returns { wins, decided, } and
   // fills the given per-setup stats object.
   function replay(t0, t1, stats) {
@@ -356,8 +359,8 @@ async function main() {
     }
     if (sec) report.secCount = (report.secCount || 0) + 1;
     if (sl != null && tp != null) report.sltpCount = (report.sltpCount || 0) + 1;
-    // buy-call track record (OHLC history only; LTP-only has no intrabar range)
-    const tr = (!ltpOnly && n >= TR_MINN) ? trackRecord(ENGINE, IDX, series) : null;
+    // buy-call track record (OHLC history only; LTP-only has no intrabar range; equity only)
+    const tr = (!ltpOnly && n >= TR_MINN) ? trackRecord(ENGINE, IDX, series, type === 'Equity') : null;
     if (tr) report.trCount = (report.trCount || 0) + 1;
     if (tr && tr.tune) { (report.tuneWs = report.tuneWs || []).push(tr.tune.w); (report.tuneNs = report.tuneNs || []).push(tr.tune.n); }
     report.byVerdict[v.label] = (report.byVerdict[v.label] || 0) + 1;
@@ -439,11 +442,15 @@ async function main() {
         '<td>' + (e.sl == null ? '–' : e.sl.toFixed(2)) + '</td>' +
         '<td>' + (e.tp == null ? '–' : e.tp.toFixed(2)) + '</td></tr>';
     }).join('\n');
+    // When the market-regime gate blocks every Buy, say so plainly instead of
+    // rendering an empty table.
+    const bodyRows = rows.length ? trs :
+      '      <tr><td colspan="8">No buy signals today &mdash; the NEPSE index is below its 200-day average, so the engine is standing aside. The full interactive table below still ranks every security.</td></tr>';
     const frag = '<section class="sc-top10" aria-label="Top ranked signals today">\n' +
       '    <h2>Today&rsquo;s top 10 ranked signals <span class="sc-asof-inline">&mdash; ' + universe.asof + '</span></h2>\n' +
       '    <div class="sc-table-wrap"><table class="sc-table">\n' +
       '      <thead><tr><th>#</th><th>Symbol</th><th>Price</th><th>Change</th><th>Signal</th><th>Setup</th><th>Stop loss</th><th>Target</th></tr></thead>\n' +
-      '      <tbody>\n' + trs + '\n      </tbody>\n' +
+      '      <tbody>\n' + bodyRows + '\n      </tbody>\n' +
       '    </table></div>\n' +
       '    <p class="sc-static-note">Static daily snapshot &mdash; the full interactive ranking of ' + symbols.length +
       ' securities, with hit-rate tracking and filters, is below.</p>\n' +
