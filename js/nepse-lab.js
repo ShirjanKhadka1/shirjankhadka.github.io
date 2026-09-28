@@ -424,7 +424,7 @@
     ltpOnly: false, styleForced: false
   };
   var TF_SESSIONS = { '1M': 22, '3M': 66, '6M': 132, '1Y': 252, '2Y': 504 };
-  var histCache = {}, liveCache = { at: 0, map: {} };
+  var histCache = {}, liveCache = { at: 0, map: {}, index: null };
   /* memoized detections + shell: hover re-renders must not recompute or rebuild DOM */
   var detCache = { key: '', divs: [], pats: [] };
   var shellCache = { key: '' };
@@ -465,10 +465,31 @@
         .catch(function (e) { clearTimeout(to); rej(e); });
     });
   }
+  // Raw fetch with a timeout (2026-09-28): fetch() never rejects on a stalled
+  // connection, which left the Analyze spinner running forever. Always use
+  // this (or fetchJSON) instead of bare fetch for data loads.
+  function fetchTimeout(url, opts, timeout) {
+    return new Promise(function (res, rej) {
+      var done = false;
+      var to = setTimeout(function () { if (!done) { done = true; rej(new Error('timeout')); } }, timeout || 15000);
+      fetch(url, opts).then(function (r) { if (!done) { done = true; clearTimeout(to); res(r); } })
+        .catch(function (e) { if (!done) { done = true; clearTimeout(to); rej(e); } });
+    });
+  }
+  // NEPSE feeds stamp NPT wall-clock with no offset ("2026-09-28T12:01:01.27").
+  // ISO without an offset parses as UTC, which inflated quote ages by 5:45 and
+  // silently disabled the live candle + LIVE badge. Treat offset-less stamps
+  // as NPT (2026-09-28).
+  function parseMarketTime(s) {
+    var t = String(s || '');
+    if (!t) return NaN;
+    if (!(/[zZ]|[+-]\d{2}:?\d{2}$/.test(t))) t += '+05:45';
+    return new Date(t).getTime();
+  }
   // Fetch the current data-build version (never cached) so automated daily
   // rebuilds invalidate the cached universe/verdicts/LTP snapshots.
   function resolveDataVersion() {
-    return fetch('data/version.json', { cache: 'no-store' }).then(function (r) {
+    return fetchTimeout('data/version.json', { cache: 'no-store' }).then(function (r) {
       if (!r.ok) throw new Error('no version'); return r.json();
     }).then(function (j) {
       if (j && j.v) UNIVERSE_V = String(j.v);
@@ -502,7 +523,7 @@
     if (now - liveCache.at < 60000 && Object.keys(liveCache.map).length) return Promise.resolve(liveCache.map);
     // Prefer our own 15-min official-API snapshot (same origin, no CORS issues,
     // refreshed by the nepse-live-quotes workflow); fall back to yonepse.
-    return fetch(SRC.liveOwn, { cache: 'no-store' }).then(function (r) {
+    return fetchTimeout(SRC.liveOwn, { cache: 'no-store' }, 15000).then(function (r) {
       if (!r.ok) throw new Error('no own feed'); return r.json();
     }).then(function (j) {
       var arr = (j && j.quotes) || [];
@@ -513,11 +534,12 @@
       // through to the yonepse community feed instead.
       var asof = j && j.asof ? new Date(j.asof).getTime() : 0;
       if (asof && marketOpenNPT() && (Date.now() - asof) > 35 * 60000) throw new Error('stale own feed');
+      liveCache.index = (j && j.index) || null;
       return arr;
-    }).catch(function () { return fetchJSON(SRC.live); }).then(function (arr) {
+    }).catch(function () { liveCache.index = null; return fetchJSON(SRC.live); }).then(function (arr) {
       var map = {};
       (arr || []).forEach(function (q) { if (q && q.symbol) { map[q.symbol] = q; if (q.name) state.names[q.symbol] = q.name; } });
-      liveCache = { at: now, map: map };
+      liveCache = { at: now, map: map, index: liveCache.index };
       return map;
     }).catch(function () { return liveCache.map; });
   }
@@ -552,8 +574,8 @@
     if (!q || !q.last_updated) return { rows: rows, live: false };
     var t = todayNPT();
     var ymd = t.getUTCFullYear() * 10000 + (t.getUTCMonth() + 1) * 100 + t.getUTCDate();
-    var ageMin = (Date.now() - new Date(q.last_updated).getTime()) / 60000;
-    if (ageMin > 180) return { rows: rows, live: false }; // stale quote
+    var ageMin = (Date.now() - parseMarketTime(q.last_updated)) / 60000;
+    if (!(ageMin >= 0) || ageMin > 180) return { rows: rows, live: false }; // stale quote
     var last = rows[rows.length - 1];
     var candle = [ymd, q.previous_close || q.ltp, q.high || q.ltp, q.low || q.ltp, q.ltp, q.volume || 0, q.turnover || 0];
     var out = rows.slice();
@@ -562,6 +584,31 @@
     else return { rows: rows, live: false };
     return { rows: out, live: marketOpenNPT() && ageMin < 45, quote: q, provisional: !last || ymd >= last[0] };
   }
+  // Live candle for the NEPSE index itself (2026-09-28): the snapshot's
+  // `index` object comes from the official /api/nots/nepse-index endpoint.
+  // The returned quote is normalized to the live-bar shape
+  // {ltp, change, percent_change, last_updated}.
+  function applyLiveIndexCandle(rows, idx) {
+    if (!idx || !idx.value || !idx.last_updated) return { rows: rows, live: false, quote: null };
+    var t = todayNPT();
+    var ymd = t.getUTCFullYear() * 10000 + (t.getUTCMonth() + 1) * 100 + t.getUTCDate();
+    var ageMin = (Date.now() - parseMarketTime(idx.last_updated)) / 60000;
+    if (!(ageMin >= 0) || ageMin > 180) return { rows: rows, live: false, quote: null }; // stale index
+    var last = rows[rows.length - 1];
+    var candle = [ymd, idx.previous_close || idx.value, idx.high || idx.value,
+                  idx.low || idx.value, idx.value, 0, 0];
+    var out = rows.slice();
+    if (last && last[0] === ymd) out[out.length - 1] = candle;
+    else if (!last || ymd > last[0]) out.push(candle);
+    else return { rows: rows, live: false, quote: null };
+    var chg = idx.change != null ? idx.change : (idx.value - (idx.previous_close || idx.value));
+    var pct = idx.percent_change != null ? idx.percent_change
+      : ((idx.previous_close || 0) ? chg / idx.previous_close * 100 : 0);
+    return {
+      rows: out, live: marketOpenNPT() && ageMin < 45,
+      quote: { ltp: idx.value, change: chg, percent_change: pct, last_updated: idx.last_updated }
+    };
+  }
 
   function setSymbol(sym, name) {
     sym = String(sym || '').trim().toUpperCase();
@@ -569,8 +616,21 @@
     state.loading = true; state.err = ''; renderShell();
     if (sym === 'NEPSE' || sym === 'NEPSE INDEX') {
       state.mode = 'index'; state.sym = 'NEPSE'; state.symName = 'NEPSE Index'; state.ltpOnly = false;
-      state.rows = indexRows(); state.loading = false;
+      var ix0 = applyLiveIndexCandle(indexRows(), liveCache.index);
+      state.rows = ix0.rows;
+      state.live = ix0.quote;
+      state.liveBadge = ix0.live ? 'live' : 'eod';
+      state.loading = false;
       afterData();
+      // refresh the live index snapshot, then repaint if still on the index view
+      loadLive().then(function () {
+        if (state.mode !== 'index') return;
+        var ix = applyLiveIndexCandle(indexRows(), liveCache.index);
+        state.rows = ix.rows;
+        state.live = ix.quote;
+        state.liveBadge = ix.live ? 'live' : 'eod';
+        render();
+      }).catch(function () {});
       return;
     }
     state.mode = 'stock'; state.sym = sym; state.ltpOnly = false;
@@ -1230,14 +1290,21 @@
     setSymbol(start);
     // live auto-refresh during market hours (skipped when tab is hidden)
     setInterval(function () {
-      if (document.hidden || !marketOpenNPT() || state.mode !== 'stock') return;
+      if (document.hidden || !marketOpenNPT() || (state.mode !== 'stock' && state.mode !== 'index')) return;
       loadLive().then(function () {
-        var rows = histCache[state.sym] || [];
-        if (!rows.length) return;
-        var merged = applyLiveCandle(rows, state.sym);
-        state.rows = merged.rows;
-        state.live = merged.quote || liveCache.map[state.sym] || null;
-        state.liveBadge = merged.live ? 'live' : 'eod';
+        if (state.mode === 'index') {
+          var ix = applyLiveIndexCandle(indexRows(), liveCache.index);
+          state.rows = ix.rows;
+          state.live = ix.quote;
+          state.liveBadge = ix.live ? 'live' : 'eod';
+        } else {
+          var rows = histCache[state.sym] || [];
+          if (!rows.length) return;
+          var merged = applyLiveCandle(rows, state.sym);
+          state.rows = merged.rows;
+          state.live = merged.quote || liveCache.map[state.sym] || null;
+          state.liveBadge = merged.live ? 'live' : 'eod';
+        }
         render();
       });
     }, 60000);
