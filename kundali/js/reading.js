@@ -38,6 +38,17 @@ function rdgDignityPhrase(key, lon) {
 function rdgEsc(s) {
   return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
+/* Detailed planet-in-house interpretation from the interpretations module.
+   This is what turns "X in the Nth house" from a label into a reading. */
+function rdgHouseReading(key, house) {
+  try {
+    if (typeof getPlanetInHouse === 'function') {
+      var t = getPlanetInHouse(key, house);
+      return t || '';
+    }
+  } catch (e) {}
+  return '';
+}
 function rdgYear(jd) {
   var d = new Date((jd - 2440587.5) * 86400000);
   return d.getUTCFullYear();
@@ -229,7 +240,9 @@ function rdgDashaChapter(p, md, nowJD, jd) {
   if (tense === 'past') open = 'These years are behind you now, and they set the foundation you stand on. ';
   else if (tense === 'present') open = 'This is the chapter you are living inside right now. ';
   else open = 'This chapter is still ahead. Knowing its themes lets you prepare rather than react. ';
-  return head + placement + '<p>' + open + rdgEsc(portrait) + '</p>' + (counsel ? '<p><em>' + counsel + '</em></p>' : '');
+  var lordReading = rdgHouseReading(key, h);
+  var lordPara = lordReading ? '<p><strong>' + lord + ' in your ' + rdgOrdinal(h) + ' house means:</strong> ' + lordReading + '</p>' : '';
+  return head + placement + '<p>' + open + rdgEsc(portrait) + '</p>' + lordPara + (counsel ? '<p><em>' + counsel + '</em></p>' : '');
 }
 
 /* ---- Temperament ---- */
@@ -250,6 +263,10 @@ function rdgTemperament(p, moonLong) {
   else if (md === 'debilitated') html += 'The Moon here asks for deliberate emotional hygiene: regular sleep, honest conversation, and not making big decisions on the heaviest days.';
   else html += 'The mind is adaptable rather than fixed: moods shift with circumstance, and routines that stabilize sleep and diet stabilize everything else.';
   html += '</p>';
+  var llReading = rdgHouseReading(llk, llHouse);
+  if (llReading) html += '<p><strong>Your chart lord ' + lagnaLord + ' in the ' + rdgOrdinal(llHouse) + ' house means:</strong> ' + llReading + '</p>';
+  var moReading = rdgHouseReading('moon', moonHouse);
+  if (moReading) html += '<p><strong>Your Moon in the ' + rdgOrdinal(moonHouse) + ' house means:</strong> ' + moReading + '</p>';
   return html;
 }
 
@@ -269,6 +286,10 @@ function rdgRelationships(p) {
   else if (vd === 'debilitated') html += 'Venus needs conscious tending here: spell out expectations early, because unspoken assumptions are where friction starts.';
   else html += 'Affection is genuine but needs expression: say the appreciative things out loud instead of assuming they are obvious.';
   html += ' Timing matters more than verdicts: the dasha chapters above show when relationship themes activate. A difficult period for partnership is a season, not a sentence.</p>';
+  var l7Reading = rdgHouseReading(l7k, h7);
+  if (l7Reading) html += '<p><strong>Your 7th lord ' + lord7 + ' in the ' + rdgOrdinal(h7) + ' house means:</strong> ' + l7Reading + '</p>';
+  var veReading = rdgHouseReading('venus', venusH);
+  if (veReading) html += '<p><strong>Your Venus in the ' + rdgOrdinal(venusH) + ' house means:</strong> ' + veReading + '</p>';
   return html;
 }
 
@@ -300,7 +321,12 @@ function rdgCareerPaths(p, jd) {
     html += '<li><strong>' + t.label + '.</strong> ' + t.why + '; your ' + rdg_NAMES[t.key] + ' is ' +
       rdgDignity(t.key, p[t.key]) + ' in the ' + rdgOrdinal(rdgHouseOf(p, t.key)) + ' house.</li>';
   });
-  html += '</ol><p>This is a reflective reading, not a job guarantee. Skill, effort and market reality decide outcomes; the chart suggests where your energy meets the least resistance.</p>';
+  html += '</ol>';
+  var l10Reading = rdgHouseReading(l10k, h10);
+  if (l10Reading) html += '<p><strong>Your 10th lord ' + lord10 + ' in the ' + rdgOrdinal(h10) + ' house means:</strong> ' + l10Reading + '</p>';
+  var saReading = rdgHouseReading('saturn', rdgHouseOf(p, 'saturn'));
+  if (saReading) html += '<p><strong>Your Saturn in the ' + rdgOrdinal(rdgHouseOf(p, 'saturn')) + ' house means:</strong> ' + saReading + '</p>';
+  html += '<p>This is a reflective reading, not a job guarantee. Skill, effort and market reality decide outcomes; the chart suggests where your energy meets the least resistance.</p>';
   return html;
 }
 
@@ -320,6 +346,12 @@ function rdgMoney(p) {
   else if (jd_ === 'debilitated') html += 'Jupiter needs support here: avoid speculation and keep reserves, because the chart favors earned, patient money over quick gains.';
   else html += 'Jupiter is neutrally placed: fortune responds to prudence, so budgeting and diversified effort matter more than timing.';
   html += ' Nothing here is financial advice; treat it as a traditional lens on your habits with money.</p>';
+  var l2Reading = rdgHouseReading(l2k, h2);
+  if (l2Reading) html += '<p><strong>Your 2nd lord ' + lord2 + ' in the ' + rdgOrdinal(h2) + ' house means:</strong> ' + l2Reading + '</p>';
+  var l11Reading = rdgHouseReading(l11k, h11);
+  if (l11Reading) html += '<p><strong>Your 11th lord ' + lord11 + ' in the ' + rdgOrdinal(h11) + ' house means:</strong> ' + l11Reading + '</p>';
+  var juReading = rdgHouseReading('jupiter', rdgHouseOf(p, 'jupiter'));
+  if (juReading) html += '<p><strong>Your Jupiter in the ' + rdgOrdinal(rdgHouseOf(p, 'jupiter')) + ' house means:</strong> ' + juReading + '</p>';
   return html;
 }
 
@@ -338,6 +370,8 @@ function rdgHealth(p) {
   if (md === 'exalted' || md === 'own') html += 'A strong Moon is the classical recovery signature: the system bounces back well when given rest.';
   else html += 'The Moon asks for nervous-system care: wind down before sleep, limit stimulants late in the day, and treat rest as medicine.';
   html += '</p>';
+  var l6Reading = rdgHouseReading(l6k, h6);
+  if (l6Reading) html += '<p><strong>Your 6th lord ' + lord6 + ' in the ' + rdgOrdinal(h6) + ' house means:</strong> ' + l6Reading + '</p>';
   return html;
 }
 
@@ -368,6 +402,8 @@ function rdgNow(p, moonLong, birthJD, jd) {
     html += 'Within it, ' + curAD.lord + ' Antardasha runs until ' + rdgYear(curAD.endJD) + ': ' + rdgEsc(adl) + ' ';
   }
   html += 'Use the period consciously: the dasha does not decide for you, it describes the weather. Dress for it.</p>';
+  var nowLordReading = rdgHouseReading(lk, lh);
+  if (nowLordReading) html += '<p><strong>Your current period lord ' + cur.lord + ' in the ' + rdgOrdinal(lh) + ' house means:</strong> ' + nowLordReading + '</p>';
   /* Transit context from the gochar engine */
   try {
     if (typeof gocharOutlook === 'function') {
