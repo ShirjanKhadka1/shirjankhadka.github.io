@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free Kundali Online - Vedic Birth Chart Calculator | Shirjan Khadka</title>
+<meta name="description" content="Generate your free Vedic kundali online. Accurate Lahiri sidereal calculations, Vimshottari dasha, dosha analysis, and marriage matching. 100% free, private, no signup.">
+<meta property="og:title" content="Free Kundali Online - Vedic Birth Chart">
+<meta property="og:description" content="Accurate free Vedic kundali with dasha, doshas, and matching. Private and client-side.">
+<meta property="og:url" content="https://shirjankhadka.com.np/kundali/">
+<link rel="canonical" href="https://shirjankhadka.com.np/kundali/">
+<link rel="stylesheet" href="kundali.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Free Vedic Kundali Calculator",
+  "url": "https://shirjankhadka.com.np/kundali/",
+  "applicationCategory": "LifestyleApplication",
+  "operatingSystem": "Any",
+  "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+  "description": "Free Vedic birth chart calculator with Vimshottari dasha and kundali matching."
+}
+</script>
+</head>
+<body>
+<header class="topbar">
+  <a href="/" class="logo">Shirjan Khadka</a>
+  <nav>
+    <a href="/nepali-date-converter/">Date Converter</a>
+    <a href="/nepse-screener/">NEPSE Screener</a>
+    <a href="/kundali/" class="active">Kundali</a>
+  </nav>
+</header>
+
+<main>
+  <h1>Free Vedic Kundali Online</h1>
+  <p class="subtitle">Accurate birth chart, dasha timeline, and dosha analysis. Free forever, no signup. Your data never leaves your device.</p>
+  
+  <section class="form-section">
+    <h2>Enter Birth Details</h2>
+    <form id="kundaliForm">
+      <div class="form-grid">
+        <div>
+          <label for="birthName">Name</label>
+          <input type="text" id="birthName" placeholder="Your name">
+        </div>
+        <div>
+          <label for="birthDate">Birth Date</label>
+          <input type="date" id="birthDate" required value="2002-03-21">
+        </div>
+        <div>
+          <label for="birthTime">Birth Time</label>
+          <input type="time" id="birthTime" required value="04:20">
+        </div>
+        <div>
+          <label for="birthCity">City (or enter coordinates)</label>
+          <select id="birthCity">
+            <option value="">Custom...</option>
+          </select>
+        </div>
+        <div>
+          <label for="birthLat">Latitude</label>
+          <input type="number" id="birthLat" step="0.0001" value="27.1667" required>
+        </div>
+        <div>
+          <label for="birthLon">Longitude (East)</label>
+          <input type="number" id="birthLon" step="0.0001" value="87.0667" required>
+        </div>
+        <div>
+          <label for="tzOffset">UTC Offset (hours)</label>
+          <input type="number" id="tzOffset" step="0.25" value="5.75" required>
+          <small>Editable for historical timezones. Nepal is +5:45.</small>
+        </div>
+      </div>
+      <button type="submit" class="btn-primary">Generate Kundali</button>
+    </form>
+    <p class="privacy-note">Privacy: All calculations happen in your browser. Nothing is sent to any server.</p>
+  </section>
+  
+  <section id="results" style="display:none;">
+    <div class="report-actions">
+      <button id="printBtn" class="btn-secondary">Print / Save PDF</button>
+    </div>
+    
+    <h2>Birth Chart</h2>
+    <div class="varga-switcher">
+      <button class="varga-btn active" data-varga="D1">D1 (Rashi)</button>
+      <button class="varga-btn" data-varga="D9">D9 (Navamsha)</button>
+      <button class="varga-btn" data-varga="D10">D10 (Dashamsha)</button>
+    </div>
+    <div id="d1Chart"></div>
+    
+    <h2>Planet Positions</h2>
+    <div id="planetTable"></div>
+    
+    <div id="shadbalaSection" style="display:none;"></div>
+    
+    <div id="ashtakavargaSection" style="display:none;"></div>
+    
+    <h2>Vimshottari Dasha</h2>
+    <div id="dashaSection"></div>
+    
+    <div id="gocharSection" style="display:none;"></div>
+    
+    <h2>Interpretation</h2>
+    <div id="interpSection"></div>
+    
+    <h2>Dosha Analysis</h2>
+    <div id="doshaSection"><p>Loading...</p></div>
+    
+    <div id="disclaimer"></div>
+  </section>
+  
+  <section id="matchingSection" class="form-section match-section">
+    <h2>Kundali Matching (Guna Milan)</h2>
+    <p>Compare two birth charts with the traditional 36-point Ashtakoota system, plus a Mangal Dosha check for both people. Everything is computed in your browser and stays private.</p>
+    <div class="match-form-wrap">
+      <div class="match-grid">
+        <div class="match-person">
+          <h3>First person</h3>
+          <label>Name <input type="text" id="p1Name" placeholder="Name"></label>
+          <label>Birth date <input type="date" id="p1Date"></label>
+          <label>Birth time <input type="time" id="p1Time"></label>
+          <label>Latitude <input type="number" id="p1Lat" step="0.0001" placeholder="27.7172"></label>
+          <label>Longitude (East) <input type="number" id="p1Lon" step="0.0001" placeholder="85.3240"></label>
+          <label>UTC offset (hours) <input type="number" id="p1Tz" step="0.25" value="5.75"></label>
+          <label>Role
+            <select id="p1Role">
+              <option value="bride">Bride (girl)</option>
+              <option value="groom">Groom (boy)</option>
+            </select>
+          </label>
+          <p class="note">The other person takes the remaining role. Some traditional scores are directional, so this matters.</p>
+        </div>
+        <div class="match-person">
+          <h3>Second person</h3>
+          <label>Name <input type="text" id="p2Name" placeholder="Name"></label>
+          <label>Birth date <input type="date" id="p2Date"></label>
+          <label>Birth time <input type="time" id="p2Time"></label>
+          <label>Latitude <input type="number" id="p2Lat" step="0.0001" placeholder="27.7172"></label>
+          <label>Longitude (East) <input type="number" id="p2Lon" step="0.0001" placeholder="85.3240"></label>
+          <label>UTC offset (hours) <input type="number" id="p2Tz" step="0.25" value="5.75"></label>
+        </div>
+      </div>
+      <button id="matchBtn" class="btn-primary">Compare Charts</button>
+    </div>
+    <div id="matchResults"></div>
+  </section>
+  
+  <section class="faq">
+    <h2>Frequently Asked Questions</h2>
+    <h3>Is this kundali calculator free?</h3>
+    <p>Yes, completely free. No signup, no paywall, no locked features. Everything is available to everyone.</p>
+    
+    <h3>How accurate are the calculations?</h3>
+    <p>We use the Lahiri ayanamsha with VSOP87 planetary theory and ELP/MPP02 lunar theory, validated against the Swiss Ephemeris to within 0.05 degrees. The mean lunar node is used and disclosed.</p>
+    
+    <h3>Is my birth data private?</h3>
+    <p>Yes. All calculations happen in your browser using JavaScript. Your birth details are never transmitted to any server.</p>
+    
+    <h3>What is kundali matching?</h3>
+    <p>Our marriage matching section compares two birth charts using the traditional 36-point Ashtakoota (Guna Milan) system, showing every koota score with the rule behind it, plus a Mangal Dosha check for both people. Remember, Guna Milan is one Moon-based factor among many, not a final judgment on marriage.</p>
+  </section>
+</main>
+
+<footer>
+  <p>Free Vedic astrology tools by Shirjan Khadka. For reflection and entertainment, not medical or professional advice.</p>
+</footer>
+
+<script src="js/astro-engine.js"></script>
+<script src="js/dasha.js"></script>
+<script src="js/vargas.js"></script>
+<script src="js/shadbala.js"></script>
+<script src="js/ashtakavarga.js"></script>
+<script src="js/bhava.js"></script>
+<script src="js/dosha.js"></script>
+<script src="js/gochar.js"></script>
+<script src="js/matching.js"></script>
+<script src="js/cities.js"></script>
+<script src="js/interpretations.js"></script>
+<script src="js/kundali-ui.js"></script>
+<script src="js/test-engine.js"></script>
+</body>
+</html>
