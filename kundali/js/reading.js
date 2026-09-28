@@ -111,6 +111,69 @@ var rdg_LL_VERDICT = {
   12: 'Distance decides the life: foreign lands, retreat, and behind-the-scenes work.'
 };
 
+/* Varga (divisional chart) sign: 0-based sign index of a longitude in D9/D10. */
+function rdgVargaSign(lon, varga) {
+  if (typeof Vargas !== 'undefined' && Vargas.vargaChart) return Vargas.vargaChart(lon, varga).sign;
+  return rdgSignOf(lon);
+}
+
+/* Classical name-starting syllable per nakshatra pada (Moon's quarter).
+   Cross-checked against standard Jyotish tables. Index: nakshatra 0-26, pada 0-3. */
+var rdg_NAK_SYLLABLES = [
+  ['Chu','Che','Cho','La'], ['Li','Lu','Le','Lo'], ['A','I','U','E'],
+  ['O','Va','Vi','Vu'], ['Ve','Vo','Ka','Ki'], ['Ku','Gha','Ng','Chha'],
+  ['Ke','Ko','Ha','Hi'], ['Hu','He','Ho','Da'], ['Di','Du','De','Do'],
+  ['Ma','Mi','Mu','Me'], ['Mo','Ta','Ti','Tu'], ['Te','To','Pa','Pi'],
+  ['Pu','Sha','Na','Tha'], ['Pe','Po','Ra','Ri'], ['Ru','Re','Ro','Ta'],
+  ['Ti','Tu','Te','To'], ['Na','Ni','Nu','Ne'], ['No','Ya','Yi','Yu'],
+  ['Ye','Yo','Bha','Bhi'], ['Bhu','Dha','Pha','Dha'], ['Bhe','Bho','Ja','Ji'],
+  ['Khi','Khu','Khe','Kho'], ['Ga','Gi','Gu','Ge'], ['Go','Sa','Si','Su'],
+  ['Se','So','Da','Di'], ['Du','Tha','Jha','Na'], ['De','Do','Cha','Chi']
+];
+var rdg_NAK_NAMES = ['Ashwini','Bharani','Krittika','Rohini','Mrigashira','Ardra','Punarvasu','Pushya','Ashlesha','Magha','Purva Phalguni','Uttara Phalguni','Hasta','Chitra','Swati','Vishakha','Anuradha','Jyeshtha','Mula','Purva Ashadha','Uttara Ashadha','Shravana','Dhanishta','Shatabhisha','Purva Bhadrapada','Uttara Bhadrapada','Revati'];
+function rdgMoonPada(moonLong) {
+  var x = ((moonLong % 360) + 360) % 360;
+  var nak = Math.floor(x / (360 / 27)) % 27;
+  var pada = Math.floor((x - nak * (360 / 27)) / (360 / 108)) + 1;
+  return {nak: nak, pada: pada, syllable: rdg_NAK_SYLLABLES[nak][pada - 1]};
+}
+/* First-sound match between the birth name and the prescribed syllable.
+   Treats V/B as interchangeable (Va/Ba, Vi/Bi, Vu/Bu, Ve/Be, Vo/Bo). */
+function rdgNameMatchesSyllable(name, syl) {
+  var n = String(name || '').toLowerCase().replace(/[^a-z]/g, '');
+  var s = String(syl || '').toLowerCase();
+  if (!n || !s) return false;
+  var variants = [s];
+  if (s.charAt(0) === 'v') variants.push('b' + s.slice(1));
+  if (s.charAt(0) === 'b') variants.push('v' + s.slice(1));
+  for (var i = 0; i < variants.length; i++) {
+    if (n.indexOf(variants[i]) === 0) return true;
+  }
+  return false;
+}
+
+/* ---- Birth name: the Moon's syllable vs the given name ---- */
+function rdgBirthName(p, moonLong, name) {
+  var mp = rdgMoonPada(moonLong);
+  var nakName = rdg_NAK_NAMES[mp.nak];
+  var firstSound = String(name || '').replace(/[^A-Za-z]/g, '').slice(0, 2);
+  var html = '<h3>Birth name</h3>';
+  html += '<p><strong>Verdict:</strong> the Moon stands in ' + nakName + ', pada ' + mp.pada +
+    '. The classical name syllable for this pada is <strong>\u2018' + mp.syllable + '\u2019</strong>' +
+    (mp.syllable.charAt(0) === 'V' ? ' (also written \u2018B' + mp.syllable.slice(1) + '\u2019)' :
+     mp.syllable.charAt(0) === 'B' ? ' (also written \u2018V' + mp.syllable.slice(1) + '\u2019)' : '') + '.</p>';
+  if (rdgNameMatchesSyllable(name, mp.syllable)) {
+    html += '<p>Your birth name \u2018' + rdgEsc(name) + '\u2019 begins with this syllable: name and Moon agree. ' +
+      'The traditional system counts this as consonance between the given identity and the mind.</p>';
+  } else {
+    html += '<p>Your birth name \u2018' + rdgEsc(name) + '\u2019 begins with \u2018' + rdgEsc(firstSound) +
+      '\u2019: the family followed its own choice, not the classical syllable. This changes nothing in the chart ' +
+      'below — the reading is cast from the Moon itself, which stays in ' + nakName + ' regardless of the name. ' +
+      'The syllable matters only if the family wants the traditional naming consonance.</p>';
+  }
+  return html;
+}
+
 /* ---- Bottom line ---- */
 function rdgBottomLine(p, jd) {
   var scored = rdg_KEYS.map(function(k){ return {k:k, s:rdgStrength(p,k,jd)}; })
@@ -275,6 +338,18 @@ function rdgRelationships(p, mds, nowJD) {
     html += '<p><strong>Better phase:</strong> ' + better.lord + ' Mahadasha, ' + rdgYearRange(better.startJD, better.endJD) +
       (better.startJD <= nowJD ? ' (running now)' : '') + '.</p>';
   html += '<p><strong>Main caution:</strong> ' + rdg_L7_CAUTION[h7] + '</p>';
+  /* Navamsha cross-check: the classical second opinion on partnership. */
+  var d9Lagna = rdgVargaSign(p.ascendant, 'D9');
+  var venusD9sign = rdgVargaSign(p.venus, 'D9');
+  var venusD9d = rdgDignity('venus', venusD9sign * 30 + 15);
+  html += '<p><strong>Navamsha check (D9):</strong> D9 lagna ' + rdg_SIGNS[d9Lagna] + ', Venus ' + venusD9d +
+    ' in ' + rdg_SIGNS[venusD9sign] + '. ';
+  if (venusD9d === 'exalted' || venusD9d === 'own')
+    html += 'The deeper chart confirms the D1 promise: this partnership is built to last.</p>';
+  else if (venusD9d === 'debilitated')
+    html += 'The D1 promise is real, but the inner chart asks for conscious work: do not expect partnership to run on autopilot.</p>';
+  else
+    html += 'The inner chart neither adds nor removes: the D1 verdict above stands as written.</p>';
   return html;
 }
 
@@ -373,6 +448,19 @@ function rdgCareerMoney(p, jd) {
     : 'This chart builds wealth through earned, patient money: diversified, rules-based decisions. Leverage and emotional speculation are where it loses.';
   html += '<p><strong>Money strength:</strong> ' + strength + '</p>';
   html += '<p><strong>Money caution:</strong> ' + caution + '</p>';
+  /* Dashamsha cross-check: the classical second opinion on career. */
+  var d10Lagna = rdgVargaSign(p.ascendant, 'D10');
+  var d10best = null;
+  rdg_KEYS.forEach(function(k) {
+    var s = rdgVargaSign(p[k], 'D10');
+    var d = rdgDignity(k, s * 30 + 15);
+    if (d === 'exalted' || d === 'own') d10best = {k: k, d: d, s: s};
+  });
+  html += '<p><strong>Dashamsha check (D10):</strong> D10 lagna ' + rdg_SIGNS[d10Lagna] +
+    (d10best
+      ? '; ' + rdg_NAMES[d10best.k] + ' ' + d10best.d + ' in ' + rdg_SIGNS[d10best.s] +
+        ' is the working strength behind the career verdict above.'
+      : '; no planet dignified in D10, so the D1 career verdict above carries the read.') + '</p>';
   return html;
 }
 
@@ -437,11 +525,14 @@ function renderDetailedReading(p, moonLong, birthJD, name, tzHours) {
   var mds = vimshottariMahadashas(moonLong, birthJD);
   var nakIdx = Math.floor(((((moonLong % 360) + 360) % 360) / (360 / 27))) % 27;
   var nak = (typeof NAKSHATRAS !== 'undefined' && NAKSHATRAS[nakIdx]) ? NAKSHATRAS[nakIdx] : '';
+  var mp = rdgMoonPada(moonLong);
   var html = '<div class="rdg-reading">';
   html += '<h3>Your detailed reading</h3>';
   html += '<p class="rdg-for">Prepared for ' + rdgEsc(name) + ' &middot; ' +
-    rdg_SIGNS[rdgSignOf(p.ascendant)] + ' rising' + (nak ? ' &middot; Moon in ' + rdgEsc(nak) : '') + '.</p>';
+    rdg_SIGNS[rdgSignOf(p.ascendant)] + ' rising' +
+    (nak ? ' &middot; Moon in ' + rdgEsc(nak) + ' pada ' + mp.pada : '') + '.</p>';
   html += '<h3>Bottom line</h3><p>' + rdgBottomLine(p, birthJD) + '</p>';
+  html += rdgBirthName(p, moonLong, name);
   html += rdgPast(p, mds, nowJD);
   html += rdgPresent(p, moonLong, birthJD);
   html += rdgFuture(p, moonLong, birthJD);
