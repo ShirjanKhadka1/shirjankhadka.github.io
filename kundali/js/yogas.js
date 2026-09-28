@@ -122,7 +122,7 @@ function detectYogas(p) {
       if (conjunct || kendraTrikona) {
         seen[a+'+'+b] = 1;
         pairs.push({a:a, b:b, how: conjunct ? 'conjoined in the ' + ygOrd(ha) + ' house' :
-          ygCap(a) + ' in the ' + ygOrd(ha) + ' and ' + ygCap(b) + ' in the ' + ygOrd(hb)});
+          'placed in the ' + ygOrd(ha) + ' and ' + ygOrd(hb) + ' houses'});
       }
     }
   }
