@@ -71,7 +71,127 @@ function rdgStrength(p, key, jd) {
   return score;
 }
 
-/* ---- Bottom line: the 2-3 strongest signatures ---- */
+/* ---- Bespoke signature paragraphs: planet x dignity ---- */
+var rdg_SIGNATURES = {
+  sun: {
+    exalted: 'An exalted Sun gives a strong spine: authority feels natural, and recognition follows sustained integrity rather than self-promotion. The classical warning is pride; the counsel is to spend authority on others and it returns multiplied.',
+    own: 'The Sun in its own sign Leo gives steady self-respect and leadership that does not need applause. You are at your best with responsibility that is truly yours, and you wilt in roles where you must shrink to fit.',
+    debilitated: 'A debilitated Sun asks for conscious confidence-building. Authority may feel borrowed in early life; the texts advise earning it inwardly first, through competence and kept promises, before the outer world grants it.'
+  },
+  moon: {
+    exalted: 'An exalted Moon is one of the finest placements in the classical scheme: emotional intelligence, popularity, and a mind that stays clear under pressure. Others instinctively trust your read of a situation.',
+    own: 'The Moon in its own sign Cancer gives deep feeling and strong attachment to home, people, and memory. Nurture is your native language; guard against carrying what belongs to others.',
+    debilitated: 'A debilitated Moon makes the inner weather changeable, and the texts prescribe deliberate emotional hygiene: protected sleep, honest conversation, and no major decisions on the heaviest days.'
+  },
+  mars: {
+    exalted: 'An exalted Mars gives exceptional drive and tactical intelligence: the courage to start and the stamina to finish. Tradition marks this as the signature of builders, competitors, and those who win hard things.',
+    own: 'Mars in its own sign gives clean, honest energy: you act rather than brood, and you respect the same in others. Impatience is the tax; channel it into work and sport and it becomes an asset.',
+    debilitated: 'A debilitated Mars scatters its fire: bursts of effort followed by friction or fatigue. The classical counsel is structure, choose one arena, train the energy like an athlete, and avoid decisions made in anger.'
+  },
+  mercury: {
+    exalted: 'An exalted Mercury gives a first-rate analytical mind: precise, quick, and commercially sharp. Writing, analysis, trade, and technology are natural instruments; the risk is overthinking what should simply be felt.',
+    own: 'Mercury in its own sign gives versatility of mind and fluency with ideas, numbers, and words. You learn fast and adapt faster; the counsel is to finish a few deep masteries instead of collecting many shallow ones.',
+    debilitated: 'A debilitated Mercury muddles the signal: misunderstandings, second-guessing, and scattered study. The texts advise slowing down communication, writing things down, and verifying before concluding.'
+  },
+  jupiter: {
+    exalted: 'An exalted Jupiter is the classical signature of wisdom and protection: mentors appear, judgment stays sound, and even difficult periods carry a hidden hand of guidance. Others seek your counsel because it proves right.',
+    own: 'Jupiter in its own sign gives principled optimism and a talent for guidance, teaching, and finance. You believe things can be better and you work to make them so; guard against preaching to those who did not ask.',
+    debilitated: 'A debilitated Jupiter clouds judgment about people and promises: trust must be verified, not assumed. The classical remedy is humility in counsel, conservatism with money lent, and teachers chosen by character, not charisma.'
+  },
+  venus: {
+    exalted: 'An exalted Venus gives refined affection and an eye for harmony: deep loyalty in love, taste in art and environment, and a traditional signature of comfort and creative gifts. Relationships tend to heal rather than break.',
+    own: 'Venus in its own sign gives warmth, charm, and a genuine love of beauty and pleasure. You create pleasantness around you; the counsel is to invest in real intimacy rather than mere comfort.',
+    debilitated: 'A debilitated Venus distorts the mirror of relationships: expectations go unspoken and then unmet. The texts advise explicit agreements early, in love and in money, because clarity is what this placement must learn.'
+  },
+  saturn: {
+    exalted: 'An exalted Saturn gives formidable staying power: discipline without bitterness, authority earned the slow way. Tradition reads this as the signature of those who build institutions and outlast every rival.',
+    own: 'Saturn in its own sign gives structured endurance and respect for process. You do not mind the long road; in fact you distrust shortcuts. Responsibility gravitates to you because you carry it without complaint.',
+    debilitated: 'A debilitated Saturn makes duty feel heavy and progress slow, and the texts warn against both resentment and evasion. The way through is smaller promises kept perfectly: Saturn pays compound interest on every honest effort.'
+  }
+};
+
+function rdgHouseGroup(h) {
+  if ([1,4,7,10].indexOf(h) >= 0) return 'kendra';
+  if ([5,9].indexOf(h) >= 0) return 'trikona';
+  if ([6,8,12].indexOf(h) >= 0) return 'dusthana';
+  if ([3,6,10,11].indexOf(h) >= 0) return 'upachaya';
+  return 'neutral';
+}
+function rdgGroupNote(h) {
+  var g = rdgHouseGroup(h);
+  if (g === 'kendra') return 'In a kendra, this is a visible, load-bearing part of the life, not a background detail.';
+  if (g === 'trikona') return 'In a trikona, fortune and support flow toward this area with less friction than most.';
+  if (g === 'upachaya') return 'In an upachaya house, this grows through sustained effort: slow at first, then compounding.';
+  if (g === 'dusthana') return 'In a dusthana house, this area teaches through friction; what is learned here becomes wisdom, not just experience.';
+  return '';
+}
+
+/* ---- Key yogas section ---- */
+function rdgYogasSection(p) {
+  var yogas = (typeof detectYogas === 'function') ? detectYogas(p) : [];
+  var html = '<h3>The key yogas of your chart</h3>';
+  if (yogas.length === 0) {
+    html += '<p>No classical yogas stand out in this chart, which the texts read neutrally: the life is shaped more by dasha timing and effort than by standout combinations. The dignified planets below still mark your strengths.</p>';
+    return html;
+  }
+  html += '<p>Yogas are the classical combinations, specific planetary patterns the texts name and interpret. These are the ones your chart carries:</p>';
+  yogas.forEach(function(y) {
+    html += '<h4>' + rdgEsc(y.name) + '</h4><p>' + rdgEsc(y.text) + '</p>';
+  });
+  return html;
+}
+
+/* ---- Signatures of dignified planets ---- */
+function rdgSignatureSection(p) {
+  var items = [];
+  rdg_KEYS.forEach(function(key) {
+    var d = rdgDignity(key, p[key]);
+    if ((d === 'exalted' || d === 'own' || d === 'debilitated') && rdg_SIGNATURES[key] && rdg_SIGNATURES[key][d]) {
+      items.push({key:key, d:d});
+    }
+  });
+  if (items.length === 0) return '';
+  var html = '<h3>Your strongest planetary signatures</h3>';
+  html += '<p>These are the planets that speak loudest in your chart, by classical dignity. Each shapes a distinct part of your nature:</p>';
+  items.forEach(function(it) {
+    var h = rdgHouseOf(p, it.key);
+    html += '<h4>' + rdg_NAMES[it.key] + ', ' + it.d + ' in the ' + rdgOrdinal(h) + ' house</h4>';
+    html += '<p>' + rdg_SIGNATURES[it.key][it.d] + ' ' + rdgGroupNote(h) + '</p>';
+  });
+  return html;
+}
+
+/* ---- 10th lord in house: specific career lines ---- */
+var rdg_L10_HOUSE = {
+  1: 'career and identity are fused: you are the enterprise, and self-employment or visible leadership suits you.',
+  2: 'income grows through family resources, speech, or knowledge-based work; banking, teaching, and advisory roles fit.',
+  3: 'advancement comes through initiative, skill, and media or hands-on craft; start things, do not wait to be chosen.',
+  4: 'career connects to home, property, or emotional foundations; real estate, education, and care work are supported.',
+  5: 'creativity and intellect are the career instruments; speculation-free creative or advisory professions suit you.',
+  6: 'service, competition, and disciplined routine build the career; health, law, and organized service are strong.',
+  7: 'partnerships carry the career: clients, collaborators, and public dealings are where you rise.',
+  8: 'research, other people\'s resources, and transformation are the career themes; depth work over display work.',
+  9: 'mentors, higher learning, and fortune favor the career; teaching, law, and guidance roles are natural.',
+  10: 'the career stands on its own strength: profession is the central pillar of the life, and steady ambition pays.',
+  11: 'networks and large goals drive the career; gains come through alliances, platforms, and ambitious projects.',
+  12: 'foreign connections, retreat, or behind-the-scenes work shape the career; hospitals, research, and distant markets fit.'
+};
+
+/* ---- 7th lord in house: specific relationship lines ---- */
+var rdg_L7_HOUSE = {
+  1: 'partnership is central to identity: you become yourself more fully through committed relationship.',
+  2: 'partnership ties closely to family and resources; shared finances need explicit, kind agreements.',
+  3: 'relationships need friendship and conversation first; marry a companion, not just a romance.',
+  4: 'domestic peace is the point of partnership; choose for home harmony over excitement.',
+  5: 'romance leads toward commitment; love that begins in creativity or play can become lasting.',
+  6: 'partnership asks for work and patience; choose reliability over charm, and keep health routines shared.',
+  7: 'partnership is a natural strength: you understand give-and-take, and committed relationship supports the whole life.',
+  8: 'bonding runs deep and transformative; trust must be built slowly, and then it becomes unbreakable.',
+  9: 'a partner may arrive through mentors, learning, or fortune; shared values matter more than shared tastes.',
+  10: 'partnership and public life intertwine; a spouse may influence career, and status considerations enter choice.',
+  11: 'partnership grows from friendship and networks; marry within your world of shared ambitions.',
+  12: 'partnership has a private, inward quality; protect the relationship from outside noise and keep some things sacred.'
+};
 function rdgBottomLine(p, jd) {
   var scored = rdg_KEYS.map(function(k){ return {k:k, s:rdgStrength(p,k,jd)}; })
     .sort(function(a,b){ return b.s - a.s; });
@@ -101,11 +221,15 @@ function rdgDashaChapter(p, md, nowJD, jd) {
   var portrait = (typeof DASHA_PORTRAITS !== 'undefined' && DASHA_PORTRAITS[lord]) ? DASHA_PORTRAITS[lord] : '';
   var head = '<h4>' + lord + ' Mahadasha, ' + when + (tense === 'present' ? ' (running now)' : tense === 'past' ? ' (completed)' : ' (upcoming)') + '</h4>';
   var placement = '<p class="rdg-factors">Chart factors: ' + lord + ' ' + dig + ' in ' + sign + ', ' + rdgOrdinal(h) + ' house (themes: ' + rdg_HOUSE_THEMES[h] + ').</p>';
+  var counsel = '';
+  if (dig === 'exalted' || dig === 'in its own sign') counsel = 'A dignified period lord delivers its themes generously; this is a chapter to act boldly in its direction. ';
+  else if (dig === 'debilitated') counsel = 'A debilitated period lord asks for humility and extra effort; lower the stakes, keep routines tight, and this chapter still yields its lessons. ';
+  counsel += rdgGroupNote(h) + ' ';
   var open;
   if (tense === 'past') open = 'These years are behind you now, and they set the foundation you stand on. ';
   else if (tense === 'present') open = 'This is the chapter you are living inside right now. ';
   else open = 'This chapter is still ahead. Knowing its themes lets you prepare rather than react. ';
-  return head + placement + '<p>' + open + rdgEsc(portrait) + '</p>';
+  return head + placement + '<p>' + open + rdgEsc(portrait) + '</p>' + (counsel ? '<p><em>' + counsel + '</em></p>' : '');
 }
 
 /* ---- Temperament ---- */
@@ -139,7 +263,7 @@ function rdgRelationships(p) {
     rdgOrdinal(h7) + ' house; Venus ' + rdgDignityPhrase('venus', p.venus) + ', ' + rdgOrdinal(venusH) + ' house.</p>';
   html += '<p>Classical texts read partnership from the 7th house and its lord, with Venus describing the quality of affection. ';
   html += 'Your 7th lord ' + lord7 + ' operates through the ' + rdgOrdinal(h7) + ' house, so partnerships in your life tend to be colored by ' +
-    rdg_HOUSE_THEMES[h7] + '. ';
+    rdg_HOUSE_THEMES[h7] + '. ' + rdg_L7_HOUSE[h7] + ' ';
   var vd = rdgDignity('venus', p.venus);
   if (vd === 'exalted' || vd === 'own') html += 'Venus is dignified, which tradition reads as a capacity for deep, loyal affection and an eye for harmony; relationships tend to repair rather than break.';
   else if (vd === 'debilitated') html += 'Venus needs conscious tending here: spell out expectations early, because unspoken assumptions are where friction starts.';
@@ -170,7 +294,7 @@ function rdgCareerPaths(p, jd) {
   html += '<p class="rdg-factors">Chart factors: 10th lord ' + lord10 + ' ' + rdgDignityPhrase(l10k, p[l10k]) + ', ' +
     rdgOrdinal(h10) + ' house; strongest career significators ranked by dignity and placement.</p>';
   html += '<p>Classical texts judge profession from the 10th house, its lord, and the condition of Saturn, Mercury, Jupiter and the Sun. ' +
-    'Your 10th lord ' + lord10 + ' works through the ' + rdgOrdinal(h10) + ' house, so advancement comes via ' + rdg_HOUSE_THEMES[h10] + '. ' +
+    'Your 10th lord ' + lord10 + ' works through the ' + rdgOrdinal(h10) + ' house: ' + rdg_L10_HOUSE[h10] + ' ' +
     'Ranked by the actual strength of each planet in your chart, the most supported directions are:</p><ol>';
   top.forEach(function(t, i) {
     html += '<li><strong>' + t.label + '.</strong> ' + t.why + '; your ' + rdg_NAMES[t.key] + ' is ' +
@@ -244,6 +368,19 @@ function rdgNow(p, moonLong, birthJD, jd) {
     html += 'Within it, ' + curAD.lord + ' Antardasha runs until ' + rdgYear(curAD.endJD) + ': ' + rdgEsc(adl) + ' ';
   }
   html += 'Use the period consciously: the dasha does not decide for you, it describes the weather. Dress for it.</p>';
+  /* Transit context from the gochar engine */
+  try {
+    if (typeof gocharOutlook === 'function') {
+      var months = gocharOutlook(p).slice(0, 3);
+      var tHtml = '<h4>Transit context: the next few months</h4><ul>';
+      months.forEach(function(mo) {
+        tHtml += '<li><strong>' + rdgEsc(mo.month) + ' (' + mo.rating + '):</strong> ' +
+          mo.factors.slice(0, 2).map(rdgEsc).join('; ') + '.</li>';
+      });
+      tHtml += '</ul>';
+      html += tHtml;
+    }
+  } catch (e) { /* transit section optional */ }
   return html;
 }
 
@@ -257,6 +394,9 @@ function renderDetailedReading(p, moonLong, birthJD, name) {
     'Classical Jyotish is a traditional system of reflection and timing, not a science of prediction; read it as a mirror, not a verdict.</p>';
 
   html += '<h3>The bottom line</h3><p>' + rdgBottomLine(p, birthJD) + '</p>';
+
+  html += rdgYogasSection(p);
+  html += rdgSignatureSection(p);
 
   html += '<h3>Your life in chapters: past, present, future</h3>';
   html += '<p>Each major period below is dated from your birth. The running chapter is marked; completed chapters describe the foundation already built, upcoming ones the weather ahead.</p>';
