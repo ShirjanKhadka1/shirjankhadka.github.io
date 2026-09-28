@@ -25,16 +25,53 @@
     markLoaded();
   }
 
-  /* ---------- Magnetic buttons (fine pointers only) ---------- */
+  /* ---------- Magnetic buttons: smooth lerped pull (fine pointers only) ----------
+     The button eases toward the cursor and glides back on leave —
+     no rigid tracking, no snap. Hover scale is composed in JS since
+     the inline transform overrides the CSS :hover rule. */
   if (window.matchMedia("(pointer: fine)").matches && !prefersReduced) {
     document.querySelectorAll(".magnetic").forEach(function (btn) {
+      var tx = 0, ty = 0, ts = 1;      /* targets: translate x/y, scale */
+      var cx = 0, cy = 0, cs = 1;      /* current (lerped) values */
+      var hovering = false, raf = null;
+
+      function frame() {
+        cx += (tx - cx) * 0.16;
+        cy += (ty - cy) * 0.16;
+        cs += (ts - cs) * 0.18;
+        var settled = Math.abs(tx - cx) < 0.05 && Math.abs(ty - cy) < 0.05 && Math.abs(ts - cs) < 0.0005;
+        if (settled && !hovering) {
+          btn.style.transform = "";
+          raf = null;
+          return;
+        }
+        btn.style.transform =
+          "translate(" + cx.toFixed(2) + "px," + cy.toFixed(2) + "px) scale(" + cs.toFixed(4) + ")";
+        raf = requestAnimationFrame(frame);
+      }
+      function kick() { if (!raf) raf = requestAnimationFrame(frame); }
+
+      btn.addEventListener("pointerenter", function () {
+        hovering = true;
+        ts = 1.03;
+        kick();
+      });
       btn.addEventListener("pointermove", function (e) {
         var r = btn.getBoundingClientRect();
-        var x = e.clientX - (r.left + r.width / 2);
-        var y = e.clientY - (r.top + r.height / 2);
-        btn.style.transform = "translate(" + (x * 0.22).toFixed(1) + "px," + (y * 0.22).toFixed(1) + "px)";
+        /* Subtract the current pull so the measured center stays stable. */
+        var centerX = r.left + r.width / 2 - cx;
+        var centerY = r.top + r.height / 2 - cy;
+        tx = (e.clientX - centerX) * 0.25;
+        ty = (e.clientY - centerY) * 0.25;
+        kick();
       });
-      btn.addEventListener("pointerleave", function () { btn.style.transform = ""; });
+      btn.addEventListener("pointerdown", function () { ts = 0.97; kick(); });
+      btn.addEventListener("pointerup", function () { ts = hovering ? 1.03 : 1; kick(); });
+      btn.addEventListener("pointerleave", function () {
+        hovering = false;
+        tx = 0; ty = 0; ts = 1;
+        kick();
+      });
     });
   }
 
@@ -255,27 +292,48 @@
     updateHints();
   });
 
-  /* ---------- Gentle parallax via rAF (data-parallax = speed) ---------- */
+  /* ---------- Buttery parallax via lerped rAF (data-parallax = speed) ----------
+     The offset eases toward its target instead of snapping to the scroll
+     position, so the photo drifts smoothly even on steppy touch scrolls. */
   var pxEls = document.querySelectorAll("[data-parallax]");
   if (pxEls.length && !prefersReduced) {
-    var pxTicking = false;
-    function updateParallax() {
-      pxTicking = false;
-      var vh = window.innerHeight;
-      pxEls.forEach(function (el) {
-        var r = el.getBoundingClientRect();
-        if (r.bottom < -200 || r.top > vh + 200) return;
-        var speed = parseFloat(el.getAttribute("data-parallax")) || 0.08;
-        var offset = (r.top + r.height / 2 - vh / 2) * speed;
-        el.style.setProperty("--py", (-offset).toFixed(1) + "px");
+    var pxState = [];
+    pxEls.forEach(function (el) {
+      pxState.push({
+        el: el,
+        speed: parseFloat(el.getAttribute("data-parallax")) || 0.08,
+        cur: 0,
+        target: 0
       });
+    });
+    var pxRaf = null;
+    function pxFrame() {
+      var vh = window.innerHeight;
+      var settled = true;
+      pxState.forEach(function (s) {
+        var r = s.el.getBoundingClientRect();
+        if (r.bottom >= -200 && r.top <= vh + 200) {
+          var offset = (r.top + r.height / 2 - vh / 2) * s.speed;
+          s.target = -offset;
+        }
+        s.cur += (s.target - s.cur) * 0.08;
+        if (Math.abs(s.target - s.cur) > 0.1) settled = false;
+        s.el.style.setProperty("--py", s.cur.toFixed(2) + "px");
+      });
+      pxRaf = settled ? null : requestAnimationFrame(pxFrame);
     }
     function requestParallax() {
-      if (!pxTicking) { pxTicking = true; requestAnimationFrame(updateParallax); }
+      if (!pxRaf) pxRaf = requestAnimationFrame(pxFrame);
     }
     window.addEventListener("scroll", requestParallax, { passive: true });
     window.addEventListener("resize", requestParallax);
-    updateParallax();
+    requestParallax();
+  }
+
+  /* ---------- Portrait entrance: hand the hover transition back after it lands ---------- */
+  var portraitFrame = document.querySelector(".portrait-frame");
+  if (portraitFrame && !prefersReduced) {
+    setTimeout(function () { portraitFrame.classList.add("settled"); }, 1750);
   }
 
   /* ---------- Article reading progress ---------- */
