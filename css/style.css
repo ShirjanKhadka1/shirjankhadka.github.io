@@ -230,7 +230,7 @@ a.tag-award:hover { background: var(--accent); color: #fff; }
 
 /* ---------- Stats ---------- */
 .stats {
-  border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+  margin-bottom: 24px;
   background: var(--white); scroll-margin-top: 72px;
 }
 .stats-grid {
@@ -546,11 +546,11 @@ a:focus-visible, button:focus-visible, summary:focus-visible {
 .article-inner { width: min(780px, 100% - 44px); margin: 0 auto; }
 .article-kicker {
   font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
-  color: var(--accent); margin-bottom: 18px; text-align: center;
+  color: var(--accent); margin-bottom: 22px; text-align: center;
 }
 .article h1 {
-  font-size: clamp(2rem, 4.6vw, 3rem); font-weight: 700; letter-spacing: -0.025em;
-  line-height: 1.12; text-align: center; margin-bottom: 20px;
+  font-size: clamp(1.9rem, 4.2vw, 2.75rem); font-weight: 700; letter-spacing: -0.025em;
+  line-height: 1.16; text-align: center; margin-bottom: 24px;
 }
 .article-meta {
   display: flex; justify-content: center; flex-wrap: wrap; gap: 8px 22px;
@@ -622,39 +622,38 @@ a:focus-visible, button:focus-visible, summary:focus-visible {
    author box — the financial-news article DNA.
    ============================================================ */
 .breadcrumb {
-  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-  font-size: 13px; font-weight: 500; color: var(--secondary);
-  margin-bottom: 26px;
-}
+  display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;
+  font-size: 12.5px; font-weight: 500; color: var(--secondary);
+  margin-bottom: 34px;
+     margin-bottom: 34px;
+   font-size: 12.5px; font-weight: 500; color: var(--secondary);
+  
 .breadcrumb a { color: var(--secondary); }
 .breadcrumb a:hover { color: var(--accent); }
 .breadcrumb span[aria-hidden="true"] { opacity: .5; }
 
 .article-dek {
-  font-size: 1.25rem; line-height: 1.5; color: var(--secondary);
-  text-align: center; max-width: 60ch; margin: 0 auto 30px;
+  font-size: 1.15rem; line-height: 1.6; color: var(--secondary);
+  text-align: center; max-width: 60ch; margin: 0 auto 38px;
   letter-spacing: -0.01em;
 }
 
 .article-byline {
-  display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;
-  padding: 18px 0; margin-bottom: 8px;
-  border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+  display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap;
+  font-size: 14px; color: var(--secondary);
+  margin-bottom: 24px;
 }
-.byline-id { display: flex; flex-direction: column; gap: 2px; }
-.byline-name { font-weight: 700; font-size: 15px; }
+.byline-name { font-weight: 700; font-size: 14.5px; }
 .byline-name a { color: var(--text); }
-.byline-role { font-size: 13px; color: var(--secondary); }
-.byline-dates { display: flex; gap: 6px 20px; flex-wrap: wrap; font-size: 13px; color: var(--secondary); }
+.byline-sep { opacity: .35; }
 
 .share-row {
-  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-  margin: 18px 0 34px; font-size: 14px;
+  display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap;
+  margin: 0 0 46px; font-size: 13px;
 }
-.share-label { font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--secondary); margin-right: 4px; }
 .share-row a {
-  border: 1px solid var(--line); border-radius: 999px; padding: 7px 16px;
-  font-weight: 600; color: var(--text); background: var(--white);
+  border: 1px solid var(--line); border-radius: 999px; padding: 6px 15px;
+  font-weight: 600; color: var(--secondary); background: transparent;
 }
 .share-row a:hover { border-color: var(--accent); color: var(--accent); }
 
@@ -709,8 +708,8 @@ figure.article-hero .photo-credit { display: block; margin-top: 6px; font-size: 
 .author-box a:last-child { font-weight: 700; font-size: 15px; color: var(--accent); }
 
 @media (max-width: 640px) {
-  .article-dek { font-size: 1.1rem; }
-  .article-byline { flex-direction: column; align-items: flex-start; }
+  .article-dek { font-size: 1.05rem; }
+  .article-byline { gap: 7px; font-size: 13px; }
   .key-facts { padding: 20px 22px; }
   .author-box { flex-direction: column; }
 }
@@ -818,7 +817,7 @@ body.loaded .mask:nth-of-type(2) .mask-inner { transition-delay: .12s; }
 /* Expertise ticker — market-data-strip style */
 .ticker {
   overflow: hidden; background: var(--white);
-  border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+  margin-bottom: 24px;
 }
 .ticker-track { display: flex; width: max-content; animation: ticker-scroll 30s linear infinite; }
 .ticker:hover .ticker-track, .ticker:focus-within .ticker-track { animation-play-state: paused; }
