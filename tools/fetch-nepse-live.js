@@ -7,6 +7,8 @@
  *     {"asof": "<ISO timestamp>", "market": "OPEN",
  *      "index": {"value","previous_close","change","percent_change",
  *                "high","low","last_updated"} | null,
+ *      "indices": [{"name","value","previous_close","change",
+ *                   "percent_change","last_updated"}, ...],
  *      "quotes": [{"symbol","name","ltp","previous_close","change",
  *                  "percent_change","high","low","volume","turnover",
  *                  "trades","last_updated","market_cap"}, ...]}
@@ -46,6 +48,31 @@ const UA = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:89.0) Gecko/20100101 Fire
 const REQ_TIMEOUT_MS = 25000;
 const PAGE_SIZE = 500;
 const MAX_PAGES = 10;
+
+// Index display order + short labels for the blog ticker. Raw names are the
+// API's own index names; labels are cosmetic shortenings only — no values
+// are ever invented here. /api/nots/nepse-index returns the 4 headline
+// indices; /api/nots returns the 13 sub-indices (fields: index, change,
+// perChange, currentValue; no previousClose or generatedTime).
+const INDEX_LABELS = [
+  ['NEPSE Index', 'NEPSE'],
+  ['Sensitive Index', 'Sensitive'],
+  ['Float Index', 'Float'],
+  ['Sensitive Float Index', 'Sensitive Float'],
+  ['Banking SubIndex', 'Banking'],
+  ['Development Bank Index', 'Development Bank'],
+  ['Hotels And Tourism Index', 'Hotels & Tourism'],
+  ['Finance Index', 'Finance'],
+  ['Microfinance Index', 'Microfinance'],
+  ['Life Insurance', 'Life Insurance'],
+  ['Non Life Insurance', 'Non-Life Insurance'],
+  ['HydroPower Index', 'Hydropower'],
+  ['Investment Index', 'Investment'],
+  ['Manufacturing And Processing', 'Manufacturing'],
+  ['Trading Index', 'Trading'],
+  ['Others Index', 'Others'],
+  ['Mutual Fund', 'Mutual Fund']
+];
 
 // Dummy payload data — identical array used by NEPSE's web client and by
 // yonepse's official_api/auth.py PayloadParser (100 entries).
@@ -281,10 +308,53 @@ async function main() {
       log('index fetch failed (non-fatal): ' + (e && e.message));
     }
 
+    // 2c. Full index + sub-index list for the blog ticker — best-effort:
+    // a failure here must never abort the quote snapshot.
+    let indices = [];
+    try {
+      const mainList = await apiFetch('GET', '/api/nots/nepse-index');
+      const subList = await apiFetch('GET', '/api/nots');
+      const byName = {};
+      const collect = (arr) => {
+        (Array.isArray(arr) ? arr : []).forEach((x) => {
+          if (x && typeof x.index === 'string' && !byName[x.index] &&
+              Number.isFinite(+x.currentValue)) {
+            byName[x.index] = x;
+          }
+        });
+      };
+      collect(mainList);
+      collect(subList);
+      const stamp = byName['NEPSE Index'] && byName['NEPSE Index'].generatedTime != null
+        ? String(byName['NEPSE Index'].generatedTime) : null;
+      indices = INDEX_LABELS.map((pair) => {
+        const x = byName[pair[0]];
+        if (!x) return null;
+        const value = +x.currentValue;
+        const change = num(x.change, 0);
+        const prev = value - change;
+        const pct = num(x.perChange, prev !== 0 ? Math.round((change / prev) * 10000) / 100 : null);
+        return {
+          name: pair[1],
+          value: Math.round(value * 100) / 100,
+          previous_close: Math.round(prev * 100) / 100,
+          change: Math.round(change * 100) / 100,
+          percent_change: pct,
+          // generatedTime is NPT wall-clock without an offset; keep it that
+          // way — the front end treats offset-less stamps as NPT.
+          last_updated: x.generatedTime != null ? String(x.generatedTime) : stamp
+        };
+      }).filter((i) => i !== null);
+      log('captured ' + indices.length + ' indices for ticker');
+    } catch (e) {
+      log('index list fetch failed (non-fatal): ' + (e && e.message));
+    }
+
     const payload = {
       asof: new Date().toISOString(),
       market: 'OPEN',
       index: index,
+      indices: indices,
       quotes: quotes
     };
 
