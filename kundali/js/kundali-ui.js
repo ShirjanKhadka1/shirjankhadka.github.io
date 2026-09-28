@@ -485,6 +485,13 @@ function displayResults(k) {
     document.getElementById('guidanceSection').innerHTML = renderLifeGuidance(p, p.moon, k.jd);
   }
 
+  // Detailed personal reading (new engine, defensive)
+  const readingEl = document.getElementById('readingSection');
+  if (readingEl && typeof renderDetailedReading !== 'undefined') {
+    try { readingEl.innerHTML = renderDetailedReading(p, p.moon, k.jd, k.name); }
+    catch (e) { readingEl.innerHTML = '<p class="note">The detailed reading could not be generated for this chart.</p>'; }
+  }
+
   // Planets in houses (inside "for the curious")
   const housesEl = document.getElementById('housesSection');
   if (housesEl && typeof getPlanetInHouse !== 'undefined') {
