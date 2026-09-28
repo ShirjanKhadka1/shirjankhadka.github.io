@@ -507,6 +507,12 @@
     }).then(function (j) {
       var arr = (j && j.quotes) || [];
       if (!arr.length) throw new Error('empty own feed');
+      // Staleness guard (2026-09-28): GitHub's scheduler skips most 15-min
+      // refresh slots, so a stale own snapshot must not masquerade as live.
+      // During market hours, if the snapshot is older than 35 min, fall
+      // through to the yonepse community feed instead.
+      var asof = j && j.asof ? new Date(j.asof).getTime() : 0;
+      if (asof && marketOpenNPT() && (Date.now() - asof) > 35 * 60000) throw new Error('stale own feed');
       return arr;
     }).catch(function () { return fetchJSON(SRC.live); }).then(function (arr) {
       var map = {};
