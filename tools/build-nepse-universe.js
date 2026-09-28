@@ -224,7 +224,7 @@ async function main() {
 
     if (!series || !series.length) {
       report.failures.push(sym);
-      verdicts[sym] = { v: 'Insufficient history', s: null, p: null, ch: null, h52: null, l52: null, pos: null, rsi: null, n: 0, l: 0, asof: universe.asof, sec: secOf(sym), vol: null, sl: null, tp: null, setup: null };
+      verdicts[sym] = { v: 'Insufficient history', s: null, p: null, ch: null, h52: null, l52: null, pos: null, rsi: null, n: 0, l: 0, asof: universe.asof, sec: secOf(sym), vol: null, volAvg: null, sl: null, tp: null, setup: null };
       report.byVerdict['Insufficient history'] = (report.byVerdict['Insufficient history'] || 0) + 1;
       report.insufficient.push(sym + ' (0)');
       audit.push({ s: sym, n: name, t: type, src: 'none', days: 0, lp: null, ld: null, verdict: 'Insufficient history', live: liveFlag, isNew });
@@ -257,6 +257,12 @@ async function main() {
     // ---- screener fields (uniform shape on every entry) ----
     const sec = secOf(sym);
     const vol = Number.isFinite(last[5]) ? Math.round(last[5]) : null;
+    // 20-session average volume (prior sessions, for relative-volume badges)
+    let volAvg = null;
+    if (n >= 6) {
+      const vols = series.slice(-21, -1).map((r) => r[5]).filter((x) => Number.isFinite(x) && x > 0);
+      if (vols.length >= 5) volAvg = Math.round(vols.reduce((a, b) => a + b, 0) / vols.length);
+    }
     let sl = null, tp = null, setup = null;
     if (!ltpOnly && n >= 60) {
       const atrA = ENGINE.atrArr(series, 14);
@@ -277,7 +283,7 @@ async function main() {
       v: v.label, s: v.score, p: r2(price), ch: r2(chgPct),
       h52: r2(h52), l52: r2(l52), pos: r2(pos), rsi: r2(rsi),
       n: n, l: ltpOnly ? 1 : 0, asof: fmtD(last[0]),
-      sec: sec, vol: vol, sl: sl, tp: tp, setup: setup
+      sec: sec, vol: vol, volAvg: volAvg, sl: sl, tp: tp, setup: setup
     };
     audit.push({ s: sym, n: name, t: type, src: ltpOnly ? 'ltp' : 'ohlc', days: n, lp: r2(price), ld: fmtD(last[0]), verdict: v.label, live: liveFlag, isNew });
 
