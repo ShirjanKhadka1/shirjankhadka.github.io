@@ -699,6 +699,29 @@ figure.article-hero .photo-credit { display: block; margin-top: 6px; font-size: 
 .article-body .lead { font-size: 1.12em; }
 .article-body .disclaimer { margin-top: 2.2em; color: var(--secondary); font-size: 15px; }
 
+.data-table {
+  width: 100%; border-collapse: collapse; margin: 1.6em 0 0.4em;
+  font-size: 15px; line-height: 1.55; background: var(--white);
+  border: 1px solid var(--line); border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+.data-table caption {
+  text-align: left; font-weight: 700; font-size: 14px; color: var(--secondary);
+  padding: 14px 18px 10px; caption-side: top;
+}
+.data-table thead th {
+  background: var(--alt); text-align: left; font-size: 13px;
+  text-transform: uppercase; letter-spacing: .05em; color: var(--secondary);
+  padding: 12px 16px; border-bottom: 2px solid var(--line); white-space: nowrap;
+}
+.data-table tbody td {
+  padding: 11px 16px; border-bottom: 1px solid var(--line); color: #3a3a3e;
+  white-space: nowrap;
+}
+.data-table tbody td:first-child { font-weight: 600; color: var(--text); }
+.data-table tbody tr:last-child td { border-bottom: none; }
+.table-note { font-size: 13.5px; color: var(--secondary); margin: 0 0 1.6em; }
+
 .article-tags {
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
   margin-top: 2.5em; padding-top: 1.8em; border-top: 1px solid var(--line);
@@ -1020,7 +1043,6 @@ body::after {
 .sc-hit{color:#0e7490}
 .sc-sub{display:block;font-size:.72rem;color:#94a3b8;font-weight:400;margin-top:2px}
 .sc-top10{margin:22px 0 6px}
-
 .sc-top10 h2{font-size:1.05rem;margin:0 0 10px;color:#0f172a}
 .sc-asof-inline{font-size:.8rem;color:#94a3b8;font-weight:400}
 .sc-static-note{font-size:.8rem;color:#94a3b8;margin:8px 2px 0}
