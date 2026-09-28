@@ -45,9 +45,18 @@ function initKundaliUI() {
       citySelect.appendChild(opt);
     });
     citySelect.addEventListener('change', (e) => {
-      const c = CITIES[parseInt(e.target.value, 10)];
+      const val = e.target.value;
+      const c = CITIES[parseInt(val, 10)];
       const tzEl = document.getElementById('tzOffset');
       const tzNote = document.getElementById('tzNote');
+      if (val === 'custom') {
+        // Manual coordinates: the user sets the offset themselves.
+        tzEl.classList.add('needs-check');
+        if (tzNote) tzNote.style.display = 'block';
+        setTzAuto('Manual coordinates — set the offset under Advanced below.');
+        refreshTzDisplay();
+        return;
+      }
       if (c) {
         document.getElementById('birthLat').value = c.lat;
         document.getElementById('birthLon').value = c.lon;
