@@ -95,6 +95,22 @@ var rdg_L7_HOUSE = {
   12: 'Partnership has a private, inward quality; protect the relationship from outside noise and keep some things sacred.'
 };
 
+/* One-line verdict on what the lagna lord's placement makes central. */
+var rdg_LL_VERDICT = {
+  1: 'The self is the project: identity, visibility, and initiative decide everything.',
+  2: 'Accumulation decides the life: wealth, family, and the spoken word.',
+  3: 'Initiative decides the life: courage, skill, and starting things.',
+  4: 'Foundations decide the life: home, property, and emotional security.',
+  5: 'Intellect decides the life: learning, counsel, and creative output.',
+  6: 'Discipline decides the life: service, routine, and winning by outlasting.',
+  7: 'Partnership decides the life: the right alliances multiply everything.',
+  8: 'Depth decides the life: research, transformation, and other people\'s resources.',
+  9: 'Fortune decides the life: mentors, learning, and being in the right rooms.',
+  10: 'Work decides the life: career and public standing are the main stage.',
+  11: 'Networks decide the life: alliances, platforms, and large ambitions.',
+  12: 'Distance decides the life: foreign lands, retreat, and behind-the-scenes work.'
+};
+
 /* ---- Bottom line ---- */
 function rdgBottomLine(p, jd) {
   var scored = rdg_KEYS.map(function(k){ return {k:k, s:rdgStrength(p,k,jd)}; })
@@ -106,22 +122,34 @@ function rdgBottomLine(p, jd) {
   });
   var lagnaLord = rdgHouseLord(p, 1).toLowerCase();
   var llHouse = rdgHouseOf(p, lagnaLord);
-  return 'The chart is anchored by ' + parts.join(', ') + '. With ' + rdg_NAMES[lagnaLord] +
-    ' ruling the ascendant from the ' + rdgOrdinal(llHouse) + ' house, the life keeps returning to ' +
-    rdg_HOUSE_THEMES[llHouse] + '.';
+  return 'The deciding strengths are ' + parts.join(', ') + '. ' +
+    rdg_NAMES[lagnaLord] + ' rules the ascendant from the ' + rdgOrdinal(llHouse) +
+    ' house, so ' + rdg_LL_VERDICT[llHouse];
 }
 
 /* ---- Dasha verdicts: one core per lord, placed in its house ---- */
 var rdg_DASHA_CORE = {
-  Sun: 'Authority, visibility, and the father line come forward. Ego friction is the tax; humility the discount.',
-  Moon: 'Mind, home, mother, and emotional security dominate. Feelings run strong and clear; do not mistake a mood for a fact.',
-  Mars: 'Drive, competition, and decisive action. Energy is high and impatience expensive; verify before you strike.',
-  Mercury: 'Learning, commerce, writing, and analysis sharpen. The mind is quick; the risk is scattering across too many fronts.',
-  Jupiter: 'Knowledge, mentors, finance, and expansion. Judgment is protected; the best moves are the principled ones.',
-  Venus: 'Relationships, comfort, creativity, and resources deepen. Affection grows; watch spending and sentimentality.',
-  Saturn: 'Duty, discipline, and delayed results. Slow, heavy, honest; what is built in this chapter lasts.',
-  Rahu: 'Ambition, foreignness, and unconventional paths widen. Big moves and bigger illusions; verify everything twice.',
-  Ketu: 'Detachment, research, and an inward turn. Gains come through depth; the risk is disengaging from the world.'
+  Sun: 'Authority and visibility come forward; the father line and bosses matter. Lead, but keep the ego on a leash.',
+  Moon: 'The mind and home take the stage; mother and emotional security dominate. Feelings run loud and true; a mood is not a fact.',
+  Mars: 'Action and competition. Energy is high, patience is thin, and haste is expensive. Verify, then strike.',
+  Mercury: 'Learning, trade, writing, analysis. The mind is at its sharpest; scattering across ten fronts is the only enemy.',
+  Jupiter: 'Knowledge, mentors, and money matters expand. Judgment is protected in this chapter; the principled move is the profitable one.',
+  Venus: 'Relationships, comfort, and resources deepen. Affection and taste grow; spending and sentimentality are the leaks.',
+  Saturn: 'Duty and discipline; results come late and last. Build slowly; what survives this chapter is permanent.',
+  Rahu: 'Ambition widens and the unconventional opens: foreign links, big moves, new identities. Verify everything twice; the illusions are as large as the opportunities.',
+  Ketu: 'An inward turn: research, detachment, and depth. Gains come through mastery, not display; do not let the world go entirely.'
+};
+/* What the current phase concretely asks for, per lord. */
+var rdg_DASHA_ASKS = {
+  Sun: 'Take the visible role; put authority decisions in writing and keep humility in the room.',
+  Moon: 'Protect home and sleep; make no irreversible move on a mood.',
+  Mars: 'Act, but verify first; haste is the expensive tax this chapter.',
+  Mercury: 'Learn and document; finish one thing before starting three.',
+  Jupiter: 'Choose the principled move; mentors and study pay compound interest now.',
+  Venus: 'Invest in relationships and taste; cap spending and sentimentality.',
+  Saturn: 'Build slowly and keep promises; shortcuts taken now are paid for later.',
+  Rahu: 'Go big, verify twice: put programs, funding, dates, and budgets on paper. Urgency is a feeling, not a prophecy.',
+  Ketu: 'Go deep; protect the inner life and do not disengage from the world.'
 };
 function rdgDashaVerdict(p, lord) {
   var key = lord.toLowerCase(), h = rdgHouseOf(p, key);
@@ -134,7 +162,7 @@ function rdgDashaVerdict(p, lord) {
 function rdgPast(p, mds, nowJD) {
   var done = mds.filter(function(m){ return m.endJD <= nowJD; });
   if (!done.length) return '';
-  var html = '<h3>Past</h3><p>Retrospective themes, not claims that a specific event occurred. Test them against lived experience.</p>';
+  var html = '<h3>Past</h3><p>These chapters should ring true. Check them against lived experience: a chart that cannot describe the past cannot be trusted with the future.</p>';
   done.forEach(function(md){
     html += '<h4>' + md.lord + ' Mahadasha, ' + rdgYearRange(md.startJD, md.endJD) + '</h4>';
     html += '<p><strong>Verdict:</strong> ' + rdgDashaVerdict(p, md.lord) + '</p>';
@@ -163,7 +191,7 @@ function rdgPresent(p, moonLong, birthJD) {
     html += '<p><strong>' + curAD.lord + ' Antardasha</strong>, ' + rdgYearRange(curAD.startJD, curAD.endJD) +
       ': the sub-period lord sits in the ' + rdgOrdinal(ah) + ' house, so ' + rdg_HOUSE_THEMES[ah] + ' is the activated area right now.</p>';
   }
-  html += '<p><strong>What this phase asks for:</strong> turn intensity into documented choices. Verify programs, funding, dates, and budgets on paper before acting; do not mistake urgency for prophecy.</p>';
+  html += '<p><strong>What this phase asks for:</strong> ' + (rdg_DASHA_ASKS[cur.lord] || 'Turn intensity into documented choices.') + '</p>';
   try {
     if (typeof gocharOutlook === 'function') {
       var mo = gocharOutlook(p)[0];
@@ -206,6 +234,22 @@ function rdgFuture(p, moonLong, birthJD) {
   return html;
 }
 
+/* One concrete caution per 7th-lord placement. */
+var rdg_L7_CAUTION = {
+  1: 'Do not let a partner rewrite your identity; choose someone who sharpens it.',
+  2: 'Family will weigh in on your choice; hear them, then decide yourself.',
+  3: 'Do not marry the excitement; marry the friend you can talk to for decades.',
+  4: 'Do not trade home peace for passion; the quiet partner is the right one.',
+  5: 'Do not rush from romance to vows; let play become partnership at its own pace.',
+  6: 'Do not choose charm over reliability; daily kindness beats grand gestures.',
+  7: 'Partnership is your strength; do not settle out of fear of being alone.',
+  8: 'Do not hand over trust fast; build it slowly and it becomes unbreakable.',
+  9: 'Do not choose for status or family approval alone; shared values outlast shared tastes.',
+  10: 'Do not let career calculation choose the spouse; respect outranks advantage.',
+  11: 'Do not confuse a shared crowd with shared values; choose the friend, not the network.',
+  12: 'Do not let outside noise into the relationship; keep some things sacred.'
+};
+
 /* ---- Relationships ---- */
 function rdgRelationships(p, mds, nowJD) {
   var lord7 = rdgHouseLord(p, 7), l7k = lord7.toLowerCase();
@@ -225,12 +269,12 @@ function rdgRelationships(p, mds, nowJD) {
     var l = mds[i].lord.toLowerCase();
     if (mds[i].endJD > nowJD && (l === 'jupiter' || l === l7k || l === 'venus')) { better = mds[i]; break; }
   }
-  html += '<p><strong>Marriage?</strong> Not denied. The 7th lord ' + lord7 + ' in the ' + rdgOrdinal(h7) +
+  html += '<p><strong>Marriage:</strong> supported. The 7th lord ' + lord7 + ' in the ' + rdgOrdinal(h7) +
     ' house links partnership with ' + rdg_HOUSE_THEMES[h7] + '.</p>';
   if (better)
-    html += '<p><strong>Better phase?</strong> ' + better.lord + ' Mahadasha, ' + rdgYearRange(better.startJD, better.endJD) +
+    html += '<p><strong>Better phase:</strong> ' + better.lord + ' Mahadasha, ' + rdgYearRange(better.startJD, better.endJD) +
       (better.startJD <= nowJD ? ' (running now)' : '') + '.</p>';
-  html += '<p><strong>Main caution?</strong> Do not confuse intensity or family pressure with compatibility; the chart supports partnership best when affection, respect, and values agree.</p>';
+  html += '<p><strong>Main caution:</strong> ' + rdg_L7_CAUTION[h7] + '</p>';
   return html;
 }
 
@@ -307,9 +351,11 @@ function rdgCareerMoney(p, jd) {
   consider('mars', 'Engineering, property, technical enterprise, or competitive fields', 'Mars rules courage, machinery and initiative');
   consider('sun', 'Leadership, management, government, or public roles', 'The Sun rules authority and visibility');
   paths.sort(function(a,b){ return b.s - a.s; });
+  var top3 = paths.slice(0, 3);
   var html = '<h3>Career and money</h3>';
-  html += '<p><strong>Best fits.</strong> ' + rdg_L10_HOUSE[h10] + '</p><ol>';
-  paths.slice(0, 4).forEach(function(t) {
+  html += '<p><strong>The chart\'s answer:</strong> ' + top3[0].label + ' first' +
+    (top3[1] ? '; ' + top3[1].label.toLowerCase() + ' second' : '') + '. ' + rdg_L10_HOUSE[h10] + '</p><ol>';
+  top3.forEach(function(t) {
     html += '<li><strong>' + t.label + '.</strong> ' + t.why + ' (' + rdg_NAMES[t.key] + ' ' +
       rdgDignity(t.key, p[t.key]) + ' in the ' + rdgOrdinal(rdgHouseOf(p, t.key)) + ' house).</li>';
   });
@@ -323,8 +369,8 @@ function rdgCareerMoney(p, jd) {
     strength = 'The 2nd lord ' + lord2 + ' and 11th lord ' + lord11 + ' rule accumulation and gains; their condition sets the pace of wealth building.';
   var jd_ = rdgDignity('jupiter', p.jupiter);
   var caution = (jd_ === 'debilitated')
-    ? 'Jupiter needs support here: avoid speculation and keep reserves; the chart favors earned, patient money.'
-    : 'Favor diversified, rules-based decisions over leverage or emotional speculation. Astrology does not establish investment returns.';
+    ? 'Jupiter needs support here: no speculation, keep reserves; this chart builds wealth through earned, patient money.'
+    : 'This chart builds wealth through earned, patient money: diversified, rules-based decisions. Leverage and emotional speculation are where it loses.';
   html += '<p><strong>Money strength:</strong> ' + strength + '</p>';
   html += '<p><strong>Money caution:</strong> ' + caution + '</p>';
   return html;
