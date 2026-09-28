@@ -437,3 +437,213 @@ if (typeof module !== 'undefined' && module.exports) {
     LAGNA_PORTRAITS, PLANET_HOUSE, DASHA_PORTRAITS, NAKSHATRA_PORTRAITS, REMEDY_HEADER
   };
 }
+
+/* ============ Life reading: name, past verdict, guidance, questions ============
+   Built for visitors who want answers about their life, not chart jargon.
+   All readings are traditional belief for reflection, never fixed predictions.
+*/
+
+var LIFE_SIGN_NAMES = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
+var CLASSICAL_SIGN_LORDS = ['Mars','Venus','Mercury','Moon','Sun','Mercury','Venus','Mars','Jupiter','Saturn','Saturn','Jupiter'];
+var PLANET_KEYS_LOWER = ['sun','moon','mars','mercury','jupiter','venus','saturn','rahu','ketu'];
+var PLANET_NAMES_CAP = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn','Rahu','Ketu'];
+
+function lifeHouseOf(p, planetKey) {
+  var ascS = Math.floor((((p.ascendant % 360) + 360) % 360) / 30) % 12;
+  var ps = Math.floor((((p[planetKey] % 360) + 360) % 360) / 30) % 12;
+  return (((ps - ascS) % 12) + 12) % 12 + 1;
+}
+function lifeHouseSign(p, houseNum) {
+  var ascS = Math.floor((((p.ascendant % 360) + 360) % 360) / 30) % 12;
+  return (ascS + houseNum - 1) % 12;
+}
+function lifeHouseLord(p, houseNum) {
+  return CLASSICAL_SIGN_LORDS[lifeHouseSign(p, houseNum)];
+}
+function lifeLordHouse(p, lordName) {
+  return lifeHouseOf(p, lordName.toLowerCase());
+}
+function lifeNowJD() {
+  return Date.now() / 86400000 + 2440587.5;
+}
+function lifeOrdinal(n) {
+  if (n === 1) return '1st'; if (n === 2) return '2nd'; if (n === 3) return '3rd';
+  return n + 'th';
+}
+
+/* ---- Birth-name syllable from Moon nakshatra pada (eastern tradition) ---- */
+var NAKSHATRA_PADA_SYLLABLES = [
+  ["Chu","Che","Cho","La"], ["Li","Lu","Le","Lo"], ["A","I","U","E"],
+  ["O","Va","Vi","Vu"], ["Ve","Vo","Ka","Ki"], ["Ku","Gha","Ng","Chha"],
+  ["Ke","Ko","Ha","Hi"], ["Hu","He","Ho","Da"], ["Di","Du","De","Do"],
+  ["Ma","Mi","Mu","Me"], ["Mo","Ta","Ti","Tu"], ["Te","To","Pa","Pi"],
+  ["Pu","Sha","Na","Tha"], ["Pe","Po","Ra","Ri"], ["Ru","Re","Ro","Ta"],
+  ["Ti","Tu","Te","To"], ["Na","Ni","Nu","Ne"], ["No","Ya","Yi","Yu"],
+  ["Ye","Yo","Bha","Bhi"], ["Bhu","Dha","Pha","Dha"], ["Bhe","Bho","Ja","Ji"],
+  ["Ju","Je","Jo","Gha"], ["Ga","Gi","Gu","Ge"], ["Go","Sa","Si","Su"],
+  ["Se","So","Da","Di"], ["Du","Tha","Jha","Na"], ["De","Du","Cha","Chi"]
+];
+function getBirthNameSyllable(moonLong) {
+  var padaLen = 360 / 108;
+  var padaIndex = Math.floor(((((moonLong % 360) + 360) % 360) / padaLen)) % 108;
+  var nakIdx = Math.floor(padaIndex / 4);
+  var pada = (padaIndex % 4) + 1;
+  return {
+    nakshatra: (typeof NAKSHATRAS !== 'undefined' ? NAKSHATRAS[nakIdx] : LIFE_SIGN_NAMES[nakIdx % 12]),
+    pada: pada,
+    syllable: NAKSHATRA_PADA_SYLLABLES[nakIdx][pada - 1]
+  };
+}
+
+/* ---- Past verdict: Mahadashas already lived through ---- */
+function getPastVerdict(moonLong, birthJD, nowJD) {
+  var seq = vimshottariMahadashas(moonLong, birthJD);
+  var past = [], current = null;
+  seq.forEach(function(d) {
+    if (d.endJD <= nowJD) past.push(d);
+    else if (!current && d.startJD <= nowJD) current = d;
+  });
+  return { past: past, current: current };
+}
+function renderPastVerdict(moonLong, birthJD) {
+  var nowJD = lifeNowJD();
+  var v = getPastVerdict(moonLong, birthJD, nowJD);
+  var html = '<h3>Your life so far</h3>';
+  html += '<p>Traditional Jyotish reads the chapters of a life from the Vimshottari dasha sequence. '
+    + 'Read the chapters below against your own memory. If the themes match the years you lived, '
+    + 'the timing method is working for your chart.</p>';
+  if (!v.past.length) {
+    html += '<p>You are still living your very first Mahadasha, so there is no completed chapter yet. '
+      + 'The current chapter is described under your dasha forecast below.</p>';
+  } else {
+    html += '<div class="past-chapters">';
+    v.past.forEach(function(d) {
+      var theme = (typeof getDashaPortrait !== 'undefined') ? getDashaPortrait(d.lord) : '';
+      var firstSentence = theme ? theme.split('. ')[0] + '.' : '';
+      html += '<div class="past-chapter"><p><strong>' + d.lord + ' Mahadasha, '
+        + formatDate(d.startJD) + ' to ' + formatDate(d.endJD) + ':</strong> '
+        + firstSentence + '</p></div>';
+    });
+    html += '</div>';
+  }
+  if (v.current) {
+    html += '<p><strong>Current chapter:</strong> ' + v.current.lord + ' Mahadasha, running until '
+      + formatDate(v.current.endJD) + '.</p>';
+  }
+  return html;
+}
+
+/* ---- Plain-language life guidance ---- */
+function getLifeGuidance(p, moonLong, birthJD) {
+  var g = {};
+  var h7lord = lifeHouseLord(p, 7), h7lordHouse = lifeLordHouse(p, h7lord);
+  var venusHouse = lifeHouseOf(p, 'venus');
+  g.relationships =
+    'Relationships are read from your 7th house (' + LIFE_SIGN_NAMES[lifeHouseSign(p, 7)] + '), whose lord '
+    + h7lord + ' sits in your ' + lifeOrdinal(h7lordHouse) + ' house, and from Venus in your '
+    + lifeOrdinal(venusHouse) + ' house. Classical counsel: the 7th house rewards listening over winning; '
+    + 'partnerships steady when both people keep their own friendships and work. '
+    + 'Practical tip: in disagreements, state what you felt before what the other person did.';
+  var h6lord = lifeHouseLord(p, 6);
+  var moonHouse = lifeHouseOf(p, 'moon');
+  g.health =
+    'Health in Jyotish is symbolic, never medical: it is read from the 6th house (' + LIFE_SIGN_NAMES[lifeHouseSign(p, 6)]
+    + '), its lord ' + h6lord + ', and the Moon, which sits in your ' + lifeOrdinal(moonHouse)
+    + ' house and governs rest and emotional steadiness. Nothing here replaces a doctor. '
+    + 'Practical tip from the tradition: protect sleep first, because the Moon chapters of life are the ones where rest decides everything.';
+  var h10lord = lifeHouseLord(p, 10), h10lordHouse = lifeLordHouse(p, h10lord);
+  var saturnHouse = lifeHouseOf(p, 'saturn');
+  g.career =
+    'Work is read from your 10th house (' + LIFE_SIGN_NAMES[lifeHouseSign(p, 10)] + '), whose lord '
+    + h10lord + ' sits in your ' + lifeOrdinal(h10lordHouse) + ' house, with Saturn in your '
+    + lifeOrdinal(saturnHouse) + ' house shaping how you handle responsibility. The tradition respects slow-built '
+    + 'skill over quick wins for this placement. Practical tip: one visible, finished piece of work per quarter '
+    + 'builds the 10th house faster than ten half-done efforts.';
+  var h2lord = lifeHouseLord(p, 2), h11lord = lifeHouseLord(p, 11);
+  var jupiterHouse = lifeHouseOf(p, 'jupiter');
+  g.money =
+    'Resources are read from your 2nd house (' + LIFE_SIGN_NAMES[lifeHouseSign(p, 2)] + ', lord ' + h2lord
+    + ') and 11th house of gains (' + LIFE_SIGN_NAMES[lifeHouseSign(p, 11)] + ', lord ' + h11lord
+    + '), with Jupiter in your ' + lifeOrdinal(jupiterHouse) + ' house. Classical counsel: wealth in this chart '
+    + 'grows through steadiness and counsel, not speculation. Practical tip: automate a fixed saving amount, '
+    + 'however small, and let time do what timing cannot.';
+  return g;
+}
+function renderLifeGuidance(p, moonLong, birthJD) {
+  var g = getLifeGuidance(p, moonLong, birthJD);
+  var html = '<h3>Guidance for life areas</h3>'
+    + '<p>Plain-language counsel drawn from your chart. Traditional belief for reflection, not fixed prediction.</p>'
+    + '<div class="guidance-grid">'
+    + '<div class="guidance-card"><h4>Relationships</h4><p>' + g.relationships + '</p></div>'
+    + '<div class="guidance-card"><h4>Health (symbolic)</h4><p>' + g.health + '</p></div>'
+    + '<div class="guidance-card"><h4>Career</h4><p>' + g.career + '</p></div>'
+    + '<div class="guidance-card"><h4>Money</h4><p>' + g.money + '</p></div>'
+    + '</div>';
+  return html;
+}
+
+/* ---- Ask your question: keyword-routed chart answers ---- */
+var QUESTION_TOPICS = [
+  { id: 'career', keys: ['career','job','work','business','promotion','profession','interview','service'] },
+  { id: 'marriage', keys: ['marr','wedding','wife','husband','spouse','partner','love','relationship','divorce','romance'] },
+  { id: 'health', keys: ['health','body','ill','disease','sick','medical','hospital','weight','sleep'] },
+  { id: 'money', keys: ['money','wealth','rich','financ','debt','loan','income','salary','property','invest'] },
+  { id: 'timing', keys: ['when','timing','period','dasha','mahadasha','antardasha','next','future','year'] },
+  { id: 'children', keys: ['child','children','baby','pregnan','son','daughter','kid'] },
+  { id: 'education', keys: ['stud','exam','education','degree','college','school','learn','university'] }
+];
+function detectTopic(q) {
+  var s = String(q).toLowerCase();
+  for (var i = 0; i < QUESTION_TOPICS.length; i++) {
+    var t = QUESTION_TOPICS[i];
+    for (var j = 0; j < t.keys.length; j++) {
+      try {
+        if (new RegExp('\\b' + t.keys[j]).test(s)) return t.id;
+      } catch (e) { if (s.indexOf(t.keys[j]) >= 0) return t.id; }
+    }
+  }
+  return null;
+}
+function answerFreeQuestion(question, p, moonLong, birthJD) {
+  var topic = detectTopic(question);
+  var g = getLifeGuidance(p, moonLong, birthJD);
+  var nowJD = lifeNowJD();
+  var v = getPastVerdict(moonLong, birthJD, nowJD);
+  var timingLine = v.current
+    ? 'You are currently in ' + v.current.lord + ' Mahadasha until ' + formatDate(v.current.endJD) + '.'
+    : '';
+  var answers = {
+    career: g.career + ' ' + timingLine,
+    marriage: g.relationships + ' ' + timingLine,
+    health: g.health,
+    money: g.money + ' ' + timingLine,
+    timing: 'Timing in Jyotish comes from the Vimshottari sequence. ' + timingLine
+      + ' Read the current chapter as the active theme: matters of that planet rise to the surface now.',
+    children: 'Children are read from your 5th house (' + LIFE_SIGN_NAMES[lifeHouseSign(p, 5)] + '), whose lord '
+      + lifeHouseLord(p, 5) + ' sits in your ' + lifeOrdinal(lifeLordHouse(p, lifeHouseLord(p, 5)))
+      + ' house, with Jupiter in your ' + lifeOrdinal(lifeHouseOf(p, 'jupiter')) + ' house. '
+      + 'The tradition links this combination to guidance given and received across generations. ' + timingLine,
+    education: 'Learning is read from Mercury in your ' + lifeOrdinal(lifeHouseOf(p, 'mercury'))
+      + ' house and Jupiter in your ' + lifeOrdinal(lifeHouseOf(p, 'jupiter'))
+      + ' house, with the 4th house (' + LIFE_SIGN_NAMES[lifeHouseSign(p, 4)] + ') showing the foundation. '
+      + 'Classical counsel: this chart favors depth in one field over breadth in many. ' + timingLine
+  };
+  if (!topic) {
+    return {
+      topic: null,
+      answer: 'I can reflect on career, marriage and relationships, health, money, timing, children, or education '
+        + 'from your chart. Try asking with one of those words, for example: "what about my career?"'
+    };
+  }
+  return {
+    topic: topic,
+    answer: answers[topic] + ' This is a traditional reading for reflection, not a fixed prediction.'
+  };
+}
+
+if (typeof window !== 'undefined') {
+  window.getBirthNameSyllable = getBirthNameSyllable;
+  window.renderPastVerdict = renderPastVerdict;
+  window.renderLifeGuidance = renderLifeGuidance;
+  window.answerFreeQuestion = answerFreeQuestion;
+}
