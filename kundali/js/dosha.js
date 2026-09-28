@@ -66,17 +66,17 @@ function norm360(lon) {
 }
 
 // Sign number 1-12 (1 = Aries) containing the longitude.
-function signOf(lon) {
+function doshaSignOf(lon) {
   return Math.floor(norm360(lon) / 30) + 1;
 }
 
 function signNameOf(lon) {
-  return SIGN_NAMES[signOf(lon) - 1];
+  return SIGN_NAMES[doshaSignOf(lon) - 1];
 }
 
 // Whole-sign house of planetLon counted from refLon (1-12).
 function houseFrom(planetLon, refLon) {
-  return ((signOf(planetLon) - signOf(refLon) + 12) % 12) + 1;
+  return ((doshaSignOf(planetLon) - doshaSignOf(refLon) + 12) % 12) + 1;
 }
 
 // Sign number found in house h (1-12) counted from sign s (1-12).
@@ -121,7 +121,7 @@ function validatePlanets(p) {
 // Mars in houses 1, 2, 4, 7, 8 or 12 from the Lagna or from the Moon.
 
 function analyzeMangalDosha(p) {
-  const marsSign = signOf(p.mars);
+  const marsSign = doshaSignOf(p.mars);
   const houseLagna = houseFrom(p.mars, p.ascendant);
   const houseMoon = houseFrom(p.mars, p.moon);
   const fromLagna = MANGAL_HOUSES.indexOf(houseLagna) !== -1;
@@ -278,7 +278,7 @@ function analyzePitraDosha(p) {
 
   const cancellations = [];
   if (present) {
-    const sunSign = signOf(p.sun);
+    const sunSign = doshaSignOf(p.sun);
     if (sunSign === SUN_OWN_SIGN) {
       cancellations.push("The Sun is in its own sign, Leo. A strong Sun is " +
         "traditionally said to offset this combination.");
@@ -333,7 +333,7 @@ function analyzeGuruChandalDosha(p) {
 
   const cancellations = [];
   if (present) {
-    const jupSign = signOf(p.jupiter);
+    const jupSign = doshaSignOf(p.jupiter);
     if (JUPITER_OWN_SIGNS.indexOf(jupSign) !== -1) {
       cancellations.push("Jupiter is in its own sign, " + SIGN_NAMES[jupSign - 1] +
         ". A strong Jupiter is traditionally said to neutralize this combination.");
@@ -384,7 +384,7 @@ function analyzeAngarakDosha(p) {
 
   const cancellations = [];
   if (present) {
-    const marsSign = signOf(p.mars);
+    const marsSign = doshaSignOf(p.mars);
     if (MARS_OWN_SIGNS.indexOf(marsSign) !== -1) {
       cancellations.push("Mars is in its own sign, " + SIGN_NAMES[marsSign - 1] +
         ". Classical texts treat this as neutralizing Angarak Dosha.");
