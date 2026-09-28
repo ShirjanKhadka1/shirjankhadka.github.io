@@ -1020,6 +1020,7 @@ body::after {
 .sc-hit{color:#0e7490}
 .sc-sub{display:block;font-size:.72rem;color:#94a3b8;font-weight:400;margin-top:2px}
 .sc-top10{margin:22px 0 6px}
+
 .sc-top10 h2{font-size:1.05rem;margin:0 0 10px;color:#0f172a}
 .sc-asof-inline{font-size:.8rem;color:#94a3b8;font-weight:400}
 .sc-static-note{font-size:.8rem;color:#94a3b8;margin:8px 2px 0}
@@ -1043,3 +1044,46 @@ body::after {
 @media(max-width:860px){.sc-cards{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:520px){.sc-cards{grid-template-columns:repeat(2,1fr)}.sc-num{font-size:1.55rem}.sc-search{margin-left:0;max-width:none}}
 
+
+/* ---------- Blog magazine landing (Ansu-style bands, own identity) ---------- */
+.mag-masthead { text-align: center; padding: 104px 0 12px; }
+.mag-masthead h1 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: clamp(38px, 5vw, 56px); line-height: 1.08; letter-spacing: -0.01em; margin: 14px 0 12px; }
+.mag-masthead .lede { color: var(--secondary); font-size: 18px; max-width: 620px; margin: 0 auto; }
+.mag-section { padding: 48px 0 8px; }
+.mag-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; border-bottom: 2px solid var(--text); padding-bottom: 10px; margin-bottom: 26px; }
+.mag-head h2 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: 30px; letter-spacing: -0.01em; }
+.mag-head p { color: var(--secondary); font-size: 14px; }
+.mag-lead { display: grid; grid-template-columns: 1.85fr 1fr; gap: 40px; align-items: start; }
+.mag-featured { display: block; text-decoration: none; color: inherit; }
+.mag-fimg { border-radius: 16px; overflow: hidden; background: var(--alt); aspect-ratio: 16/9; }
+.mag-fimg img { width: 100%; height: 100%; object-fit: cover; transition: transform .7s var(--ease); }
+.mag-featured:hover .mag-fimg img { transform: scale(1.03); }
+.mag-kicker { font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin: 20px 0 10px; }
+.mag-featured h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: 34px; line-height: 1.18; letter-spacing: -0.01em; margin-bottom: 12px; }
+.mag-featured:hover h3 { color: var(--accent); }
+.mag-dek { color: var(--secondary); font-size: 17px; margin-bottom: 14px; }
+.mag-meta { font-size: 13px; font-weight: 500; color: var(--secondary); }
+.mag-rail-head { font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--secondary); padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.mag-row { display: grid; grid-template-columns: 116px 1fr; gap: 16px; padding: 18px 0; border-bottom: 1px solid var(--line); text-decoration: none; color: inherit; align-items: start; }
+.mag-row:last-child { border-bottom: 0; }
+.mag-row img { width: 116px; height: 88px; object-fit: cover; border-radius: 10px; background: var(--alt); }
+.mag-row h4 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: 18px; line-height: 1.35; margin-bottom: 6px; }
+.mag-row:hover h4 { color: var(--accent); }
+.mag-row .mag-meta { font-size: 12px; }
+.mag-topics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; align-items: start; }
+.mag-topic > h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: 22px; padding-bottom: 10px; border-bottom: 2px solid var(--text); margin-bottom: 6px; }
+.mag-topic .mag-row { grid-template-columns: 96px 1fr; padding: 14px 0; }
+.mag-topic .mag-row img { width: 96px; height: 72px; }
+.mag-topic .mag-row h4 { font-size: 16px; }
+.mag-start { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+.mag-start-item { display: grid; grid-template-columns: 46px 1fr; gap: 14px; text-decoration: none; color: inherit; align-items: start; }
+.mag-num { font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: 42px; line-height: 1; color: var(--accent); }
+.mag-start-item h4 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: 19px; line-height: 1.35; margin-bottom: 8px; }
+.mag-start-item:hover h4 { color: var(--accent); }
+.mag-start-item p { color: var(--secondary); font-size: 15px; }
+@media (max-width: 960px) {
+  .mag-lead { grid-template-columns: 1fr; }
+  .mag-topics { grid-template-columns: 1fr; gap: 28px; }
+  .mag-start { grid-template-columns: 1fr; gap: 24px; }
+  .mag-featured h3 { font-size: 28px; }
+}
