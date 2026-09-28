@@ -68,9 +68,11 @@
           <input type="number" id="birthLon" step="0.0001" value="87.0667" required>
         </div>
         <div>
-          <label for="tzOffset">UTC Offset (hours)</label>
-          <input type="number" id="tzOffset" step="0.25" value="5.75" required>
-          <small>Editable for historical timezones. Nepal is +5:45.</small>
+          <label for="tzOffset">UTC Offset</label>
+          <input type="text" id="tzOffset" value="5.75" required inputmode="decimal" placeholder="5:45 or 5.75">
+          <small id="tzDisplay" class="tz-display">UTC+5:45</small>
+          <small>Type it either way, as 5:45 or as 5.75. Use the offset actually in force where and when the birth happened. If the place observed daylight saving at the time, add an hour. Nepal is always +5:45.</small>
+          <small id="tzNote" class="tz-warning" style="display:none">This place has no preset offset, so please confirm the value above yourself, including any daylight saving in force at the birth date.</small>
         </div>
       </div>
       <button type="submit" class="btn-primary">Generate Kundali</button>
@@ -90,25 +92,31 @@
       <button class="varga-btn" data-varga="D10">D10 (Dashamsha)</button>
     </div>
     <div id="d1Chart"></div>
-    
-    <h2>Planet Positions</h2>
-    <div id="planetTable"></div>
-    
-    <div id="shadbalaSection" style="display:none;"></div>
-    
-    <div id="ashtakavargaSection" style="display:none;"></div>
-    
+
+    <div id="glanceSection"></div>
+
+    <div id="pastSection"></div>
+
+    <div id="askSection"></div>
+
+    <div id="guidanceSection"></div>
+
     <h2>Vimshottari Dasha</h2>
     <div id="dashaSection"></div>
-    
-    <div id="gocharSection" style="display:none;"></div>
-    
-    <h2>Interpretation</h2>
-    <div id="interpSection"></div>
-    
-    <h2>Dosha Analysis</h2>
-    <div id="doshaSection"><p>Loading...</p></div>
-    
+
+    <details class="curious-details">
+      <summary><span class="summary-title">For the curious: the full technical chart</span></summary>
+      <h3>Planet Positions</h3>
+      <div id="planetTable"></div>
+      <div id="housesSection"></div>
+      <div id="shadbalaSection" style="display:none;"></div>
+      <div id="ashtakavargaSection" style="display:none;"></div>
+      <h3>Dosha Analysis</h3>
+      <div id="doshaSection"><p>Loading...</p></div>
+      <div id="gocharSection" style="display:none;"></div>
+      <div id="remedyQaSection"></div>
+    </details>
+
     <div id="disclaimer"></div>
   </section>
   
@@ -124,7 +132,7 @@
           <label>Birth time <input type="time" id="p1Time"></label>
           <label>Latitude <input type="number" id="p1Lat" step="0.0001" placeholder="27.7172"></label>
           <label>Longitude (East) <input type="number" id="p1Lon" step="0.0001" placeholder="85.3240"></label>
-          <label>UTC offset (hours) <input type="number" id="p1Tz" step="0.25" value="5.75"></label>
+          <label>UTC offset <input type="text" id="p1Tz" value="5.75" inputmode="decimal" placeholder="5:45 or 5.75"></label>
           <label>Role
             <select id="p1Role">
               <option value="bride">Bride (girl)</option>
@@ -140,7 +148,7 @@
           <label>Birth time <input type="time" id="p2Time"></label>
           <label>Latitude <input type="number" id="p2Lat" step="0.0001" placeholder="27.7172"></label>
           <label>Longitude (East) <input type="number" id="p2Lon" step="0.0001" placeholder="85.3240"></label>
-          <label>UTC offset (hours) <input type="number" id="p2Tz" step="0.25" value="5.75"></label>
+          <label>UTC offset <input type="text" id="p2Tz" value="5.75" inputmode="decimal" placeholder="5:45 or 5.75"></label>
         </div>
       </div>
       <button id="matchBtn" class="btn-primary">Compare Charts</button>
