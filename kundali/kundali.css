@@ -195,6 +195,36 @@ h1 { color: var(--primary); text-align: center; }
 
 .gochar-list { padding-left: 1.25rem; }
 .gochar-list li { margin-bottom: 0.5rem; }
+.gochar-list ul { margin-top: 0.25rem; padding-left: 1.25rem; }
+.gochar-list ul li { margin-bottom: 0.25rem; font-size: 0.95rem; }
+.gochar-rating { color: #8a6d3b; font-weight: normal; font-style: italic; }
+.remedy-list { padding-left: 1.25rem; margin: 0.25rem 0 1rem; }
+.remedy-list li { margin-bottom: 0.35rem; }
+.qa-item { margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 1px solid #eee; }
+.qa-factors { font-size: 0.85rem; color: #777; font-style: italic; }
+.tz-warning { display: block; color: #a94442; font-weight: 600; margin-top: 0.35rem; }
+input.needs-check { border: 2px solid #c0392b; background: #fef3f0; }
+.tz-display { display: block; font-weight: 700; color: #2c5f2d; margin-top: 0.35rem; }
+.past-chapters { margin: 0.5rem 0 1rem; }
+.past-chapter { padding: 0.6rem 0.9rem; margin-bottom: 0.6rem; background: #faf8f2; border-left: 3px solid #8a6d3b; border-radius: 0 6px 6px 0; }
+.past-chapter p { margin: 0; }
+.guidance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 0.5rem 0 1rem; }
+.guidance-card { background: #faf8f2; border: 1px solid #e8e0cc; border-radius: 8px; padding: 1rem; }
+.guidance-card h4 { margin: 0 0 0.5rem; color: #5a4a2a; }
+.guidance-card p { margin: 0; font-size: 0.95rem; }
+.ask-box { display: flex; gap: 0.5rem; margin: 0.75rem 0; }
+.ask-box input { flex: 1; padding: 0.7rem; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; }
+.ask-answer { background: #f4f9f4; border: 1px solid #cfe3cf; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+.curious-details { margin: 1.5rem 0; border: 1px solid #e0d9c3; border-radius: 8px; padding: 0 1rem; background: #fffdf8; }
+.curious-details summary { cursor: pointer; padding: 1rem 0; list-style: none; }
+.curious-details summary::-webkit-details-marker { display: none; }
+.curious-details summary:before { content: "+ "; font-weight: 700; color: #8a6d3b; }
+.curious-details[open] summary:before { content: "- "; }
+.summary-title { font-size: 1.25rem; font-weight: 700; color: #3a3a3a; }
+@media (max-width: 600px) {
+  .guidance-grid { grid-template-columns: 1fr; }
+  .ask-box { flex-direction: column; }
+}
 
 /* Matching section */
 .match-section { margin-top: 2rem; }
