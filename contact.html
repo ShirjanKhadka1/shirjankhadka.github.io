@@ -15,6 +15,21 @@
   <meta property="og:url" content="https://shirjankhadka.com.np/contact.html">
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    .contact-lede { font-size: 1.12rem; color: var(--secondary); max-width: 60ch; }
+    .contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; margin: 30px 0 34px; }
+    .contact-card { display: block; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px 22px 20px; text-decoration: none; color: inherit; transition: transform .3s var(--ease), box-shadow .3s var(--ease); }
+    .contact-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); }
+    .contact-card .cc-label { display: block; font-size: .72rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--secondary); margin-bottom: 10px; }
+    .contact-card .cc-value { display: block; font-size: 1.02rem; font-weight: 600; color: var(--text); word-break: break-word; }
+    .contact-card .cc-note { display: block; margin-top: 8px; font-size: .88rem; color: var(--secondary); }
+    .contact-card .cc-value.link { color: var(--accent); }
+    .topics { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 18px; }
+    .topic { background: var(--alt); border-radius: var(--radius); padding: 20px 22px; }
+    .topic h3 { font-size: 1rem; margin: 0 0 8px; }
+    .topic p { font-size: .92rem; color: var(--secondary); margin: 0; }
+    .article-inner .btn-row { margin: 6px 0 34px; }
+  </style>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -53,24 +68,51 @@
   <article class="article">
     <div class="article-inner">
       <span class="article-kicker">Contact</span>
-      <h1>Get in touch</h1>
-      <div class="article-meta">
-        <span>Kathmandu, Nepal</span>
+      <h1>Let's talk.</h1>
+      <p class="contact-lede">I read every message — tool feedback, data corrections, research questions, and work opportunities. Email is fastest; expect a reply within a day or two.</p>
+
+      <div class="contact-grid">
+        <a class="contact-card" href="mailto:shirjan.2.khadka@gmail.com">
+          <span class="cc-label">Email</span>
+          <span class="cc-value link">shirjan.2.khadka@gmail.com</span>
+          <span class="cc-note">Best for anything detailed — feedback, data issues, opportunities.</span>
+        </a>
+        <a class="contact-card" href="tel:+9779818564689">
+          <span class="cc-label">Phone</span>
+          <span class="cc-value link">+977 9818564689</span>
+          <span class="cc-note">For quick, time-sensitive conversations.</span>
+        </a>
+        <a class="contact-card" href="https://www.linkedin.com/in/shirjankhadkab/" target="_blank" rel="noopener">
+          <span class="cc-label">LinkedIn</span>
+          <span class="cc-value link">/in/shirjankhadkab</span>
+          <span class="cc-note">Connect and follow my daily finance posts.</span>
+        </a>
+        <div class="contact-card">
+          <span class="cc-label">Location</span>
+          <span class="cc-value">Gothatar, Kathmandu</span>
+          <span class="cc-note">Nepal · open to Kathmandu and remote roles.</span>
+        </div>
       </div>
 
-      <p>The fastest way to reach me is email. I read everything — tool feedback, corrections to the data, research questions, and work opportunities.</p>
-
-      <p><strong>Email:</strong> <a href="mailto:shirjan.2.khadka@gmail.com">shirjan.2.khadka@gmail.com</a><br>
-      <strong>Phone:</strong> <a href="tel:+9779818564689">+977 9818564689</a><br>
-      <strong>LinkedIn:</strong> <a href="https://www.linkedin.com/in/shirjankhadkab/" target="_blank" rel="noopener">linkedin.com/in/shirjankhadkab</a><br>
-      <strong>Location:</strong> Gothatar, Kathmandu, Nepal</p>
-
-      <p><a class="btn btn-dark" href="mailto:shirjan.2.khadka@gmail.com?subject=Hello%20from%20shirjankhadka.com.np">Send an email</a></p>
+      <div class="btn-row">
+        <a class="btn btn-dark" href="mailto:shirjan.2.khadka@gmail.com?subject=Hello%20from%20shirjankhadka.com.np">Send an email</a>
+      </div>
 
       <h2>What to write about</h2>
-      <p><strong>Found a data problem?</strong> Tell me the security, the date, and what looks wrong — the screener and charts are only as good as their data.<br>
-      <strong>Want a feature?</strong> Describe what you would use it for.<br>
-      <strong>Hiring?</strong> I am looking for entry-level financial analyst and investment banking roles — my background is on the <a href="/">homepage</a>.</p>
+      <div class="topics">
+        <div class="topic">
+          <h3>Found a data problem?</h3>
+          <p>Tell me the security, the date, and what looks wrong — the screener and charts are only as good as their data.</p>
+        </div>
+        <div class="topic">
+          <h3>Want a feature?</h3>
+          <p>Describe what you would use it for. The most-requested ideas get built first.</p>
+        </div>
+        <div class="topic">
+          <h3>Hiring?</h3>
+          <p>I'm looking for entry-level financial analyst and investment banking roles — my background is on the <a href="/">homepage</a>.</p>
+        </div>
+      </div>
     </div>
   </article>
   </main>
