@@ -24,6 +24,15 @@ const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, 'nepse-chart', 'data');
 const LTP_DIR = path.join(OUT, 'ltp');
 const ENGINE = require(path.join(ROOT, 'js', 'nepse-lab.js'));
+// Sector lookup for the screener page (281 symbols; fail-soft to {}).
+let SECTORS = {};
+try {
+  SECTORS = JSON.parse(fs.readFileSync(path.join(__dirname, 'sector-map.json'), 'utf8'));
+} catch (e) { console.log('  !! sector-map.json not loaded:', e.message); }
+function secOf(sym) {
+  const e = SECTORS[sym];
+  return e && e.sector ? e.sector : null;
+}
 
 const U = {
   manifest: 'https://shubhamnpk.github.io/yonepse/data/ltp/manifest.json',
@@ -215,7 +224,7 @@ async function main() {
 
     if (!series || !series.length) {
       report.failures.push(sym);
-      verdicts[sym] = { v: 'Insufficient history', s: null, p: null, ch: null, h52: null, l52: null, pos: null, rsi: null, n: 0, l: 0, asof: universe.asof };
+      verdicts[sym] = { v: 'Insufficient history', s: null, p: null, ch: null, h52: null, l52: null, pos: null, rsi: null, n: 0, l: 0, asof: universe.asof, sec: secOf(sym), vol: null, sl: null, tp: null, setup: null };
       report.byVerdict['Insufficient history'] = (report.byVerdict['Insufficient history'] || 0) + 1;
       report.insufficient.push(sym + ' (0)');
       audit.push({ s: sym, n: name, t: type, src: 'none', days: 0, lp: null, ld: null, verdict: 'Insufficient history', live: liveFlag, isNew });
@@ -233,21 +242,42 @@ async function main() {
     const rsiA = ENGINE.rsiArr(series.map((r) => r[4]), 14);
     const rsi = rsiA[n - 1];
 
-    let v;
+    let v, divs = [], pats = [];
     if (ltpOnly) report.ltpOnly.push(sym + ' (' + n + ')');
     if (n < 60) {
       v = { score: null, label: 'Insufficient history', cls: 'insufficient' };
       report.insufficient.push(sym + ' (' + n + ')');
     } else {
-      const divs = ltpOnly ? [] : ENGINE.detectDivergences(series);
-      const pats = ltpOnly ? [] : ENGINE.detectPatterns(series);
+      if (!ltpOnly) {
+        divs = ENGINE.detectDivergences(series);
+        pats = ENGINE.detectPatterns(series);
+      }
       v = ENGINE.computeVerdict({ rows: series, divs, pats, isIndex: false, idxRegime });
     }
+    // ---- screener fields (uniform shape on every entry) ----
+    const sec = secOf(sym);
+    const vol = Number.isFinite(last[5]) ? Math.round(last[5]) : null;
+    let sl = null, tp = null, setup = null;
+    if (!ltpOnly && n >= 60) {
+      const atrA = ENGINE.atrArr(series, 14);
+      const atr = atrA[n - 1];
+      if (Number.isFinite(atr) && atr > 0) {
+        sl = r2(price - 2 * atr);
+        tp = r2(price + 4 * atr);
+      }
+      const byRecency = (a, b) => (b.i2 || 0) - (a.i2 || 0);
+      const topPat = pats.slice().sort(byRecency)[0];
+      const topDiv = divs.slice().sort(byRecency)[0];
+      setup = (topPat && topPat.label) || (topDiv && topDiv.label) || null;
+    }
+    if (sec) report.secCount = (report.secCount || 0) + 1;
+    if (sl != null && tp != null) report.sltpCount = (report.sltpCount || 0) + 1;
     report.byVerdict[v.label] = (report.byVerdict[v.label] || 0) + 1;
     verdicts[sym] = {
       v: v.label, s: v.score, p: r2(price), ch: r2(chgPct),
       h52: r2(h52), l52: r2(l52), pos: r2(pos), rsi: r2(rsi),
-      n: n, l: ltpOnly ? 1 : 0, asof: fmtD(last[0])
+      n: n, l: ltpOnly ? 1 : 0, asof: fmtD(last[0]),
+      sec: sec, vol: vol, sl: sl, tp: tp, setup: setup
     };
     audit.push({ s: sym, n: name, t: type, src: ltpOnly ? 'ltp' : 'ohlc', days: n, lp: r2(price), ld: fmtD(last[0]), verdict: v.label, live: liveFlag, isNew });
 
@@ -295,6 +325,10 @@ async function main() {
   lines.push('by verdict:');
   ['Strong Buy', 'Buy', 'Hold', 'Exit / Reduce', 'Strong Exit', 'Insufficient history'].forEach((k) =>
     lines.push('  ' + k + ': ' + (report.byVerdict[k] || 0)));
+  lines.push('');
+  lines.push('screener fields:');
+  lines.push('  symbols with sector (sec) : ' + (report.secCount || 0));
+  lines.push('  symbols with stop/target (sl/tp): ' + (report.sltpCount || 0));
   lines.push('');
   lines.push('file sizes: universe.json ' + (uBytes / 1024).toFixed(1) + 'KB, verdicts.json ' + (vBytes / 1024).toFixed(1) + 'KB');
   lines.push('');
