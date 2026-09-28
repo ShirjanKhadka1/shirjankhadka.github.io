@@ -455,7 +455,7 @@
   }
   function marketOpenNPT() {
     var t = todayNPT(), d = t.getUTCDay(), mins = t.getUTCHours() * 60 + t.getUTCMinutes();
-    return d >= 0 && d <= 4 && mins >= 645 && mins < 900; // Sun–Thu 10:45–15:00 (pre-open 10:45, regular 11:00–15:00)
+    return d >= 1 && d <= 5 && mins >= 645 && mins < 900; // Mon–Fri 10:45–15:00 (pre-open 10:45, regular 11:00–15:00)
   }
   function fetchJSON(url, timeout) {
     return new Promise(function (res, rej) {
@@ -668,14 +668,14 @@
 
   /* ================= series ================= */
   function toWeekly(rows) {
-    // group by actual calendar weeks (Sunday-start; NEPSE trades Sun–Thu).
+    // group by actual calendar weeks (Monday-start; NEPSE trades Mon–Fri).
     // The old numeric `r[0] - cur.w0 > 6` on YYYYMMDD integers broke across
     // month/year boundaries (e.g. 20260101 - 20251231 = 8870).
     var out = [], cur = null, wk = -1;
     rows.forEach(function (r) {
       var s = String(r[0]);
       var dayNum = Math.floor(Date.UTC(+s.slice(0, 4), +s.slice(4, 6) - 1, +s.slice(6, 8)) / 86400000);
-      var w = dayNum - ((dayNum + 4) % 7); // 0 = Sunday
+      var w = dayNum - ((dayNum + 3) % 7); // 0 = Monday
       if (w !== wk) {
         if (cur) out.push([cur.d0, cur.o, cur.h, cur.l, cur.c, cur.q, cur.t]);
         wk = w;
