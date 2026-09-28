@@ -96,6 +96,83 @@ function classify(sym, name, assetType) {
   return 'Equity';
 }
 
+// ---- buy-call track record (no-lookahead backtest) ----
+// For each security with >= 80 OHLC sessions: replay the engine over the
+// last TR_LOOKBACK sessions, using only data available at each session
+// (sliced series + the index regime as of that date — no future data).
+// Every historical Buy/Strong Buy is scored against its own frame:
+//   WIN  = +4xATR target touched before the -2xATR stop within 20 sessions
+//   LOSS = stop touched first (same-session double touch counts as a loss)
+//   undecided (no touch in 20 sessions) is excluded from the hit rate.
+// Returns { n: decided calls, w: hit rate } or null when fewer than
+// TR_MINCALLS decided calls exist. setupStats accumulates per-setup
+// { n, w } so engine ideas can be tuned per setup.
+const TR_LOOKBACK = 250, TR_TUNE_LOOKBACK = 250, TR_FORWARD = 20, TR_MINN = 80, TR_MINCALLS = 5;
+const setupStats = {}; // label -> { n, w } — eval window (most recent sessions)
+const tuneSetupStats = {}; // label -> { n, w } — tune window (older sessions)
+function idxRegimeAt(IDX, ymd) {
+  const { daily, closes, s200 } = IDX;
+  let lo = 0, hi = daily.length - 1, ans = 0;
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1;
+    if (daily[mid][0] <= ymd) { ans = mid; lo = mid + 1; } else hi = mid - 1;
+  }
+  return closes[ans] >= s200[ans] ? 'up' : 'down';
+}
+function setupLabelOf(pats, divs) {
+  const byRecency = (a, b) => (b.i2 || 0) - (a.i2 || 0);
+  const topPat = pats.slice().sort(byRecency)[0];
+  const topDiv = divs.slice().sort(byRecency)[0];
+  return (topPat && topPat.label) || (topDiv && topDiv.label) || null;
+}
+function bumpSetup(stats, label, win) {
+  const s = stats[label] || (stats[label] = { n: 0, w: 0 });
+  s.n++;
+  s.w += win ? 1 : 0;
+}
+function trackRecord(ENGINE, IDX, series) {
+  const n = series.length;
+  if (n < TR_MINN) return null;
+  // Replay one window of signal sessions. Returns { wins, decided, } and
+  // fills the given per-setup stats object.
+  function replay(t0, t1, stats) {
+    let wins = 0, decided = 0;
+    for (let t = t0; t < t1; t++) {
+      const slice = series.slice(0, t + 1);
+      const regime = idxRegimeAt(IDX, slice[t][0]);
+      const divs = ENGINE.detectDivergences(slice);
+      const pats = ENGINE.detectPatterns(slice);
+      const v = ENGINE.computeVerdict({ rows: slice, divs, pats, isIndex: false, idxRegime: regime });
+      if (v.label !== 'Buy' && v.label !== 'Strong Buy') continue;
+      const atrA = ENGINE.atrArr(slice, 14);
+      const atr = atrA[slice.length - 1];
+      if (!Number.isFinite(atr) || atr <= 0) continue;
+      const px = slice[t][4];
+      const tp = px + 4 * atr, sl = px - 2 * atr;
+      const setup = setupLabelOf(pats, divs);
+      for (let j = t + 1; j <= t + TR_FORWARD; j++) {
+        const h = series[j][2], l = series[j][3];
+        if (l <= sl) { decided++; if (setup) bumpSetup(stats, setup, false); break; }
+        if (h >= tp) { wins++; decided++; if (setup) bumpSetup(stats, setup, true); break; }
+      }
+    }
+    return { wins: wins, decided: decided };
+  }
+  // Eval window: the most recent TR_LOOKBACK sessions — this is the number
+  // shown on the site. Tune window: the TR_TUNE_LOOKBACK sessions before
+  // that — used to check that engine changes hold up out of sample.
+  const evalT0 = Math.max(60, n - TR_LOOKBACK);
+  const evalT1 = n - TR_FORWARD;
+  const ev = replay(evalT0, evalT1, setupStats);
+  let tune = null;
+  const tuneT0 = Math.max(60, n - TR_LOOKBACK - TR_TUNE_LOOKBACK);
+  if (evalT0 - tuneT0 >= 50) tune = replay(tuneT0, evalT0, tuneSetupStats);
+  if (ev.decided < TR_MINCALLS) return null;
+  const out = { n: ev.decided, w: Math.round(ev.wins / ev.decided * 1000) / 1000 };
+  if (tune && tune.decided >= TR_MINCALLS) out.tune = { n: tune.decided, w: Math.round(tune.wins / tune.decided * 1000) / 1000 };
+  return out;
+}
+
 async function main() {
   const t0 = Date.now();
   console.log('== NEPSE universe build ==');
@@ -181,6 +258,7 @@ async function main() {
   const idxS200 = ENGINE.smaArr(idxCloses, 200);
   const idxRegime = idxCloses[idxCloses.length - 1] >= idxS200[idxS200.length - 1] ? 'up' : 'down';
   console.log('  index sessions:', idxDaily.length, '| regime:', idxRegime);
+  const IDX = { daily: idxDaily, closes: idxCloses, s200: idxS200 };
 
   // ---- build outputs ----
   fs.mkdirSync(OUT, { recursive: true });
@@ -278,12 +356,17 @@ async function main() {
     }
     if (sec) report.secCount = (report.secCount || 0) + 1;
     if (sl != null && tp != null) report.sltpCount = (report.sltpCount || 0) + 1;
+    // buy-call track record (OHLC history only; LTP-only has no intrabar range)
+    const tr = (!ltpOnly && n >= TR_MINN) ? trackRecord(ENGINE, IDX, series) : null;
+    if (tr) report.trCount = (report.trCount || 0) + 1;
+    if (tr && tr.tune) { (report.tuneWs = report.tuneWs || []).push(tr.tune.w); (report.tuneNs = report.tuneNs || []).push(tr.tune.n); }
     report.byVerdict[v.label] = (report.byVerdict[v.label] || 0) + 1;
     verdicts[sym] = {
       v: v.label, s: v.score, p: r2(price), ch: r2(chgPct),
       h52: r2(h52), l52: r2(l52), pos: r2(pos), rsi: r2(rsi),
       n: n, l: ltpOnly ? 1 : 0, asof: fmtD(last[0]),
-      sec: sec, vol: vol, volAvg: volAvg, sl: sl, tp: tp, setup: setup
+      sec: sec, vol: vol, volAvg: volAvg, sl: sl, tp: tp, setup: setup,
+      tr: tr ? { n: tr.n, w: tr.w } : null
     };
     audit.push({ s: sym, n: name, t: type, src: ltpOnly ? 'ltp' : 'ohlc', days: n, lp: r2(price), ld: fmtD(last[0]), verdict: v.label, live: liveFlag, isNew });
 
@@ -300,6 +383,79 @@ async function main() {
     asof: universe.asof, count: symbols.length,
     newListings: newListings, rows: audit
   }));
+  // Per-setup buy-call hit rates (engine tuning): only setups with >= 10
+  // decided calls are published. Two windows: eval (most recent 250 sessions
+  // — the number shown on the site) and tune (the 250 sessions before that —
+  // the out-of-sample check for engine changes). Consumed by nothing
+  // client-side yet — it is the tuning dataset for tweaking engine ideas.
+  function setupRowsOf(stats) {
+    return Object.keys(stats)
+      .map((label) => ({ label, n: stats[label].n, w: Math.round(stats[label].w / stats[label].n * 1000) / 1000 }))
+      .filter((r) => r.n >= 10)
+      .sort((a, b) => b.w - a.w || b.n - a.n);
+  }
+  function winSummary(ws, ns) {
+    if (!ws.length) return null;
+    const avg = ws.reduce((a, b) => a + b, 0) / ws.length;
+    const sorted = ws.slice().sort((a, b) => a - b);
+    return {
+      securities: ws.length,
+      calls: ns.reduce((a, b) => a + b, 0),
+      mean: Math.round(avg * 1000) / 1000,
+      median: sorted[Math.floor(sorted.length / 2)]
+    };
+  }
+  const evalWs = [], evalNs = [];
+  Object.keys(verdicts).forEach((sym) => { const t = verdicts[sym].tr; if (t) { evalWs.push(t.w); evalNs.push(t.n); } });
+  const evalRows = setupRowsOf(setupStats), tuneRows = setupRowsOf(tuneSetupStats);
+  fs.writeFileSync(path.join(OUT, 'track-record.json'), JSON.stringify({
+    asof: universe.asof,
+    method: 'Buy/Strong Buy replayed per signal session; win = +4xATR target before -2xATR stop within 20 sessions (daily high/low); undecided excluded; min 10 decided calls per setup.',
+    eval: Object.assign({ window: 'most recent 250 sessions' }, winSummary(evalWs, evalNs) || {}, { setups: evalRows }),
+    tune: Object.assign({ window: '250 sessions before the eval window' }, winSummary(report.tuneWs || [], report.tuneNs || []) || {}, { setups: tuneRows })
+  }));
+  // ---- static "top 10" snapshot for SEO ----
+  // The interactive table renders via JavaScript, which crawlers read slowly.
+  // This bakes a plain-HTML snapshot of the day's top-ranked signals into
+  // nepse-screener/index.html (between SNAP-START / SNAP-END markers) so
+  // search engines see real content immediately. Refreshed by every build.
+  // The scheduled workflow must `git add nepse-screener/index.html` too.
+  (function writeSnapshot() {
+    const RANK = { 'Strong Buy': 0, 'Buy': 1, 'Hold': 2, 'Exit / Reduce': 3, 'Strong Exit': 4, 'Insufficient history': 5 };
+    const rows = symbols
+      .map((sym) => ({ sym, e: verdicts[sym] }))
+      .filter((r) => r.e && (r.e.v === 'Strong Buy' || r.e.v === 'Buy'))
+      .sort((a, b) => (RANK[a.e.v] - RANK[b.e.v]) || ((b.e.s || 0) - (a.e.s || 0)))
+      .slice(0, 10);
+    const trs = rows.map((r, i) => {
+      const e = r.e;
+      const ch = e.ch == null ? '–' : (e.ch >= 0 ? '+' : '') + e.ch.toFixed(2) + '%';
+      return '      <tr><td>' + (i + 1) + '</td>' +
+        '<td><a href="/nepse-chart/?s=' + r.sym + '">' + r.sym + '</a></td>' +
+        '<td>' + (e.p == null ? '–' : e.p.toFixed(2)) + '</td>' +
+        '<td>' + ch + '</td>' +
+        '<td>' + e.v + '</td>' +
+        '<td>' + (e.setup ? e.setup : '–') + '</td>' +
+        '<td>' + (e.sl == null ? '–' : e.sl.toFixed(2)) + '</td>' +
+        '<td>' + (e.tp == null ? '–' : e.tp.toFixed(2)) + '</td></tr>';
+    }).join('\n');
+    const frag = '<section class="sc-top10" aria-label="Top ranked signals today">\n' +
+      '    <h2>Today&rsquo;s top 10 ranked signals <span class="sc-asof-inline">&mdash; ' + universe.asof + '</span></h2>\n' +
+      '    <div class="sc-table-wrap"><table class="sc-table">\n' +
+      '      <thead><tr><th>#</th><th>Symbol</th><th>Price</th><th>Change</th><th>Signal</th><th>Setup</th><th>Stop loss</th><th>Target</th></tr></thead>\n' +
+      '      <tbody>\n' + trs + '\n      </tbody>\n' +
+      '    </table></div>\n' +
+      '    <p class="sc-static-note">Static daily snapshot &mdash; the full interactive ranking of ' + symbols.length +
+      ' securities, with hit-rate tracking and filters, is below.</p>\n' +
+      '  </section>';
+    const p = path.join(ROOT, 'nepse-screener', 'index.html');
+    let html = fs.readFileSync(p, 'utf8');
+    const a = html.indexOf('<!-- SNAP-START -->'), b = html.indexOf('<!-- SNAP-END -->');
+    if (a < 0 || b < 0 || b < a) { console.log('  !! snapshot markers missing in nepse-screener/index.html'); return; }
+    html = html.slice(0, a + '<!-- SNAP-START -->'.length) + '\n  ' + frag + '\n  ' + html.slice(b);
+    fs.writeFileSync(p, html);
+    console.log('  snapshot: top-10 fragment written into nepse-screener/index.html');
+  })();
   // Deterministic build id: only changes when the underlying data changes,
   // so scheduled runs commit (and trigger a Pages rebuild) only on real updates.
   const crypto = require('crypto');
@@ -335,6 +491,19 @@ async function main() {
   lines.push('screener fields:');
   lines.push('  symbols with sector (sec) : ' + (report.secCount || 0));
   lines.push('  symbols with stop/target (sl/tp): ' + (report.sltpCount || 0));
+  lines.push('  symbols with buy-call track record: ' + (report.trCount || 0));
+  lines.push('');
+  lines.push('buy-call track record (win = +4xATR before -2xATR within 20 sessions):');
+  function winLines(tag, ws, ns, rows) {
+    if (!ws.length) { lines.push('  ' + tag + ': none'); return; }
+    const avg = ws.reduce((a, b) => a + b, 0) / ws.length;
+    const sorted = ws.slice().sort((a, b) => a - b);
+    lines.push('  ' + tag + ': ' + ws.length + ' securities, ' + ns.reduce((a, b) => a + b, 0) + ' decided calls');
+    lines.push('    mean hit rate: ' + (avg * 100).toFixed(1) + '% | median: ' + (sorted[Math.floor(sorted.length / 2)] * 100).toFixed(1) + '%');
+    rows.forEach((r) => lines.push('    ' + (r.w * 100).toFixed(1) + '%  (' + r.n + ' calls)  ' + r.label));
+  }
+  winLines('EVAL (most recent 250 sessions)', evalWs, evalNs, evalRows);
+  winLines('TUNE (250 sessions before eval)', report.tuneWs || [], report.tuneNs || [], tuneRows);
   lines.push('');
   lines.push('file sizes: universe.json ' + (uBytes / 1024).toFixed(1) + 'KB, verdicts.json ' + (vBytes / 1024).toFixed(1) + 'KB');
   lines.push('');
@@ -353,4 +522,6 @@ async function main() {
 
 if (require.main === module) {
   main().catch((e) => { console.error('BUILD FAILED:', e); process.exit(1); });
+} else {
+  module.exports = { trackRecord, idxRegimeAt, setupLabelOf, TR_LOOKBACK, TR_FORWARD, TR_MINN, TR_MINCALLS, setupStats, tuneSetupStats };
 }

@@ -42,6 +42,11 @@
     var d = (r.tp - r.p) / r.p * 100;
     return '<b class="sc-tp">' + num2(r.tp) + '</b> <span class="sc-dist up">(' + pct(d) + ')</span>';
   }
+  function hitCell(r) {
+    if (!r.tr || r.tr.n == null || r.tr.w == null) return '<span class="sc-dash">–</span>';
+    var w = Math.round(r.tr.w * 100);
+    return '<b class="sc-hit">' + w + '%</b> <span class="sc-sub">' + r.tr.n + ' calls</span>';
+  }
 
   function badge(v) {
     return '<span class="ms-v ' + (CLS[v] || 'insufficient') + '">' + esc(DISP[v] || v) + '</span>';
@@ -65,6 +70,7 @@
         case 'p': x = a.p || -1; y = b.p || -1; return (x - y) * d || rankCmp(a, b);
         case 'vol': x = a.vol || -1; y = b.vol || -1; return (x - y) * d || rankCmp(a, b);
         case 'sig': return rankCmp(a, b) * d;
+        case 'tr': x = a.tr ? a.tr.w : -1; y = b.tr ? b.tr.w : -1; return (x - y) * d || rankCmp(a, b);
         case 'sl': x = a.sl == null ? -1 : a.sl; y = b.sl == null ? -1 : b.sl; return (x - y) * d || rankCmp(a, b);
         case 'tp': x = a.tp == null ? -1 : a.tp; y = b.tp == null ? -1 : b.tp; return (x - y) * d || rankCmp(a, b);
         default: return 0;
@@ -98,11 +104,12 @@
         '<td class="num"><b>' + num2(r.p) + '</b></td>' +
         '<td class="num">' + fmtVol(r.vol) + rvolBadge(r) + '</td>' +
         '<td>' + badge(r.v) + (r.setup ? '<div class="sc-setup">' + esc(r.setup) + '</div>' : '') + '</td>' +
+        '<td class="num">' + hitCell(r) + '</td>' +
         '<td class="num">' + slCell(r) + '</td>' +
         '<td class="num">' + tpCell(r) + '</td>' +
         '</tr>';
     }).join('');
-    $('sc-body').innerHTML = html || '<tr><td colspan="8" class="sc-empty">No securities match the current filters.</td></tr>';
+    $('sc-body').innerHTML = html || '<tr><td colspan="9" class="sc-empty">No securities match the current filters.</td></tr>';
 
     // sort indicators
     var ths = document.querySelectorAll('#sc-table th[data-k]');
@@ -213,7 +220,7 @@
         return {
           sym: sym, name: names[sym] || sym, v: e.v, s: e.s, p: e.p,
           vol: e.vol, volAvg: e.volAvg || null, sec: e.sec || null, sl: e.sl, tp: e.tp,
-          setup: e.setup || null, l: e.l || 0
+          setup: e.setup || null, l: e.l || 0, tr: e.tr || null
         };
       });
       var asof = vj.asof || '';
@@ -245,7 +252,7 @@
       bindControls();
       render();
     }).catch(function (e) {
-      $('sc-body').innerHTML = '<tr><td colspan="8" class="sc-empty">Could not load the ranking data. Please retry in a moment.</td></tr>';
+      $('sc-body').innerHTML = '<tr><td colspan="9" class="sc-empty">Could not load the ranking data. Please retry in a moment.</td></tr>';
       $('sc-asof').textContent = 'Data unavailable';
     });
   }
