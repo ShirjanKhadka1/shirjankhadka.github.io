@@ -334,7 +334,7 @@
     var r = rsiA[n - 1];
     if (r != null) {
       if (r >= 70) add(-1, 'RSI ' + r.toFixed(0), 'Overbought zone — upside may be stretched.');
-      else if (r <= 30) add(1.5, 'RSI ' + r.toFixed(0), 'Oversold zone — selling may be exhausted.');
+      else if (r <= 30) add(0, 'RSI ' + r.toFixed(0), 'Oversold — in this market oversold can stay oversold; no bounce assumed.');
       else if (r >= 55) add(0.5, 'RSI ' + r.toFixed(0), 'Firm momentum above 55.');
       else if (r <= 45) add(-0.5, 'RSI ' + r.toFixed(0), 'Soft momentum below 45.');
       else add(0, 'RSI ' + r.toFixed(0), 'Neutral momentum.');
@@ -361,19 +361,19 @@
     var win = rows.slice(-252), h52 = -Infinity, l52 = Infinity;
     win.forEach(function (x) { if (x[2] > h52) h52 = x[2]; if (x[3] < l52) l52 = x[3]; });
     if (h52 > 0) {
-      if (c >= h52 * 0.95) add(1, 'Near 52-week high', 'Trading within 5% of the yearly high — strong.');
+      if (c >= h52 * 0.95) add(0.5, 'Near 52-week high', 'Trading within 5% of the yearly high — extended; limited room before resistance.');
       else if (c <= l52 * 1.1) add(-1, 'Near 52-week low', 'Trading within 10% of the yearly low — weak.');
     }
 
     // 7. divergences
     var bullD = pack.divs.filter(function (d) { return d.bias === 'bullish'; })[0];
     var bearD = pack.divs.filter(function (d) { return d.bias === 'bearish'; })[0];
-    if (bullD && (!bearD || bullD.i2 >= bearD.i2)) add(bullD.sub === 'regular' ? 1.5 : 1, 'Bullish divergence', bullD.label + ' ending ' + fmtD(bullD.d2) + '.');
+    if (bullD && (!bearD || bullD.i2 >= bearD.i2)) add(2, 'Bullish divergence', bullD.label + ' ending ' + fmtD(bullD.d2) + ' — timed entry.');
     else if (bearD) add(bearD.sub === 'regular' ? -1.5 : -1, 'Bearish divergence', bearD.label + ' ending ' + fmtD(bearD.d2) + '.');
 
     // 8. chart patterns (most recent completed)
     var done = pack.pats.filter(function (p) { return /Confirmed/.test(p.note); })[0] || pack.pats[0];
-    if (done) add(done.bias === 'bullish' ? 1.5 : done.bias === 'bearish' ? -1.5 : 0, done.label, done.note);
+    if (done) add(done.bias === 'bullish' ? 1 : done.bias === 'bearish' ? -1 : 0, done.label, done.note);
 
     // 9. market regime (stocks only)
     if (!pack.isIndex && pack.idxRegime) add(pack.idxRegime === 'up' ? 0.5 : -0.5, 'Market backdrop', pack.idxRegime === 'up' ? 'NEPSE index above its 200-day average — tailwind.' : 'NEPSE index below its 200-day average — headwind.');
@@ -395,6 +395,13 @@
     else if (score > -2) { label = 'Hold'; cls = 'hold'; }
     else if (score > -5) { label = 'Exit / Reduce'; cls = 'exit'; }
     else { label = 'Strong Exit'; cls = 'sexit'; }
+    // Regime gate: never issue a Buy while price sits below its 200-day
+    // average. Backtests on this market show longs in a long-term downtrend
+    // lose; the gate keeps entries to uptrends only.
+    if ((label === 'Buy' || label === 'Strong Buy') && v200 != null && c < v200) {
+      label = 'Hold'; cls = 'hold';
+      F('Regime gate', 0, 'Buy blocked — price below the 200-day average. No longs in a long-term downtrend.');
+    }
     return { score: score, label: label, cls: cls, factors: factors };
   }
   function avg(a) { var s = 0, k = 0; for (var i = 0; i < a.length; i++) if (a[i] > 0) { s += a[i]; k++; } return k ? s / k : 0; }
