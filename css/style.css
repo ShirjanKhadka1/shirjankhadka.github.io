@@ -230,7 +230,7 @@ a.tag-award:hover { background: var(--accent); color: #fff; }
 
 /* ---------- Stats ---------- */
 .stats {
-  margin-bottom: 24px;
+  border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
   background: var(--white); scroll-margin-top: 72px;
 }
 .stats-grid {
@@ -625,9 +625,7 @@ a:focus-visible, button:focus-visible, summary:focus-visible {
   display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;
   font-size: 12.5px; font-weight: 500; color: var(--secondary);
   margin-bottom: 34px;
-     margin-bottom: 34px;
-   font-size: 12.5px; font-weight: 500; color: var(--secondary);
-  
+}
 .breadcrumb a { color: var(--secondary); }
 .breadcrumb a:hover { color: var(--accent); }
 .breadcrumb span[aria-hidden="true"] { opacity: .5; }
@@ -817,7 +815,7 @@ body.loaded .mask:nth-of-type(2) .mask-inner { transition-delay: .12s; }
 /* Expertise ticker — market-data-strip style */
 .ticker {
   overflow: hidden; background: var(--white);
-  margin-bottom: 24px;
+  border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
 }
 .ticker-track { display: flex; width: max-content; animation: ticker-scroll 30s linear infinite; }
 .ticker:hover .ticker-track, .ticker:focus-within .ticker-track { animation-play-state: paused; }
