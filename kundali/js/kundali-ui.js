@@ -488,7 +488,7 @@ function displayResults(k) {
   // Detailed personal reading (new engine, defensive)
   const readingEl = document.getElementById('readingSection');
   if (readingEl && typeof renderDetailedReading !== 'undefined') {
-    try { readingEl.innerHTML = renderDetailedReading(p, p.moon, k.jd, k.name); }
+    try { readingEl.innerHTML = renderDetailedReading(p, p.moon, k.jd, k.name, k.tz); }
     catch (e) { readingEl.innerHTML = '<p class="note">The detailed reading could not be generated for this chart.</p>'; }
   }
 
