@@ -14,6 +14,26 @@ function esc(s) {
   return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+// Turn the plain-text remedies section into planet subheadings with bullet lists.
+function renderRemedies(rem) {
+  const text = String(rem);
+  const blocks = text.split(/(?=\b(?:Sun|Moon|Mars|Mercury|Jupiter|Venus|Saturn|Rahu|Ketu):)/);
+  let html = '';
+  blocks.forEach(b => {
+    const m = b.match(/^(Sun|Moon|Mars|Mercury|Jupiter|Venus|Saturn|Rahu|Ketu):\s*/);
+    if (!m) {
+      if (b.trim()) html += `<p>${esc(b.trim())}</p>`;
+      return;
+    }
+    const items = b.slice(m[0].length).split(/\s*-\s*/).map(s => s.trim()).filter(Boolean);
+    if (items.length) {
+      html += `<h4>${m[1]}</h4><ul class="remedy-list">` +
+        items.map(i => `<li>${esc(i)}</li>`).join('') + `</ul>`;
+    }
+  });
+  return html || `<p>${esc(text)}</p>`;
+}
+
 function initKundaliUI() {
   // Populate city dropdown
   const citySelect = document.getElementById('birthCity');
@@ -26,12 +46,31 @@ function initKundaliUI() {
     });
     citySelect.addEventListener('change', (e) => {
       const c = CITIES[parseInt(e.target.value, 10)];
+      const tzEl = document.getElementById('tzOffset');
+      const tzNote = document.getElementById('tzNote');
       if (c) {
         document.getElementById('birthLat').value = c.lat;
         document.getElementById('birthLon').value = c.lon;
-        if (typeof c.tz !== 'undefined') document.getElementById('tzOffset').value = c.tz;
+        if (typeof c.tz !== 'undefined') {
+          tzEl.value = c.tz;
+          tzEl.classList.remove('needs-check');
+          if (tzNote) tzNote.style.display = 'none';
+        } else {
+          // No preset offset for this city: ask the user to confirm it.
+          tzEl.classList.add('needs-check');
+          if (tzNote) tzNote.style.display = 'block';
+          tzEl.focus();
+        }
+        refreshTzDisplay();
       }
     });
+  }
+
+  // Live UTC offset display (accepts 5:45 or 5.75)
+  const tzEl = document.getElementById('tzOffset');
+  if (tzEl) {
+    tzEl.addEventListener('input', () => { tzEl.classList.remove('needs-check'); refreshTzDisplay(); });
+    refreshTzDisplay();
   }
 
   // Main form submit
@@ -73,6 +112,36 @@ function initKundaliUI() {
   }
 }
 
+// Parse a UTC offset typed as "5:45" or "5.75" (or "-5:30"). Returns decimal hours or NaN.
+function parseOffset(v) {
+  const s = String(v).trim();
+  const m = s.match(/^([+-]?)(\d+):(\d{1,2})$/);
+  if (m) {
+    const val = parseInt(m[2], 10) + parseInt(m[3], 10) / 60;
+    return m[1] === '-' ? -val : val;
+  }
+  const n = parseFloat(s);
+  return isNaN(n) ? NaN : n;
+}
+
+// Decimal hours -> "UTC+5:45" style display.
+function formatOffset(tz) {
+  if (!isFinite(tz)) return '';
+  const sign = tz < 0 ? '-' : '+';
+  const a = Math.abs(tz);
+  let h = Math.floor(a), mins = Math.round((a - h) * 60);
+  if (mins === 60) { h++; mins = 0; }
+  return 'UTC' + sign + h + ':' + String(mins).padStart(2, '0');
+}
+
+function refreshTzDisplay() {
+  const el = document.getElementById('tzOffset');
+  const d = document.getElementById('tzDisplay');
+  if (!el || !d) return;
+  const tz = parseOffset(el.value);
+  d.textContent = isNaN(tz) ? 'Type like 5:45 or 5.75' : formatOffset(tz);
+}
+
 // JD from date/time/UTC-offset inputs. Same math as the verified getBirthJD.
 function jdFromParts(dateStr, timeStr, tz) {
   const parts = dateStr.split('-').map(Number);
@@ -86,7 +155,8 @@ function jdFromParts(dateStr, timeStr, tz) {
 function getBirthJD() {
   const dateStr = document.getElementById('birthDate').value; // YYYY-MM-DD
   const timeStr = document.getElementById('birthTime').value; // HH:MM
-  const tz = parseFloat(document.getElementById('tzOffset').value) || 5.75;
+  const tz = parseOffset(document.getElementById('tzOffset').value);
+  if (isNaN(tz)) return NaN;
   return jdFromParts(dateStr, timeStr, tz);
 }
 
@@ -101,6 +171,10 @@ function calculateKundali() {
   }
 
   const jd = getBirthJD();
+  if (!isFinite(jd)) {
+    alert('Please enter a valid UTC offset, like 5:45 or 5.75.');
+    return;
+  }
   const planets = computeKundali(jd, lat, lon);
 
   currentKundali = {name, jd, lat, lon, planets};
@@ -341,7 +415,16 @@ function displayResults(k) {
     if (typeof gocharOutlook !== 'undefined') {
       const outlook = gocharOutlook(p);
       let gh = '<h3>Transit outlook (next 12 months)</h3><ul class="gochar-list">';
-      outlook.forEach(m => { gh += `<li><strong>${esc(m.month)}</strong>: ${esc(m.text)}</li>`; });
+      outlook.forEach(m => {
+        const rating = m.rating ? ` <span class="gochar-rating">(${esc(m.rating)})</span>` : '';
+        let factors = '';
+        if (Array.isArray(m.factors)) {
+          factors = '<ul>' + m.factors.map(f => `<li>${esc(f)}</li>`).join('') + '</ul>';
+        } else if (m.text) {
+          factors = `<ul><li>${esc(m.text)}</li></ul>`;
+        }
+        gh += `<li><strong>${esc(m.month)}</strong>${rating}${factors}</li>`;
+      });
       gh += '</ul>';
       gocharEl.innerHTML = gh;
       gocharEl.style.display = 'block';
@@ -350,41 +433,94 @@ function displayResults(k) {
     }
   }
 
-  // Interpretations
-  let interpHtml = `<h3>Chart Overview</h3>`;
-  interpHtml += `<p><strong>Name:</strong> ${esc(k.name)}</p>`;
+  // Chart at a glance: name, lagna, Moon nakshatra, birth-name syllable
+  let glanceHtml = `<h3>Your chart at a glance</h3>`;
+  glanceHtml += `<p><strong>Name:</strong> ${esc(k.name)}</p>`;
   const lagnaPortrait = (typeof getLagnaPortrait !== 'undefined')
     ? getLagnaPortrait(Math.floor(p.ascendant / 30) % 12)
     : getLagnaInterp(p.ascendant);
-  if (lagnaPortrait) interpHtml += `<p>${lagnaPortrait}</p>`;
+  if (lagnaPortrait) glanceHtml += `<p>${lagnaPortrait}</p>`;
   const moonNakIdx = Math.floor(p.moon / (360 / 27)) % 27;
   const moonPada = Math.floor((p.moon % (360 / 27)) / (360 / 108)) + 1;
-  interpHtml += `<p><strong>Moon Nakshatra:</strong> ${NAKSHATRAS[moonNakIdx]} (Pada ${moonPada})</p>`;
+  glanceHtml += `<p><strong>Moon Nakshatra:</strong> ${NAKSHATRAS[moonNakIdx]} (Pada ${moonPada})</p>`;
   if (typeof getMoonNakshatraPortrait !== 'undefined') {
     const mnp = getMoonNakshatraPortrait(p.moon);
-    if (mnp) interpHtml += `<p>${mnp}</p>`;
+    const mnpText = (mnp && typeof mnp === 'object') ? mnp.text : mnp;
+    if (mnpText) glanceHtml += `<p>${mnpText}</p>`;
   }
-  // Planet-in-house lines
-  if (typeof getPlanetInHouse !== 'undefined') {
+  if (typeof getBirthNameSyllable !== 'undefined') {
+    const ns = getBirthNameSyllable(p.moon);
+    glanceHtml += `<p><strong>Birth-name syllable:</strong> in eastern tradition the birth name begins with the sound of the Moon's nakshatra pada. `
+      + `For Moon in ${esc(ns.nakshatra)}, pada ${ns.pada}, the traditional starting syllable is <strong>${esc(ns.syllable)}</strong>.</p>`;
+  }
+  document.getElementById('glanceSection').innerHTML = glanceHtml;
+
+  // Your life so far: the verdict of the past
+  if (typeof renderPastVerdict !== 'undefined') {
+    document.getElementById('pastSection').innerHTML = renderPastVerdict(p.moon, k.jd);
+  }
+
+  // Ask your question
+  const askEl = document.getElementById('askSection');
+  if (askEl && typeof answerFreeQuestion !== 'undefined') {
+    askEl.innerHTML = `<h3>Ask your question</h3>`
+      + `<p>Type a question about your life and get a reflection drawn from your chart. Try asking about career, marriage, health, money, timing, children, or education.</p>`
+      + `<div class="ask-box"><input type="text" id="askInput" placeholder="What about my career?" aria-label="Your question">`
+      + `<button id="askBtn" class="btn-primary">Ask</button></div>`
+      + `<div id="askAnswer" class="ask-answer" style="display:none;"></div>`;
+    const doAsk = () => {
+      const q = document.getElementById('askInput').value.trim();
+      const ansEl = document.getElementById('askAnswer');
+      if (!q) { ansEl.style.display = 'none'; return; }
+      const a = answerFreeQuestion(q, p, p.moon, k.jd);
+      ansEl.innerHTML = `<p><strong>Your question:</strong> ${esc(q)}</p><p>${esc(a.answer)}</p>`;
+      ansEl.style.display = 'block';
+    };
+    document.getElementById('askBtn').addEventListener('click', doAsk);
+    document.getElementById('askInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') doAsk(); });
+  }
+
+  // Guidance for life areas
+  if (typeof renderLifeGuidance !== 'undefined') {
+    document.getElementById('guidanceSection').innerHTML = renderLifeGuidance(p, p.moon, k.jd);
+  }
+
+  // Planets in houses (inside "for the curious")
+  const housesEl = document.getElementById('housesSection');
+  if (housesEl && typeof getPlanetInHouse !== 'undefined') {
     const ascS = Math.floor(p.ascendant / 30) % 12;
-    interpHtml += '<h3>Planets in houses</h3>';
+    let hh = '<h3>Planets in houses</h3>';
     CHART_PLANET_KEYS.forEach((key, i) => {
       const house = ((Math.floor(p[key] / 30) % 12) - ascS + 12) % 12 + 1;
-      const t = getPlanetInHouse(CHART_PLANET_NAMES[i], house);
-      if (t) interpHtml += `<p><strong>${CHART_PLANET_NAMES[i]} in house ${house}:</strong> ${t}</p>`;
+      const t = getPlanetInHouse(key, house);
+      if (t) hh += `<p><strong>${CHART_PLANET_NAMES[i]} in house ${house}:</strong> ${t}</p>`;
     });
+    housesEl.innerHTML = hh;
   }
-  // Remedies
-  if (typeof getRemediesSection !== 'undefined') {
-    const rem = getRemediesSection();
-    if (rem) interpHtml += `<h3>Traditional remedies (belief, not prescription)</h3><p>${rem}</p>`;
+  // Remedies + Q&A (inside "for the curious")
+  const rqEl = document.getElementById('remedyQaSection');
+  if (rqEl) {
+    let rqHtml = '';
+    if (typeof getRemediesSection !== 'undefined') {
+      const rem = getRemediesSection();
+      if (rem) rqHtml += `<h3>Traditional remedies (belief, not prescription)</h3>${renderRemedies(rem)}`;
+    }
+    if (typeof getQASection !== 'undefined') {
+      const qa = getQASection();
+      if (Array.isArray(qa) && qa.length) {
+        rqHtml += '<h3>Common questions</h3><div class="qa-list">';
+        qa.forEach(item => {
+          rqHtml += `<div class="qa-item"><p><strong>Q: ${esc(item.q)}</strong></p>`;
+          if (item.factors) rqHtml += `<p class="qa-factors">Drawn from: ${esc(item.factors)}</p>`;
+          rqHtml += `<p>${esc(item.a)}</p></div>`;
+        });
+        rqHtml += '</div>';
+      } else if (qa) {
+        rqHtml += `<h3>Common questions</h3><p>${esc(qa)}</p>`;
+      }
+    }
+    rqEl.innerHTML = rqHtml;
   }
-  // Q and A
-  if (typeof getQASection !== 'undefined') {
-    const qa = getQASection();
-    if (qa) interpHtml += `<h3>Common questions</h3>${qa}`;
-  }
-  document.getElementById('interpSection').innerHTML = interpHtml;
 
   // Doshas (if module loaded)
   if (typeof analyzeDoshas !== 'undefined') {
@@ -419,7 +555,7 @@ function readPerson(prefix) {
   const timeStr = g('Time').value;
   const lat = parseFloat(g('Lat').value);
   const lon = parseFloat(g('Lon').value);
-  const tz = parseFloat(g('Tz').value);
+  const tz = parseOffset(g('Tz').value);
   if (!dateStr || !timeStr || isNaN(lat) || isNaN(lon) || isNaN(tz)) return null;
   const jd = jdFromParts(dateStr, timeStr, tz);
   const planets = computeKundali(jd, lat, lon);
