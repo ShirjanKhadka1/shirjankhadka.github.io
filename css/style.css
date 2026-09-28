@@ -855,3 +855,58 @@ body::after {
   white-space: nowrap;
   border: 0;
 }
+
+/* ---------- NEPSE Stock Screener (nepse-screener/) ---------- */
+.sc-cards{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin:26px 0 8px}
+.sc-card{background:#fff;border:1px solid #e8edf3;border-radius:14px;padding:16px 12px;text-align:center}
+.sc-num{display:block;font-size:1.7rem;font-weight:800;letter-spacing:-.02em;color:#0f172a}
+.sc-lab{display:block;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#64748b;margin-top:4px}
+.sc-sbuy{border-top:3px solid #16a34a}.sc-sbuy .sc-num{color:#15803d}
+.sc-buy{border-top:3px solid #4ade80}.sc-buy .sc-num{color:#16a34a}
+.sc-hold{border-top:3px solid #f59e0b}.sc-hold .sc-num{color:#b45309}
+.sc-exit{border-top:3px solid #f87171}.sc-exit .sc-num{color:#dc2626}
+.sc-sexit{border-top:3px solid #dc2626}.sc-sexit .sc-num{color:#991b1b}
+.sc-total{border-top:3px solid #94a3b8}
+.sc-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:18px 0}
+.sc-search{flex:1 1 220px;min-width:180px;padding:10px 14px;border:1px solid #e8edf3;border-radius:10px;font-size:.95rem;background:#fff;color:#0f172a}
+.sc-search:focus{outline:2px solid #16a34a;outline-offset:0;border-color:#16a34a}
+.sc-select{padding:10px 12px;border:1px solid #e8edf3;border-radius:10px;font-size:.9rem;background:#fff;color:#0f172a;max-width:220px}
+.sc-chips{display:flex;flex-wrap:wrap;gap:8px}
+.sc-chip{padding:8px 14px;border:1px solid #e8edf3;border-radius:999px;background:#fff;font-size:.82rem;font-weight:700;color:#475569;cursor:pointer}
+.sc-chip:hover{border-color:#94a3b8;color:#0f172a}
+.sc-chip.is-on{background:#0f172a;border-color:#0f172a;color:#fff}
+.sc-table-wrap{overflow-x:auto;border:1px solid #e8edf3;border-radius:14px;background:#fff}
+.sc-table{width:100%;border-collapse:collapse;font-size:.9rem;min-width:880px}
+.sc-table thead th{position:sticky;top:0;background:#f8fafc;text-align:left;font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#64748b;padding:12px 14px;border-bottom:1px solid #e8edf3;cursor:pointer;white-space:nowrap;user-select:none}
+.sc-table thead th:hover{color:#0f172a}
+.sc-table thead th.sorted{color:#0f172a}
+.sc-table thead th.sorted::after{content:" ▾";color:#16a34a}
+.sc-table thead th.sorted[aria-sort="ascending"]::after{content:" ▴"}
+.sc-table tbody td{padding:11px 14px;border-top:1px solid #f1f5f9;vertical-align:middle}
+.sc-table tbody tr:hover{background:#f8fafc}
+.sc-table .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sc-sn{color:#94a3b8;font-weight:600}
+.sc-sector{display:inline-block;background:#f1f5f9;color:#475569;font-size:.76rem;font-weight:600;padding:3px 10px;border-radius:999px;white-space:nowrap}
+.sc-sym{font-weight:800;letter-spacing:.02em;color:#0f172a;text-decoration:none}
+.sc-sym:hover{color:#16a34a;text-decoration:underline}
+.sc-ltp{display:inline-block;font-size:.66rem;font-weight:800;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:1px 6px;vertical-align:middle}
+.sc-setup{font-size:.76rem;color:#64748b;margin-top:4px;max-width:220px}
+.sc-sl{color:#dc2626}.sc-tp{color:#16a34a}
+.sc-dist{font-size:.78rem;font-weight:600}.sc-dist.up{color:#16a34a}.sc-dist.dn{color:#dc2626}
+.sc-dash{color:#cbd5e1}
+.sc-empty{text-align:center;color:#64748b;padding:32px 14px!important}
+.sc-pager{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;margin:18px 0 8px}
+.sc-count{font-size:.85rem;color:#64748b;margin-right:8px}
+.sc-pg{min-width:36px;padding:7px 12px;border:1px solid #e8edf3;border-radius:8px;background:#fff;font-size:.85rem;font-weight:700;color:#475569;cursor:pointer}
+.sc-pg:hover:not(:disabled){border-color:#94a3b8;color:#0f172a}
+.sc-pg.is-on{background:#0f172a;border-color:#0f172a;color:#fff}
+.sc-pg:disabled{opacity:.4;cursor:default}
+.sc-gap{color:#94a3b8}
+.sc-note{margin:26px 0 10px;font-size:.88rem;color:#475569}
+.sc-note p{margin:0 0 10px}
+.sc-disclaim{font-size:.8rem;color:#94a3b8}
+.sc-footer{border-top:1px solid #e8edf3;margin-top:36px;padding:22px 0 34px;text-align:center;color:#64748b;font-size:.88rem}
+.sc-footer a{color:inherit}
+.sc-footer-sub{font-size:.78rem;color:#94a3b8;margin-top:4px}
+@media(max-width:720px){.sc-cards{grid-template-columns:repeat(3,1fr)}.sc-num{font-size:1.4rem}}
+@media(max-width:460px){.sc-cards{grid-template-columns:repeat(2,1fr)}}
