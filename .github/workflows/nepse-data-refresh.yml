@@ -1,7 +1,8 @@
 # NEPSE Alpha Lab — daily data refresh
 #
 # Rebuilds the 410-security universe snapshot (universe.json, verdicts.json,
-# track-record.json, data/ltp/*.json, version.json) every day after NEPSE close
+# track-record.json, data/ltp/*.json, version.json) and collects the latest
+# market headlines per symbol (news.json) every day after NEPSE close
 # and pushes the result to main. The builder also refreshes the static top-10
 # snapshot baked into nepse-screener/index.html (SEO), so that file is
 # committed too. GitHub Pages redeploys automatically, and the analyzer picks
@@ -32,6 +33,9 @@ jobs:
 
       - name: Rebuild universe snapshot
         run: node tools/build-nepse-universe.js
+
+      - name: Collect market news
+        run: node tools/build-nepse-news.js
 
       - name: Commit updated data
         run: |
