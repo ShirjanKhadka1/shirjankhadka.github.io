@@ -1102,6 +1102,7 @@
       if (k === 'score') return v.s == null ? -Infinity : v.s;
       if (k === 'rsi') return v.rsi == null ? -Infinity : v.rsi;
       if (k === 'p') return v.p == null ? -Infinity : v.p;
+      if (k === 'hit') return v.tr ? v.tr.w : -Infinity;
       if (k === 'ch') return v.ch == null ? -Infinity : v.ch;
       return -Infinity;
     }
@@ -1118,13 +1119,15 @@
     }
     var html = '<div class="nl-ms-tablewrap"><table class="nl-ms-table"><thead><tr>' +
       th('s', 'Symbol') + th('n', 'Name') + th('t', 'Type') + th('p', 'Price') +
-      th('ch', 'Day chg%') + th('v', 'Verdict') + th('score', 'Score') + th('rsi', 'RSI') +
+      th('ch', 'Day chg%') + th('v', 'Verdict') + th('score', 'Score') + th('rsi', 'RSI') + th('hit', 'Hit rate') +
       '</tr></thead><tbody>';
     rows.forEach(function (s) {
       var v = ms.data[s];
       var chg = v.ch == null ? '–' : (v.ch >= 0 ? '+' : '') + v.ch.toFixed(2) + '%';
       var chgCls = v.ch == null ? '' : (v.ch >= 0 ? 'up' : 'dn');
       var score = v.s == null ? '–' : (v.s > 0 ? '+' : '') + v.s;
+      var hit = (!v.tr || v.tr.w == null) ? '–'
+        : Math.round(v.tr.w * 100) + '% <span class="ms-sub">' + v.tr.n + '</span>';
       html += '<tr data-s="' + s + '"><td class="ms-sym">' + s + '</td>' +
         '<td class="ms-name">' + esc(state.names[s] || s) + '</td>' +
         '<td class="ms-type">' + esc(state.typeMap[s] || '') + '</td>' +
@@ -1132,7 +1135,8 @@
         '<td class="num ' + chgCls + '">' + chg + '</td>' +
         '<td><span class="ms-v ' + (VCLS[v.v] || 'hold') + '">' + esc(v.v) + '</span></td>' +
         '<td class="num">' + score + '</td>' +
-        '<td class="num">' + (v.rsi == null ? '–' : v.rsi.toFixed(1)) + '</td></tr>';
+        '<td class="num">' + (v.rsi == null ? '–' : v.rsi.toFixed(1)) + '</td>' +
+        '<td class="num">' + hit + '</td></tr>';
     });
     wrap.innerHTML = html + '</tbody></table></div>';
     wrap.querySelectorAll('th[data-k]').forEach(function (h) {
