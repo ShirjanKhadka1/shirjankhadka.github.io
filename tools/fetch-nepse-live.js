@@ -5,10 +5,14 @@
  * hours) and writes a compact same-origin snapshot the static site can poll:
  *   nepse-chart/data/live.json
  *     {"asof": "<ISO timestamp>", "market": "OPEN",
+ *      "index": {"value","previous_close","change","percent_change",
+ *                "high","low","last_updated"} | null,
  *      "quotes": [{"symbol","name","ltp","previous_close","change",
  *                  "percent_change","high","low","volume","turnover",
  *                  "trades","last_updated","market_cap"}, ...]}
- * (quote objects match shubhamnpk/yonepse data/market/live.json element shape)
+ * (quote objects match shubhamnpk/yonepse data/market/live.json element shape;
+ *  last_updated stamps are NEPSE wall-clock (NPT) without an offset — the
+ *  front end treats offset-less stamps as NPT)
  *
  * Auth: NEPSE's official API (https://www.nepalstock.com) requires a token
  * dance. GET /api/authenticate/prove returns {accessToken, salt1..salt5, ...};
@@ -251,9 +255,36 @@ async function main() {
       .sort((a, b) => (a.symbol < b.symbol ? -1 : a.symbol > b.symbol ? 1 : 0));
     if (!quotes.length) throw new Error('no valid quote rows after mapping');
 
+    // 2b. Live NEPSE index — best-effort: a failure here must never abort
+    // the quote snapshot (the site draws the index candle only if present).
+    let index = null;
+    try {
+      const idxList = await apiFetch('GET', '/api/nots/nepse-index');
+      const ix = (Array.isArray(idxList) ? idxList : [])
+        .find((x) => x && x.index === 'NEPSE Index');
+      if (ix && Number.isFinite(+ix.currentValue)) {
+        index = {
+          value: +ix.currentValue,
+          previous_close: num(ix.previousClose, null),
+          change: num(ix.change, null),
+          percent_change: num(ix.perChange, null),
+          high: num(ix.high, null),
+          low: num(ix.low, null),
+          // generatedTime is NPT wall-clock without an offset; keep it that
+          // way — the front end treats offset-less stamps as NPT.
+          last_updated: ix.generatedTime != null ? String(ix.generatedTime) : null
+        };
+      } else {
+        log('NEPSE Index entry missing from /api/nots/nepse-index');
+      }
+    } catch (e) {
+      log('index fetch failed (non-fatal): ' + (e && e.message));
+    }
+
     const payload = {
       asof: new Date().toISOString(),
       market: 'OPEN',
+      index: index,
       quotes: quotes
     };
 
