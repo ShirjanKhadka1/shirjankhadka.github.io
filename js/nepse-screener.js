@@ -8,12 +8,11 @@
 (function () {
   'use strict';
 
-  var PER_PAGE = 25;
   var RANK = { 'Strong Buy': 0, 'Buy': 1, 'Hold': 2, 'Exit / Reduce': 3, 'Strong Exit': 4, 'Insufficient history': 5 };
   var CLS = { 'Strong Buy': 'sbuy', 'Buy': 'buy', 'Hold': 'hold', 'Exit / Reduce': 'exit', 'Strong Exit': 'sexit', 'Insufficient history': 'insufficient' };
   var DISP = { 'Strong Buy': 'Strong Buy', 'Buy': 'Buy', 'Hold': 'Hold', 'Exit / Reduce': 'Sell', 'Strong Exit': 'Strong Sell', 'Insufficient history': 'No signal' };
 
-  var state = { rows: [], q: '', sector: '', verdict: '', sortK: 'sig', sortD: 1, page: 1 };
+  var state = { rows: [], q: '', sector: '', verdict: '', sortK: 'sig', sortD: 1, page: 1, perPage: 25 };
 
   function $(id) { return document.getElementById(id); }
   function esc(s) {
@@ -24,6 +23,13 @@
     return x == null ? '–' : (+x).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
   function fmtVol(x) { return x == null ? '–' : Math.round(+x).toLocaleString('en-US'); }
+  function rvolBadge(r) {
+    if (r.vol == null || r.volAvg == null || !r.volAvg) return '';
+    var x = r.vol / r.volAvg;
+    if (x < 1.5) return '';
+    return '<span class="sc-rvol' + (x >= 3 ? ' hot' : '') + '" title="Volume vs 20-session average">' +
+      x.toFixed(1) + 'x</span>';
+  }
   function pct(x) { return (x >= 0 ? '+' : '') + x.toFixed(1) + '%'; }
 
   function slCell(r) {
@@ -76,10 +82,11 @@
 
   function render() {
     var rows = filtered();
-    var pages = Math.max(1, Math.ceil(rows.length / PER_PAGE));
+    var perPage = state.perPage;
+    var pages = Math.max(1, Math.ceil(rows.length / perPage));
     if (state.page > pages) state.page = pages;
-    var start = (state.page - 1) * PER_PAGE;
-    var slice = rows.slice(start, start + PER_PAGE);
+    var start = (state.page - 1) * perPage;
+    var slice = rows.slice(start, start + perPage);
 
     var html = slice.map(function (r, i) {
       var sn = start + i + 1;
@@ -89,7 +96,7 @@
         '<td><a class="sc-sym" href="/nepse-chart/?s=' + esc(r.sym) + '">' + esc(r.sym) + '</a>' +
           (r.l ? ' <span class="sc-ltp" title="LTP-only history">LTP</span>' : '') + '</td>' +
         '<td class="num"><b>' + num2(r.p) + '</b></td>' +
-        '<td class="num">' + fmtVol(r.vol) + '</td>' +
+        '<td class="num">' + fmtVol(r.vol) + rvolBadge(r) + '</td>' +
         '<td>' + badge(r.v) + (r.setup ? '<div class="sc-setup">' + esc(r.setup) + '</div>' : '') + '</td>' +
         '<td class="num">' + slCell(r) + '</td>' +
         '<td class="num">' + tpCell(r) + '</td>' +
@@ -101,18 +108,25 @@
     var ths = document.querySelectorAll('#sc-table th[data-k]');
     ths.forEach(function (th) {
       var k = th.getAttribute('data-k');
-      th.classList.toggle('sorted', k === state.sortK);
-      th.setAttribute('aria-sort', k === state.sortK ? (state.sortD > 0 ? 'ascending' : 'descending') : 'none');
+      var on = k === state.sortK;
+      th.classList.toggle('sorted', on);
+      var label = th.getAttribute('data-label') || th.textContent.replace(/[▴▾]/g, '').trim();
+      th.setAttribute('data-label', label);
+      th.innerHTML = esc(label) + (on ? ' <span class="arr">' + (state.sortD > 0 ? '▴' : '▾') + '</span>' : '');
+      th.setAttribute('aria-sort', on ? (state.sortD > 0 ? 'ascending' : 'descending') : 'none');
     });
+
+    // "Showing x to y of z entries"
+    var from = rows.length ? start + 1 : 0, to = Math.min(start + perPage, rows.length);
+    $('sc-range').textContent = 'Showing ' + from + ' to ' + to + ' of ' + rows.length + ' entries';
 
     renderPager(rows.length, pages);
   }
 
   function renderPager(total, pages) {
     var el = $('sc-pager');
-    if (pages <= 1) { el.innerHTML = '<span class="sc-count">' + total + ' securities</span>'; return; }
-    var h = '<span class="sc-count">' + total + ' securities</span>';
-    h += '<button class="sc-pg" data-pg="prev"' + (state.page <= 1 ? ' disabled' : '') + '>‹ Prev</button>';
+    if (pages <= 1) { el.innerHTML = ''; return; }
+    var h = '<button class="sc-pg" data-pg="prev"' + (state.page <= 1 ? ' disabled' : '') + '>‹ Prev</button>';
     var win = pageWindow(state.page, pages);
     win.forEach(function (p) {
       if (p === '…') h += '<span class="sc-gap">…</span>';
@@ -149,12 +163,23 @@
       deb = setTimeout(function () { state.q = q.value; state.page = 1; render(); }, 160);
     });
     $('sc-sector').addEventListener('change', function (e) { state.sector = e.target.value; state.page = 1; render(); });
-    document.querySelectorAll('.sc-chip').forEach(function (c) {
-      c.addEventListener('click', function () {
-        document.querySelectorAll('.sc-chip').forEach(function (x) { x.classList.remove('is-on'); });
-        c.classList.add('is-on');
-        state.verdict = c.getAttribute('data-v');
-        state.page = 1; render();
+    $('sc-perpage').addEventListener('change', function (e) {
+      state.perPage = Math.max(1, parseInt(e.target.value, 10) || 25);
+      state.page = 1; render();
+    });
+    // summary cards double as signal filters
+    function cardFilter(card) {
+      var v = card.getAttribute('data-v') || '';
+      state.verdict = (state.verdict === v) ? '' : v;
+      document.querySelectorAll('.sc-card[data-v]').forEach(function (x) {
+        x.classList.toggle('is-on', !!state.verdict && x.getAttribute('data-v') === state.verdict);
+      });
+      state.page = 1; render();
+    }
+    document.querySelectorAll('.sc-card[data-v]').forEach(function (c) {
+      c.addEventListener('click', function () { cardFilter(c); });
+      c.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); cardFilter(c); }
       });
     });
     document.querySelectorAll('#sc-table th[data-k]').forEach(function (th) {
@@ -187,7 +212,7 @@
         var e = v[sym];
         return {
           sym: sym, name: names[sym] || sym, v: e.v, s: e.s, p: e.p,
-          vol: e.vol, sec: e.sec || null, sl: e.sl, tp: e.tp,
+          vol: e.vol, volAvg: e.volAvg || null, sec: e.sec || null, sl: e.sl, tp: e.tp,
           setup: e.setup || null, l: e.l || 0
         };
       });
