@@ -21,7 +21,7 @@
 <meta name="twitter:description" content="Daily ranked NEPSE signals with stop-loss and target levels. Rule-based, transparent, educational.">
 <link rel="icon" href="/favicon.ico">
 <link rel="stylesheet" href="../nepse-chart/chart.css?v=20260924f">
-<link rel="stylesheet" href="../css/style.css?v=20260928a">
+<link rel="stylesheet" href="../css/style.css?v=20260928c">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"NEPSE Stock Screener","url":"https://shirjankhadka.com.np/nepse-screener/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Daily ranked NEPSE stock screener: every listed security scored by a transparent rule-based engine (Strong Buy to Strong Sell) with ATR-based stop-loss and target levels, sector filter and search. Educational use only, not investment advice.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
 </script>
@@ -58,28 +58,28 @@
 
   <section aria-label="Signal summary">
     <div class="sc-cards" id="sc-cards">
-      <div class="sc-card sc-sbuy"><span class="sc-num" id="sc-n-sbuy">–</span><span class="sc-lab">Strong Buy</span></div>
-      <div class="sc-card sc-buy"><span class="sc-num" id="sc-n-buy">–</span><span class="sc-lab">Buy</span></div>
-      <div class="sc-card sc-hold"><span class="sc-num" id="sc-n-hold">–</span><span class="sc-lab">Hold / Neutral</span></div>
-      <div class="sc-card sc-exit"><span class="sc-num" id="sc-n-exit">–</span><span class="sc-lab">Sell</span></div>
-      <div class="sc-card sc-sexit"><span class="sc-num" id="sc-n-sexit">–</span><span class="sc-lab">Strong Sell</span></div>
+      <div class="sc-card sc-sbuy" data-v="Strong Buy" role="button" tabindex="0" aria-label="Filter: Strong Buy"><span class="sc-num" id="sc-n-sbuy">–</span><span class="sc-lab">Strong Buy</span></div>
+      <div class="sc-card sc-buy" data-v="Buy" role="button" tabindex="0" aria-label="Filter: Buy"><span class="sc-num" id="sc-n-buy">–</span><span class="sc-lab">Buy</span></div>
+      <div class="sc-card sc-hold" data-v="Hold" role="button" tabindex="0" aria-label="Filter: Hold"><span class="sc-num" id="sc-n-hold">–</span><span class="sc-lab">Hold / Neutral</span></div>
+      <div class="sc-card sc-exit" data-v="Exit / Reduce" role="button" tabindex="0" aria-label="Filter: Sell"><span class="sc-num" id="sc-n-exit">–</span><span class="sc-lab">Sell</span></div>
+      <div class="sc-card sc-sexit" data-v="Strong Exit" role="button" tabindex="0" aria-label="Filter: Strong Sell"><span class="sc-num" id="sc-n-sexit">–</span><span class="sc-lab">Strong Sell</span></div>
       <div class="sc-card sc-total"><span class="sc-num" id="sc-n-total">–</span><span class="sc-lab">Total</span></div>
     </div>
   </section>
 
   <section class="sc-controls" aria-label="Screener controls">
+    <label class="sc-show">Show
+      <select id="sc-perpage" class="sc-select" aria-label="Rows per page">
+        <option value="10">10</option>
+        <option value="25" selected>25</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+      </select>
+      entries</label>
     <input type="search" id="sc-q" class="sc-search" placeholder="Search symbol or company…" aria-label="Search symbol or company" autocomplete="off">
     <select id="sc-sector" class="sc-select" aria-label="Filter by sector">
       <option value="">All sectors</option>
     </select>
-    <div class="sc-chips" role="group" aria-label="Filter by signal">
-      <button class="sc-chip is-on" data-v="">All</button>
-      <button class="sc-chip" data-v="Strong Buy">Strong Buy</button>
-      <button class="sc-chip" data-v="Buy">Buy</button>
-      <button class="sc-chip" data-v="Hold">Hold</button>
-      <button class="sc-chip" data-v="Exit / Reduce">Sell</button>
-      <button class="sc-chip" data-v="Strong Exit">Strong Sell</button>
-    </div>
   </section>
 
   <section aria-label="Ranked stocks">
@@ -102,7 +102,10 @@
         </tbody>
       </table>
     </div>
-    <div class="sc-pager" id="sc-pager" aria-label="Pagination"></div>
+    <div class="sc-below">
+      <span class="sc-range" id="sc-range"></span>
+      <div class="sc-pager" id="sc-pager" aria-label="Pagination"></div>
+    </div>
   </section>
 
   <section class="sc-note" aria-label="Methodology note">
@@ -118,6 +121,6 @@
   </div>
 </footer>
 
-<script src="../js/nepse-screener.js?v=20260928a" defer></script>
+<script src="../js/nepse-screener.js?v=20260928c" defer></script>
 </body>
 </html>
