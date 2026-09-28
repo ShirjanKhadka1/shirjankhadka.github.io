@@ -271,7 +271,7 @@ function rdgTemperament(p, moonLong) {
 }
 
 /* ---- Relationships ---- */
-function rdgRelationships(p) {
+function rdgRelationships(p, mds, nowJD) {
   var lord7 = rdgHouseLord(p, 7), l7k = lord7.toLowerCase();
   var h7 = rdgHouseOf(p, l7k);
   var venusH = rdgHouseOf(p, 'venus');
@@ -290,11 +290,13 @@ function rdgRelationships(p) {
   if (l7Reading) html += '<p><strong>Your 7th lord ' + lord7 + ' in the ' + rdgOrdinal(h7) + ' house means:</strong> ' + l7Reading + '</p>';
   var veReading = rdgHouseReading('venus', venusH);
   if (veReading) html += '<p><strong>Your Venus in the ' + rdgOrdinal(venusH) + ' house means:</strong> ' + veReading + '</p>';
+  if (mds) html += rdgTimingWindows(mds, nowJD, [l7k, 'venus'], 'When relationships activate',
+    'Partnership themes do not run evenly through life; they switch on in specific periods. The windows below are ruled by your 7th lord ' + lord7 + ' or Venus: the seasons when meeting someone, committing, or repairing a bond carries the chart\'s wind behind it.');
   return html;
 }
 
 /* ---- Career: concrete paths from chart ---- */
-function rdgCareerPaths(p, jd) {
+function rdgCareerPaths(p, jd, mds, nowJD) {
   var lord10 = rdgHouseLord(p, 10), l10k = lord10.toLowerCase();
   var h10 = rdgHouseOf(p, l10k);
   var paths = [];
@@ -327,6 +329,8 @@ function rdgCareerPaths(p, jd) {
   var saReading = rdgHouseReading('saturn', rdgHouseOf(p, 'saturn'));
   if (saReading) html += '<p><strong>Your Saturn in the ' + rdgOrdinal(rdgHouseOf(p, 'saturn')) + ' house means:</strong> ' + saReading + '</p>';
   html += '<p>This is a reflective reading, not a job guarantee. Skill, effort and market reality decide outcomes; the chart suggests where your energy meets the least resistance.</p>';
+  if (mds) html += rdgTimingWindows(mds, nowJD, [l10k, 'saturn', 'jupiter'], 'When career moves land',
+    'Professional momentum has seasons too. The windows below are ruled by your 10th lord ' + lord10 + ', Saturn, or Jupiter: the periods when applications, promotions, and bold moves meet the least resistance.');
   return html;
 }
 
@@ -421,7 +425,137 @@ function rdgNow(p, moonLong, birthJD, jd) {
 }
 
 /* ---- Main entry ---- */
-function renderDetailedReading(p, moonLong, birthJD, name) {
+/* ============ Chart story: the synthesis, not the parts ============ */
+/* Reads the chart as one life, connecting the strongest factors to each other
+   instead of listing them. Every connection below is computed from the chart. */
+function rdgChartStory(p) {
+  var parts = [];
+  var lagnaLord = rdgHouseLord(p, 1), llk = lagnaLord.toLowerCase();
+  var llh = rdgHouseOf(p, llk), mh = rdgHouseOf(p, 'moon');
+
+  if (llh === mh) {
+    parts.push('Your chart lord ' + lagnaLord + ' and your Moon share the ' + rdgOrdinal(llh) + ' house. This is the central fact of the chart: the person you are becoming and the mind you were born with live in the same room. ' +
+      'Self and emotion are not two separate projects here. Whatever stabilizes your inner life directly builds your outer life, and whatever wounds the heart shows up in your fortunes. ' +
+      'Few charts fuse identity and feeling this tightly, so protect your emotional foundations the way you would protect your career: they are the same thing.');
+  } else {
+    parts.push('Your chart lord ' + lagnaLord + ' works from the ' + rdgOrdinal(llh) + ' house while your Moon feels from the ' + rdgOrdinal(mh) + ': identity and emotion run on separate tracks in this chart. ' +
+      'Your public self can function while your inner life is unsettled, and vice versa. The life task is keeping the two tracks in communication, because neither one reports honestly to the other on its own.');
+  }
+
+  var moond = rdgDignity('moon', p.moon), satd = rdgDignity('saturn', p.saturn);
+  if (moond === 'exalted' && (satd === 'own' || satd === 'exalted')) {
+    parts.push('The Moon exalted gives unusual emotional intelligence: the capacity to hold complexity without breaking. Saturn strong in its own sign gives the spine: endurance, patience, the willingness to build slowly. ' +
+      'Feeling without discipline drowns; discipline without feeling calcifies. This chart refuses both failures at once, which is rarer than it sounds. When life gets hard, your system does not ask whether to feel or to endure; it does both, and that is the whole strategy.');
+  }
+
+  var kendra = 0;
+  rdg_KEYS.forEach(function(k) { var h = rdgHouseOf(p, k); if (h === 1 || h === 4 || h === 7 || h === 10) kendra++; });
+  if (kendra >= 4) {
+    parts.push('With ' + kendra + ' of the seven classical planets in kendras, the angular houses, this is a chart of visible life. Your struggles and your strengths both happen in the open. ' +
+      'Standing in the world is built directly here, not behind curtains, which means reputation compounds: every honest effort is seen, and every shortcut is seen too.');
+  }
+
+  var hr = rdgHouseOf(p, 'rahu'), opp = hr > 6 ? hr - 6 : hr + 6;
+  parts.push('Rahu in the ' + rdgOrdinal(hr) + ' house marks this lifetime\'s axis of hunger: ' + rdg_HOUSE_THEMES[hr] + ' is where ambition burns hottest and where perspective is hardest to keep. ' +
+    'Ketu in the ' + rdgOrdinal(opp) + ' asks for the counterweight: mastery through detachment around ' + rdg_HOUSE_THEMES[opp] + '. The two ends of this axis explain more of your biography than any single planet.');
+
+  var html = '<h3>The story of your chart</h3><p>Placements are vocabulary; a reading is the sentence they make together. Here is the sentence yours makes:</p>';
+  parts.forEach(function(pt) { html += '<p>' + pt + '</p>'; });
+  return html;
+}
+
+/* ============ Numerology from the birth date ============ */
+function rdgJDToYMD(jd) {
+  var z = Math.floor(jd + 0.5), a = z;
+  if (z >= 2299161) { var al = Math.floor((z - 1867216.25) / 36524.25); a = z + 1 + al - Math.floor(al / 4); }
+  var b = a + 1524, c = Math.floor((b - 122.1) / 365.25), d = Math.floor(365.25 * c), e = Math.floor((b - d) / 30.6001);
+  var day = b - d - Math.floor(30.6001 * e);
+  var month = e < 14 ? e - 1 : e - 13;
+  var year = month > 2 ? c - 4716 : c - 4715;
+  return {y: year, m: month, d: day};
+}
+function rdgDigitSum(n) { n = Math.abs(Math.floor(n)); var s = 0; while (n > 0) { s += n % 10; n = Math.floor(n / 10); } return s; }
+function rdgReduce(n) { while (n > 9) n = rdgDigitSum(n); return n; }
+var RDG_NUM_MEANINGS = {
+  1: 'the number of the Sun: leadership, independence, and original thinking. You are built to initiate rather than follow, and your best work carries your personal stamp. The shadow is pride: learn to let others share the stage and the number serves you for life.',
+  2: 'the number of the Moon: sensitivity, diplomacy, and intuition. You read rooms and people accurately, and partnerships bring out your best. The shadow is mood: guard against letting a passing feeling rewrite a settled decision.',
+  3: 'the number of Jupiter: optimism, expression, and teaching. You expand whatever you touch, and your enthusiasm is genuinely contagious. The shadow is scattering: finish what you start and the luck this number promises actually arrives.',
+  4: 'the number of Rahu: the unconventional builder. You think in systems, distrust inherited formulas, and do your best work outside the expected path. Sudden changes punctuate the life; treat them as redirections, not punishments.',
+  5: 'the number of Mercury: adaptability, commerce, and communication. You learn fast, connect people and ideas, and thrive where things move quickly. The shadow is restlessness: depth in one thing beats breadth in ten.',
+  6: 'the number of Venus: harmony, responsibility, and care. People trust you with what matters, and you create comfort wherever you settle. Relationships are central, not decorative. The shadow is over-comfort: ease is a reward, not a plan.',
+  7: 'the number of Ketu: the analyst and the seeker. You need to understand things from the inside, and solitude is productive for you rather than lonely. The shadow is withdrawal: share the conclusions, not just the questions.',
+  8: 'the number of Saturn: ambition earned through endurance. Nothing comes fast, but what comes stays. You are built for the long game: material mastery through sustained effort. The shadow is cynicism in the slow years; the delays are the training.',
+  9: 'the number of Mars: courage, service, and intensity. You finish things, protect people, and act when others hesitate. The shadow is the temper: channel the fire into work and it becomes an engine; leave it unchanneled and it burns the driver.'
+};
+function rdgNumerology(birthJD) {
+  var dt = rdgJDToYMD(birthJD);
+  var mul = rdgReduce(dt.d);
+  var bhag = rdgReduce(rdgDigitSum(dt.d) + rdgDigitSum(dt.m) + rdgDigitSum(dt.y));
+  var html = '<h3>Your numbers</h3>';
+  html += '<p class="rdg-factors">Birth date: ' + dt.d + '/' + dt.m + '/' + dt.y + ' (from the details given). Mulank (birth number) ' + mul + '; Bhagyank (destiny number) ' + bhag + '.</p>';
+  html += '<p><strong>Mulank ' + mul + '</strong>, from your birth day, describes your nature: ' + RDG_NUM_MEANINGS[mul] + '</p>';
+  html += '<p><strong>Bhagyank ' + bhag + '</strong>, from the full date, describes the arc of the life: ' + RDG_NUM_MEANINGS[bhag] + '</p>';
+  if (mul !== bhag) {
+    html += '<p>Because the two numbers differ, nature and destiny pull in slightly different directions: what comes naturally to you (' + mul + ') is not identical to what the life asks of you (' + bhag + '). The friction between them is where your growth happens.</p>';
+  } else {
+    html += '<p>Both numbers are ' + mul + ': nature and destiny point the same way, which gives unusual singleness of direction. The risk of a doubled number is excess of its quality, so its shadow side deserves conscious attention.</p>';
+  }
+  return html;
+}
+
+/* ============ Foreign lands and relocation ============ */
+function rdgForeign(p) {
+  var notes = [];
+  var hr = rdgHouseOf(p, 'rahu'), hk = rdgHouseOf(p, 'ketu');
+  if (hr === 4) notes.push('Rahu sits in your 4th house of home and roots. Classically this is the clearest marker of a life lived away from the birthplace: foreign residence, relocation for work or study, or a home built in unfamiliar surroundings. The pull away from home is not restlessness for its own sake; it is where this chart grows.');
+  if (hk === 4) notes.push('Ketu in the 4th loosens the grip of the birthplace: home becomes an inner state rather than a location, and long stays abroad feel strangely natural.');
+  var l12 = rdg_LORDS[(rdgSignOf(p.ascendant) + 11) % 12], h12l = rdgHouseOf(p, l12.toLowerCase());
+  if (h12l === 4) notes.push('Your 12th lord ' + l12 + ' sits in the 4th house, tying foreign lands directly to the question of home: settling far from where you were born is written into the chart\'s structure, not just its dashas.');
+  else if (h12l === 1 || h12l === 5 || h12l === 9 || h12l === 10) notes.push('Your 12th lord ' + l12 + ' placed in the ' + rdgOrdinal(h12l) + ' house connects foreign lands with the most visible parts of your life: travel and distant connections feed your public standing, not just your private life.');
+  var occ = [];
+  ['sun','moon','mars','mercury','jupiter','venus','saturn','rahu','ketu'].forEach(function(k) { if (rdgHouseOf(p, k) === 12) occ.push(rdg_NAMES[k]); });
+  if (occ.length) notes.push('The 12th house of foreign lands holds ' + occ.join(' and ') + ': distant places are not an escape in this chart but a working arena where real things get built.');
+  var l9 = rdg_LORDS[(rdgSignOf(p.ascendant) + 8) % 12], h9l = rdgHouseOf(p, l9.toLowerCase());
+  if (h9l === 12) notes.push('Your 9th lord ' + l9 + ' in the 12th is the classical combination for fortune through foreign lands: mentors, education, or work abroad carry the chart\'s blessing.');
+  else if (rdgDignity(l9.toLowerCase(), p[l9.toLowerCase()]) === 'exalted' || rdgDignity(l9.toLowerCase(), p[l9.toLowerCase()]) === 'own')
+    notes.push('Your 9th lord ' + l9 + ' is ' + rdgDignity(l9.toLowerCase(), p[l9.toLowerCase()]) + ' in the ' + rdgOrdinal(h9l) + ' house: the house of fortune is strong, so long journeys tend to bring gains rather than costs.');
+  var ms = rdgSignOf(p.moon);
+  if (ms === 0 || ms === 3 || ms === 6 || ms === 9) notes.push('The Moon stands in ' + rdg_SIGNS[ms] + ', a movable sign: the emotional nature itself is built for movement, and staying in one place too long starves it.');
+  if (!notes.length) return '';
+  var html = '<h3>Foreign lands and relocation</h3><p>Whether distant places play a real role in your life is answerable from the chart, not from wishful thinking. Here is what yours says:</p><ul>';
+  notes.forEach(function(n) { html += '<li>' + n + '</li>'; });
+  html += '</ul>';
+  return html;
+}
+
+/* ============ Dated timing windows for a theme ============ */
+/* Scans mahadashas and antardashas for periods ruled by the given lord keys. */
+function rdgTimingWindows(mds, nowJD, keys, title, intro) {
+  var wins = [];
+  for (var i = 0; i < mds.length && wins.length < 6; i++) {
+    var md = mds[i];
+    if (md.endJD < nowJD) continue;
+    var mkl = md.lord.toLowerCase();
+    if (keys.indexOf(mkl) >= 0) wins.push({t: md.lord + ' Mahadasha', s: md.startJD, e: md.endJD, now: nowJD >= md.startJD});
+    try {
+      var ads = vimshottariAntardashas(md.lord, md.startJD, md.years);
+      for (var j = 0; j < ads.length && wins.length < 6; j++) {
+        var ad = ads[j], akl = ad.lord.toLowerCase();
+        if (ad.endJD < nowJD || akl === mkl) continue;
+        if (keys.indexOf(akl) >= 0) wins.push({t: md.lord + ' / ' + ad.lord, s: ad.startJD, e: ad.endJD, now: nowJD >= ad.startJD});
+      }
+    } catch (e) {}
+  }
+  if (!wins.length) return '';
+  var html = '<h4>' + title + '</h4><p>' + intro + '</p><ul>';
+  wins.forEach(function(w) {
+    html += '<li><strong>' + w.t + '</strong>, ' + rdgYearRange(w.s, w.e) + (w.now ? ' (running now)' : '') + '</li>';
+  });
+  html += '</ul><p class="rdg-note">Windows describe when a theme is activated, not guaranteed events. Tradition treats these as seasons to act in, not promises.</p>';
+  return html;
+}
+
+function renderDetailedReading(p, moonLong, birthJD, name, tzHours) {
   var nowJD = Date.now() / 86400000 + 2440587.5;
   var mds = vimshottariMahadashas(moonLong, birthJD);
   var html = '<div class="rdg-reading">';
@@ -430,6 +564,8 @@ function renderDetailedReading(p, moonLong, birthJD, name) {
     'Classical Jyotish is a traditional system of reflection and timing, not a science of prediction; read it as a mirror, not a verdict.</p>';
 
   html += '<h3>The bottom line</h3><p>' + rdgBottomLine(p, birthJD) + '</p>';
+
+  html += rdgChartStory(p);
 
   html += rdgYogasSection(p);
   html += rdgSignatureSection(p);
@@ -447,9 +583,14 @@ function renderDetailedReading(p, moonLong, birthJD, name) {
   }
 
   html += rdgNow(p, moonLong, birthJD, birthJD);
+  /* Numerology uses the local calendar date at the birthplace: shift the UT-based
+     Julian day by the UTC offset before extracting day/month/year. */
+  var localJD = birthJD + ((typeof tzHours === 'number' && isFinite(tzHours)) ? tzHours / 24 : 0);
+  html += rdgNumerology(localJD);
+  html += rdgForeign(p);
   html += rdgTemperament(p, moonLong);
-  html += rdgRelationships(p);
-  html += rdgCareerPaths(p, birthJD);
+  html += rdgRelationships(p, mds, nowJD);
+  html += rdgCareerPaths(p, birthJD, mds, nowJD);
   html += rdgMoney(p);
   html += rdgHealth(p);
 
