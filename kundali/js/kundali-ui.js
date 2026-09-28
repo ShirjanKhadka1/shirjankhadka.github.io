@@ -55,11 +55,12 @@ function initKundaliUI() {
           tzEl.value = c.tz;
           tzEl.classList.remove('needs-check');
           if (tzNote) tzNote.style.display = 'none';
+          setTzAuto(tzAutoLabel(c.tz) + ' — set from ' + c.name);
         } else {
           // No preset offset for this city: ask the user to confirm it.
           tzEl.classList.add('needs-check');
           if (tzNote) tzNote.style.display = 'block';
-          tzEl.focus();
+          setTzAuto('No preset offset for this city — set it under Advanced below.');
         }
         refreshTzDisplay();
       }
@@ -69,7 +70,12 @@ function initKundaliUI() {
   // Live UTC offset display (accepts 5:45 or 5.75)
   const tzEl = document.getElementById('tzOffset');
   if (tzEl) {
-    tzEl.addEventListener('input', () => { tzEl.classList.remove('needs-check'); refreshTzDisplay(); });
+    tzEl.addEventListener('input', () => {
+      tzEl.classList.remove('needs-check');
+      refreshTzDisplay();
+      const tz = parseOffset(tzEl.value);
+      if (!isNaN(tz)) setTzAuto(tzAutoLabel(tz) + ' (manual)');
+    });
     refreshTzDisplay();
   }
 
@@ -140,6 +146,23 @@ function refreshTzDisplay() {
   if (!el || !d) return;
   const tz = parseOffset(el.value);
   d.textContent = isNaN(tz) ? 'Type like 5:45 or 5.75' : formatOffset(tz);
+}
+
+// Ordinary-language time zone label, e.g. "Nepal Time (UTC+5:45)".
+var TZ_COMMON_NAMES = {
+  '5.75': 'Nepal Time', '5.5': 'India Time', '6': 'Bangladesh Time',
+  '8': 'China Time', '9': 'Japan Time', '5': 'Pakistan Time',
+  '4': 'Gulf Time', '3': 'East Africa Time', '1': 'Central European Time',
+  '0': 'Greenwich Mean Time', '-5': 'US Eastern Time', '-8': 'US Pacific Time',
+  '10': 'Australian Eastern Time', '5.45': 'Chatham Islands Time'
+};
+function tzAutoLabel(tz) {
+  var name = TZ_COMMON_NAMES[String(tz)];
+  return (name || 'Local time') + ' (' + formatOffset(tz) + ')';
+}
+function setTzAuto(text) {
+  const el = document.getElementById('tzAuto');
+  if (el) el.textContent = text;
 }
 
 // JD from date/time/UTC-offset inputs. Same math as the verified getBirthJD.
