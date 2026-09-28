@@ -169,7 +169,7 @@
 
   /* ---------- Staggered entrances: children of [data-stagger] rise in sequence ---------- */
   document.querySelectorAll("[data-stagger]").forEach(function (group) {
-    var step = parseInt(group.getAttribute("data-stagger"), 10) || 90;
+    var step = parseInt(group.getAttribute("data-stagger"), 10) || 70;
     group.querySelectorAll(".reveal").forEach(function (el, i) {
       el.style.transitionDelay = (i * step) + "ms";
     });
@@ -207,7 +207,7 @@
       el.textContent = formatCount(target, decimals) + suffix;
       return;
     }
-    var duration = 1400;
+    var duration = 900;
     var start = null;
     function tick(now) {
       if (!start) start = now;
@@ -333,7 +333,7 @@
   /* ---------- Portrait entrance: hand the hover transition back after it lands ---------- */
   var portraitFrame = document.querySelector(".portrait-frame");
   if (portraitFrame && !prefersReduced) {
-    setTimeout(function () { portraitFrame.classList.add("settled"); }, 1750);
+    setTimeout(function () { portraitFrame.classList.add("settled"); }, 1100);
   }
 
   /* ---------- Article reading progress ---------- */
