@@ -222,12 +222,26 @@ a.tag-award:hover { background: var(--accent); color: #fff; }
   background: var(--alt);
   transition: transform .6s var(--ease), box-shadow .6s var(--ease);
 }
+/* Portrait entrance: fades up and settles just after the headline lands */
+html.js .portrait-frame { opacity: 0; transform: translateY(26px); }
+body.loaded .portrait-frame {
+  opacity: 1; transform: none;
+  transition: opacity 1s ease .45s, transform 1.1s var(--ease) .45s, box-shadow .6s var(--ease);
+}
+/* After the entrance, restore the snappy hover transition */
+body.loaded .portrait-frame.settled {
+  transition: transform .6s var(--ease), box-shadow .6s var(--ease);
+}
+body.loaded .portrait-frame:hover { transform: translateY(-6px); box-shadow: 0 40px 90px rgba(0, 0, 0, .22); }
+/* No-JS fallback hover (the rule above only wins once body.loaded is set) */
 .portrait-frame:hover { transform: translateY(-6px); box-shadow: 0 40px 90px rgba(0, 0, 0, .22); }
 .portrait-frame img {
   width: 100%; height: 100%; object-fit: cover;
-  transform: translateY(var(--py, 0px)) scale(1.14);
+  transform: translateY(var(--py, 0px)) scale(1.18);
   will-change: transform;
 }
+html.js .hero-caption { opacity: 0; }
+body.loaded .hero-caption { opacity: 1; transition: opacity 1s ease .8s; }
 .hero-caption { color: var(--secondary); font-size: 14px; margin-top: 22px; }
 
 /* ---------- Stats ---------- */
