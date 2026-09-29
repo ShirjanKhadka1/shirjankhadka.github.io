@@ -26,270 +26,213 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"Nepse Decode","url":"https://shirjankhadka.com.np/nepse-alpha/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Free NEPSE analysis suite: live quotes for any listed stock, candlestick charts with SMA and RSI, automatic chart-pattern and divergence detection, verdicts by the Alpha Lab engine, a transparent rule-based buy/hold/exit signal system, a full-market screener and attributed market news. Educational use only.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
 </script>
-<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
-{"@type":"Question","name":"Does Nepse Decode give buy or sell recommendations?","acceptedAnswer":{"@type":"Answer","text":"Nepse Decode shows a mechanical, rule-based verdict from Strong Buy to Strong Exit, computed in your browser from ten transparent factors, with every factor and its contribution listed. It is a starting point for research, not investment advice."}},
-{"@type":"Question","name":"Is the data real-time?","acceptedAnswer":{"@type":"Answer","text":"Quotes refresh during NEPSE trading hours (Monday–Friday, 11:00–15:00 NPT) from free community mirrors and can be delayed. Outside hours you see the last closed session. History is daily OHLC per stock."}},
-{"@type":"Question","name":"Do I need an account to use it?","acceptedAnswer":{"@type":"Answer","text":"No. Everything runs in your browser, free, with no login and no tracking."}},
-{"@type":"Question","name":"How honest is the signal engine about its own record?","acceptedAnswer":{"@type":"Answer","text":"Both regimes are published: across an older 250-session uptrend window (NEPSE +31.0%) the engine's buy calls hit 31.0%; across the most recent 250 sessions (NEPSE −6.2%) they hit 11.4%. Hit rate is regime-dependent, and that is stated on the page."}}
-]}
-</script>
-<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
-{"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
-{"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-alpha/"}]}
-</script>
-<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260929d">
-<link rel="stylesheet" href="/css/nepse-wave7.css?v=20261002d">
-<link rel="stylesheet" href="/css/nepse-brand.css?v=20261003a">
-<link rel="stylesheet" href="/css/nepse-alpha-home.css?v=20260930a">
+<link rel="stylesheet" href="/css/nepse-design-system.css?v=20260930a">
+<style>
+/* landing-only */
+.nd-market-hero { display: grid; grid-template-columns: 1fr; gap: 20px; }
+@media (min-width: 900px) { .nd-market-hero { grid-template-columns: 1fr 1fr; align-items: stretch; } }
+.nd-idx-num { font-family: var(--serif); font-weight: 600; font-size: clamp(3rem, 9vw, 4.75rem); line-height: 1; letter-spacing: -0.02em; color: #F5F1E6; }
+.nd-idx-chg { font-size: 1.15rem; font-weight: 700; margin-top: 8px; }
+.nd-idx-chg.up { color: #7BD8A4; } .nd-idx-chg.down { color: #F0968A; }
+.nd-hero-card canvas { width: 100%; height: 120px; margin-top: 16px; }
+.nd-search { display: flex; gap: 8px; margin-top: 20px; }
+.nd-search input { flex: 1; padding: 12px 18px; border-radius: var(--r-pill); border: 1px solid rgba(245,241,230,.25); background: rgba(245,241,230,.08); color: #F5F1E6; font: inherit; font-size: 0.95rem; }
+.nd-search input::placeholder { color: rgba(245,241,230,.45); }
+.nd-search button { padding: 12px 24px; border-radius: var(--r-pill); border: 0; background: var(--gold); color: #1B1A17; font-weight: 700; cursor: pointer; }
+.nd-search-list { margin-top: 8px; }
+.nd-search-list a { display: block; padding: 8px 4px; color: #F5F1E6; text-decoration: none; font-size: 0.9rem; border-bottom: 1px solid rgba(245,241,230,.12); }
+.nd-mover-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+@media (min-width: 720px) { .nd-mover-grid { grid-template-columns: repeat(3, 1fr); } }
+.nd-tools { display: grid; grid-template-columns: 1fr; gap: 12px; }
+@media (min-width: 720px) { .nd-tools { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .nd-tools { grid-template-columns: repeat(3, 1fr); } }
+.nd-tool { display: flex; gap: 14px; align-items: flex-start; padding: 18px; text-decoration: none; }
+.nd-tool:hover { border-color: var(--green-700); }
+.nd-tool .t-icon { flex: none; width: 40px; height: 40px; border-radius: 10px; background: var(--green-100); color: var(--green-900); display: flex; align-items: center; justify-content: center; }
+.nd-tool .t-icon svg { width: 20px; height: 20px; }
+.nd-tool h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 2px; }
+.nd-tool p { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+.nd-skl { display: block; background: linear-gradient(90deg, var(--paper-deep) 25%, var(--hairline-soft) 50%, var(--paper-deep) 75%); background-size: 200% 100%; animation: nd-skl 1.4s infinite; border-radius: 6px; }
+@keyframes nd-skl { to { background-position: -200% 0; } }
+</style>
 </head>
-<body>
+<body class="nd">
 
-<aside class="suite-rail" aria-label="Nepse Decode suite">
-  <a class="rail-word" href="/nepse-alpha/"><img class="wm-mark" src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
-  <p class="rail-k">Suite</p>
-  <nav aria-label="Suite tools">
-    <a href="/nepse-alpha/" class="on" aria-current="page">Overview</a>
-    <a href="/nepse-chart/">Chart &amp; signals</a>
-    <a href="/nepse-screener/">Screener</a>
-    <a href="/nepse-sectors/">Sectors</a>
-    <a href="/nepse-news/">Market news</a>
-    <a href="/nepse-watchlist/">Watchlist</a>
-    <a href="/nepse-dashboard/">Dashboard</a>
-    <a href="/nepse-portfolio/">Portfolio</a>
-    <a href="/nepse-simulator/">Simulator</a>
-    <a href="/nepse-fundamentals/">Fundamentals</a>
-    <a href="/nepse-reports/">Reports</a>
-    <a href="/nepse-actions/">Corp. actions</a>
-  </nav>
-  <p class="rail-foot">Free forever · no login</p>
-</aside>
+<header class="nd-topbar">
+  <a class="brand" href="/nepse-alpha/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="24" height="24">Nepse Decode</a>
+  <a class="nd-btn primary" href="/nepse-chart/" style="padding:8px 18px;font-size:0.85rem">Open the Lab</a>
+</header>
+<nav class="nd-mobilenav" aria-label="Suite tools">
+  <a href="/nepse-alpha/" class="active" aria-current="page">Overview</a>
+  <a href="/nepse-chart/">Chart &amp; signals</a>
+  <a href="/nepse-screener/">Screener</a>
+  <a href="/nepse-sectors/">Sectors</a>
+  <a href="/nepse-news/">Market news</a>
+  <a href="/nepse-watchlist/">Watchlist</a>
+  <a href="/nepse-dashboard/">Dashboard</a>
+  <a href="/nepse-portfolio/">Portfolio</a>
+  <a href="/nepse-simulator/">Simulator</a>
+  <a href="/nepse-fundamentals/">Fundamentals</a>
+  <a href="/nepse-reports/">Reports</a>
+  <a href="/nepse-actions/">Corp. actions</a>
+</nav>
 
-<header class="topbar">
-  <div class="wrap topbar-in">
-    <a class="wordmark" href="/nepse-alpha/" aria-current="page"><img class="wm-mark" src="/assets/brand/nepse-decode-mark.svg" alt="" width="30" height="30">Nepse Decode</a>
-    <nav class="suite-links" aria-label="Nepse Decode suite">
-      <a href="/nepse-chart/">The Lab</a>
+<div class="nd-shell">
+  <aside class="nd-side" aria-label="Nepse Decode suite">
+    <a class="brand" href="/nepse-alpha/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
+    <nav class="nd-nav" aria-label="Suite tools">
+      <p class="nav-kicker">Suite</p>
+      <a href="/nepse-alpha/" class="active" aria-current="page">Overview</a>
+      <a href="/nepse-chart/">Chart &amp; signals</a>
       <a href="/nepse-screener/">Screener</a>
       <a href="/nepse-sectors/">Sectors</a>
-      <a href="/nepse-news/">News</a>
+      <a href="/nepse-news/">Market news</a>
       <a href="/nepse-watchlist/">Watchlist</a>
       <a href="/nepse-dashboard/">Dashboard</a>
       <a href="/nepse-portfolio/">Portfolio</a>
       <a href="/nepse-simulator/">Simulator</a>
       <a href="/nepse-fundamentals/">Fundamentals</a>
       <a href="/nepse-reports/">Reports</a>
+      <a href="/nepse-actions/">Corp. actions</a>
     </nav>
-    <span class="spacer"></span>
-    <a class="btn small" href="/nepse-chart/">Open the Lab</a>
-  </div>
-</header>
+    <p class="nd-caption" style="margin-top:32px">Free forever · no login</p>
+  </aside>
 
-<main id="main">
-  <section class="ah-hero" aria-label="Market overview">
-    <div class="wrap ah-hero-in">
-      <div>
-        <p class="kicker">Nepse Decode</p>
-        <h1>Nepse Decode: every stock, <em>decoded.</em></h1>
-        <p class="ah-lede">A free, no-login analysis suite for Nepal's stock market: charts, pattern scans, engine verdicts, a full-market screener and attributed news.</p>
-        <form class="ah-search" id="ahSearch" role="search" action="/stocks/" onsubmit="return false">
-          <input id="ahSearchInput" type="search" placeholder="Search any symbol, e.g. NABIL" aria-label="Search a NEPSE symbol" autocomplete="off" list="ahSymbols">
-          <datalist id="ahSymbols"></datalist>
-          <button type="submit">Search</button>
-        </form>
-        <div class="ah-search-list" id="ahSearchMatches" aria-live="polite"></div>
-      </div>
-      <div class="ah-idx" aria-live="polite">
-        <div class="k">NEPSE Index <span class="ah-status closed" id="ahStatus"><span class="dot"></span><span id="ahStatusTxt">–</span></span></div>
-        <div class="ah-idx-val" id="ahIdxVal"><span class="ah-skl" style="height:52px;width:70%"></span></div>
-        <div class="ah-idx-chg" id="ahIdxChg"><span class="ah-skl" style="height:20px;width:45%"></span></div>
-        <canvas id="ahSpark" aria-label="NEPSE index trend chart"></canvas>
-        <div class="ah-idx-cap" id="ahIdxCap">Loading the latest session…</div>
-      </div>
-    </div>
-  </section>
+  <div class="nd-content">
+    <div class="nd-wrap">
 
-  <section class="ah-strip" aria-label="Market stats">
-    <div class="wrap ah-strip-in" id="ahStrip">
-      <div class="ah-stat"><div class="k">Advancers</div><div class="n" id="ahAdv"><span class="ah-skl" style="height:30px;width:50%"></span></div><div class="s">securities up on the day</div></div>
-      <div class="ah-stat"><div class="k">Decliners</div><div class="n" id="ahDec"><span class="ah-skl" style="height:30px;width:50%"></span></div><div class="s">securities down on the day</div></div>
-      <div class="ah-stat"><div class="k">Turnover</div><div class="n" id="ahTurn"><span class="ah-skl" style="height:30px;width:60%"></span></div><div class="s">total session turnover</div></div>
-      <div class="ah-stat"><div class="k">Traded</div><div class="n" id="ahTraded"><span class="ah-skl" style="height:30px;width:50%"></span></div><div class="s">securities with recorded trades</div></div>
-    </div>
-  </section>
-
-  <div class="wrap">
-    <div class="ah-cols">
-      <div class="ah-movers">
-        <section class="ah-panel" aria-label="Top gainers">
-          <div class="ah-panel-head"><span class="k">Top gainers</span><a href="/nepse-screener/">All 410 in the Screener →</a></div>
-          <ul class="ah-rows" id="ahGainers"><li><span class="ah-skl" style="height:44px"></span></li><li><span class="ah-skl" style="height:44px"></span></li><li><span class="ah-skl" style="height:44px"></span></li></ul>
-        </section>
-        <section class="ah-panel" aria-label="Top losers">
-          <div class="ah-panel-head"><span class="k">Top losers</span><a href="/nepse-screener/">All 410 in the Screener →</a></div>
-          <ul class="ah-rows" id="ahLosers"><li><span class="ah-skl" style="height:44px"></span></li><li><span class="ah-skl" style="height:44px"></span></li><li><span class="ah-skl" style="height:44px"></span></li></ul>
-        </section>
-        <section class="ah-panel" aria-label="Top turnover">
-          <div class="ah-panel-head"><span class="k">Top turnover</span><a href="/nepse-screener/">All 410 in the Screener →</a></div>
-          <ul class="ah-rows" id="ahTurnover"><li><span class="ah-skl" style="height:44px"></span></li><li><span class="ah-skl" style="height:44px"></span></li><li><span class="ah-skl" style="height:44px"></span></li></ul>
-        </section>
-      </div>
-      <aside class="ah-news" aria-label="Latest headlines">
-        <div class="ah-news-card">
-          <p class="k">Latest headlines</p>
-          <ul class="ah-news-list" id="ahNews"><li><span class="ah-skl" style="height:44px"></span></li><li><span class="ah-skl" style="height:44px"></span></li><li><span class="ah-skl" style="height:44px"></span></li></ul>
-          <a class="ah-more" href="/nepse-news/">More news →</a>
-        </div>
-      </aside>
-    </div>
-  </div>
-
-  <section class="block ah-vd" aria-label="Engine verdicts">
-    <div class="wrap">
-      <p class="kicker reveal">The engine's calls</p>
-      <h2 class="sec reveal">Latest engine verdicts.</h2>
-      <p class="sec-sub reveal">The strongest Buy and Exit calls from the latest daily batch. <b id="vd-asof">Loading the latest batch…</b></p>
-      <div class="vd-cols">
-        <div class="vd-col">
-          <h3><span class="verdict v-sb">Strongest Buys</span></h3>
-          <div id="vd-buys" class="vd-list" aria-live="polite"></div>
-        </div>
-        <div class="vd-col">
-          <h3><span class="verdict v-se">Strongest Exits</span></h3>
-          <div id="vd-exits" class="vd-list" aria-live="polite"></div>
+      <!-- 1. MARKET FIRST: index hero, no marketing prose -->
+      <div class="nd-hero-card" style="margin-bottom:24px">
+        <div class="nd-market-hero">
+          <div>
+            <p class="nd-kicker">NEPSE Index <span class="nd-pill closed" id="ahStatus" style="margin-left:8px"><span class="dot"></span><span id="ahStatusTxt">–</span></span></p>
+            <div class="nd-idx-num num" id="ahIdxVal" style="margin-top:12px"><span class="nd-skl" style="height:64px;width:75%"></span></div>
+            <div class="nd-idx-chg num" id="ahIdxChg"><span class="nd-skl" style="height:24px;width:45%"></span></div>
+            <p class="nd-caption" id="ahIdxCap" style="margin-top:10px">Loading the latest session…</p>
+            <form class="nd-search" id="ahSearch" role="search" onsubmit="return false">
+              <input id="ahSearchInput" type="search" placeholder="Search any symbol, e.g. NABIL" aria-label="Search a NEPSE symbol" autocomplete="off" list="ahSymbols">
+              <datalist id="ahSymbols"></datalist>
+              <button type="submit">Search</button>
+            </form>
+            <div class="nd-search-list" id="ahSearchMatches" aria-live="polite"></div>
+          </div>
+          <div>
+            <canvas id="ahSpark" aria-label="NEPSE index trend"></canvas>
+            <div class="nd-stats cols-4" style="margin-top:16px;grid-template-columns:repeat(2,1fr)" id="ahStrip">
+              <div class="nd-stat"><div class="stat-l" style="color:rgba(245,241,230,.55)">Advancers</div><div class="stat-v num" id="ahAdv" style="color:#F5F1E6">–</div></div>
+              <div class="nd-stat"><div class="stat-l" style="color:rgba(245,241,230,.55)">Decliners</div><div class="stat-v num" id="ahDec" style="color:#F5F1E6">–</div></div>
+              <div class="nd-stat"><div class="stat-l" style="color:rgba(245,241,230,.55)">Turnover</div><div class="stat-v num" id="ahTurn" style="color:#F5F1E6">–</div></div>
+              <div class="nd-stat"><div class="stat-l" style="color:rgba(245,241,230,.55)">Traded</div><div class="stat-v num" id="ahTraded" style="color:#F5F1E6">–</div></div>
+            </div>
+          </div>
         </div>
       </div>
-      <p class="vd-note reveal">Mechanical output from a fixed rule set, not investment advice. For setups, scores, stop-loss and target levels, <a href="/nepse-screener/">see all 410 securities in the Screener →</a></p>
-    </div>
-  </section>
 
-  <section class="block ah-tools" aria-label="The suite" style="padding-top:0">
-    <div class="wrap">
-      <p class="kicker reveal">The suite</p>
-      <h2 class="sec reveal">One suite, ten tools.</h2>
-      <div class="tools tools-visual">
-        <a class="tool-card reveal" href="/nepse-chart/">
-          <div class="tc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M7 14l4-4 3 3 5-6"/></svg></div>
-          <div class="tc-body"><h3>Chart &amp; signals</h3><p>Candlesticks, patterns, divergences and the rule-based verdict, all on one screen.</p></div>
-          <span class="tc-go" aria-hidden="true">→</span>
-        </a>
-        <a class="tool-card reveal" href="/nepse-screener/">
-          <div class="tc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg></div>
-          <div class="tc-body"><h3>Market Screener</h3><p>All 410 securities ranked daily, with stop-loss and target on every row.</p></div>
-          <span class="tc-go" aria-hidden="true">→</span>
-        </a>
-        <a class="tool-card reveal" href="/nepse-news/">
-          <div class="tc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5z"/><path d="M18 8h1a1 1 0 0 1 1 1v9a2 2 0 0 1-2 2"/><path d="M8 9h6M8 13h6M8 17h4"/></svg></div>
-          <div class="tc-body"><h3>Market News</h3><p>Market-moving headlines matched to symbols, always with the source attached.</p></div>
-          <span class="tc-go" aria-hidden="true">→</span>
-        </a>
-        <a class="tool-card reveal" href="/nepse-watchlist/">
-          <div class="tc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.5-9 9-9 9z"/></svg></div>
-          <div class="tc-body"><h3>Watchlist</h3><p>The securities you follow, with price, signal and RSI on every row.</p></div>
-          <span class="tc-go" aria-hidden="true">→</span>
-        </a>
-        <a class="tool-card reveal" href="/nepse-dashboard/">
-          <div class="tc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></div>
-          <div class="tc-body"><h3>Dashboard</h3><p>Your market morning in one screen, arranged the way you like it.</p></div>
-          <span class="tc-go" aria-hidden="true">→</span>
-        </a>
-        <a class="tool-card reveal" href="/nepse-sectors/">
-          <div class="tc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="5" rx="1.5"/><rect x="13" y="10" width="8" height="11" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/></svg></div>
-          <div class="tc-body"><h3>Sector map</h3><p>Which parts of the market are moving, sized and colored at a glance.</p></div>
-          <span class="tc-go" aria-hidden="true">→</span>
-        </a>
-        <a class="tool-card reveal" href="/nepse-portfolio/">
-          <div class="tc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7H4a2 2 0 0 1 0-4h14v4"/><path d="M4 7v12a2 2 0 0 0 2 2h14V7"/><circle cx="16.5" cy="14" r="1.2" fill="currentColor" stroke="none"/></svg></div>
-          <div class="tc-body"><h3>Portfolio</h3><p>Your holdings, honestly accounted: average cost, P&amp;L and allocation.</p></div>
-          <span class="tc-go" aria-hidden="true">→</span>
-        </a>
-        <a class="tool-card reveal" href="/nepse-simulator/">
-          <div class="tc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-14 9V3z"/></svg></div>
-          <div class="tc-body"><h3>Simulator</h3><p>Paper-trade history with mechanical strategies before the market tests you.</p></div>
-          <span class="tc-go" aria-hidden="true">→</span>
-        </a>
-        <a class="tool-card reveal" href="/nepse-fundamentals/">
-          <div class="tc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M6 21V10M11 21V4M16 21v-9M21 21V8"/></svg></div>
-          <div class="tc-body"><h3>Fundamentals</h3><p>The company behind the chart: ratios explained in plain language.</p></div>
-          <span class="tc-go" aria-hidden="true">→</span>
-        </a>
-        <a class="tool-card reveal" href="/nepse-reports/">
-          <div class="tc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg></div>
-          <div class="tc-body"><h3>Reports</h3><p>Assemble a clean printable report from your portfolio and the market.</p></div>
-          <span class="tc-go" aria-hidden="true">→</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <section class="block engine" style="padding-top:0" aria-label="The engine">
-    <div class="wrap">
-      <div class="ah-engine-card reveal">
-        <p class="kicker">The engine</p>
-        <h2 class="sec">A verdict that shows its working.</h2>
-        <p class="sec-sub" style="margin-bottom:0">No black box, no "AI prediction". Ten mechanical factors are scored on the daily chart, the points are added up, and the result is a verdict from Strong Buy to Strong Exit, with each factor's contribution listed underneath.</p>
-        <div class="scale" aria-label="Verdict scale">
-          <span class="verdict v-sb">Strong Buy</span>
-          <span class="verdict v-b">Buy</span>
-          <span class="verdict v-h">Hold</span>
-          <span class="verdict v-e">Exit / Reduce</span>
-          <span class="verdict v-se">Strong Exit</span>
+      <!-- 2. MOVERS + NEWS: glance hierarchy -->
+      <div class="nd-grid" style="margin-bottom:40px">
+        <div class="nd-main">
+          <div class="nd-section-head">
+            <div><p class="nd-kicker">Movers</p><h2>What moved today</h2></div>
+            <a class="nd-section-link" href="/nepse-screener/">All 410 in the Screener →</a>
+          </div>
+          <div class="nd-mover-grid">
+            <section class="nd-card" aria-label="Top gainers">
+              <p class="nd-kicker" style="margin-bottom:12px">Top gainers</p>
+              <div class="nd-movers" id="ahGainers"><span class="nd-skl" style="height:44px"></span></div>
+            </section>
+            <section class="nd-card" aria-label="Top losers">
+              <p class="nd-kicker" style="margin-bottom:12px">Top losers</p>
+              <div class="nd-movers" id="ahLosers"><span class="nd-skl" style="height:44px"></span></div>
+            </section>
+            <section class="nd-card" aria-label="Top turnover">
+              <p class="nd-kicker" style="margin-bottom:12px">Top turnover</p>
+              <div class="nd-movers" id="ahTurnover"><span class="nd-skl" style="height:44px"></span></div>
+            </section>
+          </div>
         </div>
-        <p class="ah-factors"><b>The ten factors:</b> trend vs moving averages · golden / death crosses · RSI zone · MACD momentum · turnover participation · 52-week position · divergences · chart patterns · index backdrop · support / resistance</p>
-        <div class="ah-record">
-          <div><div class="n">31.0%</div><div class="l">Buy-call hit rate, 250-session uptrend window (NEPSE +31.0%)</div></div>
-          <div><div class="n">11.4%</div><div class="l">Buy-call hit rate, most recent 250 sessions (NEPSE -6.2%)</div></div>
-          <div><div class="n">1:2</div><div class="l">Risk-reward frame: stop at 2x ATR, target at 4x ATR</div></div>
-        </div>
+        <aside class="nd-rail" aria-label="Latest headlines">
+          <div class="nd-section-head">
+            <div><p class="nd-kicker">News</p><h2>Latest headlines</h2></div>
+            <a class="nd-section-link" href="/nepse-news/">More →</a>
+          </div>
+          <div class="nd-card">
+            <div class="nd-news" id="ahNews"><span class="nd-skl" style="height:44px"></span></div>
+          </div>
+        </aside>
       </div>
-    </div>
-  </section>
 
-  <section class="block ah-data" style="padding-top:0" aria-label="Data sources">
-    <div class="wrap">
-      <p class="kicker reveal">Data</p>
-      <h2 class="sec reveal">Real data, honestly labeled.</h2>
-      <p class="sec-sub reveal" style="margin-bottom:0">NEPSE publishes no free official real-time API. What you get instead is stated plainly, with sources you can check.</p>
-      <div class="src-chips reveal">
-        <span class="src"><b>Daily OHLC</b> · open Nepse-All-Scraper dataset</span>
-        <span class="src"><b>Live quotes</b> · yonepse open API</span>
-        <span class="src"><b>Index history 2003–2026</b> · nepse-open-data archive</span>
-        <span class="src"><b>News</b> · attributed publisher headlines</span>
+      <!-- 3. ENGINE VERDICTS: teaser -->
+      <div class="nd-section-head">
+        <div><p class="nd-kicker">The engine</p><h2>Latest verdicts</h2></div>
+        <a class="nd-section-link" href="/nepse-screener/">Full rankings →</a>
       </div>
-    </div>
-  </section>
-
-  <section class="block faq" style="padding-top:0">
-    <div class="wrap">
-      <p class="kicker reveal">Questions</p>
-      <h2 class="sec reveal">Before you ask.</h2>
-      <div style="margin-top:32px">
-        <details class="reveal"><summary>Does this give buy or sell recommendations?</summary><p>It shows a mechanical verdict, Strong Buy to Strong Exit, with every contributing factor listed. It is a starting point for your own research, not investment advice, and not an AI prediction.</p></details>
-        <details class="reveal"><summary>Is the data real-time?</summary><p>Quotes refresh during NEPSE trading hours (Monday–Friday, 11:00–15:00 NPT) from free community mirrors and can be delayed. Outside hours you see the last closed session. Daily history is OHLC per stock.</p></details>
-        <details class="reveal"><summary>Do I need an account?</summary><p>No. Everything runs in your browser, free, with no login and no tracking.</p></details>
-        <details class="reveal"><summary>Which patterns are detected?</summary><p>Double tops and bottoms, head &amp; shoulders (and inverse), ascending, descending and symmetrical triangles, rising and falling wedges, plus regular and hidden bullish/bearish divergences on RSI(14) and the MACD histogram.</p></details>
-        <details class="reveal"><summary>Where does the data come from?</summary><p>Per-stock daily OHLC from the open Nepse-All-Scraper dataset, live quotes and monthly LTP history from the yonepse open API, and NEPSE index daily history (2003–2026) from the nepse-open-data archive. Coverage is verified on the <a href="/nepse-chart/data-check.html">data coverage page</a>.</p></details>
+      <p class="nd-caption" id="vd-asof" style="margin-bottom:16px">Loading the latest batch…</p>
+      <div class="nd-grid" style="margin-bottom:40px">
+        <div class="nd-half"><section class="nd-card" aria-label="Strongest buys">
+          <p class="nd-kicker" style="margin-bottom:12px;color:var(--up)">Strongest buys</p>
+          <div class="nd-movers" id="vd-buys"></div>
+        </section></div>
+        <div class="nd-half"><section class="nd-card" aria-label="Strongest exits">
+          <p class="nd-kicker" style="margin-bottom:12px;color:var(--down)">Strongest exits</p>
+          <div class="nd-movers" id="vd-exits"></div>
+        </section></div>
       </div>
-    </div>
-  </section>
-</main>
+      <p class="nd-caption" style="margin-bottom:40px;max-width:64ch">Mechanical output from a fixed rule set, not investment advice. Ten factors are scored on the daily chart; the points add up to a verdict from Strong Buy to Strong Exit.</p>
 
-<footer class="foot">
-  <div class="wrap">
-    <div class="disclaimer"><strong>Educational use only.</strong> All signals are mechanical outputs of published rules. They are not investment advice, not AI predictions, and past performance does not guarantee future results. Data can be delayed; verify prices with your broker before trading.</div>
-    <div class="row">
-      <span>Built by <a href="/">Shirjan Khadka</a> · Aspiring Financial Analyst</span>
-      <span><a href="/nepse-alpha/">Nepse Decode</a> · <a href="/nepse-chart/">Chart</a> · <a href="/nepse-screener/">Screener</a> · <a href="/nepse-sectors/">Sectors</a> · <a href="/nepse-portfolio/">Portfolio</a> · <a href="/nepse-simulator/">Simulator</a> · <a href="/nepse-fundamentals/">Fundamentals</a> · <a href="/nepse-reports/">Reports</a> · <a href="/nepse-chart/data-check.html">Data coverage</a> · <a href="/blog/">Blog</a></span>
+      <!-- 4. TOOLS: compact grid -->
+      <div class="nd-section-head">
+        <div><p class="nd-kicker">The suite</p><h2>Every tool, one suite</h2></div>
+      </div>
+      <div class="nd-tools" style="margin-bottom:40px">
+        <a class="nd-card nd-tool" href="/nepse-chart/">
+          <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M7 14l4-4 3 3 5-6"/></svg></span>
+          <span><h3>Chart &amp; signals</h3><p>Candlesticks, patterns and the rule-based verdict on one screen.</p></span>
+        </a>
+        <a class="nd-card nd-tool" href="/nepse-screener/">
+          <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg></span>
+          <span><h3>Market Screener</h3><p>All 410 securities ranked daily, stop-loss and target on every row.</p></span>
+        </a>
+        <a class="nd-card nd-tool" href="/nepse-news/">
+          <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5z"/><path d="M18 8h1a1 1 0 0 1 1 1v9a2 2 0 0 1-2 2"/><path d="M8 9h6M8 13h6M8 17h4"/></svg></span>
+          <span><h3>Market News</h3><p>Announcements and headlines, always with the source attached.</p></span>
+        </a>
+        <a class="nd-card nd-tool" href="/nepse-sectors/">
+          <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="5" rx="1.5"/><rect x="13" y="10" width="8" height="11" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/></svg></span>
+          <span><h3>Sector map</h3><p>Which parts of the market are moving, at a glance.</p></span>
+        </a>
+        <a class="nd-card nd-tool" href="/nepse-watchlist/">
+          <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.5-9 9-9 9z"/></svg></span>
+          <span><h3>Watchlist</h3><p>The securities you follow, with signal and RSI on every row.</p></span>
+        </a>
+        <a class="nd-card nd-tool" href="/nepse-dashboard/">
+          <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></span>
+          <span><h3>Dashboard</h3><p>Your market morning in one screen.</p></span>
+        </a>
+        <a class="nd-card nd-tool" href="/nepse-portfolio/">
+          <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7H4a2 2 0 0 1 0-4h14v4"/><path d="M4 7v12a2 2 0 0 0 2 2h14V7"/></svg></span>
+          <span><h3>Portfolio</h3><p>Holdings, honestly accounted: cost, P&amp;L, allocation.</p></span>
+        </a>
+        <a class="nd-card nd-tool" href="/nepse-simulator/">
+          <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-14 9V3z"/></svg></span>
+          <span><h3>Simulator</h3><p>Paper-trade mechanical strategies on history.</p></span>
+        </a>
+        <a class="nd-card nd-tool" href="/nepse-fundamentals/">
+          <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M6 21V10M11 21V4M16 21v-9M21 21V8"/></svg></span>
+          <span><h3>Fundamentals</h3><p>The company behind the chart, in plain language.</p></span>
+        </a>
+      </div>
+
+      <footer class="nd-footer">
+        <p class="nd-caption"><strong>Educational use only.</strong> Nothing here is investment advice; verify prices with your broker before trading. Free forever, no login.</p>
+        <p class="nd-caption" style="margin-top:12px"><a href="/nepse-chart/">Chart</a> · <a href="/nepse-screener/">Screener</a> · <a href="/nepse-sectors/">Sectors</a> · <a href="/nepse-news/">News</a></p>
+      </footer>
+
     </div>
   </div>
-</footer>
+</div>
 
-<script src="/js/nepse-fresh.js?v=20260930b"></script>
-<script src="/js/nepse-live.js?v=20261002e"></script>
-<script src="/js/nepse-suite.js?v=20261002d"></script>
-<script src="/js/nepse-wave1.js?v=20261002d" defer></script>
 <script>
+
 (function(){
   'use strict';
   var DATA='/nepse-chart/data/';
@@ -395,10 +338,12 @@
   function paintNews(n){
     var el=$('ahNews');if(!el)return;
     var items=(n.items||[]).slice(0,8);
-    if(!items.length){el.innerHTML='<li style="padding:12px 0;color:var(--muted);font-size:14px">No headlines in the latest batch.</li>';return;}
+    if(!items.length){el.innerHTML='<p class="nd-caption" style="padding:12px 0">No headlines in the latest batch.</p>';return;}
     el.innerHTML=items.map(function(it){
-      return '<li><a href="'+esc(it.link)+'" target="_blank" rel="noopener">'+esc(it.title)+' <span class="out">↗</span></a>'+
-        '<div class="ah-news-meta">'+esc(it.src)+' · '+fmtShort(it.date)+'</div></li>';
+      return '<a class="nd-news-item" href="'+esc(it.link)+'" target="_blank" rel="noopener">'+
+        '<span class="n-kicker">'+esc(it.src)+'</span>'+
+        '<span class="n-title">'+esc(it.title)+'</span>'+
+        '<span class="n-meta">'+fmtShort(it.date)+'</span></a>';
     }).join('');
   }
 
@@ -406,18 +351,16 @@
   function pillClass(v){return v==='Strong Buy'?'v-sb':v==='Buy'?'v-b':v==='Hold'?'v-h':v==='Exit / Reduce'?'v-e':v==='Strong Exit'?'v-se':'v-h';}
   function vdRow(sym,x){
     var ch=+x.ch||0;
-    return '<a class="vd-row" href="/nepse-chart/?s='+encodeURIComponent(sym)+'">'+
-      '<span class="vd-sym">'+esc(sym)+'</span>'+
-      '<span class="vd-pill verdict '+pillClass(x.v)+'">'+esc(x.v)+'</span>'+
-      '<span class="vd-price">Rs '+num(x.p,2)+'</span>'+
-      '<span class="vd-chg '+(ch>=0?'up':'dn')+'">'+(ch>=0?'+':'')+ch.toFixed(2)+'%</span></a>';
+    return '<a class="nd-mover" href="/nepse-chart/?s='+encodeURIComponent(sym)+'">'+
+      '<span><span class="m-sym">'+esc(sym)+'</span><br><span class="m-name">'+esc(x.v)+'</span></span>'+
+      '<span><span class="m-price num">Rs '+num(x.p,2)+'</span><br><span class="m-chg '+(ch>=0?'up':'down')+'">'+(ch>=0?'+':'')+ch.toFixed(2)+'%</span></span></a>';
   }
   function paintVerdicts(d){
     var all=Object.keys(d.verdicts||{}).map(function(sym){return [sym,d.verdicts[sym]];});
     var buys=all.filter(function(it){return it[1].v==='Strong Buy'||it[1].v==='Buy';}).sort(function(a,b){return b[1].s-a[1].s;}).slice(0,4);
     var exits=all.filter(function(it){return it[1].v==='Strong Exit'||it[1].v==='Exit / Reduce';}).sort(function(a,b){return a[1].s-b[1].s;}).slice(0,4);
-    $('vd-buys').innerHTML=buys.length?buys.map(function(it){return vdRow(it[0],it[1]);}).join(''):'<p class="vd-empty">No buy verdicts in the latest batch.</p>';
-    $('vd-exits').innerHTML=exits.length?exits.map(function(it){return vdRow(it[0],it[1]);}).join(''):'<p class="vd-empty">No exit verdicts in the latest batch.</p>';
+    $('vd-buys').innerHTML=buys.length?buys.map(function(it){return vdRow(it[0],it[1]);}).join(''):'<p class="nd-caption">No buy verdicts in the latest batch.</p>';
+    $('vd-exits').innerHTML=exits.length?exits.map(function(it){return vdRow(it[0],it[1]);}).join(''):'<p class="nd-caption">No exit verdicts in the latest batch.</p>';
     var asofEl=$('vd-asof');
     if(d.asof){
       asofEl.textContent='Batch of '+fmtLong(d.asof)+' · '+(d.count||all.length)+' securities scored.';
@@ -490,6 +433,7 @@
     $('vd-exits').innerHTML='<p class="vd-empty">Verdict data is temporarily unavailable.</p>';
   });
 })();
+
 </script>
 </body>
 </html>
