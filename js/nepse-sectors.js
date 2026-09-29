@@ -125,13 +125,15 @@
     $('sx-heat').innerHTML = h;
   }
 
-  function leaderList(rows, emptyMsg) {
+  function leaderList(rows, sec, emptyMsg) {
     if (!rows.length) return '<p class="sx-empty-lead">' + esc(emptyMsg) + '</p>';
+    var Mono = window.NepseMono || null;
     return '<ul>' + rows.map(function (r) {
       var price = r.p == null ? '-' : num(r.p, 2);
-      return '<li><a class="sx-sym" href="/nepse-chart/?s=' + esc(r.sym) + '">' + esc(r.sym) + '</a>' +
-        '<span class="sx-p">' + esc(price) + '</span>' +
-        '<span class="sx-ch">' + signPct(r.ch) + '</span></li>';
+      return '<li><a class="sx-sym" href="/nepse-chart/?s=' + esc(r.sym) + '">' +
+        (Mono ? Mono.avatar(r.sym, sec, 26) : '') + '<span>' + esc(r.sym) + '</span></a>' +
+        '<span class="sx-p tnum">' + esc(price) + '</span>' +
+        '<span class="sx-ch tnum">' + signPct(r.ch) + '</span></li>';
     }).join('') + '</ul>';
   }
 
@@ -146,15 +148,17 @@
         '<span class="sx-avg">' + signPct(g.avgCh) + '</span></div>' +
         '<div class="sx-breadth" role="img" aria-label="' + esc(g.name) + ': ' + g.adv +
           ' advancers, ' + g.dec + ' decliners, ' + g.flat + ' unchanged">' +
-          '<i class="sx-b-up" style="width:' + wUp.toFixed(1) + '%"></i>' +
-          '<i class="sx-b-dn" style="width:' + wDn.toFixed(1) + '%"></i>' +
-          '<i class="sx-b-flat" style="width:' + wFlat.toFixed(1) + '%"></i></div>' +
-        '<p class="sx-breadth-cap">' + g.adv + ' up · ' + g.dec + ' down · ' + g.flat + ' flat' +
+          '<i class="sx-b-up" data-w="' + wUp.toFixed(1) + '" style="width:0"></i>' +
+          '<i class="sx-b-dn" data-w="' + wDn.toFixed(1) + '" style="width:0"></i>' +
+          '<i class="sx-b-flat" data-w="' + wFlat.toFixed(1) + '" style="width:0"></i></div>' +
+        '<p class="sx-breadth-cap"><span data-count="' + g.adv + '">' + g.adv + '</span> up · ' +
+          '<span data-count="' + g.dec + '">' + g.dec + '</span> down · ' +
+          '<span data-count="' + g.flat + '">' + g.flat + '</span> flat' +
           (g.count - t ? ' · ' + (g.count - t) + ' no change data' : '') + '</p>' +
         '<details><summary>Leaders and laggards</summary>' +
           '<div class="sx-lead">' +
-            '<div><h4>Top gainers</h4>' + leaderList(g.gainers, 'No change data in this sector.') + '</div>' +
-            '<div><h4>Top losers</h4>' + leaderList(g.losers, 'No change data in this sector.') + '</div>' +
+            '<div><h4>Top gainers</h4>' + leaderList(g.gainers, g.name, 'No change data in this sector.') + '</div>' +
+            '<div><h4>Top losers</h4>' + leaderList(g.losers, g.name, 'No change data in this sector.') + '</div>' +
           '</div></details></article>';
     }).join('');
     $('sx-cards').innerHTML = h;
@@ -186,6 +190,26 @@
     $('sx-body').innerHTML = '<tr><td colspan="6" class="sx-empty">Table data unavailable.</td></tr>';
   }
 
+  // Wave 7: breadth bars animate from zero to their real widths; entrance
+  // and count-ups run only when the shared motion layer is available.
+  function animateSectors() {
+    var bars = document.querySelectorAll('#sx-cards .sx-breadth i');
+    function set() {
+      for (var i = 0; i < bars.length; i++) {
+        bars[i].style.width = bars[i].getAttribute('data-w') + '%';
+      }
+    }
+    var M = window.NepseMotion || null;
+    if (M && M.reduced) { set(); }
+    else requestAnimationFrame(function () { requestAnimationFrame(set); });
+    if (M) {
+      var els = document.querySelectorAll('#sx-heat .sx-tile, #sx-cards .sx-card');
+      for (var j = 0; j < els.length; j++) els[j].classList.add('rv');
+      M.reveal(document);
+      M.watchCounts(document);
+    }
+  }
+
   function init() {
     load().then(function (vj) {
       var agg = aggregate(vj);
@@ -196,6 +220,11 @@
       function draw() { renderTable(sectors, sel.value); }
       sel.addEventListener('change', draw);
       draw();
+      animateSectors();
+      // Wave 7: live feed status next to the batch date (sector data itself
+      // is the daily batch; the badge reports the quote feed honestly).
+      var NL = window.NepseLive || null;
+      if (NL && $('sx-live')) NL.start({ el: $('sx-live') });
       var sxAsof = $('sx-asof');
       sxAsof.textContent = agg.asof
         ? 'Aggregated from the batch as of ' + agg.asof + ' · ' + agg.total + ' securities'

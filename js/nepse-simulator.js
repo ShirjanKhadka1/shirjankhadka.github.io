@@ -5,7 +5,10 @@
    - A position entered at day t's close can first hit its stop/target on day t+1.
    - If stop and target are both touched the same day, the stop is assumed hit first (conservative).
    - Strategy exit signals are evaluated and executed at day t's close.
-   - One position per symbol at a time. No fees, taxes, or slippage modeled. */
+   - One position per symbol at a time. No slippage modeled.
+   - Trading costs ON by default: Nepali broker commission tiers, SEBON 0.015%,
+     DP Rs 25 per sell, Rs 5 name transfer per buy, and CGT (5% short-term,
+     3.75% long-term, editable) on positive taxable gains. */
 (function () {
   'use strict';
 
@@ -52,7 +55,50 @@
   }
 
   /* ================= simulation engine (pure, deterministic) ================= */
+  /* ================= simulation engine (pure, deterministic) ================= */
   var REASONS = { stop: 'Stop loss', target: 'Take profit', signal: 'Strategy exit', end: 'End of period' };
+
+  /* Wave 7: Nepali brokerage cost model (verified broker schedule).
+     - Broker commission per side: up to Rs 50,000: 0.36% (min Rs 10);
+       Rs 50,001-500,000: 0.33%; Rs 500,001-2,000,000: 0.306%;
+       Rs 2,000,001-10,000,000: 0.27%; above Rs 10,000,000: 0.243%.
+     - SEBON fee 0.015% on buy and sell; DP charge Rs 25 flat on each sell;
+       name transfer Rs 5 on each buy.
+     - CGT on positive taxable gains only: held 365 days or less at
+       opts.cgtShort (default 5%), over 365 days at opts.cgtLong
+       (default 3.75%). Both editable.
+     Buy-side costs enter the cost basis; the equity curve is net of estimated
+     exit costs and CGT at every bar, and the final point equals actual net
+     liquidation. Pass opts.costs === false for the old gross model. */
+  function costModel(opts) {
+    var on = !opts || opts.costs !== false; // default ON
+    var cgtShort = opts && opts.cgtShort != null ? Number(opts.cgtShort) : 5;
+    var cgtLong = opts && opts.cgtLong != null ? Number(opts.cgtLong) : 3.75;
+    var SEBON = 0.00015, DP = 25, TRANSFER = 5;
+    function commission(value) {
+      if (!on) return 0;
+      if (value <= 50000) return Math.max(10, value * 0.0036);
+      if (value <= 500000) return value * 0.0033;
+      if (value <= 2000000) return value * 0.00306;
+      if (value <= 10000000) return value * 0.0027;
+      return value * 0.00243;
+    }
+    function buyCostOf(value) { return on ? commission(value) + value * SEBON + TRANSFER : 0; }
+    function sellCostOf(value) { return on ? commission(value) + value * SEBON + DP : 0; }
+    function daysBetween(a, b) {
+      function ms(s) {
+        s = String(s);
+        return Date.UTC(Number(s.slice(0, 4)), Number(s.slice(4, 6)) - 1, Number(s.slice(6, 8)));
+      }
+      return Math.max(0, Math.round((ms(b) - ms(a)) / 86400000));
+    }
+    function cgtRate(days) { return days > 365 ? cgtLong : cgtShort; }
+    return {
+      on: on, cgtShort: cgtShort, cgtLong: cgtLong,
+      commission: commission, buyCostOf: buyCostOf, sellCostOf: sellCostOf,
+      daysBetween: daysBetween, cgtRate: cgtRate
+    };
+  }
 
   function runSimulation(rows, opts) {
     var n = rows.length;
@@ -65,21 +111,70 @@
     var s20 = smaArr(closes, 20), s50 = smaArr(closes, 50);
     var rsi = rsiArr(closes, 14), atr = atrArr(rows, 14);
     var strat = opts.strategy || 'sma-cross';
+    var CM = costModel(opts);
     var cash = opts.startCash, pos = null, openTrade = null, trades = [], curve = [];
 
-    var bhQty = Math.floor(opts.startCash / closes[from]);
-    var bhCash = opts.startCash - bhQty * closes[from];
-    var warm = from + 50; // SMA50 needs 50 in-range bars before signals are valid
+    // Net liquidation value of an open position at a price/date: gross
+    // proceeds minus estimated exit commission, SEBON, DP, and CGT on the
+    // positive taxable gain. Buy-side costs sit in the cost basis.
+    function netPosValue(p, price, ymd) {
+      var sellVal = p.qty * price;
+      var sCost = CM.sellCostOf(sellVal);
+      var basis = p.qty * p.entry + (p.buyCost || 0);
+      var taxable = Math.max(0, (sellVal - sCost) - basis);
+      var cgt = CM.on ? taxable * CM.cgtRate(CM.daysBetween(p.entryYmd, ymd)) / 100 : 0;
+      return sellVal - sCost - cgt;
+    }
+    function equityAt(i) { return cash + (pos ? netPosValue(pos, closes[i], rows[i][0]) : 0); }
 
-    function equityAt(i) { return cash + (pos ? pos.qty * closes[i] : 0); }
+    // Fill a realized exit: gross pnl, commission, other fees, CGT, net pnl.
+    function settleExit(t, exitIdx, price, reason) {
+      var qty = t.qty;
+      var buyVal = qty * t.entry, sellVal = qty * price;
+      var bCost = t.buyCost || 0;
+      var sCost = CM.sellCostOf(sellVal);
+      var basis = buyVal + bCost;
+      var taxable = Math.max(0, (sellVal - sCost) - basis);
+      var days = CM.daysBetween(t.entryYmd, rows[exitIdx][0]);
+      var rate = CM.cgtRate(days);
+      var cgt = CM.on ? taxable * rate / 100 : 0;
+      t.exitIdx = exitIdx; t.exitYmd = rows[exitIdx][0];
+      t.exit = price; t.reason = reason;
+      t.pnl = sellVal - buyVal; // gross, before any costs
+      t.retPct = t.entry > 0 ? (price - t.entry) / t.entry * 100 : 0;
+      t.buyCost = bCost; t.sellCost = sCost;
+      t.commission = CM.commission(buyVal) + CM.commission(sellVal);
+      t.otherFees = (bCost + sCost) - t.commission; // SEBON + DP + name transfer
+      t.cgt = cgt; t.cgtRate = rate; t.holdingDays = days;
+      t.netPnl = (sellVal - sCost - cgt) - basis;
+      t.netRetPct = basis > 0 ? t.netPnl / basis * 100 : 0;
+      t.netProceeds = sellVal - sCost - cgt; // actual cash received on exit
+      return t;
+    }
     function exitPos(i, price, reason) {
-      cash += openTrade.qty * price;
-      openTrade.exitIdx = i; openTrade.exitYmd = rows[i][0];
-      openTrade.exit = price; openTrade.reason = reason;
-      openTrade.pnl = (price - openTrade.entry) * openTrade.qty;
-      openTrade.retPct = openTrade.entry > 0 ? (price - openTrade.entry) / openTrade.entry * 100 : 0;
-      trades.push(openTrade);
+      var t = settleExit(openTrade, i, price, reason);
+      cash += t.netProceeds;
+      trades.push(t);
       pos = null; openTrade = null;
+    }
+    function tryEnter(i) {
+      var entry = closes[i], a = atr[i];
+      if (a == null || a <= 0 || entry <= 0) return;
+      var stop = entry - opts.stopMult * a;
+      var target = entry + opts.targetMult * a;
+      var riskAmt = (opts.riskPct / 100) * equityAt(i);
+      var dist = entry - stop;
+      var qty = dist > 0 ? Math.floor(riskAmt / dist) : 0;
+      // Whole shares, never more than cash allows (buy costs included).
+      while (qty >= 1 && qty * entry + CM.buyCostOf(qty * entry) > cash) qty--;
+      if (qty < 1) return;
+      var bCost = CM.buyCostOf(qty * entry);
+      cash -= qty * entry + bCost;
+      pos = { qty: qty, entry: entry, stop: stop, target: target, entryIdx: i, entryYmd: rows[i][0], buyCost: bCost };
+      openTrade = {
+        entryIdx: i, entryYmd: rows[i][0], entry: entry, qty: qty,
+        stop: stop, target: target, buyCost: bCost, exitIdx: null
+      };
     }
     function enterSignal(i) {
       if (i < warm) return false;
@@ -103,19 +198,31 @@
       return false;
     }
 
+    // Buy-and-hold baseline: position sizing and the cost model apply to it too.
+    var bhQty = Math.floor(opts.startCash / closes[from]);
+    while (bhQty >= 1 && bhQty * closes[from] + CM.buyCostOf(bhQty * closes[from]) > opts.startCash) bhQty--;
+    var bhEntry = closes[from];
+    var bhBuyCost = bhQty >= 1 ? CM.buyCostOf(bhQty * bhEntry) : 0;
+    var bhCash = opts.startCash - bhQty * bhEntry - bhBuyCost;
+    function bhPos() {
+      return { qty: bhQty, entry: bhEntry, entryYmd: rows[from][0], buyCost: bhBuyCost };
+    }
+    function bhNetAt(b) {
+      return bhQty >= 1 ? bhCash + netPosValue(bhPos(), closes[b], rows[b][0]) : bhCash;
+    }
+    var warm = from + 50; // SMA50 needs 50 in-range bars before signals are valid
+
     if (strat === 'buyhold') {
-      // Baseline: full equity in at the first close of the range, out at the last.
+      // Full equity in at the first close of the range, out at the last.
       if (bhQty >= 1) {
-        trades.push({
-          entryIdx: from, entryYmd: rows[from][0], entry: closes[from], qty: bhQty,
-          stop: null, target: null,
-          exitIdx: to, exitYmd: rows[to][0], exit: closes[to], reason: 'end',
-          pnl: (closes[to] - closes[from]) * bhQty,
-          retPct: closes[from] > 0 ? (closes[to] - closes[from]) / closes[from] * 100 : 0
-        });
+        trades.push(settleExit({
+          entryIdx: from, entryYmd: rows[from][0], entry: bhEntry, qty: bhQty,
+          stop: null, target: null, buyCost: bhBuyCost, exitIdx: null
+        }, to, closes[to], 'end'));
       }
       for (var b = from; b <= to; b++) {
-        curve.push({ i: b, ymd: rows[b][0], equity: bhCash + bhQty * closes[b], bh: bhCash + bhQty * closes[b] });
+        var eq = bhNetAt(b);
+        curve.push({ i: b, ymd: rows[b][0], equity: eq, bh: eq });
       }
     } else {
       for (var i = from; i <= to; i++) {
@@ -125,26 +232,8 @@
           else if (hi >= pos.target) exitPos(i, pos.target, 'target');
         }
         if (pos && exitSignal(i)) exitPos(i, closes[i], 'signal');
-        if (!pos && enterSignal(i)) {
-          var entry = closes[i], a = atr[i];
-          if (a != null && a > 0 && entry > 0) {
-            var stop = entry - opts.stopMult * a;
-            var target = entry + opts.targetMult * a;
-            var riskAmt = (opts.riskPct / 100) * equityAt(i);
-            var dist = entry - stop;
-            var qty = dist > 0 ? Math.floor(riskAmt / dist) : 0;
-            if (qty * entry > cash) qty = Math.floor(cash / entry);
-            if (qty >= 1) {
-              pos = { qty: qty, entry: entry, stop: stop, target: target, entryIdx: i };
-              cash -= qty * entry;
-              openTrade = {
-                entryIdx: i, entryYmd: rows[i][0], entry: entry, qty: qty,
-                stop: stop, target: target, exitIdx: null
-              };
-            }
-          }
-        }
-        curve.push({ i: i, ymd: rows[i][0], equity: equityAt(i), bh: bhCash + bhQty * closes[i] });
+        if (!pos && enterSignal(i)) tryEnter(i);
+        curve.push({ i: i, ymd: rows[i][0], equity: equityAt(i), bh: bhNetAt(i) });
       }
       if (pos) exitPos(to, closes[to], 'end');
     }
@@ -153,17 +242,20 @@
     var wins = trades.filter(function (t) { return t.pnl > 0; });
     var losses = trades.filter(function (t) { return t.pnl <= 0; });
     var avg = function (arr) { return arr.length ? arr.reduce(function (s, t) { return s + t.pnl; }, 0) / arr.length : 0; };
+    var avgNet = function (arr) { return arr.length ? arr.reduce(function (s, t) { return s + t.netPnl; }, 0) / arr.length : 0; };
     var peak = -Infinity, mdd = 0;
     curve.forEach(function (p) {
       if (p.equity > peak) peak = p.equity;
       if (peak > 0) { var dd = (peak - p.equity) / peak * 100; if (dd > mdd) mdd = dd; }
     });
-    var bhFinal = bhCash + bhQty * closes[to];
+    var bhFinal = curve.length ? curve[curve.length - 1].bh : opts.startCash;
+    var tot = function (k) { return trades.reduce(function (s, t) { return s + (t[k] || 0); }, 0); };
     return {
       error: null,
       strat: strat,
       fromYmd: rows[from][0], toYmd: rows[to][0],
       startCash: opts.startCash,
+      costsOn: CM.on, cgtShort: CM.cgtShort, cgtLong: CM.cgtLong,
       trades: trades,
       curve: curve,
       stats: {
@@ -173,6 +265,12 @@
         wins: wins.length,
         winRate: trades.length ? wins.length / trades.length * 100 : 0,
         avgWin: avg(wins), avgLoss: avg(losses),
+        avgNetWin: avgNet(wins), avgNetLoss: avgNet(losses),
+        grossPnl: tot('pnl'), netPnl: tot('netPnl'),
+        totalCommission: tot('commission'),
+        totalOtherFees: tot('otherFees'),
+        totalCgt: tot('cgt'),
+        tradingCosts: tot('commission') + tot('otherFees'),
         maxDrawdownPct: mdd,
         bhFinal: bhFinal,
         bhReturnPct: (bhFinal - opts.startCash) / opts.startCash * 100
@@ -180,7 +278,7 @@
     };
   }
 
-  var api = { smaArr: smaArr, rsiArr: rsiArr, atrArr: atrArr, fmtYMD: fmtYMD, runSimulation: runSimulation, REASONS: REASONS };
+  var api = { smaArr: smaArr, rsiArr: rsiArr, atrArr: atrArr, fmtYMD: fmtYMD, runSimulation: runSimulation, REASONS: REASONS, feeSchedule: costModel({}) };
 
   /* ---------- journal store (browser-local; pure storage logic, testable) ---------- */
   var JKEY = 'nl_sim_journal_v1';
@@ -308,9 +406,14 @@
     if (!(cash > 0)) { setStatus('Starting cash must be greater than zero.', true); return; }
     if (!(risk > 0 && risk <= 100)) { setStatus('Risk per trade must be between 0 and 100%.', true); return; }
     if (!(sm > 0) || !(tm > 0)) { setStatus('Stop and target ATR multiples must be greater than zero.', true); return; }
+    var costsOn = !$('sim-costs-on') || $('sim-costs-on').checked;
+    var cgtS = parseFloat($('sim-cgt-short').value), cgtL = parseFloat($('sim-cgt-long').value);
+    if (!(cgtS >= 0 && cgtS <= 100)) { setStatus('Short-term CGT must be between 0 and 100%.', true); return; }
+    if (!(cgtL >= 0 && cgtL <= 100)) { setStatus('Long-term CGT must be between 0 and 100%.', true); return; }
     var res = runSimulation(rows, {
       strategy: strategy(), startCash: cash, riskPct: risk,
-      stopMult: sm, targetMult: tm, fromIdx: fromIdx, toIdx: toIdx
+      stopMult: sm, targetMult: tm, fromIdx: fromIdx, toIdx: toIdx,
+      costs: costsOn, cgtShort: cgtS, cgtLong: cgtL
     });
     if (res.error) { setStatus(res.error, true); return; }
     res.sym = curSym; res.runId = 'run' + (++runSeq);
@@ -335,6 +438,10 @@
       statCard('Final equity', fmtRs(s.finalEquity)) +
       statCard('Total return', fmtPct(s.totalReturnPct), cls(s.totalReturnPct)) +
       statCard('Buy-and-hold return', fmtPct(s.bhReturnPct), cls(s.bhReturnPct)) +
+      statCard('Gross P&L', (s.grossPnl >= 0 ? '+' : '') + fmtRs(s.grossPnl), cls(s.grossPnl)) +
+      statCard('Net P&L', (s.netPnl >= 0 ? '+' : '') + fmtRs(s.netPnl), cls(s.netPnl)) +
+      statCard('Trading costs', fmtRs(s.tradingCosts)) +
+      statCard('CGT paid', fmtRs(s.totalCgt)) +
       statCard('Trades', String(s.nTrades)) +
       statCard('Win rate', s.nTrades ? fmtNum(s.winRate, 1) + '%' : '–') +
       statCard('Avg win', s.wins ? fmtRs(s.avgWin) : '–', 'up') +
@@ -343,12 +450,20 @@
     drawEquity(res);
     var tb = $('sim-trades-body');
     tb.innerHTML = res.trades.map(function (t, i) {
+      function money(x, signed) {
+        return '<td class="' + cls(x) + '">' + (signed && x >= 0 ? '+' : '') +
+          fmtRs(x).replace('Rs ', 'Rs\u00a0') + '</td>';
+      }
       return '<tr><td>' + (i + 1) + '</td><td>' + fmtYMD(t.entryYmd) + '</td><td>' + fmtRs(t.entry) + '</td>' +
         '<td>' + fmtYMD(t.exitYmd) + '</td><td>' + fmtRs(t.exit) + '</td><td>' + t.qty + '</td>' +
-        '<td class="' + cls(t.pnl) + '">' + (t.pnl >= 0 ? '+' : '') + fmtRs(t.pnl).replace('Rs ', 'Rs\u00a0') + '</td>' +
+        money(t.pnl, true) +
+        '<td>' + fmtRs(t.commission || 0).replace('Rs ', 'Rs\u00a0') + '</td>' +
+        '<td>' + fmtRs(t.otherFees || 0).replace('Rs ', 'Rs\u00a0') + '</td>' +
+        '<td>' + fmtRs(t.cgt || 0).replace('Rs ', 'Rs\u00a0') + '</td>' +
+        money(t.netPnl, true) +
         '<td>' + esc(REASONS[t.reason] || t.reason) + '</td>' +
         '<td><button class="linklike" data-note="' + i + '">Note</button><div class="tnote" id="tnote-' + i + '" hidden></div></td></tr>';
-    }).join('') || '<tr><td colspan="9" class="muted">No trades were triggered in this range.</td></tr>';
+    }).join('') || '<tr><td colspan="13" class="muted">No trades were triggered in this range.</td></tr>';
     $('sim-run-note').value = '';
   }
 

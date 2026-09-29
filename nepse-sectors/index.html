@@ -21,15 +21,15 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="NEPSE Sector Dashboard: Heatmap, Breadth, Leaders &amp; Laggards">
 <meta name="twitter:description" content="Daily sector heatmap, breadth and turnover share for every NEPSE sector. Free, no login, educational.">
-<link rel="icon" href="/favicon.ico" sizes="any">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" href="/nepse-sectors/icon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/nepse-sectors/icon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/nepse-sectors/icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930c">
 <link rel="stylesheet" href="sectors.css?v=20261002a">
+<link rel="stylesheet" href="/css/nepse-wave7.css?v=20261002c">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebPage","name":"Free NEPSE Sector Dashboard: Heatmap, Breadth, Leaders & Laggards","url":"https://shirjankhadka.com.np/nepse-sectors/","description":"Free daily NEPSE sector dashboard: a size-weighted sector heatmap, advancers and decliners breadth, leaders and laggards, and turnover share for all NEPSE sectors, computed in the browser from the latest daily batch. Educational use only.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/","sameAs":["https://www.linkedin.com/in/shirjankhadkab/"]}}
 </script>
@@ -89,6 +89,7 @@
     <h1>NEPSE sector dashboard</h1>
     <p class="lede">Every NEPSE-listed sector, aggregated daily from the latest batch: a size-weighted heatmap, advancers and decliners breadth, leaders and laggards, and each sector's share of total turnover. Free forever, no login. For education only, not investment advice.</p>
     <p class="asof" id="sx-asof">Loading data…</p>
+    <p class="asof" style="margin-top:6px"><span id="sx-live"></span></p>
   </section>
 
   <section class="sx-sec" aria-labelledby="sx-heat-h">
@@ -165,6 +166,8 @@
 </footer>
 
 <script src="/js/nepse-fresh.js?v=20260930b" defer></script>
-<script src="/js/nepse-sectors.js?v=20261002a" defer></script>
+<script src="/js/nepse-live.js?v=20261002c"></script>
+<script src="/js/nepse-suite.js?v=20261002c"></script>
+<script src="/js/nepse-sectors.js?v=20261002c" defer></script>
 </body>
 </html>

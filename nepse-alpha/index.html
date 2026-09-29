@@ -17,10 +17,9 @@
 <meta name="twitter:title" content="NEPSE Alpha Lab – Free Stock Analysis Tools for Every NEPSE Investor">
 <meta name="twitter:description" content="Charts, pattern scans, a transparent buy/hold/exit engine and a full-market screener for every NEPSE-listed security. Free, no login, educational.">
 <meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/nepse-alpha-og.jpg">
-<link rel="icon" href="/favicon.ico" sizes="any">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" href="/nepse-alpha/icon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/nepse-alpha/icon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/nepse-alpha/icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -41,6 +40,7 @@
 {"@type":"ListItem","position":2,"name":"NEPSE Alpha Lab","item":"https://shirjankhadka.com.np/nepse-alpha/"}]}
 </script>
 <link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930c">
+<link rel="stylesheet" href="/css/nepse-wave7.css?v=20261002c">
 <style>
 /* alpha-only: engine band + verdict columns */
 .engine{background:var(--paper);border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline)}
@@ -113,10 +113,10 @@
 
   <div class="band">
     <div class="wrap band-in">
-      <div class="stat-b reveal"><div class="n"><span>410</span></div><div class="l">listed securities covered</div></div>
-      <div class="stat-b reveal"><div class="n"><span>10</span></div><div class="l">transparent signal factors</div></div>
-      <div class="stat-b reveal"><div class="n"><span>23</span> yrs</div><div class="l">of NEPSE index history</div></div>
-      <div class="stat-b reveal"><div class="n">Rs <span>0</span></div><div class="l">forever, no account needed</div></div>
+      <div class="stat-b reveal"><div class="n"><span data-count="410">410</span></div><div class="l">listed securities covered</div></div>
+      <div class="stat-b reveal"><div class="n"><span data-count="10">10</span></div><div class="l">transparent signal factors</div></div>
+      <div class="stat-b reveal"><div class="n"><span data-count="23">23</span> yrs</div><div class="l">of NEPSE index history</div></div>
+      <div class="stat-b reveal"><div class="n">Rs <span data-count="0">0</span></div><div class="l">forever, no account needed</div></div>
     </div>
   </div>
 
@@ -402,7 +402,9 @@
 </footer>
 
 <script src="/js/nepse-fresh.js?v=20260930b"></script>
-<script src="/js/nepse-wave1.js?v=20260930c" defer></script>
+<script src="/js/nepse-live.js?v=20261002c"></script>
+<script src="/js/nepse-suite.js?v=20261002c"></script>
+<script src="/js/nepse-wave1.js?v=20261002c" defer></script>
 <script>
 (function(){
   // Skeleton placeholders: hold the strip and verdict lists while data loads (no layout shift)
@@ -418,31 +420,54 @@
     });
   })();
 
-  // Live market strip
-  fetch('/nepse-chart/data/live.json',{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){
-    var idx=d.index||{}; if(typeof idx.value!=='number'){clearStrip();return;}
-    var fmt=function(n,dp){return n.toLocaleString('en-US',{minimumFractionDigits:dp,maximumFractionDigits:dp});};
-    document.getElementById('ls-val').textContent=fmt(idx.value,2);
-    var chg=idx.change||0, pct=idx.percent_change||0;
-    var el=document.getElementById('ls-chg');
-    el.innerHTML='<span class="'+(chg>=0?'up':'down')+'">'+(chg>=0?'+':'')+fmt(chg,2)+'</span><span class="chg '+(chg>=0?'up':'down')+'">'+(chg>=0?'+':'')+fmt(pct,2)+'%</span>';
-    if(typeof idx.low==='number'&&typeof idx.high==='number'){
-      document.getElementById('ls-range').textContent=fmt(idx.low,2)+' – '+fmt(idx.high,2);
+  // Live market strip: NepseLive data path (own 15-minute snapshot, yonepse
+  // fallback). Repaints in place every minute during market hours; when the
+  // feed is stale or missing it says so instead of inventing a price.
+  (function(){
+    var NL=window.NepseLive;
+    function fmt(n,dp){return Number(n).toLocaleString('en-US',{minimumFractionDigits:dp,maximumFractionDigits:dp});}
+    function setT(id,txt){var el=document.getElementById(id);if(el)el.textContent=txt;}
+    function clearStrip(){
+      ['ls-val','ls-chg','ls-range','ls-mkt'].forEach(function(id){setT(id,'–');});
+      setT('ls-asof','Data unavailable');
     }
-    var mkt=(d.market||'').toUpperCase();
-    document.getElementById('ls-mkt').innerHTML=mkt==='OPEN'?'<span class="up">● Open</span>':'<span style="color:var(--muted)">● Closed</span>';
-    var asof=d.asof||idx.last_updated||'';
-    if(asof){try{var lsa=document.getElementById('ls-asof');
-      lsa.textContent='As of '+new Date(asof).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
-      if(window.NepseFresh&&!lsa.querySelector('.fresh'))lsa.insertAdjacentHTML('beforeend',' '+window.NepseFresh.badge(asof));
-      }catch(e){document.getElementById('ls-asof').textContent='';}}
-  }).catch(function(){document.getElementById('ls-asof').textContent='Data unavailable';clearStrip();});
-
-  function clearStrip(){
-    ['ls-val','ls-chg','ls-range','ls-mkt'].forEach(function(id){
-      document.getElementById(id).textContent='–';
-    });
-  }
+    function paint(snap){
+      var m=(snap&&snap.batch)||{}, ix=m.index||{};
+      var open=NL.isMarketHours();
+      var li=snap.live&&snap.live.index;
+      var val=(open&&li&&li.value!=null)?li.value:ix.value;
+      if(val==null){clearStrip();return;}
+      var chg=(open&&li&&li.change!=null)?li.change:ix.change;
+      var pct=(open&&li&&li.pct!=null)?li.pct:ix.pct;
+      var lo=(open&&li&&li.low!=null)?li.low:ix.low;
+      var hi=(open&&li&&li.high!=null)?li.high:ix.high;
+      setT('ls-val',fmt(val,2));
+      var el=document.getElementById('ls-chg');
+      if(el&&chg!=null&&pct!=null){
+        el.innerHTML='<span class="'+(chg>=0?'up':'down')+'">'+(chg>=0?'+':'')+fmt(chg,2)+'</span><span class="chg '+(chg>=0?'up':'down')+'">'+(chg>=0?'+':'')+fmt(pct,2)+'%</span>';
+      }
+      if(lo!=null&&hi!=null)setT('ls-range',fmt(lo,2)+' – '+fmt(hi,2));
+      var mktEl=document.getElementById('ls-mkt');
+      if(mktEl)mktEl.innerHTML=NL.badgeHTML(NL.statusOf(snap.live));
+      var lsa=document.getElementById('ls-asof');
+      if(lsa){
+        var st=NL.statusOf(snap.live);
+        if(st.state==='live'||st.state==='delayed'){
+          lsa.innerHTML='Updated '+NL.relAge(st.ageMin)+' · refresh in <span data-nlv-cd></span>';
+        }else if(m.date){
+          lsa.textContent='Session of '+m.date;
+        }else{
+          lsa.textContent='Data unavailable';
+        }
+      }
+    }
+    if(!NL){clearStrip();return;}
+    NL.loadSnapshot().then(function(snap){
+      paint(snap);
+      var batch=snap.batch, batchAsof=snap.batchAsof;
+      NL.start({onData:function(d){paint({batch:batch,batchAsof:batchAsof,live:d});}});
+    }).catch(clearStrip);
+  })();
 
   // Reveal on scroll
   if ('IntersectionObserver' in window) {
@@ -458,6 +483,9 @@
   } else {
     document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in');});
   }
+
+  // Count-up figures (shared motion layer; honors reduced-motion)
+  if (window.NepseMotion) window.NepseMotion.watchCounts(document);
 
   // Engine verdicts: strongest buys and exits from the latest daily batch
   (function(){
@@ -489,8 +517,10 @@
       render(buys,document.getElementById('vd-buys'),'No buy verdicts in the latest batch.');
       render(exits,document.getElementById('vd-exits'),'No exit verdicts in the latest batch.');
       var asofEl=document.getElementById('vd-asof');
-      if(d.asof){asofEl.textContent='Batch of '+fmtDate(d.asof)+' · '+(d.count||all.length)+' securities scored.';
-        if(window.NepseFresh&&!asofEl.querySelector('.fresh'))asofEl.insertAdjacentHTML('beforeend',' '+window.NepseFresh.badge(d.asof));}
+      if(d.asof){var vcnt=d.count||all.length;
+        asofEl.innerHTML='Batch of '+fmtDate(d.asof)+' · <span data-count="'+vcnt+'">'+vcnt+'</span> securities scored.';
+        if(window.NepseFresh&&!asofEl.querySelector('.fresh'))asofEl.insertAdjacentHTML('beforeend',' '+window.NepseFresh.badge(d.asof));
+        if(window.NepseMotion)window.NepseMotion.watchCounts(asofEl);}
       renderNotes(d,all);
     }).catch(function(){
       document.getElementById('vd-asof').textContent='Verdict data is temporarily unavailable.';

@@ -10,13 +10,17 @@
   if (!root || !picker) return;
 
   var KEY = 'nl_dashboard_v1';
+  // Wave 7: fmtMoney lives in the shared suite module (NepseSnapshot).
+  var fmtMoney = (window.NepseSnapshot && window.NepseSnapshot.fmtMoney) ||
+    function (n) { n = Number(n); return isFinite(n) ? 'Rs ' + n.toLocaleString('en-US') : '–'; };
   var WIDGETS = [
     { id: 'market',    label: 'Market today' },
     { id: 'watchlist', label: 'My watchlist' },
     { id: 'rsi',       label: 'RSI extremes' },
-    { id: 'news',      label: 'Market news' }
+    { id: 'news',      label: 'Market news' },
+    { id: 'filings',   label: 'Filings desk' }
   ];
-  var DEFAULTS = { order: ['market', 'watchlist', 'rsi', 'news'], hidden: [] };
+  var DEFAULTS = { order: ['market', 'watchlist', 'rsi', 'news', 'filings'], hidden: [] };
 
   function loadCfg() {
     try {
@@ -60,36 +64,66 @@
   }
 
   /* ---------- widget renderers ---------- */
-  function renderMarket(w) {
-    var m = w && w.market;
+  // Wave 7: the market widget renders the shared snapshot component (daily
+  // batch + live overlay + official-close sentence) plus a compact
+  // "today's board" of gainers, losers and turnover leaders.
+  var snapPoller = null;
+  function mono(sym, sector) {
+    return window.NepseMono ? window.NepseMono.avatar(sym, sector) : '';
+  }
+  function symLink(s) {
+    return '<a href="/nepse-chart/?s=' + esc(s) + '">' + mono(s) + '<span>' + esc(s) + '</span></a>';
+  }
+  function renderMarket() {
+    var m = cache.snap && cache.snap.batch;
     if (!m) return '<p class="wg-note">Market data is temporarily unavailable.</p>';
-    var ix = m.index || {};
-    var chgCls = ix.change > 0 ? 'up' : ix.change < 0 ? 'down' : '';
     var gainers = (m.gainers || []).slice(0, 5).map(function (g) {
-      return '<li><a href="/nepse-chart/?s=' + esc(g.s) + '">' + esc(g.s) + '</a>' +
-        '<span class="tnum">' + fmtNum(g.p, 2) + '</span>' +
+      return '<li>' + symLink(g.s) +
+        '<span class="tnum">Rs ' + fmtNum(g.p, 2) + '</span>' +
         '<span class="tnum up">+' + fmtNum(g.ch, 2) + '%</span></li>';
     }).join('');
     var losers = (m.losers || []).slice(0, 5).map(function (g) {
-      return '<li><a href="/nepse-chart/?s=' + esc(g.s) + '">' + esc(g.s) + '</a>' +
-        '<span class="tnum">' + fmtNum(g.p, 2) + '</span>' +
+      return '<li>' + symLink(g.s) +
+        '<span class="tnum">Rs ' + fmtNum(g.p, 2) + '</span>' +
         '<span class="tnum down">' + fmtNum(g.ch, 2) + '%</span></li>';
     }).join('');
-    return '<div class="wg-stats">' +
-      '<div class="wg-stat"><span class="wg-lab">NEPSE index</span>' +
-      '<span class="wg-big tnum">' + fmtNum(ix.value, 2) + '</span>' +
-      '<span class="tnum ' + chgCls + '">' + (ix.change > 0 ? '+' : '') + fmtNum(ix.change, 2) +
-      ' (' + (ix.pct > 0 ? '+' : '') + fmtNum(ix.pct, 2) + '%)</span></div>' +
-      '<div class="wg-stat"><span class="wg-lab">Traded securities</span>' +
-      '<span class="wg-big tnum">' + fmtNum(m.traded, 0) + '</span></div>' +
-      '<div class="wg-stat"><span class="wg-lab">Advancers / decliners</span>' +
-      '<span class="wg-big tnum"><span class="up">' + fmtNum(m.advancers, 0) + '</span> / <span class="down">' + fmtNum(m.decliners, 0) + '</span></span></div>' +
-      '<div class="wg-stat"><span class="wg-lab">Turnover</span>' +
-      '<span class="wg-big tnum">Rs ' + fmtNum(Math.round((m.totalTurnover || 0) / 1e7) / 100, 2) + 'B</span></div>' +
-      '</div>' +
-      '<div class="wg-cols"><div><h3 class="wg-sub">Top gainers</h3><ul class="wg-list">' + gainers + '</ul></div>' +
-      '<div><h3 class="wg-sub">Top losers</h3><ul class="wg-list">' + losers + '</ul></div></div>' +
-      '<p class="wg-note">Market data for ' + esc(m.date || '') + '.' + fresh(m.date) + '</p>';
+    var leaders = (m.turnover || []).slice(0, 5).map(function (g) {
+      return '<li>' + symLink(g.s) +
+        '<span class="tnum">' + fmtMoney(g.t) + '</span></li>';
+    }).join('');
+    return '<div id="wg-snapmount"></div>' +
+      '<div class="wg-cols wg-cols-3">' +
+      '<div><h3 class="wg-sub">Top gainers</h3><ul class="wg-list">' + gainers + '</ul></div>' +
+      '<div><h3 class="wg-sub">Top losers</h3><ul class="wg-list">' + losers + '</ul></div>' +
+      '<div><h3 class="wg-sub">Top by turnover</h3><ul class="wg-list">' + leaders + '</ul></div></div>';
+  }
+
+  // Renders the shared snapshot into the market widget and keeps it fresh:
+  // 60-second in-place updates during market hours, no reload.
+  function mountSnapshot() {
+    var mount = document.getElementById('wg-snapmount');
+    var Snap = window.NepseSnapshot, NL = window.NepseLive;
+    if (!mount || !Snap) return;
+    if (snapPoller) { try { snapPoller.stop(); } catch (e) {} snapPoller = null; }
+    if (!cache.snap) {
+      mount.innerHTML = '<p class="wg-note">Market data is temporarily unavailable.</p>';
+      return;
+    }
+    mount.innerHTML = Snap.statsHTML(cache.snap, { spark: true });
+    Snap.fillSpark(mount);
+    var M = window.NepseMotion;
+    if (M) M.watchCounts(mount);
+    var liveEl = mount.querySelector('[data-nlsnap-live]');
+    if (NL) {
+      snapPoller = NL.start({
+        el: liveEl,
+        onData: function (d) {
+          if (mount.isConnected) Snap.updateLive(mount, { batch: cache.snap.batch, live: d });
+        }
+      });
+    } else if (liveEl) {
+      liveEl.innerHTML = '';
+    }
   }
 
   function renderWatchlist() {
@@ -104,7 +138,7 @@
       var chgHtml = chg === null || chg === undefined ? '–' :
         '<span class="tnum ' + (chg > 0 ? 'up' : chg < 0 ? 'down' : '') + '">' +
         (chg > 0 ? '+' : '') + fmtNum(chg, 2) + '%</span>';
-      return '<li><a href="/nepse-chart/?s=' + esc(sym) + '">' + esc(sym) + '</a>' +
+      return '<li>' + symLink(sym) +
         '<span class="tnum">' + fmtNum(v.p, 2) + '</span>' + chgHtml +
         '<span class="verdict sm ' + pillClass(v.v) + '">' + esc(v.v || '–') + '</span></li>';
     }).join('');
@@ -118,7 +152,7 @@
     if (!r) return '<p class="wg-note">RSI data is temporarily unavailable.</p>';
     function items(arr) {
       return (arr || []).slice(0, 5).map(function (x) {
-        return '<li><a href="/nepse-chart/?s=' + esc(x.s) + '">' + esc(x.s) + '</a>' +
+        return '<li>' + symLink(x.s) +
           '<span class="tnum">' + fmtNum(x.rsi, 1) + '</span>' +
           '<span class="tnum ' + (x.ch > 0 ? 'up' : x.ch < 0 ? 'down' : '') + '">' +
           (x.ch > 0 ? '+' : '') + fmtNum(x.ch, 2) + '%</span></li>';
@@ -142,12 +176,36 @@
       '<p class="wg-note">Latest headlines.' + fresh(n.asof) + ' <a href="/nepse-news/">Open the news feed</a></p>';
   }
 
-  var TITLES = { market: 'Market today', watchlist: 'My watchlist', rsi: 'RSI extremes', news: 'Market news' };
+  // Wave 7: filings desk  -  dividend, bonus, right and promoter-share
+  // announcements surfacing in the market headlines (keyword filter over the
+  // real, attributed news feed). No base-rate stat is shown; none is
+  // computable honestly from our data.
+  var CA_RE = /लाभांश|बोनस|हकप्रद|संस्थापक|लिलाम|बोलकबोल|dividend|bonus|right share|promoter|auction/i;
+  function renderFilings(n) {
+    var items = ((n && n.items) || []).filter(function (x) {
+      return CA_RE.test(x.title || '');
+    }).slice(0, 6);
+    if (!items.length) {
+      return '<p class="wg-note">No dividend, bonus, right or promoter-share announcements in the current headlines.</p>';
+    }
+    var lis = items.map(function (x) {
+      return '<li><a href="' + esc(x.link) + '" target="_blank" rel="noopener">' +
+        '<span class="fd-date">' + esc(x.date) + '</span>' +
+        '<span class="fd-t">' + esc(x.title) + '</span>' +
+        '<span class="fd-src">' + esc(x.sym) + ' · ' + esc(x.src) + '</span></a></li>';
+    }).join('');
+    return '<ul class="fd-list">' + lis + '</ul>' +
+      '<p class="fd-note">Dividend, bonus, right and promoter-share news filtered from market headlines by keyword. ' +
+      'The official record is the NEPSE disclosure archive.</p>';
+  }
+
+  var TITLES = { market: 'Market today', watchlist: 'My watchlist', rsi: 'RSI extremes', news: 'Market news', filings: 'Filings desk' };
   var DESCS = {
     market: 'Index, breadth and turnover from the latest session.',
     watchlist: 'Your saved securities at a glance.',
     rsi: 'Momentum extremes across the listed universe.',
-    news: 'The latest market-moving headlines.'
+    news: 'The latest market-moving headlines.',
+    filings: 'Dividend, bonus, right and promoter-share announcements surfacing in the headlines.'
   };
 
   function buildWidgets() {
@@ -172,13 +230,15 @@
   function paintWidgets() {
     var body;
     body = document.getElementById('wg-market');
-    if (body) body.innerHTML = renderMarket(cache.wave1);
+    if (body) { body.innerHTML = renderMarket(); mountSnapshot(); }
     body = document.getElementById('wg-watchlist');
     if (body) body.innerHTML = renderWatchlist();
     body = document.getElementById('wg-rsi');
     if (body) body.innerHTML = renderRsi(cache.wave1);
     body = document.getElementById('wg-news');
     if (body) body.innerHTML = renderNews(cache.news);
+    body = document.getElementById('wg-filings');
+    if (body) body.innerHTML = renderFilings(cache.news);
   }
 
   function buildPicker() {
@@ -217,14 +277,24 @@
   });
 
   function loadData() {
+    var NL = window.NepseLive || null;
+    var snapP = NL ? NL.loadSnapshot().catch(function () { return null; }) : Promise.resolve(null);
     return Promise.all([
       fetch('/nepse-chart/data/wave1.json').then(function (r) { return r.ok ? r.json() : null; }),
       fetch('/nepse-chart/data/news.json').then(function (r) { return r.ok ? r.json() : null; }),
-      fetch('/nepse-chart/data/verdicts.json').then(function (r) { return r.ok ? r.json() : null; })
+      fetch('/nepse-chart/data/verdicts.json').then(function (r) { return r.ok ? r.json() : null; }),
+      snapP
     ]).then(function (res) {
       cache.wave1 = res[0];
       cache.news = res[1];
       cache.verdicts = (res[2] && res[2].verdicts) || {};
+      // Wave 7: one shared snapshot (daily batch + live overlay); if the
+      // live path fails, the batch still renders honestly on its own.
+      cache.snap = res[3] || (res[0] ? {
+        batch: res[0].market,
+        batchAsof: res[0].asof || (res[0].market && res[0].market.date) || null,
+        live: null
+      } : null);
       paintWidgets();
     }).catch(function () { paintWidgets(); });
   }

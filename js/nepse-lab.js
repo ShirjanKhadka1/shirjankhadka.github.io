@@ -512,7 +512,7 @@
   }
   function marketOpenNPT() {
     var t = todayNPT(), d = t.getUTCDay(), mins = t.getUTCHours() * 60 + t.getUTCMinutes();
-    return d >= 1 && d <= 5 && mins >= 645 && mins < 900; // Mon–Fri 10:45–15:00 (pre-open 10:45, regular 11:00–15:00)
+    return d >= 1 && d <= 5 && mins >= 660 && mins < 900; // Mon–Fri 11:00–15:00 NPT (regular session)
   }
   function fetchJSON(url, timeout) {
     return new Promise(function (res, rej) {
@@ -676,7 +676,7 @@
       var ix0 = applyLiveIndexCandle(indexRows(), liveCache.index);
       state.rows = ix0.rows;
       state.live = ix0.quote;
-      state.liveBadge = ix0.live ? 'live' : 'eod';
+      state.liveBadge = badgeForQuote(state.live);
       state.loading = false;
       afterData();
       // refresh the live index snapshot, then repaint if still on the index view
@@ -685,7 +685,7 @@
         var ix = applyLiveIndexCandle(indexRows(), liveCache.index);
         state.rows = ix.rows;
         state.live = ix.quote;
-        state.liveBadge = ix.live ? 'live' : 'eod';
+        state.liveBadge = badgeForQuote(state.live);
         render();
       }).catch(function () {});
       return;
@@ -709,7 +709,7 @@
       var merged = applyLiveCandle(rows, sym);
       state.rows = merged.rows;
       state.live = merged.quote || liveCache.map[sym] || null;
-      state.liveBadge = merged.live ? 'live' : 'eod';
+      state.liveBadge = badgeForQuote(state.live);
       state.symName = state.names[sym] || sym;
       state.loading = false;
       afterData();
@@ -852,6 +852,27 @@
     });
   }
   function meanP(pts) { var s = 0; pts.forEach(function (p) { s += p.p; }); return s / pts.length; }
+
+  /* Wave 7: live / delayed / closed badge states. During market hours the badge
+     reflects the quote's actual age (DELAYED beyond 20 minutes); outside
+     hours it is CLOSED rather than calling the last close live. */
+  function badgeForQuote(q) {
+    if (!marketOpenNPT()) return 'closed';
+    if (!q || !q.last_updated) return 'delayed';
+    var ageMin = (Date.now() - parseMarketTime(q.last_updated)) / 60000;
+    if (!(ageMin >= 0) || ageMin > 20) return 'delayed';
+    return 'live';
+  }
+  function quoteAgeText(q) {
+    if (!q || !q.last_updated) return '';
+    var base = 'as of ' + esc(String(q.last_updated).slice(11, 16)) + ' NPT';
+    var ageMin = (Date.now() - parseMarketTime(q.last_updated)) / 60000;
+    if (!(ageMin >= 0)) return base;
+    if (state.liveBadge === 'live' || state.liveBadge === 'delayed') {
+      return base + ' · updated ' + (ageMin < 1 ? 'just now' : Math.floor(ageMin) + 'm ago');
+    }
+    return base;
+  }
 
   function render() {
     if (!cv) return;
@@ -1149,12 +1170,14 @@
       var pct = q && q.percent_change != null ? q.percent_change : (n > 1 && rows[n - 2][4] ? chg / rows[n - 2][4] * 100 : 0);
       var badge = state.liveBadge === 'live'
         ? '<span class="nl-badge live"><span class="nl-pulse"></span>LIVE</span>'
-        : '<span class="nl-badge eod">END OF DAY</span>';
+        : state.liveBadge === 'delayed'
+        ? '<span class="nl-badge delayed">DELAYED</span>'
+        : '<span class="nl-badge closed">CLOSED</span>';
       lb.innerHTML =
         '<div class="nl-lb-sym"><b>' + esc(state.sym) + '</b><span>' + esc(state.symName) + '</span></div>' +
         '<div class="nl-lb-px"><b class="' + (chg >= 0 ? 'up' : 'dn') + '">' + num(px, 2) + '</b>' +
         '<span class="' + (chg >= 0 ? 'up' : 'dn') + '">' + (chg >= 0 ? '+' : '') + num(chg, 2) + ' (' + (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%)</span></div>' +
-        '<div class="nl-lb-badge">' + badge + '<small>' + (q && q.last_updated ? 'as of ' + esc(String(q.last_updated).slice(11, 16)) + ' NPT' : fmtD(n ? rows[n - 1][0] : 0)) + '</small></div>';
+        '<div class="nl-lb-badge">' + badge + '<small>' + (q && q.last_updated ? quoteAgeText(q) : fmtD(n ? rows[n - 1][0] : 0)) + '</small></div>';
       }
     }
     // verdict
@@ -1178,7 +1201,7 @@
           '<div class="nl-v-foot">' +
           (state.ltpOnly ? '<span class="nl-ltp-note">LTP-only history, intraday candles and pattern/divergence detection are unavailable for this security.</span> ' : '') +
           'Rule-based model on daily data, educational only, not financial advice. ' +
-          (state.liveBadge === 'live' ? 'Includes the live session in progress.' : 'Based on the last closed session.') +
+          (state.liveBadge === 'live' ? 'Includes the live session in progress.' : state.liveBadge === 'delayed' ? 'Quotes are delayed; figures reflect the latest available snapshot.' : 'Based on the last closed session.') +
           (state.mode !== 'index' && state.sym ? ' <a href="/nepse-fundamentals/?s=' + esc(state.sym) + '">View fundamentals →</a>' : '') + '</div>';
       }
       else if (n > 0) {
@@ -1432,14 +1455,14 @@
           var ix = applyLiveIndexCandle(indexRows(), liveCache.index);
           state.rows = ix.rows;
           state.live = ix.quote;
-          state.liveBadge = ix.live ? 'live' : 'eod';
+          state.liveBadge = badgeForQuote(state.live);
         } else {
           var rows = histCache[state.sym] || [];
           if (!rows.length) return;
           var merged = applyLiveCandle(rows, state.sym);
           state.rows = merged.rows;
           state.live = merged.quote || liveCache.map[state.sym] || null;
-          state.liveBadge = merged.live ? 'live' : 'eod';
+          state.liveBadge = badgeForQuote(state.live);
         }
         render();
       });

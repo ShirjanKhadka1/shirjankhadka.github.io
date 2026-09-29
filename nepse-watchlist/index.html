@@ -15,10 +15,9 @@
 <meta name="twitter:title" content="NEPSE Watchlist – Track Your Stocks, Free">
 <meta name="twitter:description" content="Your personal NEPSE watchlist, saved in your browser. Free, unlimited, no login.">
 <meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
-<link rel="icon" href="/favicon.ico" sizes="any">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" href="/nepse-watchlist/icon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/nepse-watchlist/icon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/nepse-watchlist/icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -32,6 +31,7 @@
 {"@type":"ListItem","position":3,"name":"Watchlist","item":"https://shirjankhadka.com.np/nepse-watchlist/"}]}
 </script>
 <link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930c">
+<link rel="stylesheet" href="/css/nepse-wave7.css?v=20261002c">
 <style>
 /* watchlist-only */
 .wrap{max-width:980px}
@@ -127,20 +127,39 @@
       <div class="hero-rule"></div>
       <span class="eyebrow"><span class="pulse"></span>Free · No login · Saved in your browser</span>
       <h1>Your NEPSE watchlist.</h1>
-      <p class="lede">The securities you actually follow, in one calm place: live price, day change, the engine's signal and RSI, one tap from the full chart. Your list lives <strong>in your browser only</strong>, no account, no server, no one else can see it.</p>
-      <div class="wl-search-wrap">
-        <input id="wl-search" type="search" placeholder="Search by symbol or company name…" aria-label="Search NEPSE securities to add" role="combobox" aria-expanded="false" aria-controls="wl-suggest" aria-autocomplete="list" autocomplete="off">
-        <ul id="wl-suggest" class="wl-suggest" role="listbox" aria-label="Matching securities" hidden></ul>
-      </div>
-      <p class="wl-hint" id="wl-add-hint" role="status" hidden></p>
-      <p class="wl-count" id="wl-count" aria-live="polite"></p>
-      <div class="wl-list" id="wl-list" aria-live="polite"></div>
-      <div class="wl-empty" id="wl-empty" hidden>
-        <h2>Nothing on your list yet.</h2>
-        <p>A watchlist is how investors keep the market small. Instead of scanning 410 securities every morning, you track the handful you own, are researching, or are waiting on, and check them in seconds.</p>
-        <p>Use the search above to add your first security. It takes five seconds, and it will still be here tomorrow.</p>
-      </div>
-      <p class="updated" id="wl-updated"></p>
+      <p class="lede">Two lists, one calm page: the engine's mechanical picks from the latest daily batch, and the securities you actually follow. Your own list lives <strong>in your browser only</strong>, no account, no server, no one else can see it.</p>
+
+      <section class="wl-box" aria-label="Engine watchlist">
+        <div class="wl-box-head">
+          <h2>Engine watchlist</h2>
+          <span id="wl-live"></span>
+        </div>
+        <p class="wl-sub" id="wl-engine-sub">Mechanical picks from the latest daily batch. Rebuilt with each batch.</p>
+        <div id="wl-engine-list" aria-live="polite">
+          <div aria-hidden="true"><span class="skl skl-row"></span><span class="skl skl-row"></span><span class="skl skl-row"></span><span class="skl skl-row"></span></div>
+        </div>
+      </section>
+
+      <section class="wl-box" aria-label="My watchlist">
+        <div class="wl-box-head">
+          <h2>My watchlist</h2>
+          <span class="wl-private">Browser-local · private</span>
+        </div>
+        <p class="wl-sub">Your own list, saved in this browser only. It never leaves your device.</p>
+        <div class="wl-search-wrap">
+          <input id="wl-search" type="search" placeholder="Search by symbol or company name…" aria-label="Search NEPSE securities to add" role="combobox" aria-expanded="false" aria-controls="wl-suggest" aria-autocomplete="list" autocomplete="off">
+          <ul id="wl-suggest" class="wl-suggest" role="listbox" aria-label="Matching securities" hidden></ul>
+        </div>
+        <p class="wl-hint" id="wl-add-hint" role="status" hidden></p>
+        <p class="wl-count" id="wl-count" aria-live="polite"></p>
+        <div class="wl-list" id="wl-list" aria-live="polite"></div>
+        <div class="wl-empty" id="wl-empty" hidden>
+          <h2>Nothing on your list yet.</h2>
+          <p>A watchlist is how investors keep the market small. Instead of scanning 410 securities every morning, you track the handful you own, are researching, or are waiting on, and check them in seconds.</p>
+          <p>Use the search above to add your first security. It takes five seconds, and it will still be here tomorrow.</p>
+        </div>
+        <p class="updated" id="wl-updated"></p>
+      </section>
     </div>
   </section>
 
@@ -171,6 +190,8 @@
 </footer>
 
 <script src="/js/nepse-fresh.js?v=20260930b"></script>
-<script src="/js/nepse-watchlist.js?v=20261002a"></script>
+<script src="/js/nepse-live.js?v=20261002c"></script>
+<script src="/js/nepse-suite.js?v=20261002c"></script>
+<script src="/js/nepse-watchlist.js?v=20261002c"></script>
 </body>
 </html>

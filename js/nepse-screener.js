@@ -117,10 +117,12 @@
 
     var html = slice.map(function (r, i) {
       var sn = start + i + 1;
+      var Mono = window.NepseMono || null;
       return '<tr>' +
         '<td class="num sc-sn">' + sn + '</td>' +
         '<td>' + (r.sec ? '<span class="sc-sector">' + esc(r.sec) + '</span>' : '<span class="sc-dash">–</span>') + '</td>' +
-        '<td><a class="sc-sym" href="/nepse-chart/?s=' + esc(r.sym) + '">' + esc(r.sym) + '</a>' +
+        '<td><a class="sc-sym" href="/nepse-chart/?s=' + esc(r.sym) + '">' +
+          (Mono ? Mono.avatar(r.sym, r.sec, 28) : '') + '<span>' + esc(r.sym) + '</span></a>' +
           (r.l ? ' <span class="sc-ltp" title="LTP-only history">LTP</span>' : '') + '</td>' +
         '<td class="num"><b>' + num2(r.p) + '</b></td>' +
         '<td class="num">' + fmtVol(r.vol) + rvolBadge(r) + '</td>' +

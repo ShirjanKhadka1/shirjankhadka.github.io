@@ -115,14 +115,25 @@
           (window.NepseFresh ? NepseFresh.badge(dataAsof) : '');
       }
       renderList();
+      renderEngine();
+      // Wave 7: live quote status + in-place price overlay on the engine box.
+      var NL = window.NepseLive || null;
+      if (NL && document.getElementById('wl-engine-list')) {
+        NL.start({
+          el: 'wl-live',
+          onData: function (d) { if (d && d.quotes) overlayEngineLive(d.quotes); }
+        });
+      }
     }).catch(function () {
       dataReady = false;
       renderList();
+      renderEngine();
     });
   }
 
   function renderList() {
     var list = NLWatch.get();
+    var Mono = window.NepseMono || null;
     if (countEl) countEl.textContent = list.length === 1 ? '1 security tracked' : list.length + ' securities tracked';
     if (!dataReady) {
       listEl.innerHTML = '<p class="wl-note">Could not load market data. Your saved symbols are safe in this browser; please try again later.</p>';
@@ -142,7 +153,8 @@
       var chgHtml = '<span class="tnum ' + (chg > 0 ? 'up' : chg < 0 ? 'down' : '') + '">' +
         (chg === null || chg === undefined ? '–' : (chg > 0 ? '+' : '') + fmtNum(chg, 2) + '%') + '</span>';
       return '<article class="wl-row">' +
-        '<div class="wl-sym"><a href="/nepse-chart/?s=' + esc(sym) + '">' + esc(sym) + '</a>' +
+        '<div class="wl-sym"><a href="/nepse-chart/?s=' + esc(sym) + '">' +
+        (Mono ? Mono.avatar(sym, vd.sec, 30) : '') + '<span>' + esc(sym) + '</span></a>' +
         '<span class="wl-name">' + esc(meta ? meta.n : '') + '</span></div>' +
         '<div class="wl-meta"><span class="wl-sec">' + esc(vd.sec || '–') + '</span></div>' +
         '<div class="wl-num"><span class="wl-lab">Price</span><span class="tnum">' + fmtNum(vd.p, 2) + '</span></div>' +
@@ -153,6 +165,80 @@
         '</article>';
     }).join('');
     listEl.innerHTML = rows;
+  }
+
+  /* -------- engine watchlist (Wave 7) --------
+     Mechanical picks from the latest daily batch: roughly the top 12
+     Strong Buy / Buy verdicts by engine score. Rebuilt with each batch.
+     Educational, not investment advice. The user's own list below is
+     untouched (nl_watchlist_v1). */
+  function renderEngine() {
+    var box = document.getElementById('wl-engine-list');
+    if (!box) return;
+    if (!dataReady || !Object.keys(verdicts).length) {
+      box.innerHTML = '<p class="wl-note">Engine picks are temporarily unavailable.</p>';
+      return;
+    }
+    var Mono = window.NepseMono || null;
+    function sgn(x) { return (x > 0 ? '+' : '') + x.toFixed(1); }
+    var picks = Object.keys(verdicts).map(function (sym) { return [sym, verdicts[sym]]; })
+      .filter(function (it) { return it[1].v === 'Strong Buy' || it[1].v === 'Buy'; })
+      .sort(function (a, b) { return (b[1].s || 0) - (a[1].s || 0); })
+      .slice(0, 12);
+    if (!picks.length) {
+      box.innerHTML = '<p class="wl-note">No Strong Buy or Buy verdicts in the latest batch.</p>';
+      return;
+    }
+    box.innerHTML = picks.map(function (it) {
+      var sym = it[0], x = it[1] || {};
+      var ch = Number(x.ch);
+      var chHtml = isFinite(ch)
+        ? '<span class="' + (ch > 0 ? 'up' : ch < 0 ? 'down' : '') + '">' +
+          (ch > 0 ? '+' : '') + ch.toFixed(2) + '%</span>'
+        : '<span>–</span>';
+      var sltp = 'SL/TP unavailable for this security.';
+      if (x.sl != null && x.tp != null && x.p) {
+        sltp = 'SL ' + fmtNum(x.sl, 2) + ' (' + sgn((x.sl - x.p) / x.p * 100) + '%)' +
+          ' · TP ' + fmtNum(x.tp, 2) + ' (' + sgn((x.tp - x.p) / x.p * 100) + '%)';
+      }
+      return '<div class="ewl-row">' +
+        '<a class="ewl-sym" href="/nepse-chart/?s=' + esc(sym) + '">' +
+          (Mono ? Mono.avatar(sym, x.sec) : '') + '<span>' + esc(sym) + '</span>' +
+          '<span class="ewl-v ' + (x.v === 'Strong Buy' ? 'sb' : 'b') + '">' + esc(x.v) + '</span></a>' +
+        '<span class="ewl-num tnum">Rs ' + fmtNum(x.p, 2) + ' ' + chHtml + '</span>' +
+        '<span class="ewl-setup">' + esc(x.setup || '–') + '</span>' +
+        '<span class="ewl-sl tnum">' + esc(sltp) + '</span>' +
+      '</div>';
+    }).join('');
+    var sub = document.getElementById('wl-engine-sub');
+    if (sub) {
+      sub.textContent = 'Mechanical picks from the latest daily batch' +
+        (dataAsof ? ' (' + dataAsof + ')' : '') +
+        '. Rebuilt with each batch. Educational, not investment advice.';
+    }
+  }
+
+  /* Live/daily prices: when the quote feed is fresh, overlay live LTP and
+     day change onto the engine rows (positions and levels stay daily). */
+  function overlayEngineLive(quotes) {
+    var box = document.getElementById('wl-engine-list');
+    if (!box || !quotes) return;
+    var rows = box.querySelectorAll('.ewl-row');
+    for (var i = 0; i < rows.length; i++) {
+      var link = rows[i].querySelector('.ewl-sym');
+      if (!link) continue;
+      var m = link.getAttribute('href').match(/[?&]s=([^&]+)/);
+      var sym = m && m[1];
+      var q = sym && quotes[sym];
+      if (!q || q.ltp == null || !isFinite(Number(q.ltp))) continue;
+      var ch = Number(q.change);
+      var chHtml = isFinite(ch)
+        ? '<span class="' + (ch > 0 ? 'up' : ch < 0 ? 'down' : '') + '">' +
+          (ch > 0 ? '+' : '') + ch.toFixed(2) + '%</span>'
+        : '<span>–</span>';
+      rows[i].querySelector('.ewl-num').innerHTML =
+        'Rs ' + fmtNum(q.ltp, 2) + ' ' + chHtml;
+    }
   }
 
   listEl.addEventListener('click', function (e) {

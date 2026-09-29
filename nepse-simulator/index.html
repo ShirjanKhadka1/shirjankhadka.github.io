@@ -15,10 +15,9 @@
 <meta name="twitter:title" content="Free NEPSE Paper Trading Simulator">
 <meta name="twitter:description" content="Backtest simple rule-based strategies on NEPSE historical data. Free, educational, no login.">
 <meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
-<link rel="icon" href="/favicon.ico" sizes="any">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" href="/nepse-simulator/icon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/nepse-simulator/icon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/nepse-simulator/icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -32,6 +31,7 @@
 {"@type":"ListItem","position":3,"name":"Simulator","item":"https://shirjankhadka.com.np/nepse-simulator/"}]}
 </script>
 <link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930c">
+<link rel="stylesheet" href="/css/nepse-wave7.css?v=20261002c">
 <style>
 /* simulator-only */
 .wrap{max-width:980px}
@@ -222,6 +222,29 @@ table.trades tr:last-child td{border-bottom:none}
         <div style="margin-top:18px"><button id="sim-run" class="btn" disabled>Run simulation</button></div>
         <p class="sim-status" id="sim-status" role="status" hidden></p>
       </section>
+
+      <section class="sim-card" aria-label="Trading costs">
+        <h2>Trading costs</h2>
+        <p class="sub">Real Nepali brokerage costs, applied to every simulated trade.</p>
+        <div class="sim-costs">
+          <label class="sim-check"><input type="checkbox" id="sim-costs-on" checked> <span>Include trading costs and taxes (recommended)</span></label>
+          <div class="sizing3">
+            <div class="field">
+              <label for="sim-cgt-short">CGT, held 365 days or less (%)</label>
+              <input id="sim-cgt-short" type="number" min="0" max="100" step="0.25" value="5">
+            </div>
+            <div class="field">
+              <label for="sim-cgt-long">CGT, held over 365 days (%)</label>
+              <input id="sim-cgt-long" type="number" min="0" max="100" step="0.25" value="3.75">
+            </div>
+          </div>
+          <p class="sim-cgtnote">CGT rates were revised in September 2026 and can change; confirm the current rate with your broker.</p>
+          <div class="math">
+            <strong>What gets charged.</strong><br>
+            Broker commission per side: up to Rs 50,000 at 0.36% (minimum Rs 10); Rs 50,001 to 500,000 at 0.33%; Rs 500,001 to 2,000,000 at 0.306%; Rs 2,000,001 to 10,000,000 at 0.27%; above Rs 10,000,000 at 0.243%. SEBON fee 0.015% on buys and sells. DP charge Rs 25 on every sell. Name transfer Rs 5 on every buy. Buy-side costs enter your cost basis; CGT applies only to positive taxable gains. The equity curve is net of all of this, so the final point is what you would actually take home.
+          </div>
+        </div>
+      </section>
     </div>
 
     <section aria-label="Strategy rules">
@@ -263,12 +286,13 @@ table.trades tr:last-child td{border-bottom:none}
       <div class="eq-wrap">
         <h3>Equity curve</h3>
         <canvas id="sim-equity" role="img" aria-label="Equity curve chart"></canvas>
+        <p class="eq-note">Net equity: after broker commission, SEBON, DP, transfer and CGT. Final point is actual net liquidation.</p>
         <div class="eq-legend"><span><i style="background:#C6A86B"></i>Strategy</span><span><i style="background:rgba(12,31,22,.35)"></i>Buy and hold</span></div>
       </div>
       <h3>Trade log</h3>
       <div class="trades-wrap">
         <table class="trades">
-          <thead><tr><th>#</th><th>Entry</th><th>Price</th><th>Exit</th><th>Price</th><th>Qty</th><th>P&amp;L</th><th>Reason</th><th>Journal</th></tr></thead>
+          <thead><tr><th>#</th><th>Entry</th><th>Price</th><th>Exit</th><th>Price</th><th>Qty</th><th>Gross P&amp;L</th><th>Commission</th><th>Other fees</th><th>CGT</th><th>Net P&amp;L</th><th>Reason</th><th>Journal</th></tr></thead>
           <tbody id="sim-trades-body"></tbody>
         </table>
       </div>
@@ -313,6 +337,6 @@ table.trades tr:last-child td{border-bottom:none}
 </footer>
 
 <script src="/js/nepse-fresh.js?v=20260930b"></script>
-<script src="/js/nepse-simulator.js?v=20260929a"></script>
+<script src="/js/nepse-simulator.js?v=20261002c"></script>
 </body>
 </html>

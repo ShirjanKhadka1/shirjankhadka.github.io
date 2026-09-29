@@ -64,7 +64,15 @@
   }
 
   /* ---------- page ---------- */
-  var ver = null, wave = null;
+  var ver = null, wave = null, snap = null;
+
+  // Wave 7: the shared snapshot data path (daily batch + live overlay).
+  // Falls back to the batch alone when the live feed is unreachable.
+  function loadSnap() {
+    var NL = window.NepseLive || null;
+    if (NL) return NL.loadSnapshot().catch(function () { return null; });
+    return Promise.resolve(null);
+  }
   var $ = function (id) { return document.getElementById(id); };
   var SECTIONS = ['rp-portfolio', 'rp-watchlist', 'rp-screener', 'rp-market', 'rp-sectors'];
 
@@ -170,18 +178,22 @@
 
   function secMarket() {
     var html = '<h2>Market snapshot</h2>';
-    if (!wave || !wave.market) return html + '<p class="rp-empty">Market summary data is unavailable right now.</p>';
-    var m = wave.market;
-    var chg = m.index && m.index.change;
-    html += '<p class="rp-sub">NEPSE index, session of ' + esc(m.date || wave.asof) + '.</p>' +
-      '<div class="rp-stats">' +
-      stat('NEPSE', m.index ? num(m.index.value, 2) : '–') +
-      stat('Day change', m.index ? num(m.index.change, 2) + ' (' + num(m.index.pct, 2) + '%)' : '–', chg >= 0 ? 'up' : 'down') +
-      stat('Advancers', num(m.advancers, 0)) +
-      stat('Decliners', num(m.decliners, 0)) +
-      stat('Turnover', m.totalTurnover != null ? 'Rs ' + num(m.totalTurnover / 1e9, 2) + 'b' : '–') +
-      '</div>';
-    return html;
+    if (!snap || !snap.batch) return html + '<p class="rp-empty">Market summary data is unavailable right now.</p>';
+    // Wave 7: the shared snapshot component, rendering the same figures the dashboard
+    // shows, placed once here (reports are printable, not live-polled).
+    return html + '<div id="rp-snapmount"></div>';
+  }
+
+  function mountSnap() {
+    var mount = $('rp-snapmount');
+    var Snap = window.NepseSnapshot, NL = window.NepseLive;
+    if (!mount || !Snap || !snap) return;
+    mount.innerHTML = Snap.statsHTML(snap, { spark: true });
+    Snap.fillSpark(mount);
+    var liveEl = mount.querySelector('[data-nlsnap-live]');
+    if (liveEl && NL) liveEl.innerHTML = NL.badgeHTML(NL.statusOf(snap.live));
+    var M = window.NepseMotion;
+    if (M) M.watchCounts(mount);
   }
 
   function secSectors() {
@@ -210,14 +222,21 @@
     $('rp-report').innerHTML = out || '<p class="rp-empty">Tick at least one section above, then rebuild.</p>';
     $('rp-printhead-date').textContent = todayStr();
     $('rp-result').hidden = false;
+    mountSnap(); // Wave 7: paint the shared snapshot after the report is injected
   }
 
   /* ---------- boot ---------- */
   Promise.all([
     fetch(VER_URL).then(function (r) { return r.ok ? r.json() : null; }),
-    fetch(WAVE_URL).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
+    fetch(WAVE_URL).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
+    loadSnap()
   ]).then(function (res) {
     ver = res[0]; wave = res[1];
+    snap = res[2] || (res[1] ? {
+      batch: res[1].market,
+      batchAsof: res[1].asof || (res[1].market && res[1].market.date) || null,
+      live: null
+    } : null);
     if (!ver) {
       $('rp-status').textContent = 'Could not load the daily batch. Please reload the page.';
       return;

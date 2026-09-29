@@ -72,33 +72,44 @@
     var grid = $('mktGrid'), cols = $('mktCols');
     if (!grid || !cols || !d || !d.market) return;
     var m = d.market;
+    var Mono = window.NepseMono || null;
 
     var idx = m.index || {};
-    var c1 = mktCard('NEPSE index',
-      idx.value != null ? fmt2(idx.value) : '–',
-      idx.change != null
+    // Wave 7: the index card carries the live-badge mount (mkt-live) and ids
+    // so the in-session value can be updated in place without a reload.
+    var c1 = '<article class="note-card reveal in"><div class="nk">NEPSE index <span id="mkt-live"></span></div>' +
+      '<div class="nb tnum" id="mkt-ixv"' + (idx.value != null ? ' data-count="' + idx.value + '" data-decimals="2"' : '') + '>' +
+      (idx.value != null ? fmt2(idx.value) : '–') + '</div>' +
+      '<p id="mkt-ixc">' + (idx.change != null
         ? '<b class="' + (idx.change >= 0 ? 'up' : 'dn') + '" style="color:' +
-          (idx.change >= 0 ? 'var(--up)' : 'var(--down)') + '">' +
+          (idx.change >= 0 ? 'var(--up)' : 'var(--down)') + '\">' +
           (idx.change >= 0 ? '+' : '') + fmt2(idx.change) + ' (' +
           (idx.change >= 0 ? '+' : '') + (+idx.pct).toFixed(2) + '%)</b> on the session'
-        : 'Index data unavailable for this session.');
+        : 'Index data unavailable for this session.') + '</p></article>';
     var tot = (m.advancers || 0) + (m.decliners || 0) + (m.unchanged || 0);
     var upW = tot ? (m.advancers / tot * 100).toFixed(1) : 0;
     var dnW = tot ? (m.decliners / tot * 100).toFixed(1) : 0;
     var c2 = mktCard('Breadth',
-      m.advancers + ' <small>up</small> · ' + m.decliners + ' <small>down</small>',
+      '<span data-count="' + (m.advancers || 0) + '">' + (m.advancers || 0) + '</span> <small>up</small> · ' +
+      '<span data-count="' + (m.decliners || 0) + '">' + (m.decliners || 0) + '</span> <small>down</small>',
       '<span class="br-bar" role="img" aria-label="' + m.advancers + ' advancers, ' +
       m.decliners + ' decliners"><span class="br-up" style="width:' + upW + '%"></span>' +
       '<span class="br-dn" style="width:' + dnW + '%"></span></span>' +
       m.unchanged + ' unchanged of ' + m.traded + ' securities with recorded trades.');
     var c3 = mktCard('Session turnover',
-      m.totalTurnover != null ? fmtMoney(m.totalTurnover) : '–',
+      m.totalTurnover != null
+        ? '<span data-count="' + (m.totalTurnover / 1e9).toFixed(3) + '" data-decimals="2" data-prefix="Rs " data-suffix="b">' +
+          fmtMoney(m.totalTurnover) + '</span>'
+        : '–',
       'Total value traded across the session.');
     var dm = fmtDayMon(m.date);
     var c4 = mktCard('Session',
       esc(dm.day) + ' <small>' + esc(dm.my) + '</small>',
       'The last closed session' + fresh(m.date) + '.');
-    grid.innerHTML = c1 + c2 + c3 + c4;
+    grid.innerHTML = c1 + c2 + c3 + c4 +
+      '<p class="nlsnap-close" id="mkt-close" hidden></p>';
+    var Motion = window.NepseMotion;
+    if (Motion) { Motion.watchCounts(grid); }
 
     var asof = $('mkt-asof');
     if (asof && m.date) {
@@ -115,13 +126,54 @@
           ? '<span class="mkt-price">' + fmtMoney(it.t) + '</span>'
           : '<span class="mkt-price">Rs ' + (it.p != null ? fmt2(it.p) : '–') + '</span>';
         return '<div class="mkt-row"><a class="mkt-sym" href="' + chartLink(it.s) + '">' +
-          esc(it.s) + '</a>' + chgHTML(it.ch) + right + '</div>';
+          (Mono ? Mono.avatar(it.s) : '') + '<span>' + esc(it.s) + '</span></a>' + chgHTML(it.ch) + right + '</div>';
       }).join('');
     }
     cols.innerHTML =
       '<div class="mkt-col"><h3>Top gainers</h3>' + rows(m.gainers, 'chg') + '</div>' +
       '<div class="mkt-col"><h3>Top losers</h3>' + rows(m.losers, 'chg') + '</div>' +
       '<div class="mkt-col"><h3>Turnover leaders</h3>' + rows(m.turnover, 'turnover') + '</div>';
+  }
+
+  /* ---------------- Wave 7: in-session live updates ----------------
+   * During market hours the index value, day change, live badge and the
+   * after-hours "official close" sentence update in place every minute.
+   * Figures come from NepseLive; when the feed is stale we say so. */
+  function updateMarketLive(snap) {
+    var NL = window.NepseLive;
+    if (!NL || !snap) return;
+    var open = NL.isMarketHours();
+    var li = snap.live && snap.live.index;
+
+    var badge = $('mkt-live');
+    if (badge) badge.innerHTML = NL.badgeHTML(NL.statusOf(snap.live));
+
+    var ixv = $('mkt-ixv');
+    if (ixv && open && li && li.value != null) {
+      ixv.removeAttribute('data-count'); // a live figure, not a count-up target
+      ixv.textContent = fmt2(li.value);
+      var ixc = $('mkt-ixc');
+      if (ixc && li.change != null && li.pct != null) {
+        ixc.innerHTML = '<b style="color:' + (li.change >= 0 ? 'var(--up)' : 'var(--down)') + '">' +
+          (li.change >= 0 ? '+' : '') + fmt2(li.change) + ' (' +
+          (li.change >= 0 ? '+' : '') + (+li.pct).toFixed(2) + '%)</b> on the session';
+      }
+    }
+
+    var closeP = $('mkt-close');
+    if (closeP) {
+      var s = (!open && window.NepseSnapshot) ? window.NepseSnapshot.closeSentence(snap.batch) : '';
+      if (s) { closeP.textContent = s; closeP.hidden = false; }
+      else closeP.hidden = true;
+    }
+  }
+
+  function startLiveUpdates(batch) {
+    var NL = window.NepseLive;
+    if (!NL || !$('mktGrid')) return;
+    NL.start({
+      onData: function (d) { updateMarketLive({ batch: batch, live: d }); }
+    });
   }
 
   /* ---------------- RSI + movers tabs (screener) ---------------- */
@@ -231,7 +283,10 @@
     if (!needMarket && !needLists) return;
     if (needLists) bindTabs();
     load().then(function (d) {
-      if (needMarket) renderMarket(d);
+      if (needMarket) {
+        renderMarket(d);
+        if (d && d.market) startLiveUpdates(d.market); // Wave 7: 60s in-place refresh
+      }
       if (needLists) renderLists(d);
     }).catch(fail);
   }
