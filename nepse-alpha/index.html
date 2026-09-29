@@ -10,11 +10,13 @@
 <meta property="og:title" content="NEPSE Alpha Lab – Free Stock Analysis Tools for Every NEPSE Investor">
 <meta property="og:description" content="Charts, pattern scans, a transparent buy/hold/exit engine and a full-market screener for every NEPSE-listed security. Free, no login, educational.">
 <meta property="og:url" content="https://shirjankhadka.com.np/nepse-alpha/">
-<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/nepse-alpha-og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="NEPSE Alpha Lab – Free Stock Analysis Tools for Every NEPSE Investor">
 <meta name="twitter:description" content="Charts, pattern scans, a transparent buy/hold/exit engine and a full-market screener for every NEPSE-listed security. Free, no login, educational.">
-<meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
+<meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/nepse-alpha-og.jpg">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -141,21 +143,14 @@ p.sec-sub{color:var(--secondary);font-size:17px;max-width:64ch;margin-bottom:40p
 .verdicts{background:var(--alt);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .vd-cols{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-bottom:30px}
 .vd-col h3{margin-bottom:14px}
-.vd-list{display:flex;flex-direction:column;gap:12px;min-height:120px}
-.vd-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;transition:transform .25s var(--ease),box-shadow .25s var(--ease)}
-.vd-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-hover)}
-.vd-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
-.vd-sym{font-weight:700;font-size:17px;letter-spacing:-.01em}
-.vd-sec{font-size:12.5px;color:var(--secondary)}
-.vd-mid{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.vd-list{display:flex;flex-direction:column;gap:8px;min-height:120px}
+.vd-row{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 16px;text-decoration:none;color:inherit;transition:transform .25s var(--ease),box-shadow .25s var(--ease)}
+.vd-row:hover{transform:translateY(-2px);box-shadow:var(--shadow-hover)}
+.vd-sym{font-weight:700;font-size:16px;letter-spacing:-.01em;min-width:88px}
 .vd-pill{font-size:12.5px;font-weight:700;padding:5px 12px;border-radius:999px}
-.vd-price{font-family:var(--serif);font-weight:700;font-size:16px}
-.vd-chg{font-size:13px;font-weight:600}
+.vd-price{margin-left:auto;font-family:var(--serif);font-weight:700;font-size:15px}
+.vd-chg{font-size:13px;font-weight:600;min-width:64px;text-align:right}
 .vd-chg.up{color:#0a7a3d}.vd-chg.dn{color:#a03a28}
-.vd-setup{font-size:13px;color:var(--secondary)}
-.vd-bot{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px dashed var(--line);padding-top:10px;margin-top:4px;font-size:13px}
-.vd-sl{color:#a03a28}.vd-tp{color:#0a7a3d}
-.vd-link{font-weight:600;font-size:13.5px;white-space:nowrap}
 .vd-defs{font-size:14.5px;color:var(--secondary);max-width:72ch;margin-bottom:12px}
 .vd-defs b{color:var(--text)}
 .vd-note{font-size:13.5px;color:var(--secondary);max-width:72ch}
@@ -299,8 +294,8 @@ p.sec-sub{color:var(--secondary);font-size:17px;max-width:64ch;margin-bottom:40p
   <section class="block verdicts">
     <div class="wrap">
       <p class="kicker reveal">The engine's calls</p>
-      <h2 class="sec reveal">Today's engine verdicts.</h2>
-      <p class="sec-sub reveal">The strongest Buy and Exit calls from the latest daily batch, with each symbol's setup and evidence one click away. <b id="vd-asof">Loading the latest batch…</b></p>
+      <h2 class="sec reveal">Latest engine verdicts.</h2>
+      <p class="sec-sub reveal">The strongest Buy and Exit calls from the latest daily batch. Tap any row for its full Lab breakdown. <b id="vd-asof">Loading the latest batch…</b></p>
       <div class="vd-cols">
         <div class="vd-col">
           <h3><span class="verdict v-sb">Strongest Buys</span></h3>
@@ -311,7 +306,7 @@ p.sec-sub{color:var(--secondary);font-size:17px;max-width:64ch;margin-bottom:40p
           <div id="vd-exits" class="vd-list" aria-live="polite"></div>
         </div>
       </div>
-      <p class="vd-defs reveal"><b>How to read this.</b> <b>Score</b> is the sum of the ten factor points, from −10 to +10. <b>Setup</b> is the chart pattern the scanner detected on the daily chart. <b>SL / TP</b> are the mechanical stop-loss (−2× ATR) and target (+4× ATR). Symbols with too little price history show "Insufficient history" instead of a verdict. <a href="/nepse-screener/">See all 410 securities in the Screener →</a></p>
+      <p class="vd-defs reveal">A compact read of the latest batch. For setups, scores, stop-loss and target levels, <a href="/nepse-screener/">see all 410 securities in the Screener →</a></p>
       <p class="vd-note reveal">Mechanical output from a fixed rule set, not investment advice. Verdicts refresh with each daily close; always check the live chart before acting on any of them.</p>
     </div>
   </section>
@@ -450,17 +445,12 @@ p.sec-sub{color:var(--secondary);font-size:17px;max-width:64ch;margin-bottom:40p
     }
     function card(sym,x){
       var chg=+x.ch||0;
-      var sl=x.sl!=null?'Rs '+Number(x.sl).toFixed(2):'–';
-      var tp=x.tp!=null?'Rs '+Number(x.tp).toFixed(2):'–';
-      return '<article class="vd-card">'+
-        '<div class="vd-top"><a class="vd-sym" href="/nepse-chart/?s='+encodeURIComponent(sym)+'">'+esc(sym)+'</a><span class="vd-sec">'+esc(x.sec||'')+'</span></div>'+
-        '<div class="vd-mid"><span class="vd-pill verdict '+pillClass(x.v)+'">'+esc(x.v)+'</span>'+
+      return '<a class="vd-row" href="/nepse-chart/?s='+encodeURIComponent(sym)+'">'+
+        '<span class="vd-sym">'+esc(sym)+'</span>'+
+        '<span class="vd-pill verdict '+pillClass(x.v)+'">'+esc(x.v)+'</span>'+
         '<span class="vd-price">Rs '+Number(x.p).toFixed(2)+'</span>'+
-        '<span class="vd-chg '+(chg>=0?'up':'dn')+'">'+(chg>=0?'+':'')+chg.toFixed(2)+'%</span></div>'+
-        '<div class="vd-setup">'+esc(x.setup||'No pattern detected')+' · score '+(+x.s).toFixed(1)+'</div>'+
-        '<div class="vd-bot"><span><span class="vd-sl">SL '+sl+'</span> · <span class="vd-tp">TP '+tp+'</span></span>'+
-        '<a class="vd-link" href="/nepse-chart/?s='+encodeURIComponent(sym)+'">Full breakdown →</a></div>'+
-      '</article>';
+        '<span class="vd-chg '+(chg>=0?'up':'dn')+'">'+(chg>=0?'+':'')+chg.toFixed(2)+'%</span>'+
+      '</a>';
     }
     function render(list,el,emptyMsg){
       el.innerHTML=list.length?list.map(function(it){return card(it[0],it[1]);}).join(''):'<p class="vd-empty">'+emptyMsg+'</p>';
