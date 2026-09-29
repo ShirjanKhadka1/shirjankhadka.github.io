@@ -12,7 +12,8 @@
   var CLS = { 'Strong Buy': 'sbuy', 'Buy': 'buy', 'Hold': 'hold', 'Exit / Reduce': 'exit', 'Strong Exit': 'sexit', 'Insufficient history': 'insufficient' };
   var DISP = { 'Strong Buy': 'Strong Buy', 'Buy': 'Buy', 'Hold': 'Hold', 'Exit / Reduce': 'Sell', 'Strong Exit': 'Strong Sell', 'Insufficient history': 'No signal' };
 
-  var state = { rows: [], q: '', sector: '', verdict: '', sortK: 'sig', sortD: 1, page: 1, perPage: 25 };
+  var state = { rows: [], q: '', sector: '', verdict: '', rsi: '', pmin: null, pmax: null, vmin: null,
+    sortK: 'sig', sortD: 1, page: 1, perPage: 25 };
 
   function $(id) { return document.getElementById(id); }
   function esc(s) {
@@ -63,6 +64,15 @@
     var out = state.rows.filter(function (r) {
       if (state.verdict && r.v !== state.verdict) return false;
       if (state.sector && r.sec !== state.sector) return false;
+      if (state.rsi) {
+        if (r.rsi == null) return false;
+        if (state.rsi === 'os' && !(r.rsi < 30)) return false;
+        if (state.rsi === 'ob' && !(r.rsi > 70)) return false;
+        if (state.rsi === 'mid' && !(r.rsi >= 30 && r.rsi <= 70)) return false;
+      }
+      if (state.pmin != null && (r.p == null || r.p < state.pmin)) return false;
+      if (state.pmax != null && (r.p == null || r.p > state.pmax)) return false;
+      if (state.vmin != null && (r.vol == null || r.vol < state.vmin)) return false;
       if (q && r.sym.indexOf(q) < 0 && (r.name || '').toUpperCase().indexOf(q) < 0) return false;
       return true;
     });
@@ -121,7 +131,7 @@
         '<td class="num">' + tpCell(r) + '</td>' +
         '</tr>';
     }).join('');
-    $('sc-body').innerHTML = html || '<tr><td colspan="10" class="sc-empty">Nothing matches those filters. Try widening the search or clearing the sector filter.</td></tr>';
+    $('sc-body').innerHTML = html || '<tr><td colspan="10" class="sc-empty">Nothing matches those filters. Try widening or resetting the filters.</td></tr>';
 
     // sort indicators
     var ths = document.querySelectorAll('#sc-table th[data-k]');
@@ -182,22 +192,67 @@
       deb = setTimeout(function () { state.q = q.value; state.page = 1; render(); }, 160);
     });
     $('sc-sector').addEventListener('change', function (e) { state.sector = e.target.value; state.page = 1; render(); });
+    var sigSel = $('sc-signal');
+    if (sigSel) sigSel.addEventListener('change', function (e) {
+      state.verdict = e.target.value;
+      syncCards();
+      state.page = 1; render();
+    });
+    var rsiSel = $('sc-rsi');
+    if (rsiSel) rsiSel.addEventListener('change', function (e) { state.rsi = e.target.value; state.page = 1; render(); });
+    function numInput(id, set) {
+      var el = $(id);
+      if (!el) return;
+      var deb = null;
+      el.addEventListener('input', function () {
+        clearTimeout(deb);
+        deb = setTimeout(function () {
+          var v = parseFloat(el.value);
+          set(isFinite(v) && v >= 0 ? v : null);
+          state.page = 1; render();
+        }, 220);
+      });
+    }
+    numInput('sc-pmin', function (v) { state.pmin = v; });
+    numInput('sc-pmax', function (v) { state.pmax = v; });
+    numInput('sc-vmin', function (v) { state.vmin = v; });
+    var resetBtn = $('sc-reset');
+    if (resetBtn) resetBtn.addEventListener('click', resetFilters);
     $('sc-perpage').addEventListener('change', function (e) {
       state.perPage = Math.max(1, parseInt(e.target.value, 10) || 25);
       state.page = 1; render();
     });
     // summary cards double as signal filters
-    function cardFilter(card) {
-      var v = card.getAttribute('data-v') || '';
-      state.verdict = (state.verdict === v) ? '' : v;
+    function syncCards() {
       document.querySelectorAll('.sc-card[data-v]').forEach(function (x) {
         x.classList.toggle('is-on', !!state.verdict && x.getAttribute('data-v') === state.verdict);
       });
+      var sigSel = $('sc-signal');
+      if (sigSel && sigSel.value !== state.verdict) sigSel.value = state.verdict;
+    }
+    function cardFilter(card) {
+      var v = card.getAttribute('data-v') || '';
+      state.verdict = (state.verdict === v) ? '' : v;
+      syncCards();
       state.page = 1; render();
       // the results table sits below the fold on phones: bring it into view
       // so the filter result is visible the moment a card is tapped
       var tbl = document.getElementById('sc-table');
       if (tbl && tbl.scrollIntoView) tbl.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    }
+    function resetFilters() {
+      state.q = ''; state.sector = ''; state.verdict = '';
+      state.rsi = ''; state.pmin = null; state.pmax = null; state.vmin = null;
+      state.page = 1;
+      var q = $('sc-q'); if (q) q.value = '';
+      var sec = $('sc-sector'); if (sec) sec.value = '';
+      var sig = $('sc-signal'); if (sig) sig.value = '';
+      var rs = $('sc-rsi'); if (rs) rs.value = '';
+      ['sc-pmin', 'sc-pmax', 'sc-vmin'].forEach(function (id) {
+        var el = $(id); if (el) el.value = '';
+      });
+      syncCards();
+      render();
     }
     document.querySelectorAll('.sc-card[data-v]').forEach(function (c) {
       c.addEventListener('click', function () { cardFilter(c); });
@@ -253,7 +308,7 @@
         ? 'Signals as of ' + asof + ' · ' + state.rows.length + ' securities ranked'
         : state.rows.length + ' securities ranked';
       if (window.NepseFresh && asof && !scAsof.querySelector('.fresh'))
-        scAsof.insertAdjacentHTML('beforeend', ' ' + NepseFresh.badge(asof));
+        scAsof.insertAdjacentHTML('beforeend', ' ' + window.NepseFresh.badge(asof));
       $('sc-asof2').textContent = asof || 'the last close';
       // keep the static snapshot heading in sync with the live data
       var snapAsof = document.querySelector('.sc-top10 .sc-asof-inline');
