@@ -10,6 +10,7 @@
   var UNI_URL = '/nepse-chart/data/universe.json';
   var VER_URL = '/nepse-chart/data/verdicts.json';
   var NEWS_URL = '/nepse-chart/data/news.json';
+  var FUND_URL = '/nepse-chart/data/fundamentals.json';
 
   /* ---------- pure helpers (also exported for node tests) ---------- */
   function median(vals) {
@@ -206,6 +207,30 @@
     if (!e.target.closest('.fd-search-wrap')) sugg.hidden = true;
   });
 
+  /* ---------- quarterly figures table (numbers first) ---------- */
+  function renderFundTable(fund) {
+    var host = $('fd-table');
+    if (!host) return;
+    if (!fund || !fund.banks) { host.innerHTML = ''; return; }
+    var syms = Object.keys(fund.banks).sort();
+    if (!syms.length) { host.innerHTML = ''; return; }
+    var rows = syms.map(function (s) {
+      var f = fund.banks[s];
+      var td = function (v) { return '<td>' + (v === null || v === undefined ? '–' : esc(v)) + '</td>'; };
+      return '<tr><td><a href="/stocks/' + esc(s) + '/"><b>' + esc(s) + '</b></a></td>' +
+        td(f.eps_ttm == null ? null : 'Rs ' + f.eps_ttm) +
+        td(f.pe_ttm == null ? null : f.pe_ttm + 'x') +
+        td(f.netprofit_b == null ? null : 'Rs ' + f.netprofit_b + 'b') +
+        td(f.npl_pct == null ? null : f.npl_pct + '%') + '</tr>';
+    }).join('');
+    host.innerHTML =
+      '<h3>Latest quarterly figures</h3>' +
+      '<p class="fd-sub2">' + esc(fund.period || '') + ' · published company figures · money in Rs billions</p>' +
+      '<div class="fd-table-wrap"><table class="fd-table-t">' +
+      '<thead><tr><th>Symbol</th><th>EPS (TTM)</th><th>P/E (TTM)</th><th>Net profit</th><th>NPL</th></tr></thead>' +
+      '<tbody>' + rows + '</tbody></table></div>';
+  }
+
   /* ---------- boot ---------- */
   function setStatus(msg, err) {
     els['fd-status'].hidden = !msg;
@@ -215,9 +240,11 @@
   Promise.all([
     fetch(UNI_URL).then(function (r) { return r.ok ? r.json() : null; }),
     fetch(VER_URL).then(function (r) { return r.ok ? r.json() : null; }),
-    fetch(NEWS_URL).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
+    fetch(NEWS_URL).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
+    fetch(FUND_URL).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
   ]).then(function (res) {
     uni = res[0]; ver = res[1]; news = res[2];
+    renderFundTable(res[3]);
     if (!uni || !ver) { setStatus('Could not load the daily batch. Please reload the page.', true); return; }
     setStatus('');
     var sym = symParam();

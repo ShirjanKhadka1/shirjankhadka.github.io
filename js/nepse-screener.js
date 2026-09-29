@@ -121,7 +121,7 @@
       return '<tr>' +
         '<td class="num sc-sn">' + sn + '</td>' +
         '<td>' + (r.sec ? '<span class="sc-sector">' + esc(r.sec) + '</span>' : '<span class="sc-dash">–</span>') + '</td>' +
-        '<td><a class="sc-sym" href="/nepse-chart/?s=' + esc(r.sym) + '">' +
+        '<td><a class="sc-sym" href="/stocks/' + esc(String(r.sym).replace(/\//g, "-")) + '/">' +
           (Mono ? Mono.avatar(r.sym, r.sec, 28) : '') + '<span>' + esc(r.sym) + '</span></a>' +
           (r.l ? ' <span class="sc-ltp" title="LTP-only history">LTP</span>' : '') + '</td>' +
         '<td class="num"><b>' + num2(r.p) + '</b></td>' +
@@ -273,7 +273,7 @@
             (ch > 0 ? '+' : '') + ch.toFixed(2) + '%</span>'
           : '<span class="sc-dash">–</span>';
         return '<div class="sc-cr-row">' +
-          '<a class="sc-cr-sym" href="/nepse-chart/?s=' + esc(r.sym) + '">' +
+          '<a class="sc-cr-sym" href="/stocks/' + esc(String(r.sym).replace(/\//g, "-")) + '/">' +
             (Mono ? Mono.avatar(r.sym, r.sec, 26) : '') + '<span>' + esc(r.sym) + '</span></a>' +
           '<span class="sc-cr-num tnum">Rs ' + num2(r.p) + '</span>' +
           '<span class="sc-cr-num tnum">' + chHtml + '</span>' +

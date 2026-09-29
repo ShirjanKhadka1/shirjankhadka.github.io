@@ -25,13 +25,23 @@
 
   function nowNPT() { return new Date(Date.now() + NPT); }
 
-  // NEPSE trades Monday to Friday, 11:00 to 15:00 Nepal time.
-  function isMarketHours() {
+  // NEPSE schedule (Nepal time), Monday to Friday:
+  //   pre-open 10:45-11:00, regular session 11:00-15:00.
+  // Yesterday's close is the reference through pre-open; live overlays
+  // engage when the regular session starts.
+  function marketState() {
     var t = nowNPT();
     var d = t.getUTCDay(); // 0 = Sunday
     var mins = t.getUTCHours() * 60 + t.getUTCMinutes();
-    return d >= 1 && d <= 5 && mins >= 660 && mins < 900;
+    if (d < 1 || d > 5) return 'closed';
+    if (mins >= 645 && mins < 660) return 'preopen';
+    if (mins >= 660 && mins < 900) return 'open';
+    return 'closed';
   }
+
+  // Regular session only. Kept for overlay gating: pre-open keeps showing
+  // the last close as the opening reference.
+  function isMarketHours() { return marketState() === 'open'; }
 
   // Offsetless stamps are NPT (nepse-chart/data/live.json convention).
   function parseT(s) {
@@ -96,6 +106,7 @@
       quotes[q.symbol] = {
         ltp: num(q.ltp), change: num(q.change), pct: num(q.percent_change),
         high: num(q.high), low: num(q.low), volume: num(q.volume),
+        turnover: num(q.turnover),
         prev: num(q.previous_close), updated: q.last_updated || null,
         name: q.name || null
       };
@@ -124,6 +135,7 @@
       quotes[q.symbol] = {
         ltp: num(q.ltp), change: chg, pct: num(q.percent_change),
         high: num(q.high), low: num(q.low), volume: num(q.volume),
+        turnover: num(q.turnover),
         prev: num(q.previous_close), updated: q.last_updated || null,
         name: q.name || null
       };
@@ -151,7 +163,11 @@
   function statusOf(d) {
     if (!d) return { state: 'unknown', ageMin: null, source: null };
     var ageMin = (Date.now() - d.asof) / 60000;
-    if (!isMarketHours()) return { state: 'closed', ageMin: ageMin, source: d.source };
+    var ms = marketState();
+    if (ms === 'closed') return { state: 'closed', ageMin: ageMin, source: d.source };
+    // Pre-open: the last closed snapshot is the valid opening reference,
+    // never "stale".
+    if (ms === 'preopen') return { state: 'preopen', ageMin: ageMin, source: d.source };
     if (d.source !== 'own' || !(ageMin >= 0) || ageMin > STALE_MIN) {
       return { state: 'delayed', ageMin: ageMin, source: d.source };
     }
@@ -160,12 +176,16 @@
 
   function badgeHTML(st) {
     var state = (st && st.state) || 'unknown';
-    var cls = state === 'live' ? 'live' : state === 'delayed' ? 'delayed' : 'closed';
-    var label = state === 'live' ? 'LIVE' : state === 'delayed' ? 'DELAYED' : 'CLOSED';
+    var cls = state === 'live' ? 'live' : state === 'delayed' ? 'delayed' :
+              state === 'preopen' ? 'preopen' : 'closed';
+    var label = state === 'live' ? 'LIVE' : state === 'delayed' ? 'DELAYED' :
+                state === 'preopen' ? 'PRE-OPEN' : 'CLOSED';
     var dot = state === 'live' ? '<span class="nlv-dot" aria-hidden="true"></span>' : '';
     var sub = '';
     if (state === 'closed') {
       sub = '<span class="nlv-sub">market closed</span>';
+    } else if (state === 'preopen') {
+      sub = '<span class="nlv-sub">opens 11:00 NPT · last close as reference</span>';
     } else if (state === 'live') {
       sub = '<span class="nlv-sub">updated ' + relAge(st.ageMin) +
             ' · refresh in <span data-nlv-cd>' + countdownText() + '</span></span>';
@@ -247,7 +267,8 @@
     tick();
     var timer = setInterval(function () {
       if (document.hidden) return;
-      if (isMarketHours()) tick();
+      var ms = marketState();
+      if (ms === 'open' || ms === 'preopen') tick();
       else paint(statusOf(last)); // keep the CLOSED badge honest outside hours
     }, opts.poll || POLL_MS);
     var cd = setInterval(tickCountdowns, 1000);
@@ -260,6 +281,7 @@
 
   window.NepseLive = {
     isMarketHours: isMarketHours,
+    marketState: marketState,
     nowNPT: nowNPT,
     parseT: parseT,
     relAge: relAge,
