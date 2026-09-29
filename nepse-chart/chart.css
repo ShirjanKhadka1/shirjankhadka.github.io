@@ -156,6 +156,29 @@ body{margin:0;background:var(--bg);color:var(--ink);
 .nl-v-loading,.nl-v-err{padding:26px;text-align:center;color:var(--muted)}
 .nl-v-err{color:var(--down)}
 
+/* signal history: engine verdict replayed at each of the last 16 closes */
+.nl-sighist{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:20px;margin:0 0 14px}
+.nl-sighist:empty{display:none}
+.nl-sighist h2{font-size:1.25rem;letter-spacing:-.02em;margin:0 0 4px}
+.nl-sh-sub{font-size:.85rem;color:var(--muted);margin:0 0 12px}
+.nl-sh-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+.nl-sh-table{width:100%;border-collapse:collapse;font-size:.88rem;min-width:560px;font-variant-numeric:tabular-nums}
+.nl-sh-table thead th{background:#f8fafc;text-align:left;font-size:.68rem;font-weight:800;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--muted);padding:11px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+.nl-sh-table tbody td{padding:10px 14px;border-top:1px solid var(--line);vertical-align:middle}
+.nl-sh-table tbody tr:nth-child(even){background:#fafbfd}
+.nl-sh-table tbody tr:hover{background:#f0f7f7}
+.nl-sh-table .num{text-align:right;white-space:nowrap}
+.nl-sh-d{color:var(--muted);font-weight:600;white-space:nowrap}
+.nl-sh-pill{display:inline-block;font-size:.72rem;font-weight:800;padding:4px 12px;border-radius:999px;white-space:nowrap;letter-spacing:.02em}
+.nl-sh-pill.sbuy{background:#dcfce7;color:#15803d}
+.nl-sh-pill.buy{background:#dbeafe;color:#1d4ed8}
+.nl-sh-pill.hold{background:#fef3c7;color:#b45309}
+.nl-sh-pill.exit{background:#fee2e2;color:#dc2626}
+.nl-sh-pill.sexit{background:#fecaca;color:#991b1b}
+.nl-sh-pill.insufficient{background:#f1f5f9;color:#94a3b8}
+
 .nl-scan{margin:26px 0}
 .nl-scan h2{font-size:1.4rem;letter-spacing:-.02em;margin:0 0 6px}
 .nl-scan-sub{color:var(--muted);font-size:.9rem;margin:0 0 14px}
