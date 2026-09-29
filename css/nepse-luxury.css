@@ -152,6 +152,31 @@ p.sec-sub{color:var(--muted);font-size:17.5px;max-width:64ch;margin-bottom:48px;
 .tool .go span{transition:transform .3s var(--ease);display:inline-block}
 .tool:hover .go span{transform:translateX(5px)}
 
+/* ---------- visual tool cards (compact, icon-led) ---------- */
+.tools-visual{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.tool-card{display:flex;align-items:center;gap:20px;background:var(--paper);
+  border:1px solid var(--hairline);border-radius:var(--radius);padding:22px 24px;
+  color:var(--ink);position:relative;overflow:hidden;
+  transition:transform .3s var(--ease),box-shadow .3s var(--ease),border-color .3s var(--ease)}
+.tool-card::before{content:"";position:absolute;top:0;left:24px;right:24px;height:2px;
+  background:var(--gold);transform:scaleX(0);transform-origin:left;
+  transition:transform .4s var(--ease)}
+.tool-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-hover);border-color:var(--gold-soft)}
+.tool-card:hover::before{transform:scaleX(1)}
+.tc-icon{flex:0 0 52px;width:52px;height:52px;border-radius:16px;background:var(--gold-faint);
+  display:flex;align-items:center;justify-content:center;color:var(--emerald-deep)}
+.tc-icon svg{width:26px;height:26px}
+.tc-body{flex:1;min-width:0}
+.tc-body h3{font-family:var(--serif);font-size:19px;font-weight:600;letter-spacing:-.01em;margin-bottom:4px}
+.tc-body p{color:var(--muted);font-size:14px;line-height:1.5;margin:0}
+.tc-go{flex:0 0 auto;font-size:22px;color:var(--gold);transition:transform .3s var(--ease)}
+.tool-card:hover .tc-go{transform:translateX(6px)}
+@media(max-width:720px){
+  .tools-visual{grid-template-columns:1fr;gap:14px}
+  .tool-card{padding:18px 20px;gap:16px}
+  .tc-icon{flex-basis:46px;width:46px;height:46px}
+}
+
 /* ---------- verdict pills & rows ---------- */
 .verdict{padding:8px 18px;border-radius:999px;font-weight:700;font-size:13px;
   letter-spacing:.02em;white-space:nowrap;display:inline-block}
@@ -314,10 +339,23 @@ p.sec-sub{color:var(--muted);font-size:17.5px;max-width:64ch;margin-bottom:48px;
   section.block{padding:68px 0}
   .final{padding:56px 28px;margin-bottom:72px}
   .honest{padding:32px 26px}
-  .suite-links{display:none}
   .dc-link{display:none}
   .topbar .btn.ghost{display:none}
   .topbar-in{gap:16px}
+  /* Mobile: horizontal scrollable suite nav below the topbar */
+  .topbar-in{flex-wrap:wrap;height:auto;padding-top:12px;padding-bottom:0;row-gap:0}
+  .topbar .spacer{display:none}
+  .suite-links{display:flex;order:3;flex-basis:100%;margin:12px -24px 0;padding:0 24px 12px;
+    gap:8px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;
+    scrollbar-width:none;scrollbar-color:transparent transparent}
+  .suite-links::-webkit-scrollbar{display:none}
+  .suite-links a{flex:0 0 auto;font-size:12px;letter-spacing:.1em;padding:9px 16px;
+    border:1px solid var(--hairline);border-radius:999px;background:var(--paper);
+    color:var(--muted);white-space:nowrap}
+  .suite-links a::after{display:none}
+  .suite-links a.on{background:var(--ink);border-color:var(--ink);color:var(--ivory)}
+  .suite-links a:hover{color:var(--ink);border-color:var(--gold)}
+  .suite-links a.on:hover{color:var(--ivory)}
 }
 
 /* ---------- app sidebar rail (desktop only, >=1100px) ---------- */
