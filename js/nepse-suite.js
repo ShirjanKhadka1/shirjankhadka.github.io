@@ -457,4 +457,49 @@
     fmtInt: fmtInt,
     fmt2: fmt2
   };
+
+  /* Mobile suite navigation: inject a hamburger into .topbar on small
+   * screens that toggles the suite links as a dropdown panel. Pure
+   * enhancement; desktop layout untouched. */
+  function initMobileNav() {
+    var bar = document.querySelector('.topbar');
+    var inner = bar && bar.querySelector('.topbar-in');
+    var links = inner && inner.querySelector('.suite-links');
+    if (!bar || !inner || !links || inner.querySelector('.nav-burger')) return;
+    var btn = document.createElement('button');
+    btn.className = 'nav-burger';
+    btn.type = 'button';
+    btn.setAttribute('aria-label', 'Open menu');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.innerHTML = '<span></span>';
+    // keep the CTA visible: insert before the spacer so burger sits at right
+    var spacer = inner.querySelector('.spacer');
+    if (spacer && spacer.nextElementSibling) inner.insertBefore(btn, spacer.nextElementSibling);
+    else inner.appendChild(btn);
+    function close() {
+      bar.classList.remove('nav-open');
+      btn.setAttribute('aria-expanded', 'false');
+      btn.setAttribute('aria-label', 'Open menu');
+    }
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var open = bar.classList.toggle('nav-open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    });
+    document.addEventListener('click', function (e) {
+      if (bar.classList.contains('nav-open') && !bar.contains(e.target)) close();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') close();
+    });
+    links.addEventListener('click', function (e) {
+      if (e.target.closest('a')) close();
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMobileNav);
+  } else {
+    initMobileNav();
+  }
 })();
