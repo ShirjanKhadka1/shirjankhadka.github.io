@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nepse Decode Fundamentals: Free NEPSE Company Snapshot, Sector Comparison, Ratio Guide</title>
+<link rel="stylesheet" href="/css/nepse-design-system.css?v=20260930a">
 <meta name="description" content="Nepse Decode: free per-stock NEPSE fundamentals: market profile snapshot, sector-relative comparison, recent company headlines, and a plain-language guide to P/E, P/B, EPS, ROE and ROA. Educational, no login, no paywall.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-fundamentals/">
 <meta property="og:type" content="website">
@@ -30,8 +31,6 @@
 {"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-alpha/"},
 {"@type":"ListItem","position":3,"name":"Fundamentals","item":"https://shirjankhadka.com.np/nepse-fundamentals/"}]}
 </script>
-<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260929d">
-<link rel="stylesheet" href="/css/nepse-brand.css?v=20261003a">
 <style>
 /* fundamentals-only */
 .wrap{max-width:980px}
@@ -124,66 +123,57 @@
 @media(prefers-reduced-motion:reduce){.fd-suggest li{transition:none}}
 </style>
 </head>
-<body>
-
-<aside class="suite-rail" aria-label="Nepse Decode suite">
-  <a class="rail-word" href="/nepse-alpha/"><img class="wm-mark" src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
-  <p class="rail-k">Suite</p>
-  <nav aria-label="Suite tools">
-    <a href="/nepse-alpha/">Overview</a>
-    <a href="/nepse-chart/">Chart &amp; signals</a>
-    <a href="/nepse-screener/">Screener</a>
-    <a href="/nepse-sectors/">Sectors</a>
-    <a href="/nepse-news/">Market news</a>
-    <a href="/nepse-watchlist/">Watchlist</a>
-    <a href="/nepse-dashboard/">Dashboard</a>
-    <a href="/nepse-portfolio/">Portfolio</a>
-    <a href="/nepse-simulator/">Simulator</a>
-    <a href="/nepse-fundamentals/" class="on" aria-current="page">Fundamentals</a>
-    <a href="/nepse-reports/">Reports</a>
-    <a href="/nepse-actions/">Corp. actions</a>
-  </nav>
-  <p class="rail-foot">Free forever · no login</p>
-</aside>
-
-<header class="topbar">
-  <div class="wrap topbar-in">
-    <a class="wordmark" href="/nepse-alpha/"><img class="wm-mark" src="/assets/brand/nepse-decode-mark.svg" alt="" width="30" height="30">Nepse Decode</a>
-    <nav class="suite-links" aria-label="Nepse Decode suite">
-      <a href="/nepse-chart/">The Lab</a>
-      <a href="/nepse-screener/">Screener</a>
-      <a href="/nepse-sectors/">Sectors</a>
-      <a href="/nepse-news/">News</a>
-      <a href="/nepse-watchlist/">Watchlist</a>
-      <a href="/nepse-dashboard/">Dashboard</a>
-      <a href="/nepse-portfolio/">Portfolio</a>
-      <a href="/nepse-simulator/">Simulator</a>
-      <a href="/nepse-fundamentals/" class="on" aria-current="page">Fundamentals</a>
-      <a href="/nepse-reports/">Reports</a>
-    </nav>
-    <div class="spacer"></div>
-    <a class="btn small" href="/nepse-portfolio/">My portfolio</a>
-  </div>
+<body class="nd">
+<header class="nd-topbar">
+  <a class="brand" href="/nepse-alpha/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="24" height="24">Nepse Decode</a>
+  <a class="nd-btn primary" href="/nepse-chart/" style="padding:8px 18px;font-size:0.85rem">Open the Lab</a>
 </header>
+<nav class="nd-mobilenav" aria-label="Suite tools">
+  <a href="/nepse-alpha/">Overview</a>
+  <a href="/nepse-chart/">Chart & signals</a>
+  <a href="/nepse-screener/">Screener</a>
+  <a href="/nepse-sectors/">Sectors</a>
+  <a href="/nepse-news/">Market news</a>
+  <a href="/nepse-watchlist/">Watchlist</a>
+  <a href="/nepse-dashboard/">Dashboard</a>
+  <a href="/nepse-portfolio/">Portfolio</a>
+  <a href="/nepse-simulator/">Simulator</a>
+  <a href="/nepse-fundamentals/" class="active" aria-current="page">Fundamentals</a>
+  <a href="/nepse-reports/">Reports</a>
+  <a href="/nepse-actions/">Corp. actions</a>
+</nav>
 
+<div class="nd-shell">
+  <aside class="nd-side" aria-label="Nepse Decode suite">
+    <a class="brand" href="/nepse-alpha/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
+    <nav class="nd-nav" aria-label="Suite tools">
+      <p class="nav-kicker">Suite</p>
+  <a href="/nepse-alpha/">Overview</a>
+  <a href="/nepse-chart/">Chart & signals</a>
+  <a href="/nepse-screener/">Screener</a>
+  <a href="/nepse-sectors/">Sectors</a>
+  <a href="/nepse-news/">Market news</a>
+  <a href="/nepse-watchlist/">Watchlist</a>
+  <a href="/nepse-dashboard/">Dashboard</a>
+  <a href="/nepse-portfolio/">Portfolio</a>
+  <a href="/nepse-simulator/">Simulator</a>
+  <a href="/nepse-fundamentals/" class="active" aria-current="page">Fundamentals</a>
+  <a href="/nepse-reports/">Reports</a>
+  <a href="/nepse-actions/">Corp. actions</a>
+    </nav>
+    <p class="nd-caption" style="margin-top:32px">Free forever · no login</p>
+  </aside>
+
+  <div class="nd-content">
+    <div class="nd-wrap">
 <main id="main">
-  <section class="hero">
-    <div class="wrap">
-      <div class="hero-rule"></div>
-      <span class="eyebrow"><span class="pulse"></span>Free · No login · No estimates</span>
-      <h1>Know the company behind the chart.</h1>
-      <p class="lede">A per-stock snapshot from the daily batch, measured against its sector, plus a plain-language guide to the classic valuation ratios. We show only real data: anything we do not have is labeled as not available, never estimated.</p>
-      <div class="field" style="margin-top:22px">
-        <label for="fd-sym">Search a listed security</label>
-        <div class="fd-search-wrap">
-          <input id="fd-sym" type="search" placeholder="Search symbol or company name…" role="combobox" aria-expanded="false" aria-controls="fd-suggest" aria-autocomplete="list" autocomplete="off">
-          <ul id="fd-suggest" class="fd-suggest" role="listbox" aria-label="Matching securities" hidden></ul>
-        </div>
-      </div>
-      <p class="fd-status" id="fd-status" role="status" hidden></p>
-      <p class="asof" id="fd-asof">Loading batch…</p>
+  <div class="nd-masthead">
+    <div>
+      <p class="nd-kicker">Fundamentals</p>
+      <h1 style="font-family:var(--serif);font-weight:600;font-size:clamp(1.8rem,4.5vw,2.5rem);letter-spacing:-0.015em">The company behind the chart</h1>
     </div>
-  </section>
+    
+  </div>
 
   <div class="wrap">
     <div class="fd-empty" id="fd-empty" hidden></div>
@@ -232,6 +222,9 @@
     </section>
   </div>
 </main>
+    </div>
+  </div>
+</div>
 
 <footer class="foot">
   <div class="wrap">

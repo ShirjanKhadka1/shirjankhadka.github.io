@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nepse Decode Screener: Free NEPSE Ranked Buy/Hold/Exit Signals, No Login</title>
+<link rel="stylesheet" href="/css/nepse-design-system.css?v=20260930a">
 <meta name="description" content="Nepse Decode: free NEPSE stock screener, no login: every listed security ranked daily by a transparent rule-based buy/hold/exit engine, with RSI, ATR-based stop-loss and targets. Educational only.">
 <meta name="author" content="Shirjan Khadka">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-screener/">
@@ -27,15 +28,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260929d">
-<link rel="stylesheet" href="/css/nepse-wave7.css?v=20261002d">
-<link rel="stylesheet" href="/css/nepse-brand.css?v=20261003a">
 <link rel="stylesheet" href="../css/style.css?v=20260930a">
 <link rel="stylesheet" href="screener.css?v=20261003a">
 <link rel="stylesheet" href="../nepse-chart/chart.css?v=20260930b">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"Nepse Decode Screener","url":"https://shirjankhadka.com.np/nepse-screener/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Daily ranked NEPSE stock screener: every listed security scored by a transparent rule-based engine (Strong Buy to Strong Sell) with ATR-based stop-loss and target levels, sector, signal, RSI, price and volume filters, RSI extremes and biggest-movers lists, and search. Educational use only, not investment advice.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/",
-      "sameAs": ["https://www.linkedin.com/in/shirjankhadkab/"]}}
+{"@context":"https://schema.org","@type":"WebApplication","name":"Nepse Decode Screener","url":"https://shirjankhadka.com.np/nepse-screener/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Daily ranked NEPSE stock screener: every listed security scored by a transparent rule-based engine (Strong Buy to Strong Sell) with ATR-based stop-loss and target levels, sector, signal, RSI, price and volume filters, RSI extremes and biggest-movers lists, and search. Educational use only, not investment advice.","author":{"@type":"Organization","name":"Nepse Decode"}}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
@@ -51,57 +48,57 @@
 {"@type":"Question","name":"What is the Hit rate column?","acceptedAnswer":{"@type":"Answer","text":"For each security with enough history, the engine's past Buy and Strong Buy calls on equity securities over the last 250 sessions are replayed using only data available at the time. A call counts as a hit when the session's own target (+4x ATR) was reached before its stop-loss (-2x ATR) within the next 20 sessions. The hit rate is hits divided by decided calls; calls where neither level was touched are excluded. Fewer than 5 decided calls shows as a dash. Hit rates are regime-dependent: 31.0% across the older 250-session window (NEPSE +31.0%) versus 11.4% across the most recent 250 sessions (NEPSE -6.2%)."}}]}
 </script>
 </head>
-<body>
-<a class="skip" href="#main">Skip to content</a>
-
-<aside class="suite-rail" aria-label="Nepse Decode suite">
-  <a class="rail-word" href="/nepse-alpha/"><img class="wm-mark" src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
-  <p class="rail-k">Suite</p>
-  <nav aria-label="Suite tools">
-    <a href="/nepse-alpha/">Overview</a>
-    <a href="/nepse-chart/">Chart &amp; signals</a>
-    <a href="/nepse-screener/" class="on" aria-current="page">Screener</a>
-    <a href="/nepse-sectors/">Sectors</a>
-    <a href="/nepse-news/">Market news</a>
-    <a href="/nepse-watchlist/">Watchlist</a>
-    <a href="/nepse-dashboard/">Dashboard</a>
-    <a href="/nepse-portfolio/">Portfolio</a>
-    <a href="/nepse-simulator/">Simulator</a>
-    <a href="/nepse-fundamentals/">Fundamentals</a>
-    <a href="/nepse-reports/">Reports</a>
-    <a href="/nepse-actions/">Corp. actions</a>
-  </nav>
-  <p class="rail-foot">Free forever · no login</p>
-</aside>
-
-<header class="topbar">
-  <div class="wrap topbar-in">
-    <a class="wordmark" href="/nepse-alpha/"><img class="wm-mark" src="/assets/brand/nepse-decode-mark.svg" alt="" width="30" height="30">Nepse Decode</a>
-    <nav class="suite-links" aria-label="Nepse Decode suite">
-      <a href="/nepse-chart/">The Lab</a>
-      <a href="/nepse-screener/" class="on" aria-current="page">Screener</a>
-      <a href="/nepse-sectors/">Sectors</a>
-      <a href="/nepse-news/">News</a>
-      <a href="/nepse-watchlist/">Watchlist</a>
-      <a href="/nepse-dashboard/">Dashboard</a>
-      <a href="/nepse-portfolio/">Portfolio</a>
-      <a href="/nepse-simulator/">Simulator</a>
-      <a href="/nepse-fundamentals/">Fundamentals</a>
-      <a href="/nepse-reports/">Reports</a>
-    </nav>
-    <div class="spacer"></div>
-    <a class="btn small" href="/nepse-chart/">Open the Lab →</a>
-  </div>
+<body class="nd">
+<header class="nd-topbar">
+  <a class="brand" href="/nepse-alpha/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="24" height="24">Nepse Decode</a>
+  <a class="nd-btn primary" href="/nepse-chart/" style="padding:8px 18px;font-size:0.85rem">Open the Lab</a>
 </header>
+<nav class="nd-mobilenav" aria-label="Suite tools">
+  <a href="/nepse-alpha/">Overview</a>
+  <a href="/nepse-chart/">Chart & signals</a>
+  <a href="/nepse-screener/" class="active" aria-current="page">Screener</a>
+  <a href="/nepse-sectors/">Sectors</a>
+  <a href="/nepse-news/">Market news</a>
+  <a href="/nepse-watchlist/">Watchlist</a>
+  <a href="/nepse-dashboard/">Dashboard</a>
+  <a href="/nepse-portfolio/">Portfolio</a>
+  <a href="/nepse-simulator/">Simulator</a>
+  <a href="/nepse-fundamentals/">Fundamentals</a>
+  <a href="/nepse-reports/">Reports</a>
+  <a href="/nepse-actions/">Corp. actions</a>
+</nav>
 
-<main id="main" class="wrap">
-  <section class="hero">
-    <div class="hero-rule"></div>
-    <p class="eyebrow">Side project · Daily ranking</p>
-    <h1>Free NEPSE stock screener</h1>
-    <p class="lede">Every NEPSE-listed security, ranked daily by a transparent rule-based signal engine, with ATR-based stop-loss and target levels. Click any symbol for the full chart, pattern and divergence breakdown in Nepse Decode. For a company snapshot, open the <a href="/nepse-fundamentals/">fundamentals page</a> and search any symbol.</p>
-    <p class="asof" id="sc-asof">Loading data…</p>
-  </section>
+<div class="nd-shell">
+  <aside class="nd-side" aria-label="Nepse Decode suite">
+    <a class="brand" href="/nepse-alpha/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
+    <nav class="nd-nav" aria-label="Suite tools">
+      <p class="nav-kicker">Suite</p>
+  <a href="/nepse-alpha/">Overview</a>
+  <a href="/nepse-chart/">Chart & signals</a>
+  <a href="/nepse-screener/" class="active" aria-current="page">Screener</a>
+  <a href="/nepse-sectors/">Sectors</a>
+  <a href="/nepse-news/">Market news</a>
+  <a href="/nepse-watchlist/">Watchlist</a>
+  <a href="/nepse-dashboard/">Dashboard</a>
+  <a href="/nepse-portfolio/">Portfolio</a>
+  <a href="/nepse-simulator/">Simulator</a>
+  <a href="/nepse-fundamentals/">Fundamentals</a>
+  <a href="/nepse-reports/">Reports</a>
+  <a href="/nepse-actions/">Corp. actions</a>
+    </nav>
+    <p class="nd-caption" style="margin-top:32px">Free forever · no login</p>
+  </aside>
+
+  <div class="nd-content">
+    <div class="nd-wrap">
+<main id="main">
+  <div class="nd-masthead">
+    <div>
+      <p class="nd-kicker">Screener</p>
+      <h1 style="font-family:var(--serif);font-weight:600;font-size:clamp(1.8rem,4.5vw,2.5rem);letter-spacing:-0.015em">Every stock, ranked</h1>
+    </div>
+    <span class="nd-fresh" id="sc-asof">Loading…</span>
+  </div>
 
   <section class="sc-tf" aria-label="Signal timeframe">
     <label class="sc-tf-lab" for="sc-tf">Timeframe</label>
@@ -239,6 +236,9 @@
     <p class="sc-disclaim">Rule-based screening for education only, not investment advice. Signals computed from the last close (<span id="sc-asof2">–</span>). Securities with under 60 sessions of history get no signal.</p>
   </section>
 </main>
+    </div>
+  </div>
+</div>
 
 <footer class="sc-footer">
   <div class="wrap">
