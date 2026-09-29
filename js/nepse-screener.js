@@ -13,7 +13,13 @@
   var DISP = { 'Strong Buy': 'Strong Buy', 'Buy': 'Buy', 'Hold': 'Hold', 'Exit / Reduce': 'Sell', 'Strong Exit': 'Strong Sell', 'Insufficient history': 'No signal' };
 
   var state = { rows: [], q: '', sector: '', verdict: '', rsi: '', pmin: null, pmax: null, vmin: null,
-    sortK: 'sig', sortD: 1, page: 1, perPage: 25 };
+    sortK: 'sig', sortD: 1, page: 1, perPage: 25, tf: 'd' };
+  var TF_LABEL = { d: 'Daily', w: 'Weekly', m: 'Monthly' };
+  var TF_HINT = {
+    d: "Today's signal from the latest session.",
+    w: 'One verdict per security from weekly candles. Needs 40+ weeks of history.',
+    m: 'One verdict per security from monthly candles. Needs 36+ months of history.'
+  };
 
   function $(id) { return document.getElementById(id); }
   function esc(s) {
@@ -105,6 +111,30 @@
     if (ra !== rb) return ra - rb;
     var sa = a.s == null ? -999 : a.s, sb = b.s == null ? -999 : b.s;
     return sb - sa || (a.sym < b.sym ? -1 : 1);
+  }
+
+  // Timeframe switch: remap each row's signal fields from the daily (d),
+  // weekly (w) or monthly (m) verdict. Price, change and volume stay on the
+  // latest daily session as price context; hit rate is daily-only.
+  function applyTf() {
+    var tf = state.tf;
+    state.rows.forEach(function (r) {
+      var e = r.raw || {}, src = tf === 'd' ? e : (e[tf] || null);
+      if (src && src.v) {
+        r.v = src.v; r.s = src.s; r.rsi = src.rsi; r.sl = src.sl; r.tp = src.tp;
+        r.setup = src.setup || null; r.tfasof = src.asof || null;
+        r.tr = tf === 'd' ? (e.tr || null) : null;
+      } else {
+        r.v = 'Insufficient history'; r.s = null; r.rsi = null; r.sl = null; r.tp = null;
+        r.setup = null; r.tr = null; r.tfasof = null;
+      }
+    });
+  }
+
+  function tfRankedCount() {
+    var n = 0;
+    state.rows.forEach(function (r) { if (r.v !== 'Insufficient history') n++; });
+    return n;
   }
 
   function render() {
@@ -224,6 +254,42 @@
     $('sc-perpage').addEventListener('change', function (e) {
       state.perPage = Math.max(1, parseInt(e.target.value, 10) || 25);
       state.page = 1; render();
+    });
+    // Timeframe switch: Daily / Weekly / Monthly signal ranking.
+    var tfSel = $('sc-tf');
+    if (tfSel) tfSel.addEventListener('change', function (e) {
+      state.tf = e.target.value || 'd';
+      applyTf();
+      var tf = state.tf;
+      var c = { 'Strong Buy': 0, 'Buy': 0, 'Hold': 0, 'Exit / Reduce': 0, 'Strong Exit': 0 };
+      state.rows.forEach(function (r) { if (c[r.v] != null) c[r.v]++; });
+      $('sc-n-sbuy').textContent = c['Strong Buy'];
+      $('sc-n-buy').textContent = c['Buy'];
+      $('sc-n-hold').textContent = c['Hold'];
+      $('sc-n-exit').textContent = c['Exit / Reduce'];
+      $('sc-n-sexit').textContent = c['Strong Exit'];
+      $('sc-n-total').textContent = state.rows.length;
+      var votes = {};
+      state.rows.forEach(function (r) { if (r.tfasof) votes[r.tfasof] = (votes[r.tfasof] || 0) + 1; });
+      var best = Object.keys(votes).sort(function (a, b) { return votes[b] - votes[a]; })[0]
+        || state.batchAsof || '';
+      var n = tfRankedCount();
+      var scAsof = $('sc-asof');
+      scAsof.textContent = tf === 'd'
+        ? 'Signals as of ' + best + ' · ' + state.rows.length + ' securities ranked'
+        : TF_LABEL[tf] + ' signals as of ' + best + ' · ' + n + ' of ' + state.rows.length + ' securities ranked';
+      if (window.NepseFresh && best && !scAsof.querySelector('.fresh'))
+        scAsof.insertAdjacentHTML('beforeend', ' ' + window.NepseFresh.badge(best));
+      var hint = $('sc-tf-hint');
+      if (hint) hint.textContent = TF_HINT[tf] || '';
+      var asof2 = $('sc-asof2');
+      if (asof2) asof2.textContent = best
+        ? (tf === 'd' ? best : best + ' (' + TF_LABEL[tf].toLowerCase() + ' candles)')
+        : 'the last close';
+      state.page = 1;
+      syncCards();
+      render();
+      renderCardResults();
     });
     // summary cards double as signal filters
     function syncCards() {
@@ -356,10 +422,12 @@
         return {
           sym: sym, name: names[sym] || sym, v: e.v, s: e.s, p: e.p, ch: e.ch,
           vol: e.vol, volAvg: e.volAvg || null, sec: e.sec || null, sl: e.sl, tp: e.tp,
-          setup: e.setup || null, l: e.l || 0, tr: e.tr || null, rsi: e.rsi
+          setup: e.setup || null, l: e.l || 0, tr: e.tr || null, rsi: e.rsi,
+          raw: e
         };
       });
       var asof = vj.asof || '';
+      state.batchAsof = asof;
       var scAsof = $('sc-asof');
       scAsof.textContent = asof
         ? 'Signals as of ' + asof + ' · ' + state.rows.length + ' securities ranked'

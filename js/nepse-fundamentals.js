@@ -53,7 +53,7 @@
   }
 
   /* ---------- page ---------- */
-  var uni = null, ver = null, news = null, cur = null;
+  var uni = null, ver = null, news = null, cur = null, fundData = null;
 
   var $ = function (id) { return document.getElementById(id); };
   var els = {};
@@ -170,6 +170,7 @@
     sugg.hidden = true;
     try { history.replaceState(null, '', '?s=' + encodeURIComponent(sym)); } catch (e) {}
     cur = sym;
+    renderFundTable(fundData, sym);
     renderProfile(sym);
   }
   function renderSugg() {
@@ -187,7 +188,13 @@
     if (!q || !uni) { sugg.hidden = true; return; }
     matches = uni.symbols.filter(function (x) {
       return x.s.indexOf(q) === 0 || x.n.toUpperCase().indexOf(q) !== -1;
-    }).slice(0, 20);
+    }).map(function (x) {
+      // rank: exact symbol first, then symbol prefix, then name match
+      var score = x.s === q ? 0 : (x.s.indexOf(q) === 0 ? 1 : 2);
+      return { x: x, score: score };
+    }).sort(function (a, b) {
+      return a.score - b.score || (a.x.s < b.x.s ? -1 : a.x.s > b.x.s ? 1 : 0);
+    }).map(function (o) { return o.x; }).slice(0, 20);
     renderSugg();
   });
   input.addEventListener('keydown', function (e) {
@@ -208,12 +215,16 @@
   });
 
   /* ---------- quarterly figures table (numbers first) ---------- */
-  function renderFundTable(fund) {
+  function renderFundTable(fund, firstSym) {
     var host = $('fd-table');
     if (!host) return;
     if (!fund || !fund.banks) { host.innerHTML = ''; return; }
     var syms = Object.keys(fund.banks).sort();
     if (!syms.length) { host.innerHTML = ''; return; }
+    // the searched symbol's row goes first, the rest follow alphabetically
+    if (firstSym && syms.indexOf(firstSym) >= 0) {
+      syms = [firstSym].concat(syms.filter(function (s) { return s !== firstSym; }));
+    }
     var rows = syms.map(function (s) {
       var f = fund.banks[s];
       var td = function (v) { return '<td>' + (v === null || v === undefined ? '–' : esc(v)) + '</td>'; };
@@ -243,11 +254,11 @@
     fetch(NEWS_URL).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
     fetch(FUND_URL).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
   ]).then(function (res) {
-    uni = res[0]; ver = res[1]; news = res[2];
-    renderFundTable(res[3]);
+    uni = res[0]; ver = res[1]; news = res[2]; fundData = res[3];
     if (!uni || !ver) { setStatus('Could not load the daily batch. Please reload the page.', true); return; }
     setStatus('');
     var sym = symParam();
+    renderFundTable(fundData, sym);
     if (sym) { input.value = sym; cur = sym; renderProfile(sym); }
     else {
       els['fd-empty'].hidden = false;
