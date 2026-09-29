@@ -3,69 +3,126 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Free NEPSE Chart: Candlestick Charts, Pattern Scanner & Divergence Signals</title>
-<meta name="description" content="Free NEPSE chart with candlestick charts, Bollinger Bands, EMA/SMA overlays, RSI and Stochastic indicators, automatic chart-pattern and RSI/MACD divergence scanner, support/resistance factors and transparent buy/hold/exit signals for every listed stock. No login.">
-<link rel="canonical" href="https://shirjankhadka.com.np/nepse-chart/">
-<meta name="robots" content="index, follow, max-image-preview:large">
-<meta name="theme-color" content="#FAF8F2">
+<title>Free NEPSE Paper Trading Simulator: Backtest Strategies on Historical Data | Shirjan Khadka</title>
+<meta name="description" content="Paper-trade NEPSE stocks on historical daily data: SMA crossover, RSI swing and buy-and-hold strategies with ATR position sizing, equity curves and a trade journal. Free, educational, no login.">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-simulator/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="NEPSE Alpha Lab: Patterns, Divergences &amp; Buy/Hold/Exit Signals">
-<meta property="og:description" content="Search any NEPSE stock: live quotes, chart patterns, divergences and a transparent rule-based buy/hold/exit engine. Free, no login.">
-<meta property="og:url" content="https://shirjankhadka.com.np/nepse-chart/">
+<meta property="og:title" content="Free NEPSE Paper Trading Simulator">
+<meta property="og:description" content="Backtest simple rule-based strategies on NEPSE historical data with honest position sizing and a trade journal. Free, no login.">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-simulator/">
 <meta property="og:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Free NEPSE Paper Trading Simulator">
+<meta name="twitter:description" content="Backtest simple rule-based strategies on NEPSE historical data. Free, educational, no login.">
 <meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
-<meta name="twitter:title" content="NEPSE Alpha Lab, Patterns, Divergences &amp; Buy/Hold/Exit Signals">
-<meta name="twitter:description" content="Free NEPSE stock lab: live quotes, chart patterns, RSI/MACD divergences and a transparent buy/hold/exit signal engine.">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="preconnect" href="https://samirwagle.github.io">
-<link rel="preconnect" href="https://shubhamnpk.github.io">
-<link rel="dns-prefetch" href="https://samirwagle.github.io">
-<link rel="dns-prefetch" href="https://shubhamnpk.github.io">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930b">
-<link rel="stylesheet" href="chart.css?v=20261002a">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"NEPSE Alpha Lab","url":"https://shirjankhadka.com.np/nepse-chart/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Free NEPSE analysis lab: live quotes for any listed stock, candlestick charts with Bollinger Bands, EMA/SMA overlays, RSI and Stochastic, automatic chart-pattern and divergence detection, and a transparent rule-based buy/hold/exit signal engine. Educational use only.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/",
-      "sameAs": ["https://www.linkedin.com/in/shirjankhadkab/"]}}
-</script>
-<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
-{"@type":"Question","name":"Does the NEPSE Alpha Lab give buy or sell signals?","acceptedAnswer":{"@type":"Answer","text":"It shows a rule-based verdict, Strong Buy, Buy, Hold, Exit/Reduce or Strong Exit, computed in your browser from ten transparent factors: trend vs moving averages, RSI, MACD, turnover, 52-week position, divergences, chart patterns, market backdrop and support/resistance. Every factor and its contribution is listed, so nothing is a black box. It is educational, not investment advice."}},
-{"@type":"Question","name":"Is the data real-time?","acceptedAnswer":{"@type":"Answer","text":"During NEPSE trading hours (Monday–Friday, 11:00–15:00 NPT) the quote panel refreshes from a free community live feed and shows a LIVE badge; the chart appends the in-progress session. Outside market hours it shows the last closed session. NEPSE publishes no free official real-time API, so this uses community mirrors and may be delayed."}},
-{"@type":"Question","name":"Which patterns and divergences are detected?","acceptedAnswer":{"@type":"Answer","text":"Double tops and bottoms, head & shoulders and inverse head & shoulders, ascending/descending/symmetrical triangles and rising/falling wedges, plus regular and hidden bullish/bearish divergences on RSI(14) and the MACD histogram. Detections are drawn on the chart and listed with dates and plain-English notes."}},
-{"@type":"Question","name":"Where does the data come from?","acceptedAnswer":{"@type":"Answer","text":"Per-stock daily OHLC history from the open Nepse-All-Scraper dataset (Samir Wagle, MIT), live quotes and monthly LTP history from the yonepse open API, and the NEPSE index daily history (2003–2026) from the nepse-open-data archive. Coverage spans every currently listed security, equities, mutual funds, debentures and preference shares. Securities without scraper OHLC (e.g. newer listings) use LTP-only history and are clearly flagged; pattern and divergence detection is disabled for those."}},
-{"@type":"Question","name":"Is this financial advice?","acceptedAnswer":{"@type":"Answer","text":"No. Everything here is a mechanical, rule-based illustration for education. Markets are uncertain and past patterns do not guarantee future results. Do your own research before any investment decision."}}]}
+{"@context":"https://schema.org","@type":"WebPage","name":"NEPSE Paper Trading Simulator","url":"https://shirjankhadka.com.np/nepse-simulator/","description":"A free, browser-based NEPSE paper-trading simulator: backtest rule-based strategies on historical daily data with ATR position sizing, equity curves and a trade journal. Educational use only.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
 {"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
-{"@type":"ListItem","position":2,"name":"NEPSE Alpha Lab","item":"https://shirjankhadka.com.np/nepse-chart/"}]}
+{"@type":"ListItem","position":2,"name":"NEPSE Alpha Lab","item":"https://shirjankhadka.com.np/nepse-alpha/"},
+{"@type":"ListItem","position":3,"name":"Simulator","item":"https://shirjankhadka.com.np/nepse-simulator/"}]}
 </script>
+<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930c">
+<style>
+/* simulator-only */
+.wrap{max-width:980px}
+.topbar .wrap{max-width:1160px}
+.sim-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:26px 0}
+.sim-card{background:var(--paper);border:1px solid var(--hairline);border-radius:18px;padding:24px}
+.sim-card h2{font-family:var(--serif);font-size:21px;font-weight:600;margin-bottom:6px}
+.sim-card .sub{font-size:13.5px;color:var(--muted);margin-bottom:16px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:6px}
+.field input[type="text"],.field input[type="search"],.field input[type="date"],.field input[type="number"],.field textarea{width:100%;font:inherit;font-size:15px;padding:12px 16px;border:1px solid var(--hairline);border-radius:12px;background:var(--ivory);color:var(--ink);outline:none}
+.field input:focus,.field textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(198,168,107,.22)}
+.field input:disabled{opacity:.45;cursor:not-allowed}
+.sim-search-wrap{position:relative}
+.sim-suggest{position:absolute;top:calc(100% + 8px);left:0;right:0;list-style:none;background:var(--paper);border:1px solid var(--hairline);border-radius:14px;box-shadow:var(--shadow-hover);overflow:hidden;z-index:50;margin:0;padding:0}
+.sim-suggest[hidden]{display:none}
+.sim-suggest li{display:flex;gap:12px;align-items:baseline;padding:11px 18px;cursor:pointer;font-size:14px}
+.sim-suggest li strong{font-weight:700;color:var(--emerald-deep)}
+.sim-suggest li span{color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sim-suggest li[aria-selected="true"],.sim-suggest li:hover{background:var(--gold-faint)}
+.dates{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.strat-pick{display:flex;flex-direction:column;gap:10px}
+.strat-opt{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--hairline);border-radius:14px;padding:14px 16px;cursor:pointer;transition:border-color .25s var(--ease)}
+.strat-opt:hover{border-color:var(--gold)}
+.strat-opt input{margin-top:4px;accent-color:var(--gold)}
+.strat-opt strong{display:block;font-size:15px}
+.strat-opt span{font-size:13.5px;color:var(--muted)}
+.sizing3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+#sim-sizing.dimmed{opacity:.45}
+.sim-status{margin:14px 0;padding:14px 18px;border-radius:12px;background:var(--gold-faint);border:1px solid var(--hairline);font-size:14.5px}
+.sim-status[hidden]{display:none}
+.sim-status.err{background:#fbeeea;border-color:#e8c4b8;color:#8a2f22}
+.math{background:var(--ivory);border:1px dashed var(--hairline);border-radius:12px;padding:16px 18px;font-size:14px;color:var(--muted);margin-top:16px}
+.math code{font-family:ui-monospace,monospace;font-size:13px;color:var(--ink);background:rgba(12,31,22,.06);padding:2px 7px;border-radius:6px}
+.rules{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:26px 0}
+.rule-card{background:var(--paper);border:1px solid var(--hairline);border-radius:16px;padding:20px}
+.rule-card h3{font-family:var(--serif);font-size:17px;margin-bottom:8px}
+.rule-card ol{margin:0;padding-left:20px;font-size:13.5px;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.rule-card .warn{font-size:13px;color:#8a2f22;margin-top:10px}
+#sim-results{margin:34px 0}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}
+.stat{background:var(--paper);border:1px solid var(--hairline);border-radius:14px;padding:16px 18px}
+.nl-stat-k{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:4px}
+.nl-stat-v{font-size:19px;font-weight:700;font-variant-numeric:tabular-nums}
+.up{color:var(--up)}.down{color:var(--down)}
+.eq-wrap{background:var(--paper);border:1px solid var(--hairline);border-radius:16px;padding:20px;margin:18px 0}
+.eq-wrap canvas{width:100%;height:260px;display:block}
+.eq-legend{display:flex;gap:22px;font-size:13px;color:var(--muted);margin-top:10px}
+.eq-legend i{display:inline-block;width:22px;height:3px;border-radius:2px;vertical-align:middle;margin-right:7px}
+.trades-wrap{overflow-x:auto;margin:18px 0}
+table.trades{width:100%;border-collapse:collapse;font-size:13.5px;background:var(--paper);border:1px solid var(--hairline);border-radius:16px;overflow:hidden}
+table.trades th,table.trades td{padding:10px 12px;text-align:right;border-bottom:1px solid var(--hairline-soft);white-space:nowrap;font-variant-numeric:tabular-nums}
+table.trades th:first-child,table.trades td:first-child,table.trades th:nth-child(8),table.trades td:nth-child(8),table.trades th:nth-child(9),table.trades td:nth-child(9){text-align:left}
+table.trades th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);background:var(--ivory)}
+table.trades tr:last-child td{border-bottom:none}
+.muted{color:var(--muted)}
+.linklike{background:none;border:none;color:var(--gold);font:inherit;font-size:13px;cursor:pointer;text-decoration:underline;padding:0}
+.tnote{margin-top:8px}
+.tnote textarea{width:100%;font:inherit;font-size:13.5px;padding:10px 12px;border:1px solid var(--hairline);border-radius:10px;background:var(--ivory);margin-bottom:8px}
+.tnote-saved{font-size:13px;color:var(--muted);background:var(--gold-faint);border-radius:8px;padding:8px 12px;margin:6px 0}
+.run-note{margin:18px 0}
+.journal{margin:34px 0}
+.sj-row{display:flex;gap:14px;justify-content:space-between;align-items:flex-start;background:var(--paper);border:1px solid var(--hairline);border-radius:14px;padding:16px 20px;margin-bottom:10px}
+.sj-row strong{font-size:15px}
+.sj-meta{display:block;font-size:12px;color:var(--faint);margin:3px 0 6px}
+.sj-row p{font-size:14px;color:var(--muted);margin:0}
+.wl-rm{width:32px;height:32px;border-radius:50%;border:1px solid var(--hairline);background:var(--ivory);color:var(--muted);font-size:17px;line-height:1;cursor:pointer;flex:none}
+.wl-rm:hover{background:var(--down);border-color:var(--down);color:#fff}
+.limits{margin:40px 0}
+.limits ul{margin:0;padding-left:22px;color:var(--muted);font-size:14.5px;display:flex;flex-direction:column;gap:8px}
+.fresh{font-size:12px;color:var(--gold);border:1px solid var(--hairline);padding:3px 10px;border-radius:999px;white-space:nowrap}
+.asof{font-size:13.5px;color:var(--muted)}
+@media(max-width:860px){.sim-grid{grid-template-columns:1fr}.rules{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.sizing3{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.strat-opt{transition:none}}
+</style>
 </head>
 <body>
-<a class="skip" href="#main">Skip to content</a>
 
 <aside class="suite-rail" aria-label="Alpha Lab suite">
   <a class="rail-word" href="/nepse-alpha/">NEPSE Alpha Lab<span class="g">.</span></a>
   <p class="rail-k">Suite</p>
   <nav aria-label="Suite tools">
     <a href="/nepse-alpha/">Overview</a>
-    <a href="/nepse-chart/" class="on" aria-current="page">Chart &amp; signals</a>
+    <a href="/nepse-chart/">Chart &amp; signals</a>
     <a href="/nepse-screener/">Screener</a>
     <a href="/nepse-sectors/">Sectors</a>
     <a href="/nepse-news/">Market news</a>
     <a href="/nepse-watchlist/">Watchlist</a>
     <a href="/nepse-dashboard/">Dashboard</a>
     <a href="/nepse-portfolio/">Portfolio</a>
-    <a href="/nepse-simulator/">Simulator</a>
+    <a href="/nepse-simulator/" class="on" aria-current="page">Simulator</a>
     <a href="/nepse-chart/data-check.html">Data check</a>
   </nav>
   <p class="rail-foot">Free forever · no login</p>
@@ -75,145 +132,183 @@
   <div class="wrap topbar-in">
     <a class="wordmark" href="/nepse-alpha/">NEPSE Alpha Lab<span class="g">.</span></a>
     <nav class="suite-links" aria-label="Alpha Lab suite">
-      <a href="/nepse-chart/" class="on" aria-current="page">The Lab</a>
+      <a href="/nepse-chart/">The Lab</a>
       <a href="/nepse-screener/">Screener</a>
       <a href="/nepse-sectors/">Sectors</a>
       <a href="/nepse-news/">News</a>
       <a href="/nepse-watchlist/">Watchlist</a>
       <a href="/nepse-dashboard/">Dashboard</a>
       <a href="/nepse-portfolio/">Portfolio</a>
-      <a href="/nepse-simulator/">Simulator</a>
+      <a href="/nepse-simulator/" class="on" aria-current="page">Simulator</a>
     </nav>
     <div class="spacer"></div>
-    <a class="dc-link" href="data-check.html">Coverage check</a>
-    <a class="btn small" href="/nepse-screener/">Open the Screener →</a>
+    <a class="btn small" href="/nepse-portfolio/">My portfolio</a>
   </div>
 </header>
 
-<main id="main" class="wrap">
+<main id="main">
   <section class="hero">
-    <div class="hero-rule"></div>
-    <p class="eyebrow">Side project · Technical analysis</p>
-    <h1>Free NEPSE chart &amp; technical analysis</h1>
-    <p class="lede">Search any NEPSE-listed stock for live quotes, candlestick charts, automatic chart-pattern &amp; divergence detection, and a transparent rule-based <strong>buy / hold / exit</strong> engine. Or explore the full NEPSE index history. Everything runs in your browser, free, no login, no tracking.</p>
-    <p class="asof" id="nl-asof">Loading data…</p>
-  </section>
-
-  <section class="nl-search" id="nl-lab" aria-label="Symbol search">
-    <div class="nl-search-row">
-      <input id="nl-sym" list="nl-syms" placeholder="Search symbol, e.g. NABIL, HIDCL, UPPER… (NEPSE = index)" autocomplete="off" spellcheck="false" aria-label="Stock symbol">
-      <datalist id="nl-syms"></datalist>
-      <button id="nl-go" class="nl-go">Analyze</button>
-    </div>
-    <div class="nl-chips">
-      <button data-chip="NEPSE">NEPSE index</button>
-      <button data-chip="NABIL">NABIL</button>
-      <button data-chip="NICA">NICA</button>
-      <button data-chip="HIDCL">HIDCL</button>
-      <button data-chip="UPPER">UPPER</button>
-      <button data-chip="NIFRA">NIFRA</button>
+    <div class="wrap">
+      <div class="hero-rule"></div>
+      <span class="eyebrow"><span class="pulse"></span>Free · No login · Paper trading only</span>
+      <h1>Test a strategy before the market tests you.</h1>
+      <p class="lede">Pick a NEPSE security, choose a mechanical strategy, and walk it through historical daily data with honest position sizing. Every rule is printed on this page, every trade is logged, and nothing here touches real money.</p>
+      <p class="asof" id="sim-data-note">Loading history…</p>
     </div>
   </section>
 
-  <section class="nl-livebar" id="nl-livebar" aria-label="Live quote"></section>
+  <div class="wrap">
+    <div class="sim-grid">
+      <section class="sim-card" aria-label="Simulation setup">
+        <h2>Setup</h2>
+        <p class="sub">One security, one date range, one strategy at a time.</p>
+        <div class="field">
+          <label for="sim-sym">Security (full OHLC history only)</label>
+          <div class="sim-search-wrap">
+            <input id="sim-sym" type="search" placeholder="Search symbol or company name…" role="combobox" aria-expanded="false" aria-controls="sim-suggest" aria-autocomplete="list" autocomplete="off">
+            <ul id="sim-suggest" class="sim-suggest" role="listbox" aria-label="Matching securities" hidden></ul>
+          </div>
+        </div>
+        <div class="field">
+          <label>Date range</label>
+          <div class="dates">
+            <input id="sim-start" type="date" aria-label="Start date">
+            <input id="sim-end" type="date" aria-label="End date">
+          </div>
+        </div>
+        <div class="field">
+          <label for="sim-cash">Starting cash (Rs)</label>
+          <input id="sim-cash" type="number" min="1000" step="1000" value="100000">
+        </div>
+        <div class="field">
+          <label>Strategy</label>
+          <div class="strat-pick" role="radiogroup" aria-label="Strategy">
+            <label class="strat-opt"><input type="radio" name="sim-strat" value="buyhold"><span><strong>Buy and hold</strong><span>Buy at the first close, sell at the last. The baseline every strategy must beat.</span></span></label>
+            <label class="strat-opt"><input type="radio" name="sim-strat" value="sma-cross" checked><span><strong>SMA 20 / 50 crossover</strong><span>Buy golden crosses, exit death crosses. Trend following, the style that worked best in long NEPSE backtests.</span></span></label>
+            <label class="strat-opt"><input type="radio" name="sim-strat" value="rsi-swing"><span><strong>RSI(14) swing</strong><span>Buy when RSI drops under 30, exit when it rises over 70. Classic mean reversion, included so you can see it struggle.</span></span></label>
+          </div>
+        </div>
+      </section>
 
-  <section class="nl-verdict" id="nl-verdict" aria-label="Signal engine verdict"></section>
+      <section class="sim-card" aria-label="Risk settings">
+        <h2>Risk</h2>
+        <p class="sub">Fixed-fractional position sizing on every trade.</p>
+        <div id="sim-sizing">
+          <div class="sizing3">
+            <div class="field">
+              <label for="sim-risk">Risk per trade (%)</label>
+              <input id="sim-risk" type="number" min="0.1" max="100" step="0.1" value="1">
+            </div>
+            <div class="field">
+              <label for="sim-stopmult">Stop (× ATR14)</label>
+              <input id="sim-stopmult" type="number" min="0.5" step="0.5" value="2">
+            </div>
+            <div class="field">
+              <label for="sim-targetmult">Target (× ATR14)</label>
+              <input id="sim-targetmult" type="number" min="0.5" step="0.5" value="4">
+            </div>
+          </div>
+        </div>
+        <div class="math">
+          <strong>How a position is sized.</strong><br>
+          Risk amount = risk % × current equity. Stop distance = entry price − (entry − stop × ATR14).
+          Shares = <code>floor(risk amount / stop distance)</code>, rounded down to whole shares and never more than cash allows.
+          Example: Rs 100,000 equity, 1% risk, Rs 500 entry, ATR14 of Rs 20, 2× stop → stop distance Rs 40 → floor(1000 / 40) = 25 shares, Rs 12,500 at risk of Rs 1,000.
+        </div>
+        <div style="margin-top:18px"><button id="sim-run" class="btn" disabled>Run simulation</button></div>
+        <p class="sim-status" id="sim-status" role="status" hidden></p>
+      </section>
+    </div>
 
-  <section class="nl-sighist" id="nl-sighist" aria-label="Signal history"></section>
-
-  <section class="nl-news" id="nl-news" aria-label="Latest market news"></section>
-
-  <section class="stats" aria-label="Market snapshot">
-    <div class="stat"><span class="nl-stat-k">Last close</span><span class="nl-stat-v" id="nl-last">-</span></div>
-    <div class="stat"><span class="nl-stat-k">Day change</span><span class="nl-stat-v" id="nl-chg">-</span></div>
-    <div class="stat"><span class="nl-stat-k">52-week high</span><span class="nl-stat-v" id="nl-52h">-</span></div>
-    <div class="stat"><span class="nl-stat-k">52-week low</span><span class="nl-stat-v" id="nl-52l">-</span></div>
-    <div class="stat"><span class="nl-stat-k">RSI (14)</span><span class="nl-stat-v" id="nl-rsi-v">-</span></div>
-    <div class="stat"><span class="nl-stat-k">Trend regime</span><span class="nl-stat-v small" id="nl-regime">-</span></div>
-  </section>
-
-  <section class="chart-card">
-    <div class="controls">
-      <div class="seg" id="nl-tf" role="group" aria-label="Timeframe">
-        <button data-v="1M">1M</button><button data-v="3M">3M</button><button data-v="6M">6M</button>
-        <button data-v="1Y" class="on" aria-pressed="true">1Y</button><button data-v="2Y">2Y</button><button data-v="5Y">5Y</button><button data-v="All">All</button>
+    <section aria-label="Strategy rules">
+      <h2 class="sec">The exact rules.</h2>
+      <p class="sec-sub">No hidden logic. Signals use only data available at that day's close, and trades execute at that close.</p>
+      <div class="rules">
+        <div class="rule-card">
+          <h3>Buy and hold</h3>
+          <ol>
+            <li>Buy as many whole shares as the starting cash allows at the first close of the range.</li>
+            <li>Hold everything to the last close, then sell.</li>
+            <li>No stops, no targets, no sizing: the honest baseline.</li>
+          </ol>
+        </div>
+        <div class="rule-card">
+          <h3>SMA 20 / 50 crossover</h3>
+          <ol>
+            <li>Buy at the close when SMA 20 crosses above SMA 50.</li>
+            <li>Exit at the close when SMA 20 crosses below SMA 50.</li>
+            <li>Exit early at the ATR stop or target, whichever the day's range touches first (stop wins ties).</li>
+            <li>One position at a time; a new entry needs a fresh cross.</li>
+          </ol>
+        </div>
+        <div class="rule-card">
+          <h3>RSI(14) swing</h3>
+          <ol>
+            <li>Buy at the close when RSI(14) falls below 30.</li>
+            <li>Exit at the close when RSI(14) rises above 70.</li>
+            <li>ATR stop and target apply the same as above.</li>
+          </ol>
+          <p class="warn">Long NEPSE backtests found this style loses money: oversold often stays oversold here. Run it and see for yourself.</p>
+        </div>
       </div>
-      <div class="seg" id="nl-style" role="group" aria-label="Chart style">
-        <button data-v="candles" class="on" aria-pressed="true">Candles</button><button data-v="line">Line</button>
+    </section>
+
+    <section id="sim-results" aria-label="Simulation results" hidden>
+      <div id="sim-res-head"></div>
+      <div class="stats" id="sim-stats"></div>
+      <div class="eq-wrap">
+        <h3>Equity curve</h3>
+        <canvas id="sim-equity" role="img" aria-label="Equity curve chart"></canvas>
+        <div class="eq-legend"><span><i style="background:#C6A86B"></i>Strategy</span><span><i style="background:rgba(12,31,22,.35)"></i>Buy and hold</span></div>
       </div>
-      <div class="ind-group" id="nl-ind" role="group" aria-label="Indicators">
-        <span class="ind-title">Indicators</span>
-        <label class="ind"><input type="checkbox" data-ind="bb" checked><span class="ind-name">Bollinger Bands</span><button type="button" class="info-tip" data-tip="A 20-day average with bands two standard deviations above and below. Shows how far prices have stretched from their recent average." aria-label="About Bollinger Bands">i</button></label>
-        <label class="ind"><input type="checkbox" data-ind="ema20" checked><span class="ind-name">EMA 20</span><button type="button" class="info-tip" data-tip="A 20-day average that weights recent closes more heavily. A read on the short-term trend." aria-label="About EMA 20">i</button></label>
-        <label class="ind"><input type="checkbox" data-ind="sma20" checked><span class="ind-name">SMA 20</span><button type="button" class="info-tip" data-tip="The simple average of the last 20 closes. A plain read on the short-term trend." aria-label="About SMA 20">i</button></label>
-        <label class="ind"><input type="checkbox" data-ind="sma50" checked><span class="ind-name">SMA 50</span><button type="button" class="info-tip" data-tip="The simple average of the last 50 closes. A read on the medium-term trend." aria-label="About SMA 50">i</button></label>
-        <label class="ind"><input type="checkbox" data-ind="rsi" checked><span class="ind-name">RSI</span><button type="button" class="info-tip" data-tip="A 0 to 100 measure of recent gains versus losses over 14 days. Readings above 70 or below 30 mark stretched zones." aria-label="About RSI">i</button></label>
-        <label class="ind"><input type="checkbox" data-ind="stoch"><span class="ind-name">Stochastic</span><button type="button" class="info-tip" data-tip="A 0 to 100 read of where the close sits inside the last 14 days' range, with a 3-day signal line." aria-label="About the Stochastic oscillator">i</button></label>
+      <h3>Trade log</h3>
+      <div class="trades-wrap">
+        <table class="trades">
+          <thead><tr><th>#</th><th>Entry</th><th>Price</th><th>Exit</th><th>Price</th><th>Qty</th><th>P&amp;L</th><th>Reason</th><th>Journal</th></tr></thead>
+          <tbody id="sim-trades-body"></tbody>
+        </table>
       </div>
-      <p class="ind-note" id="nl-ind-note" hidden>Indicators need full OHLC history, so they are unavailable for this LTP-only security.</p>
-      <div class="toggles" role="group" aria-label="Chart annotations">
-        <button data-tgl="signals" class="on" aria-pressed="true" id="tgl-sig">Patterns</button>
+      <div class="run-note">
+        <div class="field">
+          <label for="sim-run-note">Run note (saved to your journal)</label>
+          <textarea id="sim-run-note" rows="2" placeholder="What did this run teach you about the strategy?"></textarea>
+        </div>
+        <button id="sim-save-run-note" class="btn small">Save run note</button>
       </div>
-    </div>
-    <div class="chart-wrap">
-      <canvas id="nl-chart" role="img" aria-label="Price chart. Hover or touch to inspect values."></canvas>
-      <div class="nl-tip" id="nl-tip" style="display:none"></div>
-    </div>
-    <div class="legend">
-      <span><i class="sw up"></i>Up day</span>
-      <span><i class="sw down"></i>Down day</span>
-      <span><i class="ln bb"></i>Bollinger Bands</span>
-      <span><i class="ln ema20"></i>EMA 20</span>
-      <span><i class="ln sma20"></i>SMA 20</span>
-      <span><i class="ln sma50"></i>SMA 50</span>
-      <span><i class="mk buy"></i>▲ Golden cross</span>
-      <span><i class="mk sell"></i>▼ Death cross</span>
-      <span><i class="ln divb"></i>Divergence</span>
-      <span><i class="ln pat"></i>Pattern</span>
-      <span class="ath">- - ATH 3,199</span>
-    </div>
-    <div class="chart-wrap rsi" id="nl-rsi-wrap">
-      <canvas id="nl-rsi" role="img" aria-label="RSI 14 indicator"></canvas>
-    </div>
-    <div class="chart-wrap rsi" id="nl-stoch-wrap" style="display:none">
-      <canvas id="nl-stoch" role="img" aria-label="Stochastic oscillator 14,3,3"></canvas>
-    </div>
-    <p class="hint">Hover or drag across the chart to inspect any session.</p>
-  </section>
+    </section>
 
-  <section class="nl-scan" aria-label="Free NEPSE screener: pattern and divergence scanner">
-    <h2>Free NEPSE screener: pattern &amp; divergence scanner</h2>
-    <p class="nl-scan-sub">Latest automatic detections on daily data, double tops/bottoms, head &amp; shoulders, triangles, wedges, and RSI/MACD divergences. <strong>Locate</strong> jumps the chart to a finding.</p>
-    <div id="nl-scan-list"></div>
-  </section>
+    <section class="journal" aria-label="Trade journal">
+      <h2 class="sec">Your journal.</h2>
+      <p class="sec-sub">Notes you attach to trades and runs live in this browser only. This is where a backtest becomes a lesson.</p>
+      <div id="sim-journal-list"></div>
+      <p class="muted" id="sim-journal-empty">No journal entries yet. Run a simulation and add a note to any trade.</p>
+    </section>
 
-  <section class="nl-scan-link" aria-label="Full market scan on the screener">
-    <p>Want every listed stock ranked side by side? <a href="/nepse-screener/">Open the free NEPSE stock screener →</a></p>
-  </section>
-
-  <section class="explain">
-    <h2>How the signal engine works</h2>
-    <p class="nl-engine-short">Ten transparent factors scored on the daily chart add up to a verdict from <strong>Strong Buy</strong> to <strong>Strong Exit</strong>, a mechanical summary of what the chart looks like right now, and every factor's contribution is listed under the verdict. <a href="/nepse-alpha/">How each factor is scored, with the engine's full track record →</a></p>
-    <p class="honest"><strong>An honest note:</strong> NEPSE publishes no free official real-time API, so quotes come from free community mirrors and can be delayed. During market hours (Mon–Fri, 11:00–15:00 NPT) the quote panel refreshes and the chart includes the session in progress; outside hours you see the last closed session.</p>
-    <p class="disclaimer">All signals are mechanical outputs of published rules, shown for education. They are not investment advice, not AI predictions, and past performance does not guarantee future results.</p>
-  </section>
-
-  <section class="faq">
-    <h2>Questions</h2>
-    <details><summary>Does this give buy or sell signals?</summary><p>It shows a rule-based verdict, Strong Buy, Buy, Hold, Exit/Reduce or Strong Exit, with every contributing factor listed. Transparent and educational; not financial advice.</p></details>
-    <details><summary>Is the data real-time?</summary><p>Quotes refresh during market hours from a free community feed (LIVE badge); outside hours you see the last closed session. History is daily OHLC per stock.</p></details>
-    <details><summary>What timeframes are available?</summary><p>1M, 3M, 6M, 1Y, 2Y on daily candles; 5Y and All switch to weekly candles so long histories stay readable.</p></details>
-    <p class="faq-more">More questions, answered on the <a href="/nepse-alpha/">Alpha Lab overview →</a></p>
-  </section>
-
-  <footer class="foot">
-    <p>Built by <a href="/">Shirjan Khadka</a> · Data: <a href="https://github.com/samirwagle/nepse-all-scraper" rel="noopener">Nepse-All-Scraper</a> · <a href="https://github.com/shubhamnpk/yonepse" rel="noopener">yonepse</a> · <a href="/nepali-date-converter/">Nepali Date Converter</a></p>
-  </footer>
+    <section class="limits" aria-label="Limitations">
+      <h2 class="sec">What this does not do.</h2>
+      <ul>
+        <li>Daily closes only. Intraday movement is ignored except for checking whether the day's high/low touched the stop or target.</li>
+        <li>No brokerage commission, DP charges, or capital gains tax are modeled. Real trading costs money on every leg.</li>
+        <li>No slippage: fills are assumed exactly at the close, stop, or target price.</li>
+        <li>Dividends, bonus shares, and right issues are not adjusted for; price drops on ex-dates will look like losses.</li>
+        <li>Only securities with full OHLC history can be simulated. LTP-only listings are excluded, never faked.</li>
+        <li>A profitable backtest does not predict future results. Markets change, and this market especially rewards humility.</li>
+      </ul>
+    </section>
+  </div>
 </main>
 
-<script src="/js/nepse-fresh.js?v=20260930b" defer></script>
-<script src="/js/nepse-daily.js?v=20260924d" defer></script>
-<script src="/js/nepse-lab.js?v=20261002a" defer></script>
-<script src="/js/nepse-news.js?v=20260930a" defer></script>
+<footer class="foot">
+  <div class="wrap">
+    <div class="disclaimer"><strong>Educational use only.</strong> Simulations run on historical data with simplified assumptions and are not investment advice. Nothing here is a buy or sell recommendation; past simulation results do not predict future performance.</div>
+    <div class="row">
+      <span>Built by <a href="/">Shirjan Khadka</a> · Aspiring Financial Analyst</span>
+      <span><a href="/nepse-alpha/">Alpha Lab</a> · <a href="/nepse-chart/">Chart</a> · <a href="/nepse-screener/">Screener</a> · <a href="/nepse-portfolio/">Portfolio</a> · <a href="/blog/">Blog</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="/js/nepse-fresh.js?v=20260930b"></script>
+<script src="/js/nepse-simulator.js?v=20260929a"></script>
 </body>
 </html>
