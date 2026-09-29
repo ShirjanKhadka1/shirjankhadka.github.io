@@ -1,8 +1,8 @@
-/* NEPSE Alpha Lab — chart + pattern/divergence scanner + rules-based verdict engine.
+/* NEPSE Alpha Lab, chart + pattern/divergence scanner + rules-based verdict engine.
    Index data: window.NEPSE_DAILY = [YYYYMMDD, o, h, l, c, turnoverNPR], daily sessions.
    Stock data: fetched live from free community APIs (samirwagle/Nepse-All-Scraper
    per-symbol OHLC JSON + shubhamnpk/yonepse live quotes). All analysis is computed
-   client-side, rule-based and educational — not AI predictions, not advice. */
+   client-side, rule-based and educational, not AI predictions, not advice. */
 (function () {
   'use strict';
 
@@ -151,8 +151,8 @@
         i1: a.i, i2: b.i, d1: rows[a.i][0], d2: rows[b.i][0], p1: a.p, p2: b.p,
         label: (bias === 'bullish' ? 'Bullish' : 'Bearish') + ' divergence (' + ind + ', ' + sub + ')',
         note: bias === 'bullish'
-          ? 'Price made a lower low while ' + ind + ' made a higher low — selling pressure may be fading.'
-          : 'Price made a higher high while ' + ind + ' made a lower high — buying pressure may be fading.'
+          ? 'Price made a lower low while ' + ind + ' made a higher low, selling pressure may be fading.'
+          : 'Price made a higher high while ' + ind + ' made a lower high, buying pressure may be fading.'
       };
     }
     function scan(ind, name, thr) {
@@ -242,7 +242,7 @@
         if (head > s1 * 1.015 && head > s2 * 1.015 && Math.abs(s1 - s2) / s1 <= 0.05) {
           var nl = (w[1].p + w[3].p) / 2, brk3 = brokeLevel(nl, w[4].i, -1, 45);
           out.push(base('head-shoulders', 'Head & Shoulders', 'bearish', w[0].i, w[4].i, rows[w[0].i][0], rows[w[4].i][0],
-            brk3 > 0 ? 'Confirmed: neckline broke ' + fmtD(rows[brk3][0]) + ' — classic reversal lower.'
+            brk3 > 0 ? 'Confirmed: neckline broke ' + fmtD(rows[brk3][0]) + ', classic reversal lower.'
                      : 'Forming: left shoulder, head, right shoulder with neckline near ' + num(nl, 0) + '.',
             brk3 > 0 ? 'high' : 'medium'));
           out[out.length - 1].draw = { nline: nl, iEnd: brk3 > 0 ? brk3 : w[4].i, neck: [{ i: w[1].i, p: w[1].p }, { i: w[3].i, p: w[3].p }] };
@@ -253,7 +253,7 @@
         if (headb < s1b * 0.985 && headb < s2b * 0.985 && Math.abs(s1b - s2b) / s1b <= 0.05) {
           var nlb = (w[1].p + w[3].p) / 2, brk4 = brokeLevel(nlb, w[4].i, 1, 45);
           out.push(base('inv-head-shoulders', 'Inverse Head & Shoulders', 'bullish', w[0].i, w[4].i, rows[w[0].i][0], rows[w[4].i][0],
-            brk4 > 0 ? 'Confirmed: neckline broke ' + fmtD(rows[brk4][0]) + ' — classic reversal higher.'
+            brk4 > 0 ? 'Confirmed: neckline broke ' + fmtD(rows[brk4][0]) + ', classic reversal higher.'
                      : 'Forming: inverse head & shoulders with neckline near ' + num(nlb, 0) + '.',
             brk4 > 0 ? 'high' : 'medium'));
           out[out.length - 1].draw = { nline: nlb, iEnd: brk4 > 0 ? brk4 : w[4].i, neck: [{ i: w[1].i, p: w[1].p }, { i: w[3].i, p: w[3].p }] };
@@ -288,11 +288,11 @@
       if (!kind) return;
       var i1 = Math.min(highs[0].i, lows[0].i), i2 = Math.max(highs[highs.length - 1].i, lows[lows.length - 1].i);
       var notes = {
-        'triangle-asc': 'Flat resistance above, rising support below — buyers pressing higher. Bullish on an upside break.',
-        'triangle-desc': 'Flat support below, falling resistance above — sellers pressing lower. Bearish on a downside break.',
-        'triangle-sym': 'Coiling range — a sharp expansion move usually follows the break, either way.',
-        'wedge-rising': 'Rising but converging — momentum is tiring. Often resolves downward.',
-        'wedge-falling': 'Falling but converging — selling is tiring. Often resolves upward.'
+        'triangle-asc': 'Flat resistance above, rising support below, buyers pressing higher. Bullish on an upside break.',
+        'triangle-desc': 'Flat support below, falling resistance above, sellers pressing lower. Bearish on a downside break.',
+        'triangle-sym': 'Coiling range, a sharp expansion move usually follows the break, either way.',
+        'wedge-rising': 'Rising but converging, momentum is tiring. Often resolves downward.',
+        'wedge-falling': 'Falling but converging, selling is tiring. Often resolves upward.'
       };
       var it = base(kind, label, bias, i1, i2, rows[i1][0], rows[i2][0], notes[kind], 'medium');
       it.draw = { upper: highs, lower: lows, iEnd: i2 };
@@ -304,11 +304,11 @@
 
   /* ================= verdict engine =================
      Transparent multi-factor score. Positive = constructive, negative = weak.
-     Rule-based and educational — not financial advice. */
+     Rule-based and educational, not financial advice. */
   function computeVerdict(pack) {
     var rows = pack.rows, n = rows.length, factors = [];
     function F(name, pts, note) { factors.push({ name: name, pts: pts, note: note }); }
-    if (n < 60) return { score: null, label: 'Insufficient history', cls: 'insufficient', factors: factors, sessions: n, note: 'Only ' + n + ' sessions on record — not enough history to score reliably.' };
+    if (n < 60) return { score: null, label: 'Insufficient history', cls: 'insufficient', factors: factors, sessions: n, note: 'Only ' + n + ' sessions on record, not enough history to score reliably.' };
     var closes = rows.map(function (r) { return r[4]; });
     var s20 = smaArr(closes, 20), s50 = smaArr(closes, 50), s200 = smaArr(closes, 200);
     var rsiA = rsiArr(closes, 14), mR = macd(closes);
@@ -317,8 +317,8 @@
 
     // 1. trend vs SMA50 / SMA200
     var v50 = s50[n - 1], v200 = s200[n - 1];
-    if (v50 != null) add(c >= v50 ? 1.5 : -1.5, 'Trend vs SMA 50', c >= v50 ? 'Price above the 50-day average — uptrend.' : 'Price below the 50-day average — downtrend.');
-    if (v200 != null) add(c >= v200 ? 1.5 : -1.5, 'Trend vs SMA 200', c >= v200 ? 'Above the 200-day average — long-term uptrend.' : 'Below the 200-day average — long-term downtrend.');
+    if (v50 != null) add(c >= v50 ? 1.5 : -1.5, 'Trend vs SMA 50', c >= v50 ? 'Price above the 50-day average, uptrend.' : 'Price below the 50-day average, downtrend.');
+    if (v200 != null) add(c >= v200 ? 1.5 : -1.5, 'Trend vs SMA 200', c >= v200 ? 'Above the 200-day average, long-term uptrend.' : 'Below the 200-day average, long-term downtrend.');
 
     // 2. recent SMA20/50 cross
     var cross = 0;
@@ -328,13 +328,13 @@
       if (a0 <= b0 && a1 > b1) cross = 2;
       else if (a0 >= b0 && a1 < b1) cross = -2;
     }
-    if (cross !== 0) add(cross, 'SMA 20/50 crossover', cross > 0 ? 'Golden cross in the last 20 sessions — momentum turning up.' : 'Death cross in the last 20 sessions — momentum turning down.');
+    if (cross !== 0) add(cross, 'SMA 20/50 crossover', cross > 0 ? 'Golden cross in the last 20 sessions, momentum turning up.' : 'Death cross in the last 20 sessions, momentum turning down.');
 
     // 3. RSI zone
     var r = rsiA[n - 1];
     if (r != null) {
-      if (r >= 70) add(-1, 'RSI ' + r.toFixed(0), 'Overbought zone — upside may be stretched.');
-      else if (r <= 30) add(0, 'RSI ' + r.toFixed(0), 'Oversold — in this market oversold can stay oversold; no bounce assumed.');
+      if (r >= 70) add(-1, 'RSI ' + r.toFixed(0), 'Overbought zone, upside may be stretched.');
+      else if (r <= 30) add(0, 'RSI ' + r.toFixed(0), 'Oversold, in this market oversold can stay oversold; no bounce assumed.');
       else if (r >= 55) add(0.5, 'RSI ' + r.toFixed(0), 'Firm momentum above 55.');
       else if (r <= 45) add(-0.5, 'RSI ' + r.toFixed(0), 'Soft momentum below 45.');
       else add(0, 'RSI ' + r.toFixed(0), 'Neutral momentum.');
@@ -343,9 +343,9 @@
     // 4. MACD histogram
     var h0 = mR.hist[n - 1], h1 = mR.hist[n - 2];
     if (h0 != null && h1 != null) {
-      if (h0 > 0 && h0 >= h1) add(1, 'MACD momentum', 'Positive and rising — buyers in control.');
+      if (h0 > 0 && h0 >= h1) add(1, 'MACD momentum', 'Positive and rising, buyers in control.');
       else if (h0 > 0) add(0.5, 'MACD momentum', 'Positive but fading.');
-      else if (h0 < h1) add(-1, 'MACD momentum', 'Negative and falling — sellers in control.');
+      else if (h0 < h1) add(-1, 'MACD momentum', 'Negative and falling, sellers in control.');
       else add(-0.5, 'MACD momentum', 'Negative but improving.');
     }
 
@@ -353,32 +353,32 @@
     var vols = rows.map(function (x) { return x[6] || 0; });
     var v5 = avg(vols.slice(-5)), v20 = avg(vols.slice(-20));
     if (v20 > 0) {
-      if (v5 > v20 * 1.5 && c >= rows[n - 5][4]) add(1, 'Turnover surge', 'Turnover running hot on rising prices — participation confirms the move.');
-      else if (v5 < v20 * 0.6) add(-0.5, 'Turnover drought', 'Turnover well below average — moves lack conviction.');
+      if (v5 > v20 * 1.5 && c >= rows[n - 5][4]) add(1, 'Turnover surge', 'Turnover running hot on rising prices, participation confirms the move.');
+      else if (v5 < v20 * 0.6) add(-0.5, 'Turnover drought', 'Turnover well below average, moves lack conviction.');
     }
 
     // 6. 52-week position
     var win = rows.slice(-252), h52 = -Infinity, l52 = Infinity;
     win.forEach(function (x) { if (x[2] > h52) h52 = x[2]; if (x[3] < l52) l52 = x[3]; });
     if (h52 > 0) {
-      if (c >= h52 * 0.95) add(0.5, 'Near 52-week high', 'Trading within 5% of the yearly high — extended; limited room before resistance.');
-      else if (c <= l52 * 1.1) add(-1, 'Near 52-week low', 'Trading within 10% of the yearly low — weak.');
+      if (c >= h52 * 0.95) add(0.5, 'Near 52-week high', 'Trading within 5% of the yearly high, extended; limited room before resistance.');
+      else if (c <= l52 * 1.1) add(-1, 'Near 52-week low', 'Trading within 10% of the yearly low, weak.');
     }
 
     // 7. divergences
     var bullD = pack.divs.filter(function (d) { return d.bias === 'bullish'; })[0];
     var bearD = pack.divs.filter(function (d) { return d.bias === 'bearish'; })[0];
-    if (bullD && (!bearD || bullD.i2 >= bearD.i2)) add(2, 'Bullish divergence', bullD.label + ' ending ' + fmtD(bullD.d2) + ' — timed entry.');
+    if (bullD && (!bearD || bullD.i2 >= bearD.i2)) add(2, 'Bullish divergence', bullD.label + ' ending ' + fmtD(bullD.d2) + ', timed entry.');
     else if (bearD) add(bearD.sub === 'regular' ? -1.5 : -1, 'Bearish divergence', bearD.label + ' ending ' + fmtD(bearD.d2) + '.');
 
-    // 8. chart patterns (most recent CONFIRMED only — a pattern is not a
+    // 8. chart patterns (most recent CONFIRMED only, a pattern is not a
     // signal until its neckline/boundary actually breaks)
     var done = pack.pats.filter(function (p) { return /Confirmed/.test(p.note); })[0];
     if (done) add(done.bias === 'bullish' ? 1 : done.bias === 'bearish' ? -1 : 0, done.label, done.note);
-    else if (pack.pats[0]) F(pack.pats[0].label + ' (forming)', 0, 'Pattern still forming — no points until confirmation.');
+    else if (pack.pats[0]) F(pack.pats[0].label + ' (forming)', 0, 'Pattern still forming, no points until confirmation.');
 
     // 9. market regime (stocks only)
-    if (!pack.isIndex && pack.idxRegime) add(pack.idxRegime === 'up' ? 0.5 : -0.5, 'Market backdrop', pack.idxRegime === 'up' ? 'NEPSE index above its 200-day average — tailwind.' : 'NEPSE index below its 200-day average — headwind.');
+    if (!pack.isIndex && pack.idxRegime) add(pack.idxRegime === 'up' ? 0.5 : -0.5, 'Market backdrop', pack.idxRegime === 'up' ? 'NEPSE index above its 200-day average, tailwind.' : 'NEPSE index below its 200-day average, headwind.');
 
     // 10. support / resistance proximity
     var piv = fractalPivots(rows, 4).slice(-8);
@@ -402,7 +402,7 @@
     // lose; the gate keeps entries to uptrends only.
     if ((label === 'Buy' || label === 'Strong Buy') && v200 != null && c < v200) {
       label = 'Hold'; cls = 'hold';
-      F('Regime gate', 0, 'Buy blocked — price below the 200-day average. No longs in a long-term downtrend.');
+      F('Regime gate', 0, 'Buy blocked, price below the 200-day average. No longs in a long-term downtrend.');
     }
     return { score: score, label: label, cls: cls, factors: factors };
   }
@@ -566,7 +566,7 @@
   function loadLTP(sym) {
     // LTP-only fallback for listed securities the scraper has no OHLC for.
     // File holds compact [ymd, ltp, volume, turnover, trades]; open/high/low are
-    // never fabricated — o=h=l=c=ltp and the UI flags the series as LTP-only.
+    // never fabricated, o=h=l=c=ltp and the UI flags the series as LTP-only.
     var ck = 'ltp:' + sym;
     if (histCache[ck]) return Promise.resolve(histCache[ck]);
     return fetchJSON(SRC.ltp(sym)).then(function (j) {
@@ -888,7 +888,7 @@
         g.closePath(); g.fill();
       }
     }
-    // analysis overlays — memoized: hover re-renders must NOT recompute detections
+    // analysis overlays, memoized: hover re-renders must NOT recompute detections
     var det = getDetections(S), divs = det.divs, pats = det.pats;
     drawAnnotations(g, X, Y, H, W, { rows: rows, viewStart: S.viewStart, isWeekly: S.isWeekly }, divs, pats);
     // hover crosshair
@@ -907,9 +907,9 @@
   }
   function maybeRenderShell(S, divs, pats) {
     // the verdict/scanner/stats DOM is rebuilt only when the underlying data
-    // changes — hover crosshair moves must not rebuild it (jank). The verdict
+    // changes, hover crosshair moves must not rebuild it (jank). The verdict
     // always renders in a single pass: loading, error, insufficient-history or
-    // the final stable score — never staged partial states.
+    // the final stable score, never staged partial states.
     var last = state.rows[state.rows.length - 1];
     var key = state.sym + '|' + state.rows.length + '|' + (last ? last[0] : 0) + '|' +
       state.tf + '|' + state.signals + '|' + state.loading + '|' + state.err + '|' +
@@ -966,7 +966,7 @@
   }
   // The engine's verdict recomputed at the close of each of the last 16
   // sessions, using only data available at that session (same engine, same
-  // rules — an honest replay, not a backtest claim).
+  // rules, an honest replay, not a backtest claim).
   function signalHistory() {
     var rows = state.rows, n = rows.length, out = [], HN = 16, i;
     var start = Math.max(60, n - HN);
@@ -1025,8 +1025,8 @@
           '<div class="nl-v-score">score ' + (v.score > 0 ? '+' : '') + v.score + ' / ±10</div></div></div>' +
           '<table class="nl-v-factors"><tbody>' + frows + '</tbody></table>' +
           '<div class="nl-v-foot">' +
-          (state.ltpOnly ? '<span class="nl-ltp-note">LTP-only history — intraday candles and pattern/divergence detection are unavailable for this security.</span> ' : '') +
-          'Rule-based model on daily data — educational only, not financial advice. ' +
+          (state.ltpOnly ? '<span class="nl-ltp-note">LTP-only history, intraday candles and pattern/divergence detection are unavailable for this security.</span> ' : '') +
+          'Rule-based model on daily data, educational only, not financial advice. ' +
           (state.liveBadge === 'live' ? 'Includes the live session in progress.' : 'Based on the last closed session.') + '</div>';
       }
       else if (n > 0) {
@@ -1035,8 +1035,8 @@
           '<div class="nl-v-top"><div><div class="nl-v-k">Signal engine verdict</div>' +
           '<div class="nl-v-label ' + v0.cls + '">' + v0.label + '</div></div>' +
           '<div class="nl-v-meterwrap"><div class="nl-v-score">' + esc(v0.note) + '</div></div></div>' +
-          (state.ltpOnly ? '<div class="nl-v-foot"><span class="nl-ltp-note">LTP-only history — intraday candles and pattern/divergence detection are unavailable for this security.</span></div>' : '') +
-          '<div class="nl-v-foot">Rule-based model on daily data — educational only, not financial advice.</div>';
+          (state.ltpOnly ? '<div class="nl-v-foot"><span class="nl-ltp-note">LTP-only history, intraday candles and pattern/divergence detection are unavailable for this security.</span></div>' : '') +
+          '<div class="nl-v-foot">Rule-based model on daily data, educational only, not financial advice.</div>';
       }
     }
     // ---- signal history: the engine's verdict at each of the last 16 sessions ----
@@ -1049,7 +1049,7 @@
         setTimeout(function () {
           var el = document.getElementById('nl-sighist');
           if (!el) return;
-          // symbol changed while we were computing — drop the stale result
+          // symbol changed while we were computing, drop the stale result
           if (!state.rows.length || state.sym + '|' + state.rows[state.rows.length - 1][0] !== shKey) return;
           try {
             var hist = signalHistory();
@@ -1062,7 +1062,7 @@
             el.innerHTML =
               '<h2>Signal history</h2>' +
               '<p class="nl-sh-sub">What the signal engine said at the close of each of the last ' + hist.length +
-              ' sessions — same rules, only the data available that day. Educational, not advice.</p>' +
+              ' sessions, same rules, only the data available that day. Educational, not advice.</p>' +
               '<div class="nl-sh-wrap"><table class="nl-sh-table"><thead><tr>' +
               '<th>Trade date</th><th class="num">Close price</th><th class="num">Volume</th><th>Signal trigger</th>' +
               '</tr></thead><tbody>' + shrows + '</tbody></table></div>';
@@ -1130,7 +1130,7 @@
 
   /* ================= market scan (every listed stock) =================
      verdicts.json is lazy-loaded: on scroll into view (IntersectionObserver)
-     or on first filter interaction — never on initial page load. Cached in
+     or on first filter interaction, never on initial page load. Cached in
      localStorage keyed by the snapshot date. */
   var ms = { data: null, asof: '', filter: 'all', q: '', sortK: 's', sortD: 1, loaded: false, loading: false };
   var VCLS = { 'Strong Buy': 'sbuy', 'Buy': 'buy', 'Hold': 'hold', 'Exit / Reduce': 'exit', 'Strong Exit': 'sexit', 'Insufficient history': 'insufficient' };
@@ -1241,7 +1241,7 @@
       var wrap = document.getElementById('nl-ms-wrap');
       if (wrap) wrap.innerHTML = '<div class="nl-ms-loading">Loading market scan…</div>';
       loadVerdicts().then(function () { renderMS(); }).catch(function () {
-        if (wrap) wrap.innerHTML = '<div class="nl-ms-empty">Market scan is unavailable right now — try the symbol search above.</div>';
+        if (wrap) wrap.innerHTML = '<div class="nl-ms-empty">Market scan is unavailable right now, try the symbol search above.</div>';
       });
     }
     if (typeof IntersectionObserver !== 'undefined') {
@@ -1332,7 +1332,7 @@
     cv = document.getElementById('nl-chart'); rcv = document.getElementById('nl-rsi');
     tip = document.getElementById('nl-tip');
     if (!cv || !window.NEPSE_DAILY) return;
-    // search — full listed universe from local data/universe.json (built by tools/build-nepse-universe.js)
+    // search, full listed universe from local data/universe.json (built by tools/build-nepse-universe.js)
     var input = document.getElementById('nl-sym'), dl = document.getElementById('nl-syms');
     function fillDL() {
       if (!dl) return;

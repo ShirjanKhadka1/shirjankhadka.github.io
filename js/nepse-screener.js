@@ -182,6 +182,10 @@
         x.classList.toggle('is-on', !!state.verdict && x.getAttribute('data-v') === state.verdict);
       });
       state.page = 1; render();
+      // the results table sits below the fold on phones: bring it into view
+      // so the filter result is visible the moment a card is tapped
+      var tbl = document.getElementById('sc-table');
+      if (tbl && tbl.scrollIntoView) tbl.scrollIntoView({ block: 'start', behavior: 'smooth' });
     }
     document.querySelectorAll('.sc-card[data-v]').forEach(function (c) {
       c.addEventListener('click', function () { cardFilter(c); });
@@ -230,7 +234,7 @@
       $('sc-asof2').textContent = asof || 'the last close';
       // keep the static snapshot heading in sync with the live data
       var snapAsof = document.querySelector('.sc-top10 .sc-asof-inline');
-      if (snapAsof && asof) snapAsof.textContent = '— ' + asof;
+      if (snapAsof && asof) snapAsof.textContent = '· ' + asof;
 
       // summary cards
       var c = { 'Strong Buy': 0, 'Buy': 0, 'Hold': 0, 'Exit / Reduce': 0, 'Strong Exit': 0 };
