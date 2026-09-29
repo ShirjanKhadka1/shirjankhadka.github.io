@@ -168,7 +168,7 @@ a.tag-award:hover { background: var(--accent); color: #fff; }
 .nav-links { display: flex; align-items: center; gap: 30px; }
 .nav-links a {
   text-decoration: none; font-size: 14px; font-weight: 500; color: var(--text);
-  opacity: .85; transition: opacity .2s; position: relative;
+  opacity: .85; transition: opacity .2s; position: relative; white-space: nowrap;
 }
 .nav-links a::after {
   content: ""; position: absolute; left: 0; bottom: -5px; height: 2px; width: 100%;
@@ -812,9 +812,8 @@ figure.article-hero .photo-credit { display: block; margin-top: 6px; font-size: 
 /* ============================================================
    Responsive
    ============================================================ */
-@media (max-width: 960px) {
-  .section { padding: 88px 0; }
-  .section-intro { margin-bottom: 48px; }
+/* Nav collapses to the dropdown panel before the links get cramped */
+@media (max-width: 1100px) {
   .nav-links {
     position: absolute; top: calc(100% + 10px); right: 22px;
     width: min(300px, calc(100vw - 44px));
@@ -838,6 +837,10 @@ figure.article-hero .photo-credit { display: block; margin-top: 6px; font-size: 
   .nav-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
   .avail-pill { display: none; }
   .hero-avail { display: inline-flex; }
+}
+@media (max-width: 960px) {
+  .section { padding: 88px 0; }
+  .section-intro { margin-bottom: 48px; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 36px 24px; }
   .feature { grid-template-columns: 1fr; }
   .feature-flip .feature-media { order: 0; }
@@ -846,6 +849,7 @@ figure.article-hero .photo-credit { display: block; margin-top: 6px; font-size: 
   .cert-grid { grid-template-columns: 1fr 1fr; }
   .about-grid { grid-template-columns: 1fr; }
   .about-portrait { max-width: 340px; }
+  .portrait-frame { width: min(320px, 70vw); }
   .blog-feature-link { grid-template-columns: 1fr; }
   .blog-feature-img { min-height: 230px; }
   .post-card-link { grid-template-columns: 1fr; }
@@ -858,6 +862,10 @@ figure.article-hero .photo-credit { display: block; margin-top: 6px; font-size: 
   .hero-pin { padding-top: 96px; }
   .hero-sub { font-size: 17px; }
   .hero-ctas .btn { flex: 1 1 auto; }
+  .portrait-frame { width: min(220px, 58vw); border-radius: 16px; }
+  .hero-media { padding: 8px 22px 72px; }
+  .hero-caption { margin-top: 14px; }
+  .about-portrait { max-width: 240px; margin: 0 auto 8px; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .stat-value { font-size: 2.2rem; }
   .cert-grid { grid-template-columns: 1fr; }
