@@ -21,7 +21,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="stylesheet" href="chart.css?v=20260930a">
+<link rel="stylesheet" href="chart.css?v=20260930b">
 <style>
 .dc-wrap{max-width:1180px;margin:0 auto;padding:0 20px}
 .dc-sub{color:var(--muted);margin:6px 0 0}
@@ -85,6 +85,18 @@ th.num{text-align:right}
 </script>
 </head>
 <body>
+<aside class="suite-rail" aria-label="Alpha Lab suite">
+  <a class="rail-word" href="/nepse-alpha/">NEPSE Alpha Lab<span class="g">.</span></a>
+  <p class="rail-k">Suite</p>
+  <nav aria-label="Suite tools">
+    <a href="/nepse-alpha/">Overview</a>
+    <a href="/nepse-chart/">Chart &amp; signals</a>
+    <a href="/nepse-screener/">Screener</a>
+    <a href="/nepse-news/">Market news</a>
+    <a href="/nepse-chart/data-check.html" class="on" aria-current="page">Data check</a>
+  </nav>
+  <p class="rail-foot">Free forever · no login</p>
+</aside>
 <header class="topbar">
   <div class="wrap topbar-in">
     <a class="back" href="./" aria-label="Back to Alpha Lab">← Alpha Lab</a>
@@ -144,6 +156,7 @@ th.num{text-align:right}
   </footer>
 </main>
 
+<script src="/js/nepse-fresh.js?v=20260930b"></script>
 <script>
 (function () {
   'use strict';
@@ -220,11 +233,17 @@ th.num{text-align:right}
       if (rows[i].isNew) nw++;
     }
     var cards = [
-      ['Listed', rows.length], ['Full history', ohlc], ['LTP-only', ltp],
-      ['No data', none], ['New listings', nw]
+      ['Listed', rows.length, 'Every symbol tracked in the latest audit.'],
+      ['Full history', ohlc, 'Securities with full daily OHLC history in the archive.'],
+      ['LTP-only', ltp, 'Newer listings with closing prices only, no OHLC yet.'],
+      ['No data', none, 'Listed but no price history found in any source.'],
+      ['New listings', nw, 'Symbols first seen in the latest audit.']
     ];
-    statsEl.innerHTML = cards.map(function (c) {
-      return '<div class="stat"><span class="nl-stat-k">' + c[0] + '</span><span class="nl-stat-v">' + c[1] + '</span></div>';
+    statsEl.innerHTML = cards.map(function (c, i) {
+      var edge = i === cards.length - 1 ? ' tip-edge' : '';
+      return '<div class="stat"><span class="nl-stat-k">' + c[0] +
+        '<button class="info-tip' + edge + '" data-tip="' + c[2] + '" aria-label="About the ' + c[0] + ' metric">i</button></span>' +
+        '<span class="nl-stat-v">' + c[1] + '</span></div>';
     }).join('');
     filterEl.options[0].text = 'All ' + rows.length;
   }
@@ -236,6 +255,7 @@ th.num{text-align:right}
                verdict: r.verdict, live: !!r.live, isNew: !!r.isNew, file: null };
     });
     asofEl.textContent = 'Last automated check: data as of ' + asof + ' · ' + rows.length + ' listed securities.';
+    if (window.NepseFresh && asof && !asofEl.querySelector('.fresh')) asofEl.insertAdjacentHTML('beforeend', ' ' + NepseFresh.badge(asof));
     if (a.newListings && a.newListings.length) {
       newEl.innerHTML = 'New listing' + (a.newListings.length > 1 ? 's' : '') + ' detected: <strong>' + a.newListings.map(esc).join(', ') + '</strong>: added automatically.';
       newEl.classList.add('show');
