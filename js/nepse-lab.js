@@ -48,8 +48,48 @@
     }
     return out;
   }
-  function rsiArr(closes, n) {
-    var out = new Array(closes.length).fill(null);
+  /* null-aware SMA for smoothing already-gapped series (e.g. %K) */
+  function smaNull(vals, n) {
+    var out = new Array(vals.length).fill(null), i, j;
+    for (i = n - 1; i < vals.length; i++) {
+      var s = 0, ok = true;
+      for (j = i - n + 1; j <= i; j++) { if (vals[j] == null) { ok = false; break; } s += vals[j]; }
+      if (ok) out[i] = s / n;
+    }
+    return out;
+  }
+  /* Bollinger Bands: mid = SMA(n), bands = mid +/- m * population stddev */
+  function bbArr(closes, n, m) {
+    var mid = new Array(closes.length).fill(null),
+        upper = new Array(closes.length).fill(null),
+        lower = new Array(closes.length).fill(null), i, j;
+    for (i = n - 1; i < closes.length; i++) {
+      var s = 0;
+      for (j = i - n + 1; j <= i; j++) s += closes[j];
+      var mean = s / n, v = 0;
+      for (j = i - n + 1; j <= i; j++) { var d = closes[j] - mean; v += d * d; }
+      var sd = Math.sqrt(v / n), off = m * sd;
+      mid[i] = mean; upper[i] = mean + off; lower[i] = mean - off;
+    }
+    return { mid: mid, upper: upper, lower: lower };
+  }
+  /* Stochastic oscillator (k, sk, sd): %K = where the close sits in the
+     k-session high/low range; slow %K = sk-period SMA of raw %K;
+     %D = sd-period SMA of slow %K. Flat range yields 50. */
+  function stochArr(rows, k, sk, sd) {
+    var n = rows.length, raw = new Array(n).fill(null), i, j;
+    for (i = k - 1; i < n; i++) {
+      var hh = -Infinity, ll = Infinity;
+      for (j = i - k + 1; j <= i; j++) {
+        if (rows[j][2] > hh) hh = rows[j][2];
+        if (rows[j][3] < ll) ll = rows[j][3];
+      }
+      raw[i] = hh > ll ? (rows[i][4] - ll) / (hh - ll) * 100 : 50;
+    }
+    var kArr = smaNull(raw, sk);
+    return { k: kArr, d: smaNull(kArr, sd) };
+  }
+  function rsiArr(closes, n) {    var out = new Array(closes.length).fill(null);
     if (closes.length < n + 1) return out;
     var g = 0, l = 0, i;
     for (i = 1; i <= n; i++) { var d = closes[i] - closes[i - 1]; if (d > 0) g += d; else l -= d; }
@@ -432,7 +472,10 @@
   /* ================= state & data ================= */
   var state = {
     mode: 'index', sym: 'NEPSE', symName: 'NEPSE Index',
-    tf: '1Y', style: 'candles', sma: true, rsi: true, signals: true,
+    tf: '1Y', style: 'candles',
+    // chart indicators (persisted in localStorage under 'nl-indicators')
+    bb: true, ema20: true, sma20: true, sma50: true, rsi: true, stoch: false,
+    signals: true,
     hover: -1, rows: [], live: null, liveAt: 0, liveBadge: 'eod',
     companies: [], universe: [], universeAsof: '', typeMap: {}, names: {}, loading: false, err: '',
     ltpOnly: false, styleForced: false
@@ -680,6 +723,25 @@
     render();
   }
 
+  /* ================= indicator toggle persistence ================= */
+  var IND_DEFAULTS = { bb: true, ema20: true, sma20: true, sma50: true, rsi: true, stoch: false };
+  var IND_KEYS = ['bb', 'ema20', 'sma20', 'sma50', 'rsi', 'stoch'];
+  var IND_LABELS = { bb: 'Bollinger Bands', ema20: 'EMA 20', sma20: 'SMA 20', sma50: 'SMA 50', rsi: 'RSI', stoch: 'Stochastic' };
+  function loadInd() {
+    var saved = null;
+    try { saved = JSON.parse(localStorage.getItem('nl-indicators') || 'null'); } catch (e) {}
+    IND_KEYS.forEach(function (k) {
+      state[k] = saved && typeof saved[k] === 'boolean' ? saved[k] : IND_DEFAULTS[k];
+      var box = document.querySelector('input[data-ind="' + k + '"]');
+      if (box) box.checked = state[k];
+    });
+  }
+  function saveInd() {
+    var o = {};
+    IND_KEYS.forEach(function (k) { o[k] = !!state[k]; });
+    try { localStorage.setItem('nl-indicators', JSON.stringify(o)); } catch (e) {}
+  }
+
   /* ================= series ================= */
   function toWeekly(rows) {
     // group by actual calendar weeks (Monday-start; NEPSE trades Mon–Fri).
@@ -793,6 +855,7 @@
 
   function render() {
     if (!cv) return;
+    syncIndDisabled(); // indicators unavailable for LTP-only securities
     var S = currentSeries(), rows = S.rows, n = rows.length;
     if (!n) return;
     var box = fitCanvas(cv); if (!box) return;
@@ -858,16 +921,38 @@
       grd.addColorStop(0, 'rgba(37,99,235,.18)'); grd.addColorStop(1, 'rgba(37,99,235,0)');
       g.lineTo(X(n - 1), padT + ph); g.lineTo(X(0), padT + ph); g.closePath(); g.fillStyle = grd; g.fill();
     }
-    // SMA overlays
-    function smaLine(arr, col) {
-      g.strokeStyle = col; g.lineWidth = 1.6; g.beginPath(); var st = false;
+    // indicator overlays (Wave 3): Bollinger Bands, EMA 20, SMA 20/50.
+    // LTP-only securities have no true OHLC, so no indicators are drawn.
+    var noInd = state.ltpOnly;
+    var bb = noInd ? { mid: [], upper: [], lower: [] } : bbArr(closes, 20, 2);
+    var ema20 = noInd ? [] : emaArr(closes, 20);
+    function maLine(arr, col, dash) {
+      g.strokeStyle = col; g.lineWidth = 1.6; g.setLineDash(dash || []); g.beginPath(); var st = false;
       for (var k = 0; k < n; k++) {
         if (arr[k] == null) { st = false; continue; }
         st ? g.lineTo(X(k), Y(arr[k])) : g.moveTo(X(k), Y(arr[k])); st = true;
       }
-      g.stroke();
+      g.stroke(); g.setLineDash([]);
     }
-    if (state.sma) { smaLine(sma20, SMA20C); smaLine(sma50, SMA50C); }
+    if (state.bb && !noInd) {
+      // shaded band between the outer lines, then the three lines
+      g.beginPath(); var bs = false, k;
+      for (k = 0; k < n; k++) {
+        if (bb.upper[k] == null) { bs = false; continue; }
+        bs ? g.lineTo(X(k), Y(bb.upper[k])) : g.moveTo(X(k), Y(bb.upper[k])); bs = true;
+      }
+      for (k = n - 1; k >= 0; k--) {
+        if (bb.lower[k] == null) continue;
+        g.lineTo(X(k), Y(bb.lower[k]));
+      }
+      g.closePath(); g.fillStyle = 'rgba(198,168,107,.10)'; g.fill();
+      maLine(bb.upper, 'rgba(198,168,107,.65)');
+      maLine(bb.lower, 'rgba(198,168,107,.65)');
+      maLine(bb.mid, '#C6A86B');
+    }
+    if (state.ema20 && !noInd) maLine(ema20, '#8b5cf6');
+    if (state.sma20 && !noInd) maLine(sma20, SMA20C);
+    if (state.sma50 && !noInd) maLine(sma50, SMA50C);
     // ATH line (index only)
     if (state.mode === 'index') {
       var ATH = 3199.03;
@@ -879,8 +964,8 @@
         g.fillText('ATH 3,199', W - padR - 4, Y(ATH) - 4); g.restore();
       }
     }
-    // SMA 20/50 crossover markers
-    if (state.sma) {
+    // SMA 20/50 crossover markers (only when both lines are visible)
+    if (state.sma20 && state.sma50 && !noInd) {
       for (i = 21; i < n; i++) {
         var a0 = sma20[i - 1], a1 = sma20[i], b0 = sma50[i - 1], b1 = sma50[i];
         if (a0 == null || b0 == null || a1 == null || b1 == null) continue;
@@ -906,9 +991,14 @@
       g.fillStyle = '#fff'; g.beginPath(); g.arc(hx, Y(closes[state.hover]), 1.8, 0, 7); g.fill();
     }
     drawRSI(closes);
+    var stoch = (state.stoch && !noInd) ? stochArr(rows, 14, 3, 3) : null;
+    drawStoch(stoch);
     maybeRenderShell(S, divs, pats);
     // stash for pointer handlers
-    cv._geom = { X: X, Y: Y, n: n, rows: rows, padT: padT, ph: ph };
+    cv._geom = { X: X, Y: Y, n: n, rows: rows, padT: padT, ph: ph,
+      bb: bb, ema20: ema20, sma20: sma20, sma50: sma50, stoch: stoch, noInd: noInd };
+    // text alternative: summarize active indicators + latest values for screen readers
+    cv.setAttribute('aria-label', chartAlt(closes, bb, ema20, sma20, sma50, stoch));
   }
   function maybeRenderShell(S, divs, pats) {
     // the verdict/scanner/stats DOM is rebuilt only when the underlying data
@@ -924,9 +1014,10 @@
     shellCache.key = key;
     renderShell(S, divs, pats);
   }
+  var scv = null; // stochastic canvas
   function drawRSI(closes) {
     var wrap = document.getElementById('nl-rsi-wrap');
-    if (!wrap || !state.rsi) { if (wrap) wrap.style.display = 'none'; return; }
+    if (!wrap || !state.rsi || state.ltpOnly) { if (wrap) wrap.style.display = 'none'; return; }
     wrap.style.display = '';
     var box = fitCanvas(rcv); if (!box) return;
     var g = box.g, W = box.w, H = box.h, n = closes.length;
@@ -951,6 +1042,58 @@
     if (state.hover >= 0 && state.hover < n && rsi[state.hover] != null) {
       g.fillStyle = '#0C1F16'; g.beginPath(); g.arc(X(state.hover), Y(rsi[state.hover]), 3.5, 0, 7); g.fill();
     }
+  }
+  /* Stochastic (14,3,3) sub-panel, same scale and hover style as the RSI panel */
+  function drawStoch(stoch) {
+    var wrap = document.getElementById('nl-stoch-wrap');
+    if (!wrap || !scv) return;
+    if (!stoch) { wrap.style.display = 'none'; return; }
+    wrap.style.display = '';
+    var box = fitCanvas(scv); if (!box) return;
+    var g = box.g, W = box.w, H = box.h, n = stoch.k.length;
+    function X(i) { return 8 + (n === 1 ? (W - 72) / 2 : i / (n - 1) * (W - 80)); }
+    function Y(v) { return 8 + (1 - v / 100) * (H - 16); }
+    g.clearRect(0, 0, W, H);
+    [80, 50, 20].forEach(function (z) {
+      g.setLineDash(z === 50 ? [] : [4, 4]); g.strokeStyle = z === 50 ? '#cbd5e1' : '#C6A86B';
+      g.lineWidth = 1;
+      g.beginPath(); g.moveTo(8, Y(z)); g.lineTo(W - 64, Y(z)); g.stroke(); g.setLineDash([]);
+    });
+    g.fillStyle = TXT; g.font = '10px system-ui,sans-serif'; g.textAlign = 'left'; g.textBaseline = 'middle';
+    g.fillText('80', W - 58, Y(80)); g.fillText('20', W - 58, Y(20));
+    function line(arr, col, dash) {
+      g.strokeStyle = col; g.lineWidth = 1.6; g.setLineDash(dash || []); g.beginPath();
+      var st = false;
+      for (var i = 0; i < n; i++) {
+        if (arr[i] == null) { st = false; continue; }
+        st ? g.lineTo(X(i), Y(arr[i])) : g.moveTo(X(i), Y(arr[i])); st = true;
+      }
+      g.stroke(); g.setLineDash([]);
+    }
+    line(stoch.d, '#C6A86B', [5, 4]);
+    line(stoch.k, '#0e7490', []);
+    g.fillStyle = TXT;
+    g.fillText('Stochastic 14,3,3', 10, 10);
+    if (state.hover >= 0 && state.hover < n && stoch.k[state.hover] != null) {
+      g.fillStyle = '#0C1F16'; g.beginPath(); g.arc(X(state.hover), Y(stoch.k[state.hover]), 3.5, 0, 7); g.fill();
+    }
+  }
+  /* text alternative for the chart canvas: active indicators + latest values */
+  function chartAlt(closes, bb, ema20, sma20, sma50, stoch) {
+    var n = closes.length;
+    if (!n) return 'Price chart. No data.';
+    if (state.ltpOnly) return 'Price chart, LTP-only history. Indicators need full OHLC history and are unavailable for this security. Hover or touch to inspect values.';
+    var parts = [];
+    function last(arr) { var v = arr[n - 1]; return v == null ? '–' : num(v, 2); }
+    if (state.bb) parts.push('Bollinger Bands ' + last(bb.upper) + ' / ' + last(bb.mid) + ' / ' + last(bb.lower));
+    if (state.ema20) parts.push('EMA 20 ' + last(ema20));
+    if (state.sma20) parts.push('SMA 20 ' + last(sma20));
+    if (state.sma50) parts.push('SMA 50 ' + last(sma50));
+    if (state.rsi) { var r = rsiArr(closes, 14); parts.push('RSI 14 ' + (r[n - 1] == null ? '–' : r[n - 1].toFixed(1))); }
+    if (state.stoch && stoch) parts.push('Stochastic %K ' + (stoch.k[n - 1] == null ? '–' : stoch.k[n - 1].toFixed(1)) + ', %D ' + (stoch.d[n - 1] == null ? '–' : stoch.d[n - 1].toFixed(1)));
+    return 'Price chart for ' + state.sym + '. ' +
+      (parts.length ? 'Active indicators: ' + parts.join('; ') + '. ' : 'No indicators active. ') +
+      'Latest close ' + num(closes[n - 1], 2) + '. Hover or touch to inspect values.';
   }
 
   /* ================= verdict card + scanner + stats ================= */
@@ -1141,6 +1284,33 @@
     if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
+  /* indicator values appended to the hover tooltip (view-index aligned) */
+  function tipInd(g, i) {
+    if (!g || g.noInd) return '';
+    var parts = [], v;
+    function val(arr) { v = arr && arr[i]; return v == null ? null : num(v, 2); }
+    function rval(arr) { v = arr && arr[i]; return v == null ? null : v.toFixed(1); }
+    var bbu = val(g.bb.upper), bbl = val(g.bb.lower);
+    if (state.bb && bbu && bbl) parts.push('BB ' + bbu + '/' + bbl);
+    var e = val(g.ema20); if (state.ema20 && e) parts.push('EMA20 ' + e);
+    var s2 = val(g.sma20); if (state.sma20 && s2) parts.push('SMA20 ' + s2);
+    var s5 = val(g.sma50); if (state.sma50 && s5) parts.push('SMA50 ' + s5);
+    if (g._rsi == null) g._rsi = rsiArr(g.rows.map(function (r) { return r[4]; }), 14);
+    var rv = rval(g._rsi); if (state.rsi && rv) parts.push('RSI ' + rv);
+    var sk = g.stoch ? rval(g.stoch.k) : null, sd = g.stoch ? rval(g.stoch.d) : null;
+    if (state.stoch && sk) parts.push('Stoch ' + sk + '/' + (sd || '–'));
+    return parts.length ? '<br><span class="nl-tip-ind">' + parts.join(' · ') + '</span>' : '';
+  }
+  var indDisCache = null; // last ltpOnly state applied to indicator checkboxes
+  function syncIndDisabled() {
+    var wrap = document.getElementById('nl-ind');
+    if (!wrap || indDisCache === state.ltpOnly) return;
+    indDisCache = state.ltpOnly;
+    var note = document.getElementById('nl-ind-note');
+    wrap.querySelectorAll('input[data-ind]').forEach(function (box) { box.disabled = state.ltpOnly; });
+    wrap.classList.toggle('ind-off', state.ltpOnly);
+    if (note) note.hidden = !state.ltpOnly;
+  }
   /* ================= pointer ================= */
   function bindPointer() {
     if (!cv) return;
@@ -1156,7 +1326,7 @@
       state.hover = i; render();
       var g = cv._geom, r = g.rows[i];
       tip.style.display = 'block';
-      tip.innerHTML = '<b>' + fmtD(r[0]) + '</b><br>O ' + num(r[1], 2) + ' · H ' + num(r[2], 2) + '<br>L ' + num(r[3], 2) + ' · C ' + num(r[4], 2) + '<br>Turnover ' + bigMoney(r[6]);
+      tip.innerHTML = '<b>' + fmtD(r[0]) + '</b><br>O ' + num(r[1], 2) + ' · H ' + num(r[2], 2) + '<br>L ' + num(r[3], 2) + ' · C ' + num(r[4], 2) + '<br>Turnover ' + bigMoney(r[6]) + tipInd(g, i);
       var cr = cv.getBoundingClientRect();
       var cxp = (e.touches ? e.touches[0].clientX : e.clientX) - cr.left;
       tip.style.left = Math.min(cxp + 14, cr.width - 150) + 'px';
@@ -1201,6 +1371,7 @@
   }
   function init() {
     cv = document.getElementById('nl-chart'); rcv = document.getElementById('nl-rsi');
+    scv = document.getElementById('nl-stoch');
     tip = document.getElementById('nl-tip');
     if (!cv || !window.NEPSE_DAILY) return;
     // search, full listed universe from local data/universe.json (built by tools/build-nepse-universe.js)
@@ -1225,8 +1396,21 @@
     // controls
     seg('nl-tf', state.tf, function (v) { state.tf = v; state.hover = -1; render(); });
     seg('nl-style', state.style, function (v) { state.style = v; render(); });
-    tgl('[data-tgl="sma"]', state.sma, function (v) { state.sma = v; render(); });
-    tgl('[data-tgl="rsi"]', state.rsi, function (v) { state.rsi = v; render(); });
+    // indicator checkboxes: accessible switches persisted in localStorage
+    loadInd();
+    var indWrap = document.getElementById('nl-ind');
+    if (indWrap) {
+      indWrap.addEventListener('change', function (e) {
+        var box = e.target.closest('input[data-ind]');
+        if (!box || box.disabled) return;
+        state[box.getAttribute('data-ind')] = box.checked;
+        saveInd(); state.hover = -1; render();
+      });
+      // info buttons must not toggle the checkbox when clicked
+      indWrap.querySelectorAll('.info-tip').forEach(function (b) {
+        b.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); });
+      });
+    }
     tgl('[data-tgl="signals"]', state.signals, function (v) { state.signals = v; render(); });
     bindPointer();
     var rsz; window.addEventListener('resize', function () { clearTimeout(rsz); rsz = setTimeout(render, 150); });
@@ -1267,6 +1451,7 @@
   /* node test exports */
   var API = {
     smaArr: smaArr, emaArr: emaArr, rsiArr: rsiArr, macd: macd, atrArr: atrArr,
+    smaNull: smaNull, bbArr: bbArr, stochArr: stochArr,
     fractalPivots: fractalPivots, swingPivots: swingPivots, toWeekly: toWeekly,
     detectDivergences: detectDivergences, detectPatterns: detectPatterns,
     computeVerdict: computeVerdict, setSymbol: setSymbol, SRC: SRC,

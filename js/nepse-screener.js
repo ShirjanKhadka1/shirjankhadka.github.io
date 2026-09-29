@@ -335,6 +335,15 @@
       });
 
       bindControls();
+
+      // sector deep link (used by the /nepse-sectors/ dashboard tiles): ?sector=Banking
+      try {
+        var qsec = new URLSearchParams(location.search).get('sector');
+        if (qsec) {
+          var match = Object.keys(secs).filter(function (s) { return s.toLowerCase() === qsec.toLowerCase(); })[0];
+          if (match) { state.sector = match; sel.value = match; }
+        }
+      } catch (e) {}
       render();
     }).catch(function (e) {
       $('sc-body').innerHTML = '<tr><td colspan="10" class="sc-empty">Could not load the ranking data. Please retry in a moment.</td></tr>';
