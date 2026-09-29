@@ -28,11 +28,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930b">
+<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930c">
 <link rel="stylesheet" href="../css/style.css?v=20260930a">
 <link rel="stylesheet" href="../nepse-chart/chart.css?v=20260930b">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"NEPSE Stock Screener","url":"https://shirjankhadka.com.np/nepse-screener/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Daily ranked NEPSE stock screener: every listed security scored by a transparent rule-based engine (Strong Buy to Strong Sell) with ATR-based stop-loss and target levels, sector filter and search. Educational use only, not investment advice.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/",
+{"@context":"https://schema.org","@type":"WebApplication","name":"NEPSE Stock Screener","url":"https://shirjankhadka.com.np/nepse-screener/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Daily ranked NEPSE stock screener: every listed security scored by a transparent rule-based engine (Strong Buy to Strong Sell) with ATR-based stop-loss and target levels, sector, signal, RSI, price and volume filters, RSI extremes and biggest-movers lists, and search. Educational use only, not investment advice.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/",
       "sameAs": ["https://www.linkedin.com/in/shirjankhadkab/"]}}
 </script>
 <script type="application/ld+json">
@@ -44,6 +44,7 @@
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
 {"@type":"Question","name":"How are the screener signals computed?","acceptedAnswer":{"@type":"Answer","text":"Each listed security is scored by a rule-based engine on ten transparent factors: trend versus moving averages, RSI, MACD, turnover, 52-week position, divergences, chart patterns, market backdrop and support/resistance. Scores map to Strong Buy, Buy, Hold, Exit/Reduce or Strong Exit. Stop-loss sits 2× ATR(14) below the last close and the target 4× ATR(14) above it, a 1:2 risk-reward frame."}},
 {"@type":"Question","name":"How often is the ranking updated?","acceptedAnswer":{"@type":"Answer","text":"The ranking is rebuilt daily from the last closed session. The date of the data is shown above the table."}},
+{"@type":"Question","name":"What do the RSI extremes and Moves most lists show?","acceptedAnswer":{"@type":"Answer","text":"RSI extremes groups the latest batch by RSI(14): oversold below 30, overbought above 70, plus the ten lowest and ten highest readings. Moves most ranks securities by their 20-session average daily range (high minus low) as a share of the latest close. Both are mechanical measurements for education, not recommendations."}},
 {"@type":"Question","name":"Is this investment advice?","acceptedAnswer":{"@type":"Answer","text":"No. This is a mechanical, rule-based illustration for education. Markets are uncertain and past patterns do not guarantee future results. Do your own research before any investment decision."}},
 {"@type":"Question","name":"What is the Hit rate column?","acceptedAnswer":{"@type":"Answer","text":"For each security with enough history, the engine's past Buy and Strong Buy calls on equity securities over the last 250 sessions are replayed using only data available at the time. A call counts as a hit when the session's own target (+4x ATR) was reached before its stop-loss (-2x ATR) within the next 20 sessions. The hit rate is hits divided by decided calls; calls where neither level was touched are excluded. Fewer than 5 decided calls shows as a dash. Hit rates are regime-dependent: 31.0% across the older 250-session window (NEPSE +31.0%) versus 11.4% across the most recent 250 sessions (NEPSE -6.2%)."}}]}
 </script>
@@ -97,9 +98,25 @@
     </div>
   </section>
 
+  <section class="w1-sec" aria-label="RSI extremes and biggest movers">
+    <h2>RSI extremes &amp; biggest movers <span class="sc-asof-inline" id="w1-asof"></span></h2>
+    <div class="w1-tabs" role="tablist" aria-label="RSI and range lists">
+      <button class="w1-tab" role="tab" id="w1tab-os" aria-controls="w1p-os" aria-selected="true">Oversold</button>
+      <button class="w1-tab" role="tab" id="w1tab-ob" aria-controls="w1p-ob" aria-selected="false" tabindex="-1">Overbought</button>
+      <button class="w1-tab" role="tab" id="w1tab-lo" aria-controls="w1p-lo" aria-selected="false" tabindex="-1">Lowest RSI</button>
+      <button class="w1-tab" role="tab" id="w1tab-hi" aria-controls="w1p-hi" aria-selected="false" tabindex="-1">Highest RSI</button>
+      <button class="w1-tab" role="tab" id="w1tab-mv" aria-controls="w1p-mv" aria-selected="false" tabindex="-1">Moves most</button>
+    </div>
+    <div class="w1-panel" role="tabpanel" id="w1p-os" aria-labelledby="w1tab-os" tabindex="0"><ul class="w1-list" id="w1-os"><li><span class="skl skl-row" aria-hidden="true"></span></li></ul></div>
+    <div class="w1-panel" role="tabpanel" id="w1p-ob" aria-labelledby="w1tab-ob" tabindex="0" hidden><ul class="w1-list" id="w1-ob"></ul></div>
+    <div class="w1-panel" role="tabpanel" id="w1p-lo" aria-labelledby="w1tab-lo" tabindex="0" hidden><ul class="w1-list" id="w1-lo"></ul></div>
+    <div class="w1-panel" role="tabpanel" id="w1p-hi" aria-labelledby="w1tab-hi" tabindex="0" hidden><ul class="w1-list" id="w1-hi"></ul></div>
+    <div class="w1-panel" role="tabpanel" id="w1p-mv" aria-labelledby="w1tab-mv" tabindex="0" hidden><ul class="w1-list" id="w1-mv"></ul></div>
+    <p class="w1-note">RSI(14) below 30 reads oversold and above 70 overbought, by convention. Each RSI is from that security's latest scored session in the daily batch. Moves most ranks securities by 20-session average daily range (high minus low) as a share of the latest close. Mechanical measurements for education, not recommendations.</p>
+  </section>
+
   <!-- SNAP-START -->
-  <section class="sc-top10" aria-label="Top ranked signals today">
-    <h2>Top 10 ranked signals <span class="sc-asof-inline">&middot; 2026-09-28</span></h2>
+  <section class="sc-top10" aria-label="Top ranked signals today">    <h2>Top 10 ranked signals <span class="sc-asof-inline">&middot; 2026-09-28</span></h2>
     <div class="sc-table-wrap"><table class="sc-table">
       <thead><tr><th>#</th><th>Symbol</th><th>Price</th><th>Change</th><th>Signal</th><th>Setup</th><th>Stop loss</th><th>Target</th></tr></thead>
       <tbody>
@@ -132,6 +149,30 @@
     <select id="sc-sector" class="sc-select" aria-label="Filter by sector">
       <option value="">All sectors</option>
     </select>
+  </section>
+
+  <section class="sc-controls sc-filters" aria-label="More screener filters">
+    <select id="sc-signal" class="sc-select" aria-label="Filter by signal">
+      <option value="">All signals</option>
+      <option value="Strong Buy">Strong Buy</option>
+      <option value="Buy">Buy</option>
+      <option value="Hold">Hold</option>
+      <option value="Exit / Reduce">Sell</option>
+      <option value="Strong Exit">Strong Sell</option>
+      <option value="Insufficient history">No signal</option>
+    </select>
+    <select id="sc-rsi" class="sc-select" aria-label="Filter by RSI zone">
+      <option value="">All RSI</option>
+      <option value="os">Oversold (below 30)</option>
+      <option value="mid">Neutral (30 to 70)</option>
+      <option value="ob">Overbought (above 70)</option>
+    </select>
+    <label class="sc-flab" for="sc-pmin">Price</label>
+    <input type="number" id="sc-pmin" class="sc-range-in" placeholder="Min" aria-label="Minimum price in rupees" min="0" step="any">
+    <input type="number" id="sc-pmax" class="sc-range-in" placeholder="Max" aria-label="Maximum price in rupees" min="0" step="any">
+    <label class="sc-flab" for="sc-vmin">Volume</label>
+    <input type="number" id="sc-vmin" class="sc-range-in" placeholder="Min vol" aria-label="Minimum session volume" min="0" step="1">
+    <button type="button" id="sc-reset" class="sc-reset">Reset filters</button>
   </section>
 
   <section aria-label="Ranked stocks">
@@ -176,6 +217,7 @@
 </footer>
 
 <script src="../js/nepse-fresh.js?v=20260930b" defer></script>
-<script src="../js/nepse-screener.js?v=20260930b" defer></script>
+<script src="../js/nepse-wave1.js?v=20260930c" defer></script>
+<script src="../js/nepse-screener.js?v=20260930c" defer></script>
 </body>
 </html>
