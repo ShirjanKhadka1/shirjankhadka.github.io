@@ -199,6 +199,7 @@
       state.verdict = e.target.value;
       syncCards();
       state.page = 1; render();
+      renderCardResults();
     });
     var rsiSel = $('sc-rsi');
     if (rsiSel) rsiSel.addEventListener('change', function (e) { state.rsi = e.target.value; state.page = 1; render(); });
@@ -237,10 +238,63 @@
       state.verdict = (state.verdict === v) ? '' : v;
       syncCards();
       state.page = 1; render();
-      // the results table sits below the fold on phones: bring it into view
-      // so the filter result is visible the moment a card is tapped
-      var tbl = document.getElementById('sc-table');
-      if (tbl && tbl.scrollIntoView) tbl.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      // Wave 8: the top matches render directly beneath the cards, so the
+      // result is visible the moment a card is tapped (the full table below
+      // keeps working as the complete filtered view)
+      renderCardResults();
+      if (state.verdict) {
+        var box = document.getElementById('sc-card-results');
+        if (box && box.scrollIntoView) box.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      }
+    }
+    // Wave 8: inline top-10 for the tapped signal card. Rows carry symbol,
+    // price, day change, verdict, stop loss, target and a chart link.
+    function renderCardResults() {
+      var box = document.getElementById('sc-card-results');
+      if (!box) return;
+      if (!state.verdict) { box.innerHTML = ''; box.hidden = true; return; }
+      var matched = state.rows.filter(function (r) { return r.v === state.verdict; })
+        .sort(rankCmp);
+      var rows = matched.slice(0, 10);
+      var total = matched.length;
+      if (!rows.length) {
+        box.innerHTML = '<p class="sc-cr-empty">No ' + esc(DISP[state.verdict] || state.verdict) +
+          ' verdicts in the latest batch.</p>';
+        box.hidden = false;
+        return;
+      }
+      var Mono = window.NepseMono || null;
+      var h = '<h3 class="sc-cr-head">Top ' + rows.length + ' ' +
+        esc(DISP[state.verdict] || state.verdict) + ' matches</h3>';
+      h += '<div class="sc-cr-list">' + rows.map(function (r) {
+        var ch = Number(r.ch);
+        var chHtml = isFinite(ch)
+          ? '<span class="sc-dist ' + (ch > 0 ? 'up' : ch < 0 ? 'dn' : '') + '">' +
+            (ch > 0 ? '+' : '') + ch.toFixed(2) + '%</span>'
+          : '<span class="sc-dash">–</span>';
+        return '<div class="sc-cr-row">' +
+          '<a class="sc-cr-sym" href="/nepse-chart/?s=' + esc(r.sym) + '">' +
+            (Mono ? Mono.avatar(r.sym, r.sec, 26) : '') + '<span>' + esc(r.sym) + '</span></a>' +
+          '<span class="sc-cr-num tnum">Rs ' + num2(r.p) + '</span>' +
+          '<span class="sc-cr-num tnum">' + chHtml + '</span>' +
+          '<span>' + badge(r.v) + '</span>' +
+          '<span class="sc-cr-num tnum">SL ' + num2(r.sl) + '</span>' +
+          '<span class="sc-cr-num tnum">TP ' + num2(r.tp) + '</span>' +
+          '<a class="sc-cr-link" href="/nepse-chart/?s=' + esc(r.sym) + '">Chart</a>' +
+        '</div>';
+      }).join('') + '</div>';
+      if (total > rows.length) {
+        h += '<p class="sc-cr-more"><a href="#sc-table" id="sc-cr-all">See all ' + total +
+          ' in the full table below</a></p>';
+      }
+      box.innerHTML = h;
+      box.hidden = false;
+      var all = document.getElementById('sc-cr-all');
+      if (all) all.addEventListener('click', function (e) {
+        e.preventDefault();
+        var tbl = document.getElementById('sc-table');
+        if (tbl && tbl.scrollIntoView) tbl.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      });
     }
     function resetFilters() {
       state.q = ''; state.sector = ''; state.verdict = '';
@@ -255,6 +309,7 @@
       });
       syncCards();
       render();
+      renderCardResults();
     }
     document.querySelectorAll('.sc-card[data-v]').forEach(function (c) {
       c.addEventListener('click', function () { cardFilter(c); });
@@ -299,7 +354,7 @@
       state.rows = Object.keys(v).map(function (sym) {
         var e = v[sym];
         return {
-          sym: sym, name: names[sym] || sym, v: e.v, s: e.s, p: e.p,
+          sym: sym, name: names[sym] || sym, v: e.v, s: e.s, p: e.p, ch: e.ch,
           vol: e.vol, volAvg: e.volAvg || null, sec: e.sec || null, sl: e.sl, tp: e.tp,
           setup: e.setup || null, l: e.l || 0, tr: e.tr || null, rsi: e.rsi
         };
