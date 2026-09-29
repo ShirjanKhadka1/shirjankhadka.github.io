@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>403: Nice try</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="There is no API here. Just a joke for the curious.">
+<link rel="icon" href="/favicon.ico">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:#0C1F16;color:#9DB8A4;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    display:flex;align-items:center;justify-content:center;
+    padding:24px;line-height:1.7;font-size:15px;
+  }
+  .term{width:min(680px,100%);background:rgba(0,0,0,.28);border:1px solid rgba(198,168,107,.25);
+    border-radius:12px;padding:28px 30px;box-shadow:0 30px 80px rgba(0,0,0,.45)}
+  .term-bar{display:flex;gap:8px;margin-bottom:20px}
+  .term-bar span{width:11px;height:11px;border-radius:50%;background:#2c3f33}
+  .term-bar span:first-child{background:#B23A2E}
+  .term-bar span:nth-child(2){background:#C6A86B}
+  .term-bar span:nth-child(3){background:#1E7A44}
+  #out{white-space:pre-wrap;word-break:break-word;min-height:280px}
+  .gold{color:#C6A86B;font-weight:700}
+  .ivory{color:#FAF8F2}
+  .dim{color:#5c6f61}
+  .big{font-size:clamp(28px,6vw,46px);letter-spacing:.04em}
+  .cursor{display:inline-block;width:9px;height:18px;background:#9DB8A4;vertical-align:-3px;animation:blink 1s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+  .back{display:inline-block;margin-top:18px;color:#C6A86B;text-decoration:none;border:1px solid rgba(198,168,107,.4);
+    padding:9px 20px;border-radius:999px;font-size:13px;transition:background .2s}
+  .back:hover{background:rgba(198,168,107,.12)}
+  @media (prefers-reduced-motion:reduce){.cursor{animation:none}}
+</style>
+</head>
+<body>
+  <div class="term" role="main" aria-label="A joke for API pokers">
+    <div class="term-bar" aria-hidden="true"><span></span><span></span><span></span></div>
+    <div id="out"></div><span class="cursor" aria-hidden="true"></span>
+    <div><a class="back" href="/nepse-alpha/">Back to the Alpha Lab</a></div>
+  </div>
+<script>
+(function(){
+  var out = document.getElementById('out');
+  var lines = [
+    {t:'$ tracing request origin ...', c:''},
+    {t:'$ probing /api/v1/secrets ...', c:''},
+    {t:'$ bypassing firewall ...', c:''},
+    {t:'> ACCESS GRANTED', c:'gold'},
+    {t:'', c:''},
+    {t:'Y O U   A R E   H A C K E D', c:'gold big'},
+    {t:'', c:''},
+    {t:'... just kidding.', c:'ivory'},
+    {t:'', c:''},
+    {t:'There is no API here. No server, no database, no secrets.', c:''},
+    {t:'This whole site is static files. The market data is public', c:''},
+    {t:'on purpose, free for everyone, no scraping needed.', c:''},
+    {t:'', c:''},
+    {t:'P.S. Your IP was totally logged. (It was not.)', c:'dim'},
+    {t:'P.P.S. Nice curiosity though. Put it to work:', c:'dim'}
+  ];
+  var li = 0, ci = 0, lineEl = null;
+  function nextLine(){
+    if(li >= lines.length) return;
+    lineEl = document.createElement('div');
+    if(lines[li].c) lineEl.className = lines[li].c;
+    out.appendChild(lineEl);
+    ci = 0;
+    typeChar();
+  }
+  function typeChar(){
+    var line = lines[li];
+    if(ci <= line.t.length){
+      lineEl.textContent = line.t.slice(0, ci);
+      ci++;
+      var speed = line.c.indexOf('big') >= 0 ? 55 : 14 + Math.random()*22;
+      setTimeout(typeChar, speed);
+    } else {
+      li++;
+      setTimeout(nextLine, line.t === '' ? 120 : 260);
+    }
+  }
+  nextLine();
+})();
+</script>
+</body>
+</html>
