@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free NEPSE Chart: Candlestick Charts, Pattern Scanner & Divergence Signals</title>
+<meta name="description" content="Free NEPSE chart with candlestick charts, Bollinger Bands, EMA/SMA overlays, RSI and Stochastic indicators, automatic chart-pattern and RSI/MACD divergence scanner, support/resistance factors and transparent buy/hold/exit signals for every listed stock. No login.">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-chart/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#FAF8F2">
+<meta property="og:type" content="website">
+<meta property="og:title" content="NEPSE Alpha Lab: Patterns, Divergences &amp; Buy/Hold/Exit Signals">
+<meta property="og:description" content="Search any NEPSE stock: live quotes, chart patterns, divergences and a transparent rule-based buy/hold/exit engine. Free, no login.">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-chart/">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
+<meta name="twitter:title" content="NEPSE Alpha Lab, Patterns, Divergences &amp; Buy/Hold/Exit Signals">
+<meta name="twitter:description" content="Free NEPSE stock lab: live quotes, chart patterns, RSI/MACD divergences and a transparent buy/hold/exit signal engine.">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://samirwagle.github.io">
+<link rel="preconnect" href="https://shubhamnpk.github.io">
+<link rel="dns-prefetch" href="https://samirwagle.github.io">
+<link rel="dns-prefetch" href="https://shubhamnpk.github.io">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930b">
+<link rel="stylesheet" href="chart.css?v=20261002a">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"NEPSE Alpha Lab","url":"https://shirjankhadka.com.np/nepse-chart/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Free NEPSE analysis lab: live quotes for any listed stock, candlestick charts with Bollinger Bands, EMA/SMA overlays, RSI and Stochastic, automatic chart-pattern and divergence detection, and a transparent rule-based buy/hold/exit signal engine. Educational use only.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/",
+      "sameAs": ["https://www.linkedin.com/in/shirjankhadkab/"]}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Does the NEPSE Alpha Lab give buy or sell signals?","acceptedAnswer":{"@type":"Answer","text":"It shows a rule-based verdict, Strong Buy, Buy, Hold, Exit/Reduce or Strong Exit, computed in your browser from ten transparent factors: trend vs moving averages, RSI, MACD, turnover, 52-week position, divergences, chart patterns, market backdrop and support/resistance. Every factor and its contribution is listed, so nothing is a black box. It is educational, not investment advice."}},
+{"@type":"Question","name":"Is the data real-time?","acceptedAnswer":{"@type":"Answer","text":"During NEPSE trading hours (Monday–Friday, 11:00–15:00 NPT) the quote panel refreshes from a free community live feed and shows a LIVE badge; the chart appends the in-progress session. Outside market hours it shows the last closed session. NEPSE publishes no free official real-time API, so this uses community mirrors and may be delayed."}},
+{"@type":"Question","name":"Which patterns and divergences are detected?","acceptedAnswer":{"@type":"Answer","text":"Double tops and bottoms, head & shoulders and inverse head & shoulders, ascending/descending/symmetrical triangles and rising/falling wedges, plus regular and hidden bullish/bearish divergences on RSI(14) and the MACD histogram. Detections are drawn on the chart and listed with dates and plain-English notes."}},
+{"@type":"Question","name":"Where does the data come from?","acceptedAnswer":{"@type":"Answer","text":"Per-stock daily OHLC history from the open Nepse-All-Scraper dataset (Samir Wagle, MIT), live quotes and monthly LTP history from the yonepse open API, and the NEPSE index daily history (2003–2026) from the nepse-open-data archive. Coverage spans every currently listed security, equities, mutual funds, debentures and preference shares. Securities without scraper OHLC (e.g. newer listings) use LTP-only history and are clearly flagged; pattern and divergence detection is disabled for those."}},
+{"@type":"Question","name":"Is this financial advice?","acceptedAnswer":{"@type":"Answer","text":"No. Everything here is a mechanical, rule-based illustration for education. Markets are uncertain and past patterns do not guarantee future results. Do your own research before any investment decision."}}]}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
+{"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
+{"@type":"ListItem","position":2,"name":"NEPSE Alpha Lab","item":"https://shirjankhadka.com.np/nepse-chart/"}]}
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<aside class="suite-rail" aria-label="Alpha Lab suite">
+  <a class="rail-word" href="/nepse-alpha/">NEPSE Alpha Lab<span class="g">.</span></a>
+  <p class="rail-k">Suite</p>
+  <nav aria-label="Suite tools">
+    <a href="/nepse-alpha/">Overview</a>
+    <a href="/nepse-chart/" class="on" aria-current="page">Chart &amp; signals</a>
+    <a href="/nepse-screener/">Screener</a>
+    <a href="/nepse-sectors/">Sectors</a>
+    <a href="/nepse-news/">Market news</a>
+    <a href="/nepse-watchlist/">Watchlist</a>
+    <a href="/nepse-dashboard/">Dashboard</a>
+    <a href="/nepse-portfolio/">Portfolio</a>
+    <a href="/nepse-simulator/">Simulator</a>
+    <a href="/nepse-chart/data-check.html">Data check</a>
+  </nav>
+  <p class="rail-foot">Free forever · no login</p>
+</aside>
+
+<header class="topbar">
+  <div class="wrap topbar-in">
+    <a class="wordmark" href="/nepse-alpha/">NEPSE Alpha Lab<span class="g">.</span></a>
+    <nav class="suite-links" aria-label="Alpha Lab suite">
+      <a href="/nepse-chart/" class="on" aria-current="page">The Lab</a>
+      <a href="/nepse-screener/">Screener</a>
+      <a href="/nepse-sectors/">Sectors</a>
+      <a href="/nepse-news/">News</a>
+      <a href="/nepse-watchlist/">Watchlist</a>
+      <a href="/nepse-dashboard/">Dashboard</a>
+      <a href="/nepse-portfolio/">Portfolio</a>
+      <a href="/nepse-simulator/">Simulator</a>
+    </nav>
+    <div class="spacer"></div>
+    <a class="dc-link" href="data-check.html">Coverage check</a>
+    <a class="btn small" href="/nepse-screener/">Open the Screener →</a>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <section class="hero">
+    <div class="hero-rule"></div>
+    <p class="eyebrow">Side project · Technical analysis</p>
+    <h1>Free NEPSE chart &amp; technical analysis</h1>
+    <p class="lede">Search any NEPSE-listed stock for live quotes, candlestick charts, automatic chart-pattern &amp; divergence detection, and a transparent rule-based <strong>buy / hold / exit</strong> engine. Or explore the full NEPSE index history. Everything runs in your browser, free, no login, no tracking.</p>
+    <p class="asof" id="nl-asof">Loading data…</p>
+  </section>
+
+  <section class="nl-search" id="nl-lab" aria-label="Symbol search">
+    <div class="nl-search-row">
+      <input id="nl-sym" list="nl-syms" placeholder="Search symbol, e.g. NABIL, HIDCL, UPPER… (NEPSE = index)" autocomplete="off" spellcheck="false" aria-label="Stock symbol">
+      <datalist id="nl-syms"></datalist>
+      <button id="nl-go" class="nl-go">Analyze</button>
+    </div>
+    <div class="nl-chips">
+      <button data-chip="NEPSE">NEPSE index</button>
+      <button data-chip="NABIL">NABIL</button>
+      <button data-chip="NICA">NICA</button>
+      <button data-chip="HIDCL">HIDCL</button>
+      <button data-chip="UPPER">UPPER</button>
+      <button data-chip="NIFRA">NIFRA</button>
+    </div>
+  </section>
+
+  <section class="nl-livebar" id="nl-livebar" aria-label="Live quote"></section>
+
+  <section class="nl-verdict" id="nl-verdict" aria-label="Signal engine verdict"></section>
+
+  <section class="nl-sighist" id="nl-sighist" aria-label="Signal history"></section>
+
+  <section class="nl-news" id="nl-news" aria-label="Latest market news"></section>
+
+  <section class="stats" aria-label="Market snapshot">
+    <div class="stat"><span class="nl-stat-k">Last close</span><span class="nl-stat-v" id="nl-last">-</span></div>
+    <div class="stat"><span class="nl-stat-k">Day change</span><span class="nl-stat-v" id="nl-chg">-</span></div>
+    <div class="stat"><span class="nl-stat-k">52-week high</span><span class="nl-stat-v" id="nl-52h">-</span></div>
+    <div class="stat"><span class="nl-stat-k">52-week low</span><span class="nl-stat-v" id="nl-52l">-</span></div>
+    <div class="stat"><span class="nl-stat-k">RSI (14)</span><span class="nl-stat-v" id="nl-rsi-v">-</span></div>
+    <div class="stat"><span class="nl-stat-k">Trend regime</span><span class="nl-stat-v small" id="nl-regime">-</span></div>
+  </section>
+
+  <section class="chart-card">
+    <div class="controls">
+      <div class="seg" id="nl-tf" role="group" aria-label="Timeframe">
+        <button data-v="1M">1M</button><button data-v="3M">3M</button><button data-v="6M">6M</button>
+        <button data-v="1Y" class="on" aria-pressed="true">1Y</button><button data-v="2Y">2Y</button><button data-v="5Y">5Y</button><button data-v="All">All</button>
+      </div>
+      <div class="seg" id="nl-style" role="group" aria-label="Chart style">
+        <button data-v="candles" class="on" aria-pressed="true">Candles</button><button data-v="line">Line</button>
+      </div>
+      <div class="ind-group" id="nl-ind" role="group" aria-label="Indicators">
+        <span class="ind-title">Indicators</span>
+        <label class="ind"><input type="checkbox" data-ind="bb" checked><span class="ind-name">Bollinger Bands</span><button type="button" class="info-tip" data-tip="A 20-day average with bands two standard deviations above and below. Shows how far prices have stretched from their recent average." aria-label="About Bollinger Bands">i</button></label>
+        <label class="ind"><input type="checkbox" data-ind="ema20" checked><span class="ind-name">EMA 20</span><button type="button" class="info-tip" data-tip="A 20-day average that weights recent closes more heavily. A read on the short-term trend." aria-label="About EMA 20">i</button></label>
+        <label class="ind"><input type="checkbox" data-ind="sma20" checked><span class="ind-name">SMA 20</span><button type="button" class="info-tip" data-tip="The simple average of the last 20 closes. A plain read on the short-term trend." aria-label="About SMA 20">i</button></label>
+        <label class="ind"><input type="checkbox" data-ind="sma50" checked><span class="ind-name">SMA 50</span><button type="button" class="info-tip" data-tip="The simple average of the last 50 closes. A read on the medium-term trend." aria-label="About SMA 50">i</button></label>
+        <label class="ind"><input type="checkbox" data-ind="rsi" checked><span class="ind-name">RSI</span><button type="button" class="info-tip" data-tip="A 0 to 100 measure of recent gains versus losses over 14 days. Readings above 70 or below 30 mark stretched zones." aria-label="About RSI">i</button></label>
+        <label class="ind"><input type="checkbox" data-ind="stoch"><span class="ind-name">Stochastic</span><button type="button" class="info-tip" data-tip="A 0 to 100 read of where the close sits inside the last 14 days' range, with a 3-day signal line." aria-label="About the Stochastic oscillator">i</button></label>
+      </div>
+      <p class="ind-note" id="nl-ind-note" hidden>Indicators need full OHLC history, so they are unavailable for this LTP-only security.</p>
+      <div class="toggles" role="group" aria-label="Chart annotations">
+        <button data-tgl="signals" class="on" aria-pressed="true" id="tgl-sig">Patterns</button>
+      </div>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="nl-chart" role="img" aria-label="Price chart. Hover or touch to inspect values."></canvas>
+      <div class="nl-tip" id="nl-tip" style="display:none"></div>
+    </div>
+    <div class="legend">
+      <span><i class="sw up"></i>Up day</span>
+      <span><i class="sw down"></i>Down day</span>
+      <span><i class="ln bb"></i>Bollinger Bands</span>
+      <span><i class="ln ema20"></i>EMA 20</span>
+      <span><i class="ln sma20"></i>SMA 20</span>
+      <span><i class="ln sma50"></i>SMA 50</span>
+      <span><i class="mk buy"></i>▲ Golden cross</span>
+      <span><i class="mk sell"></i>▼ Death cross</span>
+      <span><i class="ln divb"></i>Divergence</span>
+      <span><i class="ln pat"></i>Pattern</span>
+      <span class="ath">- - ATH 3,199</span>
+    </div>
+    <div class="chart-wrap rsi" id="nl-rsi-wrap">
+      <canvas id="nl-rsi" role="img" aria-label="RSI 14 indicator"></canvas>
+    </div>
+    <div class="chart-wrap rsi" id="nl-stoch-wrap" style="display:none">
+      <canvas id="nl-stoch" role="img" aria-label="Stochastic oscillator 14,3,3"></canvas>
+    </div>
+    <p class="hint">Hover or drag across the chart to inspect any session.</p>
+  </section>
+
+  <section class="nl-scan" aria-label="Free NEPSE screener: pattern and divergence scanner">
+    <h2>Free NEPSE screener: pattern &amp; divergence scanner</h2>
+    <p class="nl-scan-sub">Latest automatic detections on daily data, double tops/bottoms, head &amp; shoulders, triangles, wedges, and RSI/MACD divergences. <strong>Locate</strong> jumps the chart to a finding.</p>
+    <div id="nl-scan-list"></div>
+  </section>
+
+  <section class="nl-scan-link" aria-label="Full market scan on the screener">
+    <p>Want every listed stock ranked side by side? <a href="/nepse-screener/">Open the free NEPSE stock screener →</a></p>
+  </section>
+
+  <section class="explain">
+    <h2>How the signal engine works</h2>
+    <p class="nl-engine-short">Ten transparent factors scored on the daily chart add up to a verdict from <strong>Strong Buy</strong> to <strong>Strong Exit</strong>, a mechanical summary of what the chart looks like right now, and every factor's contribution is listed under the verdict. <a href="/nepse-alpha/">How each factor is scored, with the engine's full track record →</a></p>
+    <p class="honest"><strong>An honest note:</strong> NEPSE publishes no free official real-time API, so quotes come from free community mirrors and can be delayed. During market hours (Mon–Fri, 11:00–15:00 NPT) the quote panel refreshes and the chart includes the session in progress; outside hours you see the last closed session.</p>
+    <p class="disclaimer">All signals are mechanical outputs of published rules, shown for education. They are not investment advice, not AI predictions, and past performance does not guarantee future results.</p>
+  </section>
+
+  <section class="faq">
+    <h2>Questions</h2>
+    <details><summary>Does this give buy or sell signals?</summary><p>It shows a rule-based verdict, Strong Buy, Buy, Hold, Exit/Reduce or Strong Exit, with every contributing factor listed. Transparent and educational; not financial advice.</p></details>
+    <details><summary>Is the data real-time?</summary><p>Quotes refresh during market hours from a free community feed (LIVE badge); outside hours you see the last closed session. History is daily OHLC per stock.</p></details>
+    <details><summary>What timeframes are available?</summary><p>1M, 3M, 6M, 1Y, 2Y on daily candles; 5Y and All switch to weekly candles so long histories stay readable.</p></details>
+    <p class="faq-more">More questions, answered on the <a href="/nepse-alpha/">Alpha Lab overview →</a></p>
+  </section>
+
+  <footer class="foot">
+    <p>Built by <a href="/">Shirjan Khadka</a> · Data: <a href="https://github.com/samirwagle/nepse-all-scraper" rel="noopener">Nepse-All-Scraper</a> · <a href="https://github.com/shubhamnpk/yonepse" rel="noopener">yonepse</a> · <a href="/nepali-date-converter/">Nepali Date Converter</a></p>
+  </footer>
+</main>
+
+<script src="/js/nepse-fresh.js?v=20260930b" defer></script>
+<script src="/js/nepse-daily.js?v=20260924d" defer></script>
+<script src="/js/nepse-lab.js?v=20261002a" defer></script>
+<script src="/js/nepse-news.js?v=20260930a" defer></script>
+</body>
+</html>
