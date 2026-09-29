@@ -6,9 +6,9 @@
 (function () {
   'use strict';
 
-  var UP = '#16a34a', DOWN = '#dc2626', GRID = '#e8edf3', TXT = '#64748b',
+  var UP = '#1E7A44', DOWN = '#B23A2E', GRID = 'rgba(12,31,22,.12)', TXT = '#66705F',
       SMA20C = '#2563eb', SMA50C = '#d97706', ATHC = '#c9a227',
-      BULLC = '#16a34a', BEARC = '#dc2626';
+      BULLC = '#1E7A44', BEARC = '#B23A2E';
 
   var SRC = {
     companies: 'https://samirwagle.github.io/Nepse-All-Scraper/docs/api/companies.json',
@@ -894,9 +894,9 @@
     // hover crosshair
     if (state.hover >= 0 && state.hover < n) {
       var hx = X(state.hover);
-      g.strokeStyle = '#94a3b8'; g.setLineDash([4, 4]); g.lineWidth = 1;
+      g.strokeStyle = '#C6A86B'; g.setLineDash([4, 4]); g.lineWidth = 1;
       g.beginPath(); g.moveTo(hx, padT); g.lineTo(hx, padT + ph); g.stroke(); g.setLineDash([]);
-      g.fillStyle = '#0f172a';
+      g.fillStyle = '#0C1F16';
       g.beginPath(); g.arc(hx, Y(closes[state.hover]), 4, 0, 7); g.fill();
       g.fillStyle = '#fff'; g.beginPath(); g.arc(hx, Y(closes[state.hover]), 1.8, 0, 7); g.fill();
     }
@@ -931,7 +931,7 @@
     g.clearRect(0, 0, W, H);
     g.strokeStyle = GRID; g.lineWidth = 1;
     [70, 50, 30].forEach(function (z) {
-      g.setLineDash(z === 50 ? [] : [4, 4]); g.strokeStyle = z === 50 ? '#cbd5e1' : '#f1c40f';
+      g.setLineDash(z === 50 ? [] : [4, 4]); g.strokeStyle = z === 50 ? '#cbd5e1' : '#C6A86B';
       g.beginPath(); g.moveTo(8, Y(z)); g.lineTo(W - 64, Y(z)); g.stroke(); g.setLineDash([]);
     });
     g.fillStyle = TXT; g.font = '10px system-ui,sans-serif'; g.textAlign = 'left'; g.textBaseline = 'middle';
@@ -944,7 +944,7 @@
     }
     g.stroke();
     if (state.hover >= 0 && state.hover < n && rsi[state.hover] != null) {
-      g.fillStyle = '#0f172a'; g.beginPath(); g.arc(X(state.hover), Y(rsi[state.hover]), 3.5, 0, 7); g.fill();
+      g.fillStyle = '#0C1F16'; g.beginPath(); g.arc(X(state.hover), Y(rsi[state.hover]), 3.5, 0, 7); g.fill();
     }
   }
 
