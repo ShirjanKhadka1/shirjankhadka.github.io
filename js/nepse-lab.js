@@ -6,6 +6,11 @@
 (function () {
   'use strict';
 
+  if (window.console && console.log) {
+    console.log('%cPoking around? The API is at /api/ ... if you dare.',
+      'color:#C6A86B;font-weight:bold');
+  }
+
   var UP = '#1E7A44', DOWN = '#B23A2E', GRID = 'rgba(12,31,22,.12)', TXT = '#66705F',
       SMA20C = '#2563eb', SMA50C = '#d97706', ATHC = '#c9a227',
       BULLC = '#1E7A44', BEARC = '#B23A2E';
@@ -666,7 +671,7 @@
       state.loading = false;
       afterData();
     }).catch(function () {
-      state.loading = false; state.err = 'Could not load data for ' + esc(sym) + '. Check the symbol and retry.';
+      state.loading = false; state.err = 'No data source lists ' + esc(sym) + ' yet. Check the spelling, or try one of the symbols above. Newly listed securities appear once their first session closes.';
       renderShell();
     });
   }
@@ -987,10 +992,13 @@
   function renderShell(S, divs, pats) {
     var wrap = document.getElementById('nl-lab'); if (!wrap) return;
     var rows = state.rows, n = rows.length;
+    // shimmer over the chart footprint while data loads (no layout shift)
+    var cw = document.querySelector('.chart-wrap');
+    if (cw) cw.classList.toggle('loading', !!state.loading);
     // live bar + verdict
     var lb = document.getElementById('nl-livebar');
     if (lb) {
-      if (state.loading) { lb.innerHTML = '<div class="nl-lb-sym"><b>Loading…</b><span>Fetching market data</span></div>'; }
+      if (state.loading) { lb.innerHTML = '<div class="nl-lb-sym" aria-hidden="true"><span class="skl skl-line" style="width:120px;margin:0 0 8px"></span><span class="skl skl-line" style="width:80px;height:11px;margin:0"></span></div><div class="nl-lb-px" aria-hidden="true" style="margin-left:auto"><span class="skl" style="width:150px;height:38px;border-radius:10px"></span></div>'; }
       else if (state.err) { lb.innerHTML = '<div class="nl-lb-sym"><b>' + esc(state.sym) + '</b><span>' + state.err + '</span></div>'; }
       else {
       var q = state.live, px = q ? q.ltp : (n ? rows[n - 1][4] : 0);
@@ -1009,8 +1017,8 @@
     // verdict
     var vc = document.getElementById('nl-verdict');
     if (vc) {
-      if (state.loading) { vc.innerHTML = '<div class="nl-v-loading">Loading market data…</div>'; }
-      else if (state.err) { vc.innerHTML = '<div class="nl-v-err">' + state.err + '</div>'; }
+      if (state.loading) { vc.innerHTML = '<div class="nl-v-loading" aria-hidden="true"><span class="skl skl-block" style="width:42%"></span><span class="skl skl-line" style="width:94%"></span><span class="skl skl-line" style="width:81%"></span><span class="skl skl-line" style="width:66%"></span></div>'; }
+      else if (state.err) { vc.innerHTML = '<div class="nl-v-err"><b>No chart for this symbol</b><span>' + state.err + '</span></div>'; }
       else if (n >= 60) {
         var v = computeVerdict({ rows: state.rows, divs: divs || [], pats: pats || [], isIndex: state.mode === 'index', idxRegime: state.mode === 'stock' ? idxRegime() : null });
         var pctW = Math.min(100, Math.abs(v.score) / 8 * 100);

@@ -10,6 +10,14 @@
 
   var NEWS = null; // {asof, items:[{sym,title,link,src,date}]}
 
+  // skeleton placeholders: hold the feed's footprint while headlines load
+  (function () {
+    var sk = '<article class="nl-news-item" aria-hidden="true"><div class="nl-news-body" style="flex:1">' +
+      '<span class="skl skl-block" style="height:22px;margin-bottom:8px"></span>' +
+      '<span class="skl skl-line" style="width:55%"></span></div></article>';
+    mount.innerHTML = '<div class="nl-news-list" aria-hidden="true">' + sk + sk + sk + '</div>';
+  })();
+
   function esc(s) {
     return String(s == null ? '' : s)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')

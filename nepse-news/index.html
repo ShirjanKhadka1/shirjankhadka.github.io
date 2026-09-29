@@ -31,7 +31,7 @@
 {"@type":"ListItem","position":2,"name":"NEPSE Alpha Lab","item":"https://shirjankhadka.com.np/nepse-alpha/"},
 {"@type":"ListItem","position":3,"name":"Market News","item":"https://shirjankhadka.com.np/nepse-news/"}]}
 </script>
-<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260929b">
+<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930a">
 <style>
 /* news-only: editorial feed */
 .wrap{max-width:880px}
@@ -127,6 +127,14 @@
   var count = document.getElementById('newsCount');
   var updated = document.getElementById('newsUpdated');
   var ALL = [];
+
+  // Skeleton placeholders: hold the feed's footprint while headlines load
+  (function(){
+    var sk = '<div class="news-item" aria-hidden="true"><div class="news-body" style="flex:1">' +
+      '<span class="skl skl-block" style="height:22px;margin-bottom:8px"></span>' +
+      '<span class="skl skl-line" style="width:55%"></span></div></div>';
+    list.innerHTML = '<div aria-hidden="true">' + sk + sk + sk + sk + '</div>';
+  })();
 
   function esc(s){
     return String(s == null ? '' : s)
