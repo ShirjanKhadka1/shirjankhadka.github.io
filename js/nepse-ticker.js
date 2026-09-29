@@ -171,11 +171,14 @@
     }
     // When the market is closed the snapshot is the last session's close:
     // label it as the 3:00 PM close, never as a stale intraday time.
-    var closed = data.market === 'CLOSED' || data.close === true || !inTradingHours();
+    // If the snapshot isn't marked as a close, say so honestly.
+    var isClose = data.market === 'CLOSED' || data.close === true;
+    var closed = isClose || !inTradingHours();
     var note;
     if (closed) {
       var dstr = typeof data.asof === 'string' ? sessionDateLabel(data.asof) : null;
-      note = 'Market closed' + SEP + ' as of ' + (dstr ? dstr + ', ' : '') + '3:00 PM NPT';
+      note = 'Market closed' + SEP + ' as of ' + (dstr ? dstr : '') +
+        (isClose ? ', 3:00 PM NPT' : ' NPT');
     } else {
       var clock = typeof data.asof === 'string' ? nptClock(data.asof) : null;
       note = 'As of ' + (clock || '--:--') + ' NPT ' + SEP + ' 15-min delayed';
