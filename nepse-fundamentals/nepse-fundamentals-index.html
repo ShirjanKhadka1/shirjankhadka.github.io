@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free NEPSE Stock Fundamentals: Company Snapshot, Sector Comparison, Ratio Guide | Shirjan Khadka</title>
+<meta name="description" content="Free per-stock NEPSE fundamentals: market profile snapshot, sector-relative comparison, recent company headlines, and a plain-language guide to P/E, P/B, EPS, ROE and ROA. Educational, no login, no paywall.">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-fundamentals/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Free NEPSE Stock Fundamentals">
+<meta property="og:description" content="Per-stock market profile, sector comparison, recent headlines, and a plain-language guide to the classic valuation ratios. Free, educational, no login.">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-fundamentals/">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Free NEPSE Stock Fundamentals">
+<meta name="twitter:description" content="Per-stock snapshot, sector comparison, and a plain-language guide to classic ratios. Free, educational, no login.">
+<meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
+<link rel="icon" href="/nepse-fundamentals/icon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/nepse-fundamentals/icon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/nepse-fundamentals/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"NEPSE Stock Fundamentals","url":"https://shirjankhadka.com.np/nepse-fundamentals/","description":"A free per-stock NEPSE fundamentals page: market-profile snapshot from the daily batch, sector-relative comparison, recent company headlines, and a plain-language guide to classic valuation ratios. Educational use only.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
+{"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
+{"@type":"ListItem","position":2,"name":"NEPSE Alpha Lab","item":"https://shirjankhadka.com.np/nepse-alpha/"},
+{"@type":"ListItem","position":3,"name":"Fundamentals","item":"https://shirjankhadka.com.np/nepse-fundamentals/"}]}
+</script>
+<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930c">
+<style>
+/* fundamentals-only */
+.wrap{max-width:980px}
+.topbar .wrap{max-width:1160px}
+.fd-search-wrap{position:relative;max-width:520px}
+#fd-sym{width:100%;font:inherit;font-size:15px;padding:13px 18px;border:1px solid var(--hairline);border-radius:12px;background:var(--ivory);color:var(--ink);outline:none}
+#fd-sym:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(198,168,107,.22)}
+.fd-suggest{position:absolute;top:calc(100% + 8px);left:0;right:0;list-style:none;background:var(--paper);border:1px solid var(--hairline);border-radius:14px;box-shadow:var(--shadow-hover);overflow:hidden;z-index:50;margin:0;padding:0}
+.fd-suggest[hidden]{display:none}
+.fd-suggest li{display:flex;gap:12px;align-items:baseline;padding:11px 18px;cursor:pointer;font-size:14px}
+.fd-suggest li strong{font-weight:700;color:var(--emerald-deep)}
+.fd-suggest li span{color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fd-suggest li[aria-selected="true"],.fd-suggest li:hover{background:var(--gold-faint)}
+.fd-status{margin:14px 0;padding:14px 18px;border-radius:12px;background:var(--gold-faint);border:1px solid var(--hairline);font-size:14.5px}
+.fd-status[hidden]{display:none}
+.fd-status.err{background:#fbeeea;border-color:#e8c4b8;color:#8a2f22}
+.fd-empty{margin:26px 0;padding:22px;border:1px dashed var(--hairline);border-radius:14px;color:var(--muted);font-size:14.5px;background:var(--paper)}
+.fd-empty[hidden]{display:none}
+.fd-profile{margin:26px 0;background:var(--paper);border:1px solid var(--hairline);border-radius:18px;padding:28px}
+.fd-head{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:flex-start;margin-bottom:20px}
+.fd-sym{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700;margin:0 0 4px}
+.fd-head h2{font-family:var(--serif);font-size:26px;font-weight:600;margin:0 0 6px}
+.fd-sub{color:var(--muted);font-size:13.5px;margin:0}
+.fd-price{text-align:right;display:flex;flex-direction:column;gap:4px}
+.fd-px{font-family:var(--serif);font-size:30px;font-weight:600}
+.fd-links{font-size:13px;display:flex;gap:12px;justify-content:flex-end;margin-top:6px}
+.fd-links a{color:var(--gold);font-weight:600}
+.fd-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.fd-m{background:var(--ivory);border:1px solid var(--hairline);border-radius:12px;padding:14px 16px}
+.fd-mk{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:6px}
+.fd-mv{font-size:16.5px;font-weight:700;font-variant-numeric:tabular-nums}
+.fd-verdict{font-weight:700}
+.fd-note{font-size:13px;color:var(--muted);margin:14px 0 0}
+.fd-src{color:var(--faint)}
+.fd-compare{margin:30px 0;background:var(--paper);border:1px solid var(--hairline);border-radius:18px;padding:28px}
+.fd-compare h3,.fd-news h3,.fd-gloss h3{font-family:var(--serif);font-size:21px;font-weight:600;margin:0 0 6px}
+.fd-sub2{font-size:13.5px;color:var(--muted);margin:0 0 16px}
+.fd-table-wrap{overflow-x:auto;border:1px solid var(--hairline);border-radius:12px}
+.fd-table{width:100%;border-collapse:collapse;font-size:14px;background:var(--ivory)}
+.fd-table th,.fd-table td{padding:12px 16px;text-align:left;border-bottom:1px solid var(--hairline)}
+.fd-table th{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-weight:700}
+.fd-table tr:last-child td{border-bottom:0}
+.fd-table td{font-variant-numeric:tabular-nums}
+.fd-news{margin:30px 0}
+.fd-news-list{display:flex;flex-direction:column;gap:10px}
+.fd-news-item{background:var(--paper);border:1px solid var(--hairline);border-radius:12px;padding:14px 18px}
+.fd-news-item a{font-weight:600;color:var(--ink)}
+.fd-news-item a:hover{color:var(--gold)}
+.fd-news-item p{margin:6px 0 0;font-size:12.5px;color:var(--faint)}
+.fd-more{margin-top:12px;font-size:14px}
+.fd-more a{color:var(--gold);font-weight:600}
+.fd-gloss{margin:30px 0}
+.fd-gloss-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.fd-g{background:var(--paper);border:1px solid var(--hairline);border-radius:16px;padding:22px}
+.fd-g h4{font-family:var(--serif);font-size:18px;margin:0 0 8px}
+.fd-g h4 .abbr{color:var(--gold)}
+.fd-g p{font-size:14px;color:var(--muted);margin:0}
+.fd-gloss-banner{margin:0 0 18px;padding:18px 22px;border-radius:14px;background:var(--gold-faint);border:1px solid var(--hairline);font-size:14.5px;color:var(--ink)}
+.fd-coverage{margin:30px 0;background:var(--ivory);border:1px solid var(--hairline);border-radius:18px;padding:28px}
+.fd-coverage h3{font-family:var(--serif);font-size:21px;font-weight:600;margin:0 0 10px}
+.fd-coverage p{font-size:14.5px;color:var(--muted);margin:0 0 12px}
+.fd-coverage p:last-child{margin-bottom:0}
+.up{color:var(--up)}.down{color:var(--down)}
+.asof{font-size:13.5px;color:var(--muted)}
+.limits{margin:40px 0}
+.limits ul{margin:0;padding-left:22px;color:var(--muted);font-size:14.5px;display:flex;flex-direction:column;gap:8px}
+@media(max-width:860px){.fd-grid{grid-template-columns:1fr 1fr}.fd-gloss-grid{grid-template-columns:1fr}.fd-price{text-align:left}.fd-links{justify-content:flex-start}}
+@media(prefers-reduced-motion:reduce){.fd-suggest li{transition:none}}
+</style>
+</head>
+<body>
+
+<aside class="suite-rail" aria-label="Alpha Lab suite">
+  <a class="rail-word" href="/nepse-alpha/">NEPSE Alpha Lab<span class="g">.</span></a>
+  <p class="rail-k">Suite</p>
+  <nav aria-label="Suite tools">
+    <a href="/nepse-alpha/">Overview</a>
+    <a href="/nepse-chart/">Chart &amp; signals</a>
+    <a href="/nepse-screener/">Screener</a>
+    <a href="/nepse-sectors/">Sectors</a>
+    <a href="/nepse-news/">Market news</a>
+    <a href="/nepse-watchlist/">Watchlist</a>
+    <a href="/nepse-dashboard/">Dashboard</a>
+    <a href="/nepse-portfolio/">Portfolio</a>
+    <a href="/nepse-simulator/">Simulator</a>
+    <a href="/nepse-fundamentals/" class="on" aria-current="page">Fundamentals</a>
+    <a href="/nepse-reports/">Reports</a>
+    <a href="/nepse-chart/data-check.html">Data check</a>
+  </nav>
+  <p class="rail-foot">Free forever · no login</p>
+</aside>
+
+<header class="topbar">
+  <div class="wrap topbar-in">
+    <a class="wordmark" href="/nepse-alpha/">NEPSE Alpha Lab<span class="g">.</span></a>
+    <nav class="suite-links" aria-label="Alpha Lab suite">
+      <a href="/nepse-chart/">The Lab</a>
+      <a href="/nepse-screener/">Screener</a>
+      <a href="/nepse-sectors/">Sectors</a>
+      <a href="/nepse-news/">News</a>
+      <a href="/nepse-watchlist/">Watchlist</a>
+      <a href="/nepse-dashboard/">Dashboard</a>
+      <a href="/nepse-portfolio/">Portfolio</a>
+      <a href="/nepse-simulator/">Simulator</a>
+      <a href="/nepse-fundamentals/" class="on" aria-current="page">Fundamentals</a>
+      <a href="/nepse-reports/">Reports</a>
+    </nav>
+    <div class="spacer"></div>
+    <a class="btn small" href="/nepse-portfolio/">My portfolio</a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-rule"></div>
+      <span class="eyebrow"><span class="pulse"></span>Free · No login · No estimates</span>
+      <h1>Know the company behind the chart.</h1>
+      <p class="lede">A per-stock snapshot from the daily batch, measured against its sector, plus a plain-language guide to the classic valuation ratios. We show only real data: anything we do not have is labeled as not available, never estimated.</p>
+      <div class="field" style="margin-top:22px">
+        <label for="fd-sym">Search a listed security</label>
+        <div class="fd-search-wrap">
+          <input id="fd-sym" type="search" placeholder="Search symbol or company name…" role="combobox" aria-expanded="false" aria-controls="fd-suggest" aria-autocomplete="list" autocomplete="off">
+          <ul id="fd-suggest" class="fd-suggest" role="listbox" aria-label="Matching securities" hidden></ul>
+        </div>
+      </div>
+      <p class="fd-status" id="fd-status" role="status" hidden></p>
+      <p class="asof" id="fd-asof">Loading batch…</p>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <div class="fd-empty" id="fd-empty" hidden></div>
+
+    <section class="fd-profile" id="fd-profile" aria-label="Company snapshot" aria-live="polite"></section>
+
+    <section class="fd-compare" id="fd-compare" aria-label="Sector comparison"></section>
+
+    <section class="fd-news" id="fd-news" aria-label="Company headlines"></section>
+
+    <section class="fd-gloss" aria-label="Ratio guide">
+      <h3>The classic ratios, in plain language.</h3>
+      <p class="fd-sub2">These are the ratios professional analysts read in annual reports. They need company financial statements, which our dataset does not include, so no per-stock values are shown below. Nothing is estimated.</p>
+      <div class="fd-gloss-banner"><b>Why no numbers?</b> Honest fundamentals need audited quarterly and annual filings per company. Our batch tracks market data only, so this page explains the ratios without inventing values. A future pipeline will add real figures with sources.</div>
+      <div class="fd-gloss-grid">
+        <div class="fd-g"><h4><span class="abbr">P/E</span> · Price to Earnings</h4><p>Market price divided by earnings per share. Roughly: how many years of current earnings you pay for with the share price. High P/E means the market expects growth; it can also mean the price is stretched.</p></div>
+        <div class="fd-g"><h4><span class="abbr">P/B</span> · Price to Book</h4><p>Market price divided by book value per share. Compares what you pay to the accounting value of the company's net assets. Below 1 can mean cheap or troubled; above 1 prices in future value.</p></div>
+        <div class="fd-g"><h4><span class="abbr">EPS</span> · Earnings Per Share</h4><p>Net profit divided by shares outstanding. The per-share slice of profit. Rising EPS over years is the core of most fundamental stories; one good year is not a trend.</p></div>
+        <div class="fd-g"><h4><span class="abbr">BVPS</span> · Book Value Per Share</h4><p>Shareholders' equity divided by shares outstanding. The accounting net worth per share. Slow, steady BVPS growth usually means retained earnings are compounding.</p></div>
+        <div class="fd-g"><h4><span class="abbr">ROE</span> · Return on Equity</h4><p>Net profit as a percentage of shareholders' equity. How hard the company's own capital is working. Consistently high ROE is rare and worth noticing; check whether leverage, not operations, drives it.</p></div>
+        <div class="fd-g"><h4><span class="abbr">ROA</span> · Return on Assets</h4><p>Net profit as a percentage of total assets. How efficiently the whole asset base earns. Banks and asset-heavy firms live on different ROA scales, so compare within the sector, never across.</p></div>
+        <div class="fd-g"><h4><span class="abbr">Dividend yield</span> · Cash in hand</h4><p>Annual dividend per share divided by the market price. The cash return you get for holding. A very high yield can signal a falling price or an unsustainable payout; read the history, not one year.</p></div>
+        <div class="fd-g"><h4><span class="abbr">PEG</span> · Growth-adjusted P/E</h4><p>P/E divided by the earnings growth rate. Tries to answer whether a high P/E is justified by growth. Needs reliable multi-year earnings figures, which is why it is shown here as a concept only.</p></div>
+      </div>
+    </section>
+
+    <section class="fd-coverage" aria-label="Data coverage">
+      <h3>What this page covers, and what it does not.</h3>
+      <p>Every figure on this page comes from the Alpha Lab daily batch: listed securities, daily prices, volumes, sector tags, and the engine's rule-based verdicts. That is market data, not company financials.</p>
+      <p>True fundamental analysis needs audited quarterly and annual statements per company: revenue, profit, equity, shares outstanding, and declared dividends. We do not have a trustworthy, verifiable pipeline for those figures yet, so we do not show them. This page will never fill the gap with estimates, copied figures, or predictions.</p>
+      <p>No discounted cash flow, no intrinsic value, no price targets. NEPSE disclosure data cannot support honest valuations, and presenting them would be theater, not analysis.</p>
+    </section>
+
+    <section class="limits" aria-label="Limitations">
+      <h2 class="sec">The fine print.</h2>
+      <ul>
+        <li>All figures come from the daily batch; check the "updated" badge for the batch date. Freshness varies by security.</li>
+        <li>Sector medians are computed from the latest batch over securities with data; thin or suspended listings may be excluded.</li>
+        <li>Securities without a recorded sector appear as Unclassified and get no sector comparison.</li>
+        <li>Headlines are collected from Nepali business media and link to the source; they are not our reporting.</li>
+        <li>Educational use only. This is not investment advice, and nothing here is a buy or sell recommendation.</li>
+      </ul>
+    </section>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="disclaimer"><strong>Educational use only.</strong> Fundamentals shown here are market-batch figures and plain-language ratio definitions, not investment advice. Nothing here is a buy or sell recommendation.</div>
+    <div class="row">
+      <span>Built by <a href="/">Shirjan Khadka</a> · Aspiring Financial Analyst</span>
+      <span><a href="/nepse-alpha/">Alpha Lab</a> · <a href="/nepse-chart/">Chart</a> · <a href="/nepse-screener/">Screener</a> · <a href="/nepse-fundamentals/">Fundamentals</a> · <a href="/nepse-reports/">Reports</a> · <a href="/blog/">Blog</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="/js/nepse-fresh.js?v=20260930b"></script>
+<script src="/js/nepse-fundamentals.js?v=20260929a"></script>
+</body>
+</html>
