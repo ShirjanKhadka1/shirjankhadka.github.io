@@ -1178,7 +1178,8 @@
           '<div class="nl-v-foot">' +
           (state.ltpOnly ? '<span class="nl-ltp-note">LTP-only history, intraday candles and pattern/divergence detection are unavailable for this security.</span> ' : '') +
           'Rule-based model on daily data, educational only, not financial advice. ' +
-          (state.liveBadge === 'live' ? 'Includes the live session in progress.' : 'Based on the last closed session.') + '</div>';
+          (state.liveBadge === 'live' ? 'Includes the live session in progress.' : 'Based on the last closed session.') +
+          (state.mode !== 'index' && state.sym ? ' <a href="/nepse-fundamentals/?s=' + esc(state.sym) + '">View fundamentals →</a>' : '') + '</div>';
       }
       else if (n > 0) {
         var v0 = computeVerdict({ rows: state.rows, divs: [], pats: [], isIndex: state.mode === 'index', idxRegime: null });
@@ -1187,7 +1188,8 @@
           '<div class="nl-v-label ' + v0.cls + '">' + v0.label + '</div></div>' +
           '<div class="nl-v-meterwrap"><div class="nl-v-score">' + esc(v0.note) + '</div></div></div>' +
           (state.ltpOnly ? '<div class="nl-v-foot"><span class="nl-ltp-note">LTP-only history, intraday candles and pattern/divergence detection are unavailable for this security.</span></div>' : '') +
-          '<div class="nl-v-foot">Rule-based model on daily data, educational only, not financial advice.</div>';
+          '<div class="nl-v-foot">Rule-based model on daily data, educational only, not financial advice.' +
+          (state.mode !== 'index' && state.sym ? ' <a href="/nepse-fundamentals/?s=' + esc(state.sym) + '">View fundamentals →</a>' : '') + '</div>';
       }
     }
     // ---- signal history: the engine's verdict at each of the last 16 sessions ----
