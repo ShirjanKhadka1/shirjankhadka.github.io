@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://shubhamnpk.github.io">
 <link rel="dns-prefetch" href="https://samirwagle.github.io">
 <link rel="dns-prefetch" href="https://shubhamnpk.github.io">
-<link rel="stylesheet" href="chart.css?v=20260929a">
+<link rel="stylesheet" href="chart.css?v=20260929b">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"NEPSE Alpha Lab","url":"https://shirjankhadka.com.np/nepse-chart/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Free NEPSE analysis lab: live quotes for any listed stock, candlestick charts with SMA and RSI, automatic chart-pattern and divergence detection, and a transparent rule-based buy/hold/exit signal engine. Educational use only.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/",
       "sameAs": ["https://www.linkedin.com/in/shirjankhadkab/"]}}
@@ -142,7 +142,7 @@
 
   <section class="nl-mscan" id="nl-mscan" aria-label="Market scan, every listed stock">
     <h2>Market scan</h2>
-    <p class="nl-scan-sub">Every listed security scored by the same rule-based engine, snapshot as of <span id="nl-ms-asof">…</span>. <span id="nl-ms-count"></span>. Select a row for the full deep analysis.</p>
+    <p class="nl-scan-sub">Every listed security scored by the same rule-based engine, snapshot as of <span id="nl-ms-asof">…</span>. <span id="nl-ms-count"></span>. Select a row to open its full Lab breakdown above, with the candlestick chart, detected patterns and divergences, and the 16-session signal history.</p>
     <div class="nl-ms-controls">
       <div class="nl-ms-chips" id="nl-ms-chips" role="group" aria-label="Filter by verdict">
         <button data-f="all" class="on" aria-pressed="true">All</button>
@@ -160,31 +160,17 @@
 
   <section class="explain">
     <h2>How the signal engine works</h2>
-    <div class="cards">
-      <div class="ecard">
-        <h3>Ten transparent factors</h3>
-        <p>Trend vs SMA 50/200, recent golden/death crosses, RSI zone, MACD momentum, turnover participation, 52-week position, divergences, chart patterns, the NEPSE index backdrop, and support/resistance proximity. Each factor's points are shown, no black box.</p>
-      </div>
-      <div class="ecard">
-        <h3>Buy / Hold / Exit</h3>
-        <p>Factor scores add up to a verdict from <strong>Strong Buy</strong> to <strong>Strong Exit</strong>. It is a mechanical summary of what the daily chart looks like right now, a starting point for research, not a recommendation.</p>
-      </div>
-      <div class="ecard">
-        <h3>Live when the market is open</h3>
-        <p>During NEPSE hours (Sun–Thu, 10:45–15:00 NPT; pre-open 10:45, regular 11:00–15:00) the quote panel refreshes from a free community feed and the chart includes the session in progress. Otherwise you see the last closed session.</p>
-      </div>
-    </div>
-    <p class="honest"><strong>An honest note:</strong> NEPSE publishes no free official real-time API, so tick-level data like broker terminals show is not possible here, quotes come from free community mirrors and can be delayed. What this lab does instead: full daily history for any listed stock, professional indicators, pattern/divergence detection and a fully transparent scoring model, all computed in your browser.</p>
+    <p class="nl-engine-short">Ten transparent factors scored on the daily chart add up to a verdict from <strong>Strong Buy</strong> to <strong>Strong Exit</strong>, a mechanical summary of what the chart looks like right now, and every factor's contribution is listed under the verdict. <a href="/nepse-alpha/">How each factor is scored, with the engine's full track record →</a></p>
+    <p class="honest"><strong>An honest note:</strong> NEPSE publishes no free official real-time API, so quotes come from free community mirrors and can be delayed. During market hours (Mon–Fri, 11:00–15:00 NPT) the quote panel refreshes and the chart includes the session in progress; outside hours you see the last closed session.</p>
     <p class="disclaimer">All signals are mechanical outputs of published rules, shown for education. They are not investment advice, not AI predictions, and past performance does not guarantee future results.</p>
   </section>
 
   <section class="faq">
     <h2>Questions</h2>
     <details><summary>Does this give buy or sell signals?</summary><p>It shows a rule-based verdict, Strong Buy, Buy, Hold, Exit/Reduce or Strong Exit, with every contributing factor listed. Transparent and educational; not financial advice.</p></details>
-    <details><summary>Which patterns are detected?</summary><p>Double tops and bottoms, head &amp; shoulders (and inverse), ascending/descending/symmetrical triangles, rising/falling wedges, plus regular and hidden bullish/bearish divergences on RSI(14) and the MACD histogram.</p></details>
     <details><summary>Is the data real-time?</summary><p>Quotes refresh during market hours from a free community feed (LIVE badge); outside hours you see the last closed session. History is daily OHLC per stock.</p></details>
     <details><summary>What timeframes are available?</summary><p>1M, 3M, 6M, 1Y, 2Y on daily candles; 5Y and All switch to weekly candles so long histories stay readable.</p></details>
-    <details><summary>Where does the data come from?</summary><p>Per-stock daily OHLC from the open Nepse-All-Scraper dataset, live quotes and monthly LTP history from the yonepse open API, and the NEPSE index daily history (2003–2026) from the nepse-open-data archive. Coverage spans every currently listed security, equities, mutual funds, debentures and preference shares. Securities without scraper OHLC (e.g. newer listings) use LTP-only history and are clearly flagged, with pattern/divergence detection disabled for those. With thanks to both open-data projects.</p></details>
+    <p class="faq-more">More questions, answered on the <a href="/nepse-alpha/">Alpha Lab overview →</a></p>
   </section>
 
   <footer class="foot">
@@ -193,7 +179,7 @@
 </main>
 
 <script src="/js/nepse-daily.js?v=20260924d" defer></script>
-<script src="/js/nepse-lab.js?v=20260929b" defer></script>
+<script src="/js/nepse-lab.js?v=20260929c" defer></script>
 <script src="/js/nepse-news.js?v=20260928a" defer></script>
 </body>
 </html>
