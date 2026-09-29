@@ -1,0 +1,246 @@
+/* NEPSE Alpha Lab — Wave 1 market-intelligence renderer.
+ *
+ * Loads nepse-chart/data/wave1.json (built by tools/build-nepse-wave1.js)
+ * and renders:
+ *   - the "Market today" summary on /nepse-alpha/ (#mktGrid, #mktCols)
+ *   - the RSI-extremes / biggest-movers tab panel on /nepse-screener/
+ * Auto-initializes on DOMContentLoaded when the containers exist.
+ * All figures come from the JSON file; nothing is invented here.
+ * Educational use only — not investment advice.
+ */
+(function () {
+  'use strict';
+
+  var W1 = {};
+
+  function dataURL() {
+    var s = document.querySelector('script[src*="nepse-wave1.js"]');
+    var src = s ? s.getAttribute('src') : '/js/nepse-wave1.js';
+    return src.replace(/[^/]*$/, '') + '../nepse-chart/data/wave1.json';
+  }
+
+  function $(id) { return document.getElementById(id); }
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function fmt2(n) {
+    return (+n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function fmtMoney(n) {
+    n = +n;
+    if (n >= 1e9) return 'Rs ' + (n / 1e9).toFixed(2) + 'b';
+    if (n >= 1e6) return 'Rs ' + (n / 1e6).toFixed(2) + 'm';
+    if (n >= 1e3) return 'Rs ' + (n / 1e3).toFixed(1) + 'k';
+    return 'Rs ' + n;
+  }
+  var MONTHS_L = ['January','February','March','April','May','June','July',
+    'August','September','October','November','December'];
+  var MONTHS_S = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function parts(iso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || ''));
+    return m ? { y: m[1], mo: +m[2], d: +m[3] } : null;
+  }
+  function fmtLong(iso) {
+    var p = parts(iso); return p ? p.d + ' ' + MONTHS_L[p.mo - 1] + ' ' + p.y : (iso || '');
+  }
+  function fmtDayMon(iso) {
+    var p = parts(iso); return p ? { day: String(p.d), my: MONTHS_S[p.mo - 1] + ' ' + p.y } : { day: '', my: '' };
+  }
+  function chgHTML(c) {
+    if (c == null || !isFinite(c)) return '<span class="mkt-chg">–</span>';
+    var cls = c >= 0 ? 'up' : 'dn';
+    return '<span class="mkt-chg ' + cls + '">' + (c >= 0 ? '+' : '') + (+c).toFixed(2) + '%</span>';
+  }
+  function fresh(dateStr) {
+    if (window.NepseFresh && dateStr) return ' ' + window.NepseFresh.badge(dateStr);
+    return '';
+  }
+  function chartLink(sym) {
+    return '/nepse-chart/?s=' + encodeURIComponent(sym);
+  }
+
+  /* ---------------- market summary (alpha) ---------------- */
+
+  function mktCard(nk, nb, p) {
+    return '<article class="note-card reveal in"><div class="nk">' + nk + '</div>' +
+      '<div class="nb">' + nb + '</div><p>' + p + '</p></article>';
+  }
+
+  function renderMarket(d) {
+    var grid = $('mktGrid'), cols = $('mktCols');
+    if (!grid || !cols || !d || !d.market) return;
+    var m = d.market;
+
+    var idx = m.index || {};
+    var c1 = mktCard('NEPSE index',
+      idx.value != null ? fmt2(idx.value) : '–',
+      idx.change != null
+        ? '<b class="' + (idx.change >= 0 ? 'up' : 'dn') + '" style="color:' +
+          (idx.change >= 0 ? 'var(--up)' : 'var(--down)') + '">' +
+          (idx.change >= 0 ? '+' : '') + fmt2(idx.change) + ' (' +
+          (idx.change >= 0 ? '+' : '') + (+idx.pct).toFixed(2) + '%)</b> on the session'
+        : 'Index data unavailable for this session.');
+    var tot = (m.advancers || 0) + (m.decliners || 0) + (m.unchanged || 0);
+    var upW = tot ? (m.advancers / tot * 100).toFixed(1) : 0;
+    var dnW = tot ? (m.decliners / tot * 100).toFixed(1) : 0;
+    var c2 = mktCard('Breadth',
+      m.advancers + ' <small>up</small> · ' + m.decliners + ' <small>down</small>',
+      '<span class="br-bar" role="img" aria-label="' + m.advancers + ' advancers, ' +
+      m.decliners + ' decliners"><span class="br-up" style="width:' + upW + '%"></span>' +
+      '<span class="br-dn" style="width:' + dnW + '%"></span></span>' +
+      m.unchanged + ' unchanged of ' + m.traded + ' securities with recorded trades.');
+    var c3 = mktCard('Session turnover',
+      m.totalTurnover != null ? fmtMoney(m.totalTurnover) : '–',
+      'Total value traded across the session.');
+    var dm = fmtDayMon(m.date);
+    var c4 = mktCard('Session',
+      esc(dm.day) + ' <small>' + esc(dm.my) + '</small>',
+      'The last closed session' + fresh(m.date) + '.');
+    grid.innerHTML = c1 + c2 + c3 + c4;
+
+    var asof = $('mkt-asof');
+    if (asof && m.date) {
+      asof.textContent = 'Session of ' + fmtLong(m.date) + ', measured from the session tape.';
+      asof.insertAdjacentHTML('beforeend', fresh(m.date));
+    }
+    var traded = $('mkt-traded');
+    if (traded) traded.textContent = m.traded;
+
+    function rows(items, kind) {
+      if (!items || !items.length) return '<p class="mkt-empty">No data for this session.</p>';
+      return items.map(function (it) {
+        var right = kind === 'turnover'
+          ? '<span class="mkt-price">' + fmtMoney(it.t) + '</span>'
+          : '<span class="mkt-price">Rs ' + (it.p != null ? fmt2(it.p) : '–') + '</span>';
+        return '<div class="mkt-row"><a class="mkt-sym" href="' + chartLink(it.s) + '">' +
+          esc(it.s) + '</a>' + chgHTML(it.ch) + right + '</div>';
+      }).join('');
+    }
+    cols.innerHTML =
+      '<div class="mkt-col"><h3>Top gainers</h3>' + rows(m.gainers, 'chg') + '</div>' +
+      '<div class="mkt-col"><h3>Top losers</h3>' + rows(m.losers, 'chg') + '</div>' +
+      '<div class="mkt-col"><h3>Turnover leaders</h3>' + rows(m.turnover, 'turnover') + '</div>';
+  }
+
+  /* ---------------- RSI + movers tabs (screener) ---------------- */
+
+  var TABS = [
+    { id: 'os', label: 'Oversold', title: 'RSI below 30' },
+    { id: 'ob', label: 'Overbought', title: 'RSI above 70' },
+    { id: 'lo', label: 'Lowest RSI', title: 'Ten lowest RSI readings' },
+    { id: 'hi', label: 'Highest RSI', title: 'Ten highest RSI readings' },
+    { id: 'mv', label: 'Moves most', title: 'Biggest average daily range' },
+  ];
+
+  function rsiItem(it) {
+    return '<li class="w1-item"><a class="sc-sym" href="' + chartLink(it.s) + '">' + esc(it.s) + '</a>' +
+      '<span class="w1-sub">' + esc(it.n) + '</span>' +
+      '<span class="w1-num">' + (+it.rsi).toFixed(1) + '</span>' +
+      '<span class="w1-sub">Rs ' + (it.p != null ? fmt2(it.p) : '–') + ' · ' +
+      (it.ch != null ? ((+it.ch >= 0 ? '+' : '') + (+it.ch).toFixed(2) + '%') : '–') + '</span></li>';
+  }
+  function mvItem(it) {
+    return '<li class="w1-item"><a class="sc-sym" href="' + chartLink(it.s) + '">' + esc(it.s) + '</a>' +
+      '<span class="w1-sub">' + esc(it.n) + '</span>' +
+      '<span class="w1-num">' + (+it.rangePct).toFixed(2) + '%</span>' +
+      '<span class="w1-sub">Rs ' + fmt2(it.avgRange) + ' avg range · ' + it.sessions + ' sessions</span></li>';
+  }
+  function emptyMsg(t) {
+    return '<p class="mkt-empty">No securities ' + t + ' in the latest batch.</p>';
+  }
+
+  function renderLists(d) {
+    if (!d || !d.rsi) return;
+    var r = d.rsi, mv = d.movers || {};
+    var lists = {
+      os: r.oversold && r.oversold.length ? '<ul class="w1-list">' + r.oversold.map(rsiItem).join('') + '</ul>'
+        : emptyMsg('are oversold right now'),
+      ob: r.overbought && r.overbought.length ? '<ul class="w1-list">' + r.overbought.map(rsiItem).join('') + '</ul>'
+        : emptyMsg('are overbought right now'),
+      lo: r.lowest && r.lowest.length ? '<ul class="w1-list">' + r.lowest.map(rsiItem).join('') + '</ul>'
+        : emptyMsg('have an RSI reading'),
+      hi: r.highest && r.highest.length ? '<ul class="w1-list">' + r.highest.map(rsiItem).join('') + '</ul>'
+        : emptyMsg('have an RSI reading'),
+      mv: mv.top && mv.top.length ? '<ul class="w1-list">' + mv.top.map(mvItem).join('') + '</ul>'
+        : emptyMsg('have enough history for a range ranking'),
+    };
+    TABS.forEach(function (t) {
+      var p = $('w1p-' + t.id);
+      if (p) p.innerHTML = lists[t.id];
+    });
+    var asof = $('w1-asof');
+    if (asof && r.asof) {
+      asof.textContent = '· RSI batch ' + r.asof;
+      asof.insertAdjacentHTML('beforeend', fresh(r.asof));
+    }
+  }
+
+  function bindTabs() {
+    var tabs = TABS.map(function (t) { return $('w1tab-' + t.id); }).filter(Boolean);
+    if (!tabs.length) return;
+    function select(tab, focus) {
+      tabs.forEach(function (tb) {
+        var on = tb === tab;
+        tb.setAttribute('aria-selected', on ? 'true' : 'false');
+        tb.tabIndex = on ? 0 : -1;
+        var panel = $(tb.getAttribute('aria-controls'));
+        if (panel) panel.hidden = !on;
+      });
+      if (focus) tab.focus();
+    }
+    tabs.forEach(function (tab, i) {
+      tab.addEventListener('click', function () { select(tab, false); });
+      tab.addEventListener('keydown', function (e) {
+        var j = null;
+        if (e.key === 'ArrowRight') j = (i + 1) % tabs.length;
+        else if (e.key === 'ArrowLeft') j = (i - 1 + tabs.length) % tabs.length;
+        else if (e.key === 'Home') j = 0;
+        else if (e.key === 'End') j = tabs.length - 1;
+        if (j != null) { e.preventDefault(); select(tabs[j], true); }
+      });
+    });
+  }
+
+  /* ---------------- boot ---------------- */
+
+  var promise = null;
+  function load() {
+    if (!promise) {
+      promise = fetch(dataURL(), { cache: 'no-store' }).then(function (res) {
+        if (!res.ok) throw new Error('http ' + res.status);
+        return res.json();
+      });
+    }
+    return promise;
+  }
+
+  function fail() {
+    var g = $('mktGrid');
+    if (g) g.innerHTML = '<p class="mkt-empty">Market summary is temporarily unavailable. Please retry in a moment.</p>';
+    TABS.forEach(function (t) {
+      var p = $('w1p-' + t.id);
+      if (p) p.innerHTML = '<p class="mkt-empty">List unavailable. Please retry in a moment.</p>';
+    });
+  }
+
+  function init() {
+    var needMarket = !!$('mktGrid');
+    var needLists = !!$('w1-os') || !!$('w1p-os');
+    if (!needMarket && !needLists) return;
+    if (needLists) bindTabs();
+    load().then(function (d) {
+      if (needMarket) renderMarket(d);
+      if (needLists) renderLists(d);
+    }).catch(fail);
+  }
+
+  W1.load = load;
+  W1.renderMarket = renderMarket;
+  W1.renderLists = renderLists;
+  window.NepseWave1 = W1;
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
