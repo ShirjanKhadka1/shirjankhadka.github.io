@@ -103,7 +103,7 @@
           (r.l ? ' <span class="sc-ltp" title="LTP-only history">LTP</span>' : '') + '</td>' +
         '<td class="num"><b>' + num2(r.p) + '</b></td>' +
         '<td class="num">' + fmtVol(r.vol) + rvolBadge(r) + '</td>' +
-        '<td>' + badge(r.v) + (r.setup ? '<div class="sc-setup">' + esc(r.setup) + '</div>' : '') + '</td>' +
+        '<td>' + badge(r.v) + (r.setup ? ' <span class="sc-setup-chip">' + esc(r.setup) + '</span>' : '') + '</td>' +
         '<td class="num">' + hitCell(r) + '</td>' +
         '<td class="num">' + slCell(r) + '</td>' +
         '<td class="num">' + tpCell(r) + '</td>' +
@@ -228,6 +228,9 @@
         ? 'Signals as of ' + asof + ' · ' + state.rows.length + ' securities ranked'
         : state.rows.length + ' securities ranked';
       $('sc-asof2').textContent = asof || 'the last close';
+      // keep the static snapshot heading in sync with the live data
+      var snapAsof = document.querySelector('.sc-top10 .sc-asof-inline');
+      if (snapAsof && asof) snapAsof.textContent = '— ' + asof;
 
       // summary cards
       var c = { 'Strong Buy': 0, 'Buy': 0, 'Hold': 0, 'Exit / Reduce': 0, 'Strong Exit': 0 };

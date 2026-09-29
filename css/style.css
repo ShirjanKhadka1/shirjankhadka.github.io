@@ -1038,32 +1038,37 @@ body.loaded .hero-title {
 
 /* ---------- NEPSE Stock Screener (nepse-screener/) ---------- */
 .sc-cards{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin:24px 0 20px}
-.sc-card{border-radius:14px;padding:18px 10px 14px;text-align:center;border:1px solid;cursor:pointer;transition:transform .12s ease,box-shadow .12s ease;background:#fff}
-.sc-card:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(15,23,42,.08)}
-.sc-card.is-on{box-shadow:0 0 0 2px #0f172a inset}
-.sc-num{display:block;font-size:1.9rem;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1}
-.sc-lab{display:block;font-size:.66rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;margin-top:6px;opacity:.7}
-.sc-sbuy{background:#ecfdf5;border-color:#a7f3d0}.sc-sbuy .sc-num{color:#047857}
-.sc-buy{background:#eff6ff;border-color:#bfdbfe}.sc-buy .sc-num{color:#1d4ed8}
-.sc-hold{background:#fffbeb;border-color:#fde68a}.sc-hold .sc-num{color:#b45309}
-.sc-exit{background:#fef2f2;border-color:#fecaca}.sc-exit .sc-num{color:#dc2626}
-.sc-sexit{background:#fee2e2;border-color:#fca5a5}.sc-sexit .sc-num{color:#991b1b}
-.sc-total{background:#f1f5f9;border-color:#e2e8f0;cursor:default}.sc-total:hover{transform:none;box-shadow:none}
+.sc-card{border-radius:16px;padding:20px 10px 16px;text-align:center;border:1.5px solid;cursor:pointer;transition:transform .14s ease,box-shadow .14s ease,border-color .14s ease;background:#fff;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+.sc-card:hover{transform:translateY(-3px);box-shadow:0 10px 22px rgba(15,23,42,.10)}
+.sc-card.is-on{transform:translateY(-2px)}
+.sc-sbuy.is-on{box-shadow:0 0 0 2.5px #059669,0 10px 22px rgba(5,150,105,.18)}
+.sc-buy.is-on{box-shadow:0 0 0 2.5px #2563eb,0 10px 22px rgba(37,99,235,.16)}
+.sc-hold.is-on{box-shadow:0 0 0 2.5px #d97706,0 10px 22px rgba(217,119,6,.16)}
+.sc-exit.is-on{box-shadow:0 0 0 2.5px #dc2626,0 10px 22px rgba(220,38,38,.16)}
+.sc-sexit.is-on{box-shadow:0 0 0 2.5px #991b1b,0 10px 22px rgba(153,27,27,.18)}
+.sc-num{display:block;font-size:2.1rem;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1.05}
+.sc-lab{display:block;font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-top:7px;opacity:.72}
+.sc-sbuy{background:linear-gradient(180deg,#ecfdf5,#f6fef9);border-color:#a7f3d0}.sc-sbuy .sc-num{color:#047857}
+.sc-buy{background:linear-gradient(180deg,#eff6ff,#f7faff);border-color:#bfdbfe}.sc-buy .sc-num{color:#1d4ed8}
+.sc-hold{background:linear-gradient(180deg,#fffbeb,#fffdf4);border-color:#fde68a}.sc-hold .sc-num{color:#b45309}
+.sc-exit{background:linear-gradient(180deg,#fef2f2,#fff7f7);border-color:#fecaca}.sc-exit .sc-num{color:#dc2626}
+.sc-sexit{background:linear-gradient(180deg,#fee2e2,#fef1f1);border-color:#fca5a5}.sc-sexit .sc-num{color:#991b1b}
+.sc-total{background:#f1f5f9;border-color:#e2e8f0;cursor:default}.sc-total:hover{transform:none;box-shadow:0 1px 2px rgba(15,23,42,.04)}
 .sc-total .sc-num{color:#0f172a}
 .sc-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:6px 0 14px}
 .sc-show{display:flex;align-items:center;gap:8px;font-size:.88rem;color:#64748b;white-space:nowrap}
 .sc-select{padding:9px 10px;border:1px solid #e2e8f0;border-radius:10px;font-size:.88rem;background:#fff;color:#0f172a;font-weight:600;cursor:pointer}
 .sc-search{flex:1 1 200px;min-width:170px;max-width:340px;margin-left:auto;padding:10px 14px;border:1px solid #e2e8f0;border-radius:10px;font-size:.9rem;background:#fff;color:#0f172a}
 .sc-search:focus{outline:2px solid #0e7490;outline-offset:0;border-color:#0e7490}
-.sc-table-wrap{overflow-x:auto;border:1px solid #e8edf3;border-radius:14px;background:#fff;box-shadow:0 1px 3px rgba(15,23,42,.05)}
+.sc-table-wrap{overflow-x:auto;border:1px solid #e8edf3;border-radius:16px;background:#fff;box-shadow:0 2px 8px rgba(15,23,42,.06)}
 .sc-table{width:100%;border-collapse:collapse;font-size:.9rem;min-width:1020px;font-variant-numeric:tabular-nums}
-.sc-table thead th{position:sticky;top:0;background:#f1f5f9;text-align:left;font-size:.7rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:#64748b;padding:12px 14px;border-bottom:1px solid #e2e8f0;cursor:pointer;white-space:nowrap;user-select:none}
-.sc-table thead th:hover{color:#0f172a;background:#e8eef5}
+.sc-table thead th{position:sticky;top:0;background:#f8fafc;text-align:left;font-size:.7rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#64748b;padding:13px 14px;border-bottom:1px solid #e2e8f0;cursor:pointer;white-space:nowrap;user-select:none}
+.sc-table thead th:hover{color:#0f172a;background:#eef4f9}
 .sc-table thead th.sorted{color:#0f172a}
 .sc-table thead th .arr{color:#0e7490;font-size:.75rem}
-.sc-table tbody td{padding:12px 14px;border-top:1px solid #f1f5f9;vertical-align:middle}
+.sc-table tbody td{padding:13px 14px;border-top:1px solid #f1f5f9;vertical-align:middle}
 .sc-table tbody tr:nth-child(even){background:#fafbfd}
-.sc-table tbody tr:hover{background:#f0f7f7}
+.sc-table tbody tr:hover{background:#f0f7f7;box-shadow:inset 3px 0 0 #0e7490}
 .sc-table .num{text-align:right;white-space:nowrap}
 .sc-sn{color:#94a3b8;font-weight:600}
 .sc-sector{display:inline-block;background:#eef2f7;color:#475569;font-size:.74rem;font-weight:600;padding:3px 10px;border-radius:999px;white-space:nowrap}
@@ -1079,12 +1084,13 @@ body.loaded .hero-title {
 .ms-v.exit{background:#fee2e2;color:#dc2626}
 .ms-v.sexit{background:#fecaca;color:#991b1b}
 .ms-v.insufficient{background:#f1f5f9;color:#94a3b8}
-.sc-setup{font-size:.76rem;color:#64748b;margin-top:5px;max-width:230px}
+.sc-setup-chip{display:inline-block;font-size:.7rem;font-weight:800;color:#92400e;background:linear-gradient(180deg,#fef3c7,#fde68a);border:1px solid #f59e0b55;border-radius:999px;padding:4px 11px;margin-left:8px;white-space:nowrap;vertical-align:middle;letter-spacing:.02em}
 .sc-sl{color:#dc2626}.sc-tp{color:#15803d}
+.sc-sl,.sc-tp{font-size:.95rem}
 .sc-hit{color:#0e7490}
 .sc-sub{display:block;font-size:.72rem;color:#94a3b8;font-weight:400;margin-top:2px}
-.sc-top10{margin:22px 0 6px}
-.sc-top10 h2{font-size:1.05rem;margin:0 0 10px;color:#0f172a}
+.sc-top10{margin:26px 0 8px}
+.sc-top10 h2{font-size:1.12rem;margin:0 0 12px;color:#0f172a;letter-spacing:-.01em}
 .sc-asof-inline{font-size:.8rem;color:#94a3b8;font-weight:400}
 .sc-static-note{font-size:.8rem;color:#94a3b8;margin:8px 2px 0}
 .sc-dist{font-size:.78rem;font-weight:600}.sc-dist.up{color:#15803d}.sc-dist.dn{color:#dc2626}
