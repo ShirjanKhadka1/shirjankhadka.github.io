@@ -11,6 +11,7 @@
   var VER_URL = '/nepse-chart/data/verdicts.json';
   var NEWS_URL = '/nepse-chart/data/news.json';
   var FUND_URL = '/nepse-chart/data/fundamentals.json';
+  var DIV_URL = '/nepse-chart/data/dividend-history.json';
 
   /* ---------- pure helpers (also exported for node tests) ---------- */
   function median(vals) {
@@ -53,12 +54,12 @@
   }
 
   /* ---------- page ---------- */
-  var uni = null, ver = null, news = null, cur = null, fundData = null;
+  var uni = null, ver = null, news = null, cur = null, fundData = null, divData = null;
 
   var $ = function (id) { return document.getElementById(id); };
   var els = {};
   ['fd-sym', 'fd-suggest', 'fd-status', 'fd-profile', 'fd-compare', 'fd-news',
-   'fd-empty', 'fd-asof'].forEach(function (id) { els[id] = $(id); });
+   'fd-dividends', 'fd-empty', 'fd-asof'].forEach(function (id) { els[id] = $(id); });
 
   function symParam() {
     var m = /[?&]s=([A-Za-z0-9\/-]+)/.exec(location.search);
@@ -87,6 +88,7 @@
         'Search another symbol above.';
       els['fd-profile'].innerHTML = '';
       els['fd-compare'].innerHTML = '';
+      els['fd-dividends'].innerHTML = '';
       els['fd-news'].innerHTML = '';
       return;
     }
@@ -161,6 +163,34 @@
       nh += '<p class="fd-sub2">No headlines in the last 7 days mention ' + esc(sym) + '. News is collected daily from Nepali business media.</p>';
     }
     els['fd-news'].innerHTML = nh;
+
+    // dividend history for this symbol
+    renderDividends(sym);
+  }
+
+  function renderDividends(sym) {
+    var el = els['fd-dividends'];
+    if (!el) return;
+    var hist = divData && divData.history && divData.history[sym];
+    if (!hist || !hist.length) {
+      el.innerHTML = '<h3>Dividend history</h3>' +
+        '<p class="fd-sub2">No dividend records found for ' + esc(sym) + ' in our archive.</p>';
+      return;
+    }
+    var rows = hist.slice(0, 15).map(function (r) {
+      return '<tr><td>' + esc(r.fiscalYear || '–') + '</td>' +
+        '<td>' + (r.bonus != null ? esc(r.bonus) + '%' : '–') + '</td>' +
+        '<td>' + (r.cash != null ? esc(r.cash) + '%' : '–') + '</td>' +
+        '<td><b>' + (r.total != null ? esc(r.total) + '%' : '–') + '</b></td>' +
+        '<td>' + (r.bookclose ? esc(r.bookclose) : '–') + '</td></tr>';
+    }).join('');
+    el.innerHTML = '<h3>Dividend history</h3>' +
+      '<p class="fd-sub2">' + hist.length + ' records, newest first. Bonus + cash dividends declared from company filings.</p>' +
+      '<div class="fd-table-wrap"><table class="fd-div-table">' +
+      '<thead><tr><th>Fiscal year</th><th>Bonus</th><th>Cash</th><th>Total</th><th>Book close</th></tr></thead>' +
+      '<tbody>' + rows + '</tbody></table></div>' +
+      '<p class="fd-note">Source: ShareSansar dividend archive via open data. ' +
+      '<a href="/stocks/' + esc(sym) + '/">Full history on the stock page →</a></p>';
   }
 
   /* ---------- autocomplete ---------- */
@@ -252,9 +282,10 @@
     fetch(UNI_URL).then(function (r) { return r.ok ? r.json() : null; }),
     fetch(VER_URL).then(function (r) { return r.ok ? r.json() : null; }),
     fetch(NEWS_URL).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
-    fetch(FUND_URL).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
+    fetch(FUND_URL).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
+    fetch(DIV_URL).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
   ]).then(function (res) {
-    uni = res[0]; ver = res[1]; news = res[2]; fundData = res[3];
+    uni = res[0]; ver = res[1]; news = res[2]; fundData = res[3]; divData = res[4];
     if (!uni || !ver) { setStatus('Could not load the daily batch. Please reload the page.', true); return; }
     setStatus('');
     var sym = symParam();
