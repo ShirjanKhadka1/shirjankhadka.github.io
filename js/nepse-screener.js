@@ -48,6 +48,12 @@
     return '<b class="sc-hit">' + w + '%</b> <span class="sc-sub">' + r.tr.n + ' calls</span>';
   }
 
+  function rsiCell(r) {
+    if (r.rsi == null) return '<span class="sc-dash">–</span>';
+    var cls = r.rsi < 30 ? ' sc-rsi-os' : (r.rsi > 70 ? ' sc-rsi-ob' : '');
+    return '<b class="sc-rsi' + cls + '">' + r.rsi.toFixed(1) + '</b>';
+  }
+
   function badge(v) {
     return '<span class="ms-v ' + (CLS[v] || 'insufficient') + '">' + esc(DISP[v] || v) + '</span>';
   }
@@ -69,6 +75,11 @@
         case 'sym': x = a.sym; y = b.sym; return (x < y ? -1 : x > y ? 1 : 0) * d || rankCmp(a, b);
         case 'p': x = a.p || -1; y = b.p || -1; return (x - y) * d || rankCmp(a, b);
         case 'vol': x = a.vol || -1; y = b.vol || -1; return (x - y) * d || rankCmp(a, b);
+        case 'rsi':
+          if (a.rsi == null && b.rsi == null) return rankCmp(a, b);
+          if (a.rsi == null) return 1;
+          if (b.rsi == null) return -1;
+          return (a.rsi - b.rsi) * d || rankCmp(a, b);
         case 'sig': return rankCmp(a, b) * d;
         case 'tr': x = a.tr ? a.tr.w : -1; y = b.tr ? b.tr.w : -1; return (x - y) * d || rankCmp(a, b);
         case 'sl': x = a.sl == null ? -1 : a.sl; y = b.sl == null ? -1 : b.sl; return (x - y) * d || rankCmp(a, b);
@@ -103,13 +114,14 @@
           (r.l ? ' <span class="sc-ltp" title="LTP-only history">LTP</span>' : '') + '</td>' +
         '<td class="num"><b>' + num2(r.p) + '</b></td>' +
         '<td class="num">' + fmtVol(r.vol) + rvolBadge(r) + '</td>' +
+        '<td class="num">' + rsiCell(r) + '</td>' +
         '<td>' + badge(r.v) + (r.setup ? ' <span class="sc-setup-chip">' + esc(r.setup) + '</span>' : '') + '</td>' +
         '<td class="num">' + hitCell(r) + '</td>' +
         '<td class="num">' + slCell(r) + '</td>' +
         '<td class="num">' + tpCell(r) + '</td>' +
         '</tr>';
     }).join('');
-    $('sc-body').innerHTML = html || '<tr><td colspan="9" class="sc-empty">No securities match the current filters.</td></tr>';
+    $('sc-body').innerHTML = html || '<tr><td colspan="10" class="sc-empty">No securities match the current filters.</td></tr>';
 
     // sort indicators
     var ths = document.querySelectorAll('#sc-table th[data-k]');
@@ -198,7 +210,7 @@
         var k = th.getAttribute('data-k');
         if (k === 'sn') return; // S.N. always follows the ranking
         if (state.sortK === k) state.sortD = -state.sortD;
-        else { state.sortK = k; state.sortD = (k === 'sym' || k === 'sec') ? 1 : -1; }
+        else { state.sortK = k; state.sortD = (k === 'sym' || k === 'sec' || k === 'rsi') ? 1 : -1; }
         state.page = 1; render();
       });
     });
@@ -224,7 +236,7 @@
         return {
           sym: sym, name: names[sym] || sym, v: e.v, s: e.s, p: e.p,
           vol: e.vol, volAvg: e.volAvg || null, sec: e.sec || null, sl: e.sl, tp: e.tp,
-          setup: e.setup || null, l: e.l || 0, tr: e.tr || null
+          setup: e.setup || null, l: e.l || 0, tr: e.tr || null, rsi: e.rsi
         };
       });
       var asof = vj.asof || '';
@@ -259,7 +271,7 @@
       bindControls();
       render();
     }).catch(function (e) {
-      $('sc-body').innerHTML = '<tr><td colspan="9" class="sc-empty">Could not load the ranking data. Please retry in a moment.</td></tr>';
+      $('sc-body').innerHTML = '<tr><td colspan="10" class="sc-empty">Could not load the ranking data. Please retry in a moment.</td></tr>';
       $('sc-asof').textContent = 'Data unavailable';
     });
   }
