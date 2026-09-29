@@ -153,14 +153,34 @@
     return true;
   }
 
+  function sessionDateLabel(iso) {
+    // "2026-09-29T15:00:00+05:45" -> "Sep 29" (NPT calendar date)
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return null;
+    var npt = new Date(d.getTime() + (5 * 60 + 45) * 60000);
+    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return months[npt.getUTCMonth()] + ' ' + npt.getUTCDate();
+  }
+
   function renderSnapshot(data) {
     if (!data || !Array.isArray(data.indices) || data.indices.length === 0) return false;
     if (typeof data.asof === 'string') {
       var age = Date.now() - new Date(data.asof).getTime();
       if (!isFinite(age) || age < 0 || age > STALE_MS) return false;
     }
-    var clock = typeof data.asof === 'string' ? nptClock(data.asof) : null;
-    return render(data.indices, 'As of ' + (clock || '--:--') + ' NPT ' + SEP + ' 15-min delayed');
+    // When the market is closed the snapshot is the last session's close:
+    // label it as the 3:00 PM close, never as a stale intraday time.
+    var closed = data.market === 'CLOSED' || data.close === true || !inTradingHours();
+    var note;
+    if (closed) {
+      var dstr = typeof data.asof === 'string' ? sessionDateLabel(data.asof) : null;
+      note = 'Market closed' + SEP + ' as of ' + (dstr ? dstr + ', ' : '') + '3:00 PM NPT';
+    } else {
+      var clock = typeof data.asof === 'string' ? nptClock(data.asof) : null;
+      note = 'As of ' + (clock || '--:--') + ' NPT ' + SEP + ' 15-min delayed';
+    }
+    return render(data.indices, note);
   }
 
   function renderLive(items) {

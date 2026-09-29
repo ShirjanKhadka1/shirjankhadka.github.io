@@ -117,8 +117,14 @@ function main() {
       t: +q.turnover, vol: q.volume == null ? null : +q.volume,
     }));
   const idx = live.index || {};
+  // Honesty guard: live.json intraday snapshots must never be presented as
+  // the session close. Only a snapshot explicitly marked as the close
+  // (close === true / market === 'CLOSED') counts; consumers label
+  // accordingly ("as of 3:00 PM" vs intraday time).
+  const isClose = live.close === true || live.market === 'CLOSED';
   const market = {
     date: sessDate,
+    close: isClose,
     index: {
       value: idx.value == null ? null : +idx.value,
       change: idx.change == null ? null : +idx.change,

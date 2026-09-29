@@ -1232,3 +1232,28 @@ body.loaded .hero-title {
   .mag-start { grid-template-columns: 1fr; gap: 24px; }
   .mag-featured h3 { font-size: 28px; }
 }
+/* Blog market pulse band: the session at a glance */
+.pulse-band { background: #0e2a1f; color: #f5f0e6; border-radius: 20px; margin: 30px 0 6px; overflow: hidden; }
+.pulse-inner { display: grid; grid-template-columns: 1.35fr 1fr; gap: 28px; padding: 32px 36px 26px; align-items: center; }
+.pulse-label { font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #c9a96a; margin-bottom: 10px; }
+.pulse-value { font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: 54px; line-height: 1; letter-spacing: -0.02em; }
+.pulse-change { font-size: 17px; font-weight: 600; margin-top: 10px; }
+.pulse-change.down { color: #ff9d8a; }
+.pulse-change.up { color: #7fd6a4; }
+.pulse-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.pulse-stat span { display: block; font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: #a9b8ad; margin-bottom: 6px; }
+.pulse-stat strong { font-family: 'Fraunces', Georgia, serif; font-size: 25px; font-weight: 600; }
+.pulse-note { grid-column: 1 / -1; font-size: 12.5px; color: #a9b8ad; border-top: 1px solid rgba(245,240,230,.14); padding-top: 14px; margin-top: 2px; }
+.pulse-band[hidden] { display: none; }
+/* Blog market-news headlines */
+.mag-news-list { display: grid; grid-template-columns: 1fr 1fr; gap: 0 44px; }
+.mag-news-item { display: block; padding: 17px 0; border-bottom: 1px solid var(--line); text-decoration: none; color: inherit; }
+.mag-news-item h4 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: 17.5px; line-height: 1.42; margin-bottom: 7px; }
+.mag-news-item:hover h4 { color: var(--accent); }
+.mag-news-meta { font-size: 12.5px; color: var(--secondary); }
+.mag-news-meta .src { font-weight: 700; color: var(--accent); }
+@media (max-width: 760px) {
+  .pulse-inner { grid-template-columns: 1fr; padding: 26px 24px 20px; gap: 20px; }
+  .pulse-value { font-size: 42px; }
+  .mag-news-list { grid-template-columns: 1fr; }
+}
