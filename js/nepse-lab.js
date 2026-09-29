@@ -807,6 +807,9 @@
     g.font = '11px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif';
     g.textAlign = 'left'; g.textBaseline = 'middle';
     var step = Math.pow(10, Math.floor(Math.log10(span / 4)));
+    // widen the step on short/narrow charts so y-axis labels never overlap (min ~22px per label)
+    var _yg = 0;
+    while (_yg++ < 10 && ph > 0 && (step / (hi - lo)) * ph < 22) step *= 2;
     var v0 = Math.ceil(lo / step) * step;
     for (var v = v0; v < hi; v += step) {
       g.beginPath(); g.moveTo(padL, Y(v)); g.lineTo(W - padR, Y(v)); g.stroke();

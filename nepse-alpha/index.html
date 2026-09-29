@@ -15,6 +15,10 @@
 <meta name="twitter:title" content="NEPSE Alpha Lab – Free Stock Analysis Tools for Every NEPSE Investor">
 <meta name="twitter:description" content="Charts, pattern scans, a transparent buy/hold/exit engine and a full-market screener for every NEPSE-listed security. Free, no login, educational.">
 <meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
@@ -419,8 +423,19 @@ p.sec-sub{color:var(--secondary);font-size:17px;max-width:64ch;margin-bottom:40p
   }).catch(function(){document.getElementById('ls-asof').textContent='Data unavailable';});
 
   // Reveal on scroll
-  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12});
-  document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+  if ('IntersectionObserver' in window) {
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12});
+    document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+    // fail-open: if the observer ever misbehaves, never leave in-view content invisible
+    setTimeout(function(){
+      var vh = window.innerHeight || 800;
+      document.querySelectorAll('.reveal:not(.in)').forEach(function(el){
+        try { if (el.getBoundingClientRect().top < vh * 0.9) el.classList.add('in'); } catch (e) { el.classList.add('in'); }
+      });
+    }, 3000);
+  } else {
+    document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in');});
+  }
 
   // Engine verdicts: strongest buys and exits from the latest daily batch
   (function(){
