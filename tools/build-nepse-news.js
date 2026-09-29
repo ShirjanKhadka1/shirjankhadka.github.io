@@ -25,7 +25,7 @@ const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, 'nepse-chart', 'data', 'news.json');
 const UNIVERSE = path.join(ROOT, 'nepse-chart', 'data', 'universe.json');
 const UA = { 'User-Agent': 'Mozilla/5.0 (NEPSE-Alpha-Lab news collector)' };
-const KEEP_DAYS = 7;
+const KEEP_DAYS = 90;
 const MAX_ITEMS = 300;
 
 const FEEDS = [
@@ -159,17 +159,14 @@ function matchSymbol(title, aliases) {
   const hs = tokens.map(skeleton);
   const hits = [];
   for (const a of aliases) {
-    let strong = false, weak = false;
+    let strength = 0; // 3 = exact phrase/ticker, 2 = strong, 1 = weak
     // 1) English company-name phrase match.
-    if (a.phrase.length >= 4 && t.includes(' ' + a.phrase + ' ')) strong = true;
+    if (a.phrase.length >= 4 && t.includes(' ' + a.phrase + ' ')) strength = 3;
     // 2) All English core tokens present.
-    if (!strong && a.coreTokens.length >= 1 &&
-      a.coreTokens.every((w) => t.includes(w))) strong = true;
+    if (!strength && a.coreTokens.length >= 1 &&
+      a.coreTokens.every((w) => t.includes(w))) strength = 3;
     // 3) Consonant-skeleton match (handles Nepali transliterations).
-    //    Always needs a market keyword: short skeletons collide with common
-    //    Nepali words (e.g. दलित "dlt" vs DOLTI). Auto-derived skeletons are
-    //    all length >= 4; vetted manual aliases (>= 3) match on equality.
-    if (!strong && hasKw) {
+    if (!strength && hasKw) {
       const autoHit = (minLen) => {
         for (const s of a.skels) {
           if (s.length < minLen) continue;
@@ -181,20 +178,24 @@ function matchSymbol(title, aliases) {
         }
         return 0;
       };
-      if (autoHit(4) === 2) strong = true;
-      else if (autoHit(4) === 1) weak = true;
-      if (!strong && !weak) {
+      const ah = autoHit(4);
+      if (ah === 2) strength = 2;
+      else if (ah === 1) strength = 1;
+      if (!strength) {
         for (const s of a.neSkels) {
-          if (hs.includes(s)) { strong = true; break; }
+          if (hs.includes(s)) { strength = 2; break; }
         }
       }
     }
     // 4) Bare ticker + market keyword (catches Nepali headlines too).
-    if (!strong && !weak && a.tickerRe.test(t) &&
-      (hasKw || a.coreTokens.some((w) => t.includes(w)))) strong = true;
-    if (strong || (weak && hasKw)) hits.push(a.sym);
+    if (!strength && a.tickerRe.test(t) &&
+      (hasKw || a.coreTokens.some((w) => t.includes(w)))) strength = 3;
+    if (strength) hits.push({ sym: a.sym, strength });
   }
-  return hits;
+  // One article, one symbol: keep only the strongest match so the same
+  // story never appears as double items under several tickers.
+  hits.sort((x, y) => y.strength - x.strength);
+  return hits.length ? [hits[0].sym] : [];
 }
 
 async function fetchFeed(f) {

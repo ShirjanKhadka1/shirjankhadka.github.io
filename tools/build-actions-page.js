@@ -29,15 +29,63 @@ const KIND_LABEL = {
   'right-share': 'Right share',
   'promoter-share': 'Promoter share',
   'auction': 'Auction',
+  'book-closure': 'Book closure',
+  'agm-sgm': 'AGM / SGM',
 };
+
+// Sections in display order. Dividend and right-share items carry an
+// Open/Closed badge driven by their real event date (book-closure date for
+// dividends, application deadline for rights). Items without a verified
+// event date show no badge rather than a guessed one.
+const SECTIONS = [
+  { id: 'dividends', title: 'Dividends', kinds: ['dividend'], badge: true,
+    blurb: 'Declared dividends. Open means the book closure is still ahead; Closed means it has passed.' },
+  { id: 'rights', title: 'Right shares', kinds: ['right-share'], badge: true,
+    blurb: 'Right share issues. Open means applications are still being accepted; Closed means the deadline has passed.' },
+  { id: 'book-closures', title: 'Book closures', kinds: ['book-closure'], badge: false,
+    blurb: 'Standalone book-closure notices (AGM record dates and similar).' },
+  { id: 'meetings', title: 'AGM / SGM filings', kinds: ['agm-sgm'], badge: false,
+    blurb: 'Annual and special general meeting notices.' },
+  { id: 'other', title: 'Other filings', kinds: ['bonus-share', 'promoter-share', 'auction'], badge: false,
+    blurb: 'Bonus issues, promoter-share sales and auctions.' },
+];
+
+function todayNPT() {
+  const p = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kathmandu', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+  return p; // YYYY-MM-DD
+}
+
+function statusBadge(it, today) {
+  const d = it.facts && it.facts.eventDate;
+  if (!d) return '';
+  const open = d >= today;
+  return '<span class="ca-status ' + (open ? 'is-open' : 'is-closed') + '">' + (open ? 'Open' : 'Closed') + '</span>';
+}
+
+function renderItem(it, today, showBadge) {
+  const kind = KIND_LABEL[it.kind] || esc(it.kind);
+  const facts = it.facts || {};
+  return '<article class="ca-item" data-kind="' + esc(it.kind) + '" data-sym="' + esc((it.symbol || '').toLowerCase()) + '">\n' +
+    (showBadge ? statusBadge(it, today) : '') +
+    '<span class="ca-kind k-' + esc(it.kind) + '">' + esc(kind) + '</span>' +
+    (it.symbol ? '<a class="ca-sym" href="/stocks/' + esc(it.symbol.replace(/\//g, '-')) + '/">' + esc(it.symbol) + '</a> ' : '') +
+    '<p class="ca-head">' + esc(it.headline) + '</p>\n' +
+    '<p class="ca-meta">' + (it.company ? esc(it.company) + ' · ' : '') +
+    (facts.eventDateLabel ? '<strong>' + esc(facts.eventDateLabel) + '</strong> · ' : '') +
+    (it.announced ? 'announced ' + esc(it.announced) + ' · ' : '') +
+    (it.officialPdf ? '<a href="' + esc(it.officialPdf) + '" rel="noopener" target="_blank">Official NEPSE PDF</a>' : '') +
+    '</p>\n' +
+    '</article>\n';
+}
 
 function main() {
   const store = loadJson(DATA_FILE, null);
   const items = (store && store.items) || [];
   const updated = (store && store.updated) || '';
+  const today = todayNPT();
 
-  const title = 'NEPSE Corporate Actions Archive: Dividends, Bonus, Rights | Nepse Decode';
-  const desc = 'Durable archive of verified NEPSE corporate actions: dividend, bonus share, right share, promoter-share sale and auction notices, each linked to its official NEPSE disclosure PDF. Educational, free.';
+  const title = 'NEPSE Corporate Actions Archive: Dividends, Rights, Book Closures, AGM | Nepse Decode';
+  const desc = 'Durable archive of verified NEPSE corporate actions: dividends, right shares, book closures and AGM/SGM filings, each linked to its official NEPSE disclosure PDF. Open/Closed status from real event dates. Educational, free.';
   const url = SITE + '/nepse-actions/';
 
   const itemList = items.map((it, i) => ({
@@ -135,24 +183,21 @@ function main() {
     '</div></section>\n' +
     '<section aria-label="Notices" id="ca-list">\n';
 
-  for (const it of items) {
-    const kind = KIND_LABEL[it.kind] || esc(it.kind);
-    h += '<article class="ca-item" data-kind="' + esc(it.kind) + '" data-sym="' + esc((it.symbol || '').toLowerCase()) + '">\n' +
-      '<span class="ca-kind k-' + esc(it.kind) + '">' + esc(kind) + '</span>' +
-      (it.symbol ? '<a class="ca-sym" href="/stocks/' + esc(it.symbol.replace(/\//g, '-')) + '/">' + esc(it.symbol) + '</a> ' : '') +
-      '<p class="ca-head">' + esc(it.headline) + '</p>\n' +
-      '<p class="ca-meta">' + (it.company ? esc(it.company) + ' · ' : '') +
-      (it.announced ? 'announced ' + esc(it.announced) + ' · ' : '') +
-      (it.officialPdf ? '<a href="' + esc(it.officialPdf) + '" rel="noopener" target="_blank">Official NEPSE PDF</a>' : '') +
-      '</p>\n' +
-      '</article>\n';
+  for (const sec of SECTIONS) {
+    const secItems = items.filter((it) => sec.kinds.indexOf(it.kind) !== -1);
+    if (!secItems.length) continue;
+    h += '<section class="ca-section" aria-label="' + esc(sec.title) + '" id="ca-' + sec.id + '">\n' +
+      '<div class="ca-sec-head"><h2>' + esc(sec.title) + '</h2>' +
+      '<span class="ca-sec-count">' + secItems.length + '</span></div>\n' +
+      '<p class="ca-sec-blurb">' + esc(sec.blurb) + '</p>\n';
+    for (const it of secItems) h += renderItem(it, today, sec.badge);
+    h += '</section>\n';
   }
   if (!items.length) {
-    h += '<p class="sp-note">No verified notices in the archive yet. New dividend, bonus, right, promoter-share and auction notices are added as they are published and verified.</p>\n';
+    h += '<p class="sp-note">No verified notices in the archive yet. New dividend, right share, book closure and AGM/SGM notices are added as they are published and verified.</p>\n';
   }
 
-  h += '</section>\n' +
-    '<p class="sp-disc">Educational use only, not investment advice. Notices are captured from official NEPSE disclosures; always confirm dates, ratios and book closures against the official NEPSE disclosure archive before acting.</p>\n' +
+  h += '<p class="sp-disc">Educational use only, not investment advice. Notices are captured from official NEPSE disclosures; always confirm dates, ratios and book closures against the official NEPSE disclosure archive before acting. Open/Closed reflects the notice\u2019s stated event date; notices without a stated date show no badge.</p>\n' +
     '</main>\n' +
     '<footer class="sc-footer">\n' +
     '  <div class="wrap">\n' +
@@ -173,13 +218,17 @@ function main() {
     '      el.style.display = ok ? "" : "none";\n' +
     '      if (ok) n++;\n' +
     '    });\n' +
+    '    document.querySelectorAll(".ca-section").forEach(function (sec) {\n' +
+    '      var vis = sec.querySelectorAll(".ca-item:not([style*=\\"none\\"])").length;\n' +
+    '      sec.style.display = vis ? "" : "none";\n' +
+    '    });\n' +
     '    count.textContent = n + " of " + items.length + " notices";\n' +
     '  }\n' +
     '  kind.addEventListener("change", apply);\n' +
     '  q.addEventListener("input", apply);\n' +
     '  apply();\n' +
     '})();\n' +
-    '</script>\n</body>\n</html>\n';
+    '</script>\n<script src="/js/nepse-suite.js?v=20261003a" defer></script>\n</body>\n</html>\n';
 
   fs.mkdirSync(OUT_DIR, { recursive: true });
   fs.writeFileSync(path.join(OUT_DIR, 'index.html'), h);

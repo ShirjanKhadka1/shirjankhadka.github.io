@@ -150,7 +150,7 @@ const FOOT = '<footer class="sc-footer">\n' +
   '    <p>Built by <a href="/">Shirjan Khadka</a> · Kathmandu, Nepal</p>\n' +
   '    <p class="sc-footer-sub">Per-symbol NEPSE snapshot · rule-based signals · educational use only, not investment advice</p>\n' +
   '  </div>\n' +
-  '</footer>\n</body>\n</html>\n';
+  '</footer>\n<script src="/js/nepse-suite.js?v=20261003a" defer></script>\n</body>\n</html>\n';
 
 function fmtNum(x) {
   if (x === null || x === undefined || x === '') return null;
@@ -185,7 +185,7 @@ function fundBlock(sym, fund) {
   return h;
 }
 
-function symbolPage(u, v, newsItems, peers, fund) {
+function symbolPage(u, v, newsItems, peers, fund, actionItems, divItems) {
   const sym = u.s, name = u.n, slug = slugOf(sym);
   const price = fmtNum(v && v.p);
   const chg = v && v.ch !== null && v.ch !== undefined && v.ch !== '' ? esc(v.ch) + '%' : null;
@@ -232,6 +232,47 @@ function symbolPage(u, v, newsItems, peers, fund) {
     h += '</ul>\n';
   } else {
     h += '<p class="sp-note">No recent headlines mention ' + esc(sym) + ' in the tracked press.</p>\n';
+  }
+  h += '</section>\n';
+
+  // Corporate actions history: dividend, right share, book closure, AGM/SGM
+  const KIND_LABEL = { dividend: 'Dividend', 'right-share': 'Right share', 'book-closure': 'Book closure', 'agm-sgm': 'AGM/SGM', 'bonus-share': 'Bonus share', 'promoter-share': 'Promoter share', auction: 'Auction' };
+  h += '<section aria-label="Corporate actions history"><h2>Corporate actions history</h2>\n';
+  if (actionItems.length) {
+    h += '<ul class="sp-actions">\n';
+    for (const it of actionItems) {
+      const kl = KIND_LABEL[it.kind] || it.kind;
+      const dt = it.announced ? esc(it.announced) : '';
+      const href = it.officialPdf || it.sourceUrl || '';
+      h += '<li><span class="sp-act-kind">' + esc(kl) + '</span> ' +
+        (href ? '<a href="' + esc(href) + '" target="_blank" rel="noopener">' : '') +
+        esc(it.headline || kl) +
+        (href ? '</a>' : '') +
+        (dt ? ' <span class="sp-news-src">' + dt + '</span>' : '') + '</li>\n';
+    }
+    h += '</ul>\n';
+    h += '<p class="sp-note"><a href="/nepse-actions/">All corporate actions</a></p>\n';
+  } else {
+    h += '<p class="sp-note">No corporate actions on record for ' + esc(sym) + ' yet.</p>\n';
+  }
+  h += '</section>\n';
+
+  // Dividend history: full archive per symbol, newest first
+  h += '<section aria-label="Dividend history"><h2>Dividend history</h2>\n';
+  if (divItems.length) {
+    h += '<div class="sp-divwrap"><table class="sp-div"><thead><tr>' +
+      '<th>Fiscal year</th><th>Bonus</th><th>Cash</th><th>Total</th><th>Book close</th></tr></thead><tbody>\n';
+    for (const it of divItems.slice(0, 20)) {
+      const pct = (x) => (x === null || x === undefined || x === '' ? '—' : esc(String(x)) + '%');
+      h += '<tr><td>' + esc(it.fiscalYear || '—') + '</td><td>' + pct(it.bonus) +
+        '</td><td>' + pct(it.cash) + '</td><td><strong>' + pct(it.total) +
+        '</strong></td><td>' + esc(it.bookclose || '—') + '</td></tr>\n';
+    }
+    h += '</tbody></table></div>\n';
+    if (divItems.length > 20) h += '<p class="sp-note">Showing latest 20 of ' + divItems.length + '.</p>\n';
+    h += '<p class="sp-note">Source: company disclosures via ShareSansar. Figures in percent of paid-up capital.</p>\n';
+  } else {
+    h += '<p class="sp-note">No dividend record found for ' + esc(sym) + '.</p>\n';
   }
   h += '</section>\n';
 
@@ -303,6 +344,21 @@ function main() {
   const ver = loadJson(path.join(DATA, 'verdicts.json'), null);
   const news = loadJson(path.join(DATA, 'news.json'), null);
   const fund = loadJson(path.join(DATA, 'fundamentals.json'), null);
+  const actions = loadJson(path.join(DATA, 'corporate-actions.json'), null);
+  const divHist = loadJson(path.join(DATA, 'dividend-history.json'), null);
+  const divBySym = (divHist && divHist.history) || {};
+  // per-symbol corporate-action history, newest first
+  const actionsBySym = {};
+  if (actions && actions.items) {
+    for (const it of actions.items) {
+      const s = (it.symbol || '').toUpperCase();
+      if (!s) continue;
+      (actionsBySym[s] = actionsBySym[s] || []).push(it);
+    }
+    for (const s of Object.keys(actionsBySym)) {
+      actionsBySym[s].sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+    }
+  }
   if (!universe || !universe.symbols || !ver || !ver.verdicts) {
     console.error('build-symbol-pages: missing universe/verdicts data');
     process.exit(1);
@@ -332,7 +388,7 @@ function main() {
     const peers = (byType[u.t || 'Security'] || []).filter((p) => p.s !== sym).slice(0, 5);
     const dir = path.join(OUT, slug);
     fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, 'index.html'), symbolPage(u, v, newsBySym[sym] || [], peers, fund));
+    fs.writeFileSync(path.join(dir, 'index.html'), symbolPage(u, v, newsBySym[sym] || [], peers, fund, actionsBySym[sym] || [], divBySym[sym] || []));
     made++;
   }
   fs.writeFileSync(path.join(OUT, 'index.html'), indexPage(symbols, ver.asof));

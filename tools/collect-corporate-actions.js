@@ -27,10 +27,80 @@ const STORE = path.join(ROOT, 'nepse-chart', 'data', 'corporate-actions.json');
 const UNI = path.join(ROOT, 'nepse-chart', 'data', 'universe.json');
 const UA = 'Mozilla/5.0 (NepseDecode archive collector)';
 
-const CORE_RE = /(dividend|bonus|right[-_ ]?shares?|promoter|lock[-_ ]?in|advance[-_ ]?notice|prior[-_ ]?notice|intention[-_ ]?of[-_ ]?sale|sale[-_ ]?of[-_ ]?shares?|auction|लाभांश|बोनस|हकप्रद|प्रमोटर|लिलाम|लक[- ]?इन|अग्रिम[- ]?सूचना|शेयर[- ]?बिक्री|सेयर[- ]?बिक्री|बिक्री[- ]?गर्ने[- ]?मनसाय)/i;
-const AGM_ONLY_RE = /(agm|साधारण[- ]?सभा|book[- ]?closure)/i;
+const CORE_RE = /(dividend|bonus|right[-_ ]?shares?|promoter|lock[-_ ]?in|advance[-_ ]?notice|prior[-_ ]?notice|intention[-_ ]?of[-_ ]?sale|sale[-_ ]?of[-_ ]?shares?|auction|agm|sgm|egm|साधारण[- ]?सभा|book[- ]?closure|लाभांश|बोनस|हकप्रद|प्रमोटर|लिलाम|लक[- ]?इन|अग्रिम[-_ ]?सूचना|शेयर[- ]?बिक्री|सेयर[- ]?बिक्री|बिक्री[- ]?गर्ने[- ]?मनसाय)/i;
 const DIVIDEND_TIED_RE = /(dividend|bonus|right|लाभांश|बोनस|हकप्रद)/i;
 const NON_NEWS_TITLE_RE = /^(featured|opinion|editorial|interview|analysis)\b|बहस|अन्तर्वार्ता/i;
+
+// BS calendar for converting Nepali event dates to AD (loaded from the
+// site's own bs-calendar.js so there is a single canonical dataset).
+let BSCal = null;
+function bsCal() {
+  if (BSCal) return BSCal;
+  const src = fs.readFileSync(path.join(ROOT, 'js', 'bs-calendar.js'), 'utf8');
+  const window = {};
+  (new Function('window', src))(window);
+  BSCal = window.BSCal;
+  return BSCal;
+}
+function bsToAdStr(y, m, d) {
+  try {
+    const ad = bsCal().bsToAd(y, m, d);
+    return ad.y + '-' + String(ad.m).padStart(2, '0') + '-' + String(ad.d).padStart(2, '0');
+  } catch { return null; }
+}
+function currentBsYear() {
+  // today in NPT -> BS year, used when a notice gives month+day without a year
+  const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kathmandu', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+  const [y, m, d] = parts.split('-').map(Number);
+  return bsCal().adToBs(y, m, d).y;
+}
+const BS_MONTHS = ['Baisakh', 'Jestha', 'Ashadh', 'Shrawan', 'Bhadra', 'Ashwin', 'Kartik', 'Mangsir', 'Poush', 'Magh', 'Falgun', 'Chaitra'];
+const BS_MONTH_RE = new RegExp('\\b(' + BS_MONTHS.join('|') + ')\\s+(\\d{1,2})(?:\\s*,?\\s*(\\d{4}))?', 'gi');
+
+// Pull the actionable event date out of a notice page: book-closure date,
+// application deadline, or meeting date. Prefers dates sitting next to the
+// relevant keyword; converts BS dates to AD. Returns { date, type, label }
+// or null when nothing reliable is found.
+function extractEventDate(pageText, kind) {
+  const text = ' ' + pageText.replace(/\s+/g, ' ') + ' ';
+  const cands = [];
+  let m;
+  BS_MONTH_RE.lastIndex = 0;
+  while ((m = BS_MONTH_RE.exec(text))) {
+    const mi = BS_MONTHS.indexOf(m[1]);
+    const day = parseInt(m[2], 10);
+    if (mi < 0 || day < 1 || day > 32) continue;
+    let year = m[3] ? parseInt(m[3], 10) : currentBsYear();
+    if (year < 2000) year += 2000; // 2-digit year guard
+    if (year < 2070 || year > 2090) continue;
+    const ad = bsToAdStr(year, mi + 1, day);
+    if (!ad) continue;
+    const ctx = text.slice(Math.max(0, m.index - 120), m.index + 120).toLowerCase();
+    let type = null;
+    if (/book[- ]?closure/.test(ctx)) type = 'book-closure';
+    else if (/deadline|last date|closing date|apply|application/i.test(ctx)) type = 'deadline';
+    else if (/meeting|\bagm\b|\bsgm\b|\begm\b|सभा/.test(ctx)) type = 'meeting';
+    cands.push({ date: ad, type, idx: m.index, raw: m[0].trim() });
+  }
+  // AD dates, only when tied to an event keyword nearby
+  const adRe = /\b(20\d{2})-(\d{2})-(\d{2})\b/g;
+  while ((m = adRe.exec(text))) {
+    const ctx = text.slice(Math.max(0, m.index - 120), m.index + 120).toLowerCase();
+    if (!/book[- ]?closure|deadline|last date|meeting|\bagm\b|\bsgm\b|closing date/.test(ctx)) continue;
+    let type = null;
+    if (/book[- ]?closure/.test(ctx)) type = 'book-closure';
+    else if (/deadline|last date|closing date/.test(ctx)) type = 'deadline';
+    else type = 'meeting';
+    cands.push({ date: m[0], type, idx: m.index, raw: m[0] });
+  }
+  if (!cands.length) return null;
+  // prefer a candidate whose type matches the notice kind
+  const want = kind === 'right-share' ? 'deadline' : kind === 'agm-sgm' ? 'meeting' : 'book-closure';
+  cands.sort((a, b) => ((b.type === want) - (a.type === want)) || (a.idx - b.idx));
+  const best = cands[0];
+  const labels = { 'book-closure': 'Book closure', 'deadline': 'Deadline', 'meeting': 'Meeting' };
+  return { date: best.date, type: best.type || want, label: (labels[best.type || want] || 'Date') + ': ' + best.date };
+}
 
 const NEWS_PORTALS = [
   { source: 'sharesansar', url: 'https://www.sharesansar.com/' },
@@ -64,15 +134,16 @@ function curl(url, binary) {
 const loadJson = (f, fb) => { try { return JSON.parse(fs.readFileSync(f, 'utf8')); } catch { return fb; } };
 
 function isTriggerText(text) {
-  if (!CORE_RE.test(text)) return false;
-  if (AGM_ONLY_RE.test(text) && !DIVIDEND_TIED_RE.test(text)) return false;
-  return true;
+  return CORE_RE.test(text);
 }
 function kindOf(text) {
+  const divTied = DIVIDEND_TIED_RE.test(text);
   if (/right|हकप्रद/i.test(text)) return 'right-share';
   if (/bonus|बोनस/i.test(text)) return 'bonus-share';
+  if (/\b(agm|sgm|egm)\b|साधारण[- ]?सभा/i.test(text) && !divTied) return 'agm-sgm';
   if (/promoter|प्रमोटर|lock[-_ ]?in|लक[- ]?इन|advance[-_ ]?notice|prior[-_ ]?notice|अग्रिम[- ]?सूचना|intention[-_ ]?of[-_ ]?sale|sale[-_ ]?of[-_ ]?shares?|शेयर[- ]?बिक्री|सेयर[- ]?बिक्री|बिक्री[- ]?गर्ने[- ]?मनसाय/i.test(text)) return 'promoter-share';
   if (/auction|लिलाम/i.test(text)) return 'auction';
+  if (/book[- ]?closure/i.test(text) && !divTied) return 'book-closure';
   return 'dividend';
 }
 function slugTitle(abs) {
@@ -142,10 +213,15 @@ function enrichPage(ev) {
   const symM = title.match(/\[([A-Z0-9]{2,12})\]\s*$/) || title.match(/\[([A-Z0-9]{2,12})\]/);
   const pdfs = html.match(/https:\/\/www\.nepalstock\.com\/api\/nots\/[^\s"'<>]+/g) || [];
   const full = pdfs.filter((u) => !u.includes('...')).sort((a, b) => b.length - a.length)[0] || null;
+  const kind = kindOf(ev.slug || ev.url);
+  const pageText = html.replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ');
+  const evt = extractEventDate(pageText, kind);
   return {
-    ...ev, kind: kindOf(ev.slug || ev.url), title,
+    ...ev, kind, title,
     symbol: symM ? symM[1] : null,
     officialPdf: full ? full.replace(/&amp;/g, '&') : null,
+    facts: evt ? { eventDate: evt.date, eventDateType: evt.type, eventDateLabel: evt.label } : {},
   };
 }
 function pdfOk(url) {
@@ -202,7 +278,7 @@ function main() {
       announced: item.date || now.slice(0, 10),
       officialPdf: item.officialPdf,
       source: 'ShareSansar official-notice mirror', sourceUrl: item.url,
-      facts: {}, seenKey: null, storyKey: sk, verifiedAt: now,
+      facts: item.facts || {}, seenKey: null, storyKey: sk, verifiedAt: now,
     });
     seenKeys.add(sk);
     added++;
@@ -217,4 +293,6 @@ function main() {
   console.log(JSON.stringify({ added, total: store.items.length }));
 }
 
-main();
+if (require.main === module) main();
+
+module.exports = { enrichPage, extractEventDate, kindOf, bsToAdStr };
