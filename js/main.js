@@ -100,21 +100,24 @@
   var toggle = document.getElementById("navToggle");
   var links = document.getElementById("navLinks");
   if (toggle && links) {
-    toggle.addEventListener("click", function () {
-      var open = links.classList.toggle("open");
+    function setMenu(open) {
+      links.classList.toggle("open", open);
       toggle.classList.toggle("open", open);
       toggle.setAttribute("aria-expanded", open ? "true" : "false");
       toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
-      document.body.style.overflow = open ? "hidden" : "";
+    }
+    toggle.addEventListener("click", function (e) {
+      e.stopPropagation();
+      setMenu(!links.classList.contains("open"));
     });
     links.querySelectorAll("a").forEach(function (a) {
-      a.addEventListener("click", function () {
-        links.classList.remove("open");
-        toggle.classList.remove("open");
-        toggle.setAttribute("aria-expanded", "false");
-        toggle.setAttribute("aria-label", "Open menu");
-        document.body.style.overflow = "";
-      });
+      a.addEventListener("click", function () { setMenu(false); });
+    });
+    document.addEventListener("click", function (e) {
+      if (links.classList.contains("open") && !links.contains(e.target)) setMenu(false);
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && links.classList.contains("open")) setMenu(false);
     });
   }
 
