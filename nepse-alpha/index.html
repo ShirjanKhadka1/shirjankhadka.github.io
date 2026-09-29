@@ -40,7 +40,7 @@
 {"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
 {"@type":"ListItem","position":2,"name":"NEPSE Alpha Lab","item":"https://shirjankhadka.com.np/nepse-alpha/"}]}
 </script>
-<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930b">
+<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930c">
 <style>
 /* alpha-only: engine band + verdict columns */
 .engine{background:var(--paper);border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline)}
@@ -106,6 +106,26 @@
     </div>
   </div>
 
+  <section class="block" aria-label="Market today">
+    <div class="wrap">
+      <p class="kicker reveal">Market today</p>
+      <h2 class="sec reveal">One session, at a glance.</h2>
+      <p class="sec-sub reveal">The last closed session, measured mechanically from the session tape. Counts and leaders, no commentary, no forecasts. <b id="mkt-asof">Loading the session…</b></p>
+      <div class="mkt-grid" id="mktGrid" aria-live="polite">
+        <div class="note-card" aria-hidden="true"><span class="skl skl-block"></span><span class="skl skl-line" style="width:70%"></span></div>
+        <div class="note-card" aria-hidden="true"><span class="skl skl-block"></span><span class="skl skl-line" style="width:70%"></span></div>
+        <div class="note-card" aria-hidden="true"><span class="skl skl-block"></span><span class="skl skl-line" style="width:70%"></span></div>
+        <div class="note-card" aria-hidden="true"><span class="skl skl-block"></span><span class="skl skl-line" style="width:70%"></span></div>
+      </div>
+      <div class="mkt-cols" id="mktCols" aria-live="polite">
+        <div class="mkt-col" aria-hidden="true"><span class="skl skl-block"></span><span class="skl skl-line" style="width:70%"></span><span class="skl skl-line" style="width:55%"></span></div>
+        <div class="mkt-col" aria-hidden="true"><span class="skl skl-block"></span><span class="skl skl-line" style="width:70%"></span><span class="skl skl-line" style="width:55%"></span></div>
+        <div class="mkt-col" aria-hidden="true"><span class="skl skl-block"></span><span class="skl skl-line" style="width:70%"></span><span class="skl skl-line" style="width:55%"></span></div>
+      </div>
+      <p class="vd-note reveal" style="margin-top:28px">Breadth and leaders are counted from the <span id="mkt-traded">–</span> securities with recorded trades in the session. For the full daily ranking of all 410 securities, <a href="/nepse-screener/">open the screener →</a></p>
+    </div>
+  </section>
+
   <section class="block notes">
     <div class="wrap">
       <p class="kicker reveal">Market notes</p>
@@ -146,7 +166,7 @@
           <ul>
             <li>Sortable table: price, volume, signal, stop-loss, target</li>
             <li>ATR-based stop-loss (−2×) and target (+4×) on every row</li>
-            <li>Filter by sector, signal strength, or symbol</li>
+            <li>Filter by sector, signal, RSI, price, or volume</li>
             <li>Published hit rates for the engine's past calls</li>
             <li>One click jumps to the full Alpha Lab breakdown</li>
           </ul>
@@ -277,6 +297,7 @@
 </footer>
 
 <script src="/js/nepse-fresh.js?v=20260930b"></script>
+<script src="/js/nepse-wave1.js?v=20260930c" defer></script>
 <script>
 (function(){
   // Skeleton placeholders: hold the strip and verdict lists while data loads (no layout shift)
@@ -308,7 +329,7 @@
     var asof=d.asof||idx.last_updated||'';
     if(asof){try{var lsa=document.getElementById('ls-asof');
       lsa.textContent='As of '+new Date(asof).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
-      if(window.NepseFresh&&!lsa.querySelector('.fresh'))lsa.insertAdjacentHTML('beforeend',' '+NepseFresh.badge(asof));
+      if(window.NepseFresh&&!lsa.querySelector('.fresh'))lsa.insertAdjacentHTML('beforeend',' '+window.NepseFresh.badge(asof));
       }catch(e){document.getElementById('ls-asof').textContent='';}}
   }).catch(function(){document.getElementById('ls-asof').textContent='Data unavailable';clearStrip();});
 
@@ -364,7 +385,7 @@
       render(exits,document.getElementById('vd-exits'),'No exit verdicts in the latest batch.');
       var asofEl=document.getElementById('vd-asof');
       if(d.asof){asofEl.textContent='Batch of '+fmtDate(d.asof)+' · '+(d.count||all.length)+' securities scored.';
-        if(window.NepseFresh&&!asofEl.querySelector('.fresh'))asofEl.insertAdjacentHTML('beforeend',' '+NepseFresh.badge(d.asof));}
+        if(window.NepseFresh&&!asofEl.querySelector('.fresh'))asofEl.insertAdjacentHTML('beforeend',' '+window.NepseFresh.badge(d.asof));}
       renderNotes(d,all);
     }).catch(function(){
       document.getElementById('vd-asof').textContent='Verdict data is temporarily unavailable.';
@@ -387,7 +408,7 @@
         }});
       var buySide=counts['Strong Buy']+counts['Buy'],exitSide=counts['Exit / Reduce']+counts['Strong Exit'];
       var asofTxt=d.asof?fmtDate(d.asof):'';
-      var fresh=(window.NepseFresh&&d.asof)?' · '+esc(NepseFresh.label(d.asof)):'';
+      var fresh=(window.NepseFresh&&d.asof)?' · '+esc(window.NepseFresh.label(d.asof)):'';
       var c1='<article class="note-card reveal in"><div class="nk">Signal mix</div><div class="nb">'+buySide+' <small>buy-side</small></div><p><b>'+counts['Strong Buy']+'</b> Strong Buy and <b>'+counts['Buy']+'</b> Buy verdicts, against <b>'+exitSide+'</b> Exit-side calls and <b>'+counts['Hold']+'</b> Holds'+(other?', plus <b>'+other+'</b> awaiting more history':'')+'. A mechanical tally from the latest batch, not a recommendation.</p></article>';
       var c2='';
       if(hi&&lo&&hi[0]!==lo[0]){
