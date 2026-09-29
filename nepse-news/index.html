@@ -3,248 +3,199 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nepse Decode News: Company Announcements & Verified Market Stories</title>
+<title>Nepse Decode News: Company Announcements & Market Headlines</title>
 <meta name="description" content="Nepse Decode: every listed company's official announcements (dividend, bonus, AGM, book closure) plus our verified original reporting. Free, no login, educational.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-news/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Nepse Decode News: Company Announcements & Verified Market Stories">
+<meta property="og:title" content="Nepse Decode News: Company Announcements & Market Headlines">
 <meta property="og:description" content="Official company announcements and verified original reporting on NEPSE. Free, no login, educational.">
 <meta property="og:url" content="https://shirjankhadka.com.np/nepse-news/">
 <meta property="og:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Nepse Decode News: Company Announcements & Verified Market Stories">
+<meta name="twitter:title" content="Nepse Decode News: Company Announcements & Market Headlines">
 <meta name="twitter:description" content="Official company announcements and verified original reporting on NEPSE. Free, no login, educational.">
 <meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
-<link rel="icon" href="/nepse-news/icon-32.png" sizes="32x32" type="image/png">
-<link rel="icon" href="/nepse-news/icon-16.png" sizes="16x16" type="image/png">
-<link rel="apple-touch-icon" href="/nepse-news/icon-180.png">
+<link rel="icon" href="/nepse-alpha/icon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/nepse-alpha/icon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/nepse-alpha/icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode News","url":"https://shirjankhadka.com.np/nepse-news/","description":"Official NEPSE company announcements and verified original market reporting.","author":{"@type":"Organization","name":"Nepse Decode","url":"https://shirjankhadka.com.np/nepse-news/"}}
 </script>
-<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
-{"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
-{"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-alpha/"},
-{"@type":"ListItem","position":3,"name":"Market News","item":"https://shirjankhadka.com.np/nepse-news/"}]}
-</script>
-<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260929d">
-<link rel="stylesheet" href="/css/nepse-wave8.css?v=20260930c">
-<link rel="stylesheet" href="/css/nepse-brand.css?v=20261003a">
+<link rel="stylesheet" href="/css/nepse-design-system.css?v=20260930a">
 <style>
 /* news-only: announcements + editorial feed */
-.wrap{max-width:880px}
-.topbar .wrap{max-width:1160px}
-
-/* ---- featured newsroom story ---- */
-.featured-label{display:flex;align-items:center;gap:10px;margin:44px 0 16px}
-.featured-label .rule{flex:1;height:1px;background:var(--hairline)}
-.featured-label span{font-size:12.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--emerald)}
-.featured-story{display:flex;gap:22px;background:var(--paper);border:1px solid var(--hairline);border-radius:20px;overflow:hidden;text-decoration:none;color:var(--ink);transition:transform .3s var(--ease),box-shadow .3s var(--ease)}
-.featured-story:hover{transform:translateY(-3px);box-shadow:var(--shadow-hover)}
-.featured-story img{width:280px;min-height:190px;object-fit:cover;flex:none}
-.featured-body{padding:26px 26px 26px 0;display:flex;flex-direction:column;justify-content:center}
-.featured-kicker{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-deep,#a8842c);margin-bottom:8px}
-.featured-body h2{font-family:var(--serif);font-size:24px;font-weight:600;letter-spacing:-.01em;line-height:1.35;margin-bottom:8px}
-.featured-body p{font-size:15px;color:var(--muted);line-height:1.55;margin-bottom:10px}
-.featured-meta{font-size:13px;color:var(--faint)}
-@media(max-width:700px){.featured-story{flex-direction:column}.featured-story img{width:100%;height:180px;min-height:0}.featured-body{padding:0 20px 22px}}
-
-/* ---- section heads ---- */
-.sec-head{display:flex;align-items:baseline;gap:12px;margin:52px 0 6px}
-.sec-head h2{font-family:var(--serif);font-size:26px;font-weight:600;letter-spacing:-.01em}
-.sec-head .sub{font-size:13.5px;color:var(--muted)}
-.sec-note{font-size:13.5px;color:var(--muted);margin-bottom:14px}
-.sec-note a{color:var(--emerald);font-weight:600}
-
-/* ---- announcement groups ---- */
-.ann-group{border:1px solid var(--hairline);border-radius:16px;background:var(--paper);margin-bottom:12px;overflow:hidden}
-.ann-group-head{width:100%;display:flex;align-items:center;gap:12px;padding:16px 20px;background:none;border:0;font:inherit;cursor:pointer;text-align:left;color:var(--ink)}
-.ann-group-head:hover{background:rgba(0,0,0,.02)}
-.ann-group-head .chev{flex:none;width:26px;height:26px;border:1px solid var(--hairline);border-radius:8px;display:grid;place-items:center;font-size:12px;color:var(--muted);transition:transform .25s var(--ease)}
-.ann-group.open .ann-group-head .chev{transform:rotate(180deg)}
-.ann-group-head h3{font-family:var(--serif);font-size:18px;font-weight:600}
-.ann-count{margin-left:auto;font-size:12.5px;font-weight:700;color:var(--emerald-deep);background:var(--gold-faint);border:1px solid var(--gold-soft);padding:4px 12px;border-radius:999px;white-space:nowrap}
-.ann-items{display:none;padding:4px 12px 12px}
-.ann-group.open .ann-items{display:block}
-
-/* ---- announcement row ---- */
-.ann{display:flex;gap:14px;align-items:flex-start;padding:14px 10px;border-radius:12px;text-decoration:none;color:var(--ink);transition:background .2s var(--ease)}
-.ann:hover{background:rgba(0,0,0,.025)}
-.ann + .ann{border-top:1px solid var(--hairline)}
-.ann-mono{flex:none;width:46px;height:46px;border-radius:13px;display:grid;place-items:center;font-weight:700;font-size:15px;letter-spacing:.02em;color:#fff}
-.ann-body{flex:1;min-width:0}
-.ann-title{font-size:15.5px;font-weight:600;line-height:1.45;margin-bottom:5px}
-.ann:hover .ann-title{color:var(--emerald)}
-.ann-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
-.ann-sym{font-weight:700;font-size:11.5px;letter-spacing:.05em;color:var(--emerald-deep);background:var(--gold-faint);border:1px solid var(--gold-soft);padding:3px 10px;border-radius:999px}
-.ann-kind{font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;border-radius:999px;background:#eef2f0;color:#3d5a4c;border:1px solid #dbe4de}
-.ann-kind.hot{background:#fdf3e3;color:#8a5a13;border-color:#f0ddb8}
-.ann-date{margin-left:auto;white-space:nowrap}
-
-/* ---- market headlines: editorial card feed ---- */
-.kind-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 4px}
-.kind-tab{font:inherit;font-size:13px;font-weight:600;color:var(--muted);background:var(--paper);border:1px solid var(--hairline);border-radius:999px;padding:9px 16px;cursor:pointer;transition:all .2s var(--ease);display:inline-flex;align-items:center;gap:8px}
-.kind-tab:hover{border-color:var(--gold);color:var(--ink)}
-.kind-tab.active{background:var(--emerald);border-color:var(--emerald);color:#fff}
-.kind-tab .n{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:rgba(12,31,22,.07);font-variant-numeric:tabular-nums}
-.kind-tab.active .n{background:rgba(255,255,255,.22)}
-.news-list{display:flex;flex-direction:column;margin:14px 0 24px}
-.hl-card{background:var(--paper);border:1px solid var(--hairline);border-radius:20px;padding:24px;margin-bottom:14px;transition:transform .3s var(--ease),box-shadow .3s var(--ease)}
-.hl-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-hover)}
-.news-empty{color:var(--muted);font-size:15px;padding:32px;border:1px dashed var(--hairline);border-radius:16px;text-align:center}
-.hl-top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-.src-badge{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--pine);background:#f2f4f0;border:1px solid #dfe4dc;padding:5px 12px;border-radius:999px}
-.src-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--emerald)}
-.src-badge.src-arthasansar .dot{background:var(--gold)}
-.src-badge.src-bizmandu .dot{background:var(--emerald)}
-.src-badge.src-onlinekhabar .dot{background:var(--pine)}
-.hl-date{margin-left:auto;font-size:12.5px;color:var(--faint);font-variant-numeric:tabular-nums;white-space:nowrap}
-.hl-title{font-family:var(--serif);font-size:20px;font-weight:600;letter-spacing:-.01em;line-height:1.4;margin:0 0 16px}
-.hl-title a{color:var(--ink);text-decoration:none}
-.hl-title a:hover{color:var(--emerald)}
-.hl-foot{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:14px;border-top:1px solid var(--hairline)}
-.hl-kind{font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--emerald-deep);background:var(--gold-faint);border:1px solid var(--gold-soft);padding:4px 12px;border-radius:999px}
-.sym-chip{font-weight:700;font-size:12px;letter-spacing:.05em;color:var(--emerald-deep);background:var(--gold-faint);border:1px solid var(--gold-soft);padding:5px 13px;border-radius:999px;text-decoration:none;transition:all .2s var(--ease)}
-.sym-chip:hover{background:var(--emerald);border-color:var(--emerald);color:#fff}
-.read-src{margin-left:auto;font-size:13.5px;font-weight:700;color:var(--emerald);text-decoration:none;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
-.read-src:hover{text-decoration:underline}
-.read-src .arr{font-weight:400}
-.filter-row{display:flex;gap:12px;align-items:center;margin:8px 0;flex-wrap:wrap}
-.filter-row input{flex:1;min-width:200px;font:inherit;font-size:15px;padding:13px 22px;border:1px solid var(--hairline);border-radius:999px;background:var(--paper);color:var(--ink);outline:none;transition:border-color .25s var(--ease),box-shadow .25s var(--ease)}
-.filter-row input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(198,168,107,.22)}
-.filter-row input::placeholder{color:var(--faint)}
-.count{font-size:13.5px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
-.updated{font-size:13px;color:var(--faint);margin-bottom:8px}
-.promise{background:var(--paper);border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline);margin:56px 0 0}
-.promise-in{max-width:880px;margin:0 auto;padding:44px 24px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-.promise-card h3{font-family:var(--serif);font-size:17px;font-weight:600;margin-bottom:6px;letter-spacing:-.01em}
-.promise-card p{font-size:14px;color:var(--muted)}
-@media(max-width:700px){.promise-in{grid-template-columns:1fr;gap:20px}.hl-card{padding:20px 18px}.hl-title{font-size:18px}.hl-date{margin-left:0}.hl-top{flex-wrap:wrap}}
+.nd-masthead { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+.nd-masthead h1 { font-family: var(--serif); font-weight: 600; font-size: clamp(1.8rem, 4.5vw, 2.5rem); letter-spacing: -0.015em; }
+.ann-group { border: 1px solid var(--hairline); border-radius: var(--r-md); background: var(--card); margin-bottom: 12px; overflow: hidden; }
+.ann-group-head { width: 100%; display: flex; align-items: center; gap: 10px; padding: 14px 18px; background: none; border: 0; cursor: pointer; font: inherit; text-align: left; }
+.ann-group-head h3 { font-size: 0.95rem; font-weight: 700; }
+.ann-count { margin-left: auto; font-size: 0.78rem; font-weight: 700; color: var(--muted); background: var(--paper-deep); border-radius: var(--r-pill); padding: 2px 10px; }
+.ann-group-head .chev { color: var(--muted); transition: transform .2s; font-size: 0.8rem; }
+.ann-group.open .ann-group-head .chev { transform: rotate(180deg); }
+.ann-items { display: none; border-top: 1px solid var(--hairline-soft); }
+.ann-group.open .ann-items { display: block; }
+.ann { display: flex; gap: 14px; padding: 14px 18px; border-bottom: 1px solid var(--hairline-soft); text-decoration: none; align-items: flex-start; }
+.ann:last-child { border-bottom: 0; }
+.ann:hover { background: var(--paper-deep); }
+.ann-mono { flex: none; width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 0.8rem; letter-spacing: 0.04em; }
+.ann-body { min-width: 0; }
+.ann-title { font-weight: 600; font-size: 0.95rem; line-height: 1.45; display: block; margin-bottom: 6px; }
+.ann-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 0.78rem; color: var(--muted); }
+.ann-sym { font-weight: 700; color: var(--green-700); text-decoration: none; }
+.ann-kind { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 8px; border-radius: var(--r-pill); background: var(--paper-deep); }
+.ann-kind.hot { background: var(--gold-soft); color: #7a5c1e; }
+.news-empty { padding: 32px 20px; text-align: center; color: var(--muted); font-size: 0.92rem; border: 1px dashed var(--hairline); border-radius: var(--r-md); background: var(--card); }
+.kind-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 16px; scrollbar-width: none; }
+.kind-tabs::-webkit-scrollbar { display: none; }
+.kind-tab { flex: none; font-size: 0.82rem; font-weight: 600; padding: 7px 14px; border-radius: var(--r-pill); border: 1px solid var(--hairline); background: var(--card); color: var(--ink-soft); cursor: pointer; }
+.kind-tab[aria-selected="true"] { background: var(--green-900); color: #fff; border-color: var(--green-900); }
+.filter-row { display: flex; gap: 12px; align-items: center; margin-bottom: 8px; }
+.filter-row input { flex: 1; padding: 10px 16px; border: 1px solid var(--hairline); border-radius: var(--r-pill); font: inherit; font-size: 0.9rem; background: var(--card); }
+.filter-row input:focus { outline: 2px solid var(--green-700); outline-offset: 1px; }
+.filter-row .count { font-size: 0.82rem; color: var(--muted); white-space: nowrap; }
+.hl { display: block; padding: 16px 0; border-bottom: 1px solid var(--hairline-soft); text-decoration: none; }
+.hl:first-child { padding-top: 4px; }
+.hl-kicker { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; }
+.hl-title { font-family: var(--serif); font-weight: 600; font-size: 1.05rem; line-height: 1.4; margin-bottom: 6px; }
+.hl:hover .hl-title { color: var(--green-700); }
+.hl-meta { font-size: 0.78rem; color: var(--muted); display: flex; gap: 10px; flex-wrap: wrap; }
+.hl-sym { font-weight: 700; color: var(--green-700); }
+.promise-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 40px; }
+@media (min-width: 720px) { .promise-grid { grid-template-columns: repeat(3, 1fr); } }
+.promise-card h3 { font-family: var(--serif); font-size: 1.05rem; margin-bottom: 6px; }
 </style>
 </head>
-<body>
+<body class="nd">
 
-<aside class="suite-rail" aria-label="Nepse Decode suite">
-  <a class="rail-word" href="/nepse-alpha/"><img class="wm-mark" src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
-  <p class="rail-k">Suite</p>
-  <nav aria-label="Suite tools">
-    <a href="/nepse-alpha/">Overview</a>
-    <a href="/nepse-chart/">Chart &amp; signals</a>
-    <a href="/nepse-screener/">Screener</a>
-    <a href="/nepse-sectors/">Sectors</a>
-    <a href="/nepse-news/" class="on" aria-current="page">Market news</a>
-    <a href="/nepse-watchlist/">Watchlist</a>
-    <a href="/nepse-dashboard/">Dashboard</a>
-    <a href="/nepse-portfolio/">Portfolio</a>
-    <a href="/nepse-simulator/">Simulator</a>
-    <a href="/nepse-fundamentals/">Fundamentals</a>
-    <a href="/nepse-reports/">Reports</a>
-    <a href="/nepse-actions/">Corp. actions</a>
-  </nav>
-  <p class="rail-foot">Free forever · no login</p>
-</aside>
+<!-- Mobile top bar -->
+<header class="nd-topbar">
+  <a class="brand" href="/nepse-alpha/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="24" height="24">Nepse Decode</a>
+  <a class="nd-btn primary" href="/nepse-chart/" style="padding:8px 18px;font-size:0.85rem">Open the Lab</a>
+</header>
+<nav class="nd-mobilenav" aria-label="Suite tools">
+  <a href="/nepse-alpha/">Overview</a>
+  <a href="/nepse-chart/">Chart &amp; signals</a>
+  <a href="/nepse-screener/">Screener</a>
+  <a href="/nepse-sectors/">Sectors</a>
+  <a href="/nepse-news/" class="active" aria-current="page">Market news</a>
+  <a href="/nepse-watchlist/">Watchlist</a>
+  <a href="/nepse-dashboard/">Dashboard</a>
+  <a href="/nepse-portfolio/">Portfolio</a>
+  <a href="/nepse-simulator/">Simulator</a>
+  <a href="/nepse-fundamentals/">Fundamentals</a>
+  <a href="/nepse-reports/">Reports</a>
+  <a href="/nepse-actions/">Corp. actions</a>
+</nav>
 
-<header class="topbar">
-  <div class="wrap topbar-in">
-    <a class="wordmark" href="/nepse-alpha/"><img class="wm-mark" src="/assets/brand/nepse-decode-mark.svg" alt="" width="30" height="30">Nepse Decode</a>
-    <nav class="suite-links" aria-label="Nepse Decode suite">
-      <a href="/nepse-chart/">The Lab</a>
+<div class="nd-shell">
+  <!-- Desktop sidebar -->
+  <aside class="nd-side" aria-label="Nepse Decode suite">
+    <a class="brand" href="/nepse-alpha/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
+    <nav class="nd-nav" aria-label="Suite tools">
+      <p class="nav-kicker">Suite</p>
+      <a href="/nepse-alpha/">Overview</a>
+      <a href="/nepse-chart/">Chart &amp; signals</a>
       <a href="/nepse-screener/">Screener</a>
       <a href="/nepse-sectors/">Sectors</a>
-      <a href="/nepse-news/" class="on" aria-current="page">News</a>
+      <a href="/nepse-news/" class="active" aria-current="page">Market news</a>
       <a href="/nepse-watchlist/">Watchlist</a>
       <a href="/nepse-dashboard/">Dashboard</a>
       <a href="/nepse-portfolio/">Portfolio</a>
       <a href="/nepse-simulator/">Simulator</a>
       <a href="/nepse-fundamentals/">Fundamentals</a>
       <a href="/nepse-reports/">Reports</a>
+      <a href="/nepse-actions/">Corp. actions</a>
     </nav>
-    <div class="spacer"></div>
-    <a class="btn ghost small" href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Get alerts</a>
-    <a class="btn small" href="/nepse-chart/">Open the Lab</a>
-  </div>
-</header>
+    <p class="nd-caption" style="margin-top:32px">Free forever · no login</p>
+  </aside>
 
-<main id="main">
-  <section class="hero">
-    <div class="wrap">
-      <div class="hero-rule"></div>
-      <span class="eyebrow"><span class="pulse"></span>Announcements · Verified stories</span>
-      <h1>Every listed company's announcements, <em>in one place.</em></h1>
-      <p class="lede">Official disclosures from NEPSE-listed companies (dividends, bonuses, AGMs, book closures, director changes), plus <strong>our own verified reporting</strong> with the documents attached. Free, no login, educational.</p>
+  <div class="nd-content">
+    <div class="nd-wrap">
 
-      <div class="sp-tabs" role="tablist" aria-label="News sections">
-        <button class="sp-tab active" role="tab" aria-selected="true" data-tab="announcements">Announcements</button>
-        <button class="sp-tab" role="tab" aria-selected="false" data-tab="headlines">Market headlines</button>
+      <!-- Compact newsroom masthead — no bulky hero -->
+      <div class="nd-masthead">
+        <div>
+          <p class="nd-kicker">Market news</p>
+          <h1>Announcements &amp; headlines</h1>
+        </div>
+        <span class="nd-fresh" id="pageFresh">Loading…</span>
       </div>
 
-      <div class="sp-tabpanel active" data-panel="announcements" role="tabpanel">
-      <div class="sec-head"><h2>Latest announcements</h2><span class="sub" id="annUpdated"></span></div>
-      <p class="sec-note">Company disclosures as published, via ShareSansar's mirror of official NEPSE notices. Tapping a symbol opens its chart.</p>
-      <div id="annGroups"></div>
+      <div class="nd-tabs" role="tablist" aria-label="News sections">
+        <button class="nd-tab" role="tab" aria-selected="true" data-tab="announcements">Announcements</button>
+        <button class="nd-tab" role="tab" aria-selected="false" data-tab="headlines">Market headlines</button>
       </div>
 
-      <div class="sp-tabpanel" data-panel="headlines" role="tabpanel" hidden>
-      <div class="sec-head"><h2>Market headlines</h2><span class="sub">from Nepali business media</span></div>
-      <p class="sec-note">Headlines only, always attributed and linked to the publisher. We don't rewrite their reporting.</p>
-      <div class="kind-tabs" id="kindTabs" role="tablist" aria-label="Filter headlines by category"></div>
-      <div class="filter-row">
-        <input id="newsFilter" type="search" placeholder="Filter by symbol, e.g. NABIL, NIFRA, HIDCL…" aria-label="Filter headlines by symbol" autocomplete="off">
-        <span class="count" id="newsCount"></span>
+      <div data-panel="announcements" role="tabpanel">
+        <div class="nd-section-head" style="border:0;padding:0;margin-bottom:12px">
+          <div><span class="nd-caption" id="annUpdated">Official company disclosures, grouped by recency.</span></div>
+        </div>
+        <div id="annGroups"><div class="news-empty">Loading announcements…</div></div>
       </div>
-      <p class="updated" id="newsUpdated"></p>
-      <div class="news-list" id="newsList" aria-live="polite"></div>
-      </div><!-- /headlines tabpanel -->
-    </div>
-  </section>
 
-  <div class="promise">
-    <div class="promise-in">
-      <div class="promise-card"><h3>Official disclosures first</h3><p>Announcements come from the companies' own filings with NEPSE, not rumors or social posts.</p></div>
-      <div class="promise-card"><h3>Verified originals</h3><p>Our newsroom stories are checked against the official documents before they publish. <a href="/editorial-standards/">Read our standards</a>.</p></div>
-      <div class="promise-card"><h3>Corrections in the open</h3><p>When we get something wrong, we fix it publicly. <a href="/corrections/">See the policy</a>.</p></div>
-    </div>
-  </div>
-  <div class="wrap">
-    <section class="final reveal">
-      <h2>Never miss a market-moving announcement.</h2>
-      <p>Breaking dividend, bonus, right-share and promoter news, posted on Facebook the moment it's verified.</p>
-      <a class="btn" href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Follow Nepse Decode</a>
-    </section>
-  </div>
-</main>
+      <div data-panel="headlines" role="tabpanel" hidden>
+        <div class="kind-tabs" id="kindTabs" role="tablist" aria-label="Filter headlines by category"></div>
+        <div class="filter-row">
+          <input id="newsFilter" type="search" placeholder="Filter by symbol, e.g. NABIL, NIFRA, HIDCL…" aria-label="Filter headlines by symbol" autocomplete="off">
+          <span class="count" id="newsCount"></span>
+        </div>
+        <p class="nd-caption" id="newsUpdated" style="margin-bottom:12px"></p>
+        <div id="newsList" aria-live="polite"><div class="news-empty">Loading headlines…</div></div>
+        <p class="nd-caption" style="margin-top:16px">Headlines only, always attributed and linked to the publisher. We don't rewrite their reporting.</p>
+      </div>
 
-<footer class="foot">
-  <div class="wrap">
-    <div class="disclaimer"><strong>Educational use only.</strong> Announcements are company disclosures mirrored from official NEPSE notices; headlines belong to their publishers. Nothing here is investment advice; verify prices with your broker before trading.</div>
-    <div class="row">
-      <span><a href="/nepse-alpha/">Nepse Decode</a> · <a href="/ownership/">Ownership &amp; funding</a> · <a href="/editorial-standards/">Editorial standards</a> · <a href="/corrections/">Corrections</a></span>
-      <span><a href="/nepse-alpha/">Nepse Decode</a> · <a href="/nepse-chart/">Chart</a> · <a href="/nepse-screener/">Screener</a> · <a href="/blog/">Blog</a></span>
+      <div class="promise-grid">
+        <div class="nd-card promise-card"><h3>Official disclosures first</h3><p class="nd-body-sm">Announcements come from the companies' own filings with NEPSE, not rumors or social posts.</p></div>
+        <div class="nd-card promise-card"><h3>Verified originals</h3><p class="nd-body-sm">Our newsroom stories are checked against the official documents before they publish.</p></div>
+        <div class="nd-card promise-card"><h3>Corrections in the open</h3><p class="nd-body-sm">When we get something wrong, we fix it publicly.</p></div>
+      </div>
+
+      <footer class="nd-footer">
+        <p class="nd-caption"><strong>Educational use only.</strong> Announcements are company disclosures mirrored from official NEPSE notices; headlines belong to their publishers. Nothing here is investment advice; verify prices with your broker before trading.</p>
+        <p class="nd-caption" style="margin-top:12px"><a href="/nepse-alpha/">Nepse Decode</a> · <a href="/nepse-chart/">Chart</a> · <a href="/nepse-screener/">Screener</a> · <a href="/nepse-sectors/">Sectors</a></p>
+      </footer>
+
     </div>
   </div>
-</footer>
+</div>
 
-<script src="/js/nepse-fresh.js?v=20260930b"></script>
 <script>
+/* Shared helpers — isolated scope */
 (function(){
   'use strict';
-
-  function esc(s){
+  window.ndEsc = function(s){
     return String(s == null ? '' : s)
       .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
       .replace(/"/g,'&quot;');
-  }
-  function fmtDate(iso){
+  };
+  window.ndFmtDate = function(iso){
     var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || '');
     if(!m) return iso || '';
     var months = { '01':'Jan','02':'Feb','03':'Mar','04':'Apr','05':'May','06':'Jun','07':'Jul','08':'Aug','09':'Sep','10':'Oct','11':'Nov','12':'Dec' };
     return (+m[3]) + ' ' + (months[m[2]] || m[2]) + ' ' + m[1];
-  }
+  };
+  /* Tabs — never throws, never blocks other scripts */
+  try {
+    var tabs = document.querySelectorAll('.nd-tabs .nd-tab'),
+        panels = document.querySelectorAll('[data-panel]');
+    tabs.forEach(function(tab){
+      tab.addEventListener('click', function(){
+        tabs.forEach(function(t){ t.setAttribute('aria-selected', t === tab ? 'true' : 'false'); });
+        panels.forEach(function(p){ p.hidden = p.getAttribute('data-panel') !== tab.getAttribute('data-tab'); });
+      });
+    });
+  } catch(e) {}
+})();
+</script>
 
-  /* ---------- announcements ---------- */
+<script>
+/* Announcements — fully isolated. A failure here can never break headlines. */
+(function(){
+  'use strict';
+  var esc = window.ndEsc, fmtDate = window.ndFmtDate;
   var MONO_COLORS = ['#1d4d3b','#8a6d2f','#334155','#7c2d3e','#2f5d62','#5b4a8a'];
   function monoColor(sym){
     var h = 0, s = String(sym || '?');
@@ -256,31 +207,30 @@
     return (s.slice(0, 2) || '?').toUpperCase();
   }
   var KIND_RULES = [
-    [/dividend|लाभांश/i, 'Dividend', true],
-    [/bonus|बोनस/i, 'Bonus', true],
-    [/right[\s-]?share|हकप्रद/i, 'Right', true],
+    [/dividend/i, 'Dividend', true],
+    [/bonus/i, 'Bonus', true],
+    [/right[\s-]?share/i, 'Right', true],
     [/book[\s-]?clos/i, 'Book close', false],
-    [/\bagm\b|\bsgm\b|साधारण सभा/i, 'Meeting', false],
-    [/director|सञ्चालक/i, 'Board', false],
+    [/\bagm\b|\bsgm\b/i, 'Meeting', false],
+    [/director/i, 'Board', false],
     [/auditor/i, 'Auditor', false],
-    [/merger|acquisition|मर्जर/i, 'Merger', false],
+    [/merger|acquisition/i, 'Merger', false],
     [/lock[\s-]?in/i, 'Lock-in', false],
-    [/auction|लिलाम/i, 'Auction', false],
-    [/sale of shares|intention of sale|प्रमोटर/i, 'Promoter', false]
+    [/auction/i, 'Auction', false],
+    [/sale of shares|intention of sale/i, 'Promoter', false]
   ];
   function kindOf(title){
+    title = title || '';
     for(var i = 0; i < KIND_RULES.length; i++){
       if(KIND_RULES[i][0].test(title)) return { label: KIND_RULES[i][1], hot: KIND_RULES[i][2] };
     }
     return { label: 'Notice', hot: false };
   }
-  function dayKey(iso){
-    return iso || '';
-  }
   function groupFor(iso, todayIso){
     if(!iso) return 'older';
     if(iso === todayIso) return 'today';
     var d = new Date(iso + 'T00:00:00'), t = new Date(todayIso + 'T00:00:00');
+    if(isNaN(d) || isNaN(t)) return 'older';
     var diff = Math.round((t - d) / 86400000);
     if(diff >= 0 && diff < 7) return 'week';
     if(diff >= 0 && diff < 31) return 'month';
@@ -296,36 +246,33 @@
       '<span class="ann-body"><span class="ann-title">' + esc(it.title) + '</span>' +
       '<span class="ann-meta">' + sym +
       '<span class="ann-kind' + (k.hot ? ' hot' : '') + '">' + esc(k.label) + '</span>' +
-      '<span class="ann-date">' + fmtDate(it.date) + '</span></span></span></a>';
+      '<span>' + fmtDate(it.date) + '</span></span></span></a>';
   }
-  function renderAnnouncements(items, updated){
+  function render(items, updated){
     var wrap = document.getElementById('annGroups');
     var upd = document.getElementById('annUpdated');
-    if(upd && updated) upd.textContent = '· updated ' + fmtDate(updated);
-    if(!items.length){
+    if(!wrap) return;
+    if(upd && updated) upd.textContent = 'Official company disclosures · updated ' + fmtDate(updated) + '. Tapping a symbol opens its chart.';
+    if(!items || !items.length){
       wrap.innerHTML = '<p class="news-empty">No announcements yet. The feed refreshes daily.</p>';
       return;
     }
     var todayIso = new Date().toISOString().slice(0, 10);
     var groups = { today: [], week: [], month: [], older: [] };
-    items.forEach(function(it){ groups[groupFor(it.date, todayIso)].push(it); });
-    var defs = [
-      ['today', 'Today'],
-      ['week', 'This week'],
-      ['month', 'This month'],
-      ['older', 'Earlier']
-    ];
-    var html = '';
-    defs.forEach(function(def, gi){
+    items.forEach(function(it){ try { groups[groupFor(it.date, todayIso)].push(it); } catch(e){ groups.older.push(it); } });
+    var defs = [['today','Today'],['week','This week'],['month','This month'],['older','Earlier']];
+    var html = '', first = true;
+    defs.forEach(function(def){
       var list = groups[def[0]];
       if(!list.length) return;
-      html += '<div class="ann-group' + (gi === 0 ? ' open' : '') + '">' +
-        '<button class="ann-group-head" aria-expanded="' + (gi === 0) + '">' +
+      var open = first; first = false;
+      html += '<div class="ann-group' + (open ? ' open' : '') + '">' +
+        '<button class="ann-group-head" aria-expanded="' + open + '">' +
         '<span class="chev">▾</span><h3>' + def[1] + '</h3>' +
         '<span class="ann-count">' + list.length + '</span></button>' +
         '<div class="ann-items">' + list.map(annHTML).join('') + '</div></div>';
     });
-    wrap.innerHTML = html;
+    wrap.innerHTML = html || '<p class="news-empty">No announcements yet.</p>';
     wrap.querySelectorAll('.ann-group-head').forEach(function(btn){
       btn.addEventListener('click', function(){
         var g = btn.closest('.ann-group');
@@ -334,146 +281,99 @@
       });
     });
   }
-
-  fetch('/nepse-chart/data/announcements.json', { cache: 'no-store' })
-    .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-    .then(function(d){ renderAnnouncements(d.items || [], d.updated); })
-    .catch(function(){
-      document.getElementById('annGroups').innerHTML =
-        '<p class="news-empty">The announcements feed is temporarily unavailable. Please try again later.</p>';
-    });
-
-  /* ---------- headlines: editorial card feed ---------- */
-  var list = document.getElementById('newsList');
-  var filter = document.getElementById('newsFilter');
-  var count = document.getElementById('newsCount');
-  var updated = document.getElementById('newsUpdated');
-  var tabsEl = document.getElementById('kindTabs');
-  var ALL = [];
-  var activeKind = 'all';
-
-  /* Kinds are derived from each headline's own title text, because news.json
-     carries no kind field. Tabs with zero items are never rendered. */
-  var KIND_RULES = [
-    ['dividend', 'Dividend', /dividend|लाभांश/i],
-    ['bonus', 'Bonus', /बोनस|bonus/i],
-    ['right', 'Right share', /हकप्रद|right[\s-]?share/i],
-    ['meeting', 'Meeting', /साधारण सभा|एजीएम|\bagm\b|\bsgm\b/i],
-    ['board', 'Board', /सञ्चालक|\bdirector\b/i],
-    ['auction', 'Auction', /लिलाम|auction/i],
-    ['promoter', 'Promoter', /sale of shares|intention of sale|प्रमोटर/i]
-  ];
-  var KIND_ORDER = ['all', 'dividend', 'bonus', 'right', 'board', 'meeting', 'auction', 'promoter', 'other'];
-  function kindOfHeadline(title){
-    for(var i = 0; i < KIND_RULES.length; i++){
-      if(KIND_RULES[i][2].test(title || '')) return { key: KIND_RULES[i][0], label: KIND_RULES[i][1] };
-    }
-    return { key: 'other', label: 'Other' };
+  function fail(msg){
+    var wrap = document.getElementById('annGroups');
+    if(wrap) wrap.innerHTML = '<p class="news-empty">' + esc(msg) + '</p>';
   }
-  function srcSlug(src){
-    return String(src || '').toLowerCase().replace(/[^a-z]/g, '');
-  }
-
-  (function(){
-    var sk = '<div class="hl-card" aria-hidden="true">' +
-      '<span class="skl skl-block" style="height:18px;margin-bottom:12px"></span>' +
-      '<span class="skl skl-block" style="height:24px;width:80%;margin-bottom:14px"></span>' +
-      '<span class="skl skl-line" style="width:45%"></span></div>';
-    list.innerHTML = '<div aria-hidden="true">' + sk + sk + sk + '</div>';
-  })();
-
-  function renderTabs(){
-    var counts = { all: ALL.length };
-    ALL.forEach(function(it){
-      var k = it._kind.key;
-      counts[k] = (counts[k] || 0) + 1;
-    });
-    var labels = { all: 'All' };
-    KIND_RULES.forEach(function(r){ labels[r[0]] = r[1]; });
-    labels.other = 'Other';
-    var html = '';
-    KIND_ORDER.forEach(function(key){
-      if(!counts[key]) return;
-      html += '<button class="kind-tab' + (activeKind === key ? ' active' : '') + '" role="tab" aria-selected="' +
-        (activeKind === key) + '" data-kind="' + key + '">' + labels[key] +
-        ' <span class="n">' + counts[key] + '</span></button>';
-    });
-    tabsEl.innerHTML = html;
-    tabsEl.querySelectorAll('.kind-tab').forEach(function(btn){
-      btn.addEventListener('click', function(){
-        activeKind = btn.getAttribute('data-kind');
-        render();
-      });
-    });
-  }
-
-  function itemHTML(it){
-    return '<article class="hl-card">' +
-      '<div class="hl-top">' +
-        '<span class="src-badge src-' + esc(srcSlug(it.src)) + '"><span class="dot"></span>' + esc(it.src) + '</span>' +
-        '<span class="hl-date">' + fmtDate(it.date) + '</span>' +
-      '</div>' +
-      '<h3 class="hl-title"><a href="' + esc(it.link) + '" target="_blank" rel="noopener">' +
-        esc(it.title) + '</a></h3>' +
-      '<div class="hl-foot">' +
-        '<span class="hl-kind">' + esc(it._kind.label) + '</span>' +
-        '<a class="sym-chip" href="/stocks/' + esc(it.sym) + '/">' + esc(it.sym) + '</a>' +
-        '<a class="read-src" href="' + esc(it.link) + '" target="_blank" rel="noopener">Read source <span class="arr">&rarr;</span></a>' +
-      '</div></article>';
-  }
-  function render(){
-    var q = (filter.value || '').trim().toUpperCase();
-    var items = ALL.filter(function(it){
-      var okKind = activeKind === 'all' || it._kind.key === activeKind;
-      var okQ = !q || (it.sym || '').toUpperCase().indexOf(q) !== -1 ||
-        (it.title || '').toUpperCase().indexOf(q) !== -1;
-      return okKind && okQ;
-    });
-    if(items.length){
-      list.innerHTML = items.map(itemHTML).join('');
-    } else if(ALL.length){
-      var label = activeKind === 'all' ? 'headlines' : 'headlines in this category';
-      list.innerHTML = '<p class="news-empty">' + (q
-        ? 'No ' + label + ' match "' + esc(filter.value.trim()) + '". Try another symbol.'
-        : 'No ' + label + ' match your filter.') + '</p>';
-    } else {
-      list.innerHTML = '<p class="news-empty">No company headlines in the last 7 days. Check back after the next daily refresh.</p>';
-    }
-    count.textContent = ALL.length ? items.length + ' of ' + ALL.length + ' headlines' : '';
-    renderTabs();
-  }
-  filter.addEventListener('input', render);
-
-  fetch('/nepse-chart/data/news.json', { cache: 'no-store' })
-    .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-    .then(function(d){
-      ALL = (d.items || []).map(function(it){
-        it._kind = kindOfHeadline(it.title);
-        return it;
-      }).sort(function(a,b){
-        return String(b.date || '').localeCompare(String(a.date || ''));
-      });
-      if(d.asof){updated.textContent = 'Headlines updated ' + fmtDate(d.asof) + ' · rolling 7-day window.';}
-      render();
-    })
-    .catch(function(){
-      list.innerHTML = '<p class="news-empty">The headlines feed is temporarily unavailable. Please try again later.</p>';
-    });
-
-  // Reveal on scroll
-  if('IntersectionObserver' in window){
-    var io = new IntersectionObserver(function(es){
-      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
-    }, { threshold: .12 });
-    document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
-  }
+  try {
+    fetch('/nepse-chart/data/announcements.json', { cache: 'no-store' })
+      .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function(d){
+        try { render(d.items || [], d.updated); }
+        catch(e){ fail('Could not display the announcements. Please try again later.'); }
+      })
+      .catch(function(){ fail('The announcements feed is temporarily unavailable. Please try again later.'); });
+  } catch(e){ fail('The announcements feed is temporarily unavailable. Please try again later.'); }
 })();
 </script>
-<script>(function(){
-var tabs=document.querySelectorAll('.sp-tabs .sp-tab'),panels=document.querySelectorAll('.sp-tabpanel');
-function on(n){tabs.forEach(function(t){var a=t.dataset.tab===n;t.classList.toggle('active',a);t.setAttribute('aria-selected',a);});
-panels.forEach(function(p){var a=p.dataset.panel===n;p.classList.toggle('active',a);if(a)p.removeAttribute('hidden');else p.setAttribute('hidden','');});}
-tabs.forEach(function(t){t.addEventListener('click',function(){on(t.dataset.tab);});});
-})();</script>
+
+<script>
+/* Headlines — fully isolated. A failure here can never break announcements. */
+(function(){
+  'use strict';
+  var esc = window.ndEsc, fmtDate = window.ndFmtDate;
+  var list, filter, count, updated, kindTabs;
+  var allItems = [], activeKind = 'All';
+  function itemKind(it){
+    var t = (it.title || '') + ' ' + (it.sym || '');
+    if(/dividend|bonus|right share|book closure|agm/i.test(t)) return 'Corporate actions';
+    if(/hydro|hydropower/i.test(t)) return 'Hydropower';
+    if(/bank/i.test(t)) return 'Banking';
+    if(/insurance/i.test(t)) return 'Insurance';
+    if(/finance/i.test(t)) return 'Finance';
+    if(/ipo|fpo/i.test(t)) return 'IPOs';
+    if(/merger|acquisition/i.test(t)) return 'Mergers';
+    if(/nrb|sebon|nepse|policy|regulation|interest rate/i.test(t)) return 'Policy';
+    return 'Market';
+  }
+  function hlHTML(it){
+    var k = itemKind(it);
+    var sym = it.sym ? '<span class="hl-sym">' + esc(it.sym) + '</span>' : '';
+    return '<a class="hl" href="' + esc(it.url) + '" target="_blank" rel="noopener">' +
+      '<div class="hl-kicker">' + esc(it.src || 'Market') + ' · ' + esc(k) + '</div>' +
+      '<div class="hl-title">' + esc(it.title) + '</div>' +
+      '<div class="hl-meta">' + sym + '<span>' + fmtDate(it.date) + '</span></div></a>';
+  }
+  function applyFilter(){
+    if(!list) return;
+    var q = (filter && filter.value || '').trim().toLowerCase();
+    var items = allItems.filter(function(it){
+      if(activeKind !== 'All' && itemKind(it) !== activeKind) return false;
+      if(q && ((it.title||'').toLowerCase().indexOf(q) < 0) && ((it.sym||'').toLowerCase().indexOf(q) < 0)) return false;
+      return true;
+    });
+    list.innerHTML = items.length
+      ? items.map(hlHTML).join('')
+      : '<p class="news-empty">No headlines match this filter.</p>';
+    if(count) count.textContent = items.length + ' of ' + allItems.length;
+  }
+  function renderKinds(){
+    if(!kindTabs) return;
+    var kinds = ['All'];
+    allItems.forEach(function(it){ var k = itemKind(it); if(kinds.indexOf(k) < 0) kinds.push(k); });
+    kindTabs.innerHTML = kinds.map(function(k){
+      return '<button class="kind-tab" role="tab" aria-selected="' + (k === activeKind) + '">' + esc(k) + '</button>';
+    }).join('');
+    kindTabs.querySelectorAll('.kind-tab').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        activeKind = btn.textContent;
+        kindTabs.querySelectorAll('.kind-tab').forEach(function(b){ b.setAttribute('aria-selected', b === btn ? 'true' : 'false'); });
+        applyFilter();
+      });
+    });
+  }
+  try {
+    list = document.getElementById('newsList');
+    filter = document.getElementById('newsFilter');
+    count = document.getElementById('newsCount');
+    updated = document.getElementById('newsUpdated');
+    kindTabs = document.getElementById('kindTabs');
+    if(filter) filter.addEventListener('input', applyFilter);
+    fetch('/nepse-chart/data/news.json', { cache: 'no-store' })
+      .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function(d){
+        try {
+          allItems = d.items || d.headlines || [];
+          if(updated && d.updated) updated.textContent = 'Updated ' + fmtDate(d.updated) + ' · headlines, editorially reviewed';
+          var pf = document.getElementById('pageFresh');
+          if(pf && d.updated) pf.textContent = 'Updated ' + fmtDate(d.updated);
+          renderKinds();
+          applyFilter();
+        } catch(e){ if(list) list.innerHTML = '<p class="news-empty">Could not display the headlines.</p>'; }
+      })
+      .catch(function(){ if(list) list.innerHTML = '<p class="news-empty">The headlines feed is temporarily unavailable.</p>'; });
+  } catch(e){}
+})();
+</script>
 </body>
 </html>

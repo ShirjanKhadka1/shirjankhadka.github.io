@@ -1,0 +1,465 @@
+/* ============================================================
+   NEPSE DECODE — Design System v1
+   One language for every page. Private Ledger direction:
+   Fraunces + Inter, cream paper, deep green, restrained gold.
+   No gradients, no shadows-as-design, no gimmicks.
+   Mobile-first: designed at 390px, enhanced for desktop.
+   ============================================================ */
+
+:root {
+  /* ---- Paper & ink ---- */
+  --paper: #FAF7F0;
+  --paper-deep: #F3EEE2;
+  --card: #FFFFFF;
+  --ink: #1B1A17;
+  --ink-soft: #4A463D;
+  --muted: #8A8474;
+  --hairline: #E7DFCE;
+  --hairline-soft: #F0EAD9;
+
+  /* ---- Brand ---- */
+  --green-950: #0A2E22;
+  --green-900: #0B3D2E;
+  --green-700: #14543F;
+  --green-100: #E3EFE7;
+  --gold: #B98F3E;
+  --gold-soft: #F5EBD3;
+
+  /* ---- Data ---- */
+  --up: #177245;
+  --up-bg: #E6F2EA;
+  --down: #B3372A;
+  --down-bg: #FBEDEA;
+
+  /* ---- Type ---- */
+  --serif: "Fraunces", Georgia, serif;
+  --sans: "Inter", -apple-system, "Segoe UI", sans-serif;
+
+  /* ---- Shape ---- */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-pill: 999px;
+
+  /* ---- Space (4px base) ---- */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px;
+  --s5: 20px; --s6: 24px; --s8: 32px; --s10: 40px;
+  --s12: 48px; --s16: 64px;
+}
+
+/* ---- Reset for suite scope ---- */
+.nd, .nd *, .nd *::before, .nd *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+.nd {
+  font-family: var(--sans);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.nd img { max-width: 100%; display: block; }
+.nd a { color: inherit; }
+.nd ul, .nd ol { list-style: none; }
+.nd button { font: inherit; }
+
+/* ---- Numbers: always tabular, never jumping ---- */
+.nd .num, .nd td, .nd .stat-v {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* ============================================================
+   GRID — mobile-first
+   390px: single column. ≥900px: 12-col, 8+4 for hero.
+   ============================================================ */
+.nd-wrap {
+  width: min(1200px, 100% - 32px);
+  margin: 0 auto;
+}
+.nd-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--s5);
+}
+@media (min-width: 900px) {
+  .nd-grid { grid-template-columns: repeat(12, 1fr); gap: var(--s6); }
+  .nd-main { grid-column: span 8; }
+  .nd-rail { grid-column: span 4; }
+  .nd-full { grid-column: 1 / -1; }
+  .nd-half { grid-column: span 6; }
+  .nd-third { grid-column: span 4; }
+}
+
+/* ============================================================
+   TYPE SCALE — every size has a job
+   ============================================================ */
+.nd-display {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(2.75rem, 8vw, 4.5rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.nd-h1 {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(1.9rem, 5vw, 2.75rem);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+}
+.nd-h2 {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(1.35rem, 3.4vw, 1.75rem);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.nd-h3 {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+.nd-kicker {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--green-700);
+}
+.nd-kicker.gold { color: var(--gold); }
+.nd-lede {
+  font-size: 1.02rem;
+  line-height: 1.65;
+  color: var(--ink-soft);
+  max-width: 44ch;
+}
+.nd-body-sm { font-size: 0.9rem; line-height: 1.6; color: var(--ink-soft); }
+.nd-caption {
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+/* ============================================================
+   SECTION HEADERS — kicker + headline + optional link
+   One pattern everywhere. No exceptions.
+   ============================================================ */
+.nd-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s4);
+  margin-bottom: var(--s5);
+  padding-bottom: var(--s3);
+  border-bottom: 1px solid var(--hairline);
+}
+.nd-section-head h2 { font-family: var(--serif); font-weight: 600; font-size: 1.4rem; letter-spacing: -0.01em; }
+.nd-section-head .nd-kicker { display: block; margin-bottom: var(--s1); }
+.nd-section-link {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--green-700);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.nd-section-link:hover { text-decoration: underline; }
+
+/* ============================================================
+   CARDS — one language
+   White on cream, 1px hairline, 12px radius, 20px padding.
+   Color is earned: only for data (up/down) or brand moments.
+   ============================================================ */
+.nd-card {
+  background: var(--card);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  padding: var(--s5);
+}
+.nd-card.flush { padding: 0; overflow: hidden; }
+.nd-card.tint { background: var(--paper-deep); }
+
+/* Market hero card — deep green, the brand moment */
+.nd-hero-card {
+  background: var(--green-950);
+  color: #F5F1E6;
+  border-radius: var(--r-lg);
+  padding: var(--s6);
+  position: relative;
+  overflow: hidden;
+}
+.nd-hero-card .nd-kicker { color: var(--gold); }
+.nd-hero-card .nd-caption { color: rgba(245, 241, 230, 0.62); }
+
+/* ============================================================
+   STAT ROWS — compact figures, label above, value below
+   ============================================================ */
+.nd-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--s4);
+}
+@media (min-width: 640px) { .nd-stats.cols-4 { grid-template-columns: repeat(4, 1fr); } }
+.nd-stat .stat-l {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+.nd-stat .stat-v {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+.nd-stat .stat-s { font-size: 0.8rem; color: var(--muted); }
+
+/* ============================================================
+   CHANGE PILLS — red/green only where change is shown
+   ============================================================ */
+.nd-chg { font-weight: 700; font-variant-numeric: tabular-nums; }
+.nd-chg.up { color: var(--up); }
+.nd-chg.down { color: var(--down); }
+.nd-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: var(--r-pill);
+  letter-spacing: 0.02em;
+}
+.nd-pill.live { background: var(--up-bg); color: var(--up); }
+.nd-pill.closed { background: var(--paper-deep); color: var(--ink-soft); border: 1px solid var(--hairline); }
+.nd-pill .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.nd-pill.live .dot { animation: nd-pulse 1.6s ease-in-out infinite; }
+@keyframes nd-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+/* ============================================================
+   FRESHNESS — one pattern: "as of X · 15-min delayed"
+   ============================================================ */
+.nd-fresh {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.nd-fresh::before {
+  content: "";
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+  flex: none;
+}
+
+/* ============================================================
+   MOVER ROWS — symbol, name, price, change. Nothing else.
+   ============================================================ */
+.nd-movers { display: flex; flex-direction: column; }
+.nd-mover {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--s2);
+  align-items: center;
+  padding: var(--s3) 0;
+  border-bottom: 1px solid var(--hairline-soft);
+  text-decoration: none;
+}
+.nd-mover:last-child { border-bottom: 0; }
+.nd-mover .m-sym { font-weight: 700; font-size: 0.92rem; }
+.nd-mover .m-name { font-size: 0.78rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nd-mover .m-price { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
+.nd-mover .m-chg { font-size: 0.82rem; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+.nd-mover .m-chg.up { color: var(--up); }
+.nd-mover .m-chg.down { color: var(--down); }
+
+/* ============================================================
+   NEWS LIST — headline-first, compact, scannable
+   ============================================================ */
+.nd-news { display: flex; flex-direction: column; }
+.nd-news-item {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 4px;
+  padding: var(--s4) 0;
+  border-bottom: 1px solid var(--hairline-soft);
+  text-decoration: none;
+}
+.nd-news-item:last-child { border-bottom: 0; }
+.nd-news-item .n-kicker {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.nd-news-item .n-title {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 1.02rem;
+  line-height: 1.35;
+  letter-spacing: -0.005em;
+}
+.nd-news-item:hover .n-title { color: var(--green-700); }
+.nd-news-item .n-meta { font-size: 0.78rem; color: var(--muted); }
+
+/* ============================================================
+   TABS — underline style, one pattern
+   ============================================================ */
+.nd-tabs {
+  display: flex;
+  gap: var(--s6);
+  border-bottom: 1px solid var(--hairline);
+  margin-bottom: var(--s5);
+  overflow-x: auto;
+}
+.nd-tab {
+  background: none;
+  border: 0;
+  padding: var(--s3) 2px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  white-space: nowrap;
+}
+.nd-tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--green-900); }
+
+/* ============================================================
+   BUTTONS — two kinds only
+   ============================================================ */
+.nd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s2);
+  font-weight: 700;
+  font-size: 0.92rem;
+  padding: 12px 24px;
+  border-radius: var(--r-pill);
+  text-decoration: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.nd-btn.primary { background: var(--green-900); color: #fff; }
+.nd-btn.primary:hover { background: var(--green-700); }
+.nd-btn.ghost { background: transparent; color: var(--green-900); border-color: var(--green-900); }
+.nd-btn.ghost:hover { background: var(--green-100); }
+
+/* ============================================================
+   PAGE SCAFFOLD — sidebar + content (desktop), top nav (mobile)
+   ============================================================ */
+.nd-shell { display: block; }
+@media (min-width: 1024px) {
+  .nd-shell { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+}
+.nd-side {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .nd-side {
+    display: block;
+    border-right: 1px solid var(--hairline);
+    padding: var(--s6) var(--s5);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    background: var(--paper);
+  }
+}
+.nd-side .brand {
+  display: flex; align-items: center; gap: var(--s3);
+  font-family: var(--serif); font-weight: 700; font-size: 1.15rem;
+  text-decoration: none; margin-bottom: var(--s8);
+}
+.nd-nav { display: flex; flex-direction: column; gap: 2px; }
+.nd-nav .nav-kicker {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--muted);
+  margin: var(--s5) 0 var(--s2);
+}
+.nd-nav a {
+  display: block;
+  padding: 9px 12px;
+  border-radius: var(--r-sm);
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--ink-soft);
+  text-decoration: none;
+}
+.nd-nav a:hover { background: var(--paper-deep); color: var(--ink); }
+.nd-nav a.active { background: var(--gold-soft); color: var(--ink); font-weight: 700; }
+
+/* Mobile top bar */
+.nd-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--s4) var(--s4);
+  border-bottom: 1px solid var(--hairline);
+  background: var(--paper);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+@media (min-width: 1024px) { .nd-topbar { display: none; } }
+.nd-topbar .brand {
+  font-family: var(--serif); font-weight: 700; font-size: 1.05rem;
+  text-decoration: none; display: flex; align-items: center; gap: var(--s2);
+}
+/* Mobile pill nav — horizontal scroll */
+.nd-mobilenav {
+  display: flex;
+  gap: var(--s2);
+  overflow-x: auto;
+  padding: var(--s3) var(--s4);
+  border-bottom: 1px solid var(--hairline);
+  background: var(--paper);
+  scrollbar-width: none;
+  position: sticky;
+  top: 57px;
+  z-index: 49;
+}
+.nd-mobilenav::-webkit-scrollbar { display: none; }
+@media (min-width: 1024px) { .nd-mobilenav { display: none; } }
+.nd-mobilenav a {
+  flex: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--hairline);
+  background: var(--card);
+  color: var(--ink-soft);
+  text-decoration: none;
+}
+.nd-mobilenav a.active { background: var(--green-900); color: #fff; border-color: var(--green-900); }
+
+.nd-content { min-width: 0; padding: var(--s6) 0 var(--s16); }
+@media (min-width: 1024px) { .nd-content { padding: var(--s8) 0 var(--s16); } }
+
+/* Page hero — compact, not a billboard */
+.nd-pagehero { margin-bottom: var(--s8); }
+.nd-pagehero .nd-kicker { margin-bottom: var(--s2); }
+.nd-pagehero .nd-h1 { margin-bottom: var(--s3); max-width: 18ch; }
+.nd-pagehero .nd-lede { margin-bottom: var(--s4); }
+
+/* Footer */
+.nd-footer {
+  border-top: 1px solid var(--hairline);
+  padding: var(--s10) 0 var(--s8);
+  margin-top: var(--s16);
+}
+.nd-footer .nd-caption { max-width: 60ch; }
