@@ -302,6 +302,8 @@ p.sec-sub{color:var(--muted);font-size:17.5px;max-width:64ch;margin-bottom:48px;
   .vd-price{margin-left:0}
   .vd-chg{margin-left:auto}
 }
+/* mobile nav burger: hidden on desktop, shown below 920px */
+.nav-burger{display:none}
 @media(max-width:920px){
   .tools,.factors,.data-grid,.vd-cols{grid-template-columns:1fr}
   .band-in{grid-template-columns:repeat(2,1fr);gap:32px;padding:52px 0}
@@ -318,6 +320,45 @@ p.sec-sub{color:var(--muted);font-size:17.5px;max-width:64ch;margin-bottom:48px;
   .dc-link{display:none}
   .topbar .btn.ghost{display:none}
   .topbar-in{gap:16px}
+  /* mobile nav: hamburger reveals suite links as a dropdown panel */
+  .topbar-in{position:relative}
+  .nav-burger{display:inline-flex;align-items:center;justify-content:center;
+    width:44px;height:44px;margin-left:auto;border:1px solid var(--hairline);
+    border-radius:12px;background:var(--paper);cursor:pointer;flex:none}
+  .nav-burger span{display:block;width:20px;height:2px;background:var(--ink);
+    border-radius:2px;position:relative;transition:background .2s}
+  .nav-burger span::before,.nav-burger span::after{content:"";position:absolute;
+    left:0;width:20px;height:2px;background:var(--ink);border-radius:2px;
+    transition:transform .25s}
+  .nav-burger span::before{top:-6px}
+  .nav-burger span::after{top:6px}
+  .topbar.nav-open .nav-burger span{background:transparent}
+  .topbar.nav-open .nav-burger span::before{transform:translateY(6px) rotate(45deg)}
+  .topbar.nav-open .nav-burger span::after{transform:translateY(-6px) rotate(-45deg)}
+  .topbar.nav-open .suite-links{display:flex;position:absolute;top:calc(100% + 8px);
+    left:0;right:0;flex-direction:column;gap:2px;background:var(--paper);
+    border:1px solid var(--hairline);border-radius:16px;padding:10px;
+    box-shadow:var(--shadow-hover);z-index:130;margin-left:0}
+  .topbar.nav-open .suite-links a{font-size:14px;letter-spacing:.04em;
+    padding:12px 14px;border-radius:10px}
+  .topbar.nav-open .suite-links a:hover{background:var(--ivory)}
+  .topbar.nav-open .suite-links a::after{display:none}
+}
+/* small tablets: rail hidden but links visible, let them scroll instead of wrap */
+@media(min-width:921px) and (max-width:1099px){
+  .suite-links{overflow-x:auto;white-space:nowrap;scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;max-width:100%}
+  .suite-links::-webkit-scrollbar{display:none}
+  .suite-links a{flex:none}
+}
+@media(max-width:520px){
+  .live-cell{padding:14px 16px}
+  .live-cell .v{font-size:24px}
+  .live-cell .v .chg{font-size:12.5px;margin-left:6px}
+  .live-cell .k{font-size:10px}
+  .cta-row .btn{flex:1 1 100%;justify-content:center}
+  .info-tip::after{left:auto;right:-10px;transform:none;
+    max-width:calc(100vw - 48px);white-space:normal}
 }
 
 /* ---------- app sidebar rail (desktop only, >=1100px) ---------- */
@@ -450,3 +491,34 @@ p.sec-sub{color:var(--muted);font-size:17.5px;max-width:64ch;margin-bottom:48px;
   white-space:nowrap}
 .w1-sub{color:var(--faint);font-size:12.5px;white-space:nowrap}
 .w1-note{font-size:.8rem;color:var(--faint);margin:10px 2px 0;max-width:80ch;line-height:1.6}
+
+/* ---------- screener: card layout on phones ---------- */
+@media(max-width:640px){
+  .sc-table-wrap{overflow:visible;border:0;background:none;box-shadow:none;padding:0}
+  .sc-table,.sc-table thead,.sc-table tbody{display:block;width:100%}
+  .sc-table thead{display:none}
+  .sc-table tr{display:flex;flex-wrap:wrap;background:var(--paper);
+    border:1px solid var(--hairline);border-radius:16px;margin-bottom:12px;
+    padding:14px 16px 8px;box-shadow:var(--shadow);width:100%}
+  .sc-table td{border:0;padding:4px 0;text-align:left}
+  .sc-table td.num{text-align:left}
+  /* hide serial + sector on cards */
+  .sc-table td.sc-sn,.sc-table td:nth-child(2){display:none}
+  /* header row: symbol left, price right */
+  .sc-table td:nth-child(3){flex:1 1 55%;padding-bottom:10px}
+  .sc-table td:nth-child(3) .sc-sym{font-size:16px;font-weight:800}
+  .sc-table td:nth-child(4){flex:1 1 45%;text-align:right;font-size:18px;
+    padding-bottom:12px;margin-bottom:4px;border-bottom:1px solid var(--hairline-soft)}
+  .sc-table td:nth-child(4).num{text-align:right}
+  /* remaining cells: label + value */
+  .sc-table td:nth-child(n+5){flex:1 1 100%;padding:7px 0;
+    border-top:1px dashed var(--hairline-soft)}
+  .sc-table td:nth-child(5)::before{content:"Volume"}
+  .sc-table td:nth-child(6)::before{content:"RSI 14"}
+  .sc-table td:nth-child(7)::before{content:"Signal"}
+  .sc-table td:nth-child(8)::before{content:"Hit rate"}
+  .sc-table td:nth-child(9)::before{content:"Stop loss"}
+  .sc-table td:nth-child(10)::before{content:"Target"}
+  .sc-table td:nth-child(n+5)::before{display:block;font-size:10px;font-weight:700;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:2px}
+}
