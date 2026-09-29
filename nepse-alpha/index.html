@@ -40,7 +40,7 @@
 {"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
 {"@type":"ListItem","position":2,"name":"NEPSE Alpha Lab","item":"https://shirjankhadka.com.np/nepse-alpha/"}]}
 </script>
-<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260929b">
+<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930a">
 <style>
 /* alpha-only: engine band + verdict columns */
 .engine{background:var(--paper);border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline)}
@@ -251,9 +251,22 @@
 
 <script>
 (function(){
+  // Skeleton placeholders: hold the strip and verdict lists while data loads (no layout shift)
+  (function(){
+    var sk='<div aria-hidden="true"><span class="skl skl-row"></span><span class="skl skl-row"></span><span class="skl skl-row"></span></div>';
+    document.getElementById('vd-buys').innerHTML=sk;
+    document.getElementById('vd-exits').innerHTML=sk;
+    ['ls-val','ls-chg'].forEach(function(id){
+      document.getElementById(id).innerHTML='<span class="skl" style="height:30px;width:72%" aria-hidden="true"></span>';
+    });
+    ['ls-range','ls-mkt'].forEach(function(id){
+      document.getElementById(id).innerHTML='<span class="skl" style="height:20px;width:62%" aria-hidden="true"></span>';
+    });
+  })();
+
   // Live market strip
   fetch('/nepse-chart/data/live.json',{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){
-    var idx=d.index||{}; if(typeof idx.value!=='number') return;
+    var idx=d.index||{}; if(typeof idx.value!=='number'){clearStrip();return;}
     var fmt=function(n,dp){return n.toLocaleString('en-US',{minimumFractionDigits:dp,maximumFractionDigits:dp});};
     document.getElementById('ls-val').textContent=fmt(idx.value,2);
     var chg=idx.change||0, pct=idx.percent_change||0;
@@ -266,7 +279,13 @@
     document.getElementById('ls-mkt').innerHTML=mkt==='OPEN'?'<span class="up">● Open</span>':'<span style="color:var(--muted)">● Closed</span>';
     var asof=d.asof||idx.last_updated||'';
     if(asof){try{document.getElementById('ls-asof').textContent='As of '+new Date(asof).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});}catch(e){document.getElementById('ls-asof').textContent='';}}
-  }).catch(function(){document.getElementById('ls-asof').textContent='Data unavailable';});
+  }).catch(function(){document.getElementById('ls-asof').textContent='Data unavailable';clearStrip();});
+
+  function clearStrip(){
+    ['ls-val','ls-chg','ls-range','ls-mkt'].forEach(function(id){
+      document.getElementById(id).textContent='–';
+    });
+  }
 
   // Reveal on scroll
   if ('IntersectionObserver' in window) {
