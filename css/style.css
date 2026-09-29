@@ -442,7 +442,9 @@ a.feature-media:hover { transform: scale(1.015); box-shadow: var(--shadow-hover)
 
 /* ---------- About ---------- */
 .about-grid { display: grid; grid-template-columns: 380px 1fr; gap: clamp(40px, 6vw, 80px); align-items: start; }
-.about-portrait { margin: 0; }
+.about-portrait { margin: 0; grid-row: 1 / span 2; }
+.about-intro { grid-column: 2; min-width: 0; }
+.about-details { grid-column: 2; min-width: 0; }
 .about-portrait img {
   width: 100%; aspect-ratio: 4 / 5; object-fit: cover;
   border-radius: var(--radius); box-shadow: var(--shadow); background: var(--line);
@@ -848,7 +850,9 @@ figure.article-hero .photo-credit { display: block; margin-top: 6px; font-size: 
   .event-card { grid-template-columns: 1fr; }
   .cert-grid { grid-template-columns: 1fr 1fr; }
   .about-grid { grid-template-columns: 1fr; }
-  .about-portrait { max-width: 340px; }
+  .about-portrait { grid-row: auto; grid-column: auto; max-width: 340px; }
+  .about-intro { grid-column: auto; }
+  .about-details { grid-column: auto; }
   .portrait-frame { width: min(320px, 70vw); }
   .blog-feature-link { grid-template-columns: 1fr; }
   .blog-feature-img { min-height: 230px; }
@@ -865,7 +869,13 @@ figure.article-hero .photo-credit { display: block; margin-top: 6px; font-size: 
   .portrait-frame { width: min(220px, 58vw); border-radius: 16px; }
   .hero-media { padding: 8px 22px 72px; }
   .hero-caption { margin-top: 14px; }
-  .about-portrait { max-width: 240px; margin: 0 auto 8px; }
+  /* Phone: portrait left, intro right in parallel; details span full width below */
+  .about-grid { grid-template-columns: 132px 1fr; gap: 22px 18px; }
+  .about-portrait { grid-row: 1; grid-column: 1; max-width: none; margin: 0; align-self: center; }
+  .about-portrait figcaption { font-size: 12px; margin-top: 8px; }
+  .about-intro { grid-row: 1; grid-column: 2; align-self: center; min-width: 0; }
+  .about-intro .h2 { margin-bottom: 0; }
+  .about-details { grid-row: 2; grid-column: 1 / -1; min-width: 0; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .stat-value { font-size: 2.2rem; }
   .cert-grid { grid-template-columns: 1fr; }
