@@ -2,7 +2,7 @@
    NEPSE chart + coverage-check page styles (Private Ledger).
    Self-sufficient: nepse-chart/data-check.html loads only this file.
    On nepse-chart/ this loads AFTER css/nepse-luxury.css and must
-   stay visually identical to the shared tokens. v=20260930b
+   stay visually identical to the shared tokens. v=20261002a
    ============================================================ */
 :root{
   --ink:#0C1F16; --pine:#14382A; --emerald:#1E6B4A; --emerald-deep:#155236;
@@ -244,6 +244,25 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,su
 .toggles button.on{background:var(--emerald);border-color:var(--emerald);color:#fff}
 .toggles button:active{transform:scale(.95)}
 .toggles button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+/* ---------- indicator toggles (Wave 3): accessible checkboxes ---------- */
+.ind-group{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;
+  border:1px solid var(--hairline-soft);border-radius:14px;padding:8px 12px;background:var(--ivory)}
+.ind-title{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);margin-right:4px}
+.ind{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border-radius:999px;
+  font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap;
+  transition:background .25s var(--ease),color .25s var(--ease)}
+.ind:hover{background:var(--gold-faint);color:var(--ink)}
+.ind input{accent-color:var(--emerald);width:15px;height:15px;margin:0;cursor:pointer;flex:none}
+.ind input:checked + .ind-name{color:var(--ink)}
+.ind input:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:4px}
+.ind input:disabled{cursor:not-allowed}
+.ind.ind-off,.ind-group.ind-off .ind{cursor:not-allowed}
+.ind .info-tip{width:16px;height:16px;font-size:10px;margin-left:2px;flex:none}
+.ind-note{font-size:12.5px;color:var(--muted);margin:0 0 10px}
+.ind-note[hidden]{display:none}
+.nl-tip .nl-tip-ind{color:var(--gold-soft);font-size:11.5px}
 .chart-wrap{position:relative;background:var(--ivory);border:1px solid var(--hairline-soft);
   border-radius:14px;padding:14px}
 .chart-wrap canvas{display:block;width:100%;touch-action:pan-y;cursor:crosshair;border-radius:6px}
@@ -271,6 +290,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,su
 .sw.up{background:var(--up)} .sw.down{background:var(--down)}
 .legend .ln{display:inline-block;width:18px;height:3px;border-radius:2px}
 .ln.sma20{background:#2563eb} .ln.sma50{background:#d97706}
+.ln.bb{background:var(--gold)} .ln.ema20{background:#8b5cf6}
 .ln.divb{background:repeating-linear-gradient(90deg,var(--emerald) 0 4px,transparent 4px 7px)}
 .ln.pat{background:var(--gold)}
 .legend .mk{font-size:11px}
