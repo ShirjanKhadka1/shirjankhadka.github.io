@@ -40,7 +40,7 @@
 {"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
 {"@type":"ListItem","position":2,"name":"NEPSE Alpha Lab","item":"https://shirjankhadka.com.np/nepse-alpha/"}]}
 </script>
-<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930a">
+<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930b">
 <style>
 /* alpha-only: engine band + verdict columns */
 .engine{background:var(--paper);border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline)}
@@ -49,6 +49,19 @@
 </style>
 </head>
 <body>
+
+<aside class="suite-rail" aria-label="Alpha Lab suite">
+  <a class="rail-word" href="/nepse-alpha/">NEPSE Alpha Lab<span class="g">.</span></a>
+  <p class="rail-k">Suite</p>
+  <nav aria-label="Suite tools">
+    <a href="/nepse-alpha/" class="on" aria-current="page">Overview</a>
+    <a href="/nepse-chart/">Chart &amp; signals</a>
+    <a href="/nepse-screener/">Screener</a>
+    <a href="/nepse-news/">Market news</a>
+    <a href="/nepse-chart/data-check.html">Data check</a>
+  </nav>
+  <p class="rail-foot">Free forever · no login</p>
+</aside>
 
 <header class="topbar">
   <div class="wrap topbar-in">
@@ -75,10 +88,10 @@
         <a class="btn ghost" href="/nepse-screener/">Explore the Screener</a>
       </div>
       <div class="live-strip" id="liveStrip" aria-label="Live market snapshot">
-        <div class="live-cell"><div class="k">NEPSE Index</div><div class="v" id="ls-val">…</div><div class="s" id="ls-asof">Loading…</div></div>
-        <div class="live-cell"><div class="k">Day change</div><div class="v" id="ls-chg">…</div><div class="s">Points / percent</div></div>
-        <div class="live-cell"><div class="k">Day range</div><div class="v" id="ls-range" style="font-size:20px">…</div><div class="s">Low – high</div></div>
-        <div class="live-cell"><div class="k">Market status</div><div class="v" id="ls-mkt" style="font-size:20px">…</div><div class="s">Mon–Fri, 11:00–15:00 NPT</div></div>
+        <div class="live-cell"><div class="k">NEPSE Index<button class="info-tip" data-tip="The official NEPSE index level at the latest refresh." aria-label="About the NEPSE index figure">i</button></div><div class="v" id="ls-val">…</div><div class="s" id="ls-asof">Loading…</div></div>
+        <div class="live-cell"><div class="k">Day change<button class="info-tip" data-tip="Index points and percent move since the previous close." aria-label="About the day change figure">i</button></div><div class="v" id="ls-chg">…</div><div class="s">Points / percent</div></div>
+        <div class="live-cell"><div class="k">Day range<button class="info-tip" data-tip="Lowest and highest index level in the latest session." aria-label="About the day range figure">i</button></div><div class="v" id="ls-range" style="font-size:20px">…</div><div class="s">Low – high</div></div>
+        <div class="live-cell"><div class="k">Market status<button class="info-tip tip-edge" data-tip="NEPSE trades Monday to Friday, 11:00 to 15:00 NPT." aria-label="About market hours">i</button></div><div class="v" id="ls-mkt" style="font-size:20px">…</div><div class="s">Mon–Fri, 11:00–15:00 NPT</div></div>
       </div>
       <p class="live-note">Snapshot refreshes during trading hours from free community mirrors. Outside hours it shows the last closed session.</p>
     </div>
@@ -92,6 +105,20 @@
       <div class="stat-b reveal"><div class="n">Rs <span>0</span></div><div class="l">forever, no account needed</div></div>
     </div>
   </div>
+
+  <section class="block notes">
+    <div class="wrap">
+      <p class="kicker reveal">Market notes</p>
+      <h2 class="sec reveal">A mechanical read of the latest batch.</h2>
+      <p class="sec-sub reveal">Computed live from the same daily batch behind the screener. Counts and extremes, no predictions, no advice. <b id="notes-asof">Loading the latest batch…</b></p>
+      <div class="notes-grid" id="notesGrid" aria-live="polite">
+        <div class="note-card" aria-hidden="true"><span class="skl skl-block"></span><span class="skl skl-line" style="width:70%"></span></div>
+        <div class="note-card" aria-hidden="true"><span class="skl skl-block"></span><span class="skl skl-line" style="width:70%"></span></div>
+        <div class="note-card" aria-hidden="true"><span class="skl skl-block"></span><span class="skl skl-line" style="width:70%"></span></div>
+      </div>
+      <p class="vd-note reveal">Every figure above is counted or measured from the latest verdict batch. For the full ranking of all 410 securities, <a href="/nepse-screener/">open the screener →</a></p>
+    </div>
+  </section>
 
   <section class="block">
     <div class="wrap">
@@ -249,6 +276,7 @@
   </div>
 </footer>
 
+<script src="/js/nepse-fresh.js?v=20260930b"></script>
 <script>
 (function(){
   // Skeleton placeholders: hold the strip and verdict lists while data loads (no layout shift)
@@ -278,7 +306,10 @@
     var mkt=(d.market||'').toUpperCase();
     document.getElementById('ls-mkt').innerHTML=mkt==='OPEN'?'<span class="up">● Open</span>':'<span style="color:var(--muted)">● Closed</span>';
     var asof=d.asof||idx.last_updated||'';
-    if(asof){try{document.getElementById('ls-asof').textContent='As of '+new Date(asof).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});}catch(e){document.getElementById('ls-asof').textContent='';}}
+    if(asof){try{var lsa=document.getElementById('ls-asof');
+      lsa.textContent='As of '+new Date(asof).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+      if(window.NepseFresh&&!lsa.querySelector('.fresh'))lsa.insertAdjacentHTML('beforeend',' '+NepseFresh.badge(asof));
+      }catch(e){document.getElementById('ls-asof').textContent='';}}
   }).catch(function(){document.getElementById('ls-asof').textContent='Data unavailable';clearStrip();});
 
   function clearStrip(){
@@ -332,12 +363,43 @@
       render(buys,document.getElementById('vd-buys'),'No buy verdicts in the latest batch.');
       render(exits,document.getElementById('vd-exits'),'No exit verdicts in the latest batch.');
       var asofEl=document.getElementById('vd-asof');
-      if(d.asof) asofEl.textContent='Batch of '+fmtDate(d.asof)+' · '+(d.count||all.length)+' securities scored.';
+      if(d.asof){asofEl.textContent='Batch of '+fmtDate(d.asof)+' · '+(d.count||all.length)+' securities scored.';
+        if(window.NepseFresh&&!asofEl.querySelector('.fresh'))asofEl.insertAdjacentHTML('beforeend',' '+NepseFresh.badge(d.asof));}
+      renderNotes(d,all);
     }).catch(function(){
       document.getElementById('vd-asof').textContent='Verdict data is temporarily unavailable.';
       render([],document.getElementById('vd-buys'),'Verdict data is temporarily unavailable.');
       render([],document.getElementById('vd-exits'),'Verdict data is temporarily unavailable.');
+      var na=document.getElementById('notes-asof');if(na)na.textContent='The latest batch is temporarily unavailable.';
+      var ng=document.getElementById('notesGrid');if(ng)ng.innerHTML='<p class="vd-empty">Market notes are temporarily unavailable.</p>';
     });
+    function fmtShort(iso){var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso||''));
+      if(!m)return '';var mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      return (+m[3])+' '+mo[(+m[2])-1]+' '+m[1];}
+    function renderNotes(d,all){
+      var grid=document.getElementById('notesGrid');if(!grid)return;
+      var counts={'Strong Buy':0,'Buy':0,'Hold':0,'Exit / Reduce':0,'Strong Exit':0},other=0,hi=null,lo=null;
+      all.forEach(function(it){var x=it[1];
+        if(counts[x.v]!=null)counts[x.v]++;else other++;
+        if(typeof x.rsi==='number'&&isFinite(x.rsi)){
+          if(!hi||x.rsi>hi[1].rsi)hi=it;
+          if(!lo||x.rsi<lo[1].rsi)lo=it;
+        }});
+      var buySide=counts['Strong Buy']+counts['Buy'],exitSide=counts['Exit / Reduce']+counts['Strong Exit'];
+      var asofTxt=d.asof?fmtDate(d.asof):'';
+      var fresh=(window.NepseFresh&&d.asof)?' · '+esc(NepseFresh.label(d.asof)):'';
+      var c1='<article class="note-card reveal in"><div class="nk">Signal mix</div><div class="nb">'+buySide+' <small>buy-side</small></div><p><b>'+counts['Strong Buy']+'</b> Strong Buy and <b>'+counts['Buy']+'</b> Buy verdicts, against <b>'+exitSide+'</b> Exit-side calls and <b>'+counts['Hold']+'</b> Holds'+(other?', plus <b>'+other+'</b> awaiting more history':'')+'. A mechanical tally from the latest batch, not a recommendation.</p></article>';
+      var c2='';
+      if(hi&&lo&&hi[0]!==lo[0]){
+        c2='<article class="note-card reveal in"><div class="nk">RSI extremes</div><div class="nb">'+hi[1].rsi.toFixed(1)+' <small>·</small> '+lo[1].rsi.toFixed(1)+'</div><p>Highest RSI(14): <a href="/nepse-chart/?s='+esc(hi[0])+'">'+esc(hi[0])+'</a> at '+hi[1].rsi.toFixed(1)+'. Lowest: <a href="/nepse-chart/?s='+esc(lo[0])+'">'+esc(lo[0])+'</a> at '+lo[1].rsi.toFixed(1)+'. Above 70 reads overbought, below 30 oversold, by convention.</p></article>';
+      }
+      var short=fmtShort(d.asof),day='–',my='';
+      if(short){var sp=short.split(' ');day=sp[0];my=sp[1]+' '+sp[2];}
+      var c3='<article class="note-card reveal in"><div class="nk">Batch freshness</div><div class="nb">'+esc(day)+' <small>'+esc(my)+'</small></div><p>Batch of '+esc(asofTxt)+fresh+' · '+(d.count||all.length)+' securities scored. One daily batch covers the whole market.</p></article>';
+      grid.innerHTML=c1+c2+c3;
+      var na=document.getElementById('notes-asof');
+      if(na&&asofTxt)na.textContent='Batch of '+asofTxt+fresh+'.';
+    }
   })();
 })();
 </script>

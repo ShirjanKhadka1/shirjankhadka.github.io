@@ -2,7 +2,7 @@
    NEPSE chart + coverage-check page styles (Private Ledger).
    Self-sufficient: nepse-chart/data-check.html loads only this file.
    On nepse-chart/ this loads AFTER css/nepse-luxury.css and must
-   stay visually identical to the shared tokens. v=20260930a
+   stay visually identical to the shared tokens. v=20260930b
    ============================================================ */
 :root{
   --ink:#0C1F16; --pine:#14382A; --emerald:#1E6B4A; --emerald-deep:#155236;
@@ -422,3 +422,52 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,su
   .nl-pulse{animation:none}
   .skl,.chart-wrap.loading::after{animation:none;background:var(--ivory)}
 }
+
+/* ---------- app sidebar rail (desktop only, >=1100px; duplicated for data-check) ---------- */
+.suite-rail{display:none}
+@media(min-width:1100px){
+  body{padding-left:236px}
+  .suite-rail{display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;
+    width:236px;z-index:120;background:var(--paper);border-right:1px solid var(--hairline);
+    padding:30px 0 26px}
+  .rail-word{font-family:var(--serif);font-weight:600;font-size:17px;letter-spacing:-.01em;
+    color:var(--ink);padding:0 28px;margin-bottom:36px;white-space:nowrap}
+  .rail-word .g{color:var(--gold)}
+  .rail-k{font-size:10.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--faint);padding:0 28px;margin-bottom:12px}
+  .suite-rail nav{display:flex;flex-direction:column;gap:2px;padding:0 14px}
+  .suite-rail nav a{position:relative;display:block;padding:11px 14px;border-radius:12px;
+    font-size:14px;font-weight:600;color:var(--muted);transition:color .25s var(--ease),
+    background .25s var(--ease)}
+  .suite-rail nav a:hover{color:var(--ink);background:var(--ivory)}
+  .suite-rail nav a.on{color:var(--ink);background:var(--gold-faint)}
+  .suite-rail nav a.on::before{content:"";position:absolute;left:-14px;top:11px;bottom:11px;
+    width:3px;border-radius:3px;background:var(--gold)}
+  .rail-foot{margin-top:auto;padding:0 28px;font-size:11.5px;color:var(--faint);
+    letter-spacing:.08em;text-transform:uppercase}
+  .topbar .suite-links{display:none}
+}
+
+/* ---------- info tooltips (duplicated for data-check) ---------- */
+.info-tip{position:relative;display:inline-flex;align-items:center;justify-content:center;
+  width:18px;height:18px;border-radius:50%;border:1px solid var(--hairline);
+  background:transparent;color:var(--faint);font-size:11px;font-weight:700;line-height:1;
+  cursor:help;font-family:var(--sans);margin-left:7px;vertical-align:2px;padding:0;
+  text-transform:none;letter-spacing:0}
+.info-tip:hover,.info-tip:focus-visible{border-color:var(--gold);color:var(--gold)}
+.info-tip::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 9px);left:50%;
+  transform:translateX(-50%) translateY(4px);width:max-content;max-width:230px;
+  background:var(--ink);color:#F4F1E8;font-size:12.5px;font-weight:400;line-height:1.55;
+  padding:10px 14px;border-radius:10px;opacity:0;pointer-events:none;
+  transition:opacity .25s var(--ease),transform .25s var(--ease);z-index:60;
+  white-space:normal;text-align:left;box-shadow:var(--shadow-hover)}
+.info-tip:hover::after,.info-tip:focus-visible::after{opacity:1;
+  transform:translateX(-50%) translateY(0)}
+.info-tip.tip-edge::after{left:auto;right:-10px;transform:translateY(4px)}
+.info-tip.tip-edge:hover::after,.info-tip.tip-edge:focus-visible::after{transform:translateY(0)}
+
+/* ---------- relative-time freshness badge (duplicated for data-check) ---------- */
+.fresh{display:inline-block;font-size:12px;font-weight:600;color:var(--emerald);
+  background:rgba(30,107,74,.08);border:1px solid var(--hairline);border-radius:999px;
+  padding:2px 11px;margin-left:9px;font-variant-numeric:tabular-nums;white-space:nowrap;
+  vertical-align:1px}

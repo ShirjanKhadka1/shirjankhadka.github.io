@@ -1122,6 +1122,11 @@
         rg.className = 'nl-stat-v small ' + (above ? 'up' : 'dn');
       }
       setT('nl-asof', fmtD(last[0]) + (state.liveBadge === 'live' ? ' · live' : ''));
+      if (window.NepseFresh) {
+        var asofIso = String(last[0]).replace(/^(\d{4})(\d{2})(\d{2})$/, '$1-$2-$3');
+        var nla = document.getElementById('nl-asof');
+        if (nla && !nla.querySelector('.fresh')) nla.insertAdjacentHTML('beforeend', ' ' + NepseFresh.badge(asofIso));
+      }
     }
   }
   function setT(id, t) { var e = document.getElementById(id); if (e) e.textContent = t; }

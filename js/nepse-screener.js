@@ -248,9 +248,12 @@
         };
       });
       var asof = vj.asof || '';
-      $('sc-asof').textContent = asof
+      var scAsof = $('sc-asof');
+      scAsof.textContent = asof
         ? 'Signals as of ' + asof + ' · ' + state.rows.length + ' securities ranked'
         : state.rows.length + ' securities ranked';
+      if (window.NepseFresh && asof && !scAsof.querySelector('.fresh'))
+        scAsof.insertAdjacentHTML('beforeend', ' ' + NepseFresh.badge(asof));
       $('sc-asof2').textContent = asof || 'the last close';
       // keep the static snapshot heading in sync with the live data
       var snapAsof = document.querySelector('.sc-top10 .sc-asof-inline');
