@@ -1,0 +1,168 @@
+/* NEPSE Alpha Lab  -  Wave 7 shared styles (live data, motion, snapshots).
+ * Loaded alongside css/nepse-luxury.css on the suite pages that need it.
+ * Palette stays in the Private Ledger system: deep forest, ivory,
+ * champagne gold. No decorative gradients. */
+
+/* Tabular numerals for prices, counts and percentages. */
+.tnum { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+
+/* ============ Live badge (shared) ============ */
+.nlv-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  font: 700 11px/1 Inter, system-ui, sans-serif; letter-spacing: .12em;
+  padding: 7px 11px; border-radius: 999px; border: 1px solid transparent;
+  white-space: nowrap;
+}
+.nlv-badge.live    { color: #EAF4EC; background: #1E5A3C; border-color: #1E5A3C; }
+.nlv-badge.delayed { color: #5C4416; background: #F3E3B8; border-color: #D9BE7E; }
+.nlv-badge.closed  { color: #5A6259; background: #E9E7DE; border-color: #D8D4C6; }
+.nlv-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: #7BD99A; flex: none;
+  animation: nlv-pulse 1.8s ease-in-out infinite;
+}
+@keyframes nlv-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(123, 217, 154, .55); }
+  50%      { opacity: .65; box-shadow: 0 0 0 5px rgba(123, 217, 154, 0); }
+}
+.nlv-sub { font: 500 12px/1.5 Inter, system-ui, sans-serif; color: #6B6F66; }
+
+/* Chart-page badge states (extends .nl-badge in chart.css) */
+.nl-badge.delayed { color: #5C4416; background: #F3E3B8; border-color: #D9BE7E; }
+.nl-badge.closed  { color: #5A6259; background: #E9E7DE; border-color: #D8D4C6; }
+
+/* ============ Reveal on scroll ============ */
+.rv { opacity: 0; transform: translateY(12px); }
+.rv.in { opacity: 1; transform: none; transition: opacity .5s ease, transform .5s ease; }
+
+/* ============ Sparklines ============ */
+.nlspark { display: block; width: 100%; max-width: 220px; height: 40px; margin-top: 8px; }
+.nlspark-cap { display: block; font: 500 11px/1.4 Inter, system-ui, sans-serif; color: #8A8E83; margin-top: 4px; }
+
+/* ============ Shared market snapshot ============ */
+.nlsnap { display: block; }
+.nlsnap-stats {
+  display: grid; gap: 12px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+@media (max-width: 860px) { .nlsnap-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.nlsnap-stat {
+  min-width: 0; background: #fff; border: 1px solid #E8E2D3; border-radius: 12px;
+  padding: 14px 16px; display: flex; flex-direction: column; gap: 5px;
+}
+.nlsnap-k { font: 600 11px/1.3 Inter, system-ui, sans-serif; letter-spacing: .1em; text-transform: uppercase; color: #8A8E83; }
+.nlsnap-v { font: 600 27px/1.15 "Fraunces", Georgia, serif; color: #0C1F16; }
+.nlsnap-v .up { color: #1E7A44; }
+.nlsnap-v .down { color: #B23A2E; }
+.nlsnap-sep { color: #B9BDB2; font-size: 20px; }
+.nlsnap-s { font: 500 12.5px/1.45 Inter, system-ui, sans-serif; color: #6B6F66; }
+.nlsnap-s.up { color: #1E7A44; }
+.nlsnap-s.down { color: #B23A2E; }
+.nlsnap-bar { display: block; height: 7px; border-radius: 99px; background: #F0DCD6; overflow: hidden; margin-top: 2px; }
+.nlsnap-bar-a { display: block; height: 100%; background: #1E7A44; border-radius: 99px; transition: width .8s cubic-bezier(.22, .8, .3, 1); }
+.nlsnap-foot { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; margin-top: 12px; }
+.nlsnap-tag { font: 600 11px/1 Inter, system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: #7A5B23; background: #F4EAD0; border: 1px solid #E3D3A6; padding: 5px 9px; border-radius: 99px; }
+.nlsnap-close {
+  margin: 12px 0 0; padding: 12px 16px; background: #F6F3EA; border: 1px solid #E8E2D3;
+  border-left: 3px solid #C6A86B; border-radius: 0 10px 10px 0;
+  font: 500 13.5px/1.6 Inter, system-ui, sans-serif; color: #3E443D;
+}
+
+/* ============ Symbol monogram avatars ============ */
+.mono {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 10px; flex: none;
+  font: 700 12px/1 Inter, system-ui, sans-serif; letter-spacing: .02em;
+  border: 1px solid rgba(12, 31, 22, .08);
+}
+.mono.sm { width: 26px; height: 26px; border-radius: 8px; font-size: 10.5px; }
+
+/* ============ Filings desk (dashboard widget) ============ */
+.fd-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.fd-list li { border-top: 1px solid #EFEBDF; }
+.fd-list li:first-child { border-top: 0; }
+.fd-list a { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 4px 10px; padding: 10px 2px; text-decoration: none; }
+.fd-list a:hover .fd-t { text-decoration: underline; }
+.fd-date { font: 600 11px/1.5 Inter, system-ui, sans-serif; color: #8A8E83; white-space: nowrap; }
+.fd-t { font: 500 13px/1.45 Inter, system-ui, sans-serif; color: #23281F; }
+.fd-src { font: 500 11px/1.4 Inter, system-ui, sans-serif; color: #8A8E83; grid-column: 2; }
+.fd-note { font: 500 11.5px/1.5 Inter, system-ui, sans-serif; color: #8A8E83; margin: 10px 0 0; }
+
+/* ============ Engine watchlist (watchlist page) ============ */
+.wl-box {
+  background: #FFFEFA; border: 1px solid #E8E2D3; border-radius: 14px;
+  padding: 20px 22px; margin: 18px 0;
+}
+.wl-box h2 { font: 600 21px/1.25 "Fraunces", Georgia, serif; color: #0C1F16; margin: 0 0 4px; }
+.wl-box-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; }
+.wl-box-head h2 { margin: 0; }
+.wl-private { font: 600 11px/1.4 Inter, system-ui, sans-serif; letter-spacing: .06em; text-transform: uppercase; color: #6B6F66; }
+.wl-note { color: #6B6F66; font: 500 14px/1.55 Inter, system-ui, sans-serif; margin: 0; padding: 6px 0; }
+
+/* Screener: symbol monogram alignment */
+.sc-sym { display: inline-flex; align-items: center; gap: 8px; }
+.wl-sub { font: 500 13px/1.55 Inter, system-ui, sans-serif; color: #6B6F66; margin: 0 0 6px; }
+.ewl-row {
+  display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr) minmax(0, 1.3fr);
+  gap: 6px 12px; align-items: center; padding: 10px 2px; border-top: 1px solid #EFEBDF;
+}
+.ewl-row:first-of-type { border-top: 0; }
+.ewl-sym { display: inline-flex; align-items: center; gap: 9px; font: 700 13.5px/1.3 Inter, system-ui, sans-serif; color: #0C1F16; text-decoration: none; min-width: 0; }
+.ewl-sym:hover { text-decoration: underline; }
+.ewl-sym > span:first-of-type { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ewl-v { font: 600 10.5px/1 Inter, system-ui, sans-serif; letter-spacing: .06em; padding: 3px 7px; border-radius: 99px; white-space: nowrap; }
+.ewl-v.sb { color: #1E5A3C; background: #E2EDDF; border: 1px solid #CBDCC6; }
+.ewl-v.b  { color: #2F5B7A; background: #DEE8EF; border: 1px solid #C2D2DE; }
+.ewl-num { font: 600 13px/1.4 Inter, system-ui, sans-serif; color: #23281F; }
+.ewl-num .up { color: #1E7A44; }
+.ewl-num .down { color: #B23A2E; }
+.ewl-setup { font: 500 12px/1.4 Inter, system-ui, sans-serif; color: #6B6F66; }
+.ewl-sl { font: 500 12px/1.5 Inter, system-ui, sans-serif; color: #6B6F66; grid-column: 1 / -1; }
+@media (max-width: 640px) {
+  .ewl-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .ewl-setup { grid-column: 1 / -1; }
+}
+
+/* ============ Trading costs (simulator page) ============ */
+.sim-costs { display: flex; flex-direction: column; gap: 12px; }
+.sim-costs .sim-check { font: 600 14px/1.4 Inter, system-ui, sans-serif; color: #0C1F16; display: flex; gap: 9px; align-items: flex-start; cursor: pointer; }
+.sim-costs .sim-check input { width: 17px; height: 17px; margin-top: 1px; accent-color: #1E5A3C; }
+.sim-coststack { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; font: 500 12.8px/1.55 Inter, system-ui, sans-serif; color: #3E443D; }
+.sim-coststack b { color: #0C1F16; }
+.sim-cgt { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.sim-cgt label { display: flex; flex-direction: column; gap: 5px; font: 600 12px/1.4 Inter, system-ui, sans-serif; color: #3E443D; }
+.sim-cgt input { font: 600 14px/1.2 Inter, system-ui, sans-serif; color: #0C1F16; background: #FFFEFA; border: 1px solid #D8D4C6; border-radius: 9px; padding: 9px 11px; width: 100%; }
+.sim-cgtnote { font: 500 12px/1.6 Inter, system-ui, sans-serif; color: #7A5B23; background: #FAF3DF; border: 1px solid #E7D9AE; border-radius: 9px; padding: 9px 12px; margin: 0; }
+.sim-costsrc { font: 500 11.5px/1.55 Inter, system-ui, sans-serif; color: #8A8E83; margin: 0; }
+@media (max-width: 640px) { .sim-cgt { grid-template-columns: 1fr; } }
+.eq-note { font: 500 12.5px/1.55 Inter, system-ui, sans-serif; color: #6B6F66; margin: 8px 0 0; }
+
+/* ============ Sector card clipping fix (overrides sectors.css) ============ */
+.sx-lead { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important; }
+.sx-lead > div { min-width: 0; }
+.sx-lead li { min-width: 0; align-items: center; }
+.sx-lead .sx-sym { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-flex; align-items: center; gap: 7px; }
+.sx-lead .sx-p, .sx-lead .sx-ch { white-space: nowrap; flex: none; }
+@media (max-width: 640px) { .sx-lead { grid-template-columns: minmax(0, 1fr) !important; } }
+
+/* Sector breadth bars animate to their real widths */
+.sx-breadth i { transition: width .8s cubic-bezier(.22, .8, .3, 1); }
+
+/* Alpha page: monograms in the market leader rows; close sentence spans the grid */
+.mkt-sym { display: inline-flex; align-items: center; gap: 8px; }
+.mkt-grid .nlsnap-close { grid-column: 1 / -1; margin: 0; }
+#mkt-live .nlv-badge { font-size: 10px; padding: 5px 9px; }
+
+/* ============ Today's board (dashboard market widget, 3 columns) ============ */
+.wg-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+@media (max-width: 860px) { .wg-cols-3 { grid-template-columns: minmax(0, 1fr) !important; } }
+
+/* Dashboard widget list rows with monograms */
+.wg-list li > a:first-child { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
+.wg-list li > a:first-child > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ============ Reduced motion ============ */
+@media (prefers-reduced-motion: reduce) {
+  .rv { opacity: 1; transform: none; }
+  .nlv-dot { animation: none; }
+  .nlsnap-bar-a, .sx-bar i { transition: none; }
+}
