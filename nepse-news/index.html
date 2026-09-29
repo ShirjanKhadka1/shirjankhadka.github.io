@@ -57,6 +57,8 @@ a{color:var(--accent);text-decoration:none}
 .topbar .spacer{flex:1}
 .btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;font-weight:600;font-size:15px;padding:11px 22px;border-radius:999px;border:0;cursor:pointer;transition:transform .25s var(--ease),box-shadow .25s var(--ease),background .25s var(--ease)}
 .btn:hover{background:#0a4f36;transform:translateY(-1px);box-shadow:var(--shadow-hover)}
+.btn.ghost{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
+.btn.ghost:hover{background:var(--accent-soft);box-shadow:none;transform:none}
 .btn.small{padding:9px 18px;font-size:14px}
 
 /* hero */
@@ -98,6 +100,14 @@ a{color:var(--accent);text-decoration:none}
 .promise-card h3{font-size:15.5px;margin-bottom:6px}
 .promise-card p{font-size:14px;color:var(--secondary)}
 
+/* final cta */
+.final{background:var(--accent);border-radius:26px;padding:56px 44px;text-align:center;color:#fff;margin:0 0 72px;position:relative;overflow:hidden}
+.final::before{content:"";position:absolute;inset:0;background:radial-gradient(520px 260px at 50% -20%,rgba(255,255,255,.14),transparent 60%)}
+.final h2{font-family:var(--serif);font-size:clamp(26px,3.4vw,38px);font-weight:600;letter-spacing:-.02em;margin-bottom:12px;position:relative}
+.final p{color:#d5e8dc;margin-bottom:28px;position:relative}
+.final .btn{background:#fff;color:var(--accent);position:relative}
+.final .btn:hover{background:var(--alt)}
+
 /* footer */
 .foot{border-top:1px solid var(--line);padding:40px 0 48px;color:var(--secondary);font-size:13.5px}
 .foot .disclaimer{background:var(--alt);border-radius:14px;padding:20px 24px;margin-bottom:28px;font-size:13.5px}
@@ -123,6 +133,7 @@ a{color:var(--accent);text-decoration:none}
     <a class="back" href="/nepse-alpha/" aria-label="Back to Alpha Lab">← Alpha Lab</a>
     <span class="brand">Market News<span class="dot">.</span></span>
     <span class="spacer"></span>
+    <a class="btn ghost small" href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Get alerts</a>
     <a class="btn small" href="/nepse-chart/">Open the Lab</a>
   </div>
 </header>
@@ -148,6 +159,13 @@ a{color:var(--accent);text-decoration:none}
       <div class="promise-card"><h3>Matched to symbols</h3><p>Headlines are tagged to the listed companies they mention — tap a symbol to open its chart.</p></div>
       <div class="promise-card"><h3>Corporate actions tracked</h3><p>Dividend, bonus, right-share and promoter-share news, verified against official NEPSE disclosures before publishing.</p></div>
     </div>
+  </div>
+  <div class="wrap">
+    <section class="final reveal">
+      <h2>Never miss a market-moving headline.</h2>
+      <p>Breaking dividend, bonus, right-share and promoter news, posted on Facebook the moment it's verified.</p>
+      <a class="btn" href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Follow Nepse Decode</a>
+    </section>
   </div>
 </main>
 
