@@ -3,54 +3,110 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Corrections Policy | Nepse Decode</title>
-<meta name="description" content="How Nepse Decode corrects errors: promptly, transparently, with a public log. Report an error and see every correction we have published.">
-<link rel="canonical" href="https://shirjankhadka.com.np/corrections/">
-<link rel="alternate" hreflang="ne" href="https://shirjankhadka.com.np/ne/corrections/">
-<link rel="alternate" hreflang="x-default" href="https://shirjankhadka.com.np/corrections/">
+<title>Nepse Decode Simulator: Free NEPSE Paper Trading and Strategy Backtests</title>
+<meta name="description" content="Nepse Decode: paper-trade NEPSE stocks on historical daily data: SMA crossover, RSI swing and buy-and-hold strategies with ATR position sizing, equity curves and a trade journal. Free, educational, no login.">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-simulator/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Corrections Policy | Nepse Decode">
-<meta property="og:description" content="How Nepse Decode corrects errors: promptly, transparently, with a public log. Report an error and see every correction we have published.">
-<meta property="og:url" content="https://shirjankhadka.com.np/corrections/">
+<meta property="og:title" content="Nepse Decode Simulator: Free NEPSE Paper Trading">
+<meta property="og:description" content="Backtest simple rule-based strategies on NEPSE historical data with honest position sizing and a trade journal. Free, no login.">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-simulator/">
 <meta property="og:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Corrections Policy | Nepse Decode">
-<meta name="twitter:description" content="How Nepse Decode corrects errors: promptly, transparently, with a public log. Report an error and see every correction we have published.">
+<meta name="twitter:title" content="Nepse Decode Simulator: Free NEPSE Paper Trading">
+<meta name="twitter:description" content="Backtest simple rule-based strategies on NEPSE historical data. Free, educational, no login.">
 <meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
-<link rel="icon" href="/nepse-news/icon-32.png" sizes="32x32" type="image/png">
-<link rel="icon" href="/nepse-news/icon-16.png" sizes="16x16" type="image/png">
-<link rel="apple-touch-icon" href="/nepse-news/icon-180.png">
+<link rel="icon" href="/nepse-simulator/icon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/nepse-simulator/icon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/nepse-simulator/icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebPage","name":"Corrections Policy | Nepse Decode","url":"https://shirjankhadka.com.np/corrections/","description":"How Nepse Decode corrects errors: promptly, transparently, with a public log. Report an error and see every correction we have published.","inLanguage":"en","author":{"@type":"Organization","name":"Nepse Decode","url":"https://shirjankhadka.com.np/nepse-alpha/"}}
+{"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode Simulator","url":"https://shirjankhadka.com.np/nepse-simulator/","description":"A free, browser-based NEPSE paper-trading simulator: backtest rule-based strategies on historical daily data with ATR position sizing, equity curves and a trade journal. Educational use only.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
 {"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
 {"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-alpha/"},
-{"@type":"ListItem","position":3,"name":"Corrections","item":"https://shirjankhadka.com.np/corrections/"}]}
+{"@type":"ListItem","position":3,"name":"Simulator","item":"https://shirjankhadka.com.np/nepse-simulator/"}]}
 </script>
-<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930b">
+<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930c">
+<link rel="stylesheet" href="/css/nepse-wave7.css?v=20261002d">
 <link rel="stylesheet" href="/css/nepse-brand.css?v=20261003a">
 <style>
-.wrap{max-width:880px}
+/* simulator-only */
+.wrap{max-width:980px}
 .topbar .wrap{max-width:1160px}
-.policy-body{margin:28px 0 8px}
-.policy-body h2{font-family:var(--serif);font-size:22px;font-weight:600;margin:34px 0 10px;letter-spacing:-.01em}
-.policy-body p{font-size:16px;line-height:1.75;margin-bottom:14px}
-.policy-body ul{margin:0 0 14px 22px;font-size:16px;line-height:1.75}
-.policy-body li{margin-bottom:8px}
-.policy-body a{color:var(--emerald);font-weight:600}
-.log-box{background:var(--paper);border:1px dashed var(--hairline);border-radius:16px;padding:24px 26px;font-size:15px;color:var(--muted);line-height:1.7}
-.seealso{margin:36px 0 8px;font-size:14.5px;color:var(--muted)}
-.seealso a{color:var(--emerald);font-weight:600}
-.promise{background:var(--paper);border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline);margin:56px 0 0}
-.promise-in{max-width:880px;margin:0 auto;padding:44px 24px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-.promise-card h3{font-family:var(--serif);font-size:17px;font-weight:600;margin-bottom:6px;letter-spacing:-.01em}
-.promise-card p{font-size:14px;color:var(--muted)}
-@media(max-width:700px){.promise-in{grid-template-columns:1fr;gap:20px}}
+.sim-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:26px 0}
+.sim-card{background:var(--paper);border:1px solid var(--hairline);border-radius:18px;padding:24px}
+.sim-card h2{font-family:var(--serif);font-size:21px;font-weight:600;margin-bottom:6px}
+.sim-card .sub{font-size:13.5px;color:var(--muted);margin-bottom:16px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:6px}
+.field input[type="text"],.field input[type="search"],.field input[type="date"],.field input[type="number"],.field textarea{width:100%;font:inherit;font-size:15px;padding:12px 16px;border:1px solid var(--hairline);border-radius:12px;background:var(--ivory);color:var(--ink);outline:none}
+.field input:focus,.field textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(198,168,107,.22)}
+.field input:disabled{opacity:.45;cursor:not-allowed}
+.sim-search-wrap{position:relative}
+.sim-suggest{position:absolute;top:calc(100% + 8px);left:0;right:0;list-style:none;background:var(--paper);border:1px solid var(--hairline);border-radius:14px;box-shadow:var(--shadow-hover);overflow:hidden;z-index:50;margin:0;padding:0}
+.sim-suggest[hidden]{display:none}
+.sim-suggest li{display:flex;gap:12px;align-items:baseline;padding:11px 18px;cursor:pointer;font-size:14px}
+.sim-suggest li strong{font-weight:700;color:var(--emerald-deep)}
+.sim-suggest li span{color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sim-suggest li[aria-selected="true"],.sim-suggest li:hover{background:var(--gold-faint)}
+.dates{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.strat-pick{display:flex;flex-direction:column;gap:10px}
+.strat-opt{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--hairline);border-radius:14px;padding:14px 16px;cursor:pointer;transition:border-color .25s var(--ease)}
+.strat-opt:hover{border-color:var(--gold)}
+.strat-opt input{margin-top:4px;accent-color:var(--gold)}
+.strat-opt strong{display:block;font-size:15px}
+.strat-opt span{font-size:13.5px;color:var(--muted)}
+.sizing3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+#sim-sizing.dimmed{opacity:.45}
+.sim-status{margin:14px 0;padding:14px 18px;border-radius:12px;background:var(--gold-faint);border:1px solid var(--hairline);font-size:14.5px}
+.sim-status[hidden]{display:none}
+.sim-status.err{background:#fbeeea;border-color:#e8c4b8;color:#8a2f22}
+.math{background:var(--ivory);border:1px dashed var(--hairline);border-radius:12px;padding:16px 18px;font-size:14px;color:var(--muted);margin-top:16px}
+.math code{font-family:ui-monospace,monospace;font-size:13px;color:var(--ink);background:rgba(12,31,22,.06);padding:2px 7px;border-radius:6px}
+.rules{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:26px 0}
+.rule-card{background:var(--paper);border:1px solid var(--hairline);border-radius:16px;padding:20px}
+.rule-card h3{font-family:var(--serif);font-size:17px;margin-bottom:8px}
+.rule-card ol{margin:0;padding-left:20px;font-size:13.5px;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.rule-card .warn{font-size:13px;color:#8a2f22;margin-top:10px}
+#sim-results{margin:34px 0}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}
+.stat{background:var(--paper);border:1px solid var(--hairline);border-radius:14px;padding:16px 18px}
+.nl-stat-k{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:4px}
+.nl-stat-v{font-size:19px;font-weight:700;font-variant-numeric:tabular-nums}
+.up{color:var(--up)}.down{color:var(--down)}
+.eq-wrap{background:var(--paper);border:1px solid var(--hairline);border-radius:16px;padding:20px;margin:18px 0}
+.eq-wrap canvas{width:100%;height:260px;display:block}
+.eq-legend{display:flex;gap:22px;font-size:13px;color:var(--muted);margin-top:10px}
+.eq-legend i{display:inline-block;width:22px;height:3px;border-radius:2px;vertical-align:middle;margin-right:7px}
+.trades-wrap{overflow-x:auto;margin:18px 0}
+table.trades{width:100%;border-collapse:collapse;font-size:13.5px;background:var(--paper);border:1px solid var(--hairline);border-radius:16px;overflow:hidden}
+table.trades th,table.trades td{padding:10px 12px;text-align:right;border-bottom:1px solid var(--hairline-soft);white-space:nowrap;font-variant-numeric:tabular-nums}
+table.trades th:first-child,table.trades td:first-child,table.trades th:nth-child(8),table.trades td:nth-child(8),table.trades th:nth-child(9),table.trades td:nth-child(9){text-align:left}
+table.trades th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);background:var(--ivory)}
+table.trades tr:last-child td{border-bottom:none}
+.muted{color:var(--muted)}
+.linklike{background:none;border:none;color:var(--gold);font:inherit;font-size:13px;cursor:pointer;text-decoration:underline;padding:0}
+.tnote{margin-top:8px}
+.tnote textarea{width:100%;font:inherit;font-size:13.5px;padding:10px 12px;border:1px solid var(--hairline);border-radius:10px;background:var(--ivory);margin-bottom:8px}
+.tnote-saved{font-size:13px;color:var(--muted);background:var(--gold-faint);border-radius:8px;padding:8px 12px;margin:6px 0}
+.run-note{margin:18px 0}
+.journal{margin:34px 0}
+.sj-row{display:flex;gap:14px;justify-content:space-between;align-items:flex-start;background:var(--paper);border:1px solid var(--hairline);border-radius:14px;padding:16px 20px;margin-bottom:10px}
+.sj-row strong{font-size:15px}
+.sj-meta{display:block;font-size:12px;color:var(--faint);margin:3px 0 6px}
+.sj-row p{font-size:14px;color:var(--muted);margin:0}
+.wl-rm{width:32px;height:32px;border-radius:50%;border:1px solid var(--hairline);background:var(--ivory);color:var(--muted);font-size:17px;line-height:1;cursor:pointer;flex:none}
+.wl-rm:hover{background:var(--down);border-color:var(--down);color:#fff}
+.limits{margin:40px 0}
+.limits ul{margin:0;padding-left:22px;color:var(--muted);font-size:14.5px;display:flex;flex-direction:column;gap:8px}
+.fresh{font-size:12px;color:var(--gold);border:1px solid var(--hairline);padding:3px 10px;border-radius:999px;white-space:nowrap}
+.asof{font-size:13.5px;color:var(--muted)}
+@media(max-width:860px){.sim-grid{grid-template-columns:1fr}.rules{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.sizing3{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.strat-opt{transition:none}}
 </style>
 </head>
 <body>
@@ -63,11 +119,11 @@
     <a href="/nepse-chart/">Chart &amp; signals</a>
     <a href="/nepse-screener/">Screener</a>
     <a href="/nepse-sectors/">Sectors</a>
-    <a href="/nepse-news/" class="on" aria-current="page">Market news</a>
+    <a href="/nepse-news/">Market news</a>
     <a href="/nepse-watchlist/">Watchlist</a>
     <a href="/nepse-dashboard/">Dashboard</a>
     <a href="/nepse-portfolio/">Portfolio</a>
-    <a href="/nepse-simulator/">Simulator</a>
+    <a href="/nepse-simulator/" class="on" aria-current="page">Simulator</a>
     <a href="/nepse-fundamentals/">Fundamentals</a>
     <a href="/nepse-reports/">Reports</a>
     <a href="/nepse-actions/">Corp. actions</a>
@@ -83,17 +139,16 @@
       <a href="/nepse-chart/">The Lab</a>
       <a href="/nepse-screener/">Screener</a>
       <a href="/nepse-sectors/">Sectors</a>
-      <a href="/nepse-news/" class="on" aria-current="page">News</a>
+      <a href="/nepse-news/">News</a>
       <a href="/nepse-watchlist/">Watchlist</a>
       <a href="/nepse-dashboard/">Dashboard</a>
       <a href="/nepse-portfolio/">Portfolio</a>
-      <a href="/nepse-simulator/">Simulator</a>
+      <a href="/nepse-simulator/" class="on" aria-current="page">Simulator</a>
       <a href="/nepse-fundamentals/">Fundamentals</a>
       <a href="/nepse-reports/">Reports</a>
     </nav>
     <div class="spacer"></div>
-    <a class="btn ghost small" href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Get alerts</a>
-    <a class="btn small" href="/nepse-chart/">Open the Lab</a>
+    <a class="btn small" href="/nepse-portfolio/">My portfolio</a>
   </div>
 </header>
 
@@ -101,55 +156,189 @@
   <section class="hero">
     <div class="wrap">
       <div class="hero-rule"></div>
-      <span class="eyebrow">Transparency · Accountability</span>
-      <h1>Corrections policy</h1>
-      <p class="lede">When we get something wrong, we fix it in the open. This page explains how corrections work and keeps the public record.</p>
-      <div class="policy-body">
-        <h2>How corrections work</h2>
-        <p>When an error is found in one of our stories, we correct it promptly and transparently. The original mistake is never silently erased: the corrected story notes what changed and when, and the correction is entered in the public log below.</p>
-        <h2>Correction vs clarification</h2>
-        <p>A <strong>correction</strong> fixes a factual error, such as a wrong number, a wrong date, or the wrong company. A <strong>clarification</strong> adds context without changing any fact. Both appear in the log.</p>
-        <h2>The correction log</h2>
-        <div class="log-box">No corrections published yet. This log starts with our first correction.</div>
-        <h2>Report an error</h2>
-        <p>Found a mistake in one of our stories? Message us on Facebook at <a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">facebook.com/nepsedecode.np</a> and we will check it against the official record. If you are right, we correct it and log it here.</p>
-<p class="seealso">See also: <a href="/editorial-standards/">Editorial standards</a> · <a href="/corrections/">Corrections policy</a> · <a href="/ownership/">Ownership and funding</a></p>      </div>
+      <span class="eyebrow"><span class="pulse"></span>Free · No login · Paper trading only</span>
+      <h1>Test a strategy before the market tests you.</h1>
+      <p class="lede">Pick a NEPSE security, choose a mechanical strategy, and walk it through historical daily data with honest position sizing. Every rule is printed on this page, every trade is logged, and nothing here touches real money.</p>
+      <p class="asof" id="sim-data-note">Loading history…</p>
     </div>
   </section>
 
-<div class="promise">
-    <div class="promise-in">
-      <div class="promise-card"><h3>Fixed in the open</h3><p>Errors are corrected on the story itself, with a note saying what changed.</p></div><div class="promise-card"><h3>Logged publicly</h3><p>Every correction and clarification is entered in the log above, newest first.</p></div><div class="promise-card"><h3>You can report</h3><p>Readers who spot a mistake can message us and we check it against the official record.</p></div>
+  <div class="wrap">
+    <div class="sim-grid">
+      <section class="sim-card" aria-label="Simulation setup">
+        <h2>Setup</h2>
+        <p class="sub">One security, one date range, one strategy at a time.</p>
+        <div class="field">
+          <label for="sim-sym">Security (full OHLC history only)</label>
+          <div class="sim-search-wrap">
+            <input id="sim-sym" type="search" placeholder="Search symbol or company name…" role="combobox" aria-expanded="false" aria-controls="sim-suggest" aria-autocomplete="list" autocomplete="off">
+            <ul id="sim-suggest" class="sim-suggest" role="listbox" aria-label="Matching securities" hidden></ul>
+          </div>
+        </div>
+        <div class="field">
+          <label>Date range</label>
+          <div class="dates">
+            <input id="sim-start" type="date" aria-label="Start date">
+            <input id="sim-end" type="date" aria-label="End date">
+          </div>
+        </div>
+        <div class="field">
+          <label for="sim-cash">Starting cash (Rs)</label>
+          <input id="sim-cash" type="number" min="1000" step="1000" value="100000">
+        </div>
+        <div class="field">
+          <label>Strategy</label>
+          <div class="strat-pick" role="radiogroup" aria-label="Strategy">
+            <label class="strat-opt"><input type="radio" name="sim-strat" value="buyhold"><span><strong>Buy and hold</strong><span>Buy at the first close, sell at the last. The baseline every strategy must beat.</span></span></label>
+            <label class="strat-opt"><input type="radio" name="sim-strat" value="sma-cross" checked><span><strong>SMA 20 / 50 crossover</strong><span>Buy golden crosses, exit death crosses. Trend following, the style that worked best in long NEPSE backtests.</span></span></label>
+            <label class="strat-opt"><input type="radio" name="sim-strat" value="rsi-swing"><span><strong>RSI(14) swing</strong><span>Buy when RSI drops under 30, exit when it rises over 70. Classic mean reversion, included so you can see it struggle.</span></span></label>
+          </div>
+        </div>
+      </section>
+
+      <section class="sim-card" aria-label="Risk settings">
+        <h2>Risk</h2>
+        <p class="sub">Fixed-fractional position sizing on every trade.</p>
+        <div id="sim-sizing">
+          <div class="sizing3">
+            <div class="field">
+              <label for="sim-risk">Risk per trade (%)</label>
+              <input id="sim-risk" type="number" min="0.1" max="100" step="0.1" value="1">
+            </div>
+            <div class="field">
+              <label for="sim-stopmult">Stop (× ATR14)</label>
+              <input id="sim-stopmult" type="number" min="0.5" step="0.5" value="2">
+            </div>
+            <div class="field">
+              <label for="sim-targetmult">Target (× ATR14)</label>
+              <input id="sim-targetmult" type="number" min="0.5" step="0.5" value="4">
+            </div>
+          </div>
+        </div>
+        <div class="math">
+          <strong>How a position is sized.</strong><br>
+          Risk amount = risk % × current equity. Stop distance = entry price − (entry − stop × ATR14).
+          Shares = <code>floor(risk amount / stop distance)</code>, rounded down to whole shares and never more than cash allows.
+          Example: Rs 100,000 equity, 1% risk, Rs 500 entry, ATR14 of Rs 20, 2× stop → stop distance Rs 40 → floor(1000 / 40) = 25 shares, Rs 12,500 at risk of Rs 1,000.
+        </div>
+        <div style="margin-top:18px"><button id="sim-run" class="btn" disabled>Run simulation</button></div>
+        <p class="sim-status" id="sim-status" role="status" hidden></p>
+      </section>
+
+      <section class="sim-card" aria-label="Trading costs">
+        <h2>Trading costs</h2>
+        <p class="sub">Real Nepali brokerage costs, applied to every simulated trade.</p>
+        <div class="sim-costs">
+          <label class="sim-check"><input type="checkbox" id="sim-costs-on" checked> <span>Include trading costs and taxes (recommended)</span></label>
+          <div class="sizing3">
+            <div class="field">
+              <label for="sim-cgt-short">CGT, held 365 days or less (%)</label>
+              <input id="sim-cgt-short" type="number" min="0" max="100" step="0.25" value="5">
+            </div>
+            <div class="field">
+              <label for="sim-cgt-long">CGT, held over 365 days (%)</label>
+              <input id="sim-cgt-long" type="number" min="0" max="100" step="0.25" value="3.75">
+            </div>
+          </div>
+          <p class="sim-cgtnote">CGT rates were revised in September 2026 and can change; confirm the current rate with your broker.</p>
+          <div class="math">
+            <strong>What gets charged.</strong><br>
+            Broker commission per side: up to Rs 50,000 at 0.36% (minimum Rs 10); Rs 50,001 to 500,000 at 0.33%; Rs 500,001 to 2,000,000 at 0.306%; Rs 2,000,001 to 10,000,000 at 0.27%; above Rs 10,000,000 at 0.243%. SEBON fee 0.015% on buys and sells. DP charge Rs 25 on every sell. Name transfer Rs 5 on every buy. Buy-side costs enter your cost basis; CGT applies only to positive taxable gains. The equity curve is net of all of this, so the final point is what you would actually take home.
+          </div>
+        </div>
+      </section>
     </div>
-  </div>
-<div class="wrap">
-    <section class="final reveal">
-      <h2>Never miss a market-moving headline.</h2>
-      <p>Breaking dividend, bonus, right-share and promoter news, posted on Facebook the moment it's verified.</p>
-      <a class="btn" href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Follow Nepse Decode</a>
+
+    <section aria-label="Strategy rules">
+      <h2 class="sec">The exact rules.</h2>
+      <p class="sec-sub">No hidden logic. Signals use only data available at that day's close, and trades execute at that close.</p>
+      <div class="rules">
+        <div class="rule-card">
+          <h3>Buy and hold</h3>
+          <ol>
+            <li>Buy as many whole shares as the starting cash allows at the first close of the range.</li>
+            <li>Hold everything to the last close, then sell.</li>
+            <li>No stops, no targets, no sizing: the honest baseline.</li>
+          </ol>
+        </div>
+        <div class="rule-card">
+          <h3>SMA 20 / 50 crossover</h3>
+          <ol>
+            <li>Buy at the close when SMA 20 crosses above SMA 50.</li>
+            <li>Exit at the close when SMA 20 crosses below SMA 50.</li>
+            <li>Exit early at the ATR stop or target, whichever the day's range touches first (stop wins ties).</li>
+            <li>One position at a time; a new entry needs a fresh cross.</li>
+          </ol>
+        </div>
+        <div class="rule-card">
+          <h3>RSI(14) swing</h3>
+          <ol>
+            <li>Buy at the close when RSI(14) falls below 30.</li>
+            <li>Exit at the close when RSI(14) rises above 70.</li>
+            <li>ATR stop and target apply the same as above.</li>
+          </ol>
+          <p class="warn">Long NEPSE backtests found this style loses money: oversold often stays oversold here. Run it and see for yourself.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="sim-results" aria-label="Simulation results" hidden>
+      <div id="sim-res-head"></div>
+      <div class="stats" id="sim-stats"></div>
+      <div class="eq-wrap">
+        <h3>Equity curve</h3>
+        <canvas id="sim-equity" role="img" aria-label="Equity curve chart"></canvas>
+        <p class="eq-note">Net equity: after broker commission, SEBON, DP, transfer and CGT. Final point is actual net liquidation.</p>
+        <div class="eq-legend"><span><i style="background:#C6A86B"></i>Strategy</span><span><i style="background:rgba(12,31,22,.35)"></i>Buy and hold</span></div>
+      </div>
+      <h3>Trade log</h3>
+      <div class="trades-wrap">
+        <table class="trades">
+          <thead><tr><th>#</th><th>Entry</th><th>Price</th><th>Exit</th><th>Price</th><th>Qty</th><th>Gross P&amp;L</th><th>Commission</th><th>Other fees</th><th>CGT</th><th>Net P&amp;L</th><th>Reason</th><th>Journal</th></tr></thead>
+          <tbody id="sim-trades-body"></tbody>
+        </table>
+      </div>
+      <div class="run-note">
+        <div class="field">
+          <label for="sim-run-note">Run note (saved to your journal)</label>
+          <textarea id="sim-run-note" rows="2" placeholder="What did this run teach you about the strategy?"></textarea>
+        </div>
+        <button id="sim-save-run-note" class="btn small">Save run note</button>
+      </div>
+    </section>
+
+    <section class="journal" aria-label="Trade journal">
+      <h2 class="sec">Your journal.</h2>
+      <p class="sec-sub">Notes you attach to trades and runs live in this browser only. This is where a backtest becomes a lesson.</p>
+      <div id="sim-journal-list"></div>
+      <p class="muted" id="sim-journal-empty">No journal entries yet. Run a simulation and add a note to any trade.</p>
+    </section>
+
+    <section class="limits" aria-label="Limitations">
+      <h2 class="sec">What this does not do.</h2>
+      <ul>
+        <li>Daily closes only. Intraday movement is ignored except for checking whether the day's high/low touched the stop or target.</li>
+        <li>No brokerage commission, DP charges, or capital gains tax are modeled. Real trading costs money on every leg.</li>
+        <li>No slippage: fills are assumed exactly at the close, stop, or target price.</li>
+        <li>Dividends, bonus shares, and right issues are not adjusted for; price drops on ex-dates will look like losses.</li>
+        <li>Only securities with full OHLC history can be simulated. LTP-only listings are excluded, never faked.</li>
+        <li>A profitable backtest does not predict future results. Markets change, and this market especially rewards humility.</li>
+      </ul>
     </section>
   </div>
 </main>
 
 <footer class="foot">
   <div class="wrap">
-    <div class="disclaimer"><strong>Educational use only.</strong> Headlines are collected from Nepali business media and belong to their publishers. Nothing here is investment advice; verify prices with your broker before trading.</div>
+    <div class="disclaimer"><strong>Educational use only.</strong> Simulations run on historical data with simplified assumptions and are not investment advice. Nothing here is a buy or sell recommendation; past simulation results do not predict future performance.</div>
     <div class="row">
       <span>Built by <a href="/">Shirjan Khadka</a> · Aspiring Financial Analyst</span>
-      <span><a href="/nepse-alpha/">Nepse Decode</a> · <a href="/nepse-chart/">Chart</a> · <a href="/nepse-screener/">Screener</a> · <a href="/blog/">Blog</a></span>
+      <span><a href="/nepse-alpha/">Nepse Decode</a> · <a href="/nepse-chart/">Chart</a> · <a href="/nepse-screener/">Screener</a> · <a href="/nepse-portfolio/">Portfolio</a> · <a href="/blog/">Blog</a></span>
     </div>
   </div>
 </footer>
 
-<script>
-(function(){
-  if('IntersectionObserver' in window){
-    var io = new IntersectionObserver(function(es){
-      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
-    }, { threshold: .12 });
-    document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
-  }
-})();
-</script>
+<script src="/js/nepse-fresh.js?v=20260930b"></script>
+<script src="/js/nepse-simulator.js?v=20261002c"></script>
 </body>
 </html>
