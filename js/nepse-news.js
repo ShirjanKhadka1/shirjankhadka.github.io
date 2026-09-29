@@ -40,7 +40,8 @@
       html += '<h2>Latest news — ' + esc(sym) + '</h2>';
       if (mine.length) {
         html += '<div class="nl-news-list">' +
-          mine.map(function (it) { return itemHTML(it, false); }).join('') + '</div>';
+          mine.map(function (it) { return itemHTML(it, false); }).join('') + '</div>' +
+          '<p class="nl-news-more"><a href="/nepse-news/">More NEPSE market news →</a></p>';
       } else {
         html += '<p class="nl-news-empty">No recent headlines mention ' + esc(sym) +
           '. News is collected daily from Nepali business media.</p>';
@@ -52,7 +53,8 @@
         'updated ' + esc(NEWS.asof) + '. We link to the source; we don\u2019t rewrite.</p>';
       if (latest.length) {
         html += '<div class="nl-news-list">' +
-          latest.map(function (it) { return itemHTML(it, true); }).join('') + '</div>';
+          latest.map(function (it) { return itemHTML(it, true); }).join('') + '</div>' +
+          '<p class="nl-news-more"><a href="/nepse-news/">More NEPSE market news →</a></p>';
       } else {
         html += '<p class="nl-news-empty">No company headlines in the last 7 days. Check back after the next daily refresh.</p>';
       }
