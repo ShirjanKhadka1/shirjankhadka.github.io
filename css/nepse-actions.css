@@ -1,0 +1,36 @@
+/* Nepse Decode corporate-action archive: Private Ledger cards.
+ * Loads after the shared suite styles; overrides only .ca-* rules. */
+.ca-grow{margin:0 0 4px;padding:16px 22px;border:1px solid var(--hairline);border-radius:14px;background:var(--gold-faint);font-size:14.5px;color:var(--ink)}
+.ca-filters{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:flex-end;background:var(--paper);border:1px solid var(--hairline);border-radius:18px;padding:22px 26px;margin:18px 0 8px;box-shadow:var(--shadow)}
+.ca-filters label{display:flex;flex-direction:column;gap:8px;font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.ca-filters select,.ca-filters input[type="search"]{font-family:var(--sans);font-size:14px;font-weight:500;letter-spacing:normal;text-transform:none;color:var(--ink);padding:12px 15px;border:1px solid var(--hairline);border-radius:12px;background:var(--ivory);min-width:168px}
+.ca-filters select:focus,.ca-filters input[type="search"]:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(198,168,107,.22);outline:none}
+.ca-search input[type="search"]{min-width:230px}
+.ca-count{margin-left:auto;font-size:13.5px;color:var(--muted);font-variant-numeric:tabular-nums;align-self:center}
+.ca-year{font-family:var(--serif);font-size:26px;font-weight:600;margin:36px 0 18px;padding-bottom:12px;border-bottom:2px solid var(--ink);letter-spacing:-.01em}
+.ca-item{background:var(--paper);border:1px solid var(--hairline);border-radius:20px;padding:28px 32px;margin:0 0 16px;box-shadow:var(--shadow);transition:transform .18s ease,box-shadow .18s ease}
+.ca-item:hover{transform:translateY(-2px);box-shadow:var(--shadow-hover)}
+.ca-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+.ca-kind.ca-kind{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;padding:8px 16px;border-radius:999px;margin:0}
+.ca-kind.k-dividend{background:rgba(30,107,74,.12);color:var(--emerald-deep)}
+.ca-kind.k-bonus-share{background:rgba(198,168,107,.22);color:#7a5c14}
+.ca-kind.k-right-share{background:rgba(20,56,42,.10);color:var(--pine)}
+.ca-kind.k-promoter-share{background:rgba(178,58,46,.10);color:#8a2f22}
+.ca-kind.k-auction{background:rgba(198,168,107,.22);color:#7a5c14}
+.ca-sym{font-weight:700;font-size:15px;letter-spacing:.06em;color:var(--emerald-deep);font-variant-numeric:tabular-nums}
+.ca-sym:hover{color:var(--gold)}
+.ca-head{font-family:var(--serif);font-size:20px;font-weight:600;line-height:1.35;margin:0 0 10px}
+.ca-meta{color:var(--muted);font-size:13.5px;margin:0}
+.ca-meta .ca-dot{margin:0 6px}
+.ca-meta a{color:var(--gold);font-weight:600}
+.ca-meta a:hover{color:var(--emerald-deep)}
+.ca-noresult{padding:26px;border:1px dashed var(--hairline);border-radius:16px;color:var(--muted);font-size:14.5px;background:var(--paper)}
+.sp-disc{margin-top:2rem;padding-top:1rem;border-top:1px solid var(--hairline);color:var(--muted);font-size:.88rem;max-width:70ch}
+@media(max-width:640px){
+  .ca-item{padding:22px}
+  .ca-head{font-size:18px}
+  .ca-filters{padding:18px}
+  .ca-filters label{flex:1 1 100%}
+  .ca-filters select,.ca-filters input[type="search"]{width:100%;min-width:0}
+  .ca-count{margin-left:0}
+}

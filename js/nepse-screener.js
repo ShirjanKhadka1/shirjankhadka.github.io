@@ -1,9 +1,9 @@
-/* NEPSE Stock Screener — client-side ranking table.
+/* NEPSE Stock Screener - client-side ranking table.
  *
  * Data: ../nepse-chart/data/verdicts.json (daily rule-based signals, built by
  * tools/build-nepse-universe.js) + ../nepse-chart/data/universe.json (names).
  * Everything rendered here comes from those files; no fabricated values.
- * Educational use only — not investment advice.
+ * Educational use only - not investment advice.
  */
 (function () {
   'use strict';
@@ -11,6 +11,46 @@
   var RANK = { 'Strong Buy': 0, 'Buy': 1, 'Hold': 2, 'Exit / Reduce': 3, 'Strong Exit': 4, 'Insufficient history': 5 };
   var CLS = { 'Strong Buy': 'sbuy', 'Buy': 'buy', 'Hold': 'hold', 'Exit / Reduce': 'exit', 'Strong Exit': 'sexit', 'Insufficient history': 'insufficient' };
   var DISP = { 'Strong Buy': 'Strong Buy', 'Buy': 'Buy', 'Hold': 'Hold', 'Exit / Reduce': 'Sell', 'Strong Exit': 'Strong Sell', 'Insufficient history': 'No signal' };
+
+  /* Honest sector/instrument grouping.
+   * The repo ships no per-symbol sector field (tools/sector-map.json is
+   * absent, so verdicts.json sec is null for all 410 symbols). Groups below
+   * are derived ONLY from real repo data in nepse-chart/data/universe.json:
+   *  - the instrument-type field `t` (Debenture / Mutual fund /
+   *    Promoter share), plus NEPSE's own debenture symbol suffixes
+   *    (D + maturity year) and the words "bond"/"rinpatra", "fund"/"kosh"
+   *    in the official company name; these are instrument types, NOT sectors;
+   *  - explicit business words in the official company name for equities
+   *    (bank, finance, laghubitta, hydropower/power/hydro/urja,
+   *    insurance/beema, hotel/tourism, investment, trading, cement and other
+   *    manufacturing words); these map to the NEPSE sub-index names.
+   * Anything else stays "Unclassified". Kept identical in js/nepse-sectors.js. */
+  var DEB_SYM_RE = /D\d{2,4}(\/\d{2})?(KA)?$/i;
+  function classifySymbol(sym, name, type) {
+    var n = String(name || '').toLowerCase().replace(/lagubitta/g, 'laghubitta');
+    if (type === 'Debenture' || DEB_SYM_RE.test(String(sym || '')) ||
+        n.indexOf('bond') >= 0 || n.indexOf('rinpatra') >= 0) return 'Debentures';
+    if (type === 'Mutual fund' || n.indexOf('fund') >= 0 || /\bkosh\b/.test(n)) return 'Mutual Funds';
+    if (type === 'Promoter share') return 'Promoter Shares';
+    if (type && type !== 'Equity') return null;
+    function has() {
+      for (var i = 0; i < arguments.length; i++) if (n.indexOf(arguments[i]) >= 0) return true;
+      return false;
+    }
+    if (has('laghu', 'microfinance')) return 'Microfinance';
+    if (has('hydropower', 'hydro', 'power', 'urja', 'dhyut', 'dyut', 'energy')) return 'Hydropower';
+    if (has('development bank')) return 'Development Bank';
+    if (has('bank')) return 'Banking';
+    if (has('life insurance')) return 'Life Insurance';
+    if (has('reinsurance', 'insurance', 'beema')) return 'Non Life Insurance';
+    if (has('finance')) return 'Finance';
+    if (has('hotel', 'tourism', 'cablecar')) return 'Hotels And Tourism';
+    if (has('investment')) return 'Investment';
+    if (has('trading')) return 'Trading';
+    if (has('manufacturing', 'cement', 'bottler', 'distiller', 'spinning', 'pharmaceut',
+      'paints', 'colour', 'panel', 'mineral', 'lube')) return 'Manufacturing And Processing';
+    return null;
+  }
 
   var state = { rows: [], q: '', sector: '', verdict: '', rsi: '', pmin: null, pmax: null, vmin: null,
     sortK: 'sig', sortD: 1, page: 1, perPage: 25, tf: 'd' };
@@ -61,6 +101,13 @@
     return '<b class="sc-rsi' + cls + '">' + r.rsi.toFixed(1) + '</b>';
   }
 
+  function chCell(r) {
+    var ch = Number(r.ch);
+    if (r.ch == null || !isFinite(ch)) return '<span class="sc-dash">–</span>';
+    var cls = ch > 0 ? 'sc-chg-up' : (ch < 0 ? 'sc-chg-dn' : 'sc-chg-flat');
+    return '<b class="' + cls + '">' + (ch > 0 ? '+' : '') + ch.toFixed(2) + '%</b>';
+  }
+
   function badge(v) {
     return '<span class="ms-v ' + (CLS[v] || 'insufficient') + '">' + esc(DISP[v] || v) + '</span>';
   }
@@ -90,6 +137,11 @@
         case 'sec': x = a.sec || ''; y = b.sec || ''; return (x < y ? -1 : x > y ? 1 : 0) * d || rankCmp(a, b);
         case 'sym': x = a.sym; y = b.sym; return (x < y ? -1 : x > y ? 1 : 0) * d || rankCmp(a, b);
         case 'p': x = a.p || -1; y = b.p || -1; return (x - y) * d || rankCmp(a, b);
+        case 'ch':
+          if (a.ch == null && b.ch == null) return rankCmp(a, b);
+          if (a.ch == null) return 1;
+          if (b.ch == null) return -1;
+          return (a.ch - b.ch) * d || rankCmp(a, b);
         case 'vol': x = a.vol || -1; y = b.vol || -1; return (x - y) * d || rankCmp(a, b);
         case 'rsi':
           if (a.rsi == null && b.rsi == null) return rankCmp(a, b);
@@ -149,21 +201,30 @@
       var sn = start + i + 1;
       var Mono = window.NepseMono || null;
       return '<tr>' +
-        '<td class="num sc-sn">' + sn + '</td>' +
-        '<td>' + (r.sec ? '<span class="sc-sector">' + esc(r.sec) + '</span>' : '<span class="sc-dash">–</span>') + '</td>' +
-        '<td><a class="sc-sym" href="/stocks/' + esc(String(r.sym).replace(/\//g, "-")) + '/">' +
+        '<td class="num sc-sn" data-label="S.N.">' + sn + '</td>' +
+        '<td data-label="Sector">' + (r.sec ? '<span class="sc-sector">' + esc(r.sec) + '</span>' : '<span class="sc-dash">–</span>') + '</td>' +
+        '<td data-label="Symbol"><a class="sc-sym" href="/stocks/' + esc(String(r.sym).replace(/\//g, "-")) + '/">' +
           (Mono ? Mono.avatar(r.sym, r.sec, 28) : '') + '<span>' + esc(r.sym) + '</span></a>' +
           (r.l ? ' <span class="sc-ltp" title="LTP-only history">LTP</span>' : '') + '</td>' +
-        '<td class="num"><b>' + num2(r.p) + '</b></td>' +
-        '<td class="num">' + fmtVol(r.vol) + rvolBadge(r) + '</td>' +
-        '<td class="num">' + rsiCell(r) + '</td>' +
-        '<td>' + badge(r.v) + (r.setup ? ' <span class="sc-setup-chip">' + esc(r.setup) + '</span>' : '') + '</td>' +
-        '<td class="num">' + hitCell(r) + '</td>' +
-        '<td class="num">' + slCell(r) + '</td>' +
-        '<td class="num">' + tpCell(r) + '</td>' +
+        '<td class="num" data-label="Price"><b>' + num2(r.p) + '</b></td>' +
+        '<td class="num" data-label="Change">' + chCell(r) + '</td>' +
+        '<td class="num" data-label="Volume">' + fmtVol(r.vol) + rvolBadge(r) + '</td>' +
+        '<td class="num" data-label="RSI">' + rsiCell(r) + '</td>' +
+        '<td data-label="Signal &amp; setup">' + badge(r.v) + (r.setup ? ' <span class="sc-setup-chip">' + esc(r.setup) + '</span>' : '') + '</td>' +
+        '<td class="num" data-label="Hit rate">' + hitCell(r) + '</td>' +
+        '<td class="num" data-label="Stop loss">' + slCell(r) + '</td>' +
+        '<td class="num" data-label="Target">' + tpCell(r) + '</td>' +
         '</tr>';
     }).join('');
-    $('sc-body').innerHTML = html || '<tr><td colspan="10" class="sc-empty">Nothing matches those filters. Try widening or resetting the filters.</td></tr>';
+    $('sc-body').innerHTML = html || '<tr><td colspan="11" class="sc-empty">Nothing matches those filters. Try widening or resetting the filters.</td></tr>';
+
+    // compact summary bar: "X of 410 shown"
+    var sumEl = $('sc-summary');
+    if (sumEl) {
+      sumEl.innerHTML = '<span class="sc-sum-tf">' + esc(TF_LABEL[state.tf] || '') + '</span>' +
+        '<span><b>' + rows.length + '</b>&nbsp;of&nbsp;<b>' + state.rows.length + '</b>&nbsp;shown</span>' +
+        (state.batchAsof ? '<span class="sc-sum-dot">·</span><span>as of ' + esc(state.batchAsof) + '</span>' : '');
+    }
 
     // sort indicators
     var ths = document.querySelectorAll('#sc-table th[data-k]');
@@ -405,7 +466,7 @@
     (function () {
       var rows = '';
       for (var i = 0; i < 10; i++) {
-        rows += '<tr><td colspan="10" aria-hidden="true"><span class="skl skl-row"></span></td></tr>';
+        rows += '<tr><td colspan="11" aria-hidden="true"><span class="skl skl-row"></span></td></tr>';
       }
       $('sc-body').innerHTML = rows;
     })();
@@ -414,14 +475,23 @@
       get('../nepse-chart/data/universe.json').catch(function () { return null; })
     ]).then(function (res) {
       var vj = res[0], uj = res[1];
-      var names = {};
-      if (uj && uj.symbols) uj.symbols.forEach(function (it) { if (it.s) names[it.s] = it.n || it.s; });
+      var names = {}, groups = {};
+      if (uj && uj.symbols) uj.symbols.forEach(function (it) {
+        if (it.s) {
+          names[it.s] = it.n || it.s;
+          groups[it.s] = classifySymbol(it.s, it.n, it.t);
+        }
+      });
       var v = vj.verdicts || {};
       state.rows = Object.keys(v).map(function (sym) {
         var e = v[sym];
+        // Real per-symbol sector data wins when present; the honest
+        // name/instrument-type grouping fills the gap (verdicts.json sec
+        // is null for all symbols until tools/sector-map.json exists).
+        var sec = (e.sec && e.sec !== 'Unknown') ? e.sec : (groups[sym] || 'Unclassified');
         return {
           sym: sym, name: names[sym] || sym, v: e.v, s: e.s, p: e.p, ch: e.ch,
-          vol: e.vol, volAvg: e.volAvg || null, sec: e.sec || null, sl: e.sl, tp: e.tp,
+          vol: e.vol, volAvg: e.volAvg || null, sec: sec, sl: e.sl, tp: e.tp,
           setup: e.setup || null, l: e.l || 0, tr: e.tr || null, rsi: e.rsi,
           raw: e
         };
@@ -449,11 +519,15 @@
       $('sc-n-sexit').textContent = c['Strong Exit'];
       $('sc-n-total').textContent = state.rows.length;
 
-      // sector dropdown
+      // sector dropdown (Unclassified last)
       var secs = {};
       state.rows.forEach(function (r) { if (r.sec) secs[r.sec] = 1; });
       var sel = $('sc-sector');
-      Object.keys(secs).sort().forEach(function (s) {
+      Object.keys(secs).sort(function (a, b) {
+        if (a === 'Unclassified') return 1;
+        if (b === 'Unclassified') return -1;
+        return a < b ? -1 : a > b ? 1 : 0;
+      }).forEach(function (s) {
         var o = document.createElement('option');
         o.value = s; o.textContent = s;
         sel.appendChild(o);
@@ -471,7 +545,7 @@
       } catch (e) {}
       render();
     }).catch(function (e) {
-      $('sc-body').innerHTML = '<tr><td colspan="10" class="sc-empty">Could not load the ranking data. Please retry in a moment.</td></tr>';
+      $('sc-body').innerHTML = '<tr><td colspan="11" class="sc-empty">Could not load the ranking data. Please retry in a moment.</td></tr>';
       $('sc-asof').textContent = 'Data unavailable';
     });
   }

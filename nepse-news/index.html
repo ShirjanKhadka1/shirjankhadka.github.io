@@ -84,29 +84,45 @@
 .ann-kind.hot{background:#fdf3e3;color:#8a5a13;border-color:#f0ddb8}
 .ann-date{margin-left:auto;white-space:nowrap}
 
-/* ---- headlines (legacy feed, demoted) ---- */
+/* ---- market headlines: editorial card feed ---- */
+.kind-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 4px}
+.kind-tab{font:inherit;font-size:13px;font-weight:600;color:var(--muted);background:var(--paper);border:1px solid var(--hairline);border-radius:999px;padding:9px 16px;cursor:pointer;transition:all .2s var(--ease);display:inline-flex;align-items:center;gap:8px}
+.kind-tab:hover{border-color:var(--gold);color:var(--ink)}
+.kind-tab.active{background:var(--emerald);border-color:var(--emerald);color:#fff}
+.kind-tab .n{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:rgba(12,31,22,.07);font-variant-numeric:tabular-nums}
+.kind-tab.active .n{background:rgba(255,255,255,.22)}
+.news-list{display:flex;flex-direction:column;margin:14px 0 24px}
+.hl-card{background:var(--paper);border:1px solid var(--hairline);border-radius:20px;padding:24px;margin-bottom:14px;transition:transform .3s var(--ease),box-shadow .3s var(--ease)}
+.hl-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-hover)}
+.news-empty{color:var(--muted);font-size:15px;padding:32px;border:1px dashed var(--hairline);border-radius:16px;text-align:center}
+.hl-top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.src-badge{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--pine);background:#f2f4f0;border:1px solid #dfe4dc;padding:5px 12px;border-radius:999px}
+.src-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--emerald)}
+.src-badge.src-arthasansar .dot{background:var(--gold)}
+.src-badge.src-bizmandu .dot{background:var(--emerald)}
+.src-badge.src-onlinekhabar .dot{background:var(--pine)}
+.hl-date{margin-left:auto;font-size:12.5px;color:var(--faint);font-variant-numeric:tabular-nums;white-space:nowrap}
+.hl-title{font-family:var(--serif);font-size:20px;font-weight:600;letter-spacing:-.01em;line-height:1.4;margin:0 0 16px}
+.hl-title a{color:var(--ink);text-decoration:none}
+.hl-title a:hover{color:var(--emerald)}
+.hl-foot{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:14px;border-top:1px solid var(--hairline)}
+.hl-kind{font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--emerald-deep);background:var(--gold-faint);border:1px solid var(--gold-soft);padding:4px 12px;border-radius:999px}
+.sym-chip{font-weight:700;font-size:12px;letter-spacing:.05em;color:var(--emerald-deep);background:var(--gold-faint);border:1px solid var(--gold-soft);padding:5px 13px;border-radius:999px;text-decoration:none;transition:all .2s var(--ease)}
+.sym-chip:hover{background:var(--emerald);border-color:var(--emerald);color:#fff}
+.read-src{margin-left:auto;font-size:13.5px;font-weight:700;color:var(--emerald);text-decoration:none;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.read-src:hover{text-decoration:underline}
+.read-src .arr{font-weight:400}
 .filter-row{display:flex;gap:12px;align-items:center;margin:8px 0;flex-wrap:wrap}
 .filter-row input{flex:1;min-width:200px;font:inherit;font-size:15px;padding:13px 22px;border:1px solid var(--hairline);border-radius:999px;background:var(--paper);color:var(--ink);outline:none;transition:border-color .25s var(--ease),box-shadow .25s var(--ease)}
 .filter-row input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(198,168,107,.22)}
 .filter-row input::placeholder{color:var(--faint)}
 .count{font-size:13.5px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
-.news-list{display:flex;flex-direction:column;margin:12px 0 24px}
-.news-item{display:flex;gap:16px;align-items:flex-start;background:var(--paper);border:1px solid var(--hairline);border-radius:16px;padding:18px 20px;margin-bottom:10px;transition:transform .3s var(--ease),box-shadow .3s var(--ease)}
-.news-item:hover{transform:translateY(-3px);box-shadow:var(--shadow-hover)}
-.news-sym{flex:none;font-weight:700;font-size:13px;letter-spacing:.04em;color:var(--emerald-deep);background:var(--gold-faint);border:1px solid var(--gold-soft);padding:7px 14px;border-radius:999px;margin-top:2px;white-space:nowrap}
-.news-body{flex:1;min-width:0}
-.news-body h3{font-family:var(--serif);font-size:17px;font-weight:500;letter-spacing:-.01em;line-height:1.4;margin-bottom:6px}
-.news-body h3 a{color:var(--ink)}
-.news-body h3 a:hover{color:var(--emerald)}
-.news-meta{font-size:13px;color:var(--muted)}
-.news-meta .src{font-weight:600;color:var(--emerald)}
-.news-empty{color:var(--muted);font-size:15px;padding:32px;border:1px dashed var(--hairline);border-radius:16px;text-align:center}
 .updated{font-size:13px;color:var(--faint);margin-bottom:8px}
 .promise{background:var(--paper);border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline);margin:56px 0 0}
 .promise-in{max-width:880px;margin:0 auto;padding:44px 24px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
 .promise-card h3{font-family:var(--serif);font-size:17px;font-weight:600;margin-bottom:6px;letter-spacing:-.01em}
 .promise-card p{font-size:14px;color:var(--muted)}
-@media(max-width:700px){.promise-in{grid-template-columns:1fr;gap:20px}.news-item{padding:16px 18px}.ann-date{margin-left:0}}
+@media(max-width:700px){.promise-in{grid-template-columns:1fr;gap:20px}.hl-card{padding:20px 18px}.hl-title{font-size:18px}.hl-date{margin-left:0}.hl-top{flex-wrap:wrap}}
 </style>
 </head>
 <body>
@@ -127,7 +143,6 @@
     <a href="/nepse-fundamentals/">Fundamentals</a>
     <a href="/nepse-reports/">Reports</a>
     <a href="/nepse-actions/">Corp. actions</a>
-    <a href="/nepse-chart/data-check.html">Data check</a>
   </nav>
   <p class="rail-foot">Free forever · no login</p>
 </aside>
@@ -175,6 +190,7 @@
       <div class="sp-tabpanel" data-panel="headlines" role="tabpanel" hidden>
       <div class="sec-head"><h2>Market headlines</h2><span class="sub">from Nepali business media</span></div>
       <p class="sec-note">Headlines only, always attributed and linked to the publisher. We don't rewrite their reporting.</p>
+      <div class="kind-tabs" id="kindTabs" role="tablist" aria-label="Filter headlines by category"></div>
       <div class="filter-row">
         <input id="newsFilter" type="search" placeholder="Filter by symbol, e.g. NABIL, NIFRA, HIDCL…" aria-label="Filter headlines by symbol" autocomplete="off">
         <span class="count" id="newsCount"></span>
@@ -327,49 +343,114 @@
         '<p class="news-empty">The announcements feed is temporarily unavailable. Please try again later.</p>';
     });
 
-  /* ---------- headlines (legacy) ---------- */
+  /* ---------- headlines: editorial card feed ---------- */
   var list = document.getElementById('newsList');
   var filter = document.getElementById('newsFilter');
   var count = document.getElementById('newsCount');
   var updated = document.getElementById('newsUpdated');
+  var tabsEl = document.getElementById('kindTabs');
   var ALL = [];
+  var activeKind = 'all';
+
+  /* Kinds are derived from each headline's own title text, because news.json
+     carries no kind field. Tabs with zero items are never rendered. */
+  var KIND_RULES = [
+    ['dividend', 'Dividend', /dividend|लाभांश/i],
+    ['bonus', 'Bonus', /बोनस|bonus/i],
+    ['right', 'Right share', /हकप्रद|right[\s-]?share/i],
+    ['meeting', 'Meeting', /साधारण सभा|एजीएम|\bagm\b|\bsgm\b/i],
+    ['board', 'Board', /सञ्चालक|\bdirector\b/i],
+    ['auction', 'Auction', /लिलाम|auction/i],
+    ['promoter', 'Promoter', /sale of shares|intention of sale|प्रमोटर/i]
+  ];
+  var KIND_ORDER = ['all', 'dividend', 'bonus', 'right', 'board', 'meeting', 'auction', 'promoter', 'other'];
+  function kindOfHeadline(title){
+    for(var i = 0; i < KIND_RULES.length; i++){
+      if(KIND_RULES[i][2].test(title || '')) return { key: KIND_RULES[i][0], label: KIND_RULES[i][1] };
+    }
+    return { key: 'other', label: 'Other' };
+  }
+  function srcSlug(src){
+    return String(src || '').toLowerCase().replace(/[^a-z]/g, '');
+  }
 
   (function(){
-    var sk = '<div class="news-item" aria-hidden="true"><div class="news-body" style="flex:1">' +
-      '<span class="skl skl-block" style="height:22px;margin-bottom:8px"></span>' +
-      '<span class="skl skl-line" style="width:55%"></span></div></div>';
+    var sk = '<div class="hl-card" aria-hidden="true">' +
+      '<span class="skl skl-block" style="height:18px;margin-bottom:12px"></span>' +
+      '<span class="skl skl-block" style="height:24px;width:80%;margin-bottom:14px"></span>' +
+      '<span class="skl skl-line" style="width:45%"></span></div>';
     list.innerHTML = '<div aria-hidden="true">' + sk + sk + sk + '</div>';
   })();
 
+  function renderTabs(){
+    var counts = { all: ALL.length };
+    ALL.forEach(function(it){
+      var k = it._kind.key;
+      counts[k] = (counts[k] || 0) + 1;
+    });
+    var labels = { all: 'All' };
+    KIND_RULES.forEach(function(r){ labels[r[0]] = r[1]; });
+    labels.other = 'Other';
+    var html = '';
+    KIND_ORDER.forEach(function(key){
+      if(!counts[key]) return;
+      html += '<button class="kind-tab' + (activeKind === key ? ' active' : '') + '" role="tab" aria-selected="' +
+        (activeKind === key) + '" data-kind="' + key + '">' + labels[key] +
+        ' <span class="n">' + counts[key] + '</span></button>';
+    });
+    tabsEl.innerHTML = html;
+    tabsEl.querySelectorAll('.kind-tab').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        activeKind = btn.getAttribute('data-kind');
+        render();
+      });
+    });
+  }
+
   function itemHTML(it){
-    return '<article class="news-item">' +
-      '<a class="news-sym" href="/nepse-chart/?s=' + esc(it.sym) + '">' + esc(it.sym) + '</a>' +
-      '<div class="news-body"><h3><a href="' + esc(it.link) + '" target="_blank" rel="noopener">' +
-      esc(it.title) + '</a></h3>' +
-      '<p class="news-meta"><span class="src">' + esc(it.src) + '</span> · ' + fmtDate(it.date) + '</p></div>' +
-      '</article>';
+    return '<article class="hl-card">' +
+      '<div class="hl-top">' +
+        '<span class="src-badge src-' + esc(srcSlug(it.src)) + '"><span class="dot"></span>' + esc(it.src) + '</span>' +
+        '<span class="hl-date">' + fmtDate(it.date) + '</span>' +
+      '</div>' +
+      '<h3 class="hl-title"><a href="' + esc(it.link) + '" target="_blank" rel="noopener">' +
+        esc(it.title) + '</a></h3>' +
+      '<div class="hl-foot">' +
+        '<span class="hl-kind">' + esc(it._kind.label) + '</span>' +
+        '<a class="sym-chip" href="/stocks/' + esc(it.sym) + '/">' + esc(it.sym) + '</a>' +
+        '<a class="read-src" href="' + esc(it.link) + '" target="_blank" rel="noopener">Read source <span class="arr">&rarr;</span></a>' +
+      '</div></article>';
   }
   function render(){
     var q = (filter.value || '').trim().toUpperCase();
     var items = ALL.filter(function(it){
-      return !q || (it.sym || '').toUpperCase().indexOf(q) !== -1 ||
+      var okKind = activeKind === 'all' || it._kind.key === activeKind;
+      var okQ = !q || (it.sym || '').toUpperCase().indexOf(q) !== -1 ||
         (it.title || '').toUpperCase().indexOf(q) !== -1;
+      return okKind && okQ;
     });
     if(items.length){
       list.innerHTML = items.map(itemHTML).join('');
     } else if(ALL.length){
-      list.innerHTML = '<p class="news-empty">No headlines match "' + esc(filter.value.trim()) + '". Try another symbol.</p>';
+      var label = activeKind === 'all' ? 'headlines' : 'headlines in this category';
+      list.innerHTML = '<p class="news-empty">' + (q
+        ? 'No ' + label + ' match "' + esc(filter.value.trim()) + '". Try another symbol.'
+        : 'No ' + label + ' match your filter.') + '</p>';
     } else {
       list.innerHTML = '<p class="news-empty">No company headlines in the last 7 days. Check back after the next daily refresh.</p>';
     }
     count.textContent = ALL.length ? items.length + ' of ' + ALL.length + ' headlines' : '';
+    renderTabs();
   }
   filter.addEventListener('input', render);
 
   fetch('/nepse-chart/data/news.json', { cache: 'no-store' })
     .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(d){
-      ALL = (d.items || []).slice().sort(function(a,b){
+      ALL = (d.items || []).map(function(it){
+        it._kind = kindOfHeadline(it.title);
+        return it;
+      }).sort(function(a,b){
         return String(b.date || '').localeCompare(String(a.date || ''));
       });
       if(d.asof){updated.textContent = 'Headlines updated ' + fmtDate(d.asof) + ' · rolling 7-day window.';}

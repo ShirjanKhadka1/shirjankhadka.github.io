@@ -30,7 +30,7 @@
 {"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-alpha/"},
 {"@type":"ListItem","position":3,"name":"Simulator","item":"https://shirjankhadka.com.np/nepse-simulator/"}]}
 </script>
-<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930c">
+<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260929d">
 <link rel="stylesheet" href="/css/nepse-wave7.css?v=20261002d">
 <link rel="stylesheet" href="/css/nepse-brand.css?v=20261003a">
 <style>
@@ -43,9 +43,25 @@
 .sim-card .sub{font-size:13.5px;color:var(--muted);margin-bottom:16px}
 .field{margin-bottom:14px}
 .field label{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:6px}
-.field input[type="text"],.field input[type="search"],.field input[type="date"],.field input[type="number"],.field textarea{width:100%;font:inherit;font-size:15px;padding:12px 16px;border:1px solid var(--hairline);border-radius:12px;background:var(--ivory);color:var(--ink);outline:none}
+.field input[type="text"],.field input[type="search"],.field input[type="date"],.field input[type="number"],.field textarea{width:100%;font:inherit;font-size:15px;padding:12px 16px;border:1px solid var(--hairline);border-radius:12px;background:var(--ivory);color:var(--ink);outline:none;box-sizing:border-box}
 .field input:focus,.field textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(198,168,107,.22)}
 .field input:disabled{opacity:.45;cursor:not-allowed}
+.grp{margin-bottom:24px}
+.grp:last-child{margin-bottom:0}
+.grp-title{font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin:0 0 14px;display:flex;align-items:center;gap:12px}
+.grp-title::after{content:"";flex:1;height:1px;background:var(--hairline)}
+.sim-check{display:flex;gap:10px;align-items:flex-start;font-size:14.5px;font-weight:600;color:var(--ink);cursor:pointer;margin-bottom:14px}
+.sim-check input{margin-top:4px;accent-color:var(--gold);width:17px;height:17px;flex:none}
+.sim-cgtnote{font-size:13px;color:var(--muted);margin:10px 0 0}
+.sim-details{margin:14px 0;border:1px solid var(--hairline);border-radius:12px;background:var(--paper)}
+.sim-details summary{cursor:pointer;padding:13px 18px;font-size:14px;font-weight:600;color:var(--emerald-deep);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.sim-details summary::-webkit-details-marker{display:none}
+.sim-details summary::after{content:"+";font-size:19px;font-weight:400;color:var(--gold);line-height:1}
+.sim-details[open] summary::after{content:"–"}
+.sim-details .math{margin:0 14px 14px}
+.sim-details .stats{margin:14px 16px 16px}
+.sim-runrow{margin-top:20px}
+.sim-runrow .btn{width:100%;padding:15px 20px;font-size:16px;box-sizing:border-box}
 .sim-search-wrap{position:relative}
 .sim-suggest{position:absolute;top:calc(100% + 8px);left:0;right:0;list-style:none;background:var(--paper);border:1px solid var(--hairline);border-radius:14px;box-shadow:var(--shadow-hover);overflow:hidden;z-index:50;margin:0;padding:0}
 .sim-suggest[hidden]{display:none}
@@ -74,6 +90,11 @@
 .rule-card .warn{font-size:13px;color:#8a2f22;margin-top:10px}
 #sim-results{margin:34px 0}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}
+.stats-key{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}
+.stats-key .stat{border-top:3px solid var(--gold);padding:20px 18px}
+.stats-key .nl-stat-v{font-size:26px}
+.res-h{font-family:var(--serif);font-size:21px;font-weight:600;margin:26px 0 4px}
+.res-sub{font-size:13.5px;color:var(--muted);margin:0 0 4px}
 .stat{background:var(--paper);border:1px solid var(--hairline);border-radius:14px;padding:16px 18px}
 .nl-stat-k{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:4px}
 .nl-stat-v{font-size:19px;font-weight:700;font-variant-numeric:tabular-nums}
@@ -82,11 +103,11 @@
 .eq-wrap canvas{width:100%;height:260px;display:block}
 .eq-legend{display:flex;gap:22px;font-size:13px;color:var(--muted);margin-top:10px}
 .eq-legend i{display:inline-block;width:22px;height:3px;border-radius:2px;vertical-align:middle;margin-right:7px}
-.trades-wrap{overflow-x:auto;margin:18px 0}
-table.trades{width:100%;border-collapse:collapse;font-size:13.5px;background:var(--paper);border:1px solid var(--hairline);border-radius:16px;overflow:hidden}
+.trades-wrap{overflow:auto;margin:14px 0 18px;max-height:440px;border:1px solid var(--hairline);border-radius:16px;background:var(--paper)}
+table.trades{width:100%;min-width:1020px;border-collapse:collapse;font-size:13.5px;background:var(--paper);margin:0}
 table.trades th,table.trades td{padding:10px 12px;text-align:right;border-bottom:1px solid var(--hairline-soft);white-space:nowrap;font-variant-numeric:tabular-nums}
 table.trades th:first-child,table.trades td:first-child,table.trades th:nth-child(8),table.trades td:nth-child(8),table.trades th:nth-child(9),table.trades td:nth-child(9){text-align:left}
-table.trades th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);background:var(--ivory)}
+table.trades th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);background:var(--ivory);position:sticky;top:0;z-index:2}
 table.trades tr:last-child td{border-bottom:none}
 .muted{color:var(--muted)}
 .linklike{background:none;border:none;color:var(--gold);font:inherit;font-size:13px;cursor:pointer;text-decoration:underline;padding:0}
@@ -105,7 +126,7 @@ table.trades tr:last-child td{border-bottom:none}
 .limits ul{margin:0;padding-left:22px;color:var(--muted);font-size:14.5px;display:flex;flex-direction:column;gap:8px}
 .fresh{font-size:12px;color:var(--gold);border:1px solid var(--hairline);padding:3px 10px;border-radius:999px;white-space:nowrap}
 .asof{font-size:13.5px;color:var(--muted)}
-@media(max-width:860px){.sim-grid{grid-template-columns:1fr}.rules{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.sizing3{grid-template-columns:1fr}}
+@media(max-width:860px){.sim-grid{grid-template-columns:1fr}.rules{grid-template-columns:1fr}.stats,.stats-key{grid-template-columns:1fr 1fr}.sizing3{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.strat-opt{transition:none}}
 </style>
 </head>
@@ -127,7 +148,6 @@ table.trades tr:last-child td{border-bottom:none}
     <a href="/nepse-fundamentals/">Fundamentals</a>
     <a href="/nepse-reports/">Reports</a>
     <a href="/nepse-actions/">Corp. actions</a>
-    <a href="/nepse-chart/data-check.html">Data check</a>
   </nav>
   <p class="rail-foot">Free forever · no login</p>
 </aside>
@@ -165,29 +185,34 @@ table.trades tr:last-child td{border-bottom:none}
 
   <div class="wrap">
     <div class="sim-grid">
-      <section class="sim-card" aria-label="Simulation setup">
-        <h2>Setup</h2>
+      <section class="sim-card" aria-label="Strategy setup">
+        <h2>Strategy setup</h2>
         <p class="sub">One security, one date range, one strategy at a time.</p>
-        <div class="field">
-          <label for="sim-sym">Security (full OHLC history only)</label>
-          <div class="sim-search-wrap">
-            <input id="sim-sym" type="search" placeholder="Search symbol or company name…" role="combobox" aria-expanded="false" aria-controls="sim-suggest" aria-autocomplete="list" autocomplete="off">
-            <ul id="sim-suggest" class="sim-suggest" role="listbox" aria-label="Matching securities" hidden></ul>
+        <div class="grp">
+          <p class="grp-title">Security</p>
+          <div class="field">
+            <label for="sim-sym">Security (full OHLC history only)</label>
+            <div class="sim-search-wrap">
+              <input id="sim-sym" type="search" placeholder="Search symbol or company name…" role="combobox" aria-expanded="false" aria-controls="sim-suggest" aria-autocomplete="list" autocomplete="off">
+              <ul id="sim-suggest" class="sim-suggest" role="listbox" aria-label="Matching securities" hidden></ul>
+            </div>
           </div>
         </div>
-        <div class="field">
-          <label>Date range</label>
-          <div class="dates">
-            <input id="sim-start" type="date" aria-label="Start date">
-            <input id="sim-end" type="date" aria-label="End date">
+        <div class="grp">
+          <p class="grp-title">Date range</p>
+          <div class="field">
+            <div class="dates">
+              <input id="sim-start" type="date" aria-label="Start date">
+              <input id="sim-end" type="date" aria-label="End date">
+            </div>
+          </div>
+          <div class="field">
+            <label for="sim-cash">Starting cash (Rs)</label>
+            <input id="sim-cash" type="number" min="1000" step="1000" value="100000">
           </div>
         </div>
-        <div class="field">
-          <label for="sim-cash">Starting cash (Rs)</label>
-          <input id="sim-cash" type="number" min="1000" step="1000" value="100000">
-        </div>
-        <div class="field">
-          <label>Strategy</label>
+        <div class="grp">
+          <p class="grp-title">Strategy</p>
           <div class="strat-pick" role="radiogroup" aria-label="Strategy">
             <label class="strat-opt"><input type="radio" name="sim-strat" value="buyhold"><span><strong>Buy and hold</strong><span>Buy at the first close, sell at the last. The baseline every strategy must beat.</span></span></label>
             <label class="strat-opt"><input type="radio" name="sim-strat" value="sma-cross" checked><span><strong>SMA 20 / 50 crossover</strong><span>Buy golden crosses, exit death crosses. Trend following, the style that worked best in long NEPSE backtests.</span></span></label>
@@ -196,41 +221,32 @@ table.trades tr:last-child td{border-bottom:none}
         </div>
       </section>
 
-      <section class="sim-card" aria-label="Risk settings">
-        <h2>Risk</h2>
-        <p class="sub">Fixed-fractional position sizing on every trade.</p>
-        <div id="sim-sizing">
-          <div class="sizing3">
-            <div class="field">
-              <label for="sim-risk">Risk per trade (%)</label>
-              <input id="sim-risk" type="number" min="0.1" max="100" step="0.1" value="1">
-            </div>
-            <div class="field">
-              <label for="sim-stopmult">Stop (× ATR14)</label>
-              <input id="sim-stopmult" type="number" min="0.5" step="0.5" value="2">
-            </div>
-            <div class="field">
-              <label for="sim-targetmult">Target (× ATR14)</label>
-              <input id="sim-targetmult" type="number" min="0.5" step="0.5" value="4">
+      <section class="sim-card" aria-label="Risk and costs">
+        <h2>Risk and costs</h2>
+        <p class="sub">Fixed-fractional position sizing on every trade, with real Nepali brokerage costs.</p>
+        <div class="grp">
+          <p class="grp-title">Risk per trade</p>
+          <div id="sim-sizing">
+            <div class="sizing3">
+              <div class="field">
+                <label for="sim-risk">Risk per trade (%)</label>
+                <input id="sim-risk" type="number" min="0.1" max="100" step="0.1" value="1">
+              </div>
+              <div class="field">
+                <label for="sim-stopmult">Stop (× ATR14)</label>
+                <input id="sim-stopmult" type="number" min="0.5" step="0.5" value="2">
+              </div>
+              <div class="field">
+                <label for="sim-targetmult">Target (× ATR14)</label>
+                <input id="sim-targetmult" type="number" min="0.5" step="0.5" value="4">
+              </div>
             </div>
           </div>
         </div>
-        <div class="math">
-          <strong>How a position is sized.</strong><br>
-          Risk amount = risk % × current equity. Stop distance = entry price − (entry − stop × ATR14).
-          Shares = <code>floor(risk amount / stop distance)</code>, rounded down to whole shares and never more than cash allows.
-          Example: Rs 100,000 equity, 1% risk, Rs 500 entry, ATR14 of Rs 20, 2× stop → stop distance Rs 40 → floor(1000 / 40) = 25 shares, Rs 12,500 at risk of Rs 1,000.
-        </div>
-        <div style="margin-top:18px"><button id="sim-run" class="btn" disabled>Run simulation</button></div>
-        <p class="sim-status" id="sim-status" role="status" hidden></p>
-      </section>
-
-      <section class="sim-card" aria-label="Trading costs">
-        <h2>Trading costs</h2>
-        <p class="sub">Real Nepali brokerage costs, applied to every simulated trade.</p>
-        <div class="sim-costs">
+        <div class="grp">
+          <p class="grp-title">Trading costs</p>
           <label class="sim-check"><input type="checkbox" id="sim-costs-on" checked> <span>Include trading costs and taxes (recommended)</span></label>
-          <div class="sizing3">
+          <div class="dates">
             <div class="field">
               <label for="sim-cgt-short">CGT, held 365 days or less (%)</label>
               <input id="sim-cgt-short" type="number" min="0" max="100" step="0.25" value="5">
@@ -241,11 +257,25 @@ table.trades tr:last-child td{border-bottom:none}
             </div>
           </div>
           <p class="sim-cgtnote">CGT rates were revised in September 2026 and can change; confirm the current rate with your broker.</p>
+        </div>
+        <details class="sim-details">
+          <summary>How a position is sized</summary>
+          <div class="math">
+            <strong>How a position is sized.</strong><br>
+            Risk amount = risk % × current equity. Stop distance = entry price − (entry − stop × ATR14).
+            Shares = <code>floor(risk amount / stop distance)</code>, rounded down to whole shares and never more than cash allows.
+            Example: Rs 100,000 equity, 1% risk, Rs 500 entry, ATR14 of Rs 20, 2× stop → stop distance Rs 40 → floor(1000 / 40) = 25 shares, Rs 12,500 at risk of Rs 1,000.
+          </div>
+        </details>
+        <details class="sim-details">
+          <summary>What gets charged</summary>
           <div class="math">
             <strong>What gets charged.</strong><br>
             Broker commission per side: up to Rs 50,000 at 0.36% (minimum Rs 10); Rs 50,001 to 500,000 at 0.33%; Rs 500,001 to 2,000,000 at 0.306%; Rs 2,000,001 to 10,000,000 at 0.27%; above Rs 10,000,000 at 0.243%. SEBON fee 0.015% on buys and sells. DP charge Rs 25 on every sell. Name transfer Rs 5 on every buy. Buy-side costs enter your cost basis; CGT applies only to positive taxable gains. The equity curve is net of all of this, so the final point is what you would actually take home.
           </div>
-        </div>
+        </details>
+        <div class="sim-runrow"><button id="sim-run" class="btn" disabled>Run simulation</button></div>
+        <p class="sim-status" id="sim-status" role="status" hidden></p>
       </section>
     </div>
 
@@ -291,7 +321,8 @@ table.trades tr:last-child td{border-bottom:none}
         <p class="eq-note">Net equity: after broker commission, SEBON, DP, transfer and CGT. Final point is actual net liquidation.</p>
         <div class="eq-legend"><span><i style="background:#C6A86B"></i>Strategy</span><span><i style="background:rgba(12,31,22,.35)"></i>Buy and hold</span></div>
       </div>
-      <h3>Trade log</h3>
+      <h3 class="res-h">Trade log</h3>
+      <p class="res-sub">Every fill, with costs broken out per trade. Scrolls independently of the page.</p>
       <div class="trades-wrap">
         <table class="trades">
           <thead><tr><th>#</th><th>Entry</th><th>Price</th><th>Exit</th><th>Price</th><th>Qty</th><th>Gross P&amp;L</th><th>Commission</th><th>Other fees</th><th>CGT</th><th>Net P&amp;L</th><th>Reason</th><th>Journal</th></tr></thead>
@@ -318,7 +349,7 @@ table.trades tr:last-child td{border-bottom:none}
       <h2 class="sec">What this does not do.</h2>
       <ul>
         <li>Daily closes only. Intraday movement is ignored except for checking whether the day's high/low touched the stop or target.</li>
-        <li>No brokerage commission, DP charges, or capital gains tax are modeled. Real trading costs money on every leg.</li>
+        <li>Trading costs are modeled by default and can be toggled off: Nepali broker commission tiers, SEBON 0.015%, DP Rs 25 per sell, Rs 5 name transfer per buy, and CGT (5% under a year, 3.75% over a year).</li>
         <li>No slippage: fills are assumed exactly at the close, stop, or target price.</li>
         <li>Dividends, bonus shares, and right issues are not adjusted for; price drops on ex-dates will look like losses.</li>
         <li>Only securities with full OHLC history can be simulated. LTP-only listings are excluded, never faked.</li>
@@ -339,6 +370,6 @@ table.trades tr:last-child td{border-bottom:none}
 </footer>
 
 <script src="/js/nepse-fresh.js?v=20260930b"></script>
-<script src="/js/nepse-simulator.js?v=20261002c"></script>
+<script src="/js/nepse-simulator.js?v=20261002d"></script>
 </body>
 </html>

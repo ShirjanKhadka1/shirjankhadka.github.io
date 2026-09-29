@@ -30,19 +30,70 @@
     });
   }
 
+  /* Honest sector/instrument grouping.
+   * The repo ships no per-symbol sector field (tools/sector-map.json is
+   * absent, so verdicts.json sec is null for all 410 symbols). Groups below
+   * are derived ONLY from real repo data in nepse-chart/data/universe.json:
+   *  - the instrument-type field `t` (Debenture / Mutual fund /
+   *    Promoter share), plus NEPSE's own debenture symbol suffixes
+   *    (D + maturity year) and the words "bond"/"rinpatra", "fund"/"kosh"
+   *    in the official company name; these are instrument types, NOT sectors;
+   *  - explicit business words in the official company name for equities
+   *    (bank, finance, laghubitta, hydropower/power/hydro/urja,
+   *    insurance/beema, hotel/tourism, investment, trading, cement and other
+   *    manufacturing words); these map to the NEPSE sub-index names.
+   * Anything else stays "Unclassified". Kept identical in
+   * js/nepse-screener.js. */
+  var DEB_SYM_RE = /D\d{2,4}(\/\d{2})?(KA)?$/i;
+  function classifySymbol(sym, name, type) {
+    var n = String(name || '').toLowerCase().replace(/lagubitta/g, 'laghubitta');
+    if (type === 'Debenture' || DEB_SYM_RE.test(String(sym || '')) ||
+        n.indexOf('bond') >= 0 || n.indexOf('rinpatra') >= 0) return 'Debentures';
+    if (type === 'Mutual fund' || n.indexOf('fund') >= 0 || /\bkosh\b/.test(n)) return 'Mutual Funds';
+    if (type === 'Promoter share') return 'Promoter Shares';
+    if (type && type !== 'Equity') return null;
+    function has() {
+      for (var i = 0; i < arguments.length; i++) if (n.indexOf(arguments[i]) >= 0) return true;
+      return false;
+    }
+    if (has('laghu', 'microfinance')) return 'Microfinance';
+    if (has('hydropower', 'hydro', 'power', 'urja', 'dhyut', 'dyut', 'energy')) return 'Hydropower';
+    if (has('development bank')) return 'Development Bank';
+    if (has('bank')) return 'Banking';
+    if (has('life insurance')) return 'Life Insurance';
+    if (has('reinsurance', 'insurance', 'beema')) return 'Non Life Insurance';
+    if (has('finance')) return 'Finance';
+    if (has('hotel', 'tourism', 'cablecar')) return 'Hotels And Tourism';
+    if (has('investment')) return 'Investment';
+    if (has('trading')) return 'Trading';
+    if (has('manufacturing', 'cement', 'bottler', 'distiller', 'spinning', 'pharmaceut',
+      'paints', 'colour', 'panel', 'mineral', 'lube')) return 'Manufacturing And Processing';
+    return null;
+  }
+  var sectorMap = null;
+  function sectorOf(e, sym) {
+    if (e && e.sec && e.sec !== 'Unknown') return e.sec;
+    return (sectorMap && sectorMap[sym]) || 'Unclassified';
+  }
+
   function load() {
     return getJSON('/nepse-chart/data/version.json')
       .then(function (j) { return (j && j.v) ? j.v : FALLBACK_V; })
       .catch(function () { return FALLBACK_V; })
       .then(function (v) {
-        return getJSON('/nepse-chart/data/verdicts.json?v=' + encodeURIComponent(v));
+        return Promise.all([
+          getJSON('/nepse-chart/data/verdicts.json?v=' + encodeURIComponent(v)),
+          getJSON('/nepse-chart/data/universe.json?v=' + encodeURIComponent(v)).catch(function () { return null; })
+        ]);
+      })
+      .then(function (res) {
+        sectorMap = {};
+        var uj = res[1];
+        if (uj && uj.symbols) uj.symbols.forEach(function (it) {
+          if (it.s) sectorMap[it.s] = classifySymbol(it.s, it.n, it.t);
+        });
+        return res[0];
       });
-  }
-
-  function secName(e) {
-    var s = e && e.sec;
-    if (!s || s === 'Unknown') return 'Unclassified';
-    return s;
   }
 
   function aggregate(vj) {
@@ -51,26 +102,28 @@
     var totalTurn = 0;
     Object.keys(v).forEach(function (sym) {
       var e = v[sym] || {};
-      var sec = secName(e);
+      var sec = sectorOf(e, sym);
       if (!sectors[sec]) sectors[sec] = {
         name: sec, count: 0, chs: [], adv: 0, dec: 0, flat: 0,
-        turn: 0, rsis: [], rows: []
+        turn: 0, rsis: [], rows: [], tiles: []
       };
       var g = sectors[sec];
       g.count++;
       var ch = (e.ch == null) ? null : Number(e.ch);
       var p = (e.p == null) ? null : Number(e.p);
       var vol = (e.vol == null) ? null : Number(e.vol);
+      var turn = 0;
+      if (vol != null && p != null && !isNaN(vol) && !isNaN(p) && vol > 0) {
+        turn = vol * p;
+        g.turn += turn;
+        totalTurn += turn;
+      }
       if (ch != null && !isNaN(ch)) {
         g.chs.push(ch);
         if (ch > 0) g.adv++; else if (ch < 0) g.dec++; else g.flat++;
         g.rows.push({ sym: sym, p: p, ch: ch });
       }
-      if (vol != null && p != null && !isNaN(vol) && !isNaN(p) && vol > 0) {
-        var t = vol * p;
-        g.turn += t;
-        totalTurn += t;
-      }
+      g.tiles.push({ sym: sym, p: p, ch: (ch != null && !isNaN(ch)) ? ch : null, turn: turn });
       if (e.rsi != null && !isNaN(Number(e.rsi))) g.rsis.push(Number(e.rsi));
     });
     var list = Object.keys(sectors).map(function (k) {
@@ -86,7 +139,7 @@
         name: g.name, count: g.count, adv: g.adv, dec: g.dec, flat: g.flat, nCh: n,
         avgCh: avgCh, pctUp: pctUp, avgRsi: avgRsi,
         turnShare: totalTurn > 0 ? (g.turn / totalTurn) * 100 : null,
-        gainers: gainers, losers: losers
+        gainers: gainers, losers: losers, tiles: g.tiles
       };
     });
     // canonical order: named sectors by count desc, Unclassified last
@@ -105,34 +158,47 @@
    * history, so avgRsi is null (shown as a dash) in live mode. */
   function aggregateLiveTape(live, todayStr) {
     var q = (live && live.quotes) || {};
-    var keys = Object.keys(q);
-    var count = 0, chs = [], adv = 0, dec = 0, flat = 0, turn = 0, rows = [];
-    keys.forEach(function (sym) {
+    var sectors = {}, totalTurn = 0, count = 0;
+    Object.keys(q).forEach(function (sym) {
       var e = q[sym] || {};
-      var ch = e.pct;
-      count++;
-      if (ch != null && !isNaN(ch)) {
-        ch = Number(ch);
-        chs.push(ch);
-        if (ch > 0) adv++; else if (ch < 0) dec++; else flat++;
-        rows.push({ sym: sym, p: e.ltp, ch: ch });
-      }
+      var sec = sectorOf(null, sym);
+      if (!sectors[sec]) sectors[sec] = {
+        name: sec, count: 0, chs: [], adv: 0, dec: 0, flat: 0,
+        turn: 0, rows: [], tiles: []
+      };
+      var g = sectors[sec];
+      g.count++; count++;
+      var ch = (e.pct == null || isNaN(e.pct)) ? null : Number(e.pct);
+      var p = (e.ltp == null || isNaN(Number(e.ltp))) ? null : Number(e.ltp);
       var t = Number(e.turnover);
-      if (e.turnover != null && !isNaN(t) && t > 0) turn += t;
+      var turn = (e.turnover != null && !isNaN(t) && t > 0) ? t : 0;
+      if (turn > 0) { g.turn += turn; totalTurn += turn; }
+      if (ch != null) {
+        g.chs.push(ch);
+        if (ch > 0) g.adv++; else if (ch < 0) g.dec++; else g.flat++;
+        g.rows.push({ sym: sym, p: p, ch: ch });
+      }
+      g.tiles.push({ sym: sym, p: p, ch: ch, turn: turn });
     });
-    var n = chs.length;
-    var avgCh = n ? chs.reduce(function (a, b) { return a + b; }, 0) / n : null;
-    var gainers = rows.slice().sort(function (a, b) { return b.ch - a.ch; }).slice(0, 3);
-    var losers = rows.slice().sort(function (a, b) { return a.ch - b.ch; }).slice(0, 3);
-    return {
-      sectors: [{
-        name: 'Unclassified', count: count, adv: adv, dec: dec, flat: flat, nCh: n,
-        avgCh: avgCh, pctUp: n ? (adv / n) * 100 : null, avgRsi: null,
-        turnShare: turn > 0 ? 100 : null,
-        gainers: gainers, losers: losers
-      }],
-      asof: todayStr, total: count
-    };
+    var list = Object.keys(sectors).map(function (k) {
+      var g = sectors[k];
+      var n = g.chs.length;
+      var avgCh = n ? g.chs.reduce(function (a, b) { return a + b; }, 0) / n : null;
+      var gainers = g.rows.slice().sort(function (a, b) { return b.ch - a.ch; }).slice(0, 3);
+      var losers = g.rows.slice().sort(function (a, b) { return a.ch - b.ch; }).slice(0, 3);
+      return {
+        name: g.name, count: g.count, adv: g.adv, dec: g.dec, flat: g.flat, nCh: n,
+        avgCh: avgCh, pctUp: n ? (g.adv / n) * 100 : null, avgRsi: null,
+        turnShare: totalTurn > 0 ? (g.turn / totalTurn) * 100 : null,
+        gainers: gainers, losers: losers, tiles: g.tiles
+      };
+    });
+    list.sort(function (a, b) {
+      if (a.name === 'Unclassified') return 1;
+      if (b.name === 'Unclassified') return -1;
+      return b.count - a.count;
+    });
+    return { sectors: list, asof: todayStr, total: count };
   }
 
   var MONTHS_L = ['January','February','March','April','May','June','July',
@@ -152,21 +218,57 @@
   }
 
   function tileLink(sec) {
-    if (sec === 'Unclassified') return '/nepse-screener/';
     return '/nepse-screener/?sector=' + encodeURIComponent(sec);
   }
 
+  function fmtTurn(x) {
+    if (x == null || !isFinite(x) || x <= 0) return null;
+    if (x >= 1e7) return 'Rs ' + (x / 1e7).toFixed(1) + ' Cr';
+    if (x >= 1e5) return 'Rs ' + (x / 1e5).toFixed(1) + ' L';
+    if (x >= 1e3) return 'Rs ' + (x / 1e3).toFixed(1) + 'K';
+    return 'Rs ' + Math.round(x);
+  }
+  function pctText(x) {
+    if (x == null || isNaN(x)) return '-';
+    return (x > 0 ? '+' : '') + Number(x).toFixed(2) + '%';
+  }
+
+  /* Treemap-style heatmap: one tile per security, tile area follows session
+   * turnover (square-root scaled so small names stay tappable), color follows
+   * the security's own day change, tiles grouped under their sector. */
   function renderHeat(sectors) {
-    var h = sectors.map(function (g) {
-      var ch = g.avgCh == null ? '<span class="sx-tile-ch">-</span>'
-        : '<span class="sx-tile-ch">' + signPct(g.avgCh) + '</span>';
-      return '<a class="sx-tile ' + heatClass(g.avgCh) + '" role="listitem" ' +
-        'style="flex-grow:' + g.count + '" href="' + esc(tileLink(g.name)) + '">' +
-        '<span class="sx-tile-name">' + esc(g.name) + '</span>' +
-        '<span class="sx-tile-count">' + g.count + (g.count === 1 ? ' security' : ' securities') + '</span>' +
-        ch + '</a>';
+    var list = sectors.slice().sort(function (a, b) {
+      if (a.name === 'Unclassified') return 1;
+      if (b.name === 'Unclassified') return -1;
+      return (b.turnShare || 0) - (a.turnShare || 0);
+    });
+    var h = list.map(function (g) {
+      var tiles = (g.tiles || []).slice().sort(function (a, b) { return (b.turn || 0) - (a.turn || 0); });
+      var maxT = 0;
+      tiles.forEach(function (t) { if (t.turn > maxT) maxT = t.turn; });
+      var meta = g.count + (g.count === 1 ? ' security' : ' securities');
+      if (g.avgCh != null) meta += ' · avg ' + pctText(g.avgCh);
+      if (g.turnShare != null) meta += ' · ' + g.turnShare.toFixed(1) + '% of turnover';
+      var th = '<div class="sx-tm-sec">' +
+        '<div class="sx-tm-head"><h3><a href="' + esc(tileLink(g.name)) + '">' + esc(g.name) + '</a></h3>' +
+        '<span class="sx-tm-meta">' + esc(meta) + '</span></div>' +
+        '<div class="sx-tm-tiles" role="list" aria-label="' + esc(g.name) + ' securities">';
+      var tb = tiles.map(function (t) {
+        var grow = (t.turn > 0 && maxT > 0) ? (0.7 + 8.3 * Math.sqrt(t.turn / maxT)) : 0.7;
+        var tip = t.sym +
+          (t.p != null ? ' · Rs ' + num(t.p, 2) : '') +
+          (t.ch != null ? ' · day ' + pctText(t.ch) : ' · no day-change data') +
+          (t.turn > 0 ? ' · turnover ' + fmtTurn(t.turn) : '');
+        return '<a class="sx-tm-tile ' + heatClass(t.ch) + '" role="listitem"' +
+          ' style="flex-grow:' + grow.toFixed(2) + '"' +
+          ' href="/stocks/' + esc(String(t.sym).replace(/\//g, '-')) + '/"' +
+          ' title="' + esc(tip) + '">' +
+          '<span class="sx-tm-sym">' + esc(t.sym) + '</span>' +
+          '<span class="sx-tm-ch">' + esc(pctText(t.ch)) + '</span></a>';
+      }).join('');
+      return th + tb + '</div></div>';
     }).join('');
-    $('sx-heat').innerHTML = h;
+    $('sx-heat').innerHTML = h || '<p class="sx-empty">Heatmap data unavailable.</p>';
   }
 
   function leaderList(rows, sec, emptyMsg) {
@@ -247,7 +349,7 @@
     if (M && M.reduced) { set(); }
     else requestAnimationFrame(function () { requestAnimationFrame(set); });
     if (M) {
-      var els = document.querySelectorAll('#sx-heat .sx-tile, #sx-cards .sx-card');
+      var els = document.querySelectorAll('#sx-heat .sx-tm-tile, #sx-cards .sx-card');
       for (var j = 0; j < els.length; j++) els[j].classList.add('rv');
       M.reveal(document);
       M.watchCounts(document);

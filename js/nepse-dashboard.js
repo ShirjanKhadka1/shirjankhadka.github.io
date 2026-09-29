@@ -15,12 +15,15 @@
     function (n) { n = Number(n); return isFinite(n) ? 'Rs ' + n.toLocaleString('en-US') : '–'; };
   var WIDGETS = [
     { id: 'market',    label: 'Market today' },
+    { id: 'breadth',   label: 'Market breadth' },
+    { id: 'index',     label: 'Index trend' },
+    { id: 'movers',    label: 'Top movers' },
     { id: 'watchlist', label: 'My watchlist' },
     { id: 'rsi',       label: 'RSI extremes' },
     { id: 'news',      label: 'Market news' },
     { id: 'filings',   label: 'Filings desk' }
   ];
-  var DEFAULTS = { order: ['market', 'watchlist', 'rsi', 'news', 'filings'], hidden: [] };
+  var DEFAULTS = { order: ['market', 'breadth', 'index', 'movers', 'watchlist', 'rsi', 'news', 'filings'], hidden: [] };
 
   function loadCfg() {
     try {
@@ -41,7 +44,7 @@
   }
 
   var cfg = loadCfg();
-  var cache = { wave1: null, news: null, verdicts: null };
+  var cache = { wave1: null, news: null, verdicts: null, indexSpark: null };
 
   function esc(s) {
     return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
@@ -221,9 +224,164 @@
       'The official record is the NEPSE disclosure archive.</p>';
   }
 
-  var TITLES = { market: 'Market today', watchlist: 'My watchlist', rsi: 'RSI extremes', news: 'Market news', filings: 'Filings desk' };
+  /* ---------- new visual widgets: breadth donut, index area chart, top movers ---------- */
+  function stockLink(s) {
+    return '<a href="/stocks/' + esc(String(s).replace(/\//g, '-')) + '">' + esc(s) + '</a>';
+  }
+
+  function renderBreadth(w) {
+    var m = w && w.market;
+    var a = m && m.advancers, d = m && m.decliners, u = m && m.unchanged;
+    if (a == null || d == null || u == null) {
+      return '<p class="wg-note">Market breadth is temporarily unavailable.</p>';
+    }
+    return '<div class="wg-donut-wrap">' +
+      '<canvas id="wg-donut" role="img" aria-label="Market breadth: ' + a + ' advancers, ' +
+      d + ' decliners, ' + u + ' unchanged"></canvas>' +
+      '<ul class="wg-donut-legend">' +
+      '<li><span class="dot" style="background:#1E7A44"></span>Advancers<span class="tnum">' + a + '</span></li>' +
+      '<li><span class="dot" style="background:#B23A2E"></span>Decliners<span class="tnum">' + d + '</span></li>' +
+      '<li><span class="dot" style="background:#C6A86B"></span>Unchanged<span class="tnum">' + u + '</span></li>' +
+      '</ul></div>' +
+      '<p class="wg-note">Session of ' + esc(m.date || 'latest') + '.' + fresh(w.asof) + '</p>';
+  }
+
+  function fmtIdxDate(d) {
+    var m = String(d || '').match(/^(\d{4})-?(\d{2})-?(\d{2})$/);
+    if (!m) return String(d || '');
+    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return Number(m[3]) + ' ' + months[Number(m[2]) - 1] + ' ' + m[1];
+  }
+
+  function renderIndex() {
+    var s = cache.indexSpark;
+    if (!s || !Array.isArray(s.closes) || s.closes.length < 2) {
+      return '<p class="wg-note">Index history is temporarily unavailable.</p>';
+    }
+    return '<div class="wg-area-wrap"><canvas id="wg-index-chart" role="img" ' +
+      'aria-label="NEPSE index daily closes, ' + esc(fmtIdxDate(s.from)) + ' to ' + esc(fmtIdxDate(s.to)) + '"></canvas>' +
+      '<div class="wg-area-range"><span>' + esc(fmtIdxDate(s.from)) + '</span>' +
+      '<span>' + esc(fmtIdxDate(s.to)) + '</span></div></div>' +
+      '<p class="wg-note">Daily closes from the site index archive. For trend texture, not a live quote.</p>';
+  }
+
+  function renderMovers(w) {
+    var m = w && w.market;
+    var g = (m && m.gainers) || [], l = (m && m.losers) || [];
+    if (!g.length && !l.length) {
+      return '<p class="wg-note">Top movers are temporarily unavailable.</p>';
+    }
+    function rows(arr) {
+      return arr.slice(0, 4).map(function (x) {
+        var cls = x.ch > 0 ? 'up' : x.ch < 0 ? 'down' : '';
+        return '<li>' + stockLink(x.s) +
+          '<span class="tnum">Rs ' + fmtNum(x.p, 2) + '</span>' +
+          '<span class="tnum ' + cls + '">' + (x.ch > 0 ? '+' : '') + fmtNum(x.ch, 2) + '%</span></li>';
+      }).join('');
+    }
+    return '<div class="wg-cols"><div><h3 class="wg-sub">Biggest gainers</h3><ul class="wg-list">' +
+      rows(g) + '</ul></div><div><h3 class="wg-sub">Biggest losers</h3><ul class="wg-list">' +
+      rows(l) + '</ul></div></div>' +
+      '<p class="wg-note">Day change as of ' + esc(m.date || 'the latest session') +
+      '. Momentum, not a call to buy or sell.</p>';
+  }
+
+  /* Canvas drawing: brand colors, no external libraries. Each draw is a pure
+     function of cache, so a resize only repaints, never refetches. */
+  function fitCanvas(cv, w, h) {
+    var dpr = window.devicePixelRatio || 1;
+    cv.width = Math.round(w * dpr);
+    cv.height = Math.round(h * dpr);
+    cv.style.width = w + 'px';
+    cv.style.height = h + 'px';
+    var ctx = cv.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return ctx;
+  }
+
+  function drawDonut() {
+    var cv = document.getElementById('wg-donut');
+    var m = cache.wave1 && cache.wave1.market;
+    if (!cv || !m) return;
+    var vals = [m.advancers || 0, m.decliners || 0, m.unchanged || 0];
+    var total = vals[0] + vals[1] + vals[2];
+    var size = 200;
+    var ctx = fitCanvas(cv, size, size);
+    var cols = ['#1E7A44', '#B23A2E', '#C6A86B'];
+    var cx = size / 2, cy = size / 2, r = 76, lw = 30;
+    var ang = -Math.PI / 2;
+    vals.forEach(function (v, i) {
+      if (!total || v <= 0) { return; }
+      var sweep = v / total * Math.PI * 2;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, ang + 0.015, ang + sweep - 0.015);
+      ctx.strokeStyle = cols[i];
+      ctx.lineWidth = lw;
+      ctx.stroke();
+      ang += sweep;
+    });
+    ctx.fillStyle = '#0C1F16';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = '700 30px Inter, sans-serif';
+    ctx.fillText(String(total), cx, cy - 9);
+    ctx.font = '600 11px Inter, sans-serif';
+    ctx.fillStyle = '#66705F';
+    ctx.fillText('SECURITIES', cx, cy + 17);
+  }
+
+  function drawIndexChart() {
+    var cv = document.getElementById('wg-index-chart');
+    var s = cache.indexSpark;
+    if (!cv || !s || !s.closes || s.closes.length < 2) return;
+    var pts = s.closes.map(function (row) { return row[1]; });
+    var W = Math.max(280, cv.parentElement.clientWidth);
+    var H = 200;
+    var ctx = fitCanvas(cv, W, H);
+    var min = Math.min.apply(null, pts), max = Math.max.apply(null, pts);
+    var pad = (max - min) * 0.08 || 1;
+    min -= pad; max += pad;
+    function X(i) { return 4 + i / (pts.length - 1) * (W - 8); }
+    function Y(v) { return H - 14 - (v - min) / (max - min) * (H - 36); }
+    ctx.beginPath();
+    ctx.moveTo(X(0), Y(pts[0]));
+    pts.forEach(function (v, i) { ctx.lineTo(X(i), Y(v)); });
+    ctx.lineTo(X(pts.length - 1), H);
+    ctx.lineTo(X(0), H);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(30,107,74,.12)';
+    ctx.fill();
+    ctx.beginPath();
+    pts.forEach(function (v, i) { if (i) ctx.lineTo(X(i), Y(v)); else ctx.moveTo(X(i), Y(v)); });
+    ctx.strokeStyle = '#1E6B4A';
+    ctx.lineWidth = 2;
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+    var lx = X(pts.length - 1), ly = Y(pts[pts.length - 1]);
+    ctx.beginPath();
+    ctx.arc(lx - 3, ly, 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#1E6B4A';
+    ctx.fill();
+    ctx.font = '700 13px Inter, sans-serif';
+    ctx.fillStyle = '#0C1F16';
+    ctx.textAlign = 'right';
+    ctx.fillText(fmtNum(pts[pts.length - 1], 2), lx - 10, ly - 10);
+  }
+
+  function drawCanvases() { drawDonut(); drawIndexChart(); }
+
+  var rzT = null;
+  window.addEventListener('resize', function () {
+    if (rzT) clearTimeout(rzT);
+    rzT = setTimeout(drawCanvases, 200);
+  });
+
+  var TITLES = { market: 'Market today', breadth: 'Market breadth', index: 'Index trend', movers: 'Top movers', watchlist: 'My watchlist', rsi: 'RSI extremes', news: 'Market news', filings: 'Filings desk' };
   var DESCS = {
     market: 'Index, breadth and turnover from the latest session.',
+    breadth: 'Advancers, decliners and unchanged in the latest session.',
+    index: 'NEPSE index closes across the recent archive.',
+    movers: 'The session\u2019s biggest gainers and losers.',
     watchlist: 'Your saved securities at a glance.',
     rsi: 'Momentum extremes across the listed universe.',
     news: 'The latest market-moving headlines.',
@@ -253,6 +411,12 @@
     var body;
     body = document.getElementById('wg-market');
     if (body) { body.innerHTML = renderMarket(); mountSnapshot(); }
+    body = document.getElementById('wg-breadth');
+    if (body) body.innerHTML = renderBreadth(cache.wave1);
+    body = document.getElementById('wg-index');
+    if (body) body.innerHTML = renderIndex();
+    body = document.getElementById('wg-movers');
+    if (body) body.innerHTML = renderMovers(cache.wave1);
     body = document.getElementById('wg-watchlist');
     if (body) body.innerHTML = renderWatchlist();
     body = document.getElementById('wg-rsi');
@@ -261,6 +425,7 @@
     if (body) body.innerHTML = renderNews(cache.news);
     body = document.getElementById('wg-filings');
     if (body) body.innerHTML = renderFilings(cache.news);
+    drawCanvases();
   }
 
   function buildPicker() {
@@ -305,14 +470,16 @@
       fetch('/nepse-chart/data/wave1.json').then(function (r) { return r.ok ? r.json() : null; }),
       fetch('/nepse-chart/data/news.json').then(function (r) { return r.ok ? r.json() : null; }),
       fetch('/nepse-chart/data/verdicts.json').then(function (r) { return r.ok ? r.json() : null; }),
+      fetch('/nepse-chart/data/index-spark.json').then(function (r) { return r.ok ? r.json() : null; }),
       snapP
     ]).then(function (res) {
       cache.wave1 = res[0];
       cache.news = res[1];
       cache.verdicts = (res[2] && res[2].verdicts) || {};
+      cache.indexSpark = res[3];
       // Wave 7: one shared snapshot (daily batch + live overlay); if the
       // live path fails, the batch still renders honestly on its own.
-      cache.snap = res[3] || (res[0] ? {
+      cache.snap = res[4] || (res[0] ? {
         batch: res[0].market,
         batchAsof: res[0].asof || (res[0].market && res[0].market.date) || null,
         live: null

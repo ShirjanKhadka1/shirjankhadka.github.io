@@ -30,7 +30,7 @@
 {"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-alpha/"},
 {"@type":"ListItem","position":3,"name":"Reports","item":"https://shirjankhadka.com.np/nepse-reports/"}]}
 </script>
-<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930c">
+<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260929d">
 <link rel="stylesheet" href="/css/nepse-wave7.css?v=20261002d">
 <link rel="stylesheet" href="/css/nepse-brand.css?v=20261003a">
 <style>
@@ -40,7 +40,10 @@
 .rp-builder{background:var(--paper);border:1px solid var(--hairline);border-radius:18px;padding:26px;margin:26px 0}
 .rp-builder h2{font-family:var(--serif);font-size:21px;font-weight:600;margin:0 0 6px}
 .rp-builder .sub{font-size:13.5px;color:var(--muted);margin:0 0 18px}
-.rp-checks{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
+.rp-checks{display:grid;grid-template-columns:1fr;gap:10px}
+.rp-groups{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px}
+.rp-group{border:1px solid var(--hairline);border-radius:16px;padding:18px;margin:0;background:var(--ivory);min-width:0}
+.rp-group legend{font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);padding:0 10px}
 .rp-check{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--hairline);border-radius:12px;padding:13px 16px;cursor:pointer;font-size:14px;background:var(--ivory)}
 .rp-check:hover{border-color:var(--gold)}
 .rp-check input{margin-top:3px;accent-color:var(--gold)}
@@ -68,20 +71,34 @@
 .rp-note{font-size:12.5px;color:var(--faint);margin:10px 0 0}
 .up{color:var(--up)}.down{color:var(--down)}
 .asof{font-size:13.5px;color:var(--muted)}
+/* ---------- live document preview ---------- */
+.rp-doc{background:var(--paper);border:1px solid var(--hairline);border-radius:20px;box-shadow:var(--shadow);padding:6px 34px 10px;margin-top:22px}
+.rp-dochead{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding:22px 0 16px;margin-bottom:6px}
+.rp-doc-title{font-family:var(--serif);font-size:28px;font-weight:600;margin:0;letter-spacing:-.01em}
+.rp-doc-title small{display:block;font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.rp-doc-date{font-size:13.5px;color:var(--muted);margin:0;font-variant-numeric:tabular-nums}
+.rp-doc .rp-sec{background:none;border:none;border-radius:0;padding:26px 0;margin:0;border-bottom:1px solid var(--hairline);box-shadow:none}
+.rp-doc .rp-sec:last-of-type{border-bottom:none}
+.rp-doc .rp-sec h2{font-family:var(--serif);font-size:24px;font-weight:600;margin:0 0 8px;padding-bottom:12px;border-bottom:1px solid var(--hairline)}
+.rp-doc .rp-sec h3{font-family:var(--serif);font-size:18px;font-weight:600;margin:24px 0 10px}
+.rp-doc .rp-table,.rp-doc .rp-v,.rp-doc .rp-doc-date{font-variant-numeric:tabular-nums}
+.rp-doc .rp-stat{background:var(--ivory)}
+.rp-docfoot{font-size:12.5px;color:var(--faint);border-top:1px solid var(--hairline);padding:14px 0 22px;margin:6px 0 0}
 .limits{margin:40px 0}
 .limits ul{margin:0;padding-left:22px;color:var(--muted);font-size:14.5px;display:flex;flex-direction:column;gap:8px}
-@media(max-width:860px){.rp-checks{grid-template-columns:1fr}.rp-stats{grid-template-columns:1fr 1fr}}
+@media(max-width:860px){.rp-groups{grid-template-columns:1fr}.rp-stats{grid-template-columns:1fr 1fr}.rp-doc{padding:6px 20px 10px}.rp-doc-title{font-size:24px}}
 @media(prefers-reduced-motion:reduce){.rp-check{transition:none}}
 /* ---------- print ---------- */
 @media print{
-  .suite-rail,.topbar,.hero,.rp-builder,.limits,.foot,.rp-empty a{display:none !important}
+  .suite-rail,.topbar,.hero,.rp-builder,.limits,.foot,.rp-empty a,.rp-dochead,.rp-docfoot{display:none !important}
   body{padding:0;background:#fff;color:#000}
   .wrap{max-width:none;padding:0 12mm}
   .rp-printhead{display:block;border-bottom:2px solid #0C1F16;padding-bottom:10px;margin-bottom:18px}
   .rp-printhead h1{font-family:Fraunces,Georgia,serif;font-size:24px;margin:0}
   .rp-printhead p{font-size:12px;color:#555;margin:4px 0 0}
   #rp-result{margin:0}
-  .rp-sec{border:1px solid #ccc;border-radius:0;padding:14px;margin:0 0 16px;box-shadow:none}
+  .rp-doc{background:none;border:none;border-radius:0;box-shadow:none;padding:0}
+  .rp-sec,.rp-doc .rp-sec{border:none;border-bottom:1px solid #ccc;border-radius:0;padding:14px 0;margin:0 0 16px;box-shadow:none}
   .rp-printfoot{display:block !important;font-size:11px;color:#555;border-top:1px solid #ccc;padding-top:8px;margin-top:8px}
   a{color:#000;text-decoration:none}
   .up{color:#0a6b3a}.down{color:#a11f1f}
@@ -107,7 +124,6 @@
     <a href="/nepse-fundamentals/">Fundamentals</a>
     <a href="/nepse-reports/" class="on" aria-current="page">Reports</a>
     <a href="/nepse-actions/">Corp. actions</a>
-    <a href="/nepse-chart/data-check.html">Data check</a>
   </nav>
   <p class="rail-foot">Free forever · no login</p>
 </aside>
@@ -147,12 +163,22 @@
     <section class="rp-builder" aria-label="Report builder">
       <h2>Build your report</h2>
       <p class="sub">Sections rebuild live as you tick. Your portfolio and watchlist are read from this browser only.</p>
-      <div class="rp-checks">
-        <label class="rp-check"><input type="checkbox" id="cb-rp-portfolio" checked><span><strong>Portfolio summary</strong><span>Active portfolio: holdings, invested, value, P&amp;L.</span></span></label>
-        <label class="rp-check"><input type="checkbox" id="cb-rp-watchlist" checked><span><strong>Watchlist</strong><span>Your symbols with price, day change and signal.</span></span></label>
-        <label class="rp-check"><input type="checkbox" id="cb-rp-screener" checked><span><strong>Screener signals</strong><span>Top and bottom 10 by engine score.</span></span></label>
-        <label class="rp-check"><input type="checkbox" id="cb-rp-market" checked><span><strong>Market snapshot</strong><span>NEPSE index, breadth, turnover.</span></span></label>
-        <label class="rp-check"><input type="checkbox" id="cb-rp-sectors" checked><span><strong>Sector breadth</strong><span>Advancers vs decliners per sector.</span></span></label>
+      <div class="rp-groups">
+        <fieldset class="rp-group">
+          <legend>Your data</legend>
+          <div class="rp-checks">
+            <label class="rp-check"><input type="checkbox" id="cb-rp-portfolio" checked><span><strong>Portfolio summary</strong><span>Active portfolio: holdings, invested, value, P&amp;L.</span></span></label>
+            <label class="rp-check"><input type="checkbox" id="cb-rp-watchlist" checked><span><strong>Watchlist</strong><span>Your symbols with price, day change and signal.</span></span></label>
+          </div>
+        </fieldset>
+        <fieldset class="rp-group">
+          <legend>Market data</legend>
+          <div class="rp-checks">
+            <label class="rp-check"><input type="checkbox" id="cb-rp-screener" checked><span><strong>Screener signals</strong><span>Top and bottom 10 by engine score.</span></span></label>
+            <label class="rp-check"><input type="checkbox" id="cb-rp-market" checked><span><strong>Market snapshot</strong><span>NEPSE index, breadth, turnover.</span></span></label>
+            <label class="rp-check"><input type="checkbox" id="cb-rp-sectors" checked><span><strong>Sector breadth</strong><span>Advancers vs decliners per sector.</span></span></label>
+          </div>
+        </fieldset>
       </div>
       <div class="rp-actions">
         <button class="btn" id="rp-build" disabled>Rebuild report</button>
@@ -166,7 +192,7 @@
         <h1>Nepse Decode report</h1>
         <p>Prepared <span id="rp-printhead-date"></span> · shirjankhadka.com.np · Educational use only</p>
       </div>
-      <div id="rp-report" aria-live="polite"></div>
+      <div id="rp-report" class="rp-doc" aria-live="polite"></div>
       <p class="rp-printfoot">Educational use only. Figures come from the Alpha Lab engine's daily batch and your browser-local data; nothing here is investment advice or a buy or sell recommendation.</p>
     </div>
 
@@ -196,6 +222,6 @@
 <script src="/js/nepse-fresh.js?v=20260930b"></script>
 <script src="/js/nepse-live.js?v=20261002e"></script>
 <script src="/js/nepse-suite.js?v=20261002d"></script>
-<script src="/js/nepse-reports.js?v=20261002c"></script>
+<script src="/js/nepse-reports.js?v=20261002d"></script>
 </body>
 </html>

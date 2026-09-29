@@ -1,0 +1,77 @@
+/* Nepse Decode Screener: terminal-grade table polish.
+   Self-sufficient: carries its own luxury token block (copied from the suite
+   chart.css :root) plus everything this page needs beyond /css/style.css
+   (chrome, hero, cards, tabs). No external dependencies. */
+
+:root{
+  --ink:#0C1F16; --pine:#14382A; --emerald:#1E6B4A; --emerald-deep:#155236;
+  --gold:#C6A86B; --gold-soft:#E9DCC0; --gold-faint:#F4EDDD;
+  --ivory:#FAF8F2; --paper:#FFFFFF;
+  --hairline:rgba(12,31,22,.14); --hairline-soft:rgba(12,31,22,.08);
+  --muted:#66705F; --faint:#9AA096;
+  --up:#1E7A44; --down:#B23A2E;
+  --radius:20px;
+  --shadow:0 12px 40px rgba(12,31,22,.08);
+  --ease:cubic-bezier(.2,0,0,1);
+  --serif:'Fraunces',Georgia,'Times New Roman',serif;
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Helvetica,Arial,sans-serif;
+}
+
+/* ---------- compact summary bar ---------- */
+.sc-summary{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;
+  margin:18px 0 10px;padding:9px 16px;background:var(--ivory);
+  border:1px solid var(--hairline);border-radius:12px;
+  font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.sc-summary b{color:var(--ink);font-weight:700}
+.sc-summary .sc-sum-dot{color:var(--faint)}
+.sc-summary .sc-sum-tf{font-weight:700;color:var(--emerald-deep);
+  text-transform:uppercase;letter-spacing:.08em;font-size:.72rem}
+
+/* ---------- terminal table ---------- */
+.sc-table-wrap{max-height:min(78vh,1020px);overflow:auto}
+.sc-table thead th{background:var(--pine);color:#F1EEE3;border-bottom:1px solid var(--pine)}
+.sc-table thead th:hover{color:#ffffff;background:var(--emerald-deep)}
+.sc-table thead th.sorted{color:var(--gold)}
+.sc-table thead th .arr{color:var(--gold)}
+.sc-table tbody tr:nth-child(even){background:#FDFCF9}
+.sc-table tbody tr:hover{background:var(--gold-faint)}
+.sc-table td .tnum, .sc-table td.num{font-variant-numeric:tabular-nums}
+/* day-change column: terminal green/red */
+.sc-chg-up{color:var(--up);font-weight:700}
+.sc-chg-dn{color:var(--down);font-weight:700}
+.sc-chg-flat{color:var(--muted);font-weight:600}
+/* verdict pills: tighter */
+.sc-table .ms-v{font-size:.7rem;padding:3px 9px;letter-spacing:.03em}
+.sc-setup-chip{font-size:.72rem}
+/* sector tag in the sector column */
+.sc-sector{font-size:.8rem;font-weight:600;color:var(--muted);white-space:nowrap}
+.sc-table tbody tr:hover .sc-sector{color:var(--ink)}
+
+/* ---------- mobile: rows become cards ---------- */
+@media (max-width:640px){
+  .sc-table-wrap{max-height:none;overflow:visible;border:0;background:transparent;box-shadow:none}
+  .sc-table{min-width:0}
+  .sc-table thead{display:none}
+  .sc-table,.sc-table tbody,.sc-table tr,.sc-table td{display:block;width:100%}
+  .sc-table tbody tr{background:var(--paper);border:1px solid var(--hairline);
+    border-radius:14px;margin:0 0 12px;padding:4px 16px;box-shadow:var(--shadow)}
+  .sc-table tbody tr:nth-child(even){background:var(--paper)}
+  .sc-table tbody td{border:0;border-bottom:1px dashed var(--hairline-soft);
+    padding:8px 0;display:flex;justify-content:space-between;align-items:center;
+    gap:12px;text-align:right}
+  .sc-table tbody td:last-child{border-bottom:0}
+  .sc-table tbody td::before{content:attr(data-label);font-size:.66rem;font-weight:700;
+    letter-spacing:.09em;text-transform:uppercase;color:var(--muted);
+    text-align:left;flex:0 0 auto}
+  .sc-table tbody td.sc-empty{display:block;text-align:center}
+  .sc-table tbody td.sc-empty::before{content:none}
+  .sc-table td[data-label="Symbol"]{padding-top:12px}
+  .sc-table td[data-label="Symbol"] .sc-sym{font-size:1.02rem}
+  .sc-table td[data-label="Signal & setup"]{flex-wrap:wrap}
+  .sc-table .num{white-space:normal}
+  .sc-summary{font-size:.78rem}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .sc-table thead th{transition:none}
+}

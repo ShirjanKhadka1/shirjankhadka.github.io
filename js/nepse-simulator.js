@@ -435,18 +435,23 @@
     $('sim-res-head').innerHTML = '<h2>Results: ' + esc(res.sym) + ' · ' + esc(stratName) + '</h2>' +
       '<p class="asof">' + fmtYMD(res.fromYmd) + ' to ' + fmtYMD(res.toYmd) + ' · ' + res.trades.length + ' trades · starting ' + fmtRs(res.startCash) + '</p>';
     $('sim-stats').innerHTML =
-      statCard('Final equity', fmtRs(s.finalEquity)) +
+      '<div class="stats-key">' +
       statCard('Total return', fmtPct(s.totalReturnPct), cls(s.totalReturnPct)) +
+      statCard('Max drawdown', '−' + fmtNum(s.maxDrawdownPct, 2) + '%', 'down') +
+      statCard('Win rate', s.nTrades ? fmtNum(s.winRate, 1) + '%' : '–') +
+      statCard('Number of trades', String(s.nTrades)) +
+      '</div>' +
+      '<details class="sim-details"><summary>All figures: costs, averages, buy-and-hold</summary>' +
+      '<div class="stats">' +
+      statCard('Final equity', fmtRs(s.finalEquity)) +
       statCard('Buy-and-hold return', fmtPct(s.bhReturnPct), cls(s.bhReturnPct)) +
       statCard('Gross P&L', (s.grossPnl >= 0 ? '+' : '') + fmtRs(s.grossPnl), cls(s.grossPnl)) +
       statCard('Net P&L', (s.netPnl >= 0 ? '+' : '') + fmtRs(s.netPnl), cls(s.netPnl)) +
       statCard('Trading costs', fmtRs(s.tradingCosts)) +
       statCard('CGT paid', fmtRs(s.totalCgt)) +
-      statCard('Trades', String(s.nTrades)) +
-      statCard('Win rate', s.nTrades ? fmtNum(s.winRate, 1) + '%' : '–') +
       statCard('Avg win', s.wins ? fmtRs(s.avgWin) : '–', 'up') +
       statCard('Avg loss', s.nTrades - s.wins ? fmtRs(s.avgLoss) : '–', 'down') +
-      statCard('Max drawdown', '−' + fmtNum(s.maxDrawdownPct, 2) + '%', 'down');
+      '</div></details>';
     drawEquity(res);
     var tb = $('sim-trades-body');
     tb.innerHTML = res.trades.map(function (t, i) {

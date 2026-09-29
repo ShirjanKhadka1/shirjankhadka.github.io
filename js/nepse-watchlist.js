@@ -145,26 +145,30 @@
       return;
     }
     emptyEl.hidden = true;
-    var rows = list.map(function (sym) {
+    var cards = list.map(function (sym) {
       var vd = verdicts[sym] || {};
       var meta = null;
       for (var i = 0; i < universe.length; i++) { if (universe[i].s === sym) { meta = universe[i]; break; } }
       var chg = vd.ch;
-      var chgHtml = '<span class="tnum ' + (chg > 0 ? 'up' : chg < 0 ? 'down' : '') + '">' +
-        (chg === null || chg === undefined ? '–' : (chg > 0 ? '+' : '') + fmtNum(chg, 2) + '%') + '</span>';
-      return '<article class="wl-row">' +
-        '<div class="wl-sym"><a href="/stocks/' + esc(String(sym).replace(/\//g, "-")) + '/">' +
-        (Mono ? Mono.avatar(sym, vd.sec, 30) : '') + '<span>' + esc(sym) + '</span></a>' +
-        '<span class="wl-name">' + esc(meta ? meta.n : '') + '</span></div>' +
-        '<div class="wl-meta"><span class="wl-sec">' + esc(vd.sec || '–') + '</span></div>' +
-        '<div class="wl-num"><span class="wl-lab">Price</span><span class="tnum">' + fmtNum(vd.p, 2) + '</span></div>' +
-        '<div class="wl-num"><span class="wl-lab">Day</span>' + chgHtml + '</div>' +
-        '<div class="wl-num"><span class="wl-lab">Signal</span><span class="verdict sm ' + pillClass(vd.v) + '">' + esc(vd.v || '–') + '</span></div>' +
-        '<div class="wl-num"><span class="wl-lab">RSI(14)</span><span class="tnum">' + (vd.rsi === null || vd.rsi === undefined ? '–' : fmtNum(vd.rsi, 1)) + '</span></div>' +
-        '<button type="button" class="wl-rm" data-sym="' + esc(sym) + '" aria-label="Remove ' + esc(sym) + ' from watchlist">×</button>' +
-        '</article>';
+      var chgCls = chg > 0 ? 'up' : chg < 0 ? 'down' : '';
+      var chgTxt = (chg === null || chg === undefined) ? '–' :
+        (chg > 0 ? '+' : '') + fmtNum(chg, 2) + '%';
+      var rsi = vd.rsi;
+      var rsiTxt = (rsi === null || rsi === undefined) ? '–' : fmtNum(rsi, 1);
+      var rsiPos = (rsi === null || rsi === undefined) ? null : Math.max(0, Math.min(100, rsi));
+      return '<article class="wl-card">' +
+        '<div class="wl-card-head"><div class="wl-sym"><a href="/stocks/' + esc(String(sym).replace(/\//g, "-")) + '/">' +
+        esc(sym) + '</a></div>' +
+        '<button type="button" class="wl-rm" data-sym="' + esc(sym) + '" aria-label="Remove ' + esc(sym) + ' from watchlist">×</button></div>' +
+        '<span class="wl-name">' + esc(meta ? meta.n : '') + '</span>' +
+        '<div class="wl-pill-row"><span class="verdict sm ' + pillClass(vd.v) + '">' + esc(vd.v || '–') + '</span></div>' +
+        '<div class="wl-price-row"><span class="wl-ltp">Rs ' + fmtNum(vd.p, 2) + '</span>' +
+        '<span class="wl-chg ' + chgCls + '">' + chgTxt + '</span></div>' +
+        '<div class="wl-rsi-row"><span class="wl-rsi">RSI ' + rsiTxt + '</span>' +
+        (rsiPos === null ? '' : '<span class="wl-rsi-bar" aria-hidden="true"><span class="wl-rsi-dot" style="left:' + rsiPos.toFixed(1) + '%"></span></span>') +
+        '</div></article>';
     }).join('');
-    listEl.innerHTML = rows;
+    listEl.innerHTML = cards;
   }
 
   /* -------- engine watchlist (Wave 7; multi-timeframe in Wave 8) --------

@@ -1,0 +1,33 @@
+/* Nepse Decode chart page: fixed-height scrollable engine panels.
+   Private Ledger theme. Overrides only nepse-chart/chart.css layout;
+   the shared suite stylesheets are untouched. */
+
+/* ---- signal-engine verdict: scrollable box with sticky verdict header ---- */
+#nl-verdict{
+  max-height:420px;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+}
+#nl-verdict .nl-v-top{
+  position:sticky;
+  top:0;
+  z-index:2;
+  background:var(--paper);
+  margin-bottom:0;
+  padding-bottom:14px;
+}
+
+/* ---- signal history: scrollable box with sticky panel header ---- */
+#nl-sighist{
+  max-height:420px;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+}
+#nl-sighist > h2{
+  position:sticky;
+  top:0;
+  z-index:2;
+  background:var(--paper);
+  margin:0 0 4px;
+  padding:2px 0 6px;
+}

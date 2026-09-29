@@ -1,4 +1,4 @@
-/* NEPSE Alpha Lab — printable report builder.
+/* NEPSE Alpha Lab - printable report builder.
  * Assembles a report from real data only: the browser-local portfolio and
  * watchlist stores plus the daily batch (verdicts.json, wave1.json).
  * Sections are toggleable; empty stores render honest empty notes, never
@@ -219,7 +219,11 @@
       var cb = $('cb-' + id);
       if (cb && cb.checked) out += '<section class="rp-sec" id="sec-' + id + '">' + BUILDERS[id]() + '</section>';
     });
-    $('rp-report').innerHTML = out || '<p class="rp-empty">Tick at least one section above, then rebuild.</p>';
+    var body = out || '<p class="rp-empty">Tick at least one section above, then rebuild.</p>';
+    $('rp-report').innerHTML =
+      '<div class="rp-dochead"><p class="rp-doc-title"><small>Nepse Decode</small>Market report</p>' +
+      '<p class="rp-doc-date">Prepared ' + esc(todayStr()) + '</p></div>' + body +
+      '<p class="rp-docfoot">Educational use only. Figures come from the Alpha Lab engine\'s daily batch and your browser-local data; nothing here is investment advice or a buy or sell recommendation.</p>';
     $('rp-printhead-date').textContent = todayStr();
     $('rp-result').hidden = false;
     mountSnap(); // Wave 7: paint the shared snapshot after the report is injected

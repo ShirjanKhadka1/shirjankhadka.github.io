@@ -328,6 +328,66 @@
     return '<h3>' + esc(title) + '</h3>' + (rows || '<p class="pf-muted">Nothing to allocate yet.</p>');
   }
 
+  var DONUT_COLORS = ['#1E6B4A', '#C6A86B', '#14382A', '#1E7A44', '#B23A2E', '#8A8F7E', '#2E5E4E', '#D9C08F'];
+
+  function drawDonut(cv, items, total) {
+    if (!cv || !cv.getContext) return;
+    var dpr = window.devicePixelRatio || 1, size = 180;
+    cv.width = size * dpr; cv.height = size * dpr;
+    var ctx = cv.getContext('2d'); ctx.scale(dpr, dpr);
+    var cx = size / 2, cy = size / 2, R = 76, r = 50;
+    var a = -Math.PI / 2, i, it, frac, a0, a1;
+    for (i = 0; i < items.length; i++) {
+      it = items[i];
+      frac = total > 0 ? it.value / total : 0;
+      if (!(frac > 0)) continue;
+      a0 = a + 0.028; a1 = a + frac * Math.PI * 2 - 0.028;
+      if (a1 <= a0) { a0 = a; a1 = a + frac * Math.PI * 2; }
+      ctx.beginPath();
+      ctx.arc(cx, cy, R, a0, a1);
+      ctx.arc(cx, cy, r, a1, a0, true);
+      ctx.closePath();
+      ctx.fillStyle = DONUT_COLORS[i % DONUT_COLORS.length];
+      ctx.fill();
+      a += frac * Math.PI * 2;
+    }
+    ctx.fillStyle = '#66705F'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = '700 10px Inter, sans-serif';
+    ctx.fillText('TOTAL VALUE', cx, cy - 13);
+    ctx.fillStyle = '#0C1F16';
+    ctx.font = '700 15px Inter, sans-serif';
+    ctx.fillText('Rs ' + fmtNum(total, 0), cx, cy + 7);
+  }
+
+  function renderDonutCard(items, total) {
+    var top = items.slice(0, 8), rest = items.slice(8);
+    if (rest.length) {
+      top.push({
+        label: 'Other (' + rest.length + ')',
+        value: round2(rest.reduce(function (acc, b) { return acc + b.value; }, 0))
+      });
+    }
+    if (!top.length) {
+      el.allocH.innerHTML = '<h3>By holding</h3><p class="pf-muted">Nothing to allocate yet.</p>';
+      return;
+    }
+    var legend = top.map(function (it, i) {
+      var pct = Calc.pctOf(it.value, total);
+      return '<li><i style="background:' + DONUT_COLORS[i % DONUT_COLORS.length] + '"></i>' +
+        '<span class="pf-dl-sym">' + esc(it.label) + '</span>' +
+        '<span class="pf-dl-val tnum">' + fmtRs(it.value) + '</span>' +
+        '<span class="pf-dl-pct tnum">' + fmtPct(pct).replace('+', '') + '</span></li>';
+    }).join('');
+    var ariaBits = top.map(function (it) {
+      return it.label + ' ' + fmtPct(Calc.pctOf(it.value, total)).replace('+', '');
+    }).join(', ');
+    el.allocH.innerHTML = '<h3>By holding</h3>' +
+      '<div class="pf-donut-flex">' +
+      '<canvas id="pf-donut" role="img" aria-label="Allocation across holdings: ' + esc(ariaBits) + '"></canvas>' +
+      '<ul class="pf-donut-legend">' + legend + '</ul></div>';
+    drawDonut(document.getElementById('pf-donut'), top, total);
+  }
+
   function renderAlloc(v) {
     var priced = v.rows.filter(function (r) { return r.value != null; });
     var total = priced.reduce(function (a, r) { return a + r.value; }, 0);
@@ -339,7 +399,7 @@
     });
     var bySec = Object.keys(secMap).map(function (k) { return { label: k, value: round2(secMap[k]) }; })
       .sort(function (a, b) { return b.value - a.value; });
-    el.allocH.innerHTML = allocBlock('By holding', byHold, total);
+    renderDonutCard(byHold, total);
     el.allocS.innerHTML = allocBlock('By sector', bySec, total);
   }
 

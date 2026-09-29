@@ -1,4 +1,4 @@
-/* NEPSE Alpha Lab — fundamentals snapshot page.
+/* NEPSE Alpha Lab - fundamentals snapshot page.
  * Shows ONLY real data from the daily batch (universe.json, verdicts.json,
  * news.json). No company financial statements exist in the dataset, so no
  * per-stock ratios (P/E, EPS, ROE, ...) are computed, estimated, or shown.
@@ -227,7 +227,9 @@
     }
     var rows = syms.map(function (s) {
       var f = fund.banks[s];
-      var td = function (v) { return '<td>' + (v === null || v === undefined ? '–' : esc(v)) + '</td>'; };
+      var td = function (v) {
+        return '<td>' + (v === null || v === undefined ? '<span class="fd-np">not published</span>' : esc(v)) + '</td>';
+      };
       return '<tr><td><a href="/stocks/' + esc(s) + '/"><b>' + esc(s) + '</b></a></td>' +
         td(f.eps_ttm == null ? null : 'Rs ' + f.eps_ttm) +
         td(f.pe_ttm == null ? null : f.pe_ttm + 'x') +
@@ -235,8 +237,8 @@
         td(f.npl_pct == null ? null : f.npl_pct + '%') + '</tr>';
     }).join('');
     host.innerHTML =
-      '<h3>Latest quarterly figures</h3>' +
-      '<p class="fd-sub2">' + esc(fund.period || '') + ' · published company figures · money in Rs billions</p>' +
+      '<h3>Latest quarterly figures (published company figures)</h3>' +
+      '<p class="fd-sub2">' + esc(fund.period || '') + ' · figures as published by the companies, not estimates · money in Rs billions</p>' +
       '<div class="fd-table-wrap"><table class="fd-table-t">' +
       '<thead><tr><th>Symbol</th><th>EPS (TTM)</th><th>P/E (TTM)</th><th>Net profit</th><th>NPL</th></tr></thead>' +
       '<tbody>' + rows + '</tbody></table></div>';
