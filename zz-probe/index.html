@@ -3,18 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NEPSE Watchlist – Track Your Stocks, Free, No Login | Shirjan Khadka</title>
-<meta name="description" content="Your personal NEPSE watchlist: track any listed security with price, day change, signal and RSI, saved in your browser. Free, unlimited, no login, no account.">
-<link rel="canonical" href="https://shirjankhadka.com.np/nepse-watchlist/">
+<title>Free NEPSE Stock Screener: Daily Ranked Buy/Hold/Exit Signals, No Login</title>
+<meta name="description" content="Free NEPSE stock screener, no login: every listed security ranked daily by a transparent rule-based buy/hold/exit engine, with RSI, ATR-based stop-loss and targets. Educational only.">
+<meta name="author" content="Shirjan Khadka">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-screener/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#FAF8F2">
+<meta name="keywords" content="nepse screener, nepse stock ranking, nepal stock screener, nepse signals, nepse buy sell signals, nepse stop loss target, nse nepal screener">
 <meta property="og:type" content="website">
-<meta property="og:title" content="NEPSE Watchlist – Track Your Stocks, Free">
-<meta property="og:description" content="Your personal NEPSE watchlist, saved in your browser. Free, unlimited, no login.">
-<meta property="og:url" content="https://shirjankhadka.com.np/nepse-watchlist/">
+<meta property="og:site_name" content="Shirjan Khadka">
+<meta property="og:title" content="NEPSE Stock Screener: Daily Ranked Signals">
+<meta property="og:description" content="Every NEPSE-listed security ranked daily by a transparent rule-based engine, with stop-loss and target levels. Free, no login. Educational use only.">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-screener/">
 <meta property="og:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="NEPSE Watchlist – Track Your Stocks, Free">
-<meta name="twitter:description" content="Your personal NEPSE watchlist, saved in your browser. Free, unlimited, no login.">
-<meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
+<meta name="twitter:title" content="NEPSE Stock Screener, Daily Ranked Signals">
+<meta name="twitter:description" content="Daily ranked NEPSE signals with stop-loss and target levels. Rule-based, transparent, educational.">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -22,64 +28,29 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930c">
+<link rel="stylesheet" href="../css/style.css?v=20260930a">
+<link rel="stylesheet" href="../nepse-chart/chart.css?v=20260930b">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebPage","name":"NEPSE Watchlist","url":"https://shirjankhadka.com.np/nepse-watchlist/","description":"A personal, browser-local NEPSE watchlist: track any listed security with price, day change, signal and RSI. Free, unlimited, no login.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
+{"@context":"https://schema.org","@type":"WebApplication","name":"NEPSE Stock Screener","url":"https://shirjankhadka.com.np/nepse-screener/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Daily ranked NEPSE stock screener: every listed security scored by a transparent rule-based engine (Strong Buy to Strong Sell) with ATR-based stop-loss and target levels, sector, signal, RSI, price and volume filters, RSI extremes and biggest-movers lists, and search. Educational use only, not investment advice.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/",
+      "sameAs": ["https://www.linkedin.com/in/shirjankhadkab/"]}}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
 {"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
-{"@type":"ListItem","position":2,"name":"NEPSE Alpha Lab","item":"https://shirjankhadka.com.np/nepse-alpha/"},
-{"@type":"ListItem","position":3,"name":"Watchlist","item":"https://shirjankhadka.com.np/nepse-watchlist/"}]}
+{"@type":"ListItem","position":2,"name":"NEPSE Stock Screener","item":"https://shirjankhadka.com.np/nepse-screener/"}]}
 </script>
-<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930c">
-<style>
-/* watchlist-only */
-.wrap{max-width:980px}
-.topbar .wrap{max-width:1160px}
-.wl-search-wrap{position:relative;max-width:560px;margin:32px 0 6px}
-.wl-search-wrap input{width:100%;font:inherit;font-size:15px;padding:14px 22px;border:1px solid var(--hairline);border-radius:999px;background:var(--paper);color:var(--ink);outline:none;transition:border-color .25s var(--ease),box-shadow .25s var(--ease)}
-.wl-search-wrap input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(198,168,107,.22)}
-.wl-search-wrap input::placeholder{color:var(--faint)}
-.wl-suggest{position:absolute;top:calc(100% + 8px);left:0;right:0;list-style:none;background:var(--paper);border:1px solid var(--hairline);border-radius:14px;box-shadow:var(--shadow-hover);overflow:hidden;z-index:50}
-.wl-suggest[hidden]{display:none}
-.wl-suggest li{display:flex;gap:12px;align-items:baseline;padding:11px 18px;cursor:pointer;font-size:14px}
-.wl-suggest li strong{font-weight:700;color:var(--emerald-deep)}
-.wl-suggest li span{color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wl-suggest li[aria-selected="true"],.wl-suggest li:hover{background:var(--gold-faint)}
-.wl-hint{font-size:13.5px;color:var(--muted);margin:10px 0 0}
-.wl-hint[hidden]{display:none}
-.wl-count{font-size:13.5px;color:var(--muted);font-variant-numeric:tabular-nums;margin:18px 0 4px}
-.wl-list{display:flex;flex-direction:column;gap:10px;margin:8px 0 24px}
-.wl-row{display:grid;grid-template-columns:1.6fr 1fr repeat(4,auto) 40px;gap:14px;align-items:center;background:var(--paper);border:1px solid var(--hairline);border-radius:16px;padding:16px 20px;transition:transform .3s var(--ease),box-shadow .3s var(--ease)}
-.wl-row:hover{transform:translateY(-2px);box-shadow:var(--shadow-hover)}
-.wl-sym a{font-weight:700;font-size:16px;color:var(--emerald-deep);letter-spacing:.02em}
-.wl-sym a:hover{color:var(--emerald)}
-.wl-name{display:block;font-size:12.5px;color:var(--muted);font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
-.wl-sec{font-size:13px;color:var(--muted);background:var(--ivory);border:1px solid var(--hairline-soft);padding:5px 12px;border-radius:999px;white-space:nowrap}
-.wl-num{display:flex;flex-direction:column;align-items:flex-end;gap:2px;font-size:14.5px}
-.wl-lab{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
-.verdict.sm{padding:5px 13px;font-size:12px}
-.up{color:var(--up)}.down{color:var(--down)}
-.wl-rm{width:32px;height:32px;border-radius:50%;border:1px solid var(--hairline);background:var(--ivory);color:var(--muted);font-size:17px;line-height:1;cursor:pointer;transition:all .25s var(--ease)}
-.wl-rm:hover{background:var(--down);border-color:var(--down);color:#fff}
-.wl-empty{border:1px dashed var(--hairline);border-radius:18px;padding:44px 32px;text-align:center;background:var(--paper)}
-.wl-empty h2{font-family:var(--serif);font-size:23px;font-weight:600;margin-bottom:10px}
-.wl-empty p{color:var(--muted);font-size:15px;max-width:560px;margin:0 auto 8px}
-.wl-note{color:var(--muted);font-size:14.5px;padding:20px;border:1px dashed var(--hairline);border-radius:14px;text-align:center}
-.updated{font-size:13px;color:var(--faint);margin-top:12px}
-.promise{background:var(--paper);border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline);margin:56px 0 0}
-.promise-in{max-width:980px;margin:0 auto;padding:44px 24px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-.promise-card h3{font-family:var(--serif);font-size:17px;font-weight:600;margin-bottom:6px;letter-spacing:-.01em}
-.promise-card p{font-size:14px;color:var(--muted)}
-@media(max-width:760px){
-  .wl-row{grid-template-columns:1fr auto auto auto 32px;row-gap:10px}
-  .wl-meta{display:none}
-  .promise-in{grid-template-columns:1fr;gap:20px}
-}
-@media(prefers-reduced-motion:reduce){.wl-row{transition:none}.wl-row:hover{transform:none}}
-</style>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"How are the screener signals computed?","acceptedAnswer":{"@type":"Answer","text":"Each listed security is scored by a rule-based engine on ten transparent factors: trend versus moving averages, RSI, MACD, turnover, 52-week position, divergences, chart patterns, market backdrop and support/resistance. Scores map to Strong Buy, Buy, Hold, Exit/Reduce or Strong Exit. Stop-loss sits 2× ATR(14) below the last close and the target 4× ATR(14) above it, a 1:2 risk-reward frame."}},
+{"@type":"Question","name":"How often is the ranking updated?","acceptedAnswer":{"@type":"Answer","text":"The ranking is rebuilt daily from the last closed session. The date of the data is shown above the table."}},
+{"@type":"Question","name":"What do the RSI extremes and Moves most lists show?","acceptedAnswer":{"@type":"Answer","text":"RSI extremes groups the latest batch by RSI(14): oversold below 30, overbought above 70, plus the ten lowest and ten highest readings. Moves most ranks securities by their 20-session average daily range (high minus low) as a share of the latest close. Both are mechanical measurements for education, not recommendations."}},
+{"@type":"Question","name":"Is this investment advice?","acceptedAnswer":{"@type":"Answer","text":"No. This is a mechanical, rule-based illustration for education. Markets are uncertain and past patterns do not guarantee future results. Do your own research before any investment decision."}},
+{"@type":"Question","name":"What is the Hit rate column?","acceptedAnswer":{"@type":"Answer","text":"For each security with enough history, the engine's past Buy and Strong Buy calls on equity securities over the last 250 sessions are replayed using only data available at the time. A call counts as a hit when the session's own target (+4x ATR) was reached before its stop-loss (-2x ATR) within the next 20 sessions. The hit rate is hits divided by decided calls; calls where neither level was touched are excluded. Fewer than 5 decided calls shows as a dash. Hit rates are regime-dependent: 31.0% across the older 250-session window (NEPSE +31.0%) versus 11.4% across the most recent 250 sessions (NEPSE -6.2%)."}}]}
+</script>
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 
 <aside class="suite-rail" aria-label="Alpha Lab suite">
   <a class="rail-word" href="/nepse-alpha/">NEPSE Alpha Lab<span class="g">.</span></a>
@@ -87,10 +58,10 @@
   <nav aria-label="Suite tools">
     <a href="/nepse-alpha/">Overview</a>
     <a href="/nepse-chart/">Chart &amp; signals</a>
-    <a href="/nepse-screener/">Screener</a>
+    <a href="/nepse-screener/" class="on" aria-current="page">Screener</a>
     <a href="/nepse-sectors/">Sectors</a>
     <a href="/nepse-news/">Market news</a>
-    <a href="/nepse-watchlist/" class="on" aria-current="page">Watchlist</a>
+    <a href="/nepse-watchlist/">Watchlist</a>
     <a href="/nepse-dashboard/">Dashboard</a>
     <a href="/nepse-portfolio/">Portfolio</a>
     <a href="/nepse-simulator/">Simulator</a>
@@ -104,69 +75,159 @@
     <a class="wordmark" href="/nepse-alpha/">NEPSE Alpha Lab<span class="g">.</span></a>
     <nav class="suite-links" aria-label="Alpha Lab suite">
       <a href="/nepse-chart/">The Lab</a>
-      <a href="/nepse-screener/">Screener</a>
+      <a href="/nepse-screener/" class="on" aria-current="page">Screener</a>
       <a href="/nepse-sectors/">Sectors</a>
       <a href="/nepse-news/">News</a>
-      <a href="/nepse-watchlist/" class="on" aria-current="page">Watchlist</a>
+      <a href="/nepse-watchlist/">Watchlist</a>
       <a href="/nepse-dashboard/">Dashboard</a>
       <a href="/nepse-portfolio/">Portfolio</a>
       <a href="/nepse-simulator/">Simulator</a>
     </nav>
     <div class="spacer"></div>
-    <a class="btn small" href="/nepse-dashboard/">My dashboard</a>
+    <a class="btn small" href="/nepse-chart/">Open the Lab →</a>
   </div>
 </header>
 
-<main id="main">
+<main id="main" class="wrap">
   <section class="hero">
-    <div class="wrap">
-      <div class="hero-rule"></div>
-      <span class="eyebrow"><span class="pulse"></span>Free · No login · Saved in your browser</span>
-      <h1>Your NEPSE watchlist.</h1>
-      <p class="lede">The securities you actually follow, in one calm place: live price, day change, the engine's signal and RSI, one tap from the full chart. Your list lives <strong>in your browser only</strong>, no account, no server, no one else can see it.</p>
-      <div class="wl-search-wrap">
-        <input id="wl-search" type="search" placeholder="Search by symbol or company name…" aria-label="Search NEPSE securities to add" role="combobox" aria-expanded="false" aria-controls="wl-suggest" aria-autocomplete="list" autocomplete="off">
-        <ul id="wl-suggest" class="wl-suggest" role="listbox" aria-label="Matching securities" hidden></ul>
-      </div>
-      <p class="wl-hint" id="wl-add-hint" role="status" hidden></p>
-      <p class="wl-count" id="wl-count" aria-live="polite"></p>
-      <div class="wl-list" id="wl-list" aria-live="polite"></div>
-      <div class="wl-empty" id="wl-empty" hidden>
-        <h2>Nothing on your list yet.</h2>
-        <p>A watchlist is how investors keep the market small. Instead of scanning 410 securities every morning, you track the handful you own, are researching, or are waiting on, and check them in seconds.</p>
-        <p>Use the search above to add your first security. It takes five seconds, and it will still be here tomorrow.</p>
-      </div>
-      <p class="updated" id="wl-updated"></p>
+    <div class="hero-rule"></div>
+    <p class="eyebrow">Side project · Daily ranking</p>
+    <h1>Free NEPSE stock screener</h1>
+    <p class="lede">Every NEPSE-listed security, ranked daily by a transparent rule-based signal engine, with ATR-based stop-loss and target levels. Click any symbol for the full chart, pattern and divergence breakdown in the Alpha Lab.</p>
+    <p class="asof" id="sc-asof">Loading data…</p>
+  </section>
+
+  <section aria-label="Signal summary">
+    <div class="sc-cards" id="sc-cards">
+      <div class="sc-card sc-sbuy" data-v="Strong Buy" role="button" tabindex="0" aria-label="Filter: Strong Buy. Securities with a Strong Buy verdict in the latest batch."><span class="sc-num" id="sc-n-sbuy">–</span><span class="sc-lab">Strong Buy<span class="info-tip" data-tip="Securities with a Strong Buy verdict in the latest batch." aria-hidden="true">i</span></span></div>
+      <div class="sc-card sc-buy" data-v="Buy" role="button" tabindex="0" aria-label="Filter: Buy. Securities with a Buy verdict in the latest batch."><span class="sc-num" id="sc-n-buy">–</span><span class="sc-lab">Buy<span class="info-tip" data-tip="Securities with a Buy verdict in the latest batch." aria-hidden="true">i</span></span></div>
+      <div class="sc-card sc-hold" data-v="Hold" role="button" tabindex="0" aria-label="Filter: Hold. Securities with a Hold verdict: no strong edge either way."><span class="sc-num" id="sc-n-hold">–</span><span class="sc-lab">Hold / Neutral<span class="info-tip" data-tip="Securities with a Hold verdict: no strong edge either way." aria-hidden="true">i</span></span></div>
+      <div class="sc-card sc-exit" data-v="Exit / Reduce" role="button" tabindex="0" aria-label="Filter: Sell. Securities with an Exit / Reduce verdict in the latest batch."><span class="sc-num" id="sc-n-exit">–</span><span class="sc-lab">Sell<span class="info-tip" data-tip="Securities with an Exit / Reduce verdict in the latest batch." aria-hidden="true">i</span></span></div>
+      <div class="sc-card sc-sexit" data-v="Strong Exit" role="button" tabindex="0" aria-label="Filter: Strong Sell. Securities with a Strong Exit verdict in the latest batch."><span class="sc-num" id="sc-n-sexit">–</span><span class="sc-lab">Strong Sell<span class="info-tip" data-tip="Securities with a Strong Exit verdict in the latest batch." aria-hidden="true">i</span></span></div>
+      <div class="sc-card sc-total"><span class="sc-num" id="sc-n-total">–</span><span class="sc-lab">Total<span class="info-tip tip-edge" data-tip="All listed securities ranked in the latest batch." aria-hidden="true">i</span></span></div>
     </div>
   </section>
 
-  <div class="promise">
-    <div class="promise-in">
-      <div class="promise-card"><h3>Private by design</h3><p>Your watchlist is stored only in this browser's local storage. There is no account to create and nothing to leak.</p></div>
-      <div class="promise-card"><h3>Unlimited, free</h3><p>Track as many securities as you like. No tiers, no locked rows, no "premium watchlist".</p></div>
-      <div class="promise-card"><h3>One tap to the chart</h3><p>Every symbol links straight to its full Alpha Lab breakdown: chart, patterns, divergences and the rule-based signal.</p></div>
+  <section class="w1-sec" aria-label="RSI extremes and biggest movers">
+    <h2>RSI extremes &amp; biggest movers <span class="sc-asof-inline" id="w1-asof"></span></h2>
+    <div class="w1-tabs" role="tablist" aria-label="RSI and range lists">
+      <button class="w1-tab" role="tab" id="w1tab-os" aria-controls="w1p-os" aria-selected="true">Oversold</button>
+      <button class="w1-tab" role="tab" id="w1tab-ob" aria-controls="w1p-ob" aria-selected="false" tabindex="-1">Overbought</button>
+      <button class="w1-tab" role="tab" id="w1tab-lo" aria-controls="w1p-lo" aria-selected="false" tabindex="-1">Lowest RSI</button>
+      <button class="w1-tab" role="tab" id="w1tab-hi" aria-controls="w1p-hi" aria-selected="false" tabindex="-1">Highest RSI</button>
+      <button class="w1-tab" role="tab" id="w1tab-mv" aria-controls="w1p-mv" aria-selected="false" tabindex="-1">Moves most</button>
     </div>
-  </div>
-  <div class="wrap">
-    <section class="final">
-      <h2>See it all together.</h2>
-      <p>Your watchlist becomes a widget on your personal market dashboard, next to the index, RSI extremes and the news feed.</p>
-      <a class="btn" href="/nepse-dashboard/">Open my dashboard</a>
-    </section>
-  </div>
+    <div class="w1-panel" role="tabpanel" id="w1p-os" aria-labelledby="w1tab-os" tabindex="0"><ul class="w1-list" id="w1-os"><li><span class="skl skl-row" aria-hidden="true"></span></li></ul></div>
+    <div class="w1-panel" role="tabpanel" id="w1p-ob" aria-labelledby="w1tab-ob" tabindex="0" hidden><ul class="w1-list" id="w1-ob"></ul></div>
+    <div class="w1-panel" role="tabpanel" id="w1p-lo" aria-labelledby="w1tab-lo" tabindex="0" hidden><ul class="w1-list" id="w1-lo"></ul></div>
+    <div class="w1-panel" role="tabpanel" id="w1p-hi" aria-labelledby="w1tab-hi" tabindex="0" hidden><ul class="w1-list" id="w1-hi"></ul></div>
+    <div class="w1-panel" role="tabpanel" id="w1p-mv" aria-labelledby="w1tab-mv" tabindex="0" hidden><ul class="w1-list" id="w1-mv"></ul></div>
+    <p class="w1-note">RSI(14) below 30 reads oversold and above 70 overbought, by convention. Each RSI is from that security's latest scored session in the daily batch. Moves most ranks securities by 20-session average daily range (high minus low) as a share of the latest close. Mechanical measurements for education, not recommendations.</p>
+  </section>
+
+  <!-- SNAP-START -->
+  <section class="sc-top10" aria-label="Top ranked signals today">    <h2>Top 10 ranked signals <span class="sc-asof-inline">&middot; 2026-09-28</span></h2>
+    <div class="sc-table-wrap"><table class="sc-table">
+      <thead><tr><th>#</th><th>Symbol</th><th>Price</th><th>Change</th><th>Signal</th><th>Setup</th><th>Stop loss</th><th>Target</th></tr></thead>
+      <tbody>
+      <tr><td>1</td><td><a href="/nepse-chart/?s=MBJC">MBJC</a></td><td>293.30</td><td>-0.9%</td><td>Strong Buy</td><td>Double Bottom</td><td>275.35</td><td>329.21</td></tr>
+      <tr><td>2</td><td><a href="/nepse-chart/?s=NMFBS">NMFBS</a></td><td>1,208.00</td><td>+0.7%</td><td>Strong Buy</td><td>Double Bottom</td><td>1,156.51</td><td>1,310.97</td></tr>
+      <tr><td>3</td><td><a href="/nepse-chart/?s=STC">STC</a></td><td>5,577.00</td><td>+0.3%</td><td>Strong Buy</td><td>Double Bottom</td><td>5,274.93</td><td>6,181.13</td></tr>
+      <tr><td>4</td><td><a href="/nepse-chart/?s=BNT">BNT</a></td><td>11,931.00</td><td>-0.6%</td><td>Strong Buy</td><td>Double Bottom</td><td>11,383.74</td><td>13,025.52</td></tr>
+      <tr><td>5</td><td><a href="/nepse-chart/?s=KBLD90">KBLD90</a></td><td>1,460.00</td><td>+12.2%</td><td>Strong Buy</td><td>Double Bottom</td><td>1,375.54</td><td>1,628.93</td></tr>
+      <tr><td>6</td><td><a href="/nepse-chart/?s=BHCL">BHCL</a></td><td>575.00</td><td>+0.0%</td><td>Strong Buy</td><td>Head &amp; Shoulders</td><td>520.42</td><td>684.16</td></tr>
+      <tr><td>7</td><td><a href="/nepse-chart/?s=EBLD91">EBLD91</a></td><td>1,100.00</td><td>-1.1%</td><td>Strong Buy</td><td>Double Top</td><td>1,048.40</td><td>1,203.19</td></tr>
+      <tr><td>8</td><td><a href="/nepse-chart/?s=HBLD86">HBLD86</a></td><td>1,198.00</td><td>+3.5%</td><td>Strong Buy</td><td>Double Bottom</td><td>1,161.05</td><td>1,271.91</td></tr>
+      <tr><td>9</td><td><a href="/nepse-chart/?s=JBBL">JBBL</a></td><td>346.00</td><td>-1.7%</td><td>Strong Buy</td><td>Double Bottom</td><td>327.89</td><td>382.22</td></tr>
+      <tr><td>10</td><td><a href="/nepse-chart/?s=LEC">LEC</a></td><td>244.20</td><td>-4.2%</td><td>Strong Buy</td><td>Double Bottom</td><td>220.98</td><td>290.63</td></tr>
+      </tbody>
+    </table></div>
+    <p class="sc-static-note">Static daily snapshot &middot; the full interactive ranking of 410 securities, with hit-rate tracking and filters, is below.</p>
+  </section>
+  <!-- SNAP-END -->
+
+  <section class="sc-controls" aria-label="Screener controls">
+    <label class="sc-show">Show
+      <select id="sc-perpage" class="sc-select" aria-label="Rows per page">
+        <option value="10">10</option>
+        <option value="25" selected>25</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+      </select>
+      entries</label>
+    <input type="search" id="sc-q" class="sc-search" placeholder="Search symbol or company…" aria-label="Search symbol or company" autocomplete="off">
+    <select id="sc-sector" class="sc-select" aria-label="Filter by sector">
+      <option value="">All sectors</option>
+    </select>
+  </section>
+
+  <section class="sc-controls sc-filters" aria-label="More screener filters">
+    <select id="sc-signal" class="sc-select" aria-label="Filter by signal">
+      <option value="">All signals</option>
+      <option value="Strong Buy">Strong Buy</option>
+      <option value="Buy">Buy</option>
+      <option value="Hold">Hold</option>
+      <option value="Exit / Reduce">Sell</option>
+      <option value="Strong Exit">Strong Sell</option>
+      <option value="Insufficient history">No signal</option>
+    </select>
+    <select id="sc-rsi" class="sc-select" aria-label="Filter by RSI zone">
+      <option value="">All RSI</option>
+      <option value="os">Oversold (below 30)</option>
+      <option value="mid">Neutral (30 to 70)</option>
+      <option value="ob">Overbought (above 70)</option>
+    </select>
+    <label class="sc-flab" for="sc-pmin">Price</label>
+    <input type="number" id="sc-pmin" class="sc-range-in" placeholder="Min" aria-label="Minimum price in rupees" min="0" step="any">
+    <input type="number" id="sc-pmax" class="sc-range-in" placeholder="Max" aria-label="Maximum price in rupees" min="0" step="any">
+    <label class="sc-flab" for="sc-vmin">Volume</label>
+    <input type="number" id="sc-vmin" class="sc-range-in" placeholder="Min vol" aria-label="Minimum session volume" min="0" step="1">
+    <button type="button" id="sc-reset" class="sc-reset">Reset filters</button>
+  </section>
+
+  <section aria-label="Ranked stocks">
+    <div class="sc-table-wrap">
+      <table class="sc-table" id="sc-table">
+        <thead>
+          <tr>
+            <th data-k="sn" class="num">S.N.</th>
+            <th data-k="sec">Sector</th>
+            <th data-k="sym">Symbol</th>
+            <th data-k="p" class="num">Price</th>
+            <th data-k="vol" class="num">Volume</th>
+            <th data-k="rsi" class="num" title="Relative Strength Index (14): under 30 is oversold, over 70 overbought">RSI</th>
+            <th data-k="sig">Signal &amp; Setup</th>
+            <th data-k="tr" class="num" title="Share of past Buy calls that hit the +4xATR target before the -2xATR stop (20 sessions)">Hit rate</th>
+            <th data-k="sl" class="num">Stop Loss (SL)</th>
+            <th data-k="tp" class="num">Target (TP)</th>
+          </tr>
+        </thead>
+        <tbody id="sc-body">
+          <tr><td colspan="10" class="sc-empty">Loading ranking…</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="sc-below">
+      <span class="sc-range" id="sc-range"></span>
+      <div class="sc-pager" id="sc-pager" aria-label="Pagination"></div>
+    </div>
+  </section>
+
+  <section class="sc-note" aria-label="Methodology note">
+    <p><strong>How to read this table.</strong> Signals come from a rule-based engine (trend, RSI, MACD, turnover, 52-week position, divergences, chart patterns, market backdrop, support/resistance), the same engine behind the Alpha Lab. Buy signals are gated: no Buy is issued while the price sits below its 200-day average, entries only fire in long-term stock uptrends. Hit rates are regime-dependent, and both regimes are published: across the older 250-session window (NEPSE +31.0%) the engine’s buy calls hit 31.0%; across the most recent 250 sessions (NEPSE −6.2%) they hit 11.4%. Stop-loss = last close − 2 × ATR(14); target = last close + 4 × ATR(14), a 1:2 risk-reward frame. “Setup” names the most recent chart pattern or divergence detected. <strong>Hit rate</strong> replays the engine’s past Buy/Strong Buy calls on equity securities over the last 250 sessions: a call is a hit when its own target was touched before its stop within the next 20 sessions. Calls touching neither level are excluded; under 5 decided calls shows “–”.</p>
+    <p class="sc-disclaim">Rule-based screening for education only, not investment advice. Signals computed from the last close (<span id="sc-asof2">–</span>). Securities with under 60 sessions of history get no signal.</p>
+  </section>
 </main>
 
-<footer class="foot">
+<footer class="sc-footer">
   <div class="wrap">
-    <div class="disclaimer"><strong>Educational use only.</strong> Signals are mechanical output from a fixed rule set, not investment advice. Nothing here is a buy or sell recommendation; verify prices with your broker before trading.</div>
-    <div class="row">
-      <span>Built by <a href="/">Shirjan Khadka</a> · Aspiring Financial Analyst</span>
-      <span><a href="/nepse-alpha/">Alpha Lab</a> · <a href="/nepse-chart/">Chart</a> · <a href="/nepse-screener/">Screener</a> · <a href="/nepse-news/">News</a> · <a href="/blog/">Blog</a></span>
-    </div>
+    <p>Built by <a href="/">Shirjan Khadka</a> · Kathmandu, Nepal</p>
+    <p class="sc-footer-sub">Daily NEPSE ranking · rule-based signals · educational use only</p>
   </div>
 </footer>
 
-<script src="/js/nepse-fresh.js?v=20260930b"></script>
-<script src="/js/nepse-watchlist.js?v=20261002a"></script>
+<script src="../js/nepse-fresh.js?v=20260930b" defer></script>
+<script src="../js/nepse-wave1.js?v=20260930c" defer></script>
+<script src="../js/nepse-screener.js?v=20261002a" defer></script>
 </body>
 </html>
