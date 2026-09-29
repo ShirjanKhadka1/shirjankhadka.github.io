@@ -954,6 +954,36 @@
     var c = rows.map(function (r) { return r[4]; }), s200 = smaArr(c, 200);
     return c[c.length - 1] >= s200[s200.length - 1] ? 'up' : 'down';
   }
+  // NEPSE index regime as it stood on a given session date (YYYYMMDD int):
+  // index close vs its own 200-session average using only sessions up to that date.
+  function idxRegimeAt(ymd) {
+    var ix = indexRows(), k = -1, i;
+    for (i = 0; i < ix.length; i++) { if (ix[i][0] <= ymd) k = i; else break; }
+    if (k < 199) return null;
+    var s = 0;
+    for (i = k - 199; i <= k; i++) s += ix[i][4];
+    return ix[k][4] >= s / 200 ? 'up' : 'down';
+  }
+  // The engine's verdict recomputed at the close of each of the last 16
+  // sessions, using only data available at that session (same engine, same
+  // rules — an honest replay, not a backtest claim).
+  function signalHistory() {
+    var rows = state.rows, n = rows.length, out = [], HN = 16, i;
+    var start = Math.max(60, n - HN);
+    var isIndex = state.mode === 'index';
+    for (i = start; i < n; i++) {
+      var sub = rows.slice(0, i + 1);
+      var v = computeVerdict({
+        rows: sub,
+        divs: detectDivergences(sub),
+        pats: detectPatterns(sub),
+        isIndex: isIndex,
+        idxRegime: isIndex ? null : idxRegimeAt(rows[i][0])
+      });
+      out.push({ d: rows[i][0], c: rows[i][4], vol: rows[i][5], label: v.label, cls: v.cls });
+    }
+    return out.reverse(); // newest first
+  }
   function renderShell(S, divs, pats) {
     var wrap = document.getElementById('nl-lab'); if (!wrap) return;
     var rows = state.rows, n = rows.length;
@@ -1007,6 +1037,39 @@
           '<div class="nl-v-meterwrap"><div class="nl-v-score">' + esc(v0.note) + '</div></div></div>' +
           (state.ltpOnly ? '<div class="nl-v-foot"><span class="nl-ltp-note">LTP-only history — intraday candles and pattern/divergence detection are unavailable for this security.</span></div>' : '') +
           '<div class="nl-v-foot">Rule-based model on daily data — educational only, not financial advice.</div>';
+      }
+    }
+    // ---- signal history: the engine's verdict at each of the last 16 sessions ----
+    var sh = document.getElementById('nl-sighist');
+    if (sh) {
+      if (state.loading || state.err || n < 76) { sh.innerHTML = ''; }
+      else if (!shellCache.shist || shellCache.shistKey !== state.sym + '|' + rows[n - 1][0]) {
+        sh.innerHTML = '<h2>Signal history</h2><p class="nl-sh-sub">Replaying the engine on each of the last 16 closes…</p>';
+        var shKey = state.sym + '|' + rows[n - 1][0];
+        setTimeout(function () {
+          var el = document.getElementById('nl-sighist');
+          if (!el) return;
+          // symbol changed while we were computing — drop the stale result
+          if (!state.rows.length || state.sym + '|' + state.rows[state.rows.length - 1][0] !== shKey) return;
+          try {
+            var hist = signalHistory();
+            var shrows = hist.map(function (h) {
+              return '<tr><td class="nl-sh-d">' + fmtD(h.d) + '</td>' +
+                '<td class="num"><b>' + num(h.c, 2) + '</b></td>' +
+                '<td class="num">' + (h.vol == null ? '–' : Math.round(h.vol).toLocaleString('en-US')) + '</td>' +
+                '<td><span class="nl-sh-pill ' + h.cls + '">' + esc(h.label) + '</span></td></tr>';
+            }).join('');
+            el.innerHTML =
+              '<h2>Signal history</h2>' +
+              '<p class="nl-sh-sub">What the signal engine said at the close of each of the last ' + hist.length +
+              ' sessions — same rules, only the data available that day. Educational, not advice.</p>' +
+              '<div class="nl-sh-wrap"><table class="nl-sh-table"><thead><tr>' +
+              '<th>Trade date</th><th class="num">Close price</th><th class="num">Volume</th><th>Signal trigger</th>' +
+              '</tr></thead><tbody>' + shrows + '</tbody></table></div>';
+            shellCache.shist = true;
+            shellCache.shistKey = state.sym + '|' + rows[n - 1][0];
+          } catch (e) { el.innerHTML = ''; }
+        }, 30);
       }
     }
     // scanner
