@@ -29,7 +29,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="stylesheet" href="css/style.css?v=20260929d">
+<link rel="stylesheet" href="css/style.css?v=20260929g">
   <link rel="preload" as="image" href="/assets/images/profile.jpg" fetchpriority="high">
 
   <script type="application/ld+json">
@@ -73,7 +73,15 @@
         <a href="#events">Events</a>
         <a href="/blog/">Blog</a>
         <a href="/scholarships/">Scholarships</a>
-        <a href="/nepse-alpha/">Alpha Lab</a>
+        <div class="nav-drop">
+          <a href="/nepse-alpha/" aria-haspopup="true">Alpha Lab <span class="caret" aria-hidden="true">▾</span></a>
+          <div class="nav-drop-menu" role="menu" aria-label="NEPSE Alpha Lab suite">
+            <a href="/nepse-alpha/" role="menuitem">Alpha Lab overview</a>
+            <a href="/nepse-chart/" role="menuitem">Chart &amp; signals</a>
+            <a href="/nepse-screener/" role="menuitem">Stock screener</a>
+            <a href="/nepse-news/" role="menuitem">Market news</a>
+          </div>
+        </div>
         <a href="#contact">Contact</a>
       </nav>
       <div class="nav-right">
@@ -202,6 +210,7 @@
             </div>
             <h3>NEPSE Alpha Lab</h3>
             <p>Search any NEPSE-listed stock for divergence and chart-pattern scans, live quotes, and a transparent, rule-based Buy / Hold / Exit verdict. Educational, computed entirely in the browser.</p>
+            <p class="suite-jump">The suite: <a href="/nepse-chart/">Chart</a> · <a href="/nepse-screener/">Screener</a> · <a href="/nepse-news/">Market news</a></p>
             <a class="text-link" href="/nepse-alpha/">Open the alpha lab <span aria-hidden="true">→</span></a><br>
             <a class="text-link" href="/nepse-chart/data-check.html">Verify data coverage for all 410 listings <span aria-hidden="true">→</span></a>
           </div>

@@ -21,7 +21,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="stylesheet" href="chart.css?v=20260924f">
+<link rel="stylesheet" href="chart.css?v=20260929f">
 <style>
 .dc-wrap{max-width:1180px;margin:0 auto;padding:0 20px}
 .dc-sub{color:var(--muted);margin:6px 0 0}
@@ -30,8 +30,8 @@
 .dc-prev{display:none;margin:18px 0;padding:14px 18px;border-radius:14px;background:#fffbeb;border:1px solid #fcd34d;color:#92400e;font-size:.9rem}
 .dc-prev.show{display:block}
 .dc-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:20px 0}
-.dc-controls input[type=search]{flex:1;min-width:200px;padding:10px 14px;border:1px solid var(--line);border-radius:10px;font-size:.95rem;background:#fff;color:var(--ink)}
-.dc-controls select{padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:.95rem;background:#fff;color:var(--ink)}
+.dc-controls input[type=search]{flex:1;min-width:200px;padding:10px 14px;border:1px solid var(--hairline);border-radius:10px;font-size:.95rem;background:#fff;color:var(--ink)}
+.dc-controls select{padding:10px 12px;border:1px solid var(--hairline);border-radius:10px;font-size:.95rem;background:#fff;color:var(--ink)}
 .dc-btn{padding:10px 18px;border:none;border-radius:10px;background:#0f172a;color:#fff;font-weight:700;font-size:.95rem;cursor:pointer}
 .dc-btn:disabled{opacity:.5;cursor:default}
 .dc-progress{display:none;margin:6px 0 14px}
@@ -43,9 +43,9 @@
 .dc-result.show{display:block}
 .dc-result.ok{background:#f0fdf4;border:1px solid #86efac;color:#166534}
 .dc-result.warn{background:#fffbeb;border:1px solid #fcd34d;color:#92400e}
-.dc-tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:#fff;box-shadow:var(--shadow)}
+.dc-tablewrap{overflow-x:auto;border:1px solid var(--hairline);border-radius:14px;background:#fff;box-shadow:var(--shadow)}
 table.dc{width:100%;border-collapse:collapse;font-size:.86rem;min-width:900px}
-table.dc thead th{position:sticky;top:0;background:#f8fafc;text-align:left;padding:10px 12px;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--line);z-index:1;white-space:nowrap}
+table.dc thead th{position:sticky;top:0;background:#f8fafc;text-align:left;padding:10px 12px;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--hairline);z-index:1;white-space:nowrap}
 table.dc tbody td{padding:9px 12px;border-bottom:1px solid #f1f5f9;vertical-align:top}
 table.dc tbody tr:last-child td{border-bottom:none}
 td.sym{font-weight:800;white-space:nowrap}
@@ -69,7 +69,7 @@ th.num{text-align:right}
 .dc-legend span{display:inline-flex;align-items:center;gap:6px}
 .dc-note{color:var(--muted);font-size:.85rem;margin:18px 0 40px;line-height:1.6}
 .dc-count{color:var(--muted);font-size:.85rem;margin:0 0 10px}
-.dc-foot{margin:0 0 40px;padding-top:16px;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+.dc-foot{margin:0 0 40px;padding-top:16px;border-top:1px solid var(--hairline);font-size:.85rem;color:var(--muted)}
 .dc-foot a{color:var(--ink);font-weight:600;text-decoration:none}
 .dc-foot a:hover{text-decoration:underline}
 @media(max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}}
