@@ -199,19 +199,19 @@ function symbolPage(u, v, newsItems, peers, fund) {
   h += '<p class="asof">Data as of ' + esc((v && v.asof) || '') + ' · refreshed daily after market close</p></section>\n';
 
   // Price snapshot
-  h += '<section class="sp-snap" aria-label="Price snapshot"><div class="sp-price-card">\\n';
-  h += '<div class="sp-price-main">\\n';
+  h += '<section class="sp-snap" aria-label="Price snapshot"><div class="sp-price-card">\n';
+  h += '<div class="sp-price-main">\n';
   if (price) {
-    h += '<div class="sp-price">Rs ' + price + '</div>\\n';
-    if (chg) h += '<div class="sp-chg ' + chgCls + '">' + (Number(v.ch) > 0 ? '+' : '') + chg + ' on the session</div>\\n';
+    h += '<div class="sp-price">Rs ' + price + '</div>\n';
+    if (chg) h += '<div class="sp-chg ' + chgCls + '">' + (Number(v.ch) > 0 ? '+' : '') + chg + ' on the session</div>\n';
   } else {
-    h += '<div class="sp-price">No recent price data</div>\\n';
+    h += '<div class="sp-price">No recent price data</div>\n';
   }
-  h += '</div><div class="sp-price-side">\\n';
+  h += '</div><div class="sp-price-side">\n';
   const h52 = fmtNum(v && v.h52), l52 = fmtNum(v && v.l52);
-  if (h52 || l52) h += '<div class="sp-stat"><span class="sp-stat-v">Rs ' + (l52 || '–') + ' – Rs ' + (h52 || '–') + '</span><span class="sp-stat-l">52-week range</span></div>\\n';
+  if (h52 || l52) h += '<div class="sp-stat"><span class="sp-stat-v">Rs ' + (l52 || '–') + ' – Rs ' + (h52 || '–') + '</span><span class="sp-stat-l">52-week range</span></div>\n';
   const vol = fmtNum(v && v.vol);
-  if (vol) h += '<div class="sp-stat"><span class="sp-stat-v">' + vol + '</span><span class="sp-stat-l">Volume (shares)</span></div>\\n';
+  if (vol) h += '<div class="sp-stat"><span class="sp-stat-v">' + vol + '</span><span class="sp-stat-l">Volume (shares)</span></div>\n';
   h += '</div>';
   h += '</div></section>\n';
 

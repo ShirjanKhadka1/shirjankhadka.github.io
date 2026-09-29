@@ -65,9 +65,7 @@
 <section class="hero"><div class="hero-rule"></div><p class="eyebrow">Directory</p>
 <h1>All NEPSE listed securities</h1>
 <p class="asof">410 instruments · data as of 2026-09-28</p></section>
-<section aria-label="Security directory">
-<div class="sp-dir-search"><input type="search" id="spdir-q" placeholder="Search by name or symbol, e.g. Nabil or NABIL" aria-label="Search securities" autocomplete="off"><p class="sp-dir-count" id="spdir-count" aria-live="polite"></p></div>
-<ul class="sp-dir" id="spdir-list">
+<section aria-label="Security directory"><ul class="sp-dir">
 <li><a href="/stocks/ACLBSL/">Aarambha Chautari Laghubitta Bittiya Sanstha Limited (ACLBSL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/ADBL/">Agricultural Development Bank Limited (ADBL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/ADBLD83/">10.35% Agricultural Bank Debenture 2083 (ADBLD83)</a> <span class="sp-type">Debenture</span></li>
@@ -487,16 +485,5 @@
     <p class="sc-footer-sub">Per-symbol NEPSE snapshot · rule-based signals · educational use only, not investment advice</p>
   </div>
 </footer>
-<script>
-(function(){
-var q=document.getElementById('spdir-q'),list=document.getElementById('spdir-list'),count=document.getElementById('spdir-count');
-if(!q||!list)return;
-var items=Array.prototype.slice.call(list.getElementsByTagName('li'));
-function upd(){var t=q.value.trim().toLowerCase(),n=0;
-items.forEach(function(li){var hit=!t||li.textContent.toLowerCase().indexOf(t)>-1;li.style.display=hit?'':'none';if(hit)n++;});
-count.textContent=t?(n+' of '+items.length+' match'):(items.length+' instruments');}
-q.addEventListener('input',upd);upd();
-})();
-</script>
 </body>
 </html>
