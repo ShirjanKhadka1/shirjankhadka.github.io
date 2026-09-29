@@ -28,9 +28,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930a">
+<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930b">
 <link rel="stylesheet" href="../css/style.css?v=20260930a">
-<link rel="stylesheet" href="../nepse-chart/chart.css?v=20260930a">
+<link rel="stylesheet" href="../nepse-chart/chart.css?v=20260930b">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"NEPSE Stock Screener","url":"https://shirjankhadka.com.np/nepse-screener/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Daily ranked NEPSE stock screener: every listed security scored by a transparent rule-based engine (Strong Buy to Strong Sell) with ATR-based stop-loss and target levels, sector filter and search. Educational use only, not investment advice.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/",
       "sameAs": ["https://www.linkedin.com/in/shirjankhadkab/"]}}
@@ -50,6 +50,19 @@
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
+
+<aside class="suite-rail" aria-label="Alpha Lab suite">
+  <a class="rail-word" href="/nepse-alpha/">NEPSE Alpha Lab<span class="g">.</span></a>
+  <p class="rail-k">Suite</p>
+  <nav aria-label="Suite tools">
+    <a href="/nepse-alpha/">Overview</a>
+    <a href="/nepse-chart/">Chart &amp; signals</a>
+    <a href="/nepse-screener/" class="on" aria-current="page">Screener</a>
+    <a href="/nepse-news/">Market news</a>
+    <a href="/nepse-chart/data-check.html">Data check</a>
+  </nav>
+  <p class="rail-foot">Free forever · no login</p>
+</aside>
 
 <header class="topbar">
   <div class="wrap topbar-in">
@@ -75,12 +88,12 @@
 
   <section aria-label="Signal summary">
     <div class="sc-cards" id="sc-cards">
-      <div class="sc-card sc-sbuy" data-v="Strong Buy" role="button" tabindex="0" aria-label="Filter: Strong Buy"><span class="sc-num" id="sc-n-sbuy">–</span><span class="sc-lab">Strong Buy</span></div>
-      <div class="sc-card sc-buy" data-v="Buy" role="button" tabindex="0" aria-label="Filter: Buy"><span class="sc-num" id="sc-n-buy">–</span><span class="sc-lab">Buy</span></div>
-      <div class="sc-card sc-hold" data-v="Hold" role="button" tabindex="0" aria-label="Filter: Hold"><span class="sc-num" id="sc-n-hold">–</span><span class="sc-lab">Hold / Neutral</span></div>
-      <div class="sc-card sc-exit" data-v="Exit / Reduce" role="button" tabindex="0" aria-label="Filter: Sell"><span class="sc-num" id="sc-n-exit">–</span><span class="sc-lab">Sell</span></div>
-      <div class="sc-card sc-sexit" data-v="Strong Exit" role="button" tabindex="0" aria-label="Filter: Strong Sell"><span class="sc-num" id="sc-n-sexit">–</span><span class="sc-lab">Strong Sell</span></div>
-      <div class="sc-card sc-total"><span class="sc-num" id="sc-n-total">–</span><span class="sc-lab">Total</span></div>
+      <div class="sc-card sc-sbuy" data-v="Strong Buy" role="button" tabindex="0" aria-label="Filter: Strong Buy. Securities with a Strong Buy verdict in the latest batch."><span class="sc-num" id="sc-n-sbuy">–</span><span class="sc-lab">Strong Buy<span class="info-tip" data-tip="Securities with a Strong Buy verdict in the latest batch." aria-hidden="true">i</span></span></div>
+      <div class="sc-card sc-buy" data-v="Buy" role="button" tabindex="0" aria-label="Filter: Buy. Securities with a Buy verdict in the latest batch."><span class="sc-num" id="sc-n-buy">–</span><span class="sc-lab">Buy<span class="info-tip" data-tip="Securities with a Buy verdict in the latest batch." aria-hidden="true">i</span></span></div>
+      <div class="sc-card sc-hold" data-v="Hold" role="button" tabindex="0" aria-label="Filter: Hold. Securities with a Hold verdict: no strong edge either way."><span class="sc-num" id="sc-n-hold">–</span><span class="sc-lab">Hold / Neutral<span class="info-tip" data-tip="Securities with a Hold verdict: no strong edge either way." aria-hidden="true">i</span></span></div>
+      <div class="sc-card sc-exit" data-v="Exit / Reduce" role="button" tabindex="0" aria-label="Filter: Sell. Securities with an Exit / Reduce verdict in the latest batch."><span class="sc-num" id="sc-n-exit">–</span><span class="sc-lab">Sell<span class="info-tip" data-tip="Securities with an Exit / Reduce verdict in the latest batch." aria-hidden="true">i</span></span></div>
+      <div class="sc-card sc-sexit" data-v="Strong Exit" role="button" tabindex="0" aria-label="Filter: Strong Sell. Securities with a Strong Exit verdict in the latest batch."><span class="sc-num" id="sc-n-sexit">–</span><span class="sc-lab">Strong Sell<span class="info-tip" data-tip="Securities with a Strong Exit verdict in the latest batch." aria-hidden="true">i</span></span></div>
+      <div class="sc-card sc-total"><span class="sc-num" id="sc-n-total">–</span><span class="sc-lab">Total<span class="info-tip tip-edge" data-tip="All listed securities ranked in the latest batch." aria-hidden="true">i</span></span></div>
     </div>
   </section>
 
@@ -162,6 +175,7 @@
   </div>
 </footer>
 
-<script src="../js/nepse-screener.js?v=20260930a" defer></script>
+<script src="../js/nepse-fresh.js?v=20260930b" defer></script>
+<script src="../js/nepse-screener.js?v=20260930b" defer></script>
 </body>
 </html>
