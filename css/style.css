@@ -871,7 +871,8 @@ figure.article-hero .photo-credit { display: block; margin-top: 6px; font-size: 
   .hero-caption { margin-top: 14px; }
   /* Phone: portrait left, intro right in parallel; details span full width below */
   .about-grid { grid-template-columns: 88px 1fr; gap: 20px 14px; }
-  .about-portrait { grid-row: 1; grid-column: 1; max-width: none; margin: 0; align-self: center; }
+  .about-portrait { grid-row: 1; grid-column: 1; max-width: none; margin: 0; align-self: center; width: 88px; }
+  .about-portrait img { width: 88px; height: 110px; aspect-ratio: auto; object-fit: cover; display: block; }
   .about-portrait figcaption { display: none; }
   .about-intro { grid-row: 1; grid-column: 2; align-self: center; min-width: 0; }
   .about-intro .h2 { margin-bottom: 0; }
