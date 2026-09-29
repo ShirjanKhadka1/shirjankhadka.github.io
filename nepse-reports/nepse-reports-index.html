@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free NEPSE Report Builder: Printable Portfolio, Watchlist and Market Reports | Shirjan Khadka</title>
+<meta name="description" content="Build a clean printable NEPSE report from your portfolio, watchlist, screener leaders, market snapshot and sector breadth. Toggle sections, print, free, no login.">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-reports/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Free NEPSE Report Builder">
+<meta property="og:description" content="Assemble a printable report from your portfolio, watchlist, screener signals and market breadth. Free, no login.">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-reports/">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Free NEPSE Report Builder">
+<meta name="twitter:description" content="Printable NEPSE reports from your portfolio, watchlist and the daily batch. Free, no login.">
+<meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
+<link rel="icon" href="/nepse-reports/icon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/nepse-reports/icon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/nepse-reports/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"NEPSE Report Builder","url":"https://shirjankhadka.com.np/nepse-reports/","description":"A free printable NEPSE report builder: toggle portfolio, watchlist, screener, market and sector sections and print a clean report. Educational use only.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
+{"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
+{"@type":"ListItem","position":2,"name":"NEPSE Alpha Lab","item":"https://shirjankhadka.com.np/nepse-alpha/"},
+{"@type":"ListItem","position":3,"name":"Reports","item":"https://shirjankhadka.com.np/nepse-reports/"}]}
+</script>
+<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930c">
+<link rel="stylesheet" href="/css/nepse-wave7.css?v=20261002c">
+<style>
+/* reports-only */
+.wrap{max-width:980px}
+.topbar .wrap{max-width:1160px}
+.rp-builder{background:var(--paper);border:1px solid var(--hairline);border-radius:18px;padding:26px;margin:26px 0}
+.rp-builder h2{font-family:var(--serif);font-size:21px;font-weight:600;margin:0 0 6px}
+.rp-builder .sub{font-size:13.5px;color:var(--muted);margin:0 0 18px}
+.rp-checks{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
+.rp-check{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--hairline);border-radius:12px;padding:13px 16px;cursor:pointer;font-size:14px;background:var(--ivory)}
+.rp-check:hover{border-color:var(--gold)}
+.rp-check input{margin-top:3px;accent-color:var(--gold)}
+.rp-check strong{display:block;font-size:14.5px}
+.rp-check span{color:var(--muted);font-size:13px}
+.rp-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.rp-status{font-size:14px;color:var(--muted)}
+#rp-result{margin:10px 0 40px}
+.rp-printhead{display:none}
+.rp-sec{background:var(--paper);border:1px solid var(--hairline);border-radius:18px;padding:28px;margin:22px 0;break-inside:avoid}
+.rp-sec h2{font-family:var(--serif);font-size:22px;font-weight:600;margin:0 0 6px}
+.rp-sec h3{font-family:var(--serif);font-size:17px;font-weight:600;margin:22px 0 10px}
+.rp-sub{font-size:13.5px;color:var(--muted);margin:0 0 16px}
+.rp-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}
+.rp-stat{background:var(--ivory);border:1px solid var(--hairline);border-radius:12px;padding:14px 16px}
+.rp-k{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:6px}
+.rp-v{font-size:16.5px;font-weight:700;font-variant-numeric:tabular-nums}
+.rp-table-wrap{overflow-x:auto;border:1px solid var(--hairline);border-radius:12px;margin:12px 0}
+.rp-table{width:100%;border-collapse:collapse;font-size:13.5px;background:var(--ivory)}
+.rp-table th,.rp-table td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--hairline);font-variant-numeric:tabular-nums}
+.rp-table th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);font-weight:700}
+.rp-table tr:last-child td{border-bottom:0}
+.rp-empty{padding:20px;border:1px dashed var(--hairline);border-radius:12px;color:var(--muted);font-size:14.5px;background:var(--ivory)}
+.rp-empty a{color:var(--gold);font-weight:600}
+.rp-note{font-size:12.5px;color:var(--faint);margin:10px 0 0}
+.up{color:var(--up)}.down{color:var(--down)}
+.asof{font-size:13.5px;color:var(--muted)}
+.limits{margin:40px 0}
+.limits ul{margin:0;padding-left:22px;color:var(--muted);font-size:14.5px;display:flex;flex-direction:column;gap:8px}
+@media(max-width:860px){.rp-checks{grid-template-columns:1fr}.rp-stats{grid-template-columns:1fr 1fr}}
+@media(prefers-reduced-motion:reduce){.rp-check{transition:none}}
+/* ---------- print ---------- */
+@media print{
+  .suite-rail,.topbar,.hero,.rp-builder,.limits,.foot,.rp-empty a{display:none !important}
+  body{padding:0;background:#fff;color:#000}
+  .wrap{max-width:none;padding:0 12mm}
+  .rp-printhead{display:block;border-bottom:2px solid #0C1F16;padding-bottom:10px;margin-bottom:18px}
+  .rp-printhead h1{font-family:Fraunces,Georgia,serif;font-size:24px;margin:0}
+  .rp-printhead p{font-size:12px;color:#555;margin:4px 0 0}
+  #rp-result{margin:0}
+  .rp-sec{border:1px solid #ccc;border-radius:0;padding:14px;margin:0 0 16px;box-shadow:none}
+  .rp-printfoot{display:block !important;font-size:11px;color:#555;border-top:1px solid #ccc;padding-top:8px;margin-top:8px}
+  a{color:#000;text-decoration:none}
+  .up{color:#0a6b3a}.down{color:#a11f1f}
+}
+.rp-printfoot{display:none}
+</style>
+</head>
+<body>
+
+<aside class="suite-rail" aria-label="Alpha Lab suite">
+  <a class="rail-word" href="/nepse-alpha/">NEPSE Alpha Lab<span class="g">.</span></a>
+  <p class="rail-k">Suite</p>
+  <nav aria-label="Suite tools">
+    <a href="/nepse-alpha/">Overview</a>
+    <a href="/nepse-chart/">Chart &amp; signals</a>
+    <a href="/nepse-screener/">Screener</a>
+    <a href="/nepse-sectors/">Sectors</a>
+    <a href="/nepse-news/">Market news</a>
+    <a href="/nepse-watchlist/">Watchlist</a>
+    <a href="/nepse-dashboard/">Dashboard</a>
+    <a href="/nepse-portfolio/">Portfolio</a>
+    <a href="/nepse-simulator/">Simulator</a>
+    <a href="/nepse-fundamentals/">Fundamentals</a>
+    <a href="/nepse-reports/" class="on" aria-current="page">Reports</a>
+    <a href="/nepse-chart/data-check.html">Data check</a>
+  </nav>
+  <p class="rail-foot">Free forever · no login</p>
+</aside>
+
+<header class="topbar">
+  <div class="wrap topbar-in">
+    <a class="wordmark" href="/nepse-alpha/">NEPSE Alpha Lab<span class="g">.</span></a>
+    <nav class="suite-links" aria-label="Alpha Lab suite">
+      <a href="/nepse-chart/">The Lab</a>
+      <a href="/nepse-screener/">Screener</a>
+      <a href="/nepse-sectors/">Sectors</a>
+      <a href="/nepse-news/">News</a>
+      <a href="/nepse-watchlist/">Watchlist</a>
+      <a href="/nepse-dashboard/">Dashboard</a>
+      <a href="/nepse-portfolio/">Portfolio</a>
+      <a href="/nepse-simulator/">Simulator</a>
+      <a href="/nepse-fundamentals/">Fundamentals</a>
+      <a href="/nepse-reports/" class="on" aria-current="page">Reports</a>
+    </nav>
+    <div class="spacer"></div>
+    <a class="btn small" href="/nepse-portfolio/">My portfolio</a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-rule"></div>
+      <span class="eyebrow"><span class="pulse"></span>Free · No login · Prints clean</span>
+      <h1>Your market, on one page.</h1>
+      <p class="lede">Tick the sections you want, then print a clean report built only from real data: your portfolio, your watchlist, the latest screener signals, and market breadth. Empty sections say so honestly.</p>
+      <p class="asof" id="rp-asof">Loading batch…</p>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <section class="rp-builder" aria-label="Report builder">
+      <h2>Build your report</h2>
+      <p class="sub">Sections rebuild live as you tick. Your portfolio and watchlist are read from this browser only.</p>
+      <div class="rp-checks">
+        <label class="rp-check"><input type="checkbox" id="cb-rp-portfolio" checked><span><strong>Portfolio summary</strong><span>Active portfolio: holdings, invested, value, P&amp;L.</span></span></label>
+        <label class="rp-check"><input type="checkbox" id="cb-rp-watchlist" checked><span><strong>Watchlist</strong><span>Your symbols with price, day change and signal.</span></span></label>
+        <label class="rp-check"><input type="checkbox" id="cb-rp-screener" checked><span><strong>Screener signals</strong><span>Top and bottom 10 by engine score.</span></span></label>
+        <label class="rp-check"><input type="checkbox" id="cb-rp-market" checked><span><strong>Market snapshot</strong><span>NEPSE index, breadth, turnover.</span></span></label>
+        <label class="rp-check"><input type="checkbox" id="cb-rp-sectors" checked><span><strong>Sector breadth</strong><span>Advancers vs decliners per sector.</span></span></label>
+      </div>
+      <div class="rp-actions">
+        <button class="btn" id="rp-build" disabled>Rebuild report</button>
+        <button class="btn ghost" id="rp-print">Print</button>
+        <span class="rp-status" id="rp-status" role="status">Loading the daily batch…</span>
+      </div>
+    </section>
+
+    <div id="rp-result" hidden>
+      <div class="rp-printhead" aria-hidden="true">
+        <h1>NEPSE Alpha Lab report</h1>
+        <p>Prepared <span id="rp-printhead-date"></span> · shirjankhadka.com.np · Educational use only</p>
+      </div>
+      <div id="rp-report" aria-live="polite"></div>
+      <p class="rp-printfoot">Educational use only. Figures come from the Alpha Lab daily batch and your browser-local data; nothing here is investment advice or a buy or sell recommendation.</p>
+    </div>
+
+    <section class="limits" aria-label="Limitations">
+      <h2 class="sec">The fine print.</h2>
+      <ul>
+        <li>Portfolio and watchlist sections read your browser-local data only; nothing leaves your device.</li>
+        <li>Prices and signals come from the daily batch; check the freshness badge for the batch date.</li>
+        <li>Holdings without a current price are excluded from portfolio totals, and the report says so.</li>
+        <li>Printed reports carry a disclaimer footer automatically.</li>
+        <li>Educational use only. This is not investment advice, and nothing here is a buy or sell recommendation.</li>
+      </ul>
+    </section>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="disclaimer"><strong>Educational use only.</strong> Reports are assembled from your browser-local data and the daily batch. Nothing here is investment advice or a buy or sell recommendation.</div>
+    <div class="row">
+      <span>Built by <a href="/">Shirjan Khadka</a> · Aspiring Financial Analyst</span>
+      <span><a href="/nepse-alpha/">Alpha Lab</a> · <a href="/nepse-chart/">Chart</a> · <a href="/nepse-screener/">Screener</a> · <a href="/nepse-fundamentals/">Fundamentals</a> · <a href="/nepse-reports/">Reports</a> · <a href="/blog/">Blog</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="/js/nepse-fresh.js?v=20260930b"></script>
+<script src="/js/nepse-live.js?v=20261002c"></script>
+<script src="/js/nepse-suite.js?v=20261002c"></script>
+<script src="/js/nepse-reports.js?v=20261002c"></script>
+</body>
+</html>
