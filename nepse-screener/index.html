@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NEPSE Stock Screener: Daily Ranked Signals</title>
-<meta name="description" content="Free NEPSE stock screener: every listed security ranked daily by a transparent rule-based engine, with ATR-based stop loss and targets. Educational only.">
+<title>Free NEPSE Stock Screener: Daily Ranked Buy/Hold/Exit Signals, No Login</title>
+<meta name="description" content="Free NEPSE stock screener, no login: every listed security ranked daily by a transparent rule-based buy/hold/exit engine, with RSI, ATR-based stop-loss and targets. Educational only.">
 <meta name="author" content="Shirjan Khadka">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-screener/">
 <meta name="robots" content="index, follow, max-image-preview:large">
@@ -26,7 +26,7 @@
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="stylesheet" href="../nepse-chart/chart.css?v=20260924f">
-<link rel="stylesheet" href="../css/style.css?v=20260929e">
+<link rel="stylesheet" href="../css/style.css?v=20260929f">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"NEPSE Stock Screener","url":"https://shirjankhadka.com.np/nepse-screener/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Daily ranked NEPSE stock screener: every listed security scored by a transparent rule-based engine (Strong Buy to Strong Sell) with ATR-based stop-loss and target levels, sector filter and search. Educational use only, not investment advice.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/",
       "sameAs": ["https://www.linkedin.com/in/shirjankhadkab/"]}}
@@ -59,7 +59,7 @@
 <main id="main" class="wrap">
   <section class="hero">
     <p class="eyebrow">Side project · Daily ranking</p>
-    <h1>NEPSE Stock Screener</h1>
+    <h1>Free NEPSE stock screener</h1>
     <p class="lede">Every NEPSE-listed security, ranked daily by a transparent rule-based signal engine, with ATR-based stop-loss and target levels. Click any symbol for the full chart, pattern and divergence breakdown in the Alpha Lab.</p>
     <p class="asof" id="sc-asof">Loading data…</p>
   </section>
@@ -122,6 +122,7 @@
             <th data-k="sym">Symbol</th>
             <th data-k="p" class="num">Price</th>
             <th data-k="vol" class="num">Volume</th>
+            <th data-k="rsi" class="num" title="Relative Strength Index (14): under 30 is oversold, over 70 overbought">RSI</th>
             <th data-k="sig">Signal &amp; Setup</th>
             <th data-k="tr" class="num" title="Share of past Buy calls that hit the +4xATR target before the -2xATR stop (20 sessions)">Hit rate</th>
             <th data-k="sl" class="num">Stop Loss (SL)</th>
@@ -129,7 +130,7 @@
           </tr>
         </thead>
         <tbody id="sc-body">
-          <tr><td colspan="9" class="sc-empty">Loading ranking…</td></tr>
+          <tr><td colspan="10" class="sc-empty">Loading ranking…</td></tr>
         </tbody>
       </table>
     </div>
@@ -152,6 +153,6 @@
   </div>
 </footer>
 
-<script src="../js/nepse-screener.js?v=20260929b" defer></script>
+<script src="../js/nepse-screener.js?v=20260929c" defer></script>
 </body>
 </html>
