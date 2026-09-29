@@ -96,6 +96,17 @@
 .fd-coverage p:last-child{margin-bottom:0}
 .up{color:var(--up)}.down{color:var(--down)}
 .asof{font-size:13.5px;color:var(--muted)}
+.fd-table{margin:26px 0}
+.fd-table h3{font-family:var(--serif);font-size:22px;font-weight:600;margin:0 0 4px}
+.fd-sub2{color:var(--muted);font-size:13.5px;margin:0 0 14px}
+.fd-table-wrap{overflow-x:auto;border:1px solid var(--hairline);border-radius:14px;background:var(--paper)}
+.fd-table-t{width:100%;border-collapse:collapse;font-size:14px;min-width:560px}
+.fd-table-t th,.fd-table-t td{padding:11px 14px;text-align:right;border-bottom:1px solid var(--hairline);white-space:nowrap}
+.fd-table-t th:first-child,.fd-table-t td:first-child{text-align:left}
+.fd-table-t thead th{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--gold-faint)}
+.fd-table-t tbody tr:last-child td{border-bottom:none}
+.fd-table-t td b{font-weight:700}
+.fd-table-t a{color:inherit}
 .limits{margin:40px 0}
 .limits ul{margin:0;padding-left:22px;color:var(--muted);font-size:14.5px;display:flex;flex-direction:column;gap:8px}
 @media(max-width:860px){.fd-grid{grid-template-columns:1fr 1fr}.fd-gloss-grid{grid-template-columns:1fr}.fd-price{text-align:left}.fd-links{justify-content:flex-start}}
@@ -119,6 +130,7 @@
     <a href="/nepse-simulator/">Simulator</a>
     <a href="/nepse-fundamentals/" class="on" aria-current="page">Fundamentals</a>
     <a href="/nepse-reports/">Reports</a>
+    <a href="/nepse-actions/">Corp. actions</a>
     <a href="/nepse-chart/data-check.html">Data check</a>
   </nav>
   <p class="rail-foot">Free forever · no login</p>
@@ -166,6 +178,8 @@
   <div class="wrap">
     <div class="fd-empty" id="fd-empty" hidden></div>
 
+    <section class="fd-table" id="fd-table" aria-label="Latest quarterly figures"></section>
+
     <section class="fd-profile" id="fd-profile" aria-label="Company snapshot" aria-live="polite"></section>
 
     <section class="fd-compare" id="fd-compare" aria-label="Sector comparison"></section>
@@ -175,7 +189,7 @@
     <section class="fd-gloss" aria-label="Ratio guide">
       <h3>The classic ratios, in plain language.</h3>
       <p class="fd-sub2">These are the ratios professional analysts read in annual reports. They need company financial statements, which our dataset does not include, so no per-stock values are shown below. Nothing is estimated.</p>
-      <div class="fd-gloss-banner"><b>Why no numbers?</b> Honest fundamentals need audited quarterly and annual filings per company. Our batch tracks market data only, so this page explains the ratios without inventing values. A future pipeline will add real figures with sources.</div>
+      <div class="fd-gloss-banner"><b>Real numbers, where published.</b> Quarterly figures are now shown for covered banks in the table above and on their stock pages. Banks and sectors without published figures keep the honest "not yet published" label. Nothing is estimated.</div>
       <div class="fd-gloss-grid">
         <div class="fd-g"><h4><span class="abbr">P/E</span> · Price to Earnings</h4><p>Market price divided by earnings per share. Roughly: how many years of current earnings you pay for with the share price. High P/E means the market expects growth; it can also mean the price is stretched.</p></div>
         <div class="fd-g"><h4><span class="abbr">P/B</span> · Price to Book</h4><p>Market price divided by book value per share. Compares what you pay to the accounting value of the company's net assets. Below 1 can mean cheap or troubled; above 1 prices in future value.</p></div>

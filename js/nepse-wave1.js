@@ -61,6 +61,20 @@
     return '/nepse-chart/?s=' + encodeURIComponent(sym);
   }
 
+  /* Shared list rows (top gainers / losers / turnover leaders), used by the
+   * daily batch render and by the in-session live tape. items: {s, p, ch, t}. */
+  function mktRows(items, kind) {
+    var Mono = window.NepseMono || null;
+    if (!items || !items.length) return '<p class="mkt-empty">No data for this session.</p>';
+    return items.map(function (it) {
+      var right = kind === 'turnover'
+        ? '<span class="mkt-price">' + fmtMoney(it.t) + '</span>'
+        : '<span class="mkt-price">Rs ' + (it.p != null ? fmt2(it.p) : '–') + '</span>';
+      return '<div class="mkt-row"><a class="mkt-sym" href="' + chartLink(it.s) + '">' +
+        (Mono ? Mono.avatar(it.s) : '') + '<span>' + esc(it.s) + '</span></a>' + chgHTML(it.ch) + right + '</div>';
+    }).join('');
+  }
+
   /* ---------------- market summary (alpha) ---------------- */
 
   function mktCard(nk, nb, p) {
@@ -72,7 +86,6 @@
     var grid = $('mktGrid'), cols = $('mktCols');
     if (!grid || !cols || !d || !d.market) return;
     var m = d.market;
-    var Mono = window.NepseMono || null;
 
     var idx = m.index || {};
     // Wave 7: the index card carries the live-badge mount (mkt-live) and ids
@@ -89,23 +102,25 @@
     var tot = (m.advancers || 0) + (m.decliners || 0) + (m.unchanged || 0);
     var upW = tot ? (m.advancers / tot * 100).toFixed(1) : 0;
     var dnW = tot ? (m.decliners / tot * 100).toFixed(1) : 0;
+    // ids on the breadth/turnover/session cards so the in-session tape can
+    // repaint every figure in place (see paintLiveTape below).
     var c2 = mktCard('Breadth',
-      '<span data-count="' + (m.advancers || 0) + '">' + (m.advancers || 0) + '</span> <small>up</small> · ' +
-      '<span data-count="' + (m.decliners || 0) + '">' + (m.decliners || 0) + '</span> <small>down</small>',
+      '<span id="mkt-adv" data-count="' + (m.advancers || 0) + '">' + (m.advancers || 0) + '</span> <small>up</small> · ' +
+      '<span id="mkt-dec" data-count="' + (m.decliners || 0) + '">' + (m.decliners || 0) + '</span> <small>down</small>',
       '<span class="br-bar" role="img" aria-label="' + m.advancers + ' advancers, ' +
-      m.decliners + ' decliners"><span class="br-up" style="width:' + upW + '%"></span>' +
-      '<span class="br-dn" style="width:' + dnW + '%"></span></span>' +
-      m.unchanged + ' unchanged of ' + m.traded + ' securities with recorded trades.');
+      m.decliners + ' decliners"><span class="br-up" id="mkt-brup" style="width:' + upW + '%"></span>' +
+      '<span class="br-dn" id="mkt-brdn" style="width:' + dnW + '%"></span></span>' +
+      '<span id="mkt-unc">' + m.unchanged + ' unchanged of ' + m.traded + ' securities with recorded trades.</span>');
     var c3 = mktCard('Session turnover',
       m.totalTurnover != null
-        ? '<span data-count="' + (m.totalTurnover / 1e9).toFixed(3) + '" data-decimals="2" data-prefix="Rs " data-suffix="b">' +
+        ? '<span id="mkt-turn" data-count="' + (m.totalTurnover / 1e9).toFixed(3) + '" data-decimals="2" data-prefix="Rs " data-suffix="b">' +
           fmtMoney(m.totalTurnover) + '</span>'
         : '–',
       'Total value traded across the session.');
     var dm = fmtDayMon(m.date);
     var c4 = mktCard('Session',
-      esc(dm.day) + ' <small>' + esc(dm.my) + '</small>',
-      'The last closed session' + fresh(m.date) + '.');
+      '<span id="mkt-sessd">' + esc(dm.day) + '</span> <small id="mkt-sessm">' + esc(dm.my) + '</small>',
+      '<span id="mkt-sessn">The last closed session' + fresh(m.date) + '.</span>');
     grid.innerHTML = c1 + c2 + c3 + c4 +
       '<p class="nlsnap-close" id="mkt-close" hidden></p>';
     var Motion = window.NepseMotion;
@@ -119,26 +134,75 @@
     var traded = $('mkt-traded');
     if (traded) traded.textContent = m.traded;
 
-    function rows(items, kind) {
-      if (!items || !items.length) return '<p class="mkt-empty">No data for this session.</p>';
-      return items.map(function (it) {
-        var right = kind === 'turnover'
-          ? '<span class="mkt-price">' + fmtMoney(it.t) + '</span>'
-          : '<span class="mkt-price">Rs ' + (it.p != null ? fmt2(it.p) : '–') + '</span>';
-        return '<div class="mkt-row"><a class="mkt-sym" href="' + chartLink(it.s) + '">' +
-          (Mono ? Mono.avatar(it.s) : '') + '<span>' + esc(it.s) + '</span></a>' + chgHTML(it.ch) + right + '</div>';
-      }).join('');
-    }
     cols.innerHTML =
-      '<div class="mkt-col"><h3>Top gainers</h3>' + rows(m.gainers, 'chg') + '</div>' +
-      '<div class="mkt-col"><h3>Top losers</h3>' + rows(m.losers, 'chg') + '</div>' +
-      '<div class="mkt-col"><h3>Turnover leaders</h3>' + rows(m.turnover, 'turnover') + '</div>';
+      '<div class="mkt-col"><h3>Top gainers</h3>' + mktRows(m.gainers, 'chg') + '</div>' +
+      '<div class="mkt-col"><h3>Top losers</h3>' + mktRows(m.losers, 'chg') + '</div>' +
+      '<div class="mkt-col"><h3>Turnover leaders</h3>' + mktRows(m.turnover, 'turnover') + '</div>';
   }
 
   /* ---------------- Wave 7: in-session live updates ----------------
-   * During market hours the index value, day change, live badge and the
-   * after-hours "official close" sentence update in place every minute.
+   * During market hours every figure follows the 15-minute quote tape:
+   * the index value, day change and badge update in place every minute,
+   * and breadth, turnover, the session label and the top-5 lists are
+   * recomputed from the tape whenever a fresh snapshot lands. Only the
+   * current session's tape is ever used; after hours the daily batch
+   * (rebuilt at 15:15 NPT) carries the closed session.
    * Figures come from NepseLive; when the feed is stale we say so. */
+  var lastTapeAsOf = 0;
+  function setTapeText(id, txt) {
+    var el = $(id);
+    if (el) { el.removeAttribute('data-count'); el.textContent = txt; }
+  }
+  function paintLiveTape(snap) {
+    var NL = window.NepseLive;
+    var lv = snap && snap.live;
+    var lq = lv && lv.quotes;
+    var keys = lq ? Object.keys(lq) : [];
+    if (!NL || !keys.length || !lv.asof || lv.asof === lastTapeAsOf) return;
+    // Never mix sessions: the tape must be from today's NPT date.
+    var dayStr = null, todayStr = null;
+    try {
+      dayStr = new Date(lv.asof + 5.75 * 3600 * 1000).toISOString().slice(0, 10);
+      todayStr = NL.nowNPT().toISOString().slice(0, 10);
+    } catch (e) { /* keep nulls */ }
+    if (!dayStr || dayStr !== todayStr) return;
+    lastTapeAsOf = lv.asof;
+
+    var adv = 0, dec = 0, unc = 0, turn = 0, arr = [];
+    for (var i = 0; i < keys.length; i++) {
+      var q = lq[keys[i]] || {};
+      var c = q.pct;
+      if (!(c >= 0) && !(c < 0)) { unc++; continue; }
+      if (c > 0) adv++; else if (c < 0) dec++; else unc++;
+      var tv = +q.turnover;
+      if (q.turnover != null && isFinite(tv)) turn += tv;
+      arr.push({ s: keys[i], p: q.ltp, ch: c, t: q.turnover });
+    }
+    var tot = adv + dec + unc;
+    setTapeText('mkt-adv', String(adv));
+    setTapeText('mkt-dec', String(dec));
+    var bu = $('mkt-brup'), bd = $('mkt-brdn');
+    if (bu) bu.style.width = (tot ? (adv / tot * 100).toFixed(1) : 0) + '%';
+    if (bd) bd.style.width = (tot ? (dec / tot * 100).toFixed(1) : 0) + '%';
+    setTapeText('mkt-unc', unc + ' unchanged of ' + tot + ' securities with recorded trades.');
+    setTapeText('mkt-turn', fmtMoney(turn));
+    var dm = fmtDayMon(todayStr);
+    setTapeText('mkt-sessd', dm.day);
+    setTapeText('mkt-sessm', dm.my);
+    setTapeText('mkt-sessn', 'Live session · updating every 15 min.');
+    setTapeText('mkt-asof', 'Live session of ' + fmtLong(todayStr) + ' · updating every 15 min.');
+    setTapeText('mkt-traded', String(tot));
+    var cols = $('mktCols');
+    if (cols) {
+      var byCh = arr.slice().sort(function (a, b) { return b.ch - a.ch; });
+      var byTv = arr.filter(function (r) { return r.t != null && isFinite(+r.t); })
+        .sort(function (a, b) { return b.t - a.t; });
+      cols.innerHTML =
+        '<div class="mkt-col"><h3>Top gainers</h3>' + mktRows(byCh.slice(0, 5), 'chg') + '</div>' +
+        '<div class="mkt-col"><h3>Top losers</h3>' + mktRows(byCh.slice(-5).reverse(), 'chg') + '</div>' +
+        '<div class="mkt-col"><h3>Turnover leaders</h3>' + mktRows(byTv.slice(0, 5), 'turnover') + '</div>';
+    }
+  }
   function updateMarketLive(snap) {
     var NL = window.NepseLive;
     if (!NL || !snap) return;
@@ -159,6 +223,7 @@
           (li.change >= 0 ? '+' : '') + (+li.pct).toFixed(2) + '%)</b> on the session';
       }
     }
+    if (open) paintLiveTape(snap);
 
     var closeP = $('mkt-close');
     if (closeP) {

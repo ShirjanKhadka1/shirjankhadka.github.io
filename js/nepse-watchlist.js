@@ -153,7 +153,7 @@
       var chgHtml = '<span class="tnum ' + (chg > 0 ? 'up' : chg < 0 ? 'down' : '') + '">' +
         (chg === null || chg === undefined ? '–' : (chg > 0 ? '+' : '') + fmtNum(chg, 2) + '%') + '</span>';
       return '<article class="wl-row">' +
-        '<div class="wl-sym"><a href="/nepse-chart/?s=' + esc(sym) + '">' +
+        '<div class="wl-sym"><a href="/stocks/' + esc(String(sym).replace(/\//g, "-")) + '/">' +
         (Mono ? Mono.avatar(sym, vd.sec, 30) : '') + '<span>' + esc(sym) + '</span></a>' +
         '<span class="wl-name">' + esc(meta ? meta.n : '') + '</span></div>' +
         '<div class="wl-meta"><span class="wl-sec">' + esc(vd.sec || '–') + '</span></div>' +
@@ -219,7 +219,7 @@
             ' · TP ' + fmtNum(x.tp, 2) + ' (' + sgn((x.tp - e.p) / e.p * 100) + '%)';
         }
         return '<div class="ewl-row">' +
-          '<a class="ewl-sym" href="/nepse-chart/?s=' + esc(sym) + '">' +
+          '<a class="ewl-sym" href="/stocks/' + esc(String(sym).replace(/\//g, "-")) + '/">' +
             (Mono ? Mono.avatar(sym, x.sec || e.sec) : '') + '<span>' + esc(sym) + '</span>' +
             '<span class="ewl-v ' + (x.v === 'Strong Buy' ? 'sb' : 'b') + '">' + esc(x.v) +
             (tf === 'd' ? '' : ' · ' + TF_LABEL[tf]) + '</span></a>' +

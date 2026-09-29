@@ -31,7 +31,8 @@
 
   function itemHTML(it, showSym) {
     var chip = showSym
-      ? '<a class="nl-news-sym" href="?s=' + esc(it.sym) + '">' + esc(it.sym) + '</a>'
+      ? '<a class="nl-news-sym" href="?s=' + esc(it.sym) + '">' + esc(it.sym) + '</a>' +
+        ' <a class="nl-news-stock" href="/stocks/' + esc(String(it.sym).replace(/\//g, '-')) + '/" title="Price, signals and news snapshot">Snapshot</a>'
       : '';
     return '<article class="nl-news-item">' + chip +
       '<div class="nl-news-body"><a href="' + esc(it.link) + '" target="_blank" rel="noopener">' +

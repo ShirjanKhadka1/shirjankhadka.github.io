@@ -1,0 +1,88 @@
+/* Nepse Decode Wave 8 — per-symbol pages + corporate-action archive.
+ * Keeps the Private Ledger luxury palette. No em dashes in comments. */
+
+.crumbs { font-size: .85rem; color: var(--ink-soft, #6b655a); margin: 1rem 0 .25rem; }
+.crumbs a { color: inherit; }
+
+/* Symbol page */
+.sp-snap { margin: 1.25rem 0; }
+.sp-price-card {
+  border: 1px solid var(--line, #e7e0d2); border-radius: 14px;
+  padding: 1.25rem 1.5rem; background: #fff;
+  box-shadow: 0 1px 2px rgba(30, 40, 30, .04);
+}
+.sp-price { font-family: Fraunces, Georgia, serif; font-size: 2rem; font-weight: 600; }
+.sp-chg { font-weight: 600; margin-top: .25rem; }
+.sp-chg.pos { color: #1c6b3c; }
+.sp-chg.neg { color: #a33327; }
+.sp-range, .sp-vol { color: var(--ink-soft, #6b655a); margin-top: .35rem; font-size: .95rem; }
+
+.vpill {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: .5rem .9rem;
+  border: 1px solid var(--line, #e7e0d2); border-radius: 12px;
+  padding: .8rem 1rem; margin: .6rem 0; background: #fff;
+}
+.vpill-tf {
+  font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--ink-soft, #6b655a); min-width: 4.5rem;
+}
+.vpill-v { font-weight: 700; padding: .15rem .6rem; border-radius: 999px; font-size: .9rem; }
+.vg-sb { background: #e3f2e7; color: #14532d; }
+.vg-b  { background: #e8f4ee; color: #1c6b3c; }
+.vg-h  { background: #f1ede2; color: #6b5f2a; }
+.vg-e  { background: #fbe9e4; color: #a33327; }
+.vg-se { background: #f6dcd4; color: #7c241a; }
+.vg-na { background: #f1efe9; color: #6b655a; }
+.vpill-meta { color: var(--ink-soft, #6b655a); font-size: .88rem; }
+.vpill-na { color: var(--ink-soft, #6b655a); font-style: italic; }
+
+.sp-note { color: var(--ink-soft, #6b655a); font-size: .95rem; max-width: 60ch; }
+
+/* Fundamentals: numbers-first stat grid */
+.sp-fund-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 10px; margin: .9rem 0 0; }
+.sp-fund { background: #fff; border: 1px solid var(--line, #e7e0d2); border-radius: 10px; padding: 10px 12px; }
+.sp-fund-v { display: block; font: 700 1.12rem/1.25 Inter, system-ui, sans-serif; letter-spacing: -.01em; }
+.sp-fund-l { display: block; font-size: .76rem; color: var(--ink-soft, #6b655a); margin-top: 3px; }
+.sp-news { list-style: none; padding: 0; margin: .75rem 0; }
+.sp-news li { padding: .6rem 0; border-bottom: 1px solid var(--line, #e7e0d2); }
+.sp-news-src { color: var(--ink-soft, #6b655a); font-size: .85rem; white-space: nowrap; }
+.sp-links, .sp-peers, .sp-dir { list-style: none; padding: 0; }
+.sp-links li, .sp-peers li { margin: .4rem 0; }
+.sp-dir { columns: 3; column-gap: 2rem; }
+.sp-dir li { break-inside: avoid; padding: .3rem 0; font-size: .92rem; }
+.sp-type { color: var(--ink-soft, #6b655a); font-size: .8rem; }
+.sp-disc {
+  margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--line, #e7e0d2);
+  color: var(--ink-soft, #6b655a); font-size: .88rem; max-width: 70ch;
+}
+
+/* Corporate-action archive */
+.ca-filters { display: flex; flex-wrap: wrap; gap: .6rem 1rem; align-items: center; margin: 1rem 0 1.5rem; }
+.ca-filters select, .ca-filters input {
+  font: inherit; padding: .45rem .7rem; border: 1px solid var(--line, #e7e0d2);
+  border-radius: 8px; background: #fff;
+}
+.ca-count { color: var(--ink-soft, #6b655a); font-size: .9rem; }
+.ca-item {
+  border: 1px solid var(--line, #e7e0d2); border-radius: 12px; background: #fff;
+  padding: 1rem 1.2rem; margin: .7rem 0;
+}
+.ca-kind {
+  display: inline-block; font-size: .75rem; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; padding: .15rem .55rem; border-radius: 999px;
+  background: #eef4ee; color: #1d4d33; margin-right: .6rem;
+}
+.ca-kind.k-promoter-share, .ca-kind.k-auction { background: #fbf3df; color: #7a5c14; }
+.ca-kind.k-right-share { background: #e7eefb; color: #24447c; }
+.ca-kind.k-bonus-share { background: #e9e4f7; color: #4b3680; }
+.ca-head { font-weight: 600; margin: .4rem 0; }
+.ca-meta { color: var(--ink-soft, #6b655a); font-size: .88rem; }
+.ca-facts { margin: .5rem 0 0; font-size: .92rem; }
+.ca-facts dt { font-weight: 600; display: inline; }
+.ca-facts dd { display: inline; margin: 0 .9rem 0 .3rem; }
+
+@media (max-width: 640px) {
+  .sp-dir { columns: 1; }
+  .sp-price { font-size: 1.6rem; }
+  .vpill-tf { min-width: 0; }
+}

@@ -98,6 +98,50 @@
     return { sectors: list, asof: vj.asof || '', total: Object.keys(v).length };
   }
 
+  /* Live-tape aggregation: recomputes the sector picture from the 15-minute
+   * quote tape instead of the daily batch. Same output shape as aggregate()
+   * so the renderers work unchanged. Only used when the tape is from
+   * today's session (checked by the caller). RSI needs multi-session
+   * history, so avgRsi is null (shown as a dash) in live mode. */
+  function aggregateLiveTape(live, todayStr) {
+    var q = (live && live.quotes) || {};
+    var keys = Object.keys(q);
+    var count = 0, chs = [], adv = 0, dec = 0, flat = 0, turn = 0, rows = [];
+    keys.forEach(function (sym) {
+      var e = q[sym] || {};
+      var ch = e.pct;
+      count++;
+      if (ch != null && !isNaN(ch)) {
+        ch = Number(ch);
+        chs.push(ch);
+        if (ch > 0) adv++; else if (ch < 0) dec++; else flat++;
+        rows.push({ sym: sym, p: e.ltp, ch: ch });
+      }
+      var t = Number(e.turnover);
+      if (e.turnover != null && !isNaN(t) && t > 0) turn += t;
+    });
+    var n = chs.length;
+    var avgCh = n ? chs.reduce(function (a, b) { return a + b; }, 0) / n : null;
+    var gainers = rows.slice().sort(function (a, b) { return b.ch - a.ch; }).slice(0, 3);
+    var losers = rows.slice().sort(function (a, b) { return a.ch - b.ch; }).slice(0, 3);
+    return {
+      sectors: [{
+        name: 'Unclassified', count: count, adv: adv, dec: dec, flat: flat, nCh: n,
+        avgCh: avgCh, pctUp: n ? (adv / n) * 100 : null, avgRsi: null,
+        turnShare: turn > 0 ? 100 : null,
+        gainers: gainers, losers: losers
+      }],
+      asof: todayStr, total: count
+    };
+  }
+
+  var MONTHS_L = ['January','February','March','April','May','June','July',
+    'August','September','October','November','December'];
+  function fmtLiveDay(iso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || ''));
+    return m ? (+m[3]) + ' ' + MONTHS_L[+m[2] - 1] + ' ' + m[1] : String(iso || '');
+  }
+
   function heatClass(avgCh) {
     if (avgCh == null) return 'sx-none';
     if (avgCh >= 1.5) return 'sx-up2';
@@ -210,27 +254,58 @@
     }
   }
 
-  function init() {
-    load().then(function (vj) {
-      var agg = aggregate(vj);
-      var sectors = agg.sectors;
-      renderHeat(sectors);
-      renderCards(sectors);
-      var sel = $('sx-sort');
-      function draw() { renderTable(sectors, sel.value); }
-      sel.addEventListener('change', draw);
-      draw();
-      animateSectors();
-      // Wave 7: live feed status next to the batch date (sector data itself
-      // is the daily batch; the badge reports the quote feed honestly).
-      var NL = window.NepseLive || null;
-      if (NL && $('sx-live')) NL.start({ el: $('sx-live') });
-      var sxAsof = $('sx-asof');
+  var currentSectors = [];
+  var lastLiveAsOf = 0;
+
+  function drawAll(agg, isLive) {
+    currentSectors = agg.sectors;
+    renderHeat(currentSectors);
+    renderCards(currentSectors);
+    var sel = $('sx-sort');
+    renderTable(currentSectors, sel ? sel.value : 'change');
+    animateSectors();
+    var sxAsof = $('sx-asof');
+    if (isLive) {
+      sxAsof.textContent = 'Live session of ' + fmtLiveDay(agg.asof) + ' · ' +
+        agg.total + ' securities · updating every 15 min';
+    } else {
       sxAsof.textContent = agg.asof
         ? 'Aggregated from the batch as of ' + agg.asof + ' · ' + agg.total + ' securities'
         : agg.total + ' securities aggregated';
-      if (window.NepseFresh && agg.asof && !sxAsof.querySelector('.fresh'))
-        sxAsof.insertAdjacentHTML('beforeend', ' ' + window.NepseFresh.badge(agg.asof));
+    }
+    if (window.NepseFresh && agg.asof && !sxAsof.querySelector('.fresh'))
+      sxAsof.insertAdjacentHTML('beforeend', ' ' + window.NepseFresh.badge(agg.asof));
+  }
+
+  // Recomputes every sector figure from the quote tape whenever a fresh
+  // snapshot of TODAY's session lands, in market hours and after close.
+  // Never mixes sessions: a tape from any other day is ignored.
+  function paintLiveFromTape(d) {
+    var NL = window.NepseLive;
+    if (!NL || !d || !d.quotes || !d.asof || d.asof === lastLiveAsOf) return;
+    var dayStr = null, todayStr = null;
+    try {
+      dayStr = new Date(d.asof + 5.75 * 3600 * 1000).toISOString().slice(0, 10);
+      todayStr = NL.nowNPT().toISOString().slice(0, 10);
+    } catch (e) { /* keep nulls */ }
+    if (!dayStr || dayStr !== todayStr) return;
+    lastLiveAsOf = d.asof;
+    drawAll(aggregateLiveTape(d, todayStr), true);
+  }
+
+  function init() {
+    load().then(function (vj) {
+      drawAll(aggregate(vj), false);
+      var sel = $('sx-sort');
+      if (sel) sel.addEventListener('change', function () {
+        renderTable(currentSectors, sel.value);
+      });
+      // Wave 7: live feed status next to the batch date; the sector figures
+      // themselves follow the 15-minute tape whenever it is today's.
+      var NL = window.NepseLive || null;
+      if (NL && $('sx-live')) {
+        NL.start({ el: $('sx-live'), onData: function (d) { paintLiveFromTape(d); } });
+      }
     }).catch(showError);
   }
 

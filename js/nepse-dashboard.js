@@ -77,25 +77,45 @@
   function renderMarket() {
     var m = cache.snap && cache.snap.batch;
     if (!m) return '<p class="wg-note">Market data is temporarily unavailable.</p>';
-    var gainers = (m.gainers || []).slice(0, 5).map(function (g) {
-      return '<li>' + symLink(g.s) +
-        '<span class="tnum">Rs ' + fmtNum(g.p, 2) + '</span>' +
-        '<span class="tnum up">+' + fmtNum(g.ch, 2) + '%</span></li>';
-    }).join('');
-    var losers = (m.losers || []).slice(0, 5).map(function (g) {
-      return '<li>' + symLink(g.s) +
-        '<span class="tnum">Rs ' + fmtNum(g.p, 2) + '</span>' +
-        '<span class="tnum down">' + fmtNum(g.ch, 2) + '%</span></li>';
-    }).join('');
-    var leaders = (m.turnover || []).slice(0, 5).map(function (g) {
-      return '<li>' + symLink(g.s) +
-        '<span class="tnum">' + fmtMoney(g.t) + '</span></li>';
-    }).join('');
+    lastBoardAsOf = 0; // re-render: let the next tape repaint the board lists
     return '<div id="wg-snapmount"></div>' +
       '<div class="wg-cols wg-cols-3">' +
-      '<div><h3 class="wg-sub">Top gainers</h3><ul class="wg-list">' + gainers + '</ul></div>' +
-      '<div><h3 class="wg-sub">Top losers</h3><ul class="wg-list">' + losers + '</ul></div>' +
-      '<div><h3 class="wg-sub">Top by turnover</h3><ul class="wg-list">' + leaders + '</ul></div></div>';
+      '<div><h3 class="wg-sub">Top gainers</h3><ul class="wg-list" id="wg-gainers">' +
+        boardListHTML((m.gainers || []).slice(0, 5), 'chg') + '</ul></div>' +
+      '<div><h3 class="wg-sub">Top losers</h3><ul class="wg-list" id="wg-losers">' +
+        boardListHTML((m.losers || []).slice(0, 5), 'chg') + '</ul></div>' +
+      '<div><h3 class="wg-sub">Top by turnover</h3><ul class="wg-list" id="wg-leaders">' +
+        boardListHTML((m.turnover || []).slice(0, 5), 'turnover') + '</ul></div></div>';
+  }
+  // Shared board rows (top gainers / losers / turnover leaders), used by the
+  // daily batch render and the in-session live tape. items: {s, p, ch, t}.
+  function boardListHTML(items, kind) {
+    if (!items || !items.length) return '';
+    return items.map(function (g) {
+      var chgCls = g.ch > 0 ? 'up' : g.ch < 0 ? 'down' : '';
+      var chgTxt = (g.ch > 0 ? '+' : '') + fmtNum(g.ch, 2) + '%';
+      if (kind === 'turnover') {
+        return '<li>' + symLink(g.s) +
+          '<span class="tnum">' + fmtMoney(g.t) + '</span></li>';
+      }
+      return '<li>' + symLink(g.s) +
+        '<span class="tnum">Rs ' + fmtNum(g.p, 2) + '</span>' +
+        '<span class="tnum ' + chgCls + '">' + chgTxt + '</span></li>';
+    }).join('');
+  }
+  // Repaints the board lists from the 15-minute tape whenever it is today's.
+  var lastBoardAsOf = 0;
+  function paintLiveBoard(d) {
+    var Snap = window.NepseSnapshot;
+    if (!Snap || !Snap.liveTapeAgg) return;
+    var agg = Snap.liveTapeAgg(d);
+    if (!agg || agg.asof === lastBoardAsOf) return;
+    lastBoardAsOf = agg.asof;
+    var map = { 'wg-gainers': [agg.gainers, 'chg'], 'wg-losers': [agg.losers, 'chg'], 'wg-leaders': [agg.leaders, 'turnover'] };
+    Object.keys(map).forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.innerHTML = boardListHTML(map[id][0], map[id][1]);
+    });
   }
 
   // Renders the shared snapshot into the market widget and keeps it fresh:
@@ -118,7 +138,9 @@
       snapPoller = NL.start({
         el: liveEl,
         onData: function (d) {
-          if (mount.isConnected) Snap.updateLive(mount, { batch: cache.snap.batch, live: d });
+          if (!mount.isConnected) return;
+          Snap.updateLive(mount, { batch: cache.snap.batch, live: d });
+          paintLiveBoard(d);
         }
       });
     } else if (liveEl) {

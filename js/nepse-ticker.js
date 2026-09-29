@@ -40,7 +40,7 @@
   var WS_WATCHDOG_MS = 60 * 1000;
   var WS_BASE_BACKOFF_MS = 5000;
   var WS_MAX_BACKOFF_MS = 5 * 60 * 1000;
-  var TRADING_START_MIN = 11 * 60;  // NPT minutes
+  var TRADING_START_MIN = 10 * 60 + 45;  // NPT minutes: pre-open 10:45, regular 11:00
   var TRADING_END_MIN = 15 * 60;
 
   // Official index name -> short display label, mirroring
