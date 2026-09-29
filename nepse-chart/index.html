@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Free NEPSE Chart: Candlestick Charts, Pattern Scanner & Divergence Signals</title>
-<meta name="description" content="Free NEPSE chart with candlestick charts, automatic chart-pattern and RSI/MACD divergence scanner, support/resistance factors and transparent buy/hold/exit signals for every listed stock. No login.">
+<meta name="description" content="Free NEPSE chart with candlestick charts, Bollinger Bands, EMA/SMA overlays, RSI and Stochastic indicators, automatic chart-pattern and RSI/MACD divergence scanner, support/resistance factors and transparent buy/hold/exit signals for every listed stock. No login.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-chart/">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="theme-color" content="#FAF8F2">
@@ -31,9 +31,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930b">
-<link rel="stylesheet" href="chart.css?v=20260930b">
+<link rel="stylesheet" href="chart.css?v=20261002a">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"NEPSE Alpha Lab","url":"https://shirjankhadka.com.np/nepse-chart/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Free NEPSE analysis lab: live quotes for any listed stock, candlestick charts with SMA and RSI, automatic chart-pattern and divergence detection, and a transparent rule-based buy/hold/exit signal engine. Educational use only.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/",
+{"@context":"https://schema.org","@type":"WebApplication","name":"NEPSE Alpha Lab","url":"https://shirjankhadka.com.np/nepse-chart/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Free NEPSE analysis lab: live quotes for any listed stock, candlestick charts with Bollinger Bands, EMA/SMA overlays, RSI and Stochastic, automatic chart-pattern and divergence detection, and a transparent rule-based buy/hold/exit signal engine. Educational use only.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/",
       "sameAs": ["https://www.linkedin.com/in/shirjankhadkab/"]}}
 </script>
 <script type="application/ld+json">
@@ -60,6 +60,7 @@
     <a href="/nepse-alpha/">Overview</a>
     <a href="/nepse-chart/" class="on" aria-current="page">Chart &amp; signals</a>
     <a href="/nepse-screener/">Screener</a>
+    <a href="/nepse-sectors/">Sectors</a>
     <a href="/nepse-news/">Market news</a>
     <a href="/nepse-watchlist/">Watchlist</a>
     <a href="/nepse-dashboard/">Dashboard</a>
@@ -74,6 +75,7 @@
     <nav class="suite-links" aria-label="Alpha Lab suite">
       <a href="/nepse-chart/" class="on" aria-current="page">The Lab</a>
       <a href="/nepse-screener/">Screener</a>
+      <a href="/nepse-sectors/">Sectors</a>
       <a href="/nepse-news/">News</a>
       <a href="/nepse-watchlist/">Watchlist</a>
       <a href="/nepse-dashboard/">Dashboard</a>
@@ -135,9 +137,17 @@
       <div class="seg" id="nl-style" role="group" aria-label="Chart style">
         <button data-v="candles" class="on" aria-pressed="true">Candles</button><button data-v="line">Line</button>
       </div>
-      <div class="toggles" role="group" aria-label="Overlays">
-        <button data-tgl="sma" class="on" aria-pressed="true">SMA 20/50</button>
-        <button data-tgl="rsi" class="on" aria-pressed="true">RSI</button>
+      <div class="ind-group" id="nl-ind" role="group" aria-label="Indicators">
+        <span class="ind-title">Indicators</span>
+        <label class="ind"><input type="checkbox" data-ind="bb" checked><span class="ind-name">Bollinger Bands</span><button type="button" class="info-tip" data-tip="A 20-day average with bands two standard deviations above and below. Shows how far prices have stretched from their recent average." aria-label="About Bollinger Bands">i</button></label>
+        <label class="ind"><input type="checkbox" data-ind="ema20" checked><span class="ind-name">EMA 20</span><button type="button" class="info-tip" data-tip="A 20-day average that weights recent closes more heavily. A read on the short-term trend." aria-label="About EMA 20">i</button></label>
+        <label class="ind"><input type="checkbox" data-ind="sma20" checked><span class="ind-name">SMA 20</span><button type="button" class="info-tip" data-tip="The simple average of the last 20 closes. A plain read on the short-term trend." aria-label="About SMA 20">i</button></label>
+        <label class="ind"><input type="checkbox" data-ind="sma50" checked><span class="ind-name">SMA 50</span><button type="button" class="info-tip" data-tip="The simple average of the last 50 closes. A read on the medium-term trend." aria-label="About SMA 50">i</button></label>
+        <label class="ind"><input type="checkbox" data-ind="rsi" checked><span class="ind-name">RSI</span><button type="button" class="info-tip" data-tip="A 0 to 100 measure of recent gains versus losses over 14 days. Readings above 70 or below 30 mark stretched zones." aria-label="About RSI">i</button></label>
+        <label class="ind"><input type="checkbox" data-ind="stoch"><span class="ind-name">Stochastic</span><button type="button" class="info-tip" data-tip="A 0 to 100 read of where the close sits inside the last 14 days' range, with a 3-day signal line." aria-label="About the Stochastic oscillator">i</button></label>
+      </div>
+      <p class="ind-note" id="nl-ind-note" hidden>Indicators need full OHLC history, so they are unavailable for this LTP-only security.</p>
+      <div class="toggles" role="group" aria-label="Chart annotations">
         <button data-tgl="signals" class="on" aria-pressed="true" id="tgl-sig">Patterns</button>
       </div>
     </div>
@@ -148,6 +158,8 @@
     <div class="legend">
       <span><i class="sw up"></i>Up day</span>
       <span><i class="sw down"></i>Down day</span>
+      <span><i class="ln bb"></i>Bollinger Bands</span>
+      <span><i class="ln ema20"></i>EMA 20</span>
       <span><i class="ln sma20"></i>SMA 20</span>
       <span><i class="ln sma50"></i>SMA 50</span>
       <span><i class="mk buy"></i>▲ Golden cross</span>
@@ -158,6 +170,9 @@
     </div>
     <div class="chart-wrap rsi" id="nl-rsi-wrap">
       <canvas id="nl-rsi" role="img" aria-label="RSI 14 indicator"></canvas>
+    </div>
+    <div class="chart-wrap rsi" id="nl-stoch-wrap" style="display:none">
+      <canvas id="nl-stoch" role="img" aria-label="Stochastic oscillator 14,3,3"></canvas>
     </div>
     <p class="hint">Hover or drag across the chart to inspect any session.</p>
   </section>
@@ -194,7 +209,7 @@
 
 <script src="/js/nepse-fresh.js?v=20260930b" defer></script>
 <script src="/js/nepse-daily.js?v=20260924d" defer></script>
-<script src="/js/nepse-lab.js?v=20260930b" defer></script>
+<script src="/js/nepse-lab.js?v=20261002a" defer></script>
 <script src="/js/nepse-news.js?v=20260930a" defer></script>
 </body>
 </html>

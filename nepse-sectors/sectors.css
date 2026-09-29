@@ -1,0 +1,147 @@
+/* NEPSE Alpha Lab: sector dashboard styles.
+   Self-sufficient: carries its own luxury token block (copied from
+   nepse-chart/chart.css :root) plus everything the page needs beyond
+   /css/nepse-luxury.css (chrome, hero, .fresh). No external dependencies. */
+
+:root{
+  --ink:#0C1F16; --pine:#14382A; --emerald:#1E6B4A; --emerald-deep:#155236;
+  --gold:#C6A86B; --gold-soft:#E9DCC0; --gold-faint:#F4EDDD;
+  --ivory:#FAF8F2; --paper:#FFFFFF;
+  --hairline:rgba(12,31,22,.14); --hairline-soft:rgba(12,31,22,.08);
+  --muted:#66705F; --faint:#9AA096;
+  --up:#1E7A44; --down:#B23A2E;
+  --radius:20px;
+  --shadow:0 12px 40px rgba(12,31,22,.08);
+  --shadow-hover:0 22px 60px rgba(12,31,22,.14);
+  --ease:cubic-bezier(.2,0,0,1);
+  --serif:'Fraunces',Georgia,'Times New Roman',serif;
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Helvetica,Arial,sans-serif;
+  --space-1:8px; --space-2:12px; --space-3:16px; --space-4:24px;
+  --space-5:32px; --space-6:48px; --space-7:64px; --space-8:96px;
+  /* heatmap ramp (5 steps on average day change) */
+  --heat-up2:#1E7A44; --heat-up2-ink:#FAF8F2;
+  --heat-up1:#DDEEDD; --heat-up1-ink:#0C1F16;
+  --heat-neutral:#FAF8F2; --heat-neutral-ink:#0C1F16;
+  --heat-dn1:#F3D9D4; --heat-dn1-ink:#0C1F16;
+  --heat-dn2:#B23A2E; --heat-dn2-ink:#FAF8F2;
+}
+
+/* ---------- section rhythm ---------- */
+.sx-sec{margin-top:var(--space-6)}
+.sx-sec h2{font-family:var(--serif);font-size:26px;font-weight:600;letter-spacing:-.01em;margin:0 0 6px}
+.sx-sub{color:var(--muted);font-size:.95rem;margin:0 0 var(--space-3)}
+.sx-jump{color:var(--emerald);text-decoration:underline}
+
+/* ---------- heatmap ---------- */
+.sx-heat{display:flex;flex-wrap:wrap;gap:10px}
+.sx-tile{flex:1 1 0;min-width:150px;display:flex;flex-direction:column;gap:4px;
+  padding:18px 16px;border-radius:14px;border:1px solid var(--hairline);
+  font-variant-numeric:tabular-nums;transition:transform .2s var(--ease),box-shadow .2s var(--ease)}
+.sx-tile:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.sx-tile:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.sx-tile-name{font-weight:700;font-size:1.02rem;line-height:1.3}
+.sx-tile-count{font-size:.8rem;opacity:.85}
+.sx-tile-ch{font-weight:700;font-size:1.05rem}
+.sx-up2{background:var(--heat-up2);color:var(--heat-up2-ink);border-color:transparent}
+.sx-up1{background:var(--heat-up1);color:var(--heat-up1-ink)}
+.sx-n{background:var(--heat-neutral);color:var(--heat-neutral-ink)}
+.sx-dn1{background:var(--heat-dn1);color:var(--heat-dn1-ink)}
+.sx-dn2{background:var(--heat-dn2);color:var(--heat-dn2-ink);border-color:transparent}
+.sx-none{background:var(--ivory);color:var(--muted);border-style:dashed}
+
+.sx-legend{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:var(--space-3);
+  font-size:.82rem;color:var(--muted)}
+.sx-swatch{width:22px;height:14px;border-radius:4px;border:1px solid var(--hairline);display:inline-block}
+span.sx-swatch.sx-up2,span.sx-swatch.sx-up1,span.sx-swatch.sx-n,
+span.sx-swatch.sx-dn1,span.sx-swatch.sx-dn2,span.sx-swatch.sx-none{padding:0}
+
+/* ---------- breadth cards ---------- */
+.sx-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:var(--space-3)}
+.sx-card{background:var(--paper);border:1px solid var(--hairline);border-radius:var(--radius);
+  padding:var(--space-4);box-shadow:var(--shadow);font-variant-numeric:tabular-nums}
+.sx-card-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px}
+.sx-card-head h3{font-family:var(--serif);font-size:19px;font-weight:600;margin:0;letter-spacing:-.01em}
+.sx-card-head h3 a{color:var(--ink)}
+.sx-card-head h3 a:hover{color:var(--emerald)}
+.sx-avg{font-weight:700;font-size:1.05rem;white-space:nowrap}
+.sx-pos{color:var(--up)}
+.sx-neg{color:var(--down)}
+.sx-breadth{display:flex;height:12px;border-radius:999px;overflow:hidden;background:var(--ivory);
+  border:1px solid var(--hairline-soft);margin:4px 0 8px}
+.sx-breadth i{display:block;height:100%}
+.sx-b-up{background:var(--up)}
+.sx-b-dn{background:var(--down)}
+.sx-b-flat{background:var(--gold-soft)}
+.sx-breadth-cap{font-size:.8rem;color:var(--muted);margin:0 0 12px}
+.sx-card details{border-top:1px solid var(--hairline-soft);padding-top:10px}
+.sx-card summary{cursor:pointer;font-weight:600;font-size:.92rem;color:var(--emerald)}
+.sx-lead{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+.sx-lead h4{font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 8px}
+.sx-lead ul{list-style:none;margin:0;padding:0}
+.sx-lead li{display:flex;align-items:baseline;gap:8px;padding:5px 0;border-bottom:1px dashed var(--hairline-soft);
+  font-size:.9rem}
+.sx-lead li:last-child{border-bottom:0}
+.sx-sym{font-weight:700;color:var(--emerald)}
+.sx-sym:hover{text-decoration:underline}
+.sx-p{margin-left:auto;color:var(--muted)}
+.sx-ch{font-weight:600;min-width:64px;text-align:right}
+.sx-empty-lead{color:var(--faint);font-size:.85rem}
+
+/* ---------- table ---------- */
+.sx-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:4px 0 var(--space-3)}
+.sx-sort{font-size:.92rem;font-weight:600;color:var(--muted)}
+.sx-select{padding:9px 10px;border:1px solid var(--hairline);border-radius:10px;font-size:.88rem;
+  background:var(--paper);color:var(--ink);font-weight:600;cursor:pointer;font-family:var(--sans);
+  transition:border-color .25s var(--ease),box-shadow .25s var(--ease)}
+.sx-select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(198,168,107,.22)}
+.sx-table-wrap{overflow-x:auto;border:1px solid var(--hairline);border-radius:16px;
+  background:var(--paper);box-shadow:var(--shadow)}
+.sx-table{width:100%;border-collapse:collapse;font-size:.92rem;min-width:640px;font-variant-numeric:tabular-nums}
+.sx-table thead th{background:var(--ivory);text-align:left;font-size:.7rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:13px 14px;
+  border-bottom:1px solid var(--hairline);white-space:nowrap}
+.sx-table tbody td{padding:12px 14px;border-bottom:1px solid var(--hairline-soft)}
+.sx-table tbody tr:last-child td{border-bottom:0}
+.sx-table tbody tr:hover td{background:var(--ivory)}
+.sx-table .num{text-align:right}
+.sx-table td a{font-weight:700;color:var(--emerald)}
+.sx-table td a:hover{text-decoration:underline}
+.sx-dash{color:var(--faint)}
+.sx-empty{color:var(--muted);text-align:center;padding:26px 14px;font-size:.95rem}
+
+/* ---------- methodology note ---------- */
+.sx-note{margin-top:var(--space-6);border:1px solid var(--hairline);border-radius:var(--radius);
+  background:var(--paper);padding:var(--space-4);font-size:.92rem;color:var(--muted)}
+.sx-note p{margin:0;line-height:1.65}
+.sx-note strong{color:var(--ink)}
+
+/* ---------- skeleton ---------- */
+.skl{display:block;border-radius:8px;pointer-events:none;
+  background:linear-gradient(100deg,var(--ivory) 42%,#ffffff 50%,var(--ivory) 58%);
+  background-size:200% 100%;animation:skl-shimmer 1.7s var(--ease) infinite}
+.skl-line{height:14px;margin:10px 0}
+.skl-block{height:96px;margin:0 0 12px;flex:1 1 150px}
+.skl-row{height:46px;margin:6px 0}
+.sx-heat .skl-block{margin:0}
+.sx-cards .skl-block{height:190px;margin:0}
+@keyframes skl-shimmer{to{background-position:-200% 0}}
+
+/* ---------- footer (page-local copy of suite footer) ---------- */
+.sc-footer{border-top:1px solid var(--hairline);margin-top:var(--space-6);padding:22px 0 34px;
+  text-align:center;color:var(--muted);font-size:.88rem}
+.sc-footer a{color:inherit}
+.sc-footer-sub{font-size:.78rem;color:var(--faint);margin-top:4px}
+
+/* ---------- responsive ---------- */
+@media(max-width:640px){
+  .sx-tile{min-width:44%}
+  .sx-lead{grid-template-columns:1fr}
+  .sx-sec h2{font-size:22px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .skl{animation:none;background:var(--ivory)}
+  .sx-tile{transition:none}
+  .sx-tile:hover{transform:none}
+}
