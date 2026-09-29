@@ -121,7 +121,7 @@
         '<td class="num">' + tpCell(r) + '</td>' +
         '</tr>';
     }).join('');
-    $('sc-body').innerHTML = html || '<tr><td colspan="10" class="sc-empty">No securities match the current filters.</td></tr>';
+    $('sc-body').innerHTML = html || '<tr><td colspan="10" class="sc-empty">Nothing matches those filters. Try widening the search or clearing the sector filter.</td></tr>';
 
     // sort indicators
     var ths = document.querySelectorAll('#sc-table th[data-k]');
@@ -223,6 +223,14 @@
         return r.json();
       });
     }
+    // skeleton rows: hold the table's footprint while the ranking loads
+    (function () {
+      var rows = '';
+      for (var i = 0; i < 10; i++) {
+        rows += '<tr><td colspan="10" aria-hidden="true"><span class="skl skl-row"></span></td></tr>';
+      }
+      $('sc-body').innerHTML = rows;
+    })();
     return Promise.all([
       get('../nepse-chart/data/verdicts.json'),
       get('../nepse-chart/data/universe.json').catch(function () { return null; })
