@@ -82,12 +82,12 @@ function head(sym, name, slug) {
     '<meta name="viewport" content="width=device-width, initial-scale=1.0">\n' +
     '<title>' + esc(title) + '</title>\n' +
     '<meta name="description" content="' + esc(desc) + '">\n' +
-    '<meta name="author" content="Shirjan Khadka">\n' +
+    '<meta name="author" content="Nepse Decode">\n' +
     '<link rel="canonical" href="' + url + '">\n' +
     '<meta name="robots" content="index, follow, max-image-preview:large">\n' +
     '<meta name="theme-color" content="#FAF8F2">\n' +
     '<meta property="og:type" content="website">\n' +
-    '<meta property="og:site_name" content="Shirjan Khadka">\n' +
+    '<meta property="og:site_name" content="Nepse Decode">\n' +
     '<meta property="og:title" content="' + esc(name + ' (' + sym + ') | Nepse Decode') + '">\n' +
     '<meta property="og:description" content="' + esc(desc) + '">\n' +
     '<meta property="og:url" content="' + url + '">\n' +
@@ -199,49 +199,58 @@ function symbolPage(u, v, newsItems, peers, fund) {
   h += '<p class="asof">Data as of ' + esc((v && v.asof) || '') + ' · refreshed daily after market close</p></section>\n';
 
   // Price snapshot
-  h += '<section class="sp-snap" aria-label="Price snapshot"><div class="sp-price-card">\n';
+  h += '<section class="sp-snap" aria-label="Price snapshot"><div class="sp-price-card">\\n';
+  h += '<div class="sp-price-main">\\n';
   if (price) {
-    h += '<div class="sp-price">Rs ' + price + '</div>\n';
-    if (chg) h += '<div class="sp-chg ' + chgCls + '">' + (Number(v.ch) > 0 ? '+' : '') + chg + ' on the session</div>\n';
+    h += '<div class="sp-price">Rs ' + price + '</div>\\n';
+    if (chg) h += '<div class="sp-chg ' + chgCls + '">' + (Number(v.ch) > 0 ? '+' : '') + chg + ' on the session</div>\\n';
   } else {
-    h += '<div class="sp-price">No recent price data</div>\n';
+    h += '<div class="sp-price">No recent price data</div>\\n';
   }
+  h += '</div><div class="sp-price-side">\\n';
   const h52 = fmtNum(v && v.h52), l52 = fmtNum(v && v.l52);
-  if (h52 || l52) h += '<div class="sp-range">52-week range: Rs ' + (l52 || '–') + ' – Rs ' + (h52 || '–') + '</div>\n';
+  if (h52 || l52) h += '<div class="sp-stat"><span class="sp-stat-v">Rs ' + (l52 || '–') + ' – Rs ' + (h52 || '–') + '</span><span class="sp-stat-l">52-week range</span></div>\\n';
   const vol = fmtNum(v && v.vol);
-  if (vol) h += '<div class="sp-vol">Volume: ' + vol + ' shares</div>\n';
+  if (vol) h += '<div class="sp-stat"><span class="sp-stat-v">' + vol + '</span><span class="sp-stat-l">Volume (shares)</span></div>\\n';
+  h += '</div>';
   h += '</div></section>\n';
 
-  // Engine verdicts
-  h += '<section aria-label="Engine signals"><h2>Alpha Lab engine signals</h2>\n';
-  h += '<p class="sp-note">Transparent rule-based readings, one per timeframe. A daily Buy can be weak while the weekly read is stronger; each pill names its own timeframe and data date.</p>\n';
-  h += pill('Daily', v) + '\n' + pill('Weekly', v && v.w) + '\n' + pill('Monthly', v && v.m) + '\n';
-  h += '</section>\n';
-
-  // Fundamentals: published quarterly numbers, numbers-first.
+h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
+  h += '<button class="sp-tab active" role="tab" aria-selected="true" data-tab="overview">Overview</button>';
+  h += '<button class="sp-tab" role="tab" aria-selected="false" data-tab="signals">Signals</button>';
+  h += '<button class="sp-tab" role="tab" aria-selected="false" data-tab="fundamentals">Fundamentals</button>';
+  h += '<button class="sp-tab" role="tab" aria-selected="false" data-tab="news">News</button>';
+  h += '</div>';
+  h += '<div class="sp-tabpanel active" data-panel="overview" role="tabpanel">';
+  h += '<p class="sp-note">Price snapshot above. Switch tabs for engine signals, published fundamentals, and latest headlines.</p>';
+  h += '<ul class="sp-links">';
+  h += '<li><a href="/nepse-chart/?s=' + esc(sym) + '">Full chart, patterns and divergences <span aria-hidden="true">→</span></a></li>';
+  h += '<li><a href="/nepse-screener/">Ranked screener <span aria-hidden="true">→</span></a></li>';
+  h += '</ul></div>';
+  h += '<div class="sp-tabpanel" data-panel="signals" role="tabpanel" hidden>';
+  h += '<h2>Alpha Lab engine signals</h2>';
+  h += '<p class="sp-note">Transparent rule-based readings, one per timeframe. A daily Buy can be weak while the weekly read is stronger; each pill names its own timeframe and data date.</p>';
+  h += pill('Daily', v) + pill('Weekly', v && v.w) + pill('Monthly', v && v.m);
+  h += '</div>';
+  h += '<div class="sp-tabpanel" data-panel="fundamentals" role="tabpanel" hidden>';
   h += fundBlock(sym, fund);
-
-  // News
-  h += '<section aria-label="Latest headlines"><h2>Latest headlines</h2>\n';
+  h += '</div>';
+  h += '<div class="sp-tabpanel" data-panel="news" role="tabpanel" hidden>';
+  h += '<h2>Latest headlines</h2>';
   if (newsItems.length) {
-    h += '<ul class="sp-news">\n';
+    h += '<ul class="sp-news">';
     for (const it of newsItems.slice(0, 5)) {
-      h += '<li><a href="' + esc(it.link) + '" rel="noopener" target="_blank">' + esc(it.title) + '</a> ' +
-        '<span class="sp-news-src">' + esc(it.src || '') + ' · ' + esc(it.date || '') + '</span></li>\n';
+      h += '<li><a href="' + esc(it.link) + '" rel="noopener" target="_blank">' + esc(it.title) + '</a> ';
+      h += '<span class="sp-news-src">' + esc(it.src || '') + ' · ' + esc(it.date || '') + '</span></li>';
     }
-    h += '</ul>\n';
+    h += '</ul>';
   } else {
-    h += '<p class="sp-note">No recent headlines mention ' + esc(sym) + ' in the tracked press.</p>\n';
+    h += '<p class="sp-note">No recent headlines mention ' + esc(sym) + ' in the tracked press.</p>';
   }
-  h += '</section>\n';
-
-  // Tool links
-  h += '<section aria-label="Analyze further"><h2>Analyze further</h2><ul class="sp-links">\n';
-  h += '<li><a href="/nepse-chart/?s=' + esc(sym) + '">Full chart, patterns and divergences</a></li>\n';
-  h += '<li><a href="/nepse-screener/">Ranked screener</a></li>\n';
-  h += '<li><a href="/nepse-fundamentals/">Fundamentals snapshot</a></li>\n';
-  h += '<li><a href="/nepse-news/">Market news</a></li>\n';
-  h += '</ul></section>\n';
+  h += '<ul class="sp-links">';
+  h += '<li><a href="/nepse-fundamentals/">Fundamentals snapshot <span aria-hidden="true">→</span></a></li>';
+  h += '<li><a href="/nepse-news/">Market news <span aria-hidden="true">→</span></a></li>';
+  h += '</ul></div>';
 
   // Peers: highest engine-scored other instruments of the same type.
   // Labeled honestly as "more of this type", never as sector peers
@@ -255,6 +264,16 @@ function symbolPage(u, v, newsItems, peers, fund) {
   }
 
   h += '<p class="sp-disc">Educational use only, not investment advice. Signals are mechanical readings of past prices; past patterns do not guarantee future results.</p>\n';
+// Tab switching
+  h += '<script>(function(){';
+  h += 'var tabs=document.querySelectorAll(".sp-tab"),panels=document.querySelectorAll(".sp-tabpanel");';
+  h += 'function on(n){tabs.forEach(function(t){var a=t.dataset.tab===n;t.classList.toggle("active",a);t.setAttribute("aria-selected",a);});';
+  h += 'panels.forEach(function(p){var a=p.dataset.panel===n;p.classList.toggle("active",a);if(a)p.removeAttribute("hidden");else p.setAttribute("hidden","");});}';
+  h += 'tabs.forEach(function(t){t.addEventListener("click",function(){on(t.dataset.tab);});';
+  h += 't.addEventListener("keydown",function(e){if(e.key==="ArrowRight"||e.key==="ArrowLeft"){';
+  h += 'var i=Array.prototype.indexOf.call(tabs,t);var nx=e.key==="ArrowRight"?(i+1)%tabs.length:(i-1+tabs.length)%tabs.length;';
+  h += 'tabs[nx].focus();on(tabs[nx].dataset.tab);}});});';
+  h += '})();</scr' + 'ipt>';
   h += '</main>\n' + FOOT;
   return h;
 }
