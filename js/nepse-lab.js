@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  if (window.console && console.log) {
+  if (typeof window !== 'undefined' && window.console && console.log) {
     console.log('%cPoking around? The API is at /api/ ... if you dare.',
       'color:#C6A86B;font-weight:bold');
   }
@@ -353,7 +353,10 @@
   function computeVerdict(pack) {
     var rows = pack.rows, n = rows.length, factors = [];
     function F(name, pts, note) { factors.push({ name: name, pts: pts, note: note }); }
-    if (n < 60) return { score: null, label: 'Insufficient history', cls: 'insufficient', factors: factors, sessions: n, note: 'Only ' + n + ' sessions on record, not enough history to score reliably.' };
+    // Per-timeframe minimums: the builder scores weekly/monthly aggregates
+    // with minN 40/36. Default 60 keeps every existing caller unchanged.
+    var minN = pack.minN || 60, unit = pack.unit || 'sessions';
+    if (n < minN) return { score: null, label: 'Insufficient history', cls: 'insufficient', factors: factors, sessions: n, note: 'Only ' + n + ' ' + unit + ' on record, not enough history to score reliably.' };
     var closes = rows.map(function (r) { return r[4]; });
     var s20 = smaArr(closes, 20), s50 = smaArr(closes, 50), s200 = smaArr(closes, 200);
     var rsiA = rsiArr(closes, 14), mR = macd(closes);
@@ -755,6 +758,21 @@
       if (w !== wk) {
         if (cur) out.push([cur.d0, cur.o, cur.h, cur.l, cur.c, cur.q, cur.t]);
         wk = w;
+        cur = { d0: r[0], o: r[1], h: r[2], l: r[3], c: r[4], q: r[5], t: r[6] };
+      } else { cur.h = Math.max(cur.h, r[2]); cur.l = Math.min(cur.l, r[3]); cur.c = r[4]; cur.q += r[5]; cur.t += r[6]; }
+    });
+    if (cur) out.push([cur.d0, cur.o, cur.h, cur.l, cur.c, cur.q, cur.t]);
+    return out;
+  }
+  function toMonthly(rows) {
+    // group by calendar month (YYYYMM from YYYYMMDD); NEPSE trades Mon–Fri
+    // so a month is ~21 sessions. Same candle shape as toWeekly.
+    var out = [], cur = null, mk = -1;
+    rows.forEach(function (r) {
+      var m = Math.floor(r[0] / 100);
+      if (m !== mk) {
+        if (cur) out.push([cur.d0, cur.o, cur.h, cur.l, cur.c, cur.q, cur.t]);
+        mk = m;
         cur = { d0: r[0], o: r[1], h: r[2], l: r[3], c: r[4], q: r[5], t: r[6] };
       } else { cur.h = Math.max(cur.h, r[2]); cur.l = Math.min(cur.l, r[3]); cur.c = r[4]; cur.q += r[5]; cur.t += r[6]; }
     });
@@ -1478,6 +1496,7 @@
     smaArr: smaArr, emaArr: emaArr, rsiArr: rsiArr, macd: macd, atrArr: atrArr,
     smaNull: smaNull, bbArr: bbArr, stochArr: stochArr,
     fractalPivots: fractalPivots, swingPivots: swingPivots, toWeekly: toWeekly,
+    toMonthly: toMonthly,
     detectDivergences: detectDivergences, detectPatterns: detectPatterns,
     computeVerdict: computeVerdict, setSymbol: setSymbol, SRC: SRC,
     _testHooks: { detRecomputes: 0 }

@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NEPSE Watchlist – Track Your Stocks, Free, No Login | Shirjan Khadka</title>
-<meta name="description" content="Your personal NEPSE watchlist: track any listed security with price, day change, signal and RSI, saved in your browser. Free, unlimited, no login, no account.">
+<title>Nepse Decode Watchlist: Track Your NEPSE Stocks, Free, No Login | Shirjan Khadka</title>
+<meta name="description" content="Nepse Decode: your personal NEPSE watchlist: track any listed security with price, day change, signal and RSI, saved in your browser. Free, unlimited, no login, no account.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-watchlist/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="NEPSE Watchlist – Track Your Stocks, Free">
+<meta property="og:title" content="Nepse Decode Watchlist: Track Your NEPSE Stocks, Free">
 <meta property="og:description" content="Your personal NEPSE watchlist, saved in your browser. Free, unlimited, no login.">
 <meta property="og:url" content="https://shirjankhadka.com.np/nepse-watchlist/">
 <meta property="og:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="NEPSE Watchlist – Track Your Stocks, Free">
+<meta name="twitter:title" content="Nepse Decode Watchlist: Track Your NEPSE Stocks, Free">
 <meta name="twitter:description" content="Your personal NEPSE watchlist, saved in your browser. Free, unlimited, no login.">
 <meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
 <link rel="icon" href="/nepse-watchlist/icon-32.png" sizes="32x32" type="image/png">
@@ -22,16 +22,17 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebPage","name":"NEPSE Watchlist","url":"https://shirjankhadka.com.np/nepse-watchlist/","description":"A personal, browser-local NEPSE watchlist: track any listed security with price, day change, signal and RSI. Free, unlimited, no login.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
+{"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode Watchlist","url":"https://shirjankhadka.com.np/nepse-watchlist/","description":"A personal, browser-local NEPSE watchlist: track any listed security with price, day change, signal and RSI. Free, unlimited, no login.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
 {"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
-{"@type":"ListItem","position":2,"name":"NEPSE Alpha Lab","item":"https://shirjankhadka.com.np/nepse-alpha/"},
+{"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-alpha/"},
 {"@type":"ListItem","position":3,"name":"Watchlist","item":"https://shirjankhadka.com.np/nepse-watchlist/"}]}
 </script>
 <link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930c">
 <link rel="stylesheet" href="/css/nepse-wave7.css?v=20261002c">
+<link rel="stylesheet" href="/css/nepse-brand.css?v=20261003a">
 <style>
 /* watchlist-only */
 .wrap{max-width:980px}
@@ -81,8 +82,8 @@
 </head>
 <body>
 
-<aside class="suite-rail" aria-label="Alpha Lab suite">
-  <a class="rail-word" href="/nepse-alpha/">NEPSE Alpha Lab<span class="g">.</span></a>
+<aside class="suite-rail" aria-label="Nepse Decode suite">
+  <a class="rail-word" href="/nepse-alpha/"><img class="wm-mark" src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
   <p class="rail-k">Suite</p>
   <nav aria-label="Suite tools">
     <a href="/nepse-alpha/">Overview</a>
@@ -103,8 +104,8 @@
 
 <header class="topbar">
   <div class="wrap topbar-in">
-    <a class="wordmark" href="/nepse-alpha/">NEPSE Alpha Lab<span class="g">.</span></a>
-    <nav class="suite-links" aria-label="Alpha Lab suite">
+    <a class="wordmark" href="/nepse-alpha/"><img class="wm-mark" src="/assets/brand/nepse-decode-mark.svg" alt="" width="30" height="30">Nepse Decode</a>
+    <nav class="suite-links" aria-label="Nepse Decode suite">
       <a href="/nepse-chart/">The Lab</a>
       <a href="/nepse-screener/">Screener</a>
       <a href="/nepse-sectors/">Sectors</a>
@@ -132,6 +133,13 @@
       <section class="wl-box" aria-label="Engine watchlist">
         <div class="wl-box-head">
           <h2>Engine watchlist</h2>
+          <label class="ewl-tf" for="ewl-tf">Timeframe
+            <select id="ewl-tf" aria-label="Engine watchlist timeframe">
+              <option value="d">Daily</option>
+              <option value="w">Weekly</option>
+              <option value="m">Monthly</option>
+            </select>
+          </label>
           <span id="wl-live"></span>
         </div>
         <p class="wl-sub" id="wl-engine-sub">Mechanical picks from the latest daily batch. Rebuilt with each batch.</p>
@@ -167,7 +175,7 @@
     <div class="promise-in">
       <div class="promise-card"><h3>Private by design</h3><p>Your watchlist is stored only in this browser's local storage. There is no account to create and nothing to leak.</p></div>
       <div class="promise-card"><h3>Unlimited, free</h3><p>Track as many securities as you like. No tiers, no locked rows, no "premium watchlist".</p></div>
-      <div class="promise-card"><h3>One tap to the chart</h3><p>Every symbol links straight to its full Alpha Lab breakdown: chart, patterns, divergences and the rule-based signal.</p></div>
+      <div class="promise-card"><h3>One tap to the chart</h3><p>Every symbol links straight to its full Nepse Decode breakdown: chart, patterns, divergences and the rule-based signal.</p></div>
     </div>
   </div>
   <div class="wrap">
@@ -184,7 +192,7 @@
     <div class="disclaimer"><strong>Educational use only.</strong> Signals are mechanical output from a fixed rule set, not investment advice. Nothing here is a buy or sell recommendation; verify prices with your broker before trading.</div>
     <div class="row">
       <span>Built by <a href="/">Shirjan Khadka</a> · Aspiring Financial Analyst</span>
-      <span><a href="/nepse-alpha/">Alpha Lab</a> · <a href="/nepse-chart/">Chart</a> · <a href="/nepse-screener/">Screener</a> · <a href="/nepse-news/">News</a> · <a href="/blog/">Blog</a></span>
+      <span><a href="/nepse-alpha/">Nepse Decode</a> · <a href="/nepse-chart/">Chart</a> · <a href="/nepse-screener/">Screener</a> · <a href="/nepse-news/">News</a> · <a href="/blog/">Blog</a></span>
     </div>
   </div>
 </footer>

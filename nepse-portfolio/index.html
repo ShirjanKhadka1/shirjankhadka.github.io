@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NEPSE Portfolio Tracker – Holdings, P&L and Allocation, Free | Shirjan Khadka</title>
-<meta name="description" content="Your personal NEPSE portfolio tracker: record holdings with weighted average cost, see unrealized and realized P&L, allocation and analytics, and print a clean report. Free, unlimited, no login, saved in your browser.">
+<title>Nepse Decode Portfolio: Free NEPSE Holdings, P&L and Allocation Tracker | Shirjan Khadka</title>
+<meta name="description" content="Nepse Decode: your personal NEPSE portfolio tracker: record holdings with weighted average cost, see unrealized and realized P&L, allocation and analytics, and print a clean report. Free, unlimited, no login, saved in your browser.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-portfolio/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="NEPSE Portfolio Tracker – Holdings, P&L, Free">
+<meta property="og:title" content="Nepse Decode Portfolio: Holdings, P&L, Free">
 <meta property="og:description" content="Track your NEPSE holdings with average cost, P&L, allocation and a printable report. Free, unlimited, no login, saved in your browser.">
 <meta property="og:url" content="https://shirjankhadka.com.np/nepse-portfolio/">
 <meta property="og:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="NEPSE Portfolio Tracker – Holdings, P&L, Free">
+<meta name="twitter:title" content="Nepse Decode Portfolio: Holdings, P&L, Free">
 <meta name="twitter:description" content="Track your NEPSE holdings with average cost, P&L, allocation and a printable report. Free, unlimited, no login.">
 <meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
 <link rel="icon" href="/nepse-portfolio/icon-32.png" sizes="32x32" type="image/png">
@@ -22,15 +22,16 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebPage","name":"NEPSE Portfolio Tracker","url":"https://shirjankhadka.com.np/nepse-portfolio/","description":"A personal, browser-local NEPSE portfolio tracker: holdings with weighted average cost, unrealized and realized P&L, allocation, analytics and a printable report. Free, unlimited, no login.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
+{"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode Portfolio","url":"https://shirjankhadka.com.np/nepse-portfolio/","description":"A personal, browser-local NEPSE portfolio tracker: holdings with weighted average cost, unrealized and realized P&L, allocation, analytics and a printable report. Free, unlimited, no login.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
 {"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
-{"@type":"ListItem","position":2,"name":"NEPSE Alpha Lab","item":"https://shirjankhadka.com.np/nepse-alpha/"},
+{"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-alpha/"},
 {"@type":"ListItem","position":3,"name":"Portfolio","item":"https://shirjankhadka.com.np/nepse-portfolio/"}]}
 </script>
 <link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930c">
+<link rel="stylesheet" href="/css/nepse-brand.css?v=20261003a">
 <style>
 /* portfolio-only */
 .wrap{max-width:1080px}
@@ -126,8 +127,8 @@
 <body>
 <a class="skip" href="#main">Skip to content</a>
 
-<aside class="suite-rail" aria-label="Alpha Lab suite">
-  <a class="rail-word" href="/nepse-alpha/">NEPSE Alpha Lab<span class="g">.</span></a>
+<aside class="suite-rail" aria-label="Nepse Decode suite">
+  <a class="rail-word" href="/nepse-alpha/"><img class="wm-mark" src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
   <p class="rail-k">Suite</p>
   <nav aria-label="Suite tools">
     <a href="/nepse-alpha/">Overview</a>
@@ -148,8 +149,8 @@
 
 <header class="topbar">
   <div class="wrap topbar-in">
-    <a class="wordmark" href="/nepse-alpha/">NEPSE Alpha Lab<span class="g">.</span></a>
-    <nav class="suite-links" aria-label="Alpha Lab suite">
+    <a class="wordmark" href="/nepse-alpha/"><img class="wm-mark" src="/assets/brand/nepse-decode-mark.svg" alt="" width="30" height="30">Nepse Decode</a>
+    <nav class="suite-links" aria-label="Nepse Decode suite">
       <a href="/nepse-chart/">The Lab</a>
       <a href="/nepse-screener/">Screener</a>
       <a href="/nepse-sectors/">Sectors</a>
@@ -170,7 +171,7 @@
 <div id="pf-root">
   <div class="pf-print-head" aria-hidden="true">
     <h1>Portfolio report: <span id="pf-print-name"></span></h1>
-    <p>Generated <span id="pf-print-date"></span> · NEPSE Alpha Lab · Educational use only, not investment advice.</p>
+    <p>Generated <span id="pf-print-date"></span> · Nepse Decode · Educational use only, not investment advice.</p>
   </div>
 
   <section class="hero">
@@ -290,7 +291,7 @@
     <div class="disclaimer"><strong>Educational use only.</strong> This portfolio tracker is descriptive bookkeeping: it records the quantities and prices you enter and values them at the latest available batch prices. Nothing here is investment advice or a buy or sell recommendation; verify prices with your broker before trading.</div>
     <div class="row">
       <span>Built by <a href="/">Shirjan Khadka</a> · Aspiring Financial Analyst</span>
-      <span><a href="/nepse-alpha/">Alpha Lab</a> · <a href="/nepse-chart/">Chart</a> · <a href="/nepse-screener/">Screener</a> · <a href="/nepse-sectors/">Sectors</a> · <a href="/blog/">Blog</a></span>
+      <span><a href="/nepse-alpha/">Nepse Decode</a> · <a href="/nepse-chart/">Chart</a> · <a href="/nepse-screener/">Screener</a> · <a href="/nepse-sectors/">Sectors</a> · <a href="/blog/">Blog</a></span>
     </div>
   </div>
 </footer>

@@ -167,54 +167,78 @@
     listEl.innerHTML = rows;
   }
 
-  /* -------- engine watchlist (Wave 7) --------
-     Mechanical picks from the latest daily batch: roughly the top 12
-     Strong Buy / Buy verdicts by engine score. Rebuilt with each batch.
-     Educational, not investment advice. The user's own list below is
-     untouched (nl_watchlist_v1). */
+  /* -------- engine watchlist (Wave 7; multi-timeframe in Wave 8) --------
+     Mechanical picks from the latest batch, ranked separately on daily,
+     weekly and monthly candles. The timeframe dropdown shows which clock
+     each Strong Buy belongs to: a daily Buy can be weak while the weekly
+     or monthly read is stronger, and every row is labeled with its
+     timeframe. Educational, not investment advice. The user's own list
+     below is untouched (nl_watchlist_v1). */
+  var EWL_TF_KEY = 'nd_ewl_tf';
+  var TF_LABEL = { d: 'Daily', w: 'Weekly', m: 'Monthly' };
+  function ewlTf() {
+    var t = 'd';
+    try { t = localStorage.getItem(EWL_TF_KEY) || 'd'; } catch (e) {}
+    return TF_LABEL[t] ? t : 'd';
+  }
+  function tfVerdictOf(e, tf) {
+    if (!e) return null;
+    if (tf === 'd') return e;
+    return e[tf] || null;
+  }
   function renderEngine() {
     var box = document.getElementById('wl-engine-list');
     if (!box) return;
+    var tf = ewlTf();
+    var sel = document.getElementById('ewl-tf');
+    if (sel && sel.value !== tf) sel.value = tf;
     if (!dataReady || !Object.keys(verdicts).length) {
       box.innerHTML = '<p class="wl-note">Engine picks are temporarily unavailable.</p>';
       return;
     }
     var Mono = window.NepseMono || null;
     function sgn(x) { return (x > 0 ? '+' : '') + x.toFixed(1); }
-    var picks = Object.keys(verdicts).map(function (sym) { return [sym, verdicts[sym]]; })
-      .filter(function (it) { return it[1].v === 'Strong Buy' || it[1].v === 'Buy'; })
+    var picks = Object.keys(verdicts).map(function (sym) { return [sym, tfVerdictOf(verdicts[sym], tf)]; })
+      .filter(function (it) { return it[1] && (it[1].v === 'Strong Buy' || it[1].v === 'Buy'); })
       .sort(function (a, b) { return (b[1].s || 0) - (a[1].s || 0); })
       .slice(0, 12);
     if (!picks.length) {
-      box.innerHTML = '<p class="wl-note">No Strong Buy or Buy verdicts in the latest batch.</p>';
-      return;
+      box.innerHTML = '<p class="wl-note">No Strong Buy or Buy verdicts on ' +
+        TF_LABEL[tf].toLowerCase() + ' candles in the latest batch.</p>';
+    } else {
+      box.innerHTML = picks.map(function (it) {
+        var sym = it[0], x = it[1] || {}, e = verdicts[sym] || {};
+        var ch = Number(e.ch);
+        var chHtml = isFinite(ch)
+          ? '<span class="' + (ch > 0 ? 'up' : ch < 0 ? 'down' : '') + '">' +
+            (ch > 0 ? '+' : '') + ch.toFixed(2) + '%</span>'
+          : '<span>–</span>';
+        var sltp = 'SL/TP unavailable for this security.';
+        if (x.sl != null && x.tp != null && e.p) {
+          sltp = 'SL ' + fmtNum(x.sl, 2) + ' (' + sgn((x.sl - e.p) / e.p * 100) + '%)' +
+            ' · TP ' + fmtNum(x.tp, 2) + ' (' + sgn((x.tp - e.p) / e.p * 100) + '%)';
+        }
+        return '<div class="ewl-row">' +
+          '<a class="ewl-sym" href="/nepse-chart/?s=' + esc(sym) + '">' +
+            (Mono ? Mono.avatar(sym, x.sec || e.sec) : '') + '<span>' + esc(sym) + '</span>' +
+            '<span class="ewl-v ' + (x.v === 'Strong Buy' ? 'sb' : 'b') + '">' + esc(x.v) +
+            (tf === 'd' ? '' : ' · ' + TF_LABEL[tf]) + '</span></a>' +
+          '<span class="ewl-num tnum">Rs ' + fmtNum(e.p, 2) + ' ' + chHtml + '</span>' +
+          '<span class="ewl-setup">' + esc(x.setup || '–') + '</span>' +
+          '<span class="ewl-sl tnum">' + esc(sltp) + '</span>' +
+        '</div>';
+      }).join('');
     }
-    box.innerHTML = picks.map(function (it) {
-      var sym = it[0], x = it[1] || {};
-      var ch = Number(x.ch);
-      var chHtml = isFinite(ch)
-        ? '<span class="' + (ch > 0 ? 'up' : ch < 0 ? 'down' : '') + '">' +
-          (ch > 0 ? '+' : '') + ch.toFixed(2) + '%</span>'
-        : '<span>–</span>';
-      var sltp = 'SL/TP unavailable for this security.';
-      if (x.sl != null && x.tp != null && x.p) {
-        sltp = 'SL ' + fmtNum(x.sl, 2) + ' (' + sgn((x.sl - x.p) / x.p * 100) + '%)' +
-          ' · TP ' + fmtNum(x.tp, 2) + ' (' + sgn((x.tp - x.p) / x.p * 100) + '%)';
-      }
-      return '<div class="ewl-row">' +
-        '<a class="ewl-sym" href="/nepse-chart/?s=' + esc(sym) + '">' +
-          (Mono ? Mono.avatar(sym, x.sec) : '') + '<span>' + esc(sym) + '</span>' +
-          '<span class="ewl-v ' + (x.v === 'Strong Buy' ? 'sb' : 'b') + '">' + esc(x.v) + '</span></a>' +
-        '<span class="ewl-num tnum">Rs ' + fmtNum(x.p, 2) + ' ' + chHtml + '</span>' +
-        '<span class="ewl-setup">' + esc(x.setup || '–') + '</span>' +
-        '<span class="ewl-sl tnum">' + esc(sltp) + '</span>' +
-      '</div>';
-    }).join('');
     var sub = document.getElementById('wl-engine-sub');
     if (sub) {
-      sub.textContent = 'Mechanical picks from the latest daily batch' +
-        (dataAsof ? ' (' + dataAsof + ')' : '') +
-        '. Rebuilt with each batch. Educational, not investment advice.';
+      var candleWord = TF_LABEL[tf].toLowerCase();
+      sub.textContent = 'Mechanical picks ranked on ' + candleWord + ' candles' +
+        (dataAsof ? ', data through ' + dataAsof : '') +
+        '. Rebuilt with each batch.' +
+        (tf === 'd'
+          ? ''
+          : ' A daily Buy can be weak while the ' + candleWord + ' read is stronger.') +
+        ' Educational, not investment advice.';
     }
   }
 
@@ -332,4 +356,15 @@
   }
 
   loadData();
+
+  /* Wave 8: engine watchlist timeframe dropdown (Daily/Weekly/Monthly),
+     persisted in this browser. */
+  var tfSel = document.getElementById('ewl-tf');
+  if (tfSel) {
+    tfSel.value = ewlTf();
+    tfSel.addEventListener('change', function () {
+      try { localStorage.setItem(EWL_TF_KEY, tfSel.value); } catch (e) {}
+      renderEngine();
+    });
+  }
 })();

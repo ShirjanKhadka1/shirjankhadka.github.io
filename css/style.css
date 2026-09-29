@@ -1155,6 +1155,22 @@ body.loaded .hero-title {
 .sc-footer-sub{font-size:.78rem;color:var(--faint);margin-top:4px}
 @media(max-width:860px){.sc-cards{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:520px){.sc-cards{grid-template-columns:repeat(2,1fr)}.sc-num{font-size:1.55rem}.sc-search{margin-left:0;max-width:none}}
+/* Wave 8: inline top matches rendered directly beneath the signal cards */
+#sc-card-results{margin:4px 0 26px}
+#sc-card-results[hidden]{display:none}
+.sc-cr-head{font-size:1.02rem;margin:0 0 10px;color:var(--ink)}
+.sc-cr-list{border:1px solid var(--hairline);border-radius:14px;background:#fff;overflow:hidden}
+.sc-cr-row{display:grid;grid-template-columns:minmax(120px,1.2fr) repeat(2,minmax(90px,.9fr)) minmax(110px,1fr) repeat(2,minmax(90px,.9fr)) auto;gap:8px 14px;align-items:center;padding:10px 16px;border-top:1px solid var(--hairline);font-size:.88rem}
+.sc-cr-row:first-child{border-top:0}
+.sc-cr-sym{display:inline-flex;align-items:center;gap:8px;font-weight:800;color:var(--ink);text-decoration:none;min-width:0}
+.sc-cr-sym:hover{text-decoration:underline}
+.sc-cr-num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.sc-cr-link{font-weight:700;color:var(--emerald-deep);text-decoration:none;white-space:nowrap}
+.sc-cr-link:hover{text-decoration:underline}
+.sc-cr-more{margin:10px 2px 0;font-size:.85rem}
+.sc-cr-more a{color:var(--emerald-deep);font-weight:700}
+.sc-cr-empty{color:var(--muted);font-size:.9rem;margin:6px 2px}
+@media(max-width:860px){.sc-cr-row{grid-template-columns:1fr 1fr;row-gap:6px}.sc-cr-row .sc-cr-sym{grid-column:1/-1}}
 
 
 /* ---------- Blog magazine landing (Ansu-style bands, own identity) ---------- */
