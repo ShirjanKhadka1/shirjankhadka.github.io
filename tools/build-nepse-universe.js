@@ -376,6 +376,22 @@ async function main() {
     if (++done % 100 === 0) console.log('  verdicts: ' + done + '/' + symbols.length);
   }
 
+  // The manifest's monthly LTP feed can lag the daily data by days, which once
+  // left the whole site displaying a stale date while the data was fresh. The
+  // honest "as of" for the snapshot is the session most symbols actually
+  // closed on (each verdict carries its own last-session date).
+  const asofVotes = {};
+  for (const k of Object.keys(verdicts)) {
+    const d = verdicts[k].asof;
+    if (d) asofVotes[d] = (asofVotes[d] || 0) + 1;
+  }
+  const trueAsof = Object.keys(asofVotes).sort().reduce(
+    (a, b) => (asofVotes[b] > asofVotes[a] ? b : a), universe.asof) || universe.asof;
+  if (trueAsof !== universe.asof) {
+    console.log('  asof corrected: ' + universe.asof + ' -> ' + trueAsof + ' (most symbols closed then)');
+    universe.asof = trueAsof;
+  }
+
   fs.writeFileSync(path.join(OUT, 'universe.json'), JSON.stringify(universe));
   fs.writeFileSync(path.join(OUT, 'verdicts.json'), JSON.stringify({ asof: universe.asof, count: symbols.length, verdicts }));
   // Per-stock data-check audit: one row per listed security (source, history
@@ -445,14 +461,14 @@ async function main() {
     // When the market-regime gate blocks every Buy, say so plainly instead of
     // rendering an empty table.
     const bodyRows = rows.length ? trs :
-      '      <tr><td colspan="8">No buy signals today &mdash; the NEPSE index is below its 200-day average, so the engine is standing aside. The full interactive table below still ranks every security.</td></tr>';
-    const frag = '<section class="sc-top10" aria-label="Top ranked signals today">\n' +
-      '    <h2>Today&rsquo;s top 10 ranked signals <span class="sc-asof-inline">&mdash; ' + universe.asof + '</span></h2>\n' +
+      '      <tr><td colspan="8">No buy signals in this snapshot &middot; the NEPSE index is below its 200-day average, so the engine is standing aside. The full interactive table below still ranks every security.</td></tr>';
+    const frag = '<section class="sc-top10" aria-label="Top ranked signals">\n' +
+      '    <h2>Top 10 ranked signals <span class="sc-asof-inline">&middot; ' + universe.asof + '</span></h2>\n' +
       '    <div class="sc-table-wrap"><table class="sc-table">\n' +
       '      <thead><tr><th>#</th><th>Symbol</th><th>Price</th><th>Change</th><th>Signal</th><th>Setup</th><th>Stop loss</th><th>Target</th></tr></thead>\n' +
       '      <tbody>\n' + bodyRows + '\n      </tbody>\n' +
       '    </table></div>\n' +
-      '    <p class="sc-static-note">Static daily snapshot &mdash; the full interactive ranking of ' + symbols.length +
+      '    <p class="sc-static-note">Static daily snapshot &middot; the full interactive ranking of ' + symbols.length +
       ' securities, with hit-rate tracking and filters, is below.</p>\n' +
       '  </section>';
     const p = path.join(ROOT, 'nepse-screener', 'index.html');
