@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nepse Decode News: NEPSE Market Headlines for Every Listed Stock | Shirjan Khadka</title>
-<meta name="description" content="Nepse Decode: rolling 7-day feed of NEPSE market-moving headlines, matched to the symbols they affect. Every story attributed and linked to its publisher. Free, no login, educational.">
+<meta name="description" content="Nepse Decode: rolling archive of NEPSE market-moving headlines, matched to the symbols they affect. Every story attributed and linked to its publisher. Free, no login, educational.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-news/">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Nepse Decode News: NEPSE Market Headlines for Every Listed Stock">
@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode News","url":"https://shirjankhadka.com.np/nepse-news/","description":"Rolling 7-day feed of NEPSE market-moving headlines, matched to the symbols they affect, attributed and linked to the publisher.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
+{"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode News","url":"https://shirjankhadka.com.np/nepse-news/","description":"Rolling archive of NEPSE market-moving headlines, matched to the symbols they affect, attributed and linked to the publisher.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
@@ -54,6 +54,15 @@
 .news-meta .src{font-weight:600;color:var(--emerald)}
 .news-empty{color:var(--muted);font-size:15px;padding:32px;border:1px dashed var(--hairline);border-radius:16px;text-align:center}
 .updated{font-size:13px;color:var(--faint);margin-bottom:8px}
+/* archive pagination */
+.pager{display:flex;gap:8px;align-items:center;justify-content:center;margin:8px 0 32px;flex-wrap:wrap}
+.pager button{font:inherit;font-size:14px;font-weight:600;min-width:42px;height:42px;padding:0 14px;
+  border:1px solid var(--hairline);border-radius:12px;background:var(--paper);color:var(--ink);
+  cursor:pointer;transition:border-color .2s,background .2s}
+.pager button:hover:not(:disabled){border-color:var(--gold)}
+.pager button[aria-current="page"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.pager button:disabled{opacity:.35;cursor:default}
+.pager .pg-info{font-size:13px;color:var(--muted);margin:0 6px;font-variant-numeric:tabular-nums}
 .promise{background:var(--paper);border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline);margin:56px 0 0}
 .promise-in{max-width:880px;margin:0 auto;padding:44px 24px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
 .promise-card h3{font-family:var(--serif);font-size:17px;font-weight:600;margin-bottom:6px;letter-spacing:-.01em}
@@ -111,13 +120,14 @@
       <div class="hero-rule"></div>
       <span class="eyebrow"><span class="pulse"></span>Updated daily · Headlines only</span>
       <h1>NEPSE market news: what moved, <em>and why.</em></h1>
-      <p class="lede">A rolling 7-day feed of market-moving headlines mentioning NEPSE-listed companies, in plain language, <strong>always with the source attached</strong>. We link to the publisher; we don't rewrite their reporting.</p>
+      <p class="lede">A rolling archive of market-moving headlines mentioning NEPSE-listed companies, in plain language, <strong>always with the source attached</strong>. Newest first; older stories live in the archive pages below. We link to the publisher; we don't rewrite their reporting.</p>
       <div class="filter-row">
         <input id="newsFilter" type="search" placeholder="Filter by symbol, e.g. NABIL, NIFRA, HIDCL…" aria-label="Filter news by symbol" autocomplete="off">
         <span class="count" id="newsCount"></span>
       </div>
       <p class="updated" id="newsUpdated"></p>
       <div class="news-list" id="newsList" aria-live="polite"></div>
+      <nav class="pager" id="newsPager" aria-label="News archive pages" hidden></nav>
     </div>
   </section>
 
@@ -155,7 +165,10 @@
   var filter = document.getElementById('newsFilter');
   var count = document.getElementById('newsCount');
   var updated = document.getElementById('newsUpdated');
+  var pager = document.getElementById('newsPager');
   var ALL = [];
+  var PER_PAGE = 10;
+  var page = 1;
 
   // Skeleton placeholders: hold the feed's footprint while headlines load
   (function(){
@@ -184,22 +197,76 @@
       '<p class="news-meta"><span class="src">' + esc(it.src) + '</span> · ' + fmtDate(it.date) + '</p></div>' +
       '</article>';
   }
-  function render(){
+  function filtered(){
     var q = (filter.value || '').trim().toUpperCase();
-    var items = ALL.filter(function(it){
+    return ALL.filter(function(it){
       return !q || (it.sym || '').toUpperCase().indexOf(q) !== -1 ||
         (it.title || '').toUpperCase().indexOf(q) !== -1;
     });
-    if(items.length){
-      list.innerHTML = items.map(itemHTML).join('');
+  }
+  function renderPager(total){
+    var pages = Math.max(1, Math.ceil(total / PER_PAGE));
+    if(page > pages) page = pages;
+    if(total <= PER_PAGE){ pager.hidden = true; pager.innerHTML = ''; return; }
+    pager.hidden = false;
+    var h = '<button data-pg="prev"' + (page <= 1 ? ' disabled' : '') + ' aria-label="Previous page">←</button>';
+    // numbered buttons: show up to 5 around current
+    var start = Math.max(1, Math.min(page - 2, pages - 4));
+    var end = Math.min(pages, start + 4);
+    start = Math.max(1, end - 4);
+    for(var p = start; p <= end; p++){
+      h += '<button data-pg="' + p + '"' + (p === page ? ' aria-current="page"' : '') + '>' + p + '</button>';
+    }
+    h += '<button data-pg="next"' + (page >= pages ? ' disabled' : '') + ' aria-label="Next page">→</button>';
+    h += '<span class="pg-info">Page ' + page + ' of ' + pages + '</span>';
+    pager.innerHTML = h;
+  }
+  pager.addEventListener('click', function(e){
+    var b = e.target.closest('button[data-pg]');
+    if(!b || b.disabled) return;
+    var v = b.getAttribute('data-pg');
+    var items = filtered();
+    var pages = Math.max(1, Math.ceil(items.length / PER_PAGE));
+    if(v === 'prev') page = Math.max(1, page - 1);
+    else if(v === 'next') page = Math.min(pages, page + 1);
+    else page = Math.max(1, Math.min(pages, parseInt(v, 10) || 1));
+    render();
+    list.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  });
+  // swipe left/right on the list to change archive pages (touch)
+  (function(){
+    var sx = 0, dx = 0, on = false;
+    list.addEventListener('touchstart', function(e){
+      if(e.touches.length === 1){ sx = e.touches[0].clientX; dx = 0; on = true; }
+    }, { passive: true });
+    list.addEventListener('touchmove', function(e){
+      if(on && e.touches.length === 1) dx = e.touches[0].clientX - sx;
+    }, { passive: true });
+    list.addEventListener('touchend', function(){
+      if(!on) return; on = false;
+      if(Math.abs(dx) < 60) return;
+      var items = filtered();
+      var pages = Math.max(1, Math.ceil(items.length / PER_PAGE));
+      if(dx < 0 && page < pages){ page++; render(); }
+      else if(dx > 0 && page > 1){ page--; render(); }
+    });
+  })();
+  function render(){
+    var items = filtered();
+    var pages = Math.max(1, Math.ceil(items.length / PER_PAGE));
+    if(page > pages) page = pages;
+    var slice = items.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+    if(slice.length){
+      list.innerHTML = slice.map(itemHTML).join('');
     } else if(ALL.length){
       list.innerHTML = '<p class="news-empty">No headlines match "' + esc(filter.value.trim()) + '". Try another symbol.</p>';
     } else {
-      list.innerHTML = '<p class="news-empty">No company headlines in the last 7 days. Check back after the next daily refresh.</p>';
+      list.innerHTML = '<p class="news-empty">No company headlines yet. Check back after the next daily refresh.</p>';
     }
     count.textContent = ALL.length ? items.length + ' of ' + ALL.length + ' headlines' : '';
+    renderPager(items.length);
   }
-  filter.addEventListener('input', render);
+  filter.addEventListener('input', function(){ page = 1; render(); });
 
   fetch('/nepse-chart/data/news.json', { cache: 'no-store' })
     .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
@@ -207,7 +274,7 @@
       ALL = (d.items || []).slice().sort(function(a,b){
         return String(b.date || '').localeCompare(String(a.date || ''));
       });
-      if(d.asof){updated.textContent = 'Feed updated ' + fmtDate(d.asof) + ' · rolling 7-day window.';
+      if(d.asof){updated.textContent = 'Feed updated ' + fmtDate(d.asof) + ' · newest first, archive keeps 90 days.';
         if(window.NepseFresh&&!updated.querySelector('.fresh'))updated.insertAdjacentHTML('beforeend',' '+NepseFresh.badge(d.asof));}
       render();
     })
@@ -224,5 +291,6 @@
   }
 })();
 </script>
+<script src="/js/nepse-suite.js?v=20261003a"></script>
 </body>
 </html>
