@@ -86,3 +86,70 @@
   .sp-price { font-size: 1.6rem; }
   .vpill-tf { min-width: 0; }
 }
+
+.sp-dir-search { margin: 1.2rem 0 1rem; }
+.sp-dir-search input[type="search"] { width: 100%; max-width: 34rem; padding: .7rem 1rem; font-size: 1rem; border: 1px solid #d8d2c4; border-radius: .5rem; background: #fff; }
+.sp-dir-count { font-size: .85rem; color: #6b655a; margin: .4rem 0 0; }
+
+/* Pro flexbox upgrades: stock snapshot + hero */
+.sp-price-card {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 2rem;
+}
+.sp-price-main { flex: 1 1 12rem; min-width: 0; }
+.sp-price-side {
+  display: flex; flex-wrap: wrap; gap: .6rem 1.75rem;
+  margin-left: auto;
+}
+.sp-stat { display: flex; flex-direction: column; gap: .15rem; }
+.sp-stat-v { font-weight: 700; font-size: 1.02rem; letter-spacing: -.01em; }
+.sp-stat-l { font-size: .76rem; color: var(--ink-soft, #6b655a); text-transform: uppercase; letter-spacing: .05em; }
+.hero-flex {
+  display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
+  gap: 1rem 2rem;
+}
+.hero-cta { display: flex; gap: .6rem; flex-wrap: wrap; }
+/* Card hover lift (pro micro-interaction) */
+.sp-fund, .ca-item, .vpill {
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.sp-fund:hover, .ca-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(30, 40, 30, .08);
+}
+/* Peer/link rows as flex for clean alignment */
+.sp-links li a, .sp-peers li a {
+  display: flex; align-items: center; justify-content: space-between; gap: .75rem;
+  padding: .55rem .8rem; border: 1px solid var(--line, #e7e0d2); border-radius: 10px;
+  background: #fff; text-decoration: none; transition: border-color .18s ease, transform .18s ease;
+}
+.sp-links li a:hover, .sp-peers li a:hover {
+  border-color: #b9ac8d; transform: translateX(3px);
+}
+.sp-links li, .sp-peers li { margin: .5rem 0; }
+@media (max-width: 640px) {
+  .sp-price-side { margin-left: 0; gap: .5rem 1.25rem; }
+  .hero-flex { align-items: flex-start; }
+}
+
+/* Tabbed interface (pro design element) */
+.sp-tabs {
+  display: flex; gap: .25rem; flex-wrap: wrap;
+  border-bottom: 2px solid var(--line, #e7e0d2);
+  margin: 1.75rem 0 1.25rem;
+}
+.sp-tab {
+  font: inherit; font-weight: 600; font-size: .95rem;
+  padding: .65rem 1.15rem; border: 0; background: none; cursor: pointer;
+  color: var(--ink-soft, #6b655a);
+  border-bottom: 3px solid transparent; margin-bottom: -2px;
+  transition: color .18s ease, border-color .18s ease;
+}
+.sp-tab:hover { color: var(--ink, #1a1a1a); }
+.sp-tab.active { color: var(--emerald-deep, #1d4d3b); border-bottom-color: var(--emerald-deep, #1d4d3b); }
+.sp-tab:focus-visible { outline: 2px solid var(--emerald-deep, #1d4d3b); outline-offset: 2px; border-radius: 4px; }
+.sp-tabpanel { animation: tabIn .22s ease; }
+.sp-tabpanel[hidden] { display: none; }
+@keyframes tabIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@media (max-width: 640px) {
+  .sp-tab { padding: .6rem .8rem; font-size: .88rem; }
+}
