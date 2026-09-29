@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* NEPSE Alpha Lab — universe builder.
+/* Nepse Decode: universe builder.
  *
  * Builds the full listed-security universe from the free community feeds and
  * pre-computes a compact verdict snapshot for every symbol:
@@ -9,9 +9,11 @@
  *                                      scraper has no OHLC for (never fabricated
  *                                      open/high/low; flagged ltpOnly).
  *
- * Engine reused verbatim from ../../js/nepse-lab.js via its node export
- * (no threshold changes). Symbols with <60 valid sessions get
- * "Insufficient history", never a forced Hold.
+ * Engine reused verbatim from ../../js/nepse-lab.js via its node export.
+ * Daily verdicts need >= 60 sessions; weekly/monthly verdicts are computed
+ * on calendar-aggregated candles with minimums of 40 weeks / 36 months.
+ * Symbols below the minimums get "Insufficient history" (daily) or null
+ * (weekly/monthly), never a forced call.
  *
  * Node 18+, no npm dependencies. Run: node tools/build-nepse-universe.js
  */
@@ -176,6 +178,39 @@ function trackRecord(ENGINE, IDX, series, isEquity) {
   return out;
 }
 
+// ---- multi-timeframe verdicts (Wave 8) ----
+// The same rule set, applied on weekly and monthly candles aggregated from
+// the daily OHLC this builder already fetched. Minimums: 40 weekly bars,
+// 36 monthly bars. LTP-only symbols and short histories get null, never a
+// fabricated verdict. Price/change stay the latest daily figures (a price
+// has no timeframe); the verdict, RSI, stop/target and setup are per
+// timeframe. asof is the latest session the verdict's data runs through.
+const TF_MIN = { w: 40, m: 36 };
+function tfVerdict(agg, tf, regime, asofD) {
+  const minN = TF_MIN[tf];
+  if (!agg || agg.length < minN) return null;
+  const divs = ENGINE.detectDivergences(agg);
+  const pats = ENGINE.detectPatterns(agg);
+  const v = ENGINE.computeVerdict({
+    rows: agg, divs, pats, isIndex: false, idxRegime: regime,
+    minN: minN, unit: tf === 'w' ? 'weeks' : 'months'
+  });
+  const n = agg.length, last = agg[n - 1];
+  const rsiA = ENGINE.rsiArr(agg.map((r) => r[4]), 14);
+  let sl = null, tp = null;
+  const atrA = ENGINE.atrArr(agg, 14);
+  const atr = atrA[n - 1];
+  if (Number.isFinite(atr) && atr > 0) { sl = r2(last[4] - 2 * atr); tp = r2(last[4] + 4 * atr); }
+  const byRecency = (a, b) => (b.i2 || 0) - (a.i2 || 0);
+  const topPat = pats.slice().sort(byRecency)[0];
+  const topDiv = divs.slice().sort(byRecency)[0];
+  return {
+    v: v.label, s: v.score, rsi: r2(rsiA[n - 1]),
+    sl: sl, tp: tp, setup: (topPat && topPat.label) || (topDiv && topDiv.label) || null,
+    n: n, asof: asofD
+  };
+}
+
 async function main() {
   const t0 = Date.now();
   console.log('== NEPSE universe build ==');
@@ -262,6 +297,20 @@ async function main() {
   const idxRegime = idxCloses[idxCloses.length - 1] >= idxS200[idxS200.length - 1] ? 'up' : 'down';
   console.log('  index sessions:', idxDaily.length, '| regime:', idxRegime);
   const IDX = { daily: idxDaily, closes: idxCloses, s200: idxS200 };
+  // Weekly/monthly index regime for the multi-timeframe verdicts: the same
+  // SMA200 backdrop rule, applied on each timeframe's own clock.
+  const idxWeekly = ENGINE.toWeekly(idxDaily);
+  const idxMonthly = ENGINE.toMonthly(idxDaily);
+  function tfRegime(agg) {
+    const closes = agg.map((r) => r[4]);
+    const s200 = ENGINE.smaArr(closes, 200);
+    const n = closes.length;
+    if (n && s200[n - 1] != null) return closes[n - 1] >= s200[n - 1] ? 'up' : 'down';
+    return idxRegime; // too little aggregated history: fall back to the daily read
+  }
+  const idxRegimeW = tfRegime(idxWeekly), idxRegimeM = tfRegime(idxMonthly);
+  console.log('  index weekly bars:', idxWeekly.length, '| monthly bars:', idxMonthly.length,
+    '| regimes W/M:', idxRegimeW + '/' + idxRegimeM);
 
   // ---- build outputs ----
   fs.mkdirSync(OUT, { recursive: true });
@@ -305,7 +354,7 @@ async function main() {
 
     if (!series || !series.length) {
       report.failures.push(sym);
-      verdicts[sym] = { v: 'Insufficient history', s: null, p: null, ch: null, h52: null, l52: null, pos: null, rsi: null, n: 0, l: 0, asof: universe.asof, sec: secOf(sym), vol: null, volAvg: null, sl: null, tp: null, setup: null };
+      verdicts[sym] = { v: 'Insufficient history', s: null, p: null, ch: null, h52: null, l52: null, pos: null, rsi: null, n: 0, l: 0, asof: universe.asof, sec: secOf(sym), vol: null, volAvg: null, sl: null, tp: null, setup: null, w: null, m: null };
       report.byVerdict['Insufficient history'] = (report.byVerdict['Insufficient history'] || 0) + 1;
       report.insufficient.push(sym + ' (0)');
       audit.push({ s: sym, n: name, t: type, src: 'none', days: 0, lp: null, ld: null, verdict: 'Insufficient history', live: liveFlag, isNew });
@@ -363,13 +412,23 @@ async function main() {
     const tr = (!ltpOnly && n >= TR_MINN) ? trackRecord(ENGINE, IDX, series, type === 'Equity') : null;
     if (tr) report.trCount = (report.trCount || 0) + 1;
     if (tr && tr.tune) { (report.tuneWs = report.tuneWs || []).push(tr.tune.w); (report.tuneNs = report.tuneNs || []).push(tr.tune.n); }
+    // Multi-timeframe verdicts: weekly + monthly on aggregated candles.
+    // Only for symbols with a real daily OHLC verdict (n >= 60, not LTP-only).
+    let wV = null, mV = null;
+    if (!ltpOnly && n >= 60) {
+      wV = tfVerdict(ENGINE.toWeekly(series), 'w', idxRegimeW, fmtD(last[0]));
+      mV = tfVerdict(ENGINE.toMonthly(series), 'm', idxRegimeM, fmtD(last[0]));
+      if (wV) report.tfW = (report.tfW || 0) + 1;
+      if (mV) report.tfM = (report.tfM || 0) + 1;
+    }
     report.byVerdict[v.label] = (report.byVerdict[v.label] || 0) + 1;
     verdicts[sym] = {
       v: v.label, s: v.score, p: r2(price), ch: r2(chgPct),
       h52: r2(h52), l52: r2(l52), pos: r2(pos), rsi: r2(rsi),
       n: n, l: ltpOnly ? 1 : 0, asof: fmtD(last[0]),
       sec: sec, vol: vol, volAvg: volAvg, sl: sl, tp: tp, setup: setup,
-      tr: tr ? { n: tr.n, w: tr.w } : null
+      tr: tr ? { n: tr.n, w: tr.w } : null,
+      w: wV, m: mV
     };
     audit.push({ s: sym, n: name, t: type, src: ltpOnly ? 'ltp' : 'ohlc', days: n, lp: r2(price), ld: fmtD(last[0]), verdict: v.label, live: liveFlag, isNew });
 
@@ -515,6 +574,8 @@ async function main() {
   lines.push('  symbols with sector (sec) : ' + (report.secCount || 0));
   lines.push('  symbols with stop/target (sl/tp): ' + (report.sltpCount || 0));
   lines.push('  symbols with buy-call track record: ' + (report.trCount || 0));
+  lines.push('  symbols with weekly verdict (>=40 weeks): ' + (report.tfW || 0));
+  lines.push('  symbols with monthly verdict (>=36 months): ' + (report.tfM || 0));
   lines.push('');
   lines.push('buy-call track record (win = +4xATR before -2xATR within 20 sessions):');
   function winLines(tag, ws, ns, rows) {
