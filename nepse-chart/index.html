@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Free NEPSE Chart: Candlestick Charts, Pattern Scanner & Divergence Signals</title>
-<meta name="description" content="Free NEPSE chart with candlestick charts, Bollinger Bands, EMA/SMA overlays, RSI and Stochastic indicators, automatic chart-pattern and RSI/MACD divergence scanner, support/resistance factors and transparent buy/hold/exit signals for every listed stock. No login.">
+<title>Nepse Decode Chart: Free NEPSE Candlesticks, Pattern Scanner & Divergence Signals</title>
+<meta name="description" content="Nepse Decode: free NEPSE chart with candlestick charts, Bollinger Bands, EMA/SMA overlays, RSI and Stochastic indicators, automatic chart-pattern and RSI/MACD divergence scanner, support/resistance factors and transparent buy/hold/exit signals for every listed stock. No login.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-chart/">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="theme-color" content="#FAF8F2">
 <meta property="og:type" content="website">
-<meta property="og:title" content="NEPSE Alpha Lab: Patterns, Divergences &amp; Buy/Hold/Exit Signals">
+<meta property="og:title" content="Nepse Decode: Patterns, Divergences &amp; Buy/Hold/Exit Signals">
 <meta property="og:description" content="Search any NEPSE stock: live quotes, chart patterns, divergences and a transparent rule-based buy/hold/exit engine. Free, no login.">
 <meta property="og:url" content="https://shirjankhadka.com.np/nepse-chart/">
 <meta property="og:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
@@ -17,7 +17,7 @@
   <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
-<meta name="twitter:title" content="NEPSE Alpha Lab, Patterns, Divergences &amp; Buy/Hold/Exit Signals">
+<meta name="twitter:title" content="Nepse Decode, Patterns, Divergences &amp; Buy/Hold/Exit Signals">
 <meta name="twitter:description" content="Free NEPSE stock lab: live quotes, chart patterns, RSI/MACD divergences and a transparent buy/hold/exit signal engine.">
 <link rel="icon" href="/nepse-chart/icon-32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="/nepse-chart/icon-16.png" sizes="16x16" type="image/png">
@@ -31,14 +31,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930b">
 <link rel="stylesheet" href="/css/nepse-wave7.css?v=20261002c">
+<link rel="stylesheet" href="/css/nepse-brand.css?v=20261003a">
 <link rel="stylesheet" href="chart.css?v=20261002a">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"NEPSE Alpha Lab","url":"https://shirjankhadka.com.np/nepse-chart/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Free NEPSE analysis lab: live quotes for any listed stock, candlestick charts with Bollinger Bands, EMA/SMA overlays, RSI and Stochastic, automatic chart-pattern and divergence detection, and a transparent rule-based buy/hold/exit signal engine. Educational use only.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/",
+{"@context":"https://schema.org","@type":"WebApplication","name":"Nepse Decode","url":"https://shirjankhadka.com.np/nepse-chart/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Free NEPSE charting tool: live quotes for any listed stock, candlestick charts with Bollinger Bands, EMA/SMA overlays, RSI and Stochastic, automatic chart-pattern and divergence detection, and verdicts by the transparent rule-based Alpha Lab engine. Educational use only.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/",
       "sameAs": ["https://www.linkedin.com/in/shirjankhadkab/"]}}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
-{"@type":"Question","name":"Does the NEPSE Alpha Lab give buy or sell signals?","acceptedAnswer":{"@type":"Answer","text":"It shows a rule-based verdict, Strong Buy, Buy, Hold, Exit/Reduce or Strong Exit, computed in your browser from ten transparent factors: trend vs moving averages, RSI, MACD, turnover, 52-week position, divergences, chart patterns, market backdrop and support/resistance. Every factor and its contribution is listed, so nothing is a black box. It is educational, not investment advice."}},
+{"@type":"Question","name":"Does Nepse Decode give buy or sell signals?","acceptedAnswer":{"@type":"Answer","text":"Nepse Decode shows a rule-based verdict, Strong Buy, Buy, Hold, Exit/Reduce or Strong Exit, computed in your browser from ten transparent factors: trend vs moving averages, RSI, MACD, turnover, 52-week position, divergences, chart patterns, market backdrop and support/resistance. Every factor and its contribution is listed, so nothing is a black box. It is educational, not investment advice."}},
 {"@type":"Question","name":"Is the data real-time?","acceptedAnswer":{"@type":"Answer","text":"During NEPSE trading hours (Monday–Friday, 11:00–15:00 NPT) the quote panel refreshes from a free community live feed and shows a LIVE badge; the chart appends the in-progress session. Outside market hours it shows the last closed session. NEPSE publishes no free official real-time API, so this uses community mirrors and may be delayed."}},
 {"@type":"Question","name":"Which patterns and divergences are detected?","acceptedAnswer":{"@type":"Answer","text":"Double tops and bottoms, head & shoulders and inverse head & shoulders, ascending/descending/symmetrical triangles and rising/falling wedges, plus regular and hidden bullish/bearish divergences on RSI(14) and the MACD histogram. Detections are drawn on the chart and listed with dates and plain-English notes."}},
 {"@type":"Question","name":"Where does the data come from?","acceptedAnswer":{"@type":"Answer","text":"Per-stock daily OHLC history from the open Nepse-All-Scraper dataset (Samir Wagle, MIT), live quotes and monthly LTP history from the yonepse open API, and the NEPSE index daily history (2003–2026) from the nepse-open-data archive. Coverage spans every currently listed security, equities, mutual funds, debentures and preference shares. Securities without scraper OHLC (e.g. newer listings) use LTP-only history and are clearly flagged; pattern and divergence detection is disabled for those."}},
@@ -47,14 +48,14 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
 {"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
-{"@type":"ListItem","position":2,"name":"NEPSE Alpha Lab","item":"https://shirjankhadka.com.np/nepse-chart/"}]}
+{"@type":"ListItem","position":2,"name":"Chart & signals","item":"https://shirjankhadka.com.np/nepse-chart/"}]}
 </script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
 
-<aside class="suite-rail" aria-label="Alpha Lab suite">
-  <a class="rail-word" href="/nepse-alpha/">NEPSE Alpha Lab<span class="g">.</span></a>
+<aside class="suite-rail" aria-label="Nepse Decode suite">
+  <a class="rail-word" href="/nepse-alpha/"><img class="wm-mark" src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
   <p class="rail-k">Suite</p>
   <nav aria-label="Suite tools">
     <a href="/nepse-alpha/">Overview</a>
@@ -75,8 +76,8 @@
 
 <header class="topbar">
   <div class="wrap topbar-in">
-    <a class="wordmark" href="/nepse-alpha/">NEPSE Alpha Lab<span class="g">.</span></a>
-    <nav class="suite-links" aria-label="Alpha Lab suite">
+    <a class="wordmark" href="/nepse-alpha/"><img class="wm-mark" src="/assets/brand/nepse-decode-mark.svg" alt="" width="30" height="30">Nepse Decode</a>
+    <nav class="suite-links" aria-label="Nepse Decode suite">
       <a href="/nepse-chart/" class="on" aria-current="page">The Lab</a>
       <a href="/nepse-screener/">Screener</a>
       <a href="/nepse-sectors/">Sectors</a>
@@ -207,7 +208,7 @@
     <details><summary>Does this give buy or sell signals?</summary><p>It shows a rule-based verdict, Strong Buy, Buy, Hold, Exit/Reduce or Strong Exit, with every contributing factor listed. Transparent and educational; not financial advice.</p></details>
     <details><summary>Is the data real-time?</summary><p>Quotes refresh during market hours from a free community feed (LIVE badge); outside hours you see the last closed session. History is daily OHLC per stock.</p></details>
     <details><summary>What timeframes are available?</summary><p>1M, 3M, 6M, 1Y, 2Y on daily candles; 5Y and All switch to weekly candles so long histories stay readable.</p></details>
-    <p class="faq-more">More questions, answered on the <a href="/nepse-alpha/">Alpha Lab overview →</a></p>
+    <p class="faq-more">More questions, answered on the <a href="/nepse-alpha/">Nepse Decode overview →</a></p>
   </section>
 
   <footer class="foot">
