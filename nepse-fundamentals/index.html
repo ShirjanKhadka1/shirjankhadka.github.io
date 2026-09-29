@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode Fundamentals","url":"https://shirjankhadka.com.np/nepse-fundamentals/","description":"A free per-stock NEPSE fundamentals page: market-profile snapshot from the daily batch, sector-relative comparison, recent company headlines, and a plain-language guide to classic valuation ratios. Educational use only.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
+{"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode Fundamentals","url":"https://shirjankhadka.com.np/nepse-fundamentals/","description":"A free per-stock NEPSE fundamentals page: market-profile snapshot from the daily batch, published quarterly bank figures, sector-relative comparison, recent company headlines, and a plain-language guide to classic valuation ratios. Educational use only.","author":{"@type":"Organization","name":"Nepse Decode","url":"https://shirjankhadka.com.np/nepse-alpha/"}}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
@@ -61,6 +61,9 @@
 .fd-links a{color:var(--gold);font-weight:600}
 .fd-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .fd-m{background:var(--ivory);border:1px solid var(--hairline);border-radius:12px;padding:14px 16px}
+.fd-mf{background:var(--gold-faint)}
+.fd-sec-h{font-family:var(--serif);font-size:20px;font-weight:600;margin:26px 0 4px}
+.fd-per{font-family:var(--sans,Inter,sans-serif);font-size:12.5px;font-weight:500;color:var(--muted);letter-spacing:.02em}
 .fd-mk{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:6px}
 .fd-mv{font-size:16.5px;font-weight:700;font-variant-numeric:tabular-nums}
 .fd-verdict{font-weight:700}
@@ -84,6 +87,13 @@
 .fd-more{margin-top:12px;font-size:14px}
 .fd-more a{color:var(--gold);font-weight:600}
 .fd-gloss{margin:30px 0}
+.fd-details{border:1px solid var(--hairline);border-radius:16px;background:var(--paper);padding:6px 22px}
+.fd-details summary{cursor:pointer;list-style:none;padding:18px 0;display:block}
+.fd-details summary::-webkit-details-marker{display:none}
+.fd-details summary h3{display:inline;font-family:var(--serif);font-size:21px;font-weight:600;margin:0}
+.fd-details summary::after{content:"+";float:right;font-size:22px;color:var(--gold);font-weight:700}
+.fd-details[open] summary::after{content:"–"}
+.fd-details summary .fd-sub2{margin:6px 0 0}
 .fd-gloss-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
 .fd-g{background:var(--paper);border:1px solid var(--hairline);border-radius:16px;padding:22px}
 .fd-g h4{font-family:var(--serif);font-size:18px;margin:0 0 8px}
@@ -187,9 +197,9 @@
     <section class="fd-news" id="fd-news" aria-label="Company headlines"></section>
 
     <section class="fd-gloss" aria-label="Ratio guide">
-      <h3>The classic ratios, in plain language.</h3>
-      <p class="fd-sub2">These are the ratios professional analysts read in annual reports. They need company financial statements, which our dataset does not include, so no per-stock values are shown below. Nothing is estimated.</p>
-      <div class="fd-gloss-banner"><b>Real numbers, where published.</b> Quarterly figures are now shown for covered banks in the table above and on their stock pages. Banks and sectors without published figures keep the honest "not yet published" label. Nothing is estimated.</div>
+      <details class="fd-details">
+      <summary><h3>The classic ratios, in plain language.</h3><p class="fd-sub2" style="margin:0">Eight ratios analysts read in annual reports, explained briefly. Expand to read.</p></summary>
+      <p class="fd-sub2">Where a company has published quarterly figures, its real P/E, EPS, net profit and NPL appear in the table and snapshot above. Ratios that need full annual statements are explained here as concepts only. Nothing is estimated.</p>
       <div class="fd-gloss-grid">
         <div class="fd-g"><h4><span class="abbr">P/E</span> · Price to Earnings</h4><p>Market price divided by earnings per share. Roughly: how many years of current earnings you pay for with the share price. High P/E means the market expects growth; it can also mean the price is stretched.</p></div>
         <div class="fd-g"><h4><span class="abbr">P/B</span> · Price to Book</h4><p>Market price divided by book value per share. Compares what you pay to the accounting value of the company's net assets. Below 1 can mean cheap or troubled; above 1 prices in future value.</p></div>
@@ -200,12 +210,13 @@
         <div class="fd-g"><h4><span class="abbr">Dividend yield</span> · Cash in hand</h4><p>Annual dividend per share divided by the market price. The cash return you get for holding. A very high yield can signal a falling price or an unsustainable payout; read the history, not one year.</p></div>
         <div class="fd-g"><h4><span class="abbr">PEG</span> · Growth-adjusted P/E</h4><p>P/E divided by the earnings growth rate. Tries to answer whether a high P/E is justified by growth. Needs reliable multi-year earnings figures, which is why it is shown here as a concept only.</p></div>
       </div>
+      </details>
     </section>
 
     <section class="fd-coverage" aria-label="Data coverage">
       <h3>What this page covers, and what it does not.</h3>
-      <p>Every figure on this page comes from the Alpha Lab engine's daily batch: listed securities, daily prices, volumes, sector tags, and the engine's rule-based verdicts. That is market data, not company financials.</p>
-      <p>True fundamental analysis needs audited quarterly and annual statements per company: revenue, profit, equity, shares outstanding, and declared dividends. We do not have a trustworthy, verifiable pipeline for those figures yet, so we do not show them. This page will never fill the gap with estimates, copied figures, or predictions.</p>
+      <p>Every figure on this page comes from two real sources: the Alpha Lab engine's daily batch (prices, volumes, sector tags, rule-based verdicts) and the companies' own published quarterly filings (EPS, P/E, net profit, NPL, deposits, loans for covered banks). Figures are shown exactly as published, never estimated.</p>
+      <p>Coverage is partial: quarterly filings are currently compiled for 19 commercial banks, and the table above grows as more published statements are verified. Companies without published figures in our coverage keep the honest "not yet published" label instead of a guess.</p>
       <p>No discounted cash flow, no intrinsic value, no price targets. NEPSE disclosure data cannot support honest valuations, and presenting them would be theater, not analysis.</p>
     </section>
 
@@ -226,7 +237,7 @@
   <div class="wrap">
     <div class="disclaimer"><strong>Educational use only.</strong> Fundamentals shown here are market-batch figures and plain-language ratio definitions, not investment advice. Nothing here is a buy or sell recommendation.</div>
     <div class="row">
-      <span>Built by <a href="/">Shirjan Khadka</a> · Aspiring Financial Analyst</span>
+      <span>Nepse Decode · built by <a href="/">Shirjan Khadka</a></span>
       <span><a href="/nepse-alpha/">Nepse Decode</a> · <a href="/nepse-chart/">Chart</a> · <a href="/nepse-screener/">Screener</a> · <a href="/nepse-fundamentals/">Fundamentals</a> · <a href="/nepse-reports/">Reports</a> · <a href="/blog/">Blog</a></span>
     </div>
   </div>

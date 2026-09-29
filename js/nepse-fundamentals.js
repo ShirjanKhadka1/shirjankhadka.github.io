@@ -1,7 +1,7 @@
 /* NEPSE Alpha Lab - fundamentals snapshot page.
- * Shows ONLY real data from the daily batch (universe.json, verdicts.json,
- * news.json). No company financial statements exist in the dataset, so no
- * per-stock ratios (P/E, EPS, ROE, ...) are computed, estimated, or shown.
+ * Per-stock snapshot from the daily batch (universe.json, verdicts.json,
+ * news.json) PLUS published quarterly figures (fundamentals.json) for
+ * covered banks: EPS (TTM), P/E (TTM), net profit, NPL, deposits, loans.
  * Sector comparisons are medians computed client-side from the batch.
  * Educational, not investment advice. */
 (function () {
@@ -115,6 +115,34 @@
       metricRow('Volume vs 20-day avg', volRatio != null ? num(volRatio, 2) + '×' : '–') +
       metricRow('Chart pattern', v && v.setup ? esc(v.setup) : '–') +
       '</div>';
+    // published quarterly figures for covered banks: numbers first
+    var fb = fundData && fundData.banks ? fundData.banks[sym] : null;
+    if (fb) {
+      var frow = function (k, val) {
+        return '<div class="fd-m fd-mf"><span class="fd-mk">' + esc(k) +
+          '</span><span class="fd-mv">' + val + '</span></div>';
+      };
+      var fnum = function (v2, d2, pre, suf) {
+        return (v2 == null || !isFinite(v2)) ? '–' : pre + num(v2, d2) + suf;
+      };
+      h += '<h3 class="fd-sec-h">Published quarterly figures <span class="fd-per">' +
+        esc(fundData.period || '') + '</span></h3>' +
+        '<div class="fd-grid">' +
+        frow('P/E (TTM)', fnum(fb.pe_ttm, 2, '', '×')) +
+        frow('EPS (TTM)', fnum(fb.eps_ttm, 2, 'Rs ', '')) +
+        frow('Net profit', fnum(fb.netprofit_b, 2, 'Rs ', 'b')) +
+        frow('NPL ratio', fnum(fb.npl_pct, 2, '', '%')) +
+        frow('Deposits', fnum(fb.deposits_b, 2, 'Rs ', 'b')) +
+        frow('Loans & advances', fnum(fb.loans_b, 2, 'Rs ', 'b')) +
+        frow('Paid-up capital', fnum(fb.paidup_b, 2, 'Rs ', 'b')) +
+        frow('Reserves', fnum(fb.reserves_b, 2, 'Rs ', 'b')) +
+        '</div>' +
+        '<p class="fd-note">Figures as published by the company in its quarterly filing, not estimates. ' +
+        'Money in Rs billions; ratios as published.</p>';
+    } else {
+      h += '<p class="fd-note">Quarterly figures: not yet published in our coverage for ' + esc(sym) +
+        '. We show published company figures only, never estimates.</p>';
+    }
     if (v && v.l) h += '<p class="fd-note">LTP-only history: this security has no full OHLC candles, so some derived fields (such as pattern or stop/target levels) may be unavailable.</p>';
     h += '<p class="asof">' + (window.NepseFresh ? window.NepseFresh.badge(v ? v.asof : ver.asof) : '') +
       ' <span class="fd-src">Source: Alpha Lab daily batch.</span></p>';
