@@ -3,16 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NEPSE Alpha Lab — Free Stock Analysis Tools for Every NEPSE Investor | Shirjan Khadka</title>
+<title>NEPSE Alpha Lab – Free Stock Analysis Tools for Every NEPSE Investor | Shirjan Khadka</title>
 <meta name="description" content="NEPSE Alpha Lab: search any listed stock for candlestick charts, automatic chart-pattern and divergence detection, a transparent rule-based buy/hold/exit engine, a full-market screener and attributed market news. Free, no login, educational.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-alpha/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="NEPSE Alpha Lab — Free Stock Analysis Tools for Every NEPSE Investor">
+<meta property="og:title" content="NEPSE Alpha Lab – Free Stock Analysis Tools for Every NEPSE Investor">
 <meta property="og:description" content="Charts, pattern scans, a transparent buy/hold/exit engine and a full-market screener for every NEPSE-listed security. Free, no login, educational.">
 <meta property="og:url" content="https://shirjankhadka.com.np/nepse-alpha/">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="NEPSE Alpha Lab — Free Stock Analysis Tools for Every NEPSE Investor">
+<meta name="twitter:title" content="NEPSE Alpha Lab – Free Stock Analysis Tools for Every NEPSE Investor">
 <meta name="twitter:description" content="Charts, pattern scans, a transparent buy/hold/exit engine and a full-market screener for every NEPSE-listed security. Free, no login, educational.">
+<meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
@@ -131,6 +133,30 @@ p.sec-sub{color:var(--secondary);font-size:17px;max-width:64ch;margin-bottom:40p
 .honest .nums div b{font-family:var(--serif);font-size:30px;display:block;color:var(--text)}
 .honest .nums div span{font-size:13px;color:var(--secondary)}
 
+/* verdicts */
+.verdicts{background:var(--alt);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.vd-cols{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-bottom:30px}
+.vd-col h3{margin-bottom:14px}
+.vd-list{display:flex;flex-direction:column;gap:12px;min-height:120px}
+.vd-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;transition:transform .25s var(--ease),box-shadow .25s var(--ease)}
+.vd-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-hover)}
+.vd-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.vd-sym{font-weight:700;font-size:17px;letter-spacing:-.01em}
+.vd-sec{font-size:12.5px;color:var(--secondary)}
+.vd-mid{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.vd-pill{font-size:12.5px;font-weight:700;padding:5px 12px;border-radius:999px}
+.vd-price{font-family:var(--serif);font-weight:700;font-size:16px}
+.vd-chg{font-size:13px;font-weight:600}
+.vd-chg.up{color:#0a7a3d}.vd-chg.dn{color:#a03a28}
+.vd-setup{font-size:13px;color:var(--secondary)}
+.vd-bot{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px dashed var(--line);padding-top:10px;margin-top:4px;font-size:13px}
+.vd-sl{color:#a03a28}.vd-tp{color:#0a7a3d}
+.vd-link{font-weight:600;font-size:13.5px;white-space:nowrap}
+.vd-defs{font-size:14.5px;color:var(--secondary);max-width:72ch;margin-bottom:12px}
+.vd-defs b{color:var(--text)}
+.vd-note{font-size:13.5px;color:var(--secondary);max-width:72ch}
+.vd-empty{color:var(--secondary);font-size:14px;padding:20px;border:1px dashed var(--line);border-radius:14px}
+
 /* data */
 .src-chips{display:flex;gap:10px;flex-wrap:wrap;margin:24px 0}
 .src{background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 18px;font-size:14px;font-weight:500}
@@ -167,7 +193,7 @@ p.sec-sub{color:var(--secondary);font-size:17px;max-width:64ch;margin-bottom:40p
 @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}html{scroll-behavior:auto}}
 
 @media(max-width:900px){
-  .tools,.factors,.data-grid{grid-template-columns:1fr}
+  .tools,.factors,.data-grid,.vd-cols{grid-template-columns:1fr}
   .band-in{grid-template-columns:repeat(2,1fr);gap:28px}
   .stat-b:nth-child(3){border-left:0}
   .live-strip{grid-template-columns:repeat(2,1fr)}
@@ -199,10 +225,10 @@ p.sec-sub{color:var(--secondary);font-size:17px;max-width:64ch;margin-bottom:40p
         <a class="btn ghost" href="/nepse-screener/">Explore the Screener</a>
       </div>
       <div class="live-strip" id="liveStrip" aria-label="Live market snapshot">
-        <div class="live-cell"><div class="k">NEPSE Index</div><div class="v" id="ls-val">—</div><div class="s" id="ls-asof">Loading…</div></div>
-        <div class="live-cell"><div class="k">Day change</div><div class="v" id="ls-chg">—</div><div class="s">Points / percent</div></div>
-        <div class="live-cell"><div class="k">Day range</div><div class="v" id="ls-range" style="font-size:20px">—</div><div class="s">Low – high</div></div>
-        <div class="live-cell"><div class="k">Market status</div><div class="v" id="ls-mkt" style="font-size:20px">—</div><div class="s">Mon–Fri, 11:00–15:00 NPT</div></div>
+        <div class="live-cell"><div class="k">NEPSE Index</div><div class="v" id="ls-val">…</div><div class="s" id="ls-asof">Loading…</div></div>
+        <div class="live-cell"><div class="k">Day change</div><div class="v" id="ls-chg">…</div><div class="s">Points / percent</div></div>
+        <div class="live-cell"><div class="k">Day range</div><div class="v" id="ls-range" style="font-size:20px">…</div><div class="s">Low – high</div></div>
+        <div class="live-cell"><div class="k">Market status</div><div class="v" id="ls-mkt" style="font-size:20px">…</div><div class="s">Mon–Fri, 11:00–15:00 NPT</div></div>
       </div>
       <p class="live-note">Snapshot refreshes during trading hours from free community mirrors. Outside hours it shows the last closed session.</p>
     </div>
@@ -263,6 +289,26 @@ p.sec-sub{color:var(--secondary);font-size:17px;max-width:64ch;margin-bottom:40p
           <a class="go" href="/nepse-chart/#nl-news">Read the news feed <span>→</span></a>
         </article>
       </div>
+    </div>
+  </section>
+
+  <section class="block verdicts">
+    <div class="wrap">
+      <p class="kicker reveal">The engine's calls</p>
+      <h2 class="sec reveal">Today's engine verdicts.</h2>
+      <p class="sec-sub reveal">The strongest Buy and Exit calls from the latest daily batch, with each symbol's setup and evidence one click away. <b id="vd-asof">Loading the latest batch…</b></p>
+      <div class="vd-cols">
+        <div class="vd-col">
+          <h3><span class="verdict v-sb">Strongest Buys</span></h3>
+          <div id="vd-buys" class="vd-list" aria-live="polite"></div>
+        </div>
+        <div class="vd-col">
+          <h3><span class="verdict v-se">Strongest Exits</span></h3>
+          <div id="vd-exits" class="vd-list" aria-live="polite"></div>
+        </div>
+      </div>
+      <p class="vd-defs reveal"><b>How to read this.</b> <b>Score</b> is the sum of the ten factor points, from −10 to +10. <b>Setup</b> is the chart pattern the scanner detected on the daily chart. <b>SL / TP</b> are the mechanical stop-loss (−2× ATR) and target (+4× ATR). Symbols with too little price history show "Insufficient history" instead of a verdict. <a href="/nepse-screener/">See all 410 securities in the Screener →</a></p>
+      <p class="vd-note reveal">Mechanical output from a fixed rule set, not investment advice. Verdicts refresh with each daily close; always check the live chart before acting on any of them.</p>
     </div>
   </section>
 
@@ -375,6 +421,49 @@ p.sec-sub{color:var(--secondary);font-size:17px;max-width:64ch;margin-bottom:40p
   // Reveal on scroll
   var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12});
   document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+
+  // Engine verdicts: strongest buys and exits from the latest daily batch
+  (function(){
+    var MONTHS={ '01':'January','02':'February','03':'March','04':'April','05':'May','06':'June','07':'July','08':'August','09':'September','10':'October','11':'November','12':'December' };
+    function fmtDate(iso){ // 2026-09-24 -> 24 September 2026
+      var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(iso||''); if(!m||!MONTHS[m[2]]) return iso||'';
+      return (+m[3])+' '+MONTHS[m[2]]+' '+m[1];
+    }
+    function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+    function pillClass(v){
+      return v==='Strong Buy'?'v-sb':v==='Buy'?'v-b':v==='Hold'?'v-h':v==='Exit / Reduce'?'v-e':v==='Strong Exit'?'v-se':'v-h';
+    }
+    function card(sym,x){
+      var chg=+x.ch||0;
+      var sl=x.sl!=null?'Rs '+Number(x.sl).toFixed(2):'–';
+      var tp=x.tp!=null?'Rs '+Number(x.tp).toFixed(2):'–';
+      return '<article class="vd-card">'+
+        '<div class="vd-top"><a class="vd-sym" href="/nepse-chart/?s='+encodeURIComponent(sym)+'">'+esc(sym)+'</a><span class="vd-sec">'+esc(x.sec||'')+'</span></div>'+
+        '<div class="vd-mid"><span class="vd-pill verdict '+pillClass(x.v)+'">'+esc(x.v)+'</span>'+
+        '<span class="vd-price">Rs '+Number(x.p).toFixed(2)+'</span>'+
+        '<span class="vd-chg '+(chg>=0?'up':'dn')+'">'+(chg>=0?'+':'')+chg.toFixed(2)+'%</span></div>'+
+        '<div class="vd-setup">'+esc(x.setup||'No pattern detected')+' · score '+(+x.s).toFixed(1)+'</div>'+
+        '<div class="vd-bot"><span><span class="vd-sl">SL '+sl+'</span> · <span class="vd-tp">TP '+tp+'</span></span>'+
+        '<a class="vd-link" href="/nepse-chart/?s='+encodeURIComponent(sym)+'">Full breakdown →</a></div>'+
+      '</article>';
+    }
+    function render(list,el,emptyMsg){
+      el.innerHTML=list.length?list.map(function(it){return card(it[0],it[1]);}).join(''):'<p class="vd-empty">'+emptyMsg+'</p>';
+    }
+    fetch('/nepse-chart/data/verdicts.json',{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json();}).then(function(d){
+      var all=Object.keys(d.verdicts||{}).map(function(sym){return [sym,d.verdicts[sym]];});
+      var buys=all.filter(function(it){return it[1].v==='Strong Buy'||it[1].v==='Buy';}).sort(function(a,b){return b[1].s-a[1].s;}).slice(0,6);
+      var exits=all.filter(function(it){return it[1].v==='Strong Exit'||it[1].v==='Exit / Reduce';}).sort(function(a,b){return a[1].s-b[1].s;}).slice(0,6);
+      render(buys,document.getElementById('vd-buys'),'No buy verdicts in the latest batch.');
+      render(exits,document.getElementById('vd-exits'),'No exit verdicts in the latest batch.');
+      var asofEl=document.getElementById('vd-asof');
+      if(d.asof) asofEl.textContent='Batch of '+fmtDate(d.asof)+' · '+(d.count||all.length)+' securities scored.';
+    }).catch(function(){
+      document.getElementById('vd-asof').textContent='Verdict data is temporarily unavailable.';
+      render([],document.getElementById('vd-buys'),'Verdict data is temporarily unavailable.');
+      render([],document.getElementById('vd-exits'),'Verdict data is temporarily unavailable.');
+    });
+  })();
 })();
 </script>
 </body>
