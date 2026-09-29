@@ -7,7 +7,7 @@
 <meta name="description" content="Free NEPSE chart with candlestick charts, automatic chart-pattern and RSI/MACD divergence scanner, support/resistance factors and transparent buy/hold/exit signals for every listed stock. No login.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-chart/">
 <meta name="robots" content="index, follow, max-image-preview:large">
-<meta name="theme-color" content="#ffffff">
+<meta name="theme-color" content="#FAF8F2">
 <meta property="og:type" content="website">
 <meta property="og:title" content="NEPSE Alpha Lab: Patterns, Divergences &amp; Buy/Hold/Exit Signals">
 <meta property="og:description" content="Search any NEPSE stock: live quotes, chart patterns, divergences and a transparent rule-based buy/hold/exit engine. Free, no login.">
@@ -27,7 +27,11 @@
 <link rel="preconnect" href="https://shubhamnpk.github.io">
 <link rel="dns-prefetch" href="https://samirwagle.github.io">
 <link rel="dns-prefetch" href="https://shubhamnpk.github.io">
-<link rel="stylesheet" href="chart.css?v=20260929c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260929b">
+<link rel="stylesheet" href="chart.css?v=20260929f">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"NEPSE Alpha Lab","url":"https://shirjankhadka.com.np/nepse-chart/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Free NEPSE analysis lab: live quotes for any listed stock, candlestick charts with SMA and RSI, automatic chart-pattern and divergence detection, and a transparent rule-based buy/hold/exit signal engine. Educational use only.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/",
       "sameAs": ["https://www.linkedin.com/in/shirjankhadkab/"]}}
@@ -51,14 +55,21 @@
 
 <header class="topbar">
   <div class="wrap topbar-in">
-    <a class="back" href="/" aria-label="Back to homepage">← Home</a>
-    <a class="brand" href="/nepse-alpha/" style="text-decoration:none;color:inherit">NEPSE Alpha Lab</a>
+    <a class="wordmark" href="/nepse-alpha/">NEPSE Alpha Lab<span class="g">.</span></a>
+    <nav class="suite-links" aria-label="Alpha Lab suite">
+      <a href="/nepse-chart/" class="on" aria-current="page">The Lab</a>
+      <a href="/nepse-screener/">Screener</a>
+      <a href="/nepse-news/">News</a>
+    </nav>
+    <div class="spacer"></div>
     <a class="dc-link" href="data-check.html">Coverage check</a>
+    <a class="btn small" href="/nepse-screener/">Open the Screener →</a>
   </div>
 </header>
 
 <main id="main" class="wrap">
   <section class="hero">
+    <div class="hero-rule"></div>
     <p class="eyebrow">Side project · Technical analysis</p>
     <h1>Free NEPSE chart &amp; technical analysis</h1>
     <p class="lede">Search any NEPSE-listed stock for live quotes, candlestick charts, automatic chart-pattern &amp; divergence detection, and a transparent rule-based <strong>buy / hold / exit</strong> engine. Or explore the full NEPSE index history. Everything runs in your browser, free, no login, no tracking.</p>
@@ -165,7 +176,7 @@
 </main>
 
 <script src="/js/nepse-daily.js?v=20260924d" defer></script>
-<script src="/js/nepse-lab.js?v=20260929d" defer></script>
+<script src="/js/nepse-lab.js?v=20260929e" defer></script>
 <script src="/js/nepse-news.js?v=20260928a" defer></script>
 </body>
 </html>
