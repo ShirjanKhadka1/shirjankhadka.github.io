@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nepse Decode Watchlist: Track Your NEPSE Stocks, Free, No Login</title>
+<link rel="stylesheet" href="/css/nepse-design-system.css?v=20260930b">
 <meta name="description" content="Nepse Decode: your personal NEPSE watchlist: track any listed security with price, day change, signal and RSI, saved in your browser. Free, unlimited, no login, no account.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-watchlist/">
 <meta property="og:type" content="website">
@@ -22,17 +23,14 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode Watchlist","url":"https://shirjankhadka.com.np/nepse-watchlist/","description":"A personal, browser-local NEPSE watchlist: track any listed security with price, day change, signal and RSI. Free, unlimited, no login.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
+{"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode Watchlist","url":"https://shirjankhadka.com.np/nepse-watchlist/","description":"A personal, browser-local NEPSE watchlist: track any listed security with price, day change, signal and RSI. Free, unlimited, no login.","author":{"@type":"Organization","name":"Nepse Decode"}}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
 {"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
-{"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-alpha/"},
+{"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-decode/"},
 {"@type":"ListItem","position":3,"name":"Watchlist","item":"https://shirjankhadka.com.np/nepse-watchlist/"}]}
 </script>
-<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260929d">
-<link rel="stylesheet" href="/css/nepse-wave7.css?v=20261002d">
-<link rel="stylesheet" href="/css/nepse-brand.css?v=20261003a">
 <style>
 /* watchlist-only */
 .wrap{max-width:980px}
@@ -88,73 +86,53 @@
 @media(prefers-reduced-motion:reduce){.wl-card{transition:none}.wl-card:hover{transform:none}}
 </style>
 </head>
-<body>
-
-<aside class="suite-rail" aria-label="Nepse Decode suite">
-  <a class="rail-word" href="/nepse-alpha/"><img class="wm-mark" src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
-  <p class="rail-k">Suite</p>
-  <nav aria-label="Suite tools">
-    <a href="/nepse-alpha/">Overview</a>
-    <a href="/nepse-chart/">Chart &amp; signals</a>
-    <a href="/nepse-screener/">Screener</a>
-    <a href="/nepse-sectors/">Sectors</a>
-    <a href="/nepse-news/">Market news</a>
-    <a href="/nepse-watchlist/" class="on" aria-current="page">Watchlist</a>
-    <a href="/nepse-dashboard/">Dashboard</a>
-    <a href="/nepse-portfolio/">Portfolio</a>
-    <a href="/nepse-simulator/">Simulator</a>
-    <a href="/nepse-fundamentals/">Fundamentals</a>
-    <a href="/nepse-reports/">Reports</a>
-    <a href="/nepse-actions/">Corp. actions</a>
-  </nav>
-  <p class="rail-foot">Free forever · no login</p>
-</aside>
-
-<header class="topbar">
-  <div class="wrap topbar-in">
-    <a class="wordmark" href="/nepse-alpha/"><img class="wm-mark" src="/assets/brand/nepse-decode-mark.svg" alt="" width="30" height="30">Nepse Decode</a>
-    <nav class="suite-links" aria-label="Nepse Decode suite">
-      <a href="/nepse-chart/">The Lab</a>
-      <a href="/nepse-screener/">Screener</a>
-      <a href="/nepse-sectors/">Sectors</a>
-      <a href="/nepse-news/">News</a>
-      <a href="/nepse-watchlist/" class="on" aria-current="page">Watchlist</a>
-      <a href="/nepse-dashboard/">Dashboard</a>
-      <a href="/nepse-portfolio/">Portfolio</a>
-      <a href="/nepse-simulator/">Simulator</a>
-      <a href="/nepse-fundamentals/">Fundamentals</a>
-      <a href="/nepse-reports/">Reports</a>
-    </nav>
-    <div class="spacer"></div>
-    <a class="btn small" href="/nepse-dashboard/">My dashboard</a>
-  </div>
+<body class="nd">
+<header class="nd-topbar">
+  <a class="brand" href="/nepse-decode/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="24" height="24">Nepse Decode</a>
+  <a class="nd-btn primary" href="/nepse-chart/" style="padding:8px 18px;font-size:0.85rem">Open the Lab</a>
 </header>
+<nav class="nd-mobilenav" aria-label="Suite tools">
+  <a href="/nepse-decode/">Overview</a>
+  <a href="/nepse-chart/">Chart & signals</a>
+  <a href="/nepse-screener/">Screener</a>
+  <a href="/nepse-sectors/">Sectors</a>
+  <a href="/nepse-news/">Market news</a>
+  <a href="/nepse-watchlist/" class="active" aria-current="page">Watchlist</a>
+  <a href="/nepse-portfolio/">Portfolio</a>
+  <a href="/nepse-simulator/">Simulator</a>
+  <a href="/nepse-reports/">Reports</a>
+  <a href="/nepse-actions/">Corp. actions</a>
+</nav>
 
+<div class="nd-shell">
+  <aside class="nd-side" aria-label="Nepse Decode suite">
+    <a class="brand" href="/nepse-decode/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
+    <nav class="nd-nav" aria-label="Suite tools">
+      <p class="nav-kicker">Suite</p>
+  <a href="/nepse-decode/">Overview</a>
+  <a href="/nepse-chart/">Chart & signals</a>
+  <a href="/nepse-screener/">Screener</a>
+  <a href="/nepse-sectors/">Sectors</a>
+  <a href="/nepse-news/">Market news</a>
+  <a href="/nepse-watchlist/" class="active" aria-current="page">Watchlist</a>
+  <a href="/nepse-portfolio/">Portfolio</a>
+  <a href="/nepse-simulator/">Simulator</a>
+  <a href="/nepse-reports/">Reports</a>
+  <a href="/nepse-actions/">Corp. actions</a>
+    </nav>
+    <p class="nd-caption" style="margin-top:32px">Free forever · no login</p>
+  </aside>
+
+  <div class="nd-content">
+    <div class="nd-wrap">
 <main id="main">
-  <section class="hero">
-    <div class="wrap">
-      <div class="hero-rule"></div>
-      <span class="eyebrow"><span class="pulse"></span>Free · No login · Saved in your browser</span>
-      <h1>Your NEPSE watchlist.</h1>
-      <p class="lede">Two lists, one calm page: the engine's mechanical picks from the latest daily batch, and the securities you actually follow. Your own list lives <strong>in your browser only</strong>, no account, no server, no one else can see it.</p>
-
-      <section class="wl-box" aria-label="Engine watchlist">
-        <div class="wl-box-head">
-          <h2>Engine watchlist</h2>
-          <label class="ewl-tf" for="ewl-tf">Timeframe
-            <select id="ewl-tf" aria-label="Engine watchlist timeframe">
-              <option value="d">Daily</option>
-              <option value="w">Weekly</option>
-              <option value="m">Monthly</option>
-            </select>
-          </label>
-          <span id="wl-live"></span>
-        </div>
-        <p class="wl-sub" id="wl-engine-sub">Mechanical picks from the latest daily batch. Rebuilt with each batch.</p>
-        <div id="wl-engine-list" aria-live="polite">
-          <div aria-hidden="true"><span class="skl skl-row"></span><span class="skl skl-row"></span><span class="skl skl-row"></span><span class="skl skl-row"></span></div>
-        </div>
-      </section>
+  <div class="nd-masthead">
+    <div>
+      <p class="nd-kicker">Watchlist</p>
+      <h1 style="font-family:var(--serif);font-weight:600;font-size:clamp(1.8rem,4.5vw,2.5rem);letter-spacing:-0.015em">Your stocks, at a glance</h1>
+    </div>
+    
+  </div>
 
       <section class="wl-box" aria-label="My watchlist">
         <div class="wl-box-head">
@@ -175,7 +153,7 @@
           <p>It takes five seconds to add your first one. Search by symbol or company name above, or find ideas in the screener.</p>
           <div class="wl-empty-actions">
             <a class="btn" href="/nepse-screener/">Browse the screener</a>
-            <a class="wl-empty-link" href="/nepse-alpha/">See the engine picks</a>
+            <a class="wl-empty-link" href="/nepse-decode/">See the engine picks</a>
           </div>
         </div>
         <p class="updated" id="wl-updated"></p>
@@ -194,17 +172,19 @@
     <section class="final">
       <h2>See it all together.</h2>
       <p>Your watchlist becomes a widget on your personal market dashboard, next to the index, RSI extremes and the news feed.</p>
-      <a class="btn" href="/nepse-dashboard/">Open my dashboard</a>
-    </section>
+      </section>
   </div>
 </main>
+    </div>
+  </div>
+</div>
 
 <footer class="foot">
   <div class="wrap">
     <div class="disclaimer"><strong>Educational use only.</strong> Signals are mechanical output from a fixed rule set, not investment advice. Nothing here is a buy or sell recommendation; verify prices with your broker before trading.</div>
     <div class="row">
       <span>Built by <a href="/">Shirjan Khadka</a> · Aspiring Financial Analyst</span>
-      <span><a href="/nepse-alpha/">Nepse Decode</a> · <a href="/nepse-chart/">Chart</a> · <a href="/nepse-screener/">Screener</a> · <a href="/nepse-news/">News</a> · <a href="/blog/">Blog</a></span>
+      <span><a href="/nepse-decode/">Nepse Decode</a> · <a href="/nepse-chart/">Chart</a> · <a href="/nepse-screener/">Screener</a> · <a href="/nepse-news/">News</a> · <a href="/blog/">Blog</a></span>
     </div>
   </div>
 </footer>

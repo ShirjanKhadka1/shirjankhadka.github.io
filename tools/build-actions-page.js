@@ -94,10 +94,10 @@ function main() {
     '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>\n' +
     '</head>\n<body>\n<a class="skip" href="#main">Skip to content</a>\n\n' +
     '<aside class="suite-rail" aria-label="Nepse Decode suite">\n' +
-    '  <a class="rail-word" href="/nepse-alpha/"><img class="wm-mark" src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>\n' +
+    '  <a class="rail-word" href="/nepse-decode/"><img class="wm-mark" src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>\n' +
     '  <p class="rail-k">Suite</p>\n' +
     '  <nav class="rail-links">\n' +
-    '    <a href="/nepse-alpha/">Overview</a>\n' +
+    '    <a href="/nepse-decode/">Overview</a>\n' +
     '    <a href="/nepse-chart/">Chart &amp; signals</a>\n' +
     '    <a href="/nepse-screener/">Screener</a>\n' +
     '    <a href="/nepse-sectors/">Sectors</a>\n' +
@@ -114,7 +114,7 @@ function main() {
     '</aside>\n\n' +
     '<header class="topbar">\n' +
     '  <div class="wrap topbar-in">\n' +
-    '    <a class="wordmark" href="/nepse-alpha/"><img class="wm-mark" src="/assets/brand/nepse-decode-mark.svg" alt="" width="30" height="30">Nepse Decode</a>\n' +
+    '    <a class="wordmark" href="/nepse-decode/"><img class="wm-mark" src="/assets/brand/nepse-decode-mark.svg" alt="" width="30" height="30">Nepse Decode</a>\n' +
     '    <nav class="suite-links" aria-label="Nepse Decode suite">\n' +
     '      <a href="/nepse-chart/">The Lab</a>\n' +
     '      <a href="/nepse-screener/">Screener</a>\n' +

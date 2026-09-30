@@ -2,7 +2,7 @@
  *
  * Loads nepse-chart/data/wave1.json (built by tools/build-nepse-wave1.js)
  * and renders:
- *   - the "Market today" summary on /nepse-alpha/ (#mktGrid, #mktCols)
+ *   - the "Market today" summary on /nepse-decode/ (#mktGrid, #mktCols)
  *   - the RSI-extremes / biggest-movers tab panel on /nepse-screener/
  * Auto-initializes on DOMContentLoaded when the containers exist.
  * All figures come from the JSON file; nothing is invented here.

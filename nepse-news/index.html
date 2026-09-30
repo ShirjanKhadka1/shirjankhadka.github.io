@@ -15,16 +15,16 @@
 <meta name="twitter:title" content="Nepse Decode News: Company Announcements & Market Headlines">
 <meta name="twitter:description" content="Official company announcements and verified original reporting on NEPSE. Free, no login, educational.">
 <meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
-<link rel="icon" href="/nepse-alpha/icon-32.png" sizes="32x32" type="image/png">
-<link rel="icon" href="/nepse-alpha/icon-16.png" sizes="16x16" type="image/png">
-<link rel="apple-touch-icon" href="/nepse-alpha/icon-180.png">
+<link rel="icon" href="/nepse-decode/icon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/nepse-decode/icon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/nepse-decode/icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode News","url":"https://shirjankhadka.com.np/nepse-news/","description":"Official NEPSE company announcements and verified original market reporting.","author":{"@type":"Organization","name":"Nepse Decode","url":"https://shirjankhadka.com.np/nepse-news/"}}
 </script>
-<link rel="stylesheet" href="/css/nepse-design-system.css?v=20260930a">
+<link rel="stylesheet" href="/css/nepse-design-system.css?v=20260930b">
 <style>
 /* news-only: announcements + editorial feed */
 .nd-masthead { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
@@ -72,20 +72,18 @@
 
 <!-- Mobile top bar -->
 <header class="nd-topbar">
-  <a class="brand" href="/nepse-alpha/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="24" height="24">Nepse Decode</a>
+  <a class="brand" href="/nepse-decode/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="24" height="24">Nepse Decode</a>
   <a class="nd-btn primary" href="/nepse-chart/" style="padding:8px 18px;font-size:0.85rem">Open the Lab</a>
 </header>
 <nav class="nd-mobilenav" aria-label="Suite tools">
-  <a href="/nepse-alpha/">Overview</a>
+  <a href="/nepse-decode/">Overview</a>
   <a href="/nepse-chart/">Chart &amp; signals</a>
   <a href="/nepse-screener/">Screener</a>
   <a href="/nepse-sectors/">Sectors</a>
   <a href="/nepse-news/" class="active" aria-current="page">Market news</a>
   <a href="/nepse-watchlist/">Watchlist</a>
-  <a href="/nepse-dashboard/">Dashboard</a>
   <a href="/nepse-portfolio/">Portfolio</a>
   <a href="/nepse-simulator/">Simulator</a>
-  <a href="/nepse-fundamentals/">Fundamentals</a>
   <a href="/nepse-reports/">Reports</a>
   <a href="/nepse-actions/">Corp. actions</a>
 </nav>
@@ -93,19 +91,17 @@
 <div class="nd-shell">
   <!-- Desktop sidebar -->
   <aside class="nd-side" aria-label="Nepse Decode suite">
-    <a class="brand" href="/nepse-alpha/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
+    <a class="brand" href="/nepse-decode/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
     <nav class="nd-nav" aria-label="Suite tools">
       <p class="nav-kicker">Suite</p>
-      <a href="/nepse-alpha/">Overview</a>
+      <a href="/nepse-decode/">Overview</a>
       <a href="/nepse-chart/">Chart &amp; signals</a>
       <a href="/nepse-screener/">Screener</a>
       <a href="/nepse-sectors/">Sectors</a>
       <a href="/nepse-news/" class="active" aria-current="page">Market news</a>
       <a href="/nepse-watchlist/">Watchlist</a>
-      <a href="/nepse-dashboard/">Dashboard</a>
       <a href="/nepse-portfolio/">Portfolio</a>
       <a href="/nepse-simulator/">Simulator</a>
-      <a href="/nepse-fundamentals/">Fundamentals</a>
       <a href="/nepse-reports/">Reports</a>
       <a href="/nepse-actions/">Corp. actions</a>
     </nav>
@@ -155,7 +151,7 @@
 
       <footer class="nd-footer">
         <p class="nd-caption"><strong>Educational use only.</strong> Announcements are company disclosures mirrored from official NEPSE notices; headlines belong to their publishers. Nothing here is investment advice; verify prices with your broker before trading.</p>
-        <p class="nd-caption" style="margin-top:12px"><a href="/nepse-alpha/">Nepse Decode</a> · <a href="/nepse-chart/">Chart</a> · <a href="/nepse-screener/">Screener</a> · <a href="/nepse-sectors/">Sectors</a></p>
+        <p class="nd-caption" style="margin-top:12px"><a href="/nepse-decode/">Nepse Decode</a> · <a href="/nepse-chart/">Chart</a> · <a href="/nepse-screener/">Screener</a> · <a href="/nepse-sectors/">Sectors</a></p>
       </footer>
 
     </div>
@@ -241,7 +237,9 @@
     var sym = it.sym
       ? '<a class="ann-sym" href="/nepse-chart/?s=' + esc(it.sym) + '">' + esc(it.sym) + '</a>'
       : '';
-    return '<a class="ann" href="' + esc(it.url) + '" target="_blank" rel="noopener">' +
+    var idx = (window.__annItems||[]).indexOf(it);
+    var story = idx >= 0 ? '/nepse-news/story/?src=ann&i=' + idx : '#';
+    return '<a class="ann" href="' + story + '">' +
       '<span class="ann-mono" style="background:' + monoColor(it.sym) + '">' + esc(monoText(it.sym)) + '</span>' +
       '<span class="ann-body"><span class="ann-title">' + esc(it.title) + '</span>' +
       '<span class="ann-meta">' + sym +
@@ -253,6 +251,8 @@
     var upd = document.getElementById('annUpdated');
     if(!wrap) return;
     if(upd && updated) upd.textContent = 'Official company disclosures · updated ' + fmtDate(updated) + '. Tapping a symbol opens its chart.';
+    var pf = document.getElementById('pageFresh');
+    if(pf && updated) pf.textContent = 'Updated ' + fmtDate(updated);
     if(!items || !items.length){
       wrap.innerHTML = '<p class="news-empty">No announcements yet. The feed refreshes daily.</p>';
       return;
@@ -284,12 +284,14 @@
   function fail(msg){
     var wrap = document.getElementById('annGroups');
     if(wrap) wrap.innerHTML = '<p class="news-empty">' + esc(msg) + '</p>';
+    var pf = document.getElementById('pageFresh');
+    if(pf) pf.textContent = 'Update unavailable';
   }
   try {
     fetch('/nepse-chart/data/announcements.json', { cache: 'no-store' })
       .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(function(d){
-        try { render(d.items || [], d.updated); }
+        try { window.__annItems = d.items || []; render(d.items || [], d.updated); }
         catch(e){ fail('Could not display the announcements. Please try again later.'); }
       })
       .catch(function(){ fail('The announcements feed is temporarily unavailable. Please try again later.'); });
@@ -319,7 +321,9 @@
   function hlHTML(it){
     var k = itemKind(it);
     var sym = it.sym ? '<span class="hl-sym">' + esc(it.sym) + '</span>' : '';
-    return '<a class="hl" href="' + esc(it.url) + '" target="_blank" rel="noopener">' +
+    var idx = (window.__hlItems||[]).indexOf(it);
+    var story = idx >= 0 ? '/nepse-news/story/?src=news&i=' + idx : '#';
+    return '<a class="hl" href="' + story + '">' +
       '<div class="hl-kicker">' + esc(it.src || 'Market') + ' · ' + esc(k) + '</div>' +
       '<div class="hl-title">' + esc(it.title) + '</div>' +
       '<div class="hl-meta">' + sym + '<span>' + fmtDate(it.date) + '</span></div></a>';
@@ -364,6 +368,7 @@
       .then(function(d){
         try {
           allItems = d.items || d.headlines || [];
+          window.__hlItems = allItems;
           if(updated && d.updated) updated.textContent = 'Updated ' + fmtDate(d.updated) + ' · headlines, editorially reviewed';
           var pf = document.getElementById('pageFresh');
           if(pf && d.updated) pf.textContent = 'Updated ' + fmtDate(d.updated);
