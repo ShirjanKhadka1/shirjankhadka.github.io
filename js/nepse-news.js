@@ -34,8 +34,10 @@
       ? '<a class="nl-news-sym" href="?s=' + esc(it.sym) + '">' + esc(it.sym) + '</a>' +
         ' <a class="nl-news-stock" href="/stocks/' + esc(String(it.sym).replace(/\//g, '-')) + '/" title="Price, signals and news snapshot">Snapshot</a>'
       : '';
+    var idx = NEWS && NEWS.items ? NEWS.items.indexOf(it) : -1;
+    var story = idx >= 0 ? '/nepse-news/story/?src=news&i=' + idx : '#';
     return '<article class="nl-news-item">' + chip +
-      '<div class="nl-news-body"><a href="' + esc(it.link) + '" target="_blank" rel="noopener">' +
+      '<div class="nl-news-body"><a href="' + story + '">' +
       esc(it.title) + '</a>' +
       '<p>' + esc(it.src) + ' · ' + esc(it.date) + '</p></div></article>';
   }

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nepse Decode — Market News Story</title>
+<meta name="description" content="NEPSE market news story from Nepse Decode. Official disclosures and headlines with source attribution. Educational use only.">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-news/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Nepse Decode">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/nepse-design-system.css?v=20260930b">
+<style>
+.story-wrap{max-width:720px;margin:0 auto;padding:0 20px}
+.story-kicker{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--green-700);font-weight:700;margin:0 0 12px}
+.story-title{font-family:var(--serif);font-weight:600;font-size:clamp(1.6rem,4vw,2.2rem);line-height:1.25;letter-spacing:-0.01em;margin:0 0 16px;color:var(--ink)}
+.story-meta{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;font-size:.85rem;color:var(--muted);margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--hairline)}
+.story-sym{display:inline-block;padding:4px 12px;border-radius:var(--r-pill);background:var(--green-900);color:#F5F1E6;font-weight:700;font-size:.8rem;text-decoration:none}
+.story-sym:hover{background:var(--green-700)}
+.story-body{font-size:1.02rem;line-height:1.75;color:var(--ink);margin-bottom:28px}
+.story-src{margin:28px 0;padding:18px 20px;border:1px solid var(--hairline);border-radius:12px;background:var(--paper-deep);font-size:.88rem;color:var(--muted)}
+.story-src a{color:var(--green-700);font-weight:600}
+.story-actions{display:flex;flex-wrap:wrap;gap:10px;margin:24px 0}
+.btn-outline{display:inline-block;padding:10px 20px;border-radius:var(--r-pill);border:1px solid var(--green-700);color:var(--green-700);font-weight:600;text-decoration:none;font-size:.9rem}
+.btn-outline:hover{background:var(--green-700);color:#fff}
+.story-related{margin-top:40px;padding-top:24px;border-top:1px solid var(--hairline)}
+.story-related h2{font-family:var(--serif);font-size:1.2rem;font-weight:600;margin:0 0 16px}
+.story-related a{display:block;padding:10px 0;border-bottom:1px solid var(--hairline-soft);color:var(--ink);text-decoration:none;font-size:.92rem;line-height:1.5}
+.story-related a:hover{color:var(--green-700)}
+.story-related a span{display:block;font-size:.78rem;color:var(--faint);margin-top:2px}
+.crumbs{font-size:.82rem;color:var(--muted);margin-bottom:20px}
+.crumbs a{color:var(--green-700);text-decoration:none}
+</style>
+</head>
+<body class="nd">
+<div class="nd-shell">
+<aside class="suite-rail" aria-label="Nepse Decode suite">
+  <a class="rail-word" href="/nepse-alpha/"><img class="wm-mark" src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
+  <p class="rail-k">Suite</p>
+  <nav class="rail-links">
+    <a href="/nepse-alpha/">Overview</a>
+    <a href="/nepse-chart/">Chart &amp; signals</a>
+    <a href="/nepse-screener/">Screener</a>
+    <a href="/nepse-sectors/">Sectors</a>
+    <a href="/nepse-news/" class="on" aria-current="page">Market news</a>
+    <a href="/nepse-watchlist/">Watchlist</a>
+    <a href="/nepse-dashboard/">Dashboard</a>
+    <a href="/nepse-portfolio/">Portfolio</a>
+    <a href="/nepse-simulator/">Simulator</a>
+    <a href="/nepse-fundamentals/">Fundamentals</a>
+    <a href="/nepse-reports/">Reports</a>
+    <a href="/nepse-actions/">Corp. actions</a>
+  </nav>
+  <p class="rail-foot">Free forever · no login</p>
+</aside>
+<div class="nd-main">
+<main id="main">
+  <div class="nd-content">
+    <div class="story-wrap">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/nepse-news/">Market news</a> / <span>Story</span></nav>
+      <div id="story"><p class="nd-caption">Loading story…</p></div>
+    </div>
+  </div>
+</main>
+</div>
+</div>
+<script>
+(function(){
+  'use strict';
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function $(id){return document.getElementById(id);}
+  function q(name){var m=new RegExp('[?&]'+name+'=([^&]*)').exec(location.search);return m?decodeURIComponent(m[1]):null;}
+  function fmtDate(iso){var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso||''));if(!m)return iso||'';var M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return (+m[3])+' '+M[+m[2]-1]+' '+m[1];}
+
+  var src=q('src')||'ann', idx=parseInt(q('i')||'0',10);
+  var file=src==='news'?'/nepse-chart/data/news.json':'/nepse-chart/data/announcements.json';
+
+  fetch(file,{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){
+    var items=d.items||d;
+    var it=items[idx];
+    var mount=$('story');
+    if(!it){mount.innerHTML='<p class="nd-caption">Story not found. <a href="/nepse-news/">Back to market news →</a></p>';return;}
+
+    var url=it.url||it.link||'';
+    var sym=it.sym||'';
+    var symLink=sym?'<a class="story-sym" href="/stocks/'+esc(sym.replace(/\//g,'-'))+'/">'+esc(sym)+'</a>':'';
+    var kind=src==='news'?'Market headline':'Official disclosure';
+
+    document.title=it.title+' — Nepse Decode';
+
+    var h='<p class="story-kicker">'+esc(kind)+'</p>';
+    h+='<h1 class="story-title">'+esc(it.title)+'</h1>';
+    h+='<div class="story-meta">'+symLink+'<span>'+fmtDate(it.date)+'</span><span>Source: '+esc(it.src||'NEPSE')+'</span></div>';
+    h+='<div class="story-body"><p>'+esc(it.title)+'</p>';
+    if(it.company) h+='<p><strong>'+esc(it.company)+'</strong></p>';
+    h+='<p class="nd-caption">This is a '+(src==='news'?'media headline':'company disclosure')+' collected from '+(src==='news'?'Nepali business media':'the official NEPSE disclosure feed')+'. Nepse Decode does not rewrite these items; the authoritative record is the original source linked below.</p></div>';
+    h+='<div class="story-actions">';
+    if(sym) h+='<a class="btn-outline" href="/nepse-chart/?s='+esc(sym)+'">Open '+esc(sym)+' chart →</a>';
+    if(url) h+='<a class="btn-outline" href="'+esc(url)+'" target="_blank" rel="noopener">View original source ↗</a>';
+    h+='</div>';
+
+    // related: same symbol, or latest others
+    var rel=items.filter(function(x,i){return i!==idx&&(sym&&x.sym===sym);}).slice(0,4);
+    if(!rel.length) rel=items.filter(function(x,i){return i!==idx;}).slice(0,4);
+    if(rel.length){
+      h+='<div class="story-related"><h2>Related stories</h2>';
+      rel.forEach(function(x){
+        var ri=items.indexOf(x);
+        h+='<a href="/nepse-news/story/?src='+src+'&i='+ri+'">'+esc(x.title)+'<span>'+fmtDate(x.date)+' · '+esc(x.src||'')+'</span></a>';
+      });
+      h+='</div>';
+    }
+    h+='<p class="nd-caption" style="margin-top:32px"><a href="/nepse-news/">← All market news</a></p>';
+    mount.innerHTML=h;
+  }).catch(function(){
+    $('story').innerHTML='<p class="nd-caption">Could not load the story. <a href="/nepse-news/">Back to market news →</a></p>';
+  });
+})();
+</script>
+</body>
+</html>
