@@ -38,11 +38,36 @@
 
 .sp-note { color: var(--ink-soft, #6b655a); font-size: .95rem; max-width: 60ch; }
 
-/* Fundamentals: numbers-first stat grid */
-.sp-fund-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 10px; margin: .9rem 0 0; }
-.sp-fund { background: #fff; border: 1px solid var(--line, #e7e0d2); border-radius: 10px; padding: 10px 12px; }
-.sp-fund-v { display: block; font: 700 1.12rem/1.25 Inter, system-ui, sans-serif; letter-spacing: -.01em; }
-.sp-fund-l { display: block; font-size: .76rem; color: var(--ink-soft, #6b655a); margin-top: 3px; }
+/* Fundamentals: numbers-first stat cards with breathing room */
+.sp-fund-group { margin: 1.75rem 0 0; }
+.sp-fund-group:first-of-type { margin-top: 1.15rem; }
+.sp-fund-sub {
+  font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--ink-soft, #6b655a); margin: 0 0 .85rem; padding-bottom: .6rem;
+  border-bottom: 1px solid var(--line, #e7e0d2);
+}
+.sp-fund-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; margin: 0; }
+.sp-fund {
+  background: #fff; border: 1px solid var(--line, #e7e0d2); border-radius: 14px;
+  padding: 1.2rem 1.3rem 1.3rem; position: relative; overflow: hidden;
+}
+.sp-fund::before {
+  content: ""; position: absolute; top: 0; left: 1.3rem; width: 2.2rem; height: 3px;
+  background: linear-gradient(90deg, #b98f2e, #e6cd85); border-radius: 0 0 3px 3px;
+}
+.sp-fund-l {
+  display: block; font-size: .72rem; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--ink-soft, #6b655a); margin-top: .35rem;
+}
+.sp-fund-v {
+  display: block; font-family: Fraunces, Georgia, serif; font-weight: 600;
+  font-size: 1.7rem; line-height: 1.2; letter-spacing: -.01em; margin-top: .2rem;
+}
+.sp-fund-v.na { color: #b7ae9c; font-size: 1.35rem; }
+@media (max-width: 640px) {
+  .sp-fund-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+  .sp-fund-v { font-size: 1.45rem; }
+}
 .sp-news { list-style: none; padding: 0; margin: .75rem 0; }
 .sp-news li { padding: .6rem 0; border-bottom: 1px solid var(--line, #e7e0d2); }
 .sp-news-src { color: var(--ink-soft, #6b655a); font-size: .85rem; white-space: nowrap; }

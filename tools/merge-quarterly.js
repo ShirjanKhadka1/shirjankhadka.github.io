@@ -16,7 +16,7 @@
  *   when the incoming export actually carries figures for them).
  * - Enforces a 12-quarter retention window per symbol (oldest dropped).
  * - Regenerates nepse-chart/data/fundamentals.json from each symbol's latest
- *   quarter (same derivation the site has always used).
+ *   quarter with published figures (same derivation the site has always used).
  * - Prints a JSON report to stdout. Exits non-zero on parse failure.
  *
  * Never invents figures: a quarter with no published row stays absent and
@@ -87,6 +87,26 @@ const COLS = {
 
 function normHeader(s) {
   return String(s || '').toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+/* Published-figure fields: everything the source actually publishes per
+ * quarter. pe_latest is screener-computed (every quarter priced at today's
+ * price), not a published figure, so it never counts toward "has data". */
+const PUB_FIELDS = ['revenue', 'netprofit', 'grossprofit', 'opprofit', 'distprofit',
+  'paidup', 'reserves', 'deposits', 'loans', 'assets', 'liabilities',
+  'eps_ttm', 'eps_ann', 'pe_ttm', 'pe_ann', 'npl_pct', 'cd_ratio', 'spread'];
+/* True when a quarter record carries at least one published figure. A P/E of
+ * exactly 0 means the source could not compute it (no or negative EPS), so it
+ * never counts. Ghost quarters (a quarter column present in an export with
+ * empty cells) fail this test and stay absent. */
+function hasPublishedFigures(rec) {
+  if (!rec) return false;
+  return PUB_FIELDS.some((f) => {
+    const v = rec[f];
+    if (v === null || v === undefined || v === '') return false;
+    if ((f === 'pe_ttm' || f === 'pe_ann') && v === 0) return false;
+    return true;
+  });
 }
 
 function quarterKeyFromName(name) {
@@ -170,8 +190,9 @@ function parseExport(file, qkey, report) {
       if (field === 'sym') continue;
       rec[field] = toNum(cells[idx]);
     }
-    // Skip rows that carry no figures at all.
-    if (!Object.values(rec).some((v) => v !== null)) continue;
+    // Skip rows that carry no published figures at all (ghost quarters:
+    // a quarter column present in the export with empty cells).
+    if (!hasPublishedFigures(rec)) continue;
     out.push({ sym, rec });
   }
   report.files.push({ file: path.basename(file), quarter: qkey, rows: out.length });
@@ -184,14 +205,18 @@ function sortKey(k) {
 }
 
 function main() {
-  const dir = process.argv[2];
-  if (!dir || !fs.existsSync(dir)) {
-    console.error('usage: node tools/merge-quarterly.js <exports-dir>');
+  // --regen-only: skip XLSX merging; prune ghost quarters and regenerate
+  // fundamentals.json from the existing quarterly.json.
+  const regenOnly = process.argv[2] === '--regen-only';
+  const dir = regenOnly ? null : process.argv[2];
+  if (!regenOnly && (!dir || !fs.existsSync(dir))) {
+    console.error('usage: node tools/merge-quarterly.js <exports-dir> [--regen-only]');
     process.exit(1);
   }
-  const report = { files: [], merged: 0, pruned: {}, symbols: 0 };
+  const report = { files: [], merged: 0, pruned: {}, symbols: 0, regenOnly };
   const q = JSON.parse(fs.readFileSync(QPATH, 'utf8'));
   q.symbols = q.symbols || {};
+  if (!regenOnly) {
   const files = fs.readdirSync(dir).filter((f) => f.toLowerCase().endsWith('.xlsx')).sort();
   if (!files.length) { console.error('no .xlsx files in ' + dir); process.exit(1); }
   for (const f of files) {
@@ -202,6 +227,20 @@ function main() {
       const s = (q.symbols[sym] = q.symbols[sym] || { quarters: {} });
       s.quarters[qkey] = Object.assign({}, s.quarters[qkey] || {}, rec);
       report.merged++;
+    }
+  }
+  }
+  // Prune ghost quarters: slots with no published figures (e.g. a quarter
+  // column that arrived with empty cells). Left in place they become the
+  // "latest" quarter and blank out summaries and comparisons.
+  report.ghostPruned = 0;
+  for (const [sym, s] of Object.entries(q.symbols)) {
+    for (const k of Object.keys(s.quarters)) {
+      if (!hasPublishedFigures(s.quarters[k])) {
+        delete s.quarters[k];
+        report.ghostPruned++;
+        report.pruned[sym] = (report.pruned[sym] || 0) + 1;
+      }
     }
   }
   // Retention: keep the newest RETENTION quarters per symbol.
@@ -243,13 +282,20 @@ function main() {
   q.retention_quarters = RETENTION;
   fs.writeFileSync(QPATH, JSON.stringify(q, null, 1) + '\n');
 
-  // Regenerate fundamentals.json from each symbol's latest quarter.
-  // fund.companies holds every covered security with all published fields;
-  // presentation layers pick the sector-appropriate metrics. Money values
-  // are converted to Rs billions for display; ratios stay as published.
+  // Regenerate fundamentals.json from each symbol's latest quarter WITH
+  // published figures (ghost quarters are pruned above, so the last slot is
+  // the latest real one). fund.companies holds every covered security with
+  // all published fields; presentation layers pick the sector-appropriate
+  // metrics. Money values are converted to Rs billions for display; ratios
+  // stay as published. Each company carries its own quarter + period label
+  // because coverage lags differ across symbols.
   const fund = JSON.parse(fs.readFileSync(FPATH, 'utf8'));
   fund.companies = {};
   delete fund.banks; // schema moved to companies in the all-sector rebuild
+  const periodLabel = (k) => {
+    const m = /^(\d{4})\/(\d{4})-Q([1-4])$/.exec(k);
+    return m ? 'Q' + m[3] + ' FY ' + m[1] + '/' + m[2] : k;
+  };
   let latestKey = null;
   for (const [sym, s] of Object.entries(q.symbols)) {
     const keys = Object.keys(s.quarters).sort((a, b) => sortKey(a) - sortKey(b));
@@ -257,9 +303,11 @@ function main() {
     const lk = keys[keys.length - 1];
     if (!latestKey || sortKey(lk) > sortKey(latestKey)) latestKey = lk;
     const d = s.quarters[lk];
-    const b = (v) => (v === null || v === undefined) ? null : Math.round(v / 1e6 * 100) / 100;
+    const b = (v) => (v === null || v === undefined) ? null : Math.round(v / 1e6 * 10000) / 10000;
     const r = (v) => (v === null || v === undefined) ? null : v;
     fund.companies[sym] = {
+      quarter: lk,
+      period: periodLabel(lk),
       eps_ttm: r(d.eps_ttm),
       pe_ttm: r(d.pe_ttm),
       pe_ann: r(d.pe_ann),

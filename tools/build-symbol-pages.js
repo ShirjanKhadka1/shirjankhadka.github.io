@@ -235,8 +235,11 @@ function fundBlock(sym, fund, sector) {
     h += '<p class="sp-note">Quarterly figures not yet published for this security.</p>\n</section>\n';
     return h;
   }
-  const cell = (val, label) =>
-    '<div class="sp-fund"><span class="sp-fund-v">' + val + '</span><span class="sp-fund-l">' + label + '</span></div>';
+  const cell = (val, label) => {
+    const na = val.indexOf('–') >= 0 ? ' na' : '';
+    return '<div class="sp-fund"><span class="sp-fund-l">' + label + '</span>' +
+      '<span class="sp-fund-v' + na + '">' + val + '</span></div>';
+  };
   const b = (x) => (x === null || x === undefined) ? '–' : 'Rs ' + Number(x).toLocaleString('en-US') + 'b';
   // Adaptive money: sub-billion values read better in millions (many
   // hydropower/manufacturing companies report quarterly figures in crores).
@@ -247,10 +250,15 @@ function fundBlock(sym, fund, sector) {
     return 'Rs ' + n.toLocaleString('en-US') + 'b';
   };
   const r = (x, suf) => (x === null || x === undefined) ? '–' : esc(x) + suf;
-  h += '<p class="sp-note">' + esc(fund.period || '') + ' · published quarterly figures</p>\n';
-  h += '<div class="sp-fund-grid">\n';
+  // A P/E of exactly 0 means the source could not compute it (no or negative
+  // EPS); showing "0x" would be wrong, so it renders as not published.
+  const pe = (x) => (x === null || x === undefined || x === 0) ? '–' : esc(x) + 'x';
+  h += '<p class="sp-note">Latest published quarter: ' + esc(f.period || fund.period || '') +
+    ' · figures as published, not estimates</p>\n';
+  h += '<div class="sp-fund-group"><h3 class="sp-fund-sub">Valuation</h3><div class="sp-fund-grid">\n';
   h += cell('Rs ' + r(f.eps_ttm, ''), 'EPS (TTM)') + '\n';
-  h += cell(r(f.pe_ttm, 'x'), 'P/E (TTM)') + '\n';
+  h += cell(pe(f.pe_ttm), 'P/E (TTM)') + '\n';
+  h += '</div></div>\n<div class="sp-fund-group"><h3 class="sp-fund-sub">Quarterly snapshot</h3><div class="sp-fund-grid">\n';
   h += cell(bm(f.netprofit_b), 'Net profit') + '\n';
   if (g === 'bank') {
     h += cell(b(f.paidup_b), 'Paid-up capital') + '\n';
@@ -271,7 +279,7 @@ function fundBlock(sym, fund, sector) {
     h += cell(bm(f.assets_b), 'Total assets') + '\n';
     h += cell(bm(f.paidup_b), 'Paid-up capital') + '\n';
   }
-  h += '</div>\n</section>\n';
+  h += '</div></div>\n</section>\n';
   return h;
 }
 
@@ -351,7 +359,7 @@ function quarterlyTable(sym, quarterly, sector) {
     sec_h('Key ratios'),
     { l: 'EPS (TTM)', v: (x) => num(x.d.eps_ttm), f: rs2, dir: 1 },
     { l: 'EPS (annualized)', v: (x) => num(x.d.eps_ann), f: rs2, dir: 1 },
-    { l: 'P/E (TTM)', v: (x) => num(x.d.pe_ttm), f: (x) => x === null ? '–' : x.toFixed(2) + '×', dir: 0 },
+    { l: 'P/E (TTM)', v: (x) => num(x.d.pe_ttm), f: (x) => (x === null || x === 0) ? '–' : x.toFixed(2) + '×', dir: 0 },
     { l: 'NPL ratio', v: (x) => num(x.d.npl_pct), f: pc2, dir: -1 },
     { l: 'Credit/deposit ratio', v: (x) => num(x.d.cd_ratio), f: pc2, dir: 0 },
     { l: 'Interest rate spread', v: (x) => num(x.d.spread), f: pc2, dir: 1 },
@@ -370,7 +378,7 @@ function quarterlyTable(sym, quarterly, sector) {
     sec_h('Key ratios'),
     { l: 'EPS (TTM)', v: (x) => num(x.d.eps_ttm), f: rs2, dir: 1 },
     { l: 'EPS (annualized)', v: (x) => num(x.d.eps_ann), f: rs2, dir: 1 },
-    { l: 'P/E (TTM)', v: (x) => num(x.d.pe_ttm), f: (x) => x === null ? '–' : x.toFixed(2) + '×', dir: 0 },
+    { l: 'P/E (TTM)', v: (x) => num(x.d.pe_ttm), f: (x) => (x === null || x === 0) ? '–' : x.toFixed(2) + '×', dir: 0 },
   ];
   const show = qs.slice(-12);
   const latest = show[show.length - 1];
