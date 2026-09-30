@@ -1,0 +1,32 @@
+name: NEPSE intraday floorsheet
+
+# Polls the official NEPSE floorsheet endpoint during market hours and publishes
+# nepse-brokers/data/intraday.json for the Broker Analytics "Latest" view.
+# Near-real-time polling (5 min), not exchange-grade streaming.
+
+on:
+  schedule:
+    # Mon-Fri, 06:00-09:30 UTC = 11:45-15:15 NPT (NEPSE trading window)
+    - cron: '*/5 6-9 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  floorsheet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Fetch intraday floorsheet
+        run: node tools/fetch-intraday-floorsheet.js
+      - name: Commit if changed
+        run: |
+          git config user.name "nepse-bot"
+          git config user.email "nepse-bot@shirjankhadka.com.np"
+          git add nepse-brokers/data/intraday.json
+          git diff --cached --quiet || git commit -m "intraday floorsheet snapshot"
+          git push
