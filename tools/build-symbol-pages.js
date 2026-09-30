@@ -545,7 +545,7 @@ function investmentCalendarCard(sym, name, hist) {
         '<td>' + esc(total === '–' ? '–' : total + ' %') + '</td>' +
         '<td>' + esc(bcDisp || '–') + '</td>' +
         '<td>' + esc(fy || '–') + '</td>' +
-        '<td><span class="inv-cal-divstatus" data-bc="' + esc(bcIso) + '" data-fy="' + esc(fy) + '"' +
+        '<td><span class="inv-cal-divstatus" data-bc="' + esc(bcIso) + '"' +
         (bcMarkedClosed ? ' data-closed="1"' : '') + '></span></td></tr>\n';
     }
     h += '</tbody></table></div>\n';
@@ -761,18 +761,20 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
   h += 'var pp=card.querySelector(".inv-cal-perpage");if(pp)pp.addEventListener("change",function(){state.per=+this.value;state.page=1;render();});';
   h += 'card.querySelector(".inv-cal-prev").addEventListener("click",function(){if(state.page>1){state.page--;render();}});';
   h += 'card.querySelector(".inv-cal-next").addEventListener("click",function(){state.page++;render();});';
-  /* Dividend status pills: Open while the book close date is today or in the
-   * future, Closed once it has passed. Computed here in the browser so the
-   * status flips on its own when the date passes — no rebuild needed.
-   * Falls back to the fiscal year when no book close date is on record. */
+  /* Dividend status: derived from the Book Close Date against TODAY IN
+   * KATHMANDU (Asia/Kathmandu), so every visitor sees the same status.
+   * Open while the book close date is today or in the future, Closed once it
+   * has passed. Computed here in the browser so the status flips on its own
+   * when the date passes — no rebuild needed. Rows with no valid book close
+   * date on record show an honest "–" (unknown) — never a guessed status. */
   h += 'card.querySelectorAll("[data-inv-panel=\\"dividends\\"] .inv-cal-divstatus").forEach(function(el){';
-  h += 'var st="open",bc=el.getAttribute("data-bc")||"",fy=el.getAttribute("data-fy")||"";';
-  h += 'if(el.getAttribute("data-closed")==="1"){st="closed";}';
-  h += 'else if(/^\\d{4}-\\d{2}-\\d{2}$/.test(bc)){var t=new Date();t.setHours(0,0,0,0);if(new Date(bc+"T00:00:00")<t){st="closed";}}';
-  h += 'else{var m=fy.match(/(\\d{4})\\s*\\/\\s*(\\d{4})/);if(m){var n=new Date();';
-  h += 'var bs=(n.getMonth()>3||(n.getMonth()===3&&n.getDate()>=14))?n.getFullYear()+57:n.getFullYear()+56;';
-  h += 'if(+m[2]<bs){st="closed";}}}';
-  h += 'el.innerHTML="<span class=\\"inv-pill "+(st==="closed"?"inv-pill-closed":"inv-pill-open")+"\\">"+(st==="closed"?"Closed":"Open")+"</span>";});';
+  h += 'var bc=el.getAttribute("data-bc")||"";';
+  h += 'if(el.getAttribute("data-closed")==="1"){el.innerHTML="<span class=\\"inv-pill inv-pill-closed\\">Closed</span>";return;}';
+  h += 'if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(bc)){el.textContent="\\u2013";return;}';
+  h += 'var today="";try{today=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Kathmandu",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());}';
+  h += 'catch(e){var kd=new Date(Date.now()+20700000);today=kd.getUTCFullYear()+"-"+("0"+(kd.getUTCMonth()+1)).slice(-2)+"-"+("0"+kd.getUTCDate()).slice(-2);}';
+  h += 'var closed=bc<today;';
+  h += 'el.innerHTML="<span class=\\"inv-pill "+(closed?"inv-pill-closed":"inv-pill-open")+"\\">"+(closed?"Closed":"Open")+"</span>";});';
   h += 'render();});';
   h += '})();</scr' + 'ipt>';
   h += '</main>\n' + FOOT;
