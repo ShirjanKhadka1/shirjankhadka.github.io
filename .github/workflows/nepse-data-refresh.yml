@@ -55,6 +55,9 @@ jobs:
       - name: Build actions archive page
         run: node tools/build-actions-page.js
 
+      - name: Update index history (daily OHLC + sparkline)
+        run: node tools/update-index-history.js
+
       - name: Refresh sitemap
         run: node tools/build-sitemap.js
 
@@ -62,6 +65,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add nepse-chart/data nepse-screener/index.html stocks nepse-actions sitemap.xml
+          git add nepse-chart/data nepse-screener/index.html stocks nepse-actions sitemap.xml js/nepse-daily.js
           git diff --cached --quiet || git commit -m "Alpha Lab: daily data refresh (automated)"
           git push
