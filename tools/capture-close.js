@@ -144,6 +144,10 @@ async function main() {
   // Rebuild the session summary so every page sees the true close.
   execSync('node ' + path.join(__dirname, 'build-nepse-wave1.js'), { cwd: ROOT, stdio: 'inherit' });
   log('wave1 rebuilt');
+
+  // Append the validated close to the index history files (landing chart + sparkline).
+  execSync('node ' + path.join(__dirname, 'update-index-history.js'), { cwd: ROOT, stdio: 'inherit' });
+  log('index history updated');
 }
 
 main().catch((e) => { console.error('[capture-close] FAILED:', e.message); process.exit(1); });

@@ -44,14 +44,15 @@
 .nd-terminal-ohlc { display: flex; flex-wrap: wrap; gap: 8px 20px; padding: 12px var(--s6) 0; font-size: 0.82rem; color: rgba(245,241,230,.62); font-variant-numeric: tabular-nums; }
 .nd-terminal-ohlc b { color: #F5F1E6; font-weight: 600; }
 .nd-terminal-foot { padding: 16px var(--s6) var(--s6); }
-/* TICKER TAPE */
-.nd-ticker { background: var(--green-950); border-radius: var(--r-lg); overflow: hidden; margin-bottom: 24px; position: relative; }
-.nd-ticker-track { display: flex; gap: 0; white-space: nowrap; padding: 10px 0; animation: nd-tick 60s linear infinite; width: max-content; }
-.nd-ticker:hover .nd-ticker-track { animation-play-state: paused; }
-@keyframes nd-tick { to { transform: translateX(-50%); } }
-.nd-tick-item { display: inline-flex; align-items: center; gap: 8px; padding: 0 20px; border-right: 1px solid rgba(245,241,230,.12); font-size: 0.82rem; color: #F5F1E6; text-decoration: none; font-variant-numeric: tabular-nums; }
-.nd-tick-item .tk-sym { font-weight: 700; }
-.nd-tick-item .tk-chg.up { color: #7BD8A4; } .nd-tick-item .tk-chg.down { color: #F0968A; }
+/* MARKET SNAPSHOT — ShareHub-style day stats under the index */
+.nd-daystats { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 14px; font-size: 0.85rem; color: rgba(245,241,230,.6); font-variant-numeric: tabular-nums; }
+.nd-daystats b { color: #F5F1E6; font-weight: 600; margin-left: 4px; }
+/* interactive chart tooltip */
+.nd-chart-tip { position: absolute; pointer-events: none; background: rgba(20,28,22,.95); border: 1px solid rgba(245,241,230,.18); border-radius: 8px; padding: 8px 10px; font-size: 0.75rem; line-height: 1.55; color: #F5F1E6; font-variant-numeric: tabular-nums; white-space: nowrap; z-index: 5; display: none; box-shadow: 0 6px 18px rgba(0,0,0,.35); }
+.nd-chart-tip .tt-d { color: rgba(245,241,230,.6); font-weight: 600; }
+.nd-chart-tip .up { color: #7BD8A4; } .nd-chart-tip .down { color: #F0968A; }
+.nd-terminal-chart canvas { cursor: grab; touch-action: none; }
+.nd-terminal-chart canvas.dragging { cursor: grabbing; }
 .nd-search { display: flex; gap: 8px; margin-top: 20px; }
 .nd-search input { flex: 1; padding: 12px 18px; border-radius: var(--r-pill); border: 1px solid rgba(245,241,230,.25); background: rgba(245,241,230,.08); color: #F5F1E6; font: inherit; font-size: 0.95rem; }
 .nd-search input::placeholder { color: rgba(245,241,230,.45); }
@@ -122,6 +123,9 @@
               <p class="nd-kicker">NEPSE Index <span class="nd-pill closed" id="ahStatus" style="margin-left:8px"><span class="dot"></span><span id="ahStatusTxt">–</span></span></p>
               <div class="nd-idx-num num" id="ahIdxVal" style="margin-top:12px"><span class="nd-skl" style="height:64px;width:75%"></span></div>
               <div class="nd-idx-chg num" id="ahIdxChg"><span class="nd-skl" style="height:24px;width:45%"></span></div>
+              <div class="nd-daystats" id="ahDayStats" aria-label="Session day statistics">
+                <span>Open<b id="ahDayO">–</b></span><span>High<b id="ahDayH">–</b></span><span>Low<b id="ahDayL">–</b></span><span>Prev. close<b id="ahDayP">–</b></span>
+              </div>
               <p class="nd-caption" id="ahIdxCap" style="margin-top:10px">Loading the latest session…</p>
             </div>
             <div>
@@ -140,8 +144,9 @@
             </div>
           </div>
         </div>
-        <div class="nd-terminal-chart">
-          <canvas id="ahCandles" aria-label="NEPSE index daily candlesticks"></canvas>
+        <div class="nd-terminal-chart" id="ahChartWrap">
+          <canvas id="ahCandles" aria-label="NEPSE index daily candlesticks. Drag to pan, scroll or pinch to zoom, hover for values."></canvas>
+          <div class="nd-chart-tip" id="ahTip" role="status" aria-live="polite"></div>
         </div>
         <div class="nd-terminal-ohlc" id="ahOHLC">
           <span>O <b id="ahO">–</b></span><span>H <b id="ahH">–</b></span><span>L <b id="ahL">–</b></span><span>C <b id="ahC">–</b></span><span id="ahCandleDate" style="margin-left:auto"></span>
@@ -149,11 +154,6 @@
         <div class="nd-terminal-foot">
           <p class="nd-caption" id="ahChartCap" style="margin:0">Daily candles · loading history…</p>
         </div>
-      </div>
-
-      <!-- TICKER TAPE -->
-      <div class="nd-ticker" aria-label="Market ticker">
-        <div class="nd-ticker-track" id="ahTicker"><span class="nd-tick-item">Loading quotes…</span></div>
       </div>
 
       <!-- 2. MOVERS + NEWS: glance hierarchy -->
@@ -251,7 +251,7 @@
   </div>
 </div>
 
-<script src="/js/nepse-daily.js?v=20260918"></script>
+<script src="/js/nepse-daily.js?v=20260929"></script>
 <script>
 
 (function(){
@@ -263,10 +263,20 @@
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   function num(n,dp){return Number(n).toLocaleString('en-US',{minimumFractionDigits:dp,maximumFractionDigits:dp});}
   function money(n){
-    n=+n; if(n>=1e9)return 'Rs '+(n/1e9).toFixed(2)+' b';
-    if(n>=1e6)return 'Rs '+(n/1e6).toFixed(2)+' m';
+    n=+n; if(!isFinite(n)) return '–';
+    if(n>=1e9)return 'Rs '+(n/1e9).toFixed(2)+' arba';
+    if(n>=1e7)return 'Rs '+(n/1e7).toFixed(2)+' cr';
+    if(n>=1e5)return 'Rs '+(n/1e5).toFixed(2)+' lakh';
     if(n>=1e3)return 'Rs '+(n/1e3).toFixed(1)+' k';
     return 'Rs '+n;
+  }
+  function inGrouping(n){ /* 17270449 -> 1,72,70,449 */
+    n=Math.round(+n); if(!isFinite(n)) return '–';
+    var s=String(Math.abs(n)), out='', i=s.length;
+    if(i>3){ out=','+s.slice(-3); i-=3; }
+    while(i>2){ out=','+s.slice(i-2,i)+out; i-=2; }
+    out=s.slice(0,i)+out;
+    return (n<0?'-':'')+out;
   }
   function parts(iso){var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso||''));return m?{y:+m[1],mo:+m[2],d:+m[3]}:null;}
   function fmtLong(iso){var p=parts(iso);return p?p.d+' '+MONTHS_L[p.mo-1]+' '+p.y:(iso||'');}
@@ -287,76 +297,220 @@
     paintStatus();
   }
 
-  /* CANDLESTICK CHART — daily OHLC from nepse-daily.js + latest live session */
-  function drawCandles(live){
-    var cv=$('ahCandles'); if(!cv) return;
-    var rows = (window.NEPSE_DAILY||[]).slice(-90); // last 90 sessions
-    if(!rows.length) return;
-    // Append the latest verified session from live.json as the final candle
+  /* INTERACTIVE CANDLESTICK CHART — drag to pan, wheel/pinch to zoom, hover for values.
+     Daily OHLC from nepse-daily.js + the latest verified live.json session. */
+  var CH = { rows: [], start: 0, count: 90, sel: -1, hover: -1, live: null, bound: false };
+  function chartRows(live){
+    var rows = (window.NEPSE_DAILY||[]).slice();
+    if(!rows.length) return rows;
     var lastDate = rows[rows.length-1][0];
     if(live && live.index){
-      var ix = live.index;
-      var liveDate = null;
+      var ix = live.index, liveDate = null;
       if(live.asof){ var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(live.asof); if(m) liveDate=+(m[1]+m[2]+m[3]); }
-      if(liveDate && liveDate > lastDate && ix.open!=null && ix.high!=null && ix.low!=null && ix.close!=null){
-        rows.push([liveDate, ix.open, ix.high, ix.low, ix.close, 0]);
+      if(liveDate && liveDate > lastDate && ix.open!=null && ix.high!=null && ix.low!=null && ix.value!=null){
+        rows.push([liveDate, ix.open, ix.high, ix.low, ix.value, 0]);
       }
     }
+    return rows;
+  }
+  function chartReset(live){
+    CH.rows = chartRows(live);
+    CH.live = live || null;
+    CH.count = Math.min(90, CH.rows.length);
+    CH.start = Math.max(0, CH.rows.length - CH.count);
+    CH.sel = -1; CH.hover = -1;
+    chartDraw(); chartReadout(); chartCaption();
+    chartBind();
+  }
+  function chartGeom(){
+    var cv=$('ahCandles');
     var dpr=window.devicePixelRatio||1;
     var W=cv.clientWidth,H=cv.clientHeight;
-    if(!W||!H) return;
+    if(!W||!H) return null;
     cv.width=W*dpr; cv.height=H*dpr;
-    var ctx=cv.getContext('2d'); ctx.scale(dpr,dpr);
-    // clear
+    var ctx=cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
+    var padL=8,padR=54,padT=12,padB=22;
+    return {cv:cv,ctx:ctx,W:W,H:H,padL:padL,padR:padR,padT:padT,padB:padB,cw:W-padL-padR,ch:H-padT-padB};
+  }
+  function chartSlice(){
+    var n=CH.rows.length;
+    var c=Math.max(10,Math.min(CH.count,n));
+    var s=Math.max(0,Math.min(CH.start,n-c));
+    CH.count=c; CH.start=s;
+    return CH.rows.slice(s,s+c);
+  }
+  function chartDraw(){
+    var g=chartGeom(); if(!g) return;
+    var ctx=g.ctx,W=g.W,H=g.H;
     ctx.clearRect(0,0,W,H);
-    var padL=8,padR=8,padT=12,padB=22;
-    var cw=W-padL-padR, ch=H-padT-padB;
-    var mn=Infinity,mx=-Infinity;
-    rows.forEach(function(r){ mn=Math.min(mn,r[3]); mx=Math.max(mx,r[2]); });
-    var rng=(mx-mn)||1; mn-=rng*0.06; mx+=rng*0.06; rng=(mx-mn)||1;
-    function y(v){ return padT+ch*(1-(v-mn)/rng); }
-    var n=rows.length, slot=cw/n, bw=Math.max(2,Math.min(14,slot*0.62));
-    function x(i){ return padL+slot*i+slot/2; }
-    // gridlines
+    var rows=chartSlice(), n=rows.length;
+    if(!n) return;
+    var mn=Infinity,mx=-Infinity,i,r;
+    for(i=0;i<n;i++){ r=rows[i]; if(r[3]<mn)mn=r[3]; if(r[2]>mx)mx=r[2]; }
+    var rng=(mx-mn)||1; mn-=rng*0.07; mx+=rng*0.07; rng=(mx-mn)||1;
+    function y(v){ return g.padT+g.ch*(1-(v-mn)/rng); }
+    var slot=g.cw/n, bw=Math.max(2,Math.min(14,slot*0.62));
+    function x(k){ return g.padL+slot*k+slot/2; }
+    // gridlines + price labels
     ctx.strokeStyle='rgba(245,241,230,.08)'; ctx.lineWidth=1;
-    ctx.fillStyle='rgba(245,241,230,.45)'; ctx.font='10px Inter,sans-serif'; ctx.textAlign='left';
-    for(var g=0; g<=4; g++){
-      var gv=mn+rng*g/4, gy=y(gv);
-      ctx.beginPath(); ctx.moveTo(padL,gy); ctx.lineTo(W-padR,gy); ctx.stroke();
-      ctx.fillText(gv.toFixed(0), padL+2, gy-3);
+    ctx.fillStyle='rgba(245,241,230,.55)'; ctx.font='10px Inter,sans-serif'; ctx.textAlign='left';
+    for(var gi=0; gi<=4; gi++){
+      var gv=mn+rng*gi/4, gy=Math.round(y(gv))+0.5;
+      ctx.beginPath(); ctx.moveTo(g.padL,gy); ctx.lineTo(W-g.padR,gy); ctx.stroke();
+      ctx.fillText(gv.toFixed(0), W-g.padR+6, gy+3);
     }
     // candles
     var UP='#7BD8A4', DN='#F0968A';
-    rows.forEach(function(r,i){
-      var o=r[1],h=r[2],l=r[3],c=r[4];
+    for(i=0;i<n;i++){
+      r=rows[i];
+      var o=r[1],hh=r[2],l=r[3],c=r[4];
       var col=c>=o?UP:DN, cx=x(i);
+      var abs=CH.start+i;
+      var dim=(CH.sel>=0&&abs!==CH.sel)||(CH.hover>=0&&abs!==CH.hover);
+      ctx.globalAlpha=dim?0.35:1;
       ctx.strokeStyle=col; ctx.lineWidth=Math.max(1,bw*0.18);
-      ctx.beginPath(); ctx.moveTo(cx,y(h)); ctx.lineTo(cx,y(l)); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx,y(hh)); ctx.lineTo(cx,y(l)); ctx.stroke();
       ctx.fillStyle=col;
       var yO=y(o), yC=y(c);
-      var top=Math.min(yO,yC), ht=Math.max(1,Math.abs(yC-yO));
-      ctx.fillRect(cx-bw/2, top, bw, ht);
+      ctx.fillRect(cx-bw/2, Math.min(yO,yC), bw, Math.max(1,Math.abs(yC-yO)));
+      if(abs===CH.sel){ ctx.strokeStyle='#F5F1E6'; ctx.lineWidth=1; ctx.strokeRect(cx-bw/2-2,Math.min(yO,yC)-3,bw+4,Math.max(1,Math.abs(yC-yO))+6); }
+    }
+    ctx.globalAlpha=1;
+    // crosshair
+    if(CH.hover>=CH.start&&CH.hover<CH.start+n){
+      var hx=x(CH.hover-CH.start), hy=y(rows[CH.hover-CH.start][4]);
+      ctx.strokeStyle='rgba(245,241,230,.35)'; ctx.setLineDash([4,4]); ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(hx,g.padT); ctx.lineTo(hx,H-g.padB); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(g.padL,Math.round(hy)+0.5); ctx.lineTo(W-g.padR,Math.round(hy)+0.5); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    // date labels across the visible window
+    function dstr(v){ var s=String(v); return s.slice(6,8)+'/'+s.slice(4,6); }
+    ctx.fillStyle='rgba(245,241,230,.45)';
+    var ticks=Math.min(5,n);
+    for(var t=0;t<ticks;t++){
+      var k=Math.round(t*(n-1)/(ticks-1));
+      ctx.textAlign = t===0?'left':(t===ticks-1?'right':'center');
+      ctx.fillText(dstr(rows[k][0]), x(k), H-6);
+    }
+    g.rows=rows; g.slot=slot; g.y=y; g.n=n;
+    CH._g=g;
+  }
+  function chartTipHTML(abs){
+    var r=CH.rows[abs]; if(!r) return '';
+    var ds=String(r[0]), d=ds.slice(0,4)+'-'+ds.slice(4,6)+'-'+ds.slice(6,8);
+    var prev=abs>0?CH.rows[abs-1][4]:null;
+    var ch=prev!=null?(r[4]-prev):0, pc=prev?(ch/prev*100):0;
+    var cls=ch>=0?'up':'down';
+    var f=function(v){return (+v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});};
+    return '<span class="tt-d">'+d+'</span><br>O '+f(r[1])+' · H '+f(r[2])+'<br>L '+f(r[3])+' · C '+f(r[4])+'<br><span class="'+cls+'">'+(ch>=0?'+':'')+f(ch)+' ('+(pc>=0?'+':'')+pc.toFixed(2)+'%)</span>';
+  }
+  function chartReadout(){
+    var abs=CH.hover>=0?CH.hover:(CH.sel>=0?CH.sel:CH.start+CH.count-1);
+    var r=CH.rows[abs]; if(!r) return;
+    var f=function(v){return (+v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});};
+    if($('ahO'))$('ahO').textContent=f(r[1]);
+    if($('ahH'))$('ahH').textContent=f(r[2]);
+    if($('ahL'))$('ahL').textContent=f(r[3]);
+    if($('ahC'))$('ahC').textContent=f(r[4]);
+    var ds=String(r[0]);
+    if($('ahCandleDate'))$('ahCandleDate').textContent='Session '+ds.slice(0,4)+'-'+ds.slice(4,6)+'-'+ds.slice(6,8);
+  }
+  function chartCaption(){
+    var n=CH.rows.length; if(!n||!$('ahChartCap')) return;
+    function d(v){var s=String(v);return s.slice(0,4)+'-'+s.slice(4,6)+'-'+s.slice(6,8);}
+    $('ahChartCap').textContent='Daily candles · '+n+' sessions from '+d(CH.rows[0][0])+' to '+d(CH.rows[n-1][0])+'. Drag to pan, scroll or pinch to zoom, click a candle for its OHLC. Missing sessions are omitted, never interpolated.';
+  }
+  function chartBind(){
+    var cv=$('ahCandles'); if(!cv||CH.bound) return; CH.bound=true;
+    var wrap=$('ahChartWrap')||cv.parentNode, tip=$('ahTip');
+    function pos(e){ var b=cv.getBoundingClientRect(); return {x:e.clientX-b.left, y:e.clientY-b.top}; }
+    function idxAt(px){
+      var g=CH._g; if(!g) return -1;
+      var k=Math.floor((px-g.padL)/g.slot);
+      if(k<0||k>=g.n) return -1;
+      return CH.start+k;
+    }
+    function showTip(abs,px,py){
+      if(abs<0||!tip){ if(tip)tip.style.display='none'; return; }
+      tip.innerHTML=chartTipHTML(abs);
+      tip.style.display='block';
+      var tw=tip.offsetWidth, th=tip.offsetHeight;
+      var b=cv.getBoundingClientRect();
+      var lx=px+14, ly=py-th-10;
+      if(lx+tw>b.width-4) lx=px-tw-14;
+      if(ly<4) ly=py+16;
+      tip.style.left=lx+'px'; tip.style.top=ly+'px';
+    }
+    var dragging=false, moved=false, lx0=0, start0=0;
+    cv.addEventListener('mousedown',function(e){ dragging=true; moved=false; lx0=e.clientX; start0=CH.start; cv.classList.add('dragging'); });
+    window.addEventListener('mousemove',function(e){
+      if(dragging){
+        var dx=e.clientX-lx0;
+        if(Math.abs(dx)>4) moved=true;
+        var g=CH._g;
+        if(g&&g.slot>0){ CH.start=Math.round(start0-dx/g.slot); CH.hover=-1; if(tip)tip.style.display='none'; chartDraw(); chartReadout(); }
+      }
     });
-    // date labels (first, mid, last) — honest about the range
-    function dstr(yyyymmdd){ var s=String(yyyymmdd); return s.slice(6,8)+'/'+s.slice(4,6); }
-    ctx.fillStyle='rgba(245,241,230,.45)'; ctx.font='10px Inter,sans-serif';
-    ctx.textAlign='left'; ctx.fillText(dstr(rows[0][0]), padL, H-6);
-    ctx.textAlign='center'; ctx.fillText(dstr(rows[Math.floor(n/2)][0]), W/2, H-6);
-    ctx.textAlign='right'; ctx.fillText(dstr(rows[n-1][0]), W-padR, H-6);
-    // OHLC readout for the last candle
-    var last=rows[n-1];
-    var f=function(v){ return (+v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); };
-    if($('ahO')) $('ahO').textContent=f(last[1]);
-    if($('ahH')) $('ahH').textContent=f(last[2]);
-    if($('ahL')) $('ahL').textContent=f(last[3]);
-    if($('ahC')) $('ahC').textContent=f(last[4]);
-    var ds=String(last[0]);
-    if($('ahCandleDate')) $('ahCandleDate').textContent='Session '+ds.slice(0,4)+'-'+ds.slice(4,6)+'-'+ds.slice(6,8);
-    // caption: honest range
-    var d0=String(rows[0][0]), d1=String(last[0]);
-    if($('ahChartCap')) $('ahChartCap').textContent='Daily candles · '+n+' sessions from '+d0.slice(0,4)+'-'+d0.slice(4,6)+'-'+d0.slice(6,8)+' to '+d1.slice(0,4)+'-'+d1.slice(4,6)+'-'+d1.slice(6,8)+'. Missing sessions are omitted, never interpolated.';
-    // redraw on resize
-    if(!cv._rsz){ cv._rsz=true; var rt; window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(function(){ drawCandles(live); },200); }); }
+    window.addEventListener('mouseup',function(e){
+      if(!dragging) return;
+      dragging=false; cv.classList.remove('dragging');
+      if(!moved){ var b=cv.getBoundingClientRect(); var abs=idxAt(e.clientX-b.left); if(abs>=0){ CH.sel=(CH.sel===abs?-1:abs); chartDraw(); chartReadout(); } }
+    });
+    cv.addEventListener('mouseleave',function(){ CH.hover=-1; if(tip)tip.style.display='none'; chartDraw(); chartReadout(); });
+    cv.addEventListener('mousemove',function(e){
+      if(dragging) return;
+      var p=pos(e), abs=idxAt(p.x);
+      if(abs!==CH.hover){ CH.hover=abs; chartDraw(); chartReadout(); }
+      showTip(abs,p.x,p.y);
+    });
+    cv.addEventListener('wheel',function(e){
+      e.preventDefault();
+      var g=CH._g; if(!g||!CH.rows.length) return;
+      var p=pos(e);
+      var frac=Math.max(0,Math.min(1,(p.x-g.padL)/g.cw));
+      var anchor=CH.start+frac*CH.count;
+      var nc=Math.round(CH.count*(e.deltaY>0?1.18:0.85));
+      nc=Math.max(20,Math.min(CH.rows.length,nc));
+      CH.count=nc;
+      CH.start=Math.round(anchor-frac*nc);
+      chartDraw(); chartReadout();
+    },{passive:false});
+    cv.addEventListener('dblclick',function(){ CH.count=Math.min(90,CH.rows.length); CH.start=Math.max(0,CH.rows.length-CH.count); CH.sel=-1; chartDraw(); chartReadout(); });
+    // touch: one finger pans, two fingers pinch-zoom
+    var tMode=null, tX0=0, tStart0=0, tD0=0, tCount0=0, tAnchor=0;
+    cv.addEventListener('touchstart',function(e){
+      if(e.touches.length===1){ tMode='pan'; tX0=e.touches[0].clientX; tStart0=CH.start; }
+      else if(e.touches.length===2){
+        tMode='pinch';
+        tD0=Math.abs(e.touches[0].clientX-e.touches[1].clientX);
+        tCount0=CH.count;
+        var b=cv.getBoundingClientRect(), mid=(e.touches[0].clientX+e.touches[1].clientX)/2-b.left;
+        var g=CH._g, frac=g?Math.max(0,Math.min(1,(mid-g.padL)/g.cw)):0.5;
+        tAnchor=CH.start+frac*CH.count;
+      }
+    },{passive:true});
+    cv.addEventListener('touchmove',function(e){
+      if(tMode==='pan'&&e.touches.length===1){
+        e.preventDefault();
+        var g=CH._g, dx=e.touches[0].clientX-tX0;
+        if(g&&g.slot>0){ CH.start=Math.round(tStart0-dx/g.slot); chartDraw(); chartReadout(); }
+      }else if(tMode==='pinch'&&e.touches.length===2){
+        e.preventDefault();
+        var d=Math.abs(e.touches[0].clientX-e.touches[1].clientX);
+        if(tD0>0&&CH.rows.length){
+          var nc=Math.round(tCount0*tD0/Math.max(20,d));
+          nc=Math.max(20,Math.min(CH.rows.length,nc));
+          var b=cv.getBoundingClientRect(), mid=(e.touches[0].clientX+e.touches[1].clientX)/2-b.left;
+          var g2=CH._g, frac=g2?Math.max(0,Math.min(1,(mid-g2.padL)/g2.cw)):0.5;
+          CH.count=nc; CH.start=Math.round(tAnchor-frac*nc);
+          chartDraw(); chartReadout();
+        }
+      }
+    },{passive:false});
+    cv.addEventListener('touchend',function(e){ if(e.touches.length===0){ tMode=null; var abs=CH.hover; } });
+    var rt;
+    window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(function(){ chartDraw(); },200); });
   }
 
   /* Hero + stats strip from live.json — canonical state, never the clock */
@@ -364,31 +518,36 @@
     setMarketState(live);
     var ix=live.index||{};
     var open = MARKET_STATE.status === 'OPEN';
-    if(ix.close!=null){
-      $('ahIdxVal').textContent=num(ix.close,2);
+    if(ix.value!=null){
+      $('ahIdxVal').textContent=num(ix.value,2);
     }
-    if(ix.change!=null&&ix.percent!=null){
-      var c=+ix.change,p=+ix.percent,cls=c>=0?'up':'down';
+    if(ix.change!=null&&ix.percent_change!=null){
+      var c=+ix.change,p=+ix.percent_change,cls=c>=0?'up':'down';
       $('ahIdxChg').innerHTML='<span class="'+cls+'">'+(c>=0?'+':'')+num(c,2)+' ('+(p>=0?'+':'')+num(p,2)+'%)</span>';
     }else{$('ahIdxChg').textContent='–';}
+    var f2=function(v){return v==null||!isFinite(+v)?'–':num(+v,2);};
+    if($('ahDayO'))$('ahDayO').textContent=f2(ix.open);
+    if($('ahDayH'))$('ahDayH').textContent=f2(ix.high);
+    if($('ahDayL'))$('ahDayL').textContent=f2(ix.low);
+    if($('ahDayP'))$('ahDayP').textContent=f2(ix.previous_close);
     var cap='Session of '+fmtLong((live.asof||'').slice(0,10));
     if(open)cap+=' · live during market hours (15-min delayed)';
     else cap+=' · market closed; latest verified session';
     $('ahIdxCap').textContent=cap;
     // breadth from quotes
-    var quotes=live.quotes||[], adv=0, dec=0, turn=0;
+    var quotes=live.quotes||[], adv=0, dec=0, turn=0, shares=0;
     quotes.forEach(function(q){
       var ch=+q.change||0;
       if(ch>0)adv++; else if(ch<0)dec++;
       turn+=+q.turnover||0;
+      shares+=+q.volume||0;
     });
     $('ahAdv').innerHTML='<span class="up">'+adv+'</span>';
     $('ahDec').innerHTML='<span class="down">'+dec+'</span>';
     $('ahTurn').textContent=money(turn);
-    $('ahTraded').textContent=quotes.length;
-    // candlesticks + ticker from the same canonical payload
-    drawCandles(live);
-    paintTicker(quotes);
+    $('ahTraded').textContent=inGrouping(shares);
+    // interactive candlesticks from the same canonical payload
+    chartReset(live);
 
     /* movers panels from live quotes — top 6 by % change and turnover */
     function row(q){
@@ -413,25 +572,13 @@
     paint('ahTurnover',byTurn);
   }
 
-  /* TICKER TAPE — top 30 by turnover, scrolling */
-  function paintTicker(quotes){
-    var el=$('ahTicker'); if(!el||!quotes||!quotes.length) return;
-    var top=[].concat(quotes).sort(function(a,b){return (+b.turnover||0)-(+a.turnover||0);}).slice(0,30);
-    function item(q){
-      var ch=+q.percent_change||0, cls=ch>=0?'up':'down';
-      return '<a class="nd-tick-item" href="/stocks/'+encodeURIComponent(String(q.symbol).replace(/\//g,'-'))+'/">'+
-        '<span class="tk-sym">'+esc(q.symbol)+'</span>'+
-        '<span>'+num(q.ltp,2)+'</span>'+
-        '<span class="tk-chg '+cls+'">'+(ch>=0?'+':'')+ch.toFixed(2)+'%</span></a>';
-    }
-    var html=top.map(item).join('');
-    el.innerHTML=html+html; // duplicate for seamless loop
-  }
+  /* empty/error state */
   function paintMarketEmpty(msg){
     $('ahIdxCap').textContent=msg;
     $('ahIdxVal').textContent='–';$('ahIdxChg').textContent='–';
     ['ahAdv','ahDec','ahTurn','ahTraded'].forEach(function(id){$(id).textContent='–';});
     ['ahGainers','ahLosers','ahTurnover'].forEach(function(id){$(id).innerHTML='<li style="padding:12px 0;color:var(--muted);font-size:14px">'+esc(msg)+'</li>';});
+    chartReset(null);
   }
 
   /* news rail */
