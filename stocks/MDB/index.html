@@ -126,23 +126,6 @@
 </tbody></table></div>
 <p class="sp-note">Profit figures are published cumulative for the fiscal year; the quarterly profit row shows the implied standalone quarter (this quarter minus the prior quarter). P/E is not shown as a trend: the screener prices every historical quarter at today’s price, so a historical P/E would be misleading. – means not published.</p>
 </section>
-<section aria-label="Sector peer comparison"><h2>Sector peers · Development Bank</h2>
-<p class="sp-note">Same-sector equities by engine score. P/E and EPS show published quarterly figures where available; – means not yet published.</p>
-<div class="sp-table-wrap"><table class="sp-peer-table">
-<thead><tr><th scope="col">Symbol</th><th scope="col">Price (Rs)</th><th scope="col">Session</th><th scope="col">P/E (TTM)</th><th scope="col">EPS (TTM)</th></tr></thead>
-<tbody>
-<tr><td><a href="/stocks/SHINE/">SHINE</a></td><td>428.9</td><td class="neg">-0.95%</td><td>16.79x</td><td>Rs 23.52</td></tr>
-<tr><td><a href="/stocks/ADBL/">ADBL</a></td><td>308</td><td class="neg">-1.6%</td><td>22.99x</td><td>Rs 13.33</td></tr>
-<tr><td><a href="/stocks/CORBL/">CORBL</a></td><td>780</td><td class="neg">-1.9%</td><td>78.72x</td><td>Rs 9.54</td></tr>
-<tr class="cur"><td><a href="/stocks/MDB/">MDB</a></td><td>566.8</td><td class="pos">+1.21%</td><td>48.1x</td><td>Rs 11.6</td></tr>
-<tr><td><a href="/stocks/GRDBL/">GRDBL</a></td><td>943</td><td class="neg">-1.77%</td><td>78.32x</td><td>Rs 11.76</td></tr>
-<tr><td><a href="/stocks/EDBL/">EDBL</a></td><td>572</td><td class="neg">-0.52%</td><td>23.14x</td><td>Rs 24.76</td></tr>
-<tr><td><a href="/stocks/NABBC/">NABBC</a></td><td>740.6</td><td class="neg">-1.49%</td><td>-72.2x</td><td>Rs -10.25</td></tr>
-<tr><td><a href="/stocks/SAPDBL/">SAPDBL</a></td><td>590</td><td class="neg">-2.48%</td><td>32.98x</td><td>Rs 18.04</td></tr>
-<tr><td><a href="/stocks/SADBL/">SADBL</a></td><td>396</td><td class="neg">-2.1%</td><td>16.66x</td><td>Rs 23.83</td></tr>
-</tbody></table></div>
-<p class="sp-note">Figures from the same data date as this page. Educational comparison only, not investment advice.</p>
-</section>
 </div><div class="sp-tabpanel" data-panel="news" role="tabpanel" hidden><h2>Latest headlines</h2><ul class="sp-news"><li><a href="https://arthasansar.com/news/83116" rel="noopener" target="_blank">मितेरी डेभलपमेन्ट बैंकको लाभांश घोषणा, बोनस र नगद कति ?</a> <span class="sp-news-src">Arthasansar · 2026-09-28</span></li></ul></div><div class="sp-tabpanel" data-panel="actions" role="tabpanel" hidden><h2>Corporate actions</h2><p class="sp-note">Past dividends, bonus shares, right shares, auctions and AGM history.</p><section class="inv-cal" aria-label="Investment Calendar">
 <div class="inv-cal-head"><h2><span aria-hidden="true">📅</span> Investment Calendar</h2><span class="inv-cal-co">Miteri Development Bank Limited</span></div>
 <div class="inv-cal-body">
@@ -228,14 +211,7 @@
 </div>
 </div>
 </section>
-</div><section aria-label="More in the Development Bank sector"><h2>More in the Development Bank sector</h2><ul class="sp-peers">
-<li><a href="/stocks/SHINE/">Shine Resunga Development Bank Ltd. (SHINE)</a></li>
-<li><a href="/stocks/ADBL/">Agricultural Development Bank Limited (ADBL)</a></li>
-<li><a href="/stocks/CORBL/">Corporate Development Bank Limited (CORBL)</a></li>
-<li><a href="/stocks/GRDBL/">Green Development Bank Ltd. (GRDBL)</a></li>
-<li><a href="/stocks/EDBL/">Excel Development Bank Ltd. (EDBL)</a></li>
-</ul></section>
-<p class="sp-disc">Educational use only, not investment advice. Signals are mechanical readings of past prices; past patterns do not guarantee future results.</p>
+</div><p class="sp-disc">Educational use only, not investment advice. Signals are mechanical readings of past prices; past patterns do not guarantee future results.</p>
 <script>(function(){var tabs=document.querySelectorAll(".sp-tab"),panels=document.querySelectorAll(".sp-tabpanel");function on(n){tabs.forEach(function(t){var a=t.dataset.tab===n;t.classList.toggle("active",a);t.setAttribute("aria-selected",a);});panels.forEach(function(p){var a=p.dataset.panel===n;p.classList.toggle("active",a);if(a)p.removeAttribute("hidden");else p.setAttribute("hidden","");});}tabs.forEach(function(t){t.addEventListener("click",function(){on(t.dataset.tab);});t.addEventListener("keydown",function(e){if(e.key==="ArrowRight"||e.key==="ArrowLeft"){var i=Array.prototype.indexOf.call(tabs,t);var nx=e.key==="ArrowRight"?(i+1)%tabs.length:(i-1+tabs.length)%tabs.length;tabs[nx].focus();on(tabs[nx].dataset.tab);}});});document.querySelectorAll("[data-goto-tab]").forEach(function(a){a.addEventListener("click",function(){on(a.dataset.gotoTab);});});if(location.hash==="#fundamentals"){on("fundamentals");}if(location.hash==="#actions"){on("actions");}document.querySelectorAll(".inv-cal").forEach(function(card){var uid=card.querySelector("[data-inv-uid]").dataset.invUid;var state={tab:"dividends",q:"",page:1,per:10};function rows(){var p=card.querySelector("[data-inv-panel=\""+state.tab+"\"]");if(!p)return[];return Array.prototype.slice.call(p.querySelectorAll("tbody tr"));}function filtered(){var q=state.q.toLowerCase();return rows().filter(function(r){return !q||r.textContent.toLowerCase().indexOf(q)>-1;});}function render(){var list=filtered(),total=list.length,pages=Math.max(1,Math.ceil(total/state.per));if(state.page>pages)state.page=pages;var s=(state.page-1)*state.per;rows().forEach(function(r){r.style.display="none";});list.slice(s,s+state.per).forEach(function(r){r.style.display="";});var info=card.querySelector(".inv-cal-info");info.textContent=total?("Showing "+(s+1)+" to "+Math.min(s+state.per,total)+" of "+total+" entries"):"Showing 0 entries";var nums=card.querySelector(".inv-cal-pagenums");nums.innerHTML="";for(var i=1;i<=pages&&i<=7;i++){var b=document.createElement("button");b.textContent=i;b.className="inv-cal-pg"+(i===state.page?" cur":"");b.dataset.pg=i;b.addEventListener("click",function(){state.page=+this.dataset.pg;render();});nums.appendChild(b);}card.querySelector(".inv-cal-prev").disabled=state.page<=1;card.querySelector(".inv-cal-next").disabled=state.page>=pages;}card.querySelectorAll("[data-inv-tab]").forEach(function(t){t.addEventListener("click",function(){card.querySelectorAll("[data-inv-tab]").forEach(function(x){x.classList.remove("active");x.setAttribute("aria-selected","false");});t.classList.add("active");t.setAttribute("aria-selected","true");state.tab=t.dataset.invTab;state.page=1;card.querySelectorAll("[data-inv-panel]").forEach(function(p){p.hidden=p.dataset.invPanel!==state.tab;});render();});});var q=card.querySelector(".inv-cal-q");if(q)q.addEventListener("input",function(){state.q=this.value;state.page=1;render();});var pp=card.querySelector(".inv-cal-perpage");if(pp)pp.addEventListener("change",function(){state.per=+this.value;state.page=1;render();});card.querySelector(".inv-cal-prev").addEventListener("click",function(){if(state.page>1){state.page--;render();}});card.querySelector(".inv-cal-next").addEventListener("click",function(){state.page++;render();});card.querySelectorAll("[data-inv-panel=\"dividends\"] .inv-cal-divstatus").forEach(function(el){var bc=el.getAttribute("data-bc")||"";if(el.getAttribute("data-closed")==="1"){el.innerHTML="<span class=\"inv-pill inv-pill-closed\">Closed</span>";return;}if(!/^\d{4}-\d{2}-\d{2}$/.test(bc)){el.textContent="\u2013";return;}var today="";try{today=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Kathmandu",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());}catch(e){var kd=new Date(Date.now()+20700000);today=kd.getUTCFullYear()+"-"+("0"+(kd.getUTCMonth()+1)).slice(-2)+"-"+("0"+kd.getUTCDate()).slice(-2);}var closed=bc<today;el.innerHTML="<span class=\"inv-pill "+(closed?"inv-pill-closed":"inv-pill-open")+"\">"+(closed?"Closed":"Open")+"</span>";});render();});})();</script></main>
 <footer class="sc-footer">
   <div class="wrap">
