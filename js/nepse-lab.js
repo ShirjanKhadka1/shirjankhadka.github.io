@@ -1,13 +1,14 @@
 /* NEPSE Alpha Lab, chart + pattern/divergence scanner + rules-based verdict engine.
    Index data: window.NEPSE_DAILY = [YYYYMMDD, o, h, l, c, turnoverNPR], daily sessions.
-   Stock data: fetched live from free community APIs (samirwagle/Nepse-All-Scraper
-   per-symbol OHLC JSON + shubhamnpk/yonepse live quotes). All analysis is computed
-   client-side, rule-based and educational, not AI predictions, not advice. */
+   Stock data: per-symbol OHLC JSON from the open Nepse-All-Scraper archive
+   plus our own live snapshot (/nepse-chart/data/live.json). All analysis is
+   computed client-side, rule-based and educational, not AI predictions,
+   not advice. */
 (function () {
   'use strict';
 
   if (typeof window !== 'undefined' && window.console && console.log) {
-    console.log('%cPoking around? The API is at /api/ ... if you dare.',
+    console.log('%cNepse Decode — proprietary analytics. This data is compiled and computed by Nepse Decode; automated harvesting is not permitted. If you need data access, contact us.',
       'color:#C6A86B;font-weight:bold');
   }
 
@@ -19,9 +20,7 @@
     companies: 'https://samirwagle.github.io/Nepse-All-Scraper/docs/api/companies.json',
     prices: function (s) { return 'https://samirwagle.github.io/Nepse-All-Scraper/docs/api/prices/' + s.replace('/', '-') + '.json'; },
     latest: 'https://samirwagle.github.io/Nepse-All-Scraper/docs/api/latest.json',
-    live: 'https://shubhamnpk.github.io/yonepse/data/market/live.json',
     liveOwn: '/nepse-chart/data/live.json', // our own 15-min official-API snapshot (Actions job)
-    status: 'https://shubhamnpk.github.io/yonepse/data/market/status.json',
     universe: '/nepse-chart/data/universe.json',
     verdicts: '/nepse-chart/data/verdicts.json',
     ltp: function (s) { return '/nepse-chart/data/ltp/' + s.replace('/', '-') + '.json?v=' + UNIVERSE_V; }
@@ -581,8 +580,10 @@
   function loadLive() {
     var now = Date.now();
     if (now - liveCache.at < 60000 && Object.keys(liveCache.map).length) return Promise.resolve(liveCache.map);
-    // Prefer our own 15-min official-API snapshot (same origin, no CORS issues,
-    // refreshed by the nepse-live-quotes workflow); fall back to yonepse.
+    // Our own 15-min official-API snapshot (same origin, no CORS issues,
+    // refreshed by the nepse-live-quotes workflow). If it is missing or
+    // stale, fall back to the last cached map and let the UI badge show
+    // the honest delayed state — never another site's feed.
     return fetchTimeout(SRC.liveOwn, { cache: 'no-store' }, 15000).then(function (r) {
       if (!r.ok) throw new Error('no own feed'); return r.json();
     }).then(function (j) {
@@ -590,13 +591,15 @@
       if (!arr.length) throw new Error('empty own feed');
       // Staleness guard (2026-09-28): GitHub's scheduler skips most 15-min
       // refresh slots, so a stale own snapshot must not masquerade as live.
-      // During market hours, if the snapshot is older than 35 min, fall
-      // through to the yonepse community feed instead.
       var asof = j && j.asof ? new Date(j.asof).getTime() : 0;
       if (asof && marketOpenNPT() && (Date.now() - asof) > 35 * 60000) throw new Error('stale own feed');
       liveCache.index = (j && j.index) || null;
       return arr;
-    }).catch(function () { liveCache.index = null; return fetchJSON(SRC.live); }).then(function (arr) {
+    }).catch(function () {
+      liveCache.index = null;
+      return null; // feed failed: keep the previously cached map below
+    }).then(function (arr) {
+      if (!arr) return liveCache.map;
       var map = {};
       (arr || []).forEach(function (q) { if (q && q.symbol) { map[q.symbol] = q; if (q.name) state.names[q.symbol] = q.name; } });
       liveCache = { at: now, map: map, index: liveCache.index };

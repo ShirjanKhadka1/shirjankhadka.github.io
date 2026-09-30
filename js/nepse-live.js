@@ -3,7 +3,10 @@
  * One data path for the suite's live figures. The own 15-minute official
  * snapshot lives at /nepse-chart/data/live.json (refreshed by the
  * nepse-live-quotes workflow during trading). When it is missing or stale
- * during market hours, we fall back to the yonepse community feed.
+ * Live quotes come from our own market snapshot (nepse-chart/data/live.json,
+ * refreshed by the nepse-live-quotes workflow). When the snapshot is missing
+ * or stale, the page shows an honest delayed/closed state instead of
+ * borrowing another site's feed.
  * A market snapshot (daily batch + live overlay) is the single source the
  * alpha, dashboard, sectors and reports pages render from. Nothing here
  * invents a price; when data is stale or absent, we say so.
@@ -15,7 +18,6 @@
 
   var OWN = '/nepse-chart/data/live.json';
   var WAVE1 = '/nepse-chart/data/wave1.json';
-  var YONEPSE = 'https://shubhamnpk.github.io/yonepse/data/market/live.json';
   var STALE_MIN = 20;      // in-session staleness threshold for the DELAYED badge
   var POLL_MS = 60000;     // same-origin poll cadence during market hours
   var FETCH_TIMEOUT = 15000;
@@ -124,29 +126,8 @@
     };
   }
 
-  function fromYonepse(arr) {
-    var quotes = {}, asof = 0;
-    (arr || []).forEach(function (q) {
-      if (!q || !q.symbol) return;
-      var chg = num(q.change);
-      if (chg == null && num(q.ltp) != null && num(q.previous_close) != null) {
-        chg = num(q.ltp) - num(q.previous_close);
-      }
-      quotes[q.symbol] = {
-        ltp: num(q.ltp), change: chg, pct: num(q.percent_change),
-        high: num(q.high), low: num(q.low), volume: num(q.volume),
-        turnover: num(q.turnover),
-        prev: num(q.previous_close), updated: q.last_updated || null,
-        name: q.name || null
-      };
-      var t = parseT(q.last_updated);
-      if (t > asof) asof = t;
-    });
-    return { source: 'yonepse', asof: asof, index: null, quotes: quotes };
-  }
-
-  // Live quotes. Own snapshot first; yonepse fallback only when own is
-  // missing, empty, or stale during market hours.
+  // Live quotes. Own snapshot only; when it is missing, empty, or stale
+  // during market hours the page shows an honest delayed/closed state.
   function loadLive() {
     return fetchJSON(OWN).then(function (j) {
       var d = fromOwn(j);
@@ -155,9 +136,7 @@
       var ageMin = (Date.now() - d.asof) / 60000;
       if (isMarketHours() && ageMin > STALE_MIN) throw new Error('own feed stale');
       return d;
-    }).catch(function () {
-      return fetchJSON(YONEPSE).then(fromYonepse).catch(function () { return null; });
-    });
+    }).catch(function () { return null; });
   }
 
   function statusOf(d) {

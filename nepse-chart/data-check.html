@@ -96,8 +96,6 @@ th.num{text-align:right}
     <a href="/nepse-news/">Market news</a>
     <a href="/nepse-watchlist/">Watchlist</a>
     <a href="/nepse-portfolio/">Portfolio</a>
-    <a href="/nepse-simulator/">Simulator</a>
-    <a href="/nepse-reports/">Reports</a>
     <a href="/nepse-chart/data-check.html" class="on" aria-current="page">Data check</a>
   </nav>
   <p class="rail-foot">Free forever · no login</p>
@@ -154,7 +152,7 @@ th.num{text-align:right}
     </table>
   </div>
 
-  <p class="dc-note" id="dcNote">Automated check rebuilds daily after market close from the Nepse-All-Scraper OHLC archive, the yonepse LTP history and the live quote feed. “Run live check” re-verifies every symbol’s source file in your browser: OHLC files on the scraper archive, LTP files on this site. Newly listed IPOs are picked up automatically from the live feed: they appear as <strong>LTP-only</strong> until the OHLC archive covers them.</p>
+  <p class="dc-note" id="dcNote">Automated check rebuilds daily after market close from the Nepse-All-Scraper OHLC archive, Nepse Decode's LTP history and the live quote feed. “Run live check” re-verifies every symbol’s source file in your browser: OHLC files on the scraper archive, LTP files on this site. Newly listed IPOs are picked up automatically from the live feed: they appear as <strong>LTP-only</strong> until the OHLC archive covers them.</p>
 
   <footer class="dc-foot">
     <a href="/">← Home</a> · <a href="./">Nepse Decode</a> · <a href="/blog/">Blog</a>
@@ -347,13 +345,14 @@ th.num{text-align:right}
         render();
       }
     }
-    // refresh live-quote presence from the live feed first
-    fetch('https://shubhamnpk.github.io/yonepse/data/market/live.json', { cache: 'no-store' })
-      .then(function (r) { return r.ok ? r.json() : []; })
-      .catch(function () { return []; })
-      .then(function (live) {
+    // refresh live-quote presence from our own snapshot first
+    fetch('/nepse-chart/data/live.json', { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .catch(function () { return null; })
+      .then(function (j) {
+        var live = (j && j.quotes) || [];
         var set = {};
-        (Array.isArray(live) ? live : []).forEach(function (q) { if (q && q.symbol) set[q.symbol] = 1; });
+        live.forEach(function (q) { if (q && q.symbol) set[q.symbol] = 1; });
         rows.forEach(function (r) { r.live = !!set[r.s]; });
         liveDone = true;
         return pool(rows, 6, function (r) {

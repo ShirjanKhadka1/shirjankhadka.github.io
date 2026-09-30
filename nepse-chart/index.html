@@ -39,7 +39,7 @@
 {"@type":"Question","name":"Does Nepse Decode give buy or sell signals?","acceptedAnswer":{"@type":"Answer","text":"Nepse Decode shows a rule-based verdict, Strong Buy, Buy, Hold, Exit/Reduce or Strong Exit, computed in your browser from ten transparent factors: trend vs moving averages, RSI, MACD, turnover, 52-week position, divergences, chart patterns, market backdrop and support/resistance. Every factor and its contribution is listed, so nothing is a black box. It is educational, not investment advice."}},
 {"@type":"Question","name":"Is the data real-time?","acceptedAnswer":{"@type":"Answer","text":"During NEPSE trading hours (Monday–Friday, 11:00–15:00 NPT) the quote panel refreshes from a free community live feed and shows a LIVE badge; the chart appends the in-progress session. Outside market hours it shows the last closed session. NEPSE publishes no free official real-time API, so this uses community mirrors and may be delayed."}},
 {"@type":"Question","name":"Which patterns and divergences are detected?","acceptedAnswer":{"@type":"Answer","text":"Double tops and bottoms, head & shoulders and inverse head & shoulders, ascending/descending/symmetrical triangles and rising/falling wedges, plus regular and hidden bullish/bearish divergences on RSI(14) and the MACD histogram. Detections are drawn on the chart and listed with dates and plain-English notes."}},
-{"@type":"Question","name":"Where does the data come from?","acceptedAnswer":{"@type":"Answer","text":"Per-stock daily OHLC history from the open Nepse-All-Scraper dataset (Samir Wagle, MIT), live quotes and monthly LTP history from the yonepse open API, and the NEPSE index daily history (2003–2026) from the nepse-open-data archive. Coverage spans every currently listed security, equities, mutual funds, debentures and preference shares. Securities without scraper OHLC (e.g. newer listings) use LTP-only history and are clearly flagged; pattern and divergence detection is disabled for those."}},
+{"@type":"Question","name":"Where does the data come from?","acceptedAnswer":{"@type":"Answer","text":"Per-stock daily OHLC history from the open Nepse-All-Scraper dataset (Samir Wagle, MIT), live quotes from Nepse Decode's own market snapshots, monthly LTP history from open market-data archives, and the NEPSE index daily history (2003–2026) from the nepse-open-data archive. Coverage spans every currently listed security, equities, mutual funds, debentures and preference shares. Securities without scraper OHLC (e.g. newer listings) use LTP-only history and are clearly flagged; pattern and divergence detection is disabled for those."}},
 {"@type":"Question","name":"Is this financial advice?","acceptedAnswer":{"@type":"Answer","text":"No. Everything here is a mechanical, rule-based illustration for education. Markets are uncertain and past patterns do not guarantee future results. Do your own research before any investment decision."}}]}
 </script>
 <script type="application/ld+json">
@@ -58,12 +58,11 @@
   <a href="/nepse-chart/" class="active" aria-current="page">Chart &amp; signals</a>
   <a href="/nepse-screener/">Screener</a>
   <a href="/nepse-brokers/">Broker Analytics</a>
+  <a href="/nepse-brokers/">Broker Analytics</a>
   <a href="/nepse-sectors/">Sectors</a>
   <a href="/nepse-news/">Market news</a>
   <a href="/nepse-watchlist/">Watchlist</a>
   <a href="/nepse-portfolio/">Portfolio</a>
-  <a href="/nepse-simulator/">Simulator</a>
-  <a href="/nepse-reports/">Reports</a>
   <a href="/nepse-actions/">Corp. actions</a>
 </nav>
 
@@ -76,12 +75,11 @@
       <a href="/nepse-chart/" class="active" aria-current="page">Chart &amp; signals</a>
       <a href="/nepse-screener/">Screener</a>
   <a href="/nepse-brokers/">Broker Analytics</a>
+  <a href="/nepse-brokers/">Broker Analytics</a>
       <a href="/nepse-sectors/">Sectors</a>
       <a href="/nepse-news/">Market news</a>
       <a href="/nepse-watchlist/">Watchlist</a>
       <a href="/nepse-portfolio/">Portfolio</a>
-      <a href="/nepse-simulator/">Simulator</a>
-      <a href="/nepse-reports/">Reports</a>
       <a href="/nepse-actions/">Corp. actions</a>
     </nav>
     <p class="nd-caption" style="margin-top:32px">Free forever · no login</p>
@@ -204,8 +202,9 @@
   </section>
 
   <footer class="nd-footer">
-    <p class="nd-caption"><strong>Educational use only.</strong> Signals are mechanical outputs of published rules, not investment advice. Data: Nepse-All-Scraper · yonepse.</p>
+    <p class="nd-caption"><strong>Educational use only.</strong> Signals are mechanical outputs of published rules, not investment advice. Data: Nepse-All-Scraper · Nepse Decode market snapshots.</p>
     <p class="nd-caption" style="margin-top:12px"><a href="/nepse-decode/">Overview</a> · <a href="/nepse-screener/">Screener</a>
+  <a href="/nepse-brokers/">Broker Analytics</a>
   <a href="/nepse-brokers/">Broker Analytics</a> · <a href="/nepse-news/">News</a></p>
   </footer>
 </main>

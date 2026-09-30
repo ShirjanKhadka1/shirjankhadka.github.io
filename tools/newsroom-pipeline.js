@@ -33,7 +33,7 @@
  *   node tools/newsroom-pipeline.js --status
  *       Show counts per stage.
  *
- * What stays human: writing review (turning scaffolds into Ansu-format
+ * What stays human: writing review (turning scaffolds into house newsroom format
  * prose), photo choice confirmation, and publish approval. The machine
  * detects, verifies documents, scaffolds, and publishes - it never
  * invents figures and never publishes on its own.
@@ -379,7 +379,7 @@ async function verifyPdfOverride(storyKey, pdfUrl) {
 // Drafts are SCAFFOLDS, not prose. They carry every verified fact, follow the
 // playbook's structural rules (inverted pyramid slots, Moneycontrol headline
 // formula, honesty-code hedging), and mark every judgment call with an
-// explicit [EDITOR] marker. A human turns the scaffold into Ansu-format
+// explicit [EDITOR] marker. A human turns the scaffold into house newsroom format
 // prose. Drafts can never be published directly.
 const KIND_LABEL_EN = {
   'dividend': 'dividend', 'bonus-share': 'bonus share', 'right-share': 'right share',
@@ -488,7 +488,7 @@ function buildDraft(v) {
     _human_reviewed: false,
     _editor_checklist: [
       'Extract exact figures (rates, ratio, dates) from the official PDF; replace all [EDITOR] markers.',
-      'Rewrite body to Ansu format: dated sourced lead, data-led prose, restrained close (playbook section 9).',
+      'Rewrite body to house newsroom format: dated sourced lead, data-led prose, restrained close (playbook section 9).',
       'Confirm headline figures match the PDF; apply headline honesty code (playbook section 10).',
       'Rewrite the Nepali version as natural plain Nepali (not translationese); Devanagari digits in prose.',
       'Confirm photo choice; replace placeholder hero credit.',
