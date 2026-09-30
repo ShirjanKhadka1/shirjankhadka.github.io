@@ -25,13 +25,15 @@ const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, 'nepse-chart', 'data', 'news.json');
 const UNIVERSE = path.join(ROOT, 'nepse-chart', 'data', 'universe.json');
 const UA = { 'User-Agent': 'Mozilla/5.0 (NEPSE-Alpha-Lab news collector)' };
-const KEEP_DAYS = 7;
-const MAX_ITEMS = 300;
+const KEEP_DAYS = 30;
+const MAX_ITEMS = 500;
 
 const FEEDS = [
   { src: 'Arthasansar', url: 'https://arthasansar.com/feed' },
   { src: 'BizMandu', url: 'https://bizmandu.com/feed' },
   { src: 'OnlineKhabar', url: 'https://www.onlinekhabar.com/feed' },
+  { src: 'OnlineKhabar EN', url: 'https://english.onlinekhabar.com/feed' },
+  { src: 'MeroLagani', url: 'https://merolagani.com/feed' },
 ];
 
 // English + Nepali market keywords that qualify a bare ticker mention.

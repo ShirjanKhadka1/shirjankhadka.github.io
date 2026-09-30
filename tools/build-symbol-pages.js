@@ -327,18 +327,48 @@ function quarterlyTable(sym, quarterly, sector) {
   // Adaptive: sub-billion quarterly figures read better in Rs millions.
   const bma = (x) => x === null ? '–' :
     (Math.abs(x) < 1 ? 'Rs ' + (x * 1000).toFixed(1) + 'm' : 'Rs ' + x.toFixed(2) + 'b');
+  const r2 = (x) => x === null ? '–' : x.toFixed(2);
+  const rs2 = (x) => x === null ? '–' : 'Rs ' + x.toFixed(2);
+  const pc2 = (x) => x == null ? '–' : x.toFixed(2) + '%';
+  const sec_h = (t) => ({ sec: t });
+  // Full financial statements: P&L (standalone quarters), Balance Sheet (point-in-time), Ratios.
   const metrics = g === 'bank' ? [
-    { l: 'Net profit (quarter)', v: (x) => stOf(x, 'netprofit'), f: b2, dir: 1 },
-    { l: 'Deposits', v: (x) => bOf(x, 'deposits'), f: b1, dir: 1 },
-    { l: 'Loans & advances', v: (x) => bOf(x, 'loans'), f: b1, dir: 1 },
-    { l: 'EPS (TTM)', v: (x) => num(x.d.eps_ttm), f: (x) => x === null ? '–' : 'Rs ' + x.toFixed(2), dir: 1 },
-    { l: 'NPL ratio', v: (x) => num(x.d.npl_pct), f: (x) => x == null ? '–' : x.toFixed(2) + '%', dir: -1 },
+    sec_h('Profit & Loss (standalone quarter)'),
+    { l: 'Revenue', v: (x) => stOf(x, 'revenue'), f: bma, dir: 1 },
+    { l: 'Gross profit', v: (x) => stOf(x, 'grossprofit'), f: bma, dir: 1 },
+    { l: 'Operating profit', v: (x) => stOf(x, 'opprofit'), f: bma, dir: 1 },
+    { l: 'Net profit', v: (x) => stOf(x, 'netprofit'), f: bma, dir: 1 },
+    { l: 'Distributable profit', v: (x) => stOf(x, 'distprofit'), f: bma, dir: 1 },
+    sec_h('Balance Sheet (point-in-time)'),
+    { l: 'Paid-up capital', v: (x) => bOf(x, 'paidup'), f: bma, dir: 1 },
+    { l: 'Reserves & surplus', v: (x) => bOf(x, 'reserves'), f: bma, dir: 1 },
+    { l: 'Deposits', v: (x) => bOf(x, 'deposits'), f: bma, dir: 1 },
+    { l: 'Loans & advances', v: (x) => bOf(x, 'loans'), f: bma, dir: 1 },
+    { l: 'Total assets', v: (x) => bOf(x, 'assets'), f: bma, dir: 1 },
+    { l: 'Total liabilities', v: (x) => bOf(x, 'liabilities'), f: bma, dir: 1 },
+    sec_h('Key ratios'),
+    { l: 'EPS (TTM)', v: (x) => num(x.d.eps_ttm), f: rs2, dir: 1 },
+    { l: 'EPS (annualized)', v: (x) => num(x.d.eps_ann), f: rs2, dir: 1 },
+    { l: 'P/E (TTM)', v: (x) => num(x.d.pe_ttm), f: (x) => x === null ? '–' : x.toFixed(2) + '×', dir: 0 },
+    { l: 'NPL ratio', v: (x) => num(x.d.npl_pct), f: pc2, dir: -1 },
+    { l: 'Credit/deposit ratio', v: (x) => num(x.d.cd_ratio), f: pc2, dir: 0 },
+    { l: 'Interest rate spread', v: (x) => num(x.d.spread), f: pc2, dir: 1 },
   ] : [
-    { l: 'Net profit (quarter)', v: (x) => stOf(x, 'netprofit'), f: bma, dir: 1 },
-    { l: 'Revenue (quarter)', v: (x) => stOf(x, 'revenue'), f: bma, dir: 1 },
-    { l: 'Gross profit (quarter)', v: (x) => stOf(x, 'grossprofit'), f: bma, dir: 1 },
-    { l: 'Operating profit (quarter)', v: (x) => stOf(x, 'opprofit'), f: bma, dir: 1 },
-    { l: 'EPS (TTM)', v: (x) => num(x.d.eps_ttm), f: (x) => x === null ? '–' : 'Rs ' + x.toFixed(2), dir: 1 },
+    sec_h('Profit & Loss (standalone quarter)'),
+    { l: 'Revenue', v: (x) => stOf(x, 'revenue'), f: bma, dir: 1 },
+    { l: 'Gross profit', v: (x) => stOf(x, 'grossprofit'), f: bma, dir: 1 },
+    { l: 'Operating profit', v: (x) => stOf(x, 'opprofit'), f: bma, dir: 1 },
+    { l: 'Net profit', v: (x) => stOf(x, 'netprofit'), f: bma, dir: 1 },
+    { l: 'Distributable profit', v: (x) => stOf(x, 'distprofit'), f: bma, dir: 1 },
+    sec_h('Balance Sheet (point-in-time)'),
+    { l: 'Paid-up capital', v: (x) => bOf(x, 'paidup'), f: bma, dir: 1 },
+    { l: 'Reserves & surplus', v: (x) => bOf(x, 'reserves'), f: bma, dir: 1 },
+    { l: 'Total assets', v: (x) => bOf(x, 'assets'), f: bma, dir: 1 },
+    { l: 'Total liabilities', v: (x) => bOf(x, 'liabilities'), f: bma, dir: 1 },
+    sec_h('Key ratios'),
+    { l: 'EPS (TTM)', v: (x) => num(x.d.eps_ttm), f: rs2, dir: 1 },
+    { l: 'EPS (annualized)', v: (x) => num(x.d.eps_ann), f: rs2, dir: 1 },
+    { l: 'P/E (TTM)', v: (x) => num(x.d.pe_ttm), f: (x) => x === null ? '–' : x.toFixed(2) + '×', dir: 0 },
   ];
   const show = qs.slice(-12);
   const latest = show[show.length - 1];
@@ -360,6 +390,10 @@ function quarterlyTable(sym, quarterly, sector) {
   for (let i = show.length - 1; i >= 0; i--) h += '<th scope="col" class="num">' + esc(qLabel(show[i])) + '</th>';
   h += '</tr></thead>\n<tbody>\n';
   for (const m of metrics) {
+    if (m.sec) {
+      h += '<tr class="sp-sec-row"><td colspan="' + (3 + show.length) + '"><strong>' + esc(m.sec) + '</strong></td></tr>\n';
+      continue;
+    }
     h += '<tr><td>' + esc(m.l) + '</td>' + dCell(m, pq) + dCell(m, yq);
     for (let i = show.length - 1; i >= 0; i--) h += '<td class="num">' + m.f(m.v(show[i])) + '</td>';
     h += '</tr>\n';
@@ -434,10 +468,8 @@ function pct(x) {
  * Shows all-time per-scrip history (dividends, AGMs, rights, auctions) in
  * a card with sidebar navigation, search, and pagination. History rows come
  * from corp-history.json (ShareSansar's compilation of company announcements).
- * Verified recent notices from corporate-actions.json carry the official
- * NEPSE/company PDF link. Nothing is invented; missing history renders an
- * honest note. */
-function investmentCalendarCard(sym, name, hist, verified) {
+ * Nothing is invented; missing history renders an honest note. */
+function investmentCalendarCard(sym, name, hist) {
   const H = hist || {};
   const divs = H.dividends || [], agms = H.agms || [],
         rights = H.rights || [], aucs = H.auctions || [];
@@ -446,23 +478,6 @@ function investmentCalendarCard(sym, name, hist, verified) {
   let h = '<section class="inv-cal" aria-label="Investment Calendar">\n';
   h += '<div class="inv-cal-head"><h2><span aria-hidden="true">📅</span> Investment Calendar</h2>' +
     '<span class="inv-cal-co">' + esc(name) + '</span></div>\n';
-
-  // Verified recent notices (official NEPSE/company PDFs)
-  const ver = (verified || []).slice().sort((a, b) =>
-    String(b.announced || '').localeCompare(String(a.announced || '')));
-  if (ver.length) {
-    h += '<div class="inv-cal-verified"><h3>Recent verified notices</h3>\n<ul class="sp-news">\n';
-    for (const a of ver.slice(0, 5)) {
-      const kl = CA_KIND_LABEL[a.kind] || a.kind || 'Notice';
-      const label = stripTags(a.headline || a.title) || kl;
-      const link = a.officialPdf
-        ? '<a href="' + esc(a.officialPdf) + '" rel="noopener" target="_blank">' + esc(label) + '</a>'
-        : esc(label);
-      h += '<li><span class="ca-kind k-' + esc(a.kind || '') + '">' + esc(kl) + '</span> ' +
-        link + ' <span class="sp-news-src">' + esc(a.announced || '') + ' · official notice</span></li>\n';
-    }
-    h += '</ul></div>\n';
-  }
 
   const hasHist = divs.length + agms.length + rights.length + aucs.length > 0;
   if (!hasHist) {
@@ -518,7 +533,7 @@ function investmentCalendarCard(sym, name, hist, verified) {
         '<td>' + esc(total === '–' ? '–' : total + ' %') + '</td>' +
         '<td>' + esc(stripTags(d.bookclose_date) || '–') + '</td>' +
         '<td>' + esc(d.year || d.fiscal_year || '–') + '</td>' +
-        '<td><span class="inv-cal-status">Closed</span></td></tr>\n';
+        '<td>' + esc(stripTags(d.status) || '–') + '</td></tr>\n';
     }
     h += '</tbody></table></div>\n';
   } else {
@@ -595,13 +610,12 @@ function investmentCalendarCard(sym, name, hist, verified) {
 
   h += '</div>\n'; // .inv-cal-main
   h += '</div>\n'; // .inv-cal-body
-  h += '<p class="sp-note inv-cal-src">Past history as compiled by ShareSansar from company announcements. ' +
-    'For official notices, see the verified list above.</p>\n';
+  h += '<p class="sp-note inv-cal-src">Past history as compiled by ShareSansar from company announcements.</p>\n';
   h += '</section>\n';
   return h;
 }
 
-function symbolPage(u, v, newsItems, fund, liveQ, liveDate, sector, sectorPeers, verdicts, quarterly, corpHist, verifiedActions) {
+function symbolPage(u, v, newsItems, fund, liveQ, liveDate, sector, sectorPeers, verdicts, quarterly, corpHist) {
   const sym = u.s, name = u.n, slug = slugOf(sym);
   // Headline price prefers our canonical live payload (NEPSE API) when it is
   // at least as fresh as the batch verdict — the batch daily history comes
@@ -679,7 +693,7 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
   h += '</ul></div>';
 
   // Investment Calendar card: visible section after the tabs, near Fundamentals.
-  h += investmentCalendarCard(sym, name, corpHist, verifiedActions);
+  h += investmentCalendarCard(sym, name, corpHist);
 
   // More in this sector: true sector peers, not a random same-type list.
   const morePeers = (sectorPeers || []).filter((p) => p.s !== sym).slice(0, 5);
@@ -837,7 +851,7 @@ function main() {
     const sectorPeers = sector ? (bySector[sector] || []) : [];
     const dir = path.join(OUT, slug);
     fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, 'index.html'), symbolPage(u, v, newsBySym[sym] || [], fund, liveMap[sym], liveDate, sector, sectorPeers, verdicts, quarterly, corpHist[sym], actionsBySym[sym]));
+    fs.writeFileSync(path.join(dir, 'index.html'), symbolPage(u, v, newsBySym[sym] || [], fund, liveMap[sym], liveDate, sector, sectorPeers, verdicts, quarterly, corpHist[sym]));
     made++;
   }
   fs.writeFileSync(path.join(OUT, 'index.html'), indexPage(symbols, pageAsof));
