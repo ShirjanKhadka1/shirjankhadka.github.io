@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nepse Decode Sectors: Free NEPSE Heatmap, Breadth, Leaders &amp; Laggards</title>
-<link rel="stylesheet" href="/css/nepse-design-system.css?v=20260930b">
 <meta name="description" content="Nepse Decode: free NEPSE sector dashboard: sector heatmap, advancers and decliners breadth, leaders and laggards, and turnover share for all NEPSE sectors, computed daily from the latest batch. Educational use only.">
 <meta name="author" content="Shirjan Khadka">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-sectors/">
@@ -28,9 +27,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260929d">
 <link rel="stylesheet" href="sectors.css?v=20261003a">
+<link rel="stylesheet" href="/css/nepse-wave7.css?v=20261002d">
+<link rel="stylesheet" href="/css/nepse-brand.css?v=20261003a">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode Sectors: Heatmap, Breadth, Leaders & Laggards","url":"https://shirjankhadka.com.np/nepse-sectors/","description":"Free daily NEPSE sector dashboard: a sector heatmap, advancers and decliners breadth, leaders and laggards, and turnover share for all NEPSE sectors, computed in the browser from the latest daily batch. Educational use only.","author":{"@type":"Organization","name":"Nepse Decode"}}
+{"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode Sectors: Heatmap, Breadth, Leaders & Laggards","url":"https://shirjankhadka.com.np/nepse-sectors/","description":"Free daily NEPSE sector dashboard: a size-weighted sector heatmap, advancers and decliners breadth, leaders and laggards, and turnover share for all NEPSE sectors, computed in the browser from the latest daily batch. Educational use only.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/","sameAs":["https://www.linkedin.com/in/shirjankhadkab/"]}}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
@@ -38,57 +40,62 @@
 {"@type":"ListItem","position":2,"name":"NEPSE Sector Dashboard","item":"https://shirjankhadka.com.np/nepse-sectors/"}]}
 </script>
 </head>
-<body class="nd">
-<header class="nd-topbar">
-  <a class="brand" href="/nepse-alpha/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="24" height="24">Nepse Decode</a>
-  <a class="nd-btn primary" href="/nepse-chart/" style="padding:8px 18px;font-size:0.85rem">Open the Lab</a>
-</header>
-<nav class="nd-mobilenav" aria-label="Suite tools">
-  <a href="/nepse-alpha/">Overview</a>
-  <a href="/nepse-chart/">Chart & signals</a>
-  <a href="/nepse-screener/">Screener</a>
-  <a href="/nepse-sectors/" class="active" aria-current="page">Sectors</a>
-  <a href="/nepse-news/">Market news</a>
-  <a href="/nepse-watchlist/">Watchlist</a>
-  <a href="/nepse-portfolio/">Portfolio</a>
-  <a href="/nepse-simulator/">Simulator</a>
-  <a href="/nepse-reports/">Reports</a>
-  <a href="/nepse-actions/">Corp. actions</a>
-</nav>
+<body>
+<a class="skip" href="#main">Skip to content</a>
 
-<div class="nd-shell">
-  <aside class="nd-side" aria-label="Nepse Decode suite">
-    <a class="brand" href="/nepse-alpha/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
-    <nav class="nd-nav" aria-label="Suite tools">
-      <p class="nav-kicker">Suite</p>
-  <a href="/nepse-alpha/">Overview</a>
-  <a href="/nepse-chart/">Chart & signals</a>
-  <a href="/nepse-screener/">Screener</a>
-  <a href="/nepse-sectors/" class="active" aria-current="page">Sectors</a>
-  <a href="/nepse-news/">Market news</a>
-  <a href="/nepse-watchlist/">Watchlist</a>
-  <a href="/nepse-portfolio/">Portfolio</a>
-  <a href="/nepse-simulator/">Simulator</a>
-  <a href="/nepse-reports/">Reports</a>
-  <a href="/nepse-actions/">Corp. actions</a>
+<aside class="suite-rail" aria-label="Nepse Decode suite">
+  <a class="rail-word" href="/nepse-alpha/"><img class="wm-mark" src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
+  <p class="rail-k">Suite</p>
+  <nav aria-label="Suite tools">
+    <a href="/nepse-alpha/">Overview</a>
+    <a href="/nepse-chart/">Chart &amp; signals</a>
+    <a href="/nepse-screener/">Screener</a>
+    <a href="/nepse-sectors/" class="on" aria-current="page">Sectors</a>
+    <a href="/nepse-news/">Market news</a>
+    <a href="/nepse-watchlist/">Watchlist</a>
+    <a href="/nepse-dashboard/">Dashboard</a>
+    <a href="/nepse-portfolio/">Portfolio</a>
+    <a href="/nepse-simulator/">Simulator</a>
+    <a href="/nepse-fundamentals/">Fundamentals</a>
+    <a href="/nepse-reports/">Reports</a>
+    <a href="/nepse-actions/">Corp. actions</a>
+  </nav>
+  <p class="rail-foot">Free forever · no login</p>
+</aside>
+
+<header class="topbar">
+  <div class="wrap topbar-in">
+    <a class="wordmark" href="/nepse-alpha/"><img class="wm-mark" src="/assets/brand/nepse-decode-mark.svg" alt="" width="30" height="30">Nepse Decode</a>
+    <nav class="suite-links" aria-label="Nepse Decode suite">
+      <a href="/nepse-chart/">The Lab</a>
+      <a href="/nepse-screener/">Screener</a>
+      <a href="/nepse-sectors/" class="on" aria-current="page">Sectors</a>
+      <a href="/nepse-news/">News</a>
+      <a href="/nepse-watchlist/">Watchlist</a>
+      <a href="/nepse-dashboard/">Dashboard</a>
+      <a href="/nepse-portfolio/">Portfolio</a>
+      <a href="/nepse-simulator/">Simulator</a>
+      <a href="/nepse-fundamentals/">Fundamentals</a>
+      <a href="/nepse-reports/">Reports</a>
     </nav>
-    <p class="nd-caption" style="margin-top:32px">Free forever · no login</p>
-  </aside>
-
-  <div class="nd-content">
-    <div class="nd-wrap">
-<main id="main">
-  <div class="nd-masthead">
-    <div>
-      <p class="nd-kicker">Sectors</p>
-      <h1 style="font-family:var(--serif);font-weight:600;font-size:clamp(1.8rem,4.5vw,2.5rem);letter-spacing:-0.015em">Where the market is moving</h1>
-    </div>
-    
+    <div class="spacer"></div>
+    <a class="btn small" href="/nepse-chart/">Open the Lab →</a>
   </div>
+</header>
+
+<main id="main" class="wrap">
+  <section class="hero">
+    <div class="hero-rule"></div>
+    <p class="eyebrow">Side project · Sector view</p>
+    <h1>NEPSE sector dashboard</h1>
+    <p class="lede">Every NEPSE-listed sector, aggregated daily from the latest batch: a size-weighted heatmap, advancers and decliners breadth, leaders and laggards, and each sector's share of total turnover. Free forever, no login. For education only, not investment advice.</p>
+    <p class="asof" id="sx-asof">Loading data…</p>
+    <p class="asof" style="margin-top:6px"><span id="sx-live"></span></p>
+  </section>
 
   <section class="sx-sec" aria-labelledby="sx-heat-h">
     <h2 id="sx-heat-h">Sector heatmap</h2>
-    <p class="sx-sub">One tile per security: tile color follows its day change. Every tile links to that security's page. <a href="#sx-legend-note" class="sx-jump">How to read it</a></p>
+    <p class="sx-sub">One tile per security: tile size follows the security's session turnover, color follows its day change. Every tile links to that security's page. <a href="#sx-legend-note" class="sx-jump">How to read it</a></p>
     <div class="sx-heat" id="sx-heat" role="list" aria-label="Sector heatmap">
       <span class="skl skl-block" role="listitem" aria-hidden="true"></span>
       <span class="skl skl-block" role="listitem" aria-hidden="true"></span>
@@ -149,12 +156,9 @@
   </section>
 
   <section class="sx-note" aria-label="About these figures">
-    <p><strong>How this page is built.</strong> Every figure on this page is a mechanical aggregation of the latest daily batch: tile color comes from each security's day change, breadth counts securities that closed higher or lower, leaders and laggards rank by day change, and turnover share divides each sector's session turnover by total turnover. Securities with no day change are left out of breadth, leaders and laggards, and average change. The grouping is honest about its limits: <strong>Debentures</strong>, <strong>Mutual Funds</strong> and <strong>Promoter Shares</strong> are instrument types, not NEPSE sectors (taken from the universe instrument-type field, NEPSE debenture symbol suffixes, and bond/rinpatra/fund/kosh in the official company name). <strong>Banking</strong>, <strong>Hydropower</strong> and the other named groups are NEPSE sub-indexes inferred from explicit business words in the official company name. <strong>Unclassified</strong> = securities the data cannot group: opaque symbols with no usable company name (for example BNL, SCBD, SHINED) and businesses outside the sub-index keywords (for example NTC, NRM, NRN). This is for education only, not investment advice.</p>
+    <p><strong>How this page is built.</strong> Every figure on this page is a mechanical aggregation of the latest daily batch: tile color comes from each security's day change, tile size from its session turnover (volume × price), breadth counts securities that closed higher or lower, leaders and laggards rank by day change, and turnover share divides each sector's session turnover by total turnover. Securities with no day change are left out of breadth, leaders and laggards, and average change. The grouping is honest about its limits: <strong>Debentures</strong>, <strong>Mutual Funds</strong> and <strong>Promoter Shares</strong> are instrument types, not NEPSE sectors (taken from the universe instrument-type field, NEPSE debenture symbol suffixes, and bond/rinpatra/fund/kosh in the official company name). <strong>Banking</strong>, <strong>Hydropower</strong> and the other named groups are NEPSE sub-indexes inferred from explicit business words in the official company name. <strong>Unclassified</strong> = securities the data cannot group: opaque symbols with no usable company name (for example BNL, SCBD, SHINED) and businesses outside the sub-index keywords (for example NTC, NRM, NRN). This is for education only, not investment advice.</p>
   </section>
 </main>
-    </div>
-  </div>
-</div>
 
 <footer class="sc-footer">
   <div class="wrap">

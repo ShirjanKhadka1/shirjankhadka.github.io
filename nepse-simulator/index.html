@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nepse Decode Simulator: Free NEPSE Paper Trading and Strategy Backtests</title>
-<link rel="stylesheet" href="/css/nepse-design-system.css?v=20260930b">
 <meta name="description" content="Nepse Decode: paper-trade NEPSE stocks on historical daily data: SMA crossover, RSI swing and buy-and-hold strategies with ATR position sizing, equity curves and a trade journal. Free, educational, no login.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-simulator/">
 <meta property="og:type" content="website">
@@ -23,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode Simulator","url":"https://shirjankhadka.com.np/nepse-simulator/","description":"A free, browser-based NEPSE paper-trading simulator: backtest rule-based strategies on historical daily data with ATR position sizing, equity curves and a trade journal. Educational use only.","author":{"@type":"Organization","name":"Nepse Decode"}}
+{"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode Simulator","url":"https://shirjankhadka.com.np/nepse-simulator/","description":"A free, browser-based NEPSE paper-trading simulator: backtest rule-based strategies on historical daily data with ATR position sizing, equity curves and a trade journal. Educational use only.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
@@ -31,6 +30,9 @@
 {"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-alpha/"},
 {"@type":"ListItem","position":3,"name":"Simulator","item":"https://shirjankhadka.com.np/nepse-simulator/"}]}
 </script>
+<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260929d">
+<link rel="stylesheet" href="/css/nepse-wave7.css?v=20261002d">
+<link rel="stylesheet" href="/css/nepse-brand.css?v=20261003a">
 <style>
 /* simulator-only */
 .wrap{max-width:980px}
@@ -128,53 +130,58 @@ table.trades tr:last-child td{border-bottom:none}
 @media(prefers-reduced-motion:reduce){.strat-opt{transition:none}}
 </style>
 </head>
-<body class="nd">
-<header class="nd-topbar">
-  <a class="brand" href="/nepse-alpha/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="24" height="24">Nepse Decode</a>
-  <a class="nd-btn primary" href="/nepse-chart/" style="padding:8px 18px;font-size:0.85rem">Open the Lab</a>
-</header>
-<nav class="nd-mobilenav" aria-label="Suite tools">
-  <a href="/nepse-alpha/">Overview</a>
-  <a href="/nepse-chart/">Chart & signals</a>
-  <a href="/nepse-screener/">Screener</a>
-  <a href="/nepse-sectors/">Sectors</a>
-  <a href="/nepse-news/">Market news</a>
-  <a href="/nepse-watchlist/">Watchlist</a>
-  <a href="/nepse-portfolio/">Portfolio</a>
-  <a href="/nepse-simulator/" class="active" aria-current="page">Simulator</a>
-  <a href="/nepse-reports/">Reports</a>
-  <a href="/nepse-actions/">Corp. actions</a>
-</nav>
+<body>
 
-<div class="nd-shell">
-  <aside class="nd-side" aria-label="Nepse Decode suite">
-    <a class="brand" href="/nepse-alpha/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
-    <nav class="nd-nav" aria-label="Suite tools">
-      <p class="nav-kicker">Suite</p>
-  <a href="/nepse-alpha/">Overview</a>
-  <a href="/nepse-chart/">Chart & signals</a>
-  <a href="/nepse-screener/">Screener</a>
-  <a href="/nepse-sectors/">Sectors</a>
-  <a href="/nepse-news/">Market news</a>
-  <a href="/nepse-watchlist/">Watchlist</a>
-  <a href="/nepse-portfolio/">Portfolio</a>
-  <a href="/nepse-simulator/" class="active" aria-current="page">Simulator</a>
-  <a href="/nepse-reports/">Reports</a>
-  <a href="/nepse-actions/">Corp. actions</a>
+<aside class="suite-rail" aria-label="Nepse Decode suite">
+  <a class="rail-word" href="/nepse-alpha/"><img class="wm-mark" src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
+  <p class="rail-k">Suite</p>
+  <nav aria-label="Suite tools">
+    <a href="/nepse-alpha/">Overview</a>
+    <a href="/nepse-chart/">Chart &amp; signals</a>
+    <a href="/nepse-screener/">Screener</a>
+    <a href="/nepse-sectors/">Sectors</a>
+    <a href="/nepse-news/">Market news</a>
+    <a href="/nepse-watchlist/">Watchlist</a>
+    <a href="/nepse-dashboard/">Dashboard</a>
+    <a href="/nepse-portfolio/">Portfolio</a>
+    <a href="/nepse-simulator/" class="on" aria-current="page">Simulator</a>
+    <a href="/nepse-fundamentals/">Fundamentals</a>
+    <a href="/nepse-reports/">Reports</a>
+    <a href="/nepse-actions/">Corp. actions</a>
+  </nav>
+  <p class="rail-foot">Free forever · no login</p>
+</aside>
+
+<header class="topbar">
+  <div class="wrap topbar-in">
+    <a class="wordmark" href="/nepse-alpha/"><img class="wm-mark" src="/assets/brand/nepse-decode-mark.svg" alt="" width="30" height="30">Nepse Decode</a>
+    <nav class="suite-links" aria-label="Nepse Decode suite">
+      <a href="/nepse-chart/">The Lab</a>
+      <a href="/nepse-screener/">Screener</a>
+      <a href="/nepse-sectors/">Sectors</a>
+      <a href="/nepse-news/">News</a>
+      <a href="/nepse-watchlist/">Watchlist</a>
+      <a href="/nepse-dashboard/">Dashboard</a>
+      <a href="/nepse-portfolio/">Portfolio</a>
+      <a href="/nepse-simulator/" class="on" aria-current="page">Simulator</a>
+      <a href="/nepse-fundamentals/">Fundamentals</a>
+      <a href="/nepse-reports/">Reports</a>
     </nav>
-    <p class="nd-caption" style="margin-top:32px">Free forever · no login</p>
-  </aside>
-
-  <div class="nd-content">
-    <div class="nd-wrap">
-<main id="main">
-  <div class="nd-masthead">
-    <div>
-      <p class="nd-kicker">Simulator</p>
-      <h1 style="font-family:var(--serif);font-weight:600;font-size:clamp(1.8rem,4.5vw,2.5rem);letter-spacing:-0.015em">Test strategies on history</h1>
-    </div>
-    
+    <div class="spacer"></div>
+    <a class="btn small" href="/nepse-portfolio/">My portfolio</a>
   </div>
+</header>
+
+<main id="main">
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-rule"></div>
+      <span class="eyebrow"><span class="pulse"></span>Free · No login · Paper trading only</span>
+      <h1>Test a strategy before the market tests you.</h1>
+      <p class="lede">Pick a NEPSE security, choose a mechanical strategy, and walk it through historical daily data with honest position sizing. Every rule is printed on this page, every trade is logged, and nothing here touches real money.</p>
+      <p class="asof" id="sim-data-note">Loading history…</p>
+    </div>
+  </section>
 
   <div class="wrap">
     <div class="sim-grid">
@@ -351,9 +358,6 @@ table.trades tr:last-child td{border-bottom:none}
     </section>
   </div>
 </main>
-    </div>
-  </div>
-</div>
 
 <footer class="foot">
   <div class="wrap">

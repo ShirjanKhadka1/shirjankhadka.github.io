@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nepse Decode Reports: Free Printable NEPSE Portfolio, Watchlist and Market Reports</title>
-<link rel="stylesheet" href="/css/nepse-design-system.css?v=20260930b">
 <meta name="description" content="Nepse Decode: build a clean printable NEPSE report from your portfolio, watchlist, screener leaders, market snapshot and sector breadth. Toggle sections, print, free, no login.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-reports/">
 <meta property="og:type" content="website">
@@ -23,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode Reports","url":"https://shirjankhadka.com.np/nepse-reports/","description":"A free printable NEPSE report builder: toggle portfolio, watchlist, screener, market and sector sections and print a clean report. Educational use only.","author":{"@type":"Organization","name":"Nepse Decode"}}
+{"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode Reports","url":"https://shirjankhadka.com.np/nepse-reports/","description":"A free printable NEPSE report builder: toggle portfolio, watchlist, screener, market and sector sections and print a clean report. Educational use only.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
@@ -31,6 +30,9 @@
 {"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-alpha/"},
 {"@type":"ListItem","position":3,"name":"Reports","item":"https://shirjankhadka.com.np/nepse-reports/"}]}
 </script>
+<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260929d">
+<link rel="stylesheet" href="/css/nepse-wave7.css?v=20261002d">
+<link rel="stylesheet" href="/css/nepse-brand.css?v=20261003a">
 <style>
 /* reports-only */
 .wrap{max-width:980px}
@@ -88,7 +90,7 @@
 @media(prefers-reduced-motion:reduce){.rp-check{transition:none}}
 /* ---------- print ---------- */
 @media print{
-  .nd-side,.nd-topbar,.hero,.rp-builder,.limits,.foot,.rp-empty a,.rp-dochead,.rp-docfoot{display:none !important}
+  .suite-rail,.topbar,.hero,.rp-builder,.limits,.foot,.rp-empty a,.rp-dochead,.rp-docfoot{display:none !important}
   body{padding:0;background:#fff;color:#000}
   .wrap{max-width:none;padding:0 12mm}
   .rp-printhead{display:block;border-bottom:2px solid #0C1F16;padding-bottom:10px;margin-bottom:18px}
@@ -104,53 +106,58 @@
 .rp-printfoot{display:none}
 </style>
 </head>
-<body class="nd">
-<header class="nd-topbar">
-  <a class="brand" href="/nepse-alpha/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="24" height="24">Nepse Decode</a>
-  <a class="nd-btn primary" href="/nepse-chart/" style="padding:8px 18px;font-size:0.85rem">Open the Lab</a>
-</header>
-<nav class="nd-mobilenav" aria-label="Suite tools">
-  <a href="/nepse-alpha/">Overview</a>
-  <a href="/nepse-chart/">Chart & signals</a>
-  <a href="/nepse-screener/">Screener</a>
-  <a href="/nepse-sectors/">Sectors</a>
-  <a href="/nepse-news/">Market news</a>
-  <a href="/nepse-watchlist/">Watchlist</a>
-  <a href="/nepse-portfolio/">Portfolio</a>
-  <a href="/nepse-simulator/">Simulator</a>
-  <a href="/nepse-reports/" class="active" aria-current="page">Reports</a>
-  <a href="/nepse-actions/">Corp. actions</a>
-</nav>
+<body>
 
-<div class="nd-shell">
-  <aside class="nd-side" aria-label="Nepse Decode suite">
-    <a class="brand" href="/nepse-alpha/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
-    <nav class="nd-nav" aria-label="Suite tools">
-      <p class="nav-kicker">Suite</p>
-  <a href="/nepse-alpha/">Overview</a>
-  <a href="/nepse-chart/">Chart & signals</a>
-  <a href="/nepse-screener/">Screener</a>
-  <a href="/nepse-sectors/">Sectors</a>
-  <a href="/nepse-news/">Market news</a>
-  <a href="/nepse-watchlist/">Watchlist</a>
-  <a href="/nepse-portfolio/">Portfolio</a>
-  <a href="/nepse-simulator/">Simulator</a>
-  <a href="/nepse-reports/" class="active" aria-current="page">Reports</a>
-  <a href="/nepse-actions/">Corp. actions</a>
+<aside class="suite-rail" aria-label="Nepse Decode suite">
+  <a class="rail-word" href="/nepse-alpha/"><img class="wm-mark" src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
+  <p class="rail-k">Suite</p>
+  <nav aria-label="Suite tools">
+    <a href="/nepse-alpha/">Overview</a>
+    <a href="/nepse-chart/">Chart &amp; signals</a>
+    <a href="/nepse-screener/">Screener</a>
+    <a href="/nepse-sectors/">Sectors</a>
+    <a href="/nepse-news/">Market news</a>
+    <a href="/nepse-watchlist/">Watchlist</a>
+    <a href="/nepse-dashboard/">Dashboard</a>
+    <a href="/nepse-portfolio/">Portfolio</a>
+    <a href="/nepse-simulator/">Simulator</a>
+    <a href="/nepse-fundamentals/">Fundamentals</a>
+    <a href="/nepse-reports/" class="on" aria-current="page">Reports</a>
+    <a href="/nepse-actions/">Corp. actions</a>
+  </nav>
+  <p class="rail-foot">Free forever · no login</p>
+</aside>
+
+<header class="topbar">
+  <div class="wrap topbar-in">
+    <a class="wordmark" href="/nepse-alpha/"><img class="wm-mark" src="/assets/brand/nepse-decode-mark.svg" alt="" width="30" height="30">Nepse Decode</a>
+    <nav class="suite-links" aria-label="Nepse Decode suite">
+      <a href="/nepse-chart/">The Lab</a>
+      <a href="/nepse-screener/">Screener</a>
+      <a href="/nepse-sectors/">Sectors</a>
+      <a href="/nepse-news/">News</a>
+      <a href="/nepse-watchlist/">Watchlist</a>
+      <a href="/nepse-dashboard/">Dashboard</a>
+      <a href="/nepse-portfolio/">Portfolio</a>
+      <a href="/nepse-simulator/">Simulator</a>
+      <a href="/nepse-fundamentals/">Fundamentals</a>
+      <a href="/nepse-reports/" class="on" aria-current="page">Reports</a>
     </nav>
-    <p class="nd-caption" style="margin-top:32px">Free forever · no login</p>
-  </aside>
-
-  <div class="nd-content">
-    <div class="nd-wrap">
-<main id="main">
-  <div class="nd-masthead">
-    <div>
-      <p class="nd-kicker">Reports</p>
-      <h1 style="font-family:var(--serif);font-weight:600;font-size:clamp(1.8rem,4.5vw,2.5rem);letter-spacing:-0.015em">Clean printable reports</h1>
-    </div>
-    
+    <div class="spacer"></div>
+    <a class="btn small" href="/nepse-portfolio/">My portfolio</a>
   </div>
+</header>
+
+<main id="main">
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-rule"></div>
+      <span class="eyebrow"><span class="pulse"></span>Free · No login · Prints clean</span>
+      <h1>Your market, on one page.</h1>
+      <p class="lede">Tick the sections you want, then print a clean report built only from real data: your portfolio, your watchlist, the latest screener signals, and market breadth. Empty sections say so honestly.</p>
+      <p class="asof" id="rp-asof">Loading batch…</p>
+    </div>
+  </section>
 
   <div class="wrap">
     <section class="rp-builder" aria-label="Report builder">
@@ -201,15 +208,13 @@
     </section>
   </div>
 </main>
-    </div>
-  </div>
-</div>
 
 <footer class="foot">
   <div class="wrap">
     <div class="disclaimer"><strong>Educational use only.</strong> Reports are assembled from your browser-local data and the daily batch. Nothing here is investment advice or a buy or sell recommendation.</div>
     <div class="row">
       <span>Built by <a href="/">Shirjan Khadka</a> · Aspiring Financial Analyst</span>
+      <span><a href="/nepse-alpha/">Nepse Decode</a> · <a href="/nepse-chart/">Chart</a> · <a href="/nepse-screener/">Screener</a> · <a href="/nepse-fundamentals/">Fundamentals</a> · <a href="/nepse-reports/">Reports</a> · <a href="/blog/">Blog</a></span>
     </div>
   </div>
 </footer>
