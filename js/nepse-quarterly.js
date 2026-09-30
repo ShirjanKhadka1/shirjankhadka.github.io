@@ -21,7 +21,7 @@
     { k: 'distprofit', label: 'Distributable Profit', fmt: 'money' },
     { k: 'eps_ttm',   label: 'EPS (TTM)',            fmt: 'rs' },
     { k: 'pe_ttm',    label: 'P/E (TTM)',            fmt: 'x' },
-    { k: 'npl_pct',   label: 'NPL Ratio',            fmt: 'pct' },
+    { k: 'npl_pct',   label: 'NPL Ratio',            fmt: 'pct', invert: true },
   ];
 
   function esc(s) {
@@ -50,10 +50,15 @@
     return String(v);
   }
 
-  function fmtDiff(v) {
+  function fmtDiff(v, m) {
     if (v == null || !isFinite(v)) return '–';
     var s = (v >= 0 ? '+' : '') + v.toFixed(2) + '%';
-    var cls = v > 0 ? 'q-up' : (v < 0 ? 'q-dn' : 'q-flat');
+    var cls = 'q-flat';
+    if (!(m && m.neutral)) {
+      var up = v > 0;
+      if (m && m.invert) up = !up;
+      cls = v === 0 ? 'q-flat' : (up ? 'q-up' : 'q-dn');
+    }
     return '<span class="' + cls + '">' + s + '</span>';
   }
 
@@ -76,7 +81,68 @@
     return 'Q' + p.q + ' / ' + fyShort;
   }
 
-  function renderTable(sym, qdata) {
+  // Peer comparison: company vs median of all other symbols in the dataset
+  // (all commercial banks), each peer on its own latest published quarter.
+  var PEER_METRICS = [
+    { k: 'netprofit', label: 'Net Profit', fmt: 'money' },
+    { k: 'eps_ttm',   label: 'EPS (TTM)',  fmt: 'rs' },
+    { k: 'pe_ttm',    label: 'P/E (TTM)',  fmt: 'x', neutral: true },
+    { k: 'npl_pct',   label: 'NPL Ratio',  fmt: 'pct', invert: true },
+  ];
+
+  function median(vals) {
+    var v = vals.filter(function (x) { return x != null && isFinite(x); }).sort(function (a, b) { return a - b; });
+    if (!v.length) return null;
+    var mid = Math.floor(v.length / 2);
+    return v.length % 2 ? v[mid] : (v[mid - 1] + v[mid]) / 2;
+  }
+
+  function latestQuarterKey(quarters) {
+    var keys = Object.keys(quarters || {}).filter(parseQ);
+    if (!keys.length) return null;
+    keys.sort().reverse();
+    return keys[0];
+  }
+
+  function renderPeers(sym, dataset) {
+    var syms = Object.keys(dataset.symbols || {}).filter(function (s) { return s !== sym; });
+    var peers = [];
+    syms.forEach(function (s) {
+      var qk = latestQuarterKey(dataset.symbols[s].quarters);
+      if (qk) peers.push(dataset.symbols[s].quarters[qk]);
+    });
+    if (peers.length < 2) return '';
+
+    var latestQk = latestQuarterKey(dataset.symbols[sym].quarters);
+    var mine = latestQk ? dataset.symbols[sym].quarters[latestQk] : null;
+    if (!mine) return '';
+
+    var html = '<div class="qpeer-wrap">';
+    html += '<h3>Peer comparison · Commercial Banks</h3>';
+    html += '<p class="sp-note">' + esc(sym) + ' vs median of ' + peers.length +
+      ' listed commercial banks, each on its latest published quarter (' + esc(shortQ(latestQk)) + ' for ' + esc(sym) + ').</p>';
+    html += '<div class="qcomp-scroll"><table class="qcomp qpeer">';
+    html += '<thead><tr><th class="q-part">Metric</th><th>' + esc(sym) + '</th><th>Peer median</th><th class="q-diff">vs peers</th></tr></thead><tbody>';
+
+    PEER_METRICS.forEach(function (m) {
+      var myV = mine[m.k];
+      if (myV == null) return;
+      var med = median(peers.map(function (p) { return p[m.k]; }));
+      var diff = null;
+      if (med != null && med !== 0 && isFinite(med)) {
+        diff = ((myV - med) / Math.abs(med)) * 100;
+      }
+      html += '<tr><td class="q-part">' + esc(m.label) + '</td>';
+      html += '<td>' + esc(fmtVal(myV, m.fmt)) + '</td>';
+      html += '<td>' + esc(fmtVal(med, m.fmt)) + '</td>';
+      html += '<td class="q-diff">' + fmtDiff(diff, m) + '</td></tr>';
+    });
+
+    html += '</tbody></table></div></div>';
+    return html;
+  }
+
+  function renderTable(sym, qdata, dataset) {
     var quarters = Object.keys(qdata.quarters || {});
     if (!quarters.length) {
       return '<p class="sp-note">No quarterly data available for ' + esc(sym) + ' yet.</p>';
@@ -133,7 +199,7 @@
         if (compV != null && compV !== 0 && isFinite(compV)) {
           diff = ((latestV - compV) / Math.abs(compV)) * 100;
         }
-        html += '<td class="q-diff">' + fmtDiff(diff) + '</td>';
+        html += '<td class="q-diff">' + fmtDiff(diff, m) + '</td>';
       }
 
       quarters.forEach(function (qk) {
@@ -148,6 +214,7 @@
       'Diff compares the latest quarter against the same quarter last fiscal year when available, ' +
       'otherwise the immediately prior quarter.</p>';
     html += '</div>';
+    html += renderPeers(sym, dataset);
     return html;
   }
 
@@ -166,7 +233,7 @@
           mount.innerHTML = '<p class="sp-note">Quarterly comparison not yet available for ' + esc(sym) + '.</p>';
           return;
         }
-        mount.innerHTML = renderTable(sym, symData);
+        mount.innerHTML = renderTable(sym, symData, d);
       })
       .catch(function () {
         mount.innerHTML = '<p class="sp-note">Quarterly data temporarily unavailable.</p>';
