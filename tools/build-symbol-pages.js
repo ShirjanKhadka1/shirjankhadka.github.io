@@ -77,6 +77,20 @@ function classifySymbol(sym, name, type) {
   return 'Others';
 }
 
+/* Sector group for choosing sector-appropriate fundamental metrics.
+ * bank: deposit-taking lenders (bank-specific balance-sheet metrics apply).
+ * ins: insurers (premium-driven; no deposits/loans/NPL).
+ * inst: fund/debt instruments, not operating companies.
+ * corp: everyone else (hydropower, manufacturing, hotels, investment, trading). */
+function sectorGroup(sec) {
+  if (sec === 'Banking' || sec === 'Development Bank' ||
+      sec === 'Finance' || sec === 'Microfinance') return 'bank';
+  if (sec === 'Life Insurance' || sec === 'Non Life Insurance') return 'ins';
+  if (sec === 'Mutual Funds' || sec === 'Debentures' ||
+      sec === 'Promoter Shares') return 'inst';
+  return 'corp';
+}
+
 function vClass(v) {
   if (v === 'Strong Buy') return 'vg-sb';
   if (v === 'Buy') return 'vg-b';
@@ -207,9 +221,14 @@ function fmtNum(x) {
 
 // Numbers-first fundamentals block. Values come from fundamentals.json
 // (published quarterly figures); symbols without coverage get one honest line.
-function fundBlock(sym, fund) {
-  const f = fund && fund.banks && fund.banks[sym];
+function fundBlock(sym, fund, sector) {
+  const f = fund && fund.companies && fund.companies[sym];
+  const g = sectorGroup(sector);
   let h = '<section aria-label="Fundamentals"><h2>Fundamentals</h2>\n';
+  if (g === 'inst') {
+    h += '<p class="sp-note">This is a fund or debt instrument, not an operating company; company-style quarterly profit figures do not apply.</p>\n</section>\n';
+    return h;
+  }
   if (!f) {
     h += '<p class="sp-note">Quarterly figures not yet published for this security.</p>\n</section>\n';
     return h;
@@ -217,30 +236,57 @@ function fundBlock(sym, fund) {
   const cell = (val, label) =>
     '<div class="sp-fund"><span class="sp-fund-v">' + val + '</span><span class="sp-fund-l">' + label + '</span></div>';
   const b = (x) => (x === null || x === undefined) ? '–' : 'Rs ' + Number(x).toLocaleString('en-US') + 'b';
+  // Adaptive money: sub-billion values read better in millions (many
+  // hydropower/manufacturing companies report quarterly figures in crores).
+  const bm = (x) => {
+    if (x === null || x === undefined) return '–';
+    const n = Number(x);
+    if (Math.abs(n) < 1) return 'Rs ' + (n * 1000).toFixed(1) + 'm';
+    return 'Rs ' + n.toLocaleString('en-US') + 'b';
+  };
   const r = (x, suf) => (x === null || x === undefined) ? '–' : esc(x) + suf;
   h += '<p class="sp-note">' + esc(fund.period || '') + ' · published quarterly figures</p>\n';
   h += '<div class="sp-fund-grid">\n';
   h += cell('Rs ' + r(f.eps_ttm, ''), 'EPS (TTM)') + '\n';
   h += cell(r(f.pe_ttm, 'x'), 'P/E (TTM)') + '\n';
-  h += cell(b(f.netprofit_b), 'Net profit') + '\n';
-  h += cell(b(f.paidup_b), 'Paid-up capital') + '\n';
-  h += cell(b(f.reserves_b), 'Reserves') + '\n';
-  h += cell(b(f.deposits_b), 'Deposits') + '\n';
-  h += cell(b(f.loans_b), 'Loans') + '\n';
-  h += cell(r(f.npl_pct, '%'), 'NPL ratio') + '\n';
+  h += cell(bm(f.netprofit_b), 'Net profit') + '\n';
+  if (g === 'bank') {
+    h += cell(b(f.paidup_b), 'Paid-up capital') + '\n';
+    h += cell(b(f.reserves_b), 'Reserves') + '\n';
+    h += cell(b(f.deposits_b), 'Deposits') + '\n';
+    h += cell(b(f.loans_b), 'Loans') + '\n';
+    h += cell(r(f.npl_pct, '%'), 'NPL ratio') + '\n';
+  } else if (g === 'ins') {
+    h += cell(bm(f.revenue_b), 'Revenue') + '\n';
+    h += cell(bm(f.grossprofit_b), 'Gross profit') + '\n';
+    h += cell(bm(f.assets_b), 'Total assets') + '\n';
+    h += cell(bm(f.liabilities_b), 'Total liabilities') + '\n';
+    h += cell(bm(f.paidup_b), 'Paid-up capital') + '\n';
+  } else {
+    h += cell(bm(f.revenue_b), 'Revenue') + '\n';
+    h += cell(bm(f.grossprofit_b), 'Gross profit') + '\n';
+    h += cell(bm(f.opprofit_b), 'Operating profit') + '\n';
+    h += cell(bm(f.assets_b), 'Total assets') + '\n';
+    h += cell(bm(f.paidup_b), 'Paid-up capital') + '\n';
+  }
   h += '</div>\n</section>\n';
   return h;
 }
 
 /* Quarterly trend table. quarterly.json holds published quarterly figures
- * for covered banks (values in NPR thousands). P&L figures (net profit) are
- * published cumulative for the fiscal year, so the standalone quarter is
- * derived as cum(Q) minus cum(Q-1); Q1 stands alone. Balance-sheet items,
- * EPS (TTM), P/E (TTM) and NPL are point-in-time and compare directly.
- * QoQ = latest quarter vs previous quarter; YoY = latest vs same quarter
- * of the previous fiscal year. NPL is direction-aware (down is good);
- * P/E differences are neutral. Missing figures render as –. */
-function quarterlyTable(sym, quarterly) {
+ * for covered securities (values in NPR thousands). P&L figures (net profit,
+ * revenue, gross/operating profit) are published cumulative for the fiscal
+ * year, so the standalone quarter is derived as cum(Q) minus cum(Q-1); Q1
+ * stands alone. Balance-sheet items, EPS (TTM), P/E (TTM) and NPL are
+ * point-in-time and compare directly. QoQ = latest quarter vs previous
+ * quarter; YoY = latest vs same quarter of the previous fiscal year. NPL is
+ * direction-aware (down is good); P/E differences are neutral. Metrics shown
+ * depend on the sector: lenders get deposits/loans/NPL, other operating
+ * companies get revenue and profit lines, fund/debt instruments get no trend
+ * table. Missing figures render as –. */
+function quarterlyTable(sym, quarterly, sector) {
+  const g = sectorGroup(sector);
+  if (g === 'inst') return '';
   const sq = quarterly && quarterly.symbols && quarterly.symbols[sym];
   if (!sq || !sq.quarters) return '';
   const qs = Object.keys(sq.quarters).map((k) => {
@@ -265,23 +311,34 @@ function quarterlyTable(sym, quarterly) {
     const n = Number(x);
     return Number.isFinite(n) ? n : null;
   };
-  // Standalone quarter net profit in Rs B (derived from cumulative).
-  const stProfit = (x) => {
-    const c = num(x.d.netprofit);
+  // Standalone quarter P&L in Rs B (derived from cumulative fiscal-year figures).
+  const stOf = (x, field) => {
+    const c = num(x.d[field]);
     if (c === null) return null;
     if (x.q === 1) return c / 1e6;
     const p = prevQ(x);
-    const pc = p ? num(p.d.netprofit) : null;
+    const pc = p ? num(p.d[field]) : null;
     if (pc === null) return null;
     return (c - pc) / 1e6;
   };
   const bOf = (x, f) => { const v = num(x.d[f]); return v === null ? null : v / 1e6; };
-  const metrics = [
-    { l: 'Net profit (quarter)', v: stProfit, f: (x) => x === null ? '–' : 'Rs ' + x.toFixed(2) + 'b', dir: 1 },
-    { l: 'Deposits', v: (x) => bOf(x, 'deposits'), f: (x) => x === null ? '–' : 'Rs ' + x.toFixed(1) + 'b', dir: 1 },
-    { l: 'Loans & advances', v: (x) => bOf(x, 'loans'), f: (x) => x === null ? '–' : 'Rs ' + x.toFixed(1) + 'b', dir: 1 },
+  const b2 = (x) => x === null ? '–' : 'Rs ' + x.toFixed(2) + 'b';
+  const b1 = (x) => x === null ? '–' : 'Rs ' + x.toFixed(1) + 'b';
+  // Adaptive: sub-billion quarterly figures read better in Rs millions.
+  const bma = (x) => x === null ? '–' :
+    (Math.abs(x) < 1 ? 'Rs ' + (x * 1000).toFixed(1) + 'm' : 'Rs ' + x.toFixed(2) + 'b');
+  const metrics = g === 'bank' ? [
+    { l: 'Net profit (quarter)', v: (x) => stOf(x, 'netprofit'), f: b2, dir: 1 },
+    { l: 'Deposits', v: (x) => bOf(x, 'deposits'), f: b1, dir: 1 },
+    { l: 'Loans & advances', v: (x) => bOf(x, 'loans'), f: b1, dir: 1 },
     { l: 'EPS (TTM)', v: (x) => num(x.d.eps_ttm), f: (x) => x === null ? '–' : 'Rs ' + x.toFixed(2), dir: 1 },
-    { l: 'NPL ratio', v: (x) => num(x.d.npl_pct), f: (x) => x.toFixed(2) + '%', dir: -1 },
+    { l: 'NPL ratio', v: (x) => num(x.d.npl_pct), f: (x) => x == null ? '–' : x.toFixed(2) + '%', dir: -1 },
+  ] : [
+    { l: 'Net profit (quarter)', v: (x) => stOf(x, 'netprofit'), f: bma, dir: 1 },
+    { l: 'Revenue (quarter)', v: (x) => stOf(x, 'revenue'), f: bma, dir: 1 },
+    { l: 'Gross profit (quarter)', v: (x) => stOf(x, 'grossprofit'), f: bma, dir: 1 },
+    { l: 'Operating profit (quarter)', v: (x) => stOf(x, 'opprofit'), f: bma, dir: 1 },
+    { l: 'EPS (TTM)', v: (x) => num(x.d.eps_ttm), f: (x) => x === null ? '–' : 'Rs ' + x.toFixed(2), dir: 1 },
   ];
   const show = qs.slice(-12);
   const latest = show[show.length - 1];
@@ -320,7 +377,7 @@ function peerTable(sym, sector, sectorPeers, verdicts, fund) {
   if (!sector || sectorPeers.length < 2) return '';
   const rows = sectorPeers.map((p) => {
     const v = verdicts[p.s] || {};
-    const f = fund && fund.banks && fund.banks[p.s];
+    const f = fund && fund.companies && fund.companies[p.s];
     return { s: p.s, n: p.n, v, f };
   }).filter((r) => r.v && r.v.p !== null && r.v.p !== undefined);
   if (rows.length < 2) return '';
@@ -350,7 +407,201 @@ function peerTable(sym, sector, sectorPeers, verdicts, fund) {
   return h;
 }
 
-function symbolPage(u, v, newsItems, fund, liveQ, liveDate, sector, sectorPeers, verdicts, quarterly) {
+/* Investment tab: all-time per-scrip history (dividends, rights, auctions, AGMs).
+ * History rows come from corp-history.json (ShareSansar's compilation of
+ * company announcements: dividends, AGMs, rights, auctions), labeled as
+ * such. Verified recent notices from corporate-actions.json carry the
+ * official NEPSE/company PDF link. Nothing is invented; missing history
+ * renders an honest note. */
+const CA_KIND_LABEL = {
+  'dividend': 'Dividend',
+  'bonus-share': 'Bonus share',
+  'right-share': 'Right share',
+  'promoter-share': 'Promoter share',
+  'auction': 'Auction',
+};
+function stripTags(s) {
+  return String(s === null || s === undefined ? '' : s)
+    .replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ').trim();
+}
+function pct(x) {
+  if (x === null || x === undefined || x === '') return '–';
+  const n = Number(x);
+  return Number.isFinite(n) ? String(n) : String(x);
+}
+/* Investment Calendar card: Nepse Alpha-style past corporate-action history.
+ * Shows all-time per-scrip history (dividends, AGMs, rights, auctions) in
+ * a card with sidebar navigation, search, and pagination. History rows come
+ * from corp-history.json (ShareSansar's compilation of company announcements).
+ * Verified recent notices from corporate-actions.json carry the official
+ * NEPSE/company PDF link. Nothing is invented; missing history renders an
+ * honest note. */
+function investmentCalendarCard(sym, name, hist, verified) {
+  const H = hist || {};
+  const divs = H.dividends || [], agms = H.agms || [],
+        rights = H.rights || [], aucs = H.auctions || [];
+  const uid = 'inv-' + sym.replace(/[^A-Z0-9]/gi, '');
+
+  let h = '<section class="inv-cal" aria-label="Investment Calendar">\n';
+  h += '<div class="inv-cal-head"><h2><span aria-hidden="true">📅</span> Investment Calendar</h2>' +
+    '<span class="inv-cal-co">' + esc(name) + '</span></div>\n';
+
+  // Verified recent notices (official NEPSE/company PDFs)
+  const ver = (verified || []).slice().sort((a, b) =>
+    String(b.announced || '').localeCompare(String(a.announced || '')));
+  if (ver.length) {
+    h += '<div class="inv-cal-verified"><h3>Recent verified notices</h3>\n<ul class="sp-news">\n';
+    for (const a of ver.slice(0, 5)) {
+      const kl = CA_KIND_LABEL[a.kind] || a.kind || 'Notice';
+      const label = stripTags(a.headline || a.title) || kl;
+      const link = a.officialPdf
+        ? '<a href="' + esc(a.officialPdf) + '" rel="noopener" target="_blank">' + esc(label) + '</a>'
+        : esc(label);
+      h += '<li><span class="ca-kind k-' + esc(a.kind || '') + '">' + esc(kl) + '</span> ' +
+        link + ' <span class="sp-news-src">' + esc(a.announced || '') + ' · official notice</span></li>\n';
+    }
+    h += '</ul></div>\n';
+  }
+
+  const hasHist = divs.length + agms.length + rights.length + aucs.length > 0;
+  if (!hasHist) {
+    h += '<p class="sp-note inv-cal-empty">Past dividend, right share, auction and AGM history ' +
+      'is being compiled for this security. Check back soon.</p>\n';
+    h += '<p class="sp-note inv-cal-src">History source: ShareSansar compilation of company announcements.</p>\n';
+    h += '</section>\n';
+    return h;
+  }
+
+  h += '<div class="inv-cal-body">\n';
+  // Sidebar navigation
+  h += '<nav class="inv-cal-nav" aria-label="History categories">\n';
+  const tabs = [
+    ['dividends', 'Dividends', divs.length],
+    ['agm', 'AGM', agms.length],
+    ['rights', 'Right Share', rights.length],
+    ['auctions', 'Auction', aucs.length],
+  ];
+  tabs.forEach(([key, label, count], i) => {
+    h += '<button class="inv-cal-tab' + (i === 0 ? ' active' : '') + '" data-inv-tab="' + key + '" ' +
+      'data-inv-uid="' + uid + '" aria-selected="' + (i === 0 ? 'true' : 'false') + '">' +
+      esc(label.toUpperCase()) +
+      (count ? ' <span class="inv-cal-count">' + count + '</span>' : '') +
+      '</button>\n';
+  });
+  h += '</nav>\n';
+
+  // Main content area
+  h += '<div class="inv-cal-main">\n';
+  h += '<div class="inv-cal-controls">\n';
+  h += '<label>Show <select class="inv-cal-perpage" data-inv-uid="' + uid + '" aria-label="Entries per page">' +
+    '<option value="10" selected>10</option><option value="25">25</option>' +
+    '<option value="50">50</option><option value="100">100</option></select> entries</label>\n';
+  h += '<label class="inv-cal-search">Search: <input type="search" class="inv-cal-q" data-inv-uid="' + uid + '" ' +
+    'placeholder="" aria-label="Search history"></label>\n';
+  h += '</div>\n';
+
+  // Tables (one per category, only first visible)
+  h += '<div class="inv-cal-tables" data-inv-uid="' + uid + '">\n';
+
+  // Dividends table
+  h += '<div class="inv-cal-tablewrap" data-inv-panel="dividends">\n';
+  if (divs.length) {
+    h += '<div class="inv-cal-scroll"><table class="inv-cal-table">\n<thead><tr>' +
+      '<th scope="col">Bonus %</th><th scope="col">Cash %</th><th scope="col">Total</th>' +
+      '<th scope="col">Book Close Date</th><th scope="col">Fiscal Year</th><th scope="col">Status</th>' +
+      '</tr></thead>\n<tbody>\n';
+    for (const d of divs) {
+      const bonus = pct(d.bonus_share), cash = pct(d.cash_dividend), total = pct(d.total_dividend);
+      h += '<tr><td>' + esc(bonus === '–' ? '–' : bonus + ' %') + '</td>' +
+        '<td>' + esc(cash === '–' ? '–' : cash + ' %') + '</td>' +
+        '<td>' + esc(total === '–' ? '–' : total + ' %') + '</td>' +
+        '<td>' + esc(stripTags(d.bookclose_date) || '–') + '</td>' +
+        '<td>' + esc(d.year || d.fiscal_year || '–') + '</td>' +
+        '<td><span class="inv-cal-status">Closed</span></td></tr>\n';
+    }
+    h += '</tbody></table></div>\n';
+  } else {
+    h += '<p class="sp-note">No dividend history available yet.</p>\n';
+  }
+  h += '</div>\n';
+
+  // AGM table
+  h += '<div class="inv-cal-tablewrap" data-inv-panel="agm" hidden>\n';
+  if (agms.length) {
+    h += '<div class="inv-cal-scroll"><table class="inv-cal-table">\n<thead><tr>' +
+      '<th scope="col">AGM</th><th scope="col">Meeting Date</th>' +
+      '<th scope="col">Book Close</th><th scope="col">Venue</th>' +
+      '</tr></thead>\n<tbody>\n';
+    for (const g of agms) {
+      h += '<tr><td>' + esc(stripTags(g.agm) || '–') + '</td>' +
+        '<td>' + esc(g.meeting_date || '–') + '</td>' +
+        '<td>' + esc(stripTags(g.bookclose_date) || '–') + '</td>' +
+        '<td>' + esc(stripTags(g.venue_time).slice(0, 80) || '–') + '</td></tr>\n';
+    }
+    h += '</tbody></table></div>\n';
+  } else {
+    h += '<p class="sp-note">No AGM history available yet.</p>\n';
+  }
+  h += '</div>\n';
+
+  // Right share table
+  h += '<div class="inv-cal-tablewrap" data-inv-panel="rights" hidden>\n';
+  if (rights.length) {
+    h += '<div class="inv-cal-scroll"><table class="inv-cal-table">\n<thead><tr>' +
+      '<th scope="col">Ratio</th><th scope="col">Units</th><th scope="col">Price (Rs)</th>' +
+      '</tr></thead>\n<tbody>\n';
+    for (const r of rights) {
+      h += '<tr><td>' + esc(stripTags(r.ratio || r.right_ratio) || '–') + '</td>' +
+        '<td>' + esc(stripTags(r.units || r.total_units) || '–') + '</td>' +
+        '<td>' + esc(stripTags(r.price || r.rate) || '–') + '</td></tr>\n';
+    }
+    h += '</tbody></table></div>\n';
+  } else {
+    h += '<p class="sp-note">No right share history available yet.</p>\n';
+  }
+  h += '</div>\n';
+
+  // Auction table
+  h += '<div class="inv-cal-tablewrap" data-inv-panel="auctions" hidden>\n';
+  if (aucs.length) {
+    h += '<div class="inv-cal-scroll"><table class="inv-cal-table">\n<thead><tr>' +
+      '<th scope="col">Type</th><th scope="col">Units</th>' +
+      '<th scope="col">Opened</th><th scope="col">Closed</th>' +
+      '</tr></thead>\n<tbody>\n';
+    for (const a of aucs) {
+      const typ = a.displayable_share_type || (String(a.share_type) === '1' ? 'Promoter Share' : a.share_type);
+      h += '<tr><td>' + esc(stripTags(typ) || '–') + '</td>' +
+        '<td>' + esc(stripTags(a.total_auction) || '–') + '</td>' +
+        '<td>' + esc(a.opening_date || '–') + '</td>' +
+        '<td>' + esc(a.closing_date || '–') + '</td></tr>\n';
+    }
+    h += '</tbody></table></div>\n';
+  } else {
+    h += '<p class="sp-note">No auction history available yet.</p>\n';
+  }
+  h += '</div>\n';
+
+  h += '</div>\n'; // .inv-cal-tables
+
+  // Pagination footer
+  h += '<div class="inv-cal-foot" data-inv-uid="' + uid + '">\n';
+  h += '<span class="inv-cal-info">Showing 1 to 10 of 0 entries</span>\n';
+  h += '<div class="inv-cal-pages" role="navigation" aria-label="Pagination">\n';
+  h += '<button class="inv-cal-prev" disabled>Previous</button>\n';
+  h += '<span class="inv-cal-pagenums"></span>\n';
+  h += '<button class="inv-cal-next" disabled>Next</button>\n';
+  h += '</div></div>\n';
+
+  h += '</div>\n'; // .inv-cal-main
+  h += '</div>\n'; // .inv-cal-body
+  h += '<p class="sp-note inv-cal-src">Past history as compiled by ShareSansar from company announcements. ' +
+    'For official notices, see the verified list above.</p>\n';
+  h += '</section>\n';
+  return h;
+}
+
+function symbolPage(u, v, newsItems, fund, liveQ, liveDate, sector, sectorPeers, verdicts, quarterly, corpHist, verifiedActions) {
   const sym = u.s, name = u.n, slug = slugOf(sym);
   // Headline price prefers our canonical live payload (NEPSE API) when it is
   // at least as fresh as the batch verdict — the batch daily history comes
@@ -395,7 +646,7 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
   h += '<button class="sp-tab" role="tab" aria-selected="false" data-tab="news">News</button>';
   h += '</div>';
   h += '<div class="sp-tabpanel active" data-panel="overview" role="tabpanel">';
-  h += '<p class="sp-note">Price snapshot above. Switch tabs for engine signals, published fundamentals, and latest headlines.</p>';
+  h += '<p class="sp-note">Price snapshot above. Switch tabs for engine signals, published fundamentals and latest headlines. Past dividend, right share and AGM history is in the Investment Calendar below.</p>';
   h += '<ul class="sp-links">';
   h += '<li><a href="/nepse-chart/?s=' + esc(sym) + '">Full chart, patterns and divergences <span aria-hidden="true">→</span></a></li>';
   h += '<li><a href="/nepse-screener/">Ranked screener <span aria-hidden="true">→</span></a></li>';
@@ -406,8 +657,8 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
   h += pill('Daily', v) + pill('Weekly', v && v.w) + pill('Monthly', v && v.m);
   h += '</div>';
   h += '<div class="sp-tabpanel" id="fundamentals" data-panel="fundamentals" role="tabpanel" hidden>';
-  h += fundBlock(sym, fund);
-  h += quarterlyTable(sym, quarterly);
+  h += fundBlock(sym, fund, sector);
+  h += quarterlyTable(sym, quarterly, sector);
   h += peerTable(sym, sector, sectorPeers, verdicts, fund);
   h += '</div>';
   h += '<div class="sp-tabpanel" data-panel="news" role="tabpanel" hidden>';
@@ -426,6 +677,9 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
   h += '<li><a href="#fundamentals" data-goto-tab="fundamentals">Fundamentals snapshot <span aria-hidden="true">→</span></a></li>';
   h += '<li><a href="/nepse-news/">Market news <span aria-hidden="true">→</span></a></li>';
   h += '</ul></div>';
+
+  // Investment Calendar card: visible section after the tabs, near Fundamentals.
+  h += investmentCalendarCard(sym, name, corpHist, verifiedActions);
 
   // More in this sector: true sector peers, not a random same-type list.
   const morePeers = (sectorPeers || []).filter((p) => p.s !== sym).slice(0, 5);
@@ -450,6 +704,37 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
   h += 'tabs[nx].focus();on(tabs[nx].dataset.tab);}});});';
   h += 'document.querySelectorAll("[data-goto-tab]").forEach(function(a){a.addEventListener("click",function(){on(a.dataset.gotoTab);});});';
   h += 'if(location.hash==="#fundamentals"){on("fundamentals");}';
+  // Investment Calendar: sidebar tabs, search, pagination
+  h += 'document.querySelectorAll(".inv-cal").forEach(function(card){';
+  h += 'var uid=card.querySelector("[data-inv-uid]").dataset.invUid;';
+  h += 'var state={tab:"dividends",q:"",page:1,per:10};';
+  h += 'function rows(){var p=card.querySelector("[data-inv-panel=\\""+state.tab+"\\"]");';
+  h += 'if(!p)return[];return Array.prototype.slice.call(p.querySelectorAll("tbody tr"));}';
+  h += 'function filtered(){var q=state.q.toLowerCase();return rows().filter(function(r){';
+  h += 'return !q||r.textContent.toLowerCase().indexOf(q)>-1;});}';
+  h += 'function render(){var list=filtered(),total=list.length,pages=Math.max(1,Math.ceil(total/state.per));';
+  h += 'if(state.page>pages)state.page=pages;var s=(state.page-1)*state.per;';
+  h += 'rows().forEach(function(r){r.style.display="none";});';
+  h += 'list.slice(s,s+state.per).forEach(function(r){r.style.display="";});';
+  h += 'var info=card.querySelector(".inv-cal-info");';
+  h += 'info.textContent=total?("Showing "+(s+1)+" to "+Math.min(s+state.per,total)+" of "+total+" entries"):"Showing 0 entries";';
+  h += 'var nums=card.querySelector(".inv-cal-pagenums");nums.innerHTML="";';
+  h += 'for(var i=1;i<=pages&&i<=7;i++){var b=document.createElement("button");';
+  h += 'b.textContent=i;b.className="inv-cal-pg"+(i===state.page?" cur":"");';
+  h += 'b.dataset.pg=i;b.addEventListener("click",function(){state.page=+this.dataset.pg;render();});nums.appendChild(b);}';
+  h += 'card.querySelector(".inv-cal-prev").disabled=state.page<=1;';
+  h += 'card.querySelector(".inv-cal-next").disabled=state.page>=pages;}';
+  h += 'card.querySelectorAll("[data-inv-tab]").forEach(function(t){t.addEventListener("click",function(){';
+  h += 'card.querySelectorAll("[data-inv-tab]").forEach(function(x){x.classList.remove("active");x.setAttribute("aria-selected","false");});';
+  h += 't.classList.add("active");t.setAttribute("aria-selected","true");';
+  h += 'state.tab=t.dataset.invTab;state.page=1;';
+  h += 'card.querySelectorAll("[data-inv-panel]").forEach(function(p){p.hidden=p.dataset.invPanel!==state.tab;});';
+  h += 'render();});});';
+  h += 'var q=card.querySelector(".inv-cal-q");if(q)q.addEventListener("input",function(){state.q=this.value;state.page=1;render();});';
+  h += 'var pp=card.querySelector(".inv-cal-perpage");if(pp)pp.addEventListener("change",function(){state.per=+this.value;state.page=1;render();});';
+  h += 'card.querySelector(".inv-cal-prev").addEventListener("click",function(){if(state.page>1){state.page--;render();}});';
+  h += 'card.querySelector(".inv-cal-next").addEventListener("click",function(){state.page++;render();});';
+  h += 'render();});';
   h += '})();</scr' + 'ipt>';
   h += '</main>\n' + FOOT;
   return h;
@@ -500,6 +785,16 @@ function main() {
   const news = loadJson(path.join(DATA, 'news.json'), null);
   const fund = loadJson(path.join(DATA, 'fundamentals.json'), null);
   const quarterly = loadJson(path.join(DATA, 'quarterly.json'), null);
+  const corpHistData = loadJson(path.join(DATA, 'corp-history.json'), null);
+  const corpHist = (corpHistData && corpHistData.companies) || {};
+  const actionsData = loadJson(path.join(DATA, 'corporate-actions.json'), null);
+  const actionsBySym = {};
+  if (actionsData && actionsData.items) {
+    for (const a of actionsData.items) {
+      if (!a.symbol) continue;
+      (actionsBySym[a.symbol] = actionsBySym[a.symbol] || []).push(a);
+    }
+  }
   // Canonical live quotes (NEPSE API) for the headline price snapshot.
   const live = loadJson(path.join(DATA, 'live.json'), null);
   const liveMap = {};
@@ -542,7 +837,7 @@ function main() {
     const sectorPeers = sector ? (bySector[sector] || []) : [];
     const dir = path.join(OUT, slug);
     fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, 'index.html'), symbolPage(u, v, newsBySym[sym] || [], fund, liveMap[sym], liveDate, sector, sectorPeers, verdicts, quarterly));
+    fs.writeFileSync(path.join(dir, 'index.html'), symbolPage(u, v, newsBySym[sym] || [], fund, liveMap[sym], liveDate, sector, sectorPeers, verdicts, quarterly, corpHist[sym], actionsBySym[sym]));
     made++;
   }
   fs.writeFileSync(path.join(OUT, 'index.html'), indexPage(symbols, pageAsof));

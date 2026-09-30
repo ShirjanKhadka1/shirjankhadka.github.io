@@ -166,3 +166,50 @@
 .sp-peer-table td.pos { color: #1c6b3c; }
 .sp-peer-table td.neg { color: #a33327; }
 .sp-peer-table td.num, .sp-peer-table th.num { text-align: right; }
+
+/* Investment Calendar card (Nepse Alpha-style past corporate-action history) */
+.inv-cal { background: #fff; border: 1px solid var(--line, #e7e0d2); border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,.06); margin: 1.5rem 0; overflow: hidden; }
+.inv-cal-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1rem 1.25rem; border-bottom: 1px solid #eee; }
+.inv-cal-head h2 { margin: 0; font-size: 1.15rem; font-weight: 700; color: var(--ink, #2b2620); }
+.inv-cal-co { font-size: .82rem; color: #8a8578; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 45%; }
+.inv-cal-verified { padding: 1rem 1.25rem 0; }
+.inv-cal-verified h3 { font-size: .95rem; margin: 0 0 .5rem; }
+.inv-cal-body { display: flex; gap: 0; padding: 1.25rem; }
+.inv-cal-nav { display: flex; flex-direction: column; min-width: 150px; border: 1px solid #e2e2e2; border-radius: 8px; overflow: hidden; align-self: flex-start; }
+.inv-cal-tab { appearance: none; border: 0; border-bottom: 1px solid #e8e8e8; background: #fff; padding: .85rem 1rem; font-size: .8rem; font-weight: 600; letter-spacing: .04em; color: #6b655a; cursor: pointer; text-align: center; transition: background .15s; }
+.inv-cal-tab:last-child { border-bottom: 0; }
+.inv-cal-tab:hover { background: #f7f7f7; }
+.inv-cal-tab.active { background: #3b7ddb; color: #fff; }
+.inv-cal-count { display: inline-block; background: rgba(0,0,0,.12); border-radius: 10px; padding: 1px 7px; font-size: .72rem; margin-left: 4px; }
+.inv-cal-tab.active .inv-cal-count { background: rgba(255,255,255,.25); }
+.inv-cal-main { flex: 1; min-width: 0; padding-left: 1.25rem; }
+.inv-cal-controls { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: .8rem; flex-wrap: wrap; }
+.inv-cal-controls label { font-size: .88rem; color: #444; }
+.inv-cal-perpage, .inv-cal-q { border: 1px solid #ccc; border-radius: 6px; padding: .4rem .6rem; font-size: .88rem; }
+.inv-cal-q { width: 180px; }
+.inv-cal-scroll { overflow-x: auto; border: 1px solid #e2e2e2; border-radius: 8px; }
+.inv-cal-table { width: 100%; border-collapse: collapse; font-size: .88rem; min-width: 520px; }
+.inv-cal-table thead th { background: #3b7ddb; color: #fff; font-weight: 600; padding: .7rem .8rem; text-align: center; white-space: nowrap; font-size: .82rem; }
+.inv-cal-table tbody td { padding: .65rem .8rem; border-top: 1px solid #eee; text-align: center; white-space: nowrap; color: #333; }
+.inv-cal-table tbody tr:nth-child(even) td { background: #fafbfc; }
+.inv-cal-status { color: #e91e63; font-weight: 500; }
+.inv-cal-foot { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-top: .8rem; flex-wrap: wrap; }
+.inv-cal-info { font-size: .85rem; color: #666; }
+.inv-cal-pages { display: flex; gap: .4rem; align-items: center; }
+.inv-cal-pages button { border: 1px solid #ddd; background: #fff; border-radius: 6px; padding: .35rem .7rem; font-size: .82rem; cursor: pointer; color: #555; }
+.inv-cal-pages button:disabled { opacity: .45; cursor: default; }
+.inv-cal-pages button:not(:disabled):hover { background: #f0f0f0; }
+.inv-cal-pagenums { display: flex; gap: .25rem; }
+.inv-cal-pagenums button.inv-cal-pg { min-width: 2rem; }
+.inv-cal-pagenums button.inv-cal-pg.cur { background: #3b7ddb; color: #fff; border-color: #3b7ddb; }
+.inv-cal-src { padding: 0 1.25rem 1rem; margin: 0; font-size: .78rem; color: #999; }
+.inv-cal-empty { padding: 1rem 1.25rem 0; }
+@media (max-width: 640px) {
+  .inv-cal-body { flex-direction: column; padding: 1rem; }
+  .inv-cal-nav { flex-direction: row; min-width: 0; width: 100%; overflow-x: auto; margin-bottom: 1rem; }
+  .inv-cal-tab { border-bottom: 0; border-right: 1px solid #e8e8e8; white-space: nowrap; flex: 1; padding: .7rem .6rem; font-size: .75rem; }
+  .inv-cal-tab:last-child { border-right: 0; }
+  .inv-cal-main { padding-left: 0; }
+  .inv-cal-co { display: none; }
+  .inv-cal-q { width: 140px; }
+}

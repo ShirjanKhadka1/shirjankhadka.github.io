@@ -153,9 +153,11 @@ function main() {
     '<section aria-label="Filters">\n' +
     '<p class="ca-grow">The archive grows as new verified notices are captured; the official record is the NEPSE disclosure archive.</p>\n' +
     '<div class="ca-filters">\n' +
-    '  <label>Year <select id="ca-year"><option value="">All years</option>' +
-    years.map((y) => '<option value="' + y + '">' + y + '</option>').join('') +
-    '</select></label>\n' +
+    (years.length > 1
+      ? '  <label>Year <select id="ca-year"><option value="">All years</option>' +
+        years.map((y) => '<option value="' + y + '">' + y + '</option>').join('') +
+        '</select></label>\n'
+      : '') +
     '  <label>Kind <select id="ca-kind"><option value="">All kinds</option>' +
     Object.keys(KIND_LABEL).map((k) => '<option value="' + k + '">' + KIND_LABEL[k] + '</option>').join('') +
     '</select></label>\n' +
@@ -202,7 +204,7 @@ function main() {
     '      years = Array.prototype.slice.call(document.querySelectorAll(".ca-year")),\n' +
     '      count = document.getElementById("ca-count");\n' +
     '  function apply() {\n' +
-    '    var y = year.value, k = kind.value, s = q.value.trim().toLowerCase(), n = 0;\n' +
+    '    var y = year ? year.value : "", k = kind.value, s = q.value.trim().toLowerCase(), n = 0;\n' +
     '    items.forEach(function (el) {\n' +
     '      var ok = (!y || el.getAttribute("data-year") === y) &&\n' +
     '               (!k || el.getAttribute("data-kind") === k) &&\n' +
@@ -220,7 +222,7 @@ function main() {
     '    });\n' +
     '    count.textContent = n + " of " + items.length + " notices";\n' +
     '  }\n' +
-    '  year.addEventListener("change", apply);\n' +
+    '  if (year) year.addEventListener("change", apply);\n' +
     '  kind.addEventListener("change", apply);\n' +
     '  q.addEventListener("input", apply);\n' +
     '  apply();\n' +

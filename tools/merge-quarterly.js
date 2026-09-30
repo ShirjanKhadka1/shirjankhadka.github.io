@@ -71,10 +71,18 @@ const COLS = {
   'eps (annu.)': 'eps_ann',
   'eps  (ttm)': 'eps_ttm',
   'eps (ttm)': 'eps_ttm',
+  'p/e  (annu.)': 'pe_ann',
+  'p/e (annu.)': 'pe_ann',
+  'p/e  (latest)': 'pe_latest',
+  'p/e (latest)': 'pe_latest',
   'p/e  (ttm)': 'pe_ttm',
   'p/e (ttm)': 'pe_ttm',
   'npl to  total loan': 'npl_pct',
   'npl to total loan': 'npl_pct',
+  'credit to  deposit': 'cd_ratio',
+  'credit to deposit': 'cd_ratio',
+  'int. rate  spread': 'spread',
+  'int. rate spread': 'spread',
 };
 
 function normHeader(s) {
@@ -236,8 +244,12 @@ function main() {
   fs.writeFileSync(QPATH, JSON.stringify(q, null, 1) + '\n');
 
   // Regenerate fundamentals.json from each symbol's latest quarter.
+  // fund.companies holds every covered security with all published fields;
+  // presentation layers pick the sector-appropriate metrics. Money values
+  // are converted to Rs billions for display; ratios stay as published.
   const fund = JSON.parse(fs.readFileSync(FPATH, 'utf8'));
-  fund.banks = fund.banks || {};
+  fund.companies = {};
+  delete fund.banks; // schema moved to companies in the all-sector rebuild
   let latestKey = null;
   for (const [sym, s] of Object.entries(q.symbols)) {
     const keys = Object.keys(s.quarters).sort((a, b) => sortKey(a) - sortKey(b));
@@ -246,15 +258,25 @@ function main() {
     if (!latestKey || sortKey(lk) > sortKey(latestKey)) latestKey = lk;
     const d = s.quarters[lk];
     const b = (v) => (v === null || v === undefined) ? null : Math.round(v / 1e6 * 100) / 100;
-    fund.banks[sym] = {
-      eps_ttm: d.eps_ttm === undefined ? null : d.eps_ttm,
-      pe_ttm: d.pe_ttm === undefined ? null : d.pe_ttm,
+    const r = (v) => (v === null || v === undefined) ? null : v;
+    fund.companies[sym] = {
+      eps_ttm: r(d.eps_ttm),
+      pe_ttm: r(d.pe_ttm),
+      pe_ann: r(d.pe_ann),
+      pe_latest: r(d.pe_latest),
       paidup_b: b(d.paidup),
       reserves_b: b(d.reserves),
       netprofit_b: b(d.netprofit),
+      revenue_b: b(d.revenue),
+      grossprofit_b: b(d.grossprofit),
+      opprofit_b: b(d.opprofit),
+      assets_b: b(d.assets),
+      liabilities_b: b(d.liabilities),
       deposits_b: b(d.deposits),
       loans_b: b(d.loans),
-      npl_pct: d.npl_pct === undefined ? null : d.npl_pct,
+      npl_pct: r(d.npl_pct),
+      cd_ratio: r(d.cd_ratio),
+      spread: r(d.spread),
     };
   }
   if (latestKey) {

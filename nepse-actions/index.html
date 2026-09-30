@@ -77,7 +77,6 @@
 <section aria-label="Filters">
 <p class="ca-grow">The archive grows as new verified notices are captured; the official record is the NEPSE disclosure archive.</p>
 <div class="ca-filters">
-  <label>Year <select id="ca-year"><option value="">All years</option><option value="2026">2026</option></select></label>
   <label>Kind <select id="ca-kind"><option value="">All kinds</option><option value="dividend">Dividend</option><option value="bonus-share">Bonus share</option><option value="right-share">Right share</option><option value="promoter-share">Promoter share</option><option value="auction">Auction</option></select></label>
   <label class="ca-search">Symbol <input id="ca-q" type="search" placeholder="e.g. NABIL" aria-label="Search by symbol"></label>
   <span class="ca-count" id="ca-count" aria-live="polite"></span>
@@ -133,7 +132,7 @@
       years = Array.prototype.slice.call(document.querySelectorAll(".ca-year")),
       count = document.getElementById("ca-count");
   function apply() {
-    var y = year.value, k = kind.value, s = q.value.trim().toLowerCase(), n = 0;
+    var y = year ? year.value : "", k = kind.value, s = q.value.trim().toLowerCase(), n = 0;
     items.forEach(function (el) {
       var ok = (!y || el.getAttribute("data-year") === y) &&
                (!k || el.getAttribute("data-kind") === k) &&
@@ -151,7 +150,7 @@
     });
     count.textContent = n + " of " + items.length + " notices";
   }
-  year.addEventListener("change", apply);
+  if (year) year.addEventListener("change", apply);
   kind.addEventListener("change", apply);
   q.addEventListener("input", apply);
   apply();

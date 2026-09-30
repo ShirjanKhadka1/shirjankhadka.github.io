@@ -1,7 +1,8 @@
 /* NEPSE Alpha Lab - fundamentals snapshot page.
  * Per-stock snapshot from the daily batch (universe.json, verdicts.json,
  * news.json) PLUS published quarterly figures (fundamentals.json) for
- * covered banks: EPS (TTM), P/E (TTM), net profit, NPL, deposits, loans.
+ * covered securities: EPS (TTM), P/E (TTM), net profit and sector-appropriate
+ * metrics (deposits/loans/NPL for lenders; revenue/profit lines otherwise).
  * Sector comparisons are medians computed client-side from the batch.
  * Educational, not investment advice. */
 (function () {
@@ -32,6 +33,15 @@
     return String(s == null ? '' : s)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;')
       .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  // sector group for sector-appropriate fundamental metrics
+  function fundGroup(sec) {
+    if (sec === 'Banking' || sec === 'Development Bank' ||
+        sec === 'Finance' || sec === 'Microfinance') return 'bank';
+    if (sec === 'Life Insurance' || sec === 'Non Life Insurance') return 'ins';
+    if (sec === 'Mutual Funds' || sec === 'Debentures' ||
+        sec === 'Promoter Shares') return 'inst';
+    return 'corp';
   }
   // sector median + the symbol's rank (1 = highest) for one metric key
   function sectorStats(verdicts, sector, sym, key) {
@@ -115,9 +125,10 @@
       metricRow('Volume vs 20-day avg', volRatio != null ? num(volRatio, 2) + '×' : '–') +
       metricRow('Chart pattern', v && v.setup ? esc(v.setup) : '–') +
       '</div>';
-    // published quarterly figures for covered banks: numbers first
-    var fb = fundData && fundData.banks ? fundData.banks[sym] : null;
-    if (fb) {
+    // published quarterly figures: numbers first, sector-appropriate metrics
+    var fb = fundData && fundData.companies ? fundData.companies[sym] : null;
+    var fg = fundGroup(v && v.sec);
+    if (fb && fg !== 'inst') {
       var frow = function (k, val) {
         return '<div class="fd-m fd-mf"><span class="fd-mk">' + esc(k) +
           '</span><span class="fd-mv">' + val + '</span></div>';
@@ -125,20 +136,34 @@
       var fnum = function (v2, d2, pre, suf) {
         return (v2 == null || !isFinite(v2)) ? '–' : pre + num(v2, d2) + suf;
       };
+      var frows = frow('P/E (TTM)', fnum(fb.pe_ttm, 2, '', '×')) +
+        frow('EPS (TTM)', fnum(fb.eps_ttm, 2, 'Rs ', '')) +
+        frow('Net profit', fnum(fb.netprofit_b, 2, 'Rs ', 'b'));
+      if (fg === 'bank') {
+        frows += frow('NPL ratio', fnum(fb.npl_pct, 2, '', '%')) +
+          frow('Deposits', fnum(fb.deposits_b, 2, 'Rs ', 'b')) +
+          frow('Loans & advances', fnum(fb.loans_b, 2, 'Rs ', 'b')) +
+          frow('Paid-up capital', fnum(fb.paidup_b, 2, 'Rs ', 'b')) +
+          frow('Reserves', fnum(fb.reserves_b, 2, 'Rs ', 'b'));
+      } else if (fg === 'ins') {
+        frows += frow('Revenue', fnum(fb.revenue_b, 2, 'Rs ', 'b')) +
+          frow('Gross profit', fnum(fb.grossprofit_b, 2, 'Rs ', 'b')) +
+          frow('Total assets', fnum(fb.assets_b, 2, 'Rs ', 'b')) +
+          frow('Paid-up capital', fnum(fb.paidup_b, 2, 'Rs ', 'b'));
+      } else {
+        frows += frow('Revenue', fnum(fb.revenue_b, 2, 'Rs ', 'b')) +
+          frow('Gross profit', fnum(fb.grossprofit_b, 2, 'Rs ', 'b')) +
+          frow('Operating profit', fnum(fb.opprofit_b, 2, 'Rs ', 'b')) +
+          frow('Total assets', fnum(fb.assets_b, 2, 'Rs ', 'b')) +
+          frow('Paid-up capital', fnum(fb.paidup_b, 2, 'Rs ', 'b'));
+      }
       h += '<h3 class="fd-sec-h">Published quarterly figures <span class="fd-per">' +
         esc(fundData.period || '') + '</span></h3>' +
-        '<div class="fd-grid">' +
-        frow('P/E (TTM)', fnum(fb.pe_ttm, 2, '', '×')) +
-        frow('EPS (TTM)', fnum(fb.eps_ttm, 2, 'Rs ', '')) +
-        frow('Net profit', fnum(fb.netprofit_b, 2, 'Rs ', 'b')) +
-        frow('NPL ratio', fnum(fb.npl_pct, 2, '', '%')) +
-        frow('Deposits', fnum(fb.deposits_b, 2, 'Rs ', 'b')) +
-        frow('Loans & advances', fnum(fb.loans_b, 2, 'Rs ', 'b')) +
-        frow('Paid-up capital', fnum(fb.paidup_b, 2, 'Rs ', 'b')) +
-        frow('Reserves', fnum(fb.reserves_b, 2, 'Rs ', 'b')) +
-        '</div>' +
+        '<div class="fd-grid">' + frows + '</div>' +
         '<p class="fd-note">Figures as published by the company in its quarterly filing, not estimates. ' +
         'Money in Rs billions; ratios as published.</p>';
+    } else if (fb && fg === 'inst') {
+      h += '<p class="fd-note">This is a fund or debt instrument, not an operating company; company-style quarterly profit figures do not apply.</p>';
     } else {
       h += '<p class="fd-note">Quarterly figures: not yet published in our coverage for ' + esc(sym) +
         '. We show published company figures only, never estimates.</p>';
@@ -198,7 +223,7 @@
     sugg.hidden = true;
     try { history.replaceState(null, '', '?s=' + encodeURIComponent(sym)); } catch (e) {}
     cur = sym;
-    renderFundTable(fundData, sym);
+    renderFundTable(fundData, ver, sym);
     renderProfile(sym);
   }
   function renderSugg() {
@@ -243,32 +268,37 @@
   });
 
   /* ---------- quarterly figures table (numbers first) ---------- */
-  function renderFundTable(fund, firstSym) {
+  function renderFundTable(fund, ver, firstSym) {
     var host = $('fd-table');
     if (!host) return;
-    if (!fund || !fund.banks) { host.innerHTML = ''; return; }
-    var syms = Object.keys(fund.banks).sort();
+    if (!fund || !fund.companies) { host.innerHTML = ''; return; }
+    var syms = Object.keys(fund.companies).sort();
     if (!syms.length) { host.innerHTML = ''; return; }
     // the searched symbol's row goes first, the rest follow alphabetically
     if (firstSym && syms.indexOf(firstSym) >= 0) {
       syms = [firstSym].concat(syms.filter(function (s) { return s !== firstSym; }));
     }
+    var secOf = function (s) {
+      var r = ver && ver.verdicts ? ver.verdicts[s] : null;
+      return r && r.sec ? r.sec : '–';
+    };
     var rows = syms.map(function (s) {
-      var f = fund.banks[s];
+      var f = fund.companies[s];
       var td = function (v) {
         return '<td>' + (v === null || v === undefined ? '<span class="fd-np">not published</span>' : esc(v)) + '</td>';
       };
       return '<tr><td><a href="/stocks/' + esc(s) + '/"><b>' + esc(s) + '</b></a></td>' +
+        td(secOf(s)) +
         td(f.eps_ttm == null ? null : 'Rs ' + f.eps_ttm) +
         td(f.pe_ttm == null ? null : f.pe_ttm + 'x') +
         td(f.netprofit_b == null ? null : 'Rs ' + f.netprofit_b + 'b') +
-        td(f.npl_pct == null ? null : f.npl_pct + '%') + '</tr>';
+        td(f.revenue_b == null ? null : 'Rs ' + f.revenue_b + 'b') + '</tr>';
     }).join('');
     host.innerHTML =
       '<h3>Latest quarterly figures (published company figures)</h3>' +
       '<p class="fd-sub2">' + esc(fund.period || '') + ' · figures as published by the companies, not estimates · money in Rs billions</p>' +
       '<div class="fd-table-wrap"><table class="fd-table-t">' +
-      '<thead><tr><th>Symbol</th><th>EPS (TTM)</th><th>P/E (TTM)</th><th>Net profit</th><th>NPL</th></tr></thead>' +
+      '<thead><tr><th>Symbol</th><th>Sector</th><th>EPS (TTM)</th><th>P/E (TTM)</th><th>Net profit</th><th>Revenue</th></tr></thead>' +
       '<tbody>' + rows + '</tbody></table></div>';
   }
 
@@ -288,7 +318,7 @@
     if (!uni || !ver) { setStatus('Could not load the daily batch. Please reload the page.', true); return; }
     setStatus('');
     var sym = symParam();
-    renderFundTable(fundData, sym);
+    renderFundTable(fundData, ver, sym);
     if (sym) { input.value = sym; cur = sym; renderProfile(sym); }
     else {
       els['fd-empty'].hidden = false;
