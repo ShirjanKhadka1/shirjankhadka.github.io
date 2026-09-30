@@ -61,6 +61,15 @@
 .nd-search-list a { display: block; padding: 8px 4px; color: #F5F1E6; text-decoration: none; font-size: 0.9rem; border-bottom: 1px solid rgba(245,241,230,.12); }
 .nd-mover-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
 @media (min-width: 720px) { .nd-mover-grid { grid-template-columns: repeat(3, 1fr); } }
+/* MOVERS below the NEPSE panel: gainers/losers side-by-side on desktop, stacked on mobile */
+.nd-movers-2col { display: grid; grid-template-columns: 1fr; gap: 20px; }
+@media (min-width: 720px) { .nd-movers-2col { grid-template-columns: 1fr 1fr; } }
+/* Mobile order for section 1: NEPSE panel → movers → news rail → sector movers */
+@media (max-width: 899px) {
+  .nd-sec1-movers { order: 2; }
+  .nd-sec1-news { order: 3; }
+  .nd-sec1-sectors { order: 4; }
+}
 /* NEWS RAIL beside the overview panel: stretch to the panel height, no gaps */
 .nd-rail-fill { display: flex; flex-direction: column; }
 .nd-rail-fill .nd-card { flex: 1; display: flex; flex-direction: column; }
@@ -178,9 +187,9 @@
         <div class="nd-ticker-track" id="ahTickTrack"><span class="nd-skl" style="height:20px;width:40%;margin:2px 16px"></span></div>
       </div>
 
-      <!-- 1. OVERVIEW + NEWS: market panel with the headlines rail beside it -->
+      <!-- 1. OVERVIEW + NEWS: full-width market panel, headlines rail beside it; movers + sector movers below -->
       <div class="nd-grid" style="margin-bottom:40px">
-        <div class="nd-c5">
+        <div class="nd-main">
       <div class="nd-hero-card nd-terminal">
         <div class="nd-terminal-head">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
@@ -219,17 +228,7 @@
         </div>
       </div>
         </div>
-        <div class="nd-c3">
-          <section class="nd-card" style="margin-bottom:16px" aria-label="Top gainers">
-            <div class="nd-section-head" style="margin-bottom:4px"><div><p class="nd-kicker">Movers</p><h2 style="font-size:1.05rem">Top gainers</h2></div></div>
-            <div class="nd-tscroll"><table class="nd-table"><thead><tr><th>Symbol</th><th class="num">Ch</th><th class="num">Ch %</th><th class="num">LTP</th></tr></thead><tbody id="ahGainersT"><tr><td colspan="4"><span class="nd-skl" style="height:20px"></span></td></tr></tbody></table></div>
-          </section>
-          <section class="nd-card" aria-label="Top losers">
-            <div class="nd-section-head" style="margin-bottom:4px"><div><p class="nd-kicker">Movers</p><h2 style="font-size:1.05rem">Top losers</h2></div></div>
-            <div class="nd-tscroll"><table class="nd-table"><thead><tr><th>Symbol</th><th class="num">Ch</th><th class="num">Ch %</th><th class="num">LTP</th></tr></thead><tbody id="ahLosersT"><tr><td colspan="4"><span class="nd-skl" style="height:20px"></span></td></tr></tbody></table></div>
-          </section>
-        </div>
-        <aside class="nd-c4 nd-rail-fill" aria-label="Recent news">
+        <aside class="nd-c4 nd-rail-fill nd-sec1-news" aria-label="Recent news">
           <div class="nd-section-head">
             <div><p class="nd-kicker">News</p><h2>Recent news</h2></div>
             <a class="nd-section-link" href="/nepse-news/">More →</a>
@@ -238,6 +237,27 @@
             <div class="nd-news" id="ahNews"><span class="nd-skl" style="height:44px"></span></div>
           </div>
         </aside>
+        <div class="nd-main nd-sec1-movers">
+          <div class="nd-movers-2col">
+            <section class="nd-card" aria-label="Top gainers">
+              <div class="nd-section-head" style="margin-bottom:4px"><div><p class="nd-kicker">Movers</p><h2 style="font-size:1.05rem">Top gainers</h2></div></div>
+              <div class="nd-tscroll"><table class="nd-table"><thead><tr><th>Symbol</th><th class="num">Ch</th><th class="num">Ch %</th><th class="num">LTP</th></tr></thead><tbody id="ahGainersT"><tr><td colspan="4"><span class="nd-skl" style="height:20px"></span></td></tr></tbody></table></div>
+            </section>
+            <section class="nd-card" aria-label="Top losers">
+              <div class="nd-section-head" style="margin-bottom:4px"><div><p class="nd-kicker">Movers</p><h2 style="font-size:1.05rem">Top losers</h2></div></div>
+              <div class="nd-tscroll"><table class="nd-table"><thead><tr><th>Symbol</th><th class="num">Ch</th><th class="num">Ch %</th><th class="num">LTP</th></tr></thead><tbody id="ahLosersT"><tr><td colspan="4"><span class="nd-skl" style="height:20px"></span></td></tr></tbody></table></div>
+            </section>
+          </div>
+        </div>
+        <div class="nd-c4 nd-sec1-sectors">
+          <section class="nd-card" aria-label="Sector movers" style="height:100%">
+            <div class="nd-section-head" style="margin-bottom:4px"><div><p class="nd-kicker">Sectors</p><h2 style="font-size:1.05rem">Sector movers</h2></div><a class="nd-section-link" href="/nepse-sectors/">All →</a></div>
+            <p class="nd-caption" style="margin:8px 0 2px;font-weight:700;color:var(--up)">Leaders</p>
+            <div class="nd-tscroll"><table class="nd-table"><tbody id="ahSecLead"><tr><td colspan="3"><span class="nd-skl" style="height:20px"></span></td></tr></tbody></table></div>
+            <p class="nd-caption" style="margin:12px 0 2px;font-weight:700;color:var(--down)">Laggards</p>
+            <div class="nd-tscroll"><table class="nd-table"><tbody id="ahSecLag"><tr><td colspan="3"><span class="nd-skl" style="height:20px"></span></td></tr></tbody></table></div>
+          </section>
+        </div>
       </div>
 
       <!-- 2. INDICES + MOST ACTIVE -->
@@ -485,6 +505,23 @@
     if(sEl) sEl.innerHTML=sub.length?sub.map(idxRow).join(''):empty;
   }
 
+  /* Sector movers: leaders & laggards among sub-indices, from live.json (ShareHub-style rows) */
+  function secRow(x){
+    var p=+x.percent_change||0, cls=p>=0?'up':'down';
+    return '<tr><td>'+esc(x.name)+'</td>'+
+      '<td class="num '+cls+'">'+(p>=0?'+':'')+p.toFixed(2)+'%</td>'+
+      '<td class="num">'+num(x.value,2)+'</td></tr>';
+  }
+  function paintSectorMovers(live){
+    var list=(live.indices||[]).filter(function(x){return !MAIN_INDICES[x.name] && isFinite(+x.percent_change);})
+      .sort(function(a,b){return (+b.percent_change)-(+a.percent_change);});
+    var lead=list.slice(0,3), lag=list.slice(-3).reverse();
+    var empty='<tr><td colspan="3" style="color:var(--muted);font-size:14px;padding:12px 8px">No data in the latest session.</td></tr>';
+    var lEl=$('ahSecLead'), gEl=$('ahSecLag');
+    if(lEl) lEl.innerHTML=lead.length?lead.map(secRow).join(''):empty;
+    if(gEl) gEl.innerHTML=lag.length?lag.map(secRow).join(''):empty;
+  }
+
   /* Most active: turnover / traded shares / transactions tabs */
   var TT={ mode:'turnover', quotes:[] };
   function paintTurnover(){
@@ -560,6 +597,7 @@
     paintTicker(quotes);
     paintGainersLosers(quotes);
     paintIndices(live);
+    paintSectorMovers(live);
     TT.quotes=quotes; paintTurnover();
   }
 
@@ -568,7 +606,7 @@
     $('ahIdxCap').textContent=msg;
     $('ahIdxVal').textContent='–';$('ahIdxChg').textContent='–';
     ['ahAdvN','ahDecN','ahUncN','ahStatTurn','ahStatShares','ahStatTxns','ahStatScrips'].forEach(function(id){var el=$(id);if(el)el.textContent='–';});
-    [['ahGainersT',4],['ahLosersT',4],['ahTurnT',4],['ahIndicesT',4],['ahSubIndicesT',4]].forEach(function(p){var el=$(p[0]);if(el)el.innerHTML='<tr><td colspan="'+p[1]+'" style="color:var(--muted);font-size:14px;padding:12px 8px">'+esc(msg)+'</td></tr>';});
+    [['ahGainersT',4],['ahLosersT',4],['ahTurnT',4],['ahIndicesT',4],['ahSubIndicesT',4],['ahSecLead',3],['ahSecLag',3]].forEach(function(p){var el=$(p[0]);if(el)el.innerHTML='<tr><td colspan="'+p[1]+'" style="color:var(--muted);font-size:14px;padding:12px 8px">'+esc(msg)+'</td></tr>';});
     var tEl=$('ahTickTrack');if(tEl)tEl.innerHTML='<span class="nd-caption" style="padding:0 16px">'+esc(msg)+'</span>';
   }
 
