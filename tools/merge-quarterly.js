@@ -44,19 +44,30 @@ const BAD_CELLS = [
     reason: 'source value Rs 2.8b vs assets Rs 362.5b and ~Rs 300b deposits in adjacent quarters; off by ~100x' },
 ];
 
-/* Whole quarters proven corrupt in the source exports. The entire quarter
- * record is nulled (renders as –) rather than published: every field is
- * demonstrably false, not merely surprising.
- * - SWBBL 2082/2083-Q2: paid-up capital Rs 153.4m vs Rs 1,750m in Q1, Q3 and
- *   Q4 of the same fiscal year (point-in-time figure cannot drop 91% and
- *   recover in one quarter); cumulative revenue Rs 208.8m vs Rs 2,569.2m in
- *   Q1 (cumulative YTD revenue cannot decrease quarter-over-quarter);
- *   deposits/loans/assets all ~8-19x smaller than adjacent quarters.
- *   Systematic source scaling slip for that quarter's row. Nulled pending a
- *   corrected publication. */
+/* Entire quarters proven corrupt in the source exports. The YTD figures in
+ * these quarters are demonstrably false (within-FY YTD drops that are
+ * arithmetically impossible, or 1000x unit slips), so the whole quarter is
+ * nulled rather than published. Renders as – on stock pages.
+ * NOTE: when a quarter is nulled, the NEXT quarter's standalone derivation
+ * (curr_YTD − prev_YTD) is also invalid and must be suppressed by the page
+ * builder — see build-symbol-pages.js. */
 const BAD_QUARTERS = [
-  { sym: 'SWBBL', quarter: '2082/2083-Q2',
-    reason: 'paid-up Rs 153.4m vs Rs 1,750m in Q1/Q3/Q4 same FY; cumulative revenue Rs 208.8m below Q1 YTD Rs 2,569.2m (impossible); all balance-sheet items ~8-19x too small' },
+  // Within-FY YTD revenue collapses (impossible: YTD cannot decrease)
+  { sym: 'ENL', quarter: '2080/2081-Q2', reason: 'revenue YTD 30,079 → 5,183 within FY' },
+  { sym: 'GHL', quarter: '2080/2081-Q3', reason: 'revenue YTD 49,655 → 18,378 within FY' },
+  { sym: 'HHL', quarter: '2080/2081-Q4', reason: 'revenue YTD 237,888 → 73,981 within FY' },
+  { sym: 'KHPL', quarter: '2082/2083-Q3', reason: 'revenue YTD 154,219 → 50,527 within FY' },
+  { sym: 'LEC', quarter: '2080/2081-Q4', reason: 'revenue YTD 384,450 → 163,164 within FY' },
+  { sym: 'MMKJL', quarter: '2080/2081-Q3', reason: 'revenue YTD 192,716 → 40,849 within FY' },
+  { sym: 'NLIC', quarter: '2080/2081-Q4', reason: 'revenue YTD 42,889,969 → 59,242 within FY' },
+  { sym: 'RFPL', quarter: '2082/2083-Q3', reason: 'revenue YTD 162,840 → 202; paidup 1,400,000 → 1,400 (1000x slip)' },
+  { sym: 'RHPL', quarter: '2082/2083-Q4', reason: 'revenue YTD 777,725 → 1,267; paidup 6,842,100 → 6,842 (1000x slip)' },
+  { sym: 'SHEL', quarter: '2080/2081-Q4', reason: 'revenue YTD 537,280 → 83,005 within FY' },
+  { sym: 'SJCL', quarter: '2082/2083-Q4', reason: 'revenue YTD 1,191,213 → 1,642; paidup 3,650,000 → 3,650 (1000x slip)' },
+  { sym: 'SWBBL', quarter: '2082/2083-Q2', reason: 'revenue YTD 2,569,172 → 208,849; paidup 1,750,000 → 153,446; deposits 17.4b → 0.9b' },
+  { sym: 'ULHC', quarter: '2082/2083-Q3', reason: 'revenue YTD 27,027 → 11,139 within FY' },
+  { sym: 'UNL', quarter: '2082/2083-Q3', reason: 'revenue YTD 3,784,900 → 1,872,700 within FY' },
+  { sym: 'VLUCL', quarter: '2081/2082-Q2', reason: 'revenue YTD 232,108 → 112,683 within FY' },
 ];
 
 /* Column mapping: Capital Max "Key Financials" header -> quarterly.json field.
@@ -277,12 +288,14 @@ function main() {
       report.nulled.push(bc.sym + ' ' + bc.quarter + ' ' + bc.field + ' (' + bc.reason + ')');
     }
   }
-  // Null proven-corrupt whole quarters (see BAD_QUARTERS); they render as –.
+  // Null entire proven-corrupt quarters (see BAD_QUARTERS); they render as –.
+  // The quarter object is replaced with a tombstone so the page builder knows
+  // not to derive standalone figures from it (or into the next quarter).
   for (const bq of BAD_QUARTERS) {
     const s = q.symbols[bq.sym];
     if (s && s.quarters[bq.quarter]) {
-      delete s.quarters[bq.quarter];
-      report.nulled.push(bq.sym + ' ' + bq.quarter + ' [whole quarter] (' + bq.reason + ')');
+      s.quarters[bq.quarter] = { _corrupt: true, _reason: bq.reason };
+      report.nulled.push(bq.sym + ' ' + bq.quarter + ' [entire quarter] (' + bq.reason + ')');
     }
   }
   // Sanity scan: flag (not auto-null) implausible QoQ jumps in balance-sheet
