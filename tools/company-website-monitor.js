@@ -103,6 +103,10 @@ async function checkCompany(sym, info, state, forceBaseline) {
   const isFirstRun = !st.baselined || forceBaseline;
   const results = [];
   const foundPdfs = new Set(st.pdfs);
+  // Reachability is per-company, not per-path: the check_paths are guesses
+  // and a 404 on one of them usually means the guess was wrong, not that
+  // the site is down. Only a failure across ALL paths counts as an error.
+  let anyPathOk = false;
 
   for (const checkPath of (info.check_paths || ['/'])) {
     const url = info.website.replace(/\/$/, '') + checkPath;
@@ -125,14 +129,15 @@ async function checkCompany(sym, info, state, forceBaseline) {
           }
         }
       }
-      st.errors = 0;
+      anyPathOk = true;
     } catch (e) {
-      st.errors = (st.errors || 0) + 1;
-      // Don't log every error verbosely in production; batch summary at end
+      // Best-effort sub-path failed (often a 404 on a guessed path).
+      // Don't log every error verbosely in production; batch summary at end.
     }
     await new Promise(r => setTimeout(r, 800));
   }
 
+  st.errors = anyPathOk ? 0 : (st.errors || 0) + 1;
   st.pdfs = [...foundPdfs];
   st.baselined = true;
   st.lastCheck = new Date().toISOString();
