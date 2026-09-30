@@ -28,6 +28,39 @@ const esc = (s) => String(s == null ? '' : s)
   .replace(/"/g, '&quot;');
 const slugOf = (sym) => String(sym).replace(/\//g, '-');
 
+/* NEPSE sector classifier — kept identical to js/nepse-sectors.js and
+ * js/nepse-screener.js. NEPSE-official symbol overrides are checked
+ * before keyword matching (NIFRA must precede the 'bank' keyword;
+ * HIDCLP must precede the Promoter-share instrument check). */
+const DEB_SYM_RE = /D\d{2,4}(\/\d{2})?(KA)?$/i;
+const INVESTMENT_SYMBOLS = { CIT:1, HIDCL:1, HIDCLP:1, NIFRA:1, NRN:1, CHDC:1, ENL:1, HATHY:1 };
+const TRADING_SYMBOLS = { BBC:1, STC:1 };
+function classifySymbol(sym, name, type) {
+  const symU = String(sym || '').toUpperCase();
+  if (INVESTMENT_SYMBOLS[symU]) return 'Investment';
+  if (TRADING_SYMBOLS[symU]) return 'Trading';
+  const n = String(name || '').toLowerCase().replace(/lagubitta/g, 'laghubitta');
+  if (type === 'Debenture' || DEB_SYM_RE.test(String(sym || '')) ||
+      n.indexOf('bond') >= 0 || n.indexOf('rinpatra') >= 0) return 'Debentures';
+  if (type === 'Mutual fund' || n.indexOf('fund') >= 0 || /\bkosh\b/.test(n)) return 'Mutual Funds';
+  if (type === 'Promoter share') return 'Promoter Shares';
+  if (type && type !== 'Equity') return null;
+  const has = (...ws) => ws.some((w) => n.indexOf(w) >= 0);
+  if (has('laghu', 'microfinance')) return 'Microfinance';
+  if (has('hydropower', 'hydro', 'power', 'urja', 'dhyut', 'dyut', 'energy')) return 'Hydropower';
+  if (has('development bank')) return 'Development Bank';
+  if (has('bank')) return 'Banking';
+  if (has('life insurance')) return 'Life Insurance';
+  if (has('reinsurance', 'insurance', 'beema')) return 'Non Life Insurance';
+  if (has('finance')) return 'Finance';
+  if (has('hotel', 'tourism', 'cablecar')) return 'Hotels And Tourism';
+  if (has('investment')) return 'Investment';
+  if (has('trading')) return 'Trading';
+  if (has('manufacturing', 'cement', 'bottler', 'distiller', 'spinning', 'pharmaceut',
+    'paints', 'colour', 'panel', 'mineral', 'lube')) return 'Manufacturing And Processing';
+  return null;
+}
+
 function vClass(v) {
   if (v === 'Strong Buy') return 'vg-sb';
   if (v === 'Buy') return 'vg-b';
@@ -183,7 +216,45 @@ function fundBlock(sym, fund) {
   return h;
 }
 
-function symbolPage(u, v, newsItems, peers, fund, liveQ, liveDate) {
+/* Sector peer comparison table: same-sector equities ranked by engine
+ * score, with price/session change from verdicts and P/E + EPS from
+ * published fundamentals where available. Current symbol highlighted.
+ * Educational comparison of published figures, never a ranking or call. */
+function peerTable(sym, sector, sectorPeers, verdicts, fund) {
+  if (!sector || sectorPeers.length < 2) return '';
+  const rows = sectorPeers.map((p) => {
+    const v = verdicts[p.s] || {};
+    const f = fund && fund.banks && fund.banks[p.s];
+    return { s: p.s, n: p.n, v, f };
+  }).filter((r) => r.v && r.v.p !== null && r.v.p !== undefined);
+  if (rows.length < 2) return '';
+  const shown = rows.slice(0, 9);
+  let h = '<section aria-label="Sector peer comparison"><h2>Sector peers · ' + esc(sector) + '</h2>\n';
+  h += '<p class="sp-note">Same-sector equities by engine score. P/E and EPS show published quarterly figures where available; – means not yet published.</p>\n';
+  h += '<div class="sp-table-wrap"><table class="sp-peer-table">\n<thead><tr>' +
+    '<th scope="col">Symbol</th><th scope="col">Price (Rs)</th>' +
+    '<th scope="col">Session</th><th scope="col">P/E (TTM)</th><th scope="col">EPS (TTM)</th>' +
+    '</tr></thead>\n<tbody>\n';
+  for (const r of shown) {
+    const ch = r.v.ch;
+    const chTxt = (ch === null || ch === undefined || ch === '') ? '–'
+      : ((Number(ch) > 0 ? '+' : '') + ch + '%');
+    const chCls = (ch === null || ch === undefined || ch === '') ? ''
+      : (Number(ch) < 0 ? 'neg' : (Number(ch) > 0 ? 'pos' : ''));
+    const pe = r.f && r.f.pe_ttm !== null && r.f.pe_ttm !== undefined ? esc(r.f.pe_ttm) + 'x' : '–';
+    const eps = r.f && r.f.eps_ttm !== null && r.f.eps_ttm !== undefined ? 'Rs ' + esc(r.f.eps_ttm) : '–';
+    const cur = r.s === sym ? ' class="cur"' : '';
+    h += '<tr' + cur + '><td><a href="/stocks/' + slugOf(r.s) + '/">' + esc(r.s) + '</a></td>' +
+      '<td>' + esc(fmtNum(r.v.p)) + '</td>' +
+      '<td class="' + chCls + '">' + esc(chTxt) + '</td>' +
+      '<td>' + pe + '</td><td>' + eps + '</td></tr>\n';
+  }
+  h += '</tbody></table></div>\n';
+  h += '<p class="sp-note">Figures from the same data date as this page. Educational comparison only, not investment advice.</p>\n</section>\n';
+  return h;
+}
+
+function symbolPage(u, v, newsItems, fund, liveQ, liveDate, sector, sectorPeers, verdicts) {
   const sym = u.s, name = u.n, slug = slugOf(sym);
   // Headline price prefers our canonical live payload (NEPSE API) when it is
   // at least as fresh as the batch verdict — the batch daily history comes
@@ -240,6 +311,7 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
   h += '</div>';
   h += '<div class="sp-tabpanel" id="fundamentals" data-panel="fundamentals" role="tabpanel" hidden>';
   h += fundBlock(sym, fund);
+  h += peerTable(sym, sector, sectorPeers, verdicts, fund);
   h += '</div>';
   h += '<div class="sp-tabpanel" data-panel="news" role="tabpanel" hidden>';
   h += '<h2>Latest headlines</h2>';
@@ -258,12 +330,12 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
   h += '<li><a href="/nepse-news/">Market news <span aria-hidden="true">→</span></a></li>';
   h += '</ul></div>';
 
-  // Peers: highest engine-scored other instruments of the same type.
-  // Labeled honestly as "more of this type", never as sector peers
-  // (no sector map exists yet).
-  if (peers.length) {
-    h += '<section aria-label="More ' + esc(u.t || 'securities') + '"><h2>More ' + esc(u.t || 'securities') + '</h2><ul class="sp-peers">\n';
-    for (const p of peers) {
+  // More in this sector: true sector peers, not a random same-type list.
+  const morePeers = (sectorPeers || []).filter((p) => p.s !== sym).slice(0, 5);
+  if (morePeers.length) {
+    const moreLabel = sector ? 'More in ' + sector : 'More ' + (u.t || 'securities');
+    h += '<section aria-label="' + esc(moreLabel) + '"><h2>' + esc(moreLabel) + '</h2><ul class="sp-peers">\n';
+    for (const p of morePeers) {
       h += '<li><a href="/stocks/' + slugOf(p.s) + '/">' + esc(p.n) + ' (' + esc(p.s) + ')</a></li>\n';
     }
     h += '</ul></section>\n';
@@ -352,23 +424,27 @@ function main() {
       (newsBySym[it.sym] = newsBySym[it.sym] || []).push(it);
     }
   }
-  // Peers: same instrument type, ranked by engine score desc.
-  const byType = {};
-  for (const u of symbols) {
-    const t = u.t || 'Security';
-    (byType[t] = byType[t] || []).push(u);
-  }
+  // Sector peers: classified with the same NEPSE sector map as the
+  // screener and sector heatmap, ranked by engine score desc.
   const scoreOf = (s) => { const e = verdicts[s]; const sc = e && e.s; return (sc === null || sc === undefined) ? -Infinity : Number(sc); };
-  for (const t of Object.keys(byType)) byType[t].sort((a, b) => scoreOf(b.s) - scoreOf(a.s));
+  const sectorOf = {};
+  const bySector = {};
+  for (const u of symbols) {
+    const sec = classifySymbol(u.s, u.n, u.t);
+    sectorOf[u.s] = sec;
+    if (sec) (bySector[sec] = bySector[sec] || []).push(u);
+  }
+  for (const sec of Object.keys(bySector)) bySector[sec].sort((a, b) => scoreOf(b.s) - scoreOf(a.s));
 
   let made = 0;
   for (const u of symbols) {
     const sym = u.s, slug = slugOf(sym);
     const v = verdicts[sym] || null;
-    const peers = (byType[u.t || 'Security'] || []).filter((p) => p.s !== sym).slice(0, 5);
+    const sector = sectorOf[sym] || null;
+    const sectorPeers = sector ? (bySector[sector] || []) : [];
     const dir = path.join(OUT, slug);
     fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, 'index.html'), symbolPage(u, v, newsBySym[sym] || [], peers, fund, liveMap[sym], liveDate));
+    fs.writeFileSync(path.join(dir, 'index.html'), symbolPage(u, v, newsBySym[sym] || [], fund, liveMap[sym], liveDate, sector, sectorPeers, verdicts));
     made++;
   }
   fs.writeFileSync(path.join(OUT, 'index.html'), indexPage(symbols, pageAsof));

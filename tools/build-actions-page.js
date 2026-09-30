@@ -38,6 +38,23 @@ function fmtAnnounced(d) {
   return String(+m[3]) + ' ' + MON3[+m[2] - 1] + ' ' + m[1];
 }
 
+/* Render the extracted facts (from the official PDF) as a compact
+ * definition list. Facts are only ever extracted from the verified
+ * official notice — never invented. */
+function fmtFacts(facts) {
+  if (!facts || typeof facts !== 'object') return '';
+  const rows = [];
+  const label = (k) => k.replace(/([A-Z])/g, ' $1').replace(/^./, (c) => c.toUpperCase());
+  for (const [k, v] of Object.entries(facts)) {
+    if (v === null || v === undefined || v === '') continue;
+    let val = v;
+    if (typeof v === 'number' && v >= 1000) val = v.toLocaleString('en-US');
+    rows.push('<div class="ca-fact"><dt>' + esc(label(k)) + '</dt><dd>' + esc(String(val)) + '</dd></div>');
+  }
+  if (!rows.length) return '';
+  return '<dl class="ca-facts">\n' + rows.join('\n') + '\n</dl>\n';
+}
+
 function main() {
   const store = loadJson(DATA_FILE, null);
   const items = (store && store.items) || [];
@@ -157,6 +174,7 @@ function main() {
         '<div class="ca-top"><span class="ca-kind k-' + esc(it.kind) + '">' + esc(kind) + '</span>' +
         (it.symbol ? '<a class="ca-sym" href="/stocks/' + esc(it.symbol.replace(/\//g, '-')) + '/">' + esc(it.symbol) + '</a>' : '') + '</div>\n' +
         '<h3 class="ca-head">' + esc(it.headline) + '</h3>\n' +
+        fmtFacts(it.facts) +
         '<p class="ca-meta">' + (it.company ? esc(it.company) + dot : '') +
         (it.announced ? 'Announced ' + fmtAnnounced(it.announced) + dot : '') +
         (it.officialPdf ? '<a href="' + esc(it.officialPdf) + '" rel="noopener" target="_blank">Official NEPSE PDF</a>' : '') +

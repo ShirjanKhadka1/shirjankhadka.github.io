@@ -153,3 +153,15 @@
 @media (max-width: 640px) {
   .sp-tab { padding: .6rem .8rem; font-size: .88rem; }
 }
+
+/* Sector peer comparison table (symbol pages, Fundamentals tab) */
+.sp-table-wrap { overflow-x: auto; border: 1px solid var(--line, #e7e0d2); border-radius: 12px; background: #fff; margin: .9rem 0; }
+.sp-peer-table { width: 100%; border-collapse: collapse; font-size: .88rem; min-width: 560px; font-variant-numeric: tabular-nums; }
+.sp-peer-table thead th { text-align: left; font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft, #6b655a); padding: 11px 12px; border-bottom: 1px solid var(--line, #e7e0d2); white-space: nowrap; background: #FBF9F4; }
+.sp-peer-table tbody td { padding: 10px 12px; border-top: 1px solid #f0ebe0; vertical-align: middle; white-space: nowrap; }
+.sp-peer-table tbody tr:first-child td { border-top: 0; }
+.sp-peer-table tbody tr.cur td { background: #f4f8f3; font-weight: 600; }
+.sp-peer-table td a { color: var(--emerald-deep, #1d4d3b); font-weight: 600; text-decoration: none; }
+.sp-peer-table td a:hover { text-decoration: underline; }
+.sp-peer-table td.pos { color: #1c6b3c; }
+.sp-peer-table td.neg { color: #a33327; }
