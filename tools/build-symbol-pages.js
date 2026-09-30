@@ -445,10 +445,10 @@ function peerTable(sym, sector, sectorPeers, verdicts, fund) {
 
 /* Investment tab: all-time per-scrip history (dividends, rights, auctions, AGMs).
  * History rows come from corp-history.json (ShareSansar's compilation of
- * company announcements: dividends, AGMs, rights, auctions), labeled as
- * such. Verified recent notices from corporate-actions.json carry the
- * official NEPSE/company PDF link. Nothing is invented; missing history
- * renders an honest note. */
+ * company announcements: dividends, AGMs, rights, auctions). Verified recent
+ * notices from corporate-actions.json carry the official NEPSE/company PDF
+ * link. Nothing is invented; missing history renders an honest note.
+ * (2026-09-30: no on-page source label per his call.) */
 const CA_KIND_LABEL = {
   'dividend': 'Dividend',
   'bonus-share': 'Bonus share',
@@ -485,7 +485,6 @@ function investmentCalendarCard(sym, name, hist) {
   if (!hasHist) {
     h += '<p class="sp-note inv-cal-empty">Past dividend, right share, auction and AGM history ' +
       'is being compiled for this security. Check back soon.</p>\n';
-    h += '<p class="sp-note inv-cal-src">History source: ShareSansar compilation of company announcements.</p>\n';
     h += '</section>\n';
     return h;
   }
@@ -612,7 +611,6 @@ function investmentCalendarCard(sym, name, hist) {
 
   h += '</div>\n'; // .inv-cal-main
   h += '</div>\n'; // .inv-cal-body
-  h += '<p class="sp-note inv-cal-src">Past history as compiled by ShareSansar from company announcements.</p>\n';
   h += '</section>\n';
   return h;
 }
