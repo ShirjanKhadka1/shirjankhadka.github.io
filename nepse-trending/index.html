@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trending Stocks — Nepse Decode</title>
+<meta name="description" content="NEPSE trending stocks ranked daily by genuine trading activity: turnover acceleration, volume spikes, 5-day momentum, broker flow concentration and news mentions. Transparent formula, no black box, no buy/sell calls. Free, no login.">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-trending/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Trending Stocks — Nepse Decode">
+<meta property="og:description" content="Which NEPSE stocks are genuinely attracting activity today — ranked by turnover acceleration, volume spikes, momentum, broker flow and news. Transparent, rule-based, free.">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-trending/">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/nepse-decode-og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Trending Stocks — Nepse Decode">
+<meta name="twitter:description" content="NEPSE stocks ranked daily by genuine trading activity. Transparent formula, no black box.">
+<meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/nepse-decode-og.jpg">
+<link rel="icon" href="/nepse-decode/icon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/nepse-decode/icon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/nepse-decode/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Serif+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Trending Stocks — Nepse Decode","url":"https://shirjankhadka.com.np/nepse-trending/","description":"NEPSE stocks ranked daily by genuine trading activity: turnover acceleration, volume spikes, 5-day momentum, broker flow concentration and news mentions.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"},"isPartOf":{"@type":"WebSite","name":"Nepse Decode","url":"https://shirjankhadka.com.np/nepse-decode/"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-decode/"},{"@type":"ListItem","position":2,"name":"Trending Stocks","item":"https://shirjankhadka.com.np/nepse-trending/"}]}
+</script>
+<link rel="stylesheet" href="/css/nepse-design-system.css?v=20260930b">
+<style>
+.bk-tabs{display:flex;gap:4px;border-bottom:2px solid var(--hairline);margin:0 0 16px;flex-wrap:wrap;overflow-x:auto}
+.bk-tabs button{background:none;border:none;padding:10px 14px;color:var(--ink-soft);font-weight:600;font-size:.92rem;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;font-family:var(--sans)}
+.bk-tabs button.active{color:var(--green-900);border-bottom-color:var(--green-900)}
+.bk-table{width:100%;border-collapse:collapse;font-size:.85rem;background:var(--card)}
+.bk-table th,.bk-table td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--hairline-soft);white-space:nowrap;font-variant-numeric:tabular-nums}
+.bk-table th:first-child,.bk-table td:first-child,.bk-table th:nth-child(2),.bk-table td:nth-child(2),.bk-table th:nth-child(8),.bk-table td:nth-child(8){text-align:left}
+.bk-table th{background:var(--paper-deep);font-weight:600;color:var(--ink-soft);position:sticky;top:0}
+.bk-table th.sortable{cursor:pointer;user-select:none}
+.bk-table th.sortable:hover{color:var(--green-900)}
+.bk-table th .arr{color:var(--gold);font-size:.75rem}
+.bk-table tr:last-child td{border-bottom:none}
+.scrollx{overflow-x:auto;margin:12px 0;border:1px solid var(--hairline);border-radius:var(--r-md)}
+.pos{color:var(--up);font-weight:600}.neg{color:var(--down);font-weight:600}
+.cover{background:var(--gold-soft);border:1px solid var(--hairline);border-radius:var(--r-md);padding:10px 16px;font-size:.85rem;margin:0 0 16px;color:var(--ink-soft)}
+h2.bk-h{font-family:var(--serif);font-size:1.25rem;margin:28px 0 8px}
+.tone{display:inline-block;padding:3px 10px;border-radius:var(--r-pill);font-size:.75rem;font-weight:700;white-space:nowrap}
+.tone-acc{background:var(--up-bg);color:var(--up);border:1px solid var(--up)}
+.tone-dist{background:var(--down-bg);color:var(--down);border:1px solid var(--down)}
+.tone-watch{background:var(--paper-deep);color:var(--ink-soft);border:1px solid var(--hairline)}
+.scorebar{width:90px;height:8px;background:var(--paper-deep);border-radius:var(--r-pill);overflow:hidden;display:inline-block;vertical-align:middle}
+.scorebar i{display:block;height:100%;background:linear-gradient(90deg,var(--green-700),var(--gold));border-radius:var(--r-pill)}
+.rchips{display:flex;gap:5px;flex-wrap:wrap;max-width:300px}
+.rchip{background:var(--paper-deep);border:1px solid var(--hairline-soft);border-radius:var(--r-pill);padding:2px 9px;font-size:.72rem;color:var(--ink-soft);white-space:nowrap}
+.symlink{font-weight:700;color:var(--green-800);text-decoration:none}
+.symlink:hover{text-decoration:underline}
+.sname{font-size:.75rem;color:var(--muted);display:block;font-weight:400}
+.tone-key{display:grid;gap:8px;margin:14px 0 20px}
+@media(min-width:760px){.tone-key{grid-template-columns:repeat(3,1fr)}}
+.tone-card{background:var(--card);border:1px solid var(--hairline);border-radius:var(--r-md);padding:10px 14px;font-size:.82rem;color:var(--ink-soft)}
+.method{background:var(--paper-deep);border:1px solid var(--hairline);border-radius:var(--r-md);padding:14px 18px;font-size:.86rem;color:var(--ink-soft);margin:20px 0}
+.method code{font-size:.8rem}
+.disclaimer{border-left:3px solid var(--gold);padding:10px 16px;margin:28px 0;font-size:.87rem;color:var(--ink-soft);background:var(--gold-soft);border-radius:0 var(--r-md) var(--r-md) 0}
+canvas.spark{display:block}
+.crumbs{font-size:.85rem;color:var(--muted);margin-bottom:6px}
+.crumbs a{color:var(--muted);text-decoration:none}
+.crumbs a:hover{color:var(--green-900)}
+</style>
+</head>
+<body class="nd">
+<main style="max-width:1160px;margin:0 auto;padding:24px 16px">
+<p class="crumbs"><a href="/nepse-decode/">Nepse Decode</a> &middot; Trending Stocks</p>
+<p style="color:var(--muted);font-size:.9rem;margin-bottom:4px">Nepse Decode &middot; Market pulse</p>
+<h1 style="font-family:var(--serif);font-size:2rem;margin:0 0 6px">Trending Stocks</h1>
+<p style="color:var(--ink-soft);max-width:700px">Which NEPSE stocks are genuinely attracting activity — ranked by turnover acceleration, volume spikes, 5-day momentum, broker flow concentration and news mentions. Our own transparent formula: every input is published below, no black box, no borrowed scores.</p>
+
+<div class="cover" id="coverage">Loading data…</div>
+
+<div class="tone-key" id="toneKey" style="display:none">
+  <div class="tone-card"><span class="tone tone-acc">Accumulation interest</span><br>Rising price with heavy volume — buyers are showing up. Worth studying, not a buy call.</div>
+  <div class="tone-card"><span class="tone tone-dist">Distribution pressure</span><br>Falling price with heavy volume — sellers are active. We never disguise selling as a buying opportunity.</div>
+  <div class="tone-card"><span class="tone tone-watch">Watch</span><br>Elevated activity without a clear price direction — the market is deciding.</div>
+</div>
+
+<div class="bk-tabs" role="tablist" id="toneTabs">
+<button data-tone="all" class="active">All</button>
+<button data-tone="accumulation">Accumulation</button>
+<button data-tone="distribution">Distribution</button>
+<button data-tone="watch">Watch</button>
+</div>
+
+<div class="scrollx">
+<table class="bk-table" id="trendTable">
+<thead><tr>
+<th>#</th>
+<th>Stock</th>
+<th class="sortable" data-k="ltp">LTP</th>
+<th class="sortable" data-k="ret_5d_pct">5d %</th>
+<th class="sortable" data-k="turnover_rs_m">Turnover</th>
+<th>Tone</th>
+<th class="sortable" data-k="score">Score</th>
+<th>Why trending</th>
+<th>30-day trend</th>
+</tr></thead>
+<tbody id="trendBody"><tr><td colspan="9" style="text-align:center;color:var(--muted)">Loading…</td></tr></tbody>
+</table>
+</div>
+
+<h2 class="bk-h">How the score is built</h2>
+<div class="method" id="methodBox">Loading…</div>
+
+<div class="disclaimer"><strong>Educational only — not investment advice.</strong> A high activity score means a stock is attracting attention, not that it is a good buy. Distribution-pressure stocks are falling on heavy volume; treat them as caution flags, never as opportunities. Verify every price with your broker before trading. Nepse Decode publishes no buy/sell calls.</div>
+</main>
+<script>
+(function(){
+"use strict";
+var BASE = '/nepse-chart/data/';
+var state = { tone: 'all', sort: 'score', dir: -1, rows: [], meta: null };
+var $ = function(id){ return document.getElementById(id); };
+
+function fmt(n, d){ d = d===undefined?2:d; if(n===null||n===undefined||!isFinite(n)) return '–';
+  return Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}); }
+function cls(v){ return v>0?'pos':(v<0?'neg':''); }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+var TONE_LABEL = { accumulation: ['tone-acc','Accumulation interest'], distribution: ['tone-dist','Distribution pressure'], watch: ['tone-watch','Watch'] };
+
+function sparkline(cv, data, up){
+  var dpr = window.devicePixelRatio || 1;
+  var W = 120, H = 36;
+  cv.width = W*dpr; cv.height = H*dpr; cv.style.width = W+'px'; cv.style.height = H+'px';
+  var c = cv.getContext('2d'); c.scale(dpr, dpr);
+  c.clearRect(0,0,W,H);
+  var mn = Math.min.apply(null,data), mx = Math.max.apply(null,data), rg = (mx-mn)||1;
+  c.beginPath();
+  data.forEach(function(v,i){
+    var x = 2 + i*(W-4)/(data.length-1);
+    var y = 3 + (1-(v-mn)/rg)*(H-6);
+    if(i===0) c.moveTo(x,y); else c.lineTo(x,y);
+  });
+  c.strokeStyle = up ? '#1a7a3c' : '#b3402e'; c.lineWidth = 1.6; c.stroke();
+  c.lineTo(W-2,H); c.lineTo(2,H); c.closePath();
+  c.fillStyle = up ? 'rgba(26,122,60,.10)' : 'rgba(179,64,46,.10)'; c.fill();
+  var lx = 2 + (data.length-1)*(W-4)/(data.length-1), ly = 3 + (1-(data[data.length-1]-mn)/rg)*(H-6);
+  c.beginPath(); c.arc(lx-2,ly,2.6,0,7); c.fillStyle = up ? '#1a7a3c' : '#b3402e'; c.fill();
+}
+
+function filtered(){
+  var r = state.rows.filter(function(s){ return state.tone==='all' || s.tone===state.tone; });
+  var k = state.sort, d = state.dir;
+  r.sort(function(a,b){ return ((a[k]||0)-(b[k]||0))*d; });
+  return r.slice(0,30);
+}
+
+function render(){
+  var rows = filtered();
+  var html = '';
+  rows.forEach(function(s, i){
+    var tl = TONE_LABEL[s.tone] || TONE_LABEL.watch;
+    var chips = (s.reasons||[]).map(function(r){ return '<span class="rchip">'+esc(r)+'</span>'; }).join('');
+    html += '<tr>'
+      + '<td>'+(i+1)+'</td>'
+      + '<td><a class="symlink" href="/nepse-chart/?s='+esc(s.symbol)+'">'+esc(s.symbol)+'</a><span class="sname">'+esc(s.name)+' · '+esc(s.sector)+'</span></td>'
+      + '<td>'+fmt(s.ltp)+'</td>'
+      + '<td class="'+cls(s.ret_5d_pct)+'">'+(s.ret_5d_pct>0?'+':'')+fmt(s.ret_5d_pct)+'%</td>'
+      + '<td>Rs '+fmt(s.turnover_rs_m,1)+' M<br><span style="color:var(--muted);font-size:.75rem">'+fmt(s.turnover_ratio,1)+'× avg</span></td>'
+      + '<td><span class="tone '+tl[0]+'">'+tl[1]+'</span></td>'
+      + '<td><span class="scorebar"><i style="width:'+Math.round(s.score)+'%"></i></span> '+fmt(s.score,1)+'</td>'
+      + '<td><div class="rchips">'+chips+'</div></td>'
+      + '<td><canvas class="spark" data-i="'+i+'"></canvas></td>'
+      + '</tr>';
+  });
+  if(!rows.length) html = '<tr><td colspan="9" style="text-align:center;color:var(--muted)">No stocks in this tone right now.</td></tr>';
+  $('trendBody').innerHTML = html;
+  var cvs = $('trendBody').querySelectorAll('canvas.spark');
+  rows.forEach(function(s, i){
+    if(cvs[i]) sparkline(cvs[i], s.spark, s.ret_5d_pct >= 0);
+  });
+  var ths = document.querySelectorAll('#trendTable th.sortable');
+  ths.forEach(function(th){
+    var k = th.getAttribute('data-k');
+    var base = th.textContent.replace(/ [▲▼]/,'');
+    th.innerHTML = esc(base) + (k===state.sort ? ' <span class="arr">'+(state.dir===-1?'▼':'▲')+'</span>' : '');
+  });
+}
+
+function initTabs(){
+  $('toneTabs').addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(!b) return;
+    state.tone = b.getAttribute('data-tone');
+    var bs = this.querySelectorAll('button');
+    bs.forEach(function(x){ x.classList.remove('active'); });
+    b.classList.add('active');
+    render();
+  });
+  document.querySelectorAll('#trendTable th.sortable').forEach(function(th){
+    th.addEventListener('click', function(){
+      var k = th.getAttribute('data-k');
+      if(state.sort===k){ state.dir = -state.dir; } else { state.sort=k; state.dir=-1; }
+      render();
+    });
+  });
+}
+
+fetch(BASE+'trending.json').then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(d){
+  state.rows = d.stocks || [];
+  state.meta = d;
+  var counts = {accumulation:0, distribution:0, watch:0};
+  state.rows.forEach(function(s){ if(counts[s.tone]!==undefined) counts[s.tone]++; });
+  $('coverage').innerHTML = '<strong>Data as of ' + esc(d.asof) + '.</strong> ' + state.rows.length +
+    ' equities scored (' + counts.accumulation + ' accumulation · ' + counts.distribution +
+    ' distribution · ' + counts.watch + ' watch). Scores rebuild every trading day from the daily close.';
+  $('methodBox').textContent = d.method || '';
+  $('toneKey').style.display = '';
+  initTabs();
+  render();
+}).catch(function(){
+  $('coverage').textContent = 'Could not load trending data. Please try again later.';
+  $('trendBody').innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted)">Data unavailable.</td></tr>';
+});
+})();
+</script>
+</body>
+</html>

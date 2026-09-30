@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Value Investing — Nepse Decode</title>
+<meta name="description" content="NEPSE value screen: 192 companies ranked within their own sectors on earnings yield and price-to-book, from published Q4 FY 2082/83 filings. Transparent factor research — no DCF, no price targets, no buy/sell calls. Free, no login.">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-value/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Value Investing — Nepse Decode">
+<meta property="og:description" content="A sector-aware NEPSE value screen on published quarterly filings: earnings yield, price-to-book, ROE. Transparent methodology, screening starting point only.">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-value/">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/nepse-decode-og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Value Investing — Nepse Decode">
+<meta name="twitter:description" content="Sector-aware NEPSE value screen on published filings. Transparent factors, no price targets.">
+<meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/nepse-decode-og.jpg">
+<link rel="icon" href="/nepse-decode/icon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/nepse-decode/icon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/nepse-decode/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Serif+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Value Investing — Nepse Decode","url":"https://shirjankhadka.com.np/nepse-value/","description":"A sector-aware value screen for NEPSE equities: earnings yield, price-to-book, ROE and P/E computed from published Q4 FY 2082/83 filings, ranked within each sector.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"},"isPartOf":{"@type":"WebSite","name":"Nepse Decode","url":"https://shirjankhadka.com.np/nepse-decode/"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-decode/"},{"@type":"ListItem","position":2,"name":"Value Investing","item":"https://shirjankhadka.com.np/nepse-value/"}]}
+</script>
+<link rel="stylesheet" href="/css/nepse-design-system.css?v=20260930b">
+<style>
+.bk-table{width:100%;border-collapse:collapse;font-size:.85rem;background:var(--card)}
+.bk-table th,.bk-table td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--hairline-soft);white-space:nowrap;font-variant-numeric:tabular-nums}
+.bk-table th:first-child,.bk-table td:first-child,.bk-table th:nth-child(2),.bk-table td:nth-child(2){text-align:left}
+.bk-table th{background:var(--paper-deep);font-weight:600;color:var(--ink-soft);position:sticky;top:0}
+.bk-table th.sortable{cursor:pointer;user-select:none}
+.bk-table th.sortable:hover{color:var(--green-900)}
+.bk-table th .arr{color:var(--gold);font-size:.75rem}
+.bk-table tr:last-child td{border-bottom:none}
+.scrollx{overflow-x:auto;margin:12px 0;border:1px solid var(--hairline);border-radius:var(--r-md)}
+.ctl{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 16px;align-items:center}
+.ctl select{border:1px solid var(--hairline);border-radius:var(--r-sm);padding:8px 12px;font-size:.9rem;font-family:var(--sans);background:var(--card);max-width:100%}
+.cover{background:var(--gold-soft);border:1px solid var(--hairline);border-radius:var(--r-md);padding:10px 16px;font-size:.85rem;margin:0 0 16px;color:var(--ink-soft)}
+h2.bk-h{font-family:var(--serif);font-size:1.25rem;margin:28px 0 8px}
+.factors{display:grid;gap:10px;margin:16px 0 4px}
+@media(min-width:760px){.factors{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1020px){.factors{grid-template-columns:repeat(4,1fr)}}
+.factor{background:var(--card);border:1px solid var(--hairline);border-radius:var(--r-md);padding:14px 16px}
+.factor h3{font-family:var(--serif);font-size:1.02rem;margin:0 0 6px}
+.factor p{font-size:.83rem;color:var(--ink-soft);margin:0;line-height:1.55}
+.factor .lim{color:var(--muted);font-size:.78rem;display:block;margin-top:6px}
+.scorebar{width:80px;height:8px;background:var(--paper-deep);border-radius:var(--r-pill);overflow:hidden;display:inline-block;vertical-align:middle}
+.scorebar i{display:block;height:100%;background:linear-gradient(90deg,var(--green-700),var(--gold));border-radius:var(--r-pill)}
+.symlink{font-weight:700;color:var(--green-800);text-decoration:none}
+.symlink:hover{text-decoration:underline}
+.sname{font-size:.75rem;color:var(--muted);display:block;font-weight:400}
+.submed{font-size:.72rem;color:var(--muted);display:block;font-weight:400}
+.method{background:var(--paper-deep);border:1px solid var(--hairline);border-radius:var(--r-md);padding:14px 18px;font-size:.86rem;color:var(--ink-soft);margin:20px 0;line-height:1.6}
+.disclaimer{border-left:3px solid var(--gold);padding:10px 16px;margin:28px 0;font-size:.87rem;color:var(--ink-soft);background:var(--gold-soft);border-radius:0 var(--r-md) var(--r-md) 0}
+.crumbs{font-size:.85rem;color:var(--muted);margin-bottom:6px}
+.crumbs a{color:var(--muted);text-decoration:none}
+.crumbs a:hover{color:var(--green-900)}
+</style>
+</head>
+<body class="nd">
+<main style="max-width:1160px;margin:0 auto;padding:24px 16px">
+<p class="crumbs"><a href="/nepse-decode/">Nepse Decode</a> &middot; Value Investing</p>
+<p style="color:var(--muted);font-size:.9rem;margin-bottom:4px">Nepse Decode &middot; Factor research</p>
+<h1 style="font-family:var(--serif);font-size:2rem;margin:0 0 6px">Value Investing</h1>
+<p style="color:var(--ink-soft);max-width:700px">A sector-aware value screen for NEPSE equities, built on published Q4 FY 2082/83 filings. Companies are ranked <strong>within their own sector only</strong> — a bank is never compared against a hydropower company. This is a screening starting point for your own research, not a verdict.</p>
+
+<div class="cover" id="research" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+  <strong>Featured research:</strong>
+  <span>Nepal Bank (NBL), the screen's top-ranked bank, analyzed in depth — Rs 30.63 EPS, Rs 294.70 price, and why the market still will not pay above book.</span>
+  <a href="/blog/nepal-bank-nbl-company-analysis/" style="font-weight:700;color:var(--green-800)">Read the NBL report →</a>
+</div>
+
+<div class="cover" id="coverage">Loading data…</div>
+
+<h2 class="bk-h">The four factors, in plain language</h2>
+<div class="factors">
+  <div class="factor"><h3>Earnings yield (1 ÷ P/E)</h3><p>What the business earns for every rupee of price you pay. Higher means you are paying less for each rupee of earnings.</p><span class="lim">Limit: earnings can be one-off or cyclical — a high yield can be a trap.</span></div>
+  <div class="factor"><h3>Price-to-book (P/BV)</h3><p>Price versus the accounting value of net assets per share. Below 1 means you pay less than book value.</p><span class="lim">Limit: book value may overstate assets that are hard to sell, like bad loans.</span></div>
+  <div class="factor"><h3>ROE (TTM)</h3><p>Return on equity: how much profit each rupee of shareholder capital generated over the last twelve months.</p><span class="lim">Limit: high ROE from heavy leverage is fragile, not strong.</span></div>
+  <div class="factor"><h3>P/E (TTM)</h3><p>How many years of current earnings the price implies. Lower usually means cheaper — within the same sector.</p><span class="lim">Limit: meaningless for loss-making companies; we exclude those.</span></div>
+</div>
+
+<h2 class="bk-h">The screen</h2>
+<div class="ctl">
+  <label for="sectorSel" style="font-size:.9rem;color:var(--muted)">Sector:</label>
+  <select id="sectorSel"><option value="">All sectors</option></select>
+</div>
+
+<div class="scrollx">
+<table class="bk-table" id="valueTable">
+<thead><tr>
+<th class="sortable" data-k="value_score">Score</th>
+<th>Stock</th>
+<th>Sector</th>
+<th class="sortable" data-k="ltp">LTP</th>
+<th class="sortable" data-k="pe_ttm">P/E (TTM)</th>
+<th class="sortable" data-k="pbv">P/BV</th>
+<th class="sortable" data-k="ey_pct">Earn. yield</th>
+<th class="sortable" data-k="roe_ttm_pct">ROE (TTM)</th>
+<th>EPS (TTM)</th>
+<th>BVPS</th>
+<th>Period</th>
+</tr></thead>
+<tbody id="valueBody"><tr><td colspan="11" style="text-align:center;color:var(--muted)">Loading…</td></tr></tbody>
+</table>
+</div>
+
+<h2 class="bk-h">Methodology and caveats</h2>
+<div class="method" id="methodBox">Loading…</div>
+
+<div class="disclaimer"><strong>Educational only — not investment advice.</strong> A high value score means a stock looks cheap on two accounting ratios relative to its sector peers. Cheap can mean undervalued, or it can mean the market sees risks the ratios miss — bad loans, weak governance, stalled projects. We publish no price targets and no buy/sell calls. Read the filings yourself before deciding anything.</div>
+</main>
+<script>
+(function(){
+"use strict";
+var BASE = '/nepse-chart/data/';
+var state = { sector: '', sort: 'value_score', dir: -1, rows: [] };
+var $ = function(id){ return document.getElementById(id); };
+
+function fmt(n, d){ d = d===undefined?2:d; if(n===null||n===undefined||!isFinite(n)) return '–';
+  return Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}); }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function filtered(){
+  var r = state.rows.filter(function(s){ return !state.sector || s.sector===state.sector; });
+  var k = state.sort, d = state.dir;
+  r.sort(function(a,b){ return ((a[k]||0)-(b[k]||0))*d; });
+  return r;
+}
+
+function render(){
+  var rows = filtered();
+  var html = '';
+  rows.forEach(function(s){
+    var research = (s.symbol === 'NBL')
+      ? ' <a href="/blog/nepal-bank-nbl-company-analysis/" style="font-size:.72rem;font-weight:700;color:var(--green-800);text-decoration:none;border:1px solid var(--green-800);border-radius:var(--r-pill);padding:1px 8px;white-space:nowrap" title="Full equity research report on Nepal Bank">Research</a>' : '';
+    html += '<tr>'
+      + '<td><span class="scorebar"><i style="width:'+Math.round(s.value_score)+'%"></i></span> '+fmt(s.value_score,1)+'</td>'
+      + '<td><a class="symlink" href="/nepse-chart/?s='+esc(s.symbol)+'">'+esc(s.symbol)+'</a>'+research+'<span class="sname">'+esc(s.name)+'</span></td>'
+      + '<td>'+esc(s.sector)+'</td>'
+      + '<td>'+fmt(s.ltp)+'</td>'
+      + '<td>'+fmt(s.pe_ttm)+'<span class="submed">sector '+fmt(s.sector_median_pe,1)+'</span></td>'
+      + '<td>'+fmt(s.pbv)+'<span class="submed">sector '+fmt(s.sector_median_pbv,2)+'</span></td>'
+      + '<td>'+fmt(s.ey_pct)+'%</td>'
+      + '<td>'+fmt(s.roe_ttm_pct)+'%</td>'
+      + '<td>'+fmt(s.eps_ttm)+'</td>'
+      + '<td>'+fmt(s.bvps)+'</td>'
+      + '<td>'+esc(s.period||'–')+'</td>'
+      + '</tr>';
+  });
+  if(!rows.length) html = '<tr><td colspan="11" style="text-align:center;color:var(--muted)">No companies in this sector.</td></tr>';
+  $('valueBody').innerHTML = html;
+  var ths = document.querySelectorAll('#valueTable th.sortable');
+  ths.forEach(function(th){
+    var k = th.getAttribute('data-k');
+    var base = th.textContent.replace(/ [▲▼]/,'');
+    th.innerHTML = esc(base) + (k===state.sort ? ' <span class="arr">'+(state.dir===-1?'▼':'▲')+'</span>' : '');
+  });
+}
+
+fetch(BASE+'value.json').then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(d){
+  state.rows = d.stocks || [];
+  var sectors = {};
+  state.rows.forEach(function(s){ sectors[s.sector] = 1; });
+  var sel = $('sectorSel');
+  Object.keys(sectors).sort().forEach(function(sc){
+    var o = document.createElement('option'); o.value = sc; o.textContent = sc; sel.appendChild(o);
+  });
+  sel.addEventListener('change', function(){ state.sector = sel.value; render(); });
+  document.querySelectorAll('#valueTable th.sortable').forEach(function(th){
+    th.addEventListener('click', function(){
+      var k = th.getAttribute('data-k');
+      if(state.sort===k){ state.dir = -state.dir; } else { state.sort=k; state.dir=-1; }
+      render();
+    });
+  });
+  $('coverage').innerHTML = '<strong>Data as of ' + esc(d.asof) + '.</strong> ' + state.rows.length +
+    ' companies scored across ' + Object.keys(sectors).length + ' sectors (' +
+    (d.coverage && d.coverage.companies || '?') + ' companies in source filings). Source: ' + esc(d.source) + '.';
+  $('methodBox').textContent = d.method || '';
+  render();
+}).catch(function(){
+  $('coverage').textContent = 'Could not load value data. Please try again later.';
+  $('valueBody').innerHTML = '<tr><td colspan="11" style="text-align:center;color:var(--muted)">Data unavailable.</td></tr>';
+});
+})();
+</script>
+</body>
+</html>

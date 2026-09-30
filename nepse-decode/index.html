@@ -154,13 +154,13 @@
   <a href="/nepse-signals/reversal/">Reversal</a>
 </span>
   <a href="/nepse-screener/">Screener</a>
+  <a href="/nepse-trending/">Trending Stocks</a>
+  <a href="/nepse-value/">Value Investing</a>
   <a href="/nepse-brokers/">Broker Analytics</a>
   <a href="/nepse-sectors/">Sectors</a>
   <a href="/nepse-news/">Market news</a>
   <a href="/nepse-watchlist/">Watchlist</a>
   <a href="/nepse-portfolio/">Portfolio</a>
-  <a href="/nepse-simulator/">Simulator</a>
-  <a href="/nepse-reports/">Reports</a>
   <a href="/nepse-actions/">Corp. actions</a>
 </nav>
 
@@ -177,13 +177,13 @@
   <a href="/nepse-signals/reversal/">Reversal</a>
 </span>
       <a href="/nepse-screener/">Screener</a>
-  <a href="/nepse-brokers/">Broker Analytics</a>
+      <a href="/nepse-trending/">Trending Stocks</a>
+      <a href="/nepse-value/">Value Investing</a>
+      <a href="/nepse-brokers/">Broker Analytics</a>
       <a href="/nepse-sectors/">Sectors</a>
       <a href="/nepse-news/">Market news</a>
       <a href="/nepse-watchlist/">Watchlist</a>
       <a href="/nepse-portfolio/">Portfolio</a>
-      <a href="/nepse-simulator/">Simulator</a>
-      <a href="/nepse-reports/">Reports</a>
       <a href="/nepse-actions/">Corp. actions</a>
     </nav>
     <p class="nd-caption" style="margin-top:32px">Free forever · no login</p>
@@ -286,6 +286,35 @@
         </div>
       </div>
 
+      <!-- 2b. TRENDING NOW: top accumulation-tone stocks (hardcoded snapshot)
+           HARDCODED 2026-09-30 — the daily builder (tools/build_trending_value.py)
+           should refresh this section with the top 6 accumulation-tone stocks. -->
+      <div class="nd-section-head">
+        <div><p class="nd-kicker">Market pulse</p><h2>Trending now</h2></div>
+        <a class="nd-section-link" href="/nepse-trending/">All trending →</a>
+      </div>
+      <p class="nd-caption" style="margin-bottom:16px">Stocks with rising prices and unusually heavy volume today — <span style="color:var(--up);font-weight:700">accumulation interest</span>, not buy calls. Snapshot of 2026-09-30.</p>
+      <div class="nd-tools" id="trendNow" style="margin-bottom:40px">
+        <a class="nd-card nd-tool" href="/nepse-chart/?s=GHL">
+          <span style="flex:1"><h3>GHL <span class="nd-caption">· Ghalemdi Hydro</span></h3><p>Rs 271.50 · <span style="color:var(--up);font-weight:700">+6.81%</span> 5d · score 72.6</p><canvas class="nd-trend-spark" data-spark="[256.7,249,242.5,235.6,239,234.9,231,228,228.9,226.8,226.9,220,223,224.3,221,228,228,235.9,239.9,244.9,247.8,245.7,246.6,243.3,254.2,257,253.7,249,253,271.5]" width="220" height="44" style="width:100%;height:44px;margin-top:8px"></canvas></span>
+        </a>
+        <a class="nd-card nd-tool" href="/nepse-chart/?s=PHCL">
+          <span style="flex:1"><h3>PHCL <span class="nd-caption">· Peoples Hydropower</span></h3><p>Rs 333.80 · <span style="color:var(--up);font-weight:700">+3.34%</span> 5d · score 61.8</p><canvas class="nd-trend-spark" data-spark="[304,302.4,301,298,299.2,303,306.9,302,298.7,300,297.6,292,297,300,302.8,298.8,297,296.2,305,304.8,313.6,310,323,322.5,323,312,319.6,319.6,320.1,333.8]" width="220" height="44" style="width:100%;height:44px;margin-top:8px"></canvas></span>
+        </a>
+        <a class="nd-card nd-tool" href="/nepse-chart/?s=SPHL">
+          <span style="flex:1"><h3>SPHL <span class="nd-caption">· Sayapatri Hydropower</span></h3><p>Rs 580.00 · <span style="color:var(--up);font-weight:700">+13.26%</span> 5d · score 60.8</p><canvas class="nd-trend-spark" data-spark="[530.7,532,526.5,524,515,530.9,527.9,561,580,522,523,540,521,517,518,514,514,513.4,516,524.9,526.9,515,515.9,513.9,512.1,513.9,512,501,535,580]" width="220" height="44" style="width:100%;height:44px;margin-top:8px"></canvas></span>
+        </a>
+        <a class="nd-card nd-tool" href="/nepse-chart/?s=HHL">
+          <span style="flex:1"><h3>HHL <span class="nd-caption">· Himalayan Hydropower</span></h3><p>Rs 350.00 · <span style="color:var(--up);font-weight:700">+2.34%</span> 5d · score 55.7</p><canvas class="nd-trend-spark" data-spark="[339,343.5,337,332.9,332,329.1,334.8,332,328,325,326.8,317,318,320,319.9,315,319,319,328,336,338,333,334.8,340.9,342,340,342,341,340,350]" width="220" height="44" style="width:100%;height:44px;margin-top:8px"></canvas></span>
+        </a>
+        <a class="nd-card nd-tool" href="/nepse-chart/?s=SONA">
+          <span style="flex:1"><h3>SONA <span class="nd-caption">· Sonapur Minerals</span></h3><p>Rs 420.00 · <span style="color:var(--up);font-weight:700">+3.96%</span> 5d · score 34.0</p><canvas class="nd-trend-spark" data-spark="[406,403,400.5,401.1,400,399.1,398,392.1,385.1,388.4,408,416.9,407,410,404,398,395,387,391.7,397,405.5,401.9,403,405,404,404,434.9,427,419.5,420]" width="220" height="44" style="width:100%;height:44px;margin-top:8px"></canvas></span>
+        </a>
+        <a class="nd-card nd-tool" href="/nepse-chart/?s=ULHC">
+          <span style="flex:1"><h3>ULHC <span class="nd-caption">· Upper Lohore Khola Hydro</span></h3><p>Rs 352.00 · <span style="color:var(--up);font-weight:700">+7.94%</span> 5d · score 33.9</p><canvas class="nd-trend-spark" data-spark="[359,342,340.5,341,333,338.4,330.1,321.7,320,306,301,287.1,287.5,291,300,260,299,320,323.1,330.9,334,327,318,328,326.1,330,339,339.9,350,352]" width="220" height="44" style="width:100%;height:44px;margin-top:8px"></canvas></span>
+        </a>
+      </div>
+
       <!-- 3. ENGINE VERDICTS: teaser -->
       <div class="nd-section-head">
         <div><p class="nd-kicker">The engine</p><h2>Latest verdicts</h2></div>
@@ -317,6 +346,14 @@
           <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg></span>
           <span><h3>Market Screener</h3><p>All 410 securities ranked daily, stop-loss and target on every row.</p></span>
         </a>
+        <a class="nd-card nd-tool" href="/nepse-trending/">
+          <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></span>
+          <span><h3>Trending Stocks</h3><p>What the market is actually doing today — ranked by real activity, with the reason shown on every row.</p></span>
+        </a>
+        <a class="nd-card nd-tool" href="/nepse-value/">
+          <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 7l7-4 7 4"/><path d="M5 7v6a7 7 0 0 0 14 0V7"/></svg></span>
+          <span><h3>Value Investing</h3><p>A sector-aware value screen on verified filings — earnings yield, price-to-book, ROE.</p></span>
+        </a>
         <a class="nd-card nd-tool" href="/nepse-news/">
           <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5z"/><path d="M18 8h1a1 1 0 0 1 1 1v9a2 2 0 0 1-2 2"/><path d="M8 9h6M8 13h6M8 17h4"/></svg></span>
           <span><h3>Market News</h3><p>Announcements and headlines, always with the source attached.</p></span>
@@ -341,7 +378,8 @@
 
       <footer class="nd-footer">
         <p class="nd-caption"><strong>Educational use only.</strong> Nothing here is investment advice; verify prices with your broker before trading. Free forever, no login.</p>
-        <p class="nd-caption" style="margin-top:12px"><a href="/nepse-chart/">Chart</a> · <a href="/nepse-screener/">Screener</a>
+        <p class="nd-caption" style="margin-top:12px"><a href="/nepse-chart/">Chart</a> · <a href="/nepse-screener/">Screener</a> ·
+  <a href="/nepse-trending/">Trending</a> · <a href="/nepse-value/">Value</a> ·
   <a href="/nepse-brokers/">Broker Analytics</a> · <a href="/nepse-sectors/">Sectors</a> · <a href="/nepse-news/">News</a></p>
       </footer>
 
@@ -729,6 +767,25 @@
   }
   loadMarket();
   loadNews();
+  /* Trending-now sparklines (hardcoded snapshot; see section comment). */
+  document.querySelectorAll('canvas.nd-trend-spark').forEach(function(cv){
+    try{
+      var data = JSON.parse(cv.getAttribute('data-spark'));
+      var dpr = window.devicePixelRatio || 1, W = cv.clientWidth || 220, H = 44;
+      cv.width = W*dpr; cv.height = H*dpr;
+      var c = cv.getContext('2d'); c.scale(dpr,dpr);
+      var mn = Math.min.apply(null,data), mx = Math.max.apply(null,data), rg = (mx-mn)||1;
+      var up = data[data.length-1] >= data[0];
+      c.beginPath();
+      data.forEach(function(v,i){
+        var x = 2 + i*(W-4)/(data.length-1), y = 3 + (1-(v-mn)/rg)*(H-6);
+        if(i===0) c.moveTo(x,y); else c.lineTo(x,y);
+      });
+      c.strokeStyle = up ? '#1a7a3c' : '#b3402e'; c.lineWidth = 1.5; c.stroke();
+      c.lineTo(W-2,H); c.lineTo(2,H); c.closePath();
+      c.fillStyle = up ? 'rgba(26,122,60,.10)' : 'rgba(179,64,46,.10)'; c.fill();
+    }catch(e){}
+  });
   getJSON('verdicts.json').then(paintVerdicts).catch(function(){
     $('vd-asof').textContent='Verdict data is temporarily unavailable.';
     $('vd-buys').innerHTML='<p class="vd-empty">Verdict data is temporarily unavailable.</p>';
