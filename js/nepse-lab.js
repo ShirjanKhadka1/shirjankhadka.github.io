@@ -20,11 +20,11 @@
     prices: function (s) { return 'https://samirwagle.github.io/Nepse-All-Scraper/docs/api/prices/' + s.replace('/', '-') + '.json'; },
     latest: 'https://samirwagle.github.io/Nepse-All-Scraper/docs/api/latest.json',
     live: 'https://shubhamnpk.github.io/yonepse/data/market/live.json',
-    liveOwn: 'data/live.json', // our own 15-min official-API snapshot (Actions job)
+    liveOwn: '/nepse-chart/data/live.json', // our own 15-min official-API snapshot (Actions job)
     status: 'https://shubhamnpk.github.io/yonepse/data/market/status.json',
-    universe: 'data/universe.json',
-    verdicts: 'data/verdicts.json',
-    ltp: function (s) { return 'data/ltp/' + s.replace('/', '-') + '.json?v=' + UNIVERSE_V; }
+    universe: '/nepse-chart/data/universe.json',
+    verdicts: '/nepse-chart/data/verdicts.json',
+    ltp: function (s) { return '/nepse-chart/data/ltp/' + s.replace('/', '-') + '.json?v=' + UNIVERSE_V; }
   };
   var UNIVERSE_V = '20260924g'; // bump when data/universe.json is rebuilt
 
@@ -549,7 +549,7 @@
   // Fetch the current data-build version (never cached) so automated daily
   // rebuilds invalidate the cached universe/verdicts/LTP snapshots.
   function resolveDataVersion() {
-    return fetchTimeout('data/version.json', { cache: 'no-store' }).then(function (r) {
+    return fetchTimeout('/nepse-chart/data/version.json', { cache: 'no-store' }).then(function (r) {
       if (!r.ok) throw new Error('no version'); return r.json();
     }).then(function (j) {
       if (j && j.v) UNIVERSE_V = String(j.v);
@@ -595,13 +595,11 @@
       var asof = j && j.asof ? new Date(j.asof).getTime() : 0;
       if (asof && marketOpenNPT() && (Date.now() - asof) > 35 * 60000) throw new Error('stale own feed');
       liveCache.index = (j && j.index) || null;
-      liveCache.market = (j && j.market) || null; // 'OPEN' | 'CLOSED' | null
-      liveCache.asof = (j && j.asof) || null;
       return arr;
     }).catch(function () { liveCache.index = null; return fetchJSON(SRC.live); }).then(function (arr) {
       var map = {};
       (arr || []).forEach(function (q) { if (q && q.symbol) { map[q.symbol] = q; if (q.name) state.names[q.symbol] = q.name; } });
-      liveCache = { at: now, map: map, index: liveCache.index, market: liveCache.market, asof: liveCache.asof };
+      liveCache = { at: now, map: map, index: liveCache.index };
       return map;
     }).catch(function () { return liveCache.map; });
   }
@@ -637,25 +635,14 @@
     var t = todayNPT();
     var ymd = t.getUTCFullYear() * 10000 + (t.getUTCMonth() + 1) * 100 + t.getUTCDate();
     var ageMin = (Date.now() - parseMarketTime(q.last_updated)) / 60000;
+    if (!(ageMin >= 0) || ageMin > 180) return { rows: rows, live: false }; // stale quote
     var last = rows[rows.length - 1];
-    // After the market closes, the official snapshot holds the final session
-    // candle. Merge it as the latest row even when the quote is hours old —
-    // the 180-min freshness check applies to intraday live quotes only.
-    // The official API never publishes the session open, so it stays null
-    // (never invented); the verdict engine scores on high/low/close.
-    // Use the quote's own session date (from last_updated), not today's date,
-    // so a next-morning view still dates the close correctly.
-    var qTime = parseMarketTime(q.last_updated);
-    var qYmd = qTime ? (qTime.getUTCFullYear() * 10000 + (qTime.getUTCMonth() + 1) * 100 + qTime.getUTCDate()) : ymd;
-    var isClosedSession = liveCache.market === 'CLOSED' && !(ageMin >= 0 && ageMin <= 180) && marketOpenNPT() === false;
-    if (!isClosedSession && (!(ageMin >= 0) || ageMin > 180)) return { rows: rows, live: false }; // stale quote
-    var candleYmd = isClosedSession ? qYmd : ymd;
-    var candle = [candleYmd, null, q.high || q.ltp, q.low || q.ltp, q.ltp, q.volume || 0, q.turnover || 0];
+    var candle = [ymd, q.previous_close || q.ltp, q.high || q.ltp, q.low || q.ltp, q.ltp, q.volume || 0, q.turnover || 0];
     var out = rows.slice();
-    if (last && last[0] === candleYmd) out[out.length - 1] = candle;
-    else if (!last || candleYmd > last[0]) out.push(candle);
+    if (last && last[0] === ymd) out[out.length - 1] = candle;
+    else if (!last || ymd > last[0]) out.push(candle);
     else return { rows: rows, live: false };
-    return { rows: out, live: marketOpenNPT() && ageMin < 45, quote: q, provisional: !last || candleYmd >= last[0] };
+    return { rows: out, live: marketOpenNPT() && ageMin < 45, quote: q, provisional: !last || ymd >= last[0] };
   }
   // Live candle for the NEPSE index itself (2026-09-28): the snapshot's
   // `index` object comes from the official /api/nots/nepse-index endpoint.
