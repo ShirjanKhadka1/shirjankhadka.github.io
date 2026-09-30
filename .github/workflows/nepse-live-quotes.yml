@@ -15,8 +15,8 @@ on:
   schedule:
     # 05:00–09:25 UTC = 10:45–15:10 NPT, Mon–Fri. Last two runs (15:05/15:10 NPT)
     # capture the finalized closing snapshot after the 15:00 bell.
-    - cron: '*/5 5-8 * * 1-5'
-    - cron: '0,5,10,15,20,25 9 * * 1-5'
+    - cron: '0,15,30,45 5-8 * * 1-5'
+    - cron: '0,15,20,25 9 * * 1-5'
   workflow_dispatch: {}
 
 permissions:
