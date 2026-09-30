@@ -89,9 +89,16 @@
 .nd-tick-item .tk-chg.down { color: var(--down); font-weight: 700; }
 /* Dashboard grid spans */
 @media (min-width: 900px) {
+  .nd-c8 { grid-column: span 8; }
   .nd-c5 { grid-column: span 5; }
   .nd-c3 { grid-column: span 3; }
   .nd-c4 { grid-column: span 4; }
+}
+/* Movers row below the index panel: gainers + losers side by side on
+   desktop, stacked on mobile */
+.nd-movers-row { display: grid; gap: 16px; margin-top: 16px; }
+@media (min-width: 900px) {
+  .nd-movers-row { grid-template-columns: 1fr 1fr; }
 }
 /* Data tables */
 .nd-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
@@ -180,7 +187,7 @@
 
       <!-- 1. OVERVIEW + NEWS: market panel with the headlines rail beside it -->
       <div class="nd-grid" style="margin-bottom:40px">
-        <div class="nd-c5">
+        <div class="nd-c8">
       <div class="nd-hero-card nd-terminal">
         <div class="nd-terminal-head">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
@@ -218,9 +225,8 @@
           <p class="nd-caption" id="ahChartCap" style="margin:12px 0 0">Daily candles · loading history…</p>
         </div>
       </div>
-        </div>
-        <div class="nd-c3">
-          <section class="nd-card" style="margin-bottom:16px" aria-label="Top gainers">
+          <div class="nd-movers-row">
+          <section class="nd-card" aria-label="Top gainers">
             <div class="nd-section-head" style="margin-bottom:4px"><div><p class="nd-kicker">Movers</p><h2 style="font-size:1.05rem">Top gainers</h2></div></div>
             <div class="nd-tscroll"><table class="nd-table"><thead><tr><th>Symbol</th><th class="num">Ch</th><th class="num">Ch %</th><th class="num">LTP</th></tr></thead><tbody id="ahGainersT"><tr><td colspan="4"><span class="nd-skl" style="height:20px"></span></td></tr></tbody></table></div>
           </section>
@@ -228,6 +234,7 @@
             <div class="nd-section-head" style="margin-bottom:4px"><div><p class="nd-kicker">Movers</p><h2 style="font-size:1.05rem">Top losers</h2></div></div>
             <div class="nd-tscroll"><table class="nd-table"><thead><tr><th>Symbol</th><th class="num">Ch</th><th class="num">Ch %</th><th class="num">LTP</th></tr></thead><tbody id="ahLosersT"><tr><td colspan="4"><span class="nd-skl" style="height:20px"></span></td></tr></tbody></table></div>
           </section>
+          </div>
         </div>
         <aside class="nd-c4 nd-rail-fill" aria-label="Recent news">
           <div class="nd-section-head">
