@@ -92,7 +92,7 @@
     }
     els['fd-empty'].hidden = true;
     var name = u ? u.n : sym;
-    var sector = v && v.sec ? v.sec : 'Unclassified';
+    var sector = v && v.sec ? v.sec : 'Others';
     var type = u ? u.t : '–';
     var ch = v ? v.ch : null;
     var chCls = ch == null ? '' : (ch >= 0 ? 'up' : 'down');

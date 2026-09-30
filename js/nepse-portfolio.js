@@ -206,7 +206,7 @@
       var price = (vd.p != null && isFinite(vd.p)) ? +vd.p : null;
       var ch = (vd.ch != null && isFinite(vd.ch)) ? +vd.ch : null;
       return {
-        h: h, price: price, ch: ch, sec: vd.sec || 'Unclassified',
+        h: h, price: price, ch: ch, sec: vd.sec || 'Others',
         value: price == null ? null : round2(h.qty * price),
         unrl: Calc.unrealized(h.qty, h.cost, price),
         ret: Calc.retPct(h.qty, h.cost, price),

@@ -31,9 +31,17 @@
   }
 
   /* Honest sector/instrument grouping.
-   * The repo ships no per-symbol sector field (tools/sector-map.json is
-   * absent, so verdicts.json sec is null for all 410 symbols). Groups below
-   * are derived ONLY from real repo data in nepse-chart/data/universe.json:
+   * The universe builder writes the authoritative per-symbol sector into
+   * every verdicts.json entry's `sec` field from tools/sector-map.json (the
+   * single source of truth). The classifier below is the client-side
+   * fallback and is kept identical in js/nepse-screener.js and
+   * tools/build-symbol-pages.js. Groups are derived ONLY from real repo
+   * data in nepse-chart/data/universe.json:
+   *  - explicit verified symbol overrides (checked FIRST, before any
+   *    keyword matching) for symbols whose official company name does not
+   *    reveal the real sector;
+   *  - NEPSE-official sub-index overrides (Investment: CIT/HIDCL/HIDCLP/
+   *    NIFRA/NRN/CHDC/ENL/HATHY; Trading: BBC/STC);
    *  - the instrument-type field `t` (Debenture / Mutual fund /
    *    Promoter share), plus NEPSE's own debenture symbol suffixes
    *    (D + maturity year) and the words "bond"/"rinpatra", "fund"/"kosh"
@@ -42,11 +50,26 @@
    *    (bank, finance, laghubitta, hydropower/power/hydro/urja,
    *    insurance/beema, hotel/tourism, investment, trading, cement and other
    *    manufacturing words); these map to the NEPSE sub-index names.
-   * Anything else stays "Unclassified". NEPSE-official symbol overrides
-   * (Investment: CIT/HIDCL/HIDCLP/NIFRA/NRN/CHDC/ENL/HATHY; Trading:
-   * BBC/STC) are checked before keyword matching. Kept identical in
-   * js/nepse-screener.js. */
+   * Anything left over falls into "Others" (the NEPSE Others sub-index
+   * bucket). Every listed security belongs to exactly one real category —
+   * there is no "Unclassified". */
   var DEB_SYM_RE = /D\d{2,4}(\/\d{2})?(KA)?$/i;
+  /* Verified symbol -> sector overrides (2026-09-30, official NEPSE/company
+     notices and market sources). Checked before keyword matching. */
+  var SECTOR_OVERRIDES = {
+    GVL: 'Hydropower', SNORL: 'Hydropower',
+    BNL: 'Manufacturing And Processing', UNL: 'Manufacturing And Processing',
+    SAIL: 'Manufacturing And Processing',
+    CGH: 'Hotels And Tourism', KDL: 'Hotels And Tourism',
+    SAGF: 'Mutual Funds', H8020: 'Mutual Funds', NMB50: 'Mutual Funds',
+    CMF2: 'Mutual Funds', NICBF: 'Mutual Funds', LSH12: 'Mutual Funds',
+    RBBF40: 'Mutual Funds',
+    JBLBP: 'Promoter Shares', KBLPO: 'Promoter Shares', MLBLPO: 'Promoter Shares',
+    SCBD: 'Debentures', SHINED: 'Debentures',
+    SFCL: 'Finance',
+    WNLB: 'Microfinance',
+    NTC: 'Others', NRM: 'Others', NWCL: 'Others', TTL: 'Others', MKCL: 'Others'
+  };
   /* NEPSE-official sector overrides, checked before keyword matching.
      Investment sub-index (NEPSE): CIT, HIDCL, NIFRA, NRN, CEDB/CHDC, plus
      newer listings ENL and HATHY; HIDCLP is HIDCL's promoter share and
@@ -57,6 +80,7 @@
   var TRADING_SYMBOLS = { BBC:1, STC:1 };
   function classifySymbol(sym, name, type) {
     var symU = String(sym || '').toUpperCase();
+    if (SECTOR_OVERRIDES[symU]) return SECTOR_OVERRIDES[symU];
     if (INVESTMENT_SYMBOLS[symU]) return 'Investment';
     if (TRADING_SYMBOLS[symU]) return 'Trading';
     var n = String(name || '').toLowerCase().replace(/lagubitta/g, 'laghubitta');
@@ -64,7 +88,7 @@
         n.indexOf('bond') >= 0 || n.indexOf('rinpatra') >= 0) return 'Debentures';
     if (type === 'Mutual fund' || n.indexOf('fund') >= 0 || /\bkosh\b/.test(n)) return 'Mutual Funds';
     if (type === 'Promoter share') return 'Promoter Shares';
-    if (type && type !== 'Equity') return null;
+    if (type && type !== 'Equity') return 'Others';
     function has() {
       for (var i = 0; i < arguments.length; i++) if (n.indexOf(arguments[i]) >= 0) return true;
       return false;
@@ -81,12 +105,15 @@
     if (has('trading')) return 'Trading';
     if (has('manufacturing', 'cement', 'bottler', 'distiller', 'spinning', 'pharmaceut',
       'paints', 'colour', 'panel', 'mineral', 'lube')) return 'Manufacturing And Processing';
-    return null;
+    return 'Others';
   }
   var sectorMap = null;
   function sectorOf(e, sym) {
+    // Authoritative verdicts.json sec (written by the universe builder from
+    // tools/sector-map.json) wins; the local classifier is the fallback.
+    // Every security lands in exactly one real category — never Unclassified.
     if (e && e.sec && e.sec !== 'Unknown') return e.sec;
-    return (sectorMap && sectorMap[sym]) || 'Unclassified';
+    return (sectorMap && sectorMap[sym]) || 'Others';
   }
 
   function load() {
@@ -155,10 +182,8 @@
         gainers: gainers, losers: losers, tiles: g.tiles
       };
     });
-    // canonical order: named sectors by count desc, Unclassified last
+    // canonical order: sectors by count desc
     list.sort(function (a, b) {
-      if (a.name === 'Unclassified') return 1;
-      if (b.name === 'Unclassified') return -1;
       return b.count - a.count;
     });
     return { sectors: list, asof: vj.asof || '', total: Object.keys(v).length };
@@ -207,8 +232,6 @@
       };
     });
     list.sort(function (a, b) {
-      if (a.name === 'Unclassified') return 1;
-      if (b.name === 'Unclassified') return -1;
       return b.count - a.count;
     });
     return { sectors: list, asof: todayStr, total: count };
@@ -251,8 +274,6 @@
    * the security's own day change, tiles grouped under their sector. */
   function renderHeat(sectors) {
     var list = sectors.slice().sort(function (a, b) {
-      if (a.name === 'Unclassified') return 1;
-      if (b.name === 'Unclassified') return -1;
       return (b.turnShare || 0) - (a.turnShare || 0);
     });
     var h = list.map(function (g) {

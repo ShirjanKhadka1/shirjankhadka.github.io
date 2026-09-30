@@ -24,8 +24,24 @@
    *    (bank, finance, laghubitta, hydropower/power/hydro/urja,
    *    insurance/beema, hotel/tourism, investment, trading, cement and other
    *    manufacturing words); these map to the NEPSE sub-index names.
-   * Anything else stays "Unclassified". Kept identical in js/nepse-sectors.js. */
+   * Anything left over falls into "Others" (the NEPSE Others sub-index bucket). Kept identical in js/nepse-sectors.js. */
   var DEB_SYM_RE = /D\d{2,4}(\/\d{2})?(KA)?$/i;
+  /* Verified symbol -> sector overrides (2026-09-30, official NEPSE/company
+     notices and market sources). Checked before keyword matching. */
+  var SECTOR_OVERRIDES = {
+    GVL: 'Hydropower', SNORL: 'Hydropower',
+    BNL: 'Manufacturing And Processing', UNL: 'Manufacturing And Processing',
+    SAIL: 'Manufacturing And Processing',
+    CGH: 'Hotels And Tourism', KDL: 'Hotels And Tourism',
+    SAGF: 'Mutual Funds', H8020: 'Mutual Funds', NMB50: 'Mutual Funds',
+    CMF2: 'Mutual Funds', NICBF: 'Mutual Funds', LSH12: 'Mutual Funds',
+    RBBF40: 'Mutual Funds',
+    JBLBP: 'Promoter Shares', KBLPO: 'Promoter Shares', MLBLPO: 'Promoter Shares',
+    SCBD: 'Debentures', SHINED: 'Debentures',
+    SFCL: 'Finance',
+    WNLB: 'Microfinance',
+    NTC: 'Others', NRM: 'Others', NWCL: 'Others', TTL: 'Others', MKCL: 'Others'
+  };
   /* NEPSE-official sector overrides, checked before keyword matching.
      Investment sub-index (NEPSE): CIT, HIDCL, NIFRA, NRN, CEDB/CHDC, plus
      newer listings ENL and HATHY; HIDCLP is HIDCL's promoter share and
@@ -36,6 +52,7 @@
   var TRADING_SYMBOLS = { BBC:1, STC:1 };
   function classifySymbol(sym, name, type) {
     var symU = String(sym || '').toUpperCase();
+    if (SECTOR_OVERRIDES[symU]) return SECTOR_OVERRIDES[symU];
     if (INVESTMENT_SYMBOLS[symU]) return 'Investment';
     if (TRADING_SYMBOLS[symU]) return 'Trading';
     var n = String(name || '').toLowerCase().replace(/lagubitta/g, 'laghubitta');
@@ -43,7 +60,7 @@
         n.indexOf('bond') >= 0 || n.indexOf('rinpatra') >= 0) return 'Debentures';
     if (type === 'Mutual fund' || n.indexOf('fund') >= 0 || /\bkosh\b/.test(n)) return 'Mutual Funds';
     if (type === 'Promoter share') return 'Promoter Shares';
-    if (type && type !== 'Equity') return null;
+    if (type && type !== 'Equity') return 'Others';
     function has() {
       for (var i = 0; i < arguments.length; i++) if (n.indexOf(arguments[i]) >= 0) return true;
       return false;
@@ -60,7 +77,7 @@
     if (has('trading')) return 'Trading';
     if (has('manufacturing', 'cement', 'bottler', 'distiller', 'spinning', 'pharmaceut',
       'paints', 'colour', 'panel', 'mineral', 'lube')) return 'Manufacturing And Processing';
-    return null;
+    return 'Others';
   }
 
   var state = { rows: [], q: '', sector: '', verdict: '', rsi: '', pmin: null, pmax: null, vmin: null,
@@ -496,10 +513,10 @@
       var v = vj.verdicts || {};
       state.rows = Object.keys(v).map(function (sym) {
         var e = v[sym];
-        // Real per-symbol sector data wins when present; the honest
-        // name/instrument-type grouping fills the gap (verdicts.json sec
-        // is null for all symbols until tools/sector-map.json exists).
-        var sec = (e.sec && e.sec !== 'Unknown') ? e.sec : (groups[sym] || 'Unclassified');
+        // Authoritative verdicts.json sec (written by the universe builder
+        // from tools/sector-map.json) wins; the local classifier is the
+        // fallback. Every security lands in exactly one real category.
+        var sec = (e.sec && e.sec !== 'Unknown') ? e.sec : (groups[sym] || 'Others');
         return {
           sym: sym, name: names[sym] || sym, v: e.v, s: e.s, p: e.p, ch: e.ch,
           vol: e.vol, volAvg: e.volAvg || null, sec: sec, sl: e.sl, tp: e.tp,
@@ -530,13 +547,11 @@
       $('sc-n-sexit').textContent = c['Strong Exit'];
       $('sc-n-total').textContent = state.rows.length;
 
-      // sector dropdown (Unclassified last)
+      // sector dropdown
       var secs = {};
       state.rows.forEach(function (r) { if (r.sec) secs[r.sec] = 1; });
       var sel = $('sc-sector');
       Object.keys(secs).sort(function (a, b) {
-        if (a === 'Unclassified') return 1;
-        if (b === 'Unclassified') return -1;
         return a < b ? -1 : a > b ? 1 : 0;
       }).forEach(function (s) {
         var o = document.createElement('option');

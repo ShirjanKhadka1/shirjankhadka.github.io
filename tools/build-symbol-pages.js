@@ -29,14 +29,30 @@ const esc = (s) => String(s == null ? '' : s)
 const slugOf = (sym) => String(sym).replace(/\//g, '-');
 
 /* NEPSE sector classifier — kept identical to js/nepse-sectors.js and
- * js/nepse-screener.js. NEPSE-official symbol overrides are checked
- * before keyword matching (NIFRA must precede the 'bank' keyword;
- * HIDCLP must precede the Promoter-share instrument check). */
+ * js/nepse-screener.js. Verified symbol overrides are checked FIRST,
+ * then NEPSE-official symbol overrides (NIFRA must precede the 'bank'
+ * keyword; HIDCLP must precede the Promoter-share instrument check).
+ * Anything left over falls into "Others" — never "Unclassified". */
 const DEB_SYM_RE = /D\d{2,4}(\/\d{2})?(KA)?$/i;
+const SECTOR_OVERRIDES = {
+  GVL:'Hydropower', SNORL:'Hydropower',
+  BNL:'Manufacturing And Processing', UNL:'Manufacturing And Processing',
+  SAIL:'Manufacturing And Processing',
+  CGH:'Hotels And Tourism', KDL:'Hotels And Tourism',
+  SAGF:'Mutual Funds', H8020:'Mutual Funds', NMB50:'Mutual Funds',
+  CMF2:'Mutual Funds', NICBF:'Mutual Funds', LSH12:'Mutual Funds',
+  RBBF40:'Mutual Funds',
+  JBLBP:'Promoter Shares', KBLPO:'Promoter Shares', MLBLPO:'Promoter Shares',
+  SCBD:'Debentures', SHINED:'Debentures',
+  SFCL:'Finance',
+  WNLB:'Microfinance',
+  NTC:'Others', NRM:'Others', NWCL:'Others', TTL:'Others', MKCL:'Others'
+};
 const INVESTMENT_SYMBOLS = { CIT:1, HIDCL:1, HIDCLP:1, NIFRA:1, NRN:1, CHDC:1, ENL:1, HATHY:1 };
 const TRADING_SYMBOLS = { BBC:1, STC:1 };
 function classifySymbol(sym, name, type) {
   const symU = String(sym || '').toUpperCase();
+  if (SECTOR_OVERRIDES[symU]) return SECTOR_OVERRIDES[symU];
   if (INVESTMENT_SYMBOLS[symU]) return 'Investment';
   if (TRADING_SYMBOLS[symU]) return 'Trading';
   const n = String(name || '').toLowerCase().replace(/lagubitta/g, 'laghubitta');
@@ -44,7 +60,7 @@ function classifySymbol(sym, name, type) {
       n.indexOf('bond') >= 0 || n.indexOf('rinpatra') >= 0) return 'Debentures';
   if (type === 'Mutual fund' || n.indexOf('fund') >= 0 || /\bkosh\b/.test(n)) return 'Mutual Funds';
   if (type === 'Promoter share') return 'Promoter Shares';
-  if (type && type !== 'Equity') return null;
+  if (type && type !== 'Equity') return 'Others';
   const has = (...ws) => ws.some((w) => n.indexOf(w) >= 0);
   if (has('laghu', 'microfinance')) return 'Microfinance';
   if (has('hydropower', 'hydro', 'power', 'urja', 'dhyut', 'dyut', 'energy')) return 'Hydropower';
@@ -58,7 +74,7 @@ function classifySymbol(sym, name, type) {
   if (has('trading')) return 'Trading';
   if (has('manufacturing', 'cement', 'bottler', 'distiller', 'spinning', 'pharmaceut',
     'paints', 'colour', 'panel', 'mineral', 'lube')) return 'Manufacturing And Processing';
-  return null;
+  return 'Others';
 }
 
 function vClass(v) {

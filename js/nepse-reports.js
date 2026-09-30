@@ -48,7 +48,7 @@
     var out = {};
     Object.keys(verdicts).forEach(function (k) {
       var r = verdicts[k];
-      var sec = r.sec || 'Unclassified';
+      var sec = r.sec || 'Others';
       if (typeof r.ch !== 'number' || !isFinite(r.ch)) return;
       out[sec] = out[sec] || { up: 0, down: 0, flat: 0 };
       if (r.ch > 0) out[sec].up++;

@@ -33,7 +33,9 @@ try {
 } catch (e) { console.log('  !! sector-map.json not loaded:', e.message); }
 function secOf(sym) {
   const e = SECTORS[sym];
-  return e && e.sector ? e.sector : null;
+  // Authoritative map (tools/sector-map.json) wins; every listed security
+  // belongs to exactly one real category — never "Unclassified".
+  return (e && e.sector) ? e.sector : 'Others';
 }
 
 const U = {
@@ -365,6 +367,12 @@ async function main() {
     const last = series[n - 1], prev = series[n - 2] || last;
     const price = last[4];
     const chgPct = prev[4] ? (last[4] - prev[4]) / prev[4] * 100 : 0;
+    // Guard: no NEPSE instrument can move more than the +-10% single-session
+    // circuit. Beyond that the reference price in the source feed is bad
+    // (stale listing reference, bad previous close) — never display it as a
+    // session move; show no change figure instead. Only applied to
+    // established series (n >= 3) so genuine listing-day pops are untouched.
+    const chgOut = (n >= 3 && Math.abs(chgPct) > 10) ? null : r2(chgPct);
     const win = series.slice(-252);
     let h52 = -Infinity, l52 = Infinity;
     win.forEach((x) => { if (x[2] > h52) h52 = x[2]; if (x[3] < l52) l52 = x[3]; });
@@ -423,7 +431,7 @@ async function main() {
     }
     report.byVerdict[v.label] = (report.byVerdict[v.label] || 0) + 1;
     verdicts[sym] = {
-      v: v.label, s: v.score, p: r2(price), ch: r2(chgPct),
+      v: v.label, s: v.score, p: r2(price), ch: chgOut,
       h52: r2(h52), l52: r2(l52), pos: r2(pos), rsi: r2(rsi),
       n: n, l: ltpOnly ? 1 : 0, asof: fmtD(last[0]),
       sec: sec, vol: vol, volAvg: volAvg, sl: sl, tp: tp, setup: setup,
