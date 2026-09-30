@@ -26,7 +26,18 @@
    *    manufacturing words); these map to the NEPSE sub-index names.
    * Anything else stays "Unclassified". Kept identical in js/nepse-sectors.js. */
   var DEB_SYM_RE = /D\d{2,4}(\/\d{2})?(KA)?$/i;
+  /* NEPSE-official sector overrides, checked before keyword matching.
+     Investment sub-index (NEPSE): CIT, HIDCL, NIFRA, NRN, CEDB/CHDC, plus
+     newer listings ENL and HATHY; HIDCLP is HIDCL's promoter share and
+     trades with the investment group. NIFRA must precede the 'bank'
+     keyword; HIDCLP must precede the Promoter-share instrument check.
+     Trading (NEPSE): BBC and STC. */
+  var INVESTMENT_SYMBOLS = { CIT:1, HIDCL:1, HIDCLP:1, NIFRA:1, NRN:1, CHDC:1, ENL:1, HATHY:1 };
+  var TRADING_SYMBOLS = { BBC:1, STC:1 };
   function classifySymbol(sym, name, type) {
+    var symU = String(sym || '').toUpperCase();
+    if (INVESTMENT_SYMBOLS[symU]) return 'Investment';
+    if (TRADING_SYMBOLS[symU]) return 'Trading';
     var n = String(name || '').toLowerCase().replace(/lagubitta/g, 'laghubitta');
     if (type === 'Debenture' || DEB_SYM_RE.test(String(sym || '')) ||
         n.indexOf('bond') >= 0 || n.indexOf('rinpatra') >= 0) return 'Debentures';
