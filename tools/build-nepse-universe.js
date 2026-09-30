@@ -289,6 +289,38 @@ async function main() {
   ohlcRes.forEach((rows, k) => { if (rows) { ohlcRows.set(symbols[k], rows); ohlcCount++; } });
   console.log('  OHLC available:', ohlcCount + '/' + symbols.length);
 
+  // ---- Merge official closing session (2026-09-30) ----
+  // After market close, nepse-chart/data/live.json holds the validated official
+  // quotes. If the community OHLC history hasn't ingested the new session yet,
+  // append the official close as the latest row so verdicts, signal history,
+  // and page dates reflect the actual latest closed session. The official API
+  // never publishes the session open — it stays 0 (never invented); the
+  // verdict engine scores on high/low/close only.
+  let officialCloseDate = null;
+  try {
+    const liveJ = JSON.parse(fs.readFileSync(path.join(ROOT, 'nepse-chart', 'data', 'live.json'), 'utf8'));
+    const mClose = /^(\d{4})-(\d{2})-(\d{2})/.exec(liveJ.asof || '');
+    if (mClose && liveJ.market === 'CLOSED' && Array.isArray(liveJ.quotes)) {
+      const closeYmd = +(mClose[1] + mClose[2] + mClose[3]);
+      const qmap = {};
+      liveJ.quotes.forEach((q) => { if (q && q.symbol) qmap[q.symbol] = q; });
+      let merged = 0;
+      for (const [sym, rows] of ohlcRows) {
+        if (!rows || !rows.length) continue;
+        if (rows[rows.length - 1][0] >= closeYmd) continue;
+        const q = qmap[sym];
+        if (!q || !(+q.ltp > 0)) continue;
+        rows.push([closeYmd, 0, +q.high || +q.ltp, +q.low || +q.ltp, +q.ltp, +q.volume || 0, +q.turnover || 0]);
+        merged++;
+      }
+      console.log('  Official close merged:', merged + ' symbols @ ' + closeYmd);
+      // The universe asof follows the latest session actually present.
+      if (merged > 0) officialCloseDate = mClose[1] + '-' + mClose[2] + '-' + mClose[3];
+    }
+  } catch (e) {
+    console.log('  Official-close merge skipped:', e.message);
+  }
+
   // ---- index rows for market-regime factor ----
   const dailySrc = fs.readFileSync(path.join(ROOT, 'js', 'nepse-daily.js'), 'utf8');
   const mIdx = dailySrc.match(/window\.NEPSE_DAILY=(\[[\s\S]*?\]);?\s*$/);
@@ -318,7 +350,9 @@ async function main() {
   fs.mkdirSync(OUT, { recursive: true });
   fs.mkdirSync(LTP_DIR, { recursive: true });
 
-  const universe = { asof: manifest.latestDate || fmtD(idxDaily[idxDaily.length - 1][0]), count: symbols.length, symbols: [] };
+  // The universe asof follows the latest session actually present: the official
+  // close (if merged) wins over the community manifest date.
+  const universe = { asof: officialCloseDate || manifest.latestDate || fmtD(idxDaily[idxDaily.length - 1][0]), count: symbols.length, symbols: [] };
   const verdicts = {};
   const audit = []; // per-stock data-check rows for data-check.html
   const report = {

@@ -387,28 +387,48 @@ function quarterlyTable(sym, quarterly, sector) {
     if (cur === null || prev === null || prev === 0) return null;
     return (cur - prev) / Math.abs(prev) * 100;
   };
-  const dCell = (m, ref) => {
-    const d = pct(m.v(latest), ref ? m.v(ref) : null);
-    if (d === null) return '<td>–</td>';
-    const cls = m.dir === 0 ? '' : (d * m.dir > 0 ? ' class="pos"' : (d * m.dir < 0 ? ' class="neg"' : ''));
-    return '<td' + cls + '>' + (d > 0 ? '+' : '') + d.toFixed(1) + '%</td>';
-  };
   const qLabel = (x) => 'Q' + x.q + ' ' + x.fy.slice(2, 4) + '/' + x.fy.slice(7, 9);
+  // Delta badge under the latest value: compact QoQ / YoY context.
+  const deltaHtml = (m) => {
+    const bits = [];
+    const dq = pct(m.v(latest), pq ? m.v(pq) : null);
+    const dy = pct(m.v(latest), yq ? m.v(yq) : null);
+    const fmtD = (d, tag) => {
+      if (d === null) return '';
+      const cls = m.dir === 0 ? '' : (d * m.dir > 0 ? 'pos' : (d * m.dir < 0 ? 'neg' : ''));
+      return '<i class="' + cls + '">' + tag + ' ' + (d > 0 ? '+' : '') + d.toFixed(1) + '%</i>';
+    };
+    const q = fmtD(dq, 'QoQ'), y = fmtD(dy, 'YoY');
+    if (q || y) bits.push('<span class="qt-deltas">' + q + (q && y ? ' · ' : '') + y + '</span>');
+    return bits.join('');
+  };
   let h = '<section aria-label="Quarterly trend"><h2>Quarterly trend</h2>\n';
-  h += '<p class="sp-note">Published quarterly figures · latest ' + show.length + ' quarters. QoQ compares with the previous quarter; YoY with the same quarter last fiscal year.</p>\n';
-  h += '<div class="sp-table-wrap"><table class="sp-peer-table">\n<thead><tr><th scope="col">Metric</th><th scope="col">QoQ</th><th scope="col">YoY</th>';
-  for (let i = show.length - 1; i >= 0; i--) h += '<th scope="col" class="num">' + esc(qLabel(show[i])) + '</th>';
-  h += '</tr></thead>\n<tbody>\n';
-  for (const m of metrics) {
-    if (m.sec) {
-      h += '<tr class="sp-sec-row"><td colspan="' + (3 + show.length) + '"><strong>' + esc(m.sec) + '</strong></td></tr>\n';
-      continue;
+  h += '<p class="sp-note">Published quarterly figures · latest ' + show.length + ' quarters. Deltas under the latest quarter compare with the previous quarter (QoQ) and the same quarter last fiscal year (YoY).</p>\n';
+  // Render each statement section as its own card: heading + clean table.
+  let curSec = null;
+  const closeCard = () => { if (curSec) { h += '</tbody></table></div>\n'; curSec = null; } };
+  const openCard = (title) => {
+    closeCard();
+    curSec = title;
+    h += '<h3 class="qt-card-title">' + esc(title) + '</h3>\n';
+    h += '<div class="sp-table-wrap"><table class="sp-peer-table qt-table">\n<thead><tr><th scope="col">Metric</th>';
+    for (let i = show.length - 1; i >= 0; i--) {
+      const isCur = i === show.length - 1;
+      h += '<th scope="col" class="num' + (isCur ? ' qt-cur' : '') + '">' + esc(qLabel(show[i])) +
+        (isCur ? '<span class="qt-latest-badge">Latest</span>' : '') + '</th>';
     }
-    h += '<tr><td>' + esc(m.l) + '</td>' + dCell(m, pq) + dCell(m, yq);
-    for (let i = show.length - 1; i >= 0; i--) h += '<td class="num">' + m.f(m.v(show[i])) + '</td>';
+    h += '</tr></thead>\n<tbody>\n';
+  };
+  for (const m of metrics) {
+    if (m.sec) { openCard(m.sec); continue; }
+    if (!curSec) openCard('Financials');
+    const lv = m.v(latest);
+    h += '<tr><td>' + esc(m.l) + '</td>';
+    h += '<td class="num qt-cur"><span class="qt-val">' + m.f(lv) + '</span>' + deltaHtml(m) + '</td>';
+    for (let i = show.length - 2; i >= 0; i--) h += '<td class="num">' + m.f(m.v(show[i])) + '</td>';
     h += '</tr>\n';
   }
-  h += '</tbody></table></div>\n';
+  closeCard();
   h += '<p class="sp-note">Profit figures are published cumulative for the fiscal year; the quarterly profit row shows the implied standalone quarter (this quarter minus the prior quarter). P/E is not shown as a trend: the screener prices every historical quarter at today\u2019s price, so a historical P/E would be misleading. – means not published.</p>\n</section>\n';
   return h;
 }

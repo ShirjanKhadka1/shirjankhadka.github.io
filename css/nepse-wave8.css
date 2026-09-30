@@ -193,6 +193,22 @@
 .sp-peer-table td.neg { color: #a33327; }
 .sp-peer-table td.num, .sp-peer-table th.num { text-align: right; }
 
+/* Quarterly trend cards: one clean table per statement section, latest
+ * quarter highlighted, QoQ/YoY as quiet deltas under the latest value. */
+.qt-card-title { font-size: 1rem; font-weight: 700; color: var(--ink, #2b2620); margin: 1.4rem 0 .55rem; letter-spacing: .01em; }
+.qt-table thead th.qt-cur, .qt-table tbody td.qt-cur { background: #f4f8f3; }
+.qt-table thead th.qt-cur { border-bottom: 2px solid var(--emerald-deep, #1d4d3b); }
+.qt-table tbody td.qt-cur .qt-val { font-weight: 700; color: var(--ink, #2b2620); }
+.qt-latest-badge { display: inline-block; font-size: .62rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--emerald-deep, #1d4d3b); background: #e3efe6; border-radius: 20px; padding: 2px 8px; margin-left: 8px; vertical-align: 1px; }
+.qt-deltas { display: block; font-size: .72rem; margin-top: 3px; white-space: nowrap; }
+.qt-deltas i { font-style: normal; color: var(--ink-soft, #6b655a); }
+.qt-deltas i.pos { color: #1c6b3c; }
+.qt-deltas i.neg { color: #a33327; }
+@media (max-width: 640px) {
+  .qt-card-title { font-size: .92rem; }
+  .qt-deltas { font-size: .68rem; }
+}
+
 /* Investment Calendar card (Nepse Alpha-style past corporate-action history) */
 .inv-cal { background: #fff; border: 1px solid var(--line, #e7e0d2); border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,.06); margin: 1.5rem 0; overflow: hidden; }
 .inv-cal-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1rem 1.25rem; border-bottom: 1px solid #eee; }

@@ -44,6 +44,21 @@ const BAD_CELLS = [
     reason: 'source value Rs 2.8b vs assets Rs 362.5b and ~Rs 300b deposits in adjacent quarters; off by ~100x' },
 ];
 
+/* Whole quarters proven corrupt in the source exports. The entire quarter
+ * record is nulled (renders as –) rather than published: every field is
+ * demonstrably false, not merely surprising.
+ * - SWBBL 2082/2083-Q2: paid-up capital Rs 153.4m vs Rs 1,750m in Q1, Q3 and
+ *   Q4 of the same fiscal year (point-in-time figure cannot drop 91% and
+ *   recover in one quarter); cumulative revenue Rs 208.8m vs Rs 2,569.2m in
+ *   Q1 (cumulative YTD revenue cannot decrease quarter-over-quarter);
+ *   deposits/loans/assets all ~8-19x smaller than adjacent quarters.
+ *   Systematic source scaling slip for that quarter's row. Nulled pending a
+ *   corrected publication. */
+const BAD_QUARTERS = [
+  { sym: 'SWBBL', quarter: '2082/2083-Q2',
+    reason: 'paid-up Rs 153.4m vs Rs 1,750m in Q1/Q3/Q4 same FY; cumulative revenue Rs 208.8m below Q1 YTD Rs 2,569.2m (impossible); all balance-sheet items ~8-19x too small' },
+];
+
 /* Column mapping: Capital Max "Key Financials" header -> quarterly.json field.
  * quarterly.json values are in NPR thousands, matching the exports. */
 const COLS = {
@@ -260,6 +275,14 @@ function main() {
     if (s && s.quarters[bc.quarter] && s.quarters[bc.quarter][bc.field] !== undefined) {
       s.quarters[bc.quarter][bc.field] = null;
       report.nulled.push(bc.sym + ' ' + bc.quarter + ' ' + bc.field + ' (' + bc.reason + ')');
+    }
+  }
+  // Null proven-corrupt whole quarters (see BAD_QUARTERS); they render as –.
+  for (const bq of BAD_QUARTERS) {
+    const s = q.symbols[bq.sym];
+    if (s && s.quarters[bq.quarter]) {
+      delete s.quarters[bq.quarter];
+      report.nulled.push(bq.sym + ' ' + bq.quarter + ' [whole quarter] (' + bq.reason + ')');
     }
   }
   // Sanity scan: flag (not auto-null) implausible QoQ jumps in balance-sheet

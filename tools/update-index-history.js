@@ -29,9 +29,11 @@ function main() {
   if (!m) { log('unparseable asof ' + live.asof); return; }
   const ymd = +(m[1] + m[2] + m[3]);
   const iso = m[1] + '-' + m[2] + '-' + m[3];
-  for (const k of ['open', 'high', 'low', 'value']) {
-    if (!Number.isFinite(+ix[k])) { log('index.' + k + ' missing; refusing to append'); return; }
-  }
+  // The official NEPSE index API does not publish the session open. The
+  // sparkline (closes only) can always be updated; the full OHLC row is
+  // appended only when open/high/low/value are all present — never invented.
+  const hasOHLC = ['open', 'high', 'low', 'value'].every((k) => Number.isFinite(+ix[k]));
+  if (!hasOHLC) log('index.open missing; OHLC row skipped (sparkline still updates)');
   // Session turnover = sum of quote turnovers (same canonical payload).
   let turnover = 0;
   if (Array.isArray(live.quotes)) {
@@ -40,25 +42,30 @@ function main() {
   turnover = Math.round(turnover);
 
   // 1) js/nepse-daily.js — rows are [YYYYMMDD, open, high, low, close, volume]
-  let js = fs.readFileSync(DAILY_JS, 'utf8');
-  const lastRow = js.match(/\[(\d{8}),[^\]]*\]\];?\s*$/);
-  const lastYmd = lastRow ? +lastRow[1] : 0;
-  if (ymd > lastYmd) {
-    const row = '[' + ymd + ',' + ix.open + ',' + ix.high + ',' + ix.low + ',' + ix.value + ',' + turnover + ']';
-    // Insert the new row between the last row's closing "]" and the outer
-    // array's closing "]". The regex consumes the final "]];": the head then
-    // ends with the last row still open, so the replacement re-closes it ("]"),
-    // appends ",newrow", then closes the outer array ("];"). The row string
-    // already carries its own closing "]", so only one more is added here.
-    // (2026-09-30: two earlier variants each produced a stray "]" -> "]]];".)
-    if (!/\]\];\s*$/.test(js)) throw new Error('could not find array terminator in nepse-daily.js');
-    js = js.replace(/\]\];\s*$/, '],' + row + '];');
-    // fix the header comment date range: "2003-07-17 to 2026-09-18."
-    js = js.replace(/to \d{4}-\d{2}-\d{2}\./, 'to ' + iso + '.');
-    fs.writeFileSync(DAILY_JS, js);
-    log('appended ' + iso + ' to nepse-daily.js (NEPSE ' + ix.value + ')');
+  // Only appended when the full OHLC is available (never invented).
+  if (hasOHLC) {
+    let js = fs.readFileSync(DAILY_JS, 'utf8');
+    const lastRow = js.match(/\[(\d{8}),[^\]]*\]\];?\s*$/);
+    const lastYmd = lastRow ? +lastRow[1] : 0;
+    if (ymd > lastYmd) {
+      const row = '[' + ymd + ',' + ix.open + ',' + ix.high + ',' + ix.low + ',' + ix.value + ',' + turnover + ']';
+      // Insert the new row between the last row's closing "]" and the outer
+      // array's closing "]". The regex consumes the final "]];": the head then
+      // ends with the last row still open, so the replacement re-closes it ("]"),
+      // appends ",newrow", then closes the outer array ("];"). The row string
+      // already carries its own closing "]", so only one more is added here.
+      // (2026-09-30: two earlier variants each produced a stray "]" -> "]]];".)
+      if (!/\]\];\s*$/.test(js)) throw new Error('could not find array terminator in nepse-daily.js');
+      js = js.replace(/\]\];\s*$/, '],' + row + '];');
+      // fix the header comment date range: "2003-07-17 to 2026-09-18."
+      js = js.replace(/to \d{4}-\d{2}-\d{2}\./, 'to ' + iso + '.');
+      fs.writeFileSync(DAILY_JS, js);
+      log('appended ' + iso + ' to nepse-daily.js (NEPSE ' + ix.value + ')');
+    } else {
+      log('nepse-daily.js already at/after ' + iso + '; skipping');
+    }
   } else {
-    log('nepse-daily.js already at/after ' + iso + '; skipping');
+    log('nepse-daily.js OHLC skipped (open unavailable from official API)');
   }
 
   // 2) index-spark.json — closes: [[YYYYMMDD, close], ...]
