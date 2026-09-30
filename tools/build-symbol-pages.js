@@ -141,7 +141,9 @@ function head(sym, name, slug) {
       },
     ],
   };
-  return '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n' +
+  return '<!DOCTYPE html>\n<html lang="en">\n<head>\n' +
+    '<script>try{var t=localStorage.getItem(\'sk-theme\');if(!t)t=matchMedia(\'(prefers-color-scheme: dark)\').matches?\'dark\':\'light\';document.documentElement.setAttribute(\'data-theme\',t)}catch(e){}</script>\n' +
+    '<meta charset="UTF-8">\n' +
     '<meta name="viewport" content="width=device-width, initial-scale=1.0">\n' +
     '<title>' + esc(title) + '</title>\n' +
     '<meta name="description" content="' + esc(desc) + '">\n' +
@@ -165,7 +167,8 @@ function head(sym, name, slug) {
     '<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930c">\n' +
     '<link rel="stylesheet" href="/css/nepse-wave7.css?v=20261002c">\n' +
     '<link rel="stylesheet" href="/css/nepse-brand.css?v=20261003a">\n' +
-    '<link rel="stylesheet" href="/css/nepse-wave8.css?v=20261003a">\n' +
+    '<link rel="stylesheet" href="/css/nepse-wave8.css?v=20261003a">\n' +    '<link rel="stylesheet" href="/css/theme.css?v=20261001a">\n' +
+
     '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>\n' +
     '</head>\n';
 }
@@ -212,13 +215,88 @@ const RAIL = '<body>\n<a class="skip" href="#main">Skip to content</a>\n\n' +
   '  </div>\n' +
   '</header>\n\n';
 
-const FOOT = '<footer class="sc-footer">\n' +
-  '  <div class="wrap">\n' +
-  '    <p>Built by <a href="/">Shirjan Khadka</a> · Kathmandu, Nepal</p>\n' +
-  '    <p class="sc-footer-sub">Per-symbol NEPSE snapshot · rule-based signals · educational use only, not investment advice</p>\n' +
+  const FOOT =
+  '<style>\n' +
+  '.sf{border-top:1px solid var(--hairline,#E7DFCE);margin-top:64px;background:var(--paper,#FAF8F2);color:var(--ink-soft,#4A463C);font-family:var(--sans,Inter,system-ui,-apple-system,"Segoe UI",sans-serif)}\n' +
+  '.sf-inner{max-width:1200px;margin:0 auto;padding:56px 24px 30px}\n' +
+  '.sf-top{display:flex;gap:18px;align-items:flex-start;margin-bottom:42px}\n' +
+  '.sf-mark{width:46px;height:46px;border-radius:12px;flex:none;box-shadow:0 2px 10px rgba(11,61,46,.12)}\n' +
+  '.sf-name{font-weight:700;font-size:1.06rem;color:var(--ink,#1C1A15);margin:2px 0 8px;letter-spacing:.01em}\n' +
+  '.sf-mission{margin:0;max-width:62ch;line-height:1.75;font-size:.92rem;color:var(--ink-soft,#4A463C)}\n' +
+  '.sf-cols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:36px 28px;margin-bottom:42px}\n' +
+  '.sf-col h3{font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted,#8A8474);margin:0 0 16px;font-weight:700}\n' +
+  '.sf-col ul{list-style:none;margin:0;padding:0;display:grid;gap:11px}\n' +
+  '.sf-col a{color:var(--ink-soft,#4A463C);text-decoration:none;font-size:.92rem;line-height:1.5}\n' +
+  '.sf-col a:hover{color:var(--green-900,#0B3D2E);text-decoration:underline}\n' +
+  '.sf-note{border-top:1px solid var(--hairline,#E7DFCE);padding-top:26px;font-size:.85rem;line-height:1.75;color:var(--muted,#8A8474);max-width:88ch;margin:0}\n' +
+  '.sf-note strong{color:var(--ink-soft,#4A463C)}\n' +
+  '.sf-bottom{display:flex;flex-wrap:wrap;gap:10px 20px;justify-content:space-between;align-items:center;margin-top:26px;padding-top:22px;border-top:1px solid var(--hairline,#E7DFCE);font-size:.85rem;color:var(--muted,#8A8474)}\n' +
+  '.sf-bottom a{color:var(--ink-soft,#4A463C);text-decoration:none;font-weight:600}\n' +
+  '.sf-bottom a:hover{color:var(--green-900,#0B3D2E);text-decoration:underline}\n' +
+  '.sf-social{display:flex;gap:16px;align-items:center}\n' +
+  '@media(max-width:820px){.sf-cols{grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 20px}}\n' +
+  '@media(max-width:520px){.sf-inner{padding:44px 20px 26px}.sf-top{margin-bottom:34px}.sf-cols{margin-bottom:34px}}\n' +
+  '</style>\n' +
+  '<footer class="sf" aria-label="Nepse Decode site footer">\n' +
+  '  <div class="sf-inner">\n' +
+  '    <div class="sf-top">\n' +
+  '      <svg class="sf-mark" viewBox="0 0 64 64" role="img" aria-label="Nepse Decode iceberg mark"><rect width="64" height="64" rx="14" fill="#013E2E"/><polygon points="32,9 21,25 43,25" fill="#FFFFFF"/><polygon points="32,9 37,25 27,25" fill="#EEF2EF"/><polygon points="13,27.5 51,27.5 45,42 32,57 21,45 15,37" fill="#FFFFFF"/><polygon points="13,27.5 27,27.5 21,45 15,37" fill="#D6DDD9"/><polygon points="51,27.5 45,42 38,27.5" fill="#C6CECA"/><polygon points="32,57 45,42 36,40 28,49" fill="#E4E9E6"/><polygon points="21,45 32,57 28,49 24,44" fill="#D6DDD9"/><rect x="4" y="25" width="56" height="2.6" rx="1.3" fill="#0B3D2E" opacity=".55"/></svg>\n' +
+  '      <div>\n' +
+  '        <p class="sf-name">Nepse Decode</p>\n' +
+  '        <p class="sf-mission">Free, honest NEPSE intelligence for every Nepali investor — live market data, screeners, signals and research, rebuilt every trading day. No login, no paywall, no buy calls.</p>\n' +
+  '      </div>\n' +
+  '    </div>\n' +
+  '    <nav class="sf-cols" aria-label="Footer sections">\n' +
+  '      <div class="sf-col">\n' +
+  '        <h3>Tools</h3>\n' +
+  '        <ul>\n' +
+  '          <li><a href="/nepse-screener/">Stock Screener</a></li>\n' +
+  '          <li><a href="/nepse-chart/">Chart</a></li>\n' +
+  '          <li><a href="/nepse-trending/">Trending Stocks</a></li>\n' +
+  '          <li><a href="/nepse-value/">Value Investing</a></li>\n' +
+  '          <li><a href="/nepse-signals/momentum/">Trading Signals</a></li>\n' +
+  '          <li><a href="/nepse-watchlist/">Watchlist</a></li>\n' +
+  '        </ul>\n' +
+  '      </div>\n' +
+  '      <div class="sf-col">\n' +
+  '        <h3>Market data</h3>\n' +
+  '        <ul>\n' +
+  '          <li><a href="/nepse-decode/">Dashboard</a></li>\n' +
+  '          <li><a href="/nepse-brokers/">Broker Analytics</a></li>\n' +
+  '          <li><a href="/nepse-sectors/">Sectors</a></li>\n' +
+  '          <li><a href="/nepse-news/">Market News</a></li>\n' +
+  '          <li><a href="/nepse-actions/">Corp. Actions</a></li>\n' +
+  '          <li><a href="/stocks/">All Stocks</a></li>\n' +
+  '        </ul>\n' +
+  '      </div>\n' +
+  '      <div class="sf-col">\n' +
+  '        <h3>Research</h3>\n' +
+  '        <ul>\n' +
+  '          <li><a href="/blog/">Daily Blog</a></li>\n' +
+  '          <li><a href="/nepse-decode/">Market Dashboard</a></li>\n' +
+  '          <li><a href="/nepali-date-converter/">Date Converter</a></li>\n' +
+  '          <li><a href="/kundali/">Kundali Calculator</a></li>\n' +
+  '        </ul>\n' +
+  '      </div>\n' +
+  '      <div class="sf-col">\n' +
+  '        <h3>Company</h3>\n' +
+  '        <ul>\n' +
+  '          <li><a href="/about.html">About</a></li>\n' +
+  '          <li><a href="/contact.html">Contact</a></li>\n' +
+  '          <li><a href="/privacy.html">Privacy</a></li>\n' +
+  '          <li><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Facebook Page</a></li>\n' +
+  '        </ul>\n' +
+  '      </div>\n' +
+  '    </nav>\n' +
+  '    <p class="sf-note"><strong>Educational use only.</strong> Nothing on this site is investment advice. Prices and figures are compiled from public sources and refreshed every trading day — always verify with your broker before trading.</p>\n' +
+  '    <div class="sf-bottom">\n' +
+  '      <span>© 2026 Nepse Decode · Built by <a href="/">Shirjan Khadka</a> in Kathmandu, Nepal</span>\n' +
+  '      <span class="sf-social"><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Facebook</a><a href="/blog/">Blog</a><a href="/contact.html">Contact</a></span>\n' +
+  '    </div>\n' +
   '  </div>\n' +
   '</footer>\n' +
-  '<script src="/js/stock-live.js?v=20260930a" defer></script>\n' +
+  '<script src="/js/stock-live.js?v=20260930a" defer></script>\n' +  '<script src="/js/theme-toggle.js?v=20261001a" defer></script>\n' +
+
   '</body>\n</html>\n';
 
 function fmtNum(x) {
@@ -594,9 +672,17 @@ function investmentCalendarCard(sym, name, hist) {
       '<th scope="col">Ratio</th><th scope="col">Units</th><th scope="col">Price (Rs)</th>' +
       '</tr></thead>\n<tbody>\n';
     for (const r of rights) {
-      h += '<tr><td>' + esc(stripTags(r.ratio || r.right_ratio) || '–') + '</td>' +
-        '<td>' + esc(stripTags(r.units || r.total_units) || '–') + '</td>' +
-        '<td>' + esc(stripTags(r.price || r.rate) || '–') + '</td></tr>\n';
+      const ratio = stripTags(r.ratio_value || r.ratio || r.right_ratio);
+      const unitsRaw = stripTags(r.total_units || r.units);
+      const unitsNum = Number(String(unitsRaw).replace(/,/g, ''));
+      const units = unitsRaw ? (Number.isFinite(unitsNum)
+        ? Math.round(unitsNum).toLocaleString('en-US') : unitsRaw) : '–';
+      const priceRaw = stripTags(r.issue_price || r.price || r.rate);
+      const priceNum = Number(String(priceRaw).replace(/,/g, ''));
+      const price = priceRaw ? (Number.isFinite(priceNum) ? priceNum.toFixed(2) : priceRaw) : '–';
+      h += '<tr><td>' + esc(ratio || '–') + '</td>' +
+        '<td>' + esc(units) + '</td>' +
+        '<td>' + esc(price) + '</td></tr>\n';
     }
     h += '</tbody></table></div>\n';
   } else {

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="index, follow, max-image-preview:large">
@@ -56,6 +57,7 @@
     "knowsAbout": ["NEPSE", "Financial Analysis", "Scholarship Guidance"]
   }
   </script>
+<link rel="stylesheet" href="/css/theme.css?v=20261001a">
 </head>
 <body>
   <div class="progress-bar" id="scrollProgress" aria-hidden="true"></div>
@@ -145,19 +147,19 @@
     <section class="stats" aria-label="Key figures">
       <div class="section-inner stats-grid" data-stagger="90">
         <div class="stat reveal">
-          <p class="stat-value"><span class="count" data-count="3.82" data-decimals="2">0</span></p>
+          <p class="stat-value"><span class="count" data-count="3.82" data-decimals="2">3.82</span></p>
           <p class="stat-label">BBM CGPA · Tribhuvan University</p>
         </div>
         <div class="stat reveal">
-          <p class="stat-value"><span class="count" data-count="11">0</span></p>
+          <p class="stat-value"><span class="count" data-count="15">15</span></p>
           <p class="stat-label">Finance articles published</p>
         </div>
         <div class="stat reveal">
-          <p class="stat-value"><span class="count" data-count="2">0</span></p>
+          <p class="stat-value"><span class="count" data-count="15">15</span></p>
           <p class="stat-label">Free NEPSE tools shipped</p>
         </div>
         <div class="stat reveal">
-          <p class="stat-value"><span class="count" data-count="2">0</span></p>
+          <p class="stat-value"><span class="count" data-count="2">2</span></p>
           <p class="stat-label">Academic awards</p>
         </div>
       </div>
@@ -529,5 +531,6 @@
   </footer>
 
   <script src="js/main.js?v=20260929a" defer></script>
+<script src="/js/theme-toggle.js?v=20261001a" defer></script>
 </body>
 </html>

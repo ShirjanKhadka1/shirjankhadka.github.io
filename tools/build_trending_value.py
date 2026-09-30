@@ -39,9 +39,16 @@ for it in news.get('items', []):
         news_count[sym] = news_count.get(sym, 0) + 1
 
 # broker flow: top single-broker 5-day net bought value per symbol / 5d turnover
-db = sqlite3.connect(os.path.join(REPO, 'tools/broker/data/floorsheet.db'))
-latest_db = db.execute('SELECT MAX(date) FROM daily_summary').fetchone()[0]
+# Fail-soft: the broker DB is not available in every environment (e.g. GitHub
+# Actions, fresh worktrees). When absent, concentration contributes 0 and the
+# other four inputs still rank normally.
 broker_conc = {}
+try:
+    db = sqlite3.connect(os.path.join(REPO, 'tools/broker/data/floorsheet.db'))
+    latest_db = db.execute('SELECT MAX(date) FROM daily_summary').fetchone()[0]
+except Exception as _dbe:
+    print(f'  broker DB unavailable ({_dbe}); concentration input skipped')
+    latest_db = None
 if latest_db:
     rows = db.execute('''SELECT symbol, broker, SUM(buy_value - sell_value) AS netv,
                                 SUM(buy_value + sell_value) AS totv
@@ -166,9 +173,14 @@ for cf in cache_files:
         'spark': [round(s[1], 2) for s in sess[-30:]],
     })
 
+# Data session date: the trading session the numbers describe (from live.json),
+# not the build date. live_asof is UTC; NEPSE sessions always map 1:1 here
+# because the timestamp is intraday Kathmandu time.
+session_date = (live_asof or '')[:10] or today
 trending.sort(key=lambda x: -x['score'])
 trending_out = {
-    'asof': today,
+    'asof': session_date,
+    'built': today,
     'live_asof': live_asof,
     'method': ('Score 0-100 = 35% turnover acceleration (vs 20-day avg, capped 5x) + '
                '20% volume spike (capped 5x) + 20% 5-day momentum (capped +15%) + '
@@ -268,7 +280,8 @@ for sector, members in by_sector.items():
 ranked = sorted([c for c in companies if c['value_score'] is not None],
                 key=lambda x: -x['value_score'])
 value_out = {
-    'asof': today,
+    'asof': session_date,
+    'built': today,
     'source': 'Published quarterly filings via screener compilation (Q4 FY 2082/2083); LTP from Nepse Decode market snapshot',
     'method': ('Value score 0-100 ranks each company within its own sector only: '
                '50% earnings-yield rank (higher yield = cheaper) + 50% price-to-book rank (lower = cheaper). '
@@ -282,3 +295,95 @@ with open(os.path.join(REPO, 'nepse-chart/data/value.json'), 'w') as f:
     json.dump(value_out, f)
 print(f"value.json: {len(companies)} companies, {len(ranked)} scored, top: " +
       ", ".join(f"{s['symbol']}({s['value_score']})" for s in ranked[:5]))
+
+# ---------- RESEARCH LAYER ----------
+# Equity-research snapshots (financial + management + analyst note) for the top
+# trending stocks. Emits nepse-chart/data/trending-research.json, which the
+# trending page lazy-loads when a visitor expands a Research panel.
+# Runs automatically whenever this builder runs.
+try:
+    import importlib.util
+    _spec = importlib.util.spec_from_file_location(
+        'build_trending_research', os.path.join(REPO, 'tools', 'build_trending_research.py'))
+    _mod = importlib.util.module_from_spec(_spec)
+    _spec.loader.exec_module(_mod)
+    _mod.main(REPO)
+except Exception as _e:  # research must never break the trending/value build
+    print(f"research layer skipped: {_e}")
+
+# ---------- STATIC SNAPSHOT BAKE (SEO / no-JS) ----------
+# Bakes a plain-HTML top-15 snapshot into nepse-trending/index.html and
+# nepse-value/index.html between SNAP-START / SNAP-END markers, so crawlers
+# and no-JS visitors see real data immediately. The interactive tables below
+# remain the live surface (60s refresh). Refreshed by every builder run.
+# Snapshot labels use the DATA session date (asof), not the build date.
+def _bake_snapshot(page_rel, frag):
+    p = os.path.join(REPO, page_rel)
+    html = open(p).read()
+    a = html.index('<!-- SNAP-START -->') + len('<!-- SNAP-START -->')
+    b = html.index('<!-- SNAP-END -->')
+    assert b > a, f'snapshot markers misordered in {page_rel}'
+    html = html[:a] + '\n' + frag + '\n' + html[b:]
+    open(p, 'w').write(html)
+    print(f'  snapshot baked into {page_rel}')
+
+def _fmt(x, dec=2, dash='–'):
+    if x is None: return dash
+    try: return f'{float(x):.{dec}f}'
+    except (TypeError, ValueError): return dash
+
+_TONE_LABEL = {'accumulation': 'Accumulation interest',
+               'distribution': 'Distribution pressure',
+               'watch': 'Watch'}
+_snap_asof = trending_out.get('asof') or today
+try:
+    _trows = []
+    for i, s in enumerate(trending[:15], 1):
+        tone = _TONE_LABEL.get(s['tone'], s['tone'])
+        chg = s['change_pct']
+        chg_s = ('+' if chg >= 0 else '') + f'{chg:.2f}%'
+        _trows.append(
+            f'      <tr><td>{i}</td>'
+            f'<td><a href="/stocks/{s["symbol"]}/">{s["symbol"]}</a></td>'
+            f'<td>{_fmt(s["ltp"])}</td>'
+            f'<td>{chg_s}</td>'
+            f'<td>{_fmt(s["ret_5d_pct"])}</td>'
+            f'<td>Rs {_fmt(s["turnover_rs_m"], 1)} M</td>'
+            f'<td>{tone}</td>'
+            f'<td>{s["score"]:.1f}</td></tr>')
+    _tfrag = (
+        '<section class="snap" aria-label="Trending snapshot">\n'
+        f'  <h2>Top trending stocks <span class="snap-asof">· snapshot {_snap_asof}</span></h2>\n'
+        '  <div class="scrollx"><table class="bk-table">\n'
+        '    <thead><tr><th>#</th><th>Stock</th><th>LTP</th><th>Day %</th>'
+        '<th>5-day %</th><th>Turnover</th><th>Tone</th><th>Score</th></tr></thead>\n'
+        '    <tbody>\n' + '\n'.join(_trows) + '\n    </tbody>\n'
+        '  </table></div>\n'
+        '  <p class="snap-note">Static daily snapshot · the full interactive ranking below refreshes every 60 seconds.</p>\n'
+        '</section>')
+    _bake_snapshot('nepse-trending/index.html', _tfrag)
+
+    _vrows = []
+    for i, s in enumerate(ranked[:15], 1):
+        _vrows.append(
+            f'      <tr><td>{i}</td>'
+            f'<td><a href="/stocks/{s["symbol"]}/">{s["symbol"]}</a></td>'
+            f'<td>{s["sector"]}</td>'
+            f'<td>{_fmt(s["ltp"])}</td>'
+            f'<td>{_fmt(s["pe_ttm"])}</td>'
+            f'<td>{_fmt(s["pbv"])}</td>'
+            f'<td>{_fmt(s["ey_pct"], 1)}%</td>'
+            f'<td>{s["value_score"]:.1f}</td></tr>')
+    _vfrag = (
+        '<section class="snap" aria-label="Value snapshot">\n'
+        f'  <h2>Top value-ranked companies <span class="snap-asof">· snapshot {_snap_asof}</span></h2>\n'
+        '  <div class="scrollx"><table class="bk-table">\n'
+        '    <thead><tr><th>#</th><th>Stock</th><th>Sector</th><th>LTP</th>'
+        '<th>P/E</th><th>P/BV</th><th>Earn. yield</th><th>Score</th></tr></thead>\n'
+        '    <tbody>\n' + '\n'.join(_vrows) + '\n    </tbody>\n'
+        '  </table></div>\n'
+        '  <p class="snap-note">Static daily snapshot · ranked within each sector; the full interactive screen below refreshes every 60 seconds.</p>\n'
+        '</section>')
+    _bake_snapshot('nepse-value/index.html', _vfrag)
+except Exception as _e:
+    print(f'  !! snapshot bake failed: {_e}')

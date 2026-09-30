@@ -52,15 +52,40 @@ function page(sys, data) {
     'reversal': `<strong>Read this first.</strong> Over 23 years this system <em>lost</em> money (${pct(st.annual_return_pct)} a year, worst fall ${pct(st.max_drawdown_pct)}). That is itself the finding: on NEPSE, buying oversold dips against the trend has been a losing approach across two decades — sharp knives keep falling. It is published for education, so you can see exactly why, not as something to trade.`,
   };
 
+  const GLOSSARY = `
+<h2 style="font-family:var(--serif);margin-top:28px">Words on this page, in plain language</h2>
+<div class="rules"><dl class="gloss">
+<dt>ATR (Average True Range)</dt><dd>How much a stock's price typically swings in a day. A "2 × ATR stop" means: if the price falls twice that typical daily swing below your entry, you exit. It sizes risk to how jumpy the stock is.</dd>
+<dt>RSI(14)</dt><dd>A 0–100 gauge of how fast the price has been rising versus falling over the last 14 days. 55–80 means strong upward momentum that is not yet extreme.</dd>
+<dt>SMA (simple moving average)</dt><dd>The average closing price over the last N days. Price above its 50-day average means the medium-term trend points up.</dd>
+<dt>Breakout</dt><dd>The closing price prints higher than any close of the previous 50 sessions — the market just pushed into new territory.</dd>
+<dt>Risk (per trade)</dt><dd>Entry price minus stop price — the most you plan to lose if the trade fails. Targets are measured in multiples of this.</dd>
+<dt>T1 / T2 targets</dt><dd>Planned take-profit levels: entry + 1.5 × risk (T1) and entry + 3 × risk (T2).</dd>
+<dt>Win rate</dt><dd>The share of finished trades that made money. A low win rate can still profit if winners are much bigger than losers.</dd>
+<dt>Profit factor</dt><dd>Total money won divided by total money lost. Above 1.0 means the system took more from the market than it gave back.</dd>
+<dt>Max drawdown ("deepest fall")</dt><dd>The worst peak-to-trough loss the portfolio suffered in the backtest — the pain you would have had to sit through.</dd>
+<dt>Alpha vs NEPSE</dt><dd>How much more (or less) this system earned per year than simply buying and holding the NEPSE index itself. Negative means buy &amp; hold won.</dd>
+<dt>Sharpe / Sortino</dt><dd>Return per unit of bumpiness. Higher means smoother gains. Sortino counts only the bad bumps (losses), ignoring upside jumps.</dd>
+<dt>Turnover filter</dt><dd>Stocks trading under Rs 10 lakh a day on average are skipped — too thin to enter and exit cleanly without moving the price.</dd>
+</dl></div>`;
+
+  const NEPALI = {
+    'momentum': `यो प्रणाली बढ्दो मूल्य भएका स्टक समात्ने नियम हो — ५० दिनकै उच्चतम मूल्य तोडेपछि किन्ने, स्टप–लससहित बाहिरिने। २३ वर्षको परीक्षणमा वार्षिक ${pct(st.annual_return_pct)} प्रतिफल; जित्ने ट्रेड ${pct(st.win_rate_pct)} मात्र, नाफा ठूला विजेताबाट। यो शैक्षिक जानकारी हो, लगानी सल्लाह होइन।`,
+    'trend-relay': `यो प्रणाली धैर्यपूर्वक प्रवृत्ति पछ्याउने नियम हो — थोरै ट्रेड, लामो होल्डिङ। २३ वर्षमा ${st.total_trades} ट्रेड मात्र, वार्षिक ${pct(st.annual_return_pct)} प्रतिफल। यो शैक्षिक जानकारी हो, लगानी सल्लाह होइन।`,
+    'reversal': `यो प्रणाली घटेका स्टक "फर्कन्छन्" भन्ने अनुमानमा किन्ने नियम हो — तर २३ वर्षको परीक्षणमा यसले पैसा गुमायो (वार्षिक ${pct(st.annual_return_pct)})। नेप्सेमा यो शैलीले काम गरेन भन्ने इमानदार निष्कर्षका लागि प्रकाशित गरिएको हो।`,
+  };
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${data.title} — Nepse Decode Signals</title>
 <meta name="description" content="${data.title}: transparent rule-based NEPSE trading system. ${data.tagline} Backtested ${st.backtest_from} to ${st.backtest_to} — annual return ${pct(st.annual_return_pct)}, win rate ${pct(st.win_rate_pct)}. Educational only, not investment advice.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-signals/${sys}/">
 <link rel="stylesheet" href="/css/nepse-design-system.css">
+<link rel="stylesheet" href="/css/theme.css?v=20261001a">
 <style>
 .sig-tabs{display:flex;gap:4px;border-bottom:2px solid var(--hairline);margin:0 0 24px;flex-wrap:wrap}
 .sig-tabs a{padding:10px 18px;color:var(--ink-soft);text-decoration:none;font-weight:600;border-bottom:3px solid transparent;margin-bottom:-2px}
@@ -81,6 +106,10 @@ function page(sys, data) {
 .prog i{display:block;height:6px;border-radius:3px;background:var(--green-700)}
 .rules{background:var(--card);border:1px solid var(--hairline);border-radius:var(--r-md);padding:18px 22px;margin:20px 0}
 .rules li{margin:8px 0}
+.gloss{display:grid;grid-template-columns:auto 1fr;gap:8px 18px;margin:0}
+.gloss dt{font-weight:700;white-space:nowrap}
+.gloss dd{margin:0;color:var(--ink-soft)}
+@media(max-width:640px){.gloss{grid-template-columns:1fr}.gloss dt{white-space:normal}}
 .scrollx{overflow-x:auto;margin:16px 0}
 .note{background:var(--gold-soft);border:1px solid var(--hairline);border-radius:var(--r-md);padding:14px 18px;margin:20px 0;font-size:.9rem}
 #eqchart{width:100%;height:280px;background:var(--card);border:1px solid var(--hairline);border-radius:var(--r-md)}
@@ -98,6 +127,8 @@ function page(sys, data) {
 
 <div class="note">${NOTES[sys] || ''}</div>
 
+<div class="note" lang="ne"><strong>संक्षेप।</strong> ${NEPALI[sys] || ''}</div>
+
 <div class="note"><strong>How to read this.</strong> Every number below comes from a mechanical replay of these exact rules on historical NEPSE data (${st.backtest_from} to ${st.backtest_to}, ${data.universe_symbols} symbols, Rs 1 Cr portfolio, max 10 positions, ${data.costs}). Nothing is hand-picked. Past performance does not predict future results.</div>
 
 <h2 class="nd-section-head" style="margin-top:28px"><h2 style="font-family:var(--serif)">Trade profile</h2></h2>
@@ -112,6 +143,8 @@ function page(sys, data) {
 <tr><td>Best trade</td><td>${st.best_trade ? st.best_trade.symbol + ' ' + pct(st.best_trade.pnl_pct) : '–'}</td><td>Worst trade</td><td>${st.worst_trade ? st.worst_trade.symbol + ' ' + pct(st.worst_trade.pnl_pct) : '–'}</td></tr>
 <tr><td>Charges paid</td><td>${money(st.charges_paid)}</td><td>Backtest window</td><td>${st.backtest_from} &rarr; ${st.backtest_to}</td></tr>
 </table></div>
+
+${GLOSSARY}
 
 <h2 style="font-family:var(--serif);margin-top:28px">Equity curve — Rs 1 Cr through this system</h2>
 <canvas id="eqchart"></canvas>
@@ -157,20 +190,104 @@ function page(sys, data) {
       var mn = Math.min.apply(null, vs), mx = Math.max.apply(null, vs);
       var X = function(i){ return 60 + i * (W - 90) / (pts.length - 1); };
       var Y = function(v){ return H - 40 - (v - mn) / (mx - mn) * (H - 80); };
-      ctx.strokeStyle = '#E7DFCE'; ctx.lineWidth = 2;
+      var darkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+      var cGrid = darkMode ? 'rgba(245,241,230,.14)' : '#E7DFCE';
+      var cLine = darkMode ? '#55b183' : '#0B3D2E';
+      var cText = darkMode ? '#99917c' : '#8A8474';
+      ctx.strokeStyle = cGrid; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(60, Y(10000000)); ctx.lineTo(W - 30, Y(10000000)); ctx.stroke();
-      ctx.strokeStyle = '#0B3D2E'; ctx.lineWidth = 3; ctx.beginPath();
+      ctx.strokeStyle = cLine; ctx.lineWidth = 3; ctx.beginPath();
       pts.forEach(function(p, i){ i ? ctx.lineTo(X(i), Y(p.v)) : ctx.moveTo(X(i), Y(p.v)); });
       ctx.stroke();
-      ctx.fillStyle = '#8A8474'; ctx.font = '22px Inter';
+      ctx.fillStyle = cText; ctx.font = '22px Inter';
       ctx.fillText('Rs 1 Cr', 8, Y(10000000) + 8);
       var last = pts[pts.length - 1];
-      ctx.fillStyle = '#0B3D2E'; ctx.font = 'bold 24px Inter';
+      ctx.fillStyle = cLine; ctx.font = 'bold 24px Inter';
       ctx.fillText('Rs ' + (last.v/10000000).toFixed(2) + ' Cr', W - 190, Y(last.v) - 12);
     }
   }).catch(function(){ document.querySelector('#alerts tbody').innerHTML = '<tr><td colspan="11">Could not load signal data.</td></tr>'; });
 })();
 </script>
+<style>
+.sf{border-top:1px solid var(--hairline,#E7DFCE);margin-top:64px;background:var(--paper,#FAF8F2);color:var(--ink-soft,#4A463C);font-family:var(--sans,Inter,system-ui,-apple-system,"Segoe UI",sans-serif)}
+.sf-inner{max-width:1200px;margin:0 auto;padding:56px 24px 30px}
+.sf-top{display:flex;gap:18px;align-items:flex-start;margin-bottom:42px}
+.sf-mark{width:46px;height:46px;border-radius:12px;flex:none;box-shadow:0 2px 10px rgba(11,61,46,.12)}
+.sf-name{font-weight:700;font-size:1.06rem;color:var(--ink,#1C1A15);margin:2px 0 8px;letter-spacing:.01em}
+.sf-mission{margin:0;max-width:62ch;line-height:1.75;font-size:.92rem;color:var(--ink-soft,#4A463C)}
+.sf-cols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:36px 28px;margin-bottom:42px}
+.sf-col h3{font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted,#8A8474);margin:0 0 16px;font-weight:700}
+.sf-col ul{list-style:none;margin:0;padding:0;display:grid;gap:11px}
+.sf-col a{color:var(--ink-soft,#4A463C);text-decoration:none;font-size:.92rem;line-height:1.5}
+.sf-col a:hover{color:var(--green-900,#0B3D2E);text-decoration:underline}
+.sf-note{border-top:1px solid var(--hairline,#E7DFCE);padding-top:26px;font-size:.85rem;line-height:1.75;color:var(--muted,#8A8474);max-width:88ch;margin:0}
+.sf-note strong{color:var(--ink-soft,#4A463C)}
+.sf-bottom{display:flex;flex-wrap:wrap;gap:10px 20px;justify-content:space-between;align-items:center;margin-top:26px;padding-top:22px;border-top:1px solid var(--hairline,#E7DFCE);font-size:.85rem;color:var(--muted,#8A8474)}
+.sf-bottom a{color:var(--ink-soft,#4A463C);text-decoration:none;font-weight:600}
+.sf-bottom a:hover{color:var(--green-900,#0B3D2E);text-decoration:underline}
+.sf-social{display:flex;gap:16px;align-items:center}
+@media(max-width:820px){.sf-cols{grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 20px}}
+@media(max-width:520px){.sf-inner{padding:44px 20px 26px}.sf-top{margin-bottom:34px}.sf-cols{margin-bottom:34px}}
+</style>
+<footer class="sf" aria-label="Nepse Decode site footer">
+  <div class="sf-inner">
+    <div class="sf-top">
+      <svg class="sf-mark" viewBox="0 0 64 64" role="img" aria-label="Nepse Decode iceberg mark"><rect width="64" height="64" rx="14" fill="#013E2E"/><polygon points="32,9 21,25 43,25" fill="#FFFFFF"/><polygon points="32,9 37,25 27,25" fill="#EEF2EF"/><polygon points="13,27.5 51,27.5 45,42 32,57 21,45 15,37" fill="#FFFFFF"/><polygon points="13,27.5 27,27.5 21,45 15,37" fill="#D6DDD9"/><polygon points="51,27.5 45,42 38,27.5" fill="#C6CECA"/><polygon points="32,57 45,42 36,40 28,49" fill="#E4E9E6"/><polygon points="21,45 32,57 28,49 24,44" fill="#D6DDD9"/><rect x="4" y="25" width="56" height="2.6" rx="1.3" fill="#0B3D2E" opacity=".55"/></svg>
+      <div>
+        <p class="sf-name">Nepse Decode</p>
+        <p class="sf-mission">Free, honest NEPSE intelligence for every Nepali investor — live market data, screeners, signals and research, rebuilt every trading day. No login, no paywall, no buy calls.</p>
+      </div>
+    </div>
+    <nav class="sf-cols" aria-label="Footer sections">
+      <div class="sf-col">
+        <h3>Tools</h3>
+        <ul>
+          <li><a href="/nepse-screener/">Stock Screener</a></li>
+          <li><a href="/nepse-chart/">Chart</a></li>
+          <li><a href="/nepse-trending/">Trending Stocks</a></li>
+          <li><a href="/nepse-value/">Value Investing</a></li>
+          <li><a href="/nepse-signals/momentum/">Trading Signals</a></li>
+          <li><a href="/nepse-watchlist/">Watchlist</a></li>
+        </ul>
+      </div>
+      <div class="sf-col">
+        <h3>Market data</h3>
+        <ul>
+          <li><a href="/nepse-decode/">Dashboard</a></li>
+          <li><a href="/nepse-brokers/">Broker Analytics</a></li>
+          <li><a href="/nepse-sectors/">Sectors</a></li>
+          <li><a href="/nepse-news/">Market News</a></li>
+          <li><a href="/nepse-actions/">Corp. Actions</a></li>
+          <li><a href="/stocks/">All Stocks</a></li>
+        </ul>
+      </div>
+      <div class="sf-col">
+        <h3>Research</h3>
+        <ul>
+          <li><a href="/blog/">Daily Blog</a></li>
+          <li><a href="/nepse-decode/">Market Dashboard</a></li>
+          <li><a href="/nepali-date-converter/">Date Converter</a></li>
+          <li><a href="/kundali/">Kundali Calculator</a></li>
+        </ul>
+      </div>
+      <div class="sf-col">
+        <h3>Company</h3>
+        <ul>
+          <li><a href="/about.html">About</a></li>
+          <li><a href="/contact.html">Contact</a></li>
+          <li><a href="/privacy.html">Privacy</a></li>
+          <li><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Facebook Page</a></li>
+        </ul>
+      </div>
+    </nav>
+    <p class="sf-note"><strong>Educational use only.</strong> Nothing on this site is investment advice. Prices and figures are compiled from public sources and refreshed every trading day — always verify with your broker before trading.</p>
+    <div class="sf-bottom">
+      <span>© 2026 Nepse Decode · Built by <a href="/">Shirjan Khadka</a> in Kathmandu, Nepal</span>
+      <span class="sf-social"><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Facebook</a><a href="/blog/">Blog</a><a href="/contact.html">Contact</a></span>
+    </div>
+  </div>
+</footer>
+<script src="/js/theme-toggle.js?v=20261001a" defer></script>
 </body>
 </html>`;
 }

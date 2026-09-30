@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Trending Stocks — Nepse Decode</title>
@@ -29,7 +30,7 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-decode/"},{"@type":"ListItem","position":2,"name":"Trending Stocks","item":"https://shirjankhadka.com.np/nepse-trending/"}]}
 </script>
-<link rel="stylesheet" href="/css/nepse-design-system.css?v=20260930b">
+<link rel="stylesheet" href="/css/nepse-design-system.css?v=20261001a">
 <style>
 .bk-tabs{display:flex;gap:4px;border-bottom:2px solid var(--hairline);margin:0 0 16px;flex-wrap:wrap;overflow-x:auto}
 .bk-tabs button{background:none;border:none;padding:10px 14px;color:var(--ink-soft);font-weight:600;font-size:.92rem;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;font-family:var(--sans)}
@@ -67,7 +68,40 @@ canvas.spark{display:block}
 .crumbs{font-size:.85rem;color:var(--muted);margin-bottom:6px}
 .crumbs a{color:var(--muted);text-decoration:none}
 .crumbs a:hover{color:var(--green-900)}
+/* ============================================================
+   RESEARCH LAYER — equity-research expandable panels.
+   Lazy-loaded (trending-research.json fetched on first expand),
+   so initial page weight is unchanged. Generous spacing per
+   design bar: nothing here may feel crowded.
+   ============================================================ */
+.rs-toggle{background:none;border:1px solid var(--hairline);border-radius:var(--r-pill);padding:6px 14px;font-size:.78rem;font-weight:600;color:var(--green-800);cursor:pointer;font-family:var(--sans);white-space:nowrap}
+.rs-toggle:hover{border-color:var(--green-700);color:var(--green-900)}
+.rs-toggle[aria-expanded="true"]{background:var(--green-900);color:#fff;border-color:var(--green-900)}
+#trendTable tr.rs-panel-row td{background:var(--paper);padding:0;border-bottom:1px solid var(--hairline)}
+.rs-panel{padding:var(--s8) var(--s6)}
+.rs-head{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:var(--s4);row-gap:var(--s2);margin:0 0 var(--s6)}
+.rs-asof{font-size:.8rem;color:var(--muted)}
+.rs-grid{display:grid;gap:var(--s6);margin:0 0 var(--s6)}
+@media(min-width:760px){.rs-grid{grid-template-columns:1fr 1fr}}
+.rs-card{background:var(--card);border:1px solid var(--hairline);border-radius:var(--r-md);padding:var(--s6)}
+.rs-card h3{font-family:var(--sans);font-weight:700;font-size:.95rem;margin:0 0 var(--s4);color:var(--ink)}
+.rs-facts{display:grid;grid-template-columns:1fr auto;gap:var(--s2) var(--s4);font-size:.86rem;margin:0}
+.rs-facts dt{color:var(--muted)}
+.rs-facts dd{margin:0;font-variant-numeric:tabular-nums;font-weight:600;text-align:right}
+.rs-facts .rs-sub{grid-column:1/-1;color:var(--muted);font-size:.78rem;margin-top:var(--s2)}
+.rs-note{background:var(--gold-soft);border:1px solid var(--hairline);border-radius:var(--r-md);padding:var(--s6);margin:0 0 var(--s4)}
+.rs-note p{margin:var(--s3) 0 0;line-height:1.7;font-size:.92rem;color:var(--ink-soft);max-width:72ch}
+.rs-foot{margin:0}
+.rs-loading{padding:var(--s8);text-align:center;color:var(--muted);font-size:.9rem}
+
+/* Static daily snapshot (baked at build time; SEO/no-JS fallback) */
+.snap{margin:26px 0 30px;padding:22px 20px;border:1px solid var(--hairline,#E7DFCE);border-radius:14px;background:var(--card,#FFFFFF)}
+.snap h2{font-family:var(--serif);font-size:1.25rem;margin:0 0 4px}
+.snap-asof{font-family:var(--sans,Inter,system-ui,sans-serif);font-size:.8rem;font-weight:400;color:var(--muted,#8A8474)}
+.snap .bk-table{margin-top:12px}
+.snap-note{font-size:.82rem;color:var(--muted,#8A8474);margin:12px 0 0}
 </style>
+<link rel="stylesheet" href="/css/theme.css?v=20261001a">
 </head>
 <body class="nd">
 <main style="max-width:1160px;margin:0 auto;padding:24px 16px">
@@ -75,7 +109,34 @@ canvas.spark{display:block}
 <p style="color:var(--muted);font-size:.9rem;margin-bottom:4px">Nepse Decode &middot; Market pulse</p>
 <h1 style="font-family:var(--serif);font-size:2rem;margin:0 0 6px">Trending Stocks</h1>
 <p style="color:var(--ink-soft);max-width:700px">Which NEPSE stocks are genuinely attracting activity — ranked by turnover acceleration, volume spikes, 5-day momentum, broker flow concentration and news mentions. Our own transparent formula: every input is published below, no black box, no borrowed scores.</p>
+<p lang="ne" class="ne-sum" style="color:var(--muted);font-size:.92rem;max-width:700px;margin-top:10px">संक्षेप: यो पृष्ठमा नेप्सेमा अहिले सबैभन्दा सक्रिय स्टकहरूको दैनिक सूची छ — उच्च कारोबार, मूल्य गति र ब्रोकर प्रवाहका आधारमा छानिएको। यो शैक्षिक जानकारी हो, लगानी सल्लाह होइन।</p>
 
+<!-- SNAP-START -->
+<section class="snap" aria-label="Trending snapshot">
+  <h2>Top trending stocks <span class="snap-asof">· snapshot 2026-09-30</span></h2>
+  <div class="scrollx"><table class="bk-table">
+    <thead><tr><th>#</th><th>Stock</th><th>LTP</th><th>Day %</th><th>5-day %</th><th>Turnover</th><th>Tone</th><th>Score</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><a href="/stocks/GHL/">GHL</a></td><td>271.50</td><td>+6.81%</td><td>6.81</td><td>Rs 394.9 M</td><td>Accumulation interest</td><td>72.6</td></tr>
+      <tr><td>2</td><td><a href="/stocks/PHCL/">PHCL</a></td><td>333.80</td><td>+3.34%</td><td>3.34</td><td>Rs 228.4 M</td><td>Accumulation interest</td><td>61.8</td></tr>
+      <tr><td>3</td><td><a href="/stocks/SPHL/">SPHL</a></td><td>580.00</td><td>+13.26%</td><td>13.26</td><td>Rs 15.3 M</td><td>Accumulation interest</td><td>60.8</td></tr>
+      <tr><td>4</td><td><a href="/stocks/HHL/">HHL</a></td><td>350.00</td><td>+2.34%</td><td>2.34</td><td>Rs 33.2 M</td><td>Accumulation interest</td><td>55.7</td></tr>
+      <tr><td>5</td><td><a href="/stocks/KPCL/">KPCL</a></td><td>457.00</td><td>-3.18%</td><td>-3.18</td><td>Rs 15.1 M</td><td>Distribution pressure</td><td>55.0</td></tr>
+      <tr><td>6</td><td><a href="/stocks/USHEC/">USHEC</a></td><td>494.00</td><td>-3.52%</td><td>-3.52</td><td>Rs 19.2 M</td><td>Distribution pressure</td><td>47.3</td></tr>
+      <tr><td>7</td><td><a href="/stocks/UNL/">UNL</a></td><td>49200.00</td><td>+1.44%</td><td>1.44</td><td>Rs 3.9 M</td><td>Watch</td><td>42.8</td></tr>
+      <tr><td>8</td><td><a href="/stocks/SMB/">SMB</a></td><td>1831.00</td><td>-0.76%</td><td>-0.76</td><td>Rs 2.8 M</td><td>Watch</td><td>41.2</td></tr>
+      <tr><td>9</td><td><a href="/stocks/SLBSL/">SLBSL</a></td><td>895.00</td><td>-1.86%</td><td>-1.86</td><td>Rs 2.2 M</td><td>Watch</td><td>40.7</td></tr>
+      <tr><td>10</td><td><a href="/stocks/SHPC/">SHPC</a></td><td>529.60</td><td>-1.56%</td><td>-1.56</td><td>Rs 133.2 M</td><td>Watch</td><td>38.3</td></tr>
+      <tr><td>11</td><td><a href="/stocks/ADBL/">ADBL</a></td><td>307.50</td><td>-2.04%</td><td>-2.04</td><td>Rs 25.7 M</td><td>Distribution pressure</td><td>34.7</td></tr>
+      <tr><td>12</td><td><a href="/stocks/SONA/">SONA</a></td><td>420.00</td><td>+3.96%</td><td>3.96</td><td>Rs 78.5 M</td><td>Accumulation interest</td><td>34.0</td></tr>
+      <tr><td>13</td><td><a href="/stocks/SIFC/">SIFC</a></td><td>479.00</td><td>-1.38%</td><td>-1.38</td><td>Rs 6.9 M</td><td>Watch</td><td>33.9</td></tr>
+      <tr><td>14</td><td><a href="/stocks/ULHC/">ULHC</a></td><td>352.00</td><td>+7.94%</td><td>7.94</td><td>Rs 3.7 M</td><td>Accumulation interest</td><td>33.9</td></tr>
+      <tr><td>15</td><td><a href="/stocks/MKJC/">MKJC</a></td><td>342.00</td><td>+1.18%</td><td>1.18</td><td>Rs 42.0 M</td><td>Watch</td><td>33.0</td></tr>
+    </tbody>
+  </table></div>
+  <p class="snap-note">Static daily snapshot · the full interactive ranking below refreshes every 60 seconds.</p>
+</section>
+<!-- SNAP-END -->
 <div class="cover" id="coverage">Loading data…</div>
 
 <div class="tone-key" id="toneKey" style="display:none">
@@ -103,8 +164,11 @@ canvas.spark{display:block}
 <th class="sortable" data-k="score">Score</th>
 <th>Why trending</th>
 <th>30-day trend</th>
+<!-- RESEARCH-LAYER-START: research toggle column (lazy-loaded panel) -->
+<th>Research</th>
+<!-- RESEARCH-LAYER-END -->
 </tr></thead>
-<tbody id="trendBody"><tr><td colspan="9" style="text-align:center;color:var(--muted)">Loading…</td></tr></tbody>
+<tbody id="trendBody"><tr><td colspan="10" style="text-align:center;color:var(--muted)">Loading…</td></tr></tbody>
 </table>
 </div>
 
@@ -155,6 +219,7 @@ function filtered(){
 }
 
 function render(){
+  closeResearchPanels();
   var rows = filtered();
   var html = '';
   rows.forEach(function(s, i){
@@ -170,9 +235,12 @@ function render(){
       + '<td><span class="scorebar"><i style="width:'+Math.round(s.score)+'%"></i></span> '+fmt(s.score,1)+'</td>'
       + '<td><div class="rchips">'+chips+'</div></td>'
       + '<td><canvas class="spark" data-i="'+i+'"></canvas></td>'
+      // RESEARCH-LAYER-START: per-row research toggle; panel lazy-loads trending-research.json
+      + '<td><button class="rs-toggle" data-sym="'+esc(s.symbol)+'" aria-expanded="false">Research</button></td>'
+      // RESEARCH-LAYER-END
       + '</tr>';
   });
-  if(!rows.length) html = '<tr><td colspan="9" style="text-align:center;color:var(--muted)">No stocks in this tone right now.</td></tr>';
+  if(!rows.length) html = '<tr><td colspan="10" style="text-align:center;color:var(--muted)">No stocks in this tone right now.</td></tr>';
   $('trendBody').innerHTML = html;
   var cvs = $('trendBody').querySelectorAll('canvas.spark');
   rows.forEach(function(s, i){
@@ -204,23 +272,223 @@ function initTabs(){
   });
 }
 
-fetch(BASE+'trending.json').then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(d){
-  state.rows = d.stocks || [];
-  state.meta = d;
-  var counts = {accumulation:0, distribution:0, watch:0};
-  state.rows.forEach(function(s){ if(counts[s.tone]!==undefined) counts[s.tone]++; });
-  $('coverage').innerHTML = '<strong>Data as of ' + esc(d.asof) + '.</strong> ' + state.rows.length +
-    ' equities scored (' + counts.accumulation + ' accumulation · ' + counts.distribution +
-    ' distribution · ' + counts.watch + ' watch). Scores rebuild every trading day from the daily close.';
-  $('methodBox').textContent = d.method || '';
-  $('toneKey').style.display = '';
-  initTabs();
-  render();
-}).catch(function(){
-  $('coverage').textContent = 'Could not load trending data. Please try again later.';
-  $('trendBody').innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted)">Data unavailable.</td></tr>';
-});
+/* ============================================================
+   RESEARCH LAYER — equity-research expandable panels.
+   trending-research.json is fetched ONCE, lazily, on the first
+   Research expand — the initial page load never waits for it.
+   ============================================================ */
+var researchCache = null, researchPromise = null;
+function getResearch(){
+  if(researchCache) return Promise.resolve(researchCache);
+  if(!researchPromise){
+    researchPromise = fetch(BASE+'trending-research.json').then(function(r){
+      if(!r.ok) throw 0; return r.json();
+    }).then(function(d){
+      researchCache = { _meta: d, _bySym: {} };
+      (d.stocks||[]).forEach(function(s){ researchCache._bySym[s.symbol] = s; });
+      return researchCache;
+    }).catch(function(){ researchPromise = null; throw 0; });
+  }
+  return researchPromise;
+}
+function closeResearchPanels(){
+  var rows = document.querySelectorAll('#trendBody .rs-panel-row');
+  rows.forEach(function(r){ r.remove(); });
+  var btns = document.querySelectorAll('#trendBody .rs-toggle[aria-expanded="true"]');
+  btns.forEach(function(b){ b.setAttribute('aria-expanded','false'); });
+}
+function rsRow(label, val){
+  if(val===null||val===undefined||val==='') return '';
+  return '<dt>'+esc(label)+'</dt><dd>'+esc(val)+'</dd>';
+}
+function researchPanelHTML(e, meta){
+  var f = e.financial, m = e.management, h = '';
+  h += '<div class="rs-head"><span class="nd-kicker">Equity research</span>'
+     + '<span class="rs-asof">As of '+esc(meta.asof||'')+' · from published filings &amp; the corporate-action archive</span></div>';
+  h += '<div class="rs-grid">';
+  // --- financial analysis ---
+  h += '<section class="rs-card"><h3>Financial analysis</h3>';
+  if(f){
+    h += '<dl class="rs-facts">';
+    h += rsRow('Reporting period', f.period || '—');
+    h += rsRow('TTM EPS', f.eps_ttm!==null ? 'Rs '+fmt(f.eps_ttm) : '—');
+    h += rsRow('P/E (TTM)', f.pe_ttm!==null ? fmt(f.pe_ttm) : 'n/a (loss-making year)');
+    h += rsRow('P/BV', f.pbv!==null ? fmt(f.pbv) : '—');
+    h += rsRow('ROE (TTM)', f.roe_ttm_pct!==null ? fmt(f.roe_ttm_pct)+'%' : '—');
+    h += rsRow('Earnings yield', f.ey_pct!==null ? fmt(f.ey_pct)+'%' : '—');
+    h += rsRow('Revenue', f.revenue_rs_m!==null ? 'Rs '+fmt(f.revenue_rs_m,1)+' M' : '—');
+    h += rsRow('Net profit', f.net_profit_rs_m!==null ? 'Rs '+fmt(f.net_profit_rs_m,1)+' M' : '—');
+    h += rsRow('Net worth', f.networth_rs_m!==null ? 'Rs '+fmt(f.networth_rs_m,1)+' M' : '—');
+    if(f.sector_median_pe){
+      h += '<div class="rs-sub">Sector P/E median '+fmt(f.sector_median_pe)
+         + (f.sector_median_pbv ? ' · P/BV median '+fmt(f.sector_median_pbv) : '') + '</div>';
+    }
+    if(f.trend && f.trend.quarters >= 2){
+      h += '<div class="rs-sub">Net profit '+esc(f.trend.direction)+' over '+f.trend.quarters
+         + ' quarters (Rs '+fmt(f.trend.first_rs_m,1)+' M → Rs '+fmt(f.trend.last_rs_m,1)+' M)</div>';
+    }
+    h += '</dl>';
+  } else {
+    h += '<p class="nd-body-sm">No published fundamentals in our dataset for this symbol — the activity is pure trading interest with no reported numbers behind it.</p>';
+  }
+  h += '</section>';
+  // --- management & governance ---
+  h += '<section class="rs-card"><h3>Management &amp; governance</h3>';
+  if(m){
+    h += '<dl class="rs-facts">';
+    h += rsRow('Dividend years (last 5 FY)', m.dividend_years_last5+' of 5');
+    var ld = m.latest_dividend;
+    h += rsRow('Latest dividend', (ld && ld.year) ? ld.bonus_pct.toFixed(2)+'% bonus + '+ld.cash_pct.toFixed(2)+'% cash · FY '+esc(ld.year) : '—');
+    h += rsRow('AGMs on record', m.agm_count);
+    h += rsRow('Rights issues', m.rights_count + (m.latest_right && m.latest_right.ratio ? ' · latest '+esc(m.latest_right.ratio) : ''));
+    h += rsRow('Auction sales', m.auctions_count);
+    h += '<div class="rs-sub">From the corporate-action archive (dividend, AGM, rights &amp; auction notices). Promoter/ownership percentages are not in our datasets and are never estimated.</div>';
+    h += '</dl>';
+  } else {
+    h += '<p class="nd-body-sm">Our corporate-action archive holds no dividend or AGM record for this symbol.</p>';
+  }
+  h += '</section>';
+  h += '</div>';
+  h += '<div class="rs-note"><span class="nd-kicker gold">Analyst note</span><p>'+esc(e.analyst_note)+'</p></div>';
+  h += '<p class="nd-caption rs-foot">Educational only — not investment advice. Figures from published quarterly filings and the corporate-action archive.</p>';
+  return h;
+}
+function researchMissingHTML(sym){
+  return '<div class="rs-panel"><div class="rs-loading">Research was compiled for the top 40 activity-ranked stocks in today\'s run; '
+       + esc(sym) + ' is outside that set. The activity row above still shows its full trading picture.</div></div>';
+}
+function initResearch(){
+  $('trendBody').addEventListener('click', function(ev){
+    var b = ev.target.closest('.rs-toggle'); if(!b) return;
+    var sym = b.getAttribute('data-sym');
+    var tr = b.closest('tr');
+    var wasOpen = tr.nextElementSibling && tr.nextElementSibling.classList.contains('rs-panel-row');
+    closeResearchPanels();
+    if(wasOpen) return;
+    b.setAttribute('aria-expanded','true');
+    var panelTr = document.createElement('tr');
+    panelTr.className = 'rs-panel-row';
+    panelTr.innerHTML = '<td colspan="10"><div class="rs-panel"><div class="rs-loading">Loading research…</div></div></td>';
+    tr.after(panelTr);
+    getResearch().then(function(cache){
+      var entry = cache._bySym[sym];
+      panelTr.querySelector('.rs-panel').outerHTML =
+        '<!-- RESEARCH-LAYER-START: equity-research panel for '+sym.replace(/[^A-Z0-9]/g,'')+' -->'
+        + '<div class="rs-panel">' + (entry ? researchPanelHTML(entry, cache._meta) : researchMissingHTML(sym)) + '</div>'
+        + '<!-- RESEARCH-LAYER-END -->';
+    }).catch(function(){
+      b.setAttribute('aria-expanded','false');
+      panelTr.querySelector('.rs-panel').innerHTML = '<div class="rs-loading">Research data is unavailable right now. Please try again later.</div>';
+    });
+  });
+}
+
+function load(silent){
+  fetch(BASE+'trending.json', { cache: 'no-store' }).then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(d){
+    state.rows = d.stocks || [];
+    state.meta = d;
+    var counts = {accumulation:0, distribution:0, watch:0};
+    state.rows.forEach(function(s){ if(counts[s.tone]!==undefined) counts[s.tone]++; });
+    $('coverage').innerHTML = '<strong>Data as of ' + esc(d.asof) + '.</strong> ' + state.rows.length +
+      ' equities scored (' + counts.accumulation + ' accumulation · ' + counts.distribution +
+      ' distribution · ' + counts.watch + ' watch). Scores rebuild every trading day from the daily close.';
+    $('methodBox').textContent = d.method || '';
+    $('toneKey').style.display = '';
+    if (!state.tabsInit) { initTabs(); state.tabsInit = true; }
+    if (!state.rsInit) { initResearch(); state.rsInit = true; } // RESEARCH-LAYER: wire once
+    render();
+  }).catch(function(){
+    if (silent) return; /* background refresh failed: keep last good render */
+    $('coverage').textContent = 'Could not load trending data. Please try again later.';
+    $('trendBody').innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--muted)">Data unavailable.</td></tr>';
+  });
+}
+load();
+/* Auto-refresh every 60s (skipped while tab hidden) so a page left open picks
+   up the fresh rebuild without a reload. Silent: no flash, errors keep data. */
+setInterval(function(){ if(!document.hidden) load(true); }, 60000);
 })();
 </script>
+<script src="/js/theme-toggle.js?v=20261001a" defer></script>
+<style>
+.sf{border-top:1px solid var(--hairline,#E7DFCE);margin-top:64px;background:var(--paper,#FAF8F2);color:var(--ink-soft,#4A463C);font-family:var(--sans,Inter,system-ui,-apple-system,"Segoe UI",sans-serif)}
+.sf-inner{max-width:1200px;margin:0 auto;padding:56px 24px 30px}
+.sf-top{display:flex;gap:18px;align-items:flex-start;margin-bottom:42px}
+.sf-mark{width:46px;height:46px;border-radius:12px;flex:none;box-shadow:0 2px 10px rgba(11,61,46,.12)}
+.sf-name{font-weight:700;font-size:1.06rem;color:var(--ink,#1C1A15);margin:2px 0 8px;letter-spacing:.01em}
+.sf-mission{margin:0;max-width:62ch;line-height:1.75;font-size:.92rem;color:var(--ink-soft,#4A463C)}
+.sf-cols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:36px 28px;margin-bottom:42px}
+.sf-col h3{font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted,#8A8474);margin:0 0 16px;font-weight:700}
+.sf-col ul{list-style:none;margin:0;padding:0;display:grid;gap:11px}
+.sf-col a{color:var(--ink-soft,#4A463C);text-decoration:none;font-size:.92rem;line-height:1.5}
+.sf-col a:hover{color:var(--green-900,#0B3D2E);text-decoration:underline}
+.sf-note{border-top:1px solid var(--hairline,#E7DFCE);padding-top:26px;font-size:.85rem;line-height:1.75;color:var(--muted,#8A8474);max-width:88ch;margin:0}
+.sf-note strong{color:var(--ink-soft,#4A463C)}
+.sf-bottom{display:flex;flex-wrap:wrap;gap:10px 20px;justify-content:space-between;align-items:center;margin-top:26px;padding-top:22px;border-top:1px solid var(--hairline,#E7DFCE);font-size:.85rem;color:var(--muted,#8A8474)}
+.sf-bottom a{color:var(--ink-soft,#4A463C);text-decoration:none;font-weight:600}
+.sf-bottom a:hover{color:var(--green-900,#0B3D2E);text-decoration:underline}
+.sf-social{display:flex;gap:16px;align-items:center}
+@media(max-width:820px){.sf-cols{grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 20px}}
+@media(max-width:520px){.sf-inner{padding:44px 20px 26px}.sf-top{margin-bottom:34px}.sf-cols{margin-bottom:34px}}
+</style>
+<footer class="sf" aria-label="Nepse Decode site footer">
+  <div class="sf-inner">
+    <div class="sf-top">
+      <svg class="sf-mark" viewBox="0 0 64 64" role="img" aria-label="Nepse Decode iceberg mark"><rect width="64" height="64" rx="14" fill="#013E2E"/><polygon points="32,9 21,25 43,25" fill="#FFFFFF"/><polygon points="32,9 37,25 27,25" fill="#EEF2EF"/><polygon points="13,27.5 51,27.5 45,42 32,57 21,45 15,37" fill="#FFFFFF"/><polygon points="13,27.5 27,27.5 21,45 15,37" fill="#D6DDD9"/><polygon points="51,27.5 45,42 38,27.5" fill="#C6CECA"/><polygon points="32,57 45,42 36,40 28,49" fill="#E4E9E6"/><polygon points="21,45 32,57 28,49 24,44" fill="#D6DDD9"/><rect x="4" y="25" width="56" height="2.6" rx="1.3" fill="#0B3D2E" opacity=".55"/></svg>
+      <div>
+        <p class="sf-name">Nepse Decode</p>
+        <p class="sf-mission">Free, honest NEPSE intelligence for every Nepali investor — live market data, screeners, signals and research, rebuilt every trading day. No login, no paywall, no buy calls.</p>
+      </div>
+    </div>
+    <nav class="sf-cols" aria-label="Footer sections">
+      <div class="sf-col">
+        <h3>Tools</h3>
+        <ul>
+          <li><a href="/nepse-screener/">Stock Screener</a></li>
+          <li><a href="/nepse-chart/">Chart</a></li>
+          <li><a href="/nepse-trending/">Trending Stocks</a></li>
+          <li><a href="/nepse-value/">Value Investing</a></li>
+          <li><a href="/nepse-signals/momentum/">Trading Signals</a></li>
+          <li><a href="/nepse-watchlist/">Watchlist</a></li>
+        </ul>
+      </div>
+      <div class="sf-col">
+        <h3>Market data</h3>
+        <ul>
+          <li><a href="/nepse-decode/">Dashboard</a></li>
+          <li><a href="/nepse-brokers/">Broker Analytics</a></li>
+          <li><a href="/nepse-sectors/">Sectors</a></li>
+          <li><a href="/nepse-news/">Market News</a></li>
+          <li><a href="/nepse-actions/">Corp. Actions</a></li>
+          <li><a href="/stocks/">All Stocks</a></li>
+        </ul>
+      </div>
+      <div class="sf-col">
+        <h3>Research</h3>
+        <ul>
+          <li><a href="/blog/">Daily Blog</a></li>
+          <li><a href="/nepse-decode/">Market Dashboard</a></li>
+          <li><a href="/nepali-date-converter/">Date Converter</a></li>
+          <li><a href="/kundali/">Kundali Calculator</a></li>
+        </ul>
+      </div>
+      <div class="sf-col">
+        <h3>Company</h3>
+        <ul>
+          <li><a href="/about.html">About</a></li>
+          <li><a href="/contact.html">Contact</a></li>
+          <li><a href="/privacy.html">Privacy</a></li>
+          <li><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Facebook Page</a></li>
+        </ul>
+      </div>
+    </nav>
+    <p class="sf-note"><strong>Educational use only.</strong> Nothing on this site is investment advice. Prices and figures are compiled from public sources and refreshed every trading day — always verify with your broker before trading.</p>
+    <div class="sf-bottom">
+      <span>© 2026 Nepse Decode · Built by <a href="/">Shirjan Khadka</a> in Kathmandu, Nepal</span>
+      <span class="sf-social"><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Facebook</a><a href="/blog/">Blog</a><a href="/contact.html">Contact</a></span>
+    </div>
+  </div>
+</footer>
+
 </body>
 </html>

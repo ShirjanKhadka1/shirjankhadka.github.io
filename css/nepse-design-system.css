@@ -576,3 +576,42 @@
 .nav-sub a.active{background:var(--gold-soft);color:var(--ink);font-weight:700}
 .nd-mobilenav .nav-sub{flex-direction:row;margin:0;border:none;padding:0}
 .nd-mobilenav .nav-sub a{font-size:.85rem;opacity:.85}
+
+/* ==========================================================================
+   Responsive + breathing-room safety net (2026-10-01, branch feature/responsive-autoupdate)
+   ADDITIVE ONLY — no color, font, or luxury-theme restyling. Owner's bar:
+   generous spacing everywhere (pages never feel crowded); swift, lag-free
+   loading. Dark-mode agent: no [data-theme] regions touched here.
+   ========================================================================== */
+
+/* 1. Page-level horizontal-scroll guard (small screens). `clip` — not `hidden`
+   — so position:sticky elements keep working. Kills the classic "page slides
+   sideways" breakage from one wide injected block. */
+@media (max-width: 760px) {
+  html, body { overflow-x: clip; }
+}
+
+/* 2. Touch-sized tap targets for the interactive controls that appear across
+   the NEPSE tools (tone tabs, period pills, view tabs, sortable headers). */
+@media (max-width: 760px) {
+  .tone-tabs button,
+  #viewTabs button,
+  #periodBar button,
+  .kind-tab,
+  th.sortable { min-height: 44px; }
+}
+
+/* 3. Tables breathe on small screens: keep the scroll-wrapper pattern, never
+   squash columns. Cell padding stays generous so dense data tables remain
+   readable on a phone. */
+@media (max-width: 640px) {
+  .tbl-scroll, .scrollx, .sc-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table th, table td { padding: 10px 12px; }
+}
+
+/* 4. Section rhythm: a minimum vertical beat between major blocks on small
+   screens, so stacked content never feels crowded. Applies only where the
+   page uses plain <section> blocks without their own spacing. */
+@media (max-width: 760px) {
+  main > section + section { margin-top: var(--s8, 32px); }
+}

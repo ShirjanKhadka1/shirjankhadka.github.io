@@ -1,0 +1,230 @@
+/* ============================================================
+   THEME — site-wide light/dark mode
+   Light mode is the default and is untouched: every rule below
+   is scoped under [data-theme="dark"], which is set on <html>
+   by an inline head snippet (localStorage "sk-theme", falling
+   back to prefers-color-scheme).
+
+   The three CSS families on this site are all variable-driven,
+   so dark mode is mostly a variable remap. The targeted rules
+   after each remap cover the handful of hardcoded colors that
+   would otherwise go unreadable.
+   ============================================================ */
+
+:root { color-scheme: light; }
+[data-theme="dark"] { color-scheme: dark; }
+
+/* ------------------------------------------------------------
+   FAMILY 1 — css/style.css (portfolio: homepage, blog, articles)
+   ------------------------------------------------------------ */
+[data-theme="dark"] {
+  --text: #f5f5f7;
+  --secondary: #a1a1a6;
+  --alt: #17171a;
+  --white: #1c1c1f;          /* cards / raised surfaces */
+  --black: #000000;
+  --accent: #4bb886;         /* brightened for dark bg */
+  --accent-bright: #7bd3a6;
+  --accent-soft: #123626;
+  --line: #2e2e33;
+  --dark-line: #2d2d2f;
+  --dark-secondary: #a1a1a6;
+  --shadow: 0 10px 34px rgba(0, 0, 0, .45);
+  --shadow-hover: 0 18px 48px rgba(0, 0, 0, .6);
+}
+/* Page canvas darker than cards */
+[data-theme="dark"] body { background: #101013; }
+[data-theme="dark"] body.nd { background: #12110e; }
+
+/* Hardcoded spots in style.css */
+[data-theme="dark"] .nav { background: rgba(16, 16, 19, .72); }
+[data-theme="dark"] .btn-dark { background: #f5f5f7; color: #141416; }
+[data-theme="dark"] .btn-dark:hover { background: #ffffff; }
+[data-theme="dark"] .skip-link { background: #f5f5f7; color: #141416; }
+[data-theme="dark"] .article-body { color: #d9d9de; }
+[data-theme="dark"] .nepali-summary { background: #1a1a1e; border-color: #2e2e33; }
+[data-theme="dark"] .nepali-summary p:last-child { color: #d9d9de; }
+[data-theme="dark"] .faq details:hover,
+[data-theme="dark"] .faq details[open] { border-color: #3a3a40; }
+[data-theme="dark"] .faq details p,
+[data-theme="dark"] .key-facts li { color: #c9c9cf; }
+[data-theme="dark"] .sc-table tbody tr:nth-child(even) { background: #17171a; }
+/* Intentionally-dark sections (.section-dark, .finding, footer text)
+   stay dark — no overrides needed. */
+
+/* ------------------------------------------------------------
+   FAMILY 2 — css/nepse-luxury.css (suite + all stock pages)
+   Deep charcoal-ink greens, warm gold kept.
+   ------------------------------------------------------------ */
+[data-theme="dark"] {
+  --ink: #edeae0;            /* text */
+  --pine: #0d1f16;           /* stays deep (final CTA band) */
+  --emerald: #43b581;        /* brightened for dark bg */
+  --emerald-deep: #2f9c6c;
+  --gold: #c6a86b;           /* brand gold preserved */
+  --gold-soft: #38301f;
+  --gold-faint: #241f13;
+  --ivory: #0e130f;          /* page canvas */
+  --paper: #151c17;          /* cards */
+  --hairline: rgba(237, 234, 224, .14);
+  --hairline-soft: rgba(237, 234, 224, .07);
+  --muted: #9aa096;
+  --faint: #6e746c;
+  --up: #4cc38a;
+  --down: #e07a6a;
+  --shadow: 0 12px 40px rgba(0, 0, 0, .35);
+  --shadow-hover: 0 22px 60px rgba(0, 0, 0, .5);
+  /* Consumed by nepse-wave8.css via var() fallbacks */
+  --ink-soft: #a9aca2;
+  --line: rgba(237, 234, 224, .16);
+}
+
+/* Hardcoded spots in nepse-luxury.css.
+   .band / .honest are brand-dark moments: keep them near-black
+   so their light text stays readable (they used var(--ink),
+   which now means light text). */
+[data-theme="dark"] .topbar { background: rgba(14, 19, 15, .88); }
+[data-theme="dark"] .band,
+[data-theme="dark"] .honest { background: #0a0f0b; }
+[data-theme="dark"] .info-tip::after { background: #0a0f0b; color: #edeae0; }
+[data-theme="dark"] .btn.gold { color: #141311; }
+[data-theme="dark"] .w1-tab[aria-selected="true"] {
+  background: var(--gold); border-color: var(--gold); color: #141311;
+}
+[data-theme="dark"] .skl {
+  background: linear-gradient(100deg, var(--ivory) 42%, #232a24 50%, var(--ivory) 58%);
+  background-size: 200% 100%;
+}
+[data-theme="dark"] .sc-range-in { background: #151c17; color: var(--ink); }
+/* Verdict pills (.v-*) are self-contained solid/pastel chips —
+   readable on dark, left untouched. */
+
+/* nepse-wave8.css card surfaces */
+[data-theme="dark"] .sp-price-card,
+[data-theme="dark"] .vpill,
+[data-theme="dark"] .sp-fund,
+[data-theme="dark"] .ca-item,
+[data-theme="dark"] .sp-table-wrap,
+[data-theme="dark"] .inv-cal { background: #151c17; }
+[data-theme="dark"] .ca-filters select,
+[data-theme="dark"] .ca-filters input,
+[data-theme="dark"] .sp-dir-search input[type="search"],
+[data-theme="dark"] .inv-cal-pages button {
+  background: #151c17; color: var(--ink);
+  border-color: rgba(237, 234, 224, .16);
+}
+[data-theme="dark"] .inv-cal-tab { background: #151c17; color: var(--ink-soft); }
+[data-theme="dark"] .inv-cal-nav { border-color: rgba(237, 234, 224, .16); }
+[data-theme="dark"] .sp-chg.pos { color: #4cc38a; }
+[data-theme="dark"] .sp-chg.neg { color: #e07a6a; }
+/* .vg-* verdict pills are pastel chips with dark text — readable, untouched. */
+
+/* nepse-wave7.css snapshot cards */
+[data-theme="dark"] .nlsnap { background: #151c17; border-color: rgba(237, 234, 224, .14); }
+[data-theme="dark"] .nlsnap-v { color: var(--ink); }
+[data-theme="dark"] .nlsnap-v .up { color: #4cc38a; }
+[data-theme="dark"] .nlsnap-v .down { color: #e07a6a; }
+[data-theme="dark"] .nlsnap-s { color: var(--muted); }
+[data-theme="dark"] .nlsnap-s.up { color: #4cc38a; }
+[data-theme="dark"] .nlsnap-s.down { color: #e07a6a; }
+[data-theme="dark"] .nlsnap-k,
+[data-theme="dark"] .nlsnap-cap { color: var(--faint); }
+[data-theme="dark"] .nlsnap-sep { color: var(--faint); }
+[data-theme="dark"] .nlv-sub { color: var(--muted); }
+[data-theme="dark"] .nl-note {
+  background: #151c17; border-color: rgba(237, 234, 224, .14); color: var(--ink-soft);
+}
+[data-theme="dark"] .fd-list li { border-color: rgba(237, 234, 224, .1); }
+/* .nlv-badge / .nl-badge status chips are self-contained — untouched. */
+
+/* ------------------------------------------------------------
+   FAMILY 3 — css/nepse-design-system.css
+   (nepse-decode, nepse-value, nepse-trending + suite tools)
+   Scoped to body.nd so these variables never leak onto luxury pages
+   (the two families share names like --paper/--ink/--gold).
+   ------------------------------------------------------------ */
+[data-theme="dark"] body.nd {
+  --paper: #12110e;
+  --paper-deep: #1a1815;
+  --card: #1d1b17;
+  --ink: #f5f1e6;
+  --ink-soft: #cdc5b2;
+  --muted: #99917c;
+  --hairline: rgba(245, 241, 230, .14);
+  --hairline-soft: rgba(245, 241, 230, .07);
+  --green-950: #0a2e22;
+  --green-900: #0d4a37;
+  --green-700: #55b183;      /* brightened for dark bg */
+  --green-100: #1c332a;
+  --gold: #c9a86f;
+  --gold-soft: #38301f;
+  --up: #4cc38a;
+  --up-bg: #123626;
+  --down: #e07a6a;
+  --down-bg: #3a1f19;
+}
+
+/* Hardcoded spots in nepse-design-system.css */
+[data-theme="dark"] .w1-tab[aria-selected="true"] {
+  background: var(--gold); border-color: var(--gold); color: #141311;
+}
+[data-theme="dark"] .qcomp-scroll { background: var(--card); }
+[data-theme="dark"] .qcomp th.q-part,
+[data-theme="dark"] .qcomp td.q-part { background: var(--card); }
+[data-theme="dark"] .qcomp thead th.q-part { background: var(--paper-deep); }
+/* .foot .disclaimer uses var(--ivory, fallback #faf7ef) which the
+   design system never defines — pin a dark surface explicitly. */
+[data-theme="dark"] .foot .disclaimer { background: #1d1b17; }
+[data-theme="dark"] .nd-chip.c-up { color: #4cc38a; }
+[data-theme="dark"] .nd-chip.c-down { color: #e07a6a; }
+/* .nd-hero-card, .nd-btn.primary, .nd-mobilenav a.active are
+   intentionally dark-green moments — untouched. */
+
+/* ============================================================
+   THEME TOGGLE BUTTON
+   Framework-independent: own border/color tokens so it renders
+   in any of the three families, light or dark.
+   ============================================================ */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex: none;
+  border-radius: 50%;
+  border: 1px solid var(--hairline, var(--line, #d2d2d7));
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+  transition: border-color .2s ease, background .2s ease, transform .15s ease;
+}
+.theme-toggle:hover {
+  border-color: var(--gold, #b98f3e);
+  background: var(--gold-faint, rgba(185, 143, 62, .08));
+}
+.theme-toggle:active { transform: scale(.94); }
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--gold, #b98f3e);
+  outline-offset: 3px;
+}
+.theme-toggle svg { width: 18px; height: 18px; display: block; }
+.theme-toggle .tt-sun { display: none; }
+[data-theme="dark"] .theme-toggle .tt-sun { display: block; }
+[data-theme="dark"] .theme-toggle .tt-moon { display: none; }
+
+/* Pages with no <header> get a floating toggle instead */
+.theme-toggle.floating {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 200;
+  background: var(--card, var(--paper, var(--white, #fff)));
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .18);
+}
+
+/* Keep the toggle clear of cramped headers on small screens */
+@media (max-width: 640px) {
+  .theme-toggle { width: 34px; height: 34px; }
+}

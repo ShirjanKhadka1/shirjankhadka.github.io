@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Signal Systems Methodology — Nepse Decode Signals</title>
+<meta name="description" content="Every rule, formula, and assumption behind Nepse Decode's transparent NEPSE signal systems: entries, exits, stops, costs, corporate-action handling, and how each statistic is calculated. Educational only, not investment advice.">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-signals/methodology/">
+<link rel="stylesheet" href="/css/nepse-design-system.css">
+<link rel="stylesheet" href="/css/theme.css?v=20261001a">
+<style>
+.sig-tabs{display:flex;gap:4px;border-bottom:2px solid var(--hairline);margin:0 0 24px;flex-wrap:wrap}
+.sig-tabs a{padding:10px 18px;color:var(--ink-soft);text-decoration:none;font-weight:600;border-bottom:3px solid transparent;margin-bottom:-2px}
+.method{max-width:760px}
+.method h2{font-family:var(--serif);margin-top:32px}
+.method h3{margin-top:20px}
+.method p,.method li{line-height:1.65;color:var(--ink-soft)}
+.method code{background:var(--paper-deep);padding:1px 6px;border-radius:4px;font-size:.85em}
+.method table{width:100%;border-collapse:collapse;font-size:.85rem;background:var(--card);border:1px solid var(--hairline);border-radius:var(--r-md);overflow:hidden;margin:16px 0}
+.method th,.method td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--hairline-soft);vertical-align:top}
+.method th{background:var(--paper-deep)}
+.note{background:var(--gold-soft);border:1px solid var(--hairline);border-radius:var(--r-md);padding:14px 18px;margin:20px 0;font-size:.9rem}
+</style>
+</head>
+<body class="nd">
+<main style="max-width:1080px;margin:0 auto;padding:24px 16px">
+<nav class="sig-tabs" aria-label="Signal systems"><a href="/nepse-signals/momentum/">Momentum</a><a href="/nepse-signals/trend-relay/">Trend Relay</a><a href="/nepse-signals/reversal/">Reversal</a><a href="/nepse-signals/methodology/" aria-current="page" class="active">Methodology</a></nav>
+
+<p style="color:var(--muted);font-size:.9rem;margin-bottom:4px">Nepse Decode &middot; Chart &amp; signals &middot; rule-based, no black boxes</p>
+<h1 style="font-family:var(--serif);font-size:2rem;margin:0 0 6px">Signal Systems Methodology</h1>
+<p style="color:var(--ink-soft);max-width:640px">Every number on the signal pages is produced by <code>tools/build-signals.js</code> and nothing else. This page states every rule, formula, and assumption exactly as coded, so any figure can be traced and reproduced. Educational research — not investment advice. Past performance does not predict future results.</p>
+
+<div class="method">
+<h2>1. Data</h2>
+<ul>
+<li><strong>Source:</strong> daily OHLCV per NEPSE symbol from the open <code>samirwagle/Nepse-All-Scraper</code> dataset (MIT licence). No fabricated bars.</li>
+<li><strong>Universe:</strong> every symbol with ≥ 250 valid sessions (315 symbols). Symbols whose data ends more than 90 days before the newest bar are excluded as stale/delisted.</li>
+<li><strong>Sample period:</strong> 2003-07-17 → 2026-09-29 (≈ 23.2 years). Individual symbols start later; signals are evaluated from each symbol's 61st bar.</li>
+<li><strong>Cash dividends are not received</strong> in the simulation — a stated limitation that slightly understates high-dividend stocks.</li>
+</ul>
+
+<h2>2. Data sanitisation</h2>
+<p>The feed contains bars with impossible OHLC — e.g. NBL on 2013-05-09 printed <code>open 532</code> against a <code>143–145</code> traded range (an unadjusted corporate-action open). Such bars corrupt ATR, stops, and the corporate-action detector, so:</p>
+<ol>
+<li>Bars with non-positive OHLC, <code>high &lt; low</code>, or malformed dates are dropped; dates de-duplicated.</li>
+<li>If <code>open</code> or <code>close</code> falls outside the bar's own <code>[low, high]</code>, it is clamped into the range. Every repair is counted and published (<code>bars_repaired</code>).</li>
+</ol>
+
+<h2>3. Corporate-action adjustment</h2>
+<p>NEPSE enforces a ±10% daily circuit, so an overnight gap beyond ±10% is a bonus/split/rights adjustment, not a real move. On the sanitised series, if <code>open / prevClose</code> is outside <code>[0.90, 1.10]</code>, all prior bars are reverse-adjusted: prices × ratio, volume ÷ ratio, turnover unchanged. No new entries are taken on the adjustment bar itself. Adjustment count is published.</p>
+<div class="note"><strong>Honest limitation:</strong> the factor is inferred from price continuity, not from the official corporate-action record — the engine's largest known error source.</div>
+
+<h2>4. Indicators (all causal — bar <code>i</code> uses data up to <code>i</code> only)</h2>
+<ul>
+<li><code>SMA(n)</code>: simple moving average of closes.</li>
+<li><code>RSI(14)</code>: Wilder's RSI.</li>
+<li><code>ATR(14)</code>: Wilder's smoothing of the true range.</li>
+<li>Bollinger (20, 2): <code>lower = SMA20 − 2σ</code>.</li>
+</ul>
+
+<h2>5. Entry rules</h2>
+<p>Entries are taken <strong>at the signal day's close</strong>. One position per symbol; max 10 concurrent positions. All systems require 20-day average turnover above <strong>Rs 10 lakh</strong>.</p>
+<h3>Momentum — Donchian-50 breakout + trend filter</h3>
+<ul><li><code>close &gt; SMA50</code> and <code>SMA20 &gt; SMA50</code>; close prints a 50-session highest close; <code>55 ≤ RSI(14) ≤ 80</code>.</li></ul>
+<h3>Trend Relay — SMA20/SMA50 golden cross + volume</h3>
+<ul><li><code>close &lt; SMA50</code> on ≥ 20 of the last 30 sessions; <code>SMA20</code> crosses above <code>SMA50</code>; <code>volume &gt; 1.5 × 20-day average</code>.</li></ul>
+<h3>Reversal — oversold bounce</h3>
+<ul><li><code>RSI(14) &lt; 30</code> and <code>close &lt; lower Bollinger Band</code>; bullish candle (<code>close &gt; open</code>) closing in the top half of its range.</li></ul>
+
+<h2>6. Exits, stops, targets</h2>
+<ul>
+<li><strong>Stop-loss</strong> (fixed at entry): <code>entry − 2×ATR(14)</code> (Momentum, Trend Relay), <code>entry − 1.5×ATR(14)</code> (Reversal). If a bar's low touches the stop, exit at <code>min(stop, close)</code> — gap-through exits at the close, no fantasy fills.</li>
+<li><strong>Momentum trail:</strong> exit at the close when it breaks the 20-session lowest close.</li>
+<li><strong>Trend Relay trail:</strong> exit on <code>SMA20</code> crossing back below <code>SMA50</code>, or 3 consecutive closes under <code>SMA50</code>.</li>
+<li><strong>Reversal:</strong> exit at the close when <code>close ≥ SMA20</code> or <code>RSI(14)</code> crosses above 55.</li>
+<li><strong>T1/T2 targets are reference levels only — they are NOT traded.</strong> The backtest exits solely via the rules above (<code>targets_traded: false</code> in the data).</li>
+</ul>
+
+<h2>7. Position sizing and costs</h2>
+<ul>
+<li>Start <strong>Rs 1 Cr</strong>; each position a <strong>fixed Rs 10 lakh</strong> notional (<code>qty = floor(10,00,000 / entryPrice)</code>). Size does not compound with portfolio growth — deliberately conservative, disclosed.</li>
+<li><strong>0.5% round-trip cost</strong> (broker + SEBON + DP, simplified): half at entry, half at exit.</li>
+</ul>
+
+<h2>8. How each statistic is calculated</h2>
+<p>Let <code>V0 = Rs 1 Cr</code>, <code>Vf</code> = final portfolio value (<strong>cash + open positions at last close − exit costs</strong>), <code>T</code> = 23.20 years.</p>
+<table>
+<tr><th>Figure</th><th>Formula</th></tr>
+<tr><td>Total return %</td><td><code>(Vf − V0) / V0 × 100</code></td></tr>
+<tr><td>CAGR %</td><td><code>(Vf / V0)^(1/T) − 1</code>, ×100</td></tr>
+<tr><td>Capital multiple</td><td><code>Vf / V0</code></td></tr>
+<tr><td>Win rate %</td><td>winning closed trades ÷ all closed trades × 100 (win = net P&amp;L &gt; 0)</td></tr>
+<tr><td>Profit factor</td><td>Σ winning Rs ÷ |Σ losing Rs|</td></tr>
+<tr><td>Avg win / loss %</td><td>mean Rs P&amp;L of winners (losers) ÷ mean entry notional × 100</td></tr>
+<tr><td>Avg holding days</td><td>mean holding days (entry day = 0)</td></tr>
+<tr><td>Max drawdown %</td><td>deepest peak-to-trough fall of the <strong>weekly marked-to-market</strong> equity curve</td></tr>
+<tr><td>Sharpe / Sortino</td><td>mean / downside-deviation of weekly portfolio returns × √52</td></tr>
+<tr><td>Benchmark CAGR</td><td>NEPSE index buy &amp; hold over the same window</td></tr>
+<tr><td>Alpha %/yr</td><td>system CAGR − benchmark CAGR</td></tr>
+</table>
+<p>The <strong>equity curve</strong> marks the full portfolio to market weekly (cash + open positions − exit costs). <strong>Alerts</strong> are positions still open at the dataset's last date. The <strong>ledger</strong> lists every closed trade with entry/exit prices, stop, targets, exit reason, Rs and % P&amp;L, and holding days (most recent 500 in the download).</p>
+
+<h2>9. Known limitations</h2>
+<ol>
+<li>Corporate-action factors are inferred, not official.</li>
+<li>Fixed Rs 10L notional understates what compounding would show.</li>
+<li>Cash dividends are not received.</li>
+<li>Entries at the signal day's close assume the close is tradable; only the 0.5% cost models friction.</li>
+<li>One realised history — regimes change; nothing here predicts the future.</li>
+</ol>
+<div class="note"><strong>Reproducibility:</strong> <code>node tools/build-signals.js --no-fetch</code> rebuilds the published JSONs from the checked-in cache — every stat above recomputes exactly (only <code>generated_at</code> changes).</div>
+</div>
+
+<p style="color:var(--muted);font-size:.85rem;margin:32px 0">Data: daily NEPSE OHLCV, corporate-action adjusted. Generated 2026-10-01. Educational only — not investment advice.</p>
+</main>
+<!-- SUITE FOOTER — Nepse Decode. Source of truth: includes/suite-footer.html
+     Injected into every content page (builders re-inject on rebuild). -->
+<style>
+.sf{border-top:1px solid var(--hairline,#E7DFCE);margin-top:64px;background:var(--paper,#FAF8F2);color:var(--ink-soft,#4A463C);font-family:var(--sans,Inter,system-ui,-apple-system,"Segoe UI",sans-serif)}
+.sf-inner{max-width:1200px;margin:0 auto;padding:56px 24px 30px}
+.sf-top{display:flex;gap:18px;align-items:flex-start;margin-bottom:42px}
+.sf-mark{width:46px;height:46px;border-radius:12px;flex:none;box-shadow:0 2px 10px rgba(11,61,46,.12)}
+.sf-name{font-weight:700;font-size:1.06rem;color:var(--ink,#1C1A15);margin:2px 0 8px;letter-spacing:.01em}
+.sf-mission{margin:0;max-width:62ch;line-height:1.75;font-size:.92rem;color:var(--ink-soft,#4A463C)}
+.sf-cols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:36px 28px;margin-bottom:42px}
+.sf-col h3{font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted,#8A8474);margin:0 0 16px;font-weight:700}
+.sf-col ul{list-style:none;margin:0;padding:0;display:grid;gap:11px}
+.sf-col a{color:var(--ink-soft,#4A463C);text-decoration:none;font-size:.92rem;line-height:1.5}
+.sf-col a:hover{color:var(--green-900,#0B3D2E);text-decoration:underline}
+.sf-note{border-top:1px solid var(--hairline,#E7DFCE);padding-top:26px;font-size:.85rem;line-height:1.75;color:var(--muted,#8A8474);max-width:88ch;margin:0}
+.sf-note strong{color:var(--ink-soft,#4A463C)}
+.sf-bottom{display:flex;flex-wrap:wrap;gap:10px 20px;justify-content:space-between;align-items:center;margin-top:26px;padding-top:22px;border-top:1px solid var(--hairline,#E7DFCE);font-size:.85rem;color:var(--muted,#8A8474)}
+.sf-bottom a{color:var(--ink-soft,#4A463C);text-decoration:none;font-weight:600}
+.sf-bottom a:hover{color:var(--green-900,#0B3D2E);text-decoration:underline}
+.sf-social{display:flex;gap:16px;align-items:center}
+@media(max-width:820px){.sf-cols{grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 20px}}
+@media(max-width:520px){.sf-inner{padding:44px 20px 26px}.sf-top{margin-bottom:34px}.sf-cols{margin-bottom:34px}}
+</style>
+<footer class="sf" aria-label="Nepse Decode site footer">
+  <div class="sf-inner">
+    <div class="sf-top">
+      <svg class="sf-mark" viewBox="0 0 64 64" role="img" aria-label="Nepse Decode iceberg mark"><rect width="64" height="64" rx="14" fill="#013E2E"/><polygon points="32,9 21,25 43,25" fill="#FFFFFF"/><polygon points="32,9 37,25 27,25" fill="#EEF2EF"/><polygon points="13,27.5 51,27.5 45,42 32,57 21,45 15,37" fill="#FFFFFF"/><polygon points="13,27.5 27,27.5 21,45 15,37" fill="#D6DDD9"/><polygon points="51,27.5 45,42 38,27.5" fill="#C6CECA"/><polygon points="32,57 45,42 36,40 28,49" fill="#E4E9E6"/><polygon points="21,45 32,57 28,49 24,44" fill="#D6DDD9"/><rect x="4" y="25" width="56" height="2.6" rx="1.3" fill="#0B3D2E" opacity=".55"/></svg>
+      <div>
+        <p class="sf-name">Nepse Decode</p>
+        <p class="sf-mission">Free, honest NEPSE intelligence for every Nepali investor — live market data, screeners, signals and research, rebuilt every trading day. No login, no paywall, no buy calls.</p>
+      </div>
+    </div>
+    <nav class="sf-cols" aria-label="Footer sections">
+      <div class="sf-col">
+        <h3>Tools</h3>
+        <ul>
+          <li><a href="/nepse-screener/">Stock Screener</a></li>
+          <li><a href="/nepse-chart/">Chart</a></li>
+          <li><a href="/nepse-trending/">Trending Stocks</a></li>
+          <li><a href="/nepse-value/">Value Investing</a></li>
+          <li><a href="/nepse-signals/momentum/">Trading Signals</a></li>
+          <li><a href="/nepse-watchlist/">Watchlist</a></li>
+        </ul>
+      </div>
+      <div class="sf-col">
+        <h3>Market data</h3>
+        <ul>
+          <li><a href="/nepse-decode/">Dashboard</a></li>
+          <li><a href="/nepse-brokers/">Broker Analytics</a></li>
+          <li><a href="/nepse-sectors/">Sectors</a></li>
+          <li><a href="/nepse-news/">Market News</a></li>
+          <li><a href="/nepse-actions/">Corp. Actions</a></li>
+          <li><a href="/stocks/">All Stocks</a></li>
+        </ul>
+      </div>
+      <div class="sf-col">
+        <h3>Research</h3>
+        <ul>
+          <li><a href="/blog/">Daily Blog</a></li>
+          <li><a href="/nepse-decode/">Market Dashboard</a></li>
+          <li><a href="/nepali-date-converter/">Date Converter</a></li>
+          <li><a href="/kundali/">Kundali Calculator</a></li>
+        </ul>
+      </div>
+      <div class="sf-col">
+        <h3>Company</h3>
+        <ul>
+          <li><a href="/about.html">About</a></li>
+          <li><a href="/contact.html">Contact</a></li>
+          <li><a href="/privacy.html">Privacy</a></li>
+          <li><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Facebook Page</a></li>
+        </ul>
+      </div>
+    </nav>
+    <p class="sf-note"><strong>Educational use only.</strong> Nothing on this site is investment advice. Prices and figures are compiled from public sources and refreshed every trading day — always verify with your broker before trading.</p>
+    <div class="sf-bottom">
+      <span>© 2026 Nepse Decode · Built by <a href="/">Shirjan Khadka</a> in Kathmandu, Nepal</span>
+      <span class="sf-social"><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Facebook</a><a href="/blog/">Blog</a><a href="/contact.html">Contact</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="/js/theme-toggle.js?v=20261001a" defer></script>
+</body>
+</html>
