@@ -58,7 +58,27 @@ const SUFFIX = new Set([
 // Tokens too generic to match on their own.
 const GENERIC = new Set([...SUFFIX, 'nepal', 'nepali', 'national', 'everest',
   'himalayan', 'new', 'prime', 'global', 'united', 'standard',
-  'and', 'the', 'of', 'construction', 'general']);
+  'and', 'the', 'of', 'construction', 'general',
+  // Place names: a headline mentioning a city/district/landmark is usually
+  // NOT about the company named after it (Butwal Chamber vs Butwal Power,
+  // Pokhara flights vs Pokhara Finance, Dailekh politics vs Dolakha Hydro).
+  // Companies that genuinely need a place-name match get a manual NE_ALIAS.
+  'butwal', 'pokhara', 'biratnagar', 'birgunj', 'dharan', 'nepalgunj',
+  'dhangadhi', 'mahendranagar', 'hetauda', 'itahari', 'janakpur',
+  'kathmandu', 'lalitpur', 'bhaktapur', 'kirtipur', 'dolakha', 'dailekh',
+  'lumbini', 'sagarmatha', 'manakamana', 'bandipur', 'kalinchowk',
+  'chitwan', 'gorkha', 'lamjung', 'kaski', 'rupandehi', 'dang', 'banke',
+  'bardiya', 'kailali', 'kanchanpur', 'saptari', 'siraha', 'dhanusha',
+  'mahottari', 'sarlahi', 'rautahat', 'bara', 'parsa', 'makwanpur',
+  'kavre', 'sindhuli', 'ramechhap', 'sindhupalchok', 'nuwakot', 'dhading',
+  // Common nouns that don't identify a company on their own (Manakamana
+  // cable-car news vs Bandipur Cablecar; temple "darshan" vs companies
+  // named "... Darshan").
+  'cablecar', 'cable', 'darshan', 'tourism', 'travels', 'holiday']);
+// Common Nepali function words whose consonant skeletons collide with
+// company aliases (मात्रै "mtr" vs MDB's मितेरी "mtr"). These tokens are
+// never used for skeleton matching; the real alias token still matches.
+const DEVA_STOPWORDS = new Set(['मात्रै']);
 
 function decodeEntities(s) {
   return s.replace(/&#(\d+);/g, (_, n) => String.fromCharCode(+n))
@@ -124,6 +144,7 @@ const NE_ALIAS = {
   UAIL: ['युनाइटेड अजोड'],
   SPHL: ['सयपत्री'],
   SHINE: ['शाइन रेसुंगा', 'रेसुंगा'],
+  SALICO: ['सगरमाथा लुम्बिनी'],
 };
 
 function buildAliases(symbols) {
@@ -137,16 +158,19 @@ function buildAliases(symbols) {
     let short = words.slice();
     while (short.length > 1 && (short[short.length - 1] === 'limited' || short[short.length - 1] === 'ltd')) short.pop();
     const skels = coreTokens.map(skeleton).filter((s) => s.length >= 4);
-    // Manually vetted Nepali aliases may use 3-letter skeletons (e.g. नबिल).
-    const neSkels = (NE_ALIAS[sym] || []).map((p) =>
-      p.split(/\s+/).map(skeleton).filter((s) => s.length >= 3)).flat();
+    // Manually vetted Nepali aliases match as a PHRASE: every token's
+    // skeleton must be present (single-token aliases still match on that
+    // one token). This stops e.g. ADBL's "कृषि विकास" firing on any
+    // "विकास बैंक" headline — गरिमा विकास बैंक is not ADBL.
+    const nePhrases = (NE_ALIAS[sym] || []).map((p) =>
+      p.split(/\s+/).map(skeleton).filter((s) => s.length >= 3)).filter((a) => a.length);
     out.push({
       sym,
       tickerRe: new RegExp('(^|[^a-z0-9])' + sym.toLowerCase().replace(/[^a-z0-9]/g, '') + '([^a-z0-9]|$)', 'i'),
       phrase: short.join(' '),
       coreTokens,
       skels: [...new Set(skels)],
-      neSkels: [...new Set(neSkels)],
+      nePhrases,
     });
   }
   return out;
@@ -155,7 +179,8 @@ function buildAliases(symbols) {
 function matchSymbol(title, aliases) {
   const t = ' ' + title.toLowerCase() + ' ';
   const hasKw = MARKET_KW.some((k) => t.includes(k));
-  const tokens = title.toLowerCase().split(/[^\u0900-\u097Fa-z0-9]+/).filter((w) => w.length >= 2);
+  const tokens = title.toLowerCase().split(/[^\u0900-\u097Fa-z0-9]+/)
+    .filter((w) => w.length >= 2 && !DEVA_STOPWORDS.has(w));
   const hs = tokens.map(skeleton);
   const hits = [];
   for (const a of aliases) {
@@ -168,7 +193,7 @@ function matchSymbol(title, aliases) {
     // 3) Consonant-skeleton match (handles Nepali transliterations).
     //    Always needs a market keyword: short skeletons collide with common
     //    Nepali words (e.g. दलित "dlt" vs DOLTI). Auto-derived skeletons are
-    //    all length >= 4; vetted manual aliases (>= 3) match on equality.
+    //    all length >= 4; vetted manual aliases (>= 3) match as phrases.
     if (!strong && hasKw) {
       const autoHit = (minLen) => {
         for (const s of a.skels) {
@@ -184,8 +209,8 @@ function matchSymbol(title, aliases) {
       if (autoHit(4) === 2) strong = true;
       else if (autoHit(4) === 1) weak = true;
       if (!strong && !weak) {
-        for (const s of a.neSkels) {
-          if (hs.includes(s)) { strong = true; break; }
+        for (const phrase of a.nePhrases) {
+          if (phrase.every((s) => hs.includes(s))) { strong = true; break; }
         }
       }
     }
