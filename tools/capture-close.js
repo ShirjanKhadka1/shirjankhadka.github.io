@@ -59,16 +59,21 @@ function parseShareHub(html) {
     'Investment Index': 'Investment', 'Manufacturing And Processing': 'Manufacturing',
     'Trading Index': 'Trading', 'Others Index': 'Others', 'Mutual Fund': 'Mutual Fund',
   };
+  // ShareHub glues the ticker onto the name without a separator
+  // (e.g. "NNEPSENEPSE Index"); match on the trailing name, longest first
+  // so "Sensitive Float Index" wins over "Float Index".
+  const norm = (s) => s.toLowerCase().replace(/[^a-z]/g, '');
+  const keys = Object.keys(want).sort((a, b) => norm(b).length - norm(a).length);
   for (const tr of trs) {
     const cells = [...tr.matchAll(/<td[^>]*>([\s\S]*?)<\/td>/gi)]
       .map((m) => m[1].replace(/<[^>]+>/g, '').trim())
       .filter(Boolean);
     if (cells.length < 5) continue;
-    const rawName = cells[0].replace(/^[A-Z]+/, ''); // strip ticker prefix
-    const key = Object.keys(want).find((k) =>
-      rawName.toLowerCase().replace(/[^a-z]/g, '') === k.toLowerCase().replace(/[^a-z]/g, ''));
+    const n = norm(cells[0]);
+    const key = keys.find((k) => n.endsWith(norm(k)));
     if (!key) continue;
-    const num = (s) => parseFloat(String(s).replace(/,/g, ''));
+    // ShareHub sometimes uses the unicode minus sign (U+2212).
+    const num = (s) => parseFloat(String(s).replace(/,/g, '').replace(/\u2212/g, '-'));
     const vals = cells.slice(1, 6).map(num);
     if (vals.some((v) => !isFinite(v))) continue;
     rows[want[key]] = { open: vals[0], high: vals[1], low: vals[2], close: vals[3], change: vals[4] };
@@ -105,6 +110,16 @@ async function main() {
   const nepse = rows['NEPSE'];
   const prevClose = live.index && isFinite(+live.index.previous_close)
     ? +live.index.previous_close : nepse.close - nepse.change;
+  // ShareHub's Close column can lag its own change column by a tick; when the
+  // authoritative previous close is known, derive the close from prev + change
+  // (this reproduces the official close exactly). Fall back to ShareHub's
+  // close if the two disagree by more than 0.3%.
+  if (live.index && isFinite(+live.index.previous_close)) {
+    const derived = +((+live.index.previous_close) + nepse.change).toFixed(2);
+    if (Math.abs(derived - nepse.close) / nepse.close <= 0.003) {
+      nepse.close = derived;
+    }
+  }
   if (Math.abs(nepse.close - prevClose) / prevClose > 0.08) {
     throw new Error('NEPSE close ' + nepse.close + ' deviates >8% from prev ' + prevClose);
   }
