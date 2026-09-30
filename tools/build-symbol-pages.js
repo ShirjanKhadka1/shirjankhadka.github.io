@@ -232,6 +232,86 @@ function fundBlock(sym, fund) {
   return h;
 }
 
+/* Quarterly trend table. quarterly.json holds published quarterly figures
+ * for covered banks (values in NPR thousands). P&L figures (net profit) are
+ * published cumulative for the fiscal year, so the standalone quarter is
+ * derived as cum(Q) minus cum(Q-1); Q1 stands alone. Balance-sheet items,
+ * EPS (TTM), P/E (TTM) and NPL are point-in-time and compare directly.
+ * QoQ = latest quarter vs previous quarter; YoY = latest vs same quarter
+ * of the previous fiscal year. NPL is direction-aware (down is good);
+ * P/E differences are neutral. Missing figures render as –. */
+function quarterlyTable(sym, quarterly) {
+  const sq = quarterly && quarterly.symbols && quarterly.symbols[sym];
+  if (!sq || !sq.quarters) return '';
+  const qs = Object.keys(sq.quarters).map((k) => {
+    const m = /^(\d{4})\/(\d{4})-Q([1-4])$/.exec(k);
+    if (!m) return null;
+    return { key: k, fy: m[1] + '/' + m[2], y0: +m[1], q: +m[3], d: sq.quarters[k] };
+  }).filter(Boolean).sort((a, b) => (a.y0 - b.y0) || (a.q - b.q));
+  if (qs.length < 2) return '';
+  const byKey = {};
+  qs.forEach((x) => { byKey[x.key] = x; });
+  const prevQ = (x) => {
+    if (x.q > 1) return byKey[x.fy + '-Q' + (x.q - 1)] || null;
+    const p0 = x.y0 - 1;
+    return byKey[p0 + '/' + (p0 + 1) + '-Q4'] || null;
+  };
+  const yoyQ = (x) => {
+    const p0 = x.y0 - 1;
+    return byKey[p0 + '/' + (p0 + 1) + '-Q' + x.q] || null;
+  };
+  const num = (x) => {
+    if (x === null || x === undefined || x === '') return null;
+    const n = Number(x);
+    return Number.isFinite(n) ? n : null;
+  };
+  // Standalone quarter net profit in Rs B (derived from cumulative).
+  const stProfit = (x) => {
+    const c = num(x.d.netprofit);
+    if (c === null) return null;
+    if (x.q === 1) return c / 1e6;
+    const p = prevQ(x);
+    const pc = p ? num(p.d.netprofit) : null;
+    if (pc === null) return null;
+    return (c - pc) / 1e6;
+  };
+  const bOf = (x, f) => { const v = num(x.d[f]); return v === null ? null : v / 1e6; };
+  const metrics = [
+    { l: 'Net profit (quarter)', v: stProfit, f: (x) => x === null ? '–' : 'Rs ' + x.toFixed(2) + 'b', dir: 1 },
+    { l: 'Deposits', v: (x) => bOf(x, 'deposits'), f: (x) => x === null ? '–' : 'Rs ' + x.toFixed(1) + 'b', dir: 1 },
+    { l: 'Loans & advances', v: (x) => bOf(x, 'loans'), f: (x) => x === null ? '–' : 'Rs ' + x.toFixed(1) + 'b', dir: 1 },
+    { l: 'EPS (TTM)', v: (x) => num(x.d.eps_ttm), f: (x) => x === null ? '–' : 'Rs ' + x.toFixed(2), dir: 1 },
+    { l: 'NPL ratio', v: (x) => num(x.d.npl_pct), f: (x) => x.toFixed(2) + '%', dir: -1 },
+  ];
+  const show = qs.slice(-12);
+  const latest = show[show.length - 1];
+  const pq = prevQ(latest), yq = yoyQ(latest);
+  const pct = (cur, prev) => {
+    if (cur === null || prev === null || prev === 0) return null;
+    return (cur - prev) / Math.abs(prev) * 100;
+  };
+  const dCell = (m, ref) => {
+    const d = pct(m.v(latest), ref ? m.v(ref) : null);
+    if (d === null) return '<td>–</td>';
+    const cls = m.dir === 0 ? '' : (d * m.dir > 0 ? ' class="pos"' : (d * m.dir < 0 ? ' class="neg"' : ''));
+    return '<td' + cls + '>' + (d > 0 ? '+' : '') + d.toFixed(1) + '%</td>';
+  };
+  const qLabel = (x) => 'Q' + x.q + ' ' + x.fy.slice(2, 4) + '/' + x.fy.slice(7, 9);
+  let h = '<section aria-label="Quarterly trend"><h2>Quarterly trend</h2>\n';
+  h += '<p class="sp-note">Published quarterly figures · latest ' + show.length + ' quarters. QoQ compares with the previous quarter; YoY with the same quarter last fiscal year.</p>\n';
+  h += '<div class="sp-table-wrap"><table class="sp-peer-table">\n<thead><tr><th scope="col">Metric</th><th scope="col">QoQ</th><th scope="col">YoY</th>';
+  for (let i = show.length - 1; i >= 0; i--) h += '<th scope="col" class="num">' + esc(qLabel(show[i])) + '</th>';
+  h += '</tr></thead>\n<tbody>\n';
+  for (const m of metrics) {
+    h += '<tr><td>' + esc(m.l) + '</td>' + dCell(m, pq) + dCell(m, yq);
+    for (let i = show.length - 1; i >= 0; i--) h += '<td class="num">' + m.f(m.v(show[i])) + '</td>';
+    h += '</tr>\n';
+  }
+  h += '</tbody></table></div>\n';
+  h += '<p class="sp-note">Profit figures are published cumulative for the fiscal year; the quarterly profit row shows the implied standalone quarter (this quarter minus the prior quarter). P/E is not shown as a trend: the screener prices every historical quarter at today\u2019s price, so a historical P/E would be misleading. – means not published.</p>\n</section>\n';
+  return h;
+}
+
 /* Sector peer comparison table: same-sector equities ranked by engine
  * score, with price/session change from verdicts and P/E + EPS from
  * published fundamentals where available. Current symbol highlighted.
@@ -270,7 +350,7 @@ function peerTable(sym, sector, sectorPeers, verdicts, fund) {
   return h;
 }
 
-function symbolPage(u, v, newsItems, fund, liveQ, liveDate, sector, sectorPeers, verdicts) {
+function symbolPage(u, v, newsItems, fund, liveQ, liveDate, sector, sectorPeers, verdicts, quarterly) {
   const sym = u.s, name = u.n, slug = slugOf(sym);
   // Headline price prefers our canonical live payload (NEPSE API) when it is
   // at least as fresh as the batch verdict — the batch daily history comes
@@ -327,6 +407,7 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
   h += '</div>';
   h += '<div class="sp-tabpanel" id="fundamentals" data-panel="fundamentals" role="tabpanel" hidden>';
   h += fundBlock(sym, fund);
+  h += quarterlyTable(sym, quarterly);
   h += peerTable(sym, sector, sectorPeers, verdicts, fund);
   h += '</div>';
   h += '<div class="sp-tabpanel" data-panel="news" role="tabpanel" hidden>';
@@ -418,6 +499,7 @@ function main() {
   const ver = loadJson(path.join(DATA, 'verdicts.json'), null);
   const news = loadJson(path.join(DATA, 'news.json'), null);
   const fund = loadJson(path.join(DATA, 'fundamentals.json'), null);
+  const quarterly = loadJson(path.join(DATA, 'quarterly.json'), null);
   // Canonical live quotes (NEPSE API) for the headline price snapshot.
   const live = loadJson(path.join(DATA, 'live.json'), null);
   const liveMap = {};
@@ -460,7 +542,7 @@ function main() {
     const sectorPeers = sector ? (bySector[sector] || []) : [];
     const dir = path.join(OUT, slug);
     fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, 'index.html'), symbolPage(u, v, newsBySym[sym] || [], fund, liveMap[sym], liveDate, sector, sectorPeers, verdicts));
+    fs.writeFileSync(path.join(dir, 'index.html'), symbolPage(u, v, newsBySym[sym] || [], fund, liveMap[sym], liveDate, sector, sectorPeers, verdicts, quarterly));
     made++;
   }
   fs.writeFileSync(path.join(OUT, 'index.html'), indexPage(symbols, pageAsof));
