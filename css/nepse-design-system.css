@@ -519,3 +519,27 @@
 .w1-num { margin-left: auto; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .w1-sub { color: var(--muted); font-size: 12.5px; white-space: nowrap; }
 .w1-note { font-size: 0.8rem; color: var(--muted); margin: 10px 2px 0; max-width: 80ch; line-height: 1.6; }
+
+/* ============================================================
+   QUARTERLY COMPARISON TABLE (stock pages)
+   ============================================================ */
+.qcomp-wrap { margin-top: var(--s8); }
+.qcomp-wrap h3 { font-family: var(--serif); font-size: 1.25rem; margin: 0 0 var(--s2); }
+.qcomp-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--hairline); border-radius: var(--r-md); background: #fff; }
+.qcomp { width: 100%; border-collapse: collapse; font-size: 0.88rem; min-width: 640px; }
+.qcomp th, .qcomp td { padding: 10px 14px; text-align: right; border-bottom: 1px solid var(--hairline); white-space: nowrap; }
+.qcomp thead th { background: var(--paper-deep, #f5f1e8); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); position: sticky; top: 0; }
+.qcomp th.q-part, .qcomp td.q-part { text-align: left; font-weight: 600; color: var(--ink); position: sticky; left: 0; background: #fff; z-index: 1; }
+.qcomp thead th.q-part { background: var(--paper-deep, #f5f1e8); z-index: 2; }
+.qcomp tbody tr:hover td { background: var(--paper); }
+.qcomp tbody tr:hover td.q-part { background: var(--paper); }
+.qcomp td.q-diff, .qcomp th.q-diff { background: rgba(30, 122, 68, 0.04); }
+.qcomp .q-diff-sub { display: block; font-size: 0.62rem; font-weight: 500; letter-spacing: 0.02em; text-transform: none; color: var(--muted); margin-top: 2px; }
+.qcomp .q-up { color: var(--up, #1E7A44); font-weight: 600; }
+.qcomp .q-dn { color: var(--down, #B23A2E); font-weight: 600; }
+.qcomp .q-flat { color: var(--muted); }
+.qcomp-src { margin-top: var(--s3); font-size: 0.78rem; }
+@media (max-width: 640px) {
+  .qcomp { font-size: 0.8rem; min-width: 560px; }
+  .qcomp th, .qcomp td { padding: 8px 10px; }
+}

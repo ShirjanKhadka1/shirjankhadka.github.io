@@ -244,8 +244,6 @@
     });
     var h = list.map(function (g) {
       var tiles = (g.tiles || []).slice().sort(function (a, b) { return (b.turn || 0) - (a.turn || 0); });
-      var maxT = 0;
-      tiles.forEach(function (t) { if (t.turn > maxT) maxT = t.turn; });
       var meta = g.count + (g.count === 1 ? ' security' : ' securities');
       if (g.avgCh != null) meta += ' · avg ' + pctText(g.avgCh);
       if (g.turnShare != null) meta += ' · ' + g.turnShare.toFixed(1) + '% of turnover';
@@ -254,13 +252,11 @@
         '<span class="sx-tm-meta">' + esc(meta) + '</span></div>' +
         '<div class="sx-tm-tiles" role="list" aria-label="' + esc(g.name) + ' securities">';
       var tb = tiles.map(function (t) {
-        var grow = (t.turn > 0 && maxT > 0) ? (0.7 + 8.3 * Math.sqrt(t.turn / maxT)) : 0.7;
         var tip = t.sym +
           (t.p != null ? ' · Rs ' + num(t.p, 2) : '') +
           (t.ch != null ? ' · day ' + pctText(t.ch) : ' · no day-change data') +
           (t.turn > 0 ? ' · turnover ' + fmtTurn(t.turn) : '');
         return '<a class="sx-tm-tile ' + heatClass(t.ch) + '" role="listitem"' +
-          ' style="flex-grow:' + grow.toFixed(2) + '"' +
           ' href="/stocks/' + esc(String(t.sym).replace(/\//g, '-')) + '/"' +
           ' title="' + esc(tip) + '">' +
           '<span class="sx-tm-sym">' + esc(t.sym) + '</span>' +
