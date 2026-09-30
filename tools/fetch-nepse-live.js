@@ -93,6 +93,19 @@ function abort(msg) {
   process.exit(0);
 }
 
+// YYYY-MM-DD of a timestamp in NPT (UTC+5:45). live.json asof is UTC ISO;
+// the trading day is NPT, so compare dates in NPT.
+function nptDate(isoOrMs) {
+  const ms = typeof isoOrMs === 'number' ? isoOrMs : Date.parse(isoOrMs);
+  return new Date(ms + (5 * 60 + 45) * 60 * 1000).toISOString().slice(0, 10);
+}
+
+function readLive() {
+  try {
+    return JSON.parse(fs.readFileSync(OUT, 'utf8'));
+  } catch (e) { return null; }
+}
+
 function fetchWithTimeout(url, opts) {
   opts = opts || {};
   const ctl = new AbortController();
@@ -252,13 +265,30 @@ function mapRow(item) {
 
 async function main() {
   try {
-    // 1. Market status — never write quotes when the market is closed.
+    // 1. Market status.
     const mo = await apiFetch('GET', '/api/nots/nepse-data/market-open');
-    if (!mo || mo.isOpen !== 'OPEN') {
-      log('market is ' + (mo && mo.isOpen) + '; leaving live.json untouched');
-      process.exit(0);
+    const marketOpen = !!(mo && mo.isOpen === 'OPEN');
+    // Closing run: after the bell, capture the final session snapshot once
+    // per trading day. Without this the last intraday poll is the newest
+    // data forever and the actual close never lands on the site.
+    let closingRun = false;
+    if (!marketOpen) {
+      const today = nptDate(Date.now());
+      const prev = readLive();
+      const prevDay = prev && prev.asof ? nptDate(prev.asof) : null;
+      if (prev && prevDay === today && prev.market === 'CLOSED') {
+        log('closing snapshot for ' + today + ' already captured; leaving live.json untouched');
+        process.exit(0);
+      }
+      if (!mo || mo.id == null) {
+        log('market is ' + (mo && mo.isOpen) + ' with no session id; leaving live.json untouched');
+        process.exit(0);
+      }
+      closingRun = true;
+      log('market ' + (mo.isOpen || 'UNKNOWN') + ' — capturing closing snapshot for ' + today + ' (session id=' + mo.id + ')');
+    } else {
+      log('market OPEN (asOf=' + mo.asOf + ', id=' + mo.id + ')');
     }
-    log('market OPEN (asOf=' + mo.asOf + ', id=' + mo.id + ')');
 
     // 2. Per-symbol live prices, paginated.
     const pid = payloadId(mo.id, AUTH.salts);
@@ -274,7 +304,7 @@ async function main() {
       rows.push.apply(rows, content);
       if (content.length < PAGE_SIZE) break;
     }
-    if (!rows.length) throw new Error('today-price returned no rows while market is OPEN');
+    if (!rows.length) throw new Error('today-price returned no rows (market ' + (closingRun ? 'CLOSED' : 'OPEN') + ')');
 
     const quotes = rows
       .filter((it) => it && typeof it.symbol === 'string' && it.symbol)
@@ -352,7 +382,7 @@ async function main() {
 
     const payload = {
       asof: new Date().toISOString(),
-      market: 'OPEN',
+      market: closingRun ? 'CLOSED' : 'OPEN',
       index: index,
       indices: indices,
       quotes: quotes

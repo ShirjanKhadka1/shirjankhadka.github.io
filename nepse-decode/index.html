@@ -22,7 +22,7 @@
 <link rel="apple-touch-icon" href="/nepse-decode/icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Serif+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"Nepse Decode","url":"https://shirjankhadka.com.np/nepse-decode/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Free NEPSE analysis suite: live quotes for any listed stock, candlestick charts with SMA and RSI, automatic chart-pattern and divergence detection, verdicts by the Alpha Lab engine, a transparent rule-based buy/hold/exit signal system, a full-market screener and attributed market news. Educational use only.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
 </script>
@@ -539,7 +539,7 @@
     if($('ahDayL'))$('ahDayL').textContent=f2(ix.low);
     if($('ahDayP'))$('ahDayP').textContent=f2(ix.previous_close);
     var cap='Session of '+fmtLong((live.asof||'').slice(0,10));
-    if(open)cap+=' · live during market hours (15-min delayed)';
+    if(open)cap+=' · live during market hours (5-min delayed)';
     else cap+=' · market closed; latest verified session';
     $('ahIdxCap').textContent=cap;
     var dEl=$('ahIdxDate');
