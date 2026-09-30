@@ -444,10 +444,11 @@ function peerTable(sym, sector, sectorPeers, verdicts, fund) {
 }
 
 /* Investment tab: all-time per-scrip history (dividends, rights, auctions, AGMs).
- * History rows come from corp-history.json (ShareSansar's compilation of
- * company announcements: dividends, AGMs, rights, auctions). Verified recent
- * notices from corporate-actions.json carry the official NEPSE/company PDF
- * link. Nothing is invented; missing history renders an honest note.
+ * History rows come from corp-history.json (ShareSansar crawl: dividends,
+ * AGMs, rights, auctions) unioned with div-history-yonepse.json (yonepse open
+ * API dividends) at build time. Verified recent notices from
+ * corporate-actions.json carry the official NEPSE/company PDF link. Nothing is
+ * invented; missing history renders an honest note.
  * (2026-09-30: no on-page source label per his call.) */
 const CA_KIND_LABEL = {
   'dividend': 'Dividend',
@@ -469,7 +470,7 @@ function pct(x) {
 /* Investment Calendar card: Nepse Alpha-style past corporate-action history.
  * Shows all-time per-scrip history (dividends, AGMs, rights, auctions) in
  * a card with sidebar navigation, search, and pagination. History rows come
- * from corp-history.json (ShareSansar's compilation of company announcements).
+ * from corp-history.json unioned with div-history-yonepse.json at build time.
  * Nothing is invented; missing history renders an honest note. */
 function investmentCalendarCard(sym, name, hist) {
   const H = hist || {};
@@ -805,6 +806,32 @@ function main() {
   const quarterly = loadJson(path.join(DATA, 'quarterly.json'), null);
   const corpHistData = loadJson(path.join(DATA, 'corp-history.json'), null);
   const corpHist = (corpHistData && corpHistData.companies) || {};
+  /* Second dividend source: yonepse open API (tools/fetch-yonepse-dividends.js
+   * -> div-history-yonepse.json). Union with the crawl's dividends, deduped by
+   * (fiscal year, bonus %, cash %); crawl rows win ties (richer fields).
+   * (2026-09-30: his call — never depend on a single source.) */
+  const ynData = loadJson(path.join(DATA, 'div-history-yonepse.json'), null);
+  const ynDivs = (ynData && ynData.companies) || {};
+  const divKey = (d) => {
+    const n = (v) => { const x = Number(v); return Number.isFinite(x) ? x : 0; };
+    return String(d.year || d.fiscal_year || '').trim() + '|' + n(d.bonus_share) + '|' + n(d.cash_dividend);
+  };
+  for (const sym of Object.keys(ynDivs)) {
+    const seen = new Set(), merged = [];
+    for (const d of (((corpHist[sym] || {}).dividends) || [])) {
+      const k = divKey(d);
+      if (!seen.has(k)) { seen.add(k); merged.push(d); }
+    }
+    for (const d of (ynDivs[sym] || [])) {
+      const k = divKey(d);
+      if (!seen.has(k)) { seen.add(k); merged.push(d); }
+    }
+    merged.sort((a, b) =>
+      String(b.year || b.fiscal_year || '').localeCompare(String(a.year || a.fiscal_year || '')) ||
+      String(b.announcement_date || '').localeCompare(String(a.announcement_date || '')));
+    if (!corpHist[sym]) corpHist[sym] = {};
+    corpHist[sym].dividends = merged;
+  }
   const actionsData = loadJson(path.join(DATA, 'corporate-actions.json'), null);
   const actionsBySym = {};
   if (actionsData && actionsData.items) {
