@@ -61,6 +61,11 @@
 .nd-search-list a { display: block; padding: 8px 4px; color: #F5F1E6; text-decoration: none; font-size: 0.9rem; border-bottom: 1px solid rgba(245,241,230,.12); }
 .nd-mover-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
 @media (min-width: 720px) { .nd-mover-grid { grid-template-columns: repeat(3, 1fr); } }
+/* NEWS RAIL beside the overview panel: stretch to the panel height, no gaps */
+.nd-rail-fill { display: flex; flex-direction: column; }
+.nd-rail-fill .nd-card { flex: 1; display: flex; flex-direction: column; }
+.nd-rail-fill .nd-news { flex: 1; }
+.nd-rail-fill .nd-news-item:last-child { border-bottom: 0; }
 .nd-tools { display: grid; grid-template-columns: 1fr; gap: 12px; }
 @media (min-width: 720px) { .nd-tools { grid-template-columns: repeat(2, 1fr); } }
 @media (min-width: 1024px) { .nd-tools { grid-template-columns: repeat(3, 1fr); } }
@@ -115,8 +120,10 @@
   <div class="nd-content">
     <div class="nd-wrap">
 
-      <!-- 1. TERMINAL HERO: index, candlesticks, ticker — market first -->
-      <div class="nd-hero-card nd-terminal" style="margin-bottom:16px">
+      <!-- 1. OVERVIEW + NEWS: market panel with the headlines rail beside it -->
+      <div class="nd-grid" style="margin-bottom:40px">
+        <div class="nd-main">
+      <div class="nd-hero-card nd-terminal">
         <div class="nd-terminal-head">
           <div class="nd-market-hero">
             <div>
@@ -155,15 +162,24 @@
           <p class="nd-caption" id="ahChartCap" style="margin:0">Daily candles · loading history…</p>
         </div>
       </div>
-
-      <!-- 2. MOVERS + NEWS: glance hierarchy -->
-      <div class="nd-grid" style="margin-bottom:40px">
-        <div class="nd-main">
+        </div>
+        <aside class="nd-rail nd-rail-fill" aria-label="Latest headlines">
           <div class="nd-section-head">
-            <div><p class="nd-kicker">Movers</p><h2>What moved today</h2></div>
-            <a class="nd-section-link" href="/nepse-screener/">All 410 in the Screener →</a>
+            <div><p class="nd-kicker">News</p><h2>Latest headlines</h2></div>
+            <a class="nd-section-link" href="/nepse-news/">More →</a>
           </div>
-          <div class="nd-mover-grid">
+          <div class="nd-card">
+            <div class="nd-news" id="ahNews"><span class="nd-skl" style="height:44px"></span></div>
+          </div>
+        </aside>
+      </div>
+
+      <!-- 2. MOVERS: full-width glance -->
+      <div class="nd-section-head">
+        <div><p class="nd-kicker">Movers</p><h2>What moved today</h2></div>
+        <a class="nd-section-link" href="/nepse-screener/">All 410 in the Screener →</a>
+      </div>
+      <div class="nd-mover-grid" style="margin-bottom:40px">
             <section class="nd-card" aria-label="Top gainers">
               <p class="nd-kicker" style="margin-bottom:12px">Top gainers</p>
               <div class="nd-movers" id="ahGainers"><span class="nd-skl" style="height:44px"></span></div>
@@ -177,17 +193,6 @@
               <div class="nd-movers" id="ahTurnover"><span class="nd-skl" style="height:44px"></span></div>
             </section>
           </div>
-        </div>
-        <aside class="nd-rail" aria-label="Latest headlines">
-          <div class="nd-section-head">
-            <div><p class="nd-kicker">News</p><h2>Latest headlines</h2></div>
-            <a class="nd-section-link" href="/nepse-news/">More →</a>
-          </div>
-          <div class="nd-card">
-            <div class="nd-news" id="ahNews"><span class="nd-skl" style="height:44px"></span></div>
-          </div>
-        </aside>
-      </div>
 
       <!-- 3. ENGINE VERDICTS: teaser -->
       <div class="nd-section-head">
@@ -586,8 +591,8 @@
     var el=$('ahNews');if(!el)return;
     var items=(n.items||[]).slice(0,8);
     if(!items.length){el.innerHTML='<p class="nd-caption" style="padding:12px 0">No headlines in the latest batch.</p>';return;}
-    el.innerHTML=items.map(function(it){
-      return '<a class="nd-news-item" href="'+esc(it.link)+'" target="_blank" rel="noopener">'+
+    el.innerHTML=items.map(function(it,i){
+      return '<a class="nd-news-item" href="/nepse-news/story/?src=news&i='+i+'">'+
         '<span class="n-kicker">'+esc(it.src)+'</span>'+
         '<span class="n-title">'+esc(it.title)+'</span>'+
         '<span class="n-meta">'+fmtShort(it.date)+'</span></a>';
