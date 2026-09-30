@@ -427,6 +427,23 @@
       upColor:'#7BD8A4', downColor:'#F0968A', wickUpColor:'rgba(123,216,164,.7)', wickDownColor:'rgba(240,150,138,.7)', borderVisible:false
     });
     LW.series.setData(data);
+    /* Latest-close price line: when the newest session (live.json) has a close
+       but no publishable OHLC yet, show it as a labelled line — never as a
+       fabricated candle. Keeps the chart's price axis honest with the panel. */
+    try{
+      var ixLive = live && live.index, liveClose = ixLive && +ixLive.value;
+      var liveDateStr = null;
+      if(live && live.asof){ var lm=/^(\d{4})-(\d{2})-(\d{2})/.exec(live.asof); if(lm) liveDateStr=lm[3]+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+lm[2]-1]; }
+      var lastCandleClose = data.length ? data[data.length-1].close : null;
+      if(isFinite(liveClose) && liveClose !== lastCandleClose){
+        LW.series.createPriceLine({
+          price: liveClose,
+          color: 'rgba(245,241,230,.55)',
+          lineWidth: 1, lineStyle: 2, axisLabelVisible: true,
+          title: liveDateStr ? ('close '+liveDateStr) : 'latest close'
+        });
+      }
+    }catch(e){}
     var nb=data.length, nf=Math.max(0,nb-90);
     try{ LW.chart.timeScale().setVisibleRange({ from:data[nf].time, to:data[nb-1].time }); }
     catch(e){ LW.chart.timeScale().fitContent(); }
@@ -434,7 +451,18 @@
     LW.ro=new ResizeObserver(function(){ try{ LW.chart.applyOptions({ width: el.clientWidth }); }catch(e){} });
     LW.ro.observe(el);
     var n=data.length;
-    $('ahChartCap').textContent='Daily candles · '+n+' sessions from '+fmtShort(data[0].time)+' to '+fmtShort(data[n-1].time)+'. Drag to pan, scroll to zoom.';
+    var cap='Daily candles · '+n+' sessions from '+fmtShort(data[0].time)+' to '+fmtShort(data[n-1].time)+'.';
+    try{
+      var ixC = live && live.index, lc = ixC && +ixC.value;
+      var ldStr = null;
+      if(live && live.asof){ var q=/^(\d{4})-(\d{2})-(\d{2})/.exec(live.asof); if(q) ldStr=(+q[3])+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+q[2]-1]+' '+q[1]; }
+      var lastC = data.length ? data[data.length-1].close : null;
+      if(isFinite(lc) && lc !== lastC && ldStr){
+        cap+=' Latest close '+lc.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+' on '+ldStr+' (full candle pending open data).';
+      }
+    }catch(e){}
+    cap+=' Drag to pan, scroll to zoom.';
+    $('ahChartCap').textContent=cap;
   }
 
   /* Ticker tape: top ~60 liquid symbols, duplicated for a seamless loop */
