@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Broker Analytics — Nepse Decode</title>
+<meta name="description" content="NEPSE broker analytics: top brokers, broker trade patterns, stock trade patterns, stockwise holdings and accumulation/distribution — computed from public floorsheet transaction flow. Free, no login.">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-brokers/">
+<link rel="stylesheet" href="/css/nepse-design-system.css">
+<style>
+.bk-tabs{display:flex;gap:4px;border-bottom:2px solid var(--hairline);margin:0 0 16px;flex-wrap:wrap;overflow-x:auto}
+.bk-tabs button{background:none;border:none;padding:10px 14px;color:var(--ink-soft);font-weight:600;font-size:.92rem;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;font-family:var(--sans)}
+.bk-tabs button.active{color:var(--green-900);border-bottom-color:var(--green-900)}
+.periods{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 16px;align-items:center}
+.periods button{border:1px solid var(--hairline);background:var(--card);border-radius:var(--r-pill);padding:6px 14px;font-size:.85rem;cursor:pointer;font-family:var(--sans);color:var(--ink-soft)}
+.periods button.active{background:var(--green-900);color:#fff;border-color:var(--green-900)}
+.bk-table{width:100%;border-collapse:collapse;font-size:.85rem;background:var(--card)}
+.bk-table th,.bk-table td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--hairline-soft);white-space:nowrap}
+.bk-table th:first-child,.bk-table td:first-child{text-align:left}
+.bk-table th{background:var(--paper-deep);font-weight:600;color:var(--ink-soft);position:sticky;top:0}
+.bk-table tr:last-child td{border-bottom:none}
+.scrollx{overflow-x:auto;margin:12px 0;border:1px solid var(--hairline);border-radius:var(--r-md)}
+.pos{color:var(--up);font-weight:600}.neg{color:var(--down);font-weight:600}
+.ctl{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 16px;align-items:center}
+.ctl select,.ctl input{border:1px solid var(--hairline);border-radius:var(--r-sm);padding:8px 12px;font-size:.9rem;font-family:var(--sans);background:var(--card);max-width:100%}
+.stat-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:12px 0}
+@media(min-width:760px){.stat-row{grid-template-columns:repeat(4,1fr)}}
+.stat{background:var(--card);border:1px solid var(--hairline);border-radius:var(--r-md);padding:12px 14px}
+.stat .l{font-size:.75rem;color:var(--muted)}
+.stat .v{font-family:var(--serif);font-size:1.25rem;font-weight:700}
+.cover{background:var(--gold-soft);border:1px solid var(--hairline);border-radius:var(--r-md);padding:10px 16px;font-size:.85rem;margin:0 0 16px;color:var(--ink-soft)}
+h2.bk-h{font-family:var(--serif);font-size:1.25rem;margin:20px 0 8px}
+.two{display:grid;gap:16px}@media(min-width:900px){.two{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body class="nd">
+<main style="max-width:1160px;margin:0 auto;padding:24px 16px">
+<p style="color:var(--muted);font-size:.9rem;margin-bottom:4px">Nepse Decode &middot; Broker Analytics</p>
+<h1 style="font-family:var(--serif);font-size:2rem;margin:0 0 6px">Broker Analytics</h1>
+<p style="color:var(--ink-soft);max-width:680px">Where the brokers' money moved — buy/sell flow by broker and by stock, from public floorsheet records. <strong>Net bought / net sold is transaction flow, not verified shareholding.</strong></p>
+
+<div class="cover" id="coverage">Loading data…</div>
+
+<div class="bk-tabs" role="tablist" id="viewTabs">
+<button data-view="top" class="active">Top Brokers</button>
+<button data-view="broker">Broker Trade Pattern</button>
+<button data-view="stock">Stock Trade Pattern</button>
+<button data-view="holdings">Stockwise Holdings</button>
+<button data-view="accdist">Accumulation / Distribution</button>
+</div>
+
+<div class="periods" id="periodBar">
+<span style="font-size:.85rem;color:var(--muted)">Period:</span>
+<button data-p="latest" class="active">Latest</button>
+<button data-p="1D">1D</button>
+<button data-p="1W">1W</button>
+<button data-p="2W">2W</button>
+<button data-p="1M">1M</button>
+<button data-p="3M">3M</button>
+<button data-p="6M">6M</button>
+<button data-p="1Y">1Y</button>
+<button data-p="2Y">2Y</button>
+<button data-p="3Y">3Y</button>
+<input type="date" id="asofDate" title="As of date" style="border:1px solid var(--hairline);border-radius:var(--r-pill);padding:5px 10px;font-size:.85rem">
+</div>
+
+<div class="ctl" id="viewControls" style="display:none">
+<select id="brokerSel"><option value="">Select broker…</option></select>
+<select id="symbolSel" style="display:none"><option value="">Select stock…</option></select>
+<input id="symbolSearch" placeholder="Search symbol…" style="display:none">
+</div>
+
+<section id="view"></section>
+
+<p style="color:var(--muted);font-size:.85rem;margin:32px 0">Source: public NEPSE floorsheet records. Figures are aggregated transaction flow (quantity &times; rate per contract). "Accumulation" = net bought, "distribution" = net sold over the period — not beneficial ownership. Educational only, not investment advice.</p>
+</main>
+<script>
+(function(){
+"use strict";
+var BASE = '/nepse-brokers/data/';
+var state = { view: 'top', period: 'latest', data: null, brokers: {}, meta: null, asof: null };
+var $ = function(id){ return document.getElementById(id); };
+
+function fmtN(n, d){ d = d===undefined?2:d; if(!isFinite(n)) return '–';
+  return Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}); }
+function fmtV(n){ if(!isFinite(n)) return '–'; var a=Math.abs(n);
+  if(a>=1e7) return 'Rs '+(n/1e7).toFixed(2)+' Cr';
+  if(a>=1e5) return 'Rs '+(n/1e5).toFixed(2)+' L';
+  return 'Rs '+Math.round(n).toLocaleString('en-US'); }
+function bname(code){ return state.brokers[code] || ('Broker '+code); }
+function cls(v){ return v>0?'pos':(v<0?'neg':''); }
+
+function loadMeta(){
+  return fetch(BASE+'meta.json').then(function(r){return r.json()}).then(function(m){
+    state.meta = m;
+    $('coverage').innerHTML = '<strong>Data:</strong> ' + m.earliest + ' → ' + m.latest +
+      ' (' + m.trading_days + ' trading days)' +
+      (m.trading_days < 60 ? ' — <strong>history still building;</strong> longer periods fill in automatically.' : '') +
+      ' <span style="color:var(--muted)">Updated ' + m.updated_at.slice(0,10) + '</span>';
+    return fetch(BASE+'brokers.json').then(function(r){return r.json()}).then(function(b){
+      state.brokers = b;
+      var sel = $('brokerSel');
+      Object.keys(b).filter(function(c){return /^\d+$/.test(c)}).sort(function(a,c){return a-c}).forEach(function(c){
+        var o = document.createElement('option'); o.value=c; o.textContent=c+' — '+b[c]; sel.appendChild(o);
+      });
+    });
+  });
+}
+
+function loadPeriod(){
+  var p = state.period;
+  var url;
+  if (p === 'latest') url = BASE+'intraday.json';
+  else if (p === 'asof') url = BASE+'daily/'+state.asof+'.json';
+  else url = BASE+'periods/'+p+'.json';
+  $('view').innerHTML = '<p style="color:var(--muted)">Loading…</p>';
+  return fetch(url).then(function(r){ if(!r.ok) throw 0; return r.json(); })
+    .then(function(d){ state.data = d; render(); })
+    .catch(function(){
+      var msg = p==='latest'
+        ? 'Live intraday feed not available yet — it goes live with the market-hours poller. Try 1D for the last session.'
+        : p==='asof' ? 'No data for '+state.asof+' (weekend/holiday, or not yet backfilled).'
+        : 'This period is still building — check back as the history backfill progresses.';
+      $('view').innerHTML = '<div class="cover">'+msg+'</div>';
+    });
+}
+
+/* ---------- views ---------- */
+function renderTop(d){
+  var rows = d.brokers.map(function(b,i){
+    return '<tr><td>'+(i+1)+'</td><td><strong>'+bname(b.code)+'</strong><br><span style="color:var(--muted)">'+b.code+'</span></td>'+
+      '<td>'+fmtV(b.buy_value)+'</td><td>'+fmtV(b.sell_value)+'</td><td><strong>'+fmtV(b.total)+'</strong></td>'+
+      '<td class="'+cls(b.net)+'">'+fmtV(b.net)+'</td></tr>';
+  }).join('');
+  return '<h2 class="bk-h">Top brokers by turnover — '+label()+'</h2>'+
+    '<div class="scrollx"><table class="bk-table"><thead><tr><th>#</th><th>Broker</th><th>Buy value</th><th>Sell value</th><th>Total</th><th>Net</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+
+function renderBroker(d){
+  var code = $('brokerSel').value;
+  if(!code) return '<div class="cover">Pick a broker above to see what it traded.</div>';
+  var syms = (d.broker_symbols && d.broker_symbols[code]) || [];
+  var t = d.brokers.filter(function(b){return b.code===code})[0] || {};
+  var rows = syms.map(function(s){
+    var net = s.buy_value - s.sell_value;
+    return '<tr><td><strong>'+s.symbol+'</strong></td><td>'+fmtN(s.buy_qty,0)+'</td><td>'+fmtV(s.buy_value)+'</td>'+
+      '<td>'+fmtN(s.sell_qty,0)+'</td><td>'+fmtV(s.sell_value)+'</td><td class="'+cls(net)+'">'+fmtV(net)+'</td></tr>';
+  }).join('');
+  return '<h2 class="bk-h">'+bname(code)+' — trade pattern, '+label()+'</h2>'+
+    '<div class="stat-row">'+
+    '<div class="stat"><div class="l">Buy value</div><div class="v">'+fmtV(t.buy_value||0)+'</div></div>'+
+    '<div class="stat"><div class="l">Sell value</div><div class="v">'+fmtV(t.sell_value||0)+'</div></div>'+
+    '<div class="stat"><div class="l">Net flow</div><div class="v '+cls((t.buy_value||0)-(t.sell_value||0))+'">'+fmtV((t.buy_value||0)-(t.sell_value||0))+'</div></div>'+
+    '<div class="stat"><div class="l">Stocks traded</div><div class="v">'+syms.length+'</div></div></div>'+
+    '<div class="scrollx"><table class="bk-table"><thead><tr><th>Symbol</th><th>Buy qty</th><th>Buy value</th><th>Sell qty</th><th>Sell value</th><th>Net value</th></tr></thead><tbody>'+(rows||'<tr><td colspan="6">No trades in this period.</td></tr>')+'</tbody></table></div>';
+}
+
+function symbolOptions(d){
+  return Object.keys(d.symbols||{}).sort();
+}
+
+function renderStock(d){
+  var sym = $('symbolSel').value;
+  if(!sym) return '<div class="cover">Pick a stock above to see who bought and sold it.</div>';
+  var s = d.symbols[sym];
+  if(!s) return '<div class="cover">No trades for '+sym+' in this period.</div>';
+  function bt(obj, title){
+    var rows = Object.keys(obj).map(function(c){return [c, obj[c]]}).sort(function(a,b){return b[1]-a[1]})
+      .slice(0,10).map(function(x,i){
+        return '<tr><td>'+(i+1)+'</td><td>'+bname(x[0])+'</td><td>'+fmtV(x[1])+'</td></tr>';
+      }).join('');
+    return '<div><h2 class="bk-h">'+title+'</h2><div class="scrollx"><table class="bk-table"><thead><tr><th>#</th><th>Broker</th><th>Value</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+  }
+  return '<h2 class="bk-h">'+sym+' — trade pattern, '+label()+'</h2>'+
+    '<div class="stat-row">'+
+    '<div class="stat"><div class="l">Total quantity</div><div class="v">'+fmtN(s.qty,0)+'</div></div>'+
+    '<div class="stat"><div class="l">Total value</div><div class="v">'+fmtV(s.value)+'</div></div>'+
+    '<div class="stat"><div class="l">Average rate</div><div class="v">Rs '+fmtN(s.avg_rate)+'</div></div>'+
+    '<div class="stat"><div class="l">Brokers active</div><div class="v">'+(Object.keys(s.buyers).length+Object.keys(s.sellers).length)+'</div></div></div>'+
+    '<div class="two">'+bt(s.buyers,'Top buyers')+bt(s.sellers,'Top sellers')+'</div>';
+}
+
+function renderHoldings(d){
+  var sym = $('symbolSel').value;
+  if(!sym) return '<div class="cover">Pick a stock above to see broker net positions (flow-based).</div>';
+  // net per broker from buyers/sellers
+  var s = d.symbols[sym];
+  if(!s) return '<div class="cover">No trades for '+sym+' in this period.</div>';
+  var net = {};
+  Object.keys(s.buyers).forEach(function(c){ net[c]=(net[c]||0)+s.buyers[c]; });
+  Object.keys(s.sellers).forEach(function(c){ net[c]=(net[c]||0)-s.sellers[c]; });
+  var rows = Object.keys(net).map(function(c){return [c,net[c]]}).sort(function(a,b){return b[1]-a[1]})
+    .map(function(x){
+      var tag = x[1]>0?'<span class="pos">accumulating</span>':'<span class="neg">distributing</span>';
+      return '<tr><td>'+bname(x[0])+'</td><td>'+x[0]+'</td><td class="'+cls(x[1])+'">'+fmtV(x[1])+'</td><td>'+tag+'</td></tr>';
+    }).join('');
+  return '<h2 class="bk-h">'+sym+' — stockwise broker flow, '+label()+'</h2>'+
+    '<p style="font-size:.85rem;color:var(--muted)">Net bought = accumulating · net sold = distributing. This is transaction flow, not verified shareholding.</p>'+
+    '<div class="scrollx"><table class="bk-table"><thead><tr><th>Broker</th><th>Code</th><th>Net value</th><th>Flow</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+
+function renderAccDist(d){
+  function tbl(list, title, good){
+    var rows = list.slice(0,50).map(function(x,i){
+      return '<tr><td>'+(i+1)+'</td><td><strong>'+x.symbol+'</strong></td><td>'+bname(x.broker)+'</td>'+
+        '<td>'+fmtN(x.net_qty,0)+'</td><td class="'+(good?'pos':'neg')+'">'+fmtV(x.net_value)+'</td></tr>';
+    }).join('');
+    return '<div><h2 class="bk-h">'+title+'</h2><div class="scrollx"><table class="bk-table"><thead><tr><th>#</th><th>Stock</th><th>Broker</th><th>Net qty</th><th>Net value</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+  }
+  return '<div class="two">'+tbl(d.accumulation||[],'Accumulating — top net bought',true)+tbl(d.distribution||[],'Distributing — top net sold',false)+'</div>';
+}
+
+function label(){
+  if(state.period==='latest') return 'live today'+(state.data&&state.data.asof?' (as of '+state.data.asof.slice(11,16)+' UTC)':'');
+  if(state.period==='asof') return state.asof;
+  var d = state.data;
+  return d && d.from ? d.from+' → '+d.to+' ('+d.trading_days+' sessions)' : state.period;
+}
+
+function render(){
+  var d = state.data; if(!d) return;
+  var html = '';
+  if(state.view==='top') html = renderTop(d);
+  else if(state.view==='broker') html = renderBroker(d);
+  else if(state.view==='stock') html = renderStock(d);
+  else if(state.view==='holdings') html = renderHoldings(d);
+  else html = renderAccDist(d);
+  $('view').innerHTML = html;
+  // refresh symbol list
+  var sel = $('symbolSel');
+  if(sel.options.length <= 1 && d.symbols){
+    symbolOptions(d).forEach(function(s){ var o=document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o); });
+  }
+}
+
+function syncControls(){
+  var v = state.view;
+  $('viewControls').style.display = (v==='top'||v==='accdist') ? 'none' : 'flex';
+  $('brokerSel').style.display = v==='broker' ? '' : 'none';
+  var showSym = (v==='stock'||v==='holdings');
+  $('symbolSel').style.display = showSym ? '' : 'none';
+}
+
+$('viewTabs').addEventListener('click', function(e){
+  var b = e.target.closest('button'); if(!b) return;
+  document.querySelectorAll('#viewTabs button').forEach(function(x){x.classList.remove('active')});
+  b.classList.add('active'); state.view = b.dataset.view; syncControls(); render();
+});
+$('periodBar').addEventListener('click', function(e){
+  var b = e.target.closest('button'); if(!b) return;
+  document.querySelectorAll('#periodBar button').forEach(function(x){x.classList.remove('active')});
+  b.classList.add('active'); state.period = b.dataset.p; state.asof = null; $('asofDate').value='';
+  // clear cached symbol options (different dataset)
+  $('symbolSel').innerHTML = '<option value="">Select stock…</option>';
+  loadPeriod();
+});
+$('asofDate').addEventListener('change', function(e){
+  if(!e.target.value) return;
+  document.querySelectorAll('#periodBar button').forEach(function(x){x.classList.remove('active')});
+  state.period = 'asof'; state.asof = e.target.value;
+  $('symbolSel').innerHTML = '<option value="">Select stock…</option>';
+  loadPeriod();
+});
+$('brokerSel').addEventListener('change', render);
+$('symbolSel').addEventListener('change', render);
+
+loadMeta().then(loadPeriod);
+})();
+</script>
+</body>
+</html>

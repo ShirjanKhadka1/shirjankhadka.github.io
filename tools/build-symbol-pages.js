@@ -177,7 +177,13 @@ const RAIL = '<body>\n<a class="skip" href="#main">Skip to content</a>\n\n' +
   '  <nav class="rail-links">\n' +
   '    <a href="/nepse-decode/">Overview</a>\n' +
   '    <a href="/nepse-chart/">Chart &amp; signals</a>\n' +
+  '    <span class="nav-sub">\n' +
+  '      <a href="/nepse-signals/momentum/">Momentum</a>\n' +
+  '      <a href="/nepse-signals/trend-relay/">Trend Relay</a>\n' +
+  '      <a href="/nepse-signals/reversal/">Reversal</a>\n' +
+  '    </span>\n' +
   '    <a href="/nepse-screener/">Screener</a>\n' +
+  '    <a href="/nepse-brokers/">Broker Analytics</a>\n' +
   '    <a href="/nepse-sectors/">Sectors</a>\n' +
   '    <a href="/nepse-news/">Market news</a>\n' +
   '    <a href="/nepse-watchlist/">Watchlist</a>\n' +

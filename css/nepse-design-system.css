@@ -568,3 +568,11 @@
   .qcomp { font-size: 0.8rem; min-width: 560px; }
   .qcomp th, .qcomp td { padding: 8px 10px; }
 }
+
+/* Suite nav: nested signal-system links under "Chart & signals" */
+.nav-sub{display:flex;flex-direction:column;margin:-2px 0 2px 14px;border-left:2px solid var(--hairline);padding-left:10px}
+.nd-nav .nav-sub a,.rail-links .nav-sub a{font-size:.85rem;padding:5px 10px;color:var(--ink-soft)}
+.nav-sub a:hover{color:var(--green-900)}
+.nav-sub a.active{background:var(--gold-soft);color:var(--ink);font-weight:700}
+.nd-mobilenav .nav-sub{flex-direction:row;margin:0;border:none;padding:0}
+.nd-mobilenav .nav-sub a{font-size:.85rem;opacity:.85}
