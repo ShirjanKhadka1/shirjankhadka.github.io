@@ -121,7 +121,6 @@ const RAIL = '<body>\n<a class="skip" href="#main">Skip to content</a>\n\n' +
   '    <a href="/nepse-dashboard/">Dashboard</a>\n' +
   '    <a href="/nepse-portfolio/">Portfolio</a>\n' +
   '    <a href="/nepse-simulator/">Simulator</a>\n' +
-  '    <a href="/nepse-fundamentals/">Fundamentals</a>\n' +
   '    <a href="/nepse-reports/">Reports</a>\n' +
   '    <a href="/nepse-actions/">Corp. actions</a>\n' +
   '    <a href="/nepse-chart/data-check.html">Data check</a>\n' +
@@ -137,7 +136,6 @@ const RAIL = '<body>\n<a class="skip" href="#main">Skip to content</a>\n\n' +
   '      <a href="/nepse-sectors/">Sectors</a>\n' +
   '      <a href="/nepse-news/">News</a>\n' +
   '      <a href="/nepse-watchlist/">Watchlist</a>\n' +
-  '      <a href="/nepse-fundamentals/">Fundamentals</a>\n' +
   '      <a href="/nepse-actions/">Corp. actions</a>\n' +
   '    </nav>\n' +
   '    <div class="spacer"></div>\n' +
@@ -185,32 +183,40 @@ function fundBlock(sym, fund) {
   return h;
 }
 
-function symbolPage(u, v, newsItems, peers, fund) {
+function symbolPage(u, v, newsItems, peers, fund, liveQ, liveDate) {
   const sym = u.s, name = u.n, slug = slugOf(sym);
-  const price = fmtNum(v && v.p);
-  const chg = v && v.ch !== null && v.ch !== undefined && v.ch !== '' ? esc(v.ch) + '%' : null;
-  const chgCls = chg && Number(v.ch) < 0 ? 'neg' : (chg && Number(v.ch) > 0 ? 'pos' : '');
+  // Headline price prefers our canonical live payload (NEPSE API) when it is
+  // at least as fresh as the batch verdict — the batch daily history comes
+  // from a third-party feed that can lag by a session.
+  const vAsof = (v && v.asof) || '';
+  const useLive = !!(liveQ && liveDate && liveDate >= vAsof && Number.isFinite(Number(liveQ.ltp)));
+  const pNum = useLive ? Number(liveQ.ltp) : (v && v.p);
+  const cNum = (useLive && Number.isFinite(Number(liveQ.percent_change))) ? Number(liveQ.percent_change) : (v && v.ch);
+  const asofD = useLive ? liveDate : vAsof;
+  const price = fmtNum(pNum);
+  const chg = cNum !== null && cNum !== undefined && cNum !== '' ? esc(cNum) + '%' : null;
+  const chgCls = chg && Number(cNum) < 0 ? 'neg' : (chg && Number(cNum) > 0 ? 'pos' : '');
 
   let h = head(sym, name, slug) + RAIL + '<main id="main" class="wrap">\n';
   h += '<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/stocks/">Stocks</a> / <span>' + esc(sym) + '</span></nav>\n';
   h += '<section class="hero"><div class="hero-rule"></div>\n';
   h += '<p class="eyebrow">' + esc(u.t || 'Security') + ' · NEPSE</p>\n';
   h += '<h1>' + esc(name) + ' (' + esc(sym) + ')</h1>\n';
-  h += '<p class="asof">Data as of ' + esc((v && v.asof) || '') + ' · refreshed daily after market close</p></section>\n';
+  h += '<p class="asof">Data as of ' + esc(asofD) + ' · refreshed daily after market close</p></section>\n';
 
   // Price snapshot
   h += '<section class="sp-snap" aria-label="Price snapshot"><div class="sp-price-card">\n';
   h += '<div class="sp-price-main">\n';
   if (price) {
     h += '<div class="sp-price">Rs ' + price + '</div>\n';
-    if (chg) h += '<div class="sp-chg ' + chgCls + '">' + (Number(v.ch) > 0 ? '+' : '') + chg + ' on the session</div>\n';
+    if (chg) h += '<div class="sp-chg ' + chgCls + '">' + (Number(cNum) > 0 ? '+' : '') + chg + ' on the session</div>\n';
   } else {
     h += '<div class="sp-price">No recent price data</div>\n';
   }
   h += '</div><div class="sp-price-side">\n';
   const h52 = fmtNum(v && v.h52), l52 = fmtNum(v && v.l52);
   if (h52 || l52) h += '<div class="sp-stat"><span class="sp-stat-v">Rs ' + (l52 || '–') + ' – Rs ' + (h52 || '–') + '</span><span class="sp-stat-l">52-week range</span></div>\n';
-  const vol = fmtNum(v && v.vol);
+  const vol = fmtNum(useLive && Number.isFinite(Number(liveQ.volume)) ? Number(liveQ.volume) : (v && v.vol));
   if (vol) h += '<div class="sp-stat"><span class="sp-stat-v">' + vol + '</span><span class="sp-stat-l">Volume (shares)</span></div>\n';
   h += '</div>';
   h += '</div></section>\n';
@@ -232,7 +238,7 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
   h += '<p class="sp-note">Transparent rule-based readings, one per timeframe. A daily Buy can be weak while the weekly read is stronger; each pill names its own timeframe and data date.</p>';
   h += pill('Daily', v) + pill('Weekly', v && v.w) + pill('Monthly', v && v.m);
   h += '</div>';
-  h += '<div class="sp-tabpanel" data-panel="fundamentals" role="tabpanel" hidden>';
+  h += '<div class="sp-tabpanel" id="fundamentals" data-panel="fundamentals" role="tabpanel" hidden>';
   h += fundBlock(sym, fund);
   h += '</div>';
   h += '<div class="sp-tabpanel" data-panel="news" role="tabpanel" hidden>';
@@ -248,7 +254,7 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
     h += '<p class="sp-note">No recent headlines mention ' + esc(sym) + ' in the tracked press.</p>';
   }
   h += '<ul class="sp-links">';
-  h += '<li><a href="/nepse-fundamentals/">Fundamentals snapshot <span aria-hidden="true">→</span></a></li>';
+  h += '<li><a href="#fundamentals" data-goto-tab="fundamentals">Fundamentals snapshot <span aria-hidden="true">→</span></a></li>';
   h += '<li><a href="/nepse-news/">Market news <span aria-hidden="true">→</span></a></li>';
   h += '</ul></div>';
 
@@ -273,6 +279,8 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
   h += 't.addEventListener("keydown",function(e){if(e.key==="ArrowRight"||e.key==="ArrowLeft"){';
   h += 'var i=Array.prototype.indexOf.call(tabs,t);var nx=e.key==="ArrowRight"?(i+1)%tabs.length:(i-1+tabs.length)%tabs.length;';
   h += 'tabs[nx].focus();on(tabs[nx].dataset.tab);}});});';
+  h += 'document.querySelectorAll("[data-goto-tab]").forEach(function(a){a.addEventListener("click",function(){on(a.dataset.gotoTab);});});';
+  h += 'if(location.hash==="#fundamentals"){on("fundamentals");}';
   h += '})();</scr' + 'ipt>';
   h += '</main>\n' + FOOT;
   return h;
@@ -322,6 +330,15 @@ function main() {
   const ver = loadJson(path.join(DATA, 'verdicts.json'), null);
   const news = loadJson(path.join(DATA, 'news.json'), null);
   const fund = loadJson(path.join(DATA, 'fundamentals.json'), null);
+  // Canonical live quotes (NEPSE API) for the headline price snapshot.
+  const live = loadJson(path.join(DATA, 'live.json'), null);
+  const liveMap = {};
+  let liveDate = '';
+  if (live && Array.isArray(live.quotes)) {
+    for (const q of live.quotes) { if (q && q.symbol) liveMap[q.symbol] = q; }
+    liveDate = String(live.asof || '').slice(0, 10);
+  }
+  const pageAsof = (liveDate && liveDate >= String((ver && ver.asof) || '')) ? liveDate : ((ver && ver.asof) || '');
   if (!universe || !universe.symbols || !ver || !ver.verdicts) {
     console.error('build-symbol-pages: missing universe/verdicts data');
     process.exit(1);
@@ -351,10 +368,10 @@ function main() {
     const peers = (byType[u.t || 'Security'] || []).filter((p) => p.s !== sym).slice(0, 5);
     const dir = path.join(OUT, slug);
     fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, 'index.html'), symbolPage(u, v, newsBySym[sym] || [], peers, fund));
+    fs.writeFileSync(path.join(dir, 'index.html'), symbolPage(u, v, newsBySym[sym] || [], peers, fund, liveMap[sym], liveDate));
     made++;
   }
-  fs.writeFileSync(path.join(OUT, 'index.html'), indexPage(symbols, ver.asof));
+  fs.writeFileSync(path.join(OUT, 'index.html'), indexPage(symbols, pageAsof));
   console.log(JSON.stringify({ pages: made, dir: 'stocks/' }));
 }
 

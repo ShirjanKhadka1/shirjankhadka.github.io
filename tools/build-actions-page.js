@@ -106,7 +106,6 @@ function main() {
     '    <a href="/nepse-dashboard/">Dashboard</a>\n' +
     '    <a href="/nepse-portfolio/">Portfolio</a>\n' +
     '    <a href="/nepse-simulator/">Simulator</a>\n' +
-    '    <a href="/nepse-fundamentals/">Fundamentals</a>\n' +
     '    <a href="/nepse-reports/">Reports</a>\n' +
     '    <a href="/nepse-actions/" class="on" aria-current="page">Corp. actions</a>\n' +
     '  </nav>\n' +
@@ -121,7 +120,6 @@ function main() {
     '      <a href="/nepse-sectors/">Sectors</a>\n' +
     '      <a href="/nepse-news/">News</a>\n' +
     '      <a href="/nepse-watchlist/">Watchlist</a>\n' +
-    '      <a href="/nepse-fundamentals/">Fundamentals</a>\n' +
     '      <a href="/nepse-actions/" class="on" aria-current="page">Corp. actions</a>\n' +
     '    </nav>\n' +
     '    <div class="spacer"></div>\n' +
