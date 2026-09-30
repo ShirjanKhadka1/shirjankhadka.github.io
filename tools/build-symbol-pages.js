@@ -387,48 +387,28 @@ function quarterlyTable(sym, quarterly, sector) {
     if (cur === null || prev === null || prev === 0) return null;
     return (cur - prev) / Math.abs(prev) * 100;
   };
+  const dCell = (m, ref) => {
+    const d = pct(m.v(latest), ref ? m.v(ref) : null);
+    if (d === null) return '<td>–</td>';
+    const cls = m.dir === 0 ? '' : (d * m.dir > 0 ? ' class="pos"' : (d * m.dir < 0 ? ' class="neg"' : ''));
+    return '<td' + cls + '>' + (d > 0 ? '+' : '') + d.toFixed(1) + '%</td>';
+  };
   const qLabel = (x) => 'Q' + x.q + ' ' + x.fy.slice(2, 4) + '/' + x.fy.slice(7, 9);
-  // Delta badge under the latest value: compact QoQ / YoY context.
-  const deltaHtml = (m) => {
-    const bits = [];
-    const dq = pct(m.v(latest), pq ? m.v(pq) : null);
-    const dy = pct(m.v(latest), yq ? m.v(yq) : null);
-    const fmtD = (d, tag) => {
-      if (d === null) return '';
-      const cls = m.dir === 0 ? '' : (d * m.dir > 0 ? 'pos' : (d * m.dir < 0 ? 'neg' : ''));
-      return '<i class="' + cls + '">' + tag + ' ' + (d > 0 ? '+' : '') + d.toFixed(1) + '%</i>';
-    };
-    const q = fmtD(dq, 'QoQ'), y = fmtD(dy, 'YoY');
-    if (q || y) bits.push('<span class="qt-deltas">' + q + (q && y ? ' · ' : '') + y + '</span>');
-    return bits.join('');
-  };
   let h = '<section aria-label="Quarterly trend"><h2>Quarterly trend</h2>\n';
-  h += '<p class="sp-note">Published quarterly figures · latest ' + show.length + ' quarters. Deltas under the latest quarter compare with the previous quarter (QoQ) and the same quarter last fiscal year (YoY).</p>\n';
-  // Render each statement section as its own card: heading + clean table.
-  let curSec = null;
-  const closeCard = () => { if (curSec) { h += '</tbody></table></div>\n'; curSec = null; } };
-  const openCard = (title) => {
-    closeCard();
-    curSec = title;
-    h += '<h3 class="qt-card-title">' + esc(title) + '</h3>\n';
-    h += '<div class="sp-table-wrap"><table class="sp-peer-table qt-table">\n<thead><tr><th scope="col">Metric</th>';
-    for (let i = show.length - 1; i >= 0; i--) {
-      const isCur = i === show.length - 1;
-      h += '<th scope="col" class="num' + (isCur ? ' qt-cur' : '') + '">' + esc(qLabel(show[i])) +
-        (isCur ? '<span class="qt-latest-badge">Latest</span>' : '') + '</th>';
-    }
-    h += '</tr></thead>\n<tbody>\n';
-  };
+  h += '<p class="sp-note">Published quarterly figures · latest ' + show.length + ' quarters. QoQ compares with the previous quarter; YoY with the same quarter last fiscal year.</p>\n';
+  h += '<div class="sp-table-wrap"><table class="sp-peer-table">\n<thead><tr><th scope="col">Metric</th><th scope="col">QoQ</th><th scope="col">YoY</th>';
+  for (let i = show.length - 1; i >= 0; i--) h += '<th scope="col" class="num">' + esc(qLabel(show[i])) + '</th>';
+  h += '</tr></thead>\n<tbody>\n';
   for (const m of metrics) {
-    if (m.sec) { openCard(m.sec); continue; }
-    if (!curSec) openCard('Financials');
-    const lv = m.v(latest);
-    h += '<tr><td>' + esc(m.l) + '</td>';
-    h += '<td class="num qt-cur"><span class="qt-val">' + m.f(lv) + '</span>' + deltaHtml(m) + '</td>';
-    for (let i = show.length - 2; i >= 0; i--) h += '<td class="num">' + m.f(m.v(show[i])) + '</td>';
+    if (m.sec) {
+      h += '<tr class="sp-sec-row"><td colspan="' + (3 + show.length) + '"><strong>' + esc(m.sec) + '</strong></td></tr>\n';
+      continue;
+    }
+    h += '<tr><td>' + esc(m.l) + '</td>' + dCell(m, pq) + dCell(m, yq);
+    for (let i = show.length - 1; i >= 0; i--) h += '<td class="num">' + m.f(m.v(show[i])) + '</td>';
     h += '</tr>\n';
   }
-  closeCard();
+  h += '</tbody></table></div>\n';
   h += '<p class="sp-note">Profit figures are published cumulative for the fiscal year; the quarterly profit row shows the implied standalone quarter (this quarter minus the prior quarter). P/E is not shown as a trend: the screener prices every historical quarter at today\u2019s price, so a historical P/E would be misleading. – means not published.</p>\n</section>\n';
   return h;
 }
@@ -702,9 +682,10 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
   h += '<button class="sp-tab" role="tab" aria-selected="false" data-tab="signals">Signals</button>';
   h += '<button class="sp-tab" role="tab" aria-selected="false" data-tab="fundamentals">Fundamentals</button>';
   h += '<button class="sp-tab" role="tab" aria-selected="false" data-tab="news">News</button>';
+  h += '<button class="sp-tab" role="tab" aria-selected="false" data-tab="actions">Corporate Actions</button>';
   h += '</div>';
   h += '<div class="sp-tabpanel active" data-panel="overview" role="tabpanel">';
-  h += '<p class="sp-note">Price snapshot above. Switch tabs for engine signals, published fundamentals and latest headlines. Past dividend, right share and AGM history is in the Investment Calendar below.</p>';
+  h += '<p class="sp-note">Price snapshot above. Switch tabs for engine signals, published fundamentals, latest headlines and corporate actions.</p>';
   h += '<ul class="sp-links">';
   h += '<li><a href="/nepse-chart/?s=' + esc(sym) + '">Full chart, patterns and divergences <span aria-hidden="true">→</span></a></li>';
   h += '<li><a href="/nepse-screener/">Ranked screener <span aria-hidden="true">→</span></a></li>';
@@ -732,14 +713,16 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
     h += '<p class="sp-note">No recent headlines mention ' + esc(sym) + ' in the tracked press.</p>';
   }
   h += '</div>';
-
-  // Investment Calendar card: visible section after the tabs, near Fundamentals.
+  h += '<div class="sp-tabpanel" data-panel="actions" role="tabpanel" hidden>';
+  h += '<h2>Corporate actions</h2>';
+  h += '<p class="sp-note">Past dividends, bonus shares, right shares, auctions and AGM history.</p>';
   h += investmentCalendarCard(sym, name, corpHist);
+  h += '</div>';
 
   // More in this sector: true sector peers, not a random same-type list.
   const morePeers = (sectorPeers || []).filter((p) => p.s !== sym).slice(0, 5);
   if (morePeers.length) {
-    const moreLabel = sector ? 'More in ' + sector : 'More ' + (u.t || 'securities');
+    const moreLabel = sector ? 'More in the ' + sector + ' sector' : 'More ' + (u.t || 'securities');
     h += '<section aria-label="' + esc(moreLabel) + '"><h2>' + esc(moreLabel) + '</h2><ul class="sp-peers">\n';
     for (const p of morePeers) {
       h += '<li><a href="/stocks/' + slugOf(p.s) + '/">' + esc(p.n) + ' (' + esc(p.s) + ')</a></li>\n';
@@ -759,6 +742,7 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
   h += 'tabs[nx].focus();on(tabs[nx].dataset.tab);}});});';
   h += 'document.querySelectorAll("[data-goto-tab]").forEach(function(a){a.addEventListener("click",function(){on(a.dataset.gotoTab);});});';
   h += 'if(location.hash==="#fundamentals"){on("fundamentals");}';
+  h += 'if(location.hash==="#actions"){on("actions");}';
   // Investment Calendar: sidebar tabs, search, pagination
   h += 'document.querySelectorAll(".inv-cal").forEach(function(card){';
   h += 'var uid=card.querySelector("[data-inv-uid]").dataset.invUid;';
