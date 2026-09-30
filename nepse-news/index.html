@@ -253,6 +253,8 @@
     var upd = document.getElementById('annUpdated');
     if(!wrap) return;
     if(upd && updated) upd.textContent = 'Official company disclosures · updated ' + fmtDate(updated) + '. Tapping a symbol opens its chart.';
+    var pf = document.getElementById('pageFresh');
+    if(pf && updated) pf.textContent = 'Updated ' + fmtDate(updated);
     if(!items || !items.length){
       wrap.innerHTML = '<p class="news-empty">No announcements yet. The feed refreshes daily.</p>';
       return;
@@ -284,6 +286,8 @@
   function fail(msg){
     var wrap = document.getElementById('annGroups');
     if(wrap) wrap.innerHTML = '<p class="news-empty">' + esc(msg) + '</p>';
+    var pf = document.getElementById('pageFresh');
+    if(pf) pf.textContent = 'Update unavailable';
   }
   try {
     fetch('/nepse-chart/data/announcements.json', { cache: 'no-store' })
