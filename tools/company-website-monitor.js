@@ -51,23 +51,29 @@ const FIN_KW = [
 
 function fetch(url, maxRedirects = 3) {
   return new Promise((resolve, reject) => {
+    let settled = false;
+    const done = (fn, val) => { if (!settled) { settled = true; fn(val); } };
     const lib = url.startsWith('https') ? https : http;
     const req = lib.get(url, { headers: UA, timeout: 15000 }, (res) => {
       if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location && maxRedirects > 0) {
         res.resume();
-        return resolve(fetch(new URL(res.headers.location, url).href, maxRedirects - 1));
+        return done(resolve, fetch(new URL(res.headers.location, url).href, maxRedirects - 1));
       }
       if (res.statusCode !== 200) {
         res.resume();
-        return reject(new Error(`HTTP ${res.statusCode}`));
+        return done(reject, new Error(`HTTP ${res.statusCode}`));
       }
       let data = '';
       res.setEncoding('utf8');
-      res.on('data', (c) => { data += c; if (data.length > 2e6) { req.destroy(); resolve(data); } });
-      res.on('end', () => resolve(data));
+      res.on('data', (c) => { data += c; if (data.length > 2e6) { req.destroy(); done(resolve, data); } });
+      res.on('end', () => done(resolve, data));
     });
-    req.on('timeout', () => { req.destroy(); reject(new Error('timeout')); });
-    req.on('error', reject);
+    req.on('timeout', () => { req.destroy(); done(reject, new Error('timeout')); });
+    req.on('error', (e) => done(reject, e));
+    // Some servers/proxies close the connection after headers without 'end':
+    // without this the promise never settles, the event loop drains, and
+    // Node exits 0 mid-batch with no output at all.
+    req.on('close', () => done(reject, new Error('connection closed before response completed')));
   });
 }
 
