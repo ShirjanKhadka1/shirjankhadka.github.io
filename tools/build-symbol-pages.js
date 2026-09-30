@@ -530,12 +530,23 @@ function investmentCalendarCard(sym, name, hist) {
       '</tr></thead>\n<tbody>\n';
     for (const d of divs) {
       const bonus = pct(d.bonus_share), cash = pct(d.cash_dividend), total = pct(d.total_dividend);
+      /* Status pill: computed live in the browser from the book close date vs
+       * today (Open while the date is today or in the future, Closed once it
+       * has passed), so it flips on its own with no rebuild. A [Closed]
+       * marker from the crawl is authoritative and passed through as data.
+       * Falls back to the fiscal year when no book close date is on record. */
+      const bcRaw = stripTags(d.bookclose_date || '');
+      const bcMarkedClosed = /\[closed\]/i.test(bcRaw);
+      const bcDisp = bcRaw.replace(/\s*\[closed\]/i, '').trim();
+      const bcIso = ((/^(\d{4}-\d{2}-\d{2})/.exec(bcDisp) || [])[1]) || '';
+      const fy = String(d.year || d.fiscal_year || '');
       h += '<tr><td>' + esc(bonus === '–' ? '–' : bonus + ' %') + '</td>' +
         '<td>' + esc(cash === '–' ? '–' : cash + ' %') + '</td>' +
         '<td>' + esc(total === '–' ? '–' : total + ' %') + '</td>' +
-        '<td>' + esc(stripTags(d.bookclose_date) || '–') + '</td>' +
-        '<td>' + esc(d.year || d.fiscal_year || '–') + '</td>' +
-        '<td>' + esc(stripTags(d.status) || '–') + '</td></tr>\n';
+        '<td>' + esc(bcDisp || '–') + '</td>' +
+        '<td>' + esc(fy || '–') + '</td>' +
+        '<td><span class="inv-cal-divstatus" data-bc="' + esc(bcIso) + '" data-fy="' + esc(fy) + '"' +
+        (bcMarkedClosed ? ' data-closed="1"' : '') + '></span></td></tr>\n';
     }
     h += '</tbody></table></div>\n';
   } else {
@@ -692,10 +703,7 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
   } else {
     h += '<p class="sp-note">No recent headlines mention ' + esc(sym) + ' in the tracked press.</p>';
   }
-  h += '<ul class="sp-links">';
-  h += '<li><a href="#fundamentals" data-goto-tab="fundamentals">Fundamentals snapshot <span aria-hidden="true">→</span></a></li>';
-  h += '<li><a href="/nepse-news/">Market news <span aria-hidden="true">→</span></a></li>';
-  h += '</ul></div>';
+  h += '</div>';
 
   // Investment Calendar card: visible section after the tabs, near Fundamentals.
   h += investmentCalendarCard(sym, name, corpHist);
@@ -753,6 +761,18 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
   h += 'var pp=card.querySelector(".inv-cal-perpage");if(pp)pp.addEventListener("change",function(){state.per=+this.value;state.page=1;render();});';
   h += 'card.querySelector(".inv-cal-prev").addEventListener("click",function(){if(state.page>1){state.page--;render();}});';
   h += 'card.querySelector(".inv-cal-next").addEventListener("click",function(){state.page++;render();});';
+  /* Dividend status pills: Open while the book close date is today or in the
+   * future, Closed once it has passed. Computed here in the browser so the
+   * status flips on its own when the date passes — no rebuild needed.
+   * Falls back to the fiscal year when no book close date is on record. */
+  h += 'card.querySelectorAll("[data-inv-panel=\\"dividends\\"] .inv-cal-divstatus").forEach(function(el){';
+  h += 'var st="open",bc=el.getAttribute("data-bc")||"",fy=el.getAttribute("data-fy")||"";';
+  h += 'if(el.getAttribute("data-closed")==="1"){st="closed";}';
+  h += 'else if(/^\\d{4}-\\d{2}-\\d{2}$/.test(bc)){var t=new Date();t.setHours(0,0,0,0);if(new Date(bc+"T00:00:00")<t){st="closed";}}';
+  h += 'else{var m=fy.match(/(\\d{4})\\s*\\/\\s*(\\d{4})/);if(m){var n=new Date();';
+  h += 'var bs=(n.getMonth()>3||(n.getMonth()===3&&n.getDate()>=14))?n.getFullYear()+57:n.getFullYear()+56;';
+  h += 'if(+m[2]<bs){st="closed";}}}';
+  h += 'el.innerHTML="<span class=\\"inv-pill "+(st==="closed"?"inv-pill-closed":"inv-pill-open")+"\\">"+(st==="closed"?"Closed":"Open")+"</span>";});';
   h += 'render();});';
   h += '})();</scr' + 'ipt>';
   h += '</main>\n' + FOOT;
@@ -799,6 +819,9 @@ function indexPage(symbols, asof) {
 }
 
 function main() {
+  /* --symbol=XYZ rebuilds a single stock page (used by the dividend watcher
+   * to refresh one Investment Calendar the moment a dividend is announced). */
+  const onlySym = (process.argv.find((a) => a.startsWith('--symbol=')) || '').slice(9).toUpperCase();
   const universe = loadJson(path.join(DATA, 'universe.json'), null);
   const ver = loadJson(path.join(DATA, 'verdicts.json'), null);
   const news = loadJson(path.join(DATA, 'news.json'), null);
@@ -832,6 +855,30 @@ function main() {
     if (!corpHist[sym]) corpHist[sym] = {};
     corpHist[sym].dividends = merged;
   }
+  /* Third dividend source: div-live.json — verified dividend announcements
+   * recorded by the dividend watcher the moment they publish
+   * (tools/record-live-dividend.js). On key collisions the richest record
+   * (most filled fields) wins, so a live record carrying a fresh book close
+   * date upgrades a sparser historical row. (2026-09-30: his order — the
+   * Investment Calendar must update automatically on every new dividend.) */
+  const divLiveData = loadJson(path.join(DATA, 'div-live.json'), null);
+  const divLive = (divLiveData && divLiveData.companies) || {};
+  const divRich = (d) => ['bonus_share', 'cash_dividend', 'total_dividend',
+    'announcement_date', 'bookclose_date', 'year', 'fiscal_year'].reduce(
+    (n, k) => n + (d[k] !== undefined && d[k] !== null && String(d[k]).trim() !== '' ? 1 : 0), 0);
+  const divSort = (a, b) =>
+    String(b.year || b.fiscal_year || '').localeCompare(String(a.year || a.fiscal_year || '')) ||
+    String(b.announcement_date || '').localeCompare(String(a.announcement_date || ''));
+  for (const sym of Object.keys(divLive)) {
+    if (!corpHist[sym]) corpHist[sym] = {};
+    const byKey = new Map();
+    for (const d of (corpHist[sym].dividends || [])) byKey.set(divKey(d), d);
+    for (const d of (divLive[sym] || [])) {
+      const k = divKey(d), ex = byKey.get(k);
+      if (!ex || divRich(d) > divRich(ex)) byKey.set(k, d);
+    }
+    corpHist[sym].dividends = [...byKey.values()].sort(divSort);
+  }
   const actionsData = loadJson(path.join(DATA, 'corporate-actions.json'), null);
   const actionsBySym = {};
   if (actionsData && actionsData.items) {
@@ -853,7 +900,9 @@ function main() {
     console.error('build-symbol-pages: missing universe/verdicts data');
     process.exit(1);
   }
-  const symbols = universe.symbols;
+  const symbols = onlySym
+    ? universe.symbols.filter((u) => String(u.s).toUpperCase() === onlySym)
+    : universe.symbols;
   const verdicts = ver.verdicts;
   const newsBySym = {};
   if (news && news.items) {
@@ -885,8 +934,8 @@ function main() {
     fs.writeFileSync(path.join(dir, 'index.html'), symbolPage(u, v, newsBySym[sym] || [], fund, liveMap[sym], liveDate, sector, sectorPeers, verdicts, quarterly, corpHist[sym]));
     made++;
   }
-  fs.writeFileSync(path.join(OUT, 'index.html'), indexPage(symbols, pageAsof));
-  console.log(JSON.stringify({ pages: made, dir: 'stocks/' }));
+  if (!onlySym) fs.writeFileSync(path.join(OUT, 'index.html'), indexPage(symbols, pageAsof));
+  console.log(JSON.stringify({ pages: made, dir: 'stocks/', symbol: onlySym || undefined }));
 }
 
 main();
