@@ -539,7 +539,7 @@
     if($('ahDayL'))$('ahDayL').textContent=f2(ix.low);
     if($('ahDayP'))$('ahDayP').textContent=f2(ix.previous_close);
     var cap='Session of '+fmtLong((live.asof||'').slice(0,10));
-    if(open)cap+=' · live during market hours (5-min delayed)';
+    if(open)cap+=' · live during market hours (15-min delayed)';
     else cap+=' · market closed; latest verified session';
     $('ahIdxCap').textContent=cap;
     var dEl=$('ahIdxDate');

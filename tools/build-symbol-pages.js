@@ -211,7 +211,9 @@ const FOOT = '<footer class="sc-footer">\n' +
   '    <p>Built by <a href="/">Shirjan Khadka</a> · Kathmandu, Nepal</p>\n' +
   '    <p class="sc-footer-sub">Per-symbol NEPSE snapshot · rule-based signals · educational use only, not investment advice</p>\n' +
   '  </div>\n' +
-  '</footer>\n</body>\n</html>\n';
+  '</footer>\n' +
+  '<script src="/js/stock-live.js?v=20260930a" defer></script>\n' +
+  '</body>\n</html>\n';
 
 function fmtNum(x) {
   if (x === null || x === undefined || x === '') return null;
@@ -636,8 +638,9 @@ function symbolPage(u, v, newsItems, fund, liveQ, liveDate, sector, sectorPeers,
   h += '<h1>' + esc(name) + ' (' + esc(sym) + ')</h1>\n';
   h += '<p class="asof">Data as of ' + esc(asofD) + ' · refreshed daily after market close</p></section>\n';
 
-  // Price snapshot
-  h += '<section class="sp-snap" aria-label="Price snapshot"><div class="sp-price-card">\n';
+  // Price snapshot — hydrated live in the browser by /js/stock-live.js
+  // (data-live-symbol), so the page stays fresh without rebuilds.
+  h += '<section class="sp-snap" aria-label="Price snapshot" data-live-symbol="' + esc(sym) + '"><div class="sp-price-card">\n';
   h += '<div class="sp-price-main">\n';
   if (price) {
     h += '<div class="sp-price">Rs ' + price + '</div>\n';
@@ -645,11 +648,14 @@ function symbolPage(u, v, newsItems, fund, liveQ, liveDate, sector, sectorPeers,
   } else {
     h += '<div class="sp-price">No recent price data</div>\n';
   }
+  h += '<span class="sp-live-badge" data-live-badge style="display:none">LIVE</span>\n';
   h += '</div><div class="sp-price-side">\n';
   const h52 = fmtNum(v && v.h52), l52 = fmtNum(v && v.l52);
   if (h52 || l52) h += '<div class="sp-stat"><span class="sp-stat-v">Rs ' + (l52 || '–') + ' – Rs ' + (h52 || '–') + '</span><span class="sp-stat-l">52-week range</span></div>\n';
   const vol = fmtNum(useLive && Number.isFinite(Number(liveQ.volume)) ? Number(liveQ.volume) : (v && v.vol));
-  if (vol) h += '<div class="sp-stat"><span class="sp-stat-v">' + vol + '</span><span class="sp-stat-l">Volume (shares)</span></div>\n';
+  if (vol) h += '<div class="sp-stat"><span class="sp-stat-v" data-live-vol>' + vol + '</span><span class="sp-stat-l">Volume (shares)</span></div>\n';
+  const tno = fmtNum(useLive && Number.isFinite(Number(liveQ.turnover)) ? Math.round(Number(liveQ.turnover)) : null);
+  if (tno) h += '<div class="sp-stat"><span class="sp-stat-v" data-live-turnover>Rs ' + tno + '</span><span class="sp-stat-l">Turnover</span></div>\n';
   h += '</div>';
   h += '</div></section>\n';
 
