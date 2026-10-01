@@ -5,524 +5,353 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#FAF7F0">
-<title>NEPSE Tools: Free Dashboard — Charts, Signals, Screener & News | Nepse Decode</title>
-<meta name="description" content="Free NEPSE tools, no login: candlestick charts, pattern scans, a transparent signal engine, market screener and attributed news.">
+<title>Nepse Decode – Free Stock Analysis Tools for Every NEPSE Investor</title>
+<meta name="description" content="Nepse Decode: NEPSE candlestick charts, chart-pattern detection, a transparent rule-based signal engine, market screener and attributed news. Free, no login.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-decode/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Nepse Decode">
-<meta property="og:type" content="website">
-<meta property="og:title" content="NEPSE Tools: Free Dashboard for Every NEPSE Investor">
-<meta property="og:description" content="Free NEPSE tools: charts, pattern scans, a transparent buy/hold/exit engine and a full-market screener. Free, no login.">
+<meta property="og:title" content="Nepse Decode – Free Stock Analysis Tools for Every NEPSE Investor">
+<meta property="og:description" content="Nepse Decode: NEPSE candlestick charts, chart-pattern detection, a transparent rule-based signal engine, market screener and attributed news. Free, no login.">
 <meta property="og:url" content="https://shirjankhadka.com.np/nepse-decode/">
 <meta property="og:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="NEPSE Tools: Free Dashboard for Every NEPSE Investor">
-<meta name="twitter:description" content="Free NEPSE tools: charts, pattern scans, a transparent buy/hold/exit engine and a full-market screener. Free, no login.">
+<meta name="twitter:title" content="Nepse Decode – Free Stock Analysis Tools for Every NEPSE Investor">
+<meta name="twitter:description" content="Charts, pattern scans, a transparent buy/hold/exit engine and a full-market screener for every NEPSE-listed security. Free, no login, educational.">
 <meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
 <link rel="icon" href="/nepse-decode/icon-32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="/nepse-decode/icon-16.png" sizes="16x16" type="image/png">
 <link rel="apple-touch-icon" href="/nepse-decode/icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Serif+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"Nepse Decode","url":"https://shirjankhadka.com.np/nepse-decode/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Free NEPSE analysis suite: live quotes for any listed stock, candlestick charts with SMA and RSI, automatic chart-pattern and divergence detection, verdicts by the Alpha Lab engine, a transparent rule-based buy/hold/exit signal system, a full-market screener and attributed market news. Educational use only.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
 </script>
-<link rel="stylesheet" href="/css/nepse-design-system.css?v=d976dab8">
-<style>
-/* landing-only */
-.nd-h1 { font-family: var(--serif); font-weight: 600; font-size: clamp(1.7rem, 4vw, 2.3rem); letter-spacing: -0.015em; margin: 2px 0 14px; }
-.nd-market-hero { display: grid; grid-template-columns: 1fr; gap: 20px; }
-@media (min-width: 900px) { .nd-market-hero { grid-template-columns: 1fr 1fr; align-items: stretch; } }
-.nd-idx-num { font-family: var(--serif); font-weight: 600; font-size: clamp(3rem, 9vw, 4.75rem); line-height: 1; letter-spacing: -0.02em; color: #F5F1E6; }
-.nd-idx-chg { font-size: 1.15rem; font-weight: 700; margin-top: 8px; }
-.nd-idx-chg.up { color: #7BD8A4; } .nd-idx-chg.down { color: #F0968A; }
-.nd-hero-card canvas { width: 100%; height: 120px; margin-top: 16px; }
-/* TERMINAL HERO — deep-green market terminal */
-.nd-terminal { padding: 0; overflow: hidden; }
-.nd-terminal-head { padding: var(--s6) var(--s6) 0; }
-.nd-terminal-chart { position: relative; margin-top: 16px; touch-action: pan-y; }
-.nd-terminal-chart canvas { width: 100%; height: 300px; display: block; margin: 0; }
-@media (max-width: 640px) { .nd-terminal-chart canvas { height: 220px; } }
-.nd-terminal-ohlc { display: flex; flex-wrap: wrap; gap: 8px 20px; padding: 12px var(--s6) 0; font-size: 0.82rem; color: rgba(245,241,230,.62); font-variant-numeric: tabular-nums; }
-.nd-terminal-ohlc b { color: #F5F1E6; font-weight: 600; }
-.nd-terminal-foot { padding: 16px var(--s6) var(--s6); }
-/* MARKET SNAPSHOT — ShareHub-style day stats under the index */
-.nd-daystats { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 14px; font-size: 0.85rem; color: rgba(245,241,230,.6); font-variant-numeric: tabular-nums; }
-.nd-daystats b { color: #F5F1E6; font-weight: 600; margin-left: 4px; }
-/* interactive chart tooltip */
-.nd-chart-tip { position: absolute; pointer-events: none; background: rgba(20,28,22,.95); border: 1px solid rgba(245,241,230,.18); border-radius: 8px; padding: 8px 10px; font-size: 0.75rem; line-height: 1.55; color: #F5F1E6; font-variant-numeric: tabular-nums; white-space: nowrap; z-index: 5; display: none; box-shadow: 0 6px 18px rgba(0,0,0,.35); }
-.nd-chart-tip .tt-d { color: rgba(245,241,230,.6); font-weight: 600; }
-.nd-chart-tip .up { color: #7BD8A4; } .nd-chart-tip .down { color: #F0968A; }
-.nd-terminal-chart canvas { cursor: grab; touch-action: pan-y; }
-.nd-terminal-chart canvas.dragging { cursor: grabbing; }
-.nd-search { display: flex; gap: 8px; margin-top: 20px; }
-.nd-search input { flex: 1; padding: 12px 18px; border-radius: var(--r-pill); border: 1px solid rgba(245,241,230,.25); background: rgba(245,241,230,.08); color: #F5F1E6; font: inherit; font-size: 0.95rem; }
-.nd-search input::placeholder { color: rgba(245,241,230,.6); }
-.nd-search button { padding: 12px 24px; border-radius: var(--r-pill); border: 0; background: var(--gold); color: #1B1A17; font-weight: 700; cursor: pointer; }
-.nd-search-list { margin-top: 8px; }
-.nd-search-list a { display: block; padding: 8px 4px; color: #F5F1E6; text-decoration: none; font-size: 0.9rem; border-bottom: 1px solid rgba(245,241,230,.12); }
-.nd-mover-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
-@media (min-width: 720px) { .nd-mover-grid { grid-template-columns: repeat(3, 1fr); } }
-/* NEWS RAIL beside the overview panel: stretch to the panel height, no gaps */
-.nd-rail-fill { display: flex; flex-direction: column; }
-.nd-rail-fill .nd-card { flex: 1; display: flex; flex-direction: column; }
-.nd-rail-fill .nd-news { flex: 1; }
-.nd-rail-fill .nd-news-item:last-child { border-bottom: 0; }
-.nd-tools { display: grid; grid-template-columns: 1fr; gap: 12px; }
-@media (min-width: 720px) { .nd-tools { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 1024px) { .nd-tools { grid-template-columns: repeat(3, 1fr); } }
-.nd-tool { display: flex; gap: 14px; align-items: flex-start; padding: 18px; text-decoration: none; }
-.nd-tool:hover { border-color: var(--green-700); }
-.nd-tool .t-icon { flex: none; width: 40px; height: 40px; border-radius: 10px; background: var(--green-100); color: var(--green-900); display: flex; align-items: center; justify-content: center; }
-.nd-tool .t-icon svg { width: 20px; height: 20px; }
-.nd-tool h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 2px; }
-.nd-tool p { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
-.nd-skl { display: block; background: linear-gradient(90deg, var(--paper-deep) 25%, var(--hairline-soft) 50%, var(--paper-deep) 75%); background-size: 200% 100%; animation: nd-skl 1.4s infinite; border-radius: 6px; }
-@keyframes nd-skl { to { background-position: -200% 0; } }
-/* MARKET DASHBOARD — ShareHub-style managed layout, our own data */
-/* Ticker tape */
-.nd-ticker { overflow: hidden; border: 1px solid var(--hairline-soft); border-radius: 12px; background: var(--paper); margin-bottom: 16px; -webkit-mask-image: linear-gradient(to right, transparent, black 24px, black calc(100% - 24px), transparent); mask-image: linear-gradient(to right, transparent, black 24px, black calc(100% - 24px), transparent); }
-.nd-ticker-track { display: inline-flex; white-space: nowrap; padding: 10px 0; animation: nd-tick 140s linear infinite; will-change: transform; }
-.nd-ticker:hover .nd-ticker-track { animation-play-state: paused; }
-@keyframes nd-tick { to { transform: translateX(-50%); } }
-.nd-tick-item { display: inline-flex; align-items: center; gap: 8px; padding: 2px 18px; text-decoration: none; color: inherit; border-right: 1px solid var(--hairline-soft); font-size: 0.85rem; }
-.nd-tick-item .tk-sym { font-weight: 700; }
-.nd-tick-item .tk-chg.up { color: var(--up); font-weight: 700; }
-.nd-tick-item .tk-chg.down { color: var(--down); font-weight: 700; }
-/* Dashboard grid spans */
-@media (min-width: 900px) {
-  .nd-c8 { grid-column: span 8; }
-  .nd-c5 { grid-column: span 5; }
-  .nd-c3 { grid-column: span 3; }
-  .nd-c4 { grid-column: span 4; }
-}
-/* Movers row below the index panel: gainers + losers side by side on
-   desktop, stacked on mobile */
-.nd-movers-row { display: grid; gap: 16px; margin-top: 16px; }
-@media (min-width: 900px) {
-  .nd-movers-row { grid-template-columns: 1fr 1fr; }
-}
-/* Data tables */
-.nd-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-.nd-table th { text-align: left; font-size: 0.66rem; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); font-weight: 700; padding: 8px; border-bottom: 1px solid var(--hairline); white-space: nowrap; }
-.nd-table td { padding: 9px 8px; border-bottom: 1px solid var(--hairline-soft); font-variant-numeric: tabular-nums; }
-.nd-table tbody tr:last-child td { border-bottom: 0; }
-.nd-table .t-sym { font-weight: 700; color: var(--green-800); text-decoration: none; }
-.nd-table .t-sym:hover { text-decoration: underline; }
-.nd-table td.num, .nd-table th.num { text-align: right; }
-.nd-table .up { color: var(--up); font-weight: 600; }
-.nd-table .down { color: var(--down); font-weight: 600; }
-/* data tables scroll horizontally instead of squishing on small screens */
-.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-@media (max-width: 639px) { .table-scroll .nd-table { min-width: 340px; } }
-@media (prefers-reduced-motion: reduce) { .nd-ticker-track { animation: none; } }
-/* Breadth chips */
-.nd-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
-.nd-chip { flex: 1; min-width: 84px; text-align: center; padding: 9px 6px; border-radius: 10px; font-size: 0.74rem; font-weight: 600; }
-.nd-chip b { display: block; font-size: 1.1rem; margin-top: 2px; font-variant-numeric: tabular-nums; }
-.nd-chip.c-up { background: rgba(46,125,50,.14); color: #2e7d32; }
-.nd-chip.c-down { background: rgba(198,40,40,.12); color: #c62828; }
-.nd-chip.c-flat { background: rgba(245,241,230,.08); color: rgba(245,241,230,.6); }
-/* Panel stat cards (dark terminal) */
-.nd-pstat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
-.nd-pstat { background: rgba(245,241,230,.06); border: 1px solid rgba(245,241,230,.12); border-radius: 10px; padding: 10px 12px; }
-.nd-pstat .ps-l { font-size: 0.72rem; color: rgba(245,241,230,.55); margin-bottom: 2px; }
-.nd-pstat .ps-v { font-size: 1.02rem; font-weight: 700; color: #F5F1E6; font-variant-numeric: tabular-nums; }
-/* TradingView lightweight-charts container */
-.nd-lwchart { height: 300px; margin-top: 16px; }
-@media (max-width: 640px) { .nd-lwchart { height: 220px; } }
-/* News tiles */
-.nd-news-item { grid-template-columns: 62px 1fr; gap: 12px; align-items: start; }
-.nd-news-tile { width: 62px; height: 62px; flex: none; border-radius: 10px; background: var(--green-900); color: #F5F1E6; display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-weight: 700; font-size: 1.35rem; }
-.nd-news-item .n-body { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-/* Table tabs */
-.nd-tabs { display: flex; gap: 4px; background: var(--paper-deep); border-radius: var(--r-pill); padding: 4px; margin-bottom: 6px; }
-.nd-tab { flex: 1; border: 0; background: transparent; padding: 8px 4px; border-radius: var(--r-pill); font: inherit; font-size: 0.76rem; font-weight: 700; color: var(--muted); cursor: pointer; white-space: nowrap; }
-.nd-tab.active { background: var(--green-900); color: #F5F1E6; }
-
-</style>
-<link rel="stylesheet" href="/css/theme.css?v=5b3458b0">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What NEPSE tools are included?","acceptedAnswer":{"@type":"Answer","text":"Candlestick charts with a pattern and divergence scanner, a daily full-market screener with ranked signals, sector performance, a portfolio tracker, a watchlist, verified market news, broker analytics and daily finance research — all free, no login."}},{"@type":"Question","name":"Is the market data real-time?","acceptedAnswer":{"@type":"Answer","text":"No. Data is rebuilt into a daily batch after each trading session; during market hours quotes come from free community mirrors and can be delayed. NEPSE publishes no free official real-time API. Every page shows its session date."}},{"@type":"Question","name":"How does the signal engine work?","acceptedAnswer":{"@type":"Answer","text":"Ten transparent factors are scored on the daily chart and summed into a verdict from Strong Buy to Strong Exit, with every factor’s contribution listed. It is a mechanical illustration for education, not investment advice."}},{"@type":"Question","name":"Who builds Nepse Decode?","acceptedAnswer":{"@type":"Answer","text":"Shirjan Khadka, a finance graduate (BBM, Tribhuvan University) in Kathmandu. The site is his public workspace: the tools he builds and the research he does, shared openly and free."}}]}
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the market doing today?","acceptedAnswer":{"@type":"Answer","text":"The Nepse Decode homepage shows the NEPSE index with day change, market breadth, turnover, transactions, top gainers and losers, and the most active stocks — rebuilt from the latest session data."}},{"@type":"Question","name":"Is the market data real-time?","acceptedAnswer":{"@type":"Answer","text":"During market hours the page polls fresh quote files every 60 seconds; NEPSE publishes no free official real-time API, so quotes can be delayed up to 15 minutes. Every figure carries its session date."}},{"@type":"Question","name":"How does the signal engine work?","acceptedAnswer":{"@type":"Answer","text":"Ten transparent factors are scored on the daily chart and summed into a verdict from Strong Buy to Strong Exit, with every factor's contribution listed. It is a mechanical illustration for education, not investment advice."}}]}
 </script>
+<link rel="stylesheet" href="/css/nepse-d2.css?v=df8f909e">
+<link rel="stylesheet" href="/css/theme.css?v=b111a15b">
+<style>
+/* homepage-only */
+.d2-hero-chart { margin-top: 18px; }
+.d2-hero-chart canvas { width: 100%; height: 150px; display: block; }
+.d2-daystats { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 14px; font-size: .85rem; color: var(--d2-muted); font-variant-numeric: tabular-nums; }
+.d2-daystats b { color: var(--d2-ink); font-weight: 600; margin-left: 6px; }
+.d2-movers-row { display: grid; gap: 16px; margin-top: 16px; }
+@media (min-width: 900px) { .d2-movers-row { grid-template-columns: 1fr 1fr; } }
+.d2-tabs { display: flex; gap: 6px; margin: 10px 0 4px; }
+.d2-tab { border: 1px solid var(--d2-line); background: transparent; color: var(--d2-ink-soft); font: inherit; font-size: .78rem; font-weight: 600; padding: 6px 12px; border-radius: var(--d2-r-pill); cursor: pointer; }
+.d2-tab.active { background: var(--d2-surface3); color: var(--d2-ink); border-color: var(--d2-line); }
+.d2-search { display: flex; gap: 8px; margin-top: 16px; }
+.d2-search input { flex: 1; padding: 11px 16px; border-radius: var(--d2-r-pill); border: 1px solid var(--d2-line); background: var(--d2-surface2); color: var(--d2-ink); font: inherit; font-size: .92rem; }
+.d2-search button { padding: 11px 22px; border-radius: var(--d2-r-pill); border: 0; background: var(--d2-volt); color: var(--d2-volt-ink); font-weight: 700; cursor: pointer; font: inherit; font-size: .92rem; }
+.d2-search-list a { display: block; padding: 8px 4px; color: var(--d2-ink); text-decoration: none; font-size: .9rem; border-bottom: 1px solid var(--d2-line-soft); }
+.d2-tools { display: grid; grid-template-columns: 1fr; gap: 12px; }
+@media (min-width: 720px) { .d2-tools { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .d2-tools { grid-template-columns: repeat(3, 1fr); } }
+.d2-tool { display: flex; gap: 14px; align-items: flex-start; text-decoration: none; color: inherit; }
+.d2-tool .t-icon { flex: none; width: 40px; height: 40px; border-radius: 10px; background: var(--d2-gain-bg); color: var(--d2-gain); display: flex; align-items: center; justify-content: center; }
+.d2-tool .t-icon svg { width: 20px; height: 20px; }
+.d2-tool h3 { font-size: .95rem; font-weight: 700; margin: 0 0 2px; }
+.d2-tool p { font-size: .82rem; color: var(--d2-muted); line-height: 1.5; margin: 0; }
+.d2-foot { border-top: 1px solid var(--d2-line-soft); margin-top: 56px; padding: 40px 0 24px; color: var(--d2-muted); font-size: .85rem; }
+.d2-foot-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 28px; margin: 28px 0; }
+@media (max-width: 820px) { .d2-foot-grid { grid-template-columns: repeat(2, 1fr); } }
+.d2-foot-grid h3 { font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; margin: 0 0 12px; }
+.d2-foot-grid ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+.d2-foot-grid a { color: var(--d2-ink-soft); text-decoration: none; }
+.d2-foot-grid a:hover { color: var(--d2-volt); text-decoration: underline; }
+.d2-fresh-mount { margin: 0 0 12px; }
+.vd-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--d2-line-soft); font-size: .88rem; }
+.vd-row:last-child { border-bottom: 0; }
+.vd-row .vd-sym { font-weight: 700; color: var(--d2-ink); text-decoration: none; min-width: 64px; }
+.vd-pill { margin-left: auto; font-size: .72rem; font-weight: 700; padding: 3px 10px; border-radius: var(--d2-r-pill); }
+.v-sb { background: var(--d2-gain-bg); color: var(--d2-gain); } .v-b { background: var(--d2-gain-bg); color: var(--d2-gain); opacity: .8; }
+.v-h { background: var(--d2-surface3); color: var(--d2-muted); } .v-e { background: var(--d2-loss-bg); color: var(--d2-loss); opacity: .85; }
+.v-se { background: var(--d2-loss-bg); color: var(--d2-loss); }
+</style>
 </head>
-<body class="nd" data-page="decode">
+<body class="d2">
+<a class="skip-link" href="#main">Skip to content</a>
 
-  <a class="skip-link" href="#main">Skip to content</a>
 
-<header class="nd-topbar">
-  <a class="brand" href="/nepse-decode/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="24" height="24">Nepse Decode</a>
-  <a class="nd-btn primary" href="/nepse-chart/" style="padding:8px 18px;font-size:0.85rem">Open the Lab</a>
+
+<header class="d2-topbar">
+  <a class="d2-brand" href="/nepse-decode/"><span class="d2-mark" aria-hidden="true">◈</span> Nepse Decode</a>
+  <span style="margin-left:auto" id="d2TopState"></span>
 </header>
-<nav class="nd-mobilenav" aria-label="Suite tools">
-  <a href="/nepse-decode/" class="active" aria-current="page">Overview</a>
-  <a href="/nepse-chart/">Chart &amp; signals</a>
-  <span class="nav-sub">
-    <a href="/nepse-signals/momentum/">Momentum</a>
-    <a href="/nepse-signals/trend-relay/">Trend Relay</a>
-    <a href="/nepse-signals/reversal/">Reversal</a>
-  </span>
+<nav class="d2-mobilenav" aria-label="Sections">
+  <a href="/nepse-decode/" class="on">Dashboard</a>
+  <a href="/nepse-chart/">Chart</a>
   <a href="/nepse-screener/">Screener</a>
-  <a href="/nepse-trending/">Trending Stocks</a>
-  <a href="/nepse-value/">Value Investing</a>
-  <a href="/nepse-brokers/">Broker Analytics</a>
   <a href="/nepse-sectors/">Sectors</a>
-  <a href="/nepse-news/">Market news</a>
+  <a href="/nepse-trending/">Trending</a>
   <a href="/nepse-watchlist/">Watchlist</a>
-  <a href="/nepse-portfolio/">Portfolio</a>
-  <a href="/nepse-simulator/">Simulator</a>
-  <a href="/nepse-reports/">Reports</a>
-  <a href="/nepse-actions/">Corp. actions</a>
+  <a href="/nepse-news/">News</a>
+  <a href="/nepse-brokers/">Brokers</a>
 </nav>
 
-<div class="nd-shell">
-  <aside class="nd-side" aria-label="Nepse Decode suite">
-    <a class="brand" href="/nepse-decode/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
-    <nav class="nd-nav" aria-label="Suite tools">
-      <p class="nav-kicker">Suite</p>
-      <a href="/nepse-decode/" class="active" aria-current="page">Overview</a>
-      <a href="/nepse-chart/">Chart &amp; signals</a>
-      <span class="nav-sub">
-        <a href="/nepse-signals/momentum/">Momentum</a>
-        <a href="/nepse-signals/trend-relay/">Trend Relay</a>
-        <a href="/nepse-signals/reversal/">Reversal</a>
-      </span>
-      <a href="/nepse-screener/">Screener</a>
-      <a href="/nepse-trending/">Trending Stocks</a>
-      <a href="/nepse-value/">Value Investing</a>
-      <a href="/nepse-brokers/">Broker Analytics</a>
-      <a href="/nepse-sectors/">Sectors</a>
-      <a href="/nepse-news/">Market news</a>
-      <a href="/nepse-watchlist/">Watchlist</a>
-      <a href="/nepse-portfolio/">Portfolio</a>
-      <a href="/nepse-simulator/">Simulator</a>
-      <a href="/nepse-reports/">Reports</a>
-      <a href="/nepse-actions/">Corp. actions</a>
-    </nav>
-    <p class="nd-caption" style="margin-top:32px">Free forever · no login</p>
-  </aside>
+<div class="d2-shell">
+<aside class="d2-side" aria-label="Site navigation">
+  <a class="d2-brand" href="/nepse-decode/"><span class="d2-mark" aria-hidden="true">◈</span> Nepse Decode</a>
+  <nav>
+    <a href="/nepse-decode/" class="on">Dashboard</a>
+    <a href="/nepse-chart/">Chart &amp; signals</a>
+    <a href="/nepse-screener/">Screener</a>
+    <a href="/nepse-sectors/">Sectors</a>
+    <a href="/nepse-trending/">Trending</a>
+    <a href="/nepse-watchlist/">Watchlist</a>
+    <a href="/nepse-news/">News</a>
+    <a href="/nepse-actions/">Corp. actions</a>
+    <a href="/nepse-brokers/">Brokers</a>
+    <a href="/nepse-portfolio/">Portfolio</a>
+  </nav>
+  <p class="d2-side-foot">Free forever · no login</p>
+</aside>
 
-  <div class="nd-content">
-    <main id="main" class="nd-wrap">
-    <nav aria-label="Breadcrumb" style="margin:4px 0 16px;font-size:.85rem;color:var(--muted,#8A8474)">
-      <ol style="list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
-        <li><a href="/" style="color:inherit">Home</a></li>
-        <li aria-hidden="true">/</li>
-        <li><a href="/nepse-decode/" style="color:inherit">Tools</a></li>
-        <li aria-hidden="true">/</li>
-        <li><span aria-current="page" style="color:var(--ink,#1C1A15);font-weight:600">Overview</span></li>
-      </ol>
-    </nav>
-      <h1 style="font-family:var(--serif);font-weight:600;font-size:clamp(1.7rem,4.2vw,2.4rem);letter-spacing:-0.015em;margin:0 0 8px">NEPSE Tools: Free Dashboard for Charts, Signals, Screener &amp; News</h1>
-      <p class="nd-lede" style="color:var(--muted);font-size:.95rem;max-width:76ch;margin:0 0 18px">Nepse Decode is a free suite of NEPSE tools for every Nepali investor: candlestick charts with a pattern and divergence scanner, a transparent rule-based signal engine, a daily full-market screener, sector performance, portfolio and watchlist trackers, and verified market news. Free forever, no login, educational use only.</p>
+<main class="d2-main" id="main">
+  <div class="d2-wrap">
+    <h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap">Nepse Decode — free NEPSE market dashboard</h1>
 
-      <!-- TICKER TAPE: scrolling live quotes, our own data -->
-      <div class="nd-ticker" aria-label="Market ticker">
-        <div class="nd-ticker-track" id="ahTickTrack"><span class="nd-skl" style="height:20px;width:40%;margin:2px 16px"></span></div>
-      </div>
+    <div class="d2-fresh-mount"><div data-freshness-badge></div></div>
 
-      <p lang="ne" class="ne-sum" style="color:var(--muted);font-size:.92rem;max-width:760px;margin:0 0 18px">संक्षेप: नेप्से डिकोड — बजार ड्यासबोर्ड, स्क्रिनर, सिग्नल प्रणाली र ब्रोकर विश्लेषण, सबै निःशुल्क एकै ठाउँमा।</p>
-<!-- 1. OVERVIEW + NEWS: market panel with the headlines rail beside it -->
-      <div class="nd-grid" style="margin-bottom:40px">
-        <div class="nd-c8">
-      <div class="nd-hero-card nd-terminal">
-        <div class="nd-terminal-head">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
-            <p class="nd-kicker" style="margin:0">NEPSE Index <span class="nd-pill closed" id="ahStatus" style="margin-left:8px"><span class="dot"></span><span id="ahStatusTxt">Closed</span></span></p>
-            <p class="nd-caption" id="ahIdxDate" style="margin:0">1 October 2026</p>
+    <div class="d2-ticker" aria-label="Market ticker">
+      <div class="d2-ticker-track" id="d2TickTrack"><span class="d2-skl" style="height:20px;width:40%;margin:2px 16px"></span></div>
+    </div>
+
+    <!-- S1 · MARKET COMMAND -->
+    <section class="d2-card" aria-label="Market overview" style="margin-bottom:20px">
+      <div class="d2-hero-grid">
+        <div>
+          <div class="d2-hero-label">NEPSE Index · <span id="d2State">–</span></div>
+          <div class="d2-hero-price" id="d2IdxVal"><span class="d2-skl" style="height:64px;width:70%"></span></div>
+          <div style="margin-top:8px"><span class="d2-hero-badge" id="d2IdxChg"><span class="d2-skl" style="height:24px;width:180px"></span></span></div>
+          <div class="d2-hero-chart"><canvas id="d2Spark" role="img" aria-label="NEPSE closing levels, recent sessions"></canvas></div>
+          <div class="d2-daystats" aria-label="Session day statistics">
+            <span>Open<b id="d2DayO">–</b></span><span>High<b id="d2DayH">–</b></span><span>Low<b id="d2DayL">–</b></span><span>Prev. close<b id="d2DayP">–</b></span>
           </div>
-          <!-- Static bake of the latest verified session (nepse-chart/data/live.json, 2026-10-01 close):
-               first paint and no-JS users see a real number; the bootstrap overwrites it with live data. -->
-          <div class="nd-idx-num num" id="ahIdxVal" style="margin-top:12px">2,599.15</div>
-          <div class="nd-idx-chg num" id="ahIdxChg"><span class="up">+0.26 (+0.01%)</span></div>
-          <div class="nd-daystats" id="ahDayStats" aria-label="Session day statistics">
-            <span>Open<b id="ahDayO">–</b></span><span>High<b id="ahDayH">2,605.72</b></span><span>Low<b id="ahDayL">2,589.13</b></span><span>Prev. close<b id="ahDayP">2,598.89</b></span>
-          </div>
-          <p class="nd-caption" id="ahIdxCap" style="margin-top:10px">Session of 1 October 2026 · market closed; latest verified session</p>
+          <p class="d2-caption" id="d2HeroCap" style="margin-top:10px">Loading the latest session…</p>
         </div>
-        <!-- D3(a): this lightweight-charts panel sits inside .nd-hero-card.nd-terminal,
-             an intentionally always-dark surface (--green-950 stays deep in both
-             themes; theme.css lists it as an untouched dark moment). Its colors are
-             fixed values tuned for that dark panel, so no data-theme re-application
-             is needed — the panel (and therefore the chart) is identical in both themes. -->
-        <div style="padding:0 var(--s6)"><div class="nd-lwchart" id="ahLWChart" role="img" aria-label="NEPSE index daily candlestick chart"></div></div>
-        <div style="padding:0 var(--s6)">
-          <div class="nd-chips" id="ahChips" aria-label="Market breadth">
-            <div class="nd-chip c-up">Advanced<b id="ahAdvN">–</b></div>
-            <div class="nd-chip c-down">Declined<b id="ahDecN">–</b></div>
-            <div class="nd-chip c-flat">Unchanged<b id="ahUncN">–</b></div>
+        <div>
+          <div class="d2-range-block">
+            <div class="d2-range-label"><strong>Day range</strong><span id="d2DayRangeSes">session –</span></div>
+            <div class="d2-range" id="d2DayRange"><div class="d2-range-fill"></div><div class="d2-range-marker"></div></div>
+            <div class="d2-range-vals"><span>Low <b id="d2DayLow">–</b></span><span>High <b id="d2DayHigh">–</b></span></div>
           </div>
-        </div>
-        <div class="nd-terminal-foot">
-          <div class="nd-pstat-grid">
-            <div class="nd-pstat"><div class="ps-l">Total turnover</div><div class="ps-v num" id="ahStatTurn">–</div></div>
-            <div class="nd-pstat"><div class="ps-l">Traded shares</div><div class="ps-v num" id="ahStatShares">–</div></div>
-            <div class="nd-pstat"><div class="ps-l">Transactions</div><div class="ps-v num" id="ahStatTxns">–</div></div>
-            <div class="nd-pstat"><div class="ps-l">Scrips traded</div><div class="ps-v num" id="ahStatScrips">–</div></div>
+          <div class="d2-range-block">
+            <div class="d2-range-label"><strong>Session range</strong><span id="d2SesRangeLbl">recent closes</span></div>
+            <div class="d2-range" id="d2SesRange"><div class="d2-range-fill"></div><div class="d2-range-marker"></div></div>
+            <div class="d2-range-vals"><span>Low <b id="d2SesLow">–</b></span><span>High <b id="d2SesHigh">–</b></span></div>
           </div>
-          <form class="nd-search" id="ahSearch" role="search" onsubmit="return false" style="margin-top:16px">
-            <input id="ahSearchInput" type="search" placeholder="Search any symbol, e.g. NABIL" aria-label="Search a NEPSE symbol" autocomplete="off" list="ahSymbols">
-            <datalist id="ahSymbols"></datalist>
+          <div>
+            <div class="d2-range-label" style="margin-bottom:8px"><strong>Market breadth</strong><span id="d2BreadthN">– scrips</span></div>
+            <div class="d2-breadth" id="d2Breadth"><div class="d2-b-up"></div><div class="d2-b-fl"></div><div class="d2-b-dn"></div></div>
+            <div class="d2-breadth-legend">
+              <span><b class="up" id="d2BUp">–</b> advancers</span>
+              <span><b class="down" id="d2BDn">–</b> decliners</span>
+              <span><b class="flat" id="d2BFl">–</b> unchanged</span>
+            </div>
+          </div>
+          <div class="d2-stat-grid" style="margin-top:18px">
+            <div class="d2-stat"><div class="d2-stat-l">Total turnover</div><div class="d2-stat-v" id="d2StatTurn">–</div></div>
+            <div class="d2-stat"><div class="d2-stat-l">Traded shares</div><div class="d2-stat-v" id="d2StatShares">–</div></div>
+            <div class="d2-stat"><div class="d2-stat-l">Transactions</div><div class="d2-stat-v" id="d2StatTxns">–</div></div>
+            <div class="d2-stat"><div class="d2-stat-l">Scrips traded</div><div class="d2-stat-v" id="d2StatScrips">–</div></div>
+          </div>
+          <form class="d2-search" id="d2Search" role="search" onsubmit="return false">
+            <input id="d2SearchInput" type="search" placeholder="Search any symbol, e.g. NABIL" aria-label="Search a NEPSE symbol" autocomplete="off" list="d2Symbols">
+            <datalist id="d2Symbols"></datalist>
             <button type="submit">Search</button>
           </form>
-          <div class="nd-search-list" id="ahSearchMatches" aria-live="polite"></div>
-          <p class="nd-caption" id="ahChartCap" style="margin:12px 0 0">Daily candles · loading history…</p>
+          <div class="d2-search-list" id="d2SearchMatches" aria-live="polite"></div>
         </div>
       </div>
-          <div class="nd-movers-row">
-          <section class="nd-card" aria-label="Top gainers">
-            <div class="nd-section-head" style="margin-bottom:4px"><div><p class="nd-kicker">Movers</p><h2 style="font-size:1.05rem">Top gainers</h2></div></div>
-            <div class="table-scroll"><table class="nd-table"><caption class="visually-hidden">Top gainers: symbol, day change, day change percent and last traded price</caption><thead><tr><th scope="col">Symbol</th><th scope="col" class="num">Ch</th><th scope="col" class="num">Ch %</th><th scope="col" class="num">LTP</th></tr></thead><tbody id="ahGainersT"><tr><td colspan="4"><span class="nd-skl" style="height:20px"></span></td></tr></tbody></table></div>
-          </section>
-          <section class="nd-card" aria-label="Top losers">
-            <div class="nd-section-head" style="margin-bottom:4px"><div><p class="nd-kicker">Movers</p><h2 style="font-size:1.05rem">Top losers</h2></div></div>
-            <div class="table-scroll"><table class="nd-table"><caption class="visually-hidden">Top losers: symbol, day change, day change percent and last traded price</caption><thead><tr><th scope="col">Symbol</th><th scope="col" class="num">Ch</th><th scope="col" class="num">Ch %</th><th scope="col" class="num">LTP</th></tr></thead><tbody id="ahLosersT"><tr><td colspan="4"><span class="nd-skl" style="height:20px"></span></td></tr></tbody></table></div>
-          </section>
-          </div>
-        </div>
-        <aside class="nd-c4 nd-rail-fill" aria-label="Recent news">
-          <div class="nd-section-head">
-            <div><p class="nd-kicker">News</p><h2>Recent news</h2></div>
-            <a class="nd-section-link" href="/nepse-news/">More →</a>
-          </div>
-          <div class="nd-card">
-            <div class="nd-news" id="ahNews"><span class="nd-skl" style="height:44px"></span></div>
-          </div>
-        </aside>
+      <div class="d2-fresh">
+        <span id="d2LiveBadge"></span>
+        <span id="d2HeroSrc">Source: /nepse-chart/data/live.json · polling every 60 s during market hours</span>
       </div>
+    </section>
 
-      <!-- 2. INDICES + MOST ACTIVE -->
-      <div class="nd-grid" style="margin-bottom:40px">
-        <div class="nd-c4">
-          <section class="nd-card" aria-label="Indices">
-            <div class="nd-section-head" style="margin-bottom:4px"><div><p class="nd-kicker">Benchmarks</p><h2 style="font-size:1.05rem">Indices</h2></div><a class="nd-section-link" href="/nepse-chart/">Chart →</a></div>
-            <div class="table-scroll"><table class="nd-table"><caption class="visually-hidden">NEPSE indices: index, day change, day change percent and current value</caption><thead><tr><th scope="col">Index</th><th scope="col" class="num">Ch</th><th scope="col" class="num">Ch %</th><th scope="col" class="num">Current</th></tr></thead><tbody id="ahIndicesT"><tr><td colspan="4"><span class="nd-skl" style="height:20px"></span></td></tr></tbody></table></div>
-          </section>
-        </div>
-        <div class="nd-c4">
-          <section class="nd-card" aria-label="Sub-indices">
-            <div class="nd-section-head" style="margin-bottom:4px"><div><p class="nd-kicker">Benchmarks</p><h2 style="font-size:1.05rem">Sub-indices</h2></div><a class="nd-section-link" href="/nepse-sectors/">Sectors →</a></div>
-            <div class="table-scroll"><table class="nd-table"><caption class="visually-hidden">NEPSE sub-indices: sub-index, day change, day change percent and current value</caption><thead><tr><th scope="col">Sub-index</th><th scope="col" class="num">Ch</th><th scope="col" class="num">Ch %</th><th scope="col" class="num">Current</th></tr></thead><tbody id="ahSubIndicesT"><tr><td colspan="4"><span class="nd-skl" style="height:20px"></span></td></tr></tbody></table></div>
-          </section>
-        </div>
-        <div class="nd-c4">
-          <section class="nd-card" aria-label="Most active">
-            <div class="nd-section-head" style="margin-bottom:4px"><div><p class="nd-kicker">Liquidity</p><h2 style="font-size:1.05rem">Most active</h2></div><a class="nd-section-link" href="/nepse-screener/">Screener →</a></div>
-            <div class="nd-tabs" role="tablist" aria-label="Most active by">
-              <button class="nd-tab active" data-tt="turnover" role="tab" aria-selected="true">Turnover</button>
-              <button class="nd-tab" data-tt="volume" role="tab" aria-selected="false">Traded shares</button>
-              <button class="nd-tab" data-tt="trades" role="tab" aria-selected="false">Transactions</button>
-            </div>
-            <div class="table-scroll"><table class="nd-table"><caption class="visually-hidden">Most active securities: symbol, turnover, day change percent and last traded price</caption><thead><tr><th scope="col">Symbol</th><th scope="col" class="num" id="ahTurnValH">Turnover</th><th scope="col" class="num">Ch %</th><th scope="col" class="num">LTP</th></tr></thead><tbody id="ahTurnT"><tr><td colspan="4"><span class="nd-skl" style="height:20px"></span></td></tr></tbody></table></div>
-          </section>
-        </div>
-      </div>
-
-      <!-- 2b. TRENDING NOW: top accumulation-tone stocks (hardcoded snapshot)
-           HARDCODED 2026-09-30 — the daily builder (tools/build_trending_value.py)
-           should refresh this section with the top 6 accumulation-tone stocks. -->
-      <div class="nd-section-head">
-        <div><p class="nd-kicker">Market pulse</p><h2>Trending now</h2></div>
-        <a class="nd-section-link" href="/nepse-trending/">All trending →</a>
-      </div>
-      <p class="nd-caption" style="margin-bottom:16px">Stocks with rising prices and unusually heavy volume today — <span style="color:var(--up);font-weight:700">accumulation interest</span>, not buy calls. Snapshot of 2026-09-30.</p>
-      <div class="nd-tools" id="trendNow" style="margin-bottom:40px">
-        <a class="nd-card nd-tool" href="/nepse-chart/?s=GHL">
-          <span style="flex:1"><h3>GHL <span class="nd-caption">· Ghalemdi Hydro</span></h3><p>Rs 271.50 · <span style="color:var(--up);font-weight:700">+6.81%</span> 5d · score 72.6</p><canvas class="nd-trend-spark" data-spark="[256.7,249,242.5,235.6,239,234.9,231,228,228.9,226.8,226.9,220,223,224.3,221,228,228,235.9,239.9,244.9,247.8,245.7,246.6,243.3,254.2,257,253.7,249,253,271.5]" width="220" height="44" style="width:100%;height:44px;margin-top:8px"></canvas></span>
-        </a>
-        <a class="nd-card nd-tool" href="/nepse-chart/?s=PHCL">
-          <span style="flex:1"><h3>PHCL <span class="nd-caption">· Peoples Hydropower</span></h3><p>Rs 333.80 · <span style="color:var(--up);font-weight:700">+3.34%</span> 5d · score 61.8</p><canvas class="nd-trend-spark" data-spark="[304,302.4,301,298,299.2,303,306.9,302,298.7,300,297.6,292,297,300,302.8,298.8,297,296.2,305,304.8,313.6,310,323,322.5,323,312,319.6,319.6,320.1,333.8]" width="220" height="44" style="width:100%;height:44px;margin-top:8px"></canvas></span>
-        </a>
-        <a class="nd-card nd-tool" href="/nepse-chart/?s=SPHL">
-          <span style="flex:1"><h3>SPHL <span class="nd-caption">· Sayapatri Hydropower</span></h3><p>Rs 580.00 · <span style="color:var(--up);font-weight:700">+13.26%</span> 5d · score 60.8</p><canvas class="nd-trend-spark" data-spark="[530.7,532,526.5,524,515,530.9,527.9,561,580,522,523,540,521,517,518,514,514,513.4,516,524.9,526.9,515,515.9,513.9,512.1,513.9,512,501,535,580]" width="220" height="44" style="width:100%;height:44px;margin-top:8px"></canvas></span>
-        </a>
-        <a class="nd-card nd-tool" href="/nepse-chart/?s=HHL">
-          <span style="flex:1"><h3>HHL <span class="nd-caption">· Himalayan Hydropower</span></h3><p>Rs 350.00 · <span style="color:var(--up);font-weight:700">+2.34%</span> 5d · score 55.7</p><canvas class="nd-trend-spark" data-spark="[339,343.5,337,332.9,332,329.1,334.8,332,328,325,326.8,317,318,320,319.9,315,319,319,328,336,338,333,334.8,340.9,342,340,342,341,340,350]" width="220" height="44" style="width:100%;height:44px;margin-top:8px"></canvas></span>
-        </a>
-        <a class="nd-card nd-tool" href="/nepse-chart/?s=SONA">
-          <span style="flex:1"><h3>SONA <span class="nd-caption">· Sonapur Minerals</span></h3><p>Rs 420.00 · <span style="color:var(--up);font-weight:700">+3.96%</span> 5d · score 34.0</p><canvas class="nd-trend-spark" data-spark="[406,403,400.5,401.1,400,399.1,398,392.1,385.1,388.4,408,416.9,407,410,404,398,395,387,391.7,397,405.5,401.9,403,405,404,404,434.9,427,419.5,420]" width="220" height="44" style="width:100%;height:44px;margin-top:8px"></canvas></span>
-        </a>
-        <a class="nd-card nd-tool" href="/nepse-chart/?s=ULHC">
-          <span style="flex:1"><h3>ULHC <span class="nd-caption">· Upper Lohore Khola Hydro</span></h3><p>Rs 352.00 · <span style="color:var(--up);font-weight:700">+7.94%</span> 5d · score 33.9</p><canvas class="nd-trend-spark" data-spark="[359,342,340.5,341,333,338.4,330.1,321.7,320,306,301,287.1,287.5,291,300,260,299,320,323.1,330.9,334,327,318,328,326.1,330,339,339.9,350,352]" width="220" height="44" style="width:100%;height:44px;margin-top:8px"></canvas></span>
-        </a>
-      </div>
-
-      <!-- 3. ENGINE VERDICTS: teaser -->
-      <div class="nd-section-head">
-        <div><p class="nd-kicker">The engine</p><h2>Latest verdicts</h2></div>
-        <a class="nd-section-link" href="/nepse-screener/">Full rankings →</a>
-      </div>
-      <p class="nd-caption" id="vd-asof" style="margin-bottom:16px">Loading the latest batch…</p>
-      <div class="nd-grid" style="margin-bottom:40px">
-        <div class="nd-half"><section class="nd-card" aria-label="Strongest buys">
-          <p class="nd-kicker" style="margin-bottom:12px;color:var(--up)">Strongest buys</p>
-          <div class="nd-movers" id="vd-buys"></div>
-        </section></div>
-        <div class="nd-half"><section class="nd-card" aria-label="Strongest exits">
-          <p class="nd-kicker" style="margin-bottom:12px;color:var(--down)">Strongest exits</p>
-          <div class="nd-movers" id="vd-exits"></div>
-        </section></div>
-      </div>
-      <p class="nd-caption" style="margin-bottom:40px;max-width:64ch">Mechanical output from a fixed rule set, not investment advice. Ten factors are scored on the daily chart; the points add up to a verdict from Strong Buy to Strong Exit.</p>
-
-      <!-- 4. TOOLS: compact grid -->
-      <div class="nd-section-head">
-        <div><p class="nd-kicker">The suite</p><h2>Every tool, one suite</h2></div>
-      </div>
-      <div class="nd-tools" style="margin-bottom:40px">
-        <a class="nd-card nd-tool" href="/nepse-chart/">
-          <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M7 14l4-4 3 3 5-6"/></svg></span>
-          <span><h3>Chart &amp; signals</h3><p>Candlesticks, patterns and the rule-based verdict on one screen.</p></span>
-        </a>
-        <a class="nd-card nd-tool" href="/nepse-alpha/">
-          <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 7l7-4 7 4"/><path d="M3 13l4-4 4 4 4-4 4 4"/></svg></span>
-          <span><h3>Engine verdicts</h3><p>Today's Alpha Lab verdicts on every covered stock — Strong Buy to Strong Exit, with the score behind each.</p></span>
-        </a>
-        <a class="nd-card nd-tool" href="/nepse-screener/">
-          <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg></span>
-          <span><h3>Market Screener</h3><p>All 410 securities ranked daily, stop-loss and target on every row.</p></span>
-        </a>
-        <a class="nd-card nd-tool" href="/nepse-trending/">
-          <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></span>
-          <span><h3>Trending Stocks</h3><p>What the market is actually doing today — ranked by real activity, with the reason shown on every row.</p></span>
-        </a>
-        <a class="nd-card nd-tool" href="/nepse-value/">
-          <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 7l7-4 7 4"/><path d="M5 7v6a7 7 0 0 0 14 0V7"/></svg></span>
-          <span><h3>Value Investing</h3><p>A sector-aware value screen on verified filings — earnings yield, price-to-book, ROE.</p></span>
-        </a>
-        <a class="nd-card nd-tool" href="/nepse-news/">
-          <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5z"/><path d="M18 8h1a1 1 0 0 1 1 1v9a2 2 0 0 1-2 2"/><path d="M8 9h6M8 13h6M8 17h4"/></svg></span>
-          <span><h3>Market News</h3><p>Announcements and headlines, always with the source attached.</p></span>
-        </a>
-        <a class="nd-card nd-tool" href="/nepse-sectors/">
-          <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="5" rx="1.5"/><rect x="13" y="10" width="8" height="11" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/></svg></span>
-          <span><h3>Sector map</h3><p>Which parts of the market are moving, at a glance.</p></span>
-        </a>
-        <a class="nd-card nd-tool" href="/nepse-watchlist/">
-          <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.5-9 9-9 9z"/></svg></span>
-          <span><h3>Watchlist</h3><p>The securities you follow, with signal and RSI on every row.</p></span>
-        </a>
-        <a class="nd-card nd-tool" href="/nepse-portfolio/">
-          <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7H4a2 2 0 0 1 0-4h14v4"/><path d="M4 7v12a2 2 0 0 0 2 2h14V7"/></svg></span>
-          <span><h3>Portfolio</h3><p>Holdings, honestly accounted: cost, P&amp;L, allocation.</p></span>
-        </a>
-        <a class="nd-card nd-tool" href="/nepse-simulator/">
-          <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-14 9V3z"/></svg></span>
-          <span><h3>Simulator</h3><p>Paper-trade mechanical strategies on history.</p></span>
-        </a>
-      </div>
-
-      <section class="nd-seo-copy" aria-label="One free suite for the whole NEPSE workflow">
-<h2>One free suite for the whole NEPSE workflow</h2>
-<p>Nepse Decode is a free suite of NEPSE tools built for how Nepali investors actually work: check the market on the dashboard, scan for ideas in the screener, study the chart, and track what you own &mdash; all without a login or paywall. The dashboard brings the NEPSE index, top gainers and losers, most-active stocks, trending names, the latest engine verdicts and the newsroom&rsquo;s headlines into one page.</p>
-<p>Behind it sits one transparent, rule-based signal engine: ten scored factors &mdash; trend versus moving averages, RSI, MACD, turnover, 52-week position, divergences, chart patterns, market backdrop and support/resistance &mdash; add up to a verdict from Strong Buy to Strong Exit, with every factor&rsquo;s contribution shown. The same engine powers the chart workspace, the daily full-market screener and the sector views, so a signal means the same thing everywhere.</p>
-<p>Data comes from open archives and free community mirrors of NEPSE market data, rebuilt into a daily batch after each trading session. NEPSE publishes no free official real-time API, so quotes can be delayed during market hours and are final only after the close; every page carries its session date so a stale figure is never presented as current.</p>
-<p>The site is built and maintained by Shirjan Khadka, a finance graduate in Kathmandu, as a public workspace &mdash; professional-grade NEPSE tools given away free, because good market tools in Nepal mostly sit behind paywalls. Everything is educational and never investment advice: verify with your broker before trading.</p>
-</section>
-<section class="nd-faq" aria-label="Frequently asked questions">
-<h2>Nepse Decode questions</h2>
-<details><summary>What NEPSE tools are included?</summary><p>Candlestick charts with a pattern and divergence scanner, a daily full-market screener with ranked signals, sector performance, a portfolio tracker, a watchlist, verified market news, broker analytics and daily finance research &mdash; all free, no login.</p></details>
-<details><summary>Is the market data real-time?</summary><p>No. Data is rebuilt into a daily batch after each trading session; during market hours quotes come from free community mirrors and can be delayed. NEPSE publishes no free official real-time API. Every page shows its session date.</p></details>
-<details><summary>How does the signal engine work?</summary><p>Ten transparent factors are scored on the daily chart and summed into a verdict from Strong Buy to Strong Exit, with every factor&rsquo;s contribution listed. It is a mechanical illustration for education, not investment advice.</p></details>
-<details><summary>Who builds Nepse Decode?</summary><p>Shirjan Khadka, a finance graduate (BBM, Tribhuvan University) in Kathmandu. The site is his public workspace: the tools he builds and the research he does, shared openly and free.</p></details>
-</section>
-<style>
-.sf{border-top:1px solid var(--hairline,#E7DFCE);margin-top:64px;background:var(--paper,#FAF8F2);color:var(--ink-soft,#4A463C);font-family:var(--sans,Inter,system-ui,-apple-system,"Segoe UI",sans-serif)}
-.sf-inner{max-width:1200px;margin:0 auto;padding:56px 24px 30px}
-.sf-top{display:flex;gap:18px;align-items:flex-start;margin-bottom:42px}
-.sf-mark{width:46px;height:46px;border-radius:12px;flex:none;box-shadow:0 2px 10px rgba(11,61,46,.12)}
-.sf-name{font-weight:700;font-size:1.06rem;color:var(--ink,#1C1A15);margin:2px 0 8px;letter-spacing:.01em}
-.sf-mission{margin:0;max-width:62ch;line-height:1.75;font-size:.92rem;color:var(--ink-soft,#4A463C)}
-.sf-cols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:36px 28px;margin-bottom:42px}
-.sf-col h3{font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted,#8A8474);margin:0 0 16px;font-weight:700}
-.sf-col ul{list-style:none;margin:0;padding:0;display:grid;gap:11px}
-.sf-col a{color:var(--ink-soft,#4A463C);text-decoration:none;font-size:.92rem;line-height:1.5}
-.sf-col a:hover{color:var(--green-900,#0B3D2E);text-decoration:underline}
-.sf-note{border-top:1px solid var(--hairline,#E7DFCE);padding-top:26px;font-size:.85rem;line-height:1.75;color:var(--muted,#8A8474);max-width:88ch;margin:0}
-.sf-note strong{color:var(--ink-soft,#4A463C)}
-.sf-bottom{display:flex;flex-wrap:wrap;gap:10px 20px;justify-content:space-between;align-items:center;margin-top:26px;padding-top:22px;border-top:1px solid var(--hairline,#E7DFCE);font-size:.85rem;color:var(--muted,#8A8474)}
-.sf-bottom a{color:var(--ink-soft,#4A463C);text-decoration:none;font-weight:600}
-.sf-bottom a:hover{color:var(--green-900,#0B3D2E);text-decoration:underline}
-.sf-social{display:flex;gap:16px;align-items:center}
-@media(max-width:820px){.sf-cols{grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 20px}}
-@media(max-width:520px){.sf-inner{padding:44px 20px 26px}.sf-top{margin-bottom:34px}.sf-cols{margin-bottom:34px}}
-</style>
-    </main>
-<p class="data-credit" style="font-size:.8rem;color:var(--muted,#6b7280);margin:1.25rem 0 0;">Index snapshot via our own daily market batch; figures may be delayed — <a href="/data-terms.html">see our data terms</a>.</p>
-<footer class="sf" aria-label="Nepse Decode site footer">
-  <div class="sf-inner">
-    <div class="sf-top">
-      <svg class="sf-mark" viewBox="0 0 64 64" role="img" aria-label="Nepse Decode iceberg mark"><rect width="64" height="64" rx="14" fill="#013E2E"/><polygon points="32,9 21,25 43,25" fill="#FFFFFF"/><polygon points="32,9 37,25 27,25" fill="#EEF2EF"/><polygon points="13,27.5 51,27.5 45,42 32,57 21,45 15,37" fill="#FFFFFF"/><polygon points="13,27.5 27,27.5 21,45 15,37" fill="#D6DDD9"/><polygon points="51,27.5 45,42 38,27.5" fill="#C6CECA"/><polygon points="32,57 45,42 36,40 28,49" fill="#E4E9E6"/><polygon points="21,45 32,57 28,49 24,44" fill="#D6DDD9"/><rect x="4" y="25" width="56" height="2.6" rx="1.3" fill="#0B3D2E" opacity=".55"/></svg>
-      <div>
-        <p class="sf-name">Nepse Decode</p>
-        <p class="sf-mission">Free, honest NEPSE intelligence for every Nepali investor — live market data, screeners, signals and research, rebuilt every trading day. No login, no paywall, no buy calls.</p>
-      </div>
+    <!-- MOVERS -->
+    <div class="d2-movers-row" style="margin-bottom:20px">
+      <section class="d2-card" aria-label="Top gainers">
+        <div class="d2-card-head"><div><p class="d2-kicker">Movers</p><h2>Top gainers</h2></div></div>
+        <div class="d2-tscroll"><table class="d2-table"><thead><tr><th>Symbol</th><th class="num">Ch</th><th class="num">Ch %</th><th class="num">LTP</th></tr></thead><tbody id="d2GainersT"><tr><td colspan="4"><span class="d2-skl" style="height:20px"></span></td></tr></tbody></table></div>
+      </section>
+      <section class="d2-card" aria-label="Top losers">
+        <div class="d2-card-head"><div><p class="d2-kicker">Movers</p><h2>Top losers</h2></div></div>
+        <div class="d2-tscroll"><table class="d2-table"><thead><tr><th>Symbol</th><th class="num">Ch</th><th class="num">Ch %</th><th class="num">LTP</th></tr></thead><tbody id="d2LosersT"><tr><td colspan="4"><span class="d2-skl" style="height:20px"></span></td></tr></tbody></table></div>
+      </section>
     </div>
-    <nav class="sf-cols" aria-label="Footer sections">
-      <div class="sf-col">
-        <h3>Tools</h3>
-        <ul>
+
+    <!-- S9 · MARKET PULSE -->
+    <section class="d2-card" aria-label="Market pulse" style="margin-bottom:20px">
+      <div class="d2-card-head">
+        <div><p class="d2-kicker">Market pulse</p><h2>Event tape</h2></div>
+        <a class="d2-card-link" href="/nepse-news/">All news →</a>
+      </div>
+      <p class="d2-caption" style="margin-bottom:12px">NEPSE moves in dated events, not ticks — every announcement, filing and index milestone, newest first.</p>
+      <div class="d2-pulse-head">
+        <div class="d2-pulse-state">
+          <span class="d2-chip" id="d2PulseState"><span class="d2-dot"></span>checking</span>
+          <span class="d2-pulse-updated" id="d2PulseUpdated">last checked just now</span>
+          <span class="d2-pulse-flash" id="d2PulseFlash" aria-hidden="true">feed checked ✓</span>
+        </div>
+        <div class="d2-pulse-refresh">
+          <span class="d2-pulse-count" id="d2PulseCount">1:00</span>
+          <button class="d2-pill-btn" id="d2PulseToggle" aria-pressed="true">Auto-refresh on</button>
+        </div>
+      </div>
+      <div class="d2-pulse-filters" id="d2PulseFilters" role="group" aria-label="Filter pulse events"></div>
+      <div class="d2-pulse-tape" id="d2PulseTape" aria-live="polite"><span class="d2-skl" style="height:44px"></span></div>
+      <div class="d2-fresh">
+        <span class="d2-chip" id="d2PulseSrcChip"><span class="d2-dot"></span>FEED</span>
+        <span id="d2PulseSrc">Sources: news.json · corporate-actions.json · index milestones from verified history · polls every 60 s</span>
+      </div>
+    </section>
+
+    <!-- INDICES + MOST ACTIVE -->
+    <div class="d2-grid3" style="margin-bottom:20px">
+      <section class="d2-card" aria-label="Indices">
+        <div class="d2-card-head"><div><p class="d2-kicker">Benchmarks</p><h2>Indices</h2></div><a class="d2-card-link" href="/nepse-chart/">Chart →</a></div>
+        <div class="d2-tscroll"><table class="d2-table"><thead><tr><th>Index</th><th class="num">Ch</th><th class="num">Ch %</th><th class="num">Current</th></tr></thead><tbody id="d2IndicesT"><tr><td colspan="4"><span class="d2-skl" style="height:20px"></span></td></tr></tbody></table></div>
+      </section>
+      <section class="d2-card" aria-label="Sub-indices">
+        <div class="d2-card-head"><div><p class="d2-kicker">Benchmarks</p><h2>Sub-indices</h2></div><a class="d2-card-link" href="/nepse-sectors/">Sectors →</a></div>
+        <div class="d2-tscroll"><table class="d2-table"><thead><tr><th>Sub-index</th><th class="num">Ch</th><th class="num">Ch %</th><th class="num">Current</th></tr></thead><tbody id="d2SubIndicesT"><tr><td colspan="4"><span class="d2-skl" style="height:20px"></span></td></tr></tbody></table></div>
+      </section>
+      <section class="d2-card" aria-label="Most active">
+        <div class="d2-card-head"><div><p class="d2-kicker">Liquidity</p><h2>Most active</h2></div><a class="d2-card-link" href="/nepse-screener/">Screener →</a></div>
+        <div class="d2-tabs" role="tablist" aria-label="Most active by">
+          <button class="d2-tab active" data-tt="turnover" role="tab" aria-selected="true">Turnover</button>
+          <button class="d2-tab" data-tt="volume" role="tab" aria-selected="false">Traded shares</button>
+          <button class="d2-tab" data-tt="trades" role="tab" aria-selected="false">Transactions</button>
+        </div>
+        <div class="d2-tscroll"><table class="d2-table"><thead><tr><th>Symbol</th><th class="num" id="d2TurnValH">Turnover</th><th class="num">Ch %</th><th class="num">LTP</th></tr></thead><tbody id="d2TurnT"><tr><td colspan="4"><span class="d2-skl" style="height:20px"></span></td></tr></tbody></table></div>
+      </section>
+    </div>
+
+    <!-- TRENDING NOW — rebuilt from live data every load, never a baked snapshot -->
+    <div class="d2-card-head" style="margin-bottom:4px">
+      <div><p class="d2-kicker">Market pulse</p><h2>Trending now</h2></div>
+      <a class="d2-card-link" href="/nepse-trending/">All trending →</a>
+    </div>
+    <p class="d2-caption" style="margin-bottom:12px" id="d2TrendCap">Ranked by today's live turnover — refreshes with the market feed, never a stale snapshot.</p>
+    <div class="d2-tools" id="d2TrendNow" style="margin-bottom:20px" aria-live="polite"></div>
+
+    <!-- ENGINE VERDICTS teaser -->
+    <div class="d2-card-head" style="margin-bottom:4px">
+      <div><p class="d2-kicker">The engine</p><h2>Latest verdicts</h2></div>
+      <a class="d2-card-link" href="/nepse-alpha/">Full rankings →</a>
+    </div>
+    <p class="d2-caption" id="d2VdAsof" style="margin-bottom:12px">Loading the latest batch…</p>
+    <div class="d2-movers-row" style="margin-bottom:20px">
+      <section class="d2-card" aria-label="Strongest buys">
+        <p class="d2-kicker" style="margin-bottom:8px;color:var(--d2-gain)">Strongest buys</p>
+        <div id="d2VdBuys"><span class="d2-skl" style="height:20px"></span></div>
+      </section>
+      <section class="d2-card" aria-label="Strongest exits">
+        <p class="d2-kicker" style="margin-bottom:8px;color:var(--d2-loss)">Strongest exits</p>
+        <div id="d2VdExits"><span class="d2-skl" style="height:20px"></span></div>
+      </section>
+    </div>
+    <p class="d2-caption" style="margin-bottom:20px;max-width:64ch">Mechanical output from a fixed rule set, not investment advice. Ten factors are scored on the daily chart; the points add up to a verdict from Strong Buy to Strong Exit.</p>
+
+    <!-- TOOLS -->
+    <div class="d2-card-head" style="margin-bottom:12px">
+      <div><p class="d2-kicker">The suite</p><h2>Every tool, one suite</h2></div>
+    </div>
+    <div class="d2-tools" style="margin-bottom:20px">
+      <a class="d2-card d2-tool" href="/nepse-chart/">
+        <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M7 14l4-4 3 3 5-6"/></svg></span>
+        <span><h3>Chart &amp; signals</h3><p>Candlesticks, patterns and the rule-based verdict on one screen.</p></span>
+      </a>
+      <a class="d2-card d2-tool" href="/nepse-alpha/">
+        <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 7l7-4 7 4"/><path d="M3 13l4-4 4 4 4-4 4 4"/></svg></span>
+        <span><h3>Engine verdicts</h3><p>Today's Alpha Lab verdicts on every covered stock — Strong Buy to Strong Exit, with the score behind each.</p></span>
+      </a>
+      <a class="d2-card d2-tool" href="/nepse-screener/">
+        <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg></span>
+        <span><h3>Market Screener</h3><p>All listed securities ranked daily, stop-loss and target on every row.</p></span>
+      </a>
+      <a class="d2-card d2-tool" href="/nepse-trending/">
+        <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></span>
+        <span><h3>Trending Stocks</h3><p>What the market is actually doing today — ranked by real activity, with the reason shown on every row.</p></span>
+      </a>
+      <a class="d2-card d2-tool" href="/nepse-value/">
+        <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 7l7-4 7 4"/><path d="M5 7v6a7 7 0 0 0 14 0V7"/></svg></span>
+        <span><h3>Value Investing</h3><p>A sector-aware value screen on verified filings — earnings yield, price-to-book, ROE.</p></span>
+      </a>
+      <a class="d2-card d2-tool" href="/nepse-news/">
+        <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5z"/><path d="M18 8h1a1 1 0 0 1 1 1v9a2 2 0 0 1-2 2"/><path d="M8 9h6M8 13h6M8 17h4"/></svg></span>
+        <span><h3>Market News</h3><p>Announcements and headlines, always with the source attached.</p></span>
+      </a>
+      <a class="d2-card d2-tool" href="/nepse-sectors/">
+        <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="5" rx="1.5"/><rect x="13" y="10" width="8" height="11" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/></svg></span>
+        <span><h3>Sector map</h3><p>Which parts of the market are moving, at a glance.</p></span>
+      </a>
+      <a class="d2-card d2-tool" href="/nepse-watchlist/">
+        <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.5-9 9-9 9z"/></svg></span>
+        <span><h3>Watchlist</h3><p>The securities you follow, with signal and RSI on every row.</p></span>
+      </a>
+      <a class="d2-card d2-tool" href="/nepse-portfolio/">
+        <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7H4a2 2 0 0 1 0-4h14v4"/><path d="M4 7v12a2 2 0 0 0 2 2h14V7"/></svg></span>
+        <span><h3>Portfolio</h3><p>Holdings, honestly accounted: cost, P&amp;L, allocation.</p></span>
+      </a>
+    </div>
+
+    <footer class="d2-foot" aria-label="Nepse Decode site footer">
+      <div style="display:flex;gap:14px;align-items:flex-start">
+        <svg width="40" height="40" viewBox="0 0 64 64" role="img" aria-label="Nepse Decode iceberg mark" style="border-radius:10px;flex:none"><rect width="64" height="64" rx="14" fill="#013E2E"/><polygon points="32,9 21,25 43,25" fill="#FFFFFF"/><polygon points="13,27.5 51,27.5 45,42 32,57 21,45 15,37" fill="#FFFFFF"/><rect x="4" y="25" width="56" height="2.6" rx="1.3" fill="#0B3D2E" opacity=".55"/></svg>
+        <div>
+          <p style="font-weight:700;color:var(--d2-ink);margin:2px 0 8px">Nepse Decode</p>
+          <p style="margin:0;max-width:62ch;line-height:1.7">Free, honest NEPSE intelligence for every Nepali investor — live market data, screeners, signals and research, rebuilt every trading day. No login, no paywall, no buy calls.</p>
+        </div>
+      </div>
+      <nav class="d2-foot-grid" aria-label="Footer sections">
+        <div><h3>Tools</h3><ul>
           <li><a href="/nepse-screener/">Stock Screener</a></li>
           <li><a href="/nepse-chart/">Chart</a></li>
           <li><a href="/nepse-trending/">Trending Stocks</a></li>
           <li><a href="/nepse-value/">Value Investing</a></li>
-          <li><a href="/nepse-signals/momentum/">Trading Signals</a></li>
           <li><a href="/nepse-watchlist/">Watchlist</a></li>
-        </ul>
-      </div>
-      <div class="sf-col">
-        <h3>Market data</h3>
-        <ul>
+        </ul></div>
+        <div><h3>Market data</h3><ul>
           <li><a href="/nepse-decode/">Dashboard</a></li>
           <li><a href="/nepse-brokers/">Broker Analytics</a></li>
           <li><a href="/nepse-sectors/">Sectors</a></li>
           <li><a href="/nepse-news/">Market News</a></li>
           <li><a href="/nepse-actions/">Corp. Actions</a></li>
           <li><a href="/stocks/">All Stocks</a></li>
-        </ul>
-      </div>
-      <div class="sf-col">
-        <h3>Research</h3>
-        <ul>
+        </ul></div>
+        <div><h3>Research</h3><ul>
           <li><a href="/blog/">Daily Blog</a></li>
           <li><a href="/nepse-decode/">Market Dashboard</a></li>
-        </ul>
-      </div>
-      <div class="sf-col">
-        <h3>Company</h3>
-        <ul>
+        </ul></div>
+        <div><h3>Company</h3><ul>
           <li><a href="/about.html">About</a></li>
           <li><a href="/contact.html">Contact</a></li>
           <li><a href="/privacy.html">Privacy</a></li>
           <li><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Facebook Page</a></li>
-        </ul>
+        </ul></div>
+      </nav>
+      <p style="max-width:88ch;line-height:1.7"><strong style="color:var(--d2-ink-soft)">Educational use only.</strong> Nothing on this site is investment advice. Prices and figures are compiled from public sources and refreshed every trading day — always verify with your broker before trading.</p>
+      <p style="max-width:88ch;line-height:1.7"><strong style="color:var(--d2-ink-soft)">Data sources:</strong> Market data from <a href="https://www.nepalstock.com" target="_blank" rel="noopener" style="color:var(--d2-ink-soft)">NEPSE (nepalstock.com)</a> and <a href="https://www.sharesansar.com" target="_blank" rel="noopener" style="color:var(--d2-ink-soft)">ShareSansar</a>. Corporate actions verified against official NEPSE/company notices.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:10px 20px;justify-content:space-between;margin-top:22px;padding-top:18px;border-top:1px solid var(--d2-line-soft)">
+        <span>© 2026 Nepse Decode · Built by <a href="/" style="color:var(--d2-ink-soft)">Shirjan Khadka</a> in Kathmandu, Nepal</span>
+        <span><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener" style="color:var(--d2-ink-soft);margin-right:14px">Facebook</a><a href="/blog/" style="color:var(--d2-ink-soft);margin-right:14px">Blog</a><a href="/contact.html" style="color:var(--d2-ink-soft)">Contact</a></span>
       </div>
-    </nav>
-    <p class="sf-note"><strong>Educational use only.</strong> Nothing on this site is investment advice. Prices and figures are compiled from public sources and refreshed every trading day — always verify with your broker before trading.</p>
-    <p class="sf-note"><strong>Data sources:</strong> Market data from <a href="https://www.nepalstock.com" target="_blank" rel="noopener">NEPSE (nepalstock.com)</a> and <a href="https://www.sharesansar.com" target="_blank" rel="noopener">ShareSansar</a>. Corporate actions verified against official NEPSE/company notices.</p>
-    <p class="sf-note">Often searched as Srijan Khadka or Shrijan Khadka — the NEPSE tools site by Shirjan Khadka.</p>
-    <div class="sf-bottom">
-      <span>© 2026 Nepse Decode · Built by <a href="/">Shirjan Khadka</a> in Kathmandu, Nepal</span>
-      <span class="sf-social"><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Facebook</a><a href="/blog/">Blog</a><a href="/contact.html">Contact</a></span>
-    </div>
-  </div>
-</footer>
-
+    </footer>
 
   </div>
-</div>
+</main>
+</div><!-- /.d2-shell -->
 
-<script src="/js/nepse-daily.js?v=51f68f5d" defer></script>
-<script src="/js/nepse-daily-history.js?v=baac9ccf" defer></script>
-<script src="/js/vendor/lightweight-charts.standalone.production.js?v=7c9b722e" defer></script>
+<script src="/js/nepse-live.js?v=9a381cca"></script>
 <script>
-/* Deferred-bootstrap: the data/chart scripts above are deferred, so this
-   inline bootstrap runs on DOMContentLoaded (which fires after all deferred
-   scripts, in document order) instead of at parse time. */
-document.addEventListener('DOMContentLoaded', function(){
 (function(){
   'use strict';
   var DATA='/nepse-chart/data/';
@@ -539,7 +368,7 @@ document.addEventListener('DOMContentLoaded', function(){
     if(n>=1e3)return 'Rs '+(n/1e3).toFixed(1)+' k';
     return 'Rs '+n;
   }
-  function inGrouping(n){ /* 17270449 -> 1,72,70,449 */
+  function inGrouping(n){
     n=Math.round(+n); if(!isFinite(n)) return '–';
     var s=String(Math.abs(n)), out='', i=s.length;
     if(i>3){ out=','+s.slice(-3); i-=3; }
@@ -547,403 +376,405 @@ document.addEventListener('DOMContentLoaded', function(){
     out=s.slice(0,i)+out;
     return (n<0?'-':'')+out;
   }
-  function parts(iso){var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso||''));return m?{y:+m[1],mo:+m[2],d:+m[3]}:null;}
-  function fmtLong(iso){var p=parts(iso);return p?p.d+' '+MONTHS_L[p.mo-1]+' '+p.y:(iso||'');}
-  function fmtShort(iso){var p=parts(iso);return p?p.d+' '+MONTHS_S[p.mo-1]+' '+p.y:(iso||'');}
+  function nptDate(ms){ try{ return new Date(ms).toLocaleString('en-CA',{timeZone:'Asia/Kathmandu',year:'numeric',month:'2-digit',day:'2-digit'}).replace(/(\d+)\/(\d+)\/(\d+)/,'$3-$1-$2'); }catch(e){ return ''; } }
+  function fmtLong(iso){var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso||''));return m?(+m[3])+' '+MONTHS_L[(+m[2])-1]+' '+m[1]:(iso||'');}
+  function fmtShort(iso){var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso||''));return m?(+m[3])+' '+MONTHS_S[(+m[2])-1]+' '+m[1]:(iso||'');}
   function getJSON(p){return fetch(DATA+p,{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json();});}
+  function symLink(s){return '/stocks/'+encodeURIComponent(s)+'/';}
+  var MAIN_INDICES={'NEPSE':1,'Sensitive':1,'Float':1,'Sensitive Float':1};
+  var STATE_LABEL={live:'Live',delayed:'Delayed',preopen:'Pre-open',closed:'Closed',unknown:'–'};
 
-  /* Market status from canonical live.json state (never the clock alone) */
-  var MARKET_STATE = { status: 'UNKNOWN', asof: null };
-  function paintStatus(){
-    var b=$('ahStatus'),t=$('ahStatusTxt');
-    var open = MARKET_STATE.status === 'OPEN';
-    if(b) b.className='nd-pill '+(open?'open':'closed');
-    if(t) t.textContent = MARKET_STATE.status === 'OPEN' ? 'Live' : (MARKET_STATE.status === 'CLOSED' ? 'Closed' : '–');
+  /* ---------- sparkline: compact index history, never the 247KB daily bundle ---------- */
+  var sparkCloses=null, sparkFrom=null, sparkTo=null;
+  function loadSpark(){
+    return getJSON('index-spark.json').then(function(j){
+      var arr=j.series||j.data||j.closes||j;
+      if(!Array.isArray(arr)||!arr.length) return;
+      sparkCloses=arr.map(function(r){return {d:String(r[0]), c:+r[1]};}).filter(function(r){return isFinite(r.c);});
+      sparkFrom=sparkCloses[0].d; sparkTo=sparkCloses[sparkCloses.length-1].d;
+    }).catch(function(){ sparkCloses=null; });
   }
-  function setMarketState(live){
-    if(live && live.market) MARKET_STATE.status = live.market;
-    if(live && live.asof) MARKET_STATE.asof = live.asof;
-    paintStatus();
+  function drawSpark(liveVal, liveDateInt){
+    var cv=$('d2Spark'); if(!cv||!sparkCloses||!sparkCloses.length) return;
+    var pts=sparkCloses.slice();
+    if(liveVal!=null&&liveDateInt&&liveDateInt>+(pts[pts.length-1].d)) pts.push({d:String(liveDateInt),c:liveVal});
+    var dpr=window.devicePixelRatio||1, W=cv.clientWidth||600, H=150;
+    cv.width=W*dpr; cv.height=H*dpr;
+    var c=cv.getContext('2d'); c.scale(dpr,dpr); c.clearRect(0,0,W,H);
+    var mn=Math.min.apply(null,pts.map(function(p){return p.c;})), mx=Math.max.apply(null,pts.map(function(p){return p.c;})), rg=(mx-mn)||1;
+    var up=pts[pts.length-1].c>=pts[0].c;
+    var X=function(i){return 4+i*(W-8)/(pts.length-1);}, Y=function(v){return 8+(1-(v-mn)/rg)*(H-16);};
+    var css=getComputedStyle(document.documentElement);
+    var col=up?'#3ddc84':'#ff5d5d';
+    c.beginPath();
+    pts.forEach(function(p,i){ if(i===0)c.moveTo(X(i),Y(p.c)); else c.lineTo(X(i),Y(p.c)); });
+    c.strokeStyle=col; c.lineWidth=2; c.lineJoin='round'; c.stroke();
+    c.lineTo(X(pts.length-1),H); c.lineTo(X(0),H); c.closePath();
+    var g=c.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,up?'rgba(61,220,132,.25)':'rgba(255,93,93,.25)'); g.addColorStop(1,'rgba(0,0,0,0)');
+    c.fillStyle=g; c.fill();
+    // last-value dot
+    c.beginPath(); c.arc(X(pts.length-1),Y(pts[pts.length-1].c),3.5,0,7); c.fillStyle=col; c.fill();
+    // session-range block under the spark
+    var lo=mn, hi=mx, lbl=$('d2SesRangeLbl');
+    if(lbl&&sparkFrom) lbl.textContent=fmtShort(sparkFrom.slice(0,4)+'-'+sparkFrom.slice(4,6)+'-'+sparkFrom.slice(6,8))+' → '+fmtShort(sparkTo.slice(0,4)+'-'+sparkTo.slice(4,6)+'-'+sparkTo.slice(6,8))+' · '+pts.length+' closes';
+    paintRange('d2SesRange','d2SesLow','d2SesHigh',lo,hi,pts[pts.length-1].c);
   }
-
-
-  /* NEPSE CANDLE CHART — TradingView lightweight-charts (free, open-source,
-     Apache 2.0), fed with our own verified daily OHLC from nepse-daily.js +
-     the latest live.json session. TradingView's hosted widgets do not carry
-     NEPSE symbols, so our data drives their chart engine instead. */
-  function chartRows(live){ /* [dateInt, O, H, L, C] from nepse-daily.js + latest live.json session */
-    var rows = (window.NEPSE_DAILY||[]).slice();
-    if(!rows.length) return rows;
-    var lastDate = rows[rows.length-1][0];
-    if(live && live.index){
-      var ix = live.index, liveDate = null;
-      if(live.asof){ var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(live.asof); if(m) liveDate=+(m[1]+m[2]+m[3]); }
-      if(liveDate && liveDate > lastDate && ix.open!=null && ix.high!=null && ix.low!=null && ix.value!=null){
-        rows.push([liveDate, ix.open, ix.high, ix.low, ix.value, 0]);
-      }
-    }
-    return rows;
-  }
-  var LW = { chart: null, series: null, ro: null, lastLive: null };
-  function lwRows(live){
-    var rows = chartRows(live); /* [dateInt, O, H, L, C] */
-    return rows.filter(function(r){return r[1]!=null&&r[2]!=null&&r[3]!=null&&r[4]!=null;}).map(function(r){
-      var s=String(r[0]);
-      return { time: s.slice(0,4)+'-'+s.slice(4,6)+'-'+s.slice(6,8), open:+r[1], high:+r[2], low:+r[3], close:+r[4] };
-    });
-  }
-  function buildLWChart(live){
-    var el=$('ahLWChart');
-    if(!el) return;
-    LW.lastLive = live || null;
-    var data=lwRows(live);
-    if(!data.length){ el.innerHTML='<p class="nd-caption" style="padding:28px 0;text-align:center">Chart history is temporarily unavailable.</p>'; return; }
-    if(!window.LightweightCharts){ el.innerHTML='<p class="nd-caption" style="padding:28px 0;text-align:center">Chart engine failed to load.</p>'; return; }
-    if(LW.chart) LW.chart.remove();
-    LW.chart=LightweightCharts.createChart(el,{
-      layout:{ background:{type:'solid',color:'transparent'}, textColor:'rgba(245,241,230,.55)', fontFamily:'Inter,sans-serif', fontSize:11 },
-      grid:{ vertLines:{color:'rgba(245,241,230,.06)'}, horzLines:{color:'rgba(245,241,230,.06)'} },
-      rightPriceScale:{ borderColor:'rgba(245,241,230,.18)' },
-      timeScale:{ borderColor:'rgba(245,241,230,.18)', timeVisible:false, secondsVisible:false },
-      crosshair:{ vertLine:{color:'rgba(245,241,230,.35)',labelBackgroundColor:'#2c4a38'}, horzLine:{color:'rgba(245,241,230,.35)',labelBackgroundColor:'#2c4a38'} }
-    });
-    LW.series=LW.chart.addCandlestickSeries({
-      upColor:'#7BD8A4', downColor:'#F0968A', wickUpColor:'rgba(123,216,164,.7)', wickDownColor:'rgba(240,150,138,.7)', borderVisible:false
-    });
-    LW.series.setData(data);
-    /* Latest-close price line: when the newest session (live.json) has a close
-       but no publishable OHLC yet, show it as a labelled line — never as a
-       fabricated candle. Keeps the chart's price axis honest with the panel. */
-    try{
-      var ixLive = live && live.index, liveClose = ixLive && +ixLive.value;
-      var liveDateStr = null;
-      if(live && live.asof){ var lm=/^(\d{4})-(\d{2})-(\d{2})/.exec(live.asof); if(lm) liveDateStr=lm[3]+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+lm[2]-1]; }
-      var lastCandleClose = data.length ? data[data.length-1].close : null;
-      if(isFinite(liveClose) && liveClose !== lastCandleClose){
-        LW.series.createPriceLine({
-          price: liveClose,
-          color: 'rgba(245,241,230,.55)',
-          lineWidth: 1, lineStyle: 2, axisLabelVisible: true,
-          title: liveDateStr ? ('close '+liveDateStr) : 'latest close'
-        });
-      }
-    }catch(e){}
-    var nb=data.length, nf=Math.max(0,nb-90);
-    try{ LW.chart.timeScale().setVisibleRange({ from:data[nf].time, to:data[nb-1].time }); }
-    catch(e){ LW.chart.timeScale().fitContent(); }
-    if(LW.ro) LW.ro.disconnect();
-    LW.ro=new ResizeObserver(function(){ try{ LW.chart.applyOptions({ width: el.clientWidth }); }catch(e){} });
-    LW.ro.observe(el);
-    var n=data.length;
-    var cap='Daily candles · '+n+' sessions from '+fmtShort(data[0].time)+' to '+fmtShort(data[n-1].time)+'.';
-    try{
-      var ixC = live && live.index, lc = ixC && +ixC.value;
-      var ldStr = null;
-      if(live && live.asof){ var q=/^(\d{4})-(\d{2})-(\d{2})/.exec(live.asof); if(q) ldStr=(+q[3])+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+q[2]-1]+' '+q[1]; }
-      var lastC = data.length ? data[data.length-1].close : null;
-      if(isFinite(lc) && lc !== lastC && ldStr){
-        cap+=' Latest close '+lc.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+' on '+ldStr+' (full candle pending open data).';
-      }
-    }catch(e){}
-    cap+=' Drag to pan, scroll to zoom.';
-    $('ahChartCap').textContent=cap;
+  function paintRange(barId,lowId,highId,lo,hi,val){
+    var bar=$(barId); if(!bar||lo==null||hi==null||!(hi>lo)) return;
+    var pos=Math.min(1,Math.max(0,(val-lo)/(hi-lo)));
+    var fill=bar.querySelector('.d2-range-fill'), mk=bar.querySelector('.d2-range-marker');
+    if(fill) fill.style.width=(pos*100)+'%';
+    if(mk) mk.style.left=(pos*100)+'%';
+    var l=$(lowId), h=$(highId);
+    if(l) l.textContent=num(lo,2); if(h) h.textContent=num(hi,2);
   }
 
-  /* Ticker tape: top ~60 liquid symbols, duplicated for a seamless loop */
-  function symLink(sym){ return '/stocks/'+encodeURIComponent(String(sym).replace(/\//g,'-'))+'/'; }
+  /* ---------- tables ---------- */
   function paintTicker(quotes){
-    var el=$('ahTickTrack'); if(!el) return;
-    var list=[].concat(quotes||[]).filter(function(q){return (+q.turnover||0)>0;})
-      .sort(function(a,b){return (+b.turnover||0)-(+a.turnover||0);}).slice(0,60);
-    if(!list.length){ el.innerHTML='<span class="nd-caption" style="padding:0 16px">Ticker unavailable.</span>'; return; }
-    function item(q){
-      var ch=+q.percent_change||0, cls=ch>=0?'up':'down';
-      return '<a class="nd-tick-item" href="'+symLink(q.symbol)+'"><span class="tk-sym">'+esc(q.symbol)+'</span>'+
-        '<span class="num">Rs '+num(q.ltp,2)+'</span>'+
-        '<span class="tk-chg '+cls+' num">'+(ch>=0?'+':'')+ch.toFixed(2)+'%</span></a>';
-    }
-    var half=list.map(item).join('');
-    el.innerHTML=half+half;
+    var el=$('d2TickTrack'); if(!el) return;
+    var list=quotes.filter(function(q){return q&&q.symbol&&(+q.turnover||0)>0;})
+      .sort(function(a,b){return (+b.turnover||0)-(+a.turnover||0);}).slice(0,30);
+    if(!list.length){ el.innerHTML='<span class="d2-caption" style="padding:0 16px">Ticker unavailable.</span>'; return; }
+    var html=list.map(function(q){
+      var ch=+q.change||0, p=q.pct, cls=ch>=0?'up':'down';
+      return '<a class="d2-tick-item" href="'+symLink(q.symbol)+'"><span class="tk-sym">'+esc(q.symbol)+'</span>'+
+        '<span class="num">'+(q.ltp!=null?num(q.ltp,2):'–')+'</span>'+
+        '<span class="tk-chg '+cls+'">'+(ch>=0?'+':'')+num(ch,2)+' ('+(p==null||!isFinite(+p)?'–':((+p)>=0?'+':'')+(+p).toFixed(2)+'%')+')</span></a>';
+    }).join('');
+    el.innerHTML=html+html; // loop for the marquee
   }
-
-  /* Gainers / losers tables (ShareHub-style: SYMBOL, CH, CH%, LTP) */
-  function glRow(q){
-    var ch=+q.percent_change||0, cls=ch>=0?'up':'down', d=+q.change||0;
-    return '<tr><td><a class="t-sym" href="'+symLink(q.symbol)+'">'+esc(q.symbol)+'</a></td>'+
-      '<td class="num '+cls+'">'+(d>=0?'+':'')+num(d,2)+'</td>'+
-      '<td class="num '+cls+'">'+(ch>=0?'+':'')+ch.toFixed(2)+'%</td>'+
-      '<td class="num">'+num(q.ltp,2)+'</td></tr>';
+  function moverRow(q){
+    var sym = q && q.symbol ? String(q.symbol).toUpperCase() : '';
+    if(!sym) return ''; // never render a broken link: omit malformed rows
+    var ch=+q.change||0, p=q.pct, cls=ch>=0?'up':'down';
+    return '<tr><td><a class="t-sym" href="'+symLink(sym)+'">'+esc(sym)+'</a></td>'+
+      '<td class="num '+cls+'">'+(ch>=0?'+':'')+num(ch,2)+'</td>'+
+      '<td class="num '+cls+'">'+(p==null||!isFinite(+p)?'–':((+p)>=0?'+':'')+(+p).toFixed(2)+'%')+'</td>'+
+      '<td class="num">'+(q.ltp!=null?num(q.ltp,2):'–')+'</td></tr>';
   }
   function paintGainersLosers(quotes){
-    var gEl=$('ahGainersT'), lEl=$('ahLosersT');
-    var empty='<tr><td colspan="4" style="color:var(--muted);font-size:14px;padding:12px 8px">No data in the latest session.</td></tr>';
-    var gainers=(quotes||[]).filter(function(q){return (+q.percent_change||0)>0;})
-      .sort(function(a,b){return (+b.percent_change||0)-(+a.percent_change||0);}).slice(0,6);
-    var losers=(quotes||[]).filter(function(q){return (+q.percent_change||0)<0;})
-      .sort(function(a,b){return (+a.percent_change||0)-(+b.percent_change||0);}).slice(0,6);
-    if(gEl) gEl.innerHTML=gainers.length?gainers.map(glRow).join(''):empty;
-    if(lEl) lEl.innerHTML=losers.length?losers.map(glRow).join(''):empty;
+    var gainers=quotes.filter(function(q){return q&&q.symbol&&(+q.change||0)>0;})
+      .sort(function(a,b){return (+b.pct||0)-(+a.pct||0);}).slice(0,7);
+    var losers=quotes.filter(function(q){return q&&q.symbol&&(+q.change||0)<0;})
+      .sort(function(a,b){return (+a.pct||0)-(+b.pct||0);}).slice(0,7);
+    var g=$('d2GainersT'), l=$('d2LosersT');
+    var empty='<tr><td colspan="4" style="color:var(--d2-muted);font-size:14px;padding:12px 8px">No data in the latest session.</td></tr>';
+    if(g) g.innerHTML=gainers.length?gainers.map(moverRow).join(''):empty;
+    if(l) l.innerHTML=losers.length?losers.map(moverRow).join(''):empty;
   }
-
-  /* Indices + sub-indices tables */
-  var MAIN_INDICES={'NEPSE':1,'Sensitive':1,'Float':1,'Sensitive Float':1};
   function idxRow(x){
-    var ch=+x.change||0, p=x.percent_change, cls=ch>=0?'up':'down';
+    var ch=+x.change||0, p=x.pct, cls=ch>=0?'up':'down';
     return '<tr><td>'+esc(x.name)+'</td>'+
       '<td class="num '+cls+'">'+(ch>=0?'+':'')+num(ch,2)+'</td>'+
       '<td class="num '+cls+'">'+(p==null||!isFinite(+p)?'–':((+p)>=0?'+':'')+(+p).toFixed(2)+'%')+'</td>'+
       '<td class="num">'+num(x.value,2)+'</td></tr>';
   }
-  function paintIndices(live){
-    var list=live.indices||[];
-    var main=list.filter(function(x){return MAIN_INDICES[x.name];});
-    var sub=list.filter(function(x){return !MAIN_INDICES[x.name];});
-    var empty='<tr><td colspan="4" style="color:var(--muted);font-size:14px;padding:12px 8px">Index data unavailable.</td></tr>';
-    var mEl=$('ahIndicesT'), sEl=$('ahSubIndicesT');
-    if(mEl) mEl.innerHTML=main.length?main.map(idxRow).join(''):empty;
-    if(sEl) sEl.innerHTML=sub.length?sub.map(idxRow).join(''):empty;
-  }
-
-  /* Most active: turnover / traded shares / transactions tabs */
   var TT={ mode:'turnover', quotes:[] };
   function paintTurnover(){
-    var el=$('ahTurnT'); if(!el) return;
+    var el=$('d2TurnT'); if(!el) return;
     var key=TT.mode;
-    var hEl=$('ahTurnValH');
+    var hEl=$('d2TurnValH');
     if(hEl) hEl.textContent=key==='turnover'?'Turnover':key==='volume'?'Traded shares':'Transactions';
-    var list=[].concat(TT.quotes).sort(function(a,b){return (+b[key]||0)-(+a[key]||0);}).slice(0,7);
-    if(!list.length){ el.innerHTML='<tr><td colspan="4" style="color:var(--muted);font-size:14px;padding:12px 8px">No data in the latest session.</td></tr>'; return; }
+    var list=TT.quotes.filter(function(q){return q&&q.symbol;}).slice().sort(function(a,b){return (+b[key]||0)-(+a[key]||0);}).slice(0,7);
+    if(!list.length){ el.innerHTML='<tr><td colspan="4" style="color:var(--d2-muted);font-size:14px;padding:12px 8px">No data in the latest session.</td></tr>'; return; }
     el.innerHTML=list.map(function(q){
-      var ch=+q.percent_change||0, cls=ch>=0?'up':'down';
+      var ch=+q.pct||0, cls=ch>=0?'up':'down';
       var v=key==='turnover'?money(+q.turnover||0):inGrouping(Math.round(+q[key]||0));
       return '<tr><td><a class="t-sym" href="'+symLink(q.symbol)+'">'+esc(q.symbol)+'</a></td>'+
         '<td class="num">'+v+'</td>'+
         '<td class="num '+cls+'">'+(ch>=0?'+':'')+ch.toFixed(2)+'%</td>'+
-        '<td class="num">'+num(q.ltp,2)+'</td></tr>';
+        '<td class="num">'+(q.ltp!=null?num(q.ltp,2):'–')+'</td></tr>';
     }).join('');
   }
   function initTurnTabs(){
-    document.querySelectorAll('.nd-tab').forEach(function(b){
+    document.querySelectorAll('.d2-tab').forEach(function(b){
       b.addEventListener('click',function(){
-        document.querySelectorAll('.nd-tab').forEach(function(x){x.classList.remove('active');x.setAttribute('aria-selected','false');});
+        document.querySelectorAll('.d2-tab').forEach(function(x){x.classList.remove('active');x.setAttribute('aria-selected','false');});
         b.classList.add('active'); b.setAttribute('aria-selected','true');
         TT.mode=b.getAttribute('data-tt'); paintTurnover();
       });
     });
   }
-
-
-  /* Hero + stats strip from live.json — canonical state, never the clock */
-  function paintMarket(live){
-    setMarketState(live);
-    var ix=live.index||{};
-    var open = MARKET_STATE.status === 'OPEN';
-    if(ix.value!=null){
-      $('ahIdxVal').textContent=num(ix.value,2);
-    }
-    if(ix.change!=null&&ix.percent_change!=null){
-      var c=+ix.change,p=+ix.percent_change,cls=c>=0?'up':'down';
-      $('ahIdxChg').innerHTML='<span class="'+cls+'">'+(c>=0?'+':'')+num(c,2)+' ('+(p>=0?'+':'')+num(p,2)+'%)</span>';
-    }else{$('ahIdxChg').textContent='–';}
-    var f2=function(v){return v==null||!isFinite(+v)?'–':num(+v,2);};
-    if($('ahDayO'))$('ahDayO').textContent=f2(ix.open);
-    if($('ahDayH'))$('ahDayH').textContent=f2(ix.high);
-    if($('ahDayL'))$('ahDayL').textContent=f2(ix.low);
-    if($('ahDayP'))$('ahDayP').textContent=f2(ix.previous_close);
-    var cap='Session of '+fmtLong((live.asof||'').slice(0,10));
-    if(open)cap+=' · live during market hours (15-min delayed)';
-    else cap+=' · market closed; latest verified session';
-    $('ahIdxCap').textContent=cap;
-    var dEl=$('ahIdxDate');
-    if(dEl&&live.asof)dEl.textContent=fmtLong(live.asof.slice(0,10))+' · '+live.asof.slice(11,16)+' NPT';
-    // breadth + session totals from quotes
-    var quotes=live.quotes||[], adv=0, dec=0, unc=0, turn=0, shares=0, txns=0, scrips=0;
-    quotes.forEach(function(q){
-      var ch=+q.change||0;
-      if(ch>0)adv++; else if(ch<0)dec++; else unc++;
-      turn+=+q.turnover||0;
-      shares+=+q.volume||0;
-      txns+=+q.trades||0;
-      if((+q.volume||0)>0)scrips++;
-    });
-    if($('ahAdvN'))$('ahAdvN').textContent=adv;
-    if($('ahDecN'))$('ahDecN').textContent=dec;
-    if($('ahUncN'))$('ahUncN').textContent=unc;
-    if($('ahStatTurn'))$('ahStatTurn').textContent=money(turn);
-    if($('ahStatShares'))$('ahStatShares').textContent=inGrouping(shares);
-    if($('ahStatTxns'))$('ahStatTxns').textContent=inGrouping(txns);
-    if($('ahStatScrips'))$('ahStatScrips').textContent=scrips;
-    // TradingView-engine candlesticks from the same canonical payload
-    buildLWChart(live);
-    // ticker tape + tables
-    paintTicker(quotes);
-    paintGainersLosers(quotes);
-    paintIndices(live);
-    TT.quotes=quotes; paintTurnover();
-  }
-
-  /* empty/error state */
-  function paintMarketEmpty(msg){
-    $('ahIdxCap').textContent=msg;
-    $('ahIdxVal').textContent='–';$('ahIdxChg').textContent='–';
-    ['ahAdvN','ahDecN','ahUncN','ahStatTurn','ahStatShares','ahStatTxns','ahStatScrips'].forEach(function(id){var el=$(id);if(el)el.textContent='–';});
-    [['ahGainersT',4],['ahLosersT',4],['ahTurnT',4],['ahIndicesT',4],['ahSubIndicesT',4]].forEach(function(p){var el=$(p[0]);if(el)el.innerHTML='<tr><td colspan="'+p[1]+'" style="color:var(--muted);font-size:14px;padding:12px 8px">'+esc(msg)+'</td></tr>';});
-    var tEl=$('ahTickTrack');if(tEl)tEl.innerHTML='<span class="nd-caption" style="padding:0 16px">'+esc(msg)+'</span>';
-  }
-
-  /* news rail — tiles with source monogram, headlines open our story pages */
-  function paintNews(n){
-    var el=$('ahNews');if(!el)return;
-    var items=(n.items||[]).slice(0,7);
-    if(!items.length){el.innerHTML='<p class="nd-caption" style="padding:12px 0">No headlines in the latest batch.</p>';return;}
-    el.innerHTML=items.map(function(it,i){
-      var src=String(it.src||'?'), initial=(src.trim().charAt(0)||'N').toUpperCase();
-      return '<a class="nd-news-item" href="/nepse-news/story/?src=news&i='+i+'">'+
-        '<span class="nd-news-tile" aria-hidden="true">'+esc(initial)+'</span>'+
-        '<span class="n-body"><span class="n-kicker">'+esc(it.src)+'</span>'+
-        '<span class="n-title">'+esc(it.title)+'</span>'+
-        '<span class="n-meta">'+fmtShort(it.date)+'</span></span></a>';
+  /* Trending now — computed live from the quote tape, never a baked snapshot */
+  function paintTrending(quotes, sesLabel){
+    var el=$('d2TrendNow'); if(!el) return;
+    var list=quotes.filter(function(q){return q&&q.symbol&&(+q.turnover||0)>0;})
+      .sort(function(a,b){return (+b.turnover||0)-(+a.turnover||0);}).slice(0,6);
+    var cap=$('d2TrendCap');
+    if(cap&&sesLabel) cap.textContent='Ranked by live turnover · session of '+sesLabel+' · refreshes with the market feed.';
+    if(!list.length){ el.innerHTML='<p class="d2-caption">No turnover data in the latest session.</p>'; return; }
+    el.innerHTML=list.map(function(q,i){
+      var ch=+q.pct||0, cls=ch>=0?'up':'down';
+      return '<a class="d2-card d2-tool" href="'+symLink(q.symbol)+'">'+
+        '<span class="d2-wl-num" aria-hidden="true">'+(i+1)+'</span>'+
+        '<span style="flex:1"><h3>'+esc(q.symbol)+' <span class="d2-caption">· '+esc(q.name||'')+'</span></h3>'+
+        '<p>'+(q.ltp!=null?'Rs '+num(q.ltp,2):'–')+' · <span class="'+cls+'" style="font-weight:700;color:var(--d2-'+(ch>=0?'gain':'loss')+')">'+(ch>=0?'+':'')+ch.toFixed(2)+'%</span> today · '+money(+q.turnover||0)+' turnover</p></span></a>';
     }).join('');
   }
 
-  /* engine verdicts: compact strongest buys / exits rows */
+  /* ---------- S1 hero from the canonical live payload ---------- */
+  function paintHero(d, st){
+    var ix=d.index||{};
+    var state=(st&&st.state)||'unknown';
+    var sEl=$('d2State'); if(sEl) sEl.textContent=STATE_LABEL[state]||'–';
+    var tEl=$('d2TopState'); if(tEl) tEl.textContent=STATE_LABEL[state]||'';
+    if(ix.value!=null) $('d2IdxVal').textContent=num(ix.value,2);
+    var chEl=$('d2IdxChg');
+    if(ix.change!=null&&ix.pct!=null){
+      var c=+ix.change, p=+ix.pct, cls=c>=0?'up':'down';
+      chEl.innerHTML='<span class="'+cls+'">'+(c>=0?'+':'')+num(c,2)+' ('+(p>=0?'+':'')+num(p,2)+'%)</span>';
+      chEl.className='d2-hero-badge '+cls;
+    } else { chEl.textContent='–'; }
+    var f2=function(v){return v==null||!isFinite(+v)?'–':num(+v,2);};
+    if($('d2DayO'))$('d2DayO').textContent=f2(ix.open);
+    if($('d2DayH'))$('d2DayH').textContent=f2(ix.high);
+    if($('d2DayL'))$('d2DayL').textContent=f2(ix.low);
+    if($('d2DayP'))$('d2DayP').textContent=f2(ix.prev);
+    var sesNpt=d.asof? nptDate(d.asof):'';
+    if($('d2DayRangeSes')&&sesNpt) $('d2DayRangeSes').textContent='session '+sesNpt;
+    if(ix.low!=null&&ix.high!=null&&ix.value!=null) paintRange('d2DayRange','d2DayLow','d2DayHigh',ix.low,ix.high,ix.value);
+    var cap=$('d2HeroCap');
+    if(cap){
+      var bits=[];
+      if(sesNpt) bits.push('Session of '+fmtLong(sesNpt));
+      if(state==='live') bits.push('live during market hours');
+      else if(state==='delayed') bits.push('delayed snapshot');
+      else if(state==='preopen') bits.push('pre-open · last close as reference');
+      else if(state==='closed') bits.push('market closed · latest verified session');
+      else bits.push('feed unavailable');
+      cap.textContent=bits.join(' · ');
+    }
+    // sparkline: append today's live close when newer than the spark series
+    var liveDateInt=sesNpt?+(sesNpt.replace(/-/g,'')):null;
+    drawSpark(ix.value, liveDateInt);
+    return sesNpt;
+  }
+  function paintBreadthStats(quotes){
+    var adv=0,dec=0,unc=0,turn=0,shares=0,txns=0,scrips=0;
+    quotes.forEach(function(q){
+      var ch=+q.change||0;
+      if(ch>0)adv++; else if(ch<0)dec++; else unc++;
+      turn+=+q.turnover||0; shares+=+q.volume||0; txns+=+q.trades||0;
+      if((+q.volume||0)>0)scrips++;
+    });
+    var tot=adv+dec+unc;
+    var bar=$('d2Breadth');
+    if(bar){
+      var segs=bar.children;
+      if(segs[0])segs[0].style.width=(tot?adv/tot*100:0)+'%';
+      if(segs[1])segs[1].style.width=(tot?unc/tot*100:0)+'%';
+      if(segs[2])segs[2].style.width=(tot?dec/tot*100:0)+'%';
+    }
+    if($('d2BUp'))$('d2BUp').textContent=adv;
+    if($('d2BDn'))$('d2BDn').textContent=dec;
+    if($('d2BFl'))$('d2BFl').textContent=unc;
+    if($('d2BreadthN'))$('d2BreadthN').textContent=tot+' scrips';
+    if($('d2StatTurn'))$('d2StatTurn').textContent=money(turn);
+    if($('d2StatShares'))$('d2StatShares').textContent=inGrouping(shares);
+    if($('d2StatTxns'))$('d2StatTxns').textContent=inGrouping(txns);
+    if($('d2StatScrips'))$('d2StatScrips').textContent=scrips;
+  }
+  function paintMarketEmpty(msg){
+    if($('d2HeroCap'))$('d2HeroCap').textContent=msg;
+    if($('d2IdxVal'))$('d2IdxVal').textContent='–';
+    if($('d2IdxChg'))$('d2IdxChg').textContent='–';
+    if($('d2State'))$('d2State').textContent='–';
+    ['d2BUp','d2BDn','d2BFl','d2StatTurn','d2StatShares','d2StatTxns','d2StatScrips'].forEach(function(id){var el=$(id);if(el)el.textContent='–';});
+    var empty='<tr><td colspan="4" style="color:var(--d2-muted);font-size:14px;padding:12px 8px">'+esc(msg)+'</td></tr>';
+    ['d2GainersT','d2LosersT','d2TurnT','d2IndicesT','d2SubIndicesT'].forEach(function(id){var el=$(id);if(el)el.innerHTML=empty;});
+    var tEl=$('d2TickTrack');if(tEl)tEl.innerHTML='<span class="d2-caption" style="padding:0 16px">'+esc(msg)+'</span>';
+    var tr=$('d2TrendNow');if(tr)tr.innerHTML='<p class="d2-caption">'+esc(msg)+'</p>';
+  }
+
+  /* ---------- search ---------- */
+  function initSearch(quotes){
+    var input=$('d2SearchInput'), list=$('d2Symbols'), box=$('d2SearchMatches');
+    if(!input) return;
+    var idx=quotes.map(function(q){return {s:q.symbol,n:q.name||''};});
+    if(list) list.innerHTML=idx.map(function(x){return '<option value="'+esc(x.s)+'">';}).join('');
+    function find(q){
+      q=String(q||'').trim().toUpperCase(); if(!q) return [];
+      return idx.filter(function(x){return x.s.indexOf(q)===0||x.n.toUpperCase().indexOf(q)>-1;}).slice(0,6);
+    }
+    input.addEventListener('input',function(){
+      var m=find(input.value);
+      if(box) box.innerHTML=m.map(function(x){return '<a href="'+symLink(x.s)+'">'+esc(x.s)+' <span class="d2-caption">· '+esc(x.n)+'</span></a>';}).join('');
+    });
+    $('d2Search').addEventListener('submit',function(){
+      var m=find(input.value);
+      if(m.length) window.location.href=symLink(m[0].s);
+    });
+  }
+
+  /* ---------- S9 market pulse: event tape, not a trade tape ---------- */
+  var PULSE_KINDS=[['all','All'],['news','Announcements'],['corp','Corp. actions'],['ms','Milestones']];
+  var pulseEvents=[], pulseFilter='all', pulseOn=true, pulseLeft=60, pulseSig='';
+  function pulseRel(dstr){
+    var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(dstr||'')); if(!m) return dstr||'';
+    var then=Date.UTC(+m[1],+m[2]-1,+m[3]);
+    var now=new Date(); var nowUTC=Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate());
+    var days=Math.round((nowUTC-then)/86400000);
+    if(days<=0) return 'today';
+    if(days===1) return 'yesterday';
+    if(days<7) return days+'d ago';
+    return fmtShort(dstr);
+  }
+  function pulseKindCls(e){ return e.kind==='corp'?'pk-corp':e.kind==='news'?'pk-news':'pk-ms'; }
+  function pulseKindLabel(e){ return e.kind==='corp'?'CORP':e.kind==='news'?'NEWS':'MILESTONE'; }
+  function renderPulse(){
+    var tape=$('d2PulseTape'); if(!tape) return;
+    var rows=pulseEvents.filter(function(e){return pulseFilter==='all'||e.kind===pulseFilter;}).slice(0,30);
+    if(!rows.length){ tape.innerHTML='<p class="d2-caption" style="padding:8px 0">No events in this filter yet.</p>'; return; }
+    tape.innerHTML=rows.map(function(e){
+      return '<div class="d2-pulse-row"><div class="d2-pulse-time">'+esc(pulseRel(e.date))+'<span>'+esc(e.date)+'</span></div>'+
+        '<span class="d2-pulse-kind '+pulseKindCls(e)+'">'+pulseKindLabel(e)+'</span>'+
+        '<span class="d2-pulse-sym">'+esc(e.sym||'—')+'</span>'+
+        '<div class="d2-pulse-title">'+esc(e.title)+(e.link?' <a href="'+esc(e.link)+'" target="_blank" rel="noopener">source ↗</a>':'')+'</div></div>';
+    }).join('');
+  }
+  function buildMilestones(){
+    if(!sparkCloses||!sparkCloses.length) return [];
+    var hi=sparkCloses[0], lo=sparkCloses[0];
+    sparkCloses.forEach(function(p){ if(p.c>hi.c)hi=p; if(p.c<lo.c)lo=p; });
+    var f=function(d){return d.slice(0,4)+'-'+d.slice(4,6)+'-'+d.slice(6,8);};
+    return [
+      {kind:'ms',date:f(hi.d),sym:'NEPSE',title:'Session-range high '+num(hi.c,2)+' — strongest close in the recent series',link:'/nepse-chart/'},
+      {kind:'ms',date:f(lo.d),sym:'NEPSE',title:'Session-range low '+num(lo.c,2)+' — weakest close in the recent series',link:'/nepse-chart/'}
+    ];
+  }
+  function loadPulse(){
+    return Promise.all([
+      getJSON('news.json').catch(function(){return null;}),
+      getJSON('corporate-actions.json').catch(function(){return null;})
+    ]).then(function(res){
+      var evs=buildMilestones();
+      var nn=res[0], items=(nn&&nn.items)||[];
+      items.forEach(function(it,i){
+        evs.push({kind:'news',date:String(it.date||'').slice(0,10),sym:it.sym||'',title:it.title||'',link:'/nepse-news/story/?src=news&i='+i});
+      });
+      var ca=res[1], citems=(ca&&ca.items)||[];
+      citems.forEach(function(it){
+        evs.push({kind:'corp',date:String(it.announced||'').slice(0,10),sym:it.symbol||'',title:it.headline||'',link:it.officialPdf||''});
+      });
+      evs.sort(function(a,b){return String(b.date).localeCompare(String(a.date));});
+      var sig=evs.length+'|'+(evs[0]?evs[0].date+evs[0].title:'');
+      if(sig!==pulseSig){
+        pulseSig=sig; pulseEvents=evs; renderPulse();
+        var up=$('d2PulseUpdated');
+        if(up) up.textContent='last checked just now · '+evs.length+' events';
+        var fl=$('d2PulseFlash');
+        if(fl){ fl.style.opacity='1'; setTimeout(function(){fl.style.opacity='0';},2500); }
+      }
+    }).catch(function(){
+      var tape=$('d2PulseTape');
+      if(tape&&!pulseEvents.length) tape.innerHTML='<p class="d2-caption" style="padding:8px 0">Event feed is temporarily unavailable.</p>';
+    });
+  }
+  function initPulse(){
+    var f=$('d2PulseFilters');
+    if(f){
+      f.innerHTML=PULSE_KINDS.map(function(k){
+        return '<button class="d2-fbtn'+(k[0]==='all'?' on':'')+'" data-k="'+k[0]+'" aria-pressed="'+(k[0]==='all')+'">'+k[1]+'</button>';
+      }).join('');
+      f.addEventListener('click',function(ev){
+        var b=ev.target.closest('[data-k]'); if(!b) return;
+        pulseFilter=b.getAttribute('data-k');
+        f.querySelectorAll('.d2-fbtn').forEach(function(x){
+          var on=x===b; x.classList.toggle('on',on); x.setAttribute('aria-pressed',on);
+        });
+        renderPulse();
+      });
+    }
+    var tg=$('d2PulseToggle');
+    if(tg) tg.addEventListener('click',function(){
+      pulseOn=!pulseOn; pulseLeft=60;
+      tg.textContent=pulseOn?'Auto-refresh on':'Auto-refresh off';
+      tg.setAttribute('aria-pressed',pulseOn);
+    });
+    loadPulse();
+    setInterval(function(){
+      if(document.hidden) return;
+      var cd=$('d2PulseCount');
+      if(pulseOn){
+        pulseLeft--;
+        if(pulseLeft<=0){ pulseLeft=60; loadPulse(); }
+        if(cd) cd.textContent='0:'+String(Math.max(0,pulseLeft)).padStart(2,'0');
+      } else if(cd) cd.textContent='paused';
+    },1000);
+  }
+
+  /* ---------- engine verdicts teaser ---------- */
   function pillClass(v){return v==='Strong Buy'?'v-sb':v==='Buy'?'v-b':v==='Hold'?'v-h':v==='Exit / Reduce'?'v-e':v==='Strong Exit'?'v-se':'v-h';}
   function vdRow(sym,x){
-    var ch=+x.ch||0;
-    return '<a class="nd-mover" href="/nepse-chart/?s='+encodeURIComponent(sym)+'">'+
-      '<span><span class="m-sym">'+esc(sym)+'</span><br><span class="m-name">'+esc(x.v)+'</span></span>'+
-      '<span><span class="m-price num">Rs '+num(x.p,2)+'</span><br><span class="m-chg '+(ch>=0?'up':'down')+'">'+(ch>=0?'+':'')+ch.toFixed(2)+'%</span></span></a>';
+    return '<div class="vd-row"><a class="vd-sym" href="'+symLink(sym)+'">'+esc(sym)+'</a>'+
+      '<span class="d2-caption">score '+esc(x.s)+'</span>'+
+      '<span class="vd-pill '+pillClass(x.v)+'">'+esc(x.v)+'</span></div>';
   }
   function paintVerdicts(d){
     var all=Object.keys(d.verdicts||{}).map(function(sym){return [sym,d.verdicts[sym]];});
     var buys=all.filter(function(it){return it[1].v==='Strong Buy'||it[1].v==='Buy';}).sort(function(a,b){return b[1].s-a[1].s;}).slice(0,4);
     var exits=all.filter(function(it){return it[1].v==='Strong Exit'||it[1].v==='Exit / Reduce';}).sort(function(a,b){return a[1].s-b[1].s;}).slice(0,4);
-    $('vd-buys').innerHTML=buys.length?buys.map(function(it){return vdRow(it[0],it[1]);}).join(''):'<p class="nd-caption">No buy verdicts in the latest batch.</p>';
-    $('vd-exits').innerHTML=exits.length?exits.map(function(it){return vdRow(it[0],it[1]);}).join(''):'<p class="nd-caption">No exit verdicts in the latest batch.</p>';
-    var asofEl=$('vd-asof');
-    if(d.asof){
-      asofEl.textContent='Batch of '+fmtLong(d.asof)+' · '+(d.count||all.length)+' securities scored.';
-      if(window.NepseFresh)asofEl.insertAdjacentHTML('beforeend',' '+window.NepseFresh.badge(d.asof));
-    }else asofEl.textContent='Batch data unavailable.';
-  }
-
-  /* symbol quick search -> per-symbol page */
-  var UNI=null;
-  function loadUniverse(){
-    if(UNI)return Promise.resolve(UNI);
-    return getJSON('universe.json').then(function(u){UNI=u.symbols||[];return UNI;});
-  }
-  function initSearch(){
-    var form=$('ahSearch'),inp=$('ahSearchInput'),box=$('ahSearchMatches');
-    if(!form||!inp)return;
-    function go(sym){location.href='/stocks/'+encodeURIComponent(sym)+'/';}
-    function match(q){
-      q=q.trim().toUpperCase();
-      if(!q||q.length<2){box.classList.remove('has');box.innerHTML='';return;}
-      var hits=UNI.filter(function(x){return x.s.indexOf(q)===0||(x.n||'').toUpperCase().indexOf(q)>=0;}).slice(0,5);
-      if(!hits.length){box.classList.remove('has');box.innerHTML='';return;}
-      box.innerHTML=hits.map(function(x){return '<a href="/stocks/'+encodeURIComponent(x.s)+'/">'+esc(x.s)+'</a>';}).join('');
-      box.classList.add('has');
+    if($('d2VdBuys'))$('d2VdBuys').innerHTML=buys.length?buys.map(function(it){return vdRow(it[0],it[1]);}).join(''):'<p class="d2-caption">No buy verdicts in the latest batch.</p>';
+    if($('d2VdExits'))$('d2VdExits').innerHTML=exits.length?exits.map(function(it){return vdRow(it[0],it[1]);}).join(''):'<p class="d2-caption">No exit verdicts in the latest batch.</p>';
+    var asofEl=$('d2VdAsof');
+    if(asofEl){
+      asofEl.textContent=d.asof?('Batch of '+fmtLong(d.asof)+' · '+(d.count||all.length)+' securities scored.'):'Batch data unavailable.';
     }
-    form.addEventListener('submit',function(){
-      var q=inp.value.trim().toUpperCase();if(!q)return;
-      loadUniverse().then(function(){
-        var ex=UNI.filter(function(x){return x.s===q;})[0];
-        if(ex)go(ex.s);
-        else{
-          var hit=UNI.filter(function(x){return x.s.indexOf(q)===0;})[0];
-          if(hit)go(hit.s);
-          else match(q);
-        }
-      });
-    });
-    loadUniverse().then(function(){
-      var dl=$('ahSymbols');
-      dl.innerHTML=UNI.map(function(x){return '<option value="'+esc(x.s)+'">';}).join('');
-      inp.addEventListener('input',function(){match(inp.value);});
-    }).catch(function(){/* search stays a plain submit fallback */});
   }
 
-  /* reveal on scroll */
-  function initReveal(){
-    if('IntersectionObserver' in window){
-      var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12});
-      document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
-      setTimeout(function(){
-        var vh=window.innerHeight||800;
-        document.querySelectorAll('.reveal:not(.in)').forEach(function(el){
-          try{if(el.getBoundingClientRect().top<vh*0.9)el.classList.add('in');}catch(e){el.classList.add('in');}
-        });
-      },3000);
-    }else{document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in');});}
+  /* ---------- boot: live layer drives everything ---------- */
+  function onLive(d, st){
+    if(!d){ paintMarketEmpty('Market data is temporarily unavailable.'); return; }
+    var quotes=Object.keys(d.quotes||{}).map(function(k){return d.quotes[k];});
+    var sesNpt=paintHero(d, st);
+    paintBreadthStats(quotes);
+    paintTicker(quotes);
+    paintGainersLosers(quotes);
+    TT.quotes=quotes; paintTurnover();
+    paintTrending(quotes, sesNpt?fmtLong(sesNpt):'');
+    initSearch(quotes);
+    // Indices arrive in the raw payload only (the normalized NepseLive
+    // snapshot carries index + quotes). Light raw fetch piggybacks here.
+    getJSON('live.json').then(function(raw){
+      var list=raw.indices||[];
+      var norm=list.map(function(x){return {name:x.name,change:+x.change,pct:+x.percent_change,value:+x.value};});
+      var mEl=$('d2IndicesT'), sEl=$('d2SubIndicesT');
+      var empty='<tr><td colspan="4" style="color:var(--d2-muted);font-size:14px;padding:12px 8px">Index data unavailable.</td></tr>';
+      var main=norm.filter(function(x){return MAIN_INDICES[x.name];});
+      var sub=norm.filter(function(x){return !MAIN_INDICES[x.name];});
+      if(mEl) mEl.innerHTML=main.length?main.map(idxRow).join(''):empty;
+      if(sEl) sEl.innerHTML=sub.length?sub.map(idxRow).join(''):empty;
+    }).catch(function(){});
   }
 
-  paintStatus();
-  initReveal();
-  initSearch();
+  loadSpark().then(function(){
+    if(window.NepseLive&&window.NepseLive.start){
+      window.NepseLive.start({ el:'d2LiveBadge', onData:onLive });
+    } else {
+      // Fallback if nepse-live.js failed to load: direct fetch on the same
+      // 60s contract (hidden-tab suppression included). Never a reload loop.
+      var fbTick=function(){
+        getJSON('live.json').then(function(raw){
+          var d={ asof:Date.parse(raw.asof), index:raw.index?{value:+raw.index.value,change:+raw.index.change,pct:+raw.index.percent_change,high:+raw.index.high,low:+raw.index.low,prev:+raw.index.previous_close}:{}, quotes:{} };
+          (raw.quotes||[]).forEach(function(q){ d.quotes[q.symbol]={symbol:q.symbol,name:q.name,ltp:+q.ltp,change:+q.change,pct:+q.percent_change,volume:+q.volume,turnover:+q.turnover,trades:+q.trades}; });
+          onLive(d,{state:raw.market==='OPEN'?'live':'closed'});
+        }).catch(function(){ paintMarketEmpty('Market data is temporarily unavailable.'); });
+      };
+      fbTick();
+      setInterval(function(){ if(!document.hidden) fbTick(); }, 60000);
+    }
+  });
   initTurnTabs();
-
-  var marketLoaded=false, lastAsof=null, lastNewsSig='';
-  function loadMarket(){
-    return getJSON('live.json').then(function(live){
-      marketLoaded=true;
-      var asof=live&&live.asof?live.asof:null;
-      if(asof!==lastAsof){ lastAsof=asof; paintMarket(live); }
-    }).catch(function(){ if(!marketLoaded) paintMarketEmpty('Market data is temporarily unavailable.'); });
-  }
-  function loadNews(){
-    return getJSON('news.json').then(function(n){
-      var sig='';
-      try{ sig=JSON.stringify(n).length+'|'+((n&&n[0]&&n[0].title)||''); }catch(e){}
-      if(sig!==lastNewsSig){ lastNewsSig=sig; paintNews(n); }
-    }).catch(function(){ if(!lastNewsSig) $('ahNews').innerHTML='<li style="padding:12px 0;color:var(--muted);font-size:14px">Headlines are temporarily unavailable.</li>'; });
-  }
-  loadMarket();
-  loadNews();
-  /* Trending-now sparklines (hardcoded snapshot; see section comment). */
-  document.querySelectorAll('canvas.nd-trend-spark').forEach(function(cv){
-    try{
-      var data = JSON.parse(cv.getAttribute('data-spark'));
-      var dpr = window.devicePixelRatio || 1, W = cv.clientWidth || 220, H = 44;
-      cv.width = W*dpr; cv.height = H*dpr;
-      var c = cv.getContext('2d'); c.scale(dpr,dpr);
-      var mn = Math.min.apply(null,data), mx = Math.max.apply(null,data), rg = (mx-mn)||1;
-      var up = data[data.length-1] >= data[0];
-      c.beginPath();
-      data.forEach(function(v,i){
-        var x = 2 + i*(W-4)/(data.length-1), y = 3 + (1-(v-mn)/rg)*(H-6);
-        if(i===0) c.moveTo(x,y); else c.lineTo(x,y);
-      });
-      c.strokeStyle = up ? '#1a7a3c' : '#b3402e'; c.lineWidth = 1.5; c.stroke();
-      c.lineTo(W-2,H); c.lineTo(2,H); c.closePath();
-      c.fillStyle = up ? 'rgba(26,122,60,.10)' : 'rgba(179,64,46,.10)'; c.fill();
-    }catch(e){}
-  });
+  initPulse();
   getJSON('verdicts.json').then(paintVerdicts).catch(function(){
-    $('vd-asof').textContent='Verdict data is temporarily unavailable.';
-    $('vd-buys').innerHTML='<p class="vd-empty">Verdict data is temporarily unavailable.</p>';
-    $('vd-exits').innerHTML='<p class="vd-empty">Verdict data is temporarily unavailable.</p>';
-  });
-  /* Auto-refresh: re-fetch the canonical payloads every 60 s (skipped while the
-     tab is hidden). Repaints only when the session (asof) or headlines actually
-     changed, so the page stays live — date, time, prices — without a reload. */
-  setInterval(function(){
-    if(document.hidden) return;
-    loadMarket();
-    loadNews();
-  }, 60000);
-
-  /* Full 23-year history arrived after first paint (js/nepse-daily-history.js):
-     extend the candlestick range in place without rebuilding the chart. */
-  window.addEventListener('nepse-daily:full', function(){
-    if (LW.series) { try { LW.series.setData(lwRows(LW.lastLive)); } catch(e){} }
+    if($('d2VdAsof'))$('d2VdAsof').textContent='Verdict data is temporarily unavailable.';
+    if($('d2VdBuys'))$('d2VdBuys').innerHTML='<p class="d2-caption">Verdict data is temporarily unavailable.</p>';
+    if($('d2VdExits'))$('d2VdExits').innerHTML='<p class="d2-caption">Verdict data is temporarily unavailable.</p>';
   });
 })();
-
-});
-
 </script>
-<script src="/js/theme-toggle.js?v=4643d10e" defer></script>
+<script src="/js/theme-toggle.js?v=a383d477" defer></script>
 <script src="/js/freshness-badge.js" defer></script>
 </body>
 </html>

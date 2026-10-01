@@ -108,6 +108,10 @@
     return 'Others';
   }
   var sectorMap = null;
+  var nameMap = null;
+  function nameOf(sym) {
+    return (nameMap && nameMap[sym]) || String(sym || '');
+  }
   function sectorOf(e, sym) {
     // Authoritative verdicts.json sec (written by the universe builder from
     // tools/sector-map.json) wins; the local classifier is the fallback.
@@ -128,9 +132,11 @@
       })
       .then(function (res) {
         sectorMap = {};
+        nameMap = {};
         var uj = res[1];
         if (uj && uj.symbols) uj.symbols.forEach(function (it) {
           if (it.s) sectorMap[it.s] = classifySymbol(it.s, it.n, it.t);
+          if (it.s && it.n) nameMap[it.s] = it.n;
         });
         return res[0];
       });
@@ -163,7 +169,7 @@
         if (ch > 0) g.adv++; else if (ch < 0) g.dec++; else g.flat++;
         g.rows.push({ sym: sym, p: p, ch: ch });
       }
-      g.tiles.push({ sym: sym, p: p, ch: (ch != null && !isNaN(ch)) ? ch : null, turn: turn });
+      g.tiles.push({ sym: sym, name: nameOf(sym), p: p, ch: (ch != null && !isNaN(ch)) ? ch : null, turn: turn, vol: vol });
       if (e.rsi != null && !isNaN(Number(e.rsi))) g.rsis.push(Number(e.rsi));
     });
     var list = Object.keys(sectors).map(function (k) {
@@ -216,7 +222,7 @@
         if (ch > 0) g.adv++; else if (ch < 0) g.dec++; else g.flat++;
         g.rows.push({ sym: sym, p: p, ch: ch });
       }
-      g.tiles.push({ sym: sym, p: p, ch: ch, turn: turn });
+      g.tiles.push({ sym: sym, name: e.name || nameOf(sym), p: p, ch: ch, turn: turn, vol: (e.volume != null && !isNaN(Number(e.volume))) ? Number(e.volume) : null });
     });
     var list = Object.keys(sectors).map(function (k) {
       var g = sectors[k];
@@ -386,10 +392,230 @@
     }
   }
 
+
+  /* S2 · Market map treemap: top 60 securities sized by turnover or volume,
+   * colored by the same fixed day-change bands as the sector legend. Hover
+   * shows a real-data tooltip; a click opens that security's stock page. */
+  var mapMode = 'turnover';
+  var mapRects = [];
+  var MAP_TOP = 60;
+  function mapBands() {
+    var light = document.documentElement.getAttribute('data-theme') === 'light';
+    if (light) return {
+      up2: ['#1E7A44', '#FAF8F2'], up1: ['#DDEEDD', '#0C1F16'],
+      n: ['#FAF8F2', '#0C1F16'], dn1: ['#F3D9D4', '#0C1F16'],
+      dn2: ['#B23A2E', '#FAF8F2'], none: ['#E7DFCE', '#66705F']
+    };
+    return {
+      up2: ['#3ddc84', '#06120c'], up1: ['#1d5c38', '#d9f5e5'],
+      n: ['#232c3a', '#aeb8c6'], dn1: ['#7a2f28', '#ffd9d4'],
+      dn2: ['#ff5d5d', '#1c0605'], none: ['#1a2230', '#525c6c']
+    };
+  }
+  function mapBandOf(ch) {
+    if (ch == null || isNaN(ch)) return 'none';
+    if (ch >= 1.5) return 'up2';
+    if (ch >= 0.25) return 'up1';
+    if (ch > -0.25) return 'n';
+    if (ch > -1.5) return 'dn1';
+    return 'dn2';
+  }
+  function mapItems(sectors) {
+    var all = [];
+    (sectors || []).forEach(function (g) {
+      (g.tiles || []).forEach(function (t) {
+        var size = mapMode === 'volume' ? (t.vol || 0) : (t.turn || 0);
+        if (size > 0) all.push({
+          sym: t.sym, name: t.name || t.sym, sec: g.name,
+          p: t.p, ch: t.ch, turn: t.turn, vol: t.vol, size: size
+        });
+      });
+    });
+    all.sort(function (a, b) { return b.size - a.size; });
+    return all.slice(0, MAP_TOP);
+  }
+  /* Squarified treemap layout, ported from the D2 S2 sample
+   * (~/workspace/wt-design samples/js/samples.js). Items must be sorted
+   * desc by size; returns [{item, x, y, w, h}] with no gaps or overlaps. */
+  function squarify(children, x, y, w, h) {
+    var out = [];
+    var total = 0, i;
+    for (i = 0; i < children.length; i++) total += children[i].size;
+    if (!total || w <= 0 || h <= 0) return out;
+    var scale = (w * h) / total;
+    var rest = children.map(function (c) { return { item: c, v: c.size * scale }; });
+    var row = [], rowSum = 0, cx = x, cy = y, cw = w, ch = h;
+    function worst(rs) {
+      var s = Math.min(cw, ch), sum = 0, mx = 0, mn = Infinity, k;
+      for (k = 0; k < rs.length; k++) {
+        sum += rs[k].v;
+        if (rs[k].v > mx) mx = rs[k].v;
+        if (rs[k].v < mn) mn = rs[k].v;
+      }
+      if (!sum || !mn || !isFinite(mn) || !s) return Infinity;
+      return Math.max((s * s * mx) / (sum * sum), (sum * sum) / (s * s * mn));
+    }
+    function layoutRow() {
+      var horizontal = cw >= ch;
+      var shortSide = Math.min(cw, ch);
+      var t = shortSide ? rowSum / shortSide : 0;
+      var off = 0, k;
+      for (k = 0; k < row.length; k++) {
+        var it = row[k];
+        var len = rowSum ? (it.v / rowSum) * shortSide : 0;
+        out.push({
+          item: it.item,
+          x: horizontal ? cx : cx + off,
+          y: horizontal ? cy + off : cy,
+          w: horizontal ? t : len,
+          h: horizontal ? len : t
+        });
+        off += len;
+      }
+      if (horizontal) { cx += t; cw -= t; } else { cy += t; ch -= t; }
+      row = []; rowSum = 0;
+    }
+    while (rest.length) {
+      var it = rest[0];
+      var trial = row.concat([it]);
+      if (!row.length || worst(trial) <= worst(row)) {
+        row = trial; rowSum += it.v; rest.shift();
+      } else {
+        layoutRow();
+      }
+    }
+    if (row.length) layoutRow();
+    return out;
+  }
+  function mapLabel(ctx, rect, bands) {
+    var it = rect.item, pad = 6;
+    if (rect.w < 36 || rect.h < 32) return;
+    var band = bands[mapBandOf(it.ch)];
+    ctx.fillStyle = band[1];
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    var fs = (rect.w > 120 && rect.h > 56) ? 13 : 11;
+    ctx.font = '700 ' + fs + 'px Inter,system-ui,sans-serif';
+    ctx.fillText(String(it.sym).slice(0, 12), rect.x + pad, rect.y + pad, Math.max(0, rect.w - pad * 2));
+    if (rect.h > 46) {
+      ctx.font = '600 11px Inter,system-ui,sans-serif';
+      var chs = (it.ch == null || isNaN(it.ch)) ? '-' :
+        ((it.ch > 0 ? '+' : '') + Number(it.ch).toFixed(2) + '%');
+      ctx.fillText(chs, rect.x + pad, rect.y + pad + fs + 4, Math.max(0, rect.w - pad * 2));
+    }
+  }
+  function renderMap(sectors) {
+    var cv = $('sxMap');
+    if (!cv || !sectors || !sectors.length) return;
+    var dpr = window.devicePixelRatio || 1;
+    var W = cv.clientWidth || 800;
+    var csH = parseInt((window.getComputedStyle ? getComputedStyle(cv).height : ''), 10);
+    var H = (csH && csH > 0) ? csH : 420;
+    cv.width = Math.round(W * dpr);
+    cv.height = Math.round(H * dpr);
+    var ctx = cv.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    var items = mapItems(sectors);
+    var bands = mapBands();
+    var light = document.documentElement.getAttribute('data-theme') === 'light';
+    ctx.fillStyle = light ? '#FAF8F2' : '#0b0f15';
+    ctx.fillRect(0, 0, W, H);
+    mapRects = items.length ? squarify(items, 0, 0, W, H) : [];
+    mapRects.forEach(function (r) {
+      var band = bands[mapBandOf(r.item.ch)];
+      ctx.fillStyle = band[0];
+      var gap = 2, x = r.x + gap / 2, y = r.y + gap / 2,
+          w = r.w - gap, h = r.h - gap;
+      if (w > 0 && h > 0) ctx.fillRect(x, y, w, h);
+      mapLabel(ctx, r, bands);
+    });
+    var cnt = $('sxMapCount');
+    if (cnt) cnt.textContent = items.length ? ('Top ' + items.length + ' by ' + mapMode) : '';
+    var st = $('sxMapState');
+    if (st) st.textContent = lastLiveAsOf ? 'LIVE' : 'BATCH';
+    var src = $('sxMapSrc');
+    if (src) src.textContent = 'Top ' + (items.length || MAP_TOP) + ' by ' + mapMode +
+      ' · tile color follows the fixed day-change bands · click a tile for its page';
+  }
+  function mapHit(mx, my) {
+    for (var i = mapRects.length - 1; i >= 0; i--) {
+      var r = mapRects[i];
+      if (mx >= r.x && mx <= r.x + r.w && my >= r.y && my <= r.y + r.h) return r;
+    }
+    return null;
+  }
+  function mapTipHTML(it) {
+    var px = (it.p != null && isFinite(it.p))
+      ? 'Rs ' + Number(it.p).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-';
+    var ch = (it.ch == null || isNaN(it.ch)) ? '-'
+      : ((it.ch > 0 ? '+' : '') + Number(it.ch).toFixed(2) + '%');
+    var h = '<div class="t-sym">' + esc(it.sym) + '</div>' +
+      '<div class="t-name">' + esc(it.name) + '</div>' +
+      '<div class="t-row"><span>Price</span><b>' + esc(px) + '</b></div>' +
+      '<div class="t-row"><span>Day change</span><b>' + esc(ch) + '</b></div>' +
+      '<div class="t-row"><span>Turnover</span><b>' + esc(fmtTurn(it.turn) || '-') + '</b></div>' +
+      '<div class="t-row"><span>Volume</span><b>' + esc(it.vol != null ? Number(it.vol).toLocaleString('en-US') : '-') + '</b></div>' +
+      '<div class="t-row"><span>Sector</span><b>' + esc(it.sec) + '</b></div>';
+    return h;
+  }
+  function stockURL(sym) {
+    return '/stocks/' + encodeURIComponent(String(sym).replace(/\//g, '-')) + '/';
+  }
+  function initMap() {
+    var cv = $('sxMap');
+    if (!cv) return;
+    var tip = $('sxMapTip');
+    cv.addEventListener('mousemove', function (ev) {
+      var r = cv.getBoundingClientRect();
+      var hit = mapHit(ev.clientX - r.left, ev.clientY - r.top);
+      if (hit && tip) {
+        tip.innerHTML = mapTipHTML(hit.item);
+        tip.style.display = 'block';
+        var tw = tip.offsetWidth, th = tip.offsetHeight;
+        var lx = ev.clientX + 14, ly = ev.clientY + 14;
+        if (lx + tw > window.innerWidth - 8) lx = ev.clientX - tw - 14;
+        if (ly + th > window.innerHeight - 8) ly = ev.clientY - th - 14;
+        tip.style.left = lx + 'px';
+        tip.style.top = ly + 'px';
+        cv.style.cursor = 'pointer';
+      } else {
+        if (tip) tip.style.display = 'none';
+        cv.style.cursor = 'default';
+      }
+    });
+    cv.addEventListener('mouseleave', function () { if (tip) tip.style.display = 'none'; });
+    cv.addEventListener('click', function (ev) {
+      var r = cv.getBoundingClientRect();
+      var hit = mapHit(ev.clientX - r.left, ev.clientY - r.top);
+      if (hit) window.location.href = stockURL(hit.item.sym);
+    });
+    var seg = document.querySelectorAll('.d2-seg button');
+    for (var i = 0; i < seg.length; i++) {
+      seg[i].addEventListener('click', function () {
+        for (var j = 0; j < seg.length; j++)
+          seg[j].setAttribute('aria-pressed', seg[j] === this ? 'true' : 'false');
+        mapMode = (this.getAttribute('data-size') === 'volume') ? 'volume' : 'turnover';
+        renderMap(currentSectors);
+      });
+    }
+    var rsz = null;
+    window.addEventListener('resize', function () {
+      if (rsz) clearTimeout(rsz);
+      rsz = setTimeout(function () { renderMap(currentSectors); }, 150);
+    });
+    try {
+      new MutationObserver(function (muts) {
+        for (var k = 0; k < muts.length; k++) {
+          if (muts[k].attributeName === 'data-theme') { renderMap(currentSectors); break; }
+        }
+      }).observe(document.documentElement, { attributes: true });
+    } catch (e) { /* older browsers keep the current theme colors */ }
+  }
+
   var currentSectors = [];
   var lastLiveAsOf = 0;
 
-  function drawAll(agg, isLive) {
+  function drawAll(agg, isLive, marketState) {
     currentSectors = agg.sectors;
     renderHeat(currentSectors);
     renderCards(currentSectors);
@@ -397,22 +623,26 @@
     renderTable(currentSectors, sel ? sel.value : 'change');
     animateSectors();
     var sxAsof = $('sx-asof');
-    if (isLive) {
-      sxAsof.textContent = 'Live session of ' + fmtLiveDay(agg.asof) + ' · ' +
-        agg.total + ' securities · updating every 15 min';
-    } else {
-      sxAsof.textContent = agg.asof
-        ? 'Aggregated from the batch as of ' + agg.asof + ' · ' + agg.total + ' securities'
-        : agg.total + ' securities aggregated';
+    if (sxAsof) {
+      if (isLive) {
+        var liveNow = (marketState === 'live' || marketState === 'delayed');
+        sxAsof.textContent = (liveNow ? 'Live session of ' : 'Session of ') + fmtLiveDay(agg.asof) + ' · ' +
+          agg.total + ' securities' + (liveNow ? ' · updating every 15 min' : '');
+      } else {
+        sxAsof.textContent = agg.asof
+          ? 'Aggregated from the batch as of ' + agg.asof + ' · ' + agg.total + ' securities'
+          : agg.total + ' securities aggregated';
+      }
+      if (window.NepseFresh && agg.asof && !sxAsof.querySelector('.fresh'))
+        sxAsof.insertAdjacentHTML('beforeend', ' · ' + window.NepseFresh.badge(agg.asof));
     }
-    if (window.NepseFresh && agg.asof && !sxAsof.querySelector('.fresh'))
-      sxAsof.insertAdjacentHTML('beforeend', ' ' + window.NepseFresh.badge(agg.asof));
+    renderMap(currentSectors);
   }
 
   // Recomputes every sector figure from the quote tape whenever a fresh
   // snapshot of TODAY's session lands, in market hours and after close.
   // Never mixes sessions: a tape from any other day is ignored.
-  function paintLiveFromTape(d) {
+  function paintLiveFromTape(d, st) {
     var NL = window.NepseLive;
     if (!NL || !d || !d.quotes || !d.asof || d.asof === lastLiveAsOf) return;
     var dayStr = null, todayStr = null;
@@ -422,10 +652,11 @@
     } catch (e) { /* keep nulls */ }
     if (!dayStr || dayStr !== todayStr) return;
     lastLiveAsOf = d.asof;
-    drawAll(aggregateLiveTape(d, todayStr), true);
+    drawAll(aggregateLiveTape(d, todayStr), true, st && st.state);
   }
 
   function init() {
+    initMap();
     load().then(function (vj) {
       drawAll(aggregate(vj), false);
       var sel = $('sx-sort');
@@ -436,7 +667,7 @@
       // themselves follow the 15-minute tape whenever it is today's.
       var NL = window.NepseLive || null;
       if (NL && $('sx-live')) {
-        NL.start({ el: $('sx-live'), onData: function (d) { paintLiveFromTape(d); } });
+        NL.start({ el: $('sx-live'), onData: function (d, st) { paintLiveFromTape(d, st); } });
       }
     }).catch(showError);
   }

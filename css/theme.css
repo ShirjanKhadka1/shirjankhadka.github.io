@@ -214,17 +214,23 @@
 [data-theme="dark"] .theme-toggle .tt-sun { display: block; }
 [data-theme="dark"] .theme-toggle .tt-moon { display: none; }
 
-/* Pages with no <header> get a floating toggle instead */
-.theme-toggle.floating {
+/* The toggle lives in exactly one place on every page and every
+   viewport: fixed at the top-right corner, just below the nav bar so it
+   never covers header buttons. (2026-10-01: header injection removed —
+   per-breakpoint header DOM put it in a different spot on laptop /
+   tablet / mobile; top-right chosen per request, like other sites.) */
+.theme-toggle.fixed {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 200;
+  top: 76px;
+  right: calc(16px + env(safe-area-inset-right, 0px));
+  z-index: 80;
+  width: 42px;
+  height: 42px;
   background: var(--card, var(--paper, var(--white, #fff)));
+  border: 1px solid var(--hairline, var(--line, #d2d2d7));
   box-shadow: 0 6px 20px rgba(0, 0, 0, .18);
 }
 
-/* Keep the toggle clear of cramped headers on small screens */
-@media (max-width: 640px) {
-  .theme-toggle { width: 34px; height: 34px; }
+@media print {
+  .theme-toggle { display: none !important; }
 }

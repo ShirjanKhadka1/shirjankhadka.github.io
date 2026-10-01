@@ -171,6 +171,7 @@ function head(sym, name, slug) {
     '<link rel="stylesheet" href="/css/nepse-wave7.css?v=20261002c">\n' +
     '<link rel="stylesheet" href="/css/nepse-brand.css?v=20261003a">\n' +
     '<link rel="stylesheet" href="/css/nepse-wave8.css?v=20261003a">\n' +    '<link rel="stylesheet" href="/css/theme.css?v=20261001a">\n' +
+    '<link rel="stylesheet" href="/css/nepse-d2.css?v=20261001a">\n' +
 
     '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>\n' +
     '</head>\n';
@@ -296,7 +297,7 @@ const RAIL = '<body>\n<a class="skip" href="#main">Skip to content</a>\n\n' +
   '    </div>\n' +
   '  </div>\n' +
   '</footer>\n' +
-  '<script src="/js/stock-live.js?v=20260930a" defer></script>\n' +  '<script src="/js/theme-toggle.js?v=20261001a" defer></script>\n' +
+  '<script src="/js/stock-live.js?v=20260930a" defer></script>\n' +  '<script src="/js/val-lab.js?v=20261003a" defer></script>\n' +  '<script src="/js/theme-toggle.js?v=20261001a" defer></script>\n' +
 
   '</body>\n</html>\n';
 
@@ -495,6 +496,176 @@ function quarterlyTable(sym, quarterly, sector) {
   }
   h += '</tbody></table></div>\n';
   h += '<p class="sp-note">Profit figures are published cumulative for the fiscal year; the quarterly profit row shows the implied standalone quarter (this quarter minus the prior quarter). P/E is not shown as a trend: the screener prices every historical quarter at today\u2019s price, so a historical P/E would be misleading. – means not published.</p>\n</section>\n';
+  return h;
+}
+
+/* Valuation lab (S6 idiom): metric-synced peer analysis inside the
+ * Fundamentals tab. Clickable metric rows redraw one shared canvas with the
+ * selected metric's real quarterly history for the company against up to five
+ * same-sector peers; peer chips switch the highlighted company.
+ * HONESTY: only filing-based quantities are charted (profit, revenue, EPS,
+ * balance-sheet items, NPL). P/E is offered solely as a point-in-time peer
+ * ranking — never a historical trend. Profit lines are implied standalone
+ * quarters (published cumulative minus the prior quarter). All series come
+ * from quarterly.json; unpublished quarters render as gaps, never as zeros. */
+function valLab(sym, name, sector, sectorPeers, quarterly, fund, snap, asofD) {
+  const g = sectorGroup(sector);
+  if (g === 'inst') return '';
+  const sq = quarterly && quarterly.symbols && quarterly.symbols[sym];
+  if (!sq || !sq.quarters) return '';
+  const ql = Object.keys(sq.quarters).map((k) => {
+    const m = /^(\d{4})\/(\d{4})-Q([1-4])$/.exec(k);
+    if (!m) return null;
+    return { key: k, fy: m[1] + '/' + m[2], y0: +m[1], q: +m[3] };
+  }).filter(Boolean).sort((a, b) => (a.y0 - b.y0) || (a.q - b.q));
+  if (ql.length < 2) return '';
+  const show = ql.slice(-12);
+  const showKeys = show.map((x) => x.key);
+  const labels = show.map((x) => 'Q' + x.q + ' ' + x.fy.slice(2, 4) + '/' + x.fy.slice(7, 9));
+  const num = (x) => {
+    if (x === null || x === undefined || x === '') return null;
+    const n = Number(x);
+    return Number.isFinite(n) ? n : null;
+  };
+  const M = (key, label, unit, kind, fmt, field, zeroBased) =>
+    ({ key, label, unit, kind, fmt, field, zeroBased: !!zeroBased });
+  const metrics = [
+    M('netprofit', 'Net profit', 'Rs b', 'pl', 'money', 'netprofit'),
+    M('revenue', 'Revenue', 'Rs b', 'pl', 'money', 'revenue', true),
+    M('eps_ttm', 'EPS (TTM)', 'Rs', 'pt', 'rs', 'eps_ttm'),
+  ].concat(g === 'bank'
+    ? [M('npl_pct', 'NPL ratio', '%', 'pt', 'pct', 'npl_pct', true),
+       M('deposits', 'Deposits', 'Rs b', 'pt', 'money', 'deposits', true)]
+    : [M('assets', 'Total assets', 'Rs b', 'pt', 'money', 'assets', true)]);
+  // Peer set: the focus company + up to 5 same-sector peers (engine-score
+  // order) that actually have quarterly history. X axis is the focus
+  // company's quarter list; peers map onto the same keys, gaps stay null.
+  const peers = [];
+  for (const p of (sectorPeers || [])) {
+    if (p.s === sym) continue;
+    const pq = quarterly.symbols && quarterly.symbols[p.s];
+    if (pq && pq.quarters && Object.keys(pq.quarters).length >= 2) peers.push(p);
+    if (peers.length >= 5) break;
+  }
+  const names = {};
+  names[sym] = name;
+  peers.forEach((p) => { names[p.s] = p.n; });
+  const seriesForKeys = (qd) => {
+    const qb = {};
+    Object.keys(qd).forEach((k) => { qb[k] = qd[k]; });
+    const prevOf = (key) => {
+      const m = /^(\d{4})\/(\d{4})-Q([1-4])$/.exec(key);
+      if (!m) return null;
+      const fy = m[1] + '/' + m[2], q = +m[3], y0 = +m[1];
+      if (q > 1) return qb[fy + '-Q' + (q - 1)] || null;
+      const p0 = y0 - 1;
+      return qb[p0 + '/' + (p0 + 1) + '-Q4'] || null;
+    };
+    const out = {};
+    for (const m of metrics) {
+      out[m.key] = showKeys.map((key) => {
+        const d = qb[key];
+        if (!d) return null;
+        if (m.kind === 'pl') {
+          const c = num(d[m.field]);
+          if (c === null) return null;
+          const q = +key.slice(-1);
+          if (q === 1) return c / 1e6;
+          const pd = prevOf(key);
+          const pc = pd ? num(pd[m.field]) : null;
+          return pc === null ? null : (c - pc) / 1e6;
+        }
+        const v = num(d[m.field]);
+        return v === null ? null : (m.fmt === 'money' ? v / 1e6 : v);
+      });
+    }
+    return out;
+  };
+  const series = {};
+  const allSyms = [sym].concat(peers.map((p) => p.s));
+  for (const s of allSyms) series[s] = seriesForKeys(quarterly.symbols[s].quarters);
+  // Point-in-time P/E (TTM) for the ranking chart; 0/absent = not published.
+  const peOf = (s) => {
+    const f = fund && fund.companies && fund.companies[s];
+    const pe = f && f.pe_ttm;
+    return (pe === null || pe === undefined || pe === 0) ? null : Number(pe);
+  };
+  const pe = {};
+  for (const s of allSyms) pe[s] = peOf(s);
+  const fmtV = (m, v) => {
+    if (v === null || v === undefined || !isFinite(v)) return '–';
+    if (m.fmt === 'money') {
+      const a = Math.abs(v);
+      return 'Rs ' + (a < 1 ? (v * 1000).toFixed(1) + 'm' : v.toFixed(2) + 'b');
+    }
+    if (m.fmt === 'pct') return v.toFixed(2) + '%';
+    if (m.fmt === 'rs') return 'Rs ' + v.toFixed(2);
+    return String(v);
+  };
+  const lastOf = (arr) => {
+    for (let i = arr.length - 1; i >= 0; i--) {
+      const v = arr[i];
+      if (v !== null && isFinite(v)) return v;
+    }
+    return null;
+  };
+  const subOf = (m) => m.kind === 'pl'
+    ? 'standalone quarter · ' + m.unit
+    : (m.key === 'eps_ttm' ? 'trailing twelve months · ' + m.unit : 'latest published · ' + m.unit);
+  let rows = '';
+  metrics.forEach((m, i) => {
+    rows += '<button type="button" class="d2-metric-row" data-metric="' + m.key + '"' +
+      ' aria-pressed="' + (i === 0 ? 'true' : 'false') + '">' +
+      '<span class="m-name">' + esc(m.label) + '<small>' + esc(subOf(m)) + '</small></span>' +
+      '<span class="m-val">' + esc(fmtV(m, lastOf(series[sym][m.key]))) + '</span></button>\n';
+  });
+  const peTxt = pe[sym] === null ? '–' : pe[sym].toFixed(2) + '×';
+  rows += '<button type="button" class="d2-metric-row" data-metric="__pe" aria-pressed="false">' +
+    '<span class="m-name">P/E (TTM)<small>point-in-time peer ranking · ×</small></span>' +
+    '<span class="m-val">' + esc(peTxt) + '</span></button>\n';
+  const chips = allSyms.map((s, i) =>
+    '<button type="button" data-sym="' + esc(s) + '" aria-pressed="' + (i === 0 ? 'true' : 'false') + '"' +
+    ' aria-label="Highlight ' + esc(s) + ' in the chart">' + esc(s) + '</button>').join('\n');
+  const px = snap && snap.p !== null && snap.p !== undefined
+    ? 'Rs ' + Number(snap.p).toLocaleString('en-US') : '–';
+  const chN = snap ? Number(snap.ch) : NaN;
+  const chHtml = isFinite(chN)
+    ? '<div class="c ' + (chN > 0 ? 'up' : chN < 0 ? 'dn' : '') + '">' +
+      (chN > 0 ? '+' : '') + chN.toFixed(2) + '%</div>'
+    : '';
+  const fundPeriod = (fund && fund.period) || '';
+  const payload = {
+    quarters: labels, series, pe, focus: sym, peerNames: names, sector: sector || '',
+    metrics: metrics.map((m) => ({
+      key: m.key, label: m.label, unit: m.unit, kind: m.kind,
+      fmt: m.fmt, zeroBased: m.zeroBased,
+    })),
+  };
+  let h = '<section class="d2-val-lab" id="valLab" aria-label="Valuation lab">\n';
+  h += '<p class="d2-val-label">Valuation lab · ' + esc(sector || 'sector peers') + '</p>\n';
+  h += '<div class="d2-val-grid">\n<div>\n';
+  h += '<div class="d2-val-label">Peer set · ' + allSyms.length + ' ' + esc(sector || 'companies') + '</div>\n';
+  h += '<div class="d2-bank-chips" role="group" aria-label="Choose a company to highlight">\n' + chips + '\n</div>\n';
+  h += '<div class="d2-val-co"><div class="d2-val-co-head"><div>' +
+    '<div class="d2-val-co-sym" id="valCoSym">' + esc(sym) + '</div>' +
+    '<div class="d2-val-co-name" id="valCoName">' + esc(name) + '</div></div>' +
+    '<div class="d2-val-co-price"><div class="p">' + esc(px) + '</div>' + chHtml + '</div></div></div>\n';
+  h += '<div class="d2-metric-rows" role="group" aria-label="Valuation metrics">\n' + rows + '</div>\n';
+  h += '</div>\n<div>\n';
+  h += '<div class="d2-val-chart-head"><div><strong id="valChartTitle">–</strong>' +
+    '<span id="valChartSub">–</span></div><div class="d2-val-legend" id="valLegend"></div></div>\n';
+  h += '<div class="d2-val-chart"><canvas id="valChart" role="img" aria-label="Valuation chart"></canvas></div>\n';
+  h += '<p style="font-size:12.5px;color:var(--d2-muted);margin:10px 0 0;line-height:1.65">' +
+    'Profit lines show implied standalone quarters (published cumulative minus the prior quarter). ' +
+    'P/E is a point-in-time peer ranking, never a historical trend. Every figure is from published ' +
+    'quarterly filings — nothing estimated.</p>\n';
+  h += '<div class="d2-fresh"><b>Fundamentals</b><span>as of ' + esc(fundPeriod) + '</span>' +
+    '<span aria-hidden="true">·</span><span>Source: published quarterly filings</span>' +
+    '<span aria-hidden="true">·</span><span>Prices: session ' + esc(asofD || '') + '</span></div>\n';
+  h += '</div>\n</div>\n';
+  h += '<script type="application/json" id="val-lab-data">' +
+    JSON.stringify(payload).replace(/</g, '\\u003c') + '<\/script>\n';
+  h += '</section>\n';
   return h;
 }
 
@@ -789,6 +960,7 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
   h += pill('Daily', v) + pill('Weekly', v && v.w) + pill('Monthly', v && v.m);
   h += '</div>';
   h += '<div class="sp-tabpanel" id="fundamentals" data-panel="fundamentals" role="tabpanel" hidden>';
+  h += valLab(sym, name, sector, sectorPeers, quarterly, fund, { p: pNum, ch: cNum }, asofD);
   h += fundBlock(sym, fund, sector);
   h += quarterlyTable(sym, quarterly, sector);
   h += peerTable(sym, sector, sectorPeers, verdicts, fund);

@@ -31,20 +31,15 @@ Caveat: luxury and design-system share variable names (`--paper`, `--ink`,
 `theme.css` is therefore scoped to `[data-theme="dark"] body.nd` so it never
 leaks onto luxury pages. `style.css` shares no variable names with the others.
 
-## Toggle placement (headers are hand-written per page, no shared template)
+## Toggle placement — one consistent spot (fixed 2026-10-01)
 
-`theme-toggle.js` injects into, in order:
-1. `header.nav .nav-right` (homepage, before the hamburger)
-2. `header.site-header .header-inner` (blog/articles)
-3. `header.nd-topbar` (decode mobile topbar, before the CTA)
-4. `.nd-side` (decode desktop sidebar — both topbar and sidebar exist in the
-   DOM, one hidden per breakpoint, so both get a button)
-5. `header.topbar .topbar-in` (suite + stock pages, before the CTA)
-6. First `<header>` fallback
-7. **Floating button** (`.theme-toggle.floating`, fixed bottom-right) for the 6
-   headerless pages: `nepse-brokers/`, `nepse-news/story/`,
-   `nepse-signals/{momentum,trend-relay,reversal}/`, `nepse-trending/`,
-   `nepse-value/`
+`theme-toggle.js` injects exactly **one** button (`.theme-toggle.fixed`),
+`position: fixed` at the **top-right corner** — just below the nav bar
+(`top: 76px`) so it never covers header buttons — on every page and every
+viewport. Header injection was removed: each page's header DOM differs per
+breakpoint, which had left the button top-left on laptop, top-center on
+tablet and bottom-right on mobile. Top-right chosen per request, matching
+other sites. Safe-area inset on the right; hidden in print.
 
 ## Coverage: 471 of 476 HTML pages
 

@@ -124,9 +124,10 @@
     ((j && j.quotes) || []).forEach(function (q) {
       if (!q || !q.symbol) return;
       quotes[q.symbol] = {
+        symbol: q.symbol,
         ltp: num(q.ltp), change: num(q.change), pct: num(q.percent_change),
         high: num(q.high), low: num(q.low), volume: num(q.volume),
-        turnover: num(q.turnover),
+        turnover: num(q.turnover), trades: num(q.trades),
         prev: num(q.previous_close), updated: q.last_updated || null,
         name: q.name || null
       };

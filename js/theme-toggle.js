@@ -62,46 +62,15 @@
   }
 
   function inject() {
-    // Collect every header container present; most pages have exactly
-    // one, but e.g. nepse-decode has both a mobile topbar and a desktop
-    // sidebar in the DOM (one is display:none per breakpoint).
-    var targets = [];
-    function add(el, ref) {
-      if (el && !el.querySelector('.theme-toggle')) targets.push([el, ref]);
-    }
-    // 1. Portfolio homepage: header.nav .nav-right (before mobile hamburger)
-    var navRight = document.querySelector('header.nav .nav-right');
-    if (navRight) add(navRight, navRight.querySelector('.nav-toggle'));
-    // 2. Blog/articles: header.site-header .header-inner
-    var blogHead = document.querySelector('header.site-header .header-inner');
-    if (blogHead) add(blogHead, null);
-    // 3. Nepse Decode mobile topbar: before the CTA
-    var ndTop = document.querySelector('header.nd-topbar');
-    if (ndTop) add(ndTop, ndTop.querySelector('.nd-btn'));
-    // 4. Nepse Decode desktop sidebar: after the brand
-    var side = document.querySelector('.nd-side');
-    if (side) {
-      var brand = side.querySelector('.brand');
-      add(side, brand ? brand.nextSibling : side.firstChild);
-    }
-    // 5. Suite/stock pages: header.topbar .topbar-in (before the CTA)
-    var topIn = document.querySelector('header.topbar .topbar-in');
-    if (topIn) add(topIn, topIn.querySelector('.btn.small'));
-    // 6. Fallback: first <header>
-    if (!targets.length) {
-      var hdr = document.querySelector('header');
-      if (hdr && !hdr.querySelector('.theme-toggle')) targets.push([hdr, null]);
-    }
-    if (!targets.length && !document.querySelector('.theme-toggle')) {
-      // No header on this page: floating toggle, bottom-right
-      var floating = makeButton();
-      floating.classList.add('floating');
-      document.body.appendChild(floating);
-      return;
-    }
-    targets.forEach(function (t) {
-      t[0].insertBefore(makeButton(), t[1] || null);
-    });
+    // One consistent home for the toggle on every page and every
+    // viewport: a single floating button, fixed bottom-right.
+    // (Header injection was removed 2026-10-01: each page's header DOM
+    // differs per breakpoint, which left the button top-left on laptop,
+    // top-center on tablet and bottom-right on mobile.)
+    if (document.querySelector('.theme-toggle')) return;
+    var btn = makeButton();
+    btn.classList.add('fixed');
+    document.body.appendChild(btn);
   }
 
   function init() {
