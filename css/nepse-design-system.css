@@ -532,7 +532,10 @@
 .w1-item {
   display: flex; align-items: baseline; gap: 12px; padding: 10px 0;
   border-top: 1px solid var(--hairline-soft); font-size: 14px;
+  min-width: 0;
 }
+.w1-item > * { min-width: 0; }
+.w1-item .w1-sub:last-child { overflow: hidden; text-overflow: ellipsis; }
 .w1-item .sc-sym { min-width: 78px; font-weight: 700; text-decoration: none; }
 .w1-item .w1-sub:first-of-type {
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;

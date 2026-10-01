@@ -1073,8 +1073,8 @@ body.loaded .hero-title {
 }
 
 /* ---------- NEPSE Stock Screener (nepse-screener/) : Private Ledger ---------- */
-.sc-cards{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin:24px 0 20px}
-.sc-card{border-radius:16px;padding:20px 10px 16px;text-align:center;border:1px solid var(--hairline);cursor:pointer;background:#fff;box-shadow:0 1px 2px rgba(12,31,22,.04);transition:transform .25s var(--ease),box-shadow .25s var(--ease),border-color .25s var(--ease)}
+.sc-cards{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin:24px 0 20px}
+.sc-card{min-width:0;border-radius:16px;padding:20px 10px 16px;text-align:center;border:1px solid var(--hairline);cursor:pointer;background:#fff;box-shadow:0 1px 2px rgba(12,31,22,.04);transition:transform .25s var(--ease),box-shadow .25s var(--ease),border-color .25s var(--ease)}
 .sc-card:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(12,31,22,.10)}
 .sc-card:active{transform:translateY(-1px) scale(.99)}
 .sc-card:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:16px}
@@ -1085,7 +1085,7 @@ body.loaded .hero-title {
 .sc-exit.is-on{box-shadow:0 0 0 2.5px var(--gold),0 12px 28px rgba(12,31,22,.12)}
 .sc-sexit.is-on{box-shadow:0 0 0 2.5px var(--gold),0 12px 28px rgba(12,31,22,.12)}
 .sc-num{display:block;font-family:var(--serif);font-size:2rem;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.05}
-.sc-lab{display:block;font-size:.66rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-top:7px;color:var(--muted)}
+.sc-lab{display:block;min-width:0;overflow-wrap:anywhere;font-size:.66rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-top:7px;color:var(--muted)}
 .sc-sbuy{background:linear-gradient(180deg,#EAF3ED,#FBFDFB);border-color:#BFE3CC}.sc-sbuy .sc-num{color:#0E6B3A}
 .sc-buy{background:linear-gradient(180deg,#EFF5F1,#FBFDFC);border-color:#CBDECE}.sc-buy .sc-num{color:#1E6B4A}
 .sc-hold{background:linear-gradient(180deg,#FBF6E9,#FDFBF4);border-color:#E9DCC0}.sc-hold .sc-num{color:#8a6d2f}
@@ -1157,8 +1157,8 @@ body.loaded .hero-title {
 .sc-footer{border-top:1px solid var(--hairline);margin-top:36px;padding:22px 0 34px;text-align:center;color:var(--muted);font-size:.88rem}
 .sc-footer a{color:inherit}
 .sc-footer-sub{font-size:.78rem;color:var(--faint);margin-top:4px}
-@media(max-width:860px){.sc-cards{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:520px){.sc-cards{grid-template-columns:repeat(2,1fr)}.sc-num{font-size:1.55rem}.sc-search{margin-left:0;max-width:none}}
+@media(max-width:860px){.sc-cards{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:520px){.sc-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.sc-num{font-size:1.55rem}.sc-search{margin-left:0;max-width:none}}
 /* Wave 8: inline top matches rendered directly beneath the signal cards */
 #sc-card-results{margin:4px 0 26px}
 #sc-card-results[hidden]{display:none}
