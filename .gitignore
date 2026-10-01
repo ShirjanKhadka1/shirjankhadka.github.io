@@ -8,3 +8,17 @@ extract_images.py
 /tools/.cache/
 /tools/broker/data/floorsheet.db
 __pycache__/
+
+# Secrets & credentials — NEVER commit (see SECURITY.md)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials*
+*secret*
+*token*
+id_rsa*
+id_ed25519
+*.p12
+*.pfx
