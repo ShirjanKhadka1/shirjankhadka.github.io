@@ -1,0 +1,22 @@
+# CODEOWNERS — who must review changes to sensitive paths.
+# Shirjan is the sole owner; these rules ensure he (or a designated reviewer)
+# is requested on every PR touching pipelines, builders, or deploy config.
+
+# Workflows — pipeline changes need owner review
+/.github/workflows/ @ShirjanKhadka1
+
+# Builders and data tooling
+/tools/ @ShirjanKhadka1
+
+# Generated data (committed snapshots)
+/nepse-chart/data/ @ShirjanKhadka1
+/nepse-brokers/data/ @ShirjanKhadka1
+
+# Deploy and site config
+/CNAME @ShirjanKhadka1
+/sitemap.xml @ShirjanKhadka1
+
+# Security policy and runbooks
+/SECURITY.md @ShirjanKhadka1
+/INCIDENT.md @ShirjanKhadka1
+/.env.example @ShirjanKhadka1

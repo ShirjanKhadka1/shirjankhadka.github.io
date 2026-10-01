@@ -14,10 +14,16 @@ tests/node_modules/
 tests/test-results/
 tests/playwright-report/
 
-# Secrets and credentials (S0 finding 8 — never commit)
-.env*
+# Secrets & credentials — NEVER commit (see SECURITY.md)
+.env
+.env.*
 !.env.example
 *.pem
 *.key
 credentials*
 *secret*
+*token*
+id_rsa*
+id_ed25519
+*.p12
+*.pfx

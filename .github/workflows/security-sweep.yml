@@ -1,0 +1,75 @@
+# Weekly security sweep (S4)
+#
+# Every Monday: gitleaks over the FULL history, dependency audit, live-site
+# security-header check, and a branch-protection policy check. Any failure
+# notifies via GitHub's native workflow-failure email (same channel as the
+# data pipeline). No secrets are used or exposed by this workflow.
+
+name: Weekly security sweep
+
+on:
+  schedule:
+    # Monday 02:00 UTC = 07:45 NPT
+    - cron: '0 2 * * 1'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-sweep
+  cancel-in-progress: false
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Secret scan — full history
+        uses: gitleaks/gitleaks-action@dcedce43c6f43de0b836d1fe38946645c9c638dc # v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Dependency audit
+        run: |
+          echo "== dependency manifests =="
+          found=0
+          for m in package.json package-lock.json requirements.txt requirements/*.txt Pipfile poetry.lock; do
+            if [ -e "$m" ]; then echo "FOUND: $m"; found=1; fi
+          done
+          if [ "$found" = "0" ]; then
+            echo "OK: no dependency manifests on main — nothing to audit (builders use stdlib node only)"
+          else
+            echo "Manifests present — review pinning manually"
+            exit 1
+          fi
+
+      - name: Live security headers
+        run: |
+          echo "== https://shirjankhadka.com.np/ response headers =="
+          curl -sSI https://shirjankhadka.com.np/ | grep -iE "^(strict-transport-security|content-security-policy|x-content-type-options|referrer-policy|permissions-policy|x-frame-options)" || echo "(none of the hardening headers present yet — expected until Cloudflare is configured; see manual checklist)"
+
+      - name: Branch ruleset check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "== rulesets on this repo =="
+          code=$(curl -s -o /tmp/rs.json -w "%{http_code}" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/ShirjanKhadka1/shirjankhadka.github.io/rulesets?includes_parents=false")
+          if [ "$code" = "200" ]; then
+            python3 -c "
+          import json
+          rs = json.load(open('/tmp/rs.json'))
+          act = [(r.get('name'), r.get('enforcement')) for r in rs]
+          print('rulesets:', act if act else '(none)')
+          print('protect-main active:', any(n == 'protect-main' and e == 'active' for n, e in act))
+          "
+          else
+            echo "INFO: rulesets API returned HTTP $code (token may lack access) -- verify manually under Settings -> Rules"
+          fi

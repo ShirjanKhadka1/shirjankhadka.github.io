@@ -4,12 +4,17 @@
  * Hard data-validation gates. Exit 0 = pass, exit 1 = FAIL (no deploy).
  *
  * Gates:
- *  1. session_date in live.json/universe.json matches newest expected trading day
- *  2. quoted security count within ±3% of the previous manifest (or universe count)
- *  3. no null/zero/negative LTP on any quoted symbol; high>=low>=0 sanity on OHLC
- *  4. no duplicate symbols in universe.json
- *  5. signal files regenerated for the current session (generated_at >= session)
- *  6. manifest.json exists and every tracked file parses as JSON
+ *  0. manifest-present — data/manifest.json exists and parses
+ *  1. live-session-current / universe-session-current — session_date matches
+ *     the newest expected trading day
+ *  2. security-count-stable — quoted count within ±5% of previous manifest
+ *     (manual override requires --override-count-gate + --override-count-reason)
+ *  3. price-sanity — no null/zero/negative LTP; high>=low>=0 OHLC sanity
+ *  4. no-dup-symbols / no-dup-quotes — no duplicate symbols
+ *  5. signals-*-fresh — signal files recomputed for the current session
+ *  6. all-files-parse — every manifest-tracked file parses as JSON
+ *  7. sha256-integrity (S3) — every manifest-tracked file with a recorded
+ *     SHA-256 matches it (tamper / truncation / half-write detection)
  *
  * Usage: node tools/validate-build.js [--session YYYY-MM-DD]
  * Writes validation results to nepse-chart/data/validation.json for /status/.
@@ -17,6 +22,7 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const child_process = require('child_process');
 const td = require('./trading-days');
 
@@ -161,6 +167,24 @@ function main() {
       try { readRepo(rel); } catch (e) { bad.push(rel); if (bad.length >= 10) break; }
     }
     gate('all-files-parse', bad.length === 0, bad.length ? bad.join(', ') : `${Object.keys(manifest.files).length} files ok`);
+  }
+
+  // Gate 7 (S3): SHA-256 integrity — every manifest-tracked file carrying a
+  // recorded sha256 must match it. Catches tampered, truncated, or
+  // half-written files BEFORE deploy.
+  if (manifest) {
+    const bad = [];
+    let checked = 0;
+    for (const [rel, meta] of Object.entries(manifest.files || {})) {
+      if (!meta || !meta.sha256) continue;
+      const abs = path.join(ROOT, rel);
+      if (!fs.existsSync(abs)) { bad.push(`${rel}: MISSING`); continue; }
+      const hash = crypto.createHash('sha256').update(fs.readFileSync(abs)).digest('hex');
+      checked++;
+      if (hash !== meta.sha256) bad.push(`${rel}: HASH MISMATCH`);
+      if (bad.length >= 10) break;
+    }
+    gate('sha256-integrity', bad.length === 0, bad.length ? bad.slice(0, 10).join('; ') : `${checked} files verified`);
   }
 
   const failed = results.filter(r => !r.pass);
