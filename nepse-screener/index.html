@@ -4,34 +4,34 @@
 <script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nepse Decode Screener: Free NEPSE Ranked Buy/Hold/Exit Signals, No Login</title>
-<link rel="stylesheet" href="/css/nepse-design-system.css?v=20261001a">
-<meta name="description" content="Nepse Decode: free NEPSE stock screener, no login: every listed security ranked daily by a transparent rule-based buy/hold/exit engine, with RSI, ATR-based stop-loss and targets. Educational only.">
+<meta name="theme-color" content="#FAF7F0">
+<title>NEPSE Screener: Free Ranked Buy/Hold/Exit Signals, No Login | Nepse Decode</title>
+<link rel="stylesheet" href="/css/nepse-design-system.css?v=d976dab8">
+<meta name="description" content="Free NEPSE screener, no login: every listed security ranked daily by a transparent rule-based buy/hold/exit engine, with RSI, stop-loss & targets.">
 <meta name="author" content="Shirjan Khadka">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-screener/">
 <meta name="robots" content="index, follow, max-image-preview:large">
-<meta name="theme-color" content="#FAF8F2">
 <meta name="keywords" content="nepse screener, nepse stock ranking, nepal stock screener, nepse signals, nepse buy sell signals, nepse stop loss target, nse nepal screener">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="Shirjan Khadka">
-<meta property="og:title" content="Nepse Decode Screener: Daily Ranked NEPSE Signals">
-<meta property="og:description" content="Every NEPSE-listed security ranked daily by a transparent rule-based engine, with stop-loss and target levels. Free, no login. Educational use only.">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:title" content="NEPSE Screener: Free Ranked NEPSE Signals, No Login">
+<meta property="og:description" content="Every NEPSE-listed security ranked daily by a transparent rule-based engine, with stop-loss and target levels. Free, no login.">
 <meta property="og:url" content="https://shirjankhadka.com.np/nepse-screener/">
-<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/og/screener.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Nepse Decode Screener: Daily Ranked NEPSE Signals">
-<meta name="twitter:description" content="Daily ranked NEPSE signals with stop-loss and target levels. Rule-based, transparent, educational.">
+<meta name="twitter:title" content="NEPSE Screener: Free Ranked NEPSE Signals, No Login">
+<meta name="twitter:description" content="Every NEPSE-listed security ranked daily by a transparent rule-based engine, with stop-loss and target levels. Free, no login.">
 <link rel="icon" href="/nepse-screener/icon-32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="/nepse-screener/icon-16.png" sizes="16x16" type="image/png">
 <link rel="apple-touch-icon" href="/nepse-screener/icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Serif+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/style.css?v=20260930a">
-<link rel="stylesheet" href="screener.css?v=20261003a">
-<link rel="stylesheet" href="../nepse-chart/chart.css?v=20260930b">
+<link rel="stylesheet" href="../css/style.css?v=c0d4a8c0">
+<link rel="stylesheet" href="screener.css?v=7fba9a5d">
+<link rel="stylesheet" href="../nepse-chart/chart.css?v=fe8cb0a6">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"Nepse Decode Screener","url":"https://shirjankhadka.com.np/nepse-screener/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Daily ranked NEPSE stock screener: every listed security scored by a transparent rule-based engine (Strong Buy to Strong Sell) with ATR-based stop-loss and target levels, sector, signal, RSI, price and volume filters, RSI extremes and biggest-movers lists, and search. Educational use only, not investment advice.","author":{"@type":"Organization","name":"Nepse Decode"}}
 </script>
@@ -48,9 +48,11 @@
 {"@type":"Question","name":"Is this investment advice?","acceptedAnswer":{"@type":"Answer","text":"No. This is a mechanical, rule-based illustration for education. Markets are uncertain and past patterns do not guarantee future results. Do your own research before any investment decision."}},
 {"@type":"Question","name":"What is the Hit rate column?","acceptedAnswer":{"@type":"Answer","text":"For each security with enough history, the engine's past Buy and Strong Buy calls on equity securities over the last 250 sessions are replayed using only data available at the time. A call counts as a hit when the session's own target (+4x ATR) was reached before its stop-loss (-2x ATR) within the next 20 sessions. The hit rate is hits divided by decided calls; calls where neither level was touched are excluded. Fewer than 5 decided calls shows as a dash. Hit rates are regime-dependent: 31.0% across the older 250-session window (NEPSE +31.0%) versus 11.4% across the most recent 250 sessions (NEPSE -6.2%)."}}]}
 </script>
-<link rel="stylesheet" href="/css/theme.css?v=20261001a">
+<link rel="stylesheet" href="/css/theme.css?v=5b3458b0">
 </head>
-<body class="nd">
+<body class="nd" data-page="screener">
+
+  <a class="skip-link" href="#main">Skip to content</a>
 <header class="nd-topbar">
   <a class="brand" href="/nepse-decode/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="24" height="24">Nepse Decode</a>
   <a class="nd-btn primary" href="/nepse-chart/" style="padding:8px 18px;font-size:0.85rem">Open the Lab</a>
@@ -58,13 +60,16 @@
 <div class="fb-wrap" style="display:flex;justify-content:center;padding:10px 16px 0"><div data-freshness-badge></div></div>
 <nav class="nd-mobilenav" aria-label="Suite tools">
   <a href="/nepse-decode/">Overview</a>
-  <a href="/nepse-chart/">Chart & signals</a>
-<span class="nav-sub">
-  <a href="/nepse-signals/momentum/">Momentum</a>
-  <a href="/nepse-signals/trend-relay/">Trend Relay</a>
-  <a href="/nepse-signals/reversal/">Reversal</a>
-</span>
+  <a href="/nepse-chart/">Chart &amp; signals</a>
+  <span class="nav-sub">
+    <a href="/nepse-signals/momentum/">Momentum</a>
+    <a href="/nepse-signals/trend-relay/">Trend Relay</a>
+    <a href="/nepse-signals/reversal/">Reversal</a>
+  </span>
   <a href="/nepse-screener/" class="active" aria-current="page">Screener</a>
+  <a href="/nepse-trending/">Trending Stocks</a>
+  <a href="/nepse-value/">Value Investing</a>
+  <a href="/nepse-brokers/">Broker Analytics</a>
   <a href="/nepse-sectors/">Sectors</a>
   <a href="/nepse-news/">Market news</a>
   <a href="/nepse-watchlist/">Watchlist</a>
@@ -79,32 +84,46 @@
     <a class="brand" href="/nepse-decode/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
     <nav class="nd-nav" aria-label="Suite tools">
       <p class="nav-kicker">Suite</p>
-  <a href="/nepse-decode/">Overview</a>
-  <a href="/nepse-chart/">Chart & signals</a>
-<span class="nav-sub">
-  <a href="/nepse-signals/momentum/">Momentum</a>
-  <a href="/nepse-signals/trend-relay/">Trend Relay</a>
-  <a href="/nepse-signals/reversal/">Reversal</a>
-</span>
-  <a href="/nepse-screener/" class="active" aria-current="page">Screener</a>
-  <a href="/nepse-sectors/">Sectors</a>
-  <a href="/nepse-news/">Market news</a>
-  <a href="/nepse-watchlist/">Watchlist</a>
-  <a href="/nepse-portfolio/">Portfolio</a>
-  <a href="/nepse-simulator/">Simulator</a>
-  <a href="/nepse-reports/">Reports</a>
-  <a href="/nepse-actions/">Corp. actions</a>
+      <a href="/nepse-decode/">Overview</a>
+      <a href="/nepse-chart/">Chart &amp; signals</a>
+      <span class="nav-sub">
+        <a href="/nepse-signals/momentum/">Momentum</a>
+        <a href="/nepse-signals/trend-relay/">Trend Relay</a>
+        <a href="/nepse-signals/reversal/">Reversal</a>
+      </span>
+      <a href="/nepse-screener/" class="active" aria-current="page">Screener</a>
+      <a href="/nepse-trending/">Trending Stocks</a>
+      <a href="/nepse-value/">Value Investing</a>
+      <a href="/nepse-brokers/">Broker Analytics</a>
+      <a href="/nepse-sectors/">Sectors</a>
+      <a href="/nepse-news/">Market news</a>
+      <a href="/nepse-watchlist/">Watchlist</a>
+      <a href="/nepse-portfolio/">Portfolio</a>
+      <a href="/nepse-simulator/">Simulator</a>
+      <a href="/nepse-reports/">Reports</a>
+      <a href="/nepse-actions/">Corp. actions</a>
     </nav>
     <p class="nd-caption" style="margin-top:32px">Free forever · no login</p>
   </aside>
 
   <div class="nd-content">
     <div class="nd-wrap">
+    <nav aria-label="Breadcrumb" style="margin:4px 0 16px;font-size:.85rem;color:var(--muted,#8A8474)">
+      <ol style="list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+        <li><a href="/" style="color:inherit">Home</a></li>
+        <li aria-hidden="true">/</li>
+        <li><a href="/nepse-decode/" style="color:inherit">Tools</a></li>
+        <li aria-hidden="true">/</li>
+        <li><span aria-current="page" style="color:var(--ink,#1C1A15);font-weight:600">Screener</span></li>
+      </ol>
+    </nav>
 <main id="main">
   <div class="nd-masthead">
     <div>
       <p class="nd-kicker">Screener</p>
-      <h1 style="font-family:var(--serif);font-weight:600;font-size:clamp(1.8rem,4.5vw,2.5rem);letter-spacing:-0.015em">Every stock, ranked</h1>
+      <h1 style="font-family:var(--serif);font-weight:600;font-size:clamp(1.6rem,4vw,2.3rem);letter-spacing:-0.015em">NEPSE Screener: Free Ranked Buy/Hold/Exit Signals, No Login</h1>
+      <p class="nd-subhead" style="font-family:var(--serif);font-weight:600;font-size:clamp(1.05rem,2.4vw,1.3rem);color:var(--ink-soft,#4A463C);margin:8px 0 0">Every stock, ranked</p>
+      <p class="nd-lede" style="margin:10px 0 0;max-width:72ch;color:var(--ink-soft,#4A463C)">This free NEPSE screener ranks every listed security daily with a transparent, rule-based buy/hold/exit engine &mdash; no black box, no login. Each row shows RSI(14), an ATR-based stop-loss and target, and the ten scored factors behind the verdict, so you can audit every signal yourself. Educational use only; nothing here is investment advice.</p>
       <p class="nd-caption" style="margin-top:4px"><span id="sc-live"></span></p>
     </div>
     <span class="nd-fresh" id="sc-asof">Loading…</span>
@@ -152,9 +171,10 @@
 
   <!-- SNAP-START -->
   <section class="sc-top10" aria-label="Top ranked signals">
-    <h2>Top 10 ranked signals <span class="sc-asof-inline">&middot; 2026-09-30</span></h2>
-    <div class="sc-table-wrap"><table class="sc-table">
-      <thead><tr><th>#</th><th>Symbol</th><th>Price</th><th>Change</th><th>Signal</th><th>Setup</th><th>Stop loss</th><th>Target</th></tr></thead>
+    <h2>Top 10 ranked signals <span class="sc-asof-inline" id="sc-top10-asof">&middot; 2026-09-30</span></h2>
+    <div class="table-scroll"><table class="sc-table">
+      <caption class="visually-hidden">Top 10 ranked NEPSE signals from the daily snapshot</caption>
+      <thead><tr><th scope="col">#</th><th scope="col">Symbol</th><th scope="col">Price</th><th scope="col">Change</th><th scope="col">Signal</th><th scope="col">Setup</th><th scope="col">Stop loss</th><th scope="col">Target</th></tr></thead>
       <tbody>
       <tr><td>1</td><td><a href="/nepse-chart/?s=NMFBS">NMFBS</a></td><td>1181.20</td><td>-1.24%</td><td>Strong Buy</td><td>Double Bottom</td><td>1132.17</td><td>1279.25</td></tr>
       <tr><td>2</td><td><a href="/nepse-chart/?s=BNT">BNT</a></td><td>11900.00</td><td>+0.00%</td><td>Strong Buy</td><td>Double Bottom</td><td>11418.71</td><td>12862.58</td></tr>
@@ -171,6 +191,21 @@
     <p class="sc-static-note">Static daily snapshot &middot; the full interactive ranking of 410 securities, with hit-rate tracking and filters, is below.</p>
   </section>
   <!-- SNAP-END -->
+  <script>
+  /* Render the Top-10 snapshot date from /data/manifest.json at runtime;
+     the baked-in date above stays as the no-JS fallback. */
+  (function(){
+    var el = document.getElementById('sc-top10-asof');
+    if(!el) return;
+    fetch('/data/manifest.json', {cache:'no-store'})
+      .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+      .then(function(m){
+        var d = m && (m.session_date || String(m.generated_at_npt || '').slice(0, 10));
+        if(d) el.textContent = '\u00b7 ' + d;
+      })
+      .catch(function(){});
+  })();
+  </script>
 
   <section class="sc-controls" aria-label="Screener controls">
     <label class="sc-show">Show
@@ -213,21 +248,22 @@
 
   <section aria-label="Ranked stocks">
     <div class="sc-summary" id="sc-summary" role="status" aria-live="polite"><b>–</b>&nbsp;of&nbsp;<b>–</b>&nbsp;shown</div>
-    <div class="sc-table-wrap">
+    <div class="table-scroll">
       <table class="sc-table" id="sc-table">
+        <caption class="visually-hidden">Ranked NEPSE securities: price, day change, volume, RSI, signal and setup, hit rate, stop loss and target</caption>
         <thead>
           <tr>
-            <th data-k="sn" class="num">S.N.</th>
-            <th data-k="sec">Sector</th>
-            <th data-k="sym">Symbol</th>
-            <th data-k="p" class="num">Price</th>
-            <th data-k="ch" class="num" title="Day change versus the previous close">Change</th>
-            <th data-k="vol" class="num">Volume</th>
-            <th data-k="rsi" class="num" title="Relative Strength Index (14): under 30 is oversold, over 70 overbought">RSI</th>
-            <th data-k="sig">Signal &amp; Setup</th>
-            <th data-k="tr" class="num" title="Share of past Buy calls that hit the +4xATR target before the -2xATR stop (20 sessions)">Hit rate</th>
-            <th data-k="sl" class="num">Stop Loss (SL)</th>
-            <th data-k="tp" class="num">Target (TP)</th>
+            <th scope="col" data-k="sn" class="num">S.N.</th>
+            <th scope="col" data-k="sec">Sector</th>
+            <th scope="col" data-k="sym">Symbol</th>
+            <th scope="col" data-k="p" class="num">Price</th>
+            <th scope="col" data-k="ch" class="num" title="Day change versus the previous close">Change</th>
+            <th scope="col" data-k="vol" class="num">Volume</th>
+            <th scope="col" data-k="rsi" class="num" title="Relative Strength Index (14): under 30 is oversold, over 70 overbought">RSI</th>
+            <th scope="col" data-k="sig">Signal &amp; Setup</th>
+            <th scope="col" data-k="tr" class="num" title="Share of past Buy calls that hit the +4xATR target before the -2xATR stop (20 sessions)">Hit rate</th>
+            <th scope="col" data-k="sl" class="num">Stop Loss (SL)</th>
+            <th scope="col" data-k="tp" class="num">Target (TP)</th>
           </tr>
         </thead>
         <tbody id="sc-body">
@@ -246,10 +282,26 @@
     <p class="sc-disclaim">Rule-based screening for education only, not investment advice. Signals computed from the last close (<span id="sc-asof2">–</span>). Securities with under 60 sessions of history get no signal.</p>
   </section>
 </main>
+<p class="data-credit" style="font-size:.8rem;color:var(--muted,#6b7280);margin:1.25rem 0 0;">Live quotes via our own 15-minute market snapshot; figures may be delayed — <a href="/data-terms.html">see our data terms</a>.</p>
     </div>
   </div>
 </div>
 
+<section class="nd-seo-copy" aria-label="About the NEPSE screener">
+<h2>About the NEPSE screener</h2>
+<p>The NEPSE screener ranks the whole market so you don&rsquo;t have to open 400 charts. Every listed security is scored by one transparent, rule-based engine on ten factors &mdash; trend versus moving averages, RSI, MACD, turnover, 52-week position, divergences, chart patterns, market backdrop and support/resistance &mdash; and mapped to a verdict from Strong Buy to Strong Exit. Every factor and its contribution is listed, so nothing is a black box.</p>
+<p>Each row carries the numbers a trader actually checks: the latest price and day change, RSI(14), an ATR-based stop-loss and target framing a 1:2 risk-reward, and the engine&rsquo;s hit rate &mdash; how often its past Buy calls on that security reached their target before their stop. The static snapshot above shows the day&rsquo;s top 10; the full interactive table below ranks all 410 securities with search, sector and signal filters.</p>
+<p>The ranking is rebuilt daily from the last closed session, and the session date is printed above the table. NEPSE publishes no free official real-time API, so the screener works from the daily batch and free community mirrors &mdash; figures can lag during market hours and are final only after the close.</p>
+<p>Signals are mechanical outputs of published rules for education. A Strong Buy is the engine&rsquo;s summary of what the chart looks like right now, not a recommendation &mdash; past patterns do not guarantee future results, and you should do your own research before any investment decision.</p>
+</section>
+<section class="nd-faq" aria-label="Frequently asked questions">
+<h2>Screener questions</h2>
+<details><summary>How are the screener signals computed?</summary><p>Each listed security is scored by a rule-based engine on ten transparent factors: trend versus moving averages, RSI, MACD, turnover, 52-week position, divergences, chart patterns, market backdrop and support/resistance. Scores map to Strong Buy, Buy, Hold, Exit/Reduce or Strong Exit. Stop-loss sits 2&times; ATR(14) below the last close and the target 4&times; ATR(14) above it, a 1:2 risk-reward frame.</p></details>
+<details><summary>How often is the ranking updated?</summary><p>The ranking is rebuilt daily from the last closed session. The date of the data is shown above the table.</p></details>
+<details><summary>What do the RSI extremes and Moves most lists show?</summary><p>RSI extremes groups the latest batch by RSI(14): oversold below 30, overbought above 70, plus the ten lowest and ten highest readings. Moves most ranks securities by their 20-session average daily range (high minus low) as a share of the latest close. Both are mechanical measurements for education, not recommendations.</p></details>
+<details><summary>Is this investment advice?</summary><p>No. This is a mechanical, rule-based illustration for education. Markets are uncertain and past patterns do not guarantee future results. Do your own research before any investment decision.</p></details>
+<details><summary>What is the Hit rate column?</summary><p>For each security with enough history, the engine&rsquo;s past Buy and Strong Buy calls on equity securities over the last 250 sessions are replayed using only data available at the time. A call counts as a hit when the session&rsquo;s own target (+4x ATR) was reached before its stop-loss (-2x ATR) within the next 20 sessions. The hit rate is hits divided by decided calls; calls where neither level was touched are excluded. Fewer than 5 decided calls shows as a dash.</p></details>
+</section>
 <style>
 .sf{border-top:1px solid var(--hairline,#E7DFCE);margin-top:64px;background:var(--paper,#FAF8F2);color:var(--ink-soft,#4A463C);font-family:var(--sans,Inter,system-ui,-apple-system,"Segoe UI",sans-serif)}
 .sf-inner{max-width:1200px;margin:0 auto;padding:56px 24px 30px}
@@ -322,6 +374,7 @@
     </nav>
     <p class="sf-note"><strong>Educational use only.</strong> Nothing on this site is investment advice. Prices and figures are compiled from public sources and refreshed every trading day — always verify with your broker before trading.</p>
     <p class="sf-note"><strong>Data sources:</strong> Market data from <a href="https://www.nepalstock.com" target="_blank" rel="noopener">NEPSE (nepalstock.com)</a> and <a href="https://www.sharesansar.com" target="_blank" rel="noopener">ShareSansar</a>. Corporate actions verified against official NEPSE/company notices.</p>
+    <p class="sf-note">Often searched as Srijan Khadka or Shrijan Khadka — the NEPSE tools site by Shirjan Khadka.</p>
     <div class="sf-bottom">
       <span>© 2026 Nepse Decode · Built by <a href="/">Shirjan Khadka</a> in Kathmandu, Nepal</span>
       <span class="sf-social"><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Facebook</a><a href="/blog/">Blog</a><a href="/contact.html">Contact</a></span>
@@ -330,12 +383,12 @@
 </footer>
 
 
-<script src="../js/nepse-fresh.js?v=20260930b" defer></script>
-<script src="../js/nepse-live.js?v=20261001a" defer></script>
-<script src="../js/nepse-wave1.js?v=20260930c" defer></script>
-<script src="../js/nepse-suite.js?v=20261003a" defer></script>
-<script src="../js/nepse-screener.js?v=20261003a" defer></script>
-<script src="/js/theme-toggle.js?v=20261001a" defer></script>
+<script src="../js/nepse-fresh.js?v=ed4a8618" defer></script>
+<script src="../js/nepse-live.js?v=59aad286" defer></script>
+<script src="../js/nepse-wave1.js?v=78773988" defer></script>
+<script src="../js/nepse-suite.js?v=8016ccd9" defer></script>
+<script src="../js/nepse-screener.js?v=56b73ec4" defer></script>
+<script src="/js/theme-toggle.js?v=4643d10e" defer></script>
 <script src="/js/freshness-badge.js" defer></script>
 </body>
 </html>

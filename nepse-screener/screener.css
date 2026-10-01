@@ -28,7 +28,7 @@
   text-transform:uppercase;letter-spacing:.08em;font-size:.72rem}
 
 /* ---------- terminal table ---------- */
-.sc-table-wrap{max-height:min(78vh,1020px);overflow:auto}
+.table-scroll{max-height:min(78vh,1020px);overflow:auto}
 .sc-table thead th{background:var(--pine);color:#F1EEE3;border-bottom:1px solid var(--pine)}
 .sc-table thead th:hover{color:#ffffff;background:var(--emerald-deep)}
 .sc-table thead th.sorted{color:var(--gold)}
@@ -49,7 +49,7 @@
 
 /* ---------- mobile: rows become cards ---------- */
 @media (max-width:640px){
-  .sc-table-wrap{max-height:none;overflow:visible;border:0;background:transparent;box-shadow:none}
+  .table-scroll{max-height:none;overflow:visible;border:0;background:transparent;box-shadow:none}
   .sc-table{min-width:0}
   .sc-table thead{display:none}
   .sc-table,.sc-table tbody,.sc-table tr,.sc-table td{display:block;width:100%}

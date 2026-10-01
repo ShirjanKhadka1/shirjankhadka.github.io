@@ -565,8 +565,9 @@ async function main() {
       '      <tr><td colspan="8">No buy signals in this snapshot &middot; the NEPSE index is below its 200-day average, so the engine is standing aside. The full interactive table below still ranks every security.</td></tr>';
     const frag = '<section class="sc-top10" aria-label="Top ranked signals">\n' +
       '    <h2>Top 10 ranked signals <span class="sc-asof-inline">&middot; ' + universe.asof + '</span></h2>\n' +
-      '    <div class="sc-table-wrap"><table class="sc-table">\n' +
-      '      <thead><tr><th>#</th><th>Symbol</th><th>Price</th><th>Change</th><th>Signal</th><th>Setup</th><th>Stop loss</th><th>Target</th></tr></thead>\n' +
+      '    <div class="table-scroll"><table class="sc-table">\n' +
+      '      <caption class="visually-hidden">Top 10 ranked NEPSE signals from the daily snapshot</caption>\n' +
+      '      <thead><tr><th scope="col">#</th><th scope="col">Symbol</th><th scope="col">Price</th><th scope="col">Change</th><th scope="col">Signal</th><th scope="col">Setup</th><th scope="col">Stop loss</th><th scope="col">Target</th></tr></thead>\n' +
       '      <tbody>\n' + bodyRows + '\n      </tbody>\n' +
       '    </table></div>\n' +
       '    <p class="sc-static-note">Static daily snapshot &middot; the full interactive ranking of ' + symbols.length +

@@ -8,16 +8,24 @@
 (function () {
   'use strict';
   var KEY = 'sk-theme';
-  var DARK_BG = '#0e130f';
-  var LIGHT_BG = '#FAF8F2';
+  var DARK_BG = '#12110e';
+  var LIGHT_BG = '#FAF7F0';
 
   function current() {
     return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
   }
 
   function syncMeta(theme) {
+    // D4: every page carries <meta name="theme-color"> (added in <head> right
+    // after the viewport meta); create it if a page is missing one, then sync
+    // the browser-chrome color to the active theme on every toggle and on init.
     var m = document.querySelector('meta[name="theme-color"]');
-    if (m) m.setAttribute('content', theme === 'dark' ? DARK_BG : LIGHT_BG);
+    if (!m) {
+      m = document.createElement('meta');
+      m.setAttribute('name', 'theme-color');
+      document.head.appendChild(m);
+    }
+    m.setAttribute('content', theme === 'dark' ? DARK_BG : LIGHT_BG);
   }
 
   function syncButton(btn) {

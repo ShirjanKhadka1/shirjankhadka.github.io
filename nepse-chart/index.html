@@ -4,22 +4,23 @@
 <script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nepse Decode Chart: Free NEPSE Candlesticks, Pattern Scanner & Divergence Signals</title>
-<meta name="description" content="Nepse Decode: free NEPSE chart with candlestick charts, Bollinger Bands, EMA/SMA overlays, RSI and Stochastic indicators, automatic chart-pattern and RSI/MACD divergence scanner, support/resistance factors and transparent buy/hold/exit signals for every listed stock. No login.">
+<meta name="theme-color" content="#FAF7F0">
+<title>NEPSE Chart: Free Candlestick Charts, Pattern Scanner & Divergence Signals | Nepse Decode</title>
+<meta name="description" content="Free NEPSE chart, no login: candlestick charts with Bollinger Bands, EMA/SMA, RSI, a pattern & divergence scanner and transparent signals.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-chart/">
 <meta name="robots" content="index, follow, max-image-preview:large">
-<meta name="theme-color" content="#FAF8F2">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Nepse Decode: Patterns, Divergences &amp; Buy/Hold/Exit Signals">
-<meta property="og:description" content="Search any NEPSE stock: live quotes, chart patterns, divergences and a transparent rule-based buy/hold/exit engine. Free, no login.">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:title" content="NEPSE Chart: Free Candlestick Charts, Pattern Scanner & Divergence Signals">
+<meta property="og:description" content="Free NEPSE candlestick charts with pattern & divergence scanning and transparent buy/hold/exit signals. Free, no login.">
 <meta property="og:url" content="https://shirjankhadka.com.np/nepse-chart/">
-<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/og/chart.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
-<meta name="twitter:title" content="Nepse Decode, Patterns, Divergences &amp; Buy/Hold/Exit Signals">
-<meta name="twitter:description" content="Free NEPSE stock lab: live quotes, chart patterns, RSI/MACD divergences and a transparent buy/hold/exit signal engine.">
+<meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/og/chart.png">
+<meta name="twitter:title" content="NEPSE Chart: Free Candlestick Charts, Pattern Scanner & Divergence Signals">
+<meta name="twitter:description" content="Free NEPSE candlestick charts with pattern & divergence scanning and transparent buy/hold/exit signals. Free, no login.">
 <link rel="icon" href="/nepse-chart/icon-32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="/nepse-chart/icon-16.png" sizes="16x16" type="image/png">
 <link rel="apple-touch-icon" href="/nepse-chart/icon-180.png">
@@ -30,8 +31,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Serif+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/nepse-design-system.css?v=20261001a">
-<link rel="stylesheet" href="chart.css?v=20261002a">
+<link rel="stylesheet" href="/css/nepse-design-system.css?v=d976dab8">
+<link rel="stylesheet" href="chart.css?v=fe8cb0a6">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"Nepse Decode","url":"https://shirjankhadka.com.np/nepse-chart/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Free NEPSE charting tool: live quotes for any listed stock, candlestick charts with Bollinger Bands, EMA/SMA overlays, RSI and Stochastic, automatic chart-pattern and divergence detection, and verdicts by the transparent rule-based Alpha Lab engine. Educational use only.","author":{"@type":"Organization","name":"Nepse Decode","url":"https://shirjankhadka.com.np/nepse-chart/"}}
 </script>
@@ -48,9 +49,11 @@
 {"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
 {"@type":"ListItem","position":2,"name":"Chart & signals","item":"https://shirjankhadka.com.np/nepse-chart/"}]}
 </script>
-<link rel="stylesheet" href="/css/theme.css?v=20261001a">
+<link rel="stylesheet" href="/css/theme.css?v=5b3458b0">
 </head>
-<body class="nd">
+<body class="nd" data-page="chart">
+
+  <a class="skip-link" href="#main">Skip to content</a>
 <header class="nd-topbar">
   <a class="brand" href="/nepse-decode/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="24" height="24">Nepse Decode</a>
   <a class="nd-btn primary" href="/nepse-screener/" style="padding:8px 18px;font-size:0.85rem">Screener</a>
@@ -59,13 +62,21 @@
 <nav class="nd-mobilenav" aria-label="Suite tools">
   <a href="/nepse-decode/">Overview</a>
   <a href="/nepse-chart/" class="active" aria-current="page">Chart &amp; signals</a>
+  <span class="nav-sub">
+    <a href="/nepse-signals/momentum/">Momentum</a>
+    <a href="/nepse-signals/trend-relay/">Trend Relay</a>
+    <a href="/nepse-signals/reversal/">Reversal</a>
+  </span>
   <a href="/nepse-screener/">Screener</a>
-  <a href="/nepse-brokers/">Broker Analytics</a>
+  <a href="/nepse-trending/">Trending Stocks</a>
+  <a href="/nepse-value/">Value Investing</a>
   <a href="/nepse-brokers/">Broker Analytics</a>
   <a href="/nepse-sectors/">Sectors</a>
   <a href="/nepse-news/">Market news</a>
   <a href="/nepse-watchlist/">Watchlist</a>
   <a href="/nepse-portfolio/">Portfolio</a>
+  <a href="/nepse-simulator/">Simulator</a>
+  <a href="/nepse-reports/">Reports</a>
   <a href="/nepse-actions/">Corp. actions</a>
 </nav>
 
@@ -76,13 +87,21 @@
       <p class="nav-kicker">Suite</p>
       <a href="/nepse-decode/">Overview</a>
       <a href="/nepse-chart/" class="active" aria-current="page">Chart &amp; signals</a>
+      <span class="nav-sub">
+        <a href="/nepse-signals/momentum/">Momentum</a>
+        <a href="/nepse-signals/trend-relay/">Trend Relay</a>
+        <a href="/nepse-signals/reversal/">Reversal</a>
+      </span>
       <a href="/nepse-screener/">Screener</a>
-  <a href="/nepse-brokers/">Broker Analytics</a>
-  <a href="/nepse-brokers/">Broker Analytics</a>
+      <a href="/nepse-trending/">Trending Stocks</a>
+      <a href="/nepse-value/">Value Investing</a>
+      <a href="/nepse-brokers/">Broker Analytics</a>
       <a href="/nepse-sectors/">Sectors</a>
       <a href="/nepse-news/">Market news</a>
       <a href="/nepse-watchlist/">Watchlist</a>
       <a href="/nepse-portfolio/">Portfolio</a>
+      <a href="/nepse-simulator/">Simulator</a>
+      <a href="/nepse-reports/">Reports</a>
       <a href="/nepse-actions/">Corp. actions</a>
     </nav>
     <p class="nd-caption" style="margin-top:32px">Free forever · no login</p>
@@ -90,11 +109,22 @@
 
   <div class="nd-content">
     <div class="nd-wrap">
+    <nav aria-label="Breadcrumb" style="margin:4px 0 16px;font-size:.85rem;color:var(--muted,#8A8474)">
+      <ol style="list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+        <li><a href="/" style="color:inherit">Home</a></li>
+        <li aria-hidden="true">/</li>
+        <li><a href="/nepse-decode/" style="color:inherit">Tools</a></li>
+        <li aria-hidden="true">/</li>
+        <li><span aria-current="page" style="color:var(--ink,#1C1A15);font-weight:600">Chart &amp; signals</span></li>
+      </ol>
+    </nav>
 <main id="main">
   <div class="nd-masthead">
     <div>
       <p class="nd-kicker">Chart &amp; signals</p>
-      <h1 style="font-family:var(--serif);font-weight:600;font-size:clamp(1.8rem,4.5vw,2.5rem);letter-spacing:-0.015em">The Lab</h1>
+      <h1 style="font-family:var(--serif);font-weight:600;font-size:clamp(1.6rem,4vw,2.3rem);letter-spacing:-0.015em">NEPSE Chart: Free Candlestick Charts, Pattern Scanner &amp; Divergence Signals</h1>
+      <p class="nd-subhead" style="font-family:var(--serif);font-weight:600;font-size:clamp(1.05rem,2.4vw,1.3rem);color:var(--ink-soft,#4A463C);margin:8px 0 0">The Lab</p>
+      <p class="nd-lede" style="margin:10px 0 0;max-width:72ch;color:var(--ink-soft,#4A463C)">This free NEPSE chart workspace covers every security listed on the Nepal Stock Exchange: candlestick charts with Bollinger Bands and EMA/SMA overlays, RSI and Stochastic oscillators, an automatic chart-pattern and RSI/MACD divergence scanner, and transparent buy/hold/exit signals. Search any symbol to open its chart &mdash; free, no login, rebuilt from the latest daily batch.</p>
     </div>
     <span class="nd-fresh" id="nl-asof">Loading data…</span>
   </div>
@@ -204,7 +234,13 @@
     <p class="faq-more">More questions, answered on the <a href="/nepse-decode/">Nepse Decode overview →</a></p>
   </section>
 
-  <style>
+  <section class="nd-seo-copy" aria-label="What this NEPSE chart covers">
+<h2>What this NEPSE chart covers</h2>
+<p>This NEPSE chart covers every currently listed security &mdash; equities, mutual funds, debentures and preference shares. Daily OHLC history comes from the open Nepse-All-Scraper dataset, live quotes during market hours from free community mirrors, and the NEPSE index daily history stretches back to 2003. Timeframes run from 1M to All on daily candles, switching to weekly candles for the longest histories so they stay readable.</p>
+<p>The automatic scanner watches each chart for double tops and bottoms, head &amp; shoulders, triangles and wedges, plus regular and hidden RSI and MACD divergences, drawing every detection on the chart with dates and plain-English notes. Securities without scraper OHLC history &mdash; typically very new listings &mdash; use LTP-only history, are clearly flagged, and have pattern detection disabled.</p>
+<p>An honest note: NEPSE publishes no free official real-time API, so quotes come from free community mirrors and can be delayed. During market hours (Monday&ndash;Friday, 11:00&ndash;15:00 NPT) the quote panel refreshes and the chart includes the session in progress; outside hours you see the last closed session. All signals are mechanical outputs of published rules for education &mdash; not investment advice, not AI predictions.</p>
+</section>
+<style>
 .sf{border-top:1px solid var(--hairline,#E7DFCE);margin-top:64px;background:var(--paper,#FAF8F2);color:var(--ink-soft,#4A463C);font-family:var(--sans,Inter,system-ui,-apple-system,"Segoe UI",sans-serif)}
 .sf-inner{max-width:1200px;margin:0 auto;padding:56px 24px 30px}
 .sf-top{display:flex;gap:18px;align-items:flex-start;margin-bottom:42px}
@@ -276,6 +312,7 @@
     </nav>
     <p class="sf-note"><strong>Educational use only.</strong> Nothing on this site is investment advice. Prices and figures are compiled from public sources and refreshed every trading day — always verify with your broker before trading.</p>
     <p class="sf-note"><strong>Data sources:</strong> Market data from <a href="https://www.nepalstock.com" target="_blank" rel="noopener">NEPSE (nepalstock.com)</a> and <a href="https://www.sharesansar.com" target="_blank" rel="noopener">ShareSansar</a>. Corporate actions verified against official NEPSE/company notices.</p>
+    <p class="sf-note">Often searched as Srijan Khadka or Shrijan Khadka — the NEPSE tools site by Shirjan Khadka.</p>
     <div class="sf-bottom">
       <span>© 2026 Nepse Decode · Built by <a href="/">Shirjan Khadka</a> in Kathmandu, Nepal</span>
       <span class="sf-social"><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Facebook</a><a href="/blog/">Blog</a><a href="/contact.html">Contact</a></span>
@@ -284,14 +321,15 @@
 </footer>
 
 </main>
+<p class="data-credit" style="font-size:.8rem;color:var(--muted,#6b7280);margin:1.25rem 0 0;">Chart history via the community Nepse-All-Scraper archive; live quotes via our own 15-minute snapshot — figures may be delayed. <a href="/data-terms.html">See our data terms</a>.</p>
     </div>
   </div>
 </div>
 
-<script src="/js/nepse-fresh.js?v=20260930b" defer></script>
-<script src="/js/nepse-daily.js?v=20260924d" defer></script>
-<script src="/js/nepse-lab.js?v=20260930c" defer></script>
-<script src="/js/theme-toggle.js?v=20261001a" defer></script>
+<script src="/js/nepse-fresh.js?v=ed4a8618" defer></script>
+<script src="/js/nepse-daily.js?v=51f68f5d" defer></script>
+<script src="/js/nepse-lab.js?v=a24dc03a" defer></script>
+<script src="/js/theme-toggle.js?v=4643d10e" defer></script>
 <script src="/js/freshness-badge.js" defer></script>
 </body>
 </html>

@@ -4,19 +4,24 @@
 <script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#FAF7F0">
 <title>NEPSE Portfolio Tracker: Holdings, P&L, Allocation | Nepse Decode</title>
-<link rel="stylesheet" href="/css/nepse-design-system.css?v=20261001a">
-<meta name="description" content="Free NEPSE portfolio tracker: record holdings, see unrealized and realized P&L, allocation and analytics. Unlimited, no login, saved in your browser.">
+<link rel="stylesheet" href="/css/nepse-design-system.css?v=d976dab8">
+<meta name="description" content="Free NEPSE portfolio tracker, no login: record holdings, see unrealized and realized P&L, allocation and analytics. Unlimited, saved in your browser.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-portfolio/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Nepse Decode Portfolio: Holdings, P&L, Free">
-<meta property="og:description" content="Track your NEPSE holdings with average cost, P&L, allocation and a printable report. Free, unlimited, no login, saved in your browser.">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:type" content="website">
+<meta property="og:title" content="NEPSE Portfolio Tracker: Holdings, P&L, Free">
+<meta property="og:description" content="Track your NEPSE holdings with average cost, P&L, allocation and a printable report. Free, unlimited, no login.">
 <meta property="og:url" content="https://shirjankhadka.com.np/nepse-portfolio/">
-<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/og/portfolio.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Nepse Decode Portfolio: Holdings, P&L, Free">
+<meta name="twitter:title" content="NEPSE Portfolio Tracker: Holdings, P&L, Free">
 <meta name="twitter:description" content="Track your NEPSE holdings with average cost, P&L, allocation and a printable report. Free, unlimited, no login.">
-<meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
+<meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/og/portfolio.png">
 <link rel="icon" href="/nepse-portfolio/icon-32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="/nepse-portfolio/icon-16.png" sizes="16x16" type="image/png">
 <link rel="apple-touch-icon" href="/nepse-portfolio/icon-180.png">
@@ -72,7 +77,7 @@
 .pf-suggest li[aria-selected="true"],.pf-suggest li:hover{background:var(--gold-faint)}
 .pf-hint{font-size:13.5px;color:var(--muted);margin:12px 0 0}
 .pf-hint[hidden]{display:none}
-.pf-table-wrap{overflow-x:auto;background:var(--paper);border:1px solid var(--hairline);border-radius:18px}
+.table-scroll{overflow-x:auto;background:var(--paper);border:1px solid var(--hairline);border-radius:18px}
 .pf-table{width:100%;border-collapse:collapse;font-size:14.5px;min-width:860px}
 .pf-table th{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);text-align:right;padding:14px 16px;border-bottom:1px solid var(--hairline);white-space:nowrap}
 .pf-table th:first-child,.pf-table td:first-child{text-align:left}
@@ -131,28 +136,35 @@
   .pf-print-head{display:block !important;border-bottom:2px solid #111;padding-bottom:10px;margin-bottom:16px}
   .pf-print-head .pf-print-title{font-size:22px;margin:0;font-weight:700}
   .pf-print-head p{font-size:12px;color:#444;margin:4px 0 0}
-  .pf-stat,.pf-card,.pf-table-wrap{box-shadow:none;break-inside:avoid;border-color:#ccc}
+  .pf-stat,.pf-card,.table-scroll{box-shadow:none;break-inside:avoid;border-color:#ccc}
   .pf-sec{margin:20px 0 8px}
   a{color:#111;text-decoration:none}
   .pf-alloc-fill{background:#999 !important}
 }
 </style>
-<link rel="stylesheet" href="/css/theme.css?v=20261001a">
+<link rel="stylesheet" href="/css/theme.css?v=5b3458b0">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Where is my portfolio data stored?","acceptedAnswer":{"@type":"Answer","text":"Only in your own browser, using local storage. Nothing is uploaded to any server and no account is needed — but clearing your browser data will erase it, so the printable report is there for your records."}},{"@type":"Question","name":"How is average cost calculated?","acceptedAnswer":{"@type":"Answer","text":"Weighted average cost: the total amount paid for a security divided by the total quantity held. Each new buy updates it; each recorded sale computes realized P&L against the average cost at the time of sale."}},{"@type":"Question","name":"Are portfolio prices real-time?","acceptedAnswer":{"@type":"Answer","text":"No. Prices come from the latest daily batch, which can lag during trading hours. NEPSE publishes no free official real-time API, so community mirrors and batch data may be delayed."}},{"@type":"Question","name":"Is this investment advice?","acceptedAnswer":{"@type":"Answer","text":"No. The tracker is arithmetic for education — it never recommends buying or selling. Verify figures with your broker before any decision."}}]}
+</script>
 </head>
-<body class="nd">
+<body class="nd" data-page="portfolio">
+
+  <a class="skip-link" href="#main">Skip to content</a>
 <header class="nd-topbar">
   <a class="brand" href="/nepse-decode/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="24" height="24">Nepse Decode</a>
   <a class="nd-btn primary" href="/nepse-chart/" style="padding:8px 18px;font-size:0.85rem">Open the Lab</a>
 </header>
 <nav class="nd-mobilenav" aria-label="Suite tools">
   <a href="/nepse-decode/">Overview</a>
-  <a href="/nepse-chart/">Chart & signals</a>
-<span class="nav-sub">
-  <a href="/nepse-signals/momentum/">Momentum</a>
-  <a href="/nepse-signals/trend-relay/">Trend Relay</a>
-  <a href="/nepse-signals/reversal/">Reversal</a>
-</span>
+  <a href="/nepse-chart/">Chart &amp; signals</a>
+  <span class="nav-sub">
+    <a href="/nepse-signals/momentum/">Momentum</a>
+    <a href="/nepse-signals/trend-relay/">Trend Relay</a>
+    <a href="/nepse-signals/reversal/">Reversal</a>
+  </span>
   <a href="/nepse-screener/">Screener</a>
+  <a href="/nepse-trending/">Trending Stocks</a>
+  <a href="/nepse-value/">Value Investing</a>
   <a href="/nepse-brokers/">Broker Analytics</a>
   <a href="/nepse-sectors/">Sectors</a>
   <a href="/nepse-news/">Market news</a>
@@ -168,28 +180,39 @@
     <a class="brand" href="/nepse-decode/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
     <nav class="nd-nav" aria-label="Suite tools">
       <p class="nav-kicker">Suite</p>
-  <a href="/nepse-decode/">Overview</a>
-  <a href="/nepse-chart/">Chart & signals</a>
-<span class="nav-sub">
-  <a href="/nepse-signals/momentum/">Momentum</a>
-  <a href="/nepse-signals/trend-relay/">Trend Relay</a>
-  <a href="/nepse-signals/reversal/">Reversal</a>
-</span>
-  <a href="/nepse-screener/">Screener</a>
-  <a href="/nepse-brokers/">Broker Analytics</a>
-  <a href="/nepse-sectors/">Sectors</a>
-  <a href="/nepse-news/">Market news</a>
-  <a href="/nepse-watchlist/">Watchlist</a>
-  <a href="/nepse-portfolio/" class="active" aria-current="page">Portfolio</a>
-  <a href="/nepse-simulator/">Simulator</a>
-  <a href="/nepse-reports/">Reports</a>
-  <a href="/nepse-actions/">Corp. actions</a>
+      <a href="/nepse-decode/">Overview</a>
+      <a href="/nepse-chart/">Chart &amp; signals</a>
+      <span class="nav-sub">
+        <a href="/nepse-signals/momentum/">Momentum</a>
+        <a href="/nepse-signals/trend-relay/">Trend Relay</a>
+        <a href="/nepse-signals/reversal/">Reversal</a>
+      </span>
+      <a href="/nepse-screener/">Screener</a>
+      <a href="/nepse-trending/">Trending Stocks</a>
+      <a href="/nepse-value/">Value Investing</a>
+      <a href="/nepse-brokers/">Broker Analytics</a>
+      <a href="/nepse-sectors/">Sectors</a>
+      <a href="/nepse-news/">Market news</a>
+      <a href="/nepse-watchlist/">Watchlist</a>
+      <a href="/nepse-portfolio/" class="active" aria-current="page">Portfolio</a>
+      <a href="/nepse-simulator/">Simulator</a>
+      <a href="/nepse-reports/">Reports</a>
+      <a href="/nepse-actions/">Corp. actions</a>
     </nav>
     <p class="nd-caption" style="margin-top:32px">Free forever · no login</p>
   </aside>
 
   <div class="nd-content">
     <div class="nd-wrap">
+    <nav aria-label="Breadcrumb" style="margin:4px 0 16px;font-size:.85rem;color:var(--muted,#8A8474)">
+      <ol style="list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+        <li><a href="/" style="color:inherit">Home</a></li>
+        <li aria-hidden="true">/</li>
+        <li><a href="/nepse-decode/" style="color:inherit">Tools</a></li>
+        <li aria-hidden="true">/</li>
+        <li><span aria-current="page" style="color:var(--ink,#1C1A15);font-weight:600">Portfolio</span></li>
+      </ol>
+    </nav>
 <main id="main">
 <div id="pf-root">
   <div class="pf-print-head" aria-hidden="true">
@@ -200,7 +223,9 @@
   <div class="nd-masthead">
     <div>
       <p class="nd-kicker">Portfolio</p>
-      <h1 style="font-family:var(--serif);font-weight:600;font-size:clamp(1.8rem,4.5vw,2.5rem);letter-spacing:-0.015em">Your holdings, honestly counted</h1>
+      <h1 style="font-family:var(--serif);font-weight:600;font-size:clamp(1.6rem,4vw,2.3rem);letter-spacing:-0.015em">NEPSE Portfolio Tracker: Holdings, P&amp;L &amp; Allocation, Free</h1>
+      <p class="nd-subhead" style="font-family:var(--serif);font-weight:600;font-size:clamp(1.05rem,2.4vw,1.3rem);color:var(--ink-soft,#4A463C);margin:8px 0 0">Your holdings, honestly counted</p>
+      <p class="nd-lede" style="margin:10px 0 0;max-width:72ch;color:var(--ink-soft,#4A463C)">This free NEPSE portfolio tracker keeps your holdings honestly counted: record buys and sells, track average cost, unrealized and realized P&amp;L, allocation across securities and sectors, and print a clean report. Unlimited holdings, no login &mdash; everything stays in your own browser, never on our servers.</p>
       <p class="nd-caption" style="margin-top:4px"><span id="pf-live"></span></p>
     </div>
     
@@ -240,8 +265,9 @@
     <section class="pf-sec" aria-labelledby="pf-hold-h">
       <h2 id="pf-hold-h">Holdings</h2>
       <p class="pf-lede">Unrealized P&L is quantity times today’s batch price minus your average cost. A holding with no price in the latest batch shows – and is left out of the totals.</p>
-      <div class="pf-table-wrap" id="pf-hold-wrap" hidden>
+      <div class="table-scroll" id="pf-hold-wrap" hidden>
         <table class="pf-table">
+          <caption class="visually-hidden">Holdings: security, quantity, average cost, last traded price, day change, value and unrealized profit and loss</caption>
           <thead><tr>
             <th scope="col">Security</th><th scope="col">Qty</th><th scope="col">Avg cost</th>
             <th scope="col">LTP</th><th scope="col">Day</th><th scope="col">Value</th>
@@ -274,8 +300,9 @@
     <section class="pf-sec" aria-labelledby="pf-sell-h">
       <h2 id="pf-sell-h">Recorded sales</h2>
       <p class="pf-lede">Every sale you record lands here with its realized P&L, computed against the average cost at the time of sale.</p>
-      <div class="pf-table-wrap">
+      <div class="table-scroll">
         <table class="pf-table">
+          <caption class="visually-hidden">Recorded sales: date, security, quantity, sell price, average cost and realized profit and loss</caption>
           <thead><tr>
             <th scope="col">Date</th><th scope="col">Security</th><th scope="col">Qty</th>
             <th scope="col">Sell price</th><th scope="col">Avg cost</th><th scope="col">Realized P&L</th>
@@ -305,10 +332,25 @@
   </div>
 </div>
 </main>
+<p class="data-credit" style="font-size:.8rem;color:var(--muted,#6b7280);margin:1.25rem 0 0;">Live quotes via our own 15-minute market snapshot; figures may be delayed — <a href="/data-terms.html">see our data terms</a>.</p>
     </div>
   </div>
 </div>
 
+<section class="nd-seo-copy" aria-label="About the NEPSE portfolio tracker">
+<h2>About the NEPSE portfolio tracker</h2>
+<p>The NEPSE portfolio tracker keeps your holdings honestly counted. Add any of the 410 listed securities with the quantity you bought and the price you paid; adding more of a security you already hold updates its weighted average cost. The holdings table shows your average cost, the latest batch price, market value and unrealized P&amp;L per line, so every rupee is accounted for.</p>
+<p>Recorded sales land in their own ledger with realized P&amp;L computed against the average cost at the time of sale. Allocation views break your portfolio across securities and sectors so concentration is visible at a glance, the analytics panel summarizes winners, losers and overall return, and a printable report button produces a clean one-page summary for your records.</p>
+<p>Your data never leaves your device: holdings are saved in your browser&rsquo;s local storage, not on any server, and there is no account to create. Prices come from the latest daily batch &mdash; during market hours they can lag the live market, and a holding with no price in the latest batch shows as &ndash; and is left out of the totals rather than guessed.</p>
+<p>This is bookkeeping, not advice. The tracker does the arithmetic; it never tells you what to buy or sell. All P&amp;L figures are mechanical outputs for education &mdash; verify everything against your broker&rsquo;s statements before acting on it.</p>
+</section>
+<section class="nd-faq" aria-label="Frequently asked questions">
+<h2>Portfolio tracker questions</h2>
+<details><summary>Where is my portfolio data stored?</summary><p>Only in your own browser, using local storage. Nothing is uploaded to any server and no account is needed &mdash; but clearing your browser data will erase it, so the printable report is there for your records.</p></details>
+<details><summary>How is average cost calculated?</summary><p>Weighted average cost: the total amount paid for a security divided by the total quantity held. Each new buy updates it; each recorded sale computes realized P&amp;L against the average cost at the time of sale.</p></details>
+<details><summary>Are portfolio prices real-time?</summary><p>No. Prices come from the latest daily batch, which can lag during trading hours. NEPSE publishes no free official real-time API, so community mirrors and batch data may be delayed.</p></details>
+<details><summary>Is this investment advice?</summary><p>No. The tracker is arithmetic for education &mdash; it never recommends buying or selling. Verify figures with your broker before any decision.</p></details>
+</section>
 <style>
 .sf{border-top:1px solid var(--hairline,#E7DFCE);margin-top:64px;background:var(--paper,#FAF8F2);color:var(--ink-soft,#4A463C);font-family:var(--sans,Inter,system-ui,-apple-system,"Segoe UI",sans-serif)}
 .sf-inner{max-width:1200px;margin:0 auto;padding:56px 24px 30px}
@@ -380,6 +422,8 @@
       </div>
     </nav>
     <p class="sf-note"><strong>Educational use only.</strong> Nothing on this site is investment advice. Prices and figures are compiled from public sources and refreshed every trading day — always verify with your broker before trading.</p>
+    <p class="sf-note"><strong>Data sources:</strong> Market data from <a href="https://www.nepalstock.com" target="_blank" rel="noopener">NEPSE (nepalstock.com)</a> and <a href="https://www.sharesansar.com" target="_blank" rel="noopener">ShareSansar</a>. Corporate actions verified against official NEPSE/company notices.</p>
+    <p class="sf-note">Often searched as Srijan Khadka or Shrijan Khadka — the NEPSE tools site by Shirjan Khadka.</p>
     <div class="sf-bottom">
       <span>© 2026 Nepse Decode · Built by <a href="/">Shirjan Khadka</a> in Kathmandu, Nepal</span>
       <span class="sf-social"><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Facebook</a><a href="/blog/">Blog</a><a href="/contact.html">Contact</a></span>
@@ -388,9 +432,9 @@
 </footer>
 
 
-<script src="/js/nepse-fresh.js?v=20260930b"></script>
-<script src="/js/nepse-live.js?v=20261001a"></script>
-<script src="/js/nepse-portfolio.js?v=20260929b"></script>
-<script src="/js/theme-toggle.js?v=20261001a" defer></script>
+<script src="/js/nepse-fresh.js?v=ed4a8618"></script>
+<script src="/js/nepse-live.js?v=59aad286"></script>
+<script src="/js/nepse-portfolio.js?v=7d016cac"></script>
+<script src="/js/theme-toggle.js?v=4643d10e" defer></script>
 </body>
 </html>

@@ -80,15 +80,33 @@
 
   /* ---------------- fetch ---------------- */
 
+  // Conditional requests: every poll revalidates, but an unchanged payload
+  // comes back as 304 with an empty body instead of the full ~94KB JSON.
+  // We keep the last ETag + parsed body per URL ourselves (rather than
+  // relying on the browser HTTP cache with cache:'default', whose max-age
+  // semantics on this host could serve a minutes-stale live.json without
+  // revalidating). A 304 resolves with the cached body so staleness math
+  // and the badge keep working off the same data.
+  var etagCache = {};   // url -> last ETag response header
+  var bodyCache = {};   // url -> last parsed JSON body
+
   function fetchJSON(url) {
     return new Promise(function (resolve, reject) {
       var done = false;
       var timer = setTimeout(function () {
         if (!done) { done = true; reject(new Error('timeout')); }
       }, FETCH_TIMEOUT);
-      fetch(url, { cache: 'no-store' }).then(function (r) {
+      var headers = {};
+      if (etagCache[url]) headers['If-None-Match'] = etagCache[url];
+      fetch(url, { headers: headers }).then(function (r) {
+        if (r.status === 304) {
+          if (bodyCache[url] === undefined) throw new Error('http 304 with empty cache');
+          return bodyCache[url];
+        }
         if (!r.ok) throw new Error('http ' + r.status);
-        return r.json();
+        var et = r.headers.get('ETag');
+        if (et) etagCache[url] = et;
+        return r.json().then(function (j) { bodyCache[url] = j; return j; });
       }).then(function (j) {
         if (!done) { done = true; clearTimeout(timer); resolve(j); }
       }).catch(function (e) {
@@ -246,7 +264,9 @@
     tick();
     var prevMs = marketState();
     var timer = setInterval(function () {
-      if (document.hidden) return;
+      // Poll only while the tab is visible: no wasted revalidation (or
+      // wakeups) for background tabs.
+      if (document.visibilityState !== 'visible') return;
       var ms = marketState();
       if (ms === 'open' || ms === 'preopen') { prevMs = ms; tick(); }
       else {
@@ -257,6 +277,12 @@
       }
     }, opts.poll || POLL_MS);
     var cd = setInterval(tickCountdowns, 1000);
+
+    // Coming back to the tab refreshes immediately instead of waiting for
+    // the next poll tick (cheap: unchanged data is a 304, see fetchJSON).
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible') tick();
+    });
 
     return {
       refresh: tick,

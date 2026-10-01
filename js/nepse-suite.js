@@ -244,7 +244,7 @@
     var bBar = '';
     if (adv != null && dec != null && (adv + dec) > 0) {
       var ap = Math.round(adv / (adv + dec) * 1000) / 10;
-      bBar = '<span class="nlsnap-bar" role="img" aria-label="' + adv + ' advancers, ' + dec + ' decliners">' +
+      bBar = '<span class="nlsnap-bar" role="img" aria-label="' + esc(adv) + ' advancers, ' + esc(dec) + ' decliners">' +
         '<span class="nlsnap-bar-a" data-nlsnap-bar style="width:' + ap + '%"></span></span>';
     }
 
@@ -254,22 +254,22 @@
       '<div class="nlsnap-stats">' +
         '<div class="nlsnap-stat">' +
           '<span class="nlsnap-k">NEPSE index</span>' +
-          '<span class="nlsnap-v tnum" data-count="' + (val != null ? val : '') + '" data-decimals="2" data-nlsnap-ixv>' +
+          '<span class="nlsnap-v tnum" data-count="' + esc(val != null ? val : '') + '" data-decimals="2" data-nlsnap-ixv>' +
             (val != null ? fmt2(val) : '–') + '</span>' +
           '<span class="nlsnap-s tnum ' + chgCls + '" data-nlsnap-ixc>' + esc(chgTxt) + '</span>' +
           (opts.spark ? '<span class="nlsnap-spark" data-nlsnap-spark></span>' : '') +
         '</div>' +
         '<div class="nlsnap-stat">' +
           '<span class="nlsnap-k">Traded securities</span>' +
-          '<span class="nlsnap-v tnum" data-nlsnap-traded data-count="' + (m.traded != null ? m.traded : '') + '">' +
+          '<span class="nlsnap-v tnum" data-nlsnap-traded data-count="' + esc(m.traded != null ? m.traded : '') + '">' +
             (m.traded != null ? fmtInt(m.traded) : '–') + '</span>' +
           '<span class="nlsnap-s">securities with at least one trade</span>' +
         '</div>' +
         '<div class="nlsnap-stat">' +
           '<span class="nlsnap-k">Advancers / decliners</span>' +
-          '<span class="nlsnap-v tnum"><span class="up" data-nlsnap-adv data-count="' + (adv != null ? adv : '') + '">' +
+          '<span class="nlsnap-v tnum"><span class="up" data-nlsnap-adv data-count="' + esc(adv != null ? adv : '') + '">' +
             (adv != null ? fmtInt(adv) : '–') + '</span><span class="nlsnap-sep"> / </span>' +
-            '<span class="down" data-nlsnap-dec data-count="' + (dec != null ? dec : '') + '">' +
+            '<span class="down" data-nlsnap-dec data-count="' + esc(dec != null ? dec : '') + '">' +
             (dec != null ? fmtInt(dec) : '–') + '</span></span>' +
           bBar +
           '<span class="nlsnap-s" data-nlsnap-bnote>' + esc(bNote) + '</span>' +

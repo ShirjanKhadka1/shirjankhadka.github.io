@@ -4,20 +4,23 @@
 <script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nepse Decode – Free Stock Analysis Tools for Every NEPSE Investor</title>
-<meta name="description" content="Nepse Decode: NEPSE candlestick charts, chart-pattern detection, a transparent rule-based signal engine, market screener and attributed news. Free, no login.">
+<meta name="theme-color" content="#FAF7F0">
+<title>NEPSE Tools: Free Dashboard — Charts, Signals, Screener & News | Nepse Decode</title>
+<meta name="description" content="Free NEPSE tools, no login: candlestick charts, pattern scans, a transparent signal engine, market screener and attributed news.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-decode/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Nepse Decode – Free Stock Analysis Tools for Every NEPSE Investor">
-<meta property="og:description" content="Nepse Decode: NEPSE candlestick charts, chart-pattern detection, a transparent rule-based signal engine, market screener and attributed news. Free, no login.">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:type" content="website">
+<meta property="og:title" content="NEPSE Tools: Free Dashboard for Every NEPSE Investor">
+<meta property="og:description" content="Free NEPSE tools: charts, pattern scans, a transparent buy/hold/exit engine and a full-market screener. Free, no login.">
 <meta property="og:url" content="https://shirjankhadka.com.np/nepse-decode/">
-<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/nepse-decode-og.jpg">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Nepse Decode – Free Stock Analysis Tools for Every NEPSE Investor">
-<meta name="twitter:description" content="Charts, pattern scans, a transparent buy/hold/exit engine and a full-market screener for every NEPSE-listed security. Free, no login, educational.">
-<meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/nepse-decode-og.jpg">
+<meta name="twitter:title" content="NEPSE Tools: Free Dashboard for Every NEPSE Investor">
+<meta name="twitter:description" content="Free NEPSE tools: charts, pattern scans, a transparent buy/hold/exit engine and a full-market screener. Free, no login.">
+<meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
 <link rel="icon" href="/nepse-decode/icon-32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="/nepse-decode/icon-16.png" sizes="16x16" type="image/png">
 <link rel="apple-touch-icon" href="/nepse-decode/icon-180.png">
@@ -27,9 +30,10 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"Nepse Decode","url":"https://shirjankhadka.com.np/nepse-decode/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Free NEPSE analysis suite: live quotes for any listed stock, candlestick charts with SMA and RSI, automatic chart-pattern and divergence detection, verdicts by the Alpha Lab engine, a transparent rule-based buy/hold/exit signal system, a full-market screener and attributed market news. Educational use only.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
 </script>
-<link rel="stylesheet" href="/css/nepse-design-system.css?v=20261001a">
+<link rel="stylesheet" href="/css/nepse-design-system.css?v=d976dab8">
 <style>
 /* landing-only */
+.nd-h1 { font-family: var(--serif); font-weight: 600; font-size: clamp(1.7rem, 4vw, 2.3rem); letter-spacing: -0.015em; margin: 2px 0 14px; }
 .nd-market-hero { display: grid; grid-template-columns: 1fr; gap: 20px; }
 @media (min-width: 900px) { .nd-market-hero { grid-template-columns: 1fr 1fr; align-items: stretch; } }
 .nd-idx-num { font-family: var(--serif); font-weight: 600; font-size: clamp(3rem, 9vw, 4.75rem); line-height: 1; letter-spacing: -0.02em; color: #F5F1E6; }
@@ -39,7 +43,7 @@
 /* TERMINAL HERO — deep-green market terminal */
 .nd-terminal { padding: 0; overflow: hidden; }
 .nd-terminal-head { padding: var(--s6) var(--s6) 0; }
-.nd-terminal-chart { position: relative; margin-top: 16px; }
+.nd-terminal-chart { position: relative; margin-top: 16px; touch-action: pan-y; }
 .nd-terminal-chart canvas { width: 100%; height: 300px; display: block; margin: 0; }
 @media (max-width: 640px) { .nd-terminal-chart canvas { height: 220px; } }
 .nd-terminal-ohlc { display: flex; flex-wrap: wrap; gap: 8px 20px; padding: 12px var(--s6) 0; font-size: 0.82rem; color: rgba(245,241,230,.62); font-variant-numeric: tabular-nums; }
@@ -52,11 +56,11 @@
 .nd-chart-tip { position: absolute; pointer-events: none; background: rgba(20,28,22,.95); border: 1px solid rgba(245,241,230,.18); border-radius: 8px; padding: 8px 10px; font-size: 0.75rem; line-height: 1.55; color: #F5F1E6; font-variant-numeric: tabular-nums; white-space: nowrap; z-index: 5; display: none; box-shadow: 0 6px 18px rgba(0,0,0,.35); }
 .nd-chart-tip .tt-d { color: rgba(245,241,230,.6); font-weight: 600; }
 .nd-chart-tip .up { color: #7BD8A4; } .nd-chart-tip .down { color: #F0968A; }
-.nd-terminal-chart canvas { cursor: grab; touch-action: none; }
+.nd-terminal-chart canvas { cursor: grab; touch-action: pan-y; }
 .nd-terminal-chart canvas.dragging { cursor: grabbing; }
 .nd-search { display: flex; gap: 8px; margin-top: 20px; }
 .nd-search input { flex: 1; padding: 12px 18px; border-radius: var(--r-pill); border: 1px solid rgba(245,241,230,.25); background: rgba(245,241,230,.08); color: #F5F1E6; font: inherit; font-size: 0.95rem; }
-.nd-search input::placeholder { color: rgba(245,241,230,.45); }
+.nd-search input::placeholder { color: rgba(245,241,230,.6); }
 .nd-search button { padding: 12px 24px; border-radius: var(--r-pill); border: 0; background: var(--gold); color: #1B1A17; font-weight: 700; cursor: pointer; }
 .nd-search-list { margin-top: 8px; }
 .nd-search-list a { display: block; padding: 8px 4px; color: #F5F1E6; text-decoration: none; font-size: 0.9rem; border-bottom: 1px solid rgba(245,241,230,.12); }
@@ -112,8 +116,8 @@
 .nd-table .up { color: var(--up); font-weight: 600; }
 .nd-table .down { color: var(--down); font-weight: 600; }
 /* data tables scroll horizontally instead of squishing on small screens */
-.nd-tscroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-@media (max-width: 639px) { .nd-tscroll .nd-table { min-width: 340px; } }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+@media (max-width: 639px) { .table-scroll .nd-table { min-width: 340px; } }
 @media (prefers-reduced-motion: reduce) { .nd-ticker-track { animation: none; } }
 /* Breadth chips */
 .nd-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
@@ -140,9 +144,14 @@
 .nd-tab.active { background: var(--green-900); color: #F5F1E6; }
 
 </style>
-<link rel="stylesheet" href="/css/theme.css?v=20261001a">
+<link rel="stylesheet" href="/css/theme.css?v=5b3458b0">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What NEPSE tools are included?","acceptedAnswer":{"@type":"Answer","text":"Candlestick charts with a pattern and divergence scanner, a daily full-market screener with ranked signals, sector performance, a portfolio tracker, a watchlist, verified market news, broker analytics and daily finance research — all free, no login."}},{"@type":"Question","name":"Is the market data real-time?","acceptedAnswer":{"@type":"Answer","text":"No. Data is rebuilt into a daily batch after each trading session; during market hours quotes come from free community mirrors and can be delayed. NEPSE publishes no free official real-time API. Every page shows its session date."}},{"@type":"Question","name":"How does the signal engine work?","acceptedAnswer":{"@type":"Answer","text":"Ten transparent factors are scored on the daily chart and summed into a verdict from Strong Buy to Strong Exit, with every factor’s contribution listed. It is a mechanical illustration for education, not investment advice."}},{"@type":"Question","name":"Who builds Nepse Decode?","acceptedAnswer":{"@type":"Answer","text":"Shirjan Khadka, a finance graduate (BBM, Tribhuvan University) in Kathmandu. The site is his public workspace: the tools he builds and the research he does, shared openly and free."}}]}
+</script>
 </head>
-<body class="nd">
+<body class="nd" data-page="decode">
+
+  <a class="skip-link" href="#main">Skip to content</a>
 
 <header class="nd-topbar">
   <a class="brand" href="/nepse-decode/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="24" height="24">Nepse Decode</a>
@@ -151,11 +160,11 @@
 <nav class="nd-mobilenav" aria-label="Suite tools">
   <a href="/nepse-decode/" class="active" aria-current="page">Overview</a>
   <a href="/nepse-chart/">Chart &amp; signals</a>
-<span class="nav-sub">
-  <a href="/nepse-signals/momentum/">Momentum</a>
-  <a href="/nepse-signals/trend-relay/">Trend Relay</a>
-  <a href="/nepse-signals/reversal/">Reversal</a>
-</span>
+  <span class="nav-sub">
+    <a href="/nepse-signals/momentum/">Momentum</a>
+    <a href="/nepse-signals/trend-relay/">Trend Relay</a>
+    <a href="/nepse-signals/reversal/">Reversal</a>
+  </span>
   <a href="/nepse-screener/">Screener</a>
   <a href="/nepse-trending/">Trending Stocks</a>
   <a href="/nepse-value/">Value Investing</a>
@@ -164,6 +173,8 @@
   <a href="/nepse-news/">Market news</a>
   <a href="/nepse-watchlist/">Watchlist</a>
   <a href="/nepse-portfolio/">Portfolio</a>
+  <a href="/nepse-simulator/">Simulator</a>
+  <a href="/nepse-reports/">Reports</a>
   <a href="/nepse-actions/">Corp. actions</a>
 </nav>
 
@@ -174,11 +185,11 @@
       <p class="nav-kicker">Suite</p>
       <a href="/nepse-decode/" class="active" aria-current="page">Overview</a>
       <a href="/nepse-chart/">Chart &amp; signals</a>
-<span class="nav-sub">
-  <a href="/nepse-signals/momentum/">Momentum</a>
-  <a href="/nepse-signals/trend-relay/">Trend Relay</a>
-  <a href="/nepse-signals/reversal/">Reversal</a>
-</span>
+      <span class="nav-sub">
+        <a href="/nepse-signals/momentum/">Momentum</a>
+        <a href="/nepse-signals/trend-relay/">Trend Relay</a>
+        <a href="/nepse-signals/reversal/">Reversal</a>
+      </span>
       <a href="/nepse-screener/">Screener</a>
       <a href="/nepse-trending/">Trending Stocks</a>
       <a href="/nepse-value/">Value Investing</a>
@@ -187,14 +198,26 @@
       <a href="/nepse-news/">Market news</a>
       <a href="/nepse-watchlist/">Watchlist</a>
       <a href="/nepse-portfolio/">Portfolio</a>
+      <a href="/nepse-simulator/">Simulator</a>
+      <a href="/nepse-reports/">Reports</a>
       <a href="/nepse-actions/">Corp. actions</a>
     </nav>
     <p class="nd-caption" style="margin-top:32px">Free forever · no login</p>
   </aside>
 
   <div class="nd-content">
-    <div class="nd-wrap">
-      <h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap">Nepse Decode — free NEPSE market dashboard</h1>
+    <main id="main" class="nd-wrap">
+    <nav aria-label="Breadcrumb" style="margin:4px 0 16px;font-size:.85rem;color:var(--muted,#8A8474)">
+      <ol style="list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+        <li><a href="/" style="color:inherit">Home</a></li>
+        <li aria-hidden="true">/</li>
+        <li><a href="/nepse-decode/" style="color:inherit">Tools</a></li>
+        <li aria-hidden="true">/</li>
+        <li><span aria-current="page" style="color:var(--ink,#1C1A15);font-weight:600">Overview</span></li>
+      </ol>
+    </nav>
+      <h1 style="font-family:var(--serif);font-weight:600;font-size:clamp(1.7rem,4.2vw,2.4rem);letter-spacing:-0.015em;margin:0 0 8px">NEPSE Tools: Free Dashboard for Charts, Signals, Screener &amp; News</h1>
+      <p class="nd-lede" style="color:var(--muted);font-size:.95rem;max-width:76ch;margin:0 0 18px">Nepse Decode is a free suite of NEPSE tools for every Nepali investor: candlestick charts with a pattern and divergence scanner, a transparent rule-based signal engine, a daily full-market screener, sector performance, portfolio and watchlist trackers, and verified market news. Free forever, no login, educational use only.</p>
 
       <!-- TICKER TAPE: scrolling live quotes, our own data -->
       <div class="nd-ticker" aria-label="Market ticker">
@@ -208,16 +231,23 @@
       <div class="nd-hero-card nd-terminal">
         <div class="nd-terminal-head">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
-            <p class="nd-kicker" style="margin:0">NEPSE Index <span class="nd-pill closed" id="ahStatus" style="margin-left:8px"><span class="dot"></span><span id="ahStatusTxt">–</span></span></p>
-            <p class="nd-caption" id="ahIdxDate" style="margin:0">–</p>
+            <p class="nd-kicker" style="margin:0">NEPSE Index <span class="nd-pill closed" id="ahStatus" style="margin-left:8px"><span class="dot"></span><span id="ahStatusTxt">Closed</span></span></p>
+            <p class="nd-caption" id="ahIdxDate" style="margin:0">1 October 2026</p>
           </div>
-          <div class="nd-idx-num num" id="ahIdxVal" style="margin-top:12px"><span class="nd-skl" style="height:64px;width:75%"></span></div>
-          <div class="nd-idx-chg num" id="ahIdxChg"><span class="nd-skl" style="height:24px;width:45%"></span></div>
+          <!-- Static bake of the latest verified session (nepse-chart/data/live.json, 2026-10-01 close):
+               first paint and no-JS users see a real number; the bootstrap overwrites it with live data. -->
+          <div class="nd-idx-num num" id="ahIdxVal" style="margin-top:12px">2,599.15</div>
+          <div class="nd-idx-chg num" id="ahIdxChg"><span class="up">+0.26 (+0.01%)</span></div>
           <div class="nd-daystats" id="ahDayStats" aria-label="Session day statistics">
-            <span>Open<b id="ahDayO">–</b></span><span>High<b id="ahDayH">–</b></span><span>Low<b id="ahDayL">–</b></span><span>Prev. close<b id="ahDayP">–</b></span>
+            <span>Open<b id="ahDayO">–</b></span><span>High<b id="ahDayH">2,605.72</b></span><span>Low<b id="ahDayL">2,589.13</b></span><span>Prev. close<b id="ahDayP">2,598.89</b></span>
           </div>
-          <p class="nd-caption" id="ahIdxCap" style="margin-top:10px">Loading the latest session…</p>
+          <p class="nd-caption" id="ahIdxCap" style="margin-top:10px">Session of 1 October 2026 · market closed; latest verified session</p>
         </div>
+        <!-- D3(a): this lightweight-charts panel sits inside .nd-hero-card.nd-terminal,
+             an intentionally always-dark surface (--green-950 stays deep in both
+             themes; theme.css lists it as an untouched dark moment). Its colors are
+             fixed values tuned for that dark panel, so no data-theme re-application
+             is needed — the panel (and therefore the chart) is identical in both themes. -->
         <div style="padding:0 var(--s6)"><div class="nd-lwchart" id="ahLWChart" role="img" aria-label="NEPSE index daily candlestick chart"></div></div>
         <div style="padding:0 var(--s6)">
           <div class="nd-chips" id="ahChips" aria-label="Market breadth">
@@ -245,11 +275,11 @@
           <div class="nd-movers-row">
           <section class="nd-card" aria-label="Top gainers">
             <div class="nd-section-head" style="margin-bottom:4px"><div><p class="nd-kicker">Movers</p><h2 style="font-size:1.05rem">Top gainers</h2></div></div>
-            <div class="nd-tscroll"><table class="nd-table"><thead><tr><th>Symbol</th><th class="num">Ch</th><th class="num">Ch %</th><th class="num">LTP</th></tr></thead><tbody id="ahGainersT"><tr><td colspan="4"><span class="nd-skl" style="height:20px"></span></td></tr></tbody></table></div>
+            <div class="table-scroll"><table class="nd-table"><caption class="visually-hidden">Top gainers: symbol, day change, day change percent and last traded price</caption><thead><tr><th scope="col">Symbol</th><th scope="col" class="num">Ch</th><th scope="col" class="num">Ch %</th><th scope="col" class="num">LTP</th></tr></thead><tbody id="ahGainersT"><tr><td colspan="4"><span class="nd-skl" style="height:20px"></span></td></tr></tbody></table></div>
           </section>
           <section class="nd-card" aria-label="Top losers">
             <div class="nd-section-head" style="margin-bottom:4px"><div><p class="nd-kicker">Movers</p><h2 style="font-size:1.05rem">Top losers</h2></div></div>
-            <div class="nd-tscroll"><table class="nd-table"><thead><tr><th>Symbol</th><th class="num">Ch</th><th class="num">Ch %</th><th class="num">LTP</th></tr></thead><tbody id="ahLosersT"><tr><td colspan="4"><span class="nd-skl" style="height:20px"></span></td></tr></tbody></table></div>
+            <div class="table-scroll"><table class="nd-table"><caption class="visually-hidden">Top losers: symbol, day change, day change percent and last traded price</caption><thead><tr><th scope="col">Symbol</th><th scope="col" class="num">Ch</th><th scope="col" class="num">Ch %</th><th scope="col" class="num">LTP</th></tr></thead><tbody id="ahLosersT"><tr><td colspan="4"><span class="nd-skl" style="height:20px"></span></td></tr></tbody></table></div>
           </section>
           </div>
         </div>
@@ -269,13 +299,13 @@
         <div class="nd-c4">
           <section class="nd-card" aria-label="Indices">
             <div class="nd-section-head" style="margin-bottom:4px"><div><p class="nd-kicker">Benchmarks</p><h2 style="font-size:1.05rem">Indices</h2></div><a class="nd-section-link" href="/nepse-chart/">Chart →</a></div>
-            <div class="nd-tscroll"><table class="nd-table"><thead><tr><th>Index</th><th class="num">Ch</th><th class="num">Ch %</th><th class="num">Current</th></tr></thead><tbody id="ahIndicesT"><tr><td colspan="4"><span class="nd-skl" style="height:20px"></span></td></tr></tbody></table></div>
+            <div class="table-scroll"><table class="nd-table"><caption class="visually-hidden">NEPSE indices: index, day change, day change percent and current value</caption><thead><tr><th scope="col">Index</th><th scope="col" class="num">Ch</th><th scope="col" class="num">Ch %</th><th scope="col" class="num">Current</th></tr></thead><tbody id="ahIndicesT"><tr><td colspan="4"><span class="nd-skl" style="height:20px"></span></td></tr></tbody></table></div>
           </section>
         </div>
         <div class="nd-c4">
           <section class="nd-card" aria-label="Sub-indices">
             <div class="nd-section-head" style="margin-bottom:4px"><div><p class="nd-kicker">Benchmarks</p><h2 style="font-size:1.05rem">Sub-indices</h2></div><a class="nd-section-link" href="/nepse-sectors/">Sectors →</a></div>
-            <div class="nd-tscroll"><table class="nd-table"><thead><tr><th>Sub-index</th><th class="num">Ch</th><th class="num">Ch %</th><th class="num">Current</th></tr></thead><tbody id="ahSubIndicesT"><tr><td colspan="4"><span class="nd-skl" style="height:20px"></span></td></tr></tbody></table></div>
+            <div class="table-scroll"><table class="nd-table"><caption class="visually-hidden">NEPSE sub-indices: sub-index, day change, day change percent and current value</caption><thead><tr><th scope="col">Sub-index</th><th scope="col" class="num">Ch</th><th scope="col" class="num">Ch %</th><th scope="col" class="num">Current</th></tr></thead><tbody id="ahSubIndicesT"><tr><td colspan="4"><span class="nd-skl" style="height:20px"></span></td></tr></tbody></table></div>
           </section>
         </div>
         <div class="nd-c4">
@@ -286,7 +316,7 @@
               <button class="nd-tab" data-tt="volume" role="tab" aria-selected="false">Traded shares</button>
               <button class="nd-tab" data-tt="trades" role="tab" aria-selected="false">Transactions</button>
             </div>
-            <div class="nd-tscroll"><table class="nd-table"><thead><tr><th>Symbol</th><th class="num" id="ahTurnValH">Turnover</th><th class="num">Ch %</th><th class="num">LTP</th></tr></thead><tbody id="ahTurnT"><tr><td colspan="4"><span class="nd-skl" style="height:20px"></span></td></tr></tbody></table></div>
+            <div class="table-scroll"><table class="nd-table"><caption class="visually-hidden">Most active securities: symbol, turnover, day change percent and last traded price</caption><thead><tr><th scope="col">Symbol</th><th scope="col" class="num" id="ahTurnValH">Turnover</th><th scope="col" class="num">Ch %</th><th scope="col" class="num">LTP</th></tr></thead><tbody id="ahTurnT"><tr><td colspan="4"><span class="nd-skl" style="height:20px"></span></td></tr></tbody></table></div>
           </section>
         </div>
       </div>
@@ -385,7 +415,21 @@
         </a>
       </div>
 
-      <style>
+      <section class="nd-seo-copy" aria-label="One free suite for the whole NEPSE workflow">
+<h2>One free suite for the whole NEPSE workflow</h2>
+<p>Nepse Decode is a free suite of NEPSE tools built for how Nepali investors actually work: check the market on the dashboard, scan for ideas in the screener, study the chart, and track what you own &mdash; all without a login or paywall. The dashboard brings the NEPSE index, top gainers and losers, most-active stocks, trending names, the latest engine verdicts and the newsroom&rsquo;s headlines into one page.</p>
+<p>Behind it sits one transparent, rule-based signal engine: ten scored factors &mdash; trend versus moving averages, RSI, MACD, turnover, 52-week position, divergences, chart patterns, market backdrop and support/resistance &mdash; add up to a verdict from Strong Buy to Strong Exit, with every factor&rsquo;s contribution shown. The same engine powers the chart workspace, the daily full-market screener and the sector views, so a signal means the same thing everywhere.</p>
+<p>Data comes from open archives and free community mirrors of NEPSE market data, rebuilt into a daily batch after each trading session. NEPSE publishes no free official real-time API, so quotes can be delayed during market hours and are final only after the close; every page carries its session date so a stale figure is never presented as current.</p>
+<p>The site is built and maintained by Shirjan Khadka, a finance graduate in Kathmandu, as a public workspace &mdash; professional-grade NEPSE tools given away free, because good market tools in Nepal mostly sit behind paywalls. Everything is educational and never investment advice: verify with your broker before trading.</p>
+</section>
+<section class="nd-faq" aria-label="Frequently asked questions">
+<h2>Nepse Decode questions</h2>
+<details><summary>What NEPSE tools are included?</summary><p>Candlestick charts with a pattern and divergence scanner, a daily full-market screener with ranked signals, sector performance, a portfolio tracker, a watchlist, verified market news, broker analytics and daily finance research &mdash; all free, no login.</p></details>
+<details><summary>Is the market data real-time?</summary><p>No. Data is rebuilt into a daily batch after each trading session; during market hours quotes come from free community mirrors and can be delayed. NEPSE publishes no free official real-time API. Every page shows its session date.</p></details>
+<details><summary>How does the signal engine work?</summary><p>Ten transparent factors are scored on the daily chart and summed into a verdict from Strong Buy to Strong Exit, with every factor&rsquo;s contribution listed. It is a mechanical illustration for education, not investment advice.</p></details>
+<details><summary>Who builds Nepse Decode?</summary><p>Shirjan Khadka, a finance graduate (BBM, Tribhuvan University) in Kathmandu. The site is his public workspace: the tools he builds and the research he does, shared openly and free.</p></details>
+</section>
+<style>
 .sf{border-top:1px solid var(--hairline,#E7DFCE);margin-top:64px;background:var(--paper,#FAF8F2);color:var(--ink-soft,#4A463C);font-family:var(--sans,Inter,system-ui,-apple-system,"Segoe UI",sans-serif)}
 .sf-inner{max-width:1200px;margin:0 auto;padding:56px 24px 30px}
 .sf-top{display:flex;gap:18px;align-items:flex-start;margin-bottom:42px}
@@ -406,6 +450,8 @@
 @media(max-width:820px){.sf-cols{grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 20px}}
 @media(max-width:520px){.sf-inner{padding:44px 20px 26px}.sf-top{margin-bottom:34px}.sf-cols{margin-bottom:34px}}
 </style>
+    </main>
+<p class="data-credit" style="font-size:.8rem;color:var(--muted,#6b7280);margin:1.25rem 0 0;">Index snapshot via our own daily market batch; figures may be delayed — <a href="/data-terms.html">see our data terms</a>.</p>
 <footer class="sf" aria-label="Nepse Decode site footer">
   <div class="sf-inner">
     <div class="sf-top">
@@ -457,6 +503,7 @@
     </nav>
     <p class="sf-note"><strong>Educational use only.</strong> Nothing on this site is investment advice. Prices and figures are compiled from public sources and refreshed every trading day — always verify with your broker before trading.</p>
     <p class="sf-note"><strong>Data sources:</strong> Market data from <a href="https://www.nepalstock.com" target="_blank" rel="noopener">NEPSE (nepalstock.com)</a> and <a href="https://www.sharesansar.com" target="_blank" rel="noopener">ShareSansar</a>. Corporate actions verified against official NEPSE/company notices.</p>
+    <p class="sf-note">Often searched as Srijan Khadka or Shrijan Khadka — the NEPSE tools site by Shirjan Khadka.</p>
     <div class="sf-bottom">
       <span>© 2026 Nepse Decode · Built by <a href="/">Shirjan Khadka</a> in Kathmandu, Nepal</span>
       <span class="sf-social"><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Facebook</a><a href="/blog/">Blog</a><a href="/contact.html">Contact</a></span>
@@ -465,14 +512,17 @@
 </footer>
 
 
-    </div>
   </div>
 </div>
 
-<script src="/js/nepse-daily.js?v=20260929"></script>
-<script src="/js/vendor/lightweight-charts.standalone.production.js?v=4.2.3"></script>
+<script src="/js/nepse-daily.js?v=51f68f5d" defer></script>
+<script src="/js/nepse-daily-history.js?v=baac9ccf" defer></script>
+<script src="/js/vendor/lightweight-charts.standalone.production.js?v=7c9b722e" defer></script>
 <script>
-
+/* Deferred-bootstrap: the data/chart scripts above are deferred, so this
+   inline bootstrap runs on DOMContentLoaded (which fires after all deferred
+   scripts, in document order) instead of at parse time. */
+document.addEventListener('DOMContentLoaded', function(){
 (function(){
   'use strict';
   var DATA='/nepse-chart/data/';
@@ -534,7 +584,7 @@
     }
     return rows;
   }
-  var LW = { chart: null, series: null, ro: null };
+  var LW = { chart: null, series: null, ro: null, lastLive: null };
   function lwRows(live){
     var rows = chartRows(live); /* [dateInt, O, H, L, C] */
     return rows.filter(function(r){return r[1]!=null&&r[2]!=null&&r[3]!=null&&r[4]!=null;}).map(function(r){
@@ -545,6 +595,7 @@
   function buildLWChart(live){
     var el=$('ahLWChart');
     if(!el) return;
+    LW.lastLive = live || null;
     var data=lwRows(live);
     if(!data.length){ el.innerHTML='<p class="nd-caption" style="padding:28px 0;text-align:center">Chart history is temporarily unavailable.</p>'; return; }
     if(!window.LightweightCharts){ el.innerHTML='<p class="nd-caption" style="padding:28px 0;text-align:center">Chart engine failed to load.</p>'; return; }
@@ -881,10 +932,18 @@
     loadMarket();
     loadNews();
   }, 60000);
+
+  /* Full 23-year history arrived after first paint (js/nepse-daily-history.js):
+     extend the candlestick range in place without rebuilding the chart. */
+  window.addEventListener('nepse-daily:full', function(){
+    if (LW.series) { try { LW.series.setData(lwRows(LW.lastLive)); } catch(e){} }
+  });
 })();
 
+});
+
 </script>
-<script src="/js/theme-toggle.js?v=20261001a" defer></script>
+<script src="/js/theme-toggle.js?v=4643d10e" defer></script>
 <script src="/js/freshness-badge.js" defer></script>
 </body>
 </html>

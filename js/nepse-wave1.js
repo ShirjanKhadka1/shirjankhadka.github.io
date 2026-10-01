@@ -91,7 +91,7 @@
     // Wave 7: the index card carries the live-badge mount (mkt-live) and ids
     // so the in-session value can be updated in place without a reload.
     var c1 = '<article class="note-card reveal in"><div class="nk">NEPSE index <span id="mkt-live"></span></div>' +
-      '<div class="nb tnum" id="mkt-ixv"' + (idx.value != null ? ' data-count="' + idx.value + '" data-decimals="2"' : '') + '>' +
+      '<div class="nb tnum" id="mkt-ixv"' + (idx.value != null ? ' data-count="' + esc(idx.value) + '" data-decimals="2"' : '') + '>' +
       (idx.value != null ? fmt2(idx.value) : '–') + '</div>' +
       '<p id="mkt-ixc">' + (idx.change != null
         ? '<b class="' + (idx.change >= 0 ? 'up' : 'dn') + '" style="color:' +

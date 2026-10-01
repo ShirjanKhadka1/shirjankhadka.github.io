@@ -4,19 +4,24 @@
 <script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nepse Decode Watchlist: Track Your NEPSE Stocks, Free, No Login</title>
-<link rel="stylesheet" href="/css/nepse-design-system.css?v=20261001a">
-<meta name="description" content="Nepse Decode: your personal NEPSE watchlist: track any listed security with price, day change, signal and RSI, saved in your browser. Free, unlimited, no login, no account.">
+<meta name="theme-color" content="#FAF7F0">
+<title>NEPSE Watchlist: Track Your NEPSE Stocks, Free, No Login | Nepse Decode</title>
+<link rel="stylesheet" href="/css/nepse-design-system.css?v=d976dab8">
+<meta name="description" content="Free NEPSE watchlist, no login: track any listed security with price, day change, signal and RSI, saved in your browser. Unlimited.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-watchlist/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Nepse Decode Watchlist: Track Your NEPSE Stocks, Free">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:type" content="website">
+<meta property="og:title" content="NEPSE Watchlist: Track Your NEPSE Stocks, Free">
 <meta property="og:description" content="Your personal NEPSE watchlist, saved in your browser. Free, unlimited, no login.">
 <meta property="og:url" content="https://shirjankhadka.com.np/nepse-watchlist/">
-<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/og/watchlist.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Nepse Decode Watchlist: Track Your NEPSE Stocks, Free">
+<meta name="twitter:title" content="NEPSE Watchlist: Track Your NEPSE Stocks, Free">
 <meta name="twitter:description" content="Your personal NEPSE watchlist, saved in your browser. Free, unlimited, no login.">
-<meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
+<meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/og/watchlist.png">
 <link rel="icon" href="/nepse-watchlist/icon-32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="/nepse-watchlist/icon-16.png" sizes="16x16" type="image/png">
 <link rel="apple-touch-icon" href="/nepse-watchlist/icon-180.png">
@@ -86,23 +91,30 @@
 }
 @media(prefers-reduced-motion:reduce){.wl-card{transition:none}.wl-card:hover{transform:none}}
 </style>
-<link rel="stylesheet" href="/css/theme.css?v=20261001a">
-<link rel="stylesheet" href="/css/nepse-wave7.css?v=20261001a">
+<link rel="stylesheet" href="/css/theme.css?v=5b3458b0">
+<link rel="stylesheet" href="/css/nepse-wave7.css?v=8089e12a">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many stocks can I add to the watchlist?","acceptedAnswer":{"@type":"Answer","text":"Unlimited. The list lives in your browser’s local storage, so there is no cap and no account — but clearing browser data erases it."}},{"@type":"Question","name":"What do the signal and RSI columns mean?","acceptedAnswer":{"@type":"Answer","text":"Signal is the rule-based engine’s verdict (Strong Buy to Strong Exit) from ten scored chart factors; RSI(14) below 30 reads oversold and above 70 overbought by convention. Both are mechanical, educational measurements."}},{"@type":"Question","name":"Is the watchlist data real-time?","acceptedAnswer":{"@type":"Answer","text":"No. Rows refresh from the latest daily batch and can lag during market hours. NEPSE publishes no free official real-time API; community mirrors may be delayed."}},{"@type":"Question","name":"Does the watchlist sync across devices?","acceptedAnswer":{"@type":"Answer","text":"No. It is stored only in the browser where you created it. There is no login and no server copy."}}]}
+</script>
 </head>
-<body class="nd">
+<body class="nd" data-page="watchlist">
+
+  <a class="skip-link" href="#main">Skip to content</a>
 <header class="nd-topbar">
   <a class="brand" href="/nepse-decode/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="24" height="24">Nepse Decode</a>
   <a class="nd-btn primary" href="/nepse-chart/" style="padding:8px 18px;font-size:0.85rem">Open the Lab</a>
 </header>
 <nav class="nd-mobilenav" aria-label="Suite tools">
   <a href="/nepse-decode/">Overview</a>
-  <a href="/nepse-chart/">Chart & signals</a>
-<span class="nav-sub">
-  <a href="/nepse-signals/momentum/">Momentum</a>
-  <a href="/nepse-signals/trend-relay/">Trend Relay</a>
-  <a href="/nepse-signals/reversal/">Reversal</a>
-</span>
+  <a href="/nepse-chart/">Chart &amp; signals</a>
+  <span class="nav-sub">
+    <a href="/nepse-signals/momentum/">Momentum</a>
+    <a href="/nepse-signals/trend-relay/">Trend Relay</a>
+    <a href="/nepse-signals/reversal/">Reversal</a>
+  </span>
   <a href="/nepse-screener/">Screener</a>
+  <a href="/nepse-trending/">Trending Stocks</a>
+  <a href="/nepse-value/">Value Investing</a>
   <a href="/nepse-brokers/">Broker Analytics</a>
   <a href="/nepse-sectors/">Sectors</a>
   <a href="/nepse-news/">Market news</a>
@@ -118,33 +130,46 @@
     <a class="brand" href="/nepse-decode/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
     <nav class="nd-nav" aria-label="Suite tools">
       <p class="nav-kicker">Suite</p>
-  <a href="/nepse-decode/">Overview</a>
-  <a href="/nepse-chart/">Chart & signals</a>
-<span class="nav-sub">
-  <a href="/nepse-signals/momentum/">Momentum</a>
-  <a href="/nepse-signals/trend-relay/">Trend Relay</a>
-  <a href="/nepse-signals/reversal/">Reversal</a>
-</span>
-  <a href="/nepse-screener/">Screener</a>
-  <a href="/nepse-brokers/">Broker Analytics</a>
-  <a href="/nepse-sectors/">Sectors</a>
-  <a href="/nepse-news/">Market news</a>
-  <a href="/nepse-watchlist/" class="active" aria-current="page">Watchlist</a>
-  <a href="/nepse-portfolio/">Portfolio</a>
-  <a href="/nepse-simulator/">Simulator</a>
-  <a href="/nepse-reports/">Reports</a>
-  <a href="/nepse-actions/">Corp. actions</a>
+      <a href="/nepse-decode/">Overview</a>
+      <a href="/nepse-chart/">Chart &amp; signals</a>
+      <span class="nav-sub">
+        <a href="/nepse-signals/momentum/">Momentum</a>
+        <a href="/nepse-signals/trend-relay/">Trend Relay</a>
+        <a href="/nepse-signals/reversal/">Reversal</a>
+      </span>
+      <a href="/nepse-screener/">Screener</a>
+      <a href="/nepse-trending/">Trending Stocks</a>
+      <a href="/nepse-value/">Value Investing</a>
+      <a href="/nepse-brokers/">Broker Analytics</a>
+      <a href="/nepse-sectors/">Sectors</a>
+      <a href="/nepse-news/">Market news</a>
+      <a href="/nepse-watchlist/" class="active" aria-current="page">Watchlist</a>
+      <a href="/nepse-portfolio/">Portfolio</a>
+      <a href="/nepse-simulator/">Simulator</a>
+      <a href="/nepse-reports/">Reports</a>
+      <a href="/nepse-actions/">Corp. actions</a>
     </nav>
     <p class="nd-caption" style="margin-top:32px">Free forever · no login</p>
   </aside>
 
   <div class="nd-content">
     <div class="nd-wrap">
+    <nav aria-label="Breadcrumb" style="margin:4px 0 16px;font-size:.85rem;color:var(--muted,#8A8474)">
+      <ol style="list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+        <li><a href="/" style="color:inherit">Home</a></li>
+        <li aria-hidden="true">/</li>
+        <li><a href="/nepse-decode/" style="color:inherit">Tools</a></li>
+        <li aria-hidden="true">/</li>
+        <li><span aria-current="page" style="color:var(--ink,#1C1A15);font-weight:600">Watchlist</span></li>
+      </ol>
+    </nav>
 <main id="main">
   <div class="nd-masthead">
     <div>
       <p class="nd-kicker">Watchlist</p>
-      <h1 style="font-family:var(--serif);font-weight:600;font-size:clamp(1.8rem,4.5vw,2.5rem);letter-spacing:-0.015em">Your stocks, at a glance</h1>
+      <h1 style="font-family:var(--serif);font-weight:600;font-size:clamp(1.6rem,4vw,2.3rem);letter-spacing:-0.015em">NEPSE Watchlist: Track Prices, Signals &amp; RSI</h1>
+      <p class="nd-subhead" style="font-family:var(--serif);font-weight:600;font-size:clamp(1.05rem,2.4vw,1.3rem);color:var(--ink-soft,#4A463C);margin:8px 0 0">Your stocks, at a glance</p>
+      <p class="nd-lede" style="margin:10px 0 0;max-width:72ch;color:var(--ink-soft,#4A463C)">This free NEPSE watchlist tracks any listed security with its latest price, day change, signal and RSI(14) &mdash; saved in your browser, unlimited, no login. Build your list, sort and filter it, and jump straight to the full chart for any name you follow.</p>
       <p class="nd-caption" style="margin-top:4px"><span id="wl-live"></span></p>
     </div>
     
@@ -191,8 +216,6 @@
         </div>
         <p class="updated" id="wl-updated"></p>
       </section>
-    </div>
-  </section>
 
   <div class="promise">
     <div class="promise-in">
@@ -208,10 +231,26 @@
       </section>
   </div>
 </main>
+<p class="data-credit" style="font-size:.8rem;color:var(--muted,#6b7280);margin:1.25rem 0 0;">Live quotes via our own 15-minute market snapshot; figures may be delayed — <a href="/data-terms.html">see our data terms</a>.</p>
     </div>
   </div>
 </div>
 
+<section class="nd-seo-copy" aria-label="About the NEPSE watchlist">
+<h2>About the NEPSE watchlist</h2>
+<p>The NEPSE watchlist is your personal shortlist of the market: add any listed security and see its latest price, day change, the engine&rsquo;s signal and its RSI(14) in one row. Sort and filter the list, remove names you no longer follow, and jump straight to the full candlestick chart for any symbol with one tap.</p>
+<p>Beside it sits the engine watchlist, curated automatically &mdash; securities the rule-based engine currently rates Strong Buy or Buy, refreshed with each daily batch. Treat it as a starting point for research, not a recommendation.</p>
+<p>Your list is saved in your browser, unlimited and free, with no login and nothing uploaded anywhere. Figures come from the latest daily batch: NEPSE publishes no free official real-time API, so prices can lag during trading hours and are final only after the close.</p>
+<p>Signals and RSI readings are mechanical measurements for education. A Strong Buy verdict is the engine&rsquo;s summary of ten scored chart factors, not a tip &mdash; do your own research before any investment decision.</p>
+<p>A watchlist is also a discipline tool: by writing down the names you follow and the levels that matter, you trade your plan instead of the day&rsquo;s noise. Review the engine&rsquo;s verdict column against your own thesis, let the RSI column flag when a favorite drifts into overbought or oversold territory &mdash; then open the chart and decide for yourself.</p>
+</section>
+<section class="nd-faq" aria-label="Frequently asked questions">
+<h2>Watchlist questions</h2>
+<details><summary>How many stocks can I add to the watchlist?</summary><p>Unlimited. The list lives in your browser&rsquo;s local storage, so there is no cap and no account &mdash; but clearing browser data erases it.</p></details>
+<details><summary>What do the signal and RSI columns mean?</summary><p>Signal is the rule-based engine&rsquo;s verdict (Strong Buy to Strong Exit) from ten scored chart factors; RSI(14) below 30 reads oversold and above 70 overbought by convention. Both are mechanical, educational measurements.</p></details>
+<details><summary>Is the watchlist data real-time?</summary><p>No. Rows refresh from the latest daily batch and can lag during market hours. NEPSE publishes no free official real-time API; community mirrors may be delayed.</p></details>
+<details><summary>Does the watchlist sync across devices?</summary><p>No. It is stored only in the browser where you created it. There is no login and no server copy.</p></details>
+</section>
 <style>
 .sf{border-top:1px solid var(--hairline,#E7DFCE);margin-top:64px;background:var(--paper,#FAF8F2);color:var(--ink-soft,#4A463C);font-family:var(--sans,Inter,system-ui,-apple-system,"Segoe UI",sans-serif)}
 .sf-inner{max-width:1200px;margin:0 auto;padding:56px 24px 30px}
@@ -283,6 +322,8 @@
       </div>
     </nav>
     <p class="sf-note"><strong>Educational use only.</strong> Nothing on this site is investment advice. Prices and figures are compiled from public sources and refreshed every trading day — always verify with your broker before trading.</p>
+    <p class="sf-note"><strong>Data sources:</strong> Market data from <a href="https://www.nepalstock.com" target="_blank" rel="noopener">NEPSE (nepalstock.com)</a> and <a href="https://www.sharesansar.com" target="_blank" rel="noopener">ShareSansar</a>. Corporate actions verified against official NEPSE/company notices.</p>
+    <p class="sf-note">Often searched as Srijan Khadka or Shrijan Khadka — the NEPSE tools site by Shirjan Khadka.</p>
     <div class="sf-bottom">
       <span>© 2026 Nepse Decode · Built by <a href="/">Shirjan Khadka</a> in Kathmandu, Nepal</span>
       <span class="sf-social"><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Facebook</a><a href="/blog/">Blog</a><a href="/contact.html">Contact</a></span>
@@ -291,10 +332,10 @@
 </footer>
 
 
-<script src="/js/nepse-fresh.js?v=20260930b"></script>
-<script src="/js/nepse-live.js?v=20260930e"></script>
-<script src="/js/nepse-suite.js?v=20260930d"></script>
-<script src="/js/nepse-watchlist.js?v=20260930d"></script>
-<script src="/js/theme-toggle.js?v=20261001a" defer></script>
+<script src="/js/nepse-fresh.js?v=ed4a8618"></script>
+<script src="/js/nepse-live.js?v=59aad286"></script>
+<script src="/js/nepse-suite.js?v=8016ccd9"></script>
+<script src="/js/nepse-watchlist.js?v=afdc48d4"></script>
+<script src="/js/theme-toggle.js?v=4643d10e" defer></script>
 </body>
 </html>

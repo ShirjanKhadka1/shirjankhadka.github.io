@@ -427,12 +427,14 @@
   padding: var(--s3) var(--s4);
   border-bottom: 1px solid var(--hairline);
   background: var(--paper);
-  scrollbar-width: none;
   position: sticky;
   top: 57px;
   z-index: 49;
+  /* D35: scrollbar is intentionally visible (a11y); the right-edge fade
+     signals that more tools lie beyond the fold. */
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
 }
-.nd-mobilenav::-webkit-scrollbar { display: none; }
 @media (min-width: 1024px) { .nd-mobilenav { display: none; } }
 .nd-mobilenav a {
   flex: none;
@@ -608,7 +610,7 @@
    squash columns. Cell padding stays generous so dense data tables remain
    readable on a phone. */
 @media (max-width: 640px) {
-  .tbl-scroll, .scrollx, .sc-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .tbl-scroll, .scrollx, .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   table th, table td { padding: 10px 12px; }
 }
 
@@ -618,3 +620,51 @@
 @media (max-width: 760px) {
   main > section + section { margin-top: var(--s8, 32px); }
 }
+
+/* ==========================================================================
+   TRACK D — UX & accessibility (2026-10-01)
+   Skip link, screen-reader utility, global focus ring, standardized
+   table-scroll wrapper. Additive only.
+   ========================================================================== */
+
+/* D32 — Skip link: first tab stop, jumps to <main id="main">.
+   Same pattern as the blog; colors are token-driven so dark mode
+   (theme.css FAMILY 3 remap) adapts automatically. */
+.skip-link {
+  position: absolute; left: 16px; top: 12px; z-index: 5000;
+  background: var(--ink); color: var(--paper);
+  font-size: 14px; font-weight: 600;
+  padding: 10px 18px; border-radius: 10px; text-decoration: none;
+  transform: translateY(-70px);
+  transition: transform .25s ease;
+}
+.skip-link:focus { transform: none; }
+
+/* D34 — screen-reader-only text (e.g. table <caption>s the design hides) */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* D33 — global keyboard focus ring */
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+/* Fallback for browsers without :focus-visible support */
+@supports not selector(:focus-visible) {
+  :focus {
+    outline: 2px solid var(--gold);
+    outline-offset: 3px;
+  }
+}
+
+/* D34 — standardized horizontal-scroll wrapper for data tables.
+   Replaces the per-page .nd-tscroll / .sc-table-wrap / .sx-table-wrap /
+   .pf-table-wrap names (renamed in HTML + page stylesheets). */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }

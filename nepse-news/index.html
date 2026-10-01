@@ -4,18 +4,23 @@
 <script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nepse Decode News: Company Announcements & Market Headlines</title>
-<meta name="description" content="Nepse Decode: every listed company's official announcements (dividend, bonus, AGM, book closure) plus our verified original reporting. Free, no login, educational.">
+<meta name="theme-color" content="#FAF7F0">
+<title>NEPSE News Today: Company Announcements & Market Headlines | Nepse Decode</title>
+<meta name="description" content="NEPSE news today, free, no login: official company announcements (dividend, bonus, AGM, book closure) plus verified original reporting.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-news/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Nepse Decode News: Company Announcements & Market Headlines">
-<meta property="og:description" content="Official company announcements and verified original reporting on NEPSE. Free, no login, educational.">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:type" content="website">
+<meta property="og:title" content="NEPSE News Today: Company Announcements & Market Headlines">
+<meta property="og:description" content="Official NEPSE company announcements and verified original reporting. Free, no login, educational.">
 <meta property="og:url" content="https://shirjankhadka.com.np/nepse-news/">
-<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/og/news.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Nepse Decode News: Company Announcements & Market Headlines">
-<meta name="twitter:description" content="Official company announcements and verified original reporting on NEPSE. Free, no login, educational.">
-<meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg">
+<meta name="twitter:title" content="NEPSE News Today: Company Announcements & Market Headlines">
+<meta name="twitter:description" content="Official NEPSE company announcements and verified original reporting. Free, no login, educational.">
+<meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/og/news.png">
 <link rel="icon" href="/nepse-decode/icon-32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="/nepse-decode/icon-16.png" sizes="16x16" type="image/png">
 <link rel="apple-touch-icon" href="/nepse-decode/icon-180.png">
@@ -25,14 +30,14 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode News","url":"https://shirjankhadka.com.np/nepse-news/","description":"Official NEPSE company announcements and verified original market reporting.","author":{"@type":"Organization","name":"Nepse Decode","url":"https://shirjankhadka.com.np/nepse-news/"}}
 </script>
-<link rel="stylesheet" href="/css/nepse-design-system.css?v=20261001a">
+<link rel="stylesheet" href="/css/nepse-design-system.css?v=d976dab8">
 <style>
 /* news-only: announcements + editorial feed */
 .nd-masthead { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
 .nd-masthead h1 { font-family: var(--serif); font-weight: 600; font-size: clamp(1.8rem, 4.5vw, 2.5rem); letter-spacing: -0.015em; }
 .ann-group { border: 1px solid var(--hairline); border-radius: var(--r-md); background: var(--card); margin-bottom: 12px; overflow: hidden; }
 .ann-group-head { width: 100%; display: flex; align-items: center; gap: 10px; padding: 14px 18px; background: none; border: 0; cursor: pointer; font: inherit; text-align: left; }
-.ann-group-head h3 { font-size: 0.95rem; font-weight: 700; }
+.ann-group-head .ann-group-title { font-size: 0.95rem; font-weight: 700; }
 .ann-count { margin-left: auto; font-size: 0.78rem; font-weight: 700; color: var(--muted); background: var(--paper-deep); border-radius: var(--r-pill); padding: 2px 10px; }
 .ann-group-head .chev { color: var(--muted); transition: transform .2s; font-size: 0.8rem; }
 .ann-group.open .ann-group-head .chev { transform: rotate(180deg); }
@@ -44,6 +49,18 @@
 .ann-mono { flex: none; width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 0.8rem; letter-spacing: 0.04em; }
 .ann-body { min-width: 0; }
 .ann-title { font-weight: 600; font-size: 0.95rem; line-height: 1.45; display: block; margin-bottom: 6px; }
+
+.nd-sec-h2{font-size:1.08rem;font-weight:700;margin:2px 0 12px;letter-spacing:-0.01em}
+.nd-static-list .ann-static{border-top:1px solid var(--hairline,#E7DFCE);padding:12px 0}
+.nd-static-list .ann-static h3{font-size:.95rem;font-weight:600;margin:0 0 4px;line-height:1.5}
+.nd-static-list .ann-static h3 a{color:inherit;text-decoration:none}
+.nd-static-list .ann-static h3 a:hover{text-decoration:underline}
+.nd-static-list .ann-static .st-meta{font-size:.78rem;color:var(--muted,#8A8474)}
+.nd-noscript-list{margin-top:20px;border-top:1px solid var(--hairline,#E7DFCE);padding-top:16px}
+.nd-noscript-list ul{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:8px}
+.nd-noscript-list li{font-size:.92rem;line-height:1.55;color:var(--ink-soft,#4A463C)}
+.nd-noscript-list li a{color:inherit}
+.ann-group-head .ann-group-title{font-size:.95rem;font-weight:700}
 .ann-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 0.78rem; color: var(--muted); }
 .ann-sym { font-weight: 700; color: var(--green-700); text-decoration: none; }
 .ann-kind { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 8px; border-radius: var(--r-pill); background: var(--paper-deep); }
@@ -68,9 +85,14 @@
 @media (min-width: 720px) { .promise-grid { grid-template-columns: repeat(3, 1fr); } }
 .promise-card h3 { font-family: var(--serif); font-size: 1.05rem; margin-bottom: 6px; }
 </style>
-<link rel="stylesheet" href="/css/theme.css?v=20261001a">
+<link rel="stylesheet" href="/css/theme.css?v=5b3458b0">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Where do the company announcements come from?","acceptedAnswer":{"@type":"Answer","text":"From the companies’ own filings with NEPSE and official company notices — not rumors or social media posts. Each announcement links to its source document where available."}},{"@type":"Question","name":"Do you rewrite other publishers&rsquo; news?","acceptedAnswer":{"@type":"Answer","text":"No. Headlines are shown as published, attributed and linked to the original publisher. Our own reporting is clearly labeled as Nepse Decode originals."}},{"@type":"Question","name":"How often is the news updated?","acceptedAnswer":{"@type":"Answer","text":"The feeds refresh daily, and breaking corporate actions publish as they are verified. The timestamp on the page shows the latest update."}},{"@type":"Question","name":"Is this investment advice?","acceptedAnswer":{"@type":"Answer","text":"No. News and announcements are information for education. Nothing here recommends buying or selling any security."}}]}
+</script>
 </head>
-<body class="nd">
+<body class="nd" data-page="news">
+
+  <a class="skip-link" href="#main">Skip to content</a>
 
 <!-- Mobile top bar -->
 <header class="nd-topbar">
@@ -81,12 +103,14 @@
 <nav class="nd-mobilenav" aria-label="Suite tools">
   <a href="/nepse-decode/">Overview</a>
   <a href="/nepse-chart/">Chart &amp; signals</a>
-<span class="nav-sub">
-  <a href="/nepse-signals/momentum/">Momentum</a>
-  <a href="/nepse-signals/trend-relay/">Trend Relay</a>
-  <a href="/nepse-signals/reversal/">Reversal</a>
-</span>
+  <span class="nav-sub">
+    <a href="/nepse-signals/momentum/">Momentum</a>
+    <a href="/nepse-signals/trend-relay/">Trend Relay</a>
+    <a href="/nepse-signals/reversal/">Reversal</a>
+  </span>
   <a href="/nepse-screener/">Screener</a>
+  <a href="/nepse-trending/">Trending Stocks</a>
+  <a href="/nepse-value/">Value Investing</a>
   <a href="/nepse-brokers/">Broker Analytics</a>
   <a href="/nepse-sectors/">Sectors</a>
   <a href="/nepse-news/" class="active" aria-current="page">Market news</a>
@@ -105,13 +129,15 @@
       <p class="nav-kicker">Suite</p>
       <a href="/nepse-decode/">Overview</a>
       <a href="/nepse-chart/">Chart &amp; signals</a>
-<span class="nav-sub">
-  <a href="/nepse-signals/momentum/">Momentum</a>
-  <a href="/nepse-signals/trend-relay/">Trend Relay</a>
-  <a href="/nepse-signals/reversal/">Reversal</a>
-</span>
+      <span class="nav-sub">
+        <a href="/nepse-signals/momentum/">Momentum</a>
+        <a href="/nepse-signals/trend-relay/">Trend Relay</a>
+        <a href="/nepse-signals/reversal/">Reversal</a>
+      </span>
       <a href="/nepse-screener/">Screener</a>
-  <a href="/nepse-brokers/">Broker Analytics</a>
+      <a href="/nepse-trending/">Trending Stocks</a>
+      <a href="/nepse-value/">Value Investing</a>
+      <a href="/nepse-brokers/">Broker Analytics</a>
       <a href="/nepse-sectors/">Sectors</a>
       <a href="/nepse-news/" class="active" aria-current="page">Market news</a>
       <a href="/nepse-watchlist/">Watchlist</a>
@@ -124,13 +150,24 @@
   </aside>
 
   <div class="nd-content">
-    <div class="nd-wrap">
+    <main id="main" class="nd-wrap">
+    <nav aria-label="Breadcrumb" style="margin:4px 0 16px;font-size:.85rem;color:var(--muted,#8A8474)">
+      <ol style="list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+        <li><a href="/" style="color:inherit">Home</a></li>
+        <li aria-hidden="true">/</li>
+        <li><a href="/nepse-decode/" style="color:inherit">Tools</a></li>
+        <li aria-hidden="true">/</li>
+        <li><span aria-current="page" style="color:var(--ink,#1C1A15);font-weight:600">Market news</span></li>
+      </ol>
+    </nav>
 
       <!-- Compact newsroom masthead — no bulky hero -->
       <div class="nd-masthead">
         <div>
           <p class="nd-kicker">Market news</p>
-          <h1>Announcements &amp; headlines</h1>
+          <h1 style="font-size:clamp(1.6rem,4vw,2.3rem)">NEPSE News Today: Company Announcements &amp; Market Headlines</h1>
+          <p class="nd-subhead" style="font-weight:600;font-size:1.05rem;color:var(--ink-soft,#4A463C);margin:8px 0 0">Announcements &amp; headlines</p>
+          <p class="nd-lede" style="margin:10px 0 0;max-width:72ch;color:var(--ink-soft,#4A463C)">NEPSE news today: official company announcements filed with the exchange &mdash; dividends, bonus shares, rights issues, AGMs and book closures &mdash; alongside verified original reporting from the Nepse Decode newsroom. Headlines are attributed and linked to the publisher; we never rewrite their reporting.</p>
         </div>
         <span class="nd-fresh" id="pageFresh">Loading…</span>
       </div>
@@ -144,7 +181,21 @@
         <div class="nd-section-head" style="border:0;padding:0;margin-bottom:12px">
           <div><span class="nd-caption" id="annUpdated">Official company disclosures, grouped by recency.</span></div>
         </div>
-        <div id="annGroups"><div class="news-empty">Loading announcements…</div></div>
+        <div id="annGroups">
+<div class="nd-static-list">
+<h2 class="nd-sec-h2">Latest company announcements</h2>
+<article class="ann-static"><h3><a href="https://www.sharesansar.com/announcementdetail/chirkhwa-hydro-power-limited-has-published-a-notice-regarding-the-expiration-of-the-lock-in-period-for-its-promoters-local-residents-of-the-project-affected-area-and-employee-shares-on-14th-kartik-2083-2026-09-29" target="_blank" rel="noopener">Chirkhwa Hydro Power Limited has published a notice regarding the expiration of the lock-in period for its promoters, local residents of the project affected area and employee shares on 14th Kartik, 2083.</a></h3><p class="st-meta">CKHL · ShareSansar · 2026-09-29</p></article>
+<article class="ann-static"><h3><a href="https://www.sharesansar.com/announcementdetail/rapti-hydro-general-construction-limited-has-announced-its-sgm-going-to-be-held-on-28th-ashwin-2083-2026-09-29" target="_blank" rel="noopener">Rapti Hydro &amp; General Construction Limited has announced its SGM going to be held on 28th Ashwin, 2083.</a></h3><p class="st-meta">RHGCL · ShareSansar · 2026-09-29</p></article>
+<article class="ann-static"><h3><a href="https://www.sharesansar.com/announcementdetail/nic-asia-capital-limited-is-closing-its-80-million-units-of-rs-10-face-value-each-mutual-fund-scheme-nic-asia-equity-opportunity-fund-to-the-general-public-from-today-13th-ashwin-2083-2026-09-29" target="_blank" rel="noopener">NIC Asia Capital Limited is closing its 80 million units of Rs 10 face value each mutual fund scheme &quot;NIC ASIA Equity Opportunity Fund&quot; to the general public from today (13th Ashwin, 2083).</a></h3><p class="st-meta">RMF1 · ShareSansar · 2026-09-29</p></article>
+<article class="ann-static"><h3><a href="https://www.sharesansar.com/announcementdetail/global-ime-capital-limited-has-published-the-audited-financial-highlights-of-global-ime-samunnat-yojana-ii-of-the-fiscal-year-208283-2026-09-29" target="_blank" rel="noopener">Global IME Capital Limited has published the audited financial highlights of &quot;Global IME Samunnat Yojana -II&quot; of the fiscal year 2082/83.</a></h3><p class="st-meta">GBIME · ShareSansar · 2026-09-29</p></article>
+<article class="ann-static"><h3><a href="https://www.sharesansar.com/announcementdetail/global-ime-capital-limited-has-published-the-audited-financial-highlights-of-global-ime-balanced-fund-i-of-the-fiscal-year-208283-2026-09-29" target="_blank" rel="noopener">Global IME Capital Limited has published the audited financial highlights of &quot;Global IME Balanced Fund-I&quot; of the fiscal year 2082/83.</a></h3><p class="st-meta">GIBF1 · ShareSansar · 2026-09-29</p></article>
+<article class="ann-static"><h3><a href="https://www.sharesansar.com/announcementdetail/muktinath-capital-limited-has-published-the-audited-financial-highlights-of-muktinath-mutual-fund-1-of-the-fiscal-year-208283-2026-09-29" target="_blank" rel="noopener">Muktinath Capital Limited has published the audited financial highlights of &quot;Muktinath Mutual Fund 1&quot; of the fiscal year 2082/83.</a></h3><p class="st-meta">MNMF1 · ShareSansar · 2026-09-29</p></article>
+<article class="ann-static"><h3><a href="https://www.sharesansar.com/announcementdetail/muktinath-capital-limited-has-published-muktinath-mutual-fund-1-net-assets-value-nav-till-bhadra-2083-2026-09-29" target="_blank" rel="noopener">Muktinath Capital Limited has published &quot;Muktinath Mutual Fund 1&quot; Net Assets Value (NAV) till Bhadra, 2083.</a></h3><p class="st-meta">MNMF1 · ShareSansar · 2026-09-29</p></article>
+<article class="ann-static"><h3><a href="https://www.sharesansar.com/announcementdetail/machhapuchchhre-capital-limited-has-published-machhapuchchhre-sip-yojana-net-asset-value-nav-till-bhadra-2083-2026-09-29" target="_blank" rel="noopener">Machhapuchchhre Capital Limited has published “Machhapuchchhre SIP Yojana” Net Asset Value (NAV) till Bhadra, 2083.</a></h3><p class="st-meta">MSIP · ShareSansar · 2026-09-29</p></article>
+<article class="ann-static"><h3><a href="https://www.sharesansar.com/announcementdetail/machhapuchchhre-capital-limited-has-published-mbl-equity-fund-net-asset-value-nav-till-bhadra-2083-2026-09-29" target="_blank" rel="noopener">Machhapuchchhre Capital Limited has published “MBL Equity Fund” Net Asset Value (NAV) till Bhadra, 2083.</a></h3><p class="st-meta">MBLEF · ShareSansar · 2026-09-29</p></article>
+<article class="ann-static"><h3><a href="https://www.sharesansar.com/announcementdetail/nic-asia-capital-limited-has-published-nic-asia-select-30-index-fund-net-assets-value-nav-till-bhadra-2083-2026-09-29" target="_blank" rel="noopener">NIC Asia Capital Limited has published &quot;NIC Asia Select-30 (Index Fund)&quot; Net Assets Value (NAV) till Bhadra, 2083.</a></h3><p class="st-meta">NICSF · ShareSansar · 2026-09-29</p></article>
+</div>
+</div>
       </div>
 
       <div data-panel="headlines" role="tabpanel" hidden>
@@ -154,17 +205,67 @@
           <span class="count" id="newsCount"></span>
         </div>
         <p class="nd-caption" id="newsUpdated" style="margin-bottom:12px"></p>
-        <div id="newsList" aria-live="polite"><div class="news-empty">Loading headlines…</div></div>
+        <div id="newsList" aria-live="polite">
+<div class="nd-static-list">
+<h2 class="nd-sec-h2">Latest market headlines</h2>
+<article class="ann-static"><h3><a href="https://tjvcl.com/wp-content/uploads/2025/01/13th-agm-notice.pdf" target="_blank" rel="noopener">Trishuli Jal Vidhyut Company Limited : 13th agm notice</a></h3><p class="st-meta">Company website · 2026-10-01 [TVCL]</p></article>
+<article class="ann-static"><h3><a href="https://english.onlinekhabar.com/power-cut-kathmandu-nea-wire-underground.html" target="_blank" rel="noopener">Power cuts planned in Kathmandu as underground electricity system work begins</a></h3><p class="st-meta">OnlineKhabar EN · 2026-09-30 [MANDU]</p></article>
+<article class="ann-static"><h3><a href="https://english.onlinekhabar.com/three-bodies-recovered-himlung.html" target="_blank" rel="noopener">Three more bodies recovered from avalanche on Himlung Himal</a></h3><p class="st-meta">OnlineKhabar EN · 2026-09-30 [HDHPC]</p></article>
+<article class="ann-static"><h3><a href="https://english.onlinekhabar.com/kathmandu-braces-dashain-exodus.html" target="_blank" rel="noopener">Kathmandu Valley braces for Dashain exodus of up to 1 million passengers</a></h3><p class="st-meta">OnlineKhabar EN · 2026-09-30 [MANDU]</p></article>
+<article class="ann-static"><h3><a href="https://english.onlinekhabar.com/kathmandu-braces-dashain-exodus.html" target="_blank" rel="noopener">Kathmandu Valley braces for Dashain exodus of up to 1 million passengers</a></h3><p class="st-meta">OnlineKhabar EN · 2026-09-30 [ALBSL]</p></article>
+<article class="ann-static"><h3><a href="https://english.onlinekhabar.com/noc-petroleum-prices-unchanged.html" target="_blank" rel="noopener">Nepal Oil Corporation keeps petroleum prices unchanged</a></h3><p class="st-meta">OnlineKhabar EN · 2026-09-30 [CORBL]</p></article>
+<article class="ann-static"><h3><a href="https://arthasansar.com/news/83174" target="_blank" rel="noopener">लकिङ खुल्नासाथ संस्थापक सेयर बिक्री गर्ने परिपाटीले दोस्रो बजारमा ‘भोटेकोशीको बाढी’ भन्दा बढी जोखिम देखियो - अध्यक्ष पाण्डे</a></h3><p class="st-meta">Arthasansar · 2026-09-30 [MBJC]</p></article>
+<article class="ann-static"><h3><a href="https://arthasansar.com/news/83170" target="_blank" rel="noopener">गुहेश्वरी मर्चेन्ट बैंकिङ्ग एण्ड फाइनान्सको संस्थापक सेयर बिक्रीमा</a></h3><p class="st-meta">Arthasansar · 2026-09-30 [GMFIL]</p></article>
+<article class="ann-static"><h3><a href="https://swmfi.com.np/storage/website/notice/%E0%A4%AC%E0%A4%BE%E0%A4%B9%E0%A5%8D%E0%A4%B0%E0%A5%8C%E0%A4%82_%E0%A4%B5%E0%A4%BE%E0%A4%B0%E0%A5%8D%E0%A4%B7%E0%A4%BF%E0%A4%95_%E0%A4%AA%E0%A5%8D%E0%A4%B0%E0%A4%A4%E0%A4%BF%E0%A4%B5%E0%A5%87%E0%A4%A6%E0%A4%A8_%E0%A5%A8%E0%A5%A6%E0%A5%AD%E0%A5%AF_%E0%A5%A6%E0%A5%AE%E0%A5%A6-2024-08-13-6022659.pdf" target="_blank" rel="noopener">Suryodaya Womi Laghubitta Bittiya Sanstha Limited: बाह्रौं वार्षिक प्रतिवेदन २०७९ ०८० 2024 08 13 6022659</a></h3><p class="st-meta">Company website · 2026-09-30 [SWMF]</p></article>
+<article class="ann-static"><h3><a href="https://www.libertyenergy.com.np/uploads/downloads/liberty_download_Share_investment_form_liberty_Final.pdf.pdf" target="_blank" rel="noopener">Liberty Energy Company Limited: liberty download share investment form liberty final.pdf</a></h3><p class="st-meta">Company website · 2026-09-30 [LEC]</p></article>
+<article class="ann-static"><h3><a href="https://greenventuresnepal.com/wp-content/uploads/2023/07/AGM_FH11-1.pdf" target="_blank" rel="noopener">Green Ventures Limited: agm fh11 1</a></h3><p class="st-meta">Company website · 2026-09-30 [GVL]</p></article>
+<article class="ann-static"><h3><a href="https://greenventuresnepal.com/wp-content/uploads/2023/06/AGM_FH11-Notice-for-Newspaper-7.03.2080.pdf" target="_blank" rel="noopener">Green Ventures Limited: agm fh11 notice for newspaper 7.03.2080</a></h3><p class="st-meta">Company website · 2026-09-30 [GVL]</p></article>
+</div>
+<noscript><div class="nd-noscript-list">
+<h2 class="nd-sec-h2">Latest market headlines</h2>
+<ul>
+<li><a href="https://tjvcl.com/wp-content/uploads/2025/01/13th-agm-notice.pdf" target="_blank" rel="noopener">Trishuli Jal Vidhyut Company Limited : 13th agm notice</a> &mdash; Company website · 2026-10-01</li>
+<li><a href="https://english.onlinekhabar.com/power-cut-kathmandu-nea-wire-underground.html" target="_blank" rel="noopener">Power cuts planned in Kathmandu as underground electricity system work begins</a> &mdash; OnlineKhabar EN · 2026-09-30</li>
+<li><a href="https://english.onlinekhabar.com/three-bodies-recovered-himlung.html" target="_blank" rel="noopener">Three more bodies recovered from avalanche on Himlung Himal</a> &mdash; OnlineKhabar EN · 2026-09-30</li>
+<li><a href="https://english.onlinekhabar.com/kathmandu-braces-dashain-exodus.html" target="_blank" rel="noopener">Kathmandu Valley braces for Dashain exodus of up to 1 million passengers</a> &mdash; OnlineKhabar EN · 2026-09-30</li>
+<li><a href="https://english.onlinekhabar.com/kathmandu-braces-dashain-exodus.html" target="_blank" rel="noopener">Kathmandu Valley braces for Dashain exodus of up to 1 million passengers</a> &mdash; OnlineKhabar EN · 2026-09-30</li>
+<li><a href="https://english.onlinekhabar.com/noc-petroleum-prices-unchanged.html" target="_blank" rel="noopener">Nepal Oil Corporation keeps petroleum prices unchanged</a> &mdash; OnlineKhabar EN · 2026-09-30</li>
+<li><a href="https://arthasansar.com/news/83174" target="_blank" rel="noopener">लकिङ खुल्नासाथ संस्थापक सेयर बिक्री गर्ने परिपाटीले दोस्रो बजारमा ‘भोटेकोशीको बाढी’ भन्दा बढी जोखिम देखियो - अध्यक्ष पाण्डे</a> &mdash; Arthasansar · 2026-09-30</li>
+<li><a href="https://arthasansar.com/news/83170" target="_blank" rel="noopener">गुहेश्वरी मर्चेन्ट बैंकिङ्ग एण्ड फाइनान्सको संस्थापक सेयर बिक्रीमा</a> &mdash; Arthasansar · 2026-09-30</li>
+<li><a href="https://swmfi.com.np/storage/website/notice/%E0%A4%AC%E0%A4%BE%E0%A4%B9%E0%A5%8D%E0%A4%B0%E0%A5%8C%E0%A4%82_%E0%A4%B5%E0%A4%BE%E0%A4%B0%E0%A5%8D%E0%A4%B7%E0%A4%BF%E0%A4%95_%E0%A4%AA%E0%A5%8D%E0%A4%B0%E0%A4%A4%E0%A4%BF%E0%A4%B5%E0%A5%87%E0%A4%A6%E0%A4%A8_%E0%A5%A8%E0%A5%A6%E0%A5%AD%E0%A5%AF_%E0%A5%A6%E0%A5%AE%E0%A5%A6-2024-08-13-6022659.pdf" target="_blank" rel="noopener">Suryodaya Womi Laghubitta Bittiya Sanstha Limited: बाह्रौं वार्षिक प्रतिवेदन २०७९ ०८० 2024 08 13 6022659</a> &mdash; Company website · 2026-09-30</li>
+<li><a href="https://www.libertyenergy.com.np/uploads/downloads/liberty_download_Share_investment_form_liberty_Final.pdf.pdf" target="_blank" rel="noopener">Liberty Energy Company Limited: liberty download share investment form liberty final.pdf</a> &mdash; Company website · 2026-09-30</li>
+<li><a href="https://greenventuresnepal.com/wp-content/uploads/2023/07/AGM_FH11-1.pdf" target="_blank" rel="noopener">Green Ventures Limited: agm fh11 1</a> &mdash; Company website · 2026-09-30</li>
+<li><a href="https://greenventuresnepal.com/wp-content/uploads/2023/06/AGM_FH11-Notice-for-Newspaper-7.03.2080.pdf" target="_blank" rel="noopener">Green Ventures Limited: agm fh11 notice for newspaper 7.03.2080</a> &mdash; Company website · 2026-09-30</li>
+</ul>
+<p class="nd-caption">Enable JavaScript for the full filterable archive. Headlines are attributed to their publishers.</p>
+</div></noscript>
+</div>
         <p class="nd-caption" style="margin-top:16px">Headlines only, always attributed and linked to the publisher. We don't rewrite their reporting.</p>
       </div>
 
-      <div class="promise-grid">
+      <section class="promise-grid" aria-label="Our newsroom promises">
+<h2 class="nd-sec-h2">Why read NEPSE news here</h2>
         <div class="nd-card promise-card"><h3>Official disclosures first</h3><p class="nd-body-sm">Announcements come from the companies' own filings with NEPSE, not rumors or social posts.</p></div>
         <div class="nd-card promise-card"><h3>Verified originals</h3><p class="nd-body-sm">Our newsroom stories are checked against the official documents before they publish.</p></div>
         <div class="nd-card promise-card"><h3>Corrections in the open</h3><p class="nd-body-sm">When we get something wrong, we fix it publicly.</p></div>
-      </div>
+      </section>
 
-      <style>
+      <section class="nd-seo-copy" aria-label="How NEPSE news works here">
+<h2>How NEPSE news works here</h2>
+<p>NEPSE news today, in two streams. The announcements stream carries official company disclosures filed with the exchange &mdash; dividend and bonus proposals, rights issues, AGMs and SGMs, book closures, lock-in expiries, mergers and promoter share sales &mdash; grouped by recency so today&rsquo;s filings sit on top. The headlines stream gathers market reporting from Nepal&rsquo;s business press, always attributed and linked to the publisher; we don&rsquo;t rewrite their reporting.</p>
+<p>Alongside the feeds, the Nepse Decode newsroom publishes verified originals: each story is checked against the official NEPSE or company notice before it goes live, and the underlying document is linked in the article. When we get something wrong, we correct it publicly on the corrections page.</p>
+<p>The feeds refresh daily from NEPSE notices, company filings and publisher sites. Headlines are editorially reviewed before they appear, and the update timestamp on the page tells you how fresh the list is. Coverage focuses on listed companies and market-moving policy; it is not exhaustive.</p>
+<p>News is information, not advice. An announcement moving a price today says nothing about tomorrow &mdash; read the official notice, understand the corporate action, and do your own research before any investment decision.</p>
+<p>Every major announcement also gets a permanent story page with the official notice attached, so a dividend declared today is still traceable months later. The corporate-action archive keeps dividends, bonuses, rights and splits searchable by company &mdash; useful when you need to know what a board actually approved, not what the rumor mill claimed.</p>
+</section>
+<section class="nd-faq" aria-label="Frequently asked questions">
+<h2>News questions</h2>
+<details><summary>Where do the company announcements come from?</summary><p>From the companies&rsquo; own filings with NEPSE and official company notices &mdash; not rumors or social media posts. Each announcement links to its source document where available.</p></details>
+<details><summary>Do you rewrite other publishers&rsquo; news?</summary><p>No. Headlines are shown as published, attributed and linked to the original publisher. Our own reporting is clearly labeled as Nepse Decode originals.</p></details>
+<details><summary>How often is the news updated?</summary><p>The feeds refresh daily, and breaking corporate actions publish as they are verified. The timestamp on the page shows the latest update.</p></details>
+<details><summary>Is this investment advice?</summary><p>No. News and announcements are information for education. Nothing here recommends buying or selling any security.</p></details>
+</section>
+<style>
 .sf{border-top:1px solid var(--hairline,#E7DFCE);margin-top:64px;background:var(--paper,#FAF8F2);color:var(--ink-soft,#4A463C);font-family:var(--sans,Inter,system-ui,-apple-system,"Segoe UI",sans-serif)}
 .sf-inner{max-width:1200px;margin:0 auto;padding:56px 24px 30px}
 .sf-top{display:flex;gap:18px;align-items:flex-start;margin-bottom:42px}
@@ -185,6 +286,8 @@
 @media(max-width:820px){.sf-cols{grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 20px}}
 @media(max-width:520px){.sf-inner{padding:44px 20px 26px}.sf-top{margin-bottom:34px}.sf-cols{margin-bottom:34px}}
 </style>
+    </main>
+<p class="data-credit" style="font-size:.8rem;color:var(--muted,#6b7280);margin:1.25rem 0 0;">Announcements via official NEPSE/company filings; headlines attributed to publishers — <a href="/data-terms.html">see our data terms</a>.</p>
 <footer class="sf" aria-label="Nepse Decode site footer">
   <div class="sf-inner">
     <div class="sf-top">
@@ -235,6 +338,8 @@
       </div>
     </nav>
     <p class="sf-note"><strong>Educational use only.</strong> Nothing on this site is investment advice. Prices and figures are compiled from public sources and refreshed every trading day — always verify with your broker before trading.</p>
+    <p class="sf-note"><strong>Data sources:</strong> Market data from <a href="https://www.nepalstock.com" target="_blank" rel="noopener">NEPSE (nepalstock.com)</a> and <a href="https://www.sharesansar.com" target="_blank" rel="noopener">ShareSansar</a>. Corporate actions verified against official NEPSE/company notices.</p>
+    <p class="sf-note">Often searched as Srijan Khadka or Shrijan Khadka — the NEPSE tools site by Shirjan Khadka.</p>
     <div class="sf-bottom">
       <span>© 2026 Nepse Decode · Built by <a href="/">Shirjan Khadka</a> in Kathmandu, Nepal</span>
       <span class="sf-social"><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Facebook</a><a href="/blog/">Blog</a><a href="/contact.html">Contact</a></span>
@@ -243,7 +348,6 @@
 </footer>
 
 
-    </div>
   </div>
 </div>
 
@@ -350,16 +454,17 @@
     var groups = { today: [], week: [], month: [], older: [] };
     items.forEach(function(it){ try { groups[groupFor(it.date, todayIso)].push(it); } catch(e){ groups.older.push(it); } });
     var defs = [['today','Today'],['week','This week'],['month','This month'],['older','Earlier']];
-    var html = '', first = true;
+    var html = '<h2 class="nd-sec-h2">Latest company announcements</h2>', first = true;
     defs.forEach(function(def){
       var list = groups[def[0]];
       if(!list.length) return;
       var open = first; first = false;
+      var panelId = 'ann-panel-' + def[0];
       html += '<div class="ann-group' + (open ? ' open' : '') + '">' +
-        '<button class="ann-group-head" aria-expanded="' + open + '">' +
-        '<span class="chev">▾</span><h3>' + def[1] + '</h3>' +
+        '<button class="ann-group-head" aria-expanded="' + open + '" aria-controls="' + panelId + '">' +
+        '<span class="chev">▾</span><span role="heading" aria-level="3" class="ann-group-title">' + def[1] + '</span>' +
         '<span class="ann-count">' + list.length + '</span></button>' +
-        '<div class="ann-items">' + list.map(annHTML).join('') + '</div></div>';
+        '<div class="ann-items" id="' + panelId + '">' + list.map(annHTML).join('') + '</div></div>';
     });
     wrap.innerHTML = html || '<p class="news-empty">No announcements yet.</p>';
     wrap.querySelectorAll('.ann-group-head').forEach(function(btn){
@@ -434,7 +539,7 @@
       return true;
     });
     list.innerHTML = items.length
-      ? items.map(hlHTML).join('')
+      ? '<h2 class="nd-sec-h2">Latest market headlines</h2>' + items.map(hlHTML).join('')
       : '<p class="news-empty">No headlines match this filter.</p>';
     if(count) count.textContent = items.length + ' of ' + allItems.length;
   }
@@ -486,7 +591,7 @@
   } catch(e){}
 })();
 </script>
-<script src="/js/theme-toggle.js?v=20261001a" defer></script>
+<script src="/js/theme-toggle.js?v=4643d10e" defer></script>
 <script src="/js/freshness-badge.js" defer></script>
 </body>
 </html>

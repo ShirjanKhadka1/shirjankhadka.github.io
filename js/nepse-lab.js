@@ -16,6 +16,31 @@
       SMA20C = '#2563eb', SMA50C = '#d97706', ATHC = '#c9a227',
       BULLC = '#1E7A44', BEARC = '#B23A2E';
 
+  /* D3(b) — theme-aware chart palette. The lab canvases sit on the page canvas,
+     so up/down/grid/text follow the design-system tokens and re-render when
+     data-theme flips. Values are read from document.body because the dark
+     remap is scoped to [data-theme="dark"] body.nd (theme.css FAMILY 3);
+     reading documentElement would always return the light values. Hardcoded
+     values above remain as fallbacks (and for node test runs). */
+  function cssVar(name, fallback) {
+    if (typeof document === 'undefined' || !document.body ||
+        typeof getComputedStyle === 'undefined') return fallback;
+    try {
+      var v = getComputedStyle(document.body).getPropertyValue(name);
+      v = String(v == null ? '' : v).replace(/^\s+|\s+$/g, '');
+      return v || fallback;
+    } catch (e) { return fallback; }
+  }
+  function refreshPalette() {
+    UP = cssVar('--up', UP);
+    DOWN = cssVar('--down', DOWN);
+    BULLC = UP; BEARC = DOWN;
+    GRID = cssVar('--hairline', GRID);
+    TXT = cssVar('--muted', TXT);
+    ATHC = cssVar('--gold', ATHC);
+  }
+  refreshPalette();
+
   var SRC = {
     companies: 'https://samirwagle.github.io/Nepse-All-Scraper/docs/api/companies.json',
     prices: function (s) { return 'https://samirwagle.github.io/Nepse-All-Scraper/docs/api/prices/' + s.replace('/', '-') + '.json'; },
@@ -742,7 +767,7 @@
       state.loading = false;
       afterData();
     }).catch(function () {
-      state.loading = false; state.err = 'No data source lists ' + esc(sym) + ' yet. Check the spelling, or try one of the symbols above. Newly listed securities appear once their first session closes.';
+      state.loading = false; state.err = 'No data source lists ' + sym + ' yet. Check the spelling, or try one of the symbols above. Newly listed securities appear once their first session closes.';
       renderShell();
     });
   }
@@ -1222,7 +1247,7 @@
     var lb = document.getElementById('nl-livebar');
     if (lb) {
       if (state.loading) { lb.innerHTML = '<div class="nl-lb-sym" aria-hidden="true"><span class="skl skl-line" style="width:120px;margin:0 0 8px"></span><span class="skl skl-line" style="width:80px;height:11px;margin:0"></span></div><div class="nl-lb-px" aria-hidden="true" style="margin-left:auto"><span class="skl" style="width:150px;height:38px;border-radius:10px"></span></div>'; }
-      else if (state.err) { lb.innerHTML = '<div class="nl-lb-sym"><b>' + esc(state.sym) + '</b><span>' + state.err + '</span></div>'; }
+      else if (state.err) { lb.innerHTML = '<div class="nl-lb-sym"><b>' + esc(state.sym) + '</b><span>' + esc(state.err) + '</span></div>'; }
       else {
       var q = state.live;
       var lcoB = (state.mode === 'index' && !q) ? state.latestClose : null;
@@ -1246,7 +1271,7 @@
     var vc = document.getElementById('nl-verdict');
     if (vc) {
       if (state.loading) { vc.innerHTML = '<div class="nl-v-loading" aria-hidden="true"><span class="skl skl-block" style="width:42%"></span><span class="skl skl-line" style="width:94%"></span><span class="skl skl-line" style="width:81%"></span><span class="skl skl-line" style="width:66%"></span></div>'; }
-      else if (state.err) { vc.innerHTML = '<div class="nl-v-err"><b>No chart for this symbol</b><span>' + state.err + '</span></div>'; }
+      else if (state.err) { vc.innerHTML = '<div class="nl-v-err"><b>No chart for this symbol</b><span>' + esc(state.err) + '</span></div>'; }
       else if (n >= 60) {
         var v = computeVerdict({ rows: state.rows, divs: divs || [], pats: pats || [], isIndex: state.mode === 'index', idxRegime: state.mode === 'stock' ? idxRegime() : null });
         var pctW = Math.min(100, Math.abs(v.score) / 8 * 100);
@@ -1467,12 +1492,13 @@
     scv = document.getElementById('nl-stoch');
     tip = document.getElementById('nl-tip');
     if (!cv || !window.NEPSE_DAILY) return;
+    refreshPalette(); // pick up the active theme's tokens before first paint
     // search, full listed universe from local data/universe.json (built by tools/build-nepse-universe.js)
     var input = document.getElementById('nl-sym'), dl = document.getElementById('nl-syms');
     function fillDL() {
       if (!dl) return;
       dl.innerHTML = '<option value="NEPSE">NEPSE Index</option>' + state.universe.map(function (it) {
-        return '<option value="' + it.s + '">' + esc((state.names[it.s] || it.s) + (it.t ? ' · ' + it.t : '')) + '</option>';
+        return '<option value="' + esc(it.s) + '">' + esc((state.names[it.s] || it.s) + (it.t ? ' · ' + it.t : '')) + '</option>';
       }).join('');
     }
     // live quotes are fetched lazily (stock views / market-open refresh only),
@@ -1536,6 +1562,16 @@
         render();
       });
     }, 60000);
+  }
+  /* D3(b): when the theme flips, re-read the palette and repaint every canvas.
+     render() also repaints the RSI/stochastic canvases and re-renders shells
+     only when their data key changed (cheap no-op on pure theme flips). */
+  if (typeof MutationObserver !== 'undefined' && typeof document !== 'undefined') {
+    new MutationObserver(function (muts) {
+      for (var i = 0; i < muts.length; i++) {
+        if (muts[i].attributeName === 'data-theme') { refreshPalette(); render(); break; }
+      }
+    }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   }
   if (typeof document !== 'undefined') {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
