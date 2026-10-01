@@ -287,6 +287,28 @@ jobs:
           fi
           fi
 
+      - name: Email alert — security-count-stable overridden
+        if: steps.validate.outputs.override_used == 'true' && (success() || failure())
+        uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          secure: false
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "[NEPSE NOTICE] market-close: security-count-stable gate OVERRIDDEN for ${{ steps.trading.outputs.session }}"
+          to: ${{ secrets.ALERT_EMAIL_TO }}
+          from: ${{ secrets.MAIL_USERNAME }}
+          body: |
+            The security-count-stable validation gate was MANUALLY OVERRIDDEN.
+
+            Session: ${{ steps.trading.outputs.session }}
+            Reason: ${{ inputs.override_count_reason }}
+            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            This bypass is logged in the workflow run. If this was not
+            intentional, investigate immediately.
+
       - name: Email alert — validation failed, auto-rolled back
         if: steps.validate.outputs.valid == 'false' && (success() || failure())
         uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7
