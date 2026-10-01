@@ -27,6 +27,8 @@ function money(n) {
 
 function page(sys, data) {
   const st = data.stats;
+  const pageUrl = `https://shirjankhadka.com.np/nepse-signals/${sys}/`;
+  const shortDesc = `${data.title}: transparent rule-based NEPSE trading system. Backtested 2003–2026 — ${pct(st.annual_return_pct)} annual return, ${pct(st.win_rate_pct)} win rate. Educational only.`;
   const tabs = SLUGS.map(s => {
     const d = JSON.parse(fs.readFileSync(path.join(DATA, s + '.json'), 'utf8'));
     const active = s === sys ? ' aria-current="page" class="active"' : '';
@@ -82,8 +84,22 @@ function page(sys, data) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${data.title} — Nepse Decode Signals</title>
-<meta name="description" content="${data.title}: transparent rule-based NEPSE trading system. ${data.tagline} Backtested ${st.backtest_from} to ${st.backtest_to} — annual return ${pct(st.annual_return_pct)}, win rate ${pct(st.win_rate_pct)}. Educational only, not investment advice.">
-<link rel="canonical" href="https://shirjankhadka.com.np/nepse-signals/${sys}/">
+<meta name="description" content="${shortDesc}">
+<link rel="canonical" href="${pageUrl}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:title" content="${data.title} — Nepse Decode Signals">
+<meta property="og:description" content="${shortDesc}">
+<meta property="og:url" content="${pageUrl}">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/nepse-decode-og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${data.title} — Nepse Decode Signals">
+<meta name="twitter:description" content="${shortDesc}">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"${data.title} — Nepse Decode Signals","url":"${pageUrl}","description":"${shortDesc}","isPartOf":{"@type":"WebSite","name":"Nepse Decode","url":"https://shirjankhadka.com.np/"},"author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
+</script>
 <link rel="stylesheet" href="/css/nepse-design-system.css">
 <link rel="stylesheet" href="/css/theme.css?v=20261001a">
 <style>

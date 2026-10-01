@@ -120,8 +120,8 @@ function pill(tfLabel, vobj) {
 }
 
 function head(sym, name, slug) {
-  const title = name + ' (' + sym + ') Share Price, Signals and News | Nepse Decode';
-  const desc = name + ' (' + sym + '): latest NEPSE price, daily, weekly and monthly Alpha Lab engine signals, 52-week range and latest headlines. Free, educational, not investment advice.';
+  const title = sym + ' Share Price, Signals and News | Nepse Decode';
+  const desc = name + ' (' + sym + '): latest NEPSE price, Alpha Lab signals, 52-week range and headlines. Free, educational.';
   const url = SITE + '/stocks/' + slug + '/';
   const ld = {
     '@context': 'https://schema.org',
@@ -156,6 +156,9 @@ function head(sym, name, slug) {
     '<meta property="og:title" content="' + esc(name + ' (' + sym + ') | Nepse Decode') + '">\n' +
     '<meta property="og:description" content="' + esc(desc) + '">\n' +
     '<meta property="og:url" content="' + url + '">\n' +
+    '<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/nepse-decode-og.jpg">\n' +
+    '<meta property="og:image:width" content="1200">\n' +
+    '<meta property="og:image:height" content="630">\n' +
     '<meta name="twitter:card" content="summary">\n' +
     '<meta name="twitter:title" content="' + esc(name + ' (' + sym + ') | Nepse Decode') + '">\n' +
     '<meta name="twitter:description" content="' + esc(desc) + '">\n' +
@@ -900,6 +903,9 @@ function indexPage(symbols, asof) {
     '<meta property="og:title" content="' + esc(title) + '">\n' +
     '<meta property="og:description" content="' + esc(desc) + '">\n' +
     '<meta property="og:url" content="' + SITE + '/stocks/">\n' +
+    '<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/nepse-decode-og.jpg">\n' +
+    '<meta property="og:image:width" content="1200">\n' +
+    '<meta property="og:image:height" content="630">\n' +
     '<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">\n' +
     '<link rel="preconnect" href="https://fonts.googleapis.com">\n' +
     '<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">\n' +
