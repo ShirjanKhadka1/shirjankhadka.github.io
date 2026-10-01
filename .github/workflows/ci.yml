@@ -15,7 +15,7 @@ name: CI quality gates
 on:
   push:
     branches: [main]
-  pull_request:
+  pull_request:Upload regenerated baselines (manual dispatch)
   schedule:
     - cron: '0 1 * * *'  # nightly baseline
   workflow_dispatch:
@@ -217,7 +217,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: visual-baselines-${{ github.run_number }}
-          path: tests/__snapshots__/
+          path: tests/visual.spec.ts-snapshots/
           retention-days: 30
 
       - name: Upload visual diffs on failure
