@@ -44,6 +44,15 @@ function sessionOf(obj) {
 
 function main() {
   const argSession = (process.argv.find(a => a.startsWith('--session=')) || '').split('=')[1];
+  const overrideCountGate = process.argv.includes('--override-count-gate');
+  const overrideCountReason = (process.argv.find(a => a.startsWith('--override-count-reason=')) || '').split('=').slice(1).join('=');
+  if (overrideCountGate && !overrideCountReason.trim()) {
+    console.error('FATAL: --override-count-gate requires a non-empty --override-count-reason');
+    process.exit(2);
+  }
+  if (overrideCountGate) {
+    console.log(`OVERRIDE  security-count-stable — reason: ${overrideCountReason}`);
+  }
   const now = new Date();
   const expected = argSession || td.expectedSessionDate(now);
   const failures = [];
@@ -97,7 +106,9 @@ function main() {
       baseline = pm.files && pm.files['nepse-chart/data/live.json'] && pm.files['nepse-chart/data/live.json'].rows;
       baselineSrc = 'previous manifest';
     } catch (e) { /* first run: no baseline */ }
-    if (baseline && typeof baseline === 'number' && baseline > 0) {
+    if (overrideCountGate) {
+      gate('security-count-stable', true, `OVERRIDDEN by operator — quotes=${q} baseline=${baseline || 'n/a'} reason="${overrideCountReason}"`);
+    } else if (baseline && typeof baseline === 'number' && baseline > 0) {
       const drift = Math.abs(q - baseline) / baseline;
       gate('security-count-stable', drift <= 0.05, `quotes=${q} baseline=${baseline} (${baselineSrc}) drift=${(drift * 100).toFixed(1)}% band=±5%`);
     } else {

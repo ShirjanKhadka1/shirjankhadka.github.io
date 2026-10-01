@@ -46,6 +46,14 @@ on:
         description: 'Dry run: skip every git commit/push/tag (safe proof mode). Also forced ON while the DRY_RUN repo variable is not false'
         type: boolean
         default: false
+      override_count_gate:
+        description: 'OVERRIDE the security-count-stable gate (use only for legitimate listing changes). Requires override_count_reason.'
+        type: boolean
+        default: false
+      override_count_reason:
+        description: 'Reason for overriding security-count-stable (required if override_count_gate is true). Logged and emailed.'
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -183,7 +191,16 @@ jobs:
         id: validate
         if: steps.trading.outputs.trading == 'true' && steps.idem.outputs.done != 'true' && inputs.rollback_to_tag == '' && steps.srcsess.outputs.new_session == 'true'
         run: |
-          if node tools/validate-build.js --session="${{ steps.trading.outputs.session }}"; then
+          OVERRIDE_ARGS=""
+          if [ "${{ inputs.override_count_gate }}" = "true" ]; then
+            if [ -z "${{ inputs.override_count_reason }}" ]; then
+              echo "::error::override_count_gate=true requires override_count_reason"
+              exit 2
+            fi
+            OVERRIDE_ARGS="--override-count-gate --override-count-reason=${{ inputs.override_count_reason }}"
+            echo "override_used=true" >> "$GITHUB_OUTPUT"
+          fi
+          if node tools/validate-build.js --session="${{ steps.trading.outputs.session }}" $OVERRIDE_ARGS; then
             echo "valid=true" >> "$GITHUB_OUTPUT"
           else
             echo "valid=false" >> "$GITHUB_OUTPUT"
