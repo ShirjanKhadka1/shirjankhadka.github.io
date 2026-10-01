@@ -148,6 +148,10 @@
   var hasDOM = typeof document !== 'undefined' && !!document.getElementById;
   var root = hasDOM ? document.getElementById('pf-root') : null;
   if (!root) return;
+  var requiredIds = ['pf-summary', 'pf-tbody', 'pf-empty'];
+  for (var ri = 0; ri < requiredIds.length; ri++) {
+    if (!document.getElementById(requiredIds[ri])) return;
+  }
 
   var universe = [];   // [{s, n}]
   var verdicts = {};   // sym -> {p, ch, sec, asof}
@@ -575,13 +579,17 @@
   }
 
   /* ================= events ================= */
-  el.select.addEventListener('change', function () {
+  function on(id, evt, fn) {
+    var n = document.getElementById(id);
+    if (n) n.addEventListener(evt, fn);
+  }
+  if (el.select) el.select.addEventListener('change', function () {
     mutate(function (st) { st.active = el.select.value; });
   });
 
-  document.getElementById('pf-new').addEventListener('click', function () { barForm('new'); });
-  document.getElementById('pf-rename').addEventListener('click', function () { barForm('rename'); });
-  document.getElementById('pf-delete').addEventListener('click', function () {
+  on('pf-new', 'click', function () { barForm('new'); });
+  on('pf-rename', 'click', function () { barForm('rename'); });
+  on('pf-delete', 'click', function () {
     var st = load(); var p = getActive(st);
     if (!p) return;
     if (!window.confirm('Delete the portfolio "' + p.name + '"? Its holdings and sale history will be removed from this browser.')) return;
