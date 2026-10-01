@@ -9,6 +9,10 @@
 # subject "[NEPSE ALERT] content: ...", plus an Actions job summary.
 # NEVER Facebook for failures. Needs repo secrets MAIL_USERNAME, MAIL_PASSWORD
 # (Brevo SMTP key), ALERT_EMAIL_TO.
+#
+# workflow_dispatch input dry_run (default false): when true, the full pipeline
+# executes but EVERY git commit/push is skipped — safe proof mode, nothing
+# can reach main. Emails still send, so dry runs prove the alert paths too.
 
 name: NEPSE content pipeline
 
@@ -16,7 +20,12 @@ on:
   schedule:
     - cron: '15 0 * * *'   # 06:00 NPT daily
     - cron: '15 12 * * *'  # 18:00 NPT daily
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run: execute the full pipeline but skip every git commit/push (safe proof mode — nothing reaches main)'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -108,12 +117,16 @@ jobs:
         if: steps.validate.outputs.valid == 'false'
         run: |
           node tools/record-job.js content failed "validation gates failed — deploy blocked"
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add nepse-chart/data/jobs.json nepse-chart/data/validation.json
-          git commit -m "content: validation FAILED (deploy blocked)"
-          git pull --rebase origin main
-          git push origin main
+          if [ "${{ inputs.dry_run }}" != "true" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add nepse-chart/data/jobs.json nepse-chart/data/validation.json
+            git commit -m "content: validation FAILED (deploy blocked)"
+            git pull --rebase origin main
+            git push origin main
+          else
+            echo "dry-run: git commit/push skipped — nothing reaches main"
+          fi
           {
             echo "## Content: VALIDATION FAILED (deploy blocked)"
             echo ""
@@ -148,6 +161,11 @@ jobs:
         if: steps.validate.outputs.valid == 'true'
         run: |
           node tools/record-job.js content success "news/announcements/actions refreshed"
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            echo "dry-run: git commit/push skipped — nothing reaches main"
+            echo "## Content: DRY-RUN — refresh validated, commit skipped" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add nepse-chart/data data nepse-actions sitemap.xml

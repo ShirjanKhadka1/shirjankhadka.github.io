@@ -20,7 +20,12 @@ on:
     # capture the finalized closing snapshot after the 15:00 bell.
     - cron: '0,15,30,45 5-8 * * 1-5'
     - cron: '0,15,20,25 9 * * 1-5'
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run: execute the full pipeline but skip the git commit/push (safe proof mode — nothing reaches main)'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -56,6 +61,7 @@ jobs:
         run: node tools/fetch-nepse-live.js
 
       - name: Commit live snapshot if changed
+        if: ${{ !inputs.dry_run }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"

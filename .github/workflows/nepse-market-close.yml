@@ -3,6 +3,10 @@
 # Mon-Fri at 15:20 NPT (09:35 UTC), retries 16:10 (10:25 UTC) and 17:00 (11:15 UTC).
 # NEPSE trades Mon-Fri, 11:00-15:00 NPT.
 #
+# workflow_dispatch input dry_run (default false): when true, the full pipeline
+# executes but EVERY git commit/push/tag is skipped — safe proof mode, nothing
+# can reach main. Emails still send, so dry runs prove the alert paths too.
+#
 # Flow: trading-day check -> idempotency check -> fetch/build ->
 #   source-session check ->
 #     new session at source: manifest (canonical: data/manifest.json) -> VALIDATE ->
@@ -37,6 +41,10 @@ on:
       rollback_to_tag:
         description: 'Rollback data files to tag (data-YYYY-MM-DD-N)'
         required: false
+      dry_run:
+        description: 'Dry run: execute the full pipeline but skip every git commit/push/tag (safe proof mode — nothing reaches main)'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -86,7 +94,7 @@ jobs:
           SESSION_OVERRIDE: ${{ inputs.session }}
 
       - name: Manual rollback to tag
-        if: inputs.rollback_to_tag != ''
+        if: inputs.rollback_to_tag != '' && !inputs.dry_run
         run: |
           TAG="${{ inputs.rollback_to_tag }}"
           node tools/rollback-data.js "$TAG"
@@ -121,12 +129,16 @@ jobs:
         if: steps.trading.outputs.trading != 'true' && inputs.rollback_to_tag == ''
         run: |
           node tools/record-job.js market-close skipped "not a trading day (weekend/holiday)" --session="${{ steps.trading.outputs.session }}"
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add nepse-chart/data/jobs.json
-          git diff --cached --quiet || git commit -m "market-close: skipped (non-trading day)"
-          git pull --rebase origin main
-          git push origin main
+          if [ "${{ inputs.dry_run }}" != "true" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add nepse-chart/data/jobs.json
+            git diff --cached --quiet || git commit -m "market-close: skipped (non-trading day)"
+            git pull --rebase origin main
+            git push origin main
+          else
+            echo "dry-run: git commit/push skipped — nothing reaches main"
+          fi
           echo "## Market-close: skipped (non-trading day)" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Fetch + build market data
@@ -171,12 +183,16 @@ jobs:
           DATA_SESSION="${{ steps.srcsess.outputs.data_session }}"
           node tools/record-job.js market-close skipped "no new session at source after final retry — treated as market closed (unlisted holiday suspected); data session $DATA_SESSION" --session="$SESSION"
           node tools/build-manifest.js
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add nepse-chart/data/jobs.json data/manifest.json nepse-chart/data/manifest.json
-          git diff --cached --quiet || git commit -m "market-close: no new session for $SESSION — treated as market closed (notice)"
-          git pull --rebase origin main
-          git push origin main
+          if [ "${{ inputs.dry_run }}" != "true" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add nepse-chart/data/jobs.json data/manifest.json nepse-chart/data/manifest.json
+            git diff --cached --quiet || git commit -m "market-close: no new session for $SESSION — treated as market closed (notice)"
+            git pull --rebase origin main
+            git push origin main
+          else
+            echo "dry-run: git commit/push skipped — nothing reaches main"
+          fi
           {
             echo "## Market-close: no new session at source (treated as market closed)"
             echo ""
@@ -228,12 +244,16 @@ jobs:
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           node tools/rollback-data.js "$TAG"
           node tools/record-job.js market-close failed "validation failed for session ${{ steps.trading.outputs.session }} — auto-rolled back to $TAG" --session="${{ steps.trading.outputs.session }}"
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add nepse-chart/data data
-          git commit -m "market-close: AUTO-ROLLBACK to $TAG after validation failure (session ${{ steps.trading.outputs.session }})"
-          git pull --rebase origin main
-          git push origin main
+          if [ "${{ inputs.dry_run }}" != "true" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add nepse-chart/data data
+            git commit -m "market-close: AUTO-ROLLBACK to $TAG after validation failure (session ${{ steps.trading.outputs.session }})"
+            git pull --rebase origin main
+            git push origin main
+          else
+            echo "dry-run: git commit/push skipped — nothing reaches main"
+          fi
 
       - name: Email alert — validation failed, auto-rolled back
         if: steps.validate.outputs.valid == 'false'
@@ -277,6 +297,11 @@ jobs:
         run: |
           SESSION="${{ steps.trading.outputs.session }}"
           node tools/record-job.js market-close success "session $SESSION deployed" --session="$SESSION"
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            echo "dry-run: would commit + tag data-$SESSION-N and push to main — SKIPPED (nothing reaches main)"
+            echo "## Market-close: DRY-RUN — deploy skipped (would have deployed session \`$SESSION\`)" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add nepse-chart/data data js/nepse-daily.js nepse-screener/index.html stocks nepse-actions sitemap.xml \
