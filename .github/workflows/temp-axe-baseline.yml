@@ -1,0 +1,48 @@
+name: Temp Axe Baseline Update
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: actions/setup-node@49933ea5288ca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '20'
+
+      - name: Install test deps
+        working-directory: tests
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        working-directory: tests
+        run: npx playwright install chromium --with-deps
+
+      - name: Serve site
+        run: |
+          (python3 -m http.server 8080 >/tmp/http.log 2>&1 &)
+          sleep 2
+          curl -sf -o /dev/null http://localhost:8080/
+
+      - name: Regenerate Axe baseline
+        working-directory: tests
+        run: node axe-scan.js
+        env:
+          ESTABLISH_BASELINE: '1'
+          BASE_URL: http://localhost:8080
+
+      - name: Commit and push baseline
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tests/axe-baseline.json
+          git diff --cached --quiet && echo "No changes to baseline" && exit 0
+          git commit -m "Update axe baseline after 5-track improvements"
+          git push
