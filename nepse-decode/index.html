@@ -207,6 +207,18 @@
       </div>
       <div class="d2-pulse-filters" id="d2PulseFilters" role="group" aria-label="Filter pulse events"></div>
       <div class="d2-pulse-tape" id="d2PulseTape" aria-live="polite"><span class="d2-skl" style="height:44px"></span></div>
+      <div class="d2-pulse-pages" id="d2PulsePages" hidden>
+        <label class="d2-pulse-rpp">Rows per page
+          <select id="d2PulseSize" aria-label="Rows per page">
+            <option value="5">5</option><option value="8" selected>8</option><option value="10">10</option><option value="15">15</option>
+          </select>
+        </label>
+        <span class="d2-pulse-pageinfo" id="d2PulseInfo" aria-live="polite"></span>
+        <span class="d2-pulse-nav">
+          <button type="button" class="d2-pill-btn" id="d2PulsePrev" aria-label="Previous news page">← Prev</button>
+          <button type="button" class="d2-pill-btn" id="d2PulseNext" aria-label="Next news page">Next →</button>
+        </span>
+      </div>
       <div class="d2-fresh">
         <span class="d2-chip" id="d2PulseSrcChip"><span class="d2-dot"></span>FEED</span>
         <span id="d2PulseSrc">Sources: news.json · corporate-actions.json · index milestones from verified history · polls every 60 s</span>
@@ -610,6 +622,7 @@
   /* ---------- S9 market pulse: event tape, not a trade tape ---------- */
   var PULSE_KINDS=[['all','All'],['news','Announcements'],['corp','Corp. actions'],['ms','Milestones']];
   var pulseEvents=[], pulseFilter='all', pulseOn=true, pulseLeft=60, pulseSig='';
+  var pulsePage=0; /* 2026-10-02: paged tape — rows-per-page + Showing X-Y + Prev/Next */
   function pulseRel(dstr){
     var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(dstr||'')); if(!m) return dstr||'';
     var then=Date.UTC(+m[1],+m[2]-1,+m[3]);
@@ -622,16 +635,41 @@
   }
   function pulseKindCls(e){ return e.kind==='corp'?'pk-corp':e.kind==='news'?'pk-news':'pk-ms'; }
   function pulseKindLabel(e){ return e.kind==='corp'?'CORP':e.kind==='news'?'NEWS':'MILESTONE'; }
+  function pulseFiltered(){
+    return pulseEvents.filter(function(e){return pulseFilter==='all'||e.kind===pulseFilter;});
+  }
+  function pulseSize(){
+    var s=$('d2PulseSize'); return s ? (parseInt(s.value,10)||8) : 8;
+  }
   function renderPulse(){
     var tape=$('d2PulseTape'); if(!tape) return;
-    var rows=pulseEvents.filter(function(e){return pulseFilter==='all'||e.kind===pulseFilter;}).slice(0,30);
-    if(!rows.length){ tape.innerHTML='<p class="d2-caption" style="padding:8px 0">No events in this filter yet.</p>'; return; }
-    tape.innerHTML=rows.map(function(e){
+    var rows=pulseFiltered();
+    var per=pulseSize();
+    var pages=Math.max(1,Math.ceil(rows.length/per));
+    if(pulsePage>=pages) pulsePage=pages-1;
+    if(pulsePage<0) pulsePage=0;
+    var box=$('d2PulsePages');
+    if(!rows.length){
+      tape.innerHTML='<p class="d2-caption" style="padding:8px 0">No events in this filter yet.</p>';
+      if(box) box.hidden=true;
+      return;
+    }
+    var lo=pulsePage*per, hi=Math.min(lo+per,rows.length);
+    var view=rows.slice(lo,hi);
+    tape.innerHTML=view.map(function(e){
       return '<div class="d2-pulse-row"><div class="d2-pulse-time">'+esc(pulseRel(e.date))+'<span>'+esc(e.date)+'</span></div>'+
         '<span class="d2-pulse-kind '+pulseKindCls(e)+'">'+pulseKindLabel(e)+'</span>'+
         '<span class="d2-pulse-sym">'+esc(e.sym||'—')+'</span>'+
         '<div class="d2-pulse-title">'+esc(e.title)+(e.link?' <a href="'+esc(e.link)+'" target="_blank" rel="noopener">source ↗</a>':'')+'</div></div>';
     }).join('');
+    if(box){
+      box.hidden=false;
+      var info=$('d2PulseInfo');
+      if(info) info.textContent='Showing '+(lo+1)+'–'+hi+' of '+rows.length+' events';
+      var pv=$('d2PulsePrev'), nx=$('d2PulseNext');
+      if(pv) pv.disabled=pulsePage===0;
+      if(nx) nx.disabled=pulsePage>=pages-1;
+    }
   }
   function buildMilestones(){
     if(!sparkCloses||!sparkCloses.length) return [];
@@ -680,10 +718,22 @@
       f.addEventListener('click',function(ev){
         var b=ev.target.closest('[data-k]'); if(!b) return;
         pulseFilter=b.getAttribute('data-k');
+        pulsePage=0;
         f.querySelectorAll('.d2-fbtn').forEach(function(x){
           var on=x===b; x.classList.toggle('on',on); x.setAttribute('aria-pressed',on);
         });
         renderPulse();
+      });
+    }
+    var pg=$('d2PulsePages');
+    if(pg){
+      var sz=$('d2PulseSize');
+      if(sz) sz.addEventListener('change',function(){ pulsePage=0; renderPulse(); });
+      var pv=$('d2PulsePrev'), nx=$('d2PulseNext');
+      if(pv) pv.addEventListener('click',function(){ if(pulsePage>0){ pulsePage--; renderPulse(); } });
+      if(nx) nx.addEventListener('click',function(){
+        var pages=Math.max(1,Math.ceil(pulseFiltered().length/pulseSize()));
+        if(pulsePage<pages-1){ pulsePage++; renderPulse(); }
       });
     }
     var tg=$('d2PulseToggle');

@@ -215,14 +215,15 @@
 [data-theme="dark"] .theme-toggle .tt-moon { display: none; }
 
 /* The toggle lives in exactly one place on every page and every
-   viewport: fixed at the top-right corner, just below the nav bar so it
-   never covers header buttons. (2026-10-01: header injection removed —
-   per-breakpoint header DOM put it in a different spot on laptop /
-   tablet / mobile; top-right chosen per request, like other sites.) */
+   viewport: fixed at the top-left corner, just below the nav bar so it
+   never covers header buttons and never shifts page layout (fixed =
+   out of flow). (2026-10-01: header injection removed — per-breakpoint
+   header DOM put it in a different spot on laptop / tablet / mobile.
+   2026-10-02: moved top-right → top-left per owner request.) */
 .theme-toggle.fixed {
   position: fixed;
   top: 76px;
-  right: calc(16px + env(safe-area-inset-right, 0px));
+  left: calc(16px + env(safe-area-inset-left, 0px));
   z-index: 80;
   width: 42px;
   height: 42px;
