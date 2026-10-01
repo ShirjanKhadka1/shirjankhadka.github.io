@@ -246,11 +246,11 @@ jobs:
         run: |
           TAG=$(git tag --list 'data-*' --sort=-creatordate | head -n1)
           if [ -z "$TAG" ]; then
-            echo "::error::Validation failed and no data-* tag exists — nothing to roll back to. Manual intervention required."
-            exit 1
-          fi
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-          node tools/rollback-data.js "$TAG"
+            echo "tag=" >> "$GITHUB_OUTPUT"
+            echo "::warning::Validation failed and no data-* tag exists — nothing to roll back to. Manual intervention required."
+          else
+            echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+            node tools/rollback-data.js "$TAG"
           node tools/record-job.js market-close failed "validation failed for session ${{ steps.trading.outputs.session }} — auto-rolled back to $TAG" --session="${{ steps.trading.outputs.session }}"
           if [ "$DRY_RUN" != "true" ]; then
             git config user.name "github-actions[bot]"
@@ -262,9 +262,10 @@ jobs:
           else
             echo "dry-run: git commit/push skipped — nothing reaches main"
           fi
+          fi
 
       - name: Email alert — validation failed, auto-rolled back
-        if: steps.validate.outputs.valid == 'false'
+        if: steps.validate.outputs.valid == 'false' && (success() || failure())
         uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7
         with:
           server_address: smtp.gmail.com
@@ -272,14 +273,14 @@ jobs:
           secure: false
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "[NEPSE ALERT] market-close: validation failed for ${{ steps.trading.outputs.session }}, auto-rolled back to ${{ steps.rollback.outputs.tag }}"
+          subject: "[NEPSE ALERT] market-close: validation failed for ${{ steps.trading.outputs.session }}, auto-rolled back to ${{ steps.rollback.outputs.tag || 'NO TAG AVAILABLE \u2014 manual intervention required' }}"
           to: ${{ secrets.ALERT_EMAIL_TO }}
           from: ${{ secrets.MAIL_USERNAME }}
           body: |
             The NEPSE market-close pipeline validation FAILED for session ${{ steps.trading.outputs.session }}.
             The deploy was blocked and data was automatically rolled back to ${{ steps.rollback.outputs.tag }} (last known good).
 
-            Failed gates are in the job summary below. The invalid build was never deployed.
+            Failed gates are in the job summary below. The invalid build was never deployed.\n\nRollback target: ${{ steps.rollback.outputs.tag || 'NONE — no data-* tag exists; manual intervention required' }}.
 
             Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
             Status page: https://shirjankhadka.com.np/status/
