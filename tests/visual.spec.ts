@@ -2,13 +2,24 @@
  * tests/visual.spec.ts — visual regression on key pages.
  *
  * Full-page screenshots at desktop (1440x900) and mobile (390x844).
- * Baselines live in tests/__snapshots__/ and are reviewed in PRs.
+ * Baselines live in tests/visual.spec.ts-snapshots/ and are reviewed in PRs.
+ *
+ * STABILIZATION (2026-10-01): CI renders were non-deterministic due to:
+ * - Web fonts loading late (entire page diffed) → wait for document.fonts.ready
+ * - Live timestamps ("X minutes ago") → freeze clock to fixed time
+ * - Animations/transitions → disable via CSS
+ * - Dynamic regions (tickers, live badges) → mask in screenshots
+ * - Data files changing → serve frozen fixtures via route interception
  *
  * Regenerate baselines intentionally only:
  *   UPDATE_SNAPSHOTS=1 npx playwright test visual --update-snapshots
  * Never blind-update: inspect the diff, confirm the change is intended.
+ * Baselines MUST be generated in the official Playwright container image
+ * (mcr.microsoft.com/playwright:v1.49.1-noble) to match CI.
  */
 import { test, expect } from '@playwright/test';
+import * as fs from 'fs';
+import * as path from 'path';
 
 const PAGES = [
   '/', '/nepse-decode/', '/nepse-chart/', '/nepse-screener/',
@@ -20,23 +31,85 @@ const VIEWPORTS = [
   { name: 'mobile', width: 390, height: 844 },
 ];
 
+// Frozen clock: 2026-09-30 15:00 NPT (after market close, deterministic)
+const FROZEN_TIME = new Date('2026-09-30T15:00:00+05:45').getTime();
+
+// CSS to disable all animations and transitions
+const DISABLE_ANIMATIONS_CSS = `
+  *, *::before, *::after {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+  }
+`;
+
+// Selectors for dynamic regions to mask (tickers, live badges, timestamps)
+const DYNAMIC_SELECTORS = [
+  '[data-freshness-badge]',           // Freshness badge (JS-driven)
+  '[data-ticker]',                     // Ticker tapes
+  '.ticker-tape',
+  '[data-live-clock]',
+  '.live-badge',
+  '[data-asof]',                       // "as of" timestamps
+  '.snap-asof',
+];
+
 for (const vp of VIEWPORTS) {
   for (const p of PAGES) {
     test(`visual ${vp.name} ${p}`, async ({ browser }) => {
-      // reducedMotion: the homepage (and others) gate content behind
-      // IntersectionObserver scroll-reveals; reduced motion forces them
-      // visible and kills transitions, so the baseline captures the
-      // fully-rendered page deterministically instead of blank sections.
       const page = await browser.newPage({
         viewport: { width: vp.width, height: vp.height },
         reducedMotion: 'reduce',
       });
+
+      // 1. Freeze the clock before navigation (deterministic timestamps)
+      await page.clock.install({ time: FROZEN_TIME });
+
+      // 2. Serve frozen fixture data (deterministic data files)
+      // Intercept manifest requests, serve from fixtures
+      await page.route('**/data/manifest.json', async (route) => {
+        const fixturePath = path.join(__dirname, 'fixtures', 'manifest.json');
+        if (fs.existsSync(fixturePath)) {
+          await route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: fs.readFileSync(fixturePath, 'utf-8'),
+          });
+        } else {
+          await route.continue();
+        }
+      });
+
+      // 3. Disable animations via CSS (injected before navigation)
+      await page.addStyleTag({ content: DISABLE_ANIMATIONS_CSS });
+
       await page.goto(p, { waitUntil: 'networkidle', timeout: 60000 });
-      // let charts/badges settle; hide the live clock-ish bits that flake
+
+      // 4. Wait for web fonts to load (critical: prevents fallback-font diffs)
+      await page.evaluate(() => document.fonts.ready);
+
+      // 5. Let charts/badges settle
       await page.waitForTimeout(2500);
+
+      // 6. Collect dynamic elements to mask
+      const maskLocators = [];
+      for (const selector of DYNAMIC_SELECTORS) {
+        const elements = page.locator(selector);
+        const count = await elements.count();
+        for (let i = 0; i < count; i++) {
+          maskLocators.push(elements.nth(i));
+        }
+      }
+
       await expect(page).toHaveScreenshot(
         `${p.replace(/\//g, '_') || 'home'}-${vp.name}.png`,
-        { fullPage: true, maxDiffPixelRatio: 0.02, timeout: 30000 }
+        {
+          fullPage: true,
+          maxDiffPixelRatio: 0.02,
+          timeout: 30000,
+          mask: maskLocators,
+        }
       );
       await page.close();
     });
