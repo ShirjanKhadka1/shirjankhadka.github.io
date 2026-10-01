@@ -45,6 +45,7 @@
   <a class="brand" href="/nepse-decode/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="24" height="24">Nepse Decode</a>
   <a class="nd-btn primary" href="/nepse-chart/" style="padding:8px 18px;font-size:0.85rem">Open the Lab</a>
 </header>
+<div class="fb-wrap" style="display:flex;justify-content:center;padding:10px 16px 0"><div data-freshness-badge></div></div>
 <nav class="nd-mobilenav" aria-label="Suite tools">
   <a href="/nepse-decode/">Overview</a>
   <a href="/nepse-chart/">Chart & signals</a>
@@ -105,11 +106,11 @@
   <section class="sx-sec" aria-labelledby="sx-heat-h">
     <h2 id="sx-heat-h">Sector heatmap</h2>
     <p class="sx-sub">One tile per security: tile color follows its day change. Every tile links to that security's page. <a href="#sx-legend-note" class="sx-jump">How to read it</a></p>
-    <div class="sx-heat" id="sx-heat" role="list" aria-label="Sector heatmap">
-      <span class="skl skl-block" role="listitem" aria-hidden="true"></span>
-      <span class="skl skl-block" role="listitem" aria-hidden="true"></span>
-      <span class="skl skl-block" role="listitem" aria-hidden="true"></span>
-      <span class="skl skl-block" role="listitem" aria-hidden="true"></span>
+    <div class="sx-heat" id="sx-heat" aria-label="Sector heatmap">
+      <span class="skl skl-block" aria-hidden="true"></span>
+      <span class="skl skl-block" aria-hidden="true"></span>
+      <span class="skl skl-block" aria-hidden="true"></span>
+      <span class="skl skl-block" aria-hidden="true"></span>
     </div>
     <div class="sx-legend" id="sx-legend-note" aria-label="Heatmap color legend">
       <span class="sx-leg-lab">Tile color = day change:</span>
@@ -256,5 +257,6 @@
 <script src="/js/nepse-suite.js?v=20261002d"></script>
 <script src="/js/nepse-sectors.js?v=20261003a" defer></script>
 <script src="/js/theme-toggle.js?v=20261001a" defer></script>
+<script src="/js/freshness-badge.js" defer></script>
 </body>
 </html>

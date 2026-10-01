@@ -1,0 +1,62 @@
+{
+  "ran_at_npt": "2026-10-01T08:37:00+05:45",
+  "expected_session": "2026-09-30",
+  "passed": true,
+  "gates": [
+    {
+      "gate": "manifest-present",
+      "pass": true,
+      "detail": "session=2026-09-30"
+    },
+    {
+      "gate": "live-session-current",
+      "pass": true,
+      "detail": "live=2026-09-30 expected=2026-09-30"
+    },
+    {
+      "gate": "universe-session-current",
+      "pass": true,
+      "detail": "universe=2026-09-30 expected=2026-09-30"
+    },
+    {
+      "gate": "security-count-stable",
+      "pass": true,
+      "detail": "quotes=352 baseline=352 (previous manifest) drift=0.0% band=±5%"
+    },
+    {
+      "gate": "no-dup-quotes",
+      "pass": true,
+      "detail": "352 unique quoted symbols"
+    },
+    {
+      "gate": "price-sanity",
+      "pass": true,
+      "detail": "352 quotes ok"
+    },
+    {
+      "gate": "no-dup-symbols",
+      "pass": true,
+      "detail": "410 unique"
+    },
+    {
+      "gate": "signals/momentum.json-fresh",
+      "pass": true,
+      "detail": "generated=2026-09-30 expected>=2026-09-30"
+    },
+    {
+      "gate": "signals/trend-relay.json-fresh",
+      "pass": true,
+      "detail": "generated=2026-09-30 expected>=2026-09-30"
+    },
+    {
+      "gate": "signals/reversal.json-fresh",
+      "pass": true,
+      "detail": "generated=2026-09-30 expected>=2026-09-30"
+    },
+    {
+      "gate": "all-files-parse",
+      "pass": true,
+      "detail": "69 files ok"
+    }
+  ]
+}

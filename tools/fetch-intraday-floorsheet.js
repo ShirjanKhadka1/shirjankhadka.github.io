@@ -25,7 +25,7 @@ const path = require('path');
 
 const ROOT = 'https://www.nepalstock.com';
 const OUT = path.join(__dirname, '..', 'nepse-brokers', 'data', 'intraday.json');
-const UA = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:89.0) Gecko/20100101 Firefox/89.0';
+const UA = 'NepseDecode/1.0 (+https://shirjankhadka.com.np; contact: shirjan.2.khadka@gmail.com)';
 const REQ_TIMEOUT_MS = 30000;
 const PAGE_SIZE = 500;
 const MAX_PAGES = 200; // ~48k rows/day worst case

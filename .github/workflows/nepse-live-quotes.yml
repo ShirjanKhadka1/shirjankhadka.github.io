@@ -8,6 +8,9 @@
 # any error -> exit 0 WITHOUT touching live.json, so the site keeps serving
 # the last good snapshot and falls back to the community feed. Commits only
 # when live.json actually changed.
+#
+# Failure alerts: email via SMTP (pinned SHA), never Facebook.
+# Needs repo secrets MAIL_USERNAME, MAIL_PASSWORD, ALERT_EMAIL_TO.
 
 name: Refresh NEPSE live quotes
 
@@ -17,32 +20,53 @@ on:
     # capture the finalized closing snapshot after the 15:00 bell.
     - cron: '0,15,30,45 5-8 * * 1-5'
     - cron: '0,15,20,25 9 * * 1-5'
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run: skip every git commit/push/tag (safe proof mode). Also forced ON while the DRY_RUN repo variable is not false'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 concurrency:
-  group: live-quotes
+  group: nepse-live-quotes
   cancel-in-progress: false
 
 jobs:
   live:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     permissions:
       contents: write
+    env:
+      # Dry-run safety: true unless explicitly disabled (see DRY_RUN repo variable).
+      DRY_RUN: ${{ inputs.dry_run == true || vars.DRY_RUN != 'false' }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: '20'
+          node-version: 20
+
+      - name: Alerting pre-check
+        run: |
+          missing=""
+          [ -n "${{ secrets.MAIL_USERNAME }}" ] || missing="$missing MAIL_USERNAME"
+          [ -n "${{ secrets.MAIL_PASSWORD }}" ] || missing="$missing MAIL_PASSWORD"
+          [ -n "${{ secrets.ALERT_EMAIL_TO }}" ] || missing="$missing ALERT_EMAIL_TO"
+          if [ -n "$missing" ]; then
+            echo "::warning::Failure emails are SILENT — missing repo secrets:$missing (Settings → Secrets → Actions)"
+          else
+            echo "alert email configured"
+          fi
 
       - name: Fetch official live quotes
         run: node tools/fetch-nepse-live.js
 
       - name: Commit live snapshot if changed
+        if: ${{ env.DRY_RUN != 'true' }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -53,14 +77,49 @@ jobs:
             else
               git commit -m "Alpha Lab: live quote snapshot (automated)"
               # Pull first in case a deployment moved remote main, then push with retry
-              git pull --rebase origin main || true
+              git pull --rebase origin main
+              pushed=false
               for i in 1 2 3; do
-                git push && break
+                if git push origin main; then pushed=true; break; fi
                 echo "Push attempt $i failed, retrying after pull..."
-                git pull --rebase origin main || true
+                git pull --rebase origin main
                 sleep 5
               done
+              if [ "$pushed" != "true" ]; then
+                echo "::error::git push failed after 3 attempts"
+                exit 1
+              fi
             fi
           else
             echo "live.json absent (market closed or fetch skipped) — nothing to commit"
           fi
+
+      - name: Email alert — live quotes failed
+        if: failure()
+        uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          secure: false
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "[NEPSE ALERT] live-quotes: refresh failed"
+          to: ${{ secrets.ALERT_EMAIL_TO }}
+          from: ${{ secrets.MAIL_USERNAME }}
+          body: |
+            The NEPSE live-quotes refresh FAILED
+            (fetch error, commit/push conflict, or infrastructure).
+            The site keeps serving the last good snapshot.
+
+            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+      - name: Job summary (on failure)
+        if: failure()
+        run: |
+          {
+            echo "## Live quotes: FAILED"
+            echo ""
+            echo "- The live-quotes refresh failed (fetch error, commit/push conflict, or infrastructure)."
+            echo "- The site keeps serving the last good snapshot."
+            echo "- Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          } >> "$GITHUB_STEP_SUMMARY"

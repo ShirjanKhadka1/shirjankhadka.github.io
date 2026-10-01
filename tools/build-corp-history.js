@@ -57,7 +57,7 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 const DATA = path.join(ROOT, 'nepse-chart', 'data');
 const OUT = path.join(DATA, 'corp-history.json');
-const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+const UA = 'NepseDecode/1.0 (+https://shirjankhadka.com.np; contact: shirjan.2.khadka@gmail.com)';
 
 const DELAY_MS = 5000;                  // politeness delay between symbols (one session per symbol)
 const POST_GAP_MS = 2000;               // gap between POSTs on the same session

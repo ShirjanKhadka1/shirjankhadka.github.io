@@ -74,6 +74,7 @@ h2.bk-h{font-family:var(--serif);font-size:1.25rem;margin:28px 0 8px}
 <link rel="stylesheet" href="/css/theme.css?v=20261001a">
 </head>
 <body class="nd">
+<div class="fb-wrap" style="display:flex;justify-content:center;padding:10px 16px 0"><div data-freshness-badge></div></div>
 <main style="max-width:1160px;margin:0 auto;padding:24px 16px">
 <p class="crumbs"><a href="/nepse-decode/">Nepse Decode</a> &middot; Value Investing</p>
 <p style="color:var(--muted);font-size:.9rem;margin-bottom:4px">Nepse Decode &middot; Factor research</p>
@@ -310,6 +311,7 @@ setInterval(function(){ if(!document.hidden) load(true); }, 60000);
       </div>
     </nav>
     <p class="sf-note"><strong>Educational use only.</strong> Nothing on this site is investment advice. Prices and figures are compiled from public sources and refreshed every trading day — always verify with your broker before trading.</p>
+    <p class="sf-note"><strong>Data sources:</strong> Market data from <a href="https://www.nepalstock.com" target="_blank" rel="noopener">NEPSE (nepalstock.com)</a> and <a href="https://www.sharesansar.com" target="_blank" rel="noopener">ShareSansar</a>. Corporate actions verified against official NEPSE/company notices.</p>
     <div class="sf-bottom">
       <span>© 2026 Nepse Decode · Built by <a href="/">Shirjan Khadka</a> in Kathmandu, Nepal</span>
       <span class="sf-social"><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Facebook</a><a href="/blog/">Blog</a><a href="/contact.html">Contact</a></span>
@@ -317,5 +319,6 @@ setInterval(function(){ if(!document.hidden) load(true); }, 60000);
   </div>
 </footer>
 
+<script src="/js/freshness-badge.js" defer></script>
 </body>
 </html>

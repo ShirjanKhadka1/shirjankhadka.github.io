@@ -25,7 +25,7 @@ const { execFileSync } = require('child_process');
 const ROOT = path.join(__dirname, '..');
 const STORE = path.join(ROOT, 'nepse-chart', 'data', 'corporate-actions.json');
 const UNI = path.join(ROOT, 'nepse-chart', 'data', 'universe.json');
-const UA = 'Mozilla/5.0 (NepseDecode archive collector)';
+const UA = 'NepseDecode/1.0 (+https://shirjankhadka.com.np; contact: shirjan.2.khadka@gmail.com)';
 
 const CORE_RE = /(dividend|bonus|right[-_ ]?shares?|promoter|lock[-_ ]?in|advance[-_ ]?notice|prior[-_ ]?notice|intention[-_ ]?of[-_ ]?sale|sale[-_ ]?of[-_ ]?shares?|auction|लाभांश|बोनस|हकप्रद|प्रमोटर|लिलाम|लक[- ]?इन|अग्रिम[- ]?सूचना|शेयर[- ]?बिक्री|सेयर[- ]?बिक्री|बिक्री[- ]?गर्ने[- ]?मनसाय)/i;
 const AGM_ONLY_RE = /(agm|साधारण[- ]?सभा|book[- ]?closure)/i;

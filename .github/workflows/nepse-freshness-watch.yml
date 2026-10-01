@@ -1,0 +1,77 @@
+# Freshness watch — dead-man's-switch (Phase 1)
+#
+# Mon-Fri at 17:15 NPT (11:30 UTC). Checks the LIVE site's manifest
+# (/data/manifest.json, falling back to the legacy path during the
+# one-release transition) and fails + emails if the market data is more than
+# one trading day behind the expected session.
+#
+# This runs INDEPENDENTLY of the data pipelines: it catches the case where a
+# pipeline silently never ran (scheduler outage, disabled workflow, etc.).
+#
+# Alert: email via SMTP (dawidd6/action-send-mail pinned to commit SHA),
+# subject "[NEPSE ALERT] freshness-watch: ...". NEVER Facebook.
+# Needs repo secrets MAIL_USERNAME, MAIL_PASSWORD (Gmail app password),
+# ALERT_EMAIL_TO.
+
+name: Freshness watch (dead-man's-switch)
+
+on:
+  schedule:
+    - cron: '30 11 * * 1-5'  # 17:15 NPT Mon-Fri
+  # TEMPORARY (pre-merge proof only — remove before merge): GitHub cannot
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: freshness-watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '20'
+
+      - name: Check live-site freshness
+        run: node tools/check-freshness.js --url https://shirjankhadka.com.np --max-behind 1
+
+      - name: Alerting pre-check
+        if: failure()
+        run: |
+          missing=""
+          [ -n "${{ secrets.MAIL_USERNAME }}" ] || missing="$missing MAIL_USERNAME"
+          [ -n "${{ secrets.MAIL_PASSWORD }}" ] || missing="$missing MAIL_PASSWORD"
+          [ -n "${{ secrets.ALERT_EMAIL_TO }}" ] || missing="$missing ALERT_EMAIL_TO"
+          if [ -n "$missing" ]; then
+            echo "::warning::Failure email is SILENT — missing repo secrets:$missing (Settings → Secrets → Actions). The stale-data condition is real; check the summary."
+          fi
+
+      - name: Email alert — live market data is stale
+        if: failure()
+        uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          secure: false
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "[NEPSE ALERT] freshness-watch: live market data is stale"
+          to: ${{ secrets.ALERT_EMAIL_TO }}
+          from: ${{ secrets.MAIL_USERNAME }}
+          body: |
+            The dead-man's-switch freshness check found STALE market data on the
+            live site (more than 1 trading day behind the expected session),
+            OR the live manifest could not be fetched at all.
+
+            This check runs independently of the data pipelines — a pipeline
+            may have silently never run. Details are in the job summary.
+
+            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            Status page: https://shirjankhadka.com.np/status/

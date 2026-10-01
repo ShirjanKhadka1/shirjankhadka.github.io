@@ -44,10 +44,12 @@ const path = require('path');
 
 const ROOT = 'https://www.nepalstock.com';
 const OUT = path.join(__dirname, '..', 'nepse-chart', 'data', 'live.json');
-const UA = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:89.0) Gecko/20100101 Firefox/89.0';
+// Identifying User-Agent per scraping best practices
+const UA = 'NepseDecode/1.0 (+https://shirjankhadka.com.np; contact: shirjan.2.khadka@gmail.com)';
 const REQ_TIMEOUT_MS = 25000;
 const PAGE_SIZE = 500;
 const MAX_PAGES = 10;
+const REQUEST_DELAY_MS = 2000;  // Politeness delay between paginated requests
 
 // Index display order + short labels for the blog ticker. Raw names are the
 // API's own index names; labels are cosmetic shortenings only — no values
@@ -303,6 +305,10 @@ async function main() {
       if (!Array.isArray(content) || content.length === 0) break;
       rows.push.apply(rows, content);
       if (content.length < PAGE_SIZE) break;
+      // Politeness delay between paginated requests
+      if (page < MAX_PAGES - 1) {
+        await new Promise(resolve => setTimeout(resolve, REQUEST_DELAY_MS));
+      }
     }
     if (!rows.length) throw new Error('today-price returned no rows (market ' + (closingRun ? 'CLOSED' : 'OPEN') + ')');
 

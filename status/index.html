@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>System Status — Nepse Decode</title>
+<meta name="description" content="Live status of the Nepse Decode data pipeline: job runs, validation gates, and data freshness.">
+<link rel="canonical" href="https://shirjankhadka.com.np/status/">
+<link rel="icon" href="/favicon.ico">
+<style>
+  :root{--ink:#1a1a1a;--mut:#6b7280;--line:#e5e7eb;--ok:#16a34a;--bad:#dc2626;--warn:#d97706}
+  *{box-sizing:border-box} body{font-family:Georgia,'Times New Roman',serif;color:var(--ink);margin:0;background:#faf9f7}
+  .wrap{max-width:860px;margin:0 auto;padding:32px 20px}
+  h1{font-size:1.9rem;margin:0 0 4px} .sub{color:var(--mut);margin:0 0 28px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:16px}
+  .card h2{font-size:1.05rem;margin:0 0 12px;text-transform:uppercase;letter-spacing:.06em;font-size:.8rem;color:var(--mut)}
+  .row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid #f3f4f6;font-size:.95rem}
+  .row:first-of-type{border-top:0}
+  .pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.78rem;font-weight:700}
+  .p-ok{background:#dcfce7;color:#166534}.p-bad{background:#fee2e2;color:#991b1b}.p-warn{background:#fef3c7;color:#92400e}.p-mut{background:#f3f4f6;color:#4b5563}
+  .mono{font-family:ui-monospace,Menlo,monospace;font-size:.85rem}
+  .gate{display:flex;gap:10px;align-items:baseline;padding:6px 0;border-top:1px solid #f3f4f6;font-size:.9rem}
+  .gate .g{font-weight:700;min-width:52px}
+  .foot{color:var(--mut);font-size:.85rem;margin-top:24px}
+  a{color:#1d4ed8}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>System Status</h1>
+  <p class="sub">Nepse Decode data pipeline — updated automatically after every run. Educational data service; figures are delayed snapshots, not investment advice.</p>
+
+  <div class="card"><h2>Market &amp; data</h2><div id="market"><p class="sub">Loading…</p></div></div>
+  <div class="card"><h2>Pipeline jobs</h2><div id="jobs"><p class="sub">Loading…</p></div></div>
+  <div class="card"><h2>Validation gates <span class="mono" id="gate-summary"></span></h2><div id="gates"><p class="sub">Loading…</p></div></div>
+
+  <p class="foot">Sources: NEPSE official site, Merolagani floorsheets, ShareSansar company pages, Arthasansar / BizMandu / OnlineKhabar RSS. Pipeline failures alert the site owner by email; full source terms in <a href="https://github.com/ShirjanKhadka1/shirjankhadka.github.io/blob/main/docs/DATA_SOURCES.md">docs/DATA_SOURCES.md</a>. <a href="/nepse-decode/">Back to Nepse Decode</a></p>
+</div>
+<script>
+(function(){
+  var base = '/nepse-chart/data/';
+  var manifestUrl = '/data/manifest.json';
+  function pill(text, cls){ return '<span class="pill '+cls+'">'+esc(text)+'</span>'; }
+  function get(url){ return fetch(url,{cache:'no-store'}).then(function(r){ if(!r.ok) throw 0; return r.json(); }); }
+  function row(k,v){ return '<div class="row"><span>'+esc(k)+'</span><span>'+v+'</span></div>'; }
+  // Vetted HTML sanitizer: values come from our own generated JSON; escaping
+  // keeps a poisoned data file from becoming XSS.
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+  get(manifestUrl).then(function(m){
+    var state = m.market_state === 'LIVE' ? pill('LIVE','p-ok') : pill('CLOSED','p-mut');
+    var stale = m.is_holiday_closure ? ' <span class="pill p-mut">holiday / weekend</span>' : '';
+    document.getElementById('market').innerHTML =
+      row('Market state', state + stale) +
+      row('Session date', '<span class="mono">'+esc(m.session_date)+'</span>') +
+      row('Generated', '<span class="mono">'+esc(m.generated_at_npt)+'</span>') +
+      row('Data files tracked', esc(m.files ? Object.keys(m.files).length : '?')) +
+      row('Sources', esc((m.sources||[]).join(', ')));
+  }).catch(function(){ document.getElementById('market').innerHTML = '<p class="sub">manifest.json unavailable</p>'; });
+
+  get(base+'jobs.json').then(function(j){
+    var names = {'market-close':'Market-close pipeline','content':'Content pipeline','live-quotes':'Live quotes','floorsheet':'Floorsheet poller'};
+    var html = '';
+    Object.keys(names).forEach(function(k){
+      var v = j[k];
+      if(!v){ html += row(names[k], pill('no runs yet','p-mut')); return; }
+      var cls = v.status==='success' ? 'p-ok' : (v.status==='failed' ? 'p-bad' : 'p-warn');
+      html += row(names[k], pill(String(v.status).toUpperCase(), cls) +
+        ' <span class="mono">'+esc(v.ran_at_npt)+'</span><br><span style="color:#6b7280;font-size:.82rem">'+
+        'session '+esc(v.session_date)+(v.detail ? ' · '+esc(v.detail) : '')+'</span>');
+    });
+    document.getElementById('jobs').innerHTML = html;
+  }).catch(function(){ document.getElementById('jobs').innerHTML = '<p class="sub">jobs.json unavailable</p>'; });
+
+  get(base+'validation.json').then(function(v){
+    var passed = v.gates.filter(function(g){return g.pass;}).length;
+    document.getElementById('gate-summary').textContent = passed + '/' + v.gates.length + ' passed · ran ' + v.ran_at_npt;
+    document.getElementById('gates').innerHTML = v.gates.map(function(g){
+      return '<div class="gate"><span class="g" style="color:'+(g.pass?'var(--ok)':'var(--bad)')+'">'+(g.pass?'PASS':'FAIL')+
+        '</span><span><span class="mono">'+esc(g.gate)+'</span><br><span style="color:#6b7280;font-size:.82rem">'+esc(g.detail)+'</span></span></div>';
+    }).join('');
+  }).catch(function(){ document.getElementById('gates').innerHTML = '<p class="sub">validation.json unavailable</p>'; });
+})();
+</script>
+</body>
+</html>
