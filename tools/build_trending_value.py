@@ -13,7 +13,7 @@ VALUE (Capital Max Fundamental Screener XLSX, all sectors, latest available quar
 
 Outputs: nepse-chart/data/trending.json, nepse-chart/data/value.json
 """
-import json, glob, math, os, sqlite3, sys
+import json, glob, html as _htmllib, math, os, sqlite3, sys
 from datetime import datetime, timezone, timedelta
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -178,10 +178,33 @@ for cf in cache_files:
 # because the timestamp is intraday Kathmandu time.
 session_date = (live_asof or '')[:10] or today
 trending.sort(key=lambda x: -x['score'])
-trending_out = {
-    'asof': session_date,
-    'built': today,
-    'live_asof': live_asof,
+if not trending:
+    # Fail-soft: the per-symbol OHLCV cache is not available in every
+    # environment (fresh worktrees, CI without the signals job). Never
+    # publish an empty ranking — keep the last good snapshot and roll its
+    # session labels forward, so the page keeps showing the most recent
+    # computed data instead of going blank.
+    _prev = load_json('nepse-chart/data/trending.json')
+    if _prev.get('stocks'):
+        print(f"  !! no OHLCV cache: keeping last good trending snapshot "
+              f"({len(_prev['stocks'])} symbols, computed {_prev.get('asof')}); "
+              f"rolling session labels to {session_date}")
+        trending = _prev['stocks']
+        trending_out = dict(_prev)
+        trending_out.update({'asof': session_date, 'built': today,
+                             'live_asof': live_asof})
+    else:
+        trending_out = {
+            'asof': session_date, 'built': today, 'live_asof': live_asof,
+            'method': 'Score 0-100 = 35% turnover acceleration + 20% volume spike + 20% 5-day momentum + 15% broker flow + 10% news.',
+            'coverage': {'symbols': 0, 'history': 'daily OHLCV sessions per symbol'},
+            'stocks': [],
+        }
+else:
+    trending_out = {
+        'asof': session_date,
+        'built': today,
+        'live_asof': live_asof,
     'method': ('Score 0-100 = 35% turnover acceleration (vs 20-day avg, capped 5x) + '
                '20% volume spike (capped 5x) + 20% 5-day momentum (capped +15%) + '
                '15% broker flow concentration (top single-broker 5-day net bought / 5-day turnover, capped 25%) + '
@@ -312,10 +335,13 @@ except Exception as _e:  # research must never break the trending/value build
     print(f"research layer skipped: {_e}")
 
 # ---------- STATIC SNAPSHOT BAKE (SEO / no-JS) ----------
-# Bakes a plain-HTML top-15 snapshot into nepse-trending/index.html and
+# Bakes a top-15 snapshot into nepse-trending/index.html and
 # nepse-value/index.html between SNAP-START / SNAP-END markers, so crawlers
-# and no-JS visitors see real data immediately. The interactive tables below
-# remain the live surface (60s refresh). Refreshed by every builder run.
+# and no-JS visitors see real data immediately. The snapshot tables use the
+# SAME rich design language as the interactive tables below (score bars,
+# company names, sector medians, tone pills) — one table design everywhere.
+# The interactive tables remain the live surface (60s refresh).
+# Refreshed by every builder run.
 # Snapshot labels use the DATA session date (asof), not the build date.
 def _bake_snapshot(page_rel, frag):
     p = os.path.join(REPO, page_rel)
@@ -332,25 +358,35 @@ def _fmt(x, dec=2, dash='–'):
     try: return f'{float(x):.{dec}f}'
     except (TypeError, ValueError): return dash
 
-_TONE_LABEL = {'accumulation': 'Accumulation interest',
-               'distribution': 'Distribution pressure',
-               'watch': 'Watch'}
+def _esc(s):
+    return _htmllib.escape('' if s is None else str(s), quote=True)
+
+_TONE_PILL = {'accumulation': ('tone-acc', 'Accumulation interest'),
+              'distribution': ('tone-dist', 'Distribution pressure'),
+              'watch': ('tone-watch', 'Watch')}
 _snap_asof = trending_out.get('asof') or today
 try:
     _trows = []
     for i, s in enumerate(trending[:15], 1):
-        tone = _TONE_LABEL.get(s['tone'], s['tone'])
-        chg = s['change_pct']
-        chg_s = ('+' if chg >= 0 else '') + f'{chg:.2f}%'
+        pill_cls, pill_label = _TONE_PILL.get(s['tone'], ('tone-watch', s['tone']))
+        chg = s['change_pct'] or 0
+        ret5 = s['ret_5d_pct'] or 0
+        chg_cls = 'pos' if chg > 0 else ('neg' if chg < 0 else '')
+        ret5_cls = 'pos' if ret5 > 0 else ('neg' if ret5 < 0 else '')
+        chg_s = ('+' if chg > 0 else '') + f'{chg:.2f}%'
+        ret5_s = ('+' if ret5 > 0 else '') + f'{ret5:.2f}%'
+        score = s['score']
         _trows.append(
             f'      <tr><td>{i}</td>'
-            f'<td><a href="/stocks/{s["symbol"]}/">{s["symbol"]}</a></td>'
+            f'<td><a class="symlink" href="/stocks/{_esc(s["symbol"])}/">{_esc(s["symbol"])}</a>'
+            f'<span class="sname">{_esc(s["name"])} · {_esc(s["sector"])}</span></td>'
             f'<td>{_fmt(s["ltp"])}</td>'
-            f'<td>{chg_s}</td>'
-            f'<td>{_fmt(s["ret_5d_pct"])}</td>'
-            f'<td>Rs {_fmt(s["turnover_rs_m"], 1)} M</td>'
-            f'<td>{tone}</td>'
-            f'<td>{s["score"]:.1f}</td></tr>')
+            f'<td class="{chg_cls}">{chg_s}</td>'
+            f'<td class="{ret5_cls}">{ret5_s}</td>'
+            f'<td>Rs {_fmt(s["turnover_rs_m"], 1)} M'
+            f'<span class="submed">{_fmt(s["turnover_ratio"], 1)}× avg</span></td>'
+            f'<td><span class="tone {pill_cls}">{pill_label}</span></td>'
+            f'<td><span class="scorebar"><i style="width:{round(score)}%"></i></span> {score:.1f}</td></tr>')
     _tfrag = (
         '<section class="snap" aria-label="Trending snapshot">\n'
         f'  <h2>Top trending stocks <span class="snap-asof">· snapshot {_snap_asof}</span></h2>\n'
@@ -365,21 +401,24 @@ try:
 
     _vrows = []
     for i, s in enumerate(ranked[:15], 1):
+        vscore = s['value_score']
         _vrows.append(
-            f'      <tr><td>{i}</td>'
-            f'<td><a href="/stocks/{s["symbol"]}/">{s["symbol"]}</a></td>'
-            f'<td>{s["sector"]}</td>'
+            f'      <tr>'
+            f'<td><span class="scorebar"><i style="width:{round(vscore)}%"></i></span> {vscore:.1f}</td>'
+            f'<td><a class="symlink" href="/stocks/{_esc(s["symbol"])}/">{_esc(s["symbol"])}</a>'
+            f'<span class="sname">{_esc(s["name"])}</span></td>'
+            f'<td>{_esc(s["sector"])}</td>'
             f'<td>{_fmt(s["ltp"])}</td>'
-            f'<td>{_fmt(s["pe_ttm"])}</td>'
-            f'<td>{_fmt(s["pbv"])}</td>'
+            f'<td>{_fmt(s["pe_ttm"])}<span class="submed">sector {_fmt(s["sector_median_pe"], 1)}</span></td>'
+            f'<td>{_fmt(s["pbv"])}<span class="submed">sector {_fmt(s["sector_median_pbv"], 2)}</span></td>'
             f'<td>{_fmt(s["ey_pct"], 1)}%</td>'
-            f'<td>{s["value_score"]:.1f}</td></tr>')
+            f'<td>{_fmt(s["roe_ttm_pct"], 1)}%</td></tr>')
     _vfrag = (
         '<section class="snap" aria-label="Value snapshot">\n'
         f'  <h2>Top value-ranked companies <span class="snap-asof">· snapshot {_snap_asof}</span></h2>\n'
         '  <div class="scrollx"><table class="bk-table">\n'
-        '    <thead><tr><th>#</th><th>Stock</th><th>Sector</th><th>LTP</th>'
-        '<th>P/E</th><th>P/BV</th><th>Earn. yield</th><th>Score</th></tr></thead>\n'
+        '    <thead><tr><th>Score</th><th>Stock</th><th>Sector</th><th>LTP</th>'
+        '<th>P/E (TTM)</th><th>P/BV</th><th>Earn. yield</th><th>ROE (TTM)</th></tr></thead>\n'
         '    <tbody>\n' + '\n'.join(_vrows) + '\n    </tbody>\n'
         '  </table></div>\n'
         '  <p class="snap-note">Static daily snapshot · ranked within each sector; the full interactive screen below refreshes every 60 seconds.</p>\n'

@@ -1,37 +1,37 @@
 {
-  "ran_at_npt": "2026-10-01T08:37:00+05:45",
-  "expected_session": "2026-09-30",
+  "ran_at_npt": "2026-10-02T02:58:00+05:45",
+  "expected_session": "2026-10-01",
   "passed": true,
   "gates": [
     {
       "gate": "manifest-present",
       "pass": true,
-      "detail": "session=2026-09-30"
+      "detail": "data/manifest.json session=2026-10-01"
     },
     {
       "gate": "live-session-current",
       "pass": true,
-      "detail": "live=2026-09-30 expected=2026-09-30"
+      "detail": "live=2026-10-01 expected=2026-10-01"
     },
     {
       "gate": "universe-session-current",
       "pass": true,
-      "detail": "universe=2026-09-30 expected=2026-09-30"
+      "detail": "universe=2026-10-01 expected=2026-10-01"
     },
     {
       "gate": "security-count-stable",
       "pass": true,
-      "detail": "quotes=352 baseline=352 (previous manifest) drift=0.0% band=±5%"
+      "detail": "OVERRIDDEN by operator — quotes=353 baseline=308 reason=\"Oct 1 close: 353 unique quoted securities, price-sanity clean, breadth 172+155+26=353 internally consistent; baseline 308 was the midday Sep-30-session intraday snapshot, not a comparable close\""
     },
     {
       "gate": "no-dup-quotes",
       "pass": true,
-      "detail": "352 unique quoted symbols"
+      "detail": "353 unique quoted symbols"
     },
     {
       "gate": "price-sanity",
       "pass": true,
-      "detail": "352 quotes ok"
+      "detail": "353 quotes ok"
     },
     {
       "gate": "no-dup-symbols",
@@ -41,22 +41,27 @@
     {
       "gate": "signals/momentum.json-fresh",
       "pass": true,
-      "detail": "generated=2026-09-30 expected>=2026-09-30"
+      "detail": "generated=2026-10-01 expected>=2026-10-01"
     },
     {
       "gate": "signals/trend-relay.json-fresh",
       "pass": true,
-      "detail": "generated=2026-09-30 expected>=2026-09-30"
+      "detail": "generated=2026-10-01 expected>=2026-10-01"
     },
     {
       "gate": "signals/reversal.json-fresh",
       "pass": true,
-      "detail": "generated=2026-09-30 expected>=2026-09-30"
+      "detail": "generated=2026-10-01 expected>=2026-10-01"
     },
     {
       "gate": "all-files-parse",
       "pass": true,
-      "detail": "69 files ok"
+      "detail": "70 files ok"
+    },
+    {
+      "gate": "sha256-integrity",
+      "pass": true,
+      "detail": "70 files verified"
     }
   ]
 }

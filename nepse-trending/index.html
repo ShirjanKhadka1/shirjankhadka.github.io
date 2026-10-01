@@ -59,6 +59,7 @@ h2.bk-h{font-family:var(--serif);font-size:1.25rem;margin:28px 0 8px}
 .symlink{font-weight:700;color:var(--green-800);text-decoration:none}
 .symlink:hover{text-decoration:underline}
 .sname{font-size:.75rem;color:var(--muted);display:block;font-weight:400}
+.submed{font-size:.72rem;color:var(--muted);display:block;font-weight:400}
 .tone-key{display:grid;gap:8px;margin:14px 0 20px}
 @media(min-width:760px){.tone-key{grid-template-columns:repeat(3,1fr)}}
 .tone-card{background:var(--card);border:1px solid var(--hairline);border-radius:var(--r-md);padding:10px 14px;font-size:.82rem;color:var(--ink-soft)}
@@ -66,9 +67,15 @@ h2.bk-h{font-family:var(--serif);font-size:1.25rem;margin:28px 0 8px}
 .method code{font-size:.8rem}
 .disclaimer{border-left:3px solid var(--gold);padding:10px 16px;margin:28px 0;font-size:.87rem;color:var(--ink-soft);background:var(--gold-soft);border-radius:0 var(--r-md) var(--r-md) 0}
 canvas.spark{display:block}
-.crumbs{font-size:.85rem;color:var(--muted);margin-bottom:6px}
+.crumbs{font-size:.85rem;color:var(--muted);margin-bottom:10px}
 .crumbs a{color:var(--muted);text-decoration:none}
 .crumbs a:hover{color:var(--green-900)}
+.crumbs .csep{margin:0 5px}
+.kicker{font-size:.74rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--green-800);margin:0 0 8px}
+.page-title{font-family:var(--serif);font-size:2rem;margin:0 0 10px;line-height:1.15;letter-spacing:-.01em}
+.dek{color:var(--ink-soft);max-width:68ch;font-size:1rem;line-height:1.65;margin:0 0 12px}
+.dek strong{color:var(--ink)}
+.ne-sum{color:var(--muted);font-size:.92rem;max-width:68ch;margin:0 0 22px;line-height:1.7}
 /* ============================================================
    RESEARCH LAYER — equity-research expandable panels.
    Lazy-loaded (trending-research.json fetched on first expand),
@@ -107,33 +114,33 @@ canvas.spark{display:block}
 <body class="nd">
 <div class="fb-wrap" style="display:flex;justify-content:center;padding:10px 16px 0"><div data-freshness-badge></div></div>
 <main style="max-width:1160px;margin:0 auto;padding:24px 16px">
-<p class="crumbs"><a href="/nepse-decode/">Nepse Decode</a> &middot; Trending Stocks</p>
-<p style="color:var(--muted);font-size:.9rem;margin-bottom:4px">Nepse Decode &middot; Market pulse</p>
-<h1 style="font-family:var(--serif);font-size:2rem;margin:0 0 6px">Trending Stocks</h1>
-<p style="color:var(--ink-soft);max-width:700px">Which NEPSE stocks are genuinely attracting activity — ranked by turnover acceleration, volume spikes, 5-day momentum, broker flow concentration and news mentions. Our own transparent formula: every input is published below, no black box, no borrowed scores.</p>
-<p lang="ne" class="ne-sum" style="color:var(--muted);font-size:.92rem;max-width:700px;margin-top:10px">संक्षेप: यो पृष्ठमा नेप्सेमा अहिले सबैभन्दा सक्रिय स्टकहरूको दैनिक सूची छ — उच्च कारोबार, मूल्य गति र ब्रोकर प्रवाहका आधारमा छानिएको। यो शैक्षिक जानकारी हो, लगानी सल्लाह होइन।</p>
+<p class="crumbs"><a href="/nepse-decode/">Nepse Decode</a> <span class="csep">/</span> <span aria-current="page">Trending Stocks</span></p>
+<p class="kicker">Market pulse</p>
+<h1 class="page-title">Trending Stocks</h1>
+<p class="dek">Which NEPSE stocks are genuinely attracting activity — ranked by turnover acceleration, volume spikes, 5-day momentum, broker flow concentration and news mentions. A transparent formula: every input is published below. No black box, no borrowed scores.</p>
+<p lang="ne" class="ne-sum">संक्षेप: यो पृष्ठमा नेप्सेमा अहिले सबैभन्दा सक्रिय स्टकहरूको दैनिक सूची छ — उच्च कारोबार, मूल्य गति र ब्रोकर प्रवाहका आधारमा छानिएको। यो शैक्षिक जानकारी हो, लगानी सल्लाह होइन।</p>
 
 <!-- SNAP-START -->
 <section class="snap" aria-label="Trending snapshot">
-  <h2>Top trending stocks <span class="snap-asof">· snapshot 2026-09-30</span></h2>
+  <h2>Top trending stocks <span class="snap-asof">· snapshot 2026-10-01</span></h2>
   <div class="scrollx"><table class="bk-table">
     <thead><tr><th>#</th><th>Stock</th><th>LTP</th><th>Day %</th><th>5-day %</th><th>Turnover</th><th>Tone</th><th>Score</th></tr></thead>
     <tbody>
-      <tr><td>1</td><td><a href="/stocks/GHL/">GHL</a></td><td>271.50</td><td>+6.81%</td><td>6.81</td><td>Rs 394.9 M</td><td>Accumulation interest</td><td>72.6</td></tr>
-      <tr><td>2</td><td><a href="/stocks/PHCL/">PHCL</a></td><td>333.80</td><td>+3.34%</td><td>3.34</td><td>Rs 228.4 M</td><td>Accumulation interest</td><td>61.8</td></tr>
-      <tr><td>3</td><td><a href="/stocks/SPHL/">SPHL</a></td><td>580.00</td><td>+13.26%</td><td>13.26</td><td>Rs 15.3 M</td><td>Accumulation interest</td><td>60.8</td></tr>
-      <tr><td>4</td><td><a href="/stocks/HHL/">HHL</a></td><td>350.00</td><td>+2.34%</td><td>2.34</td><td>Rs 33.2 M</td><td>Accumulation interest</td><td>55.7</td></tr>
-      <tr><td>5</td><td><a href="/stocks/KPCL/">KPCL</a></td><td>457.00</td><td>-3.18%</td><td>-3.18</td><td>Rs 15.1 M</td><td>Distribution pressure</td><td>55.0</td></tr>
-      <tr><td>6</td><td><a href="/stocks/USHEC/">USHEC</a></td><td>494.00</td><td>-3.52%</td><td>-3.52</td><td>Rs 19.2 M</td><td>Distribution pressure</td><td>47.3</td></tr>
-      <tr><td>7</td><td><a href="/stocks/UNL/">UNL</a></td><td>49200.00</td><td>+1.44%</td><td>1.44</td><td>Rs 3.9 M</td><td>Watch</td><td>42.8</td></tr>
-      <tr><td>8</td><td><a href="/stocks/SMB/">SMB</a></td><td>1831.00</td><td>-0.76%</td><td>-0.76</td><td>Rs 2.8 M</td><td>Watch</td><td>41.2</td></tr>
-      <tr><td>9</td><td><a href="/stocks/SLBSL/">SLBSL</a></td><td>895.00</td><td>-1.86%</td><td>-1.86</td><td>Rs 2.2 M</td><td>Watch</td><td>40.7</td></tr>
-      <tr><td>10</td><td><a href="/stocks/SHPC/">SHPC</a></td><td>529.60</td><td>-1.56%</td><td>-1.56</td><td>Rs 133.2 M</td><td>Watch</td><td>38.3</td></tr>
-      <tr><td>11</td><td><a href="/stocks/ADBL/">ADBL</a></td><td>307.50</td><td>-2.04%</td><td>-2.04</td><td>Rs 25.7 M</td><td>Distribution pressure</td><td>34.7</td></tr>
-      <tr><td>12</td><td><a href="/stocks/SONA/">SONA</a></td><td>420.00</td><td>+3.96%</td><td>3.96</td><td>Rs 78.5 M</td><td>Accumulation interest</td><td>34.0</td></tr>
-      <tr><td>13</td><td><a href="/stocks/SIFC/">SIFC</a></td><td>479.00</td><td>-1.38%</td><td>-1.38</td><td>Rs 6.9 M</td><td>Watch</td><td>33.9</td></tr>
-      <tr><td>14</td><td><a href="/stocks/ULHC/">ULHC</a></td><td>352.00</td><td>+7.94%</td><td>7.94</td><td>Rs 3.7 M</td><td>Accumulation interest</td><td>33.9</td></tr>
-      <tr><td>15</td><td><a href="/stocks/MKJC/">MKJC</a></td><td>342.00</td><td>+1.18%</td><td>1.18</td><td>Rs 42.0 M</td><td>Watch</td><td>33.0</td></tr>
+      <tr><td>1</td><td><a class="symlink" href="/stocks/GHL/">GHL</a><span class="sname">Ghalemdi Hydro Limited · Hydropower</span></td><td>271.50</td><td class="pos">+6.81%</td><td class="pos">+6.81%</td><td>Rs 394.9 M<span class="submed">6.8× avg</span></td><td><span class="tone tone-acc">Accumulation interest</span></td><td><span class="scorebar"><i style="width:73%"></i></span> 72.6</td></tr>
+      <tr><td>2</td><td><a class="symlink" href="/stocks/PHCL/">PHCL</a><span class="sname">Peoples Hydropower Company Limited · Hydropower</span></td><td>333.80</td><td class="pos">+3.34%</td><td class="pos">+3.34%</td><td>Rs 228.4 M<span class="submed">5.5× avg</span></td><td><span class="tone tone-acc">Accumulation interest</span></td><td><span class="scorebar"><i style="width:62%"></i></span> 61.8</td></tr>
+      <tr><td>3</td><td><a class="symlink" href="/stocks/SPHL/">SPHL</a><span class="sname">Sayapatri Hydropower Limited · Hydropower</span></td><td>580.00</td><td class="pos">+13.26%</td><td class="pos">+13.26%</td><td>Rs 15.3 M<span class="submed">3.2× avg</span></td><td><span class="tone tone-acc">Accumulation interest</span></td><td><span class="scorebar"><i style="width:61%"></i></span> 60.8</td></tr>
+      <tr><td>4</td><td><a class="symlink" href="/stocks/HHL/">HHL</a><span class="sname">Himalayan Hydropower Limited · Hydropower</span></td><td>350.00</td><td class="pos">+2.34%</td><td class="pos">+2.34%</td><td>Rs 33.2 M<span class="submed">4.2× avg</span></td><td><span class="tone tone-acc">Accumulation interest</span></td><td><span class="scorebar"><i style="width:56%"></i></span> 55.7</td></tr>
+      <tr><td>5</td><td><a class="symlink" href="/stocks/KPCL/">KPCL</a><span class="sname">Kalika power Company Ltd · Hydropower</span></td><td>457.00</td><td class="neg">-3.18%</td><td class="neg">-3.18%</td><td>Rs 15.1 M<span class="submed">4.5× avg</span></td><td><span class="tone tone-dist">Distribution pressure</span></td><td><span class="scorebar"><i style="width:55%"></i></span> 55.0</td></tr>
+      <tr><td>6</td><td><a class="symlink" href="/stocks/USHEC/">USHEC</a><span class="sname">Upper Solu Hydro Electric Company Limited · Hydropower</span></td><td>494.00</td><td class="neg">-3.52%</td><td class="neg">-3.52%</td><td>Rs 19.2 M<span class="submed">3.6× avg</span></td><td><span class="tone tone-dist">Distribution pressure</span></td><td><span class="scorebar"><i style="width:47%"></i></span> 47.3</td></tr>
+      <tr><td>7</td><td><a class="symlink" href="/stocks/UNL/">UNL</a><span class="sname">UNL · Manufacturing And Processing</span></td><td>49200.00</td><td class="pos">+1.44%</td><td class="pos">+1.44%</td><td>Rs 3.9 M<span class="submed">3.2× avg</span></td><td><span class="tone tone-watch">Watch</span></td><td><span class="scorebar"><i style="width:43%"></i></span> 42.8</td></tr>
+      <tr><td>8</td><td><a class="symlink" href="/stocks/SMB/">SMB</a><span class="sname">Support Microfinance Bittiya Sanstha Ltd. · Microfinance</span></td><td>1831.00</td><td class="neg">-0.76%</td><td class="neg">-0.76%</td><td>Rs 2.8 M<span class="submed">2.4× avg</span></td><td><span class="tone tone-watch">Watch</span></td><td><span class="scorebar"><i style="width:41%"></i></span> 41.2</td></tr>
+      <tr><td>9</td><td><a class="symlink" href="/stocks/SLBSL/">SLBSL</a><span class="sname">Samudayik Laghubitta Bittiya Sanstha Limited · Microfinance</span></td><td>895.00</td><td class="neg">-1.86%</td><td class="neg">-1.86%</td><td>Rs 2.2 M<span class="submed">3.1× avg</span></td><td><span class="tone tone-watch">Watch</span></td><td><span class="scorebar"><i style="width:41%"></i></span> 40.7</td></tr>
+      <tr><td>10</td><td><a class="symlink" href="/stocks/SHPC/">SHPC</a><span class="sname">Sanima Mai Hydropower Ltd. · Hydropower</span></td><td>529.60</td><td class="neg">-1.56%</td><td class="neg">-1.56%</td><td>Rs 133.2 M<span class="submed">3.0× avg</span></td><td><span class="tone tone-watch">Watch</span></td><td><span class="scorebar"><i style="width:38%"></i></span> 38.3</td></tr>
+      <tr><td>11</td><td><a class="symlink" href="/stocks/ADBL/">ADBL</a><span class="sname">Agricultural Development Bank Limited · Development Bank</span></td><td>307.50</td><td class="neg">-2.04%</td><td class="neg">-2.04%</td><td>Rs 25.7 M<span class="submed">2.3× avg</span></td><td><span class="tone tone-dist">Distribution pressure</span></td><td><span class="scorebar"><i style="width:35%"></i></span> 34.7</td></tr>
+      <tr><td>12</td><td><a class="symlink" href="/stocks/SONA/">SONA</a><span class="sname">Sonapur Minerals And Oil Limited · Manufacturing And Processing</span></td><td>420.00</td><td class="pos">+3.96%</td><td class="pos">+3.96%</td><td>Rs 78.5 M<span class="submed">2.1× avg</span></td><td><span class="tone tone-acc">Accumulation interest</span></td><td><span class="scorebar"><i style="width:34%"></i></span> 34.0</td></tr>
+      <tr><td>13</td><td><a class="symlink" href="/stocks/SIFC/">SIFC</a><span class="sname">Shree Investment Finance Co. Ltd. · Finance</span></td><td>479.00</td><td class="neg">-1.38%</td><td class="neg">-1.38%</td><td>Rs 6.9 M<span class="submed">1.7× avg</span></td><td><span class="tone tone-watch">Watch</span></td><td><span class="scorebar"><i style="width:34%"></i></span> 33.9</td></tr>
+      <tr><td>14</td><td><a class="symlink" href="/stocks/ULHC/">ULHC</a><span class="sname">Upper Lohore Khola Hydropower Company Limited · Hydropower</span></td><td>352.00</td><td class="pos">+7.94%</td><td class="pos">+7.94%</td><td>Rs 3.7 M<span class="submed">0.8× avg</span></td><td><span class="tone tone-acc">Accumulation interest</span></td><td><span class="scorebar"><i style="width:34%"></i></span> 33.9</td></tr>
+      <tr><td>15</td><td><a class="symlink" href="/stocks/MKJC/">MKJC</a><span class="sname">Mailung Khola Jal Vidhyut Company Limited · Hydropower</span></td><td>342.00</td><td class="pos">+1.18%</td><td class="pos">+1.18%</td><td>Rs 42.0 M<span class="submed">2.6× avg</span></td><td><span class="tone tone-watch">Watch</span></td><td><span class="scorebar"><i style="width:33%"></i></span> 33.0</td></tr>
     </tbody>
   </table></div>
   <p class="snap-note">Static daily snapshot · the full interactive ranking below refreshes every 60 seconds.</p>
