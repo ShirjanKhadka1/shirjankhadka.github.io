@@ -65,8 +65,17 @@ function page(sys, data) {
   }
   const closedFirst = trades.slice(0, 50).map(tradeRow).join('');
   const closedRest = trades.slice(50).map(tradeRow).join('');
-  const closedMore = trades.length > 50
-    ? `<p style="margin:8px 0 0"><button id="closed-more" class="tag entry" style="cursor:pointer;border:none;font-size:.85rem;padding:8px 18px">Show all ${trades.length} finished trades</button></p>`
+  const closedMore = trades.length > 10
+    ? `<div class="pg-ctl" style="display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin:12px 0 0">
+      <label style="font-size:.85rem;color:var(--muted)">Rows per page
+        <select id="closed-size" style="margin-left:6px;padding:6px 10px;border:1px solid var(--hairline);border-radius:8px;background:var(--card);font-size:.85rem">
+          <option value="10">10</option><option value="25">25</option><option value="50" selected>50</option><option value="100">100</option>
+        </select></label>
+      <span id="closed-info" style="font-size:.85rem;color:var(--muted)" aria-live="polite"></span>
+      <span style="display:flex;gap:8px;margin-left:auto">
+        <button id="closed-prev" style="padding:8px 16px;border:1px solid var(--hairline);border-radius:8px;background:var(--card);cursor:pointer;font-size:.85rem">← Prev</button>
+        <button id="closed-next" style="padding:8px 16px;border:1px solid var(--hairline);border-radius:8px;background:var(--card);cursor:pointer;font-size:.85rem">Next →</button>
+      </span></div>`
     : '';
 
   const NOTES = {
@@ -194,10 +203,10 @@ function page(sys, data) {
 <div class="rules"><ol>${rules}</ol></div>
 
 <h2 style="font-family:var(--serif);margin-top:28px">Closed history — finished trades</h2>
-<p style="color:var(--muted);font-size:.9rem">Every finished trade this system took in the backtest, newest first. P&amp;L is after the same trading charges the backtest applies. Showing the first 50 — use the button below to reveal the rest.</p>
+<p style="color:var(--muted);font-size:.9rem">Every finished trade this system took in the backtest, newest first. P&amp;L is after the same trading charges the backtest applies.</p>
 <div class="scrollx"><table class="sig-table" id="closed"><thead><tr>
 <th>Symbol</th><th>Entry date</th><th>Exit date</th><th>Entry price</th><th>Exit price</th><th>Exit reason</th><th>P&amp;L Rs</th><th>P&amp;L %</th><th>Hold days</th>
-</tr></thead><tbody>${closedFirst}</tbody>${closedRest ? `<tbody id="closed-rest" hidden>${closedRest}</tbody>` : ''}</table></div>
+</tr></thead><tbody id="closed-body">${closedFirst}${closedRest}</tbody></table></div>
 ${closedMore}
 
 <h2 style="font-family:var(--serif);margin-top:28px">About this system</h2>
@@ -253,15 +262,33 @@ ${GLOSSARY}
 })();
 </script>
 <script>
-// Closed history: reveal the hidden rows on demand.
+// Closed history: client-side pagination with page-size selector.
 (function(){
-  var btn = document.getElementById('closed-more');
-  if (!btn) return;
-  btn.addEventListener('click', function(){
-    var rest = document.getElementById('closed-rest');
-    if (rest) rest.hidden = false;
-    btn.style.display = 'none';
-  });
+  var body = document.getElementById('closed-body');
+  var sizeSel = document.getElementById('closed-size');
+  var info = document.getElementById('closed-info');
+  var prev = document.getElementById('closed-prev');
+  var next = document.getElementById('closed-next');
+  if (!body || !sizeSel) return;
+  var rows = Array.prototype.slice.call(body.rows);
+  var page = 0;
+  function size(){ return parseInt(sizeSel.value, 10) || 50; }
+  function pages(){ return Math.max(1, Math.ceil(rows.length / size())); }
+  function render(){
+    var s = size(), p = pages();
+    if (page >= p) page = p - 1;
+    if (page < 0) page = 0;
+    var lo = page * s, hi = Math.min(lo + s, rows.length);
+    rows.forEach(function(r, i){ r.style.display = (i >= lo && i < hi) ? '' : 'none'; });
+    if (info) info.textContent = rows.length ? ('Showing ' + (lo + 1) + '–' + hi + ' of ' + rows.length + ' trades') : 'No trades';
+    if (prev) prev.disabled = page === 0;
+    if (next) next.disabled = page >= p - 1;
+    [prev, next].forEach(function(b){ if (b) b.style.opacity = b.disabled ? '.45' : '1'; });
+  }
+  sizeSel.addEventListener('change', function(){ page = 0; render(); });
+  if (prev) prev.addEventListener('click', function(){ if (page > 0){ page--; render(); } });
+  if (next) next.addEventListener('click', function(){ if (page < pages() - 1){ page++; render(); } });
+  render();
 })();
 </script>
 <style>
