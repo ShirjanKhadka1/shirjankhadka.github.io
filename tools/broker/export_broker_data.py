@@ -101,7 +101,9 @@ def aggregate(con, dates):
         net_val = bv - sv
         if net_qty != 0 or net_val != 0:
             flows.append({"symbol": sym, "broker": broker,
-                          "net_qty": r2(net_qty), "net_value": r2(net_val)})
+                          "net_qty": r2(net_qty), "net_value": r2(net_val),
+                          "buy_qty": r2(bq), "buy_value": r2(bv),
+                          "sell_qty": r2(sq), "sell_value": r2(sv)})
     return brokers, bsym, symbols, flows
 
 
@@ -114,8 +116,12 @@ def export_period(con, period, days, end_iso):
     broker_list = []
     for code, t in brokers.items():
         total = t["buy_value"] + t["sell_value"]
-        broker_list.append({"code": code, "buy_value": r2(t["buy_value"]),
-                            "sell_value": r2(t["sell_value"]), "total": r2(total),
+        total_qty = t["buy_qty"] + t["sell_qty"]
+        broker_list.append({"code": code,
+                            "buy_qty": r2(t["buy_qty"]), "buy_value": r2(t["buy_value"]),
+                            "sell_qty": r2(t["sell_qty"]), "sell_value": r2(t["sell_value"]),
+                            "total_qty": r2(total_qty), "total": r2(total),
+                            "net_qty": r2(t["buy_qty"] - t["sell_qty"]),
                             "net": r2(t["buy_value"] - t["sell_value"])})
     broker_list.sort(key=lambda x: -x["total"])
 
@@ -131,7 +137,7 @@ def export_period(con, period, days, end_iso):
     netflow = {}
     for f in flows:
         nf = netflow.setdefault(f["symbol"], {})
-        nf[f["broker"]] = [r2(f["net_qty"]), r2(f["net_value"])]
+        nf[f["broker"]] = [r2(f["net_qty"]), r2(f["net_value"]), r2(f["buy_qty"]), r2(f["buy_value"]), r2(f["sell_qty"]), r2(f["sell_value"])]
     for sym in netflow:
         netflow[sym] = dict(sorted(netflow[sym].items(), key=lambda x: -x[1][1]))
     for sym, sd in symbols.items():
@@ -161,7 +167,7 @@ def export_daily(con, day_iso):
     netflow = {}
     for f in flows:
         nf = netflow.setdefault(f["symbol"], {})
-        nf[f["broker"]] = [r2(f["net_qty"]), r2(f["net_value"])]
+        nf[f["broker"]] = [r2(f["net_qty"]), r2(f["net_value"]), r2(f["buy_qty"]), r2(f["buy_value"]), r2(f["sell_qty"]), r2(f["sell_value"])]
     for sym in netflow:
         netflow[sym] = dict(sorted(netflow[sym].items(), key=lambda x: -x[1][1]))
     for sym, sd in symbols.items():

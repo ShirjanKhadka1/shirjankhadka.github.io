@@ -18,6 +18,7 @@
 .bk-table{width:100%;border-collapse:collapse;font-size:.85rem;background:var(--card)}
 .bk-table th,.bk-table td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--hairline-soft);white-space:nowrap}
 .bk-table th:first-child,.bk-table td:first-child{text-align:left}
+.bk-table td.bk-name,.bk-table th.bk-name{text-align:left}
 .bk-table th{background:var(--paper-deep);font-weight:600;color:var(--ink-soft);position:sticky;top:0}
 .bk-table tr:last-child td{border-bottom:none}
 .scrollx{overflow-x:auto;margin:12px 0;border:1px solid var(--hairline);border-radius:var(--r-md)}
@@ -155,12 +156,14 @@ function loadPeriod(silent){
 /* ---------- views ---------- */
 function renderTop(d){
   var rows = d.brokers.map(function(b,i){
-    return '<tr><td>'+(i+1)+'</td><td><strong>'+bname(b.code)+'</strong><br><span style="color:var(--muted)">'+b.code+'</span></td>'+
-      '<td>'+fmtV(b.buy_value)+'</td><td>'+fmtV(b.sell_value)+'</td><td><strong>'+fmtV(b.total)+'</strong></td>'+
-      '<td class="'+cls(b.net)+'">'+fmtV(b.net)+'</td></tr>';
+    return '<tr><td>'+(i+1)+'</td><td class="bk-name"><strong>'+bname(b.code)+'</strong><br><span style="color:var(--muted)">'+b.code+'</span></td>'+
+      '<td>'+fmtN(b.buy_qty||0,0)+'</td><td>'+fmtV(b.buy_value)+'</td>'+
+      '<td>'+fmtN(b.sell_qty||0,0)+'</td><td>'+fmtV(b.sell_value)+'</td>'+
+      '<td><strong>'+fmtN(b.total_qty||0,0)+'</strong></td><td><strong>'+fmtV(b.total)+'</strong></td>'+
+      '<td class="'+cls(b.net_qty||0)+'">'+fmtN(b.net_qty||0,0)+'</td><td class="'+cls(b.net)+'">'+fmtV(b.net)+'</td></tr>';
   }).join('');
   return '<h2 class="bk-h">Top brokers by turnover — '+label()+'</h2>'+
-    '<div class="scrollx"><table class="bk-table"><thead><tr><th>#</th><th>Broker</th><th>Buy value</th><th>Sell value</th><th>Total</th><th>Net</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+    '<div class="scrollx"><table class="bk-table"><thead><tr><th>#</th><th class="bk-name">Broker</th><th>Buy vol</th><th>Buy value</th><th>Sell vol</th><th>Sell value</th><th>Total vol</th><th>Total value</th><th>Net vol</th><th>Net value</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 
 function renderBroker(d){
@@ -175,9 +178,12 @@ function renderBroker(d){
   }).join('');
   return '<h2 class="bk-h">'+bname(code)+' — trade pattern, '+label()+'</h2>'+
     '<div class="stat-row">'+
+    '<div class="stat"><div class="l">Buy volume</div><div class="v">'+fmtN(t.buy_qty||0,0)+'</div></div>'+
     '<div class="stat"><div class="l">Buy value</div><div class="v">'+fmtV(t.buy_value||0)+'</div></div>'+
+    '<div class="stat"><div class="l">Sell volume</div><div class="v">'+fmtN(t.sell_qty||0,0)+'</div></div>'+
     '<div class="stat"><div class="l">Sell value</div><div class="v">'+fmtV(t.sell_value||0)+'</div></div>'+
-    '<div class="stat"><div class="l">Net flow</div><div class="v '+cls((t.buy_value||0)-(t.sell_value||0))+'">'+fmtV((t.buy_value||0)-(t.sell_value||0))+'</div></div>'+
+    '<div class="stat"><div class="l">Net volume</div><div class="v '+cls((t.buy_qty||0)-(t.sell_qty||0))+'">'+fmtN((t.buy_qty||0)-(t.sell_qty||0),0)+'</div></div>'+
+    '<div class="stat"><div class="l">Net value</div><div class="v '+cls((t.buy_value||0)-(t.sell_value||0))+'">'+fmtV((t.buy_value||0)-(t.sell_value||0))+'</div></div>'+
     '<div class="stat"><div class="l">Stocks traded</div><div class="v">'+syms.length+'</div></div></div>'+
     '<div class="scrollx"><table class="bk-table"><thead><tr><th>Symbol</th><th>Buy qty</th><th>Buy value</th><th>Sell qty</th><th>Sell value</th><th>Net value</th></tr></thead><tbody>'+(rows||'<tr><td colspan="6">No trades in this period.</td></tr>')+'</tbody></table></div>';
 }
@@ -199,9 +205,9 @@ function renderStock(d){
       return [c, Array.isArray(v) ? v : [0, v]];
     }).sort(function(a,b){return b[1][1]-a[1][1]})
       .slice(0,10).map(function(x,i){
-        return '<tr><td>'+(i+1)+'</td><td>'+bname(x[0])+'</td><td>'+fmtN(x[1][0],0)+'</td><td>'+fmtV(x[1][1])+'</td></tr>';
+        return '<tr><td>'+(i+1)+'</td><td class="bk-name">'+bname(x[0])+'</td><td>'+fmtN(x[1][0],0)+'</td><td>'+fmtV(x[1][1])+'</td></tr>';
       }).join('');
-    return '<div><h2 class="bk-h">'+title+'</h2><div class="scrollx"><table class="bk-table"><thead><tr><th>#</th><th>Broker</th><th>Qty (shares)</th><th>Value</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+    return '<div><h2 class="bk-h">'+title+'</h2><div class="scrollx"><table class="bk-table"><thead><tr><th>#</th><th class="bk-name">Broker</th><th>Qty (shares)</th><th>Value</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
   }
   var activeN = (s.netflow && Object.keys(s.netflow).length)
     ? Object.keys(s.netflow).length
@@ -223,33 +229,42 @@ function renderHoldings(d){
   var s = d.symbols[sym];
   if(!s) return '<div class="cover">No trades for '+sym+' in this period.</div>';
   var net = {};
-  function pair(v){ return Array.isArray(v) ? v : [0, v]; }
+  // netflow entries: [net_qty, net_value, buy_qty, buy_value, sell_qty, sell_value];
+  // tolerate legacy [net_qty, net_value] and value-only schemas
+  function pair6(v){
+    if(!Array.isArray(v)) return [0, v||0, 0, 0, 0, 0];
+    return [v[0]||0, v[1]||0, v[2]||0, v[3]||0, v[4]||0, v[5]||0];
+  }
+  function qv(v){ return Array.isArray(v) ? v : [0, v||0]; }
   if (s.netflow && Object.keys(s.netflow).length){
-    Object.keys(s.netflow).forEach(function(c){ net[c] = pair(s.netflow[c]); });
+    Object.keys(s.netflow).forEach(function(c){ net[c] = pair6(s.netflow[c]); });
   } else {
-    Object.keys(s.buyers).forEach(function(c){ var v=pair(s.buyers[c]);
-      var e = net[c] = net[c] || [0,0]; e[0]+=v[0]; e[1]+=v[1]; });
-    Object.keys(s.sellers).forEach(function(c){ var v=pair(s.sellers[c]);
-      var e = net[c] = net[c] || [0,0]; e[0]-=v[0]; e[1]-=v[1]; });
+    Object.keys(s.buyers).forEach(function(c){ var v=qv(s.buyers[c]);
+      var e = net[c] = net[c] || [0,0,0,0,0,0]; e[2]+=v[0]; e[3]+=v[1]; e[0]+=v[0]; e[1]+=v[1]; });
+    Object.keys(s.sellers).forEach(function(c){ var v=qv(s.sellers[c]);
+      var e = net[c] = net[c] || [0,0,0,0,0,0]; e[4]+=v[0]; e[5]+=v[1]; e[0]-=v[0]; e[1]-=v[1]; });
   }
   var rows = Object.keys(net).map(function(c){return [c,net[c]]}).sort(function(a,b){return b[1][1]-a[1][1]})
     .map(function(x){
-      var nq = x[1][0], nv = x[1][1];
+      var n = x[1], nq = n[0], nv = n[1];
       var tag = nv>0?'<span class="pos">accumulating</span>':'<span class="neg">distributing</span>';
-      return '<tr><td>'+bname(x[0])+'</td><td>'+x[0]+'</td><td>'+fmtN(nq,0)+'</td><td class="'+cls(nv)+'">'+fmtV(nv)+'</td><td>'+tag+'</td></tr>';
+      return '<tr><td class="bk-name">'+bname(x[0])+'</td><td>'+x[0]+'</td>'+
+        '<td>'+fmtN(n[2],0)+'</td><td>'+fmtV(n[3])+'</td>'+
+        '<td>'+fmtN(n[4],0)+'</td><td>'+fmtV(n[5])+'</td>'+
+        '<td>'+fmtN(nq,0)+'</td><td class="'+cls(nv)+'">'+fmtV(nv)+'</td><td>'+tag+'</td></tr>';
     }).join('');
   return '<h2 class="bk-h">'+sym+' — stockwise broker flow, '+label()+'</h2>'+
     '<p style="font-size:.85rem;color:var(--muted)">Every broker that traded this stock, netted over the period. Net bought = accumulating · net sold = distributing (by transaction value). This is transaction flow, not verified shareholding.</p>'+
-    '<div class="scrollx"><table class="bk-table"><thead><tr><th>Broker</th><th>Code</th><th>Net qty (shares)</th><th>Net value</th><th>Flow</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+    '<div class="scrollx"><table class="bk-table"><thead><tr><th class="bk-name">Broker</th><th>Code</th><th>Buy qty</th><th>Buy value</th><th>Sell qty</th><th>Sell value</th><th>Net qty</th><th>Net value</th><th>Flow</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 
 function renderAccDist(d){
   function tbl(list, title, good){
     var rows = list.slice(0,50).map(function(x,i){
-      return '<tr><td>'+(i+1)+'</td><td><strong>'+x.symbol+'</strong></td><td>'+bname(x.broker)+'</td>'+
+      return '<tr><td>'+(i+1)+'</td><td><strong>'+x.symbol+'</strong></td><td class="bk-name">'+bname(x.broker)+'</td>'+
         '<td>'+fmtN(x.net_qty,0)+'</td><td class="'+(good?'pos':'neg')+'">'+fmtV(x.net_value)+'</td></tr>';
     }).join('');
-    return '<div><h2 class="bk-h">'+title+'</h2><div class="scrollx"><table class="bk-table"><thead><tr><th>#</th><th>Stock</th><th>Broker</th><th>Net qty</th><th>Net value</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+    return '<div><h2 class="bk-h">'+title+'</h2><div class="scrollx"><table class="bk-table"><thead><tr><th>#</th><th>Stock</th><th class="bk-name">Broker</th><th>Net qty</th><th>Net value</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
   }
   return '<div class="two">'+tbl(d.accumulation||[],'Accumulating — top net bought',true)+tbl(d.distribution||[],'Distributing — top net sold',false)+'</div>';
 }
