@@ -1,0 +1,16 @@
+# Gitleaks configuration for shirjankhadka.github.io
+#
+# Extends gitleaks' default ruleset with project-specific false-positive
+# allowlists. Real secrets still fail the scan.
+#
+# S0 security audit (2026-10-01): full working tree + complete git history
+# scanned with gitleaks 8.18.4 — no live secrets found. The single finding
+# below was audited and classified as a false positive.
+
+[allowlist]
+description = "S0-audited false positives (2026-10-01): client-side localStorage keys, not secrets"
+regexes = [
+    # js/nepse-simulator.js — localStorage key for the simulator's trade journal.
+    # Matched the generic-api-key rule; the value is a fixed storage key, not a credential.
+    '''nl_sim_journal_v1''',
+]
