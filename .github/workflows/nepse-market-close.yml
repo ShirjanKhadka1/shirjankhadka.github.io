@@ -103,17 +103,23 @@ jobs:
 
       - name: Manual rollback to tag
         if: inputs.rollback_to_tag != '' && env.DRY_RUN != 'true'
+        env:
+          ROLLBACK_TAG: ${{ inputs.rollback_to_tag }}
+          ROLLBACK_SESSION: ${{ steps.trading.outputs.session }}
         run: |
-          TAG="${{ inputs.rollback_to_tag }}"
-          node tools/rollback-data.js "$TAG"
-          node tools/record-job.js market-close success "manual rollback to $TAG" --session="${{ steps.trading.outputs.session }}"
+          if ! [[ "$ROLLBACK_TAG" =~ ^data-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]+$ ]]; then
+            echo "::error::Invalid rollback_to_tag format: must match ^data-YYYY-MM-DD-N$" >&2
+            exit 1
+          fi
+          node tools/rollback-data.js "$ROLLBACK_TAG"
+          node tools/record-job.js market-close success "manual rollback to $ROLLBACK_TAG" --session="$ROLLBACK_SESSION"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add nepse-chart/data data
-          git commit -m "market-close: manual rollback data to $TAG"
+          git commit -m "market-close: manual rollback data to $ROLLBACK_TAG"
           git pull --rebase origin main
           git push origin main
-          echo "## Market-close: manual rollback to \`$TAG\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "## Market-close: manual rollback to \`$ROLLBACK_TAG\`" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Idempotency check (skip if this session already done)
         id: idem
