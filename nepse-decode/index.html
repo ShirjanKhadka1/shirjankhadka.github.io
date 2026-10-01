@@ -80,7 +80,7 @@
 @keyframes nd-skl { to { background-position: -200% 0; } }
 /* MARKET DASHBOARD — ShareHub-style managed layout, our own data */
 /* Ticker tape */
-.nd-ticker { overflow: hidden; border: 1px solid var(--hairline-soft); border-radius: 12px; background: var(--paper); margin-bottom: 16px; }
+.nd-ticker { overflow: hidden; border: 1px solid var(--hairline-soft); border-radius: 12px; background: var(--paper); margin-bottom: 16px; -webkit-mask-image: linear-gradient(to right, transparent, black 24px, black calc(100% - 24px), transparent); mask-image: linear-gradient(to right, transparent, black 24px, black calc(100% - 24px), transparent); }
 .nd-ticker-track { display: inline-flex; white-space: nowrap; padding: 10px 0; animation: nd-tick 140s linear infinite; will-change: transform; }
 .nd-ticker:hover .nd-ticker-track { animation-play-state: paused; }
 @keyframes nd-tick { to { transform: translateX(-50%); } }
@@ -139,21 +139,6 @@
 .nd-tab { flex: 1; border: 0; background: transparent; padding: 8px 4px; border-radius: var(--r-pill); font: inherit; font-size: 0.76rem; font-weight: 700; color: var(--muted); cursor: pointer; white-space: nowrap; }
 .nd-tab.active { background: var(--green-900); color: #F5F1E6; }
 
-/* Today on NEPSE — static session snapshot (baked at build time) */
-.tdn{margin:0 0 40px;padding:26px 24px;border:1px solid var(--hairline,#E7DFCE);border-radius:16px;background:var(--card,#FFFFFF)}
-.tdn-head{display:flex;align-items:baseline;gap:10px;margin-bottom:18px}
-.tdn-head h2{font-family:var(--serif);font-size:1.35rem;margin:0}
-.tdn-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:18px}
-.tdn-stat{display:grid;gap:4px;align-content:start}
-.tdn-l{font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted,#8A8474);font-weight:700}
-.tdn-v{font-size:1.25rem;font-weight:700;color:var(--ink,#1C1A15)}
-.tdn-v a{color:inherit;text-decoration:none}
-.tdn-v a:hover{text-decoration:underline}
-.tdn-c{font-size:.95rem;font-weight:700}
-.tdn-c.up,.tdn i.up{color:var(--green-700,#1B7A4B);font-style:normal}
-.tdn-c.down,.tdn i.down{color:var(--red-700,#B3372F);font-style:normal}
-.tdn-s{font-size:.82rem;color:var(--muted,#8A8474)}
-@media(max-width:900px){.tdn-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 <link rel="stylesheet" href="/css/theme.css?v=20261001a">
 </head>
@@ -217,19 +202,6 @@
       </div>
 
       <p lang="ne" class="ne-sum" style="color:var(--muted);font-size:.92rem;max-width:760px;margin:0 0 18px">संक्षेप: नेप्से डिकोड — बजार ड्यासबोर्ड, स्क्रिनर, सिग्नल प्रणाली र ब्रोकर विश्लेषण, सबै निःशुल्क एकै ठाउँमा।</p>
-<!-- SNAP-START -->
-<section class="tdn" aria-label="Today on NEPSE">
-  <div class="tdn-head"><h2>Today on NEPSE</h2><span class="snap-asof">· session 2026-09-30</span></div>
-  <div class="tdn-grid">
-    <div class="tdn-stat"><span class="tdn-l">NEPSE index</span><span class="tdn-v num">2598.89</span><span class="tdn-c down">-0.18%</span></div>
-    <div class="tdn-stat"><span class="tdn-l">Breadth</span><span class="tdn-v">140 <i class="up">▲</i> · 190 <i class="down">▼</i> · 22 flat</span></div>
-    <div class="tdn-stat"><span class="tdn-l">Turnover</span><span class="tdn-v num">Rs 4.77 B</span><span class="tdn-s">352 scrips traded</span></div>
-    <div class="tdn-stat"><span class="tdn-l">Top gainer</span><span class="tdn-v"><a href="/stocks/SINDU/">SINDU</a></span><span class="tdn-c up">+14.37%</span></div>
-    <div class="tdn-stat"><span class="tdn-l">Top loser</span><span class="tdn-v">MFILPO</span><span class="tdn-c down">-10.90%</span></div>
-  </div>
-  <p class="snap-note">Static session snapshot · the live dashboard below refreshes every 60 seconds.</p>
-</section>
-<!-- SNAP-END -->
 <!-- 1. OVERVIEW + NEWS: market panel with the headlines rail beside it -->
       <div class="nd-grid" style="margin-bottom:40px">
         <div class="nd-c8">
