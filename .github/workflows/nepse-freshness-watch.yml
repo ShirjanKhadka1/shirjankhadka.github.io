@@ -10,7 +10,7 @@
 #
 # Alert: email via SMTP (dawidd6/action-send-mail pinned to commit SHA),
 # subject "[NEPSE ALERT] freshness-watch: ...". NEVER Facebook.
-# Needs repo secrets MAIL_USERNAME, MAIL_PASSWORD (Brevo SMTP key),
+# Needs repo secrets MAIL_USERNAME, MAIL_PASSWORD (Gmail app password),
 # ALERT_EMAIL_TO.
 
 name: Freshness watch (dead-man's-switch)
@@ -18,6 +18,10 @@ name: Freshness watch (dead-man's-switch)
 on:
   schedule:
     - cron: '30 11 * * 1-5'  # 17:15 NPT Mon-Fri
+  # TEMPORARY (pre-merge proof only — remove before merge): GitHub cannot
+  # workflow_dispatch workflows that exist only on a PR branch, so this trigger
+  # lets PR #37's own runs prove this workflow in dry-run mode.
+  pull_request:
   workflow_dispatch: {}
 
 permissions:
@@ -32,9 +36,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '20'
 
@@ -56,7 +60,7 @@ jobs:
         if: failure()
         uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7
         with:
-          server_address: smtp-relay.brevo.com
+          server_address: smtp.gmail.com
           server_port: 587
           secure: false
           username: ${{ secrets.MAIL_USERNAME }}

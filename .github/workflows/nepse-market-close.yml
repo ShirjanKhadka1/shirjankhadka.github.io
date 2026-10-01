@@ -24,7 +24,7 @@
 # Alerts: email via SMTP (dawidd6/action-send-mail pinned to commit SHA),
 # subject "[NEPSE ALERT] market-close: ...", plus an Actions job summary.
 # NEVER Facebook for failures. Needs repo secrets MAIL_USERNAME, MAIL_PASSWORD
-# (Brevo SMTP key), ALERT_EMAIL_TO.
+# (Gmail app password), ALERT_EMAIL_TO.
 
 name: NEPSE market-close pipeline
 
@@ -33,6 +33,10 @@ on:
     - cron: '35 9 * * 1-5'   # 15:20 NPT Mon-Fri
     - cron: '25 10 * * 1-5'  # 16:10 NPT retry
     - cron: '15 11 * * 1-5'  # 17:00 NPT retry
+  # TEMPORARY (pre-merge proof only — remove before merge): GitHub cannot
+  # workflow_dispatch workflows that exist only on a PR branch, so this trigger
+  # lets PR #37's own runs prove this workflow in dry-run mode.
+  pull_request:
   workflow_dispatch:
     inputs:
       session:
@@ -42,12 +46,12 @@ on:
         description: 'Rollback data files to tag (data-YYYY-MM-DD-N)'
         required: false
       dry_run:
-        description: 'Dry run: execute the full pipeline but skip every git commit/push/tag (safe proof mode — nothing reaches main)'
+        description: 'Dry run: skip every git commit/push/tag (safe proof mode). Also forced ON while the DRY_RUN repo variable is not false'
         type: boolean
         default: false
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: nepse-market-close
@@ -57,12 +61,19 @@ jobs:
   close:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    permissions:
+      contents: write
+    env:
+      # Dry-run safety: true unless explicitly disabled. The DRY_RUN repo
+      # variable defaults to 'true'; flipping it to 'false' (and not passing
+      # dry_run=true on dispatch) enables real commits/pushes/tags.
+      DRY_RUN: ${{ inputs.dry_run == true || vars.DRY_RUN != 'false' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '20'
 
@@ -94,7 +105,7 @@ jobs:
           SESSION_OVERRIDE: ${{ inputs.session }}
 
       - name: Manual rollback to tag
-        if: inputs.rollback_to_tag != '' && !inputs.dry_run
+        if: inputs.rollback_to_tag != '' && env.DRY_RUN != 'true'
         run: |
           TAG="${{ inputs.rollback_to_tag }}"
           node tools/rollback-data.js "$TAG"
@@ -129,7 +140,7 @@ jobs:
         if: steps.trading.outputs.trading != 'true' && inputs.rollback_to_tag == ''
         run: |
           node tools/record-job.js market-close skipped "not a trading day (weekend/holiday)" --session="${{ steps.trading.outputs.session }}"
-          if [ "${{ inputs.dry_run }}" != "true" ]; then
+          if [ "$DRY_RUN" != "true" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add nepse-chart/data/jobs.json
@@ -183,7 +194,7 @@ jobs:
           DATA_SESSION="${{ steps.srcsess.outputs.data_session }}"
           node tools/record-job.js market-close skipped "no new session at source after final retry — treated as market closed (unlisted holiday suspected); data session $DATA_SESSION" --session="$SESSION"
           node tools/build-manifest.js
-          if [ "${{ inputs.dry_run }}" != "true" ]; then
+          if [ "$DRY_RUN" != "true" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add nepse-chart/data/jobs.json data/manifest.json nepse-chart/data/manifest.json
@@ -209,7 +220,7 @@ jobs:
         if: steps.notice.outcome == 'success'
         uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7
         with:
-          server_address: smtp-relay.brevo.com
+          server_address: smtp.gmail.com
           server_port: 587
           secure: false
           username: ${{ secrets.MAIL_USERNAME }}
@@ -244,7 +255,7 @@ jobs:
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           node tools/rollback-data.js "$TAG"
           node tools/record-job.js market-close failed "validation failed for session ${{ steps.trading.outputs.session }} — auto-rolled back to $TAG" --session="${{ steps.trading.outputs.session }}"
-          if [ "${{ inputs.dry_run }}" != "true" ]; then
+          if [ "$DRY_RUN" != "true" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add nepse-chart/data data
@@ -259,7 +270,7 @@ jobs:
         if: steps.validate.outputs.valid == 'false'
         uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7
         with:
-          server_address: smtp-relay.brevo.com
+          server_address: smtp.gmail.com
           server_port: 587
           secure: false
           username: ${{ secrets.MAIL_USERNAME }}
@@ -297,7 +308,7 @@ jobs:
         run: |
           SESSION="${{ steps.trading.outputs.session }}"
           node tools/record-job.js market-close success "session $SESSION deployed" --session="$SESSION"
-          if [ "${{ inputs.dry_run }}" = "true" ]; then
+          if [ "$DRY_RUN" = "true" ]; then
             echo "dry-run: would commit + tag data-$SESSION-N and push to main — SKIPPED (nothing reaches main)"
             echo "## Market-close: DRY-RUN — deploy skipped (would have deployed session \`$SESSION\`)" >> "$GITHUB_STEP_SUMMARY"
             exit 0
@@ -322,7 +333,7 @@ jobs:
         if: failure() && steps.validate.outputs.valid != 'false'
         uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7
         with:
-          server_address: smtp-relay.brevo.com
+          server_address: smtp.gmail.com
           server_port: 587
           secure: false
           username: ${{ secrets.MAIL_USERNAME }}

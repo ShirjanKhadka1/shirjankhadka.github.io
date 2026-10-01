@@ -23,12 +23,12 @@ on:
   workflow_dispatch:
     inputs:
       dry_run:
-        description: 'Dry run: execute the full pipeline but skip the git commit/push (safe proof mode — nothing reaches main)'
+        description: 'Dry run: skip every git commit/push/tag (safe proof mode). Also forced ON while the DRY_RUN repo variable is not false'
         type: boolean
         default: false
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: nepse-live-quotes
@@ -38,10 +38,15 @@ jobs:
   live:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: write
+    env:
+      # Dry-run safety: true unless explicitly disabled (see DRY_RUN repo variable).
+      DRY_RUN: ${{ inputs.dry_run == true || vars.DRY_RUN != 'false' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 20
 
@@ -61,7 +66,7 @@ jobs:
         run: node tools/fetch-nepse-live.js
 
       - name: Commit live snapshot if changed
-        if: ${{ !inputs.dry_run }}
+        if: ${{ env.DRY_RUN != 'true' }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -93,7 +98,7 @@ jobs:
         if: failure()
         uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7
         with:
-          server_address: smtp-relay.brevo.com
+          server_address: smtp.gmail.com
           server_port: 587
           secure: false
           username: ${{ secrets.MAIL_USERNAME }}

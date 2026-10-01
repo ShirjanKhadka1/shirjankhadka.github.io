@@ -8,7 +8,7 @@
 # Alerts: email via SMTP (dawidd6/action-send-mail pinned to commit SHA),
 # subject "[NEPSE ALERT] content: ...", plus an Actions job summary.
 # NEVER Facebook for failures. Needs repo secrets MAIL_USERNAME, MAIL_PASSWORD
-# (Brevo SMTP key), ALERT_EMAIL_TO.
+# (Gmail app password), ALERT_EMAIL_TO.
 #
 # workflow_dispatch input dry_run (default false): when true, the full pipeline
 # executes but EVERY git commit/push is skipped — safe proof mode, nothing
@@ -20,15 +20,19 @@ on:
   schedule:
     - cron: '15 0 * * *'   # 06:00 NPT daily
     - cron: '15 12 * * *'  # 18:00 NPT daily
+  # TEMPORARY (pre-merge proof only — remove before merge): GitHub cannot
+  # workflow_dispatch workflows that exist only on a PR branch, so this trigger
+  # lets PR #37's own runs prove this workflow in dry-run mode.
+  pull_request:
   workflow_dispatch:
     inputs:
       dry_run:
-        description: 'Dry run: execute the full pipeline but skip every git commit/push (safe proof mode — nothing reaches main)'
+        description: 'Dry run: skip every git commit/push/tag (safe proof mode). Also forced ON while the DRY_RUN repo variable is not false'
         type: boolean
         default: false
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: nepse-content
@@ -38,10 +42,17 @@ jobs:
   content:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: write
+    env:
+      # Dry-run safety: true unless explicitly disabled. The DRY_RUN repo
+      # variable defaults to 'true'; flipping it to 'false' (and not passing
+      # dry_run=true on dispatch) enables real commits/pushes.
+      DRY_RUN: ${{ inputs.dry_run == true || vars.DRY_RUN != 'false' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '20'
 
@@ -85,7 +96,7 @@ jobs:
         if: steps.stale.outputs.behind > 1
         uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7
         with:
-          server_address: smtp-relay.brevo.com
+          server_address: smtp.gmail.com
           server_port: 587
           secure: false
           username: ${{ secrets.MAIL_USERNAME }}
@@ -117,7 +128,7 @@ jobs:
         if: steps.validate.outputs.valid == 'false'
         run: |
           node tools/record-job.js content failed "validation gates failed — deploy blocked"
-          if [ "${{ inputs.dry_run }}" != "true" ]; then
+          if [ "$DRY_RUN" != "true" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add nepse-chart/data/jobs.json nepse-chart/data/validation.json
@@ -142,7 +153,7 @@ jobs:
         if: failure() && steps.validate.outputs.valid == 'false'
         uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7
         with:
-          server_address: smtp-relay.brevo.com
+          server_address: smtp.gmail.com
           server_port: 587
           secure: false
           username: ${{ secrets.MAIL_USERNAME }}
@@ -161,7 +172,7 @@ jobs:
         if: steps.validate.outputs.valid == 'true'
         run: |
           node tools/record-job.js content success "news/announcements/actions refreshed"
-          if [ "${{ inputs.dry_run }}" = "true" ]; then
+          if [ "$DRY_RUN" = "true" ]; then
             echo "dry-run: git commit/push skipped — nothing reaches main"
             echo "## Content: DRY-RUN — refresh validated, commit skipped" >> "$GITHUB_STEP_SUMMARY"
             exit 0
@@ -179,7 +190,7 @@ jobs:
         if: failure() && steps.validate.outputs.valid != 'false'
         uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7
         with:
-          server_address: smtp-relay.brevo.com
+          server_address: smtp.gmail.com
           server_port: 587
           secure: false
           username: ${{ secrets.MAIL_USERNAME }}
