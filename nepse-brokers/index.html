@@ -189,41 +189,58 @@ function symbolOptions(d){
 function renderStock(d){
   var sym = $('symbolSel').value;
   if(!sym) return '<div class="cover">Pick a stock above to see who bought and sold it.</div>';
+  function union(a,b){ var u={}; Object.keys(a||{}).forEach(function(k){u[k]=1}); Object.keys(b||{}).forEach(function(k){u[k]=1}); return u; }
   var s = d.symbols[sym];
   if(!s) return '<div class="cover">No trades for '+sym+' in this period.</div>';
   function bt(obj, title){
-    var rows = Object.keys(obj).map(function(c){return [c, obj[c]]}).sort(function(a,b){return b[1]-a[1]})
+    // buyers/sellers entries are [qty, value]; tolerate legacy value-only schema
+    var rows = Object.keys(obj).map(function(c){
+      var v = obj[c];
+      return [c, Array.isArray(v) ? v : [0, v]];
+    }).sort(function(a,b){return b[1][1]-a[1][1]})
       .slice(0,10).map(function(x,i){
-        return '<tr><td>'+(i+1)+'</td><td>'+bname(x[0])+'</td><td>'+fmtV(x[1])+'</td></tr>';
+        return '<tr><td>'+(i+1)+'</td><td>'+bname(x[0])+'</td><td>'+fmtN(x[1][0],0)+'</td><td>'+fmtV(x[1][1])+'</td></tr>';
       }).join('');
-    return '<div><h2 class="bk-h">'+title+'</h2><div class="scrollx"><table class="bk-table"><thead><tr><th>#</th><th>Broker</th><th>Value</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+    return '<div><h2 class="bk-h">'+title+'</h2><div class="scrollx"><table class="bk-table"><thead><tr><th>#</th><th>Broker</th><th>Qty (shares)</th><th>Value</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
   }
+  var activeN = (s.netflow && Object.keys(s.netflow).length)
+    ? Object.keys(s.netflow).length
+    : Object.keys(union(s.buyers,s.sellers)).length;
   return '<h2 class="bk-h">'+sym+' — trade pattern, '+label()+'</h2>'+
     '<div class="stat-row">'+
     '<div class="stat"><div class="l">Total quantity</div><div class="v">'+fmtN(s.qty,0)+'</div></div>'+
     '<div class="stat"><div class="l">Total value</div><div class="v">'+fmtV(s.value)+'</div></div>'+
     '<div class="stat"><div class="l">Average rate</div><div class="v">Rs '+fmtN(s.avg_rate)+'</div></div>'+
-    '<div class="stat"><div class="l">Brokers active</div><div class="v">'+(Object.keys(s.buyers).length+Object.keys(s.sellers).length)+'</div></div></div>'+
+    '<div class="stat"><div class="l">Brokers active</div><div class="v">'+activeN+'</div></div></div>'+
     '<div class="two">'+bt(s.buyers,'Top buyers')+bt(s.sellers,'Top sellers')+'</div>';
 }
 
 function renderHoldings(d){
   var sym = $('symbolSel').value;
   if(!sym) return '<div class="cover">Pick a stock above to see broker net positions (flow-based).</div>';
-  // net per broker from buyers/sellers
+  // net per broker: use the full netflow map when present (all brokers);
+  // fall back to deriving from the top-25 buyers/sellers lists
   var s = d.symbols[sym];
   if(!s) return '<div class="cover">No trades for '+sym+' in this period.</div>';
   var net = {};
-  Object.keys(s.buyers).forEach(function(c){ net[c]=(net[c]||0)+s.buyers[c]; });
-  Object.keys(s.sellers).forEach(function(c){ net[c]=(net[c]||0)-s.sellers[c]; });
-  var rows = Object.keys(net).map(function(c){return [c,net[c]]}).sort(function(a,b){return b[1]-a[1]})
+  function pair(v){ return Array.isArray(v) ? v : [0, v]; }
+  if (s.netflow && Object.keys(s.netflow).length){
+    Object.keys(s.netflow).forEach(function(c){ net[c] = pair(s.netflow[c]); });
+  } else {
+    Object.keys(s.buyers).forEach(function(c){ var v=pair(s.buyers[c]);
+      var e = net[c] = net[c] || [0,0]; e[0]+=v[0]; e[1]+=v[1]; });
+    Object.keys(s.sellers).forEach(function(c){ var v=pair(s.sellers[c]);
+      var e = net[c] = net[c] || [0,0]; e[0]-=v[0]; e[1]-=v[1]; });
+  }
+  var rows = Object.keys(net).map(function(c){return [c,net[c]]}).sort(function(a,b){return b[1][1]-a[1][1]})
     .map(function(x){
-      var tag = x[1]>0?'<span class="pos">accumulating</span>':'<span class="neg">distributing</span>';
-      return '<tr><td>'+bname(x[0])+'</td><td>'+x[0]+'</td><td class="'+cls(x[1])+'">'+fmtV(x[1])+'</td><td>'+tag+'</td></tr>';
+      var nq = x[1][0], nv = x[1][1];
+      var tag = nv>0?'<span class="pos">accumulating</span>':'<span class="neg">distributing</span>';
+      return '<tr><td>'+bname(x[0])+'</td><td>'+x[0]+'</td><td>'+fmtN(nq,0)+'</td><td class="'+cls(nv)+'">'+fmtV(nv)+'</td><td>'+tag+'</td></tr>';
     }).join('');
   return '<h2 class="bk-h">'+sym+' — stockwise broker flow, '+label()+'</h2>'+
-    '<p style="font-size:.85rem;color:var(--muted)">Net bought = accumulating · net sold = distributing. This is transaction flow, not verified shareholding.</p>'+
-    '<div class="scrollx"><table class="bk-table"><thead><tr><th>Broker</th><th>Code</th><th>Net value</th><th>Flow</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+    '<p style="font-size:.85rem;color:var(--muted)">Every broker that traded this stock, netted over the period. Net bought = accumulating · net sold = distributing (by transaction value). This is transaction flow, not verified shareholding.</p>'+
+    '<div class="scrollx"><table class="bk-table"><thead><tr><th>Broker</th><th>Code</th><th>Net qty (shares)</th><th>Net value</th><th>Flow</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 
 function renderAccDist(d){
@@ -361,8 +378,6 @@ setInterval(function(){
         <ul>
           <li><a href="/blog/">Daily Blog</a></li>
           <li><a href="/nepse-decode/">Market Dashboard</a></li>
-          <li><a href="/nepali-date-converter/">Date Converter</a></li>
-          <li><a href="/kundali/">Kundali Calculator</a></li>
         </ul>
       </div>
       <div class="sf-col">

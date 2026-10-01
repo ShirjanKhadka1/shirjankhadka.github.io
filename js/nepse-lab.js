@@ -479,6 +479,7 @@
     bb: true, ema20: true, sma20: true, sma50: true, rsi: true, stoch: false,
     signals: true,
     hover: -1, rows: [], live: null, liveAt: 0, liveBadge: 'eod',
+    latestClose: null, // index-mode overlay: newer session close with no full candle yet
     companies: [], universe: [], universeAsof: '', typeMap: {}, names: {}, loading: false, err: '',
     ltpOnly: false, styleForced: false
   };
@@ -673,6 +674,24 @@
     };
   }
 
+  // Latest-close overlay for the NEPSE index (2026-10-01): when the market is
+  // closed and the official snapshot's session is NEWER than the last full
+  // candle in nepse-daily.js, expose its close as a labelled reference only.
+  // It is never fabricated into a candle and never fed to indicators —
+  // display overlay, same honesty rule as the Decode dashboard's price line.
+  function latestCloseOverlay(rows) {
+    if (marketOpenNPT()) return null;
+    var idx = liveCache.index;
+    if (!idx || !isFinite(+idx.value) || !idx.last_updated) return null;
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(idx.last_updated));
+    if (!m) return null;
+    var ymd = +(m[1] + m[2] + m[3]);
+    var lastFull = rows && rows.length ? rows[rows.length - 1][0] : 0;
+    if (!(ymd > lastFull)) return null;
+    var MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return { ymd: ymd, value: +idx.value, dateStr: (+m[3]) + ' ' + MON[+m[2] - 1] + ' ' + m[1] };
+  }
+
   function setSymbol(sym, name) {
     sym = String(sym || '').trim().toUpperCase();
     if (!sym) return;
@@ -683,6 +702,7 @@
       state.rows = ix0.rows;
       state.live = ix0.quote;
       state.liveBadge = badgeForQuote(state.live);
+      state.latestClose = latestCloseOverlay(state.rows);
       state.loading = false;
       afterData();
       // refresh the live index snapshot, then repaint if still on the index view
@@ -692,11 +712,13 @@
         state.rows = ix.rows;
         state.live = ix.quote;
         state.liveBadge = badgeForQuote(state.live);
+        state.latestClose = latestCloseOverlay(state.rows);
         render();
       }).catch(function () {});
       return;
     }
     state.mode = 'stock'; state.sym = sym; state.ltpOnly = false;
+    state.latestClose = null;
     state.symName = state.names[sym] || sym;
     loadStock(sym).catch(function () { return null; }).then(function (rows) {
       if (rows && rows.length) return { rows: rows, ltpOnly: false };
@@ -908,6 +930,9 @@
     var sma20 = smaArr(closes, 20), sma50 = smaArr(closes, 50);
     var lo = Infinity, hi = -Infinity, i;
     for (i = 0; i < n; i++) { lo = Math.min(lo, rows[i][3]); hi = Math.max(hi, rows[i][2]); }
+    // latest-close overlay (index only): keep the reference line inside the axis range
+    var lcoV = (state.mode === 'index' && state.latestClose) ? state.latestClose.value : null;
+    if (lcoV != null) { lo = Math.min(lo, lcoV); hi = Math.max(hi, lcoV); }
     var span = (hi - lo) || 1; lo -= span * 0.08; hi += span * 0.08;
     function X(i) { return padL + (n === 1 ? pw / 2 : i / (n - 1) * pw); }
     function Y(p) { return padT + (1 - (p - lo) / (hi - lo)) * ph; }
@@ -1005,6 +1030,16 @@
         g.textAlign = 'right'; g.textBaseline = 'bottom';
         g.fillText('ATH 3,199', W - padR - 4, Y(ATH) - 4); g.restore();
       }
+      // Latest-close reference line (index only): a newer session close with no
+      // full candle yet. Labelled and dashed — never drawn as a candle.
+      if (lcoV != null && lcoV > lo && lcoV < hi && state.latestClose) {
+        var lcoD = state.latestClose.dateStr.split(' ').slice(0, 2).join(' ');
+        g.save(); g.strokeStyle = 'rgba(30,122,68,.75)'; g.setLineDash([5, 4]); g.lineWidth = 1.2;
+        g.beginPath(); g.moveTo(padL, Y(lcoV)); g.lineTo(W - padR, Y(lcoV)); g.stroke(); g.setLineDash([]);
+        g.fillStyle = '#1E7A44'; g.font = '600 10px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif';
+        g.textAlign = 'right'; g.textBaseline = 'bottom';
+        g.fillText('close ' + lcoD, W - padR - 4, Y(lcoV) - 4); g.restore();
+      }
     }
     // SMA 20/50 crossover markers (only when both lines are visible)
     if (state.sma20 && state.sma50 && !noInd) {
@@ -1051,7 +1086,8 @@
     var key = state.sym + '|' + state.rows.length + '|' + (last ? last[0] : 0) + '|' +
       state.tf + '|' + state.signals + '|' + state.loading + '|' + state.err + '|' +
       (state.ltpOnly ? 'ltp' : 'ohlc') + '|' + state.liveBadge + '|' +
-      (state.live && state.live.last_updated ? state.live.last_updated : '');
+      (state.live && state.live.last_updated ? state.live.last_updated : '') + '|' +
+      (state.latestClose ? state.latestClose.ymd + ':' + state.latestClose.value : '');
     if (shellCache.key === key) return;
     shellCache.key = key;
     renderShell(S, divs, pats);
@@ -1135,7 +1171,9 @@
     if (state.stoch && stoch) parts.push('Stochastic %K ' + (stoch.k[n - 1] == null ? '–' : stoch.k[n - 1].toFixed(1)) + ', %D ' + (stoch.d[n - 1] == null ? '–' : stoch.d[n - 1].toFixed(1)));
     return 'Price chart for ' + state.sym + '. ' +
       (parts.length ? 'Active indicators: ' + parts.join('; ') + '. ' : 'No indicators active. ') +
-      'Latest close ' + num(closes[n - 1], 2) + '. Hover or touch to inspect values.';
+      'Latest close ' + num(state.latestClose ? state.latestClose.value : closes[n - 1], 2) +
+      (state.latestClose ? ' on ' + state.latestClose.dateStr + ' (full candle pending open data).' : '.') +
+      ' Hover or touch to inspect values.';
   }
 
   /* ================= verdict card + scanner + stats ================= */
@@ -1186,9 +1224,12 @@
       if (state.loading) { lb.innerHTML = '<div class="nl-lb-sym" aria-hidden="true"><span class="skl skl-line" style="width:120px;margin:0 0 8px"></span><span class="skl skl-line" style="width:80px;height:11px;margin:0"></span></div><div class="nl-lb-px" aria-hidden="true" style="margin-left:auto"><span class="skl" style="width:150px;height:38px;border-radius:10px"></span></div>'; }
       else if (state.err) { lb.innerHTML = '<div class="nl-lb-sym"><b>' + esc(state.sym) + '</b><span>' + state.err + '</span></div>'; }
       else {
-      var q = state.live, px = q ? q.ltp : (n ? rows[n - 1][4] : 0);
-      var chg = q ? q.change : (n > 1 ? rows[n - 1][4] - rows[n - 2][4] : 0);
-      var pct = q && q.percent_change != null ? q.percent_change : (n > 1 && rows[n - 2][4] ? chg / rows[n - 2][4] * 100 : 0);
+      var q = state.live;
+      var lcoB = (state.mode === 'index' && !q) ? state.latestClose : null;
+      var px = q ? q.ltp : (lcoB ? lcoB.value : (n ? rows[n - 1][4] : 0));
+      var refPx = q ? null : (lcoB ? rows[n - 1][4] : (n > 1 ? rows[n - 2][4] : 0));
+      var chg = q ? q.change : (n && refPx ? px - refPx : 0);
+      var pct = q && q.percent_change != null ? q.percent_change : (refPx ? chg / refPx * 100 : 0);
       var badge = state.liveBadge === 'live'
         ? '<span class="nl-badge live"><span class="nl-pulse"></span>LIVE</span>'
         : state.liveBadge === 'delayed'
@@ -1198,7 +1239,7 @@
         '<div class="nl-lb-sym"><b>' + esc(state.sym) + '</b><span>' + esc(state.symName) + '</span></div>' +
         '<div class="nl-lb-px"><b class="' + (chg >= 0 ? 'up' : 'dn') + '">' + num(px, 2) + '</b>' +
         '<span class="' + (chg >= 0 ? 'up' : 'dn') + '">' + (chg >= 0 ? '+' : '') + num(chg, 2) + ' (' + (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%)</span></div>' +
-        '<div class="nl-lb-badge">' + badge + '<small>' + (q && q.last_updated ? quoteAgeText(q) : fmtD(n ? rows[n - 1][0] : 0)) + '</small></div>';
+        '<div class="nl-lb-badge">' + badge + '<small>' + (q && q.last_updated ? quoteAgeText(q) : lcoB ? lcoB.dateStr + ' · session close' : fmtD(n ? rows[n - 1][0] : 0)) + '</small></div>';
       }
     }
     // verdict
@@ -1293,8 +1334,13 @@
     // stats bar
     if (n) {
       var last = rows[n - 1], prev = rows[n - 2] || last;
-      setT('nl-last', num(last[4], 2));
-      var ch = last[4] - prev[4], pc = prev[4] ? ch / prev[4] * 100 : 0;
+      // latest-close overlay (index only): the newer session's close leads the
+      // headline figures; indicators below stay on full candles only
+      var lcoS = (state.mode === 'index') ? state.latestClose : null;
+      var headPx = lcoS ? lcoS.value : last[4];
+      var headPrev = lcoS ? last[4] : prev[4];
+      setT('nl-last', num(headPx, 2));
+      var ch = headPx - headPrev, pc = headPrev ? ch / headPrev * 100 : 0;
       var ce = document.getElementById('nl-chg');
       if (ce) { ce.textContent = (ch >= 0 ? '+' : '') + num(ch, 2) + ' (' + (pc >= 0 ? '+' : '') + pc.toFixed(2) + '%)'; ce.className = 'nl-stat-v ' + (ch >= 0 ? 'up' : 'dn'); }
       var win = rows.slice(-252), h52 = -Infinity, l52 = Infinity;
@@ -1310,9 +1356,10 @@
         rg.textContent = s200[n - 1] == null ? '–' : (above ? 'Above SMA 200' : 'Below SMA 200');
         rg.className = 'nl-stat-v small ' + (above ? 'up' : 'dn');
       }
-      setT('nl-asof', fmtD(last[0]) + (state.liveBadge === 'live' ? ' · live' : ''));
+      setT('nl-asof', (lcoS ? lcoS.dateStr + ' · session close (full candle pending open data)' : fmtD(last[0])) + (state.liveBadge === 'live' ? ' · live' : ''));
       if (window.NepseFresh) {
-        var asofIso = String(last[0]).replace(/^(\d{4})(\d{2})(\d{2})$/, '$1-$2-$3');
+        var asofIso = lcoS ? String(lcoS.ymd).replace(/^(\d{4})(\d{2})(\d{2})$/, '$1-$2-$3')
+                           : String(last[0]).replace(/^(\d{4})(\d{2})(\d{2})$/, '$1-$2-$3');
         var nla = document.getElementById('nl-asof');
         if (nla && !nla.querySelector('.fresh')) nla.insertAdjacentHTML('beforeend', ' ' + NepseFresh.badge(asofIso));
       }
@@ -1477,6 +1524,7 @@
           state.rows = ix.rows;
           state.live = ix.quote;
           state.liveBadge = badgeForQuote(state.live);
+          state.latestClose = latestCloseOverlay(state.rows);
         } else {
           var rows = histCache[state.sym] || [];
           if (!rows.length) return;
@@ -1502,6 +1550,7 @@
     toMonthly: toMonthly,
     detectDivergences: detectDivergences, detectPatterns: detectPatterns,
     computeVerdict: computeVerdict, setSymbol: setSymbol, SRC: SRC,
+    latestCloseOverlay: latestCloseOverlay, marketOpenNPT: marketOpenNPT,
     _testHooks: { detRecomputes: 0 }
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = API;

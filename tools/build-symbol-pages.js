@@ -274,8 +274,6 @@ const RAIL = '<body>\n<a class="skip" href="#main">Skip to content</a>\n\n' +
   '        <ul>\n' +
   '          <li><a href="/blog/">Daily Blog</a></li>\n' +
   '          <li><a href="/nepse-decode/">Market Dashboard</a></li>\n' +
-  '          <li><a href="/nepali-date-converter/">Date Converter</a></li>\n' +
-  '          <li><a href="/kundali/">Kundali Calculator</a></li>\n' +
   '        </ul>\n' +
   '      </div>\n' +
   '      <div class="sf-col">\n' +

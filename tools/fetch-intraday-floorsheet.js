@@ -6,7 +6,7 @@
  *   nepse-brokers/data/intraday.json
  *   { asof, market, date, rows, pages,
  *     brokers: { "<code>": { buy_value, sell_value, buy_qty, sell_qty } },
- *     symbols: { "<SYM>": { qty, value, buyers: {code: value}, sellers: {code: value} } } }
+ *     symbols: { "<SYM>": { qty, value, buyers: {code: [qty, value]}, sellers: {code: [qty, value]} } } }
  *
  * Auth reuses the same Salter token dance as tools/fetch-nepse-live.js
  * (duplicated here so the live-quote script stays untouched).
@@ -179,8 +179,10 @@ async function main() {
         s.sell_value += m.amount; s.sell_qty += m.qty;
         const sym = symbols[m.symbol] || (symbols[m.symbol] = { qty: 0, value: 0, buyers: {}, sellers: {} });
         sym.qty += m.qty; sym.value += m.amount;
-        sym.buyers[m.buyer] = (sym.buyers[m.buyer] || 0) + m.amount;
-        sym.sellers[m.seller] = (sym.sellers[m.seller] || 0) + m.amount;
+        const bb = sym.buyers[m.buyer] || (sym.buyers[m.buyer] = [0, 0]);
+        bb[0] += m.qty; bb[1] += m.amount;
+        const ss = sym.sellers[m.seller] || (sym.sellers[m.seller] = [0, 0]);
+        ss[0] += m.qty; ss[1] += m.amount;
       }
       log('page ' + page + ': ' + rows.length + ' rows');
       if (rows.length < PAGE_SIZE) break;
@@ -199,8 +201,8 @@ async function main() {
     for (const k of Object.keys(symbols)) {
       const s = symbols[k];
       s.qty = round2(s.qty); s.value = round2(s.value);
-      for (const bk of Object.keys(s.buyers)) s.buyers[bk] = round2(s.buyers[bk]);
-      for (const bk of Object.keys(s.sellers)) s.sellers[bk] = round2(s.sellers[bk]);
+      for (const bk of Object.keys(s.buyers)) { s.buyers[bk][0] = round2(s.buyers[bk][0]); s.buyers[bk][1] = round2(s.buyers[bk][1]); }
+      for (const bk of Object.keys(s.sellers)) { s.sellers[bk][0] = round2(s.sellers[bk][0]); s.sellers[bk][1] = round2(s.sellers[bk][1]); }
     }
 
     const out = {
