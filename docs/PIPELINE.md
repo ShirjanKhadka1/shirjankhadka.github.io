@@ -50,27 +50,27 @@ Results are public at `/status/` (jobs, gates, market state).
 ## Alerts (email — never Facebook)
 Pipeline failures alert the owner by **email** via an explicit SMTP step
 (`dawidd6/action-send-mail`, pinned to commit SHA `4226df7daafa6fc901a43789c49bf7ab309066e7`)
-through Brevo's free SMTP relay (`smtp-relay.brevo.com:587`, STARTTLS),
+through Gmail's SMTP relay (`smtp.gmail.com:587`, STARTTLS),
 plus a readable GitHub Actions job summary. Failures are NEVER posted to
 Facebook. Needs three repo secrets:
 
-- `MAIL_USERNAME` — the Gmail address the mail is sent from (must be a
-  verified sender in Brevo)
-- `MAIL_PASSWORD` — the Brevo **SMTP key** (Brevo dashboard → Settings →
-  SMTP & API → SMTP keys; not the Brevo login password)
+- `MAIL_USERNAME` — the Gmail address the mail is sent from
+- `MAIL_PASSWORD` — a Gmail **app password** (Google Account → Security →
+  2-Step Verification → App passwords; not the Google login password)
 - `ALERT_EMAIL_TO` — where alerts go
 
 Add at: repo → Settings → Secrets and variables → Actions → New repository secret.
 Subject format: `[NEPSE ALERT] <job>: <what failed / which page is stale>`.
 
-### Brevo setup (one-time, free tier)
-1. Sign up at brevo.com with the Gmail address that will send the alerts.
-2. Verify that same Gmail address as a sender: Brevo → Settings → Senders,
-   add it and click the verification link.
-3. Create an SMTP key: Settings → SMTP & API → generate a key, copy it.
-4. Add the three repo secrets above (`MAIL_USERNAME` = the Gmail address,
-   `MAIL_PASSWORD` = the SMTP key).
-5. The free tier allows 300 emails/day — far above the handful of failure
+### Gmail app password setup (one-time, free)
+1. Turn on 2-Step Verification for the Google account:
+   myaccount.google.com → Security → 2-Step Verification.
+2. Create an app password: Security → App passwords → name it
+   "NEPSE pipeline alerts" → Create → copy the 16-character code
+   (it is shown only once).
+3. Add the three repo secrets above (`MAIL_USERNAME` = the Gmail address,
+   `MAIL_PASSWORD` = the app password).
+4. Gmail allows ~500 emails/day — far above the handful of failure
    alerts these pipelines can generate.
 
 Fires on: market-close validation failure (after auto-rollback), content
@@ -101,6 +101,31 @@ Every successful market-close deploy tags `data-YYYY-MM-DD-N`.
 - **Manual:** Actions → "NEPSE market-close pipeline" → Run workflow →
   fill `rollback_to_tag` (must match `data-YYYY-MM-DD-N`, validated).
   The data files are restored from the tag, committed, pushed, and recorded.
+
+## DRY_RUN safety switch (fail-safe default)
+A repository **variable** `DRY_RUN` guards every mutating workflow
+(market-close, content, live-quotes, intraday-floorsheet). Each job computes:
+
+`DRY_RUN = inputs.dry_run == true OR vars.DRY_RUN != 'false'`
+
+- While `DRY_RUN` is `true` (the default): the full pipeline executes —
+  fetch, build, manifest, validation, and failure emails all run — but EVERY
+  git commit / push / tag is skipped. Nothing can reach `main`.
+- The variable defaults to **true** and the logic is fail-safe: if the
+  variable is missing or empty, workflows stay in dry-run mode.
+- The `dry_run` workflow_dispatch input still exists for one-off proofs;
+  passing `dry_run=true` forces dry-run even after the variable is flipped.
+
+**Flipping to live (owner only, on explicit word):**
+1. Merge PR #37, then dispatch each mutating workflow once with
+   `dry_run=true` and confirm the runs are green with no commits.
+2. Repo → Settings → Secrets and variables → Actions → **Variables** tab →
+   edit `DRY_RUN` to `false`.
+3. Watch the next scheduled run: it will commit + tag `data-YYYY-MM-DD-N`
+   for real. The first live market-close deploy is the moment to verify the
+   rollback path (previous data tag) end to end.
+
+Do NOT flip before the owner says so.
 
 ## Holiday calendar
 `tools/nepse-holidays.json` + `tools/trading-days.js` — Mon–Fri trading days,
@@ -137,7 +162,7 @@ Visual baselines regenerate intentionally only, via the
 `update_snapshots` dispatch input — never blind-update.
 
 ## Manual checklist for the owner
-- [ ] Add `MAIL_USERNAME` + `MAIL_PASSWORD` (Brevo SMTP key) + `ALERT_EMAIL_TO` repo secrets (failure emails are silent without them)
+- [ ] Add `MAIL_USERNAME` + `MAIL_PASSWORD` (Gmail app password) + `ALERT_EMAIL_TO` repo secrets (failure emails are silent without them)
 - [ ] Verify Oct–Dec 2026 holidays against the official calendar; update `tools/nepse-holidays.json`
 - [ ] Review CI baseline numbers from the first green run; approve tightening Lighthouse budgets to error
 - [ ] Confirm the daily finance-blog cron still deploys from its own working tree (it can carry unrelated changes)

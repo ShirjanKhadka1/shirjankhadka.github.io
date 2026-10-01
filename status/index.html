@@ -40,19 +40,22 @@
 (function(){
   var base = '/nepse-chart/data/';
   var manifestUrl = '/data/manifest.json';
-  function pill(text, cls){ return '<span class="pill '+cls+'">'+text+'</span>'; }
+  function pill(text, cls){ return '<span class="pill '+cls+'">'+esc(text)+'</span>'; }
   function get(url){ return fetch(url,{cache:'no-store'}).then(function(r){ if(!r.ok) throw 0; return r.json(); }); }
-  function row(k,v){ return '<div class="row"><span>'+k+'</span><span>'+v+'</span></div>'; }
+  function row(k,v){ return '<div class="row"><span>'+esc(k)+'</span><span>'+v+'</span></div>'; }
+  // Vetted HTML sanitizer: values come from our own generated JSON; escaping
+  // keeps a poisoned data file from becoming XSS.
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 
   get(manifestUrl).then(function(m){
     var state = m.market_state === 'LIVE' ? pill('LIVE','p-ok') : pill('CLOSED','p-mut');
     var stale = m.is_holiday_closure ? ' <span class="pill p-mut">holiday / weekend</span>' : '';
     document.getElementById('market').innerHTML =
       row('Market state', state + stale) +
-      row('Session date', '<span class="mono">'+m.session_date+'</span>') +
-      row('Generated', '<span class="mono">'+m.generated_at_npt+'</span>') +
-      row('Data files tracked', m.files ? Object.keys(m.files).length : '?') +
-      row('Sources', (m.sources||[]).join(', '));
+      row('Session date', '<span class="mono">'+esc(m.session_date)+'</span>') +
+      row('Generated', '<span class="mono">'+esc(m.generated_at_npt)+'</span>') +
+      row('Data files tracked', esc(m.files ? Object.keys(m.files).length : '?')) +
+      row('Sources', esc((m.sources||[]).join(', ')));
   }).catch(function(){ document.getElementById('market').innerHTML = '<p class="sub">manifest.json unavailable</p>'; });
 
   get(base+'jobs.json').then(function(j){
@@ -62,9 +65,9 @@
       var v = j[k];
       if(!v){ html += row(names[k], pill('no runs yet','p-mut')); return; }
       var cls = v.status==='success' ? 'p-ok' : (v.status==='failed' ? 'p-bad' : 'p-warn');
-      html += row(names[k], pill(v.status.toUpperCase(), cls) +
-        ' <span class="mono">'+v.ran_at_npt+'</span><br><span style="color:#6b7280;font-size:.82rem">'+
-        'session '+v.session_date+(v.detail ? ' · '+v.detail : '')+'</span>');
+      html += row(names[k], pill(String(v.status).toUpperCase(), cls) +
+        ' <span class="mono">'+esc(v.ran_at_npt)+'</span><br><span style="color:#6b7280;font-size:.82rem">'+
+        'session '+esc(v.session_date)+(v.detail ? ' · '+esc(v.detail) : '')+'</span>');
     });
     document.getElementById('jobs').innerHTML = html;
   }).catch(function(){ document.getElementById('jobs').innerHTML = '<p class="sub">jobs.json unavailable</p>'; });
@@ -74,7 +77,7 @@
     document.getElementById('gate-summary').textContent = passed + '/' + v.gates.length + ' passed · ran ' + v.ran_at_npt;
     document.getElementById('gates').innerHTML = v.gates.map(function(g){
       return '<div class="gate"><span class="g" style="color:'+(g.pass?'var(--ok)':'var(--bad)')+'">'+(g.pass?'PASS':'FAIL')+
-        '</span><span><span class="mono">'+g.gate+'</span><br><span style="color:#6b7280;font-size:.82rem">'+g.detail+'</span></span></div>';
+        '</span><span><span class="mono">'+esc(g.gate)+'</span><br><span style="color:#6b7280;font-size:.82rem">'+esc(g.detail)+'</span></span></div>';
     }).join('');
   }).catch(function(){ document.getElementById('gates').innerHTML = '<p class="sub">validation.json unavailable</p>'; });
 })();
