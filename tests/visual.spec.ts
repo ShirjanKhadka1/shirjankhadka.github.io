@@ -23,7 +23,14 @@ const VIEWPORTS = [
 for (const vp of VIEWPORTS) {
   for (const p of PAGES) {
     test(`visual ${vp.name} ${p}`, async ({ browser }) => {
-      const page = await browser.newPage({ viewport: { width: vp.width, height: vp.height } });
+      // reducedMotion: the homepage (and others) gate content behind
+      // IntersectionObserver scroll-reveals; reduced motion forces them
+      // visible and kills transitions, so the baseline captures the
+      // fully-rendered page deterministically instead of blank sections.
+      const page = await browser.newPage({
+        viewport: { width: vp.width, height: vp.height },
+        reducedMotion: 'reduce',
+      });
       await page.goto(p, { waitUntil: 'networkidle', timeout: 60000 });
       // let charts/badges settle; hide the live clock-ish bits that flake
       await page.waitForTimeout(2500);
