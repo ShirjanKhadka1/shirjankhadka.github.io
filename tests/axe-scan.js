@@ -2,12 +2,14 @@
  * tests/axe-scan.js — axe-core accessibility scan with a ratchet.
  *
  * Compares per-page, per-rule violation node counts against
- * tests/axe-baseline.json (the Phase 0 baseline). FAILS (exit 1) when:
+ * tests/axe-baseline.json. FAILS (exit 1) when:
  *   - any rule's node count INCREASED vs baseline, or
  *   - a NEW rule appears on a page, or
  *   - a page fails to scan.
- * Decreases pass (improvement is always welcome). Final DoD is zero
- * violations; the ratchet only prevents regressions until Phase 7.
+ * Decreases pass (improvement is always welcome).
+ *
+ * To establish a new baseline: ESTABLISH_BASELINE=1 node axe-scan.js
+ * This writes the current results to axe-baseline.json without comparing.
  *
  * Run: BASE_URL=http://localhost:8080 node axe-scan.js
  */
@@ -17,8 +19,25 @@ const fs = require('fs');
 const path = require('path');
 
 const BASE = process.env.BASE_URL || 'http://localhost:8080';
-const PAGES = ['/', '/nepse-decode/', '/nepse-chart/', '/nepse-screener/', '/nepse-brokers/', '/blog/', '/status/'];
-const baseline = JSON.parse(fs.readFileSync(path.join(__dirname, 'axe-baseline.json'), 'utf8'));
+const ESTABLISH = process.env.ESTABLISH_BASELINE === '1';
+
+const PAGES = [
+  '/',
+  '/nepse-decode/', '/nepse-chart/', '/nepse-screener/', '/nepse-brokers/',
+  '/nepse-trending/', '/nepse-value/', '/nepse-news/', '/nepse-sectors/',
+  '/nepse-reports/', '/nepse-actions/', '/nepse-alpha/', '/nepse-dashboard/',
+  '/nepse-fundamentals/', '/nepse-portfolio/', '/nepse-simulator/', '/nepse-watchlist/',
+  '/nepali-date-converter/', '/nepali-date-today/', '/kundali/',
+  '/nepse-signals/momentum/', '/nepse-signals/trend-relay/',
+  '/nepse-signals/reversal/', '/nepse-signals/methodology/',
+  '/blog/',
+  '/blog/nepse-capital-gains-tax-cut-explained/',
+  '/blog/nepal-bank-nbl-company-analysis/',
+  '/stocks/NABIL/', '/stocks/NBL/', '/stocks/SWBBL/',
+  '/status/', '/corrections/', '/editorial-standards/', '/ownership/',
+];
+
+const baseline = ESTABLISH ? {} : JSON.parse(fs.readFileSync(path.join(__dirname, 'axe-baseline.json'), 'utf8'));
 
 (async () => {
   const browser = await chromium.launch();
@@ -38,14 +57,18 @@ const baseline = JSON.parse(fs.readFileSync(path.join(__dirname, 'axe-baseline.j
         id: v.id, impact: v.impact, description: v.description,
         nodes: v.nodes.length, helpUrl: v.helpUrl,
       }));
-      const base = baseline[p] || {};
-      for (const [rule, n] of Object.entries(counts)) {
-        const b = base[rule];
-        if (b === undefined) regressions.push(`${p}: NEW rule ${rule} (${n} nodes)`);
-        else if (n > b) regressions.push(`${p}: ${rule} increased ${b} -> ${n} nodes`);
+      if (!ESTABLISH) {
+        const base = baseline[p] || {};
+        for (const [rule, n] of Object.entries(counts)) {
+          const b = base[rule];
+          if (b === undefined) regressions.push(`${p}: NEW rule ${rule} (${n} nodes)`);
+          else if (n > b) regressions.push(`${p}: ${rule} increased ${b} -> ${n} nodes`);
+        }
+        const improved = Object.keys(base).filter((r) => (counts[r] || 0) < base[r]);
+        console.log(p, 'rules:', Object.keys(counts).length, improved.length ? `(improved: ${improved.join(', ')})` : '');
+      } else {
+        console.log(p, 'rules:', Object.keys(counts).length, 'nodes:', Object.values(counts).reduce((a,b) => a+b, 0));
       }
-      const improved = Object.keys(base).filter((r) => (counts[r] || 0) < base[r]);
-      console.log(p, 'rules:', Object.keys(counts).length, improved.length ? `(improved: ${improved.join(', ')})` : '');
     } catch (e) {
       scanErrors++;
       out[p] = [{ id: 'scan-error', impact: 'n/a', description: String(e).slice(0, 200), nodes: 0 }];
@@ -54,13 +77,32 @@ const baseline = JSON.parse(fs.readFileSync(path.join(__dirname, 'axe-baseline.j
     await page.close();
   }
   await browser.close();
+
+  if (ESTABLISH) {
+    const newBaseline = {};
+    for (const [p, violations] of Object.entries(out)) {
+      newBaseline[p] = {};
+      for (const v of violations) {
+        if (v.id !== 'scan-error') newBaseline[p][v.id] = v.nodes;
+      }
+    }
+    fs.writeFileSync(path.join(__dirname, 'axe-baseline.json'), JSON.stringify(newBaseline, null, 2));
+    fs.writeFileSync(path.join(__dirname, 'axe-results.json'), JSON.stringify(out, null, 2));
+    console.log(`\nBaseline established: ${Object.keys(newBaseline).length} pages`);
+    if (scanErrors) {
+      console.error(`WARNING: ${scanErrors} page(s) failed to scan`);
+      process.exit(1);
+    }
+    return;
+  }
+
   fs.writeFileSync(path.join(__dirname, 'axe-results.json'), JSON.stringify(out, null, 2));
   if (scanErrors) {
     console.error(`axe ratchet FAILED: ${scanErrors} page(s) failed to scan`);
     process.exit(1);
   }
   if (regressions.length) {
-    console.error('axe ratchet FAILED — regressions vs Phase 0 baseline:');
+    console.error('axe ratchet FAILED — regressions vs baseline:');
     for (const r of regressions) console.error('  - ' + r);
     process.exit(1);
   }
