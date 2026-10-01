@@ -25,15 +25,22 @@ on:
   workflow_dispatch: {}
 
 permissions:
-  contents: write
+  contents: read
+
+concurrency:
+  group: data-refresh
+  cancel-in-progress: false
 
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '20'
 
@@ -61,6 +68,12 @@ jobs:
       - name: Refresh sitemap
         run: node tools/build-sitemap.js
 
+      - name: Sign data manifest (S3 integrity)
+        run: node tools/build-manifest.js
+
+      - name: Validate build integrity (fail on tamper)
+        run: node tools/validate-build.js
+
       - name: Commit updated data
         run: |
           git config user.name "github-actions[bot]"
@@ -68,3 +81,8 @@ jobs:
           git add nepse-chart/data nepse-screener/index.html stocks nepse-actions sitemap.xml js/nepse-daily.js
           git diff --cached --quiet || git commit -m "Alpha Lab: daily data refresh (automated)"
           git push
+
+      - name: Backup data build to private repo (S3)
+        env:
+          GH_BACKUP_TOKEN: ${{ secrets.BACKUP_REPO_TOKEN }}
+        run: node tools/backup-data.js
