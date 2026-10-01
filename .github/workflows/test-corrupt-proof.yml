@@ -22,6 +22,9 @@ on:
         description: 'Dry run (no commits, no pushes — always true for proof)'
         type: boolean
         default: true
+  push: # TEMPORARY — lets the upload commit trigger this proof run; REMOVE BEFORE MERGE
+    branches: [phase1-pipeline]
+    paths: ['.github/workflows/test-corrupt-proof.yml']
 
 permissions:
   contents: read
@@ -87,8 +90,8 @@ jobs:
 
       - name: Assert price-sanity went PASS -> FAIL
         run: |
-          before=$(grep "^price-sanity" /tmp/gates.before || echo "price-sanity MISSING-BEFORE")
-          after=$(grep "^price-sanity" /tmp/gates.after || echo "price-sanity MISSING-AFTER")
+          before=$(grep -E "(PASS|FAIL)[ ]+price-sanity" /tmp/gates.before || echo "price-sanity MISSING-BEFORE")
+          after=$(grep -E "(PASS|FAIL)[ ]+price-sanity" /tmp/gates.after || echo "price-sanity MISSING-AFTER")
           echo "before: $before"
           echo "after:  $after"
           case "$before" in PASS*) ok_before=true;; *) ok_before=false;; esac
