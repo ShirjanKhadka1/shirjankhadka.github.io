@@ -206,14 +206,14 @@ jobs:
           BASE_URL: http://localhost:8080
 
       - name: Visual regression — pass 2 (run-to-run variance check)
-        if: inputs.update_snapshots != 'true'
+        if: inputs.update_snapshots != true
         working-directory: tests
         run: npx playwright test visual.spec.ts
         env:
           BASE_URL: http://localhost:8080
 
       - name: Upload regenerated baselines (manual dispatch)
-        if: inputs.update_snapshots == 'true' && github.event_name == 'workflow_dispatch'
+        if: inputs.update_snapshots == true && github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: visual-baselines-${{ github.run_number }}
