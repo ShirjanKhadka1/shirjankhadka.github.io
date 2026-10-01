@@ -284,13 +284,13 @@
       var th = '<div class="sx-tm-sec">' +
         '<div class="sx-tm-head"><h3><a href="' + esc(tileLink(g.name)) + '">' + esc(g.name) + '</a></h3>' +
         '<span class="sx-tm-meta">' + esc(meta) + '</span></div>' +
-        '<div class="sx-tm-tiles" role="list" aria-label="' + esc(g.name) + ' securities">';
+        '<div class="sx-tm-tiles" aria-label="' + esc(g.name) + ' securities">';
       var tb = tiles.map(function (t) {
         var tip = t.sym +
           (t.p != null ? ' · Rs ' + num(t.p, 2) : '') +
           (t.ch != null ? ' · day ' + pctText(t.ch) : ' · no day-change data') +
           (t.turn > 0 ? ' · turnover ' + fmtTurn(t.turn) : '');
-        return '<a class="sx-tm-tile ' + heatClass(t.ch) + '" role="listitem"' +
+        return '<a class="sx-tm-tile ' + heatClass(t.ch) + '"' +
           ' href="/stocks/' + esc(String(t.sym).replace(/\//g, '-')) + '/"' +
           ' title="' + esc(tip) + '">' +
           '<span class="sx-tm-sym">' + esc(t.sym) + '</span>' +

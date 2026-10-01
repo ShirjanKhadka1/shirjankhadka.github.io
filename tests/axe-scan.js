@@ -47,6 +47,27 @@ const baseline = ESTABLISH ? {} : JSON.parse(fs.readFileSync(path.join(__dirname
   for (const p of PAGES) {
     const page = await browser.newPage();
     try {
+      // Deterministic data: intercept JSON requests and serve frozen fixtures
+      // (same pattern as visual.spec.ts). Without this, pages that fetch repo
+      // JSON depend on server timing — the heatmap may or may not render,
+      // making the scan non-deterministic across environments.
+      // NOTE: use regex /\.json(\?|$)/ (not '**/*.json' glob) because data URLs
+      // carry cache-busting query strings (?v=...) which the glob does not match.
+      await page.route(/\.json(\?|$)/, async (route) => {
+        const url = new URL(route.request().url());
+        const fixturePath = path.join(
+          __dirname, 'fixtures', ...url.pathname.split('/').filter(Boolean)
+        );
+        if (fs.existsSync(fixturePath)) {
+          await route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: fs.readFileSync(fixturePath),
+          });
+        } else {
+          await route.continue();
+        }
+      });
       await page.goto(BASE + p, { waitUntil: 'networkidle', timeout: 60000 });
       await page.waitForTimeout(1500);
       await page.addScriptTag({ content: axe.source });
