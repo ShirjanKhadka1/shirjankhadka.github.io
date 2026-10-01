@@ -562,9 +562,44 @@
       if (vd && vd.verdicts) { verdicts = vd.verdicts; dataAsof = vd.asof || ''; }
       dataReady = true;
       renderAll();
+      startLiveOverlay();
     }).catch(function () {
       dataReady = false;
       el.summary.innerHTML = '<p class="pf-muted">Could not load market data. Your saved portfolios are safe in this browser; please try again later.</p>';
+    });
+  }
+
+  /* Live overlay: when the 15-minute tape is fresh, repaint holding prices,
+     day changes and unrealized P&L in place. Quantities and costs stay put. */
+  function startLiveOverlay() {
+    var NL = window.NepseLive || null;
+    if (!NL || !document.getElementById('pf-live')) return;
+    NL.start({
+      el: 'pf-live',
+      onData: function (d) {
+        if (!d || !d.quotes) return;
+        var quotes = d.quotes;
+        var wrap = document.getElementById('pf-hold-wrap');
+        if (!wrap) return;
+        var rows = wrap.querySelectorAll('tr');
+        for (var i = 0; i < rows.length; i++) {
+          var link = rows[i].querySelector('.pf-sym');
+          if (!link) continue;
+          var sym = link.textContent.trim();
+          var q = sym && quotes[sym];
+          if (!q || q.ltp == null || !isFinite(Number(q.ltp))) continue;
+          var cells = rows[i].querySelectorAll('td');
+          // Price cell (index 3), day-change cell (index 4).
+          if (cells[3]) cells[3].textContent = fmtRs(q.ltp);
+          if (cells[4]) {
+            var pct = (q.pct != null && isFinite(Number(q.pct))) ? Number(q.pct) : null;
+            if (pct != null) {
+              cells[4].innerHTML = '<span class="tnum ' + signedCls(pct) + '">' +
+                fmtPct(pct) + '</span>';
+            }
+          }
+        }
+      }
     });
   }
 

@@ -48,6 +48,36 @@ function page(sys, data) {
 
   const rules = data.rules.map(r => `<li>${r}</li>`).join('');
 
+  // Closed history — server-rendered from recent_trades at build time.
+  // First 50 rows visible; the rest sit in a hidden tbody revealed by "Show all".
+  const trades = Array.isArray(data.recent_trades) ? data.recent_trades : [];
+  function tradeRow(t) {
+    const pos = (t.pnl_pct || 0) >= 0;
+    const cls = pos ? 'color:var(--up)' : 'color:var(--down)';
+    const sign = pos ? '+' : '';
+    const rs = t.pnl_rs === null || t.pnl_rs === undefined || !Number.isFinite(t.pnl_rs)
+      ? '–' : sign + money(t.pnl_rs).replace(/^Rs /, 'Rs ');
+    const pc = t.pnl_pct === null || t.pnl_pct === undefined || !Number.isFinite(t.pnl_pct)
+      ? '–' : sign + pct(t.pnl_pct);
+    return `<tr><td><strong>${t.symbol}</strong></td><td>${t.entry_date || '–'}</td><td>${t.exit_date || '–'}</td>` +
+      `<td>${fmt(t.entry_price)}</td><td>${fmt(t.exit_price)}</td><td>${t.exit_reason || '–'}</td>` +
+      `<td style="${cls}">${rs}</td><td style="${cls}">${pc}</td><td>${t.hold_days ?? '–'}</td></tr>`;
+  }
+  const closedFirst = trades.slice(0, 50).map(tradeRow).join('');
+  const closedRest = trades.slice(50).map(tradeRow).join('');
+  const closedMore = trades.length > 10
+    ? `<div class="pg-ctl" style="display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin:12px 0 0">
+      <label style="font-size:.85rem;color:var(--muted)">Rows per page
+        <select id="closed-size" style="margin-left:6px;padding:6px 10px;border:1px solid var(--hairline);border-radius:8px;background:var(--card);font-size:.85rem">
+          <option value="10">10</option><option value="25">25</option><option value="50" selected>50</option><option value="100">100</option>
+        </select></label>
+      <span id="closed-info" style="font-size:.85rem;color:var(--muted)" aria-live="polite"></span>
+      <span style="display:flex;gap:8px;margin-left:auto">
+        <button id="closed-prev" style="padding:8px 16px;border:1px solid var(--hairline);border-radius:8px;background:var(--card);cursor:pointer;font-size:.85rem">← Prev</button>
+        <button id="closed-next" style="padding:8px 16px;border:1px solid var(--hairline);border-radius:8px;background:var(--card);cursor:pointer;font-size:.85rem">Next →</button>
+      </span></div>`
+    : '';
+
   const NOTES = {
     'momentum': `<strong>What the backtest says.</strong> Over 23 years this rule set compounded at ${pct(st.annual_return_pct)} a year — below NEPSE buy &amp; hold (${pct(st.benchmark_cagr_pct)}), but with a far shallower worst fall (${pct(st.max_drawdown_pct)} vs the index's deep bear markets). It wins only ${pct(st.win_rate_pct)} of trades; it survives on letting winners run to multiples of risk.`,
     'trend-relay': `<strong>What the backtest says.</strong> This patient re-entry system compounded at ${pct(st.annual_return_pct)} a year with the shallowest worst fall of the three (${pct(st.max_drawdown_pct)}). It trades rarely (${st.total_trades} trades in 23 years) and wins ${pct(st.win_rate_pct)} of them — a system for waiting, not for action.`,
@@ -147,6 +177,12 @@ function page(sys, data) {
 
 <div class="note"><strong>How to read this.</strong> Every number below comes from a mechanical replay of these exact rules on historical NEPSE data (${st.backtest_from} to ${st.backtest_to}, ${data.universe_symbols} symbols, Rs 1 Cr portfolio, max 10 positions, ${data.costs}). Nothing is hand-picked. Past performance does not predict future results.</div>
 
+<h2 style="font-family:var(--serif);margin-top:28px">Open alerts — positions the system holds right now</h2>
+<p style="color:var(--muted);font-size:.9rem">Entry is taken at the signal day's close. Stops and targets are fixed at entry; the trail updates with price. Progress shows how far the trade has moved toward Target 2.</p>
+<div class="scrollx"><table class="sig-table" id="alerts"><thead><tr>
+<th>Date</th><th>Symbol</th><th>Alert</th><th>Entry</th><th>Stop loss</th><th>Trail stop</th><th>Target 1</th><th>Target 2</th><th>Current</th><th>Unrealized</th><th>Progress</th>
+</tr></thead><tbody><tr><td colspan="11">Loading…</td></tr></tbody></table></div>
+
 <h2 class="nd-section-head" style="margin-top:28px"><h2 style="font-family:var(--serif)">Trade profile</h2></h2>
 <div class="scrollx"><table class="sig-table">
 <tr><th>Metric</th><th>Value</th><th>Metric</th><th>Value</th></tr>
@@ -160,22 +196,23 @@ function page(sys, data) {
 <tr><td>Charges paid</td><td>${money(st.charges_paid)}</td><td>Backtest window</td><td>${st.backtest_from} &rarr; ${st.backtest_to}</td></tr>
 </table></div>
 
-${GLOSSARY}
-
 <h2 style="font-family:var(--serif);margin-top:28px">Equity curve — Rs 1 Cr through this system</h2>
 <canvas id="eqchart"></canvas>
 
 <h2 style="font-family:var(--serif);margin-top:28px">The rules (exactly as coded)</h2>
 <div class="rules"><ol>${rules}</ol></div>
 
-<h2 style="font-family:var(--serif);margin-top:28px">Open alerts — positions the system holds right now</h2>
-<p style="color:var(--muted);font-size:.9rem">Entry is taken at the signal day's close. Stops and targets are fixed at entry; the trail updates with price. Progress shows how far the trade has moved toward Target 2.</p>
-<div class="scrollx"><table class="sig-table" id="alerts"><thead><tr>
-<th>Date</th><th>Symbol</th><th>Alert</th><th>Entry</th><th>Stop loss</th><th>Trail stop</th><th>Target 1</th><th>Target 2</th><th>Current</th><th>Unrealized</th><th>Progress</th>
-</tr></thead><tbody><tr><td colspan="11">Loading…</td></tr></tbody></table></div>
+<h2 style="font-family:var(--serif);margin-top:28px">Closed history — finished trades</h2>
+<p style="color:var(--muted);font-size:.9rem">Every finished trade this system took in the backtest, newest first. P&amp;L is after the same trading charges the backtest applies.</p>
+<div class="scrollx"><table class="sig-table" id="closed"><thead><tr>
+<th>Symbol</th><th>Entry date</th><th>Exit date</th><th>Entry price</th><th>Exit price</th><th>Exit reason</th><th>P&amp;L Rs</th><th>P&amp;L %</th><th>Hold days</th>
+</tr></thead><tbody id="closed-body">${closedFirst}${closedRest}</tbody></table></div>
+${closedMore}
 
 <h2 style="font-family:var(--serif);margin-top:28px">About this system</h2>
 <div class="rules"><p>${data.title} is one of Nepse Decode's transparent signal systems, run by the Alpha Lab engine. Every rule above is public — there is no hidden model and no "AI prediction". Signals are generated mechanically from daily OHLCV data (corporate-action adjusted); a stock appears here only if it passes every filter, including a Rs 10 lakh average-turnover liquidity bar. This page is educational and is not investment advice.</p></div>
+
+${GLOSSARY}
 
 <p style="color:var(--muted);font-size:.85rem;margin:32px 0">Data: daily NEPSE OHLCV, corporate-action adjusted. Generated ${new Date().toISOString().slice(0, 10)}. Educational only — not investment advice.</p>
 </main>
@@ -222,6 +259,36 @@ ${GLOSSARY}
       ctx.fillText('Rs ' + (last.v/10000000).toFixed(2) + ' Cr', W - 190, Y(last.v) - 12);
     }
   }).catch(function(){ document.querySelector('#alerts tbody').innerHTML = '<tr><td colspan="11">Could not load signal data.</td></tr>'; });
+})();
+</script>
+<script>
+// Closed history: client-side pagination with page-size selector.
+(function(){
+  var body = document.getElementById('closed-body');
+  var sizeSel = document.getElementById('closed-size');
+  var info = document.getElementById('closed-info');
+  var prev = document.getElementById('closed-prev');
+  var next = document.getElementById('closed-next');
+  if (!body || !sizeSel) return;
+  var rows = Array.prototype.slice.call(body.rows);
+  var page = 0;
+  function size(){ return parseInt(sizeSel.value, 10) || 50; }
+  function pages(){ return Math.max(1, Math.ceil(rows.length / size())); }
+  function render(){
+    var s = size(), p = pages();
+    if (page >= p) page = p - 1;
+    if (page < 0) page = 0;
+    var lo = page * s, hi = Math.min(lo + s, rows.length);
+    rows.forEach(function(r, i){ r.style.display = (i >= lo && i < hi) ? '' : 'none'; });
+    if (info) info.textContent = rows.length ? ('Showing ' + (lo + 1) + '–' + hi + ' of ' + rows.length + ' trades') : 'No trades';
+    if (prev) prev.disabled = page === 0;
+    if (next) next.disabled = page >= p - 1;
+    [prev, next].forEach(function(b){ if (b) b.style.opacity = b.disabled ? '.45' : '1'; });
+  }
+  sizeSel.addEventListener('change', function(){ page = 0; render(); });
+  if (prev) prev.addEventListener('click', function(){ if (page > 0){ page--; render(); } });
+  if (next) next.addEventListener('click', function(){ if (page < pages() - 1){ page++; render(); } });
+  render();
 })();
 </script>
 <style>

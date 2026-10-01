@@ -87,6 +87,7 @@
 @media(prefers-reduced-motion:reduce){.wl-card{transition:none}.wl-card:hover{transform:none}}
 </style>
 <link rel="stylesheet" href="/css/theme.css?v=20261001a">
+<link rel="stylesheet" href="/css/nepse-wave7.css?v=20261001a">
 </head>
 <body class="nd">
 <header class="nd-topbar">
@@ -144,9 +145,27 @@
     <div>
       <p class="nd-kicker">Watchlist</p>
       <h1 style="font-family:var(--serif);font-weight:600;font-size:clamp(1.8rem,4.5vw,2.5rem);letter-spacing:-0.015em">Your stocks, at a glance</h1>
+      <p class="nd-caption" style="margin-top:4px"><span id="wl-live"></span></p>
     </div>
     
   </div>
+
+      <section class="wl-box" aria-label="Engine watchlist">
+        <div class="wl-box-head">
+          <h2>Engine watchlist</h2>
+          <label class="ewl-tf" for="ewl-tf">Timeframe
+            <select id="ewl-tf" aria-label="Engine watchlist timeframe">
+              <option value="d">Daily</option>
+              <option value="w">Weekly</option>
+              <option value="m">Monthly</option>
+            </select>
+          </label>
+        </div>
+        <p class="wl-sub" id="wl-engine-sub">Mechanical picks from the latest daily batch. Rebuilt with each batch.</p>
+        <div id="wl-engine-list" aria-live="polite">
+          <div aria-hidden="true"><span class="skl skl-row"></span><span class="skl skl-row"></span><span class="skl skl-row"></span><span class="skl skl-row"></span></div>
+        </div>
+      </section>
 
       <section class="wl-box" aria-label="My watchlist">
         <div class="wl-box-head">

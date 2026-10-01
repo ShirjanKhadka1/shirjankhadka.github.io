@@ -119,8 +119,53 @@ h2.bk-h{font-family:var(--serif);font-size:1.25rem;margin:20px 0 8px}
 (function(){
 "use strict";
 var BASE = '/nepse-brokers/data/';
-var state = { view: 'top', period: 'latest', data: null, brokers: {}, meta: null, asof: null };
+var state = { view: 'top', period: 'latest', data: null, brokers: {}, meta: null, asof: null, symbol: null, broker: null };
 var $ = function(id){ return document.getElementById(id); };
+
+/* ---------- URL-backed state (replaceState; no history spam) ---------- */
+function readURL(){
+  var q = {};
+  var s = location.search.replace(/^\?/,'');
+  if(!s) return q;
+  s.split('&').forEach(function(p){
+    var kv = p.split('=');
+    if(kv[0]) q[decodeURIComponent(kv[0])] = decodeURIComponent(kv[1]||'');
+  });
+  return q;
+}
+function syncURL(){
+  var parts = [];
+  if(state.view!=='top') parts.push('view='+encodeURIComponent(state.view));
+  if(state.period!=='latest') parts.push('period='+encodeURIComponent(state.period));
+  if(state.period==='asof' && state.asof) parts.push('asof='+encodeURIComponent(state.asof));
+  if(state.symbol) parts.push('symbol='+encodeURIComponent(state.symbol));
+  if(state.broker) parts.push('broker='+encodeURIComponent(state.broker));
+  history.replaceState(null, '', location.pathname + (parts.length ? '?'+parts.join('&') : ''));
+}
+function initFromURL(){
+  var q = readURL();
+  var views = {top:1, broker:1, stock:1, holdings:1, accdist:1};
+  if(q.view && views[q.view]) state.view = q.view;
+  var periods = {latest:1,'1D':1,'1W':1,'2W':1,'1M':1,'3M':1,'6M':1,'1Y':1,'2Y':1,'3Y':1,asof:1};
+  if(q.period && periods[q.period]){
+    if(q.period==='asof'){
+      if(/^\d{4}-\d{2}-\d{2}$/.test(q.asof||'')){ state.period='asof'; state.asof=q.asof; }
+    } else {
+      state.period = q.period;
+    }
+  }
+  if(q.symbol) state.symbol = q.symbol.toUpperCase();
+  if(q.broker) state.broker = q.broker;
+}
+function syncStaticControls(){
+  document.querySelectorAll('#viewTabs button').forEach(function(x){
+    x.classList.toggle('active', x.dataset.view===state.view);
+  });
+  document.querySelectorAll('#periodBar button').forEach(function(x){
+    x.classList.toggle('active', x.dataset.p===state.period);
+  });
+  if(state.period==='asof' && state.asof) $('asofDate').value = state.asof;
+}
 
 function fmtN(n, d){ d = d===undefined?2:d; if(!isFinite(n)) return '–';
   return Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}); }
@@ -292,6 +337,33 @@ function label(){
 
 function render(){
   var d = state.data; if(!d) return;
+  // Rebuild the stock dropdown from the current dataset, then restore the
+  // user's pick (kept in state) so period changes never lose the selection.
+  var sel = $('symbolSel');
+  sel.innerHTML = '<option value="">Select stock…</option>';
+  var syms = symbolOptions(d);
+  syms.forEach(function(s){ var o=document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o); });
+  if(state.symbol){
+    // Keep the picked symbol visible even when this period has no trades for
+    // it — the view then shows its honest "No trades … in this period" state.
+    if(syms.indexOf(state.symbol)<0){
+      var o=document.createElement('option'); o.value=state.symbol; o.textContent=state.symbol; sel.appendChild(o);
+    }
+    sel.value = state.symbol;
+  } else {
+    sel.value = '';
+  }
+  // Restore the broker pick (options come from brokers.json, stable across periods);
+  // drop it if the code is no longer listed.
+  var bsel = $('brokerSel');
+  if(state.broker){
+    var ok = false, i;
+    for(i=0;i<bsel.options.length;i++){ if(bsel.options[i].value===state.broker){ ok=true; break; } }
+    if(ok) bsel.value = state.broker;
+    else { bsel.value=''; state.broker=null; }
+  } else {
+    bsel.value = '';
+  }
   var html = '';
   if(state.view==='top') html = renderTop(d);
   else if(state.view==='broker') html = renderBroker(d);
@@ -299,11 +371,7 @@ function render(){
   else if(state.view==='holdings') html = renderHoldings(d);
   else html = renderAccDist(d);
   $('view').innerHTML = html;
-  // refresh symbol list
-  var sel = $('symbolSel');
-  if(sel.options.length <= 1 && d.symbols){
-    symbolOptions(d).forEach(function(s){ var o=document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o); });
-  }
+  syncURL();
 }
 
 function syncControls(){
@@ -317,27 +385,39 @@ function syncControls(){
 $('viewTabs').addEventListener('click', function(e){
   var b = e.target.closest('button'); if(!b) return;
   document.querySelectorAll('#viewTabs button').forEach(function(x){x.classList.remove('active')});
-  b.classList.add('active'); state.view = b.dataset.view; syncControls(); render();
+  b.classList.add('active'); state.view = b.dataset.view; syncControls(); syncURL(); render();
 });
 $('periodBar').addEventListener('click', function(e){
   var b = e.target.closest('button'); if(!b) return;
   document.querySelectorAll('#periodBar button').forEach(function(x){x.classList.remove('active')});
   b.classList.add('active'); state.period = b.dataset.p; state.asof = null; $('asofDate').value='';
-  // clear cached symbol options (different dataset)
-  $('symbolSel').innerHTML = '<option value="">Select stock…</option>';
+  // Selections live in state and are restored by render() — never wipe them here.
+  syncURL();
   loadPeriod();
 });
 $('asofDate').addEventListener('change', function(e){
   if(!e.target.value) return;
   document.querySelectorAll('#periodBar button').forEach(function(x){x.classList.remove('active')});
   state.period = 'asof'; state.asof = e.target.value;
-  $('symbolSel').innerHTML = '<option value="">Select stock…</option>';
+  // Selections live in state and are restored by render() — never wipe them here.
+  syncURL();
   loadPeriod();
 });
-$('brokerSel').addEventListener('change', render);
-$('symbolSel').addEventListener('change', render);
+$('brokerSel').addEventListener('change', function(){ state.broker = this.value || null; syncURL(); render(); });
+$('symbolSel').addEventListener('change', function(){ state.symbol = this.value || null; syncURL(); render(); });
 
-loadMeta().then(loadPeriod);
+initFromURL();
+syncStaticControls();
+loadMeta().then(function(){
+  // Validate the broker pick once the options exist (from brokers.json).
+  if(state.broker){
+    var bsel = $('brokerSel'), ok = false, i;
+    for(i=0;i<bsel.options.length;i++){ if(bsel.options[i].value===state.broker){ ok=true; break; } }
+    if(ok) bsel.value = state.broker; else state.broker = null;
+  }
+  syncControls();
+  return loadPeriod();
+});
 /* Auto-refresh: re-fetch the current view every 60s (skipped while the tab is
    hidden). Intraday data rebuilds every 5 min during market hours, so a page
    left open picks up the fresh snapshot without a reload. Silent refresh —

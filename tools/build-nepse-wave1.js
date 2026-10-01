@@ -218,61 +218,8 @@ async function run() {
   console.log('> wrote ' + OUT + ' (' +
     Math.round(fs.statSync(OUT).size / 1024) + ' KB)');
 
-  // ---- Static "Today on NEPSE" snapshot (SEO / no-JS) ----
-  // Bakes a plain-HTML session summary into nepse-decode/index.html between
-  // SNAP-START / SNAP-END markers, so crawlers and no-JS visitors see the
-  // day's market story immediately. The live dashboard below stays the
-  // interactive surface. Refreshed by every builder run.
-  try {
-    const m = market, ix = m.index || {};
-    const chg = +ix.pct || 0, chgCls = chg >= 0 ? 'up' : 'down';
-    const chgStr = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
-    const g0 = (m.gainers || [])[0] || {}, l0 = (m.losers || [])[0] || {};
-    const stockLink = (q) => {
-      const sym = (q.s || '').replace(/\//g, '-');
-      const page = path.join(ROOT, 'stocks', sym, 'index.html');
-      const label = q.s || '–';
-      return fs.existsSync(page)
-        ? '<a href="/stocks/' + sym + '/">' + label + '</a>'
-        : label;
-    };
-
-    const turn = m.totalTurnover ? 'Rs ' + (+m.totalTurnover / 1e9).toFixed(2) + ' B' : '–';
-    const frag =
-      '<section class="tdn" aria-label="Today on NEPSE">\n' +
-      '  <div class="tdn-head"><h2>Today on NEPSE</h2>' +
-      '<span class="snap-asof">· session ' + (m.date || out.asof) + '</span></div>\n' +
-      '  <div class="tdn-grid">\n' +
-      '    <div class="tdn-stat"><span class="tdn-l">NEPSE index</span>' +
-      '<span class="tdn-v num">' + (+ix.value || 0).toFixed(2) + '</span>' +
-      '<span class="tdn-c ' + chgCls + '">' + chgStr + '</span></div>\n' +
-      '    <div class="tdn-stat"><span class="tdn-l">Breadth</span>' +
-      '<span class="tdn-v">' + (m.advancers || 0) + ' <i class="up">▲</i> · ' +
-      (m.decliners || 0) + ' <i class="down">▼</i> · ' + (m.unchanged || 0) + ' flat</span></div>\n' +
-      '    <div class="tdn-stat"><span class="tdn-l">Turnover</span>' +
-      '<span class="tdn-v num">' + turn + '</span>' +
-      '<span class="tdn-s">' + (m.traded || 0) + ' scrips traded</span></div>\n' +
-      '    <div class="tdn-stat"><span class="tdn-l">Top gainer</span>' +
-      '<span class="tdn-v">' + stockLink(g0) + '</span>' +
-      '<span class="tdn-c up">+' + (+(g0.ch || 0)).toFixed(2) + '%</span></div>\n' +
-      '    <div class="tdn-stat"><span class="tdn-l">Top loser</span>' +
-      '<span class="tdn-v">' + stockLink(l0) + '</span>' +
-      '<span class="tdn-c down">' + (+(l0.ch || 0)).toFixed(2) + '%</span></div>\n' +
-      '  </div>\n' +
-      '  <p class="snap-note">Static session snapshot · the live dashboard below refreshes every 60 seconds.</p>\n' +
-      '</section>';
-    const dp = path.join(ROOT, 'nepse-decode', 'index.html');
-    let dh = fs.readFileSync(dp, 'utf8');
-    const sa = dh.indexOf('<!-- SNAP-START -->') + '<!-- SNAP-START -->'.length;
-    const sb = dh.indexOf('<!-- SNAP-END -->');
-    if (sa > 0 && sb > sa) {
-      dh = dh.slice(0, sa) + '\n' + frag + '\n' + dh.slice(sb);
-      fs.writeFileSync(dp, dh);
-      console.log('  snapshot baked into nepse-decode/index.html');
-    } else {
-      console.log('  !! snapshot markers missing in nepse-decode/index.html');
-    }
-  } catch (e) { console.log('  !! today-snapshot bake failed: ' + e.message); }
+  // "Today on NEPSE" static snapshot removed 2026-10-01 (user request) —
+  // the live dashboard below is the single source of truth.
 }
 
 run().catch((e) => { console.error('FATAL', e); process.exit(1); });

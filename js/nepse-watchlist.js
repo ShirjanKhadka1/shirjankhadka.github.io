@@ -116,12 +116,18 @@
       }
       renderList();
       renderEngine();
-      // Wave 7: live quote status + in-place price overlay on the engine box.
+      // Wave 7: live quote status + in-place price overlay on the watchlist
+      // cards and engine box. Starts whenever the badge hook exists.
       var NL = window.NepseLive || null;
-      if (NL && document.getElementById('wl-engine-list')) {
+      if (NL && document.getElementById('wl-live')) {
         NL.start({
           el: 'wl-live',
-          onData: function (d) { if (d && d.quotes) overlayEngineLive(d.quotes); }
+          onData: function (d) {
+            if (d && d.quotes) {
+              overlayWatchlistLive(d.quotes);
+              overlayEngineLive(d.quotes);
+            }
+          }
         });
       }
     }).catch(function () {
@@ -248,6 +254,33 @@
 
   /* Live/daily prices: when the quote feed is fresh, overlay live LTP and
      day change onto the engine rows (positions and levels stay daily). */
+  /* Live/daily prices: when the quote feed is fresh, overlay live LTP and
+     day change onto the user's watchlist cards. */
+  function overlayWatchlistLive(quotes) {
+    var listEl = document.getElementById('wl-list');
+    if (!listEl || !quotes) return;
+    var cards = listEl.querySelectorAll('.wl-card');
+    for (var i = 0; i < cards.length; i++) {
+      var link = cards[i].querySelector('.wl-sym a');
+      if (!link) continue;
+      var m = link.getAttribute('href').match(/\/stocks\/([^\/]+)\//);
+      var sym = m && m[1];
+      var q = sym && quotes[sym];
+      if (!q || q.ltp == null || !isFinite(Number(q.ltp))) continue;
+      var ltpEl = cards[i].querySelector('.wl-ltp');
+      if (ltpEl) ltpEl.textContent = 'Rs ' + fmtNum(q.ltp, 2);
+      var chgEl = cards[i].querySelector('.wl-chg');
+      if (chgEl) {
+        var pct = (q.pct != null && isFinite(Number(q.pct))) ? Number(q.pct)
+          : (q.change != null && q.prev ? Number(q.change) / Number(q.prev) * 100 : null);
+        if (pct != null && isFinite(pct)) {
+          chgEl.textContent = (pct > 0 ? '+' : '') + pct.toFixed(2) + '%';
+          chgEl.className = 'wl-chg ' + (pct > 0 ? 'up' : pct < 0 ? 'down' : '');
+        }
+      }
+    }
+  }
+
   function overlayEngineLive(quotes) {
     var box = document.getElementById('wl-engine-list');
     if (!box || !quotes) return;
