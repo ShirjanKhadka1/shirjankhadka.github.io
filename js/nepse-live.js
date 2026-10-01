@@ -244,11 +244,17 @@
     }
 
     tick();
+    var prevMs = marketState();
     var timer = setInterval(function () {
       if (document.hidden) return;
       var ms = marketState();
-      if (ms === 'open' || ms === 'preopen') tick();
-      else paint(statusOf(last)); // keep the CLOSED badge honest outside hours
+      if (ms === 'open' || ms === 'preopen') { prevMs = ms; tick(); }
+      else {
+        // One final fetch on the open->closed transition so a tab left open
+        // through 15:00 NPT picks up the closing snapshot without a reload.
+        if (prevMs === 'open' || prevMs === 'preopen') { prevMs = ms; tick(); }
+        else paint(statusOf(last)); // keep the CLOSED badge honest outside hours
+      }
     }, opts.poll || POLL_MS);
     var cd = setInterval(tickCountdowns, 1000);
 

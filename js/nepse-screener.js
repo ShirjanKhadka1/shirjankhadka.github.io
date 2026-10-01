@@ -570,9 +570,49 @@
         }
       } catch (e) {}
       render();
+      startLiveOverlay();
     }).catch(function (e) {
       $('sc-body').innerHTML = '<tr><td colspan="11" class="sc-empty">Could not load the ranking data. Please retry in a moment.</td></tr>';
       $('sc-asof').textContent = 'Data unavailable';
+    });
+  }
+
+  /* Live overlay: when the 15-minute tape is fresh, repaint the Price and
+     Change cells in place. Signals, SL/TP and hit rates stay daily-batch. */
+  function startLiveOverlay() {
+    var NL = window.NepseLive || null;
+    if (!NL || !document.getElementById('sc-live')) return;
+    NL.start({
+      el: 'sc-live',
+      onData: function (d) {
+        if (!d || !d.quotes) return;
+        var quotes = d.quotes;
+        var body = $('sc-body');
+        if (!body) return;
+        var rows = body.querySelectorAll('tr');
+        for (var i = 0; i < rows.length; i++) {
+          var link = rows[i].querySelector('.sc-sym');
+          if (!link) continue;
+          var m = link.getAttribute('href').match(/\/stocks\/([^\/]+)\//);
+          var sym = m && m[1];
+          var q = sym && quotes[sym];
+          if (!q || q.ltp == null || !isFinite(Number(q.ltp))) continue;
+          var cells = rows[i].querySelectorAll('td');
+          // Price is the 4th cell (index 3), Change the 5th (index 4).
+          if (cells[3]) {
+            var b = cells[3].querySelector('b');
+            if (b) b.textContent = num2(q.ltp);
+          }
+          if (cells[4]) {
+            var pct = (q.pct != null && isFinite(Number(q.pct))) ? Number(q.pct) : null;
+            if (pct != null) {
+              var cls = pct > 0 ? 'up' : pct < 0 ? 'down' : '';
+              cells[4].innerHTML = '<span class="' + cls + '">' +
+                (pct > 0 ? '+' : '') + pct.toFixed(2) + '%</span>';
+            }
+          }
+        }
+      }
     });
   }
 
