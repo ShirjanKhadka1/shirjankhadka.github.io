@@ -513,6 +513,8 @@
   /* memoized detections + shell: hover re-renders must not recompute or rebuild DOM */
   var detCache = { key: '', divs: [], pats: [] };
   var shellCache = { key: '' };
+  /* 2026-10-02: signal-history pagination — paged box, fixed height */
+  var SH_PER_PAGE = 8, shPage = 0, shHist = null, shSize = 8;
   function getDetections(view) {
     // weekly views scan the daily series so scanner indices map back to daily rows
     var rows = view.isWeekly ? view.daily : view.rows;
@@ -1237,6 +1239,54 @@
     }
     return out.reverse(); // newest first
   }
+  /* 2026-10-02: paged signal-history box — rows-per-page + Showing X–Y + Prev/Next,
+     content moves inside a fixed-height box */
+  function shRowHtml(h) {
+    return '<tr><td class="nl-sh-d">' + fmtD(h.d) + '</td>' +
+      '<td class="num"><b>' + num(h.c, 2) + '</b></td>' +
+      '<td class="num">' + (h.vol == null ? '–' : Math.round(h.vol).toLocaleString('en-US')) + '</td>' +
+      '<td><span class="nl-sh-pill ' + h.cls + '">' + esc(h.label) + '</span></td></tr>';
+  }
+  function renderSignalHistory(el) {
+    if (!shHist || !shHist.length) { el.innerHTML = ''; return; }
+    var per = shSize || SH_PER_PAGE;
+    var pages = Math.max(1, Math.ceil(shHist.length / per));
+    if (shPage >= pages) shPage = pages - 1;
+    if (shPage < 0) shPage = 0;
+    var lo = shPage * per, hi = Math.min(lo + per, shHist.length);
+    var html = '<h2>Signal history</h2>' +
+      '<p class="nl-sh-sub">What the signal engine said at the close of each of the last ' + shHist.length +
+      ' sessions, same rules, only the data available that day. Educational, not advice.</p>' +
+      '<div class="nl-sh-wrap"><table class="nl-sh-table"><thead><tr>' +
+      '<th>Trade date</th><th class="num">Close price</th><th class="num">Volume</th><th>Signal trigger</th>' +
+      '</tr></thead><tbody>' + shHist.slice(lo, hi).map(shRowHtml).join('') + '</tbody></table></div>' +
+      '<div class="nl-sh-pages">' +
+      '<label class="nl-sh-rpp">Rows per page <select id="nl-sh-size" aria-label="Rows per page">' +
+      [5, 8, 10, 16].map(function (v) { return '<option value="' + v + '"' + (v === per ? ' selected' : '') + '>' + v + '</option>'; }).join('') +
+      '</select></label>' +
+      '<span class="nl-sh-pageinfo">Showing ' + (lo + 1) + '–' + hi + ' of ' + shHist.length + ' sessions</span>' +
+      '<span class="nl-sh-nav">' +
+      '<button type="button" class="nl-sh-pbtn" data-sh="prev"' + (shPage === 0 ? ' disabled' : '') + '>← Prev</button>' +
+      '<button type="button" class="nl-sh-pbtn" data-sh="next"' + (shPage >= pages - 1 ? ' disabled' : '') + '>Next →</button>' +
+      '</span></div>';
+    el.innerHTML = html;
+    var sz = el.querySelector('#nl-sh-size');
+    if (sz) sz.addEventListener('change', function () {
+      shSize = parseInt(sz.value, 10) || SH_PER_PAGE; shPage = 0;
+      var elm = document.getElementById('nl-sighist'); if (elm) renderSignalHistory(elm);
+    });
+    var btns = el.querySelectorAll('[data-sh]');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].addEventListener('click', function (ev) {
+        var d = ev.currentTarget.getAttribute('data-sh');
+        var pgs = Math.max(1, Math.ceil(shHist.length / (shSize || SH_PER_PAGE)));
+        if (d === 'next' && shPage < pgs - 1) shPage++;
+        else if (d === 'prev' && shPage > 0) shPage--;
+        else return;
+        var elm = document.getElementById('nl-sighist'); if (elm) renderSignalHistory(elm);
+      });
+    }
+  }
   function renderShell(S, divs, pats) {
     var wrap = document.getElementById('nl-lab'); if (!wrap) return;
     var rows = state.rows, n = rows.length;
@@ -1305,7 +1355,7 @@
     // ---- signal history: the engine's verdict at each of the last 16 sessions ----
     var sh = document.getElementById('nl-sighist');
     if (sh) {
-      if (state.loading || state.err || n < 76) { sh.innerHTML = ''; }
+      if (state.loading || state.err || n < 76) { sh.innerHTML = ''; shHist = null; shPage = 0; }
       else if (!shellCache.shist || shellCache.shistKey !== state.sym + '|' + rows[n - 1][0]) {
         sh.innerHTML = '<h2>Signal history</h2><p class="nl-sh-sub">Replaying the engine on each of the last 16 closes…</p>';
         var shKey = state.sym + '|' + rows[n - 1][0];
@@ -1315,20 +1365,9 @@
           // symbol changed while we were computing, drop the stale result
           if (!state.rows.length || state.sym + '|' + state.rows[state.rows.length - 1][0] !== shKey) return;
           try {
-            var hist = signalHistory();
-            var shrows = hist.map(function (h) {
-              return '<tr><td class="nl-sh-d">' + fmtD(h.d) + '</td>' +
-                '<td class="num"><b>' + num(h.c, 2) + '</b></td>' +
-                '<td class="num">' + (h.vol == null ? '–' : Math.round(h.vol).toLocaleString('en-US')) + '</td>' +
-                '<td><span class="nl-sh-pill ' + h.cls + '">' + esc(h.label) + '</span></td></tr>';
-            }).join('');
-            el.innerHTML =
-              '<h2>Signal history</h2>' +
-              '<p class="nl-sh-sub">What the signal engine said at the close of each of the last ' + hist.length +
-              ' sessions, same rules, only the data available that day. Educational, not advice.</p>' +
-              '<div class="nl-sh-wrap"><table class="nl-sh-table"><thead><tr>' +
-              '<th>Trade date</th><th class="num">Close price</th><th class="num">Volume</th><th>Signal trigger</th>' +
-              '</tr></thead><tbody>' + shrows + '</tbody></table></div>';
+            shHist = signalHistory();
+            shPage = 0;
+            renderSignalHistory(el);
             shellCache.shist = true;
             shellCache.shistKey = state.sym + '|' + rows[n - 1][0];
           } catch (e) { el.innerHTML = ''; }

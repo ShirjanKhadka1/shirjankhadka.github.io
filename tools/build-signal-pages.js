@@ -18,6 +18,19 @@ function fmt(n, d = 2) {
   return Number(n).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
 }
 function pct(n) { return (n === null || n === undefined || !Number.isFinite(n)) ? '–' : fmt(n) + '%'; }
+function holdDays(t) {
+  // 2026-10-02: data has no hold_days field; derive calendar days from dates
+  if (!t.entry_date || !t.exit_date) return null;
+  const a = Date.parse(t.entry_date), b = Date.parse(t.exit_date);
+  if (!Number.isFinite(a) || !Number.isFinite(b) || b < a) return null;
+  return Math.round((b - a) / 86400000);
+}
+function reasonPill(r) {
+  // 2026-10-02: design-rich exit-reason pills
+  const key = String(r || '').toLowerCase();
+  const cls = key.includes('target') ? 'rp-win' : key.includes('stop') ? 'rp-loss' : key.includes('trail') ? 'rp-trail' : 'rp-info';
+  return `<span class="rpill ${cls}">${r ? String(r).replace(/-/g, ' ') : '–'}</span>`;
+}
 function money(n) {
   if (!Number.isFinite(n)) return '–';
   if (Math.abs(n) >= 1e7) return 'Rs ' + (n / 1e7).toFixed(2) + ' Cr';
@@ -52,16 +65,17 @@ function page(sys, data) {
   // First 50 rows visible; the rest sit in a hidden tbody revealed by "Show all".
   const trades = Array.isArray(data.recent_trades) ? data.recent_trades : [];
   function tradeRow(t) {
+    // 2026-10-02: data fields are entry/exit/reason (not entry_price/exit_price/exit_reason);
+    // P&L Rs dropped (no data), hold days derived from dates
     const pos = (t.pnl_pct || 0) >= 0;
     const cls = pos ? 'color:var(--up)' : 'color:var(--down)';
     const sign = pos ? '+' : '';
-    const rs = t.pnl_rs === null || t.pnl_rs === undefined || !Number.isFinite(t.pnl_rs)
-      ? '–' : sign + money(t.pnl_rs).replace(/^Rs /, 'Rs ');
     const pc = t.pnl_pct === null || t.pnl_pct === undefined || !Number.isFinite(t.pnl_pct)
       ? '–' : sign + pct(t.pnl_pct);
-    return `<tr><td><strong>${t.symbol}</strong></td><td>${t.entry_date || '–'}</td><td>${t.exit_date || '–'}</td>` +
-      `<td>${fmt(t.entry_price)}</td><td>${fmt(t.exit_price)}</td><td>${t.exit_reason || '–'}</td>` +
-      `<td style="${cls}">${rs}</td><td style="${cls}">${pc}</td><td>${t.hold_days ?? '–'}</td></tr>`;
+    const hd = holdDays(t);
+    return `<tr><td><strong>${t.symbol}</strong></td><td class="num">${t.entry_date || '–'}</td><td class="num">${t.exit_date || '–'}</td>` +
+      `<td class="num">${fmt(t.entry)}</td><td class="num">${fmt(t.exit)}</td><td>${reasonPill(t.reason)}</td>` +
+      `<td class="num" style="${cls}"><strong>${pc}</strong></td><td class="num">${hd === null ? '–' : hd}</td></tr>`;
   }
   const closedFirst = trades.slice(0, 50).map(tradeRow).join('');
   const closedRest = trades.slice(50).map(tradeRow).join('');
@@ -69,7 +83,7 @@ function page(sys, data) {
     ? `<div class="pg-ctl" style="display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin:12px 0 0">
       <label style="font-size:.85rem;color:var(--muted)">Rows per page
         <select id="closed-size" style="margin-left:6px;padding:6px 10px;border:1px solid var(--hairline);border-radius:8px;background:var(--card);font-size:.85rem">
-          <option value="10">10</option><option value="25">25</option><option value="50" selected>50</option><option value="100">100</option>
+          <option value="10" selected>10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option>
         </select></label>
       <span id="closed-info" style="font-size:.85rem;color:var(--muted)" aria-live="polite"></span>
       <span style="display:flex;gap:8px;margin-left:auto">
@@ -146,6 +160,17 @@ function page(sys, data) {
 .sig-table th,.sig-table td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--hairline-soft);white-space:nowrap}
 .sig-table th{background:var(--paper-deep);font-weight:600;color:var(--ink-soft)}
 .sig-table tr:last-child td{border-bottom:none}
+/* 2026-10-02: design-rich closed-history table — numeric alignment + exit-reason pills;
+   steady box between pages */
+.sig-table th.num,.sig-table td.num{text-align:right;font-variant-numeric:tabular-nums}
+.sig-table tbody tr:hover td{background:var(--paper-deep)}
+#closed tbody{min-height:380px}
+#closed thead th{position:sticky;top:0;z-index:1}
+.rpill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.75rem;font-weight:600;white-space:nowrap;text-transform:capitalize}
+.rpill.rp-win{background:color-mix(in srgb,var(--up) 14%,transparent);color:var(--up);border:1px solid color-mix(in srgb,var(--up) 30%,transparent)}
+.rpill.rp-loss{background:color-mix(in srgb,var(--down) 14%,transparent);color:var(--down);border:1px solid color-mix(in srgb,var(--down) 30%,transparent)}
+.rpill.rp-trail{background:color-mix(in srgb,var(--gold,#b98a2f) 16%,transparent);color:var(--gold,#b98a2f);border:1px solid color-mix(in srgb,var(--gold,#b98a2f) 32%,transparent)}
+.rpill.rp-info{background:var(--paper-deep);color:var(--muted);border:1px solid var(--hairline)}
 .tag{display:inline-block;padding:2px 10px;border-radius:var(--r-pill);font-size:.75rem;font-weight:600}
 .tag.entry{background:var(--green-100);color:var(--green-900)}
 .prog{height:6px;background:var(--paper-deep);border-radius:3px;min-width:70px}
@@ -205,7 +230,7 @@ function page(sys, data) {
 <h2 style="font-family:var(--serif);margin-top:28px">Closed history — finished trades</h2>
 <p style="color:var(--muted);font-size:.9rem">Every finished trade this system took in the backtest, newest first. P&amp;L is after the same trading charges the backtest applies.</p>
 <div class="scrollx"><table class="sig-table" id="closed"><thead><tr>
-<th>Symbol</th><th>Entry date</th><th>Exit date</th><th>Entry price</th><th>Exit price</th><th>Exit reason</th><th>P&amp;L Rs</th><th>P&amp;L %</th><th>Hold days</th>
+<th>Symbol</th><th class="num">Entry date</th><th class="num">Exit date</th><th class="num">Entry price</th><th class="num">Exit price</th><th>Exit reason</th><th class="num">P&amp;L %</th><th class="num">Hold days</th>
 </tr></thead><tbody id="closed-body">${closedFirst}${closedRest}</tbody></table></div>
 ${closedMore}
 

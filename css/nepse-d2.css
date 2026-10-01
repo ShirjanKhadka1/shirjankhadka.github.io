@@ -349,6 +349,16 @@ body.d2 .d2-num { font-variant-numeric: tabular-nums; }
 .d2-pulse-title { font-size: 14px; color: var(--d2-ink); font-weight: 600; line-height: 1.5; min-width: 0; }
 .d2-pulse-title a { color: var(--d2-volt); font-weight: 700; white-space: nowrap; }
 .d2-pulse-title a:hover { text-decoration: underline; }
+/* 2026-10-02: paged tape — rows-per-page + Showing X–Y + Prev/Next;
+   steady min-height so the card doesn't jump between pages */
+.d2-pulse-tape { min-height: 420px; }
+.d2-pulse-pages { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--d2-hairline); }
+.d2-pulse-pages[hidden] { display: none; }
+.d2-pulse-rpp { font-size: 13px; color: var(--d2-muted); display: flex; align-items: center; gap: 8px; }
+.d2-pulse-rpp select { padding: 6px 10px; border: 1px solid var(--d2-hairline); border-radius: 8px; background: var(--d2-card); color: var(--d2-ink); font-size: 13px; }
+.d2-pulse-pageinfo { font-size: 13px; color: var(--d2-muted); font-variant-numeric: tabular-nums; }
+.d2-pulse-nav { display: flex; gap: 8px; margin-left: auto; }
+.d2-pulse-nav .d2-pill-btn:disabled { opacity: .45; cursor: default; }
 .d2-pulse-meta { font-size: 12.5px; color: var(--d2-muted); margin-top: 3px; }
 .d2-pulse-meta .d2-sym { color: var(--d2-volt); font-weight: 700; }
 

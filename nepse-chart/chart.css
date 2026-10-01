@@ -187,6 +187,16 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,su
 .nl-sh-pill.exit{background:#F9E2DC;color:#93331F}
 .nl-sh-pill.sexit{background:#B23A2E;color:#fff}
 .nl-sh-pill.insufficient{background:var(--ivory);color:var(--faint);border:1px dashed var(--hairline)}
+/* 2026-10-02: paged signal-history box — fixed height, rows move inside */
+.nl-sh-wrap{min-height:420px}
+.nl-sh-pages{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-top:12px;padding-top:12px;border-top:1px solid var(--hairline)}
+.nl-sh-rpp{font-size:.82rem;color:var(--muted);display:flex;align-items:center;gap:8px}
+.nl-sh-rpp select{padding:6px 10px;border:1px solid var(--hairline);border-radius:8px;background:var(--paper);color:var(--ink);font-size:.82rem}
+.nl-sh-pageinfo{font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.nl-sh-nav{display:flex;gap:8px;margin-left:auto}
+.nl-sh-pbtn{padding:8px 16px;border:1px solid var(--hairline);border-radius:8px;background:var(--paper);color:var(--ink);cursor:pointer;font-size:.85rem;font-weight:600}
+.nl-sh-pbtn:hover:not(:disabled){border-color:var(--ink)}
+.nl-sh-pbtn:disabled{opacity:.45;cursor:default}
 
 /* ---------- per-symbol news ---------- */
 .nl-news{margin:26px 0}
