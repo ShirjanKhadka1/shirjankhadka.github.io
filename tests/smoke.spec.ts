@@ -122,26 +122,7 @@ for (const width of WIDTHS) {
       await page.goto(p, { waitUntil: 'networkidle', timeout: 60000 });
       await page.waitForTimeout(1200);
       const sw = await page.evaluate(() => document.documentElement.scrollWidth);
-      if (sw > width + 1) {
-        // TEMP DEBUG (will revert): identify the overflowing element in CI
-        const culprits = await page.evaluate((vw) => {
-          const out: string[] = [];
-          const els = document.querySelectorAll('*');
-          for (const el of els) {
-            const r = (el as HTMLElement).getBoundingClientRect();
-            if (r.right > vw + 1 || r.left < -1) {
-              const tag = (el as HTMLElement).tagName;
-              const id = (el as HTMLElement).id ? `#${(el as HTMLElement).id}` : '';
-              const cls = (el as HTMLElement).className && typeof (el as HTMLElement).className === 'string'
-                ? `.${(el as HTMLElement).className.split(' ').slice(0, 2).join('.')}` : '';
-              out.push(`${tag}${id}${cls} right=${Math.round(r.right)} w=${Math.round(r.width)}`);
-              if (out.length >= 5) break;
-            }
-          }
-          return out;
-        }, width);
-        bad.push(`${p}: scrollWidth=${sw} culprits=[${culprits.join(' | ')}]`);
-      }
+      if (sw > width + 1) bad.push(`${p}: scrollWidth=${sw}`);
     }
     await page.close();
     expect(bad, `horizontal overflow at ${width}px`).toEqual([]);
