@@ -13,3 +13,11 @@ __pycache__/
 tests/node_modules/
 tests/test-results/
 tests/playwright-report/
+
+# Secrets and credentials (S0 finding 8 — never commit)
+.env*
+!.env.example
+*.pem
+*.key
+credentials*
+*secret*
