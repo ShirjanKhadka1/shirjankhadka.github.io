@@ -21,9 +21,6 @@ on:
     - cron: '15 0 * * *'   # 06:00 NPT daily
     - cron: '15 12 * * *'  # 18:00 NPT daily
   # TEMPORARY (pre-merge proof only — remove before merge): GitHub cannot
-  # workflow_dispatch workflows that exist only on a PR branch, so this trigger
-  # lets PR #37's own runs prove this workflow in dry-run mode.
-  pull_request:
   workflow_dispatch:
     inputs:
       dry_run:

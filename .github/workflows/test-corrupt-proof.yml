@@ -1,0 +1,163 @@
+# PROOF ONLY — deliberate-corruption deploy gate test (Phase 1 pre-merge evidence)
+#
+# TEMPORARY. DELETE BEFORE MERGE (remove this file from the PR branch).
+#
+# Controlled experiment, runner workspace only:
+#   1. validate pristine checkout (baseline gates)
+#   2. DELIBERATELY corrupt one quote (LTP = -5) in the runner workspace
+#      — never committed, never pushed
+#   3. validate again -> must FAIL, with price-sanity going PASS -> FAIL
+#   4. auto-rollback to a local-only tag -> verify byte-identical restore
+#   5. send the [NEPSE ALERT] email with the exact subject pattern
+#   6. exit 1 (deploy blocked — structurally there is no deploy step after)
+#
+# Nothing in this workflow commits, tags (remotely), or pushes.
+
+name: Proof — corruption blocks deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (no commits, no pushes — always true for proof)'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: proof-corrupt-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DRY_RUN: ${{ inputs.dry_run == true || vars.DRY_RUN != 'false' }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '20'
+
+      - name: Baseline — validate pristine checkout
+        id: baseline
+        run: |
+          set +e
+          node tools/validate-build.js --session="2026-09-30" > /tmp/validate.before 2>&1
+          echo "baseline_exit=$?" >> "$GITHUB_OUTPUT"
+          grep -E "^(PASS|FAIL)" /tmp/validate.before | tee /tmp/gates.before
+          sha256sum nepse-chart/data/live.json > /tmp/quotes.before
+          cat /tmp/quotes.before
+
+      - name: Create local-only rollback tag (never pushed)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag data-2026-09-30-99
+          echo "local tag created: $(git tag --list 'data-2026-09-30-99')"
+
+      - name: DELIBERATE CORRUPTION (runner workspace only)
+        run: |
+          node -e "
+            const fs = require('fs');
+            const p = 'nepse-chart/data/live.json';
+            const live = JSON.parse(fs.readFileSync(p, 'utf8'));
+            const keys = Object.keys(live.quotes || {});
+            if (!keys.length) { console.error('no quotes found'); process.exit(1); }
+            const k = keys[0];
+            live.quotes[k].ltp = -5;
+            fs.writeFileSync(p, JSON.stringify(live));
+            console.log('CORRUPTED: ' + (live.quotes[k].symbol || k) + ' LTP set to -5 (workspace only, uncommitted)');
+          "
+          git status --short -- nepse-chart/data/live.json
+
+      - name: Validate corrupted data (must FAIL)
+        id: corrupted
+        run: |
+          set +e
+          node tools/validate-build.js --session="2026-09-30" > /tmp/validate.after 2>&1
+          echo "corrupted_exit=$?" >> "$GITHUB_OUTPUT"
+          grep -E "^(PASS|FAIL)" /tmp/validate.after | tee /tmp/gates.after
+
+      - name: Assert price-sanity went PASS -> FAIL
+        run: |
+          before=$(grep "^price-sanity" /tmp/gates.before || echo "price-sanity MISSING-BEFORE")
+          after=$(grep "^price-sanity" /tmp/gates.after || echo "price-sanity MISSING-AFTER")
+          echo "before: $before"
+          echo "after:  $after"
+          case "$before" in PASS*) ok_before=true;; *) ok_before=false;; esac
+          case "$after" in FAIL*) ok_after=true;; *) ok_after=false;; esac
+          if [ "$ok_before" = true ] && [ "$ok_after" = true ]; then
+            echo "PROOF: deliberate corruption flipped price-sanity PASS -> FAIL"
+          else
+            echo "::error::expected price-sanity PASS->FAIL, got before=[$before] after=[$after]"
+            exit 1
+          fi
+          if [ "${{ steps.corrupted.outputs.corrupted_exit }}" = "0" ]; then
+            echo "::error::validator exited 0 on corrupted data — gate broken"
+            exit 1
+          fi
+          echo "PROOF: validator exit code non-zero on corrupted data (deploy blocked)"
+
+      - name: Auto-rollback to local tag, verify byte-identical
+        run: |
+          node tools/rollback-data.js data-2026-09-30-99
+          sha256sum nepse-chart/data/live.json > /tmp/quotes.after
+          cat /tmp/quotes.after
+          if diff -q /tmp/quotes.before /tmp/quotes.after > /dev/null; then
+            echo "PROOF: rollback restored live.json byte-identical to pre-corruption"
+          else
+            echo "::error::rollback did not restore the file byte-identically"
+            diff /tmp/quotes.before /tmp/quotes.after | head -5
+            exit 1
+          fi
+
+      - name: Email alert — exact subject pattern
+        uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7 # pinned
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          secure: false
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "[NEPSE ALERT] market-close-proof: validation failed on deliberately corrupted data — deploy blocked, rolled back"
+          to: ${{ secrets.ALERT_EMAIL_TO }}
+          from: ${{ secrets.MAIL_USERNAME }}
+          body: |
+            CONTROLLED PROOF — no production data was touched.
+
+            Deliberately corrupted market data (one quote LTP set to -5 in the
+            runner workspace only, never committed) FAILED validate-build.js:
+            price-sanity went PASS -> FAIL, validator exited non-zero.
+
+            The deploy was BLOCKED (no deploy step runs after a failed
+            validation), and tools/rollback-data.js restored the file
+            byte-identical to its pre-corruption state.
+
+            Subject pattern verified: [NEPSE ALERT] <job>: <what failed>
+
+            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+      - name: Confirm nothing was committed or pushed
+        run: |
+          echo "--- git status (workspace):"
+          git status --short | head -10
+          echo "--- recent commits (should show no new commits):"
+          git log --oneline -3
+          echo "--- tags created (local only, not pushed):"
+          git tag --list 'data-2026-09-30-99'
+          echo "PROOF: no commits, no pushes — nothing reached any branch"
+
+      - name: Fail the job (deploy blocked, as designed)
+        run: |
+          echo "## Proof complete: corruption blocked the deploy"
+          echo ""
+          echo "price-sanity PASS -> FAIL, validator exit non-zero, rollback byte-identical,"
+          echo "alert email sent, nothing committed or pushed."
+          exit 1

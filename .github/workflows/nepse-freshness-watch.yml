@@ -19,9 +19,6 @@ on:
   schedule:
     - cron: '30 11 * * 1-5'  # 17:15 NPT Mon-Fri
   # TEMPORARY (pre-merge proof only — remove before merge): GitHub cannot
-  # workflow_dispatch workflows that exist only on a PR branch, so this trigger
-  # lets PR #37's own runs prove this workflow in dry-run mode.
-  pull_request:
   workflow_dispatch: {}
 
 permissions:

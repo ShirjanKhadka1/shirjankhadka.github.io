@@ -34,9 +34,6 @@ on:
     - cron: '25 10 * * 1-5'  # 16:10 NPT retry
     - cron: '15 11 * * 1-5'  # 17:00 NPT retry
   # TEMPORARY (pre-merge proof only — remove before merge): GitHub cannot
-  # workflow_dispatch workflows that exist only on a PR branch, so this trigger
-  # lets PR #37's own runs prove this workflow in dry-run mode.
-  pull_request:
   workflow_dispatch:
     inputs:
       session:
