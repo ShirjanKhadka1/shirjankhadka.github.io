@@ -3,6 +3,9 @@ name: NEPSE intraday floorsheet
 # Polls the official NEPSE floorsheet endpoint during market hours and publishes
 # nepse-brokers/data/intraday.json for the Broker Analytics "Latest" view.
 # Near-real-time polling (5 min), not exchange-grade streaming.
+#
+# Failure alerts: email via SMTP (pinned SHA), never Facebook.
+# Needs repo secrets MAIL_USERNAME, MAIL_PASSWORD, ALERT_EMAIL_TO.
 
 on:
   schedule:
@@ -13,14 +16,32 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: nepse-intraday-floorsheet
+  cancel-in-progress: false
+
 jobs:
   floorsheet:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+
+      - name: Alerting pre-check
+        run: |
+          missing=""
+          [ -n "${{ secrets.MAIL_USERNAME }}" ] || missing="$missing MAIL_USERNAME"
+          [ -n "${{ secrets.MAIL_PASSWORD }}" ] || missing="$missing MAIL_PASSWORD"
+          [ -n "${{ secrets.ALERT_EMAIL_TO }}" ] || missing="$missing ALERT_EMAIL_TO"
+          if [ -n "$missing" ]; then
+            echo "::warning::Failure emails are SILENT — missing repo secrets:$missing (Settings → Secrets → Actions)"
+          else
+            echo "alert email configured"
+          fi
+
       - name: Fetch intraday floorsheet
         run: node tools/fetch-intraday-floorsheet.js
       - name: Commit if changed
@@ -28,5 +49,34 @@ jobs:
           git config user.name "nepse-bot"
           git config user.email "nepse-bot@shirjankhadka.com.np"
           git add nepse-brokers/data/intraday.json
-          git diff --cached --quiet || git commit -m "intraday floorsheet snapshot"
-          git push
+          git diff --cached --quiet && echo "intraday.json unchanged — nothing to commit" && exit 0
+          git commit -m "intraday floorsheet snapshot"
+          git pull --rebase origin main
+          git push origin main
+      - name: Email alert — floorsheet poller failed
+        if: failure()
+        uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7
+        with:
+          server_address: smtp-relay.brevo.com
+          server_port: 587
+          secure: false
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "[NEPSE ALERT] floorsheet: intraday poller failed"
+          to: ${{ secrets.ALERT_EMAIL_TO }}
+          from: ${{ secrets.MAIL_USERNAME }}
+          body: |
+            The NEPSE intraday floorsheet poller FAILED
+            (fetch error, commit/push conflict, or infrastructure).
+
+            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+      - name: Job summary (on failure)
+        if: failure()
+        run: |
+          {
+            echo "## Intraday floorsheet: FAILED"
+            echo ""
+            echo "- The 5-minute poller failed (fetch error, commit/push conflict, or infrastructure)."
+            echo "- Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          } >> "$GITHUB_STEP_SUMMARY"

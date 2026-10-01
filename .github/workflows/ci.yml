@@ -1,0 +1,190 @@
+# CI — quality gates (Phase 1, honest mode)
+#
+# Playwright smoke tests + axe ratchet + internal link check + visual
+# regression + Lighthouse + gitleaks, all on GitHub runners.
+# Runs on every push to main, on PRs, and nightly.
+#
+# HONEST MODE: no `|| true` anywhere — tool failures fail the run.
+# Lighthouse budgets stay warn-level for the baseline (numbers land in
+# artifacts); every other gate is hard.
+# Artifacts: smoke report, axe results, link-check log, visual diffs,
+# lighthouse reports (3 runs/page, median).
+
+name: CI quality gates
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '0 1 * * *'  # nightly baseline
+  workflow_dispatch:
+    inputs:
+      update_snapshots:
+        description: 'Regenerate visual baselines on this branch (review the diff — never blind-update)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gitleaks:
+    name: Secret scan (full history)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Gitleaks full-history scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install test deps
+        working-directory: tests
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        working-directory: tests
+        run: npx playwright install chromium --with-deps
+
+      - name: Serve site
+        run: |
+          (python3 -m http.server 8080 >/tmp/http.log 2>&1 &)
+          sleep 2
+          curl -sf -o /dev/null http://localhost:8080/
+
+      - name: Internal link check (zero broken links)
+        run: node tests/link-check.js
+
+      - name: Playwright smoke tests
+        working-directory: tests
+        run: npx playwright test smoke.spec.ts
+        env:
+          BASE_URL: http://localhost:8080
+
+      - name: Visual regression (8 pages, desktop + mobile)
+        working-directory: tests
+        run: |
+          if [ "${{ inputs.update_snapshots }}" = "true" ]; then
+            npx playwright test visual.spec.ts --update-snapshots
+          else
+            npx playwright test visual.spec.ts
+          fi
+        env:
+          BASE_URL: http://localhost:8080
+
+      - name: Upload regenerated baselines (manual dispatch)
+        if: inputs.update_snapshots == 'true' && github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-baselines-${{ github.run_number }}
+          path: tests/__snapshots__/
+          retention-days: 30
+
+      - name: Axe ratchet (fail on new/worsened violations)
+        working-directory: tests
+        run: node axe-scan.js
+        env:
+          BASE_URL: http://localhost:8080
+
+      - name: Lighthouse (mobile, 3 runs per URL)
+        run: |
+          mkdir -p lhci-out
+          for page in "" "nepse-decode/" "nepse-chart/" "nepse-screener/" "nepse-trending/" "nepse-value/" "nepse-brokers/" "blog/"; do
+            slug=$(echo "$page" | tr '/' '_' | sed 's/_$//'); [ -z "$slug" ] && slug=home
+            for i in 1 2 3; do
+              ok=false
+              for attempt in 1 2; do
+                if npx --yes lighthouse@12 "http://localhost:8080/$page" \
+                  --output=json \
+                  --output-path="lhci-out/${slug}-run${i}" \
+                  --chrome-flags="--headless --no-sandbox" \
+                  --quiet; then ok=true; break; fi
+                echo "lighthouse $slug run $i attempt $attempt failed — retrying once"
+                sleep 5
+              done
+              if [ "$ok" != "true" ]; then echo "::error::lighthouse failed twice for $page"; exit 1; fi
+            done
+          done
+
+      - name: Summarize Lighthouse medians (budgets WARN-level)
+        run: |
+          node -e "
+            const fs = require('fs');
+            const pages = {};
+            for (const f of fs.readdirSync('lhci-out').filter(f => f.endsWith('.json'))) {
+              const m = f.match(/^(.*)-run([123])\.report\.json$/); if (!m) continue;
+              (pages[m[1]] = pages[m[1]] || []).push(JSON.parse(fs.readFileSync('lhci-out/' + f, 'utf8')));
+            }
+            const med = (a) => a.slice().sort((x, y) => x - y)[Math.floor(a.length / 2)];
+            const out = {};
+            for (const [slug, runs] of Object.entries(pages)) {
+              const cat = (r, c) => r.categories[c].score;
+              const aud = (r, id) => r.audits[id] ? r.audits[id].numericValue : null;
+              out[slug] = {
+                performance: +med(runs.map(r => cat(r, 'performance'))).toFixed(2),
+                accessibility: +med(runs.map(r => cat(r, 'accessibility'))).toFixed(2),
+                best_practices: +med(runs.map(r => cat(r, 'best-practices'))).toFixed(2),
+                seo: +med(runs.map(r => cat(r, 'seo'))).toFixed(2),
+                LCP_ms: Math.round(med(runs.map(r => aud(r, 'largest-contentful-paint')))),
+                TBT_ms: Math.round(med(runs.map(r => aud(r, 'total-blocking-time')))),
+                CLS: +med(runs.map(r => aud(r, 'cumulative-layout-shift'))).toFixed(3),
+              };
+            }
+            fs.writeFileSync('lhci-out/baseline-summary.json', JSON.stringify(out, null, 2));
+            console.log(JSON.stringify(out, null, 2));
+            // warn-level budgets (Phase 1): report, do not fail
+            const warns = [];
+            for (const [slug, s] of Object.entries(out)) {
+              if (s.performance < 0.9) warns.push(slug + ': performance ' + s.performance + ' < 0.90');
+              if (s.LCP_ms > 2000) warns.push(slug + ': LCP ' + s.LCP_ms + 'ms > 2000ms');
+              if (s.CLS > 0.05) warns.push(slug + ': CLS ' + s.CLS + ' > 0.05');
+              if (s.accessibility < 0.95) warns.push(slug + ': accessibility ' + s.accessibility + ' < 0.95');
+            }
+            if (warns.length) {
+              console.log('::warning::Lighthouse budgets (warn-level):');
+              warns.forEach(w => console.log('::warning::  ' + w));
+            } else console.log('all Lighthouse budgets met');
+          "
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-${{ github.run_number }}
+          path: |
+            tests/smoke-report.json
+            tests/axe-results.json
+            lhci-out/
+            tests/test-results/
+          retention-days: 30
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## CI quality gates"
+            echo ""
+            echo "- Link check, smoke tests, visual regression, axe ratchet: see job steps (hard gates)"
+            echo "- Lighthouse budgets are warn-level in Phase 1 — medians in \`lhci-out/baseline-summary.json\`"
+            echo "- Gitleaks: full-history secret scan"
+          } >> "$GITHUB_STEP_SUMMARY"

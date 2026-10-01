@@ -1,0 +1,177 @@
+# NEPSE content pipeline (Phase 1)
+#
+# Daily at 06:00 and 18:00 NPT (00:15 / 12:15 UTC), every day.
+# Refreshes: market news, announcements, corporate actions, actions archive
+# page, sitemap. Also runs the staleness sentinel: if the market data is more
+# than one trading day behind the expected session, emails an alert.
+#
+# Alerts: email via SMTP (dawidd6/action-send-mail pinned to commit SHA),
+# subject "[NEPSE ALERT] content: ...", plus an Actions job summary.
+# NEVER Facebook for failures. Needs repo secrets MAIL_USERNAME, MAIL_PASSWORD
+# (Brevo SMTP key), ALERT_EMAIL_TO.
+
+name: NEPSE content pipeline
+
+on:
+  schedule:
+    - cron: '15 0 * * *'   # 06:00 NPT daily
+    - cron: '15 12 * * *'  # 18:00 NPT daily
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nepse-content
+  cancel-in-progress: false
+
+jobs:
+  content:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Alerting pre-check
+        run: |
+          missing=""
+          [ -n "${{ secrets.MAIL_USERNAME }}" ] || missing="$missing MAIL_USERNAME"
+          [ -n "${{ secrets.MAIL_PASSWORD }}" ] || missing="$missing MAIL_PASSWORD"
+          [ -n "${{ secrets.ALERT_EMAIL_TO }}" ] || missing="$missing ALERT_EMAIL_TO"
+          if [ -n "$missing" ]; then
+            echo "::warning::Failure emails are SILENT — missing repo secrets:$missing (Settings → Secrets → Actions)"
+          else
+            echo "alert email configured"
+          fi
+
+      - name: Refresh news + announcements + corporate actions
+        run: |
+          node tools/build-nepse-news.js
+          node tools/build-announcements.js
+          node tools/collect-corporate-actions.js
+          node tools/build-actions-page.js
+          node tools/build-sitemap.js
+
+      - name: Staleness sentinel
+        id: stale
+        run: |
+          node -e "
+            const fs = require('fs');
+            const td = require('./tools/trading-days');
+            const m = JSON.parse(fs.readFileSync('data/manifest.json', 'utf8'));
+            const expected = td.expectedSessionDate(new Date());
+            // count trading days between manifest session and expected
+            let d = m.session_date, behind = 0;
+            while (d < expected && behind < 10) { d = td.nextTradingDay(d); if (d <= expected) behind++; }
+            console.log('manifest_session=' + m.session_date + ' expected=' + expected + ' behind=' + behind);
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, 'behind=' + behind + '\n');
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, 'session=' + m.session_date + '\n');
+          "
+
+      - name: Email alert — stale market data
+        if: steps.stale.outputs.behind > 1
+        uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7
+        with:
+          server_address: smtp-relay.brevo.com
+          server_port: 587
+          secure: false
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "[NEPSE ALERT] content: market data stale (session ${{ steps.stale.outputs.session }}, ${{ steps.stale.outputs.behind }} sessions behind)"
+          to: ${{ secrets.ALERT_EMAIL_TO }}
+          from: ${{ secrets.MAIL_USERNAME }}
+          body: |
+            The market data is STALE: manifest session is ${{ steps.stale.outputs.session }},
+            ${{ steps.stale.outputs.behind }} trading days behind the expected session.
+            The market-close pipeline may have failed — check /status/.
+
+            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            Status page: https://shirjankhadka.com.np/status/
+
+      - name: Write manifest + validate
+        id: validate
+        run: |
+          node tools/build-manifest.js
+          if node tools/validate-build.js; then
+            echo "valid=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "valid=false" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          BUILD_COMMIT: ${{ github.sha }}
+
+      - name: Validation FAILED — record, alert, block deploy
+        if: steps.validate.outputs.valid == 'false'
+        run: |
+          node tools/record-job.js content failed "validation gates failed — deploy blocked"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add nepse-chart/data/jobs.json nepse-chart/data/validation.json
+          git commit -m "content: validation FAILED (deploy blocked)"
+          git pull --rebase origin main
+          git push origin main
+          {
+            echo "## Content: VALIDATION FAILED (deploy blocked)"
+            echo ""
+            echo "- Failed gates:"
+            node -e "
+              const v = require('./nepse-chart/data/validation.json');
+              for (const g of v.gates.filter(g => !g.pass)) console.log('  - ' + g.gate + ': ' + g.detail);
+            "
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 1
+
+      - name: Email alert — content validation failed
+        if: failure() && steps.validate.outputs.valid == 'false'
+        uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7
+        with:
+          server_address: smtp-relay.brevo.com
+          server_port: 587
+          secure: false
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "[NEPSE ALERT] content: validation failed, deploy blocked"
+          to: ${{ secrets.ALERT_EMAIL_TO }}
+          from: ${{ secrets.MAIL_USERNAME }}
+          body: |
+            The NEPSE content pipeline validation FAILED. The deploy was blocked;
+            only the failure record was committed. Failed gates are in the job summary.
+
+            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            Status page: https://shirjankhadka.com.np/status/
+
+      - name: Commit content refresh
+        if: steps.validate.outputs.valid == 'true'
+        run: |
+          node tools/record-job.js content success "news/announcements/actions refreshed"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add nepse-chart/data data nepse-actions sitemap.xml
+          git diff --cached --quiet && echo "no changes" && exit 0
+          git commit -m "content: news/announcements/actions refresh (validated)"
+          git pull --rebase origin main
+          git push origin main
+          echo "## Content: refreshed OK" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Email alert — job failed
+        if: failure() && steps.validate.outputs.valid != 'false'
+        uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7
+        with:
+          server_address: smtp-relay.brevo.com
+          server_port: 587
+          secure: false
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "[NEPSE ALERT] content: job failed (not a validation failure)"
+          to: ${{ secrets.ALERT_EMAIL_TO }}
+          from: ${{ secrets.MAIL_USERNAME }}
+          body: |
+            The NEPSE content pipeline job FAILED outside validation
+            (fetch/build error, push conflict, or infrastructure).
+
+            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            Status page: https://shirjankhadka.com.np/status/

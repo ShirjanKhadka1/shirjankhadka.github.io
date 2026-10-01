@@ -8,6 +8,9 @@
 # any error -> exit 0 WITHOUT touching live.json, so the site keeps serving
 # the last good snapshot and falls back to the community feed. Commits only
 # when live.json actually changed.
+#
+# Failure alerts: email via SMTP (pinned SHA), never Facebook.
+# Needs repo secrets MAIL_USERNAME, MAIL_PASSWORD, ALERT_EMAIL_TO.
 
 name: Refresh NEPSE live quotes
 
@@ -22,15 +25,32 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: nepse-live-quotes
+  cancel-in-progress: false
+
 jobs:
   live:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: 20
+
+      - name: Alerting pre-check
+        run: |
+          missing=""
+          [ -n "${{ secrets.MAIL_USERNAME }}" ] || missing="$missing MAIL_USERNAME"
+          [ -n "${{ secrets.MAIL_PASSWORD }}" ] || missing="$missing MAIL_PASSWORD"
+          [ -n "${{ secrets.ALERT_EMAIL_TO }}" ] || missing="$missing ALERT_EMAIL_TO"
+          if [ -n "$missing" ]; then
+            echo "::warning::Failure emails are SILENT — missing repo secrets:$missing (Settings → Secrets → Actions)"
+          else
+            echo "alert email configured"
+          fi
 
       - name: Fetch official live quotes
         run: node tools/fetch-nepse-live.js
@@ -46,14 +66,49 @@ jobs:
             else
               git commit -m "Alpha Lab: live quote snapshot (automated)"
               # Pull first in case a deployment moved remote main, then push with retry
-              git pull --rebase origin main || true
+              git pull --rebase origin main
+              pushed=false
               for i in 1 2 3; do
-                git push && break
+                if git push origin main; then pushed=true; break; fi
                 echo "Push attempt $i failed, retrying after pull..."
-                git pull --rebase origin main || true
+                git pull --rebase origin main
                 sleep 5
               done
+              if [ "$pushed" != "true" ]; then
+                echo "::error::git push failed after 3 attempts"
+                exit 1
+              fi
             fi
           else
             echo "live.json absent (market closed or fetch skipped) — nothing to commit"
           fi
+
+      - name: Email alert — live quotes failed
+        if: failure()
+        uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7
+        with:
+          server_address: smtp-relay.brevo.com
+          server_port: 587
+          secure: false
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "[NEPSE ALERT] live-quotes: refresh failed"
+          to: ${{ secrets.ALERT_EMAIL_TO }}
+          from: ${{ secrets.MAIL_USERNAME }}
+          body: |
+            The NEPSE live-quotes refresh FAILED
+            (fetch error, commit/push conflict, or infrastructure).
+            The site keeps serving the last good snapshot.
+
+            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+      - name: Job summary (on failure)
+        if: failure()
+        run: |
+          {
+            echo "## Live quotes: FAILED"
+            echo ""
+            echo "- The live-quotes refresh failed (fetch error, commit/push conflict, or infrastructure)."
+            echo "- The site keeps serving the last good snapshot."
+            echo "- Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          } >> "$GITHUB_STEP_SUMMARY"

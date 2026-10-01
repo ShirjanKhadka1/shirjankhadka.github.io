@@ -1,0 +1,326 @@
+# NEPSE market-close pipeline (Phase 1)
+#
+# Mon-Fri at 15:20 NPT (09:35 UTC), retries 16:10 (10:25 UTC) and 17:00 (11:15 UTC).
+# NEPSE trades Mon-Fri, 11:00-15:00 NPT.
+#
+# Flow: trading-day check -> idempotency check -> fetch/build ->
+#   source-session check ->
+#     new session at source: manifest (canonical: data/manifest.json) -> VALIDATE ->
+#       pass: atomic single commit to main + data tag -> push
+#       fail: AUTO-ROLLBACK to last good data-* tag -> email alert -> job fails
+#     NO new session at source (after the FINAL retry only): treat as market
+#       closed (unlisted holiday suspected) -> low-priority [NEPSE NOTICE]
+#       email, job recorded as skipped, NO failure alert, no deploy
+#     NO new session at source (earlier retries): quiet end — the next retry
+#       handles it, so slow NEPSE publishing never raises a false alarm
+#
+# Validation/job results are committed even on failure so /status/ reflects reality.
+# Manual rollback: dispatch with rollback_to_tag=data-YYYY-MM-DD-N (format validated).
+#
+# Alerts: email via SMTP (dawidd6/action-send-mail pinned to commit SHA),
+# subject "[NEPSE ALERT] market-close: ...", plus an Actions job summary.
+# NEVER Facebook for failures. Needs repo secrets MAIL_USERNAME, MAIL_PASSWORD
+# (Brevo SMTP key), ALERT_EMAIL_TO.
+
+name: NEPSE market-close pipeline
+
+on:
+  schedule:
+    - cron: '35 9 * * 1-5'   # 15:20 NPT Mon-Fri
+    - cron: '25 10 * * 1-5'  # 16:10 NPT retry
+    - cron: '15 11 * * 1-5'  # 17:00 NPT retry
+  workflow_dispatch:
+    inputs:
+      session:
+        description: 'Override session date (YYYY-MM-DD)'
+        required: false
+      rollback_to_tag:
+        description: 'Rollback data files to tag (data-YYYY-MM-DD-N)'
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nepse-market-close
+  cancel-in-progress: false
+
+jobs:
+  close:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Alerting pre-check
+        run: |
+          missing=""
+          [ -n "${{ secrets.MAIL_USERNAME }}" ] || missing="$missing MAIL_USERNAME"
+          [ -n "${{ secrets.MAIL_PASSWORD }}" ] || missing="$missing MAIL_PASSWORD"
+          [ -n "${{ secrets.ALERT_EMAIL_TO }}" ] || missing="$missing ALERT_EMAIL_TO"
+          if [ -n "$missing" ]; then
+            echo "::warning::Failure emails are SILENT — missing repo secrets:$missing (Settings → Secrets → Actions)"
+          else
+            echo "alert email configured"
+          fi
+
+      - name: Trading-day check
+        id: trading
+        run: |
+          node -e "
+            const td = require('./tools/trading-days');
+            const now = new Date();
+            const today = td.todayNPT(now);
+            const trading = td.isTradingDay(today);
+            console.log('today=' + today + ' trading_day=' + trading + ' expected_session=' + td.expectedSessionDate(now));
+            require('fs').appendFileSync(process.env.GITHUB_OUTPUT, 'trading=' + trading + '\n');
+            require('fs').appendFileSync(process.env.GITHUB_OUTPUT, 'session=' + (process.env.SESSION_OVERRIDE || td.expectedSessionDate(now)) + '\n');
+          "
+        env:
+          SESSION_OVERRIDE: ${{ inputs.session }}
+
+      - name: Manual rollback to tag
+        if: inputs.rollback_to_tag != ''
+        run: |
+          TAG="${{ inputs.rollback_to_tag }}"
+          node tools/rollback-data.js "$TAG"
+          node tools/record-job.js market-close success "manual rollback to $TAG" --session="${{ steps.trading.outputs.session }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add nepse-chart/data data
+          git commit -m "market-close: manual rollback data to $TAG"
+          git pull --rebase origin main
+          git push origin main
+          echo "## Market-close: manual rollback to \`$TAG\`" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Idempotency check (skip if this session already done)
+        id: idem
+        if: inputs.rollback_to_tag == ''
+        run: |
+          node -e "
+            const fs = require('fs');
+            const td = require('./tools/trading-days');
+            let done = false;
+            try {
+              const jobs = JSON.parse(fs.readFileSync('nepse-chart/data/jobs.json', 'utf8'));
+              const j = jobs['market-close'];
+              const today = td.todayNPT(new Date());
+              done = !!(j && j.status === 'success' && j.session_date === '${{ steps.trading.outputs.session }}' && String(j.ran_at_npt).startsWith(today));
+            } catch (e) {}
+            console.log('already_done=' + done);
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, 'done=' + done + '\n');
+          "
+
+      - name: Skip — not a trading day
+        if: steps.trading.outputs.trading != 'true' && inputs.rollback_to_tag == ''
+        run: |
+          node tools/record-job.js market-close skipped "not a trading day (weekend/holiday)" --session="${{ steps.trading.outputs.session }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add nepse-chart/data/jobs.json
+          git diff --cached --quiet || git commit -m "market-close: skipped (non-trading day)"
+          git pull --rebase origin main
+          git push origin main
+          echo "## Market-close: skipped (non-trading day)" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fetch + build market data
+        if: steps.trading.outputs.trading == 'true' && steps.idem.outputs.done != 'true' && inputs.rollback_to_tag == ''
+        run: |
+          node tools/build-nepse-universe.js
+          node tools/build-nepse-wave1.js
+          node tools/build-nepse-news.js
+          node tools/collect-corporate-actions.js
+          node tools/build-symbol-pages.js
+          node tools/build-actions-page.js
+          node tools/update-index-history.js
+          node tools/build-sitemap.js
+          node tools/prerender-freshness.js
+
+      - name: Source session check (new session at source?)
+        id: srcsess
+        if: steps.trading.outputs.trading == 'true' && steps.idem.outputs.done != 'true' && inputs.rollback_to_tag == ''
+        run: node tools/check-source-session.js --session="${{ steps.trading.outputs.session }}"
+
+      - name: Write manifest (canonical data/manifest.json)
+        if: steps.trading.outputs.trading == 'true' && steps.idem.outputs.done != 'true' && inputs.rollback_to_tag == '' && steps.srcsess.outputs.new_session == 'true'
+        run: node tools/build-manifest.js
+        env:
+          BUILD_COMMIT: ${{ github.sha }}
+
+      - name: Validate build (hard gates)
+        id: validate
+        if: steps.trading.outputs.trading == 'true' && steps.idem.outputs.done != 'true' && inputs.rollback_to_tag == '' && steps.srcsess.outputs.new_session == 'true'
+        run: |
+          if node tools/validate-build.js --session="${{ steps.trading.outputs.session }}"; then
+            echo "valid=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "valid=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Final retry — no new session, treat as market closed
+        id: notice
+        if: steps.trading.outputs.trading == 'true' && steps.idem.outputs.done != 'true' && inputs.rollback_to_tag == '' && steps.srcsess.outputs.new_session == 'false' && (github.event.schedule == '15 11 * * 1-5' || github.event_name == 'workflow_dispatch')
+        run: |
+          SESSION="${{ steps.trading.outputs.session }}"
+          DATA_SESSION="${{ steps.srcsess.outputs.data_session }}"
+          node tools/record-job.js market-close skipped "no new session at source after final retry — treated as market closed (unlisted holiday suspected); data session $DATA_SESSION" --session="$SESSION"
+          node tools/build-manifest.js
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add nepse-chart/data/jobs.json data/manifest.json nepse-chart/data/manifest.json
+          git diff --cached --quiet || git commit -m "market-close: no new session for $SESSION — treated as market closed (notice)"
+          git pull --rebase origin main
+          git push origin main
+          {
+            echo "## Market-close: no new session at source (treated as market closed)"
+            echo ""
+            echo "- Expected session: \`$SESSION\`"
+            echo "- Data session: \`$DATA_SESSION\`"
+            echo "- This is a LOW-PRIORITY notice, not a failure alert."
+            echo "- If the market was genuinely open today, add the date to tools/nepse-holidays.json and check the source fetchers."
+          } >> "$GITHUB_STEP_SUMMARY"
+        env:
+          SESSION_OVERRIDE: ${{ steps.srcsess.outputs.data_session }}
+          BUILD_COMMIT: ${{ github.sha }}
+
+      - name: Email notice — no new session (market closed)
+        if: steps.notice.outcome == 'success'
+        uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7
+        with:
+          server_address: smtp-relay.brevo.com
+          server_port: 587
+          secure: false
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "[NEPSE NOTICE] market-close: no new session for ${{ steps.trading.outputs.session }} — treated as market closed"
+          to: ${{ secrets.ALERT_EMAIL_TO }}
+          from: ${{ secrets.MAIL_USERNAME }}
+          body: |
+            LOW-PRIORITY NOTICE (not a failure):
+
+            After the final retry, the NEPSE source published no new session for
+            ${{ steps.trading.outputs.session }} (data is at ${{ steps.srcsess.outputs.data_session }}).
+            The day was treated as MARKET CLOSED — likely an unlisted public holiday
+            missing from tools/nepse-holidays.json.
+
+            Nothing was deployed and no failure alert was raised. If the market was
+            genuinely open today, add the date to tools/nepse-holidays.json and
+            check the source fetchers.
+
+            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            Status page: https://shirjankhadka.com.np/status/
+
+      - name: Auto-rollback to last good tag
+        id: rollback
+        if: steps.validate.outputs.valid == 'false'
+        run: |
+          TAG=$(git tag --list 'data-*' --sort=-creatordate | head -n1)
+          if [ -z "$TAG" ]; then
+            echo "::error::Validation failed and no data-* tag exists — nothing to roll back to. Manual intervention required."
+            exit 1
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          node tools/rollback-data.js "$TAG"
+          node tools/record-job.js market-close failed "validation failed for session ${{ steps.trading.outputs.session }} — auto-rolled back to $TAG" --session="${{ steps.trading.outputs.session }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add nepse-chart/data data
+          git commit -m "market-close: AUTO-ROLLBACK to $TAG after validation failure (session ${{ steps.trading.outputs.session }})"
+          git pull --rebase origin main
+          git push origin main
+
+      - name: Email alert — validation failed, auto-rolled back
+        if: steps.validate.outputs.valid == 'false'
+        uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7
+        with:
+          server_address: smtp-relay.brevo.com
+          server_port: 587
+          secure: false
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "[NEPSE ALERT] market-close: validation failed for ${{ steps.trading.outputs.session }}, auto-rolled back to ${{ steps.rollback.outputs.tag }}"
+          to: ${{ secrets.ALERT_EMAIL_TO }}
+          from: ${{ secrets.MAIL_USERNAME }}
+          body: |
+            The NEPSE market-close pipeline validation FAILED for session ${{ steps.trading.outputs.session }}.
+            The deploy was blocked and data was automatically rolled back to ${{ steps.rollback.outputs.tag }} (last known good).
+
+            Failed gates are in the job summary below. The invalid build was never deployed.
+
+            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            Status page: https://shirjankhadka.com.np/status/
+
+      - name: Fail the job (validation)
+        if: steps.validate.outputs.valid == 'false'
+        run: |
+          {
+            echo "## Market-close: VALIDATION FAILED (deploy blocked)"
+            echo ""
+            echo "- Session: \`${{ steps.trading.outputs.session }}\`"
+            echo "- Auto-rollback to: \`${{ steps.rollback.outputs.tag }}\`"
+            echo "- Failed gates:"
+            node -e "
+              const v = require('./nepse-chart/data/validation.json');
+              for (const g of v.gates.filter(g => !g.pass)) console.log('  - ' + g.gate + ': ' + g.detail);
+            "
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 1
+
+      - name: Atomic deploy (single commit + tag)
+        if: steps.validate.outputs.valid == 'true'
+        run: |
+          SESSION="${{ steps.trading.outputs.session }}"
+          node tools/record-job.js market-close success "session $SESSION deployed" --session="$SESSION"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add nepse-chart/data data js/nepse-daily.js nepse-screener/index.html stocks nepse-actions sitemap.xml \
+            nepse-decode/index.html nepse-chart/index.html nepse-trending/index.html nepse-value/index.html \
+            nepse-news/index.html nepse-sectors/index.html nepse-reports/index.html nepse-simulator/index.html \
+            js/freshness-badge.js
+          git diff --cached --quiet && echo "no changes — nothing to deploy" && exit 0
+          git commit -m "market-close: data refresh for session $SESSION (validated)"
+          TAG="data-${SESSION}-1"
+          n=1; while git rev-parse "$TAG" >/dev/null 2>&1; do n=$((n+1)); TAG="data-${SESSION}-${n}"; done
+          git tag "$TAG"
+          git pull --rebase origin main
+          git push origin main
+          git push origin "$TAG"
+          echo "## Market-close: deployed session \`$SESSION\` (tag \`$TAG\`)" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Email alert — job failed
+        if: failure() && steps.validate.outputs.valid != 'false'
+        uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7
+        with:
+          server_address: smtp-relay.brevo.com
+          server_port: 587
+          secure: false
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "[NEPSE ALERT] market-close: job failed (not a validation failure)"
+          to: ${{ secrets.ALERT_EMAIL_TO }}
+          from: ${{ secrets.MAIL_USERNAME }}
+          body: |
+            The NEPSE market-close pipeline job FAILED outside validation
+            (fetch/build error, push conflict, or infrastructure).
+
+            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            Status page: https://shirjankhadka.com.np/status/
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## Market-close pipeline"
+            echo ""
+            echo "- Session: \`${{ steps.trading.outputs.session }}\`"
+            echo "- Trading day: \`${{ steps.trading.outputs.trading }}\`"
+            echo "- Already done (idempotency): \`${{ steps.idem.outputs.done }}\`"
+            echo "- New session at source: \`${{ steps.srcsess.outputs.new_session }}\` (data session \`${{ steps.srcsess.outputs.data_session }}\`)"
+            echo "- Validation: \`${{ steps.validate.outputs.valid }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
