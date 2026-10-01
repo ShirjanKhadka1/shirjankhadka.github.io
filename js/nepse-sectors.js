@@ -360,10 +360,10 @@
   }
 
   function showError() {
-    $('sx-asof').textContent = 'Data unavailable. Please try again later.';
-    $('sx-heat').innerHTML = '<p class="sx-empty">Heatmap data unavailable.</p>';
-    $('sx-cards').innerHTML = '<p class="sx-empty">Sector cards unavailable.</p>';
-    $('sx-body').innerHTML = '<tr><td colspan="6" class="sx-empty">Table data unavailable.</td></tr>';
+    var asof = $('sx-asof'); if (asof) asof.textContent = 'Data unavailable. Please try again later.';
+    var heat = $('sx-heat'); if (heat) heat.innerHTML = '<p class="sx-empty">Heatmap data unavailable.</p>';
+    var cards = $('sx-cards'); if (cards) cards.innerHTML = '<p class="sx-empty">Sector cards unavailable.</p>';
+    var body = $('sx-body'); if (body) body.innerHTML = '<tr><td colspan="6" class="sx-empty">Table data unavailable.</td></tr>';
   }
 
   // Wave 7: breadth bars animate from zero to their real widths; entrance
