@@ -4,7 +4,7 @@
  *
  * Walks every *.html file, resolves every same-origin href/src, and fails
  * (exit 1) on any target that does not exist in the tree. External URLs,
- * mailto:/tel:, fragments and javascript: are skipped (external rot is
+ * mailto:/tel:/viber:, fragments and javascript: are skipped (external rot is
  * covered by the SEO watch, not CI).
  *
  * Run from the repo root: node tests/link-check.js
@@ -40,7 +40,7 @@ function targetsOf(html) {
   while ((m = re.exec(html))) {
     let u = m[1].trim();
     if (!u) continue;
-    if (/^(https?:|mailto:|tel:|javascript:|data:)/i.test(u)) continue;
+    if (/^(https?:|mailto:|tel:|javascript:|data:|viber:)/i.test(u)) continue;
     if (u.startsWith('/cdn-cgi/')) continue; // Cloudflare serve-time artifacts
     out.push(u);
   }
