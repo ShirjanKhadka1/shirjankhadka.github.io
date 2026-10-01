@@ -81,25 +81,6 @@ jobs:
         env:
           BASE_URL: http://localhost:8080
 
-      - name: Visual regression (8 pages, desktop + mobile)
-        working-directory: tests
-        run: |
-          if [ "${{ inputs.update_snapshots }}" = "true" ]; then
-            npx playwright test visual.spec.ts --update-snapshots
-          else
-            npx playwright test visual.spec.ts
-          fi
-        env:
-          BASE_URL: http://localhost:8080
-
-      - name: Upload regenerated baselines (manual dispatch)
-        if: inputs.update_snapshots == 'true' && github.event_name == 'workflow_dispatch'
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: visual-baselines-${{ github.run_number }}
-          path: tests/__snapshots__/
-          retention-days: 30
-
       - name: Axe ratchet (fail on new/worsened violations)
         working-directory: tests
         run: node axe-scan.js
@@ -184,7 +165,65 @@ jobs:
           {
             echo "## CI quality gates"
             echo ""
-            echo "- Link check, smoke tests, visual regression, axe ratchet: see job steps (hard gates)"
+            echo "- Link check, smoke tests, axe ratchet: see job steps (hard gates)"
+            echo "- Visual regression: separate job (Playwright container), 2 passes for variance check"
             echo "- Lighthouse budgets are warn-level in Phase 1 — medians in \`lhci-out/baseline-summary.json\`"
             echo "- Gitleaks: full-history secret scan"
           } >> "$GITHUB_STEP_SUMMARY"
+
+  visual:
+    name: Visual regression (Playwright container)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    container:
+      # Official Playwright image — baselines MUST be generated in this
+      # same image, or font/rendering differences cause false diffs.
+      image: mcr.microsoft.com/playwright:v1.49.1-noble
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Install test deps
+        working-directory: tests
+        run: npm ci
+
+      - name: Serve site
+        run: |
+          (python3 -m http.server 8080 >/tmp/http.log 2>&1 &)
+          sleep 2
+          curl -sf -o /dev/null http://localhost:8080/
+
+      - name: Visual regression — pass 1 (8 pages, desktop + mobile)
+        working-directory: tests
+        run: |
+          if [ "${{ inputs.update_snapshots }}" = "true" ]; then
+            npx playwright test visual.spec.ts --update-snapshots
+          else
+            npx playwright test visual.spec.ts
+          fi
+        env:
+          BASE_URL: http://localhost:8080
+
+      - name: Visual regression — pass 2 (run-to-run variance check)
+        if: inputs.update_snapshots != 'true'
+        working-directory: tests
+        run: npx playwright test visual.spec.ts
+        env:
+          BASE_URL: http://localhost:8080
+
+      - name: Upload regenerated baselines (manual dispatch)
+        if: inputs.update_snapshots == 'true' && github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: visual-baselines-${{ github.run_number }}
+          path: tests/__snapshots__/
+          retention-days: 30
+
+      - name: Upload visual diffs on failure
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: visual-diffs-${{ github.run_number }}
+          path: tests/test-results/
+          retention-days: 30
