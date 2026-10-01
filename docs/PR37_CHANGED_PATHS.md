@@ -1,65 +1,94 @@
-# PR #37 Changed Paths — Grouped (63 paths)
+# PR #37 Changed Paths — Grouped (73 paths)
 
-**Base:** 658ae1c | **Head:** 749d0a0 | **Stat:** +4181/−85 (approx; includes 3 S0 commits)
+**Head:** 0c6d00d8 | **Date:** 2026-10-01
 
-## Workflows (7 paths)
-- `.github/workflows/ci.yml` — **added** (quality gates: smoke, visual, axe, lighthouse)
-- `.github/workflows/nepse-content.yml` — **added** (daily blog/content pipeline)
-- `.github/workflows/nepse-data-refresh.yml` — **deleted** (obsolete; replaced by specific workflows)
-- `.github/workflows/nepse-freshness-watch.yml` — **added** (stale-data watchdog)
-- `.github/workflows/nepse-intraday-floorsheet.yml` — **modified** (hardened: SHA pins, perms, concurrency)
-- `.github/workflows/nepse-live-quotes.yml` — **modified** (hardened)
-- `.github/workflows/nepse-market-close.yml` — **added** (market-close pipeline with rollback)
+Count grew from 61 → 73 due to: S0 remediation docs, visual test stabilization,
+scraping attribution, and baseline snapshots.
 
-## Pipeline tools (10 paths)
-- `tools/build-manifest.js` — **added** (builds data/manifest.json)
-- `tools/check-freshness.js` — **added** (freshness watchdog logic)
-- `tools/check-source-session.js` — **added** (NEPSE session detection)
-- `tools/nepse-holidays.json` — **added** (holiday list; Oct–Dec 2026 unverified)
-- `tools/prerender-freshness.js` — **added** (bakes freshness into HTML)
-- `tools/record-job.js` — **added** (job run ledger)
-- `tools/rollback-data.js` — **added** (byte-identical rollback)
-- `tools/trading-days.js` — **added** (NEPSE trading calendar)
-- `tools/validate-build.js` — **added** (build validator with gates)
+## Workflows (7)
+- `.github/workflows/ci.yml` — added
+- `.github/workflows/nepse-content.yml` — added
+- `.github/workflows/nepse-data-refresh.yml` — removed
+- `.github/workflows/nepse-freshness-watch.yml` — added
+- `.github/workflows/nepse-intraday-floorsheet.yml` — modified
+- `.github/workflows/nepse-live-quotes.yml` — modified
+- `.github/workflows/nepse-market-close.yml` — added
 
-## Site JS (3 paths)
-- `js/freshness-badge.js` — **added** (stale-data badge UI)
-- `js/nepse-portfolio.js` — **modified** (null-element guards ported from main)
-- `js/nepse-sectors.js` — **modified** (null-element guards ported from main)
+## Tools (9)
+- `tools/build-manifest.js` — added
+- `tools/check-freshness.js` — added
+- `tools/check-source-session.js` — added
+- `tools/nepse-holidays.json` — added
+- `tools/prerender-freshness.js` — added
+- `tools/record-job.js` — added
+- `tools/rollback-data.js` — added
+- `tools/trading-days.js` — added
+- `tools/validate-build.js` — added
 
-## Site pages (13 paths)
-- `nepse-chart/index.html` — **modified** (freshness badge, esc() sanitizer)
-- `nepse-chart/data/manifest.json` — **added** (data manifest)
-- `nepse-chart/data/validation.json` — **added** (validation results)
-- `nepse-decode/index.html` — **modified** (freshness integration)
-- `nepse-news/index.html` — **modified**
-- `nepse-reports/index.html` — **modified**
-- `nepse-screener/index.html` — **modified**
-- `nepse-sectors/index.html` — **modified**
-- `nepse-simulator/index.html` — **modified**
-- `nepse-trending/index.html` — **modified**
-- `nepse-value/index.html` — **modified**
-- `status/index.html` — **modified** (esc() sanitizer for JSON-derived values)
-- `data/manifest.json` — **added**
+## Pages (19)
+- `assets/images/blog/nrb-cuts-bank-share-holding-period-45-days.jpg` — added
+- `blog/nrb-cuts-bank-share-holding-period-45-days/index.html` — modified
+- `data/manifest.json` — added
+- `js/freshness-badge.js` — added
+- `js/nepse-portfolio.js` — modified
+- `js/nepse-sectors.js` — modified
+- `nepse-chart/chart.css` — modified
+- `nepse-chart/data/manifest.json` — added
+- `nepse-chart/data/validation.json` — added
+- `nepse-chart/index.html` — modified
+- `nepse-decode/index.html` — modified
+- `nepse-news/index.html` — modified
+- `nepse-reports/index.html` — modified
+- `nepse-screener/index.html` — modified
+- `nepse-sectors/index.html` — modified
+- `nepse-simulator/index.html` — modified
+- `nepse-trending/index.html` — modified
+- `nepse-value/index.html` — modified
+- `status/index.html` — added
 
-## Tests (24 paths)
-- `tests/package.json`, `tests/package-lock.json` — **added** (pinned deps)
-- `tests/playwright.config.ts` — **added**
-- `tests/smoke.spec.ts` — **added** (24-page smoke: overflow, console errors)
-- `tests/visual.spec.ts` — **added** (visual regression)
-- `tests/axe-scan.js`, `tests/axe-baseline.json` — **added** (accessibility)
-- `tests/link-check.js` — **added** (internal link validation)
-- `tests/visual.spec.ts-snapshots/` (16 PNGs) — **added** (baseline snapshots)
+## Tests (25)
+- `tests/axe-baseline.json` — added
+- `tests/axe-scan.js` — added
+- `tests/fixtures/manifest.json` — added
+- `tests/link-check.js` — added
+- `tests/package-lock.json` — added
+- `tests/package.json` — added
+- `tests/playwright.config.ts` — added
+- `tests/smoke.spec.ts` — added
+- `tests/visual.spec.ts` — added
+- `tests/visual.spec.ts-snapshots/--desktop-chromium-linux.png` — added
+- `tests/visual.spec.ts-snapshots/--mobile-chromium-linux.png` — added
+- `tests/visual.spec.ts-snapshots/-blog--desktop-chromium-linux.png` — added
+- `tests/visual.spec.ts-snapshots/-blog--mobile-chromium-linux.png` — added
+- `tests/visual.spec.ts-snapshots/-nepse-brokers--desktop-chromium-linux.png` — added
+- `tests/visual.spec.ts-snapshots/-nepse-brokers--mobile-chromium-linux.png` — added
+- `tests/visual.spec.ts-snapshots/-nepse-chart--desktop-chromium-linux.png` — added
+- `tests/visual.spec.ts-snapshots/-nepse-chart--mobile-chromium-linux.png` — added
+- `tests/visual.spec.ts-snapshots/-nepse-decode--desktop-chromium-linux.png` — added
+- `tests/visual.spec.ts-snapshots/-nepse-decode--mobile-chromium-linux.png` — added
+- `tests/visual.spec.ts-snapshots/-nepse-screener--desktop-chromium-linux.png` — added
+- `tests/visual.spec.ts-snapshots/-nepse-screener--mobile-chromium-linux.png` — added
+- `tests/visual.spec.ts-snapshots/-nepse-trending--desktop-chromium-linux.png` — added
+- `tests/visual.spec.ts-snapshots/-nepse-trending--mobile-chromium-linux.png` — added
+- `tests/visual.spec.ts-snapshots/-nepse-value--desktop-chromium-linux.png` — added
+- `tests/visual.spec.ts-snapshots/-nepse-value--mobile-chromium-linux.png` — added
 
-## Docs & config (6 paths)
-- `docs/PIPELINE.md` — **added** (DRY_RUN procedure, pipeline docs)
-- `docs/DATA_SOURCES.md` — **added** (data source documentation)
-- `lighthouserc.json` — **added** (Lighthouse CI config)
-- `.gitleaks.toml` — **added** (S0: allowlist for JKEY false positive)
-- `.gitignore` — **modified** (S0 finding 8: .env*, *.pem, *.key, credentials*, *secret*)
-- `.env.example` — **added** (S0 finding 8: secret names only)
+## Docs (9)
+- `docs/CLOUDFLARE_MIGRATION.md` — added
+- `docs/DATA_SOURCES.md` — added
+- `docs/DATA_SOURCES_TOS.md` — added
+- `docs/DRY_RUN_ROLLOUT.md` — added
+- `docs/PHASE2_STAGING_MODEL.md` — added
+- `docs/PIPELINE.md` — added
+- `docs/PR37_CHANGED_PATHS.md` — added
+- `docs/PR37_S0_FINAL_STATUS.md` — added
+- `docs/SECURITY_COUNT_BASELINE.md` — added
 
-## Blog (2 paths — pushed to main separately, not part of PR diff)
-*Note: These were pushed directly to main (160ea63, 133a392), not via PR #37:*
-- `assets/images/blog/nrb-cuts-bank-share-holding-period-45-days.jpg`
-- `blog/nrb-cuts-bank-share-holding-period-45-days/index.html`
+## Config (3)
+- `.env.example` — added
+- `.gitignore` — modified
+- `.gitleaks.toml` — added
+
+## Other (1)
+- `lighthouserc.json` — added
+

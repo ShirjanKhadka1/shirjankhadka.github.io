@@ -21,7 +21,7 @@ const https = require('https');
 const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, 'nepse-chart', 'data', 'announcements.json');
 const UNIVERSE = path.join(ROOT, 'nepse-chart', 'data', 'universe.json');
-const UA = { 'User-Agent': 'Mozilla/5.0 (NepseDecode announcements collector)' };
+const UA = { 'User-Agent': 'NepseDecode/1.0 (+https://shirjankhadka.com.np; contact: shirjan.2.khadka@gmail.com)' };
 const SRC_URL = 'https://www.sharesansar.com/announcement';
 const MAX_ITEMS = 120;
 

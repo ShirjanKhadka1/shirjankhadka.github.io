@@ -7,27 +7,32 @@ Compares the current build's `live.json` quote count against the **previous** bu
 manifest (from `git show HEAD:data/manifest.json`). If the count drifts more than ±5%,
 the gate fails. This catches data-pipeline breakage (e.g. fetcher returning partial data).
 
-## The failure
-```
-security-count-stable — quotes=326 baseline=300 drift=8.7% band=±5%
-```
+If no previous manifest exists (first run), it uses an absolute floor of 300 quotes.
 
-## Root cause
-The baseline of **300** came from an early/test manifest committed before the pipeline
-was fetching the full universe. The current count of **326** reflects the actual number
-of securities with quotes in `live.json`.
+## The 326 vs 300
 
-NEPSE lists 330+ securities (equities, debentures, mutual funds). The `live.json` only
-includes securities with actual quotes (traded). 326 is within the expected range.
+**300** is the hardcoded absolute floor in `tools/validate-build.js:104`:
+```javascript
+gate('security-count-stable', q >= 300, `quotes=${q} (no baseline yet; absolute floor 300)`);
+```
+This is used when there is no previous manifest to compare against (first pipeline run).
+It is NOT from a manifest file.
+
+**326** was the actual quote count from the `live.json` dataset generated on
+2026-09-30 (session date 2026-09-30, NEPSE trading day). This reflects the number
+of securities with live quotes at that time.
+
+NEPSE lists 330+ securities. The count varies by trading day (suspensions, new listings,
+non-traded securities). 326 is within the expected range.
 
 ## Why the gate is correct (do not weaken)
-The ±5% band is intentional. A sudden 8.7% jump indicates either:
-1. The baseline was stale/wrong (this case) — baseline needs updating, not the band.
+The ±5% band is intentional. A sudden drift indicates either:
+1. The baseline was missing/stale (first run) — the floor ensures minimum coverage.
 2. Real data loss — the gate correctly blocks deployment.
 
 ## Resolution
-The baseline updates automatically: once a build with 326 quotes is committed, the next
-build compares against 326. The gate is self-healing for legitimate growth.
+The baseline updates automatically: once a build with N quotes is committed, the next
+build compares against N. The gate is self-healing for legitimate growth.
 
 **Do not** change the ±5% band. **Do not** hardcode a new baseline. Let the manifest
 history establish it.

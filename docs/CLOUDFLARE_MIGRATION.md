@@ -68,6 +68,41 @@ own logging. Set this up BEFORE enabling the header.
 3. Check CSP reports for violations (should be minimal with the permissive policy).
 4. Test key pages: `/nepse-chart/`, `/nepse-decode/`, `/kundali/`.
 
+## Weekend cutover plan
+
+**When:** Saturday or Sunday morning NPT (low traffic). Avoid trading days (Mon-Fri)
+and avoid Friday evening (if DNS issues arise, support is harder on weekends).
+
+**Timeline (all times NPT):**
+
+| Time | Action | Duration |
+|---|---|---|
+| 09:00 | Pre-flight: verify site works on GitHub Pages directly (`curl -I https://shirjankhadka.github.io/`) | 5 min |
+| 09:05 | Add domain to Cloudflare, verify DNS records match (Step 1 above) | 15 min |
+| 09:20 | Set SSL/TLS to Full (strict), enable Always Use HTTPS (Step 3) | 5 min |
+| 09:25 | Create Transform Rule for security headers (Step 4, report-only CSP) | 10 min |
+| 09:35 | Change nameservers at registrar (Step 2) — **point of no return** | 5 min |
+| 09:40 | Monitor: `dig NS shirjankhadka.com.np` every 15 min; test site in browser | 2-4 hours |
+| 13:00 | Verify: `curl -I https://shirjankhadka.com.np/` shows headers; test key pages | 15 min |
+
+**Go/No-go checkpoints:**
+- ✅ Before nameserver change: Cloudflare shows "Active" status, DNS records verified
+- ✅ After 1 hour: Site loads via Cloudflare (check from mobile data, not just wifi)
+- ✅ After 4 hours: No user complaints, headers present, CSP reports flowing
+
+**Abort criteria (rollback immediately if):**
+- Site down for >15 minutes after nameserver change
+- SSL errors (cert mismatch)
+- Major visual breakage (CSP in report-only should NOT cause this, but check)
+
+**Who does what:**
+- Shirjan: Registrar nameserver change (requires his login); monitors his phone for user reports
+- Muse: Cloudflare config, header verification, monitoring
+
+**Communication:**
+- Post in advance: "Site maintenance Sat 9am-1pm NPT, brief DNS propagation possible"
+- No Facebook post needed (low traffic window)
+
 ## Rollback plan (if anything breaks)
 
 **Immediate (2 min):**

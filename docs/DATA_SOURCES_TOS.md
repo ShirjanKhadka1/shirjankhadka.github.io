@@ -39,25 +39,26 @@ I could not fetch NEPSE's Terms of Service.
 **Action required:** Shirjan (or someone with NEPSE access) must read NEPSE's ToS at
 https://www.nepalstock.com and confirm the scraping prohibition clause.
 
-## 3. Current politeness measures (already in place)
+## 3. Current politeness measures (in place as of 2026-10-01)
 
 | Measure | Implementation |
 |---|---|
-| Rate limiting | 5-second delay between symbols (`tools/build-corp-history.js:62`) |
-| User-Agent | Honest identifying UA (`NepseDecode … collector`) |
+| Rate limiting | 5-second delay between symbols (`tools/build-corp-history.js`); 2-second delay between paginated NEPSE API requests (`tools/fetch-nepse-live.js`) |
+| User-Agent | Identifying UA on all collectors: `NepseDecode/1.0 (+https://shirjankhadka.com.np; contact: shirjan.2.khadka@gmail.com)` |
 | Timeouts | Request timeouts to avoid hanging connections |
 | Data transformation | Output is transformed facts, not verbatim HTML redistribution |
+| Caching | Data files cached; collectors skip re-fetch if fresh (market-hours aware) |
 
-## 4. Attribution (to add)
+## 4. Attribution (DONE 2026-10-01)
 
-**Affected pages:** Any page displaying data sourced from ShareSansar HTML scraping
-(corporate-action history, per-scrip dividend/AGM data).
+**Affected pages:** All pages displaying NEPSE/ShareSansar-sourced data
+(nepse-chart, nepse-screener, nepse-trending, nepse-value, nepse-brokers, nepse-decode).
 
-**Proposed attribution text:**
-> "Corporate action data compiled from public sources including ShareSansar.
-> Verify against official NEPSE/company notices."
+**Attribution text (in footer of each page):**
+> "Data sources: Market data from NEPSE (nepalstock.com) and ShareSansar.
+> Corporate actions verified against official NEPSE/company notices."
 
-**Placement:** Footer of affected pages + `docs/DATA_SOURCES.md`.
+**Placement:** Footer `.sf-note` paragraph on each affected page.
 
 ## 5. Fallback sources plan
 
@@ -71,15 +72,73 @@ If permission is denied or ToS prohibits scraping:
 
 ## 6. Written permission request plan
 
-**For NEPSE:**
-- Recipient: NEPSE IT / Market Data department
-- Request: Permission for non-commercial, educational market-data display with attribution
-- Include: Rate limits we'll respect, caching policy, attribution placement
+### Draft email to NEPSE
 
-**For ShareSansar (IMS Investment Management Services Pvt. Ltd.):**
-- Recipient: Contact via sharesansar.com
-- Request: Permission to compile transformed corporate-action facts with attribution
-- Note: We do not redistribute their articles or verbatim content
+**To:** [NEPSE IT / Market Data department — address needed]
+**Subject:** Request for permission — non-commercial educational market data display
+
+> Dear NEPSE team,
+>
+> I operate Nepse Decode (shirjankhadka.com.np), a free educational website
+> providing NEPSE market data, screeners, and research tools to Nepali investors.
+> The site is non-commercial (no paywall, no premium tiers, ad-supported only)
+> and carries an "educational use only, not investment advice" disclaimer.
+>
+> I am writing to request permission to display NEPSE market data (index values,
+> stock quotes, corporate actions) on the site with clear attribution to NEPSE.
+>
+> Our technical practices:
+> - Identifying User-Agent: NepseDecode/1.0 (+https://shirjankhadka.com.np)
+> - Rate limiting: max 1 request per 2 seconds, only during market hours
+> - Caching: data cached for 15 minutes minimum; no real-time redistribution
+> - Attribution: "Market data from NEPSE (nepalstock.com)" in page footers
+> - No circumvention: we will use any official API or data feed you provide
+>
+> If you have an official API, data license, or preferred attribution format,
+> I will adopt it immediately.
+>
+> Thank you for considering this request.
+>
+> Best regards,
+> Shirjan Khadka
+> shirjan.2.khadka@gmail.com
+> https://shirjankhadka.com.np
+
+### Draft email to ShareSansar
+
+**To:** [ShareSansar contact — via sharesansar.com contact form]
+**Subject:** Request for permission — corporate action data compilation with attribution
+
+> Dear ShareSansar team,
+>
+> I operate Nepse Decode (shirjankhadka.com.np), a free educational website
+> for Nepali investors. I am writing to request permission to compile
+> corporate-action facts (dividend announcements, AGM dates, bonus/right shares)
+> from your public company pages, transformed into our own database format
+> (not verbatim copying), with clear attribution to ShareSansar.
+>
+> Our practices:
+> - Identifying User-Agent: NepseDecode/1.0 (+https://shirjankhadka.com.np)
+> - Rate limiting: 5-second delay between requests
+> - Attribution: "Corporate action data compiled from public sources including ShareSansar" in page footers
+> - We do not redistribute your articles, analysis, or verbatim content
+> - Corporate actions are cross-verified against official NEPSE/company notices
+>
+> If you prefer a different attribution format or have an API/data feed,
+> I will adopt it.
+>
+> Thank you for considering this request.
+>
+> Best regards,
+> Shirjan Khadka
+> shirjan.2.khadka@gmail.com
+> https://shirjankhadka.com.np
+
+**Note:** nepalstock.com was unreachable from our development environment on
+2026-10-01, so NEPSE's Terms of Service could not be fetched. Finding #1
+(NEPSE reverse-engineered access) remains marked **unverified** (not cleared)
+until the ToS is actually read. Do not treat the absence of a fetched ToS as
+permission.
 
 ## 7. Options for Shirjan
 
