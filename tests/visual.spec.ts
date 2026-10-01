@@ -11,6 +11,14 @@
  * - Dynamic regions (tickers, live badges) → mask in screenshots
  * - Data files changing → serve frozen fixtures via route interception
  *
+ * DATA FREEZING (2026-10-01): PR runs check out the merge commit, which can
+ * carry main's newer data files (e.g. nepse-chart/data/live.json) than the PR
+ * branch head that baselines were generated from. To keep renders
+ * deterministic across branch-head and merge-commit checkouts, ALL JSON data
+ * requests are intercepted and served from tests/fixtures/ (frozen copies).
+ * Fixtures are committed files, so they are identical in both checkouts.
+ * When data intentionally changes, update fixtures + regenerate baselines.
+ *
  * Regenerate baselines intentionally only:
  *   UPDATE_SNAPSHOTS=1 npx playwright test visual --update-snapshots
  * Never blind-update: inspect the diff, confirm the change is intended.
@@ -49,6 +57,7 @@ const DYNAMIC_SELECTORS = [
   '[data-freshness-badge]',           // Freshness badge (JS-driven)
   '[data-ticker]',                     // Ticker tapes
   '.ticker-tape',
+  '.nd-ticker',
   '[data-live-clock]',
   '.live-badge',
   '[data-asof]',                       // "as of" timestamps
@@ -66,15 +75,24 @@ for (const vp of VIEWPORTS) {
       // 1. Freeze the clock before navigation (deterministic timestamps)
       await page.clock.install({ time: FROZEN_TIME });
 
-      // 2. Serve frozen fixture data (deterministic data files)
-      // Intercept manifest requests, serve from fixtures
-      await page.route('**/data/manifest.json', async (route) => {
-        const fixturePath = path.join(__dirname, 'fixtures', 'manifest.json');
+      // 2. Serve frozen fixture data (deterministic data files).
+      // Intercept every JSON request; when a matching fixture exists under
+      // tests/fixtures/ (mirroring the URL path), serve it. Otherwise let
+      // the request through. This keeps renders identical whether CI checks
+      // out the branch head or the PR merge commit (whose data files may be
+      // newer from main).
+      await page.route('**/*.json', async (route) => {
+        const url = new URL(route.request().url());
+        // Map URL path to fixture path, e.g.
+        // /nepse-chart/data/live.json -> tests/fixtures/nepse-chart/data/live.json
+        const fixturePath = path.join(
+          __dirname, 'fixtures', ...url.pathname.split('/').filter(Boolean)
+        );
         if (fs.existsSync(fixturePath)) {
           await route.fulfill({
             status: 200,
             contentType: 'application/json',
-            body: fs.readFileSync(fixturePath, 'utf-8'),
+            body: fs.readFileSync(fixturePath),
           });
         } else {
           await route.continue();
