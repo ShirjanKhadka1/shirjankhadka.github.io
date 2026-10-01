@@ -48,6 +48,18 @@ function main() {
   const expected = argSession || td.expectedSessionDate(now);
   const failures = [];
 
+  // live.json refreshes intraday (live quote snapshots stream in during market
+  // hours), so once today's session has started its date IS today — unlike
+  // universe.json and the manifest, which are written once per day after the
+  // close. Gating live against the last *completed* session false-fails every
+  // run during market hours, so this gate uses its own live-aware expectation
+  // (wall-clock; --session still governs the universe/signals gates below).
+  const expectedLive = (() => {
+    const today = td.todayNPT(now);
+    if (td.isTradingDay(today) && td.timeNPT(now) >= td.CAL.market_hours_npt.open) return today;
+    return td.expectedSessionDate(now);
+  })();
+
   // Gate 0: manifest exists and is fresh
   let manifest = null;
   try {
@@ -63,7 +75,7 @@ function main() {
   try { universe = readData('universe.json'); } catch (e) { gate('universe.json-parse', false, e.message); }
   if (live) {
     const s = sessionOf(live);
-    gate('live-session-current', s === expected, `live=${s} expected=${expected}`);
+    gate('live-session-current', s === expectedLive, `live=${s} expected=${expectedLive}`);
   }
   if (universe) {
     const s = sessionOf(universe);
