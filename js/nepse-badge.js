@@ -96,7 +96,9 @@
     }
     if (status === 'stale') {
       var sage = lastGoodAge();
-      return { tone: 'stale', label: 'STALE', detail: sage ? '· ' + sage + ' old' : '' };
+      var detail = '';
+      if (sage) detail = (sage === 'just now') ? '· reconnecting…' : '· ' + sage + ' old';
+      return { tone: 'stale', label: 'STALE', detail: detail };
     }
     var market = snapshot.market;
     var t = fmtTime(snapshot.asof);

@@ -33,7 +33,7 @@
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the market doing today?","acceptedAnswer":{"@type":"Answer","text":"The Nepse Decode homepage shows the NEPSE index with day change, market breadth, turnover, transactions, top gainers and losers, and the most active stocks — rebuilt from the latest session data."}},{"@type":"Question","name":"Is the market data real-time?","acceptedAnswer":{"@type":"Answer","text":"During market hours the page polls fresh quote files every 60 seconds; NEPSE publishes no free official real-time API, so quotes can be delayed up to 15 minutes. Every figure carries its session date."}},{"@type":"Question","name":"How does the signal engine work?","acceptedAnswer":{"@type":"Answer","text":"Ten transparent factors are scored on the daily chart and summed into a verdict from Strong Buy to Strong Exit, with every factor's contribution listed. It is a mechanical illustration for education, not investment advice."}}]}
 </script>
 <link rel="stylesheet" href="/css/nepse-d2.css?v=df8f909e">
-<link rel="stylesheet" href="/css/theme.css?v=b111a15b">
+<link rel="stylesheet" href="/css/theme.css?v=edd1fe3c">
 <style>
 /* homepage-only */
 .d2-hero-chart { margin-top: 18px; }
@@ -389,7 +389,7 @@ window.addEventListener('error', function (e) {
 <script src="/js/nepse-market-config.js?v=20261003a"></script>
 <script src="/js/nepse-format.js?v=20261003a"></script>
 <script src="/js/nepse-data.js?v=20261003a"></script>
-<script src="/js/nepse-badge.js?v=20261003a"></script>
+<script src="/js/nepse-badge.js?v=20261002b"></script>
 <script src="/js/nepse-flash.js?v=20261003a"></script>
 <script>
 (function(){
@@ -461,13 +461,14 @@ window.addEventListener('error', function (e) {
     paintRange('d2SesRange','d2SesLow','d2SesHigh',lo,hi,pts[pts.length-1].c);
   }
   function paintRange(barId,lowId,highId,lo,hi,val){
-    var bar=$(barId); if(!bar||lo==null||hi==null||!(hi>lo)) return;
+    var bar=$(barId); if(!bar||lo==null||hi==null) return;
+    var l=$(lowId), h=$(highId);
+    if(l) l.textContent=px(lo); if(h) h.textContent=px(hi);
+    if(!(hi>lo)) return; // single print so far — labels painted, no bar to draw
     var pos=Math.min(1,Math.max(0,(val-lo)/(hi-lo)));
     var fill=bar.querySelector('.d2-range-fill'), mk=bar.querySelector('.d2-range-marker');
     if(fill) fill.style.width=(pos*100)+'%';
     if(mk) mk.style.left=(pos*100)+'%';
-    var l=$(lowId), h=$(highId);
-    if(l) l.textContent=px(lo); if(h) h.textContent=px(hi);
   }
 
   /* ---------- tables ---------- */
@@ -566,7 +567,7 @@ window.addEventListener('error', function (e) {
       chEl.innerHTML='<span class="'+cls+'">'+sPx(c)+' ('+pc(p)+')</span>';
       chEl.className='d2-hero-badge '+cls;
     } else { chEl.textContent='–'; }
-    var f2=function(v){return v==null||!isFinite(+v)?'–':px(+v);};
+    var f2=function(v){return v==null||!isFinite(+v)||+v<=0?'–':px(+v);}; // 0 never a valid level
     if($('d2DayO'))$('d2DayO').textContent=f2(ix.open);
     if($('d2DayH'))$('d2DayH').textContent=f2(ix.high);
     if($('d2DayL'))$('d2DayL').textContent=f2(ix.low);

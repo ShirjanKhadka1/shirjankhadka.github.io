@@ -81,7 +81,19 @@
   }).then(function (m) {
     var session = m.session_date || 'unknown';
     var stale = tradingDaysBetween(session, (m.today_npt || session));
-    render(m.market_state, session, stale);
+    // Live override: the manifest only refreshes at market close, so during
+    // the session it still says CLOSED/yesterday. If the intraday feed shows
+    // today's session OPEN, the market is live right now.
+    return fetch('/nepse-chart/data/live.json', { cache: 'no-store' }).then(function (r) {
+      return r.ok ? r.json() : null;
+    }).catch(function () { return null; }).then(function (live) {
+      var state = m.market_state;
+      if (live && live.market === 'OPEN' && live.asof && m.today_npt &&
+          String(live.asof).slice(0, 10) === m.today_npt) {
+        state = 'LIVE'; session = m.today_npt; stale = 0;
+      }
+      render(state, session, stale);
+    });
   }).catch(function () {
     var mounts = el();
     for (var i = 0; i < mounts.length; i++) {
