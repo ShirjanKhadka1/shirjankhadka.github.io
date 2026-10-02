@@ -260,6 +260,9 @@ body.d2 .d2-num { font-variant-numeric: tabular-nums; }
 
 /* ---------- hero (S1 market command) ---------- */
 .d2-hero-grid { display: grid; grid-template-columns: 1.25fr .9fr; gap: 28px; }
+.d2-hero-grid > * { min-width: 0; } /* grid blowout guard: chart canvas must not widen the document on mobile */
+.d2-movers-row > * { min-width: 0; } /* same guard for the movers/index cards */
+.d2-tscroll { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .d2-hero-label { font-size: 12.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--d2-muted); font-weight: 700; margin-bottom: 6px; }
 .d2-hero-price { font-size: clamp(44px, 5.5vw, 68px); font-weight: 800; letter-spacing: -.03em; line-height: 1; }
 .d2-hero-badge {
@@ -347,8 +350,8 @@ body.d2 .d2-num { font-variant-numeric: tabular-nums; }
   font-weight: 800; font-size: 13px; color: var(--d2-volt);
   font-variant-numeric: tabular-nums; white-space: nowrap; letter-spacing: .02em;
 }
-.d2-pulse-title { font-size: 14px; color: var(--d2-ink); font-weight: 600; line-height: 1.5; min-width: 0; }
-.d2-pulse-title a { color: var(--d2-volt); font-weight: 700; white-space: nowrap; }
+.d2-pulse-title { font-size: 14px; color: var(--d2-ink); font-weight: 600; line-height: 1.5; min-width: 0; overflow-wrap: break-word; }
+.d2-pulse-title a { color: var(--d2-volt); font-weight: 700; }
 .d2-pulse-title a:hover { text-decoration: underline; }
 /* 2026-10-02: paged tape — rows-per-page + Showing X–Y + Prev/Next;
    steady min-height so the card doesn't jump between pages */
@@ -390,7 +393,7 @@ body.d2 .d2-num { font-variant-numeric: tabular-nums; }
 .d2-wl-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
 .d2-wl-add { display: flex; gap: 8px; flex: 1; min-width: 220px; max-width: 420px; position: relative; }
 .d2-wl-add input {
-  flex: 1; background: var(--d2-surface2); border: 1px solid var(--d2-line);
+  flex: 1; min-width: 0; background: var(--d2-surface2); border: 1px solid var(--d2-line);
   border-radius: var(--d2-r-md); color: var(--d2-ink);
   font: 500 14px var(--d2-font); padding: 10px 14px;
 }
