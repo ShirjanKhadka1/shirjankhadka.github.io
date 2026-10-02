@@ -12,7 +12,12 @@
  *  5. ETag / 304 suppresses unchanged payloads; getStats() reports real bandwidth saved.
  *  6. Visibility pause/resume stops polling in background tabs; a >30-min
  *     hidden stretch forces one full refresh on return (skips 304 once).
- *  7. BroadcastChannel + localStorage scaffolding for cross-tab convergence (Phase 3).
+ *  7. Cross-tab convergence (Phase 3): leader election via localStorage
+ *     heartbeat — only one tab polls; the rest adopt newer snapshots via
+ *     BroadcastChannel without fetching. Non-leaders keep a safety-net poll
+ *     if no broadcast arrives within 2x the expected interval.
+ *  8. Change tracking (Phase 3): every snapshot swap records which symbols
+ *     moved (getChangedSymbols), powering NepseFlash price-change highlights.
  *
  * Load order: nepse-market-config.js → nepse-format.js → nepse-data.js
  */
@@ -23,6 +28,10 @@
   var FEED_URL = '/nepse-chart/data/live.json';
   var STORAGE_KEY = 'nepse-data:last-good-v1';
   var BC_NAME = 'nepse-data-v1';
+  // Phase 3: leader election (only one tab polls; the rest converge via broadcast).
+  var LEADER_KEY = 'nepse-data:leader-v1';
+  var HEARTBEAT_MS = 10000;      // leader re-asserts every 10s
+  var LEADER_TIMEOUT_MS = 15000; // no heartbeat for 15s → any tab may take over
 
   // ---- internal state (never exposed directly) ----
   var state = {
@@ -43,7 +52,14 @@
     requests200: 0,
     lastPollMs: 0,       // Date.now() of the most recent poll attempt
     hiddenAt: null,      // Date.now() when the tab last became hidden
-    skipEtagOnce: false  // force a full 200 after a long hidden stretch
+    skipEtagOnce: false, // force a full 200 after a long hidden stretch
+    // Phase 3: cross-tab convergence + change flash
+    tabId: 'tab-' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36),
+    isLeader: false,     // true → this tab polls; false → converges via broadcast
+    leaderTimer: null,   // heartbeat interval id
+    fallbackTimer: null, // safety-net poll when no broadcast arrives
+    lastBroadcastMs: 0,  // Date.now() of the last snapshot received via broadcast
+    lastChanges: []      // [{ symbol, oldLtp, newLtp, direction }] from latest swap
   };
 
   // ---- validation ----
@@ -217,27 +233,116 @@
     } catch (e) { return null; }
   }
 
-  // ---- cross-tab scaffolding (Phase 3 converges on this) ----
+  // ---- cross-tab convergence (Phase 3) ----
+  //
+  // Only ONE tab polls (the leader, elected via a localStorage heartbeat).
+  // Every other tab adopts newer snapshots via BroadcastChannel without
+  // fetching — identical numbers on every tab, a fraction of the bandwidth.
+  // If BroadcastChannel is unavailable, every tab polls independently
+  // (the pre-Phase-3 behavior). A safety-net poll fires on non-leader tabs
+  // if no broadcast arrives within 2x the expected interval.
+
+  function readLeader() {
+    try {
+      var raw = localStorage.getItem(LEADER_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) { return null; }
+  }
+
+  function writeHeartbeat() {
+    try {
+      localStorage.setItem(LEADER_KEY, JSON.stringify({
+        tabId: state.tabId,
+        heartbeatMs: Date.now()
+      }));
+    } catch (e) { /* storage unavailable — every tab polls (safe fallback) */ }
+  }
+
+  function clearLeaderClaim() {
+    try {
+      var leader = readLeader();
+      if (leader && leader.tabId === state.tabId) {
+        localStorage.removeItem(LEADER_KEY);
+      }
+    } catch (e) { /* ignore */ }
+  }
+
+  function checkLeadership() {
+    var leader = readLeader();
+    var now = Date.now();
+    var takeOver = !leader ||
+      (now - leader.heartbeatMs) > LEADER_TIMEOUT_MS ||
+      leader.tabId === state.tabId;
+    if (takeOver) {
+      if (!state.isLeader) {
+        state.isLeader = true;
+        writeHeartbeat();
+        // Just became leader (e.g. previous leader closed): poll promptly.
+        clearTimeout(state.timer);
+        clearTimeout(state.fallbackTimer);
+        state.timer = setTimeout(poll, 1000);
+      } else {
+        writeHeartbeat();
+      }
+    } else {
+      if (state.isLeader) {
+        // Lost leadership (another tab took over): stop polling, converge.
+        state.isLeader = false;
+        clearTimeout(state.timer);
+        armFallback(); // safety net until the new leader's broadcasts arrive
+      }
+    }
+  }
+
+  function expectedIntervalMs() {
+    try {
+      return CFG.isMarketOpen() ? CFG.POLL_OPEN_MS : CFG.POLL_CLOSED_MS;
+    } catch (e) {
+      return 60000;
+    }
+  }
+
+  /** Safety net: non-leader tabs fetch once if the leader goes quiet. */
+  function armFallback() {
+    clearTimeout(state.fallbackTimer);
+    state.fallbackTimer = null;
+    if (state.isLeader || !state.started) return;
+    state.fallbackTimer = setTimeout(function () {
+      state.fallbackTimer = null;
+      checkLeadership(); // may promote us if the leader truly died
+      doFetch();         // one safety-net fetch either way, then re-arm
+      schedule();
+    }, expectedIntervalMs() * 2);
+  }
 
   function setupBroadcast() {
     try {
-      if (!('BroadcastChannel' in global)) return;
+      if (!('BroadcastChannel' in global)) return; // every tab polls (safe)
       state.bc = new BroadcastChannel(BC_NAME);
       state.bc.onmessage = function (ev) {
         var msg = ev && ev.data;
-        if (!msg || msg.type !== 'nepse-data:update') return;
-        // Phase 3: adopt newer snapshot from another tab.
+        if (!msg || msg.type !== 'snapshot') return;
+        if (msg.fromTab === state.tabId) return; // ignore own broadcasts
+        state.lastBroadcastMs = Date.now();
         if (msg.snapshot && msg.snapshot.asofMs > (state.snapshot ? state.snapshot.asofMs : 0)) {
           var v = validateSnapshot(msg.snapshot);
-          if (v.ok) applySnapshot(v.snapshot, 'live');
+          if (v.ok) {
+            // Adopt WITHOUT fetching — saves bandwidth. No rebroadcast
+            // (would loop); the leader's broadcast already reached everyone.
+            applySnapshotRemote(v.snapshot);
+          }
         }
+        // Fresh data arrived: re-arm the safety net from now.
+        if (!state.isLeader) armFallback();
       };
-    } catch (e) { /* ignore */ }
+    } catch (e) { /* ignore — every tab polls */ }
   }
 
   function broadcast(snapshot) {
     try {
-      if (state.bc) state.bc.postMessage({ type: 'nepse-data:update', snapshot: snapshot });
+      if (state.bc) {
+        state.bc.postMessage({ type: 'snapshot', snapshot: snapshot, fromTab: state.tabId });
+      }
     } catch (e) { /* ignore */ }
   }
 
@@ -248,12 +353,64 @@
     notify();
   }
 
+  /**
+   * Diff old vs new snapshot: which visible symbols moved.
+   * The NEPSE index is included as pseudo-symbol "NEPSE" for hero flashes.
+   * Result: [{ symbol, oldLtp, newLtp, direction: 'up'|'down' }].
+   */
+  function computeChanges(oldSnap, newSnap) {
+    var changes = [];
+    if (!oldSnap || !newSnap) { state.lastChanges = changes; return; }
+    var oldIx = oldSnap.index && oldSnap.index.value;
+    var newIx = newSnap.index && newSnap.index.value;
+    if (isFiniteNum(oldIx) && isFiniteNum(newIx) && oldIx !== newIx) {
+      changes.push({
+        symbol: 'NEPSE',
+        oldLtp: oldIx,
+        newLtp: newIx,
+        direction: newIx > oldIx ? 'up' : 'down'
+      });
+    }
+    var oldMap = {};
+    for (var i = 0; i < oldSnap.quotes.length; i++) {
+      var oq = oldSnap.quotes[i];
+      if (!oq.quarantined) oldMap[oq.symbol] = oq.ltp;
+    }
+    for (var j = 0; j < newSnap.quotes.length; j++) {
+      var nq = newSnap.quotes[j];
+      if (nq.quarantined) continue;
+      var oldLtp = oldMap[nq.symbol];
+      if (isFiniteNum(oldLtp) && oldLtp !== nq.ltp) {
+        changes.push({
+          symbol: nq.symbol,
+          oldLtp: oldLtp,
+          newLtp: nq.ltp,
+          direction: nq.ltp > oldLtp ? 'up' : 'down'
+        });
+      }
+    }
+    state.lastChanges = changes;
+  }
+
   function applySnapshot(snapshot, status) {
+    computeChanges(state.snapshot, snapshot);
     state.snapshot = snapshot;   // atomic swap — subscribers never see partial
     state.lastGood = snapshot;
     persistLastGood(snapshot);
     broadcast(snapshot);
     setStatus(status || 'live');
+  }
+
+  /**
+   * Adopt a snapshot received via broadcast. Same as applySnapshot but
+   * WITHOUT rebroadcasting (the leader's message already reached all tabs).
+   */
+  function applySnapshotRemote(snapshot) {
+    computeChanges(state.snapshot, snapshot);
+    state.snapshot = snapshot;
+    state.lastGood = snapshot;
+    persistLastGood(snapshot);
+    setStatus('live');
   }
 
   function markStale() {
@@ -311,7 +468,17 @@
 
   function poll() {
     state.lastPollMs = Date.now(); // polling-health watermark
-    if (document.hidden) { schedule(); return; } // visibility pause
+    if (typeof document !== 'undefined' && document.hidden) { schedule(); return; } // visibility pause
+    if (!state.isLeader) {
+      // Not the leader: converge via broadcast; the safety net covers a
+      // silent leader (armFallback re-arms on every broadcast received).
+      armFallback();
+      return;
+    }
+    doFetch();
+  }
+
+  function doFetch() {
     fetchOnce().then(function (res) {
       if (res.unchanged) { state.failures = 0; schedule(); return; }
       var v = validateSnapshot(res.json);
@@ -352,8 +519,10 @@
 
   function schedule() {
     clearTimeout(state.timer);
-    var interval = CFG.isMarketOpen() ? CFG.POLL_OPEN_MS : CFG.POLL_CLOSED_MS;
+    var interval = expectedIntervalMs();
     state.timer = setTimeout(poll, interval);
+    // Non-leader tabs also keep the safety net armed on the regular cadence.
+    if (!state.isLeader) armFallback();
   }
 
   function onVisibility() {
@@ -393,6 +562,23 @@
         }
       }
       setupBroadcast();
+      if (state.bc) {
+        // Leader election: only one tab polls; the rest converge via broadcast.
+        // Heartbeat re-asserts every 10s; a tab takes over after 15s of silence.
+        checkLeadership();
+        try {
+          state.leaderTimer = setInterval(checkLeadership, HEARTBEAT_MS);
+        } catch (e) { /* timers unavailable */ }
+      } else {
+        // No BroadcastChannel: cross-tab convergence is impossible, so every
+        // tab polls independently (pre-Phase-3 behavior). Safe fallback.
+        state.isLeader = true;
+      }
+      if (typeof window !== 'undefined' && window.addEventListener) {
+        // Releasing the claim on unload lets another tab take over instantly
+        // instead of waiting out the 15s heartbeat timeout.
+        window.addEventListener('beforeunload', clearLeaderClaim);
+      }
       if (typeof document !== 'undefined' && document.addEventListener) {
         document.addEventListener('visibilitychange', onVisibility);
       }
@@ -423,6 +609,42 @@
         requests200: state.requests200,
         savingsPct: total > 0 ? Math.round((state.bytesSaved / total) * 1000) / 10 : 0
       };
+    },
+
+    /**
+     * Symbols whose ltp moved in the latest snapshot swap, plus the NEPSE
+     * index as pseudo-symbol "NEPSE".
+     * [{ symbol, oldLtp, newLtp, direction: 'up'|'down' }]. Empty when the
+     * latest swap had no visible changes (e.g. first load, 304, stale restore).
+     */
+    getChangedSymbols: function () {
+      return state.lastChanges.slice();
+    },
+
+    /**
+     * Human age of the last-good snapshot: "just now", "12 min ago",
+     * "2 h ago", "3 d ago". Null when no snapshot has ever validated.
+     * Powers the badge's "STALE · 12 min old" detail.
+     */
+    getLastGoodAge: function () {
+      var s = state.lastGood || state.snapshot;
+      if (!s || !s.receivedAt) return null;
+      var ms = Date.now() - s.receivedAt;
+      if (ms < 0) ms = 0;
+      var mins = Math.floor(ms / 60000);
+      var n = function (x) {
+        try { return Number(x).toLocaleString('en-IN'); } catch (e) { return String(x); }
+      };
+      if (mins < 1) return 'just now';
+      if (mins < 60) return n(mins) + ' min ago';
+      var hours = Math.floor(mins / 60);
+      if (hours < 24) return n(hours) + ' h ago';
+      return n(Math.floor(hours / 24)) + ' d ago';
+    },
+
+    /** True when this tab is the elected polling leader. */
+    isLeader: function () {
+      return state.isLeader;
     },
 
     /** Visible (non-quarantined) quotes only. */
@@ -458,7 +680,8 @@
 
     // Exposed for tests and Phase 2+:
     _validate: validateSnapshot,
-    _normalizeQuote: normalizeQuote
+    _normalizeQuote: normalizeQuote,
+    _poll: poll
   };
 
   global.NepseData = NepseData;

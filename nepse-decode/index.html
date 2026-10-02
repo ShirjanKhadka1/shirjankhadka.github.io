@@ -126,8 +126,8 @@
     <section class="d2-card" aria-label="Market overview" style="margin-bottom:20px">
       <div class="d2-hero-grid">
         <div>
-          <div class="d2-hero-label">NEPSE Index · <span id="d2State">–</span></div>
-          <div class="d2-hero-price" id="d2IdxVal"><span class="d2-skl" style="height:64px;width:70%"></span></div>
+          <div class="d2-hero-label">NEPSE Index · <span id="d2State">–</span> <span id="nlvBadgeSlot"></span></div>
+          <div class="d2-hero-price" id="d2IdxVal" data-flash-symbol="NEPSE"><span class="d2-skl" style="height:64px;width:70%"></span></div>
           <div style="margin-top:8px"><span class="d2-hero-badge" id="d2IdxChg"><span class="d2-skl" style="height:24px;width:180px"></span></span></div>
           <div class="d2-hero-chart"><canvas id="d2Spark" role="img" aria-label="NEPSE closing levels, recent sessions"></canvas></div>
           <div class="d2-daystats" aria-label="Session day statistics">
@@ -365,6 +365,8 @@
 <script src="/js/nepse-market-config.js?v=20261003a"></script>
 <script src="/js/nepse-format.js?v=20261003a"></script>
 <script src="/js/nepse-data.js?v=20261003a"></script>
+<script src="/js/nepse-badge.js?v=20261003a"></script>
+<script src="/js/nepse-flash.js?v=20261003a"></script>
 <script>
 (function(){
   'use strict';
@@ -800,6 +802,8 @@
     var st={ state:state };
     paintBadge(st);
     var sesNpt=paintHero(d, st);
+    // Phase 3: flash the hero price when the index moved between polls.
+    if(window.NepseFlash) window.NepseFlash.apply(document);
     paintBreadthStats(quotes);
     paintTicker(quotes);
     paintGainersLosers(quotes);
@@ -821,6 +825,11 @@
     if(window.NepseData&&window.NepseFormat){
       window.NepseData.start(); // idempotent
       window.NepseData.subscribe(onData);
+      // Phase 3: shared freshness badge (auto-updates via NepseData.subscribe).
+      if(window.NepseBadge){
+        var slot=$('nlvBadgeSlot');
+        if(slot) window.NepseBadge.mount(slot);
+      }
     } else {
       // Modules failed to load: honest empty state, never a reload loop.
       paintMarketEmpty('Market data is temporarily unavailable.');
