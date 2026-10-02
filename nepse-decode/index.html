@@ -36,6 +36,7 @@
 <link rel="stylesheet" href="/css/nepse-d2.css?v=20261002d">
 <link rel="stylesheet" href="/css/theme.css?v=20261002d">
 <link rel="stylesheet" href="/css/nepse-index-candles.css?v=20261002j">
+<link rel="stylesheet" href="/css/nepse-logos.css">
 <style>
 /* homepage-only */
 .d2-hero-chart { margin-top: 18px; }
@@ -385,6 +386,8 @@ window.addEventListener('error', function (e) {
 <script src="/js/nepse-data.js?v=20261003a"></script>
 <script src="/js/nepse-badge.js?v=20261002c"></script>
 <script src="/js/nepse-flash.js?v=20261003a"></script>
+<script src="/js/company-logos.js"></script>
+<script src="/js/nepse-logos.js"></script>
 <script>
 (function(){
   'use strict';
@@ -460,7 +463,7 @@ window.addEventListener('error', function (e) {
     if(!list.length){ el.innerHTML='<span class="d2-caption" style="padding:0 16px">Ticker unavailable.</span>'; return; }
     var html=list.map(function(q){
       var ch=+q.change||0, p=q.pct, cls=ch>=0?'up':'down';
-      return '<a class="d2-tick-item" href="'+symLink(q.symbol)+'"><span class="tk-sym">'+esc(q.symbol)+'</span>'+
+      return '<a class="d2-tick-item" href="'+symLink(q.symbol)+'">'+(window.NepseLogo?window.NepseLogo.html(q.symbol,'',20):'')+'<span class="tk-sym">'+esc(q.symbol)+'</span>'+
         '<span class="num">'+(q.ltp!=null?px(q.ltp):'—')+'</span>'+
         '<span class="tk-chg '+cls+'">'+sPx(ch)+' ('+pc(p)+')</span></a>';
     }).join('');
@@ -470,7 +473,7 @@ window.addEventListener('error', function (e) {
     var sym = q && q.symbol ? String(q.symbol).toUpperCase() : '';
     if(!sym) return ''; // never render a broken link: omit malformed rows
     var ch=+q.change||0, p=q.pct, cls=ch>=0?'up':'down';
-    return '<tr><td><a class="t-sym" href="'+symLink(sym)+'">'+esc(sym)+'</a></td>'+
+    return '<tr><td><a class="t-sym" href="'+symLink(sym)+'">'+(window.NepseLogo?window.NepseLogo.html(sym,'',24):'')+esc(sym)+'</a></td>'+
       '<td class="num '+cls+'">'+sPx(ch)+'</td>'+
       '<td class="num '+cls+'">'+pc(p)+'</td>'+
       '<td class="num">'+(q.ltp!=null?px(q.ltp):'—')+'</td></tr>';
@@ -503,7 +506,7 @@ window.addEventListener('error', function (e) {
     el.innerHTML=list.map(function(q){
       var ch=+q.pct||0, cls=ch>=0?'up':'down';
       var v=key==='turnover'?money(+q.turnover||0):ct(Math.round(+q[key]||0));
-      return '<tr><td><a class="t-sym" href="'+symLink(q.symbol)+'">'+esc(q.symbol)+'</a></td>'+
+      return '<tr><td><a class="t-sym" href="'+symLink(q.symbol)+'">'+(window.NepseLogo?window.NepseLogo.html(q.symbol,'',24):'')+esc(q.symbol)+'</a></td>'+
         '<td class="num">'+v+'</td>'+
         '<td class="num '+cls+'">'+pc(ch)+'</td>'+
         '<td class="num">'+(q.ltp!=null?px(q.ltp):'—')+'</td></tr>';
@@ -530,7 +533,7 @@ window.addEventListener('error', function (e) {
       var ch=+q.pct||0, cls=ch>=0?'up':'down';
       return '<a class="d2-card d2-tool" href="'+symLink(q.symbol)+'">'+
         '<span class="d2-wl-num" aria-hidden="true">'+(i+1)+'</span>'+
-        '<span style="flex:1"><h3>'+esc(q.symbol)+' <span class="d2-caption">· '+esc(q.name||'')+'</span></h3>'+
+        '<span style="flex:1"><h3>'+(window.NepseLogo?window.NepseLogo.html(q.symbol,'',28):'')+esc(q.symbol)+' <span class="d2-caption">· '+esc(q.name||'')+'</span></h3>'+
         '<p>'+(q.ltp!=null?'Rs '+px(q.ltp):'—')+' · <span class="'+cls+'" style="font-weight:700;color:var(--d2-'+(ch>=0?'gain':'loss')+')">'+pc(ch)+'</span> today · '+money(+q.turnover||0)+' turnover</p></span></a>';
     }).join('');
   }
@@ -622,7 +625,7 @@ window.addEventListener('error', function (e) {
     }
     input.addEventListener('input',function(){
       var m=find(input.value);
-      if(box) box.innerHTML=m.map(function(x){return '<a href="'+symLink(x.s)+'">'+esc(x.s)+' <span class="d2-caption">· '+esc(x.n)+'</span></a>';}).join('');
+      if(box) box.innerHTML=m.map(function(x){return '<a href="'+symLink(x.s)+'">'+(window.NepseLogo?window.NepseLogo.html(x.s,'',22):'')+esc(x.s)+' <span class="d2-caption">· '+esc(x.n)+'</span></a>';}).join('');
     });
     $('d2Search').addEventListener('submit',function(){
       var m=find(input.value);
@@ -670,7 +673,7 @@ window.addEventListener('error', function (e) {
     tape.innerHTML=view.map(function(e){
       return '<div class="d2-pulse-row"><div class="d2-pulse-time">'+esc(pulseRel(e.date))+'<span>'+esc(e.date)+'</span></div>'+
         '<span class="d2-pulse-kind '+pulseKindCls(e)+'">'+pulseKindLabel(e)+'</span>'+
-        '<span class="d2-pulse-sym">'+esc(e.sym||'—')+'</span>'+
+        '<span class="d2-pulse-sym">'+(window.NepseLogo&&e.sym?window.NepseLogo.html(e.sym,'',20):'')+esc(e.sym||'—')+'</span>'+
         '<div class="d2-pulse-title">'+esc(e.title)+(e.link?' <a href="'+esc(e.link)+'" target="_blank" rel="noopener">source ↗</a>':'')+'</div></div>';
     }).join('');
     if(box){
