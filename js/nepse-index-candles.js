@@ -38,7 +38,6 @@
     { key: '1Y', sessions: 250 },
     { key: '5Y', sessions: 1250 },   // ~5 trading years
   { key: 'MAX', sessions: Infinity } // full history since 2003
-  { key: 'MAX', sessions: Infinity }
   ];
   var DEFAULT_RANGE = '1M';
 
