@@ -548,6 +548,9 @@
     return new Date(Date.now() + 5.75 * 3600e3);
   }
   function marketOpenNPT() {
+    // Canonical market calendar (NepseMarketConfig): Mon–Fri trading days,
+    // 11:00–15:00 NPT regular session, public holidays excluded.
+    if (typeof window !== 'undefined' && window.NepseMarketConfig) return window.NepseMarketConfig.isMarketOpen();
     var t = todayNPT(), d = t.getUTCDay(), mins = t.getUTCHours() * 60 + t.getUTCMinutes();
     return d >= 1 && d <= 5 && mins >= 660 && mins < 900; // Mon–Fri 11:00–15:00 NPT (regular session)
   }

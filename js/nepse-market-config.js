@@ -5,7 +5,7 @@
  *  - Trading days (Monday–Friday, per NEPSE schedule since Apr 2026)
  *    — Sat/Sun are the weekend; the market calendar is authority.
  *  - NEPSE public holidays (approximate 2026 list — the market calendar is authority)
- *  - Market hours (11:00–15:00 NPT)
+ *  - Pre-open (10:45:00–10:59:59 NPT) and market hours (11:00–15:00 NPT)
  *  - Circuit-breaker quarantine threshold (±10%)
  *  - Live-data age thresholds
  *  - Polling intervals and retry backoff
@@ -63,6 +63,11 @@
     MARKET_OPEN_MINUTE: 0,
     MARKET_CLOSE_HOUR: 15,
     MARKET_CLOSE_MINUTE: 0,
+
+    // ---- Pre-open (NPT, 24h) ----
+    // 10:45:00–10:59:59 on trading days. In minutes since midnight:
+    PREOPEN_OPEN_MIN: 10 * 60 + 45,   // 645
+    PREOPEN_CLOSE_MIN: 11 * 60,       // 660 (exclusive)
 
     // ---- Data-quality gates ----
     // Moves beyond ±10% vs previous close are suspect → quarantine, never display.
@@ -138,10 +143,27 @@
     },
 
     /**
-     * Market state: 'OPEN' | 'CLOSED'.
+     * True if NEPSE is in the pre-open window 10:45:00–10:59:59 NPT
+     * on a trading day. Yesterday's close is the reference through
+     * pre-open; live overlays engage when the regular session starts.
+     */
+    isPreOpen: function (nptDate) {
+      var d = nptDate || MarketConfig.nowNPT();
+      if (!MarketConfig.isTradingDay(d)) return false;
+      var mins = d.getHours() * 60 + d.getMinutes();
+      return mins >= MarketConfig.PREOPEN_OPEN_MIN && mins < MarketConfig.PREOPEN_CLOSE_MIN;
+    },
+
+    /**
+     * Market state: 'PRE-OPEN' | 'OPEN' | 'CLOSED'.
+     * 'OPEN' is the regular session only (11:00–15:00 NPT, Mon–Fri,
+     * non-holiday). Everything else — weekends, holidays, pre-open,
+     * overnight — is 'PRE-OPEN' or 'CLOSED' as applicable.
      */
     marketState: function (nptDate) {
-      return MarketConfig.isMarketOpen(nptDate) ? 'OPEN' : 'CLOSED';
+      var d = nptDate || MarketConfig.nowNPT();
+      if (MarketConfig.isPreOpen(d)) return 'PRE-OPEN';
+      return MarketConfig.isMarketOpen(d) ? 'OPEN' : 'CLOSED';
     }
   };
 

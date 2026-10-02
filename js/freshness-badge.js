@@ -17,14 +17,19 @@
   var MANIFEST_URL = '/data/manifest.json';
 
   function tradingDaysBetween(fromYMD, toYMD) {
-    // crude session-age: count Mon-Fri days between (excludes weekends only;
-    // holidays make this conservative, which is fine for a stale warning)
+    // Session-age: count NEPSE trading days between (canonical
+    // NepseMarketConfig.isTradingDay — Mon–Fri minus public holidays).
     var from = new Date(fromYMD + 'T00:00:00Z'), to = new Date(toYMD + 'T00:00:00Z');
+    var hasCfg = typeof window !== 'undefined' && window.NepseMarketConfig &&
+      typeof window.NepseMarketConfig.isTradingDay === 'function';
     var n = 0, d = new Date(from);
     d.setUTCDate(d.getUTCDate() + 1);
     while (d <= to) {
-      var dow = d.getUTCDay();
-      if (dow !== 0 && dow !== 6) n++;
+      var ymd = d.getUTCFullYear() + '-' + ('0' + (d.getUTCMonth() + 1)).slice(-2) +
+        '-' + ('0' + d.getUTCDate()).slice(-2);
+      var trading = hasCfg ? window.NepseMarketConfig.isTradingDay(ymd)
+        : (d.getUTCDay() !== 0 && d.getUTCDay() !== 6);
+      if (trading) n++;
       d.setUTCDate(d.getUTCDate() + 1);
     }
     return n;

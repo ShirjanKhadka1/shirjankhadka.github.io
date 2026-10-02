@@ -25,16 +25,26 @@
 
   /* ---------------- time ---------------- */
 
-  function nowNPT() { return new Date(Date.now() + NPT); }
+  // Canonical market calendar: window.NepseMarketConfig.
+  // NEPSE trades Monday–Friday; Sat/Sun are holidays.
+  // Pre-open 10:45:00–10:59:59 NPT; regular session 11:00–15:00 NPT.
+  // All day/time math lives in the config module — nothing here (or on any
+  // page) keeps its own copy of the trading-day logic.
+  var CFG = (typeof window !== 'undefined' && window.NepseMarketConfig) || null;
 
-  // NEPSE schedule (Nepal time), Monday to Friday (canonical: NepseMarketConfig):
-  //   pre-open 10:45-11:00, regular session 11:00-15:00.
-  // Yesterday's close is the reference through pre-open; live overlays
-  // engage when the regular session starts.
+  function nowNPT() { return CFG ? CFG.nowNPT() : new Date(Date.now() + NPT); }
+
+  // NepseLive keeps its lowercase contract ('open'/'preopen'/'closed') for
+  // existing badge consumers; the calendar itself is canonical.
   function marketState() {
-    var t = nowNPT();
+    if (CFG) {
+      var s = CFG.marketState(); // 'PRE-OPEN' | 'OPEN' | 'CLOSED'
+      return s === 'OPEN' ? 'open' : s === 'PRE-OPEN' ? 'preopen' : 'closed';
+    }
+    // Defensive fallback (config missing): correct Mon–Fri logic.
+    var t = new Date(Date.now() + NPT);
     var d = t.getUTCDay(); // 0 = Sunday
-    if (d > 4) return 'closed'; // Friday (5) and Saturday (6): no trading
+    if (d === 0 || d === 6) return 'closed';
     var mins = t.getUTCHours() * 60 + t.getUTCMinutes();
     if (mins >= 645 && mins < 660) return 'preopen';
     if (mins >= 660 && mins < 900) return 'open';
