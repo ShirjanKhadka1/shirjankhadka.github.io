@@ -24,6 +24,7 @@
     { href: '/nepse-signals/momentum/', label: 'Momentum', sub: true },
     { href: '/nepse-signals/trend-relay/', label: 'Trend Relay', sub: true },
     { href: '/nepse-signals/reversal/', label: 'Reversal', sub: true },
+        { href: '/nepse-technical/', label: 'Technical' },
     { href: '/nepse-screener/', label: 'Screener' },
     { href: '/nepse-trending/', label: 'Trending Stocks' },
     { href: '/nepse-value/', label: 'Value Investing' },
