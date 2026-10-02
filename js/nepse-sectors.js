@@ -329,7 +329,7 @@
     return '<ul>' + rows.map(function (r) {
       var price = r.p == null ? '-' : num(r.p, 2);
       return '<li><a class="sx-sym" href="/nepse-chart/?s=' + esc(r.sym) + '">' +
-        (Mono ? Mono.avatar(r.sym, sec, 26) : '') + '<span>' + esc(r.sym) + '</span></a>' +
+        (window.NepseLogo ? window.NepseLogo.html(r.sym, sec, 26) : (Mono ? Mono.avatar(r.sym, sec, 26) : '')) + '<span>' + esc(r.sym) + '</span></a>' +
         '<span class="sx-p tnum">' + esc(price) + '</span>' +
         '<span class="sx-ch tnum">' + signPct(r.ch) + '</span></li>';
     }).join('') + '</ul>';

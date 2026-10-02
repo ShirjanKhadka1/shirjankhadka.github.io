@@ -71,7 +71,7 @@
         ? '<span class="mkt-price">' + fmtMoney(it.t) + '</span>'
         : '<span class="mkt-price">Rs ' + (it.p != null ? fmt2(it.p) : '—') + '</span>';
       return '<div class="mkt-row"><a class="mkt-sym" href="' + chartLink(it.s) + '">' +
-        (Mono ? Mono.avatar(it.s) : '') + '<span>' + esc(it.s) + '</span></a>' + chgHTML(it.ch) + right + '</div>';
+        (window.NepseLogo ? window.NepseLogo.html(it.s, it.sector, 28) : Mono.avatar(it.s)) + '<span>' + esc(it.s) + '</span></a>' + chgHTML(it.ch) + right + '</div>';
     }).join('');
   }
 
