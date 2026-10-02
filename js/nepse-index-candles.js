@@ -2,32 +2,20 @@
    NEPSE INDEX CANDLES — homepage market-overview candlestick chart
    ------------------------------------------------------------
    Renders the NEPSE index as an interactive candlestick chart with
-   timeframe pills (1D / 1W / 1M / 1Y / 5Y), a volume histogram, a
-   close-price area overlay, and a live session candle that updates
-   as new snapshots arrive. The chart is scrollable (drag / wheel /
-   pinch) without trapping vertical page scroll on touch.
-
-   Ranges are deliberately dense — every view shows a real,
-   scrollable history, not a handful of candles:
-     1D → daily candles, trailing 120 sessions  (~6 months)
-     1W → daily candles, trailing 260 sessions  (~1 year)
-     1M → daily candles, trailing 520 sessions  (~2 years)
-     1Y → weekly candles (Mon–Fri), trailing 260 weeks (5 years)
-     5Y → monthly candles, full available history
-   No support/resistance lines, no annotations — pure price + volume.
+   timeframe pills (1D / 1W / 1M / 1Y / 5Y), a close-price area
+   overlay, and a live session candle that updates as new snapshots
+   arrive. The chart is scrollable (drag / wheel / pinch) without
+   trapping vertical page scroll on touch.
 
    Data — real data only, nothing synthetic:
-   - Daily OHLCV: window.NEPSE_DAILY from /js/nepse-daily.js
+   - Daily OHLC:  window.NEPSE_DAILY from /js/nepse-daily.js
                    ([YYYYMMDD, open, high, low, close, volume]).
-   - Deep history: /data/index-history.json (lazy-loaded on demand
-                   for 1M / 1Y / 5Y).
+   - 5Y depth:    /data/index-history.json (lazy-loaded on demand).
    - Today:       live snapshot via NepseData.subscribe() — zero
                    extra network requests; updates ride the page's
-                   existing 15-minute refresh. The index snapshot
-                   carries no volume, so the forming session candle
-                   plots no volume bar (never fabricated).
-   There is no intraday index archive, so the finest resolution is
-   the daily candle — 1D shows daily history like a real chart app.
+                   existing 15-minute refresh.
+   There is no intraday index archive, so 1D honestly shows the
+   current session as a single live OHLC candle.
 
    The charting library (/js/vendor/lightweight-charts) is lazy-
    loaded when the block nears the viewport. If it fails, a plain
@@ -43,33 +31,27 @@
   var HIST_SRC = '/data/index-history.json';
   var SPARK_SRC = '/nepse-chart/data/index-spark.json';
 
-  // key → candle resolution + trailing depth (all real sessions).
   var RANGES = [
-    { key: '1D', res: '1D', depth: 120, hist: false },
-    { key: '1W', res: '1D', depth: 260, hist: false },
-    { key: '1M', res: '1D', depth: 520, hist: true },
-    { key: '1Y', res: '1W', depth: 260, hist: true },
-    { key: '5Y', res: '1M', depth: 120, hist: true }
+    { key: '1D', sessions: 'live' },
+    { key: '1W', sessions: 5 },
+    { key: '1M', sessions: 22 },
+    { key: '1Y', sessions: 250 },
+    { key: '5Y', sessions: Infinity }
   ];
-  var DEFAULT_RANGE = '1D';
+  var DEFAULT_RANGE = '1M';
 
   var UP = '#2ebd85', DOWN = '#f23645';
-  var VOL_UP = 'rgba(46,189,133,0.45)', VOL_DOWN = 'rgba(242,54,69,0.45)';
 
   var scriptCache = {};
-  var chart = null, candleSeries = null, areaSeries = null, volumeSeries = null, priceLine = null;
+  var chart = null, candleSeries = null, areaSeries = null, priceLine = null;
   var allCandles = [];      // merged daily history + live candle, ascending
-  var currentRange = DEFAULT_RANGE, lastBarTime = null;
+  var currentRange = DEFAULT_RANGE;
   var histLoaded = false, histLoading = false;
   var started = false;
 
   function $(id) { return document.getElementById(id); }
   function isDark() { return document.documentElement.getAttribute('data-theme') === 'dark'; }
   function pad(n) { return (n < 10 ? '0' : '') + n; }
-  function rangeDef(key) {
-    for (var i = 0; i < RANGES.length; i++) if (RANGES[i].key === key) return RANGES[i];
-    return RANGES[0];
-  }
 
   /* ---------- tiny helpers ---------- */
 
@@ -94,32 +76,19 @@
     return npt.getUTCFullYear() + '-' + pad(npt.getUTCMonth() + 1) + '-' + pad(npt.getUTCDate());
   }
 
-  // Compact volume axis labels: 1.87B / 42.10M / 900.5K (display only).
-  function fmtVol(v) {
-    v = +v;
-    if (!isFinite(v)) return '';
-    var a = Math.abs(v);
-    if (a >= 1e9) return (v / 1e9).toFixed(2) + 'B';
-    if (a >= 1e6) return (v / 1e6).toFixed(2) + 'M';
-    if (a >= 1e3) return (v / 1e3).toFixed(1) + 'K';
-    return String(Math.round(v));
-  }
-
   function rowToCandle(r) {
     var d = String(r[0]);
-    var o = +r[1], h = +r[2], l = +r[3], c = +r[4], v = +r[5];
+    var o = +r[1], h = +r[2], l = +r[3], c = +r[4];
     if (!/^\d{8}$/.test(d)) return null;
     if (![o, h, l, c].every(isFinite) || h < l || o <= 0 || c <= 0) return null;
     return {
       time: d.slice(0, 4) + '-' + d.slice(4, 6) + '-' + d.slice(6, 8),
-      open: o, high: Math.max(h, o, c), low: Math.min(l, o, c), close: c,
-      volume: isFinite(v) && v > 0 ? v : 0
+      open: o, high: Math.max(h, o, c), low: Math.min(l, o, c), close: c
     };
   }
 
   // Today's session as one OHLC candle from the live snapshot.
   // NEPSE opens at/near the previous close, so open falls back to it.
-  // The snapshot carries no index volume — volume stays 0 (never faked).
   function liveCandle(snapshot) {
     if (!snapshot || !snapshot.index) return null;
     var ix = snapshot.index;
@@ -132,7 +101,7 @@
     return {
       time: date, open: open,
       high: Math.max(high, open, close), low: Math.min(low, open, close),
-      close: close, volume: 0, live: true
+      close: close, live: true
     };
   }
 
@@ -146,44 +115,8 @@
     if (live) {
       var last = out[out.length - 1];
       if (!last || live.time > last.time) out.push(live);
-      else if (live.time === last.time) {
-        // Keep the archived volume when the live snapshot has none.
-        if (!live.volume && last.volume) live.volume = last.volume;
-        out[out.length - 1] = live;
-      }
+      else if (live.time === last.time) out[out.length - 1] = live;
     }
-    return out;
-  }
-
-  // Monday (NPT calendar) of the week containing dateStr — NEPSE is Mon–Fri.
-  function mondayOf(dateStr) {
-    var d = new Date(dateStr + 'T00:00:00');
-    var dow = (d.getDay() + 6) % 7; // Monday = 0
-    d.setDate(d.getDate() - dow);
-    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
-  }
-
-  // Daily candles → weekly ('1W') or monthly ('1M') aggregates, ascending.
-  function aggregate(candles, res) {
-    if (res === '1D') return candles.slice();
-    var out = [], cur = null, curKey = null;
-    candles.forEach(function (c) {
-      var key = res === '1W' ? mondayOf(c.time) : c.time.slice(0, 7) + '-01';
-      if (key !== curKey) {
-        cur = {
-          time: key, open: c.open, high: c.high, low: c.low, close: c.close,
-          volume: c.volume || 0, live: !!c.live
-        };
-        curKey = key;
-        out.push(cur);
-      } else {
-        cur.high = Math.max(cur.high, c.high);
-        cur.low = Math.min(cur.low, c.low);
-        cur.close = c.close;
-        cur.volume = (cur.volume || 0) + (c.volume || 0);
-        if (c.live) cur.live = true;
-      }
-    });
     return out;
   }
 
@@ -233,12 +166,6 @@
     areaSeries = chart.addAreaSeries({
       lineWidth: 2, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false
     });
-    volumeSeries = chart.addHistogramSeries({
-      priceScaleId: 'vol',
-      priceFormat: { type: 'custom', formatter: fmtVol },
-      lastValueVisible: false, priceLineVisible: false
-    });
-    chart.priceScale('vol').applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
 
     new ResizeObserver(function () {
       if (chart) chart.applyOptions({ width: mount.clientWidth, height: mount.clientHeight });
@@ -261,47 +188,39 @@
 
   /* ---------- ranges ---------- */
 
-  function seriesFor(rangeKey) {
-    var def = rangeDef(rangeKey);
-    return aggregate(allCandles, def.res).slice(-def.depth);
-  }
-
-  function resName(res) {
-    return res === '1D' ? 'daily' : (res === '1W' ? 'weekly' : 'monthly');
-  }
-
-  function setPriceLine(bar) {
-    if (priceLine) { try { candleSeries.removePriceLine(priceLine); } catch (e) {} priceLine = null; }
-    priceLine = candleSeries.createPriceLine({
-      price: bar.close,
-      color: bar.close >= bar.open ? UP : DOWN,
-      lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: ''
-    });
+  function sliceFor(rangeKey) {
+    if (rangeKey === '1D') {
+      var live = allCandles.filter(function (c) { return c.live; });
+      return live.length ? live : allCandles.slice(-1);
+    }
+    var def = RANGES.filter(function (r) { return r.key === rangeKey; })[0] || RANGES[2];
+    if (!isFinite(def.sessions)) return allCandles.slice();
+    return allCandles.slice(-def.sessions);
   }
 
   function paintRange(key) {
-    var data = seriesFor(key);
-    if (!data.length || !candleSeries) return;
-    var def = rangeDef(key);
+    var slice = sliceFor(key);
+    if (!slice.length || !candleSeries) return;
     currentRange = key;
-    var up = data[data.length - 1].close >= data[0].open;
+    var up = slice[slice.length - 1].close >= slice[0].open;
     var ac = areaColors(up);
-    candleSeries.setData(data.map(function (c) {
+    candleSeries.setData(slice.map(function (c) {
       return { time: c.time, open: c.open, high: c.high, low: c.low, close: c.close };
     }));
-    areaSeries.setData(data.map(function (c) { return { time: c.time, value: c.close }; }));
+    areaSeries.setData(slice.map(function (c) { return { time: c.time, value: c.close }; }));
     areaSeries.applyOptions({ lineColor: ac.line, topColor: ac.top, bottomColor: ac.bottom });
-    volumeSeries.setData(data.map(function (c) {
-      return { time: c.time, value: c.volume || 0, color: c.close >= c.open ? VOL_UP : VOL_DOWN };
-    }));
-    setPriceLine(data[data.length - 1]);
-    lastBarTime = data[data.length - 1].time;
+    if (priceLine) { try { candleSeries.removePriceLine(priceLine); } catch (e) {} priceLine = null; }
+    priceLine = candleSeries.createPriceLine({
+      price: slice[slice.length - 1].close,
+      color: up ? UP : DOWN, lineWidth: 1, lineStyle: 2,
+      axisLabelVisible: true, title: ''
+    });
     chart.timeScale().fitContent();
     var mount = $(MOUNT_ID);
-    var first = data[0], last = data[data.length - 1];
+    var first = slice[0], last = slice[slice.length - 1];
     if (mount) mount.setAttribute('aria-label',
-      'NEPSE index candlestick chart with volume, range ' + key + ' (' + resName(def.res) + '): ' +
-      data.length + ' bars, ' + first.time + ' to ' + last.time +
+      'NEPSE index candlestick chart, range ' + key + ': ' + slice.length +
+      ' sessions, ' + first.time + ' to ' + last.time +
       ', last close ' + last.close.toFixed(2));
     document.querySelectorAll('.nic-pills button').forEach(function (b) {
       var on = b.getAttribute('data-range') === key;
@@ -310,42 +229,30 @@
     });
   }
 
-  // Update only the forming bar in place (keeps the user's scroll position).
-  function updateLastBar(bar) {
-    var up = bar.close >= bar.open;
-    candleSeries.update({ time: bar.time, open: bar.open, high: bar.high, low: bar.low, close: bar.close });
-    volumeSeries.update({ time: bar.time, value: bar.volume || 0, color: up ? VOL_UP : VOL_DOWN });
-    areaSeries.update({ time: bar.time, value: bar.close });
-    setPriceLine(bar);
-    lastBarTime = bar.time;
-  }
-
   function ensureHistoryThen(key) {
-    var def = rangeDef(key);
-    if (!def.hist || histLoaded || histLoading) { paintRange(key); return; }
+    if (key !== '5Y' || histLoaded || histLoading) { paintRange(key); return; }
     histLoading = true;
-    var btn = document.querySelector('.nic-pills button[data-range="' + key + '"]');
-    var orig = btn ? btn.textContent : key;
-    if (btn) { btn.disabled = true; btn.textContent = key + '…'; }
+    var btn = document.querySelector('.nic-pills button[data-range="5Y"]');
+    if (btn) { btn.disabled = true; btn.textContent = '5Y…'; }
     fetch(HIST_SRC, { cache: 'force-cache' }).then(function (r) {
       if (!r.ok) throw new Error('history ' + r.status);
       return r.json();
     }).then(function (j) {
       var rows = (j && j.rows) || [];
       var have = {};
-      allCandles.forEach(function (c) { have[c.time] = true; });
+      allCandles.forEach(function (c) { have[c.time.replace(/-/g, '')] = true; });
       var extra = [];
       rows.forEach(function (r) {
         var c = rowToCandle(r);
-        if (c && !have[c.time]) { have[c.time] = true; extra.push(c); }
+        if (c && !have[c.time]) extra.push(c);
       });
       allCandles = extra.concat(allCandles).sort(function (a, b) { return a.time < b.time ? -1 : 1; });
       histLoaded = true;
-      paintRange(key);
+      paintRange('5Y');
     }).catch(function () { paintRange(currentRange); })
     .then(function () {
       histLoading = false;
-      if (btn) { btn.disabled = false; btn.textContent = orig; }
+      if (btn) { btn.disabled = false; btn.textContent = '5Y'; }
     });
   }
 
@@ -357,12 +264,21 @@
     var rows = window.NEPSE_DAILY || [];
     allCandles = mergeCandles(rows, live);
     if (!chart) return;
-    var data = seriesFor(currentRange);
-    var last = data[data.length - 1];
-    if (last && last.time === lastBarTime) {
-      updateLastBar(last);   // same session: nudge the forming bar, keep scroll
-    } else {
-      paintRange(currentRange); // new session rolled over: repaint
+    if (currentRange === '1D' || live.time >= allCandles[allCandles.length - 1].time) {
+      // Update the live candle in place; rebuild the range if a new session started.
+      var slice = sliceFor(currentRange);
+      var lastInSlice = slice[slice.length - 1];
+      if (lastInSlice && lastInSlice.time === live.time) {
+        candleSeries.update({ time: live.time, open: live.open, high: live.high, low: live.low, close: live.close });
+        areaSeries.update({ time: live.time, value: live.close });
+        if (priceLine) { try { candleSeries.removePriceLine(priceLine); } catch (e) {} }
+        var up = live.close >= live.open;
+        priceLine = candleSeries.createPriceLine({
+          price: live.close, color: up ? UP : DOWN, lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: ''
+        });
+      } else {
+        paintRange(currentRange);
+      }
     }
   }
 

@@ -185,7 +185,7 @@
     var state = (st && st.state) || 'unknown';
     var cls = state === 'live' ? 'live' : state === 'delayed' ? 'delayed' :
               state === 'preopen' ? 'preopen' : 'closed';
-    var label = state === 'live' ? 'LIVE' : state === 'delayed' ? 'DELAYED' :
+    var label = state === 'live' ? 'DELAYED' : state === 'delayed' ? 'DELAYED' :
                 state === 'preopen' ? 'PRE-OPEN' : 'CLOSED';
     var dot = state === 'live' ? '<span class="nlv-dot" aria-hidden="true"></span>' : '';
     var sub = '';
