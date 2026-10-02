@@ -296,7 +296,7 @@
     var rsi = vd.rsi;
     var rsiTxt = (rsi === null || rsi === undefined) ? 'RSI –' : 'RSI ' + fmtNum(rsi, 1);
     return '<div class="d2-wl-row" role="listitem" tabindex="0" data-sym="' + esc(sym) + '">' +
-      '<div class="d2-wl-sym"><a href="' + esc(stockUrl(sym)) + '">' + esc(sym) + '</a>' +
+      '<div class="d2-wl-sym"><a href="' + esc(stockUrl(sym)) + '">' + (window.NepseLogo?window.NepseLogo.html(sym,'',24):'') + esc(sym) + '</a>' +
       '<small>' + esc(meta ? meta.n : '') + '</small></div>' +
       '<div class="d2-wl-meta">' +
         '<span class="d2-wl-px d2-num">Rs ' + fmtNum(vd.p, 2) + '</span>' +
@@ -398,7 +398,7 @@
     suggestBox.innerHTML = currentMatches.map(function (u, i) {
       return '<button type="button" role="option" id="wl-opt-' + i + '" data-i="' + i + '"' +
         (i === suggestIdx ? ' class="active"' : '') + '>' +
-        '<span>' + esc(u.s) + '</span><small>' + esc(u.n) + '</small></button>';
+(window.NepseLogo?window.NepseLogo.html(u.s,'',22):'') + '<span>' + esc(u.s) + '</span><small>' + esc(u.n) + '</small></button>';
     }).join('');
     suggestBox.hidden = false;
   }

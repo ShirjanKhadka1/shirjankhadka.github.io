@@ -298,7 +298,7 @@
         ? '<span class="tnum">—</span>'
         : '<span class="tnum ' + signedCls(r.unrl) + '">' + fmtRs(r.unrl) + '<br><small>' + fmtPct(r.ret) + '</small></span>';
       return '<tr>' +
-        '<td><a class="pf-sym" href="/nepse-chart/?s=' + esc(h.s) + '">' + esc(h.s) + '</a>' +
+        '<td><a class="pf-sym" href="/nepse-chart/?s=' + esc(h.s) + '">' + (window.NepseLogo?window.NepseLogo.html(h.s,'',24):'') + esc(h.s) + '</a>' +
         '<span class="pf-name">' + esc(m ? m.n : '') + '</span></td>' +
         '<td class="tnum">' + fmtNum(h.qty, 2) + '</td>' +
         '<td class="tnum">' + fmtRs(h.cost) + '</td>' +
@@ -378,7 +378,7 @@
     var legend = top.map(function (it, i) {
       var pct = Calc.pctOf(it.value, total);
       return '<li><i style="background:' + DONUT_COLORS[i % DONUT_COLORS.length] + '"></i>' +
-        '<span class="pf-dl-sym">' + esc(it.label) + '</span>' +
+        '<span class="pf-dl-sym">' + (window.NepseLogo?window.NepseLogo.html(it.label,'',20):'') + esc(it.label) + '</span>' +
         '<span class="pf-dl-val tnum">' + fmtRs(it.value) + '</span>' +
         '<span class="pf-dl-pct tnum">' + fmtPct(pct).replace('+', '') + '</span></li>';
     }).join('');
@@ -442,7 +442,7 @@
     var rows = p.sells.slice().reverse().map(function (s) {
       tot += s.realized;
       return '<tr><td class="tnum">' + esc(s.date || '—') + '</td>' +
-        '<td><a class="pf-sym" href="/nepse-chart/?s=' + esc(s.s) + '">' + esc(s.s) + '</a></td>' +
+        '<td><a class="pf-sym" href="/nepse-chart/?s=' + esc(s.s) + '">' + (window.NepseLogo?window.NepseLogo.html(s.s,'',24):'') + esc(s.s) + '</a></td>' +
         '<td class="tnum">' + fmtNum(s.qty, 2) + '</td>' +
         '<td class="tnum">' + fmtRs(s.price) + '</td>' +
         '<td class="tnum">' + fmtRs(s.cost) + '</td>' +
@@ -548,7 +548,7 @@
     }
     el.suggest.innerHTML = currentMatches.map(function (u, i) {
       return '<li role="option" id="pf-opt-' + i + '" aria-selected="' + (i === activeIdx) + '">' +
-        '<strong>' + esc(u.s) + '</strong><span>' + esc(u.n) + '</span></li>';
+        (window.NepseLogo?window.NepseLogo.html(u.s,'',22):'') + '<strong>' + esc(u.s) + '</strong><span>' + esc(u.n) + '</span></li>';
     }).join('');
     el.suggest.hidden = false;
     el.search.setAttribute('aria-expanded', 'true');
