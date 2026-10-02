@@ -36,15 +36,17 @@
     { key: '1W', sessions: 5 },
     { key: '1M', sessions: 22 },
     { key: '1Y', sessions: 250 },
-    { key: '5Y', sessions: Infinity },
+    { key: '5Y', sessions: 1250 },   // ~5 trading years
+  { key: 'MAX', sessions: Infinity } // full history since 2003
   { key: 'MAX', sessions: Infinity }
   ];
   var DEFAULT_RANGE = '1M';
 
   var UP = '#2ebd85', DOWN = '#f23645';
+  var VOL_UP = 'rgba(46,189,133,0.45)', VOL_DOWN = 'rgba(242,54,69,0.45)';
 
   var scriptCache = {};
-  var chart = null, candleSeries = null, areaSeries = null, priceLine = null;
+  var chart = null, candleSeries = null, areaSeries = null, volumeSeries = null, priceLine = null;
   var allCandles = [];      // merged daily history + live candle, ascending
   var currentRange = DEFAULT_RANGE;
   var histLoaded = false, histLoading = false;
@@ -77,14 +79,26 @@
     return npt.getUTCFullYear() + '-' + pad(npt.getUTCMonth() + 1) + '-' + pad(npt.getUTCDate());
   }
 
+  // Compact volume axis labels: 1.87B / 42.10M / 900.5K (display only).
+  function fmtVol(v) {
+    v = +v;
+    if (!isFinite(v)) return '';
+    var a = Math.abs(v);
+    if (a >= 1e9) return (v / 1e9).toFixed(2) + 'B';
+    if (a >= 1e6) return (v / 1e6).toFixed(2) + 'M';
+    if (a >= 1e3) return (v / 1e3).toFixed(1) + 'K';
+    return String(Math.round(v));
+  }
+
   function rowToCandle(r) {
     var d = String(r[0]);
-    var o = +r[1], h = +r[2], l = +r[3], c = +r[4];
+    var o = +r[1], h = +r[2], l = +r[3], c = +r[4], v = +r[5];
     if (!/^\d{8}$/.test(d)) return null;
     if (![o, h, l, c].every(isFinite) || h < l || o <= 0 || c <= 0) return null;
     return {
       time: d.slice(0, 4) + '-' + d.slice(4, 6) + '-' + d.slice(6, 8),
-      open: o, high: Math.max(h, o, c), low: Math.min(l, o, c), close: c
+      open: o, high: Math.max(h, o, c), low: Math.min(l, o, c), close: c,
+      volume: isFinite(v) && v > 0 ? v : 0
     };
   }
 
@@ -102,7 +116,7 @@
     return {
       time: date, open: open,
       high: Math.max(high, open, close), low: Math.min(low, open, close),
-      close: close, live: true
+      close: close, volume: 0, live: true // snapshot carries no index volume: never faked
     };
   }
 
@@ -167,6 +181,12 @@
     areaSeries = chart.addAreaSeries({
       lineWidth: 2, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false
     });
+    volumeSeries = chart.addHistogramSeries({
+      priceScaleId: 'vol',
+      priceFormat: { type: 'custom', formatter: fmtVol },
+      lastValueVisible: false, priceLineVisible: false
+    });
+    chart.priceScale('vol').applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
 
     new ResizeObserver(function () {
       if (chart) chart.applyOptions({ width: mount.clientWidth, height: mount.clientHeight });
@@ -210,6 +230,9 @@
     }));
     areaSeries.setData(slice.map(function (c) { return { time: c.time, value: c.close }; }));
     areaSeries.applyOptions({ lineColor: ac.line, topColor: ac.top, bottomColor: ac.bottom });
+    volumeSeries.setData(slice.map(function (c) {
+      return { time: c.time, value: c.volume || 0, color: c.close >= c.open ? VOL_UP : VOL_DOWN };
+    }));
     if (priceLine) { try { candleSeries.removePriceLine(priceLine); } catch (e) {} priceLine = null; }
     priceLine = candleSeries.createPriceLine({
       price: slice[slice.length - 1].close,
@@ -233,8 +256,9 @@
   function ensureHistoryThen(key) {
     if ((key !== '5Y' && key !== 'MAX') || histLoaded || histLoading) { paintRange(key); return; }
     histLoading = true;
-    var btn = document.querySelector('.nic-pills button[data-range="5Y"]');
-    if (btn) { btn.disabled = true; btn.textContent = '5Y…'; }
+    var btn = document.querySelector('.nic-pills button[data-range="' + key + '"]');
+    var orig = btn ? btn.textContent : key;
+    if (btn) { btn.disabled = true; btn.textContent = key + '…'; }
     fetch(HIST_SRC, { cache: 'force-cache' }).then(function (r) {
       if (!r.ok) throw new Error('history ' + r.status);
       return r.json();
@@ -245,15 +269,15 @@
       var extra = [];
       rows.forEach(function (r) {
         var c = rowToCandle(r);
-        if (c && !have[c.time]) extra.push(c);
+        if (c && !have[c.time.replace(/-/g, '')]) extra.push(c);
       });
       allCandles = extra.concat(allCandles).sort(function (a, b) { return a.time < b.time ? -1 : 1; });
       histLoaded = true;
-      paintRange('5Y');
+      paintRange(key);
     }).catch(function () { paintRange(currentRange); })
     .then(function () {
       histLoading = false;
-      if (btn) { btn.disabled = false; btn.textContent = '5Y'; }
+      if (btn) { btn.disabled = false; btn.textContent = orig; }
     });
   }
 
@@ -261,10 +285,13 @@
 
   function refreshFromSnapshot(snapshot) {
     var live = liveCandle(snapshot);
-    if (!live) return;
+    // Always (re)build from the daily archive, even before the first
+    // live snapshot arrives: the chart must never fall back just
+    // because the feed hasn't started yet.
     var rows = window.NEPSE_DAILY || [];
     allCandles = mergeCandles(rows, live);
     if (!chart) return;
+    if (!live) { paintRange(currentRange); return; }
     if (currentRange === '1D' || live.time >= allCandles[allCandles.length - 1].time) {
       // Update the live candle in place; rebuild the range if a new session started.
       var slice = sliceFor(currentRange);
@@ -272,6 +299,7 @@
       if (lastInSlice && lastInSlice.time === live.time) {
         candleSeries.update({ time: live.time, open: live.open, high: live.high, low: live.low, close: live.close });
         areaSeries.update({ time: live.time, value: live.close });
+        volumeSeries.update({ time: live.time, value: 0, color: live.close >= live.open ? VOL_UP : VOL_DOWN });
         if (priceLine) { try { candleSeries.removePriceLine(priceLine); } catch (e) {} }
         var up = live.close >= live.open;
         priceLine = candleSeries.createPriceLine({
