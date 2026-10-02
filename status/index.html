@@ -31,6 +31,13 @@
   <p class="sub">Nepse Decode data pipeline — updated automatically after every run. Educational data service; figures are delayed snapshots, not investment advice.</p>
 
   <div class="card"><h2>Market &amp; data</h2><div id="market"><p class="sub">Loading…</p></div></div>
+  <div class="card"><h2>Pipeline health <span class="mono" id="health-summary"></span></h2><div id="health"><p class="sub">Loading…</p></div>
+    <noscript>
+      <!-- HEALTH-BAKE-START -->
+      <p class="sub">Enable JavaScript for live pipeline health, or view the raw data: <a href="/data/health.json">/data/health.json</a>.</p>
+      <!-- HEALTH-BAKE-END -->
+    </noscript>
+  </div>
   <div class="card"><h2>Pipeline jobs</h2><div id="jobs"><p class="sub">Loading…</p></div></div>
   <div class="card"><h2>Validation gates <span class="mono" id="gate-summary"></span></h2><div id="gates"><p class="sub">Loading…</p></div></div>
 
@@ -57,6 +64,21 @@
       row('Data files tracked', esc(m.files ? Object.keys(m.files).length : '?')) +
       row('Sources', esc((m.sources||[]).join(', ')));
   }).catch(function(){ document.getElementById('market').innerHTML = '<p class="sub">manifest.json unavailable</p>'; });
+
+  get('/data/health.json').then(function(h){
+    var overall = h.overall === 'ok' ? pill('HEALTHY','p-ok') : (h.overall === 'warn' ? pill('DEGRADED','p-warn') : pill('FAILING','p-bad'));
+    document.getElementById('health-summary').textContent = '· ' + h.generated_at_npt;
+    document.getElementById('health').innerHTML =
+      row('Overall', overall + ' <span class="mono">v' + esc(h.pipeline_version) + '</span>') +
+      row('Last session', '<span class="mono">' + esc(h.last_session) + '</span>') +
+      row('Manifest version', '<span class="mono">' + esc(h.manifest_version) + '</span>') +
+      (h.checks||[]).map(function(c){
+        var cls = c.status === 'ok' ? 'p-ok' : (c.status === 'warn' ? 'p-warn' : 'p-bad');
+        return '<div class="gate"><span class="g">' + pill(c.status.toUpperCase(), cls) + '</span>' +
+          '<span><span class="mono">' + esc(c.name) + '</span><br><span style="color:#6b7280;font-size:.82rem">' +
+          esc(c.detail) + ' · ' + esc(c.checked_at_npt) + '</span></span></div>';
+      }).join('');
+  }).catch(function(){ document.getElementById('health').innerHTML = '<p class="sub">health.json unavailable — pipeline may not have run yet</p>'; });
 
   get(base+'jobs.json').then(function(j){
     var names = {'market-close':'Market-close pipeline','content':'Content pipeline','live-quotes':'Live quotes','floorsheet':'Floorsheet poller'};
