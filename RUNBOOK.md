@@ -112,6 +112,18 @@ curl -s https://shirjankhadka.com.np/data/health.json | python3 -c \
   If the source feed itself is delayed, the alert is **true** — the site badge
   will show the delay honestly. Don't silence the watchdog; fix the feed.
 
+### Client-side outage ("temporarily unavailable" but feed is healthy)
+- 2026-10-02 incident: page showed "Market data is temporarily unavailable"
+  for ~15 min during market open while live.json was fresh and valid.
+  Root cause never confirmed (no console access). Suspected a client-side
+  JS failure in the NepseData snapshot path.
+- Immediate fix: reverted recent nepse-data.js + index.html changes.
+- Prevention (added 2026-10-02):
+  - `window.__nepseErrors` collector on nepse-decode (early script tag).
+  - `tools/render-check.js`: headless Chromium verifies data actually paints.
+  - Watchdog runs render-check during market hours; alerts on failure.
+- If it recurs: check browser console first, then `window.__nepseErrors`.
+
 ---
 
 ## 4. Rollback procedure

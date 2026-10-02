@@ -372,6 +372,20 @@
 </main>
 </div><!-- /.d2-shell -->
 
+<script>
+/* NepseData client error collector — feeds the watchdog render-check.
+   Captures window errors with file/line; exposed as window.__nepseErrors. */
+window.__nepseErrors = [];
+window.addEventListener('error', function (e) {
+  try {
+    window.__nepseErrors.push(
+      (e.message || 'unknown error') + ' @ ' +
+      String(e.filename || '').split('/').pop() + ':' + (e.lineno || 0)
+    );
+    if (window.__nepseErrors.length > 20) window.__nepseErrors.shift();
+  } catch (_) {}
+});
+</script>
 <script src="/js/nepse-market-config.js?v=20261003a"></script>
 <script src="/js/nepse-format.js?v=20261003a"></script>
 <script src="/js/nepse-data.js?v=20261003a"></script>
