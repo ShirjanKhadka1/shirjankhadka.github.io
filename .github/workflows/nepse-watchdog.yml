@@ -1,0 +1,150 @@
+# NEPSE watchdog — Phase 5
+#
+# Lightweight external monitor. No checkout needed: curls the LIVE site's
+# health.json + live.json and emails the owner (never Facebook) when the
+# pipeline looks broken.
+#
+# Schedule: every 30 min during NEPSE market hours (Sun-Thu 11:00-15:00 NPT),
+# hourly otherwise. Cron runs on UTC; NPT = UTC+5:45.
+#   11:00 NPT = 05:15 UTC, 15:00 NPT = 09:15 UTC.
+# Sun-Thu in NPT ~= Sat-Thu in UTC for these windows; we check market-hours
+# inside the job via NPT math rather than trying to be clever in cron.
+
+name: NEPSE watchdog
+
+on:
+  schedule:
+    # Every 30 min, all day (the job itself decides market-hours strictness)
+    - cron: '5,35 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nepse-watchdog
+  cancel-in-progress: true
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check pipeline health
+        id: check
+        run: |
+          SITE="https://shirjankhadka.com.np"
+          ALERT=""
+          NOTE=""
+
+          now_utc=$(date -u +%s)
+
+          # NPT wall-clock: hour, minute, weekday (1=Mon..7=Sun)
+          npt=$(TZ=Asia/Kathmandu date +%H:%M:%u)
+          npt_hm=$(echo "$npt" | cut -d: -f1,2)
+          npt_dow=$(echo "$npt" | awk -F: '{print $3}')
+          # Sun=7 -> 0, Mon-Thu=1-4 are trading days
+          if [ "$npt_dow" = "7" ] || [ "$npt_dow" -le 4 ]; then trading_day=1; else trading_day=0; fi
+          # Market hours 11:00-15:00 NPT
+          if [ "$npt_hm" \> "10:59" ] && [ "$npt_hm" \< "15:01" ] && [ "$trading_day" = "1" ]; then
+            market_open=1
+          else
+            market_open=0
+          fi
+          echo "NPT=$npt trading_day=$trading_day market_open=$market_open"
+
+          # ---- health.json ----
+          health=$(curl -sS --max-time 20 "$SITE/data/health.json" || true)
+          if [ -z "$health" ]; then
+            ALERT="${ALERT}health.json missing/unreachable. "
+          else
+            overall=$(echo "$health" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{console.log(JSON.parse(d).overall||'unknown')}catch(e){console.log('invalid')}})" 2>/dev/null)
+            gen=$(echo "$health" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{console.log(JSON.parse(d).generated_at_npt||'')}catch(e){console.log('')}})" 2>/dev/null)
+            if [ "$overall" = "invalid" ] || [ -z "$overall" ]; then
+              ALERT="${ALERT}health.json is not valid JSON. "
+            else
+              # staleness: generated_at_npt older than 2h?
+              if [ -n "$gen" ]; then
+                gen_epoch=$(date -d "$gen" +%s 2>/dev/null || echo 0)
+                age_min=$(( (now_utc - gen_epoch) / 60 ))
+                if [ "$age_min" -gt 120 ]; then
+                  ALERT="${ALERT}health.json stale (${age_min} min old). "
+                fi
+                NOTE="${NOTE}health.json: $overall, generated $gen (${age_min}m ago). "
+              fi
+              if [ "$overall" = "fail" ]; then
+                fails=$(echo "$health" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{const h=JSON.parse(d);console.log(h.checks.filter(c=>c.status==='fail').map(c=>c.name+': '+c.detail).join(' | '))}catch(e){}})" 2>/dev/null)
+                ALERT="${ALERT}health.json FAIL: $fails "
+              fi
+            fi
+          fi
+
+          # ---- live.json freshness (strict only during market hours) ----
+          live=$(curl -sS --max-time 20 "$SITE/nepse-chart/data/live.json" || true)
+          if [ -z "$live" ]; then
+            ALERT="${ALERT}live.json unreachable. "
+          else
+            asof=$(echo "$live" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{console.log(JSON.parse(d).asof||'')}catch(e){console.log('')}})" 2>/dev/null)
+            if [ -z "$asof" ]; then
+              ALERT="${ALERT}live.json invalid JSON. "
+            else
+              asof_epoch=$(date -d "$asof" +%s 2>/dev/null || echo 0)
+              age_min=$(( (now_utc - asof_epoch) / 60 ))
+              NOTE="${NOTE}live.json asof $asof (${age_min}m ago). "
+              if [ "$market_open" = "1" ] && [ "$age_min" -gt 30 ]; then
+                ALERT="${ALERT}live.json STALE during market hours (${age_min} min old). "
+              fi
+            fi
+          fi
+
+          echo "alert=$ALERT"
+          echo "note=$NOTE"
+          # Export for the email step (multiline-safe via delimiter)
+          {
+            echo "alert<<WDEOF"
+            echo "$ALERT"
+            echo "WDEOF"
+            echo "note<<WDEOF"
+            echo "$NOTE"
+            echo "WDEOF"
+            echo "npt=$npt"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Email alert — watchdog triggered
+        if: steps.check.outputs.alert != ''
+        uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7 # pinned SHA
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          secure: false
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "[NEPSE ALERT] watchdog: ${{ steps.check.outputs.npt }} NPT"
+          to: ${{ secrets.ALERT_EMAIL_TO }}
+          from: ${{ secrets.MAIL_USERNAME }}
+          body: |
+            The NEPSE watchdog detected a pipeline problem.
+
+            Time (NPT): ${{ steps.check.outputs.npt }}
+            Findings: ${{ steps.check.outputs.alert }}
+            Context: ${{ steps.check.outputs.note }}
+
+            Status page: https://shirjankhadka.com.np/status/
+            Runbook: https://github.com/ShirjanKhadka1/shirjankhadka.github.io/blob/main/RUNBOOK.md
+            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## NEPSE watchdog"
+            echo ""
+            echo "- NPT: \`${{ steps.check.outputs.npt }}\`"
+            echo "- Findings: ${{ steps.check.outputs.alert }}"
+            echo "- Context: ${{ steps.check.outputs.note }}"
+            if [ -z "${{ steps.check.outputs.alert }}" ]; then
+              echo "- Verdict: **all clear**"
+            else
+              echo "- Verdict: **ALERT emailed**"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
