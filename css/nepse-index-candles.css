@@ -1,0 +1,66 @@
+/* ============================================================
+   NEPSE INDEX CANDLES — homepage market-overview chart block
+   Pills + Lightweight Charts mount + no-library fallback.
+   Theme-adaptive via the site's --d2-* tokens.
+   ============================================================ */
+
+.d2-hero-chart.nic-wrap {
+  height: auto;              /* override the old 150px sparkline height */
+  margin-top: 14px;
+}
+
+/* ---------- timeframe pills ---------- */
+.nic-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 0 0 10px;
+}
+.nic-pills button {
+  font: 700 12.5px/1 'Inter', system-ui, -apple-system, sans-serif;
+  letter-spacing: .04em;
+  padding: 9px 15px;
+  border-radius: 999px;
+  border: 1px solid var(--d2-line);
+  background: var(--d2-surface2);
+  color: var(--d2-ink-soft);
+  cursor: pointer;
+  transition: color .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+.nic-pills button:hover { color: var(--d2-ink); border-color: var(--d2-faint); }
+.nic-pills button:focus-visible { outline: 2px solid var(--d2-loss); outline-offset: 2px; }
+.nic-pills button.on {
+  color: var(--d2-ink);
+  border-color: var(--d2-loss);
+  box-shadow: inset 0 -2px 0 var(--d2-loss);
+}
+.nic-pills button:disabled { opacity: .55; cursor: wait; }
+
+/* ---------- chart mount ---------- */
+.nic-chart {
+  position: relative;
+  width: 100%;
+  height: 340px;
+  border-radius: var(--d2-r-md);
+  overflow: hidden;
+}
+.nic-chart canvas { cursor: crosshair; }
+.nic-loading {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--d2-muted); font-size: 13px;
+}
+
+/* ---------- fallback ---------- */
+.nic-fallback canvas { width: 100%; height: 220px; display: block; }
+.nic-fb-note { color: var(--d2-muted); font-size: 12.5px; margin: 8px 2px 0; }
+
+@media (max-width: 720px) {
+  .nic-chart { height: 260px; }
+  .nic-pills { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+  .nic-pills button { flex: 0 0 auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nic-pills button { transition: none; }
+}
