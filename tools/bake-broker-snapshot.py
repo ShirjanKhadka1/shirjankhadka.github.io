@@ -43,7 +43,7 @@ def main():
         '    <tbody>\n' + '\n'.join(rows) + '\n    </tbody>\n'
         '  </table></div>\n'
         '  <p class="snap-note">Static snapshot · net bought/sold is transaction flow, not verified shareholding. '
-        'The interactive period selectors below range from 1D to 3Y; views show whatever history is on record (currently from 2026-07-15, growing daily).</p>\n'
+        f'The interactive period selectors below range from 1D to 3Y; views show whatever history is on record (currently from {meta.get("earliest", "?")}, growing daily).</p>\n'
         '</section>')
 
     html = open(PAGE).read()

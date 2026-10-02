@@ -648,6 +648,29 @@ async function main() {
   console.log(`data quality: ${totalRepaired} OHLC repairs, ${totalAdjust} corporate-action adjustments`);
 
   fs.mkdirSync(OUT_DIR, { recursive: true });
+  // Fail-soft: if the OHLCV cache is unavailable (no usable symbols), NEVER
+  // publish empty output — keep the last-good files and warn. Pages keep
+  // showing the most recent computed signals instead of going blank.
+  if (usable.length === 0) {
+    console.log('!! no usable OHLCV data — keeping last-good signal files (fail-soft)');
+    for (const sys of systems) {
+      const p = path.join(OUT_DIR, sys + '.json');
+      if (fs.existsSync(p)) {
+        console.log(`  kept ${p}`);
+      } else {
+        console.log(`  !! no last-good ${p} either — writing minimal placeholder`);
+        fs.writeFileSync(p, JSON.stringify({
+          system: sys, title: SYSTEMS[sys].title,
+          generated_at: new Date().toISOString(),
+          universe_symbols: 0,
+          fail_soft: true,
+          note: 'No OHLCV data available at build time; no previous output to retain. Not for display as current.',
+          stats: null, alerts: [], recent_trades: [],
+        }));
+      }
+    }
+    return;
+  }
   for (const sys of systems) {
     console.log(`\n=== ${sys} ===`);
     const t0 = Date.now();
