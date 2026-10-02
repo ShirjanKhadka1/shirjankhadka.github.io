@@ -173,6 +173,10 @@ function fmtV(n){ if(!isFinite(n)) return '–'; var a=Math.abs(n);
   if(a>=1e7) return 'Rs '+(n/1e7).toFixed(2)+' Cr';
   if(a>=1e5) return 'Rs '+(n/1e5).toFixed(2)+' L';
   return 'Rs '+Math.round(n).toLocaleString('en-US'); }
+/* Escape user-controlled text (the symbol can arrive via ?symbol= in the URL)
+ * before it is interpolated into innerHTML. */
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 function bname(code){ return state.brokers[code] || ('Broker '+code); }
 function cls(v){ return v>0?'pos':(v<0?'neg':''); }
 
@@ -253,10 +257,11 @@ function symbolOptions(d){
 
 function renderStock(d){
   var sym = $('symbolSel').value;
+  var symH = esc(sym); // safe for innerHTML; sym stays raw for data lookup
   if(!sym) return '<div class="cover">Pick a stock above to see who bought and sold it.</div>';
   function union(a,b){ var u={}; Object.keys(a||{}).forEach(function(k){u[k]=1}); Object.keys(b||{}).forEach(function(k){u[k]=1}); return u; }
   var s = d.symbols[sym];
-  if(!s) return '<div class="cover">No trades for '+sym+' in this period.</div>';
+  if(!s) return '<div class="cover">No trades for '+symH+' in this period.</div>';
   function bt(obj, title){
     // buyers/sellers entries are [qty, value]; tolerate legacy value-only schema
     var rows = Object.keys(obj).map(function(c){
@@ -271,7 +276,7 @@ function renderStock(d){
   var activeN = (s.netflow && Object.keys(s.netflow).length)
     ? Object.keys(s.netflow).length
     : Object.keys(union(s.buyers,s.sellers)).length;
-  return '<h2 class="bk-h">'+sym+' — trade pattern, '+label()+'</h2>'+
+  return '<h2 class="bk-h">'+symH+' — trade pattern, '+label()+'</h2>'+
     '<div class="stat-row">'+
     '<div class="stat"><div class="l">Total quantity</div><div class="v">'+fmtN(s.qty,0)+'</div></div>'+
     '<div class="stat"><div class="l">Total value</div><div class="v">'+fmtV(s.value)+'</div></div>'+
@@ -282,11 +287,12 @@ function renderStock(d){
 
 function renderHoldings(d){
   var sym = $('symbolSel').value;
+  var symH = esc(sym); // safe for innerHTML; sym stays raw for data lookup
   if(!sym) return '<div class="cover">Pick a stock above to see broker net positions (flow-based).</div>';
   // net per broker: use the full netflow map when present (all brokers);
   // fall back to deriving from the top-25 buyers/sellers lists
   var s = d.symbols[sym];
-  if(!s) return '<div class="cover">No trades for '+sym+' in this period.</div>';
+  if(!s) return '<div class="cover">No trades for '+symH+' in this period.</div>';
   var net = {};
   // netflow entries: [net_qty, net_value, buy_qty, buy_value, sell_qty, sell_value];
   // tolerate legacy [net_qty, net_value] and value-only schemas
@@ -312,16 +318,17 @@ function renderHoldings(d){
         '<td>'+fmtN(n[4],0)+'</td><td>'+fmtV(n[5])+'</td>'+
         '<td>'+fmtN(nq,0)+'</td><td class="'+cls(nv)+'">'+fmtV(nv)+'</td><td>'+tag+'</td></tr>';
     }).join('');
-  return '<h2 class="bk-h">'+sym+' — stockwise broker flow, '+label()+'</h2>'+
+  return '<h2 class="bk-h">'+symH+' — stockwise broker flow, '+label()+'</h2>'+
     '<p style="font-size:.85rem;color:var(--muted)">Every broker that traded this stock, netted over the period. Net bought = accumulating · net sold = distributing (by transaction value). This is transaction flow, not verified shareholding.</p>'+
     '<div class="scrollx"><table class="bk-table"><thead><tr><th class="bk-name">Broker</th><th>Code</th><th>Buy qty</th><th>Buy value</th><th>Sell qty</th><th>Sell value</th><th>Net qty</th><th>Net value</th><th>Flow</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 
 function renderAccDist(d){
   var sym = $('symbolSel').value;
+  var symH = esc(sym); // safe for innerHTML; sym stays raw for data lookup
   if(!sym) return '<div class="cover">Select a stock above to see which brokers are accumulating or distributing it.</div>';
   var s = d.symbols[sym];
-  if(!s) return '<div class="cover">No trades for '+sym+' in this period.</div>';
+  if(!s) return '<div class="cover">No trades for '+symH+' in this period.</div>';
   // Per-broker net for this stock: use the full netflow map when present
   // (all brokers); fall back to deriving from the top buyers/sellers lists.
   // netflow entries: [net_qty, net_value, buy_qty, buy_value, sell_qty, sell_value].
@@ -361,7 +368,7 @@ function renderAccDist(d){
       '</tr></thead><tbody>'+(rows||'<tr><td colspan="8">'+emptyNote+'</td></tr>')+'</tbody></table></div></div>';
   }
   var netTot = accV + distV;
-  return '<h2 class="bk-h">'+sym+' — accumulation / distribution, '+label()+'</h2>'+
+  return '<h2 class="bk-h">'+symH+' — accumulation / distribution, '+label()+'</h2>'+
     '<div class="stat-row">'+
     '<div class="stat"><div class="l">Total quantity</div><div class="v">'+fmtN(s.qty,0)+'</div></div>'+
     '<div class="stat"><div class="l">Total value</div><div class="v">'+fmtV(s.value)+'</div></div>'+
