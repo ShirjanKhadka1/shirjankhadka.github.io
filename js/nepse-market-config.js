@@ -3,6 +3,7 @@
  *
  * Single source of truth for:
  *  - Trading days (Sunday–Thursday, per NEPSE schedule)
+ *  - NEPSE public holidays (approximate 2026 list — the market calendar is authority)
  *  - Market hours (11:00–15:00 NPT)
  *  - Circuit-breaker quarantine threshold (±10%)
  *  - Live-data age thresholds
@@ -20,6 +21,40 @@
     // ---- Trading calendar ----
     // NEPSE trades Sunday–Thursday. 0=Sunday … 6=Saturday (JS getDay convention).
     TRADING_DAYS: [0, 1, 2, 3, 4],
+
+    // ---- NEPSE public holidays (approximate, 2026) ----
+    // The market calendar is the authority — this list is a client-side
+    // approximation so pages can label holiday closures honestly.
+    // Format: 'YYYY-MM-DD' (NPT dates).
+    HOLIDAYS_2026: [
+      '2026-01-01', // New Year
+      '2026-01-15', // Maghe Sankranti
+      '2026-01-23', // Saraswati Puja
+      '2026-02-15', // Maha Shivaratri
+      '2026-02-19', // Prajatantra Diwas
+      '2026-03-04', // Fagu Purnima
+      '2026-03-19', // Ghode Jatra
+      '2026-03-26', // Ram Nawami
+      '2026-03-27', // Chaite Dashain
+      '2026-04-14', // Bisket Jatra (Nepali New Year)
+      '2026-05-01', // Labour Day / Buddha Jayanti
+      '2026-08-28', // Gai Jatra
+      '2026-09-06', // Haritalika Teej
+      '2026-09-19', // Constitution Day
+      '2026-09-26', // Indra Jatra
+      '2026-10-21', // Dashain
+      '2026-10-22', // Dashain
+      '2026-10-23', // Dashain
+      '2026-10-26', // Dashain
+      '2026-10-27', // Dashain
+      '2026-10-28', // Chhath
+      '2026-11-08', // Tihar
+      '2026-11-09', // Tihar
+      '2026-11-10', // Tihar
+      '2026-11-11', // Tihar
+      '2026-11-21', // Balachaturdashi
+      '2026-12-25'  // Christmas
+    ],
 
     // ---- Market hours (NPT, 24h) ----
     MARKET_OPEN_HOUR: 11,
@@ -55,16 +90,41 @@
     },
 
     /**
-     * True if the given NPT date falls on a NEPSE trading day (Sun–Thu).
-     * Holiday handling (Phase 2) will extend this with a holiday list.
+     * True if the given NPT date (or 'YYYY-MM-DD' string) is a NEPSE holiday.
+     */
+    isHoliday: function (nptDate) {
+      var key;
+      if (typeof nptDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(nptDate)) {
+        key = nptDate;
+      } else {
+        var d0 = nptDate || MarketConfig.nowNPT();
+        var y = d0.getFullYear();
+        var m = ('0' + (d0.getMonth() + 1)).slice(-2);
+        var day = ('0' + d0.getDate()).slice(-2);
+        key = y + '-' + m + '-' + day;
+      }
+      return MarketConfig.HOLIDAYS_2026.indexOf(key) !== -1;
+    },
+
+    /**
+     * True if the given NPT date falls on a NEPSE trading day:
+     * Sunday–Thursday AND not a public holiday.
      */
     isTradingDay: function (nptDate) {
       var d = nptDate || MarketConfig.nowNPT();
+      if (typeof d === 'string') {
+        if (MarketConfig.isHoliday(d)) return false;
+        var parts = d.split('-');
+        d = new Date(+parts[0], +parts[1] - 1, +parts[2], 12, 0, 0); // noon avoids DST edges
+      } else if (MarketConfig.isHoliday(d)) {
+        return false;
+      }
       return MarketConfig.TRADING_DAYS.indexOf(d.getDay()) !== -1;
     },
 
     /**
-     * True if NEPSE is within 11:00–15:00 NPT on a trading day.
+     * True if NEPSE is within 11:00–15:00 NPT on a trading day
+     * (weekday Sun–Thu that is not a public holiday).
      */
     isMarketOpen: function (nptDate) {
       var d = nptDate || MarketConfig.nowNPT();
@@ -86,6 +146,7 @@
   // Freeze the constants (helpers remain callable).
   if (Object.freeze) {
     Object.freeze(MarketConfig.TRADING_DAYS);
+    Object.freeze(MarketConfig.HOLIDAYS_2026);
     Object.freeze(MarketConfig.RETRY_DELAYS_MS);
   }
 

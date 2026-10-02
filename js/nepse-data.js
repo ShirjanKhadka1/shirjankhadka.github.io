@@ -9,8 +9,9 @@
  *  2. Validation failure keeps the last-good snapshot and marks it STALE.
  *  3. Moves beyond ±10% vs previous close are quarantined, never displayed.
  *  4. Replacement is atomic — subscribers never see a half-written snapshot.
- *  5. ETag / 304 scaffolding suppresses unchanged payloads (Phase 2 wires bytes).
- *  6. Visibility pause/resume stops polling in background tabs.
+ *  5. ETag / 304 suppresses unchanged payloads; getStats() reports real bandwidth saved.
+ *  6. Visibility pause/resume stops polling in background tabs; a >30-min
+ *     hidden stretch forces one full refresh on return (skips 304 once).
  *  7. BroadcastChannel + localStorage scaffolding for cross-tab convergence (Phase 3).
  *
  * Load order: nepse-market-config.js → nepse-format.js → nepse-data.js
@@ -33,7 +34,16 @@
     timer: null,
     subscribers: [],
     bc: null,
-    started: false
+    started: false,
+    // Phase 2: bandwidth + polling-health instrumentation
+    bytesSaved: 0,       // estimated bytes not transferred thanks to 304s
+    bytesTotal: 0,       // bytes actually transferred on 200s
+    lastBytes: 0,        // payload size of the most recent 200 (304 estimate basis)
+    requests304: 0,
+    requests200: 0,
+    lastPollMs: 0,       // Date.now() of the most recent poll attempt
+    hiddenAt: null,      // Date.now() when the tab last became hidden
+    skipEtagOnce: false  // force a full 200 after a long hidden stretch
   };
 
   // ---- validation ----
@@ -267,18 +277,40 @@
 
   function fetchOnce() {
     var headers = {};
-    if (state.etag) headers['If-None-Match'] = state.etag; // Phase 2 measures real savings
+    // Skip the 304 optimization once after a long hidden stretch so we
+    // always come back with a guaranteed-fresh payload.
+    if (state.etag && !state.skipEtagOnce) headers['If-None-Match'] = state.etag;
+    state.skipEtagOnce = false;
 
     return fetch(FEED_URL, { headers: headers, cache: 'no-store' }).then(function (resp) {
-      if (resp.status === 304) return { unchanged: true };
+      if (resp.status === 304) {
+        state.requests304++;
+        // We didn't transfer the payload: credit the size of the last 200
+        // (fall back to a 50KB live.json estimate before the first one).
+        state.bytesSaved += state.lastBytes || 51200;
+        return { unchanged: true };
+      }
       var etag = resp.headers.get('ETag');
       if (etag) state.etag = etag;
       if (!resp.ok) throw new Error('HTTP ' + resp.status);
-      return resp.json().then(function (json) { return { unchanged: false, json: json }; });
+      return resp.json().then(function (json) {
+        state.requests200++;
+        var bytes = 0;
+        var cl = resp.headers.get('Content-Length');
+        if (cl && isFinite(+cl)) {
+          bytes = +cl;
+        } else {
+          try { bytes = JSON.stringify(json).length; } catch (e) { bytes = 0; }
+        }
+        state.bytesTotal += bytes;
+        state.lastBytes = bytes;
+        return { unchanged: false, json: json };
+      });
     });
   }
 
   function poll() {
+    state.lastPollMs = Date.now(); // polling-health watermark
     if (document.hidden) { schedule(); return; } // visibility pause
     fetchOnce().then(function (res) {
       if (res.unchanged) { state.failures = 0; schedule(); return; }
@@ -303,6 +335,14 @@
     state.failures++;
     if (state.failures >= CFG.MAX_FAILURES_BEFORE_STALE) {
       markStale();
+      // Warn (not error) once when the feed dies during market hours —
+      // pages keep showing last-good marked STALE, this is the debug trail.
+      if (state.failures === CFG.MAX_FAILURES_BEFORE_STALE && CFG.isMarketOpen()) {
+        try {
+          console.warn('[NepseData] live feed unreachable during market hours (' +
+            state.failures + ' failures) — serving last-good snapshot marked STALE');
+        } catch (e) { /* console unavailable */ }
+      }
     }
     var delays = CFG.RETRY_DELAYS_MS;
     var delay = delays[Math.min(state.failures - 1, delays.length - 1)];
@@ -317,9 +357,19 @@
   }
 
   function onVisibility() {
-    if (!document.hidden) {
+    if (document.hidden) {
+      // Tab went to background: record when, so the return path can
+      // decide whether a freshness-forcing refresh is warranted.
+      state.hiddenAt = Date.now();
+    } else {
       // Returning to tab: refresh soon, then resume schedule.
       clearTimeout(state.timer);
+      if (state.hiddenAt && Date.now() - state.hiddenAt > 30 * 60 * 1000) {
+        // Hidden > 30 min: skip the 304 optimization once so we land on
+        // a guaranteed-fresh payload, not a possibly-stale ETag match.
+        state.skipEtagOnce = true;
+      }
+      state.hiddenAt = null;
       state.timer = setTimeout(poll, 2000);
     }
   }
@@ -357,6 +407,22 @@
     /** loading | live | stale | error */
     getStatus: function () {
       return state.status;
+    },
+
+    /**
+     * Bandwidth + request instrumentation (Phase 2).
+     * { bytesSaved, bytesTotal, requests304, requests200, savingsPct }
+     * savingsPct = share of payload bytes avoided via 304s (0–100, 1 decimal).
+     */
+    getStats: function () {
+      var total = state.bytesSaved + state.bytesTotal;
+      return {
+        bytesSaved: state.bytesSaved,
+        bytesTotal: state.bytesTotal,
+        requests304: state.requests304,
+        requests200: state.requests200,
+        savingsPct: total > 0 ? Math.round((state.bytesSaved / total) * 1000) / 10 : 0
+      };
     },
 
     /** Visible (non-quarantined) quotes only. */
