@@ -1,55 +1,74 @@
-/* Nepse Decode — per-stock live price hydration.
- * Stock pages are static HTML; this script fetches the canonical live.json
- * feed (same feed as the dashboard) and repaints the price snapshot in the
- * visitor's browser, every 60 seconds. No extra load on NEPSE's API —
- * it only reads our own GitHub-hosted JSON. Silent on failure: the baked-in
- * snapshot stays as the fallback. */
+/* Nepse Decode — per-stock live price hydration (Phase 1: NepseData).
+ * Stock pages are static HTML; this script subscribes to the canonical
+ * validated market snapshot (js/nepse-data.js) and repaints the price
+ * snapshot in the visitor's browser. Polling, validation, quarantine and
+ * last-good retention all live in NepseData — this script only renders.
+ * Silent on failure: the baked-in snapshot stays as the fallback.
+ *
+ * Self-loads its dependencies (nepse-market-config.js, nepse-format.js,
+ * nepse-data.js) if the page didn't include them — so stock pages work
+ * without HTML changes.
+ */
 (function () {
   'use strict';
   var snap = document.querySelector('[data-live-symbol]');
   if (!snap) return;
   var SYM = snap.getAttribute('data-live-symbol');
-  var FEED = '/nepse-chart/data/live.json';
-  var NPT_OFFSET_MS = (5 * 60 + 45) * 60 * 1000;
 
-  function num2(n) {
-    return Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  }
-  function int(n) {
-    return Math.round(Number(n)).toLocaleString('en-US');
-  }
-  function nptStamp(iso) {
-    try {
-      var d = new Date(new Date(iso).getTime() + NPT_OFFSET_MS);
-      var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      var hh = d.getUTCHours(), mm = d.getUTCMinutes();
-      return d.getUTCDate() + ' ' + months[d.getUTCMonth()] + ' ' + d.getUTCFullYear() +
-        ', ' + (hh < 10 ? '0' : '') + hh + ':' + (mm < 10 ? '0' : '') + mm + ' NPT';
-    } catch (e) { return ''; }
+  // Self-load Phase 1 modules if not already present.
+  function ensureDeps(cb) {
+    if (window.NepseData && window.NepseFormat && window.NepseMarketConfig) return cb();
+    var deps = ['/js/nepse-market-config.js', '/js/nepse-format.js', '/js/nepse-data.js'];
+    var i = 0;
+    function next() {
+      if (i >= deps.length) return cb();
+      var scripts = document.getElementsByTagName('script');
+      var found = false;
+      for (var s = 0; s < scripts.length; s++) {
+        if (scripts[s].src && scripts[s].src.indexOf(deps[i].split('/').pop()) !== -1) { found = true; break; }
+      }
+      if (found) { i++; return next(); }
+      var el = document.createElement('script');
+      el.src = deps[i];
+      el.onload = function () { i++; next(); };
+      el.onerror = function () { i++; next(); };
+      document.head.appendChild(el);
+    }
+    next();
   }
 
-  function paint(q, feed) {
-    if (!q || !isFinite(+q.ltp)) return false;
+  function boot() {
+    if (!window.NepseData || !window.NepseFormat) return; // modules missing: keep baked snapshot
+
+    var F = window.NepseFormat;
+
+  function paint(q, snapshot, status) {
+    if (!q || !isFinite(+q.ltp)) return false; // getQuote() already excludes quarantined
     var priceEl = snap.querySelector('.sp-price');
-    if (priceEl) priceEl.textContent = 'Rs ' + num2(+q.ltp);
+    if (priceEl) priceEl.textContent = 'Rs ' + F.fmtPrice(q.ltp);
     var chgEl = snap.querySelector('.sp-chg');
     if (chgEl && isFinite(+q.percent_change)) {
       var pc = +q.percent_change;
-      chgEl.textContent = (pc > 0 ? '+' : '') + pc.toFixed(2) + '% on the session';
+      chgEl.textContent = F.fmtPct(pc) + ' on the session';
       chgEl.className = 'sp-chg ' + (pc < 0 ? 'neg' : (pc > 0 ? 'pos' : ''));
     }
     var volEl = snap.querySelector('[data-live-vol]');
-    if (volEl && isFinite(+q.volume)) volEl.textContent = int(+q.volume);
+    if (volEl && isFinite(+q.volume)) volEl.textContent = F.fmtNum(q.volume);
     var turnEl = snap.querySelector('[data-live-turnover]');
-    if (turnEl && isFinite(+q.turnover)) turnEl.textContent = 'Rs ' + int(+q.turnover);
+    if (turnEl && isFinite(+q.turnover)) turnEl.textContent = 'Rs ' + F.fmtNum(q.turnover);
     var asofEl = document.querySelector('.hero .asof');
-    if (asofEl && feed && feed.asof) {
-      var state = feed.market === 'OPEN' ? 'market open' : 'market closed';
-      asofEl.textContent = 'Live · ' + nptStamp(feed.asof) + ' · ' + state;
+    if (asofEl && snapshot && snapshot.asof) {
+      var state = snapshot.market === 'OPEN' ? 'market open' : 'market closed';
+      var txt = 'Live · ' + F.fmtDateTimeNPT(snapshot.asof) + ' · ' + state;
+      if (status === 'stale') txt += ' · STALE';
+      asofEl.textContent = txt;
     }
     var badge = snap.querySelector('[data-live-badge]');
-    if (badge && feed) {
-      if (feed.market === 'OPEN') {
+    if (badge && snapshot) {
+      if (status === 'stale') {
+        badge.textContent = 'STALE';
+        badge.style.display = '';
+      } else if (snapshot.market === 'OPEN') {
         badge.textContent = 'LIVE';
         badge.style.display = '';
       } else {
@@ -59,22 +78,15 @@
     return true;
   }
 
-  function tick() {
-    fetch(FEED, { cache: 'no-store' })
-      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-      .then(function (feed) {
-        if (!feed || !feed.quotes) return;
-        for (var i = 0; i < feed.quotes.length; i++) {
-          if (feed.quotes[i].symbol === SYM) { paint(feed.quotes[i], feed); break; }
-        }
-      })
-      .catch(function () { /* keep the baked-in snapshot */ });
+  function onData(snapshot, status) {
+    if (!snapshot) return; // loading / error with no data: keep baked snapshot, stay silent
+    var q = window.NepseData.getQuote(SYM); // null when missing or quarantined
+    if (q) paint(q, snapshot, status);
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', tick);
-  } else {
-    tick();
+    window.NepseData.start(); // idempotent: safe if another script already started it
+    window.NepseData.subscribe(onData);
   }
-  setInterval(tick, 60000);
+
+  ensureDeps(boot);
 })();
