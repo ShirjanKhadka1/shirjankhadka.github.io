@@ -60,12 +60,17 @@
   function loadScriptOnce(src) {
     if (scriptCache[src]) return scriptCache[src];
     scriptCache[src] = new Promise(function (resolve, reject) {
+      var done = false;
       var s = document.createElement('script');
       s.src = src;
       s.async = true;
-      s.onload = function () { resolve(); };
-      s.onerror = function () { reject(new Error('script failed: ' + src)); };
+      s.onload = function () { if (!done) { done = true; resolve(); } };
+      s.onerror = function () { if (!done) { done = true; reject(new Error('script failed: ' + src)); } };
       document.head.appendChild(s);
+      // Never hang forever on a stalled download: fall back after 12s.
+      setTimeout(function () {
+        if (!done) { done = true; reject(new Error('script timeout (12s): ' + src)); }
+      }, 12000);
     });
     return scriptCache[src];
   }
@@ -312,13 +317,14 @@
 
   /* ---------- fallback (no library) ---------- */
 
-  function showFallback() {
+  function showFallback(errMsg) {
     var mount = $(MOUNT_ID), fb = $(FALLBACK_ID);
     if (mount) mount.hidden = true;
     if (!fb) return;
     fb.hidden = false;
     fb.innerHTML = '<canvas id="nicFbCanvas" role="img" aria-label="NEPSE closing levels, recent sessions"></canvas>' +
-      '<p class="nic-fb-note">Interactive chart unavailable — showing recent closes.</p>';
+      '<p class="nic-fb-note">Interactive chart unavailable — showing recent closes.' +
+      (errMsg ? ' <span class="nic-fb-diag">[' + String(errMsg).replace(/</g, '&lt;') + ']</span>' : '') + '</p>';
     fetch(SPARK_SRC, { cache: 'force-cache' }).then(function (r) { return r.json(); }).then(function (j) {
       var arr = j.closes || j.series || j.data || [];
       var pts = arr.map(function (r) { return +r[1]; }).filter(isFinite);
@@ -368,7 +374,10 @@
       if (!allCandles.length) throw new Error('no data');
       paintRange(DEFAULT_RANGE);
       window.NepseData.subscribe(function (snapshot) { refreshFromSnapshot(snapshot); });
-    }).catch(function () { showFallback(); });
+    }).catch(function (e) {
+      if (window.console && console.error) console.error('[nic] chart init failed:', e);
+      showFallback(e && e.message);
+    });
   }
 
   function boot() {
