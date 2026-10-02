@@ -36,7 +36,8 @@
     { key: '1W', sessions: 5 },
     { key: '1M', sessions: 22 },
     { key: '1Y', sessions: 250 },
-    { key: '5Y', sessions: Infinity }
+    { key: '5Y', sessions: Infinity },
+  { key: 'MAX', sessions: Infinity }
   ];
   var DEFAULT_RANGE = '1M';
 
@@ -230,7 +231,7 @@
   }
 
   function ensureHistoryThen(key) {
-    if (key !== '5Y' || histLoaded || histLoading) { paintRange(key); return; }
+    if ((key !== '5Y' && key !== 'MAX') || histLoaded || histLoading) { paintRange(key); return; }
     histLoading = true;
     var btn = document.querySelector('.nic-pills button[data-range="5Y"]');
     if (btn) { btn.disabled = true; btn.textContent = '5Y…'; }
