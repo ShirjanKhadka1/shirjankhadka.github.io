@@ -49,7 +49,7 @@
     var p = parts(iso); return p ? { day: String(p.d), my: MONTHS_S[p.mo - 1] + ' ' + p.y } : { day: '', my: '' };
   }
   function chgHTML(c) {
-    if (c == null || !isFinite(c)) return '<span class="mkt-chg">–</span>';
+    if (c == null || !isFinite(c)) return '<span class="mkt-chg">—</span>';
     var cls = c >= 0 ? 'up' : 'dn';
     return '<span class="mkt-chg ' + cls + '">' + (c >= 0 ? '+' : '') + (+c).toFixed(2) + '%</span>';
   }
@@ -69,7 +69,7 @@
     return items.map(function (it) {
       var right = kind === 'turnover'
         ? '<span class="mkt-price">' + fmtMoney(it.t) + '</span>'
-        : '<span class="mkt-price">Rs ' + (it.p != null ? fmt2(it.p) : '–') + '</span>';
+        : '<span class="mkt-price">Rs ' + (it.p != null ? fmt2(it.p) : '—') + '</span>';
       return '<div class="mkt-row"><a class="mkt-sym" href="' + chartLink(it.s) + '">' +
         (Mono ? Mono.avatar(it.s) : '') + '<span>' + esc(it.s) + '</span></a>' + chgHTML(it.ch) + right + '</div>';
     }).join('');
@@ -92,7 +92,7 @@
     // so the in-session value can be updated in place without a reload.
     var c1 = '<article class="note-card reveal in"><div class="nk">NEPSE index <span id="mkt-live"></span></div>' +
       '<div class="nb tnum" id="mkt-ixv"' + (idx.value != null ? ' data-count="' + esc(idx.value) + '" data-decimals="2"' : '') + '>' +
-      (idx.value != null ? fmt2(idx.value) : '–') + '</div>' +
+      (idx.value != null ? fmt2(idx.value) : '—') + '</div>' +
       '<p id="mkt-ixc">' + (idx.change != null
         ? '<b class="' + (idx.change >= 0 ? 'up' : 'dn') + '" style="color:' +
           (idx.change >= 0 ? 'var(--up)' : 'var(--down)') + '\">' +
@@ -115,7 +115,7 @@
       m.totalTurnover != null
         ? '<span id="mkt-turn" data-count="' + (m.totalTurnover / 1e9).toFixed(3) + '" data-decimals="2" data-prefix="Rs " data-suffix="b">' +
           fmtMoney(m.totalTurnover) + '</span>'
-        : '–',
+        : '—',
       'Total value traded across the session.');
     var dm = fmtDayMon(m.date);
     var c4 = mktCard('Session',
@@ -255,8 +255,8 @@
     return '<li class="w1-item"><a class="sc-sym" href="' + chartLink(it.s) + '">' + esc(it.s) + '</a>' +
       '<span class="w1-sub">' + esc(it.n) + '</span>' +
       '<span class="w1-num">' + (+it.rsi).toFixed(1) + '</span>' +
-      '<span class="w1-sub">Rs ' + (it.p != null ? fmt2(it.p) : '–') + ' · ' +
-      (it.ch != null ? ((+it.ch >= 0 ? '+' : '') + (+it.ch).toFixed(2) + '%') : '–') + '</span></li>';
+      '<span class="w1-sub">Rs ' + (it.p != null ? fmt2(it.p) : '—') + ' · ' +
+      (it.ch != null ? ((+it.ch >= 0 ? '+' : '') + (+it.ch).toFixed(2) + '%') : '—') + '</span></li>';
   }
   function mvItem(it) {
     return '<li class="w1-item"><a class="sc-sym" href="' + chartLink(it.s) + '">' + esc(it.s) + '</a>' +

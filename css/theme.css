@@ -244,6 +244,28 @@
   }
 }
 
+/* Suite sidebar pages (chart, news, portfolio, screener, reports, simulator):
+   the 240px .nd-side column owns the left edge from 1024px up, so the
+   top-left toggle lands on the Suite kicker / nav labels. Dock it
+   bottom-right there instead — never overlapping nav. */
+@media(min-width:1024px){
+  body:has(.nd-side) .theme-toggle.fixed{
+    top:auto; left:auto;
+    bottom:calc(24px + env(safe-area-inset-bottom,0px));
+    right:calc(24px + env(safe-area-inset-right,0px));
+  }
+}
+
+/* Mobile (<1024px): the top-left position lands on the sticky mobile nav
+   pills. Dock bottom-right instead — clear of nav and content. */
+@media(max-width:1023px){
+  .theme-toggle.fixed{
+    top:auto; left:auto;
+    bottom:calc(20px + env(safe-area-inset-bottom,0px));
+    right:calc(16px + env(safe-area-inset-right,0px));
+  }
+}
+
 @media print {
   .theme-toggle { display: none !important; }
 }

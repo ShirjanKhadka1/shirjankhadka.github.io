@@ -30,7 +30,7 @@
   function fmtInt(n) { return Number(n).toLocaleString('en-US'); }
   function fmtMoney(n) {
     n = Number(n);
-    if (!isFinite(n)) return '–';
+    if (!isFinite(n)) return '—';
     if (n >= 1e9) return 'Rs ' + (n / 1e9).toFixed(2) + 'b';
     if (n >= 1e6) return 'Rs ' + (n / 1e6).toFixed(2) + 'm';
     return 'Rs ' + fmtInt(Math.round(n));
@@ -232,7 +232,7 @@
     var pct = (open && li && li.pct != null) ? li.pct : ix.pct;
     var liveTag = open && li && li.value != null;
 
-    var chgTxt = '–', chgCls = '';
+    var chgTxt = '—', chgCls = '';
     if (chg != null && pct != null) {
       chgCls = chg > 0 ? 'up' : chg < 0 ? 'down' : '';
       var arrow = chg > 0 ? '+' : '';
@@ -255,22 +255,22 @@
         '<div class="nlsnap-stat">' +
           '<span class="nlsnap-k">NEPSE index</span>' +
           '<span class="nlsnap-v tnum" data-count="' + esc(val != null ? val : '') + '" data-decimals="2" data-nlsnap-ixv>' +
-            (val != null ? fmt2(val) : '–') + '</span>' +
+            (val != null ? fmt2(val) : '—') + '</span>' +
           '<span class="nlsnap-s tnum ' + chgCls + '" data-nlsnap-ixc>' + esc(chgTxt) + '</span>' +
           (opts.spark ? '<span class="nlsnap-spark" data-nlsnap-spark></span>' : '') +
         '</div>' +
         '<div class="nlsnap-stat">' +
           '<span class="nlsnap-k">Traded securities</span>' +
           '<span class="nlsnap-v tnum" data-nlsnap-traded data-count="' + esc(m.traded != null ? m.traded : '') + '">' +
-            (m.traded != null ? fmtInt(m.traded) : '–') + '</span>' +
+            (m.traded != null ? fmtInt(m.traded) : '—') + '</span>' +
           '<span class="nlsnap-s">securities with at least one trade</span>' +
         '</div>' +
         '<div class="nlsnap-stat">' +
           '<span class="nlsnap-k">Advancers / decliners</span>' +
           '<span class="nlsnap-v tnum"><span class="up" data-nlsnap-adv data-count="' + esc(adv != null ? adv : '') + '">' +
-            (adv != null ? fmtInt(adv) : '–') + '</span><span class="nlsnap-sep"> / </span>' +
+            (adv != null ? fmtInt(adv) : '—') + '</span><span class="nlsnap-sep"> / </span>' +
             '<span class="down" data-nlsnap-dec data-count="' + esc(dec != null ? dec : '') + '">' +
-            (dec != null ? fmtInt(dec) : '–') + '</span></span>' +
+            (dec != null ? fmtInt(dec) : '—') + '</span></span>' +
           bBar +
           '<span class="nlsnap-s" data-nlsnap-bnote>' + esc(bNote) + '</span>' +
         '</div>' +
@@ -278,7 +278,7 @@
           '<span class="nlsnap-k">Turnover</span>' +
           '<span class="nlsnap-v tnum" data-nlsnap-turn data-count="' + (m.totalTurnover != null ? (m.totalTurnover / 1e9).toFixed(3) : '') +
             '" data-decimals="2" data-prefix="Rs " data-suffix="b">' +
-            (m.totalTurnover != null ? fmtMoney(m.totalTurnover) : '–') + '</span>' +
+            (m.totalTurnover != null ? fmtMoney(m.totalTurnover) : '—') + '</span>' +
           '<span class="nlsnap-s">total value traded</span>' +
         '</div>' +
       '</div>' +

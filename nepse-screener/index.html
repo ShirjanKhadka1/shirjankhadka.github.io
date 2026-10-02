@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="NEPSE Screener: Free Ranked NEPSE Signals, No Login">
 <meta name="twitter:description" content="Every NEPSE-listed security ranked daily by a transparent rule-based engine, with stop-loss and target levels. Free, no login.">
-<link rel="icon" href="/nepse-screener/icon-32.png" sizes="32x32" type="image/png">
-<link rel="icon" href="/nepse-screener/icon-16.png" sizes="16x16" type="image/png">
-<link rel="apple-touch-icon" href="/nepse-screener/icon-180.png">
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Serif+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -48,7 +48,7 @@
 {"@type":"Question","name":"Is this investment advice?","acceptedAnswer":{"@type":"Answer","text":"No. This is a mechanical, rule-based illustration for education. Markets are uncertain and past patterns do not guarantee future results. Do your own research before any investment decision."}},
 {"@type":"Question","name":"What is the Hit rate column?","acceptedAnswer":{"@type":"Answer","text":"For each security with enough history, the engine's past Buy and Strong Buy calls on equity securities over the last 250 sessions are replayed using only data available at the time. A call counts as a hit when the session's own target (+4x ATR) was reached before its stop-loss (-2x ATR) within the next 20 sessions. The hit rate is hits divided by decided calls; calls where neither level was touched are excluded. Fewer than 5 decided calls shows as a dash. Hit rates are regime-dependent: 31.0% across the older 250-session window (NEPSE +31.0%) versus 11.4% across the most recent 250 sessions (NEPSE -6.2%)."}}]}
 </script>
-<link rel="stylesheet" href="/css/theme.css?v=b111a15b">
+<link rel="stylesheet" href="/css/theme.css?v=20261002d">
 </head>
 <body class="nd" data-page="screener">
 
@@ -58,26 +58,7 @@
   <a class="nd-btn primary" href="/nepse-chart/" style="padding:8px 18px;font-size:0.85rem">Open the Lab</a>
 </header>
 <div class="fb-wrap" style="display:flex;justify-content:center;padding:10px 16px 0"><div data-freshness-badge></div></div>
-<nav class="nd-mobilenav" aria-label="Suite tools">
-  <a href="/nepse-decode/">Overview</a>
-  <a href="/nepse-chart/">Chart &amp; signals</a>
-  <span class="nav-sub">
-    <a href="/nepse-signals/momentum/">Momentum</a>
-    <a href="/nepse-signals/trend-relay/">Trend Relay</a>
-    <a href="/nepse-signals/reversal/">Reversal</a>
-  </span>
-  <a href="/nepse-screener/" class="active" aria-current="page">Screener</a>
-  <a href="/nepse-trending/">Trending Stocks</a>
-  <a href="/nepse-value/">Value Investing</a>
-  <a href="/nepse-brokers/">Broker Analytics</a>
-  <a href="/nepse-sectors/">Sectors</a>
-  <a href="/nepse-news/">Market news</a>
-  <a href="/nepse-watchlist/">Watchlist</a>
-  <a href="/nepse-portfolio/">Portfolio</a>
-  <a href="/nepse-simulator/">Simulator</a>
-  <a href="/nepse-reports/">Reports</a>
-  <a href="/nepse-actions/">Corp. actions</a>
-</nav>
+<nav class="nd-mobilenav" aria-label="Suite tools"><a href="/nepse-decode/">Overview</a><a href="/nepse-chart/">Chart &amp; signals</a><span class="nav-sub"><a href="/nepse-signals/momentum/">Momentum</a><a href="/nepse-signals/trend-relay/">Trend Relay</a><a href="/nepse-signals/reversal/">Reversal</a></span><a href="/nepse-screener/" class="active" aria-current="page">Screener</a><a href="/nepse-trending/">Trending Stocks</a><a href="/nepse-value/">Value Investing</a><a href="/nepse-brokers/">Broker Analytics</a><a href="/nepse-sectors/">Sectors</a><a href="/nepse-news/">Market news</a><a href="/nepse-watchlist/">Watchlist</a><a href="/nepse-portfolio/">Portfolio</a><a href="/nepse-simulator/">Simulator</a><a href="/nepse-reports/">Reports</a><a href="/nepse-actions/">Corp. actions</a></nav>
 
 <div class="nd-shell">
   <aside class="nd-side" aria-label="Nepse Decode suite">
@@ -141,12 +122,12 @@
 
   <section aria-label="Signal summary">
     <div class="sc-cards" id="sc-cards">
-      <div class="sc-card sc-sbuy" data-v="Strong Buy" role="button" tabindex="0" aria-label="Filter: Strong Buy. Securities with a Strong Buy verdict in the latest batch."><span class="sc-num" id="sc-n-sbuy">–</span><span class="sc-lab">Strong Buy<span class="info-tip" data-tip="Securities with a Strong Buy verdict in the latest batch." aria-hidden="true">i</span></span></div>
-      <div class="sc-card sc-buy" data-v="Buy" role="button" tabindex="0" aria-label="Filter: Buy. Securities with a Buy verdict in the latest batch."><span class="sc-num" id="sc-n-buy">–</span><span class="sc-lab">Buy<span class="info-tip" data-tip="Securities with a Buy verdict in the latest batch." aria-hidden="true">i</span></span></div>
-      <div class="sc-card sc-hold" data-v="Hold" role="button" tabindex="0" aria-label="Filter: Hold. Securities with a Hold verdict: no strong edge either way."><span class="sc-num" id="sc-n-hold">–</span><span class="sc-lab">Hold / Neutral<span class="info-tip" data-tip="Securities with a Hold verdict: no strong edge either way." aria-hidden="true">i</span></span></div>
-      <div class="sc-card sc-exit" data-v="Exit / Reduce" role="button" tabindex="0" aria-label="Filter: Sell. Securities with an Exit / Reduce verdict in the latest batch."><span class="sc-num" id="sc-n-exit">–</span><span class="sc-lab">Sell<span class="info-tip" data-tip="Securities with an Exit / Reduce verdict in the latest batch." aria-hidden="true">i</span></span></div>
-      <div class="sc-card sc-sexit" data-v="Strong Exit" role="button" tabindex="0" aria-label="Filter: Strong Sell. Securities with a Strong Exit verdict in the latest batch."><span class="sc-num" id="sc-n-sexit">–</span><span class="sc-lab">Strong Sell<span class="info-tip" data-tip="Securities with a Strong Exit verdict in the latest batch." aria-hidden="true">i</span></span></div>
-      <div class="sc-card sc-total"><span class="sc-num" id="sc-n-total">–</span><span class="sc-lab">Total<span class="info-tip tip-edge" data-tip="All listed securities ranked in the latest batch." aria-hidden="true">i</span></span></div>
+      <div class="sc-card sc-sbuy" data-v="Strong Buy" role="button" tabindex="0" aria-label="Filter: Strong Buy. Securities with a Strong Buy verdict in the latest batch."><span class="sc-num" id="sc-n-sbuy">—</span><span class="sc-lab">Strong Buy<span class="info-tip" data-tip="Securities with a Strong Buy verdict in the latest batch." aria-hidden="true">i</span></span></div>
+      <div class="sc-card sc-buy" data-v="Buy" role="button" tabindex="0" aria-label="Filter: Buy. Securities with a Buy verdict in the latest batch."><span class="sc-num" id="sc-n-buy">—</span><span class="sc-lab">Buy<span class="info-tip" data-tip="Securities with a Buy verdict in the latest batch." aria-hidden="true">i</span></span></div>
+      <div class="sc-card sc-hold" data-v="Hold" role="button" tabindex="0" aria-label="Filter: Hold. Securities with a Hold verdict: no strong edge either way."><span class="sc-num" id="sc-n-hold">—</span><span class="sc-lab">Hold / Neutral<span class="info-tip" data-tip="Securities with a Hold verdict: no strong edge either way." aria-hidden="true">i</span></span></div>
+      <div class="sc-card sc-exit" data-v="Exit / Reduce" role="button" tabindex="0" aria-label="Filter: Sell. Securities with an Exit / Reduce verdict in the latest batch."><span class="sc-num" id="sc-n-exit">—</span><span class="sc-lab">Sell<span class="info-tip" data-tip="Securities with an Exit / Reduce verdict in the latest batch." aria-hidden="true">i</span></span></div>
+      <div class="sc-card sc-sexit" data-v="Strong Exit" role="button" tabindex="0" aria-label="Filter: Strong Sell. Securities with a Strong Exit verdict in the latest batch."><span class="sc-num" id="sc-n-sexit">—</span><span class="sc-lab">Strong Sell<span class="info-tip" data-tip="Securities with a Strong Exit verdict in the latest batch." aria-hidden="true">i</span></span></div>
+      <div class="sc-card sc-total"><span class="sc-num" id="sc-n-total">—</span><span class="sc-lab">Total<span class="info-tip tip-edge" data-tip="All listed securities ranked in the latest batch." aria-hidden="true">i</span></span></div>
     </div>
   </section>
 
@@ -188,24 +169,9 @@
       <tr><td>10</td><td><a href="/nepse-chart/?s=HBLD86">HBLD86</a></td><td>1198.00</td><td>+3.51%</td><td>Strong Buy</td><td>Double Bottom</td><td>1161.05</td><td>1271.91</td></tr>
       </tbody>
     </table></div>
-    <p class="sc-static-note">Static daily snapshot &middot; the full interactive ranking of 410 securities, with hit-rate tracking and filters, is below.</p>
+    <p class="sc-static-note">Top-ranked signals from the latest batch &middot; the full interactive ranking of 410 securities, with hit-rate tracking and filters, is below.</p>
   </section>
   <!-- SNAP-END -->
-  <script>
-  /* Render the Top-10 snapshot date from /data/manifest.json at runtime;
-     the baked-in date above stays as the no-JS fallback. */
-  (function(){
-    var el = document.getElementById('sc-top10-asof');
-    if(!el) return;
-    fetch('/data/manifest.json', {cache:'no-store'})
-      .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
-      .then(function(m){
-        var d = m && (m.session_date || String(m.generated_at_npt || '').slice(0, 10));
-        if(d) el.textContent = '\u00b7 ' + d;
-      })
-      .catch(function(){});
-  })();
-  </script>
 
   <section class="sc-controls" aria-label="Screener controls">
     <label class="sc-show">Show
@@ -247,7 +213,7 @@
   </section>
 
   <section aria-label="Ranked stocks">
-    <div class="sc-summary" id="sc-summary" role="status" aria-live="polite"><b>–</b>&nbsp;of&nbsp;<b>–</b>&nbsp;shown</div>
+    <div class="sc-summary" id="sc-summary" role="status" aria-live="polite"><b>—</b>&nbsp;of&nbsp;<b>—</b>&nbsp;shown</div>
     <div class="table-scroll">
       <table class="sc-table" id="sc-table">
         <caption class="visually-hidden">Ranked NEPSE securities: price, day change, volume, RSI, signal and setup, hit rate, stop loss and target</caption>
@@ -279,7 +245,7 @@
 
   <section class="sc-note" aria-label="Methodology note">
     <p><strong>How to read this table.</strong> Signals come from a rule-based engine (trend, RSI, MACD, turnover, 52-week position, divergences, chart patterns, market backdrop, support/resistance), the same Alpha Lab engine behind Nepse Decode. Buy signals are gated: no Buy is issued while the price sits below its 200-day average, entries only fire in long-term stock uptrends. The Sector column groups each security honestly: Debentures, Mutual Funds and Promoter Shares are instrument types (from the universe instrument-type field, debenture symbol suffixes, and bond/rinpatra/fund/kosh in the official name), while Banking, Hydropower and the rest are NEPSE sub-indexes inferred from explicit business words in the official company name. Every listed security sits in exactly one group; anything outside the named sub-indexes falls into Others. Hit rates are regime-dependent, and both regimes are published: across the older 250-session window (NEPSE +31.0%) the engine’s buy calls hit 31.0%; across the most recent 250 sessions (NEPSE −6.2%) they hit 11.4%. Stop-loss = last close − 2 × ATR(14); target = last close + 4 × ATR(14), a 1:2 risk-reward frame. “Setup” names the most recent chart pattern or divergence detected. <strong>Hit rate</strong> replays the engine’s past Buy/Strong Buy calls on equity securities over the last 250 sessions: a call is a hit when its own target was touched before its stop within the next 20 sessions. Calls touching neither level are excluded; under 5 decided calls shows “–”.</p>
-    <p class="sc-disclaim">Rule-based screening for education only, not investment advice. Signals computed from the last close (<span id="sc-asof2">–</span>). Securities with under 60 sessions of history get no signal.</p>
+    <p class="sc-disclaim">Rule-based screening for education only, not investment advice. Signals computed from the last close (<span id="sc-asof2">—</span>). Securities with under 60 sessions of history get no signal.</p>
   </section>
 <p class="data-credit" style="font-size:.8rem;color:var(--muted,#6b7280);margin:1.25rem 0 0;">Live quotes via our own 15-minute market snapshot; figures may be delayed — <a href="/data-terms.html">see our data terms</a>.</p>
 </main>
@@ -384,14 +350,15 @@
 
 
 <script src="../js/nepse-fresh.js?v=ed4a8618" defer></script>
-<script src="../js/nepse-market-config.js?v=20261003a"></script>
-<script src="../js/nepse-format.js?v=20261003a"></script>
+<script src="../js/nepse-market-config.js?v=20261002c"></script>
+<script src="../js/nepse-format.js?v=20261002c"></script>
 <script src="../js/nepse-data.js?v=20261003a"></script>
-<script src="../js/nepse-live.js?v=9a381cca" defer></script>
+<script src="../js/nepse-live.js?v=20261002c" defer></script>
 <script src="../js/nepse-wave1.js?v=38f8eead" defer></script>
 <script src="../js/nepse-suite.js?v=1075e635" defer></script>
-<script src="../js/nepse-screener.js?v=56b73ec4" defer></script>
-<script src="/js/theme-toggle.js?v=a383d477" defer></script>
-<script src="/js/freshness-badge.js" defer></script>
+<script src="../js/nepse-screener.js?v=20261002c" defer></script>
+<script src="/js/theme-toggle.js?v=20261002c" defer></script>
+<script src="/js/freshness-badge.js?v=20261002c" defer></script>
+<script src="/js/nepse-sidebar.js?v=20261002c" defer></script>
 </body>
 </html>

@@ -7,7 +7,7 @@
  *
  * Valuation prices come from the daily market batch
  * (/nepse-chart/data/verdicts.json). A holding without a price in the batch
- * shows '–' and is excluded from value math; figures are never invented.
+ * shows '—' and is excluded from value math; figures are never invented.
  * This is descriptive bookkeeping for education. Not investment advice.
  */
 (function () {
@@ -167,7 +167,7 @@
     sellsBody: $('pf-sells-body'), sellsEmpty: $('pf-sells-empty'),
     search: $('pf-search'), suggest: $('pf-suggest'), qty: $('pf-qty'),
     price: $('pf-price'), addBtn: $('pf-add-btn'), hint: $('pf-hint'),
-    updated: $('pf-updated'), barForm: $('pf-bar-form')
+    barForm: $('pf-bar-form')
   };
 
   function $(id) { return document.getElementById(id); }
@@ -177,17 +177,17 @@
       .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
   function fmtNum(x, d) {
-    if (x === null || x === undefined || !isFinite(x)) return '–';
+    if (x === null || x === undefined || !isFinite(x)) return '—';
     return Number(x).toLocaleString('en-US', {
       minimumFractionDigits: d || 0, maximumFractionDigits: d || 0
     });
   }
   function fmtRs(x) {
-    if (x === null || x === undefined || !isFinite(x)) return '–';
+    if (x === null || x === undefined || !isFinite(x)) return '—';
     return 'Rs ' + fmtNum(x, 2);
   }
   function fmtPct(x) {
-    if (x === null || x === undefined || !isFinite(x)) return '–';
+    if (x === null || x === undefined || !isFinite(x)) return '—';
     return (x > 0 ? '+' : '') + fmtNum(x, 2) + '%';
   }
   function signedCls(x) { return x > 0 ? 'up' : x < 0 ? 'down' : ''; }
@@ -292,19 +292,19 @@
     var html = v.rows.map(function (r) {
       var h = r.h, m = metaFor(h.s);
       var dayHtml = r.ch == null
-        ? '<span class="tnum">–</span>'
+        ? '<span class="tnum">—</span>'
         : '<span class="tnum ' + signedCls(r.ch) + '">' + fmtPct(r.ch) + '</span>';
       var unHtml = r.unrl == null
-        ? '<span class="tnum">–</span>'
+        ? '<span class="tnum">—</span>'
         : '<span class="tnum ' + signedCls(r.unrl) + '">' + fmtRs(r.unrl) + '<br><small>' + fmtPct(r.ret) + '</small></span>';
       return '<tr>' +
         '<td><a class="pf-sym" href="/nepse-chart/?s=' + esc(h.s) + '">' + esc(h.s) + '</a>' +
         '<span class="pf-name">' + esc(m ? m.n : '') + '</span></td>' +
         '<td class="tnum">' + fmtNum(h.qty, 2) + '</td>' +
         '<td class="tnum">' + fmtRs(h.cost) + '</td>' +
-        '<td class="tnum">' + (r.price == null ? '–' : fmtRs(r.price)) + '</td>' +
+        '<td class="tnum">' + (r.price == null ? '—' : fmtRs(r.price)) + '</td>' +
         '<td>' + dayHtml + '</td>' +
-        '<td class="tnum">' + (r.value == null ? '–' : fmtRs(r.value)) + '</td>' +
+        '<td class="tnum">' + (r.value == null ? '—' : fmtRs(r.value)) + '</td>' +
         '<td>' + unHtml + '</td>' +
         '<td class="pf-actcol"><button type="button" class="pf-mini" data-act="sell" data-sym="' + esc(h.s) + '">Sell</button>' +
         '<button type="button" class="pf-mini" data-act="edit" data-sym="' + esc(h.s) + '">Edit</button>' +
@@ -441,7 +441,7 @@
     var tot = 0;
     var rows = p.sells.slice().reverse().map(function (s) {
       tot += s.realized;
-      return '<tr><td class="tnum">' + esc(s.date || '–') + '</td>' +
+      return '<tr><td class="tnum">' + esc(s.date || '—') + '</td>' +
         '<td><a class="pf-sym" href="/nepse-chart/?s=' + esc(s.s) + '">' + esc(s.s) + '</a></td>' +
         '<td class="tnum">' + fmtNum(s.qty, 2) + '</td>' +
         '<td class="tnum">' + fmtRs(s.price) + '</td>' +
@@ -463,20 +463,28 @@
     var st = load();
     var p = ensureDefault(st);
     renderBar(st);
+    var v = valuate(p);
+    if (!v.rows.length) {
+      // No holdings: the guided empty state renders even when market data
+      // failed — #pf-empty must never stay hidden with zero holdings.
+      renderHoldings(v);
+      renderAlloc(v);
+      renderAnalytics(v);
+      renderSells(p);
+      el.summary.innerHTML = '<p class="pf-muted">Your portfolio is empty. Add a holding above to start tracking — everything stays in this browser.</p>';
+      return;
+    }
     if (!dataReady) {
       el.summary.innerHTML = '<p class="pf-muted">Loading market data…</p>';
       return;
     }
-    var v = valuate(p);
     renderSummary(v, p);
     renderHoldings(v);
     renderAlloc(v);
     renderAnalytics(v);
     renderSells(p);
-    if (el.updated && dataAsof) {
-      el.updated.innerHTML = 'Prices as of ' + esc(dataAsof) + '. ' +
-        (window.NepseFresh ? NepseFresh.badge(dataAsof) : '');
-    }
+    // Freshness is shown by the single unified [data-freshness-badge] line in
+    // the masthead — no second "prices as of" signal here.
     var ph = document.getElementById('pf-print-name');
     if (ph) ph.textContent = p.name;
     var pd = document.getElementById('pf-print-date');
@@ -573,9 +581,11 @@
      day changes and unrealized P&L in place. Quantities and costs stay put. */
   function startLiveOverlay() {
     var NL = window.NepseLive || null;
-    if (!NL || !document.getElementById('pf-live')) return;
+    if (!NL) return;
+    // Note: no badge element — [data-freshness-badge] is the ONE freshness
+    // line on this page. The live overlay only repaints holding prices.
     NL.start({
-      el: 'pf-live',
+      el: null,
       onData: function (d) {
         if (!d || !d.quotes) return;
         var quotes = d.quotes;

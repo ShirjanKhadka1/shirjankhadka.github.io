@@ -438,7 +438,7 @@
       '<div class="stats-key">' +
       statCard('Total return', fmtPct(s.totalReturnPct), cls(s.totalReturnPct)) +
       statCard('Max drawdown', '−' + fmtNum(s.maxDrawdownPct, 2) + '%', 'down') +
-      statCard('Win rate', s.nTrades ? fmtNum(s.winRate, 1) + '%' : '–') +
+      statCard('Win rate', s.nTrades ? fmtNum(s.winRate, 1) + '%' : '—') +
       statCard('Number of trades', String(s.nTrades)) +
       '</div>' +
       '<details class="sim-details"><summary>All figures: costs, averages, buy-and-hold</summary>' +
@@ -449,8 +449,8 @@
       statCard('Net P&L', (s.netPnl >= 0 ? '+' : '') + fmtRs(s.netPnl), cls(s.netPnl)) +
       statCard('Trading costs', fmtRs(s.tradingCosts)) +
       statCard('CGT paid', fmtRs(s.totalCgt)) +
-      statCard('Avg win', s.wins ? fmtRs(s.avgWin) : '–', 'up') +
-      statCard('Avg loss', s.nTrades - s.wins ? fmtRs(s.avgLoss) : '–', 'down') +
+      statCard('Avg win', s.wins ? fmtRs(s.avgWin) : '—', 'up') +
+      statCard('Avg loss', s.nTrades - s.wins ? fmtRs(s.avgLoss) : '—', 'down') +
       '</div></details>';
     drawEquity(res);
     var tb = $('sim-trades-body');

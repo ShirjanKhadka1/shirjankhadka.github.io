@@ -41,14 +41,7 @@
       var s = CFG.marketState(); // 'PRE-OPEN' | 'OPEN' | 'CLOSED'
       return s === 'OPEN' ? 'open' : s === 'PRE-OPEN' ? 'preopen' : 'closed';
     }
-    // Defensive fallback (config missing): correct Mon–Fri logic.
-    var t = new Date(Date.now() + NPT);
-    var d = t.getUTCDay(); // 0 = Sunday
-    if (d === 0 || d === 6) return 'closed';
-    var mins = t.getUTCHours() * 60 + t.getUTCMinutes();
-    if (mins >= 645 && mins < 660) return 'preopen';
-    if (mins >= 660 && mins < 900) return 'open';
-    return 'closed';
+    return 'closed'; // no calendar without NepseMarketConfig — never guess
   }
 
   // Regular session only. Kept for overlay gating: pre-open keeps showing

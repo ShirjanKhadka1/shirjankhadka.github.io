@@ -16,6 +16,34 @@
   var MAX_SYMBOLS = 500;
   var LIST_COUNT = 4;
 
+  // Shared formatters (js/nepse-format.js). Day-change rendering goes through
+  // NepseFormat.fmtChange so a rupee amount NEVER carries a % suffix.
+  var NF = (typeof window !== 'undefined' && window.NepseFormat) || null;
+  function fmtChange(chRs, pct) {
+    if (NF && typeof NF.fmtChange === 'function') return NF.fmtChange(chRs, pct);
+    var ch = Number(chRs);
+    if (!isFinite(ch)) return '—';
+    var p = Number(pct);
+    var pctTxt = isFinite(p) ? ' (' + (p > 0 ? '+' : '') + p.toFixed(2) + '%)' : '';
+    return (ch > 0 ? '+' : '') + ch.toFixed(2) + pctTxt;
+  }
+  function pctOfChange(chRs, price) {
+    if (NF && typeof NF.pctOfChange === 'function') return NF.pctOfChange(chRs, price);
+    var ch = Number(chRs), p = Number(price);
+    if (!isFinite(ch) || !isFinite(p)) return null;
+    var prev = p - ch;
+    return prev ? ch / prev * 100 : null;
+  }
+  // Rupee change derived from a PERCENT change + last price
+  // (verdicts.json ch is percent; live quotes carry rupees directly).
+  function rsOfPct(pct, price) {
+    if (NF && typeof NF.rsOfPct === 'function') return NF.rsOfPct(pct, price);
+    var pc = Number(pct), p = Number(price);
+    if (!isFinite(pc) || !isFinite(p) || !p) return null;
+    var prev = p / (1 + pc / 100);
+    return isFinite(prev) ? p - prev : null;
+  }
+
   function clean(sym) {
     sym = String(sym || '').trim().toUpperCase();
     return /^[A-Z0-9]{1,12}$/.test(sym) ? sym : null;
@@ -167,7 +195,7 @@
   }
 
   function fmtNum(x, d) {
-    if (x === null || x === undefined || isNaN(x)) return '–';
+    if (x === null || x === undefined || isNaN(x)) return '—';
     return Number(x).toLocaleString('en-US', { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 });
   }
 
@@ -208,13 +236,28 @@
         NL.start({
           el: 'wl-live',
           onData: function (d) {
-            if (d && d.quotes) {
-              overlayWatchlistLive(d.quotes);
-              overlayEngineLive(d.quotes);
-            }
+            if (!d || !d.quotes) return;
+            // Never repaint rows with a stale tape: on closed days the feed
+            // holds yesterday's session. Overlay only when the tape is from
+            // today's NPT session and the market is open/pre-open.
+            if (!isTapeToday(d)) return;
+            var ms = window.NepseMarketConfig && window.NepseMarketConfig.marketState
+              ? window.NepseMarketConfig.marketState() : 'CLOSED';
+            if (ms !== 'OPEN' && ms !== 'PRE-OPEN') return;
+            overlayWatchlistLive(d.quotes);
+            overlayEngineLive(d.quotes);
           }
         });
       }
+
+  // True if the live tape's asof falls in today's NPT calendar day.
+  function isTapeToday(d) {
+    if (!d || !(d.asof >= 0)) return false;
+    var NPT_MS = 5.75 * 3600 * 1000;
+    var tapeDay = new Date(d.asof + NPT_MS).toISOString().slice(0, 10);
+    var today = new Date(Date.now() + NPT_MS).toISOString().slice(0, 10);
+    return tapeDay === today;
+  }
     }).catch(function () {
       dataReady = false;
       renderTabs();
@@ -247,8 +290,9 @@
     var meta = metaFor(sym);
     var chg = vd.ch;
     var chgCls = chg > 0 ? 'up' : chg < 0 ? 'dn' : '';
-    var chgTxt = (chg === null || chg === undefined) ? '–' :
-      (chg > 0 ? '+' : '') + fmtNum(chg, 2) + '%';
+    // verdicts.json ch is PERCENT — derive the rupee leg so every row reads
+    // "Rs p · rs (pct%)" with the rupee amount never carrying a % suffix.
+    var chgTxt = fmtChange(rsOfPct(chg, vd.p), chg);
     var rsi = vd.rsi;
     var rsiTxt = (rsi === null || rsi === undefined) ? 'RSI –' : 'RSI ' + fmtNum(rsi, 1);
     return '<div class="d2-wl-row" role="listitem" tabindex="0" data-sym="' + esc(sym) + '">' +
@@ -257,7 +301,7 @@
       '<div class="d2-wl-meta">' +
         '<span class="d2-wl-px d2-num">Rs ' + fmtNum(vd.p, 2) + '</span>' +
         '<span class="d2-wl-chg ' + chgCls + '">' + chgTxt + '</span>' +
-        '<span class="d2-verdict ' + verdictClass(vd.v) + '">' + esc(vd.v || '–') + '</span>' +
+        '<span class="d2-verdict ' + verdictClass(vd.v) + '">' + esc(vd.v || '—') + '</span>' +
         '<span class="d2-wl-rsi">' + esc(rsiTxt) + '</span>' +
       '</div>' +
       '<div class="d2-wl-acts">' +
@@ -475,10 +519,10 @@
       box.innerHTML = picks.map(function (it) {
         var sym = it[0], x = it[1] || {}, e = verdicts[sym] || {};
         var ch = Number(e.ch);
-        var chHtml = isFinite(ch)
-          ? '<span class="' + (ch > 0 ? 'up' : ch < 0 ? 'dn' : '') + '">' +
-            (ch > 0 ? '+' : '') + ch.toFixed(2) + '%</span>'
-          : '<span>–</span>';
+        // verdicts.json ch is PERCENT — derive the rupee leg:
+        // "-69.18 (-1.23%)", never "-69.18%".
+        var chHtml = '<span class="' + (ch > 0 ? 'up' : ch < 0 ? 'dn' : '') + '">' +
+            esc(fmtChange(rsOfPct(e.ch, e.p), e.ch)) + '</span>';
         var sltp = 'SL/TP unavailable for this security.';
         if (x.sl != null && x.tp != null && e.p) {
           sltp = 'SL ' + fmtNum(x.sl, 2) + ' (' + sgn((x.sl - e.p) / e.p * 100) + '%)' +
@@ -488,8 +532,8 @@
           '<a class="d2-ewl-sym" href="' + esc(stockUrl(sym)) + '">' + esc(sym) +
             '<span class="d2-verdict ' + (x.v === 'Strong Buy' ? 'buy' : 'buy') + '">' + esc(x.v) +
             (tf === 'd' ? '' : ' · ' + TF_LABEL[tf]) + '</span></a>' +
-          '<span class="d2-ewl-num d2-num">Rs ' + fmtNum(e.p, 2) + ' ' + chHtml + '</span>' +
-          '<span class="d2-ewl-setup">' + esc(x.setup || '–') + '</span>' +
+          '<span class="d2-ewl-num d2-num">Rs ' + fmtNum(e.p, 2) + ' · ' + chHtml + '</span>' +
+          '<span class="d2-ewl-setup">' + esc(x.setup || '—') + '</span>' +
           '<span class="d2-ewl-sl d2-num">' + esc(sltp) + '</span>' +
         '</div>';
       }).join('');
@@ -527,12 +571,11 @@
       if (ltpEl) ltpEl.textContent = 'Rs ' + fmtNum(q.ltp, 2);
       var chgEl = rows[i].querySelector('.d2-wl-chg');
       if (chgEl) {
-        var pct = (q.pct != null && isFinite(Number(q.pct))) ? Number(q.pct)
-          : (q.change != null && q.prev ? Number(q.change) / Number(q.prev) * 100 : null);
-        if (pct != null && isFinite(pct)) {
-          chgEl.textContent = (pct > 0 ? '+' : '') + pct.toFixed(2) + '%';
-          chgEl.className = 'd2-wl-chg ' + (pct > 0 ? 'up' : pct < 0 ? 'dn' : '');
-        }
+        // P0-3 contract: full "rs (pct%)" via fmtChange — never percent-only.
+        var chRs = (q.change != null && isFinite(Number(q.change))) ? Number(q.change) : null;
+        var pct = (q.percent_change != null && isFinite(Number(q.percent_change))) ? Number(q.percent_change) : null;
+        chgEl.textContent = fmtChange(chRs, pct);
+        chgEl.className = 'd2-wl-chg ' + (pct != null ? (pct > 0 ? 'up' : pct < 0 ? 'dn' : '') : '');
       }
     }
   }
@@ -549,12 +592,11 @@
       var q = sym && quotes[sym];
       if (!q || q.ltp == null || !isFinite(Number(q.ltp))) continue;
       var ch = Number(q.change);
-      var chHtml = isFinite(ch)
-        ? '<span class="' + (ch > 0 ? 'up' : ch < 0 ? 'dn' : '') + '">' +
-          (ch > 0 ? '+' : '') + ch.toFixed(2) + '%</span>'
-        : '<span>–</span>';
+      // Shared formatter: live quote carries percent_change directly.
+      var chHtml = '<span class="' + (ch > 0 ? 'up' : ch < 0 ? 'dn' : '') + '">' +
+        esc(fmtChange(ch, q.percent_change)) + '</span>';
       var numEl = rows[i].querySelector('.d2-ewl-num');
-      if (numEl) numEl.innerHTML = 'Rs ' + fmtNum(q.ltp, 2) + ' ' + chHtml;
+      if (numEl) numEl.innerHTML = 'Rs ' + fmtNum(q.ltp, 2) + ' · ' + chHtml;
     }
   }
 

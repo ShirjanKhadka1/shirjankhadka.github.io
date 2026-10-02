@@ -20,7 +20,7 @@
     return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2;
   }
   function num(v, d) {
-    if (v == null || !isFinite(v)) return '–';
+    if (v == null || !isFinite(v)) return '—';
     return Number(v).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
   }
   function esc(s) {
@@ -118,7 +118,7 @@
       stat('Invested', 'Rs ' + num(t.invested, 2)) +
       stat('Current value', 'Rs ' + num(t.value, 2)) +
       stat('Unrealized P&L', 'Rs ' + num(t.unrealized, 2), t.unrealized >= 0 ? 'up' : 'down') +
-      stat('Return', t.ret == null ? '–' : num(t.ret, 2) + '%', t.ret >= 0 ? 'up' : 'down') +
+      stat('Return', t.ret == null ? '—' : num(t.ret, 2) + '%', t.ret >= 0 ? 'up' : 'down') +
       '</div>';
     html += '<div class="rp-table-wrap"><table class="rp-table"><thead><tr><th>Symbol</th><th>Qty</th><th>Avg cost</th><th>Price</th><th>Value</th><th>P&L</th></tr></thead><tbody>' +
       holdings.map(function (h) {
@@ -126,8 +126,8 @@
         var val = p == null ? null : h.qty * p;
         var pl = val == null ? null : val - h.qty * h.cost;
         return '<tr><td><b>' + esc(h.s) + '</b></td><td>' + num(h.qty, 0) + '</td><td>' + num(h.cost, 2) + '</td>' +
-          '<td>' + (p == null ? '–' : num(p, 2)) + '</td><td>' + (val == null ? '–' : num(val, 2)) + '</td>' +
-          '<td class="' + (pl == null ? '' : pl >= 0 ? 'up' : 'down') + '">' + (pl == null ? '–' : num(pl, 2)) + '</td></tr>';
+          '<td>' + (p == null ? '—' : num(p, 2)) + '</td><td>' + (val == null ? '—' : num(val, 2)) + '</td>' +
+          '<td class="' + (pl == null ? '' : pl >= 0 ? 'up' : 'down') + '">' + (pl == null ? '—' : num(pl, 2)) + '</td></tr>';
       }).join('') + '</tbody></table></div>';
     html += '<p class="rp-note">Prices from the daily batch (' + esc(ver.asof) + '). Holdings without a current price are excluded from totals.</p>';
     return html;
@@ -150,8 +150,8 @@
         if (!v) return '<tr><td><b>' + esc(s) + '</b></td><td colspan="4">Not in the latest batch.</td></tr>';
         var chCls = v.ch == null ? '' : (v.ch >= 0 ? 'up' : 'down');
         return '<tr><td><b>' + esc(s) + '</b></td><td>' + num(v.p, 2) + '</td>' +
-          '<td class="' + chCls + '">' + (v.ch == null ? '–' : num(v.ch, 2) + '%') + '</td>' +
-          '<td>' + esc(v.v || '–') + '</td><td>' + num(v.rsi, 1) + '</td></tr>';
+          '<td class="' + chCls + '">' + (v.ch == null ? '—' : num(v.ch, 2) + '%') + '</td>' +
+          '<td>' + esc(v.v || '—') + '</td><td>' + num(v.rsi, 1) + '</td></tr>';
       }).join('') + '</tbody></table></div>';
     return html;
   }
@@ -166,9 +166,9 @@
       return '<h3>' + title + '</h3><div class="rp-table-wrap"><table class="rp-table"><thead><tr><th>#</th><th>Symbol</th><th>Signal</th><th>Score</th><th>Price</th><th>Day change</th></tr></thead><tbody>' +
         list.map(function (r, i) {
           var chCls = r.ch == null ? '' : (r.ch >= 0 ? 'up' : 'down');
-          return '<tr><td>' + (i + 1) + '</td><td><b>' + esc(r.s) + '</b></td><td>' + esc(r.v || '–') + '</td>' +
+          return '<tr><td>' + (i + 1) + '</td><td><b>' + esc(r.s) + '</b></td><td>' + esc(r.v || '—') + '</td>' +
             '<td>' + num(r.score, 1) + '</td><td>' + num(r.p, 2) + '</td>' +
-            '<td class="' + chCls + '">' + (r.ch == null ? '–' : num(r.ch, 2) + '%') + '</td></tr>';
+            '<td class="' + chCls + '">' + (r.ch == null ? '—' : num(r.ch, 2) + '%') + '</td></tr>';
         }).join('') + '</tbody></table></div>';
     }
     return '<h2>Screener: strongest and weakest signals</h2>' +

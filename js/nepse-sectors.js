@@ -139,6 +139,18 @@
           if (it.s && it.n) nameMap[it.s] = it.n;
         });
         return res[0];
+      })
+      .then(function (vj) {
+        // Cache the daily batch's RSI per symbol: RSI needs multi-session
+        // history, so the live tape reuses the latest batch values instead
+        // of showing a dash.
+        batchRsi = {};
+        var vv = (vj && vj.verdicts) || {};
+        Object.keys(vv).forEach(function (sym) {
+          var r = vv[sym] && vv[sym].rsi;
+          if (r != null && !isNaN(Number(r))) batchRsi[sym] = Number(r);
+        });
+        return vj;
       });
   }
 
@@ -199,7 +211,8 @@
    * quote tape instead of the daily batch. Same output shape as aggregate()
    * so the renderers work unchanged. Only used when the tape is from
    * today's session (checked by the caller). RSI needs multi-session
-   * history, so avgRsi is null (shown as a dash) in live mode. */
+   * history, so avgRsi reuses the latest daily batch values (batchRsi),
+   * which the loader caches from verdicts.json. */
   function aggregateLiveTape(live, todayStr) {
     var q = (live && live.quotes) || {};
     var sectors = {}, totalTurn = 0, count = 0;
@@ -208,7 +221,7 @@
       var sec = sectorOf(null, sym);
       if (!sectors[sec]) sectors[sec] = {
         name: sec, count: 0, chs: [], adv: 0, dec: 0, flat: 0,
-        turn: 0, rows: [], tiles: []
+        turn: 0, rsis: [], rows: [], tiles: []
       };
       var g = sectors[sec];
       g.count++; count++;
@@ -222,17 +235,20 @@
         if (ch > 0) g.adv++; else if (ch < 0) g.dec++; else g.flat++;
         g.rows.push({ sym: sym, p: p, ch: ch });
       }
+      if (batchRsi[sym] != null) g.rsis.push(batchRsi[sym]);
       g.tiles.push({ sym: sym, name: e.name || nameOf(sym), p: p, ch: ch, turn: turn, vol: (e.volume != null && !isNaN(Number(e.volume))) ? Number(e.volume) : null });
     });
     var list = Object.keys(sectors).map(function (k) {
       var g = sectors[k];
       var n = g.chs.length;
       var avgCh = n ? g.chs.reduce(function (a, b) { return a + b; }, 0) / n : null;
+      var avgRsi = g.rsis.length
+        ? g.rsis.reduce(function (a, b) { return a + b; }, 0) / g.rsis.length : null;
       var gainers = g.rows.slice().sort(function (a, b) { return b.ch - a.ch; }).slice(0, 3);
       var losers = g.rows.slice().sort(function (a, b) { return a.ch - b.ch; }).slice(0, 3);
       return {
         name: g.name, count: g.count, adv: g.adv, dec: g.dec, flat: g.flat, nCh: n,
-        avgCh: avgCh, pctUp: n ? (g.adv / n) * 100 : null, avgRsi: null,
+        avgCh: avgCh, pctUp: n ? (g.adv / n) * 100 : null, avgRsi: avgRsi,
         turnShare: totalTurn > 0 ? (g.turn / totalTurn) * 100 : null,
         gainers: gainers, losers: losers, tiles: g.tiles
       };
@@ -614,6 +630,7 @@
 
   var currentSectors = [];
   var lastLiveAsOf = 0;
+  var batchRsi = {};
 
   function drawAll(agg, isLive, marketState) {
     currentSectors = agg.sectors;

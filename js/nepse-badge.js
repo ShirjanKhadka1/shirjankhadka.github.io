@@ -103,7 +103,8 @@
     var market = snapshot.market;
     var t = fmtTime(snapshot.asof);
     if (market === 'OPEN') {
-      return { tone: 'live', label: 'LIVE', detail: t ? '· as of ' + t : '' };
+      // Non-negotiable: never label LIVE without the ~15 min delay qualifier.
+      return { tone: 'live', label: 'LIVE', detail: '· delayed ~15 min' + (t ? ' · as of ' + t : '') };
     }
     return { tone: 'closed', label: 'CLOSED', detail: t ? '· as of ' + t : '' };
   }

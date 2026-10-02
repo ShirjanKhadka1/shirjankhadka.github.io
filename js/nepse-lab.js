@@ -11,8 +11,8 @@
   // Market numbers must never use .toFixed()/.toLocaleString() directly.
   var NF = (typeof window !== 'undefined' && window.NepseFormat) || null;
   function nfPx(n){ return NF ? NF.fmtPrice(n) : num(n, 2); }
-  function nfSPx(v){ v=+v; if(!isFinite(v)) return '–'; return (v<0?'-':'+')+(NF?NF.fmtPrice(Math.abs(v)):num(Math.abs(v),2)); }
-  function nfPc(v){ return (v==null||!isFinite(+v)) ? '–' : (NF?NF.fmtPct(v):((+v>=0?'+':'')+(+v).toFixed(2)+'%')); }
+  function nfSPx(v){ v=+v; if(!isFinite(v)) return '—'; return (v<0?'-':'+')+(NF?NF.fmtPrice(Math.abs(v)):num(Math.abs(v),2)); }
+  function nfPc(v){ return (v==null||!isFinite(+v)) ? '—' : (NF?NF.fmtPct(v):((+v>=0?'+':'')+(+v).toFixed(2)+'%')); }
 
   if (typeof window !== 'undefined' && window.console && console.log) {
     console.log('%cNepse Decode — proprietary analytics. This data is compiled and computed by Nepse Decode; automated harvesting is not permitted. If you need data access, contact us.',
@@ -550,9 +550,9 @@
   function marketOpenNPT() {
     // Canonical market calendar (NepseMarketConfig): Mon–Fri trading days,
     // 11:00–15:00 NPT regular session, public holidays excluded.
+    // No local fallback — the calendar lives in exactly one place.
     if (typeof window !== 'undefined' && window.NepseMarketConfig) return window.NepseMarketConfig.isMarketOpen();
-    var t = todayNPT(), d = t.getUTCDay(), mins = t.getUTCHours() * 60 + t.getUTCMinutes();
-    return d >= 1 && d <= 5 && mins >= 660 && mins < 900; // Mon–Fri 11:00–15:00 NPT (regular session)
+    return false;
   }
   function fetchJSON(url, timeout) {
     return new Promise(function (res, rej) {
@@ -1222,13 +1222,13 @@
     if (!n) return 'Price chart. No data.';
     if (state.ltpOnly) return 'Price chart, LTP-only history. Indicators need full OHLC history and are unavailable for this security. Hover or touch to inspect values.';
     var parts = [];
-    function last(arr) { var v = arr[n - 1]; return v == null ? '–' : num(v, 2); }
+    function last(arr) { var v = arr[n - 1]; return v == null ? '—' : num(v, 2); }
     if (state.bb) parts.push('Bollinger Bands ' + last(bb.upper) + ' / ' + last(bb.mid) + ' / ' + last(bb.lower));
     if (state.ema20) parts.push('EMA 20 ' + last(ema20));
     if (state.sma20) parts.push('SMA 20 ' + last(sma20));
     if (state.sma50) parts.push('SMA 50 ' + last(sma50));
-    if (state.rsi) { var r = rsiArr(closes, 14); parts.push('RSI 14 ' + (r[n - 1] == null ? '–' : r[n - 1].toFixed(1))); }
-    if (state.stoch && stoch) parts.push('Stochastic %K ' + (stoch.k[n - 1] == null ? '–' : stoch.k[n - 1].toFixed(1)) + ', %D ' + (stoch.d[n - 1] == null ? '–' : stoch.d[n - 1].toFixed(1)));
+    if (state.rsi) { var r = rsiArr(closes, 14); parts.push('RSI 14 ' + (r[n - 1] == null ? '—' : r[n - 1].toFixed(1))); }
+    if (state.stoch && stoch) parts.push('Stochastic %K ' + (stoch.k[n - 1] == null ? '—' : stoch.k[n - 1].toFixed(1)) + ', %D ' + (stoch.d[n - 1] == null ? '—' : stoch.d[n - 1].toFixed(1)));
     return 'Price chart for ' + state.sym + '. ' +
       (parts.length ? 'Active indicators: ' + parts.join('; ') + '. ' : 'No indicators active. ') +
       'Latest close ' + num(state.latestClose ? state.latestClose.value : closes[n - 1], 2) +
@@ -1277,7 +1277,7 @@
   function shRowHtml(h) {
     return '<tr><td class="nl-sh-d">' + fmtD(h.d) + '</td>' +
       '<td class="num"><b>' + num(h.c, 2) + '</b></td>' +
-      '<td class="num">' + (h.vol == null ? '–' : Math.round(h.vol).toLocaleString('en-US')) + '</td>' +
+      '<td class="num">' + (h.vol == null ? '—' : Math.round(h.vol).toLocaleString('en-US')) + '</td>' +
       '<td><span class="nl-sh-pill ' + h.cls + '">' + esc(h.label) + '</span></td></tr>';
   }
   function renderSignalHistory(el) {
@@ -1323,6 +1323,16 @@
   function renderShell(S, divs, pats) {
     var wrap = document.getElementById('nl-lab'); if (!wrap) return;
     var rows = state.rows, n = rows.length;
+    // Single headline computation shared by the quote header AND the Market
+    // snapshot card. Priority: live quote > latest-close overlay > last batch
+    // candle. (The card used to recompute from batch candles alone, ignoring
+    // the live quote — the stale −7.43 vs the header's live −2.86.)
+    var hfQ = state.live;
+    var hfLco = (state.mode === 'index' && !hfQ) ? state.latestClose : null;
+    var hfPx = hfQ ? hfQ.ltp : (hfLco ? hfLco.value : (n ? rows[n - 1][4] : 0));
+    var hfRef = hfQ ? null : (hfLco ? rows[n - 1][4] : (n > 1 ? rows[n - 2][4] : 0));
+    var hfChg = hfQ ? hfQ.change : (n && hfRef ? hfPx - hfRef : 0);
+    var hfPct = hfQ && hfQ.percent_change != null ? hfQ.percent_change : (hfRef ? hfChg / hfRef * 100 : 0);
     // shimmer over the chart footprint while data loads (no layout shift)
     var cw = document.querySelector('.chart-wrap');
     if (cw) cw.classList.toggle('loading', !!state.loading);
@@ -1334,10 +1344,7 @@
       else {
       var q = state.live;
       var lcoB = (state.mode === 'index' && !q) ? state.latestClose : null;
-      var px = q ? q.ltp : (lcoB ? lcoB.value : (n ? rows[n - 1][4] : 0));
-      var refPx = q ? null : (lcoB ? rows[n - 1][4] : (n > 1 ? rows[n - 2][4] : 0));
-      var chg = q ? q.change : (n && refPx ? px - refPx : 0);
-      var pct = q && q.percent_change != null ? q.percent_change : (refPx ? chg / refPx * 100 : 0);
+      var px = hfPx, chg = hfChg, pct = hfPct; // shared headline figures (hoisted above)
       var badge = state.liveBadge === 'live'
         ? '<span class="nl-badge live"><span class="nl-pulse"></span>LIVE</span>'
         : state.liveBadge === 'delayed'
@@ -1430,36 +1437,37 @@
     }
     // stats bar
     if (n) {
-      var last = rows[n - 1], prev = rows[n - 2] || last;
+      var last = rows[n - 1];
       // latest-close overlay (index only): the newer session's close leads the
       // headline figures; indicators below stay on full candles only
       var lcoS = (state.mode === 'index') ? state.latestClose : null;
-      var headPx = lcoS ? lcoS.value : last[4];
-      var headPrev = lcoS ? last[4] : prev[4];
-      setT('nl-last', num(headPx, 2));
-      var ch = headPx - headPrev, pc = headPrev ? ch / headPrev * 100 : 0;
+      // Market snapshot binds to the SAME headline figures as the quote
+      // header (hfPx/hfChg/hfPct) — one source, never two numbers.
+      setT('nl-last', (hfPx != null && isFinite(+hfPx)) ? num(hfPx, 2) : '—');
       var ce = document.getElementById('nl-chg');
-      if (ce) { ce.textContent = (ch >= 0 ? '+' : '') + num(ch, 2) + ' (' + (pc >= 0 ? '+' : '') + pc.toFixed(2) + '%)'; ce.className = 'nl-stat-v ' + (ch >= 0 ? 'up' : 'dn'); }
+      if (ce) {
+        var chT = (hfChg == null || !isFinite(+hfChg)) ? '—' : (hfChg >= 0 ? '+' : '') + num(hfChg, 2);
+        var pcT = (hfPct == null || !isFinite(+hfPct)) ? '—' : (hfPct >= 0 ? '+' : '') + (+hfPct).toFixed(2) + '%';
+        ce.textContent = chT + ' (' + pcT + ')';
+        ce.className = 'nl-stat-v ' + (hfChg >= 0 ? 'up' : 'dn');
+      }
       var win = rows.slice(-252), h52 = -Infinity, l52 = Infinity;
       win.forEach(function (x) { h52 = Math.max(h52, x[2]); l52 = Math.min(l52, x[3]); });
       setT('nl-52h', num(h52, 2)); setT('nl-52l', num(l52, 2));
       var rsiA = rsiArr(rows.map(function (r) { return r[4]; }), 14);
       var rv = rsiA[n - 1];
-      setT('nl-rsi-v', rv == null ? '–' : rv.toFixed(1));
+      setT('nl-rsi-v', rv == null ? '—' : rv.toFixed(1));
       var s200 = smaArr(rows.map(function (r) { return r[4]; }), 200);
       var rg = document.getElementById('nl-regime');
       if (rg) {
         var above = s200[n - 1] != null && last[4] >= s200[n - 1];
-        rg.textContent = s200[n - 1] == null ? '–' : (above ? 'Above SMA 200' : 'Below SMA 200');
+        rg.textContent = s200[n - 1] == null ? '—' : (above ? 'Above SMA 200' : 'Below SMA 200');
         rg.className = 'nl-stat-v small ' + (above ? 'up' : 'dn');
       }
-      setT('nl-asof', (lcoS ? lcoS.dateStr + ' · session close (full candle pending open data)' : fmtD(last[0])) + (state.liveBadge === 'live' ? ' · live' : ''));
-      if (window.NepseFresh) {
-        var asofIso = lcoS ? String(lcoS.ymd).replace(/^(\d{4})(\d{2})(\d{2})$/, '$1-$2-$3')
-                           : String(last[0]).replace(/^(\d{4})(\d{2})(\d{2})$/, '$1-$2-$3');
-        var nla = document.getElementById('nl-asof');
-        if (nla && !nla.querySelector('.fresh')) nla.insertAdjacentHTML('beforeend', ' ' + NepseFresh.badge(asofIso));
-      }
+      // Sub-line carries the candle/session date only. Freshness is the
+      // unified [data-freshness-badge] at the top of the page — no second,
+      // contradicting "live · updated 11h ago" signal here (P0-2/P0-4).
+      setT('nl-asof', lcoS ? lcoS.dateStr + ' · session close (full candle pending open data)' : fmtD(last[0]));
     }
   }
   function setT(id, t) { var e = document.getElementById(id); if (e) e.textContent = t; }
@@ -1488,7 +1496,7 @@
     if (g._rsi == null) g._rsi = rsiArr(g.rows.map(function (r) { return r[4]; }), 14);
     var rv = rval(g._rsi); if (state.rsi && rv) parts.push('RSI ' + rv);
     var sk = g.stoch ? rval(g.stoch.k) : null, sd = g.stoch ? rval(g.stoch.d) : null;
-    if (state.stoch && sk) parts.push('Stoch ' + sk + '/' + (sd || '–'));
+    if (state.stoch && sk) parts.push('Stoch ' + sk + '/' + (sd || '—'));
     return parts.length ? '<br><span class="nl-tip-ind">' + parts.join(' · ') + '</span>' : '';
   }
   var indDisCache = null; // last ltpOnly state applied to indicator checkboxes

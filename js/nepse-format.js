@@ -21,6 +21,11 @@
   var PCT_FMT = new Intl.NumberFormat('en-IN', {
     minimumFractionDigits: 2, maximumFractionDigits: 2, signDisplay: 'always'
   });
+  // Percent without forced sign — for the parenthesised leg of fmtChange,
+  // where zero must read "(0.00%)", not "(+0.00%)".
+  var PCT_PAREN_FMT = new Intl.NumberFormat('en-IN', {
+    minimumFractionDigits: 2, maximumFractionDigits: 2
+  });
   var INT_FMT = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 });
   var TIME_FMT = new Intl.DateTimeFormat('en-GB', {
     timeZone: 'Asia/Kathmandu',
@@ -36,22 +41,61 @@
     hour: '2-digit', minute: '2-digit', hour12: false
   });
 
+  // null / undefined / '' are MISSING — never 0. Number(null) === 0 would
+  // turn missing data into "0.00", so they map to NaN here.
   function num(x) {
+    if (x === null || x === undefined || x === '') return NaN;
     var n = Number(x);
     return isFinite(n) ? n : NaN;
   }
 
   var NepseFormat = {
-    /** Price / index value → "2,599.15". NaN → "—". */
+    /** Price / index value → "2,599.15". NaN → "—".
+     *  0 is never a valid NEPSE price level — missing data arrives as 0/"" —
+     *  so 0 renders as "—" too, never "0.00". (Zero CHANGE is real and stays
+     *  "0.00" via fmtPct / the signed formatters.) */
     fmtPrice: function (x) {
       var n = num(x);
-      return isNaN(n) ? '—' : PRICE_FMT.format(n);
+      return (isNaN(n) || n === 0) ? '—' : PRICE_FMT.format(n);
     },
 
     /** Percent → "+0.45%", "-1.20%". NaN → "—". */
     fmtPct: function (x) {
       var n = num(x);
       return isNaN(n) ? '—' : PCT_FMT.format(n) + '%';
+    },
+
+    /** Day change → "-277.70 (-5.00%)", "+12.30 (+1.20%)", "0.00 (0.00%)".
+     *  The rupee leg NEVER carries a % suffix. pct may be null (rupee only).
+     *  NaN change → "—". Zero change is real: "0.00 (0.00%)". */
+    fmtChange: function (chRs, pct) {
+      var ch = num(chRs);
+      if (isNaN(ch)) return '—';
+      var rsTxt = (ch > 0 ? '+' : '') + PRICE_FMT.format(ch);
+      var p = num(pct);
+      if (isNaN(p)) return rsTxt;
+      return rsTxt + ' (' + (p > 0 ? '+' : '') + PCT_PAREN_FMT.format(p) + '%)';
+    },
+
+    /** Percent change derived from rupee change + last price
+     *  (prev close = price − change). Null when not computable. */
+    pctOfChange: function (chRs, price) {
+      var ch = num(chRs), p = num(price);
+      if (isNaN(ch) || isNaN(p)) return null;
+      var prev = p - ch;
+      if (!prev) return null;
+      return ch / prev * 100;
+    },
+
+    /** Rupee change derived from percent change + last price
+     *  (prev close = price / (1 + pct/100)). Null when not computable.
+     *  Exact arithmetic from the feed's own two fields — never invented. */
+    rsOfPct: function (pct, price) {
+      var pc = num(pct), p = num(price);
+      if (isNaN(pc) || isNaN(p) || !p) return null;
+      var prev = p / (1 + pc / 100);
+      if (!isFinite(prev)) return null;
+      return p - prev;
     },
 
     /** Generic grouped number → "12,34,567". NaN → "—". */

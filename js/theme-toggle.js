@@ -83,13 +83,7 @@
   } else {
     init();
   }
-
-  // Cross-tab sync: another tab changed the theme
-  window.addEventListener('storage', function (e) {
-    if (e.key === KEY && (e.newValue === 'dark' || e.newValue === 'light')) {
-      document.documentElement.setAttribute('data-theme', e.newValue);
-      syncMeta(e.newValue);
-      document.querySelectorAll('.theme-toggle').forEach(syncButton);
-    }
-  });
+  // NOTE (2026-10-02, P1-3): no cross-tab `storage` listener. The theme must
+  // change ONLY on an explicit toggle click in THIS tab — syncing another
+  // tab's write caused silent theme flips with no user input.
 })();

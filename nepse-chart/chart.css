@@ -186,6 +186,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,su
 .nl-sh-pill.hold{background:var(--ivory);color:var(--ink);border:1px solid var(--hairline)}
 .nl-sh-pill.exit{background:#F9E2DC;color:#93331F}
 .nl-sh-pill.sexit{background:#B23A2E;color:#fff}
+/* P1-5: exit pills follow the theme — no light-pink chip in dark mode */
+[data-theme="dark"] .nl-sh-pill.exit{background:#40201b;color:#f2b8a9;border:1px solid #6e332a}
+[data-theme="dark"] .nl-sh-pill.buy{background:#1d3a28;color:#b9e6c8;border:1px solid #2f5c40}
 .nl-sh-pill.insufficient{background:var(--ivory);color:var(--faint);border:1px dashed var(--hairline)}
 /* 2026-10-02: paged signal-history box — fixed height, rows move inside */
 .nl-sh-wrap{min-height:420px}
@@ -501,3 +504,25 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,su
   background:rgba(30,107,74,.08);border:1px solid var(--hairline);border-radius:999px;
   padding:2px 11px;margin-left:9px;font-variant-numeric:tabular-nums;white-space:nowrap;
   vertical-align:1px}
+
+/* ---------- NEPSE index candlestick module (after #nl-livebar) ---------- */
+.nl-index{background:var(--paper);border:1px solid var(--hairline);border-radius:18px;
+  padding:22px;margin:18px 0}
+.nl-ix-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;
+  flex-wrap:wrap;margin-bottom:14px}
+.nl-ix-head h2{font-family:var(--serif);font-size:22px;font-weight:600;margin:0}
+.nl-ix-tabs{display:flex;gap:6px}
+.nl-ix-tabs button{font:inherit;font-size:13px;font-weight:600;padding:8px 14px;border-radius:999px;
+  border:1px solid var(--hairline);background:transparent;color:var(--muted);cursor:pointer}
+.nl-ix-tabs button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.nl-ix-stats{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px}
+.nl-ix-stat{display:flex;flex-direction:column;gap:2px}
+.nl-ix-k{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);font-weight:600}
+.nl-ix-v{font-size:16px;font-weight:700;color:var(--ink)}
+.nl-ix-chart{width:100%;height:340px;border-radius:12px;overflow:hidden}
+.nl-ix-note{font-size:13.5px;color:var(--muted);margin:10px 0 0}
+.nl-ix-foot{font-size:12px;color:var(--faint);margin:12px 0 0}
+@media(max-width:760px){
+  .nl-ix-stats{grid-template-columns:repeat(3,1fr)}
+  .nl-index{padding:16px}
+}

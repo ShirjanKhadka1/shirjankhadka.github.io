@@ -63,7 +63,7 @@
     return String(v);
   }
   function fmtVal(m, v) {
-    if (v === null || v === undefined || !isFinite(v)) return '–';
+    if (v === null || v === undefined || !isFinite(v)) return '—';
     if (m.fmt === 'money') {
       var a = Math.abs(v);
       return 'Rs ' + (a < 1 ? (v * 1000).toFixed(1) + 'm' : v.toFixed(2) + 'b');
@@ -244,13 +244,13 @@
         if (!valEl) return;
         if (key === '__pe') {
           var pe = D.pe[focusSym];
-          valEl.textContent = (pe !== null && pe !== undefined && isFinite(pe) && pe > 0) ? pe.toFixed(2) + '×' : '–';
+          valEl.textContent = (pe !== null && pe !== undefined && isFinite(pe) && pe > 0) ? pe.toFixed(2) + '×' : '—';
         } else {
           var m = metricOf(key);
           var vals = (D.series[focusSym] && D.series[focusSym][key]) || [];
           var last = null;
           for (var i = vals.length - 1; i >= 0; i--) { if (vals[i] !== null && isFinite(vals[i])) { last = vals[i]; break; } }
-          valEl.textContent = m ? fmtVal(m, last) : '–';
+          valEl.textContent = m ? fmtVal(m, last) : '—';
         }
       });
       var coSym = document.getElementById('valCoSym');

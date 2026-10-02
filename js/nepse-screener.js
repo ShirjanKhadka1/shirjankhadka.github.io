@@ -95,9 +95,9 @@
       .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
   function num2(x) {
-    return x == null ? '–' : (+x).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return x == null ? '—' : (+x).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
-  function fmtVol(x) { return x == null ? '–' : Math.round(+x).toLocaleString('en-US'); }
+  function fmtVol(x) { return x == null ? '—' : Math.round(+x).toLocaleString('en-US'); }
   function rvolBadge(r) {
     if (r.vol == null || r.volAvg == null || !r.volAvg) return '';
     var x = r.vol / r.volAvg;
@@ -108,30 +108,30 @@
   function pct(x) { return (x >= 0 ? '+' : '') + x.toFixed(1) + '%'; }
 
   function slCell(r) {
-    if (r.sl == null || r.p == null || !r.p) return '<span class="sc-dash">–</span>';
+    if (r.sl == null || r.p == null || !r.p) return '<span class="sc-dash">—</span>';
     var d = (r.sl - r.p) / r.p * 100;
     return '<b class="sc-sl">' + num2(r.sl) + '</b> <span class="sc-dist dn">(' + pct(d) + ')</span>';
   }
   function tpCell(r) {
-    if (r.tp == null || r.p == null || !r.p) return '<span class="sc-dash">–</span>';
+    if (r.tp == null || r.p == null || !r.p) return '<span class="sc-dash">—</span>';
     var d = (r.tp - r.p) / r.p * 100;
     return '<b class="sc-tp">' + num2(r.tp) + '</b> <span class="sc-dist up">(' + pct(d) + ')</span>';
   }
   function hitCell(r) {
-    if (!r.tr || r.tr.n == null || r.tr.w == null) return '<span class="sc-dash">–</span>';
+    if (!r.tr || r.tr.n == null || r.tr.w == null) return '<span class="sc-dash">—</span>';
     var w = Math.round(r.tr.w * 100);
     return '<b class="sc-hit">' + w + '%</b> <span class="sc-sub">' + r.tr.n + ' calls</span>';
   }
 
   function rsiCell(r) {
-    if (r.rsi == null) return '<span class="sc-dash">–</span>';
+    if (r.rsi == null) return '<span class="sc-dash">—</span>';
     var cls = r.rsi < 30 ? ' sc-rsi-os' : (r.rsi > 70 ? ' sc-rsi-ob' : '');
     return '<b class="sc-rsi' + cls + '">' + r.rsi.toFixed(1) + '</b>';
   }
 
   function chCell(r) {
     var ch = Number(r.ch);
-    if (r.ch == null || !isFinite(ch)) return '<span class="sc-dash">–</span>';
+    if (r.ch == null || !isFinite(ch)) return '<span class="sc-dash">—</span>';
     var cls = ch > 0 ? 'sc-chg-up' : (ch < 0 ? 'sc-chg-dn' : 'sc-chg-flat');
     return '<b class="' + cls + '">' + (ch > 0 ? '+' : '') + ch.toFixed(2) + '%</b>';
   }
@@ -230,7 +230,7 @@
       var Mono = window.NepseMono || null;
       return '<tr>' +
         '<td class="num sc-sn" data-label="S.N.">' + sn + '</td>' +
-        '<td data-label="Sector">' + (r.sec ? '<span class="sc-sector">' + esc(r.sec) + '</span>' : '<span class="sc-dash">–</span>') + '</td>' +
+        '<td data-label="Sector">' + (r.sec ? '<span class="sc-sector">' + esc(r.sec) + '</span>' : '<span class="sc-dash">—</span>') + '</td>' +
         '<td data-label="Symbol"><a class="sc-sym" href="/stocks/' + esc(String(r.sym).replace(/\//g, "-")) + '/">' +
           (Mono ? Mono.avatar(r.sym, r.sec, 28) : '') + '<span>' + esc(r.sym) + '</span></a>' +
           (r.l ? ' <span class="sc-ltp" title="LTP-only history">LTP</span>' : '') + '</td>' +
@@ -426,7 +426,7 @@
         var chHtml = isFinite(ch)
           ? '<span class="sc-dist ' + (ch > 0 ? 'up' : ch < 0 ? 'dn' : '') + '">' +
             (ch > 0 ? '+' : '') + ch.toFixed(2) + '%</span>'
-          : '<span class="sc-dash">–</span>';
+          : '<span class="sc-dash">—</span>';
         return '<div class="sc-cr-row">' +
           '<a class="sc-cr-sym" href="/stocks/' + esc(String(r.sym).replace(/\//g, "-")) + '/">' +
             (Mono ? Mono.avatar(r.sym, r.sec, 26) : '') + '<span>' + esc(r.sym) + '</span></a>' +
@@ -537,6 +537,25 @@
       var snapAsof = document.querySelector('.sc-top10 .sc-asof-inline');
       if (snapAsof && asof) snapAsof.textContent = '· ' + asof;
 
+      // P0-5: the Top-10 teaser renders from the SAME dataset as the table
+      // (state.rows, this verdicts.json load) — never from baked-in HTML.
+      (function renderTop10() {
+        var tb = document.querySelector('.sc-top10 tbody');
+        if (!tb || !state.rows.length) return;
+        var top = state.rows.slice().sort(rankCmp).slice(0, 10);
+        tb.innerHTML = top.map(function (r, i) {
+          var ch = Number(r.ch);
+          var chTxt = (r.ch == null || !isFinite(ch)) ? '—'
+            : (ch > 0 ? '+' : '') + ch.toFixed(2) + '%';
+          return '<tr><td>' + (i + 1) + '</td>' +
+            '<td><a href="/nepse-chart/?s=' + esc(r.sym) + '">' + esc(r.sym) + '</a></td>' +
+            '<td>' + num2(r.p) + '</td><td>' + chTxt + '</td>' +
+            '<td>' + esc(r.v || '—') + '</td>' +
+            '<td>' + esc(r.setup || '—') + '</td>' +
+            '<td>' + num2(r.sl) + '</td><td>' + num2(r.tp) + '</td></tr>';
+        }).join('');
+      })();
+
       // summary cards
       var c = { 'Strong Buy': 0, 'Buy': 0, 'Hold': 0, 'Exit / Reduce': 0, 'Strong Exit': 0 };
       state.rows.forEach(function (r) { if (c[r.v] != null) c[r.v]++; });
@@ -578,7 +597,8 @@
   }
 
   /* Live overlay: when the 15-minute tape is fresh, repaint the Price and
-     Change cells in place. Signals, SL/TP and hit rates stay daily-batch. */
+     Change cells in place — in BOTH the main table and the Top-10 teaser,
+     so they never disagree. Signals, SL/TP and hit rates stay daily-batch. */
   function startLiveOverlay() {
     var NL = window.NepseLive || null;
     if (!NL || !document.getElementById('sc-live')) return;
@@ -587,33 +607,40 @@
       onData: function (d) {
         if (!d || !d.quotes) return;
         var quotes = d.quotes;
-        var body = $('sc-body');
-        if (!body) return;
-        var rows = body.querySelectorAll('tr');
-        for (var i = 0; i < rows.length; i++) {
-          var link = rows[i].querySelector('.sc-sym');
-          if (!link) continue;
-          var m = link.getAttribute('href').match(/\/stocks\/([^\/]+)\//);
-          var sym = m && m[1];
-          var q = sym && quotes[sym];
-          if (!q || q.ltp == null || !isFinite(Number(q.ltp))) continue;
-          var cells = rows[i].querySelectorAll('td');
-          // Price is the 4th cell (index 3), Change the 5th (index 4).
-          if (cells[3]) {
-            var b = cells[3].querySelector('b');
-            if (b) b.textContent = num2(q.ltp);
-          }
-          if (cells[4]) {
-            var pct = (q.pct != null && isFinite(Number(q.pct))) ? Number(q.pct) : null;
-            if (pct != null) {
-              var cls = pct > 0 ? 'up' : pct < 0 ? 'down' : '';
-              cells[4].innerHTML = '<span class="' + cls + '">' +
-                (pct > 0 ? '+' : '') + pct.toFixed(2) + '%</span>';
-            }
-          }
-        }
+        repaintPrices($('sc-body'), quotes, '.sc-sym', /\/stocks\/([^\/]+)\//, 3, 4);
+        repaintPrices(document.querySelector('.sc-top10 tbody'), quotes,
+          'a[href*="/nepse-chart/?s="]', /[?&]s=([^&]+)/, 2, 3);
       }
     });
+  }
+
+  // Repaint price/change cells for rows matched by symbol link.
+  // priceIdx/changeIdx are the td indexes in this table's rows.
+  function repaintPrices(tbody, quotes, linkSel, symRe, priceIdx, changeIdx) {
+    if (!tbody) return;
+    var rows = tbody.querySelectorAll('tr');
+    for (var i = 0; i < rows.length; i++) {
+      var link = rows[i].querySelector(linkSel);
+      if (!link) continue;
+      var m = link.getAttribute('href').match(symRe);
+      var sym = m && m[1];
+      var q = sym && quotes[sym];
+      if (!q || q.ltp == null || !isFinite(Number(q.ltp))) continue;
+      var cells = rows[i].querySelectorAll('td');
+      if (cells[priceIdx]) {
+        var b = cells[priceIdx].querySelector('b');
+        if (b) b.textContent = num2(q.ltp);
+        else cells[priceIdx].textContent = num2(q.ltp);
+      }
+      if (cells[changeIdx]) {
+        var pct = (q.pct != null && isFinite(Number(q.pct))) ? Number(q.pct) : null;
+        if (pct != null) {
+          var cls = pct > 0 ? 'up' : pct < 0 ? 'down' : '';
+          cells[changeIdx].innerHTML = '<span class="' + cls + '">' +
+            (pct > 0 ? '+' : '') + pct.toFixed(2) + '%</span>';
+        }
+      }
+    }
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', load);
