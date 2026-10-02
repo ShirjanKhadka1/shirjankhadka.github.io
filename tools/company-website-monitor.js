@@ -98,6 +98,27 @@ function isFinancial(fname) {
   return FIN_KW.some(kw => lower.includes(kw.toLowerCase()));
 }
 
+/* Humanize a PDF filename into a readable title:
+ * - strips repeated ".pdf.pdf"
+ * - turns separators into spaces
+ * - title-cases words, keeping acronyms (GVL, AGM, IPO) uppercase */
+const TITLE_ACRONYMS = new Set(['ipo', 'agm', 'gvl', 'fy', 'q1', 'q2', 'q3', 'q4']);
+function humanizeTitle(fname) {
+  const base = String(fname || '')
+    .replace(/(\.pdf)+$/i, '')
+    .replace(/[-_]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 120);
+  return base.split(' ').map(w => {
+    if (!w) return w;
+    if (TITLE_ACRONYMS.has(w.toLowerCase())) return w.toUpperCase();
+    if (/^[a-z]{1,4}$/.test(w) && !/[aeiou]/i.test(w)) return w.toUpperCase();
+    if (/^[A-Z0-9.]+$/.test(w)) return w;
+    return w.charAt(0).toUpperCase() + w.slice(1);
+  }).join(' ');
+}
+
 async function checkCompany(sym, info, state, forceBaseline) {
   const st = state[sym] || { pdfs: [], baselined: false, lastCheck: null, errors: 0 };
   const isFirstRun = !st.baselined || forceBaseline;
@@ -121,7 +142,7 @@ async function checkCompany(sym, info, state, forceBaseline) {
           if (!isFirstRun) {
             results.push({
               sym,
-              title: `${info.name}: ${pdf.fname.replace(/\.pdf$/i, '').replace(/[-_]/g, ' ').slice(0, 120)}`,
+              title: `${info.name}: ${humanizeTitle(pdf.fname)}`,
               link: pdf.url,
               src: 'Company website',
               date: new Date().toISOString().slice(0, 10),

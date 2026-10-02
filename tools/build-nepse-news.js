@@ -184,14 +184,23 @@ function matchSymbol(title, aliases) {
   const tokens = title.toLowerCase().split(/[^\u0900-\u097Fa-z0-9]+/)
     .filter((w) => w.length >= 2 && !DEVA_STOPWORDS.has(w));
   const hs = tokens.map(skeleton);
+  // Weak skeleton matches ignore generic corporate words: "corporation" must
+  // not weakly match CORBL's "corporate" skeleton, "nepal" must not match, etc.
+  const hsWeak = tokens
+    .filter((w) => !SUFFIX.has(w) && !GENERIC.has(w))
+    .map(skeleton);
   const hits = [];
   for (const a of aliases) {
     let strong = false, weak = false;
     // 1) English company-name phrase match.
     if (a.phrase.length >= 4 && t.includes(' ' + a.phrase + ' ')) strong = true;
-    // 2) All English core tokens present.
+    // 2) All English core tokens present as whole words (never substrings:
+    //    "mandu" must not fire on "Kathmandu", "rawa" on "Betrawati").
+    //    A single common-word token is weak on its own — it also needs a
+    //    market keyword ("union" in an art headline is not Union Hydropower).
     if (!strong && a.coreTokens.length >= 1 &&
-      a.coreTokens.every((w) => t.includes(w))) strong = true;
+      a.coreTokens.every((w) => tokens.includes(w)) &&
+      (a.coreTokens.length >= 2 || hasKw)) strong = true;
     // 3) Consonant-skeleton match (handles Nepali transliterations).
     //    Always needs a market keyword: short skeletons collide with common
     //    Nepali words (e.g. दलित "dlt" vs DOLTI). Auto-derived skeletons are
@@ -203,7 +212,13 @@ function matchSymbol(title, aliases) {
           for (const h of hs) {
             if (!h) continue;
             if (h === s) return 2;
-            if (s.length >= 5 && h.includes(s)) return 1;
+          }
+          // Weak: skeleton contained in a longer headline token's skeleton.
+          // Generic corporate words are excluded (see hsWeak).
+          if (s.length >= 5) {
+            for (const h of hsWeak) {
+              if (h && h.includes(s)) return 1;
+            }
           }
         }
         return 0;
@@ -218,7 +233,7 @@ function matchSymbol(title, aliases) {
     }
     // 4) Bare ticker + market keyword (catches Nepali headlines too).
     if (!strong && !weak && a.tickerRe.test(t) &&
-      (hasKw || a.coreTokens.some((w) => t.includes(w)))) strong = true;
+      (hasKw || a.coreTokens.some((w) => tokens.includes(w)))) strong = true;
     if (strong || (weak && hasKw)) hits.push(a.sym);
   }
   return hits;
