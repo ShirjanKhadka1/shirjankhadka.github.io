@@ -4,11 +4,11 @@
 # health.json + live.json and emails the owner (never Facebook) when the
 # pipeline looks broken.
 #
-# Schedule: every 30 min during NEPSE market hours (Sun-Thu 11:00-15:00 NPT),
+# Schedule: every 30 min during NEPSE market hours (Mon-Fri 11:00-15:00 NPT),
 # hourly otherwise. Cron runs on UTC; NPT = UTC+5:45.
 #   11:00 NPT = 05:15 UTC, 15:00 NPT = 09:15 UTC.
-# Sun-Thu in NPT ~= Sat-Thu in UTC for these windows; we check market-hours
-# inside the job via NPT math rather than trying to be clever in cron.
+# We check market-hours inside the job via NPT math rather than trying to
+# be clever in cron.
 
 name: NEPSE watchdog
 
@@ -43,8 +43,8 @@ jobs:
           npt=$(TZ=Asia/Kathmandu date +%H:%M:%u)
           npt_hm=$(echo "$npt" | cut -d: -f1,2)
           npt_dow=$(echo "$npt" | awk -F: '{print $3}')
-          # Sun=7 -> 0, Mon-Thu=1-4 are trading days
-          if [ "$npt_dow" = "7" ] || [ "$npt_dow" -le 4 ]; then trading_day=1; else trading_day=0; fi
+          # NEPSE trades Mon-Fri (1-5); Sat/Sun are holidays.
+          if [ "$npt_dow" -ge 1 ] && [ "$npt_dow" -le 5 ]; then trading_day=1; else trading_day=0; fi
           # Market hours 11:00-15:00 NPT
           if [ "$npt_hm" \> "10:59" ] && [ "$npt_hm" \< "15:01" ] && [ "$trading_day" = "1" ]; then
             market_open=1
@@ -97,6 +97,20 @@ jobs:
             fi
           fi
 
+          # ---- render check (market hours only): the page itself must serve
+          # and contain the freshness-badge mount (proves HTML rendered, not
+          # just JSON endpoints alive).
+          if [ "$market_open" = "1" ]; then
+            html=$(curl -sS --max-time 25 "$SITE/nepse-decode/" || true)
+            if [ -z "$html" ]; then
+              ALERT="${ALERT}decode page unreachable during market hours. "
+            elif ! printf '%s' "$html" | grep -q "data-freshness-badge"; then
+              ALERT="${ALERT}decode page render check failed (freshness badge mount missing). "
+            else
+              NOTE="${NOTE}decode page render OK. "
+            fi
+            echo "render_check done market_open=$market_open"
+          fi
           echo "alert=$ALERT"
           echo "note=$NOTE"
           # Export for the email step (multiline-safe via delimiter)
