@@ -1,11 +1,18 @@
 /* NEPSE Alpha Lab, chart + pattern/divergence scanner + rules-based verdict engine.
    Index data: window.NEPSE_DAILY = [YYYYMMDD, o, h, l, c, turnoverNPR], daily sessions.
    Stock data: per-symbol OHLC JSON from the open Nepse-All-Scraper archive
-   plus our own live snapshot (/nepse-chart/data/live.json). All analysis is
+   plus our own live snapshot (via js/nepse-data.js, the only live.json consumer). All analysis is
    computed client-side, rule-based and educational, not AI predictions,
    not advice. */
 (function () {
   'use strict';
+
+  // Canonical Phase-1 formatters for anything sourced from the live snapshot.
+  // Market numbers must never use .toFixed()/.toLocaleString() directly.
+  var NF = (typeof window !== 'undefined' && window.NepseFormat) || null;
+  function nfPx(n){ return NF ? NF.fmtPrice(n) : num(n, 2); }
+  function nfSPx(v){ v=+v; if(!isFinite(v)) return '–'; return (v<0?'-':'+')+(NF?NF.fmtPrice(Math.abs(v)):num(Math.abs(v),2)); }
+  function nfPc(v){ return (v==null||!isFinite(+v)) ? '–' : (NF?NF.fmtPct(v):((+v>=0?'+':'')+(+v).toFixed(2)+'%')); }
 
   if (typeof window !== 'undefined' && window.console && console.log) {
     console.log('%cNepse Decode — proprietary analytics. This data is compiled and computed by Nepse Decode; automated harvesting is not permitted. If you need data access, contact us.',
@@ -45,7 +52,7 @@
     companies: 'https://samirwagle.github.io/Nepse-All-Scraper/docs/api/companies.json',
     prices: function (s) { return 'https://samirwagle.github.io/Nepse-All-Scraper/docs/api/prices/' + s.replace('/', '-') + '.json'; },
     latest: 'https://samirwagle.github.io/Nepse-All-Scraper/docs/api/latest.json',
-    liveOwn: '/nepse-chart/data/live.json', // our own 15-min official-API snapshot (Actions job)
+    liveOwn: '/nepse-chart/data/live.json', // legacy path: now consumed ONLY via NepseData (js/nepse-data.js)
     universe: '/nepse-chart/data/universe.json',
     verdicts: '/nepse-chart/data/verdicts.json',
     ltp: function (s) { return '/nepse-chart/data/ltp/' + s.replace('/', '-') + '.json?v=' + UNIVERSE_V; }
@@ -608,31 +615,54 @@
   function loadLive() {
     var now = Date.now();
     if (now - liveCache.at < 60000 && Object.keys(liveCache.map).length) return Promise.resolve(liveCache.map);
-    // Our own 15-min official-API snapshot (same origin, no CORS issues,
-    // refreshed by the nepse-live-quotes workflow). If it is missing or
-    // stale, fall back to the last cached map and let the UI badge show
-    // the honest delayed state — never another site's feed.
-    return fetchTimeout(SRC.liveOwn, { cache: 'no-store' }, 15000).then(function (r) {
-      if (!r.ok) throw new Error('no own feed'); return r.json();
-    }).then(function (j) {
-      var arr = (j && j.quotes) || [];
-      if (!arr.length) throw new Error('empty own feed');
-      // Staleness guard (2026-09-28): GitHub's scheduler skips most 15-min
-      // refresh slots, so a stale own snapshot must not masquerade as live.
-      var asof = j && j.asof ? new Date(j.asof).getTime() : 0;
-      if (asof && marketOpenNPT() && (Date.now() - asof) > 35 * 60000) throw new Error('stale own feed');
-      liveCache.index = (j && j.index) || null;
-      return arr;
-    }).catch(function () {
-      liveCache.index = null;
-      return null; // feed failed: keep the previously cached map below
-    }).then(function (arr) {
-      if (!arr) return liveCache.map;
-      var map = {};
-      (arr || []).forEach(function (q) { if (q && q.symbol) { map[q.symbol] = q; if (q.name) state.names[q.symbol] = q.name; } });
-      liveCache = { at: now, map: map, index: liveCache.index };
-      return map;
-    }).catch(function () { return liveCache.map; });
+    // Canonical validated snapshot (js/nepse-data.js) — the ONLY live.json
+    // consumer. Quarantined quotes never enter the map (getQuotes filters).
+    // If the snapshot is missing or stale, fall back to the last cached map
+    // and let the UI badge show the honest delayed state.
+    var ND = window.NepseData || null;
+    if (ND) { try { ND.start(); } catch (e) {} } // idempotent
+    var snap = ND ? ND.getSnapshot() : null;
+    if (!snap) return Promise.resolve(liveCache.map);
+    // Staleness guard (2026-09-28): a stale snapshot must not masquerade as
+    // live during market hours — keep the previously cached map instead.
+    if (marketOpenNPT() && ND.getStatus() === 'stale' && Object.keys(liveCache.map).length) {
+      return Promise.resolve(liveCache.map);
+    }
+    var map = {};
+    // NPT wall-clock for last_updated: downstream (quoteAgeText, parseMarketTime,
+    // the last_updated date regex) expects 'YYYY-MM-DD HH:MM' NPT, but
+    // snapshot.asof is normalized to UTC ISO by the module.
+    var nptStamp = (function () {
+      try {
+        return new Date(snap.asofMs).toLocaleString('en-CA', { timeZone: 'Asia/Kathmandu',
+          year: 'numeric', month: '2-digit', day: '2-digit',
+          hour: '2-digit', minute: '2-digit', hour12: false }).replace(',', '');
+      } catch (e) { return ''; }
+    })();
+    ND.getQuotes().forEach(function (q) {
+      if (q && q.symbol) {
+        map[q.symbol] = {
+          symbol: q.symbol, name: q.name || q.symbol,
+          ltp: q.ltp, change: q.change, percent_change: q.percent_change,
+          high: q.high, low: q.low, open: q.open,
+          volume: q.volume, turnover: q.turnover, trades: q.trades,
+          previous_close: q.previous_close, last_updated: nptStamp || snap.asof
+        };
+        if (q.name) state.names[q.symbol] = q.name;
+      }
+    });
+    if (!Object.keys(map).length) return Promise.resolve(liveCache.map);
+    var ix = snap.index || null;
+    liveCache = {
+      at: now,
+      map: map,
+      index: ix ? {
+        value: ix.value, change: ix.change, percent_change: ix.percent_change,
+        high: ix.high, low: ix.low, previous_close: ix.previous_close,
+        last_updated: nptStamp || snap.asof
+      } : null
+    };
+    return Promise.resolve(map);
   }
   function loadStock(sym) {
     if (histCache[sym]) return Promise.resolve(histCache[sym]);
@@ -1312,8 +1342,8 @@
         : '<span class="nl-badge closed">CLOSED</span>';
       lb.innerHTML =
         '<div class="nl-lb-sym"><b>' + esc(state.sym) + '</b><span>' + esc(state.symName) + '</span></div>' +
-        '<div class="nl-lb-px"><b class="' + (chg >= 0 ? 'up' : 'dn') + '">' + num(px, 2) + '</b>' +
-        '<span class="' + (chg >= 0 ? 'up' : 'dn') + '">' + (chg >= 0 ? '+' : '') + num(chg, 2) + ' (' + (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%)</span></div>' +
+        '<div class="nl-lb-px"><b class="' + (chg >= 0 ? 'up' : 'dn') + '">' + nfPx(px) + '</b>' +
+        '<span class="' + (chg >= 0 ? 'up' : 'dn') + '">' + nfSPx(chg) + ' (' + nfPc(pct) + ')</span></div>' +
         '<div class="nl-lb-badge">' + badge + '<small>' + (q && q.last_updated ? quoteAgeText(q) : lcoB ? lcoB.dateStr + ' · session close' : fmtD(n ? rows[n - 1][0] : 0)) + '</small></div>';
       }
     }

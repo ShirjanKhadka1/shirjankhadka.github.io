@@ -171,7 +171,7 @@
       </div>
       <div class="d2-fresh">
         <span id="d2LiveBadge"></span>
-        <span id="d2HeroSrc">Source: /nepse-chart/data/live.json · polling every 60 s during market hours</span>
+        <span id="d2HeroSrc">Source: validated market snapshot · refreshes during market hours</span>
       </div>
     </section>
 
@@ -362,7 +362,9 @@
 </main>
 </div><!-- /.d2-shell -->
 
-<script src="/js/nepse-live.js?v=9a381cca"></script>
+<script src="/js/nepse-market-config.js?v=20261003a"></script>
+<script src="/js/nepse-format.js?v=20261003a"></script>
+<script src="/js/nepse-data.js?v=20261003a"></script>
 <script>
 (function(){
   'use strict';
@@ -371,7 +373,13 @@
   var MONTHS_S=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   function $(id){return document.getElementById(id);}
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
-  function num(n,dp){return Number(n).toLocaleString('en-US',{minimumFractionDigits:dp,maximumFractionDigits:dp});}
+  // Canonical Phase-1 formatters (en-IN, NPT-labelled). Market numbers must
+  // never use .toFixed()/.toLocaleString() directly — always via NepseFormat.
+  var F=window.NepseFormat||null;
+  function px(n){return F?F.fmtPrice(n):'–';} // price/index, 2dp
+  function sPx(v){v=+v;if(!isFinite(v))return '–';return (v<0?'-':'+')+px(Math.abs(v));} // signed price
+  function pc(v){return (v==null||!isFinite(+v))?'–':(F?F.fmtPct(v):((+v>=0?'+':'')+(+v).toFixed(2)+'%'));}
+  function ct(n){return F?F.fmtNum(n):String(n);} // grouped count
   function money(n){
     n=+n; if(!isFinite(n)) return '–';
     if(n>=1e9)return 'Rs '+(n/1e9).toFixed(2)+' arba';
@@ -380,21 +388,15 @@
     if(n>=1e3)return 'Rs '+(n/1e3).toFixed(1)+' k';
     return 'Rs '+n;
   }
-  function inGrouping(n){
-    n=Math.round(+n); if(!isFinite(n)) return '–';
-    var s=String(Math.abs(n)), out='', i=s.length;
-    if(i>3){ out=','+s.slice(-3); i-=3; }
-    while(i>2){ out=','+s.slice(i-2,i)+out; i-=2; }
-    out=s.slice(0,i)+out;
-    return (n<0?'-':'')+out;
-  }
+  // NOTE: money() is the page's turnover display convention (Rs arba/cr/lakh);
+  // kept as-is for Phase 1 (counts/prices/percents moved to NepseFormat).
   function nptDate(ms){ try{ return new Date(ms).toLocaleString('en-CA',{timeZone:'Asia/Kathmandu',year:'numeric',month:'2-digit',day:'2-digit'}).replace(/(\d+)\/(\d+)\/(\d+)/,'$3-$1-$2'); }catch(e){ return ''; } }
   function fmtLong(iso){var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso||''));return m?(+m[3])+' '+MONTHS_L[(+m[2])-1]+' '+m[1]:(iso||'');}
   function fmtShort(iso){var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso||''));return m?(+m[3])+' '+MONTHS_S[(+m[2])-1]+' '+m[1]:(iso||'');}
   function getJSON(p){return fetch(DATA+p,{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json();});}
   function symLink(s){return '/stocks/'+encodeURIComponent(s)+'/';}
   var MAIN_INDICES={'NEPSE':1,'Sensitive':1,'Float':1,'Sensitive Float':1};
-  var STATE_LABEL={live:'Live',delayed:'Delayed',preopen:'Pre-open',closed:'Closed',unknown:'–'};
+  var STATE_LABEL={live:'Live',delayed:'Delayed',stale:'Stale',preopen:'Pre-open',closed:'Closed',unknown:'–'};
 
   /* ---------- sparkline: compact index history, never the 247KB daily bundle ---------- */
   var sparkCloses=null, sparkFrom=null, sparkTo=null, sparkPts=[], sparkHover=-1, sparkTipEl=null, sparkBound=false;
@@ -495,7 +497,7 @@
     if(fill) fill.style.width=(pos*100)+'%';
     if(mk) mk.style.left=(pos*100)+'%';
     var l=$(lowId), h=$(highId);
-    if(l) l.textContent=num(lo,2); if(h) h.textContent=num(hi,2);
+    if(l) l.textContent=px(lo); if(h) h.textContent=px(hi);
   }
 
   /* ---------- tables ---------- */
@@ -507,8 +509,8 @@
     var html=list.map(function(q){
       var ch=+q.change||0, p=q.pct, cls=ch>=0?'up':'down';
       return '<a class="d2-tick-item" href="'+symLink(q.symbol)+'"><span class="tk-sym">'+esc(q.symbol)+'</span>'+
-        '<span class="num">'+(q.ltp!=null?num(q.ltp,2):'–')+'</span>'+
-        '<span class="tk-chg '+cls+'">'+(ch>=0?'+':'')+num(ch,2)+' ('+(p==null||!isFinite(+p)?'–':((+p)>=0?'+':'')+(+p).toFixed(2)+'%')+')</span></a>';
+        '<span class="num">'+(q.ltp!=null?px(q.ltp):'–')+'</span>'+
+        '<span class="tk-chg '+cls+'">'+sPx(ch)+' ('+pc(p)+')</span></a>';
     }).join('');
     el.innerHTML=html+html; // loop for the marquee
   }
@@ -517,9 +519,9 @@
     if(!sym) return ''; // never render a broken link: omit malformed rows
     var ch=+q.change||0, p=q.pct, cls=ch>=0?'up':'down';
     return '<tr><td><a class="t-sym" href="'+symLink(sym)+'">'+esc(sym)+'</a></td>'+
-      '<td class="num '+cls+'">'+(ch>=0?'+':'')+num(ch,2)+'</td>'+
-      '<td class="num '+cls+'">'+(p==null||!isFinite(+p)?'–':((+p)>=0?'+':'')+(+p).toFixed(2)+'%')+'</td>'+
-      '<td class="num">'+(q.ltp!=null?num(q.ltp,2):'–')+'</td></tr>';
+      '<td class="num '+cls+'">'+sPx(ch)+'</td>'+
+      '<td class="num '+cls+'">'+pc(p)+'</td>'+
+      '<td class="num">'+(q.ltp!=null?px(q.ltp):'–')+'</td></tr>';
   }
   function paintGainersLosers(quotes){
     var gainers=quotes.filter(function(q){return q&&q.symbol&&(+q.change||0)>0;})
@@ -534,9 +536,9 @@
   function idxRow(x){
     var ch=+x.change||0, p=x.pct, cls=ch>=0?'up':'down';
     return '<tr><td>'+esc(x.name)+'</td>'+
-      '<td class="num '+cls+'">'+(ch>=0?'+':'')+num(ch,2)+'</td>'+
-      '<td class="num '+cls+'">'+(p==null||!isFinite(+p)?'–':((+p)>=0?'+':'')+(+p).toFixed(2)+'%')+'</td>'+
-      '<td class="num">'+num(x.value,2)+'</td></tr>';
+      '<td class="num '+cls+'">'+sPx(ch)+'</td>'+
+      '<td class="num '+cls+'">'+pc(p)+'</td>'+
+      '<td class="num">'+px(x.value)+'</td></tr>';
   }
   var TT={ mode:'turnover', quotes:[] };
   function paintTurnover(){
@@ -548,11 +550,11 @@
     if(!list.length){ el.innerHTML='<tr><td colspan="4" style="color:var(--d2-muted);font-size:14px;padding:12px 8px">No data in the latest session.</td></tr>'; return; }
     el.innerHTML=list.map(function(q){
       var ch=+q.pct||0, cls=ch>=0?'up':'down';
-      var v=key==='turnover'?money(+q.turnover||0):inGrouping(Math.round(+q[key]||0));
+      var v=key==='turnover'?money(+q.turnover||0):ct(Math.round(+q[key]||0));
       return '<tr><td><a class="t-sym" href="'+symLink(q.symbol)+'">'+esc(q.symbol)+'</a></td>'+
         '<td class="num">'+v+'</td>'+
-        '<td class="num '+cls+'">'+(ch>=0?'+':'')+ch.toFixed(2)+'%</td>'+
-        '<td class="num">'+(q.ltp!=null?num(q.ltp,2):'–')+'</td></tr>';
+        '<td class="num '+cls+'">'+pc(ch)+'</td>'+
+        '<td class="num">'+(q.ltp!=null?px(q.ltp):'–')+'</td></tr>';
     }).join('');
   }
   function initTurnTabs(){
@@ -577,7 +579,7 @@
       return '<a class="d2-card d2-tool" href="'+symLink(q.symbol)+'">'+
         '<span class="d2-wl-num" aria-hidden="true">'+(i+1)+'</span>'+
         '<span style="flex:1"><h3>'+esc(q.symbol)+' <span class="d2-caption">· '+esc(q.name||'')+'</span></h3>'+
-        '<p>'+(q.ltp!=null?'Rs '+num(q.ltp,2):'–')+' · <span class="'+cls+'" style="font-weight:700;color:var(--d2-'+(ch>=0?'gain':'loss')+')">'+(ch>=0?'+':'')+ch.toFixed(2)+'%</span> today · '+money(+q.turnover||0)+' turnover</p></span></a>';
+        '<p>'+(q.ltp!=null?'Rs '+px(q.ltp):'–')+' · <span class="'+cls+'" style="font-weight:700;color:var(--d2-'+(ch>=0?'gain':'loss')+')">'+pc(ch)+'</span> today · '+money(+q.turnover||0)+' turnover</p></span></a>';
     }).join('');
   }
 
@@ -587,14 +589,14 @@
     var state=(st&&st.state)||'unknown';
     var sEl=$('d2State'); if(sEl) sEl.textContent=STATE_LABEL[state]||'–';
     var tEl=$('d2TopState'); if(tEl) tEl.textContent=STATE_LABEL[state]||'';
-    if(ix.value!=null) $('d2IdxVal').textContent=num(ix.value,2);
+    if(ix.value!=null) $('d2IdxVal').textContent=px(ix.value);
     var chEl=$('d2IdxChg');
     if(ix.change!=null&&ix.pct!=null){
       var c=+ix.change, p=+ix.pct, cls=c>=0?'up':'down';
-      chEl.innerHTML='<span class="'+cls+'">'+(c>=0?'+':'')+num(c,2)+' ('+(p>=0?'+':'')+num(p,2)+'%)</span>';
+      chEl.innerHTML='<span class="'+cls+'">'+sPx(c)+' ('+pc(p)+')</span>';
       chEl.className='d2-hero-badge '+cls;
     } else { chEl.textContent='–'; }
-    var f2=function(v){return v==null||!isFinite(+v)?'–':num(+v,2);};
+    var f2=function(v){return v==null||!isFinite(+v)?'–':px(+v);};
     if($('d2DayO'))$('d2DayO').textContent=f2(ix.open);
     if($('d2DayH'))$('d2DayH').textContent=f2(ix.high);
     if($('d2DayL'))$('d2DayL').textContent=f2(ix.low);
@@ -608,6 +610,7 @@
       if(sesNpt) bits.push('Session of '+fmtLong(sesNpt));
       if(state==='live') bits.push('live during market hours');
       else if(state==='delayed') bits.push('delayed snapshot');
+      else if(state==='stale') bits.push('stale snapshot · last verified data');
       else if(state==='preopen') bits.push('pre-open · last close as reference');
       else if(state==='closed') bits.push('market closed · latest verified session');
       else bits.push('feed unavailable');
@@ -639,8 +642,8 @@
     if($('d2BFl'))$('d2BFl').textContent=unc;
     if($('d2BreadthN'))$('d2BreadthN').textContent=tot+' scrips';
     if($('d2StatTurn'))$('d2StatTurn').textContent=money(turn);
-    if($('d2StatShares'))$('d2StatShares').textContent=inGrouping(shares);
-    if($('d2StatTxns'))$('d2StatTxns').textContent=inGrouping(txns);
+    if($('d2StatShares'))$('d2StatShares').textContent=ct(shares);
+    if($('d2StatTxns'))$('d2StatTxns').textContent=ct(txns);
     if($('d2StatScrips'))$('d2StatScrips').textContent=scrips;
   }
   function paintMarketEmpty(msg){
@@ -733,8 +736,8 @@
     sparkCloses.forEach(function(p){ if(p.c>hi.c)hi=p; if(p.c<lo.c)lo=p; });
     var f=function(d){return d.slice(0,4)+'-'+d.slice(4,6)+'-'+d.slice(6,8);};
     return [
-      {kind:'ms',date:f(hi.d),sym:'NEPSE',title:'Session-range high '+num(hi.c,2)+' — strongest close in the recent series',link:'/nepse-chart/'},
-      {kind:'ms',date:f(lo.d),sym:'NEPSE',title:'Session-range low '+num(lo.c,2)+' — weakest close in the recent series',link:'/nepse-chart/'}
+      {kind:'ms',date:f(hi.d),sym:'NEPSE',title:'Session-range high '+px(hi.c)+' — strongest close in the recent series',link:'/nepse-chart/'},
+      {kind:'ms',date:f(lo.d),sym:'NEPSE',title:'Session-range low '+px(lo.c)+' — weakest close in the recent series',link:'/nepse-chart/'}
     ];
   }
   function loadPulse(){
@@ -829,10 +832,29 @@
     }
   }
 
-  /* ---------- boot: live layer drives everything ---------- */
-  function onLive(d, st){
-    if(!d){ paintMarketEmpty('Market data is temporarily unavailable.'); return; }
-    var quotes=Object.keys(d.quotes||{}).map(function(k){return d.quotes[k];});
+  /* ---------- boot: NepseData (canonical validated snapshot) drives everything ---------- */
+  function paintBadge(st){
+    var b=$('d2LiveBadge'); if(!b) return;
+    var s=(st&&st.state)||'unknown';
+    b.textContent=STATE_LABEL[s]||'–';
+    // nlv-badge styles live in css/nepse-wave7.css; 'stale' reuses the delayed look.
+    b.className='nlv-badge '+(s==='stale'?'delayed':s);
+  }
+  function onData(snapshot, status){
+    if(!snapshot){ paintMarketEmpty('Market data is temporarily unavailable.'); return; }
+    // Quarantined quotes never reach the page: getQuotes() filters them.
+    var quotes=NepseData.getQuotes().map(function(q){
+      return { symbol:q.symbol, name:q.name, ltp:q.ltp, change:q.change, pct:q.percent_change,
+               volume:q.volume, turnover:q.turnover, trades:q.trades, high:q.high, low:q.low };
+    });
+    var ix=snapshot.index||{};
+    var d={ asof:snapshot.asof,
+            index:{ value:ix.value, change:ix.change, pct:ix.percent_change,
+                    high:ix.high, low:ix.low, open:ix.open, prev:ix.previous_close } };
+    var state=status==='stale' ? 'stale'
+      : status==='live' ? (snapshot.market==='OPEN'?'live':'closed') : 'unknown';
+    var st={ state:state };
+    paintBadge(st);
     var sesNpt=paintHero(d, st);
     paintBreadthStats(quotes);
     paintTicker(quotes);
@@ -840,35 +862,24 @@
     TT.quotes=quotes; paintTurnover();
     paintTrending(quotes, sesNpt?fmtLong(sesNpt):'');
     initSearch(quotes);
-    // Indices arrive in the raw payload only (the normalized NepseLive
-    // snapshot carries index + quotes). Light raw fetch piggybacks here.
-    getJSON('live.json').then(function(raw){
-      var list=raw.indices||[];
-      var norm=list.map(function(x){return {name:x.name,change:+x.change,pct:+x.percent_change,value:+x.value};});
-      var mEl=$('d2IndicesT'), sEl=$('d2SubIndicesT');
-      var empty='<tr><td colspan="4" style="color:var(--d2-muted);font-size:14px;padding:12px 8px">Index data unavailable.</td></tr>';
-      var main=norm.filter(function(x){return MAIN_INDICES[x.name];});
-      var sub=norm.filter(function(x){return !MAIN_INDICES[x.name];});
-      if(mEl) mEl.innerHTML=main.length?main.map(idxRow).join(''):empty;
-      if(sEl) sEl.innerHTML=sub.length?sub.map(idxRow).join(''):empty;
-    }).catch(function(){});
+    // Indices arrive in the canonical snapshot (validated, optional).
+    var list=snapshot.indices||[];
+    var norm=list.map(function(x){return {name:x.name,change:+x.change,pct:+x.percent_change,value:+x.value};});
+    var mEl=$('d2IndicesT'), sEl=$('d2SubIndicesT');
+    var empty='<tr><td colspan="4" style="color:var(--d2-muted);font-size:14px;padding:12px 8px">Index data unavailable.</td></tr>';
+    var main=norm.filter(function(x){return MAIN_INDICES[x.name];});
+    var sub=norm.filter(function(x){return !MAIN_INDICES[x.name];});
+    if(mEl) mEl.innerHTML=main.length?main.map(idxRow).join(''):empty;
+    if(sEl) sEl.innerHTML=sub.length?sub.map(idxRow).join(''):empty;
   }
 
   loadSpark().then(function(){
-    if(window.NepseLive&&window.NepseLive.start){
-      window.NepseLive.start({ el:'d2LiveBadge', onData:onLive });
+    if(window.NepseData&&window.NepseFormat){
+      window.NepseData.start(); // idempotent
+      window.NepseData.subscribe(onData);
     } else {
-      // Fallback if nepse-live.js failed to load: direct fetch on the same
-      // 60s contract (hidden-tab suppression included). Never a reload loop.
-      var fbTick=function(){
-        getJSON('live.json').then(function(raw){
-          var d={ asof:Date.parse(raw.asof), index:raw.index?{value:+raw.index.value,change:+raw.index.change,pct:+raw.index.percent_change,high:+raw.index.high,low:+raw.index.low,prev:+raw.index.previous_close}:{}, quotes:{} };
-          (raw.quotes||[]).forEach(function(q){ d.quotes[q.symbol]={symbol:q.symbol,name:q.name,ltp:+q.ltp,change:+q.change,pct:+q.percent_change,volume:+q.volume,turnover:+q.turnover,trades:+q.trades}; });
-          onLive(d,{state:raw.market==='OPEN'?'live':'closed'});
-        }).catch(function(){ paintMarketEmpty('Market data is temporarily unavailable.'); });
-      };
-      fbTick();
-      setInterval(function(){ if(!document.hidden) fbTick(); }, 60000);
+      // Modules failed to load: honest empty state, never a reload loop.
+      paintMarketEmpty('Market data is temporarily unavailable.');
     }
   });
   initTurnTabs();

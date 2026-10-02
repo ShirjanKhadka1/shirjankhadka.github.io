@@ -112,6 +112,7 @@ th.num{text-align:right}
 <main class="dc-wrap">
   <h1 style="margin:26px 0 0">Data coverage check</h1>
   <p class="dc-sub" id="dcAsof">Verifying every listed NEPSE security…</p>
+  <p class="dc-sub" id="dcSnap">Live snapshot: loading…</p>
 
   <div class="stats" id="dcStats" style="grid-template-columns:repeat(5,1fr)"></div>
 
@@ -237,9 +238,27 @@ th.num{text-align:right}
 </main>
 
 <script src="/js/nepse-fresh.js?v=ed4a8618"></script>
+<script src="/js/nepse-market-config.js?v=20261003a"></script>
+<script src="/js/nepse-format.js?v=20261003a"></script>
+<script src="/js/nepse-data.js?v=20261003a"></script>
 <script>
 (function () {
   'use strict';
+  // Canonical validated snapshot drives the live-quote presence column.
+  if (window.NepseData) { try { window.NepseData.start(); } catch (e) {} }
+  var snapEl = document.getElementById('dcSnap');
+  function paintSnap() {
+    if (!snapEl || !window.NepseData) return;
+    var snap = window.NepseData.getSnapshot();
+    var status = window.NepseData.getStatus();
+    snapEl.textContent = snap
+      ? 'Live snapshot: ' + window.NepseFormat.fmtDateTimeNPT(snap.asof) +
+        ' · ' + status.toUpperCase() +
+        ' · ' + window.NepseData.getQuotes().length + ' symbols visible'
+      : 'Live snapshot: not loaded yet (' + status + ').';
+  }
+  if (window.NepseData) window.NepseData.subscribe(paintSnap);
+  paintSnap();
   var body = document.getElementById('dcBody'),
       asofEl = document.getElementById('dcAsof'),
       statsEl = document.getElementById('dcStats'),
@@ -422,21 +441,19 @@ th.num{text-align:right}
         render();
       }
     }
-    // refresh live-quote presence from our own snapshot first
-    fetch('/nepse-chart/data/live.json', { cache: 'no-store' })
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .catch(function () { return null; })
-      .then(function (j) {
-        var live = (j && j.quotes) || [];
-        var set = {};
-        live.forEach(function (q) { if (q && q.symbol) set[q.symbol] = 1; });
-        rows.forEach(function (r) { r.live = !!set[r.s]; });
-        liveDone = true;
-        return pool(rows, 6, function (r) {
-          if (r.src === 'none') { r.file = 'missing'; tick(r); return; }
-          return probe(fileUrl(r)).then(function (st) { r.file = st; tick(r); });
-        });
-      })
+    // live-quote presence from the canonical validated snapshot (NepseData)
+    var snapNow = window.NepseData ? window.NepseData.getSnapshot() : null;
+    var set = {};
+    if (snapNow) {
+      window.NepseData.getQuotes().forEach(function (q) { if (q && q.symbol) set[q.symbol] = 1; });
+    }
+    rows.forEach(function (r) { r.live = !!set[r.s]; });
+    liveDone = true;
+    paintSnap();
+    pool(rows, 6, function (r) {
+      if (r.src === 'none') { r.file = 'missing'; tick(r); return; }
+      return probe(fileUrl(r)).then(function (st) { r.file = st; tick(r); });
+    })
       .then(render)
       .catch(function () { runBtn.disabled = false; });
   });

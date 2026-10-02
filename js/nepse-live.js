@@ -1,25 +1,25 @@
-/* NEPSE Alpha Lab  -  shared live-data layer (Wave 7).
+/* NEPSE Alpha Lab  -  shared live-data layer (Wave 7, Phase 1: NepseData).
  *
- * One data path for the suite's live figures. The own 15-minute official
- * snapshot lives at /nepse-chart/data/live.json (refreshed by the
- * nepse-live-quotes workflow during trading). When it is missing or stale
- * Live quotes come from our own market snapshot (nepse-chart/data/live.json,
- * refreshed by the nepse-live-quotes workflow). When the snapshot is missing
- * or stale, the page shows an honest delayed/closed state instead of
- * borrowing another site's feed.
- * A market snapshot (daily batch + live overlay) is the single source the
- * alpha, dashboard, sectors and reports pages render from. Nothing here
- * invents a price; when data is stale or absent, we say so.
+ * One data path for the suite's live figures. The canonical validated
+ * snapshot is owned by js/nepse-data.js (the ONLY module that fetches
+ * /nepse-chart/data/live.json). This module subscribes to it and exposes
+ * the long-standing window.NepseLive API (badge rendering, snapshot
+ * loading, polling helpers) so existing pages keep working unchanged.
  *
- * Exposes window.NepseLive. No dependencies.
+ * Nothing here invents a price; when data is stale or absent, we say so.
+ * Quarantined quotes never reach consumers (NepseData.getQuotes filters).
+ *
+ * Requires (in order, before this script):
+ *   /js/nepse-market-config.js, /js/nepse-format.js, /js/nepse-data.js
  */
 (function () {
   'use strict';
 
-  var OWN = '/nepse-chart/data/live.json';
+  var ND = (typeof window !== 'undefined' && window.NepseData) || null;
+
   var WAVE1 = '/nepse-chart/data/wave1.json';
   var STALE_MIN = 20;      // in-session staleness threshold for the DELAYED badge
-  var POLL_MS = 60000;     // same-origin poll cadence during market hours
+  var POLL_MS = 60000;     // badge repaint cadence
   var FETCH_TIMEOUT = 15000;
   var NPT = 5.75 * 3600 * 1000;
 
@@ -27,15 +27,15 @@
 
   function nowNPT() { return new Date(Date.now() + NPT); }
 
-  // NEPSE schedule (Nepal time), Monday to Friday:
+  // NEPSE schedule (Nepal time), Sunday to Thursday (canonical: NepseMarketConfig):
   //   pre-open 10:45-11:00, regular session 11:00-15:00.
   // Yesterday's close is the reference through pre-open; live overlays
   // engage when the regular session starts.
   function marketState() {
     var t = nowNPT();
     var d = t.getUTCDay(); // 0 = Sunday
+    if (d > 4) return 'closed'; // Friday (5) and Saturday (6): no trading
     var mins = t.getUTCHours() * 60 + t.getUTCMinutes();
-    if (d < 1 || d > 5) return 'closed';
     if (mins >= 645 && mins < 660) return 'preopen';
     if (mins >= 660 && mins < 900) return 'open';
     return 'closed';
@@ -78,15 +78,11 @@
     return m + 'm ' + String(s % 60).padStart(2, '0') + 's';
   }
 
-  /* ---------------- fetch ---------------- */
+  /* ---------------- fetch (daily batch only) ---------------- */
 
-  // Conditional requests: every poll revalidates, but an unchanged payload
-  // comes back as 304 with an empty body instead of the full ~94KB JSON.
-  // We keep the last ETag + parsed body per URL ourselves (rather than
-  // relying on the browser HTTP cache with cache:'default', whose max-age
-  // semantics on this host could serve a minutes-stale live.json without
-  // revalidating). A 304 resolves with the cached body so staleness math
-  // and the badge keep working off the same data.
+  // Conditional requests for the daily batch (wave1.json): an unchanged
+  // payload comes back as 304 with an empty body instead of the full JSON.
+  // The live feed itself is owned by NepseData — nothing here fetches it.
   var etagCache = {};   // url -> last ETag response header
   var bodyCache = {};   // url -> last parsed JSON body
 
@@ -115,47 +111,57 @@
     });
   }
 
-  /* ---------------- normalization ---------------- */
+  /* ---------------- normalization (from the canonical snapshot) ---------------- */
 
   function num(v) { v = Number(v); return isFinite(v) ? v : null; }
 
-  function fromOwn(j) {
+  // Same normalized shape the old fromOwn() produced, sourced from the
+  // validated NepseData snapshot instead of a raw fetch. Quarantined
+  // quotes are excluded via getQuotes().
+  function fromSnapshot() {
+    if (!ND) return null;
+    var snap = ND.getSnapshot();
+    if (!snap) return null;
     var quotes = {};
-    ((j && j.quotes) || []).forEach(function (q) {
+    ND.getQuotes().forEach(function (q) {
       if (!q || !q.symbol) return;
       quotes[q.symbol] = {
         symbol: q.symbol,
         ltp: num(q.ltp), change: num(q.change), pct: num(q.percent_change),
         high: num(q.high), low: num(q.low), volume: num(q.volume),
         turnover: num(q.turnover), trades: num(q.trades),
-        prev: num(q.previous_close), updated: q.last_updated || null,
+        prev: num(q.previous_close), updated: snap.asof,
         name: q.name || null
       };
     });
-    var ix = (j && j.index) || null;
+    var ix = snap.index || null;
     return {
       source: 'own',
-      asof: parseT(j && j.asof),
+      asof: snap.asofMs,
       index: ix ? {
         value: num(ix.value), change: num(ix.change), pct: num(ix.percent_change),
         high: num(ix.high), low: num(ix.low), prev: num(ix.previous_close),
-        updated: ix.last_updated || null
+        updated: snap.asof
       } : null,
       quotes: quotes
     };
   }
 
-  // Live quotes. Own snapshot only; when it is missing, empty, or stale
-  // during market hours the page shows an honest delayed/closed state.
+  // Live quotes from the canonical snapshot. When the snapshot is missing,
+  // empty, or stale during market hours the page shows an honest
+  // delayed/closed state (null), exactly like the old fetch path.
+  function currentData() {
+    var d = fromSnapshot();
+    if (!d) return null;
+    var n = Object.keys(d.quotes).length;
+    if (!n || !(d.asof >= 0)) return null;
+    var ageMin = (Date.now() - d.asof) / 60000;
+    if (isMarketHours() && ageMin > STALE_MIN) return null;
+    return d;
+  }
+
   function loadLive() {
-    return fetchJSON(OWN).then(function (j) {
-      var d = fromOwn(j);
-      var n = Object.keys(d.quotes).length;
-      if (!n || !(d.asof >= 0)) throw new Error('own feed unusable');
-      var ageMin = (Date.now() - d.asof) / 60000;
-      if (isMarketHours() && ageMin > STALE_MIN) throw new Error('own feed stale');
-      return d;
-    }).catch(function () { return null; });
+    return Promise.resolve(currentData());
   }
 
   function statusOf(d) {
@@ -204,7 +210,8 @@
 
   /* ---------------- snapshot data path ----------------
    * One combined payload: the daily batch (wave1.json) plus the live
-   * overlay when fresh. Pages render from this, never from ad-hoc fetches.
+   * overlay from the canonical snapshot when fresh. Pages render from
+   * this, never from ad-hoc fetches.
    */
   function loadSnapshot() {
     return Promise.all([
@@ -236,11 +243,12 @@
     });
   }
 
-  /* ---------------- polling ---------------- */
+  /* ---------------- badge driver ---------------- */
 
   // opts: { el, onData(live, status), poll }
-  // Polls the live feed every minute during market hours and repaints the
-  // badge. Pages use onData to update figures in place (no reload).
+  // Repaints the badge from the canonical snapshot and notifies onData on
+  // every snapshot change. Pages use onData to update figures in place
+  // (no reload). Polling/validation/visibility handling live in NepseData.
   function start(opts) {
     opts = opts || {};
     var el = typeof opts.el === 'string' ? document.getElementById(opts.el) : (opts.el || null);
@@ -251,45 +259,46 @@
       tickCountdowns();
     }
 
-    function tick() {
-      loadLive().then(function (d) {
-        last = d;
-        var st = statusOf(d);
-        paint(st);
-        if (typeof opts.onData === 'function') { try { opts.onData(d, st); } catch (e) {} }
-      }).catch(function () {
-        paint({ state: 'unknown', ageMin: null });
-      });
+    function update() {
+      var d = currentData();
+      last = d;
+      var st = statusOf(d);
+      paint(st);
+      if (typeof opts.onData === 'function') { try { opts.onData(d, st); } catch (e) {} }
     }
 
-    tick();
+    update();
+    var unsub = ND ? ND.subscribe(function () { update(); }) : null;
+
     var prevMs = marketState();
     var timer = setInterval(function () {
-      // Poll only while the tab is visible: no wasted revalidation (or
-      // wakeups) for background tabs.
+      // Poll only while the tab is visible.
       if (document.visibilityState !== 'visible') return;
       var ms = marketState();
-      if (ms === 'open' || ms === 'preopen') { prevMs = ms; tick(); }
+      if (ms === 'open' || ms === 'preopen') { prevMs = ms; update(); }
       else {
-        // One final fetch on the open->closed transition so a tab left open
+        // One final update on the open->closed transition so a tab left open
         // through 15:00 NPT picks up the closing snapshot without a reload.
-        if (prevMs === 'open' || prevMs === 'preopen') { prevMs = ms; tick(); }
+        if (prevMs === 'open' || prevMs === 'preopen') { prevMs = ms; update(); }
         else paint(statusOf(last)); // keep the CLOSED badge honest outside hours
       }
     }, opts.poll || POLL_MS);
     var cd = setInterval(tickCountdowns, 1000);
 
     // Coming back to the tab refreshes immediately instead of waiting for
-    // the next poll tick (cheap: unchanged data is a 304, see fetchJSON).
+    // the next tick.
     document.addEventListener('visibilitychange', function () {
-      if (document.visibilityState === 'visible') tick();
+      if (document.visibilityState === 'visible') update();
     });
 
     return {
-      refresh: tick,
-      stop: function () { clearInterval(timer); clearInterval(cd); }
+      refresh: update,
+      stop: function () { clearInterval(timer); clearInterval(cd); if (unsub) unsub(); }
     };
   }
+
+  // Ensure the canonical feed is polling (idempotent).
+  if (ND) { try { ND.start(); } catch (e) {} }
 
   window.NepseLive = {
     isMarketHours: isMarketHours,
