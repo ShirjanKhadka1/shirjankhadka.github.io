@@ -109,7 +109,7 @@ function main() {
     '<link rel="stylesheet" href="/css/nepse-wave7.css?v=20261002d">\n' +
     '<link rel="stylesheet" href="/css/nepse-brand.css?v=20261003a">\n' +
     '<link rel="stylesheet" href="/css/nepse-wave8.css?v=20261003a">\n' +
-    '<link rel="stylesheet" href="/css/nepse-actions.css?v=20260929a">\n' +
+    '<link rel="stylesheet" href="/css/nepse-actions.css?v=20261002a">\n' +
     '<link rel="stylesheet" href="/css/theme.css?v=20261001a">\n' +
     '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>\n' +
     '</head>\n<body>\n<a class="skip" href="#main">Skip to content</a>\n\n' +
@@ -167,7 +167,7 @@ function main() {
     '  <label class="ca-search">Symbol <input id="ca-q" type="search" placeholder="e.g. NABIL" aria-label="Search by symbol"></label>\n' +
     '  <span class="ca-count" id="ca-count" aria-live="polite"></span>\n' +
     '</div></section>\n' +
-    '<section aria-label="Notices" id="ca-list">\n';
+    '<section aria-label="Notices" id="ca-list" class="ca-feed">\n';
 
   for (const yr of years.length ? years : ['']) {
     if (yr) h += '<h2 class="ca-year">' + yr + '</h2>\n';
@@ -192,83 +192,17 @@ function main() {
   }
 
   h += '</section>\n' +
+    '<nav class="ca-pager" id="ca-pager" aria-label="Notices pages">\n' +
+    '  <button type="button" id="ca-prev" class="ca-page-btn">&larr; Newer</button>\n' +
+    '  <span class="ca-page-info" id="ca-page-info" aria-live="polite"></span>\n' +
+    '  <button type="button" id="ca-next" class="ca-page-btn">Older &rarr;</button>\n' +
+    '</nav>\n' +
     '<p class="sp-disc">Educational use only, not investment advice. Notices are captured from official NEPSE disclosures; always confirm dates, ratios and book closures against the official NEPSE disclosure archive before acting.</p>\n' +
     '</main>\n' +
-    '<style>\n' +
-    '.sf{border-top:1px solid var(--hairline,#E7DFCE);margin-top:64px;background:var(--paper,#FAF8F2);color:var(--ink-soft,#4A463C);font-family:var(--sans,Inter,system-ui,-apple-system,"Segoe UI",sans-serif)}\n' +
-    '.sf-inner{max-width:1200px;margin:0 auto;padding:56px 24px 30px}\n' +
-    '.sf-top{display:flex;gap:18px;align-items:flex-start;margin-bottom:42px}\n' +
-    '.sf-mark{width:46px;height:46px;border-radius:12px;flex:none;box-shadow:0 2px 10px rgba(11,61,46,.12)}\n' +
-    '.sf-name{font-weight:700;font-size:1.06rem;color:var(--ink,#1C1A15);margin:2px 0 8px;letter-spacing:.01em}\n' +
-    '.sf-mission{margin:0;max-width:62ch;line-height:1.75;font-size:.92rem;color:var(--ink-soft,#4A463C)}\n' +
-    '.sf-cols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:36px 28px;margin-bottom:42px}\n' +
-    '.sf-col h3{font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted,#8A8474);margin:0 0 16px;font-weight:700}\n' +
-    '.sf-col ul{list-style:none;margin:0;padding:0;display:grid;gap:11px}\n' +
-    '.sf-col a{color:var(--ink-soft,#4A463C);text-decoration:none;font-size:.92rem;line-height:1.5}\n' +
-    '.sf-col a:hover{color:var(--green-900,#0B3D2E);text-decoration:underline}\n' +
-    '.sf-note{border-top:1px solid var(--hairline,#E7DFCE);padding-top:26px;font-size:.85rem;line-height:1.75;color:var(--muted,#8A8474);max-width:88ch;margin:0}\n' +
-    '.sf-note strong{color:var(--ink-soft,#4A463C)}\n' +
-    '.sf-bottom{display:flex;flex-wrap:wrap;gap:10px 20px;justify-content:space-between;align-items:center;margin-top:26px;padding-top:22px;border-top:1px solid var(--hairline,#E7DFCE);font-size:.85rem;color:var(--muted,#8A8474)}\n' +
-    '.sf-bottom a{color:var(--ink-soft,#4A463C);text-decoration:none;font-weight:600}\n' +
-    '.sf-bottom a:hover{color:var(--green-900,#0B3D2E);text-decoration:underline}\n' +
-    '.sf-social{display:flex;gap:16px;align-items:center}\n' +
-    '@media(max-width:820px){.sf-cols{grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 20px}}\n' +
-    '@media(max-width:520px){.sf-inner{padding:44px 20px 26px}.sf-top{margin-bottom:34px}.sf-cols{margin-bottom:34px}}\n' +
-    '</style>\n' +
-    '<footer class="sf" aria-label="Nepse Decode site footer">\n' +
-    '  <div class="sf-inner">\n' +
-    '    <div class="sf-top">\n' +
-    '      <svg class="sf-mark" viewBox="0 0 64 64" role="img" aria-label="Nepse Decode iceberg mark"><rect width="64" height="64" rx="14" fill="#013E2E"/><polygon points="32,9 21,25 43,25" fill="#FFFFFF"/><polygon points="32,9 37,25 27,25" fill="#EEF2EF"/><polygon points="13,27.5 51,27.5 45,42 32,57 21,45 15,37" fill="#FFFFFF"/><polygon points="13,27.5 27,27.5 21,45 15,37" fill="#D6DDD9"/><polygon points="51,27.5 45,42 38,27.5" fill="#C6CECA"/><polygon points="32,57 45,42 36,40 28,49" fill="#E4E9E6"/><polygon points="21,45 32,57 28,49 24,44" fill="#D6DDD9"/><rect x="4" y="25" width="56" height="2.6" rx="1.3" fill="#0B3D2E" opacity=".55"/></svg>\n' +
-    '      <div>\n' +
-    '        <p class="sf-name">Nepse Decode</p>\n' +
-    '        <p class="sf-mission">Free, honest NEPSE intelligence for every Nepali investor — live market data, screeners, signals and research, rebuilt every trading day. No login, no paywall, no buy calls.</p>\n' +
-    '      </div>\n' +
-    '    </div>\n' +
-    '    <nav class="sf-cols" aria-label="Footer sections">\n' +
-    '      <div class="sf-col">\n' +
-    '        <h3>Tools</h3>\n' +
-    '        <ul>\n' +
-    '          <li><a href="/nepse-screener/">Stock Screener</a></li>\n' +
-    '          <li><a href="/nepse-chart/">Chart</a></li>\n' +
-    '          <li><a href="/nepse-trending/">Trending Stocks</a></li>\n' +
-    '          <li><a href="/nepse-value/">Value Investing</a></li>\n' +
-    '          <li><a href="/nepse-signals/momentum/">Trading Signals</a></li>\n' +
-    '          <li><a href="/nepse-watchlist/">Watchlist</a></li>\n' +
-    '        </ul>\n' +
-    '      </div>\n' +
-    '      <div class="sf-col">\n' +
-    '        <h3>Market data</h3>\n' +
-    '        <ul>\n' +
-    '          <li><a href="/nepse-decode/">Dashboard</a></li>\n' +
-    '          <li><a href="/nepse-brokers/">Broker Analytics</a></li>\n' +
-    '          <li><a href="/nepse-sectors/">Sectors</a></li>\n' +
-    '          <li><a href="/nepse-news/">Market News</a></li>\n' +
-    '          <li><a href="/nepse-actions/">Corp. Actions</a></li>\n' +
-    '          <li><a href="/stocks/">All Stocks</a></li>\n' +
-    '        </ul>\n' +
-    '      </div>\n' +
-    '      <div class="sf-col">\n' +
-    '        <h3>Research</h3>\n' +
-    '        <ul>\n' +
-    '          <li><a href="/blog/">Daily Blog</a></li>\n' +
-    '          <li><a href="/nepse-decode/">Market Dashboard</a></li>\n' +
-    '        </ul>\n' +
-    '      </div>\n' +
-    '      <div class="sf-col">\n' +
-    '        <h3>Company</h3>\n' +
-    '        <ul>\n' +
-    '          <li><a href="/about.html">About</a></li>\n' +
-    '          <li><a href="/contact.html">Contact</a></li>\n' +
-    '          <li><a href="/privacy.html">Privacy</a></li>\n' +
-    '          <li><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Facebook Page</a></li>\n' +
-    '        </ul>\n' +
-    '      </div>\n' +
-    '    </nav>\n' +
-    '    <p class="sf-note"><strong>Educational use only.</strong> Nothing on this site is investment advice. Prices and figures are compiled from public sources and refreshed every trading day — always verify with your broker before trading.</p>\n' +
-    '    <div class="sf-bottom">\n' +
-    '      <span>© 2026 Nepse Decode · Built by <a href="/">Shirjan Khadka</a> in Kathmandu, Nepal</span>\n' +
-    '      <span class="sf-social"><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Facebook</a><a href="/blog/">Blog</a><a href="/contact.html">Contact</a></span>\n' +
-    '    </div>\n' +
+    '<footer class="sc-footer">\n' +
+    '  <div class="wrap">\n' +
+    '    <p>Built by <a href="/">Shirjan Khadka</a> · Kathmandu, Nepal</p>\n' +
+    '    <p class="sc-footer-sub">NEPSE corporate actions archive · verified official notices · educational use only</p>\n' +
     '  </div>\n' +
     '</footer>\n' +
     '<script>\n' +
@@ -276,30 +210,53 @@ function main() {
     '  var year = document.getElementById("ca-year"), kind = document.getElementById("ca-kind"), q = document.getElementById("ca-q"),\n' +
     '      items = Array.prototype.slice.call(document.querySelectorAll(".ca-item")),\n' +
     '      years = Array.prototype.slice.call(document.querySelectorAll(".ca-year")),\n' +
-    '      count = document.getElementById("ca-count");\n' +
-    '  function apply() {\n' +
-    '    var y = year ? year.value : "", k = kind.value, s = q.value.trim().toLowerCase(), n = 0;\n' +
-    '    items.forEach(function (el) {\n' +
-    '      var ok = (!y || el.getAttribute("data-year") === y) &&\n' +
-    '               (!k || el.getAttribute("data-kind") === k) &&\n' +
-    '               (!s || el.getAttribute("data-sym").indexOf(s) !== -1);\n' +
-    '      el.style.display = ok ? "" : "none";\n' +
-    '      if (ok) n++;\n' +
-    '    });\n' +
+    '      count = document.getElementById("ca-count"),\n' +
+    '      pager = document.getElementById("ca-pager"), prev = document.getElementById("ca-prev"),\n' +
+    '      next = document.getElementById("ca-next"), info = document.getElementById("ca-page-info"),\n' +
+    '      PAGE = 5, page = 1, filtered = [];\n' +
+    '  function isMatch(el) {\n' +
+    '    var y = year ? year.value : "", k = kind.value, s = q.value.trim().toLowerCase();\n' +
+    '    return (!y || el.getAttribute("data-year") === y) &&\n' +
+    '           (!k || el.getAttribute("data-kind") === k) &&\n' +
+    '           (!s || el.getAttribute("data-sym").indexOf(s) !== -1);\n' +
+    '  }\n' +
+    '  function render() {\n' +
+    '    filtered = items.filter(isMatch);\n' +
+    '    var pages = Math.max(1, Math.ceil(filtered.length / PAGE));\n' +
+    '    if (page > pages) page = pages;\n' +
+    '    var start = (page - 1) * PAGE, end = Math.min(start + PAGE, filtered.length), i, el;\n' +
+    '    for (i = 0; i < items.length; i++) items[i].style.display = "none";\n' +
+    '    for (i = start; i < end; i++) filtered[i].style.display = "";\n' +
+    '    var showYears = page === 1 && filtered.length === items.length;\n' +
     '    years.forEach(function (h) {\n' +
-    '      var el = h.nextElementSibling, any = false;\n' +
+    '      if (!showYears) { h.style.display = "none"; return; }\n' +
+    '      el = h.nextElementSibling; var any = false;\n' +
     '      while (el && !el.classList.contains("ca-year")) {\n' +
     '        if (el.classList && el.classList.contains("ca-item") && el.style.display !== "none") { any = true; break; }\n' +
     '        el = el.nextElementSibling;\n' +
     '      }\n' +
     '      h.style.display = any ? "" : "none";\n' +
     '    });\n' +
-    '    count.textContent = n + " of " + items.length + " notices";\n' +
+    '    count.textContent = filtered.length + " of " + items.length + " notices";\n' +
+    '    info.textContent = filtered.length\n' +
+    '      ? "Showing " + (start + 1) + "\\u2013" + end + " of " + filtered.length + (pages > 1 ? " \\u00b7 page " + page + " of " + pages : "")\n' +
+    '      : "No notices match.";\n' +
+    '    prev.disabled = page <= 1;\n' +
+    '    next.disabled = page >= pages;\n' +
+    '    pager.style.display = pages > 1 ? "" : "none";\n' +
     '  }\n' +
-    '  if (year) year.addEventListener("change", apply);\n' +
-    '  kind.addEventListener("change", apply);\n' +
-    '  q.addEventListener("input", apply);\n' +
-    '  apply();\n' +
+    '  function goto(p) {\n' +
+    '    page = p; render();\n' +
+    '    var list = document.getElementById("ca-list");\n' +
+    '    if (list && list.scrollIntoView) list.scrollIntoView({ block: "start" });\n' +
+    '  }\n' +
+    '  function reset() { page = 1; render(); }\n' +
+    '  if (year) year.addEventListener("change", reset);\n' +
+    '  kind.addEventListener("change", reset);\n' +
+    '  q.addEventListener("input", reset);\n' +
+    '  prev.addEventListener("click", function () { if (page > 1) goto(page - 1); });\n' +
+    '  next.addEventListener("click", function () { goto(page + 1); });\n' +
+    '  render();\n' +
     '})();\n' +
     '</script>\n' +
     '<script src="/js/theme-toggle.js?v=20261001a" defer></script>\n</body>\n</html>\n';

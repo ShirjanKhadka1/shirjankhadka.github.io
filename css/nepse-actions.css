@@ -40,3 +40,16 @@
 .ca-fact { margin: 0; }
 .ca-fact dt { font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft, #6b655a); }
 .ca-fact dd { margin: 2px 0 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* Contained feed + pagination (2026-10-02): the notice list reads as a
+ * focused column instead of full-bleed cards; 5 per page with Newer/Older. */
+.ca-feed{max-width:880px;margin:0 auto}
+.ca-pager{display:flex;align-items:center;justify-content:center;gap:18px;max-width:880px;margin:24px auto 0}
+.ca-page-btn{font-family:var(--sans);font-size:14px;font-weight:700;color:var(--ink);background:var(--paper);border:1px solid var(--hairline);border-radius:999px;padding:10px 22px;cursor:pointer;transition:transform .15s ease,box-shadow .15s ease}
+.ca-page-btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:var(--shadow)}
+.ca-page-btn:disabled{opacity:.35;cursor:default}
+.ca-page-info{font-size:13.5px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+@media(max-width:640px){
+  .ca-pager{flex-wrap:wrap;gap:10px}
+  .ca-page-info{order:-1;width:100%;text-align:center}
+}
