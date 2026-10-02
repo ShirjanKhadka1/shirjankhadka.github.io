@@ -113,8 +113,35 @@
   background: #151c17; color: var(--ink);
   border-color: rgba(237, 234, 224, .16);
 }
-[data-theme="dark"] .inv-cal-tab { background: #151c17; color: var(--ink-soft); }
+[data-theme="dark"] .inv-cal-tab { background: #151c17; color: var(--ink-soft); border-color: rgba(237, 234, 224, .1); }
+[data-theme="dark"] .inv-cal-tab:hover { background: rgba(255, 255, 255, .05); }
 [data-theme="dark"] .inv-cal-nav { border-color: rgba(237, 234, 224, .16); }
+[data-theme="dark"] .inv-cal-head { border-bottom-color: rgba(237, 234, 224, .12); }
+/* Investment Calendar table: light CSS sets dark text (#333) and a light
+ * zebra stripe — both unreadable/wrong once the card goes dark. */
+[data-theme="dark"] .inv-cal-scroll { border-color: rgba(237, 234, 224, .16); }
+[data-theme="dark"] .inv-cal-table tbody td { color: var(--ink); border-top-color: rgba(237, 234, 224, .1); }
+[data-theme="dark"] .inv-cal-table tbody tr:nth-child(even) td { background: rgba(255, 255, 255, .028); }
+[data-theme="dark"] .inv-cal-controls label { color: var(--ink-soft); }
+[data-theme="dark"] .inv-cal-info { color: var(--muted); }
+[data-theme="dark"] .inv-cal-co { color: var(--muted); }
+/* Peer / related-link cards: white surface jars in dark mode. */
+[data-theme="dark"] .sp-links li a,
+[data-theme="dark"] .sp-peers li a { background: #151c17; border-color: rgba(237, 234, 224, .14); }
+[data-theme="dark"] .sp-links li a:hover,
+[data-theme="dark"] .sp-peers li a:hover { border-color: rgba(237, 234, 224, .35); }
+/* Quarterly trend + peer tables: the light thead/section bands and dark
+ * body text from the light theme break in dark mode. */
+[data-theme="dark"] .sp-peer-table thead th { background: #1c2620; color: var(--ink-soft); border-bottom-color: rgba(237, 234, 224, .14); }
+[data-theme="dark"] .sp-peer-table tbody td { border-top-color: rgba(237, 234, 224, .08); color: var(--ink); }
+[data-theme="dark"] .sp-peer-table tbody tr.sp-sec-row td { background: rgba(255, 255, 255, .03); color: var(--muted); border-top-color: rgba(237, 234, 224, .12); }
+[data-theme="dark"] .sp-peer-table thead th:first-child { background: #1c2620; }
+[data-theme="dark"] .sp-peer-table tbody td:first-child { background: #151c17; }
+[data-theme="dark"] .sp-peer-table tbody tr.cur td { background: rgba(76, 195, 138, .1); }
+[data-theme="dark"] .sp-peer-table tbody tr.cur td:first-child { background: #1a2a21; }
+[data-theme="dark"] .sp-peer-table td.pos { color: #4cc38a; }
+[data-theme="dark"] .sp-peer-table td.neg { color: #e07a6a; }
+[data-theme="dark"] .sp-peer-table td a { color: #7fd6a8; }
 [data-theme="dark"] .sp-chg.pos { color: #4cc38a; }
 [data-theme="dark"] .sp-chg.neg { color: #e07a6a; }
 /* .vg-* verdict pills are pastel chips with dark text — readable, untouched. */

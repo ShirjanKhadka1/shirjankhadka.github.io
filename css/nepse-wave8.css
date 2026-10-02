@@ -192,6 +192,17 @@
 .sp-peer-table td.pos { color: #1c6b3c; }
 .sp-peer-table td.neg { color: #a33327; }
 .sp-peer-table td.num, .sp-peer-table th.num { text-align: right; }
+/* Wide tables (quarterly trend, peer comparison): pin the row-label column so
+ * it stays visible during horizontal scroll; give labels a little weight. */
+.sp-peer-table thead th:first-child,
+.sp-peer-table tbody td:first-child {
+  position: sticky; left: 0; z-index: 1;
+  background: #fff;
+}
+.sp-peer-table thead th:first-child { background: #FBF9F4; }
+.sp-peer-table tbody td:first-child { font-weight: 600; }
+.sp-peer-table tbody tr.cur td:first-child { background: #f4f8f3; }
+.sp-peer-table tbody tr.sp-sec-row td { position: static; }
 
 /* Quarterly trend cards: one clean table per statement section, latest
  * quarter highlighted, QoQ/YoY as quiet deltas under the latest value. */
@@ -213,6 +224,7 @@
 .inv-cal { background: #fff; border: 1px solid var(--line, #e7e0d2); border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,.06); margin: 1.5rem 0; overflow: hidden; }
 .inv-cal-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1rem 1.25rem; border-bottom: 1px solid #eee; }
 .inv-cal-head h2 { margin: 0; font-size: 1.15rem; font-weight: 700; color: var(--ink, #2b2620); }
+.inv-cal-ico { width: 1.1em; height: 1.1em; vertical-align: -0.18em; margin-right: .3rem; }
 .inv-cal-co { font-size: .82rem; color: #8a8578; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 45%; }
 .inv-cal-body { display: flex; gap: 0; padding: 1.25rem; }
 .inv-cal-nav { display: flex; flex-direction: column; min-width: 150px; border: 1px solid #e2e2e2; border-radius: 8px; overflow: hidden; align-self: flex-start; }
