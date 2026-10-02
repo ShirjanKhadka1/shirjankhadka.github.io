@@ -34,6 +34,7 @@
 </script>
 <link rel="stylesheet" href="/css/nepse-d2.css?v=df8f909e">
 <link rel="stylesheet" href="/css/theme.css?v=edd1fe3c">
+<link rel="stylesheet" href="/css/nepse-index-candles.css?v=20261002a">
 <style>
 /* homepage-only */
 .d2-hero-chart { margin-top: 18px; }
@@ -139,7 +140,17 @@
   </div>
 </noscript>
 <!-- NOSCRIPT-BAKE-END -->
-          <div class="d2-hero-chart"><canvas id="d2Spark" role="img" aria-label="NEPSE closing levels, recent sessions"></canvas></div>
+          <div class="d2-hero-chart nic-wrap">
+            <div class="nic-pills" role="group" aria-label="Chart timeframe">
+              <button type="button" data-range="1D" aria-pressed="false">1D</button>
+              <button type="button" data-range="1W" aria-pressed="false">1W</button>
+              <button type="button" data-range="1M" aria-pressed="true" class="on">1M</button>
+              <button type="button" data-range="1Y" aria-pressed="false">1Y</button>
+              <button type="button" data-range="5Y" aria-pressed="false">5Y</button>
+            </div>
+            <div id="nicChart" class="nic-chart" role="img" aria-label="NEPSE index candlestick chart. Loading."><span class="nic-loading">Loading chart…</span></div>
+            <div id="nicFallback" class="nic-fallback" hidden></div>
+          </div>
           <div class="d2-daystats" aria-label="Session day statistics">
             <span>Open<b id="d2DayO">–</b></span><span>High<b id="d2DayH">–</b></span><span>Low<b id="d2DayL">–</b></span><span>Prev. close<b id="d2DayP">–</b></span>
           </div>
@@ -434,31 +445,18 @@ window.addEventListener('error', function (e) {
       sparkFrom=sparkCloses[0].d; sparkTo=sparkCloses[sparkCloses.length-1].d;
     }).catch(function(){ sparkCloses=null; });
   }
-  function drawSpark(liveVal, liveDateInt){
-    var cv=$('d2Spark'); if(!cv||!sparkCloses||!sparkCloses.length) return;
+  /* Session-range bar (kept): painted from the spark closes now that the
+     main visual is the interactive candle chart (js/nepse-index-candles.js). */
+  function paintSessionRange(liveVal, liveDateInt){
+    if(!sparkCloses||!sparkCloses.length) return;
     var pts=sparkCloses.slice();
-    if(liveVal!=null&&liveDateInt&&liveDateInt>+(pts[pts.length-1].d)) pts.push({d:String(liveDateInt),c:liveVal});
-    var dpr=window.devicePixelRatio||1, W=cv.clientWidth||600, H=150;
-    cv.width=W*dpr; cv.height=H*dpr;
-    var c=cv.getContext('2d'); c.scale(dpr,dpr); c.clearRect(0,0,W,H);
-    var mn=Math.min.apply(null,pts.map(function(p){return p.c;})), mx=Math.max.apply(null,pts.map(function(p){return p.c;})), rg=(mx-mn)||1;
-    var up=pts[pts.length-1].c>=pts[0].c;
-    var X=function(i){return 4+i*(W-8)/(pts.length-1);}, Y=function(v){return 8+(1-(v-mn)/rg)*(H-16);};
-    var css=getComputedStyle(document.documentElement);
-    var col=up?'#3ddc84':'#ff5d5d';
-    c.beginPath();
-    pts.forEach(function(p,i){ if(i===0)c.moveTo(X(i),Y(p.c)); else c.lineTo(X(i),Y(p.c)); });
-    c.strokeStyle=col; c.lineWidth=2; c.lineJoin='round'; c.stroke();
-    c.lineTo(X(pts.length-1),H); c.lineTo(X(0),H); c.closePath();
-    var g=c.createLinearGradient(0,0,0,H);
-    g.addColorStop(0,up?'rgba(61,220,132,.25)':'rgba(255,93,93,.25)'); g.addColorStop(1,'rgba(0,0,0,0)');
-    c.fillStyle=g; c.fill();
-    // last-value dot
-    c.beginPath(); c.arc(X(pts.length-1),Y(pts[pts.length-1].c),3.5,0,7); c.fillStyle=col; c.fill();
-    // session-range block under the spark
-    var lo=mn, hi=mx, lbl=$('d2SesRangeLbl');
+    if(liveVal!=null&&liveDateInt&&liveDateInt>+(pts[pts.length-1].d)) pts.push({d:String(liveDateInt),c:+liveVal});
+    var closes=pts.map(function(p){return p.c;}).filter(isFinite);
+    if(!closes.length) return;
+    var lo=Math.min.apply(null,closes), hi=Math.max.apply(null,closes);
+    var lbl=$('d2SesRangeLbl');
     if(lbl&&sparkFrom) lbl.textContent=fmtShort(sparkFrom.slice(0,4)+'-'+sparkFrom.slice(4,6)+'-'+sparkFrom.slice(6,8))+' → '+fmtShort(sparkTo.slice(0,4)+'-'+sparkTo.slice(4,6)+'-'+sparkTo.slice(6,8))+' · '+pts.length+' closes';
-    paintRange('d2SesRange','d2SesLow','d2SesHigh',lo,hi,pts[pts.length-1].c);
+    paintRange('d2SesRange','d2SesLow','d2SesHigh',lo,hi,closes[closes.length-1]);
   }
   function paintRange(barId,lowId,highId,lo,hi,val){
     var bar=$(barId); if(!bar||lo==null||hi==null) return;
@@ -587,9 +585,9 @@ window.addEventListener('error', function (e) {
       else bits.push('feed unavailable');
       cap.textContent=bits.join(' · ');
     }
-    // sparkline: append today's live close when newer than the spark series
+    // session-range bar: append today's live close when newer than the spark series
     var liveDateInt=sesNpt?+(sesNpt.replace(/-/g,'')):null;
-    drawSpark(ix.value, liveDateInt);
+    paintSessionRange(ix.value, liveDateInt);
     return sesNpt;
   }
   function paintBreadthStats(quotes){
@@ -871,5 +869,6 @@ window.addEventListener('error', function (e) {
 </script>
 <script src="/js/theme-toggle.js?v=a383d477" defer></script>
 <script src="/js/freshness-badge.js" defer></script>
+<script src="/js/nepse-index-candles.js?v=20261002a" defer></script>
 </body>
 </html>
