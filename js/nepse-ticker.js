@@ -22,6 +22,12 @@
   var TRACK_ID = 'indexTickerTrack';
   var NOTE_ID = 'indexTickerNote';
   var STALE_MS = 72 * 60 * 60 * 1000; // hide if snapshot older than 72h
+  // Marquee speed: the CSS defaults to 45s, but with ~350 symbols the track
+  // is ~200,000px wide and 45s becomes an unreadable ~2,200px/s blur.
+  // Scale the duration to content width so the tape always drifts at a
+  // calm, readable pace no matter how many symbols are listed.
+  var TICKER_PX_PER_SEC = 60;
+  var lastTickerW = 0;
   var UP = '▲';
   var DOWN = '▼';
   var SEP = '·';
@@ -97,8 +103,16 @@
     });
     track.appendChild(g1);
     track.appendChild(g2);
+    wrap.hidden = false; // unhide BEFORE measuring: offsetWidth is 0 under display:none
+    // Constant-speed marquee: measure one group and stretch the 45s CSS
+    // default to TICKER_PX_PER_SEC. Only touch the duration when the width
+    // actually changed, so routine data polls don't restart the animation.
+    var gw = g1.offsetWidth;
+    if (gw > 0 && Math.abs(gw - lastTickerW) > 50) {
+      lastTickerW = gw;
+      track.style.animationDuration = Math.round(gw / TICKER_PX_PER_SEC) + 's';
+    }
     if (noteEl && note) noteEl.textContent = note;
-    wrap.hidden = false;
     return true;
   }
 
