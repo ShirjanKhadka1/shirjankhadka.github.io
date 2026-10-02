@@ -478,34 +478,11 @@
     doFetch();
   }
 
-  // ---- manifest session date (fallback when live.json lacks it) ----
-  // live.json's `asof` is file-generation time, NOT the trading session.
-  // The manifest carries the authoritative `session_date`. Fetch once at
-  // startup; fail-soft (null = pages fall back to asof-derived labels).
-
-  state.manifestSessionDate = null;
-
-  function fetchManifestSession() {
-    if (typeof fetch === 'undefined') return;
-    fetch('/data/manifest.json', { cache: 'no-store' }).then(function (resp) {
-      if (!resp.ok) throw new Error('HTTP ' + resp.status);
-      return resp.json();
-    }).then(function (m) {
-      if (m && typeof m.session_date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(m.session_date)) {
-        state.manifestSessionDate = m.session_date;
-      }
-    }).catch(function () { /* fail-soft: session_date stays null */ });
-  }
-
   function doFetch() {
     fetchOnce().then(function (res) {
       if (res.unchanged) { state.failures = 0; schedule(); return; }
       var v = validateSnapshot(res.json);
       if (v.ok) {
-        // Prefer live.json's session_date; fall back to the manifest's.
-        if (!v.snapshot.session_date && state.manifestSessionDate) {
-          v.snapshot.session_date = state.manifestSessionDate;
-        }
         state.failures = 0;
         // Skip no-op updates: same asof → no notify storm.
         if (!state.snapshot || v.snapshot.asofMs !== state.snapshot.asofMs) {
@@ -575,7 +552,6 @@
     start: function () {
       if (state.started) return;
       state.started = true;
-      fetchManifestSession(); // cache authoritative session_date (fail-soft)
       var lg = restoreLastGood();
       if (lg) {
         var v = validateSnapshot(lg);
