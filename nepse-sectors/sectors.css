@@ -48,8 +48,8 @@
   transition:transform .18s var(--ease),box-shadow .18s var(--ease)}
 .sx-tm-tile:hover{transform:translateY(-2px);box-shadow:var(--shadow);z-index:1}
 .sx-tm-tile:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
-.sx-tm-sym{font-weight:700;font-size:.76rem;line-height:1.25;text-align:center;
-  word-break:break-word;max-width:100%}
+.sx-tm-sym{font-weight:700;font-size:.82rem;line-height:1.25;text-align:center;
+  word-break:break-word;max-width:100%;letter-spacing:.01em}
 .sx-tm-ch{font-weight:700;font-size:.78rem}
 .sx-leg-lab{font-weight:700;color:var(--ink);font-size:.82rem}
 .sx-up2{background:var(--heat-up2);color:var(--heat-up2-ink);border-color:transparent}
@@ -58,6 +58,14 @@
 .sx-dn1{background:var(--heat-dn1);color:var(--heat-dn1-ink)}
 .sx-dn2{background:var(--heat-dn2);color:var(--heat-dn2-ink);border-color:transparent}
 .sx-none{background:var(--ivory);color:var(--muted);border-style:dashed}
+/* Tile ink must outrank `body.d2 a{color:var(--d2-volt)}` (0,1,2) in nepse-d2.css,
+   which otherwise paints dark-olive text on the dark heat tiles in both themes. */
+body.d2 .sx-tm-tile.sx-up2{color:var(--heat-up2-ink)}
+body.d2 .sx-tm-tile.sx-up1{color:var(--heat-up1-ink)}
+body.d2 .sx-tm-tile.sx-n{color:var(--heat-neutral-ink)}
+body.d2 .sx-tm-tile.sx-dn1{color:var(--heat-dn1-ink)}
+body.d2 .sx-tm-tile.sx-dn2{color:var(--heat-dn2-ink)}
+body.d2 .sx-tm-tile.sx-none{color:var(--muted)}
 
 .sx-legend{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:var(--space-3);
   font-size:.82rem;color:var(--muted)}
