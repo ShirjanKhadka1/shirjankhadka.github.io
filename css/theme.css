@@ -232,6 +232,17 @@
   box-shadow: 0 6px 20px rgba(0, 0, 0, .18);
 }
 
+/* Rail pages (corp actions): the fixed 236px suite rail owns the left edge
+   on desktop, so the top-left toggle lands on the rail navigation. Dock it
+   bottom-right there instead — clear of the rail and the content top. */
+@media(min-width:1100px){
+  body:has(.suite-rail) .theme-toggle.fixed{
+    top:auto; left:auto;
+    bottom:calc(24px + env(safe-area-inset-bottom,0px));
+    right:calc(24px + env(safe-area-inset-right,0px));
+  }
+}
+
 @media print {
   .theme-toggle { display: none !important; }
 }
