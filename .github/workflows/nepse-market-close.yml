@@ -346,6 +346,10 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
           exit 1
 
+      - name: Build health.json (pipeline diagnostics)
+        if: steps.validate.outputs.valid == 'true'
+        run: node tools/build-health.js
+
       - name: Atomic deploy (single commit + tag)
         if: steps.validate.outputs.valid == 'true'
         run: |
