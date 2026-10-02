@@ -354,7 +354,6 @@
   function init() {
     if (started) return;
         started = true;
-    try { var dl3 = document.querySelector('#nicChart .nic-loading'); if (dl3) dl3.textContent = 'DIAG init'; } catch (e0) {}
     var mount = $(MOUNT_ID);
     if (!mount || !window.NepseData) { showFallback(); return; }
     var loading = mount.querySelector('.nic-loading');
@@ -384,9 +383,8 @@
   function boot() {
     var mount = $(MOUNT_ID);
         if (!mount) return;
-    try { var dl = mount.querySelector('.nic-loading'); if (dl) dl.textContent = 'DIAG boot'; } catch (e0) {}
     var kicked = false;
-    function kick() { if (!kicked) { kicked = true; try { var dl2 = document.querySelector('#nicChart .nic-loading'); if (dl2) dl2.textContent = 'DIAG kick'; } catch (e0) {} init(); } }
+    function kick() { if (!kicked) { kicked = true; init(); } }
     try {
       if ('IntersectionObserver' in window) {
         var io = new IntersectionObserver(function (es) {
