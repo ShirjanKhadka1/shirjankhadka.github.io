@@ -146,11 +146,13 @@ span.sx-swatch.sx-dn1,span.sx-swatch.sx-dn2,span.sx-swatch.sx-none{padding:0}
 @keyframes skl-shimmer{to{background-position:-200% 0}}
 
 /* --- Mobile horizontal-overflow guard: keep document.scrollWidth == viewport at 320px --- */
+.sx-table-wrap{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
 @media(max-width:640px){
   .sx-table{min-width:0}
-  .table-scroll{max-width:100%;overflow-x:auto}
   .sx-tm-tiles{grid-template-columns:repeat(auto-fill,minmax(84px,1fr));min-width:0}
   .sx-tm-tile{min-width:0;max-width:100%}
+  .sx-cards{grid-template-columns:1fr;min-width:0}
+  .sx-card{min-width:0;max-width:100%}
   #sxMap,.sx-tm-tile img{max-width:100%}
   #sx-heat{min-width:0;max-width:100%}
 }
