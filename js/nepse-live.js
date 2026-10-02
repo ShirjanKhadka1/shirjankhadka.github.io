@@ -27,7 +27,7 @@
 
   function nowNPT() { return new Date(Date.now() + NPT); }
 
-  // NEPSE schedule (Nepal time), Sunday to Thursday (canonical: NepseMarketConfig):
+  // NEPSE schedule (Nepal time), Monday to Friday (canonical: NepseMarketConfig):
   //   pre-open 10:45-11:00, regular session 11:00-15:00.
   // Yesterday's close is the reference through pre-open; live overlays
   // engage when the regular session starts.

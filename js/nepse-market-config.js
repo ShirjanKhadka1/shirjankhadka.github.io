@@ -2,7 +2,8 @@
  * nepse-market-config.js — Canonical NEPSE market calendar & policy constants.
  *
  * Single source of truth for:
- *  - Trading days (Sunday–Thursday, per NEPSE schedule)
+ *  - Trading days (Monday–Friday, per NEPSE schedule since Apr 2026)
+ *    — Sat/Sun are the weekend; the market calendar is authority.
  *  - NEPSE public holidays (approximate 2026 list — the market calendar is authority)
  *  - Market hours (11:00–15:00 NPT)
  *  - Circuit-breaker quarantine threshold (±10%)
@@ -19,8 +20,9 @@
 
   var MarketConfig = {
     // ---- Trading calendar ----
-    // NEPSE trades Sunday–Thursday. 0=Sunday … 6=Saturday (JS getDay convention).
-    TRADING_DAYS: [0, 1, 2, 3, 4],
+    // NEPSE trades Monday–Friday (since Apr 2026; Sat/Sun weekend).
+    // 0=Sunday … 6=Saturday (JS getDay convention).
+    TRADING_DAYS: [1, 2, 3, 4, 5],
 
     // ---- NEPSE public holidays (approximate, 2026) ----
     // The market calendar is the authority — this list is a client-side
@@ -108,7 +110,7 @@
 
     /**
      * True if the given NPT date falls on a NEPSE trading day:
-     * Sunday–Thursday AND not a public holiday.
+     * Monday–Friday AND not a public holiday.
      */
     isTradingDay: function (nptDate) {
       var d = nptDate || MarketConfig.nowNPT();
@@ -124,7 +126,7 @@
 
     /**
      * True if NEPSE is within 11:00–15:00 NPT on a trading day
-     * (weekday Sun–Thu that is not a public holiday).
+     * (weekday Mon–Fri that is not a public holiday).
      */
     isMarketOpen: function (nptDate) {
       var d = nptDate || MarketConfig.nowNPT();
