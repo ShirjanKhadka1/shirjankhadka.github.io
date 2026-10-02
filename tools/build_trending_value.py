@@ -302,18 +302,35 @@ for sector, members in by_sector.items():
 
 ranked = sorted([c for c in companies if c['value_score'] is not None],
                 key=lambda x: -x['value_score'])
-value_out = {
-    'asof': session_date,
-    'built': today,
-    'source': 'Published quarterly filings via screener compilation (Q4 FY 2082/2083); LTP from Nepse Decode market snapshot',
-    'method': ('Value score 0-100 ranks each company within its own sector only: '
-               '50% earnings-yield rank (higher yield = cheaper) + 50% price-to-book rank (lower = cheaper). '
-               'Quality gate: positive TTM EPS and positive net worth. Sectors with fewer than 4 members are not scored. '
-               'P/BV = LTP / book value per share; book value = (paid-up capital + reserves) / shares. '
-               'No DCF, no price targets, no buy/sell calls - this is a screening starting point for research.'),
-    'coverage': {'companies': len(companies), 'sectors_scored': len([s for s in by_sector if len(by_sector[s]) >= 4])},
-    'stocks': ranked,
-}
+# Fail-soft: never publish an empty value ranking — keep last-good.
+if not ranked:
+    _prev_v = load_json('nepse-chart/data/value.json')
+    if _prev_v.get('stocks'):
+        print(f"  !! no value data: keeping last good value snapshot "
+              f"({len(_prev_v['stocks'])} stocks); rolling session labels to {session_date}")
+        value_out = dict(_prev_v)
+        value_out.update({'asof': session_date, 'built': today})
+    else:
+        value_out = {
+            'asof': session_date, 'built': today,
+            'fail_soft': True,
+            'note': 'No value data available at build time; no previous output to retain. Not for display as current.',
+            'coverage': {'companies': 0, 'sectors_scored': 0},
+            'stocks': [],
+        }
+else:
+    value_out = {
+        'asof': session_date,
+        'built': today,
+        'source': 'Published quarterly filings via screener compilation (Q4 FY 2082/2083); LTP from Nepse Decode market snapshot',
+        'method': ('Value score 0-100 ranks each company within its own sector only: '
+                   '50% earnings-yield rank (higher yield = cheaper) + 50% price-to-book rank (lower = cheaper). '
+                   'Quality gate: positive TTM EPS and positive net worth. Sectors with fewer than 4 members are not scored. '
+                   'P/BV = LTP / book value per share; book value = (paid-up capital + reserves) / shares. '
+                   'No DCF, no price targets, no buy/sell calls - this is a screening starting point for research.'),
+        'coverage': {'companies': len(companies), 'sectors_scored': len([s for s in by_sector if len(by_sector[s]) >= 4])},
+        'stocks': ranked,
+    }
 with open(os.path.join(REPO, 'nepse-chart/data/value.json'), 'w') as f:
     json.dump(value_out, f)
 print(f"value.json: {len(companies)} companies, {len(ranked)} scored, top: " +
