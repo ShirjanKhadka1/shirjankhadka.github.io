@@ -63,8 +63,10 @@ def main(repo_root):
     corp = load('nepse-chart/data/corp-history.json')['companies']
     live_q = {q['symbol']: q for q in load('nepse-chart/data/live.json')['quotes']}
 
-    # current fiscal-year window for "last 5 fiscal years" (FY starts mid-July)
-    cur_fy_start = 2082 if today >= '2026-07-16' else 2081
+    # current fiscal-year window for "last 5 fiscal years" (Nepal FY starts
+    # Shrawan 1 ≈ July 16; computed dynamically so it never goes stale)
+    _y, _m, _d = int(today[:4]), int(today[5:7]), int(today[8:10])
+    cur_fy_start = (_y + 56) if (_m, _d) >= (7, 16) else (_y + 55)
     fy_window = [f"{y}/{y + 1}" for y in range(cur_fy_start - 4, cur_fy_start + 1)]
 
     stocks = []
