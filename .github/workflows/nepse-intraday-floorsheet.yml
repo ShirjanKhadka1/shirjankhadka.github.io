@@ -61,11 +61,28 @@ jobs:
         run: |
           git config user.name "nepse-bot"
           git config user.email "nepse-bot@shirjankhadka.com.np"
-          git add nepse-brokers/data/intraday.json nepse-chart/data/intraday-index.json
+          # intraday.json exists only when the NEPSE fetch succeeds — the
+          # fetcher fail-safes to exit 0 without touching it. Guard the add
+          # so a missing file can't fatal the step (exit 128) and fire a
+          # false failure alert.
+          git add nepse-chart/data/intraday-index.json
+          if [ -f nepse-brokers/data/intraday.json ]; then
+            git add nepse-brokers/data/intraday.json
+          fi
           git diff --cached --quiet && echo "intraday unchanged — nothing to commit" && exit 0
           git commit -m "intraday snapshots"
-          git pull --rebase origin main
-          git push origin main
+          # Several automations push to main; retry so a push that lands
+          # between our pull and push doesn't fail the run.
+          for i in 1 2 3; do
+            if git pull --rebase origin main && git push origin main; then
+              echo "intraday snapshots pushed (attempt $i)"
+              break
+            fi
+            echo "push attempt $i failed — retrying"
+            sleep 5
+          done
+          git ls-remote origin main | grep -q "$(git rev-parse HEAD)" \
+            || { echo "push did not land after 3 attempts" >&2; exit 1; }
       - name: Email alert — floorsheet poller failed
         if: failure()
         uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7
