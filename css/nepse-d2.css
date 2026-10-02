@@ -565,3 +565,16 @@ body.d2 .d2-num { font-variant-numeric: tabular-nums; }
   .d2-side, .d2-topbar, .d2-mobilenav, .d2-ticker { display: none !important; }
   body.d2 { background: #fff; color: #000; }
 }
+
+/* 2026-10-02: market stat cards */
+.d2-stat-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.d2-stat{ background:var(--d2-surface2); border:1px solid var(--d2-line-soft); border-radius:var(--d2-r-md); padding:12px 14px; }
+.d2-stat-l{ font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--d2-muted); margin-bottom:6px; }
+.d2-stat-v{ font-size:1.28rem; font-weight:800; letter-spacing:-.01em; color:var(--d2-ink); font-variant-numeric:tabular-nums; }
+@media (max-width:520px){ .d2-stat{ padding:10px 12px; } .d2-stat-v{ font-size:1.12rem; } }
+/* 2026-10-02: sparkline value tooltip (hover / tap) */
+.d2-hero-chart{ position:relative; }
+.d2-hero-chart canvas{ cursor:crosshair; touch-action:pan-y; }
+.d2-spark-tip{ position:absolute; z-index:5; display:none; pointer-events:none; background:var(--d2-surface3); border:1px solid var(--d2-line); border-radius:8px; padding:8px 10px; font-size:12px; line-height:1.5; color:var(--d2-ink); white-space:nowrap; box-shadow:var(--d2-shadow); font-variant-numeric:tabular-nums; }
+.d2-spark-tip .tt-d{ color:var(--d2-muted); font-weight:600; }
+.d2-spark-tip .tt-v{ font-weight:800; }
