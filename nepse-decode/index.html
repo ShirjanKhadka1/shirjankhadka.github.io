@@ -397,7 +397,7 @@
   var STATE_LABEL={live:'Live',delayed:'Delayed',preopen:'Pre-open',closed:'Closed',unknown:'–'};
 
   /* ---------- sparkline: compact index history, never the 247KB daily bundle ---------- */
-  var sparkCloses=null, sparkFrom=null, sparkTo=null;
+  var sparkCloses=null, sparkFrom=null, sparkTo=null, sparkPts=[], sparkHover=-1, sparkTipEl=null, sparkBound=false;
   function loadSpark(){
     return getJSON('index-spark.json').then(function(j){
       var arr=j.series||j.data||j.closes||j;
@@ -406,31 +406,87 @@
       sparkFrom=sparkCloses[0].d; sparkTo=sparkCloses[sparkCloses.length-1].d;
     }).catch(function(){ sparkCloses=null; });
   }
+  function sparkIso(d){ d=String(d); return d.length===8 ? d.slice(0,4)+'-'+d.slice(4,6)+'-'+d.slice(6,8) : d; }
   function drawSpark(liveVal, liveDateInt){
     var cv=$('d2Spark'); if(!cv||!sparkCloses||!sparkCloses.length) return;
     var pts=sparkCloses.slice();
     if(liveVal!=null&&liveDateInt&&liveDateInt>+(pts[pts.length-1].d)) pts.push({d:String(liveDateInt),c:liveVal});
-    var dpr=window.devicePixelRatio||1, W=cv.clientWidth||600, H=150;
-    cv.width=W*dpr; cv.height=H*dpr;
-    var c=cv.getContext('2d'); c.scale(dpr,dpr); c.clearRect(0,0,W,H);
+    sparkPts=pts; sparkHover=-1;
+    renderSpark();
+    bindSparkTip();
+    // session-range block under the spark
+    var mn=Math.min.apply(null,pts.map(function(p){return p.c;})), mx=Math.max.apply(null,pts.map(function(p){return p.c;}));
+    var lbl=$('d2SesRangeLbl');
+    if(lbl&&sparkFrom) lbl.textContent=fmtShort(sparkIso(sparkFrom))+' \u2192 '+fmtShort(sparkIso(sparkTo))+' \u00b7 '+pts.length+' closes';
+    paintRange('d2SesRange','d2SesLow','d2SesHigh',mn,mx,pts[pts.length-1].c);
+  }
+  function sparkGeom(){
+    var cv=$('d2Spark'), W=cv.clientWidth||600, H=150, pts=sparkPts;
     var mn=Math.min.apply(null,pts.map(function(p){return p.c;})), mx=Math.max.apply(null,pts.map(function(p){return p.c;})), rg=(mx-mn)||1;
     var up=pts[pts.length-1].c>=pts[0].c;
-    var X=function(i){return 4+i*(W-8)/(pts.length-1);}, Y=function(v){return 8+(1-(v-mn)/rg)*(H-16);};
-    var css=getComputedStyle(document.documentElement);
-    var col=up?'#3ddc84':'#ff5d5d';
+    return { cv:cv, W:W, H:H, up:up, col:up?'#3ddc84':'#ff5d5d',
+      X:function(i){ return 4+i*(W-8)/(pts.length-1); },
+      Y:function(v){ return 8+(1-(v-mn)/rg)*(H-16); } };
+  }
+  function renderSpark(){
+    var g=sparkGeom(), cv=g.cv, W=g.W, H=g.H, pts=sparkPts;
+    if(!pts.length) return;
+    var dpr=window.devicePixelRatio||1;
+    cv.width=W*dpr; cv.height=H*dpr;
+    var c=cv.getContext('2d'); c.scale(dpr,dpr); c.clearRect(0,0,W,H);
     c.beginPath();
-    pts.forEach(function(p,i){ if(i===0)c.moveTo(X(i),Y(p.c)); else c.lineTo(X(i),Y(p.c)); });
-    c.strokeStyle=col; c.lineWidth=2; c.lineJoin='round'; c.stroke();
-    c.lineTo(X(pts.length-1),H); c.lineTo(X(0),H); c.closePath();
-    var g=c.createLinearGradient(0,0,0,H);
-    g.addColorStop(0,up?'rgba(61,220,132,.25)':'rgba(255,93,93,.25)'); g.addColorStop(1,'rgba(0,0,0,0)');
-    c.fillStyle=g; c.fill();
-    // last-value dot
-    c.beginPath(); c.arc(X(pts.length-1),Y(pts[pts.length-1].c),3.5,0,7); c.fillStyle=col; c.fill();
-    // session-range block under the spark
-    var lo=mn, hi=mx, lbl=$('d2SesRangeLbl');
-    if(lbl&&sparkFrom) lbl.textContent=fmtShort(sparkFrom.slice(0,4)+'-'+sparkFrom.slice(4,6)+'-'+sparkFrom.slice(6,8))+' → '+fmtShort(sparkTo.slice(0,4)+'-'+sparkTo.slice(4,6)+'-'+sparkTo.slice(6,8))+' · '+pts.length+' closes';
-    paintRange('d2SesRange','d2SesLow','d2SesHigh',lo,hi,pts[pts.length-1].c);
+    pts.forEach(function(p,i){ if(i===0)c.moveTo(g.X(i),g.Y(p.c)); else c.lineTo(g.X(i),g.Y(p.c)); });
+    c.strokeStyle=g.col; c.lineWidth=2; c.lineJoin='round'; c.stroke();
+    c.lineTo(g.X(pts.length-1),H); c.lineTo(g.X(0),H); c.closePath();
+    var gr=c.createLinearGradient(0,0,0,H);
+    gr.addColorStop(0,g.up?'rgba(61,220,132,.25)':'rgba(255,93,93,.25)'); gr.addColorStop(1,'rgba(0,0,0,0)');
+    c.fillStyle=gr; c.fill();
+    if(sparkHover>=0&&sparkHover<pts.length){
+      c.beginPath(); c.moveTo(g.X(sparkHover),0); c.lineTo(g.X(sparkHover),H);
+      c.strokeStyle='rgba(125,136,152,.45)'; c.lineWidth=1; c.stroke();
+      c.beginPath(); c.arc(g.X(sparkHover),g.Y(pts[sparkHover].c),4.5,0,7); c.fillStyle=g.col; c.fill();
+      c.lineWidth=1.5; c.strokeStyle='#fff'; c.stroke();
+    } else {
+      c.beginPath(); c.arc(g.X(pts.length-1),g.Y(pts[pts.length-1].c),3.5,0,7); c.fillStyle=g.col; c.fill();
+    }
+  }
+  function sparkTipShow(i,x,y){
+    var wrap=$('d2Spark').parentNode, pts=sparkPts;
+    if(!sparkTipEl){ sparkTipEl=document.createElement('div'); sparkTipEl.className='d2-spark-tip'; wrap.appendChild(sparkTipEl); }
+    var p=pts[i];
+    sparkTipEl.innerHTML='<span class="tt-d">'+esc(fmtLong(sparkIso(p.d)))+'</span><br><span class="tt-v">NEPSE '+num(p.c,2)+'</span>';
+    sparkTipEl.style.display='block';
+    var tw=sparkTipEl.offsetWidth, th=sparkTipEl.offsetHeight, W=wrap.clientWidth;
+    sparkTipEl.style.left=Math.min(Math.max(4,x-tw/2),Math.max(4,W-tw-4))+'px';
+    sparkTipEl.style.top=Math.max(4,y-th-12)+'px';
+  }
+  function sparkTipHide(){ sparkHover=-1; if(sparkTipEl) sparkTipEl.style.display='none'; renderSpark(); }
+  function sparkNearest(ev){
+    var cv=$('d2Spark'), r=cv.getBoundingClientRect(), pts=sparkPts;
+    var cx=(ev.touches&&ev.touches.length?ev.touches[0].clientX:ev.clientX)-r.left;
+    var cy=(ev.touches&&ev.touches.length?ev.touches[0].clientY:ev.clientY)-r.top;
+    var i=Math.max(0,Math.min(pts.length-1,Math.round((cx-4)/(r.width-8)*(pts.length-1))));
+    return { i:i, x:cx, y:cy };
+  }
+  function bindSparkTip(){
+    if(sparkBound) return; sparkBound=true;
+    var cv=$('d2Spark');
+    cv.addEventListener('mousemove',function(ev){
+      if(!sparkPts.length) return;
+      var n=sparkNearest(ev);
+      if(n.i!==sparkHover){ sparkHover=n.i; renderSpark(); }
+      sparkTipShow(n.i,n.x,n.y);
+    });
+    cv.addEventListener('mouseleave',sparkTipHide);
+    cv.addEventListener('click',function(ev){
+      if(!sparkPts.length) return;
+      var n=sparkNearest(ev); sparkHover=n.i; renderSpark(); sparkTipShow(n.i,n.x,n.y);
+    });
+    cv.addEventListener('touchstart',function(ev){
+      if(!sparkPts.length) return;
+      var n=sparkNearest(ev); sparkHover=n.i; renderSpark(); sparkTipShow(n.i,n.x,n.y);
+    },{passive:true});
+    cv.addEventListener('touchend',function(){ setTimeout(sparkTipHide,1800); });
   }
   function paintRange(barId,lowId,highId,lo,hi,val){
     var bar=$(barId); if(!bar||lo==null||hi==null||!(hi>lo)) return;
