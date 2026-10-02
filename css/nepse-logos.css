@@ -1,0 +1,40 @@
+/* ============================================================
+   NEPSE LOGOS — component styles
+   Circular white chips (readable on light AND dark themes),
+   matching the monogram fallback circle. Include after the
+   page's main stylesheet.
+   ============================================================ */
+.co-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid rgba(12, 31, 22, 0.1);
+  box-shadow: 0 1px 2px rgba(12, 31, 22, 0.06);
+  vertical-align: middle;
+}
+.co-logo img {
+  width: 78%;
+  height: 78%;
+  object-fit: contain;
+  display: block;
+}
+.co-mono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  border-radius: 50%;
+  font-family: Inter, system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  border: 1px solid rgba(12, 31, 22, 0.08);
+  vertical-align: middle;
+}
+[data-theme="dark"] .co-logo {
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
