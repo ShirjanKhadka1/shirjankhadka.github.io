@@ -269,3 +269,16 @@
 @media print {
   .theme-toggle { display: none !important; }
 }
+
+/* 2026-10-02: overview page — the 232px desktop sidebar owns the
+   viewport's left edge, so the toggle docks at the top-left of the
+   content area (clear of the sidebar) instead of bottom-right,
+   matching the top-left placement on other pages. */
+@media (min-width: 1101px) {
+  body:has(.d2-side) .theme-toggle.fixed {
+    top: 76px;
+    bottom: auto;
+    left: calc(232px + 16px);
+    right: auto;
+  }
+}

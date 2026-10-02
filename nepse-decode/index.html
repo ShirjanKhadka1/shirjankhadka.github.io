@@ -122,11 +122,11 @@
 <!-- NOSCRIPT-BAKE-END -->
           <div class="d2-hero-chart nic-wrap">
             <div class="nic-pills" role="group" aria-label="Chart timeframe">
-              <button type="button" data-range="1D" aria-pressed="false">1D</button>
-              <button type="button" data-range="1W" aria-pressed="false">1W</button>
-              <button type="button" data-range="1M" aria-pressed="true" class="on">1M</button>
-              <button type="button" data-range="1Y" aria-pressed="false">1Y</button>
-              <button type="button" data-range="5Y" aria-pressed="false">5Y</button>
+              <button type="button" data-range="1D" aria-pressed="true" class="on" aria-label="1D: daily candles, trailing 120 sessions">1D</button>
+              <button type="button" data-range="1W" aria-pressed="false" aria-label="1W: daily candles, trailing 260 sessions">1W</button>
+              <button type="button" data-range="1M" aria-pressed="false" aria-label="1M: daily candles, trailing 520 sessions">1M</button>
+              <button type="button" data-range="1Y" aria-pressed="false" aria-label="1Y: weekly candles, trailing 260 weeks">1Y</button>
+              <button type="button" data-range="5Y" aria-pressed="false" aria-label="5Y: monthly candles, full history">5Y</button>
             </div>
             <div id="nicChart" class="nic-chart" role="img" aria-label="NEPSE index candlestick chart. Loading."><span class="nic-loading">Loading chart…</span></div>
             <div id="nicFallback" class="nic-fallback" hidden></div>
@@ -847,7 +847,7 @@ window.addEventListener('error', function (e) {
 </script>
 <script src="/js/theme-toggle.js?v=20261002c" defer></script>
 <script src="/js/freshness-badge.js?v=20261002c" defer></script>
-<script src="/js/nepse-index-candles.js?v=20261002a" defer></script>
+<script src="/js/nepse-index-candles.js?v=20261002b" defer></script>
 <script src="/js/nepse-sidebar.js?v=20261002c" defer></script>
 </body>
 </html>
