@@ -145,6 +145,17 @@ span.sx-swatch.sx-dn1,span.sx-swatch.sx-dn2,span.sx-swatch.sx-none{padding:0}
 .sx-cards .skl-block{height:190px;margin:0}
 @keyframes skl-shimmer{to{background-position:-200% 0}}
 
+/* --- Mobile horizontal-overflow guard: keep document.scrollWidth == viewport at 320px --- */
+@media(max-width:640px){
+  .sx-table{min-width:0}
+  .table-scroll{max-width:100%;overflow-x:auto}
+  .sx-tm-tiles{grid-template-columns:repeat(auto-fill,minmax(84px,1fr));min-width:0}
+  .sx-tm-tile{min-width:0;max-width:100%}
+  #sxMap,.sx-tm-tile img{max-width:100%}
+  #sx-heat{min-width:0;max-width:100%}
+}
+
+
 /* ---------- footer (page-local copy of suite footer) ---------- */
 .sc-footer{border-top:1px solid var(--hairline);margin-top:var(--space-6);padding:22px 0 34px;
   text-align:center;color:var(--muted);font-size:.88rem}
