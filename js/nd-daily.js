@@ -309,7 +309,6 @@
         card('Current Value', fmtNum(ix.value)) +
         card('Chg (% Chg)', esc(chgArrow + chgTxt), chgCls) +
         card('Prev Close', fmtNum(ix.previous_close)) +
-        card('Open', '<span class="unavail">Unavailable</span>') +
         card('Turnover (Rs)', totTurn > 0 ? fmtNum(totTurn, 2) : '<span class="unavail">Unavailable</span>') +
         card('Volume', totVol > 0 ? fmtInt(totVol) : '<span class="unavail">Unavailable</span>') +
         card('Transactions', totTrades > 0 ? fmtInt(totTrades) : '<span class="unavail">Unavailable</span>') +

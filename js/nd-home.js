@@ -320,12 +320,12 @@
     if (!body || !activeQuotes.length) return;
     var metric = activeMetric;
     var sorted = activeQuotes.slice().filter(function (q) {
-      var v = metric === 'turnover' ? q.turnover : metric === 'volume' ? q.volume : q.transactions;
+      var v = metric === 'turnover' ? q.turnover : metric === 'volume' ? q.volume : q.trades;
       return v != null && isFinite(Number(v)) && Number(v) > 0;
     });
     sorted.sort(function (a, b) {
-      var va = metric === 'turnover' ? a.turnover : metric === 'volume' ? a.volume : a.transactions;
-      var vb = metric === 'turnover' ? b.turnover : metric === 'volume' ? b.volume : b.transactions;
+      var va = metric === 'turnover' ? a.turnover : metric === 'volume' ? a.volume : a.trades;
+      var vb = metric === 'turnover' ? b.turnover : metric === 'volume' ? b.volume : b.trades;
       return Number(vb) - Number(va);
     });
     var top = sorted.slice(0, 7);
@@ -334,7 +334,7 @@
     if (title) title.textContent = titles[metric] || '';
     if (colHead) colHead.textContent = heads[metric] || '';
     body.innerHTML = top.map(function (q) {
-      var v = metric === 'turnover' ? q.turnover : metric === 'volume' ? q.volume : q.transactions;
+      var v = metric === 'turnover' ? q.turnover : metric === 'volume' ? q.volume : q.trades;
       var vTxt = metric === 'turnover' ? fmtCrore(v) : Number(v).toLocaleString('en-IN');
       var pct = Number(q.percent_change) || 0;
       var cls = pct > 0 ? 'up' : pct < 0 ? 'dn' : '';
