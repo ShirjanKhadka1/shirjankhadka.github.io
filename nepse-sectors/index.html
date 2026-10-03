@@ -149,9 +149,12 @@
       </section>
 
       <section class="sx-sec" aria-labelledby="sx-heat-h">
-        <h2 id="sx-heat-h">Sector heatmap</h2>
-        <p class="sx-sub">One tile per security: tile color follows its day change. Every tile links to that security's page. <a href="#sx-legend-note" class="sx-jump">How to read it</a></p>
-        <div class="sx-heat" id="sx-heat" aria-label="Sector heatmap">
+        <div class="sec-head">
+          <div><p class="eyebrow">Heatmap</p><h2 id="sx-heat-h">Market heatmap</h2></div>
+          <span class="note">Tile size follows turnover · colour follows % change · click a tile to open that security's page</span>
+        </div>
+        <div class="pillrow" id="sx-heat-filters" role="group" aria-label="Filter heatmap by sector"></div>
+        <div class="sx-heat heat" id="sx-heat" aria-label="Sector heatmap">
           <span class="d2-skl skl-block" aria-hidden="true"></span>
           <span class="d2-skl skl-block" aria-hidden="true"></span>
           <span class="d2-skl skl-block" aria-hidden="true"></span>
@@ -169,9 +172,11 @@
       </section>
 
       <section class="sx-sec" aria-labelledby="sx-cards-h">
-        <h2 id="sx-cards-h">Sector breadth</h2>
-        <p class="sx-sub">Advancers versus decliners for the latest session, with the top 3 gainers and losers inside each sector.</p>
-        <div class="sx-cards" id="sx-cards">
+        <div class="sec-head">
+          <div><p class="eyebrow">Sectors</p><h2 id="sx-cards-h">Sectors</h2></div>
+          <span class="note">Click a sector to filter the screener and the stock table</span>
+        </div>
+        <div class="sx-cards cards-grid" id="sx-cards">
           <div class="d2-skl skl-block" aria-hidden="true"></div>
           <div class="d2-skl skl-block" aria-hidden="true"></div>
           <div class="d2-skl skl-block" aria-hidden="true"></div>

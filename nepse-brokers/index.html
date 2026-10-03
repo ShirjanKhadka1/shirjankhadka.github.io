@@ -48,6 +48,24 @@
 h2.bk-h{font-family:var(--serif);font-size:1.25rem;margin:20px 0 8px}
 .two{display:grid;gap:16px}@media(min-width:900px){.two{grid-template-columns:1fr 1fr}}
 
+/* Concept 03 editorial: sec-head, tiles, tbl-card */
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px;margin:26px 0 14px;flex-wrap:wrap}
+.sec-head h2{font-family:var(--serif);font-size:28px;margin:0;color:var(--nd-text,#fff)}
+.sec-head .note{font-size:12px;color:var(--nd-dim,#6B7280)}
+.eyebrow{font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--nd-lime,#B8E62E);margin:0 0 8px}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0 20px}
+@media(max-width:760px){.tiles{grid-template-columns:1fr 1fr}}
+.tile{background:var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);border-radius:12px;padding:16px 18px}
+.tile .k{font-size:11px;color:var(--nd-dim,#6B7280);text-transform:uppercase;letter-spacing:.09em;font-weight:600}
+.tile .v{font-family:var(--mono,monospace);font-size:23px;font-weight:600;margin-top:5px;color:var(--nd-text,#fff)}
+.tile .s{font-size:12px;color:var(--nd-muted,#9AA3B2);margin-top:2px}
+.tile .s.up{color:var(--nd-up,#4ADE80)}
+.tile .s.down{color:var(--nd-down,#F87171)}
+.tbl-card{background:var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);border-radius:14px;overflow:hidden;margin:12px 0}
+.tbl-card .tc-head{padding:14px 18px 10px;display:flex;justify-content:space-between;align-items:baseline}
+.tbl-card .tc-head h3{font-family:var(--serif);font-size:16px;margin:0;color:var(--nd-text,#fff)}
+.tbl-card .tc-head span{font-size:11px;color:var(--nd-dim,#6B7280)}
+
 /* Static daily snapshot (baked at build time; SEO/no-JS fallback) */
 .snap{margin:26px 0 30px;padding:22px 20px;border:1px solid var(--hairline,#E7DFCE);border-radius:14px;background:var(--card,#FFFFFF)}
 .snap h2{font-family:var(--serif);font-size:1.25rem;margin:0 0 4px}
@@ -65,8 +83,13 @@ h2.bk-h{font-family:var(--serif);font-size:1.25rem;margin:20px 0 8px}
 <body class="nd">
 <div id="nd-header"></div>
 <main style="max-width:1160px;margin:0 auto;padding:24px 16px">
-<p style="color:var(--muted);font-size:.9rem;margin-bottom:4px">Nepse Decode &middot; Broker Analytics</p>
-<h1 style="font-family:var(--serif);font-size:2rem;margin:0 0 6px">Broker Analytics</h1>
+<div class="sec-head">
+  <div>
+    <p class="eyebrow">Brokers</p>
+    <h2>Broker flow</h2>
+  </div>
+  <span class="note" id="brokerNote">Buy / sell / net flow by broker — from public floorsheet records</span>
+</div>
 <p style="color:var(--ink-soft);max-width:680px">Where the brokers' money moved — buy/sell flow by broker and by stock, from public floorsheet records. <strong>Net bought / net sold is transaction flow, not verified shareholding.</strong></p>
 <p lang="ne" class="ne-sum" style="color:var(--muted);font-size:.92rem;max-width:700px;margin-top:10px">संक्षेप: यहाँ ब्रोकरहरूले कुन स्टकमा कति किनबेच गरे भन्ने दैनिक प्रवाह देखिन्छ — यो कारोबारको रेकर्ड हो, कसको स्वामित्वमा कति शेयर छ भन्ने होइन।</p>
 
@@ -87,6 +110,13 @@ h2.bk-h{font-family:var(--serif);font-size:1.25rem;margin:20px 0 8px}
 </section>
 <!-- SNAP-END -->
 <div class="cover" id="coverage">Loading data…</div>
+
+<div class="tiles" id="brokerTiles" style="display:none" aria-label="Broker flow summary">
+  <div class="tile"><div class="k">Broker turnover</div><div class="v" id="tileTurnover">—</div><div class="s" id="tileTurnoverSub">across all brokers</div></div>
+  <div class="tile"><div class="k">Top buyer</div><div class="v" id="tileBuyer">—</div><div class="s up" id="tileBuyerSub">—</div></div>
+  <div class="tile"><div class="k">Top seller</div><div class="v" id="tileSeller">—</div><div class="s down" id="tileSellerSub">—</div></div>
+  <div class="tile"><div class="k">Active brokers</div><div class="v" id="tileActive">—</div><div class="s" id="tileActiveSub">traded this period</div></div>
+</div>
 
 <div class="bk-tabs" role="tablist" id="viewTabs">
 <button data-view="top" class="active">Top Brokers</button>
@@ -218,17 +248,50 @@ function loadPeriod(silent){
     });
 }
 
+/* ---------- Concept 03 tiles: real broker-flow summary ---------- */
+function renderTiles(d){
+  var tiles = $('brokerTiles');
+  var brokers = (d && d.brokers) || [];
+  // Only show tiles on the "top" (broker flow overview) view
+  if(state.view !== 'top' || !brokers.length){
+    tiles.style.display = 'none';
+    return;
+  }
+  var turnover = 0, topBuyer = brokers[0], topSeller = brokers[0], i, b;
+  for(i = 0; i < brokers.length; i++){
+    b = brokers[i];
+    turnover += (b.total || 0);
+    if((b.net || 0) > (topBuyer.net || 0)) topBuyer = b;
+    if((b.net || 0) < (topSeller.net || 0)) topSeller = b;
+  }
+  $('tileTurnover').textContent = fmtV(turnover);
+  $('tileBuyer').textContent = bname(topBuyer.code);
+  var bn = topBuyer.net || 0;
+  $('tileBuyerSub').textContent = 'net ' + (bn >= 0 ? '+' : '\u2212') + fmtV(Math.abs(bn)).replace(/^Rs /, 'Rs ');
+  $('tileBuyerSub').className = 's ' + (bn >= 0 ? 'up' : 'down');
+  $('tileSeller').textContent = bname(topSeller.code);
+  var sn = topSeller.net || 0;
+  $('tileSellerSub').textContent = 'net ' + (sn >= 0 ? '+' : '\u2212') + fmtV(Math.abs(sn)).replace(/^Rs /, 'Rs ');
+  $('tileSellerSub').className = 's ' + (sn >= 0 ? 'up' : 'down');
+  $('tileActive').textContent = brokers.length;
+  $('tileActiveSub').textContent = 'traded ' + label();
+  tiles.style.display = '';
+}
+
 /* ---------- views ---------- */
 function renderTop(d){
   var rows = d.brokers.map(function(b,i){
-    return '<tr><td>'+(i+1)+'</td><td class="bk-name"><strong>'+bname(b.code)+'</strong><br><span style="color:var(--muted)">'+b.code+'</span></td>'+
-      '<td>'+fmtN(b.buy_qty||0,0)+'</td><td>'+fmtV(b.buy_value)+'</td>'+
-      '<td>'+fmtN(b.sell_qty||0,0)+'</td><td>'+fmtV(b.sell_value)+'</td>'+
-      '<td><strong>'+fmtN(b.total_qty||0,0)+'</strong></td><td><strong>'+fmtV(b.total)+'</strong></td>'+
-      '<td class="'+cls(b.net_qty||0)+'">'+fmtN(b.net_qty||0,0)+'</td><td class="'+cls(b.net)+'">'+fmtV(b.net)+'</td></tr>';
+    var net = b.net || 0;
+    var lean = net > 0 ? '<span class="pos">accumulating</span>' : net < 0 ? '<span class="neg">distributing</span>' : '<span style="color:var(--muted)">flat</span>';
+    return '<tr><td class="bk-name"><strong>'+bname(b.code)+'</strong><br><span style="color:var(--muted)">'+b.code+'</span></td>'+
+      '<td class="num">'+fmtV(b.buy_value)+'</td>'+
+      '<td class="num">'+fmtV(b.sell_value)+'</td>'+
+      '<td class="num '+cls(net)+'">'+fmtV(net)+'</td>'+
+      '<td class="num">'+fmtN((b.buy_qty||0)+(b.sell_qty||0),0)+'</td>'+
+      '<td>'+lean+'</td></tr>';
   }).join('');
-  return '<h2 class="bk-h">Top brokers by turnover — '+label()+'</h2>'+
-    '<div class="scrollx"><table class="bk-table"><thead><tr><th>#</th><th class="bk-name">Broker</th><th>Buy vol</th><th>Buy value</th><th>Sell vol</th><th>Sell value</th><th>Total vol</th><th>Total value</th><th>Net vol</th><th>Net value</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+  return '<div class="tbl-card"><div class="tc-head"><h3>Broker flow — '+label()+'</h3><span>'+d.brokers.length+' brokers</span></div>'+
+    '<div class="scrollx" style="margin:0;border:0;border-radius:0"><table class="bk-table"><thead><tr><th class="bk-name">Broker</th><th class="num">Buy (Rs)</th><th class="num">Sell (Rs)</th><th class="num">Net (Rs)</th><th class="num">Volume</th><th>Lean</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
 }
 
 function renderBroker(d){
@@ -377,6 +440,7 @@ function render(){
   else if(state.view==='holdings') html = renderHoldings(d);
   else html = renderAccDist(d);
   $('view').innerHTML = html;
+  renderTiles(d);
   syncURL();
 }
 

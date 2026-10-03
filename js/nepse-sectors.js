@@ -631,9 +631,34 @@
   var currentSectors = [];
   var lastLiveAsOf = 0;
   var batchRsi = {};
+  var heatFilter = 'all';
+
+  /* Concept 03: sector filter pills for the heatmap (preview view-heatmap).
+   * Pills are built from the real sector names in the data. */
+  function renderHeatFilters(sectors) {
+    var host = $('sx-heat-filters');
+    if (!host) return;
+    var names = sectors.map(function (g) { return g.name; });
+    var html = '<button type="button" data-heat="all"' + (heatFilter === 'all' ? ' class="active"' : '') + '>All sectors</button>' +
+      names.map(function (n) {
+        return '<button type="button" data-heat="' + esc(n) + '"' +
+          (heatFilter === n ? ' class="active"' : '') + '>' + esc(n) + '</button>';
+      }).join('');
+    host.innerHTML = html;
+    var btns = host.querySelectorAll('button');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].addEventListener('click', function () {
+        heatFilter = this.getAttribute('data-heat');
+        renderHeatFilters(currentSectors);
+        renderHeat(heatFilter === 'all' ? currentSectors :
+          currentSectors.filter(function (g) { return g.name === heatFilter; }));
+      });
+    }
+  }
 
   function drawAll(agg, isLive, marketState) {
     currentSectors = agg.sectors;
+    renderHeatFilters(currentSectors);
     renderHeat(currentSectors);
     renderCards(currentSectors);
     var sel = $('sx-sort');

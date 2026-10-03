@@ -91,6 +91,28 @@
       <div class="d2-ticker-track" id="d2TickTrack"><span class="d2-skl" style="height:20px;width:40%;margin:2px 16px"></span></div>
     </div>
 
+    <!-- Concept 03 editorial sections : real data only -->
+    <div class="nd-home">
+      <div class="nd-istrip" aria-label="Market indices">
+        <button class="nd-istrip-nav prev" id="ndStripPrev" aria-label="Scroll indices left">&lt;</button>
+        <div class="nd-istrip-track" id="ndStripTrack"></div>
+        <button class="nd-istrip-nav next" id="ndStripNext" aria-label="Scroll indices right">&gt;</button>
+      </div>
+
+      <div class="nd-wrapgrid">
+        <div id="ndWrap" aria-label="Market wrap"></div>
+        <div class="nd-ixcard" id="ndIxCard" aria-label="NEPSE index"></div>
+      </div>
+
+      <section class="nd-newsroom" aria-label="From the newsroom">
+        <div class="nd-newsroom-head">
+          <h2>From the newsroom</h2>
+          <span class="sub">Category feeds &middot; refreshed through the trading day</span>
+        </div>
+        <div class="nd-newsgrid" id="ndNewsGrid"></div>
+      </section>
+    </div>
+
     <!-- S1 · MARKET COMMAND -->
     <section class="d2-card" aria-label="Market overview" style="margin-bottom:20px">
       <div class="d2-hero-grid">
@@ -332,6 +354,7 @@ window.addEventListener('error', function (e) {
 <script src="/js/nepse-flash.js?v=20261003a" defer></script>
 <script src="/js/company-logos.js" defer></script>
 <script src="/js/nepse-logos.js" defer></script>
+<script src="/js/nd-home.js?v=20261003a" defer></script>
 <script src="/js/nd-chrome.js?v=20261003a" defer></script>
 <script>
 document.addEventListener('DOMContentLoaded', function(){

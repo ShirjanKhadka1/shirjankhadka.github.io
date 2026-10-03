@@ -54,6 +54,7 @@
 <link rel="stylesheet" href="/css/nepse-logos.css">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=20261003a">
+<link rel="stylesheet" href="/css/nd-screener.css?v=20261003a">
 </head>
 <body class="nd" data-page="screener">
 
@@ -86,6 +87,34 @@
       <p class="nd-caption" style="margin-top:4px"><span id="sc-live"></span></p>
     </div>
     <span class="nd-fresh" id="sc-asof">Loading…</span>
+  </div>
+
+  <!-- Concept 03: editorial sec-head -->
+  <div class="sc-sec-head">
+    <div>
+      <p class="sc-eyebrow">Screener</p>
+      <h2>Engine-ranked signals</h2>
+    </div>
+    <span class="sc-note">Engine verdict + dense table · no chart on this page by design</span>
+  </div>
+
+  <!-- Concept 03: engine verdict card (real data via nd-screener-verdict.js) -->
+  <div class="sc-verdict" role="status" aria-label="Engine market verdict">
+    <div class="sc-score" id="scVerdictScore">—</div>
+    <div>
+      <h3 id="scVerdictTitle">Loading…</h3>
+      <p id="scVerdictWhy"></p>
+    </div>
+    <span class="sc-vtag">ENGINE VERDICT</span>
+  </div>
+
+  <!-- Concept 03: pillrow quick filters -->
+  <div class="sc-pillrow" id="scPillRow" role="group" aria-label="Quick signal filters">
+    <button type="button" data-scr="all" class="active">All stocks</button>
+    <button type="button" data-scr="momentum">Momentum</button>
+    <button type="button" data-scr="value">Value proxy</button>
+    <button type="button" data-scr="liquid">Most liquid</button>
+    <button type="button" data-scr="weak">Weak / avoid</button>
   </div>
 
   <section class="sc-tf" aria-label="Signal timeframe">
@@ -280,6 +309,7 @@
 <script src="/js/company-logos.js" defer></script>
   <script src="/js/nepse-logos.js" defer></script>
   <script src="../js/nepse-screener.js?v=20261002c" defer></script>
+<script src="../js/nd-screener-verdict.js?v=20261003a" defer></script>
 <script src="/js/theme-toggle.js?v=20261002c" defer></script>
 <script src="/js/freshness-badge.js?v=20261002c" defer></script>
 <script src="/js/nepse-sidebar.js?v=20261002c" defer></script>

@@ -1,0 +1,101 @@
+/* ============================================================
+   NEPSE Screener — Concept 03 editorial layout
+   sec-head, verdict card, pillrow filters, tbl-card.
+   Tokens from nd-editorial-theme.css (--nd-*).
+   ============================================================ */
+
+/* ---------- Section head (eyebrow + title + note) ---------- */
+.sc-sec-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 14px; margin: 34px 0 14px; flex-wrap: wrap;
+}
+.sc-sec-head:first-child { margin-top: 26px; }
+.sc-eyebrow {
+  font-size: 10px; font-weight: 600; letter-spacing: .22em;
+  text-transform: uppercase; color: var(--nd-lime); margin: 0 0 8px;
+}
+.sc-sec-head h2 {
+  font-family: var(--nd-font-display, "Spectral", Georgia, serif);
+  font-weight: 600; font-size: 24px; line-height: 1.2; margin: 0;
+  color: var(--nd-text);
+}
+.sc-sec-head .sc-note { font-size: 12px; color: var(--nd-dim); }
+
+/* ---------- Engine verdict card ---------- */
+.sc-verdict {
+  background: linear-gradient(135deg, rgba(184,230,46,.14), var(--nd-panel) 55%);
+  border: 1px solid rgba(184,230,46,.35);
+  border-radius: 16px; padding: 22px;
+  display: grid; grid-template-columns: auto 1fr auto;
+  gap: 18px; align-items: center; margin-top: 20px;
+}
+.sc-verdict .sc-score {
+  font-family: var(--nd-font-mono, "IBM Plex Mono", ui-monospace, monospace);
+  font-size: 42px; font-weight: 700; color: var(--nd-lime); line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.sc-verdict h3 {
+  font-family: var(--nd-font-display, "Spectral", Georgia, serif);
+  font-size: 20px; font-weight: 600; margin: 0; color: var(--nd-text);
+}
+.sc-verdict p {
+  color: var(--nd-muted); margin: 6px 0 0; font-size: 13.5px; max-width: 62ch;
+  line-height: 1.6;
+}
+.sc-verdict .sc-vtag {
+  font-family: var(--nd-font-mono, "IBM Plex Mono", ui-monospace, monospace);
+  font-size: 11px; font-weight: 700; letter-spacing: .08em;
+  border: 1px solid var(--nd-lime); color: var(--nd-lime);
+  border-radius: 99px; padding: 7px 12px; white-space: nowrap;
+}
+@media (max-width: 1020px) { .sc-verdict { grid-template-columns: 1fr; } }
+
+/* ---------- Pill row filters ---------- */
+.sc-pillrow { display: flex; gap: 6px; flex-wrap: wrap; margin: 16px 0; }
+.sc-pillrow button {
+  background: var(--nd-panel); border: 1px solid var(--nd-border);
+  color: var(--nd-muted); font-size: 12.5px; font-weight: 600;
+  padding: 8px 14px; border-radius: 99px; cursor: pointer;
+  font-family: inherit; transition: background .15s, color .15s, border-color .15s;
+}
+.sc-pillrow button:hover { border-color: var(--nd-lime); color: var(--nd-text); }
+.sc-pillrow button.active {
+  background: var(--nd-lime); color: var(--nd-on-lime); border-color: var(--nd-lime);
+}
+
+/* ---------- Table card ---------- */
+.sc-tbl-card {
+  background: var(--nd-panel); border: 1px solid var(--nd-border);
+  border-radius: 14px; overflow: hidden;
+}
+.sc-tbl-card .sc-tc-head {
+  padding: 14px 18px 10px; display: flex;
+  justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap;
+}
+.sc-tbl-card .sc-tc-head h3 {
+  font-family: var(--nd-font-display, "Spectral", Georgia, serif);
+  font-size: 16px; font-weight: 600; margin: 0; color: var(--nd-text);
+}
+.sc-tbl-card .sc-tc-head span { font-size: 11px; color: var(--nd-dim); }
+.sc-tbl-scroll { overflow-x: auto; }
+.sc-tbl-card table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.sc-tbl-card th {
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: .07em;
+  color: var(--nd-dim); font-weight: 600; text-align: left;
+  padding: 8px 14px; border-top: 1px solid var(--nd-border);
+  border-bottom: 1px solid var(--nd-border);
+  background: var(--nd-panel-2); white-space: nowrap;
+}
+.sc-tbl-card td {
+  padding: 9px 14px; border-bottom: 1px solid var(--nd-border);
+  font-variant-numeric: tabular-nums; color: var(--nd-text);
+}
+.sc-tbl-card tr:last-child td { border-bottom: none; }
+.sc-tbl-card tbody tr { transition: background .12s; }
+.sc-tbl-card tbody tr:hover { background: rgba(184,230,46,.045); }
+.sc-tbl-card td.num, .sc-tbl-card th.num {
+  text-align: right; font-family: var(--nd-font-mono, "IBM Plex Mono", ui-monospace, monospace);
+}
+.sc-tbl-card td.sym { font-family: var(--nd-font-mono, "IBM Plex Mono", ui-monospace, monospace); font-weight: 600; }
+.sc-tbl-card th.sortable { cursor: pointer; user-select: none; }
+.sc-tbl-card th.sortable:hover { color: var(--nd-lime); }

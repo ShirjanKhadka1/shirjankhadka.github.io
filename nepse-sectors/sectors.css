@@ -180,3 +180,23 @@ span.sx-swatch.sx-dn1,span.sx-swatch.sx-dn2,span.sx-swatch.sx-none{padding:0}
   .sx-tm-tile{transition:none}
   .sx-tm-tile:hover{transform:none}
 }
+
+/* ============================================================
+   Concept 03 editorial components (preview: view-sectors, view-heatmap)
+   sec-head pattern, pillrow filters, cards-grid, heat grid.
+   Mapped onto --nd-* editorial tokens. Real data only.
+   ============================================================ */
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px;margin:34px 0 14px;flex-wrap:wrap}
+.sec-head h2{font-size:28px;font-weight:700;letter-spacing:-.01em;margin:0;color:var(--nd-text)}
+.eyebrow{font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--nd-lime);margin:0 0 8px}
+.sec-head .note{font-size:12.5px;color:var(--nd-dim);max-width:420px;text-align:right}
+.pillrow{display:flex;gap:6px;flex-wrap:wrap;margin:16px 0}
+.pillrow button{background:var(--nd-panel);border:1px solid var(--nd-border);color:var(--nd-muted);font-size:12.5px;font-weight:600;padding:8px 14px;border-radius:99px;cursor:pointer;font-family:inherit}
+.pillrow button:hover{border-color:var(--nd-lime);color:var(--nd-text)}
+.pillrow button.active{background:var(--nd-lime);color:#10130a;border-color:var(--nd-lime)}
+.cards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px}
+@media(max-width:1100px){.cards-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){.cards-grid{grid-template-columns:1fr}}
+.heat{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.matrix-note{font-size:12px;color:var(--nd-dim);margin:10px 2px 0}
+@media(max-width:700px){.sec-head .note{text-align:left;max-width:none}}
