@@ -1,12 +1,15 @@
 /**
  * js/freshness-badge.js — the ONE freshness line for every NEPSE suite page.
  *
+ * V2 honesty: every figure carries the DATA's own timestamp (NEPSE's asOf,
+ * not our fetch time), the source name, and the MEASURED end-to-end age.
+ * No hardcoded delay figures — "updated X ago" is now minus data_asof.
+ *
  * Reads /nepse-chart/data/live.json FIRST (the same file the quotes come
  * from), so the badge can never say "session closed" while the page's own
  * figures are from a live session:
- *   "Data as of 2026-10-02 · Session open · delayed ~15 min · updated 4 min ago"
- *   "Data as of 2026-10-02 · Pre-open · delayed ~15 min · updated 14 h ago"
- *   "Data as of 2026-10-02 · Session closed"
+ *   "Data as of 2026-10-02 14:32 NPT · Source: NEPSE · Session open · updated 4 min ago"
+ *   "Data as of 2026-10-02 · Source: NEPSE · Session closed"
  * Falls back to /data/manifest.json (overnight batch) when the live feed is
  * unreachable. Sessions more than one trading day old render amber.
  *
@@ -42,6 +45,15 @@
     if (!isFinite(t)) return null;
     var n = new Date(t + NPT_MS);
     return n.getUTCFullYear() + '-' + pad(n.getUTCMonth() + 1) + '-' + pad(n.getUTCDate());
+  }
+
+  // ISO instant -> 'YYYY-MM-DD HH:MM' in NPT.
+  function nptDateTime(iso) {
+    var t = new Date(iso).getTime();
+    if (!isFinite(t)) return null;
+    var n = new Date(t + NPT_MS);
+    return n.getUTCFullYear() + '-' + pad(n.getUTCMonth() + 1) + '-' + pad(n.getUTCDate()) +
+      ' ' + pad(n.getUTCHours()) + ':' + pad(n.getUTCMinutes());
   }
 
   function todayNpt() { return nptDate(new Date().toISOString()); }
@@ -107,25 +119,31 @@
   }
 
   // Primary path: the live quote feed.
+  // V2: dataTs is NEPSE's own timestamp (data_asof), falling back to our
+  // fetch time (asof) for payloads written before V2. The age shown is the
+  // measured end-to-end age: now minus the data's own timestamp.
   function fromLive(live) {
-    var asof = live && live.asof;
-    var sessDate = asof ? nptDate(asof) : null;
+    var dataTs = (live && live.data_asof) || (live && live.asof);
+    var sessDate = dataTs ? nptDate(dataTs) : null;
     if (!sessDate) return false;
     var st = sessionState();
     var today = todayNpt();
     var stale = tradingDaysBetween(sessDate, today);
+    var src = (live && live.source) ? ' · Source: ' + live.source : '';
     if (stale > 1) {
-      render('Data as of ' + sessDate + ' · ' + stale + ' sessions old — refresh delayed', 'fb-stale');
+      render('Data as of ' + sessDate + src + ' · ' + stale + ' sessions old — refresh delayed', 'fb-stale');
       return true;
     }
-    var age = ageText(asof);
+    var age = ageText(dataTs);
     var ageBit = age ? ' · updated ' + age : '';
+    var tsBit = nptDateTime(dataTs);
+    var whenBit = tsBit ? ' ' + tsBit + ' NPT' : '';
     if (st === 'OPEN') {
-      render('Data as of ' + sessDate + ' · Session open · delayed ~15 min' + ageBit, 'fb-live');
+      render('Data as of' + whenBit + src + ' · Session open' + ageBit, 'fb-live');
     } else if (st === 'PRE-OPEN') {
-      render('Data as of ' + sessDate + ' · Pre-open · delayed ~15 min' + ageBit, 'fb-live');
+      render('Data as of' + whenBit + src + ' · Pre-open' + ageBit, 'fb-live');
     } else {
-      render('Data as of ' + sessDate + ' · Session closed', 'fb-ok');
+      render('Data as of ' + sessDate + src + ' · Session closed', 'fb-ok');
     }
     return true;
   }
@@ -140,11 +158,11 @@
     if (stale > 1) {
       render('Data as of ' + sessDate + ' · ' + stale + ' sessions old — refresh delayed', 'fb-stale');
     } else if (st === 'OPEN') {
-      render('Data as of ' + sessDate + ' · Session open · delayed ~15 min', 'fb-live');
+      render('Data as of ' + sessDate + ' · Source: NEPSE · Session open', 'fb-live');
     } else if (st === 'PRE-OPEN') {
-      render('Data as of ' + sessDate + ' · Pre-open · delayed ~15 min', 'fb-live');
+      render('Data as of ' + sessDate + ' · Source: NEPSE · Pre-open', 'fb-live');
     } else {
-      render('Data as of ' + sessDate + ' · Session closed', 'fb-ok');
+      render('Data as of ' + sessDate + ' · Source: NEPSE · Session closed', 'fb-ok');
     }
   }
 

@@ -103,8 +103,9 @@
     var market = snapshot.market;
     var t = fmtTime(snapshot.asof);
     if (market === 'OPEN') {
-      // Non-negotiable: never label LIVE without the ~15 min delay qualifier.
-      return { tone: 'live', label: 'LIVE', detail: '· delayed ~15 min' + (t ? ' · as of ' + t : '') };
+      // V2 honesty: never a hardcoded delay figure — the badge shows the
+      // measured age ("updated X ago") from the data's own timestamp.
+      return { tone: 'live', label: 'LIVE', detail: (t ? '· as of ' + t : '') };
     }
     return { tone: 'closed', label: 'CLOSED', detail: t ? '· as of ' + t : '' };
   }

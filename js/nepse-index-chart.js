@@ -43,6 +43,15 @@
     if (dash(v)) return '—';
     return Math.round(Number(v)).toLocaleString('en-US');
   }
+  // V2 honesty: ISO instant -> 'YYYY-MM-DD HH:MM NPT'.
+  function fmtNpt(iso) {
+    var t = new Date(iso).getTime();
+    if (!isFinite(t)) return null;
+    var n = new Date(t + 5.75 * 3600 * 1000);
+    function p(x) { return ('0' + x).slice(-2); }
+    return n.getUTCFullYear() + '-' + p(n.getUTCMonth() + 1) + '-' + p(n.getUTCDate()) +
+      ' ' + p(n.getUTCHours()) + ':' + p(n.getUTCMinutes()) + ' NPT';
+  }
 
   function isDark() {
     return document.documentElement.getAttribute('data-theme') === 'dark';
@@ -134,7 +143,7 @@
       '<div class="nl-ix-stats" id="nl-ix-stats" aria-label="Session statistics"></div>' +
       '<div class="nl-ix-chart" id="nl-ix-chart" role="img" aria-label="NEPSE index price chart"></div>' +
       '<p class="nl-ix-note" id="nl-ix-note" hidden></p>' +
-      '<p class="nl-ix-foot">Source: NEPSE · Market data delayed 15 minutes</p>';
+      '<p class="nl-ix-foot">Source: NEPSE · Data as of <span id="nl-ix-asof">—</span></p>';
   }
 
   function makeChart() {
@@ -273,6 +282,12 @@
     var rows = dailyRows();
     fetchJSON('/nepse-chart/data/live.json').then(function (live) {
       host.innerHTML = statsHTML(live && live.index, rows);
+      // V2 honesty: stamp the footer with the data's own timestamp (NPT).
+      var asofEl = $('nl-ix-asof');
+      if (asofEl) {
+        var ts = (live && live.data_asof) || (live && live.asof);
+        asofEl.textContent = fmtNpt(ts) || '—';
+      }
     }).catch(function () {
       host.innerHTML = statsHTML(null, rows);
     });

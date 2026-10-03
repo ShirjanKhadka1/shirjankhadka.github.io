@@ -388,6 +388,11 @@ async function main() {
 
     const payload = {
       asof: new Date().toISOString(),
+      // V2 honesty: NEPSE's own timestamp for this data (not our fetch time).
+      // mo.asOf is the exchange's authoritative "as of" for the market state.
+      data_asof: (mo && mo.asOf) || null,
+      source: 'NEPSE',
+      source_tier: 1,
       market: closingRun ? 'CLOSED' : 'OPEN',
       index: index,
       indices: indices,
