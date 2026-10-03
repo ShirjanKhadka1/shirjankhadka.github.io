@@ -124,3 +124,75 @@
   .ds-count { margin-left: 0; width: 100%; }
   .ds-search { max-width: none; }
 }
+
+/* ---------- Section titles ---------- */
+.ds-sec-title {
+  font-family: var(--nd-font-serif, "Fraunces", serif);
+  font-size: 1.5rem; font-weight: 600;
+  margin: 2.5rem 0 1.25rem; color: var(--nd-text);
+}
+.ds-sec-title:first-child { margin-top: 0; }
+
+/* ---------- Market overview cards ---------- */
+.ds-overview { margin: 0 0 0.5rem; }
+.ds-ov-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 14px; margin-bottom: 18px;
+}
+.ds-ov-card {
+  background: var(--nd-panel); border: 1px solid var(--nd-border);
+  border-radius: 12px; padding: 18px 20px;
+}
+.ds-ov-card .k {
+  font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--nd-muted); margin-bottom: 8px;
+}
+.ds-ov-card .v {
+  font-size: 1.35rem; font-weight: 700; color: var(--nd-text);
+  font-variant-numeric: tabular-nums; word-break: break-word;
+}
+.ds-ov-card .v.up { color: #4ade80; }
+.ds-ov-card .v.dn { color: #f87171; }
+[data-theme="light"] .ds-ov-card .v.up { color: #16a34a; }
+[data-theme="light"] .ds-ov-card .v.dn { color: #dc2626; }
+.ds-ov-card .unavail { color: var(--nd-dim); font-style: italic; font-weight: 500; font-size: 1rem; }
+
+/* ---------- Range bars ---------- */
+.ds-ov-ranges { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.ds-range-block {
+  background: var(--nd-panel); border: 1px solid var(--nd-border);
+  border-radius: 12px; padding: 18px 20px;
+}
+.ds-range-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-size: 0.85rem; font-weight: 600; margin-bottom: 12px;
+}
+.ds-range-head span:first-child { color: var(--nd-text); }
+.ds-range-head span:last-child { color: var(--nd-muted); font-variant-numeric: tabular-nums; }
+.ds-range-bar {
+  position: relative; height: 8px; border-radius: 4px;
+  background: linear-gradient(90deg, #f87171 0%, #a3a380 50%, #4ade80 100%);
+  margin-bottom: 8px;
+}
+.ds-range-fill { display: none; }
+.ds-range-marker {
+  position: absolute; top: -4px; width: 3px; height: 16px;
+  background: var(--nd-text); border-radius: 2px; transform: translateX(-50%);
+}
+.ds-range-lbl {
+  display: flex; justify-content: space-between;
+  font-size: 0.75rem; color: var(--nd-dim);
+}
+
+/* ---------- Index table ---------- */
+.ds-indices { margin-bottom: 0.5rem; }
+.ds-idx-table .sym { font-weight: 700; }
+
+@media (max-width: 900px) {
+  .ds-ov-grid { grid-template-columns: repeat(2, 1fr); }
+  .ds-ov-ranges { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .ds-ov-grid { grid-template-columns: 1fr; }
+  .ds-ov-card .v { font-size: 1.2rem; }
+}

@@ -126,7 +126,7 @@
       '<p>All figures below are the official session close. Quotes refresh during market hours; ' +
       'outside hours the last close is shown.</p></div>' +
       '<div class="nd-wrapmeta"><strong>Nepse Decode Desk</strong> · Data as of ' + esc(sessDate) + ' · Source: NEPSE</div>' +
-      '<a class="nd-btn-lime" href="/nepse-chart/">See today\'s market →</a>';
+      '<a class="nd-btn-lime" href="/nepse-daily/">See today\'s market →</a>';
   }
 
   /* ---------- NEPSE index card ---------- */

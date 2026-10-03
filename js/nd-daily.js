@@ -231,6 +231,95 @@
       var n = (live.quotes || []).length;
       upd.textContent = n ? n.toLocaleString() + ' securities · Source: NEPSE' : '';
     }
+    renderOverview(live);
+    renderIndices(live);
+  }
+
+  /* ---------- Market Overview cards ---------- */
+  function renderOverview(live) {
+    var sec = $('dsOverview');
+    if (!sec) return;
+    var ix = live.index || {};
+    var quotes = Array.isArray(live.quotes) ? live.quotes : [];
+
+    // Aggregate real totals from quotes
+    var totTurn = 0, totVol = 0, totTrades = 0, totMcap = 0;
+    quotes.forEach(function (q) {
+      totTurn += Number(q.turnover) || 0;
+      totVol += Number(q.volume) || 0;
+      totTrades += Number(q.trades) || 0;
+      totMcap += Number(q.market_cap) || 0;
+    });
+
+    var chg = Number(ix.change), pct = Number(ix.percent_change);
+    var chgCls = chg > 0 ? 'up' : chg < 0 ? 'dn' : 'flat';
+    var chgArrow = chg > 0 ? '▲ ' : chg < 0 ? '▼ ' : '';
+    var chgTxt = (isFinite(chg) ? (chg > 0 ? '+' : '') + fmtNum(chg) : '—') +
+                 (isFinite(pct) ? ' (' + (pct > 0 ? '+' : '') + pct.toFixed(2) + '%)' : '');
+
+    function card(label, value, cls) {
+      return '<div class="ds-ov-card"><div class="k">' + esc(label) + '</div>' +
+             '<div class="v' + (cls ? ' ' + cls : '') + '">' + value + '</div></div>';
+    }
+
+    var grid = $('dsOvGrid');
+    if (grid) {
+      grid.innerHTML =
+        card('Current Value', fmtNum(ix.value)) +
+        card('Chg (% Chg)', esc(chgArrow + chgTxt), chgCls) +
+        card('Prev Close', fmtNum(ix.previous_close)) +
+        card('Open', '<span class="unavail">Unavailable</span>') +
+        card('Turnover (Rs)', totTurn > 0 ? fmtNum(totTurn, 2) : '<span class="unavail">Unavailable</span>') +
+        card('Volume', totVol > 0 ? fmtInt(totVol) : '<span class="unavail">Unavailable</span>') +
+        card('Transactions', totTrades > 0 ? fmtInt(totTrades) : '<span class="unavail">Unavailable</span>') +
+        card('Scrips Traded', quotes.length ? fmtInt(quotes.length) : '<span class="unavail">Unavailable</span>') +
+        card('Market Cap (Rs)', totMcap > 0 ? fmtNum(totMcap, 2) : '<span class="unavail">Unavailable</span>');
+    }
+
+    // Day range bar
+    var ranges = $('dsOvRanges');
+    if (ranges) {
+      var lo = Number(ix.low), hi = Number(ix.high), val = Number(ix.value);
+      var dayBar = '';
+      if (isFinite(lo) && isFinite(hi) && hi > lo && isFinite(val)) {
+        var pos = Math.max(0, Math.min(100, ((val - lo) / (hi - lo)) * 100));
+        dayBar = '<div class="ds-range-block"><div class="ds-range-head"><span>Trade Day Range</span>' +
+                 '<span>' + fmtNum(lo) + ' – ' + fmtNum(hi) + '</span></div>' +
+                 '<div class="ds-range-bar"><div class="ds-range-fill" style="width:' + pos.toFixed(1) + '%"></div>' +
+                 '<div class="ds-range-marker" style="left:' + pos.toFixed(1) + '%"></div></div>' +
+                 '<div class="ds-range-lbl"><span>Low</span><span>High</span></div></div>';
+      }
+      ranges.innerHTML = dayBar;
+    }
+
+    sec.hidden = false;
+  }
+
+  /* ---------- Index / Sub-Index table ---------- */
+  function renderIndices(live) {
+    var sec = $('dsIndices');
+    var body = $('dsIdxBody');
+    if (!sec || !body) return;
+    var indices = Array.isArray(live.indices) ? live.indices : [];
+    if (!indices.length) {
+      body.innerHTML = '<tr><td colspan="4" class="ds-empty">Index data unavailable.</td></tr>';
+      sec.hidden = false;
+      return;
+    }
+    body.innerHTML = indices.map(function (ix) {
+      var c = Number(ix.change), p = Number(ix.percent_change);
+      var cls = c > 0 ? 'up' : c < 0 ? 'dn' : 'flat';
+      var arrow = c > 0 ? '▲ ' : c < 0 ? '▼ ' : '';
+      var cs = isFinite(c) ? (c > 0 ? '+' : '') + fmtNum(c) : '—';
+      var ps = isFinite(p) ? (p > 0 ? '+' : '') + p.toFixed(2) + '%' : '—';
+      return '<tr>' +
+        '<td><span class="sym">' + esc(ix.name || '') + '</span></td>' +
+        '<td class="num">' + fmtNum(ix.value) + '</td>' +
+        '<td class="num ' + cls + '">' + arrow + cs + '</td>' +
+        '<td class="num ' + cls + '">' + arrow + ps + '</td>' +
+      '</tr>';
+    }).join('');
+    sec.hidden = false;
   }
 
   function fail(msg) {

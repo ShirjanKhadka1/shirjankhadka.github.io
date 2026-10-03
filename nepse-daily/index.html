@@ -43,7 +43,7 @@
 <link rel="stylesheet" href="/css/nepse-logos.css">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=20261003a">
-<link rel="stylesheet" href="/css/nd-daily.css?v=20261003a">
+<link rel="stylesheet" href="/css/nd-daily.css?v=20261003b">
 </head>
 <body class="nd" data-page="daily">
 
@@ -73,6 +73,36 @@
       <span class="ds-badge" id="dsUpdated"></span>
     </div>
   </div>
+
+  <!-- Market Overview: NEPSE summary cards -->
+  <section class="ds-overview" aria-label="Market overview" id="dsOverview" hidden>
+    <h2 class="ds-sec-title">Market overview</h2>
+    <div class="ds-ov-grid" id="dsOvGrid"></div>
+    <div class="ds-ov-ranges" id="dsOvRanges"></div>
+  </section>
+
+  <!-- Index / Sub-Index Summary -->
+  <section class="ds-indices" aria-label="Index and sub-index summary" id="dsIndices" hidden>
+    <h2 class="ds-sec-title">Index / Sub-Index summary</h2>
+    <div class="ds-table-scroll">
+      <table class="ds-table ds-idx-table" id="dsIdxTable">
+        <caption class="visually-hidden">Summary of NEPSE index and sub-indices</caption>
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col" class="num">Value</th>
+            <th scope="col" class="num">Chg</th>
+            <th scope="col" class="num">% Chg</th>
+          </tr>
+        </thead>
+        <tbody id="dsIdxBody">
+          <tr><td colspan="4" class="ds-empty">Loading index data…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <h2 class="ds-sec-title">All stocks summary</h2>
 
   <div class="ds-controls">
     <input type="search" id="dsSearch" class="ds-search" placeholder="Search symbol or company…" aria-label="Search symbol or company" autocomplete="off">
@@ -147,7 +177,7 @@
 <script src="../js/nepse-suite.js?v=1075e635" defer></script>
 <script src="/js/company-logos.js" defer></script>
 <script src="/js/nepse-logos.js" defer></script>
-<script src="/js/nd-daily.js?v=20261003a" defer></script>
+<script src="/js/nd-daily.js?v=20261003b" defer></script>
 <script src="/js/theme-toggle.js?v=20261002c" defer></script>
 <script src="/js/freshness-badge.js?v=20261002c" defer></script>
 <script src="/js/nepse-sidebar.js?v=20261002c" defer></script>
