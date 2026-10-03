@@ -133,6 +133,7 @@
     /* mirror legacy data-theme so existing chart observers keep working */
     root.setAttribute('data-theme', mode === 'light' ? 'light' : 'dark');
     store('nd-ed-theme', mode);
+    store('sk-theme', mode); /* keep the legacy pre-paint snippet in sync */
     var btn = $('#nd-themebtn');
     if (btn) {
       btn.setAttribute('aria-pressed', mode === 'light' ? 'true' : 'false');

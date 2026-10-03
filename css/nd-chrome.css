@@ -68,7 +68,7 @@
 #nd-header .nd-results a .nm{ color: var(--nd-muted); font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #nd-header .nd-results a[aria-selected="true"], #nd-header .nd-results a:hover{ background: var(--nd-lime-faint); }
 /* Nav menus */
-#nd-header .nd-nav{ display: flex; align-items: center; gap: 2px; flex: none; }
+#nd-header .nd-nav{ display: flex; flex-direction: row; align-items: center; gap: 2px; flex: none; }
 #nd-header .nd-navitem{ position: relative; }
 #nd-header .nd-navbtn{
   display: flex; align-items: center; gap: 6px; height: 38px; padding: 0 8px;
@@ -181,6 +181,24 @@
 /* Adopted pages: the legacy sidebar is removed, so a shell left with a
    single content child collapses to one column instead of a 240px gap. */
 .nd-shell:not(:has(> aside)) { display: block; }
+/* Footer mounted INSIDE the legacy .d2-shell flex row: force it onto its own
+   full-width row below the content instead of squeezing beside it. */
+.d2-shell:has(> #nd-footer) { flex-wrap: wrap; }
+.d2-shell > #nd-footer { flex: 1 1 100%; min-width: 100%; }
+/* Footer as a direct body child after .d2-shell (short pages): sticky-footer
+   pattern so a 100vh shell doesn't strand the footer a viewport below. */
+body:has(> .d2-shell):has(> #nd-footer) { display: flex; flex-direction: column; min-height: 100vh; }
+body:has(> .d2-shell):has(> #nd-footer) > .d2-shell { flex: 1 0 auto; min-height: 0; }
+/* The legacy fixed sidebar rail is gone from adopted pages: kill its 236px
+   body offset (nepse-luxury.css @ >=1100px) which otherwise squeezes the
+   header's flex row. Scoped to pages carrying the new header. */
+@media(min-width:1100px){
+  body:has(> #nd-header){ padding-left: 0; }
+}
+/* Adopted pages: the header owns the theme switch — hide the legacy floating
+   .theme-toggle button injected by js/theme-toggle.js so it stops covering
+   content. The header toggle drives the same data-theme + storage keys. */
+body:has(> #nd-header) .theme-toggle.fixed{ display: none !important; }
 #nd-footer .nd-footwrap{ max-width: var(--nd-page-max); margin: 0 auto; padding: var(--nd-s12) var(--nd-gutter) var(--nd-s6); }
 #nd-footer .nd-footbrand{ display: flex; align-items: center; gap: var(--nd-s3); margin-bottom: var(--nd-s2); }
 #nd-footer .nd-footbrand svg{ width: 38px; height: 38px; border-radius: var(--nd-r-logo); }
