@@ -87,7 +87,8 @@
     var breadthTxt = adv > dec ? 'advancers outnumbered decliners' : dec > adv ? 'decliners outnumbered advancers' : 'advancers and decliners were evenly split';
 
     // Dynamic headline based on actual close
-    var headline = 'NEPSE closes ' + dir;
+    var dirWord = chg > 0 ? '<span class="dir-up">higher</span>' : chg < 0 ? '<span class="dir-dn">lower</span>' : 'flat';
+    var headline = 'NEPSE closes ' + dirWord;
     var mag = Math.abs(pct);
     if (mag >= 2) headline += ' sharply';
     else if (mag >= 1) headline += ' firmly';
@@ -96,20 +97,20 @@
     if (chg > 0 && leaders) headline += ' as ' + esc(leaders.toLowerCase()) + ' lead';
     else if (chg < 0 && laggards) headline += ' as ' + esc(laggards.toLowerCase()) + ' drag';
 
-    var body1 = 'The NEPSE index closed at ' + fmtNum(ix.value) + ' (' +
+    var body1 = 'The NEPSE index closed at <strong>' + fmtNum(ix.value) + '</strong> (' +
       (chg > 0 ? '+' : '') + fmtNum(chg) + ' points, ' +
       (pct > 0 ? '+' : '') + pct.toFixed(2) + '%). ';
     if (chg > 0) {
-      body1 += 'Bulls were in control as ' + breadthTxt + ' (' + adv + ' vs ' + dec + '). ';
-      if (leaders) body1 += 'Strength came from ' + esc(leaders) + ' shares' + (leadPct ? ' (up ' + leadPct.toFixed(2) + '%)' : '') + '. ';
+      body1 += 'Bulls were in control as ' + breadthTxt + ' (<strong>' + adv + '</strong> vs ' + dec + '). ';
+      if (leaders) body1 += 'Strength came from <strong>' + esc(leaders) + '</strong> shares' + (leadPct ? ' (up ' + leadPct.toFixed(2) + '%)' : '') + '. ';
     } else if (chg < 0) {
-      body1 += 'Bears dominated as ' + breadthTxt + ' (' + dec + ' vs ' + adv + '). ';
-      if (laggards) body1 += 'Weakness was concentrated in ' + esc(laggards) + (lagPct ? ' (down ' + Math.abs(lagPct).toFixed(2) + '%)' : '') + '. ';
+      body1 += 'Bears dominated as ' + breadthTxt + ' (<strong>' + dec + '</strong> vs ' + adv + '). ';
+      if (laggards) body1 += 'Weakness was concentrated in <strong>' + esc(laggards) + '</strong>' + (lagPct ? ' (down ' + Math.abs(lagPct).toFixed(2) + '%)' : '') + '. ';
       if (leaders && leadPct > 0) body1 += esc(leaders) + ' declined the least' + ' (+' + leadPct.toFixed(2) + '%). ';
     } else {
       body1 += 'The market ended flat as ' + breadthTxt + '. ';
     }
-    body1 += 'Day range: ' + fmtNum(ix.low) + ' – ' + fmtNum(ix.high) + '.';
+    body1 += 'Day range: <strong>' + fmtNum(ix.low) + ' – ' + fmtNum(ix.high) + '</strong>.';
 
     host.innerHTML =
       '<div class="nd-badges">' +
@@ -182,11 +183,11 @@
       var beamCls = chg >= 0 ? 'up' : 'dn';
       dayBeam = '<div class="nd-range"><div class="nd-range-beam ' + beamCls + '">' +
         '<div class="nd-range-marker" style="left:' + pos + '%"></div></div>' +
-        '<div class="nd-range-labels"><span>' + fmtNum(dayLo) + '</span><span>' + fmtNum(dayHi) + '</span></div></div>';
+        '<div class="nd-range-labels"><span>Low <strong>' + fmtNum(dayLo) + '</strong></span><span>High <strong>' + fmtNum(dayHi) + '</strong></span></div></div>';
     }
 
     // Session range beam (from spark data range)
-    var sessBeam = '', sessLabel = '';
+    var sessBeam = '', sessDates = '';
     if (sparkData && sparkData.closes && sparkData.closes.length > 1) {
       var sVals = sparkData.closes.map(function (c) { return c[1]; });
       var sLo = Math.min.apply(null, sVals), sHi = Math.max.apply(null, sVals);
@@ -194,9 +195,17 @@
       var sCls = chg >= 0 ? 'up' : 'dn';
       sessBeam = '<div class="nd-range"><div class="nd-range-beam ' + sCls + '">' +
         '<div class="nd-range-marker" style="left:' + Math.max(0, Math.min(100, sPos)) + '%"></div></div>' +
-        '<div class="nd-range-labels"><span>' + fmtNum(sLo) + '</span><span>' + fmtNum(sHi) + '</span></div></div>';
-      sessLabel = sparkData.closes.length + ' closes';
+        '<div class="nd-range-labels"><span>Low <strong>' + fmtNum(sLo) + '</strong></span><span>High <strong>' + fmtNum(sHi) + '</strong></span></div></div>';
+      var sessLabel = sparkData.closes.length + ' closes';
+      try {
+        var d0 = new Date(sparkData.closes[0][0]), d1 = new Date(sparkData.closes[sparkData.closes.length-1][0]);
+        sessDates = d0.toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'}) + ' → ' +
+                    d1.toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'}) + ' · ' + sessLabel;
+      } catch (e) { sessDates = sessLabel; }
     }
+
+    var sessDateShort = '';
+    try { sessDateShort = 'session ' + new Date((live.data_asof || live.asof)).toISOString().slice(0, 10); } catch (e) {}
 
     host.innerHTML =
       '<div class="lbl"><span>NEPSE INDEX</span><span class="nd-badge amber">' + esc(live.market || '—') + '</span></div>' +
@@ -209,13 +218,16 @@
         '<button data-tf="1M">1M</button><button data-tf="3M">3M</button><button data-tf="1Y">1Y</button>' +
       '</div>' +
       '<div class="nd-ixstats">' +
-        '<div class="nd-stat-row"><span class="k">Day range</span>' + dayBeam + '</div>' +
-        '<div class="nd-stat-row"><span class="k">Session range</span><span class="sess-note">' + esc(sessLabel) + '</span>' + sessBeam + '</div>' +
-        '<div class="nd-stat-row"><span class="k">Market breadth</span><span class="v"><span class="up">' + adv + ' adv</span> · <span class="dn">' + dec + ' dec</span> · ' + unc + ' unc · ' + quotes.length + ' scrips</span></div>' +
-        '<div class="nd-stat-row"><span class="k">Total turnover</span><span class="v">' + (ix.turnover ? fmtCrore(ix.turnover) : 'Unavailable') + '</span></div>' +
-        '<div class="nd-stat-row"><span class="k">Traded shares</span><span class="v">' + (ix.traded_shares ? Number(ix.traded_shares).toLocaleString('en-IN') : 'Unavailable') + '</span></div>' +
-        '<div class="nd-stat-row"><span class="k">Transactions</span><span class="v">' + (ix.transactions ? Number(ix.transactions).toLocaleString('en-IN') : 'Unavailable') + '</span></div>' +
-        '<div class="nd-stat-row"><span class="k">Scrips traded</span><span class="v">' + quotes.length + '</span></div>' +
+        '<div class="nd-stat-block"><div class="nd-stat-head"><span class="k">Day range</span><span class="meta">' + esc(sessDateShort) + '</span></div>' + dayBeam + '</div>' +
+        '<div class="nd-stat-block"><div class="nd-stat-head"><span class="k">Session range</span><span class="meta">' + esc(sessDates) + '</span></div>' + sessBeam + '</div>' +
+        '<div class="nd-stat-block"><div class="nd-stat-head"><span class="k">Market breadth</span><span class="meta">' + quotes.length + ' scrips</span></div>' +
+          '<div class="nd-breadth"><span><span class="up">' + adv + '</span> advancers</span><span><span class="dn">' + dec + '</span> decliners</span><span><span class="un">' + unc + '</span> unchanged</span></div></div>' +
+        '<div class="nd-stat-grid">' +
+          '<div class="nd-stat-card"><div class="k">Total turnover</div><div class="v">' + (ix.turnover ? fmtCrore(ix.turnover) : 'Unavailable') + '</div></div>' +
+          '<div class="nd-stat-card"><div class="k">Traded shares</div><div class="v">' + (ix.traded_shares ? Number(ix.traded_shares).toLocaleString('en-IN') : 'Unavailable') + '</div></div>' +
+          '<div class="nd-stat-card"><div class="k">Transactions</div><div class="v">' + (ix.transactions ? Number(ix.transactions).toLocaleString('en-IN') : 'Unavailable') + '</div></div>' +
+          '<div class="nd-stat-card"><div class="k">Scrips traded</div><div class="v">' + quotes.length + '</div></div>' +
+        '</div>' +
       '</div>' +
       '<div class="nd-ixgrid">' +
         '<div class="cell"><div class="k">OPEN</div><div class="v">' + (ix.open ? fmtNum(ix.open) : 'Unavailable') + '</div></div>' +
