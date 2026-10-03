@@ -24,8 +24,15 @@
   .foot{color:var(--mut);font-size:.85rem;margin-top:24px}
   a{color:#1d4ed8}
 </style>
+<meta name="theme-color" content="#0A0C10">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261003a">
 </head>
 <body>
+<div id="nd-header"></div>
 <div class="wrap">
   <h1>System Status</h1>
   <p class="sub">Nepse Decode data pipeline — updated automatically after every run. Educational data service; figures are delayed snapshots, not investment advice.</p>
@@ -111,5 +118,7 @@
   }).catch(function(){ document.getElementById('gates').innerHTML = '<p class="sub">validation.json unavailable</p>'; });
 })();
 </script>
+<div id="nd-footer"></div>
+<script src="/js/nd-chrome.js?v=20261003a" defer></script>
 </body>
 </html>
