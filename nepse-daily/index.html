@@ -43,7 +43,7 @@
 <link rel="stylesheet" href="/css/nepse-logos.css">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=20261003a">
-<link rel="stylesheet" href="/css/nd-daily.css?v=20261003b">
+<link rel="stylesheet" href="/css/nd-daily.css?v=20261003c">
 </head>
 <body class="nd" data-page="daily">
 
@@ -74,11 +74,23 @@
     </div>
   </div>
 
-  <!-- Market Overview: NEPSE summary cards -->
+  <!-- Market Overview: Chart + NEPSE summary -->
   <section class="ds-overview" aria-label="Market overview" id="dsOverview" hidden>
     <h2 class="ds-sec-title">Market overview</h2>
-    <div class="ds-ov-grid" id="dsOvGrid"></div>
-    <div class="ds-ov-ranges" id="dsOvRanges"></div>
+    <div class="ds-ov-layout">
+      <div class="ds-ov-chart">
+        <div class="ds-ov-chart-head">
+          <span class="ds-ov-chart-title">NEPSE</span>
+          <span class="ds-ov-chart-val" id="dsChartVal"></span>
+        </div>
+        <svg id="dsChartSvg" viewBox="0 0 600 220" preserveAspectRatio="none" aria-label="NEPSE recent trend"></svg>
+        <div class="ds-ov-chart-note" id="dsChartNote"></div>
+      </div>
+      <div class="ds-ov-summary">
+        <div class="ds-ov-grid" id="dsOvGrid"></div>
+        <div class="ds-ov-ranges" id="dsOvRanges"></div>
+      </div>
+    </div>
   </section>
 
   <!-- Index / Sub-Index Summary -->
@@ -105,6 +117,9 @@
   <h2 class="ds-sec-title">All stocks summary</h2>
 
   <div class="ds-controls">
+    <select id="dsSector" class="ds-select" aria-label="Filter by sector">
+      <option value="">All Sectors</option>
+    </select>
     <input type="search" id="dsSearch" class="ds-search" placeholder="Search symbol or company…" aria-label="Search symbol or company" autocomplete="off">
     <select id="dsPerPage" class="ds-select" aria-label="Rows per page">
       <option value="25">25 / page</option>
@@ -133,7 +148,6 @@
             <th scope="col" data-k="ltp" class="num">LTP <span class="arr"></span></th>
             <th scope="col" data-k="change" class="num">Chg <span class="arr"></span></th>
             <th scope="col" data-k="percent_change" class="num">% Chg <span class="arr"></span></th>
-            <th scope="col" title="Opening price is not published in the market feed">Open</th>
             <th scope="col" data-k="dayrange" class="num">Day Range <span class="arr"></span></th>
             <th scope="col" data-k="previous_close" class="num">Prev. Close <span class="arr"></span></th>
             <th scope="col" data-k="volume" class="num">Total Vol <span class="arr"></span></th>
@@ -142,7 +156,7 @@
           </tr>
         </thead>
         <tbody id="dsBody">
-          <tr><td colspan="10" class="ds-empty">Loading market data…</td></tr>
+          <tr><td colspan="9" class="ds-empty">Loading market data…</td></tr>
         </tbody>
       </table>
     </div>
@@ -177,7 +191,8 @@
 <script src="../js/nepse-suite.js?v=1075e635" defer></script>
 <script src="/js/company-logos.js" defer></script>
 <script src="/js/nepse-logos.js" defer></script>
-<script src="/js/nd-daily.js?v=20261003b" defer></script>
+<script src="/js/nepse-daily.js?v=20261003a"></script>
+<script src="/js/nd-daily.js?v=20261003c" defer></script>
 <script src="/js/theme-toggle.js?v=20261002c" defer></script>
 <script src="/js/freshness-badge.js?v=20261002c" defer></script>
 <script src="/js/nepse-sidebar.js?v=20261002c" defer></script>

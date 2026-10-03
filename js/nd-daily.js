@@ -65,9 +65,40 @@
     sortKey: 'turnover',
     sortDir: 'desc',
     query: '',
+    sector: '',
     page: 0,
     perPage: PER_PAGE
   };
+
+  /* ---------- Sector classifier (from js/nepse-sectors.js) ---------- */
+  var SECTOR_OVERRIDES = {};
+  var INVESTMENT_SYMBOLS = { CIT: 1, HIDCL: 1, HIDCLP: 1, NIFRA: 1, NRN: 1, CHDC: 1, ENL: 1, HATHY: 1 };
+  var TRADING_SYMBOLS = { BBC: 1, STC: 1 };
+  var DEB_SYM_RE = /D\d{2,3}$/;
+  function classifySymbol(sym, name) {
+    var symU = String(sym || '').toUpperCase();
+    if (SECTOR_OVERRIDES[symU]) return SECTOR_OVERRIDES[symU];
+    if (INVESTMENT_SYMBOLS[symU]) return 'Investment';
+    if (TRADING_SYMBOLS[symU]) return 'Trading';
+    var n = String(name || '').toLowerCase().replace(/lagubitta/g, 'laghubitta');
+    if (DEB_SYM_RE.test(symU) || n.indexOf('debenture') >= 0 || n.indexOf('bond') >= 0 || n.indexOf('rinpatra') >= 0) return 'Debentures';
+    if (n.indexOf('fund') >= 0 || n.indexOf('kosh') >= 0) return 'Mutual Funds';
+    function has() {
+      for (var i = 0; i < arguments.length; i++) if (n.indexOf(arguments[i]) >= 0) return true;
+      return false;
+    }
+    if (has('laghu', 'microfinance')) return 'Microfinance';
+    if (has('hydropower', 'hydro', 'power', 'urja', 'energy')) return 'Hydropower';
+    if (has('development bank')) return 'Development Bank';
+    if (has('bank')) return 'Banking';
+    if (has('life insurance')) return 'Life Insurance';
+    if (has('insurance', 'beema')) return 'Non Life Insurance';
+    if (has('finance')) return 'Finance';
+    if (has('hotel', 'tourism')) return 'Hotels And Tourism';
+    if (has('investment')) return 'Investment';
+    if (has('manufacturing', 'cement', 'pharma')) return 'Manufacturing And Processing';
+    return 'Others';
+  }
 
   function readPreset() {
     try {
@@ -101,6 +132,9 @@
   function filtered() {
     var q = state.query.trim().toLowerCase();
     var rows = state.quotes;
+    if (state.sector) {
+      rows = rows.filter(function (r) { return r._sector === state.sector; });
+    }
     if (q) {
       rows = rows.filter(function (r) {
         return (r.symbol || '').toLowerCase().indexOf(q) !== -1 ||
@@ -162,7 +196,6 @@
             '<span class="cname">' + esc(q.name || '') + '</span></td>' +
           '<td class="num">' + fmtNum(q.ltp) + '</td>' +
           chgCell(q) +
-          '<td class="num"><span class="unavail">Unavailable</span></td>' +
           '<td class="num">' + dayRange + '</td>' +
           '<td class="num">' + fmtNum(q.previous_close) + '</td>' +
           '<td class="num">' + fmtInt(q.volume) + '</td>' +
@@ -232,6 +265,7 @@
       upd.textContent = n ? n.toLocaleString() + ' securities · Source: NEPSE' : '';
     }
     renderOverview(live);
+    renderChart(live);
     renderIndices(live);
   }
 
@@ -295,7 +329,55 @@
     sec.hidden = false;
   }
 
-  /* ---------- Index / Sub-Index table ---------- */
+  /* ---------- NEPSE trend chart (SVG) ---------- */
+  function renderChart(live) {
+    var svg = $('dsChartSvg');
+    var valEl = $('dsChartVal');
+    var noteEl = $('dsChartNote');
+    if (!svg) return;
+
+    var ix = live.index || {};
+    var val = Number(ix.value), chg = Number(ix.change);
+    if (valEl && isFinite(val)) {
+      valEl.innerHTML = '<strong>' + fmtNum(val) + '</strong> ' +
+        '<span class="' + (chg > 0 ? 'up' : chg < 0 ? 'dn' : 'flat') + '">' +
+        (chg > 0 ? '▲ +' : chg < 0 ? '▼ ' : '') + fmtNum(chg) + '</span>';
+    }
+
+    // Use index history if available, else flat line at current value
+    var hist = window.NEPSE_DAILY || [];
+    var closes = hist.slice(-60).map(function (r) { return r[4]; }).filter(isFinite);
+    if (!closes.length && isFinite(val)) closes = [val];
+
+    if (closes.length < 2) {
+      if (noteEl) noteEl.textContent = 'Trend data unavailable.';
+      return;
+    }
+
+    var W = 600, H = 220, P = 10;
+    var min = Math.min.apply(null, closes), max = Math.max.apply(null, closes);
+    var span = (max - min) || 1;
+    var up = closes[closes.length - 1] >= closes[0];
+    var color = up ? '#4ade80' : '#f87171';
+
+    var pts = closes.map(function (c, i) {
+      var x = P + (i / (closes.length - 1)) * (W - 2 * P);
+      var y = H - P - ((c - min) / span) * (H - 2 * P);
+      return x.toFixed(1) + ',' + y.toFixed(1);
+    }).join(' ');
+
+    var areaPts = P + ',' + (H - P) + ' ' + pts + ' ' + (W - P) + ',' + (H - P);
+    svg.innerHTML =
+      '<defs><linearGradient id="dsCg" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0" stop-color="' + color + '" stop-opacity="0.35"/>' +
+      '<stop offset="1" stop-color="' + color + '" stop-opacity="0.02"/></linearGradient></defs>' +
+      '<polygon points="' + areaPts + '" fill="url(#dsCg)"/>' +
+      '<polyline points="' + pts + '" fill="none" stroke="' + color + '" stroke-width="2"/>' +
+      '<text x="' + (W - P) + '" y="16" text-anchor="end" font-size="11" fill="var(--nd-dim)">' + fmtNum(max) + '</text>' +
+      '<text x="' + (W - P) + '" y="' + (H - 6) + '" text-anchor="end" font-size="11" fill="var(--nd-dim)">' + fmtNum(min) + '</text>';
+
+    if (noteEl) noteEl.textContent = 'Last ' + closes.length + ' sessions · Source: NEPSE';
+  }
   function renderIndices(live) {
     var sec = $('dsIndices');
     var body = $('dsIdxBody');
@@ -386,9 +468,29 @@
 
     fetchJSON(LIVE_URL).then(function (live) {
       state.quotes = Array.isArray(live.quotes) ? live.quotes : [];
+      // Classify sectors
+      state.quotes.forEach(function (q) {
+        q._sector = classifySymbol(q.symbol, q.name);
+      });
+      populateSectors();
       renderMeta(live);
       renderTable();
     }).catch(function () { fail(); });
+  }
+
+  function populateSectors() {
+    var sel = $('dsSector');
+    if (!sel) return;
+    var sectors = {};
+    state.quotes.forEach(function (q) { if (q._sector) sectors[q._sector] = true; });
+    var list = Object.keys(sectors).sort();
+    sel.innerHTML = '<option value="">All Sectors</option>' +
+      list.map(function (s) { return '<option value="' + esc(s) + '">' + esc(s) + '</option>'; }).join('');
+    sel.addEventListener('change', function () {
+      state.sector = sel.value;
+      state.page = 0;
+      renderTable();
+    });
   }
 
   if (document.readyState === 'loading') {
