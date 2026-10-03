@@ -220,7 +220,7 @@ body:has(> #nd-header) .theme-toggle.fixed{ display: none !important; }
   padding: 6px 12px; color: var(--nd-muted); background: var(--nd-panel);
 }
 #nd-footer .nd-footgrid{
-  display: grid; grid-template-columns: repeat(6, 1fr);
+  display: grid; grid-template-columns: repeat(7, 1fr);
   gap: var(--nd-s6); padding-bottom: var(--nd-s8);
   border-bottom: 1px solid var(--nd-border);
 }
@@ -236,16 +236,10 @@ body:has(> #nd-header) .theme-toggle.fixed{ display: none !important; }
   transition: color var(--nd-t-fast) var(--nd-ease), transform var(--nd-t-fast) var(--nd-ease);
 }
 #nd-footer .nd-footcol a:hover{ color: var(--nd-lime); transform: translateX(4px); }
-#nd-footer .nd-company{
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: var(--nd-s2) var(--nd-s6); padding: var(--nd-s6) 0;
-  border-bottom: 1px solid var(--nd-border);
-  background: var(--nd-panel); border-radius: var(--nd-r-card);
-  padding-left: var(--nd-s6); padding-right: var(--nd-s6); margin-top: var(--nd-s8);
+#nd-footer .nd-footplain{
+  display: block; padding: 7px 0; color: var(--nd-muted);
+  font: 400 var(--nd-text-footer-link) var(--nd-font-sans);
 }
-#nd-footer .nd-company .row{ font: 400 0.8125rem var(--nd-font-sans); color: var(--nd-muted); }
-#nd-footer .nd-company .row b{ color: var(--nd-text); font-weight: 600; }
-#nd-footer .nd-company .row a{ color: var(--nd-lime); text-decoration: none; }
 #nd-footer .nd-made{ padding-top: var(--nd-s6); color: var(--nd-muted); font-size: 0.8125rem; line-height: 1.7; }
 #nd-footer .nd-made .np{ color: var(--nd-dim); }
 #nd-footer .nd-legal{

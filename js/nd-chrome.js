@@ -1,9 +1,9 @@
 /**
  * js/nd-chrome.js — Editorial header + footer (D2).
  * Single-row 60px sticky header: brand, Ask/Stock search, six
- * mega-dropdowns, Technical Analysis + Home links, market-status
+ * mega-dropdowns, Technical Analysis link, market-status
  * pill, dark/light switch, EN/NE toggle, mobile drawer.
- * Six-column design-rich footer with company block + disclaimers.
+ * Seven-column design-rich footer with company column + disclaimers.
  *
  * Mounts: <div id="nd-header"></div> and <div id="nd-footer"></div>.
  * Requires css/nd-editorial-theme.css + css/nd-chrome.css.
@@ -16,19 +16,15 @@
 
   var NAV = [
     { label: 'Markets', live: true, links: [
-      ['NEPSE Live', '/nepse-decode/'],
-      ['Daily summary', '/nepse-dashboard/'],
-      ['Market wrap', '/blog/'],
+      ['Overview', '/nepse-decode/'],
+      ['Daily summary', '/nepse-daily/'],
       ['Heat Map', '/nepse-sectors/'],
       ['Circuit watch', '/nepse-trending/'],
       ['IPO / FPO', '/nepse-actions/']
     ]},
     { label: 'Stocks', links: [
-      ['Listed securities', '/nepse-screener/'],
       ['Stock Screener', '/nepse-screener/'],
-      ['Fair Value', '/nepse-value/'],
-      ['Stock Scorecard', '/nepse-trending/'],
-      ['Accumulation / Distribution', '/nepse-brokers/']
+      ['Fair Value', '/nepse-value/']
     ]},
     { label: 'Broker', links: [
       ['Top Brokers', '/nepse-brokers/?view=top'],
@@ -45,28 +41,25 @@
     { label: 'Trade', links: [
       ['Practice Trading', '/nepse-simulator/'],
       ['Trading Journal', '/nepse-portfolio/'],
-      ['Price Alerts', '/nepse-watchlist/'],
-      ['Replay Machine', '/nepse-simulator/']
+      ['Watchlist', '/nepse-watchlist/']
     ]},
     { label: 'Research', links: [
-      ['Money Flow', '/nepse-brokers/'],
+      ['Money Flow', '/nepse-brokers/?view=accdist'],
       ['Market regime', '/nepse-chart/'],
-      ['Market breadth', '/nepse-sectors/'],
       ['Seasonality', '/nepse-reports/'],
       ['Data sources', '/status/']
     ]}
   ];
 
   var PLAIN_LINKS = [
-    ['Technical Analysis', '/nepse-technical/'],
-    ['Home', '/']
+    ['Technical Analysis', '/nepse-technical/']
   ];
 
   /* Nepali chrome dictionary (header/nav/footer chrome only) */
   var NE = {
     'Markets': 'बजार', 'Stocks': 'स्टकहरू', 'Broker': 'ब्रोकर',
     'News': 'समाचार', 'Trade': 'कारोबार', 'Research': 'अनुसन्धान',
-    'Technical Analysis': 'प्राविधिक विश्लेषण', 'Home': 'गृहपृष्ठ',
+    'Technical Analysis': 'प्राविधिक विश्लेषण',
     'searchPh': 'सोध्नुहोस् / स्टक — NABIL प्रयास गर्नुहोस्',
     'brandSub': 'नेप्से चार्ट र बजार डेटा'
   };
@@ -245,18 +238,22 @@
   /* ---------------- footer ---------------- */
 
   var FOOT = [
-    ['MARKETS', [['NEPSE Live', '/nepse-decode/'], ['Daily summary', '/nepse-dashboard/'], ['Market wrap', '/blog/'], ['Heat Map', '/nepse-sectors/'], ['Circuit watch', '/nepse-trending/'], ['IPO / FPO', '/nepse-actions/']]],
-    ['STOCKS', [['Listed securities', '/nepse-screener/'], ['Stock Screener', '/nepse-screener/'], ['Fair Value', '/nepse-value/'], ['Stock Scorecard', '/nepse-trending/'], ['Accumulation / Distribution', '/nepse-brokers/']]],
+    ['MARKETS', [['Overview', '/nepse-decode/'], ['Daily summary', '/nepse-daily/'], ['Heat Map', '/nepse-sectors/'], ['Circuit watch', '/nepse-trending/'], ['IPO / FPO', '/nepse-actions/']]],
+    ['STOCKS', [['Stock Screener', '/nepse-screener/'], ['Fair Value', '/nepse-value/'], ['Trending Stock', '/nepse-trending/']]],
     ['BROKER', [['Top Brokers', '/nepse-brokers/?view=top'], ['Broker Trade Pattern', '/nepse-brokers/?view=broker'], ['Stock Trade Pattern', '/nepse-brokers/?view=stock'], ['Stockwise Holdings', '/nepse-brokers/?view=holdings'], ['Accumulation / Distribution', '/nepse-brokers/?view=accdist']]],
     ['NEWS', [['Market News', '/nepse-news/'], ['Market Wrap', '/blog/'], ['Corporate Actions', '/nepse-actions/']]],
-    ['TRADE', [['Practice Trading', '/nepse-simulator/'], ['Trading Journal', '/nepse-portfolio/'], ['Price Alerts', '/nepse-watchlist/'], ['Replay Machine', '/nepse-simulator/']]],
-    ['RESEARCH', [['Money Flow', '/nepse-brokers/'], ['Market regime', '/nepse-chart/'], ['Market breadth', '/nepse-sectors/'], ['Seasonality', '/nepse-reports/'], ['Data sources', '/status/']]]
+    ['TRADE', [['Practice Trading', '/nepse-simulator/'], ['Trading Journal', '/nepse-portfolio/'], ['Watchlist', '/nepse-watchlist/']]],
+    ['RESEARCH', [['Money Flow', '/nepse-brokers/?view=accdist'], ['Market regime', '/nepse-chart/'], ['Seasonality', '/nepse-reports/'], ['Data sources', '/status/']]],
+    ['COMPANY', [['Nepse Decode', '/nepse-decode/'], ['info@shirjankhadka.com.np', 'mailto:info@shirjankhadka.com.np'], ['Kathmandu, Nepal', null]]]
   ];
 
   function footerHTML() {
     var cols = FOOT.map(function (c) {
       return '<div class="nd-footcol"><h3>' + esc(c[0]) + '</h3>' +
-        c[1].map(function (l) { return '<a href="' + esc(l[1]) + '">' + esc(l[0]) + '</a>'; }).join('') +
+        c[1].map(function (l) {
+          if (!l[1]) return '<span class="nd-footplain">' + esc(l[0]) + '</span>';
+          return '<a href="' + esc(l[1]) + '">' + esc(l[0]) + '</a>';
+        }).join('') +
         '</div>';
     }).join('');
     return '<div class="nd-footwrap">' +
@@ -268,14 +265,6 @@
       '<span class="nd-footchip" id="nd-footsyms">LISTED SECURITIES</span>' +
       '</div>' +
       '<div class="nd-footgrid">' + cols + '</div>' +
-      '<div class="nd-company">' +
-      '<div class="row"><b>Name:</b> Nepse Decode</div>' +
-      '<div class="row"><b>Email:</b> <a href="mailto:info@shirjankhadka.com.np">info@shirjankhadka.com.np</a></div>' +
-      '<div class="row"><b>Website:</b> shirjankhadka.com.np</div>' +
-      '<div class="row"><b>Editor:</b> Shirjan Khadka</div>' +
-      '<div class="row"><b>Coverage:</b> Nepal Stock Exchange (NEPSE)</div>' +
-      '<div class="row"><b>Market hours:</b> Mon–Fri, 11:00–15:00 NPT</div>' +
-      '</div>' +
       '<div class="nd-made">Made with \u2665 in Nepal for NEPSE investors.<br>' +
       '<span class="np">नेप्से चार्ट, नेप्से इन्डेक्स आज, र शेयर बजारको दैनिक सारांश एकै ठाउँमा।</span></div>' +
       '<div class="nd-legal">' +

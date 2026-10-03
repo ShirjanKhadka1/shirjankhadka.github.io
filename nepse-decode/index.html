@@ -104,6 +104,60 @@
         <div class="nd-ixcard" id="ndIxCard" aria-label="NEPSE index"></div>
       </div>
 
+      <section class="nd-moves" aria-label="Biggest moves">
+        <div class="nd-moves-head">
+          <h2>Biggest moves</h2>
+          <span class="sub" id="ndMovesSub">Ranked by % change · last session</span>
+        </div>
+        <div class="nd-moves-grid">
+          <div class="nd-movecard">
+            <div class="nd-movecard-head"><h3>Top gainers</h3><span class="date" id="ndGainersDate"></span><a class="nd-seemore" href="/nepse-daily/?sort=gainers">See more →</a></div>
+            <table aria-label="Top gainers"><thead><tr><th>SYMBOL</th><th class="num">LTP (RS)</th><th class="num">CHANGE</th><th class="num">TURNOVER</th></tr></thead><tbody id="ndGainersBody"></tbody></table>
+          </div>
+          <div class="nd-movecard">
+            <div class="nd-movecard-head"><h3>Top losers</h3><span class="date" id="ndLosersDate"></span><a class="nd-seemore" href="/nepse-daily/?sort=losers">See more →</a></div>
+            <table aria-label="Top losers"><thead><tr><th>SYMBOL</th><th class="num">LTP (RS)</th><th class="num">CHANGE</th><th class="num">TURNOVER</th></tr></thead><tbody id="ndLosersBody"></tbody></table>
+          </div>
+        </div>
+      </section>
+
+      <section class="nd-active" aria-label="Most active">
+        <div class="nd-moves-head">
+          <h2>Most active</h2>
+          <span class="sub" id="ndActiveSub">Ranked by trading activity · last session</span>
+        </div>
+        <div class="nd-active-tabs" role="tablist" aria-label="Activity metric">
+          <button class="on" data-metric="turnover" role="tab">Turnover</button>
+          <button data-metric="volume" role="tab">Traded shares</button>
+          <button data-metric="transactions" role="tab">Transactions</button>
+        </div>
+        <div class="nd-movecard">
+          <div class="nd-movecard-head"><h3 id="ndActiveTitle">By turnover</h3><a class="nd-seemore" href="/nepse-daily/?sort=turnover">See more →</a></div>
+          <table aria-label="Most active stocks"><thead><tr><th>SYMBOL</th><th class="num" id="ndActiveColHead">TURNOVER</th><th class="num">CH %</th><th class="num">LTP (RS)</th></tr></thead><tbody id="ndActiveBody"></tbody></table>
+        </div>
+      </section>
+
+      <section class="nd-pulse-engine" aria-label="Market pulse and engine verdicts">
+        <div class="nd-pe-grid">
+          <div class="nd-pe-card">
+            <div class="nd-pe-head">
+              <div><span class="nd-eyebrow">Market Pulse</span><h2>Trending now</h2></div>
+              <a class="nd-seemore" href="/nepse-trending/">See more →</a>
+            </div>
+            <p class="nd-pe-sub" id="ndPulseSub">Ranked by live turnover</p>
+            <div id="ndPulseList" class="nd-pulse-list"></div>
+          </div>
+          <div class="nd-pe-card">
+            <div class="nd-pe-head">
+              <div><span class="nd-eyebrow">The Engine</span><h2>Latest verdicts</h2></div>
+              <a class="nd-seemore" href="/nepse-engine/">See more →</a>
+            </div>
+            <p class="nd-pe-sub" id="ndEngineSub">Mechanical signals, not advice</p>
+            <div id="ndEngineList" class="nd-engine-list"></div>
+          </div>
+        </div>
+      </section>
+
       <section class="nd-newsroom" aria-label="From the newsroom">
         <div class="nd-newsroom-head">
           <h2>From the newsroom</h2>
@@ -112,224 +166,6 @@
         <div class="nd-newsgrid" id="ndNewsGrid"></div>
       </section>
     </div>
-
-    <!-- S1 · MARKET COMMAND -->
-    <section class="d2-card" aria-label="Market overview" style="margin-bottom:20px">
-      <div class="d2-hero-grid">
-        <div>
-          <div class="d2-hero-label">NEPSE Index · <span id="d2State">—</span></div>
-          <div class="d2-hero-price" id="d2IdxVal" data-flash-symbol="NEPSE"><span class="d2-skl" style="height:64px;width:70%"></span></div>
-          <div style="margin-top:8px"><span class="d2-hero-badge" id="d2IdxChg"><span class="d2-skl" style="height:24px;width:180px"></span></span></div>
-          <!-- NOSCRIPT-BAKE-START -->
-<noscript>
-  <div style="border:1px solid #ddd;border-radius:8px;padding:16px;margin:16px 0;background:#fafafa;font-family:system-ui,sans-serif">
-    <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:1px">NEPSE Index — static snapshot (JavaScript disabled)</div>
-    <div style="font-size:32px;font-weight:700;margin:8px 0">2,599.15 <span style="font-size:18px;color:#0a7a3d">▲ +0.26 (+0.00%)</span></div>
-    <div style="font-size:13px;color:#444">Session: <b>2026-10-01</b> · Market: <b>CLOSED</b></div>
-    <div style="font-size:12px;color:#888;margin-top:6px">Baked at build time from data as of 2026-10-01. Enable JavaScript for live updates during market hours.</div>
-  </div>
-</noscript>
-<!-- NOSCRIPT-BAKE-END -->
-          <div class="d2-hero-chart nic-wrap">
-            <div class="nic-pills" role="group" aria-label="Chart timeframe">
-              <button type="button" data-range="1D" aria-pressed="false">1D</button>
-              <button type="button" data-range="1W" aria-pressed="false">1W</button>
-              <button type="button" data-range="1M" aria-pressed="true" class="on">1M</button>
-              <button type="button" data-range="1Y" aria-pressed="false">1Y</button>
-              <button type="button" data-range="5Y" aria-pressed="false">5Y</button>
-              <button type="button" data-range="MAX" aria-pressed="false">MAX</button>
-            </div>
-            <div id="nicChart" class="nic-chart" role="img" aria-label="NEPSE index candlestick chart. Loading."><span class="nic-loading">Loading chart…</span></div>
-            <div id="nicFallback" class="nic-fallback" hidden></div>
-          </div>
-          <div class="d2-daystats" aria-label="Session day statistics">
-            <span>Open<b id="d2DayO">—</b></span><span>High<b id="d2DayH">—</b></span><span>Low<b id="d2DayL">—</b></span><span>Prev. close<b id="d2DayP">—</b></span>
-          </div>
-          <p class="d2-caption" id="d2HeroCap" style="margin-top:10px">Loading the latest session…</p>
-        </div>
-        <div>
-          <div class="d2-range-block">
-            <div class="d2-range-label"><strong>Day range</strong><span id="d2DayRangeSes">session –</span></div>
-            <div class="d2-range" id="d2DayRange"><div class="d2-range-fill"></div><div class="d2-range-marker"></div></div>
-            <div class="d2-range-vals"><span>Low <b id="d2DayLow">—</b></span><span>High <b id="d2DayHigh">—</b></span></div>
-          </div>
-          <div class="d2-range-block">
-            <div class="d2-range-label"><strong>Session range</strong><span id="d2SesRangeLbl">recent closes</span></div>
-            <div class="d2-range" id="d2SesRange"><div class="d2-range-fill"></div><div class="d2-range-marker"></div></div>
-            <div class="d2-range-vals"><span>Low <b id="d2SesLow">—</b></span><span>High <b id="d2SesHigh">—</b></span></div>
-          </div>
-          <div>
-            <div class="d2-range-label" style="margin-bottom:8px"><strong>Market breadth</strong><span id="d2BreadthN">– scrips</span></div>
-            <div class="d2-breadth" id="d2Breadth"><div class="d2-b-up"></div><div class="d2-b-fl"></div><div class="d2-b-dn"></div></div>
-            <div class="d2-breadth-legend">
-              <span><b class="up" id="d2BUp">—</b> advancers</span>
-              <span><b class="down" id="d2BDn">—</b> decliners</span>
-              <span><b class="flat" id="d2BFl">—</b> unchanged</span>
-            </div>
-          </div>
-          <div class="d2-stat-grid" style="margin-top:18px">
-            <div class="d2-stat"><div class="d2-stat-l">Total turnover</div><div class="d2-stat-v" id="d2StatTurn">—</div></div>
-            <div class="d2-stat"><div class="d2-stat-l">Traded shares</div><div class="d2-stat-v" id="d2StatShares">—</div></div>
-            <div class="d2-stat"><div class="d2-stat-l">Transactions</div><div class="d2-stat-v" id="d2StatTxns">—</div></div>
-            <div class="d2-stat"><div class="d2-stat-l">Scrips traded</div><div class="d2-stat-v" id="d2StatScrips">—</div></div>
-          </div>
-          <form class="d2-search" id="d2Search" role="search" onsubmit="return false">
-            <input id="d2SearchInput" type="search" placeholder="Search any symbol, e.g. NABIL" aria-label="Search a NEPSE symbol" autocomplete="off" list="d2Symbols">
-            <datalist id="d2Symbols"></datalist>
-            <button type="submit">Search</button>
-          </form>
-          <div class="d2-search-list" id="d2SearchMatches" aria-live="polite"></div>
-        </div>
-      </div>
-      <div class="d2-fresh">
-        <span id="d2LiveBadge"></span>
-        <span id="d2HeroSrc">Source: validated market snapshot · refreshes during market hours</span>
-      </div>
-    </section>
-
-    <!-- MOVERS -->
-    <div class="d2-movers-row" style="margin-bottom:20px">
-      <section class="d2-card" aria-label="Top gainers">
-        <div class="d2-card-head"><div><p class="d2-kicker">Movers</p><h2>Top gainers</h2></div></div>
-        <div class="d2-tscroll"><table class="d2-table"><thead><tr><th>Symbol</th><th class="num">Ch</th><th class="num">Ch %</th><th class="num">LTP</th></tr></thead><tbody id="d2GainersT"><tr><td colspan="4"><span class="d2-skl" style="height:20px"></span></td></tr></tbody></table></div>
-      </section>
-      <section class="d2-card" aria-label="Top losers">
-        <div class="d2-card-head"><div><p class="d2-kicker">Movers</p><h2>Top losers</h2></div></div>
-        <div class="d2-tscroll"><table class="d2-table"><thead><tr><th>Symbol</th><th class="num">Ch</th><th class="num">Ch %</th><th class="num">LTP</th></tr></thead><tbody id="d2LosersT"><tr><td colspan="4"><span class="d2-skl" style="height:20px"></span></td></tr></tbody></table></div>
-      </section>
-    </div>
-
-    <!-- S9 · MARKET PULSE -->
-    <section class="d2-card" aria-label="Market pulse" style="margin-bottom:20px">
-      <div class="d2-card-head">
-        <div><p class="d2-kicker">Market pulse</p><h2>Event tape</h2></div>
-        <a class="d2-card-link" href="/nepse-news/">All news →</a>
-      </div>
-      <p class="d2-caption" style="margin-bottom:12px">NEPSE moves in dated events, not ticks — every announcement, filing and index milestone, newest first.</p>
-      <div class="d2-pulse-head">
-        <div class="d2-pulse-state">
-          <span class="d2-chip" id="d2PulseState"><span class="d2-dot"></span>checking</span>
-          <span class="d2-pulse-updated" id="d2PulseUpdated">last checked just now</span>
-          <span class="d2-pulse-flash" id="d2PulseFlash" aria-hidden="true">feed checked ✓</span>
-        </div>
-        <div class="d2-pulse-refresh">
-          <span class="d2-pulse-count" id="d2PulseCount">1:00</span>
-          <button class="d2-pill-btn" id="d2PulseToggle" aria-pressed="true">Auto-refresh on</button>
-        </div>
-      </div>
-      <div class="d2-pulse-filters" id="d2PulseFilters" role="group" aria-label="Filter pulse events"></div>
-      <div class="d2-pulse-tape" id="d2PulseTape" aria-live="polite"><span class="d2-skl" style="height:44px"></span></div>
-      <div class="d2-pulse-pages" id="d2PulsePages" hidden>
-        <label class="d2-pulse-rpp">Rows per page
-          <select id="d2PulseSize" aria-label="Rows per page">
-            <option value="5">5</option><option value="8" selected>8</option><option value="10">10</option><option value="15">15</option>
-          </select>
-        </label>
-        <span class="d2-pulse-pageinfo" id="d2PulseInfo" aria-live="polite"></span>
-        <span class="d2-pulse-nav">
-          <button type="button" class="d2-pill-btn" id="d2PulsePrev" aria-label="Previous news page">← Prev</button>
-          <button type="button" class="d2-pill-btn" id="d2PulseNext" aria-label="Next news page">Next →</button>
-        </span>
-      </div>
-      <div class="d2-fresh">
-        <span class="d2-chip" id="d2PulseSrcChip"><span class="d2-dot"></span>FEED</span>
-        <span id="d2PulseSrc">Sources: news.json · corporate-actions.json · index milestones from verified history · polls every 60 s</span>
-      </div>
-    </section>
-
-    <!-- INDICES + MOST ACTIVE -->
-    <div class="d2-grid3" style="margin-bottom:20px">
-      <section class="d2-card" aria-label="Indices">
-        <div class="d2-card-head"><div><p class="d2-kicker">Benchmarks</p><h2>Indices</h2></div><a class="d2-card-link" href="/nepse-chart/">Chart →</a></div>
-        <div class="d2-tscroll"><table class="d2-table"><thead><tr><th>Index</th><th class="num">Ch</th><th class="num">Ch %</th><th class="num">Current</th></tr></thead><tbody id="d2IndicesT"><tr><td colspan="4"><span class="d2-skl" style="height:20px"></span></td></tr></tbody></table></div>
-      </section>
-      <section class="d2-card" aria-label="Sub-indices">
-        <div class="d2-card-head"><div><p class="d2-kicker">Benchmarks</p><h2>Sub-indices</h2><p class="d2-card-sub">NEPSE official sub-index</p></div><a class="d2-card-link" href="/nepse-sectors/">Sectors →</a></div>
-        <div class="d2-tscroll"><table class="d2-table"><thead><tr><th>Sub-index</th><th class="num">Ch</th><th class="num">Ch %</th><th class="num">Current</th></tr></thead><tbody id="d2SubIndicesT"><tr><td colspan="4"><span class="d2-skl" style="height:20px"></span></td></tr></tbody></table></div>
-      </section>
-      <section class="d2-card" aria-label="Most active">
-        <div class="d2-card-head"><div><p class="d2-kicker">Liquidity</p><h2>Most active</h2></div><a class="d2-card-link" href="/nepse-screener/">Screener →</a></div>
-        <div class="d2-tabs" role="tablist" aria-label="Most active by">
-          <button class="d2-tab active" data-tt="turnover" role="tab" aria-selected="true">Turnover</button>
-          <button class="d2-tab" data-tt="volume" role="tab" aria-selected="false">Traded shares</button>
-          <button class="d2-tab" data-tt="trades" role="tab" aria-selected="false">Transactions</button>
-        </div>
-        <div class="d2-tscroll"><table class="d2-table"><thead><tr><th>Symbol</th><th class="num" id="d2TurnValH">Turnover</th><th class="num">Ch %</th><th class="num">LTP</th></tr></thead><tbody id="d2TurnT"><tr><td colspan="4"><span class="d2-skl" style="height:20px"></span></td></tr></tbody></table></div>
-      </section>
-    </div>
-
-    <!-- TRENDING NOW — rebuilt from live data every load, never a baked snapshot -->
-    <div class="d2-card-head" style="margin-bottom:4px">
-      <div><p class="d2-kicker">Market pulse</p><h2>Trending now</h2></div>
-      <a class="d2-card-link" href="/nepse-trending/">All trending →</a>
-    </div>
-    <p class="d2-caption" style="margin-bottom:12px" id="d2TrendCap">Ranked by today's live turnover — refreshes with the market feed, never a stale snapshot.</p>
-    <div class="d2-tools" id="d2TrendNow" style="margin-bottom:20px" aria-live="polite"></div>
-
-    <!-- ENGINE VERDICTS teaser -->
-    <div class="d2-card-head" style="margin-bottom:4px">
-      <div><p class="d2-kicker">The engine</p><h2>Latest verdicts</h2></div>
-      <a class="d2-card-link" href="/nepse-alpha/">Full rankings →</a>
-    </div>
-    <p class="d2-caption" id="d2VdAsof" style="margin-bottom:12px">Loading the latest batch…</p>
-    <div class="d2-movers-row" style="margin-bottom:20px">
-      <section class="d2-card" aria-label="Strongest buys">
-        <p class="d2-kicker" style="margin-bottom:8px;color:var(--d2-gain)">Strongest buys</p>
-        <div id="d2VdBuys"><span class="d2-skl" style="height:20px"></span></div>
-      </section>
-      <section class="d2-card" aria-label="Strongest exits">
-        <p class="d2-kicker" style="margin-bottom:8px;color:var(--d2-loss)">Strongest exits</p>
-        <div id="d2VdExits"><span class="d2-skl" style="height:20px"></span></div>
-      </section>
-    </div>
-    <p class="d2-caption" style="margin-bottom:20px;max-width:64ch">Mechanical output from a fixed rule set, not investment advice. Ten factors are scored on the daily chart; the points add up to a verdict from Strong Buy to Strong Exit.</p>
-
-    <!-- TOOLS -->
-    <div class="d2-card-head" style="margin-bottom:12px">
-      <div><p class="d2-kicker">The suite</p><h2>Every tool, one suite</h2></div>
-    </div>
-    <div class="d2-tools" style="margin-bottom:20px">
-      <a class="d2-card d2-tool" href="/nepse-chart/">
-        <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M7 14l4-4 3 3 5-6"/></svg></span>
-        <span><h3>Chart &amp; signals</h3><p>Candlesticks, patterns and the rule-based verdict on one screen.</p></span>
-      </a>
-      <a class="d2-card d2-tool" href="/nepse-alpha/">
-        <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 7l7-4 7 4"/><path d="M3 13l4-4 4 4 4-4 4 4"/></svg></span>
-        <span><h3>Engine verdicts</h3><p>Today's Alpha Lab verdicts on every covered stock — Strong Buy to Strong Exit, with the score behind each.</p></span>
-      </a>
-      <a class="d2-card d2-tool" href="/nepse-screener/">
-        <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg></span>
-        <span><h3>Market Screener</h3><p>All listed securities ranked daily, stop-loss and target on every row.</p></span>
-      </a>
-      <a class="d2-card d2-tool" href="/nepse-trending/">
-        <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></span>
-        <span><h3>Trending Stocks</h3><p>What the market is actually doing today — ranked by real activity, with the reason shown on every row.</p></span>
-      </a>
-      <a class="d2-card d2-tool" href="/nepse-value/">
-        <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 7l7-4 7 4"/><path d="M5 7v6a7 7 0 0 0 14 0V7"/></svg></span>
-        <span><h3>Value Investing</h3><p>A sector-aware value screen on verified filings — earnings yield, price-to-book, ROE.</p></span>
-      </a>
-      <a class="d2-card d2-tool" href="/nepse-news/">
-        <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5z"/><path d="M18 8h1a1 1 0 0 1 1 1v9a2 2 0 0 1-2 2"/><path d="M8 9h6M8 13h6M8 17h4"/></svg></span>
-        <span><h3>Market News</h3><p>Announcements and headlines, always with the source attached.</p></span>
-      </a>
-      <a class="d2-card d2-tool" href="/nepse-sectors/">
-        <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="5" rx="1.5"/><rect x="13" y="10" width="8" height="11" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/></svg></span>
-        <span><h3>Sector map</h3><p>Which parts of the market are moving, at a glance.</p></span>
-      </a>
-      <a class="d2-card d2-tool" href="/nepse-watchlist/">
-        <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.5-9 9-9 9z"/></svg></span>
-        <span><h3>Watchlist</h3><p>The securities you follow, with signal and RSI on every row.</p></span>
-      </a>
-      <a class="d2-card d2-tool" href="/nepse-portfolio/">
-        <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7H4a2 2 0 0 1 0-4h14v4"/><path d="M4 7v12a2 2 0 0 0 2 2h14V7"/></svg></span>
-        <span><h3>Portfolio</h3><p>Holdings, honestly accounted: cost, P&amp;L, allocation.</p></span>
-      </a>
-    </div>
-
-    <div id="nd-footer"></div>
-
-  </div>
 </main>
 </div><!-- /.d2-shell -->
 
