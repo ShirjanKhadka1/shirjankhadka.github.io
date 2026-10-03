@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Broker Trade Pattern — Nepse Decode</title>
+<meta name="description" content="See what any NEPSE broker traded — per-stock buy/sell pattern from public floorsheet records. Free, no login.">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-brokers/trade-pattern/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:title" content="Broker Trade Pattern — Nepse Decode">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-brokers/trade-pattern/">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Broker Trade Pattern — Nepse Decode","url":"https://shirjankhadka.com.np/nepse-brokers/trade-pattern/"}
+</script>
+<link rel="stylesheet" href="/css/nepse-design-system.css?v=c967c332">
+<link rel="stylesheet" href="/css/theme.css?v=20261002d">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261003a">
+<link rel="stylesheet" href="/css/broker-pages.css?v=20261003b">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="nd">
+<div id="nd-header"></div>
+<main class="bk-wrap">
+<p class="bk-eyebrow">Brokers</p>
+<h1 class="bk-title">Broker Trade Pattern</h1>
+<p class="bk-sub">Pick a broker to see what it bought and sold, stock by stock, over the selected period.</p>
+<nav class="bk-nav" aria-label="Broker pages">
+<a href="/nepse-brokers/">Top Brokers</a>
+<a href="/nepse-brokers/trade-pattern/" class="active">Broker Trade Pattern</a>
+<a href="/nepse-brokers/stock-pattern/">Stock Trade Pattern</a>
+<a href="/nepse-brokers/holdings/">Stockwise Holdings</a>
+<a href="/nepse-brokers/accdist/">Accumulation / Distribution</a>
+</nav>
+<div class="bk-periods" id="bkPeriods">
+<span style="font-size:.85rem;color:var(--muted)">Period:</span>
+<button data-p="latest" class="active">Latest</button>
+<button data-p="1D">1D</button>
+<button data-p="1W">1W</button>
+<button data-p="1M">1M</button>
+<button data-p="3M">3M</button>
+</div>
+<div class="bk-ctl">
+<select id="brokerSel" aria-label="Select broker"><option value="">Select broker…</option></select>
+</div>
+<div id="bkResult"><div class="bk-empty">Pick a broker above to see its trade pattern.</div></div>
+<p class="bk-note">Transaction flow from public NEPSE floorsheet records — not verified shareholding. <strong>For education only. Not investment advice.</strong></p>
+</main>
+<div id="nd-footer"></div>
+<script src="/js/broker-common.js?v=20261003b"></script>
+<script>
+(function(){
+"use strict";
+var BC = window.BrokerCommon;
+var state = { period: 'latest', brokers: {}, data: null, broker: null };
+var $ = function(id){ return document.getElementById(id); };
+function bname(code){ return state.brokers[code] || ('Broker '+code); }
+
+function render(){
+  var d = state.data, code = state.broker;
+  if(!d || !code){ return; }
+  var syms = (d.broker_symbols && d.broker_symbols[code]) || [];
+  var t = (d.brokers||[]).filter(function(b){return b.code===code})[0] || {};
+  var rows = syms.map(function(s){
+    return { symbol: s.symbol, buyQty: s.buy_qty||0, buyVal: s.buy_value||0,
+      sellQty: s.sell_qty||0, sellVal: s.sell_value||0, net: (s.buy_value||0)-(s.sell_value||0) };
+  });
+  var html = '<div class="bk-tiles">'+
+    '<div class="bk-tile"><div class="k">Buy value</div><div class="v">'+BC.fmtV(t.buy_value||0)+'</div></div>'+
+    '<div class="bk-tile"><div class="k">Sell value</div><div class="v">'+BC.fmtV(t.sell_value||0)+'</div></div>'+
+    '<div class="bk-tile"><div class="k">Net value</div><div class="v '+BC.cls((t.buy_value||0)-(t.sell_value||0))+'">'+BC.fmtV((t.buy_value||0)-(t.sell_value||0))+'</div></div>'+
+    '<div class="bk-tile"><div class="k">Stocks traded</div><div class="v">'+syms.length+'</div><div class="s">'+BC.label(state.period,d)+'</div></div></div>';
+  html += '<h2 style="font-family:var(--serif);font-size:1.2rem;margin:18px 0 8px">'+BC.esc(bname(code))+' — per-stock pattern</h2>';
+  html += '<div class="bk-scroll"><table class="bk-table" id="bkTable"><thead><tr>'+
+    '<th data-sort="symbol">Symbol</th><th data-sort="buyVal">Buy value</th><th data-sort="sellVal">Sell value</th>'+
+    '<th data-sort="net">Net value</th><th data-sort="buyQty">Buy qty</th><th data-sort="sellQty">Sell qty</th>'+
+    '</tr></thead><tbody id="bkBody"></tbody></table></div>';
+  $('bkResult').innerHTML = html;
+  function renderRows(rs){
+    $('bkBody').innerHTML = rs.map(function(r){
+      return '<tr><td><strong>'+BC.esc(r.symbol)+'</strong></td><td>'+BC.fmtV(r.buyVal)+'</td>'+
+        '<td>'+BC.fmtV(r.sellVal)+'</td><td class="'+BC.cls(r.net)+'">'+BC.fmtV(r.net)+'</td>'+
+        '<td>'+BC.fmtN(r.buyQty,0)+'</td><td>'+BC.fmtN(r.sellQty,0)+'</td></tr>';
+    }).join('') || '<tr><td colspan="6" class="bk-loading">No trades in this period.</td></tr>';
+  }
+  renderRows(rows);
+  BC.makeSortable($('bkTable'), function(){ return rows; }, renderRows);
+}
+function load(){
+  $('bkResult').innerHTML = '<p class="bk-loading">Loading…</p>';
+  BC.loadPeriod(state.period).then(function(d){
+    state.data = d;
+    if(state.broker) render();
+    else $('bkResult').innerHTML = '<div class="bk-empty">Pick a broker above to see its trade pattern.</div>';
+  }).catch(function(){
+    $('bkResult').innerHTML = '<div class="bk-empty">Data not available for this period yet.</div>';
+  });
+}
+$('brokerSel').addEventListener('change', function(){ state.broker = this.value || null; render(); });
+$('bkPeriods').addEventListener('click', function(e){
+  var b = e.target.closest('button'); if(!b) return;
+  document.querySelectorAll('#bkPeriods button').forEach(function(x){x.classList.remove('active')});
+  b.classList.add('active'); state.period = b.dataset.p; load();
+});
+Promise.all([BC.loadMeta(), BC.loadBrokers()]).then(function(res){
+  state.brokers = res[1];
+  var sel = $('brokerSel');
+  Object.keys(state.brokers).filter(function(c){return /^\d+$/.test(c)}).sort(function(a,b){return a-b}).forEach(function(c){
+    var o = document.createElement('option'); o.value=c; o.textContent=c+' — '+state.brokers[c]; sel.appendChild(o);
+  });
+  load();
+});
+})();
+</script>
+<script src="/js/nd-chrome.js?v=20261003a" defer></script>
+</body>
+</html>

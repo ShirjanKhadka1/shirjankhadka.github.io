@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0A0C10">
+<title>IPO / FPO Tracker: NEPSE IPOs, Local IPOs, Right Shares, Auctions | Nepse Decode</title>
+<meta name="description" content="Track every NEPSE IPO, local IPO, foreign employee IPO, mutual fund IPO, FPO, right share and auction: units, opening/closing dates, listing date, status and issue manager. Free, no login.">
+<meta name="author" content="Shirjan Khadka">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-ipo/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="keywords" content="nepse ipo, nepal ipo tracker, ipo result nepal, local ipo, right share nepal, fpo nepal, mutual fund ipo, auction shares nepal">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:title" content="IPO / FPO Tracker: NEPSE IPOs, Right Shares, Auctions | Nepse Decode">
+<meta property="og:description" content="Every NEPSE primary issue in one place: IPOs, local IPOs, FPOs, right shares and auctions — units, dates, status, issue manager. Free, no login.">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-ipo/">
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
+<link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"CollectionPage","name":"IPO / FPO Tracker: NEPSE IPOs, Right Shares, Auctions | Nepse Decode","url":"https://shirjankhadka.com.np/nepse-ipo/","description":"Every NEPSE primary issue in one place: IPOs, local IPOs, foreign employee IPOs, mutual fund IPOs, FPOs, right shares and auctions — units, dates, status and issue manager.","author":{"@type":"Organization","name":"Nepse Decode"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
+{"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
+{"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-decode/"},
+{"@type":"ListItem","position":3,"name":"IPO / FPO Tracker","item":"https://shirjankhadka.com.np/nepse-ipo/"}]}
+</script>
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261003a">
+<link rel="stylesheet" href="ipo.css?v=20261003a">
+</head>
+<body class="nd">
+
+<a class="skip-link" href="#main">Skip to content</a>
+<div id="nd-header"></div>
+
+<main id="main" class="ipo-shell">
+  <p class="ipo-eyebrow">Markets</p>
+  <h1 class="ipo-title">IPO / FPO tracker</h1>
+  <p class="ipo-lede">Every NEPSE primary issue in one place — IPOs, local IPOs, foreign employee IPOs, mutual fund IPOs, FPOs, right shares and auctions. Track units, opening and closing dates, listing dates, status and the issue manager for each. Records are verified against issue-manager notices and official filings.</p>
+  <p class="ipo-asof" id="ipoAsof">Loading…</p>
+
+  <div class="ipo-open" id="ipoOpen" aria-label="Currently open issues"></div>
+
+  <div class="ipo-tabs" id="ipoTabs" role="tablist" aria-label="Issue categories"></div>
+
+  <div class="ipo-toolbar">
+    <span class="ipo-count" id="ipoCount" aria-live="polite"></span>
+    <input class="ipo-search" id="ipoSearch" type="search" placeholder="Search symbol, e.g. SGHL" aria-label="Search by symbol">
+  </div>
+
+  <div class="ipo-tablewrap" id="ipoTableWrap" aria-live="polite">
+    <div class="ipo-empty">Loading IPO data…</div>
+  </div>
+
+  <div class="ipo-note">
+    <strong>For education only. Not investment advice.</strong> This tracker is a convenience index of public primary-issue records; the official record is the issue manager's notice and the SEBON/NEPSE disclosure archive. Allotment outcomes depend on the official lottery — this page tracks issues, not results. <strong>Not affiliated with Nepal Stock Exchange Ltd.</strong>
+  </div>
+</main>
+
+<div id="nd-footer"></div>
+
+<script src="/js/theme-toggle.js?v=20261002c" defer></script>
+<script src="/js/nd-chrome.js?v=20261003a" defer></script>
+<script src="ipo.js?v=20261003a" defer></script>
+</body>
+</html>

@@ -19,19 +19,19 @@
       ['Overview', '/nepse-decode/'],
       ['Daily summary', '/nepse-daily/'],
       ['Heat Map', '/nepse-sectors/'],
-      ['Circuit watch', '/nepse-trending/'],
-      ['IPO / FPO', '/nepse-actions/']
+      ['Circuit watch', '/nepse-circuit/'],
+      ['IPO / FPO', '/nepse-ipo/']
     ]},
     { label: 'Stocks', links: [
       ['Stock Screener', '/nepse-screener/'],
       ['Fair Value', '/nepse-value/']
     ]},
     { label: 'Broker', links: [
-      ['Top Brokers', '/nepse-brokers/?view=top'],
-      ['Broker Trade Pattern', '/nepse-brokers/?view=broker'],
-      ['Stock Trade Pattern', '/nepse-brokers/?view=stock'],
-      ['Stockwise Holdings', '/nepse-brokers/?view=holdings'],
-      ['Accumulation / Distribution', '/nepse-brokers/?view=accdist']
+      ['Top Brokers', '/nepse-brokers/'],
+      ['Broker Trade Pattern', '/nepse-brokers/trade-pattern/'],
+      ['Stock Trade Pattern', '/nepse-brokers/stock-pattern/'],
+      ['Stockwise Holdings', '/nepse-brokers/holdings/'],
+      ['Accumulation / Distribution', '/nepse-brokers/accdist/']
     ]},
     { label: 'News', links: [
       ['Market News', '/nepse-news/'],
@@ -44,10 +44,9 @@
       ['Watchlist', '/nepse-watchlist/']
     ]},
     { label: 'Research', links: [
-      ['Money Flow', '/nepse-brokers/?view=accdist'],
-      ['Market regime', '/nepse-chart/'],
-      ['Seasonality', '/nepse-reports/'],
-      ['Data sources', '/status/']
+      ['Money Flow', '/nepse-money-flow/'],
+      ['Market regime', '/nepse-regime/'],
+      ['Seasonality', '/nepse-seasonality/'],
     ]}
   ];
 
@@ -238,12 +237,12 @@
   /* ---------------- footer ---------------- */
 
   var FOOT = [
-    ['MARKETS', [['Overview', '/nepse-decode/'], ['Daily summary', '/nepse-daily/'], ['Heat Map', '/nepse-sectors/'], ['Circuit watch', '/nepse-trending/'], ['IPO / FPO', '/nepse-actions/']]],
+    ['MARKETS', [['Overview', '/nepse-decode/'], ['Daily summary', '/nepse-daily/'], ['Heat Map', '/nepse-sectors/'], ['Circuit watch', '/nepse-circuit/'], ['IPO / FPO', '/nepse-ipo/']]],
     ['STOCKS', [['Stock Screener', '/nepse-screener/'], ['Fair Value', '/nepse-value/'], ['Trending Stock', '/nepse-trending/']]],
-    ['BROKER', [['Top Brokers', '/nepse-brokers/?view=top'], ['Broker Trade Pattern', '/nepse-brokers/?view=broker'], ['Stock Trade Pattern', '/nepse-brokers/?view=stock'], ['Stockwise Holdings', '/nepse-brokers/?view=holdings'], ['Accumulation / Distribution', '/nepse-brokers/?view=accdist']]],
+    ['BROKER', [['Top Brokers', '/nepse-brokers/'], ['Broker Trade Pattern', '/nepse-brokers/trade-pattern/'], ['Stock Trade Pattern', '/nepse-brokers/stock-pattern/'], ['Stockwise Holdings', '/nepse-brokers/holdings/'], ['Accumulation / Distribution', '/nepse-brokers/accdist/']]],
     ['NEWS', [['Market News', '/nepse-news/'], ['Market Wrap', '/blog/'], ['Corporate Actions', '/nepse-actions/']]],
     ['TRADE', [['Practice Trading', '/nepse-simulator/'], ['Trading Journal', '/nepse-portfolio/'], ['Watchlist', '/nepse-watchlist/']]],
-    ['RESEARCH', [['Money Flow', '/nepse-brokers/?view=accdist'], ['Market regime', '/nepse-chart/'], ['Seasonality', '/nepse-reports/'], ['Data sources', '/status/']]],
+    ['RESEARCH', [['Money Flow', '/nepse-money-flow/'], ['Market regime', '/nepse-regime/'], ['Seasonality', '/nepse-seasonality/']]],
     ['COMPANY', [['Nepse Decode', '/nepse-decode/'], ['info@shirjankhadka.com.np', 'mailto:info@shirjankhadka.com.np'], ['Kathmandu, Nepal', null]]]
   ];
 

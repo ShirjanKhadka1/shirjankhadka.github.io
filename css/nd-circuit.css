@@ -1,0 +1,158 @@
+/* ============================================================
+   css/nd-circuit.css — Circuit Watch page (Concept 03 editorial).
+   Dark terminal default (#0A0C10 / lime #B8E62E), theme-aware.
+   ============================================================ */
+
+.cw-masthead { margin: 8px 0 24px; }
+.nd-kicker {
+  font: 600 0.75rem var(--nd-font-mono, 'IBM Plex Mono', monospace);
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--nd-lime, #B8E62E); margin: 0 0 8px;
+}
+.cw-title {
+  font-family: var(--nd-font-display, 'Spectral', serif);
+  font-weight: 600; font-size: clamp(1.8rem, 4.5vw, 2.6rem);
+  letter-spacing: -0.015em; color: var(--nd-text, #fff); margin: 0;
+}
+.cw-lede {
+  max-width: 76ch; color: var(--nd-muted, #9AA3B2);
+  font-size: 1rem; line-height: 1.7; margin: 12px 0 0;
+}
+.cw-lede strong { color: var(--nd-text, #fff); }
+.cw-meta {
+  margin: 12px 0 0; font-size: 0.85rem; color: var(--nd-dim, #6B7280);
+  font-family: var(--nd-font-mono, 'IBM Plex Mono', monospace);
+}
+
+/* Legend */
+.cw-legend {
+  display: flex; flex-wrap: wrap; gap: 8px 20px;
+  padding: 14px 18px; margin-bottom: 24px;
+  background: var(--nd-panel, #12141A);
+  border: 1px solid var(--nd-border, #1E2430);
+  border-radius: 12px; font-size: 0.85rem; color: var(--nd-muted, #9AA3B2);
+}
+.cw-band-hit-up { color: #4ADE80; font-weight: 600; }
+.cw-band-near-up { color: #86EFAC; }
+.cw-band-hit-dn { color: #F87171; font-weight: 600; }
+.cw-band-near-dn { color: #FCA5A5; }
+[data-theme="light"] .cw-band-hit-up { color: #15803d; }
+[data-theme="light"] .cw-band-near-up { color: #16a34a; }
+[data-theme="light"] .cw-band-hit-dn { color: #b91c1c; }
+[data-theme="light"] .cw-band-near-dn { color: #dc2626; }
+
+/* Alert banner */
+.cw-alert {
+  padding: 14px 18px; border-radius: 12px; margin-bottom: 24px;
+  font-size: 0.95rem; line-height: 1.6;
+  background: rgba(184, 230, 46, 0.08);
+  border: 1px solid rgba(184, 230, 46, 0.35);
+  color: var(--nd-text, #fff);
+}
+.cw-alert.cw-alert-hit {
+  background: rgba(248, 113, 113, 0.08);
+  border-color: rgba(248, 113, 113, 0.4);
+}
+
+/* Sections */
+.cw-sec { margin-bottom: 32px; }
+.cw-sec-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 12px;
+}
+.cw-sec-head h2 {
+  font-family: var(--nd-font-display, 'Spectral', serif);
+  font-weight: 600; font-size: 1.35rem; color: var(--nd-text, #fff);
+  margin: 0; display: flex; align-items: center; gap: 10px;
+}
+.cw-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.cw-dot.up { background: #4ADE80; box-shadow: 0 0 8px rgba(74, 222, 128, 0.7); }
+.cw-dot.dn { background: #F87171; box-shadow: 0 0 8px rgba(248, 113, 113, 0.7); }
+.cw-count {
+  font-family: var(--nd-font-mono, 'IBM Plex Mono', monospace);
+  font-size: 0.8rem; color: var(--nd-dim, #6B7280);
+}
+
+/* Table */
+.table-scroll { overflow-x: auto; border-radius: 12px; }
+.cw-table {
+  width: 100%; border-collapse: collapse; font-size: 0.92rem;
+  background: var(--nd-panel, #12141A);
+  border: 1px solid var(--nd-border, #1E2430);
+  border-radius: 12px; overflow: hidden;
+}
+.cw-table th {
+  text-align: left; padding: 12px 16px;
+  font: 600 0.72rem var(--nd-font-mono, 'IBM Plex Mono', monospace);
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--nd-dim, #6B7280);
+  border-bottom: 1px solid var(--nd-border, #1E2430);
+  white-space: nowrap;
+}
+.cw-table th.num, .cw-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.cw-table td {
+  padding: 12px 16px; border-bottom: 1px solid var(--nd-border, #1E2430);
+  color: var(--nd-text, #fff); font-variant-numeric: tabular-nums;
+}
+.cw-table tr:last-child td { border-bottom: 0; }
+.cw-table tbody tr:hover { background: rgba(184, 230, 46, 0.04); }
+.cw-sym { font-weight: 700; }
+.cw-sym a { color: var(--nd-text, #fff); text-decoration: none; }
+.cw-sym a:hover { color: var(--nd-lime, #B8E62E); }
+.cw-name { display: block; font-size: 0.78rem; font-weight: 400; color: var(--nd-dim, #6B7280); max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cw-up { color: #4ADE80; font-weight: 600; }
+.cw-dn { color: #F87171; font-weight: 600; }
+[data-theme="light"] .cw-up { color: #15803d; }
+[data-theme="light"] .cw-dn { color: #b91c1c; }
+.cw-loading, .cw-empty {
+  text-align: center; padding: 28px 16px !important;
+  color: var(--nd-dim, #6B7280); font-style: italic;
+}
+.cw-status {
+  display: inline-block; padding: 3px 10px; border-radius: 999px;
+  font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  white-space: nowrap;
+}
+.cw-status.hit-up { background: rgba(74, 222, 128, 0.15); color: #4ADE80; }
+.cw-status.near-up { background: rgba(74, 222, 128, 0.07); color: #86EFAC; }
+.cw-status.hit-dn { background: rgba(248, 113, 113, 0.15); color: #F87171; }
+.cw-status.near-dn { background: rgba(248, 113, 113, 0.07); color: #FCA5A5; }
+[data-theme="light"] .cw-status.hit-up { color: #15803d; }
+[data-theme="light"] .cw-status.near-up { color: #16a34a; }
+[data-theme="light"] .cw-status.hit-dn { color: #b91c1c; }
+[data-theme="light"] .cw-status.near-dn { color: #dc2626; }
+
+/* Calm state */
+.cw-calm {
+  padding: 28px; border-radius: 14px; margin-bottom: 32px;
+  background: var(--nd-panel, #12141A);
+  border: 1px solid var(--nd-border, #1E2430);
+  text-align: center;
+}
+.cw-calm h2 {
+  font-family: var(--nd-font-display, 'Spectral', serif);
+  color: var(--nd-lime, #B8E62E); margin: 0 0 8px; font-size: 1.4rem;
+}
+.cw-calm p { color: var(--nd-muted, #9AA3B2); max-width: 60ch; margin: 0 auto; line-height: 1.7; }
+
+/* Explainer */
+.cw-note {
+  padding: 24px; border-radius: 14px; margin-bottom: 24px;
+  background: var(--nd-panel, #12141A);
+  border: 1px solid var(--nd-border, #1E2430);
+}
+.cw-note h2 {
+  font-family: var(--nd-font-display, 'Spectral', serif);
+  font-size: 1.2rem; color: var(--nd-text, #fff); margin: 0 0 12px;
+}
+.cw-note ul { margin: 0; padding-left: 20px; color: var(--nd-muted, #9AA3B2); line-height: 1.8; font-size: 0.92rem; }
+.cw-note strong { color: var(--nd-text, #fff); }
+.cw-fineprint {
+  font-size: 0.82rem; color: var(--nd-dim, #6B7280); line-height: 1.7;
+  border-top: 1px solid var(--nd-border, #1E2430); padding-top: 18px;
+}
+
+@media (max-width: 640px) {
+  .cw-table th, .cw-table td { padding: 10px 12px; font-size: 0.85rem; }
+  .cw-name { max-width: 140px; }
+}

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0A0C10">
+<title>Circuit Watch: NEPSE Stocks Near the ±10% Circuit | Nepse Decode</title>
+<link rel="stylesheet" href="/css/nepse-design-system.css?v=c967c332">
+<meta name="description" content="Free NEPSE circuit watch: stocks approaching or hitting the ±10% circuit limit, updated from the latest session data. Educational use only, not investment advice.">
+<meta name="author" content="Shirjan Khadka">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-circuit/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="keywords" content="nepse circuit, nepse circuit breaker, nepse upper circuit, nepse lower circuit, nepal stock circuit limit">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:title" content="Circuit Watch: NEPSE Stocks Near the ±10% Circuit">
+<meta property="og:description" content="Stocks approaching or hitting NEPSE's ±10% circuit limit — distance to circuit, direction, and session timestamp. Free, educational.">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-circuit/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Circuit Watch: NEPSE Stocks Near the ±10% Circuit">
+<meta name="twitter:description" content="Stocks approaching or hitting NEPSE's ±10% circuit limit. Free, educational.">
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
+<link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Serif+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode Circuit Watch","url":"https://shirjankhadka.com.np/nepse-circuit/","description":"NEPSE stocks approaching or hitting the ±10% circuit limit, from the latest session data. Educational use only, not investment advice.","author":{"@type":"Organization","name":"Nepse Decode"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
+{"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
+{"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-decode/"},
+{"@type":"ListItem","position":3,"name":"Circuit Watch","item":"https://shirjankhadka.com.np/nepse-circuit/"}]}
+</script>
+<link rel="stylesheet" href="/css/theme.css?v=20261002d">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261003a">
+<link rel="stylesheet" href="/css/nd-circuit.css?v=20261003a">
+</head>
+<body class="nd" data-page="circuit">
+
+  <a class="skip-link" href="#main">Skip to content</a>
+<div id="nd-header"></div>
+<div class="fb-wrap" style="display:flex;justify-content:center;padding:10px 16px 0"><div data-freshness-badge></div></div>
+
+<div class="nd-shell">
+  <div class="nd-content">
+    <div class="nd-wrap">
+    <nav aria-label="Breadcrumb" style="margin:4px 0 16px;font-size:.85rem;color:var(--muted,#8A8474)">
+      <ol style="list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+        <li><a href="/nepse-decode/" style="color:inherit">Nepse Decode</a></li>
+        <li aria-hidden="true">/</li>
+        <li><span aria-current="page" style="color:var(--ink,#1C1A15);font-weight:600">Circuit Watch</span></li>
+      </ol>
+    </nav>
+<main id="main">
+
+  <div class="cw-masthead">
+    <div>
+      <p class="nd-kicker">Markets</p>
+      <h1 class="cw-title">Circuit Watch</h1>
+      <p class="cw-lede">Stocks approaching or hitting NEPSE's <strong>±10% circuit limit</strong> — the exchange's price band for most listed securities. Upper circuits freeze buyers out; lower circuits freeze sellers out. Figures below are from the latest available session snapshot, which is delayed. Educational use only; nothing here is investment advice.</p>
+      <p class="cw-meta"><span id="cwSession">Loading…</span> · <span id="cwPoll">—</span></p>
+    </div>
+  </div>
+
+  <div class="cw-legend" aria-label="Circuit bands">
+    <span class="cw-band cw-band-hit-up">● Circuit hit (upper)</span>
+    <span class="cw-band cw-band-near-up">● Approaching upper (9%+)</span>
+    <span class="cw-band cw-band-hit-dn">● Circuit hit (lower)</span>
+    <span class="cw-band cw-band-near-dn">● Approaching lower (−9%+)</span>
+  </div>
+
+  <div id="cwAlert" class="cw-alert" hidden></div>
+
+  <section class="cw-sec" aria-label="Upper circuit candidates">
+    <div class="cw-sec-head">
+      <h2><span class="cw-dot up" aria-hidden="true"></span>Upper circuit zone</h2>
+      <span class="cw-count" id="cwUpCount">—</span>
+    </div>
+    <div class="table-scroll"><table class="cw-table" id="cwUpTable">
+      <caption class="visually-hidden">Stocks at or near the upper +10% circuit</caption>
+      <thead><tr>
+        <th scope="col">Symbol</th><th scope="col" class="num">LTP (Rs)</th>
+        <th scope="col" class="num">Change</th><th scope="col" class="num">Distance to +10%</th>
+        <th scope="col">Status</th><th scope="col">Session</th>
+      </tr></thead>
+      <tbody id="cwUpBody"><tr><td colspan="6" class="cw-loading">Loading…</td></tr></tbody>
+    </table></div>
+  </section>
+
+  <section class="cw-sec" aria-label="Lower circuit candidates">
+    <div class="cw-sec-head">
+      <h2><span class="cw-dot dn" aria-hidden="true"></span>Lower circuit zone</h2>
+      <span class="cw-count" id="cwDnCount">—</span>
+    </div>
+    <div class="table-scroll"><table class="cw-table" id="cwDnTable">
+      <caption class="visually-hidden">Stocks at or near the lower −10% circuit</caption>
+      <thead><tr>
+        <th scope="col">Symbol</th><th scope="col" class="num">LTP (Rs)</th>
+        <th scope="col" class="num">Change</th><th scope="col" class="num">Distance to −10%</th>
+        <th scope="col">Status</th><th scope="col">Session</th>
+      </tr></thead>
+      <tbody id="cwDnBody"><tr><td colspan="6" class="cw-loading">Loading…</td></tr></tbody>
+    </table></div>
+  </section>
+
+  <section class="cw-calm" id="cwCalm" hidden aria-label="Market calm">
+    <h2>Market calm</h2>
+    <p>No listed security is within 2 percentage points of a circuit limit in the latest snapshot. Circuit approaches are rare — most sessions end with every stock comfortably inside the band.</p>
+  </section>
+
+  <section class="cw-note" aria-label="How to read this page">
+    <h2>How to read this</h2>
+    <ul>
+      <li><strong>Circuit limit ±10%:</strong> NEPSE's standard price band for most listed securities, measured from the previous close. A few securities may carry different bands — the exchange's circulars are the authority.</li>
+      <li><strong>Distance to circuit</strong> = 10% minus the absolute % change. A stock at +9.2% is 0.8 points from the upper circuit.</li>
+      <li><strong>Delayed data:</strong> this page reads the same ~15-minute delayed public snapshot as the rest of Nepse Decode. It is not a real-time feed — true real-time data requires NEPSE's licensed API.</li>
+      <li><strong>Auto-refresh:</strong> the table re-checks every 30 seconds during market hours (Mon–Fri 11:00–15:00 NPT) and every 5 minutes outside hours.</li>
+    </ul>
+  </section>
+
+  <p class="cw-fineprint">For education only. Not investment advice. Not affiliated with Nepal Stock Exchange Ltd. Circuit limits and bands are set by NEPSE; verify against official circulars before acting on any figure here.</p>
+
+</main>
+    </div>
+  </div>
+</div>
+
+<div id="nd-footer"></div>
+
+<script src="/js/nepse-market-config.js?v=20261002c"></script>
+<script src="/js/nd-circuit.js?v=20261003a" defer></script>
+<script src="/js/theme-toggle.js?v=20261002c" defer></script>
+<script src="/js/freshness-badge.js?v=20261002c" defer></script>
+<script src="/js/nd-chrome.js?v=20261003a" defer></script>
+</body>
+</html>

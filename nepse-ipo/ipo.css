@@ -1,0 +1,101 @@
+/* ============================================================
+   nepse-ipo/ipo.css — IPO/FPO tracker (Concept 03 editorial)
+   Uses --nd-* tokens from nd-editorial-theme.css (dark-first,
+   light via [data-nd-ed="light"]). Tab pills, status badges,
+   dense sortable table, mobile horizontal scroll.
+   ============================================================ */
+
+.ipo-shell{ max-width: var(--nd-page-max, 1360px); margin: 0 auto; padding: 0 var(--nd-gutter, 24px) var(--nd-s16, 64px); }
+
+/* ---- Masthead ---- */
+.ipo-eyebrow{
+  font: 600 var(--nd-text-eyebrow, .6875rem) var(--nd-font-sans, system-ui);
+  letter-spacing: .22em; text-transform: uppercase; color: var(--nd-lime, #B8E62E);
+  margin: var(--nd-s8, 32px) 0 var(--nd-s3, 12px);
+}
+.ipo-title{
+  font-family: var(--nd-font-display, Georgia, serif); font-weight: 600;
+  font-size: var(--nd-text-h1, clamp(1.6rem, 1.65rem + .5vw, 1.85rem));
+  letter-spacing: -.015em; color: var(--nd-text, #fff); margin: 0 0 var(--nd-s3, 12px);
+}
+.ipo-lede{ max-width: 72ch; color: var(--nd-muted, #9AA3B2); font-size: var(--nd-text-body, .875rem); line-height: 1.7; margin: 0 0 var(--nd-s2, 8px); }
+.ipo-asof{ font-family: var(--nd-font-mono, monospace); font-size: var(--nd-text-meta, .6875rem); color: var(--nd-dim, #6B7280); margin: 0 0 var(--nd-s6, 24px); }
+
+/* ---- Open-now strip ---- */
+.ipo-open{ display: flex; flex-wrap: wrap; gap: var(--nd-s2, 8px); margin: 0 0 var(--nd-s6, 24px); }
+.ipo-open .open-chip{
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--nd-lime-soft, rgba(184,230,46,.12)); border: 1px solid var(--nd-lime, #B8E62E);
+  border-radius: var(--nd-r-pill, 999px); padding: 8px 16px;
+  font-size: var(--nd-text-body-sm, .8125rem); font-weight: 600; color: var(--nd-text, #fff);
+  text-decoration: none;
+}
+.ipo-open .open-chip .dot{ width: 8px; height: 8px; border-radius: 50%; background: var(--nd-lime, #B8E62E); }
+
+/* ---- Tabs ---- */
+.ipo-tabs{ display: flex; flex-wrap: wrap; gap: var(--nd-s2, 8px); margin: 0 0 var(--nd-s2, 8px); }
+.ipo-tab{
+  appearance: none; cursor: pointer; border: 1px solid var(--nd-border, #1E2430);
+  background: var(--nd-panel, #12141A); color: var(--nd-muted, #9AA3B2);
+  border-radius: var(--nd-r-pill, 999px); padding: 9px 18px;
+  font: 600 var(--nd-text-body-sm, .8125rem) var(--nd-font-sans, system-ui);
+  transition: border-color var(--nd-t-fast, 150ms) var(--nd-ease, ease), color var(--nd-t-fast, 150ms) var(--nd-ease, ease), background var(--nd-t-fast, 150ms) var(--nd-ease, ease);
+}
+.ipo-tab:hover{ border-color: var(--nd-border-strong, #2A3140); color: var(--nd-text, #fff); }
+.ipo-tab[aria-selected="true"]{ background: var(--nd-lime, #B8E62E); border-color: var(--nd-lime, #B8E62E); color: var(--nd-on-lime, #0A0C10); }
+.ipo-tab .cnt{ opacity: .65; font-weight: 500; }
+
+/* ---- Toolbar ---- */
+.ipo-toolbar{ display: flex; flex-wrap: wrap; gap: var(--nd-s3, 12px); align-items: center; justify-content: space-between; margin: var(--nd-s4, 16px) 0; }
+.ipo-count{ font-size: var(--nd-text-body-sm, .8125rem); color: var(--nd-dim, #6B7280); font-family: var(--nd-font-mono, monospace); }
+.ipo-search{
+  background: var(--nd-inset, #0D0F14); border: 1px solid var(--nd-border, #1E2430);
+  border-radius: var(--nd-r-md, 12px); color: var(--nd-text, #fff);
+  padding: 9px 14px; font-size: var(--nd-text-body, .875rem); min-width: 220px;
+}
+.ipo-search::placeholder{ color: var(--nd-dim, #6B7280); }
+.ipo-search:focus{ outline: none; border-color: var(--nd-lime, #B8E62E); }
+
+/* ---- Table ---- */
+.ipo-tablewrap{ overflow-x: auto; border: 1px solid var(--nd-border, #1E2430); border-radius: var(--nd-r-card, 18px); background: var(--nd-panel, #12141A); -webkit-overflow-scrolling: touch; }
+.ipo-table{ width: 100%; border-collapse: collapse; min-width: 760px; }
+.ipo-table caption{ text-align: left; padding: var(--nd-s4, 16px) var(--nd-s5, 20px); font-size: var(--nd-text-meta, .6875rem); color: var(--nd-dim, #6B7280); letter-spacing: .04em; }
+.ipo-table thead th{
+  font: 600 var(--nd-text-meta, .6875rem) var(--nd-font-sans, system-ui); letter-spacing: .08em; text-transform: uppercase;
+  color: var(--nd-dim, #6B7280); text-align: left; padding: var(--nd-s3, 12px) var(--nd-s4, 16px);
+  border-bottom: 1px solid var(--nd-border, #1E2430); white-space: nowrap; background: var(--nd-panel-2, #161A23);
+}
+.ipo-table thead th.sortable{ cursor: pointer; user-select: none; }
+.ipo-table thead th.sortable:hover{ color: var(--nd-lime, #B8E62E); }
+.ipo-table thead th .arr{ font-size: .85em; margin-left: 4px; }
+.ipo-table thead th.num, .ipo-table tbody td.num{ text-align: right; }
+.ipo-table tbody td{
+  padding: var(--nd-s3, 12px) var(--nd-s4, 16px); border-bottom: 1px solid var(--nd-border, #1E2430);
+  font-size: var(--nd-text-body, .875rem); color: var(--nd-text, #fff); font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.ipo-table tbody tr:last-child td{ border-bottom: 0; }
+.ipo-table tbody tr:hover td{ background: var(--nd-lime-faint, rgba(184,230,46,.06)); }
+.ipo-table td.sym{ font-weight: 700; font-family: var(--nd-font-mono, monospace); }
+.ipo-table td.dim{ color: var(--nd-muted, #9AA3B2); }
+.ipo-status{
+  display: inline-block; padding: 4px 12px; border-radius: var(--nd-r-pill, 999px);
+  font: 600 var(--nd-text-meta, .6875rem) var(--nd-font-sans, system-ui); letter-spacing: .06em; text-transform: uppercase;
+}
+.ipo-status.open{ background: var(--nd-lime, #B8E62E); color: var(--nd-on-lime, #0A0C10); }
+.ipo-status.closed{ background: var(--nd-panel-2, #161A23); color: var(--nd-dim, #6B7280); border: 1px solid var(--nd-border, #1E2430); }
+.ipo-empty{ padding: var(--nd-s8, 32px); text-align: center; color: var(--nd-dim, #6B7280); font-size: var(--nd-text-body, .875rem); }
+
+/* ---- Honesty note ---- */
+.ipo-note{
+  margin-top: var(--nd-s8, 32px); padding: var(--nd-s5, 20px) var(--nd-s6, 24px);
+  border: 1px solid var(--nd-border, #1E2430); border-radius: var(--nd-r-card, 18px);
+  background: var(--nd-panel-2, #161A23); color: var(--nd-muted, #9AA3B2);
+  font-size: var(--nd-text-body-sm, .8125rem); line-height: 1.75; max-width: 88ch;
+}
+.ipo-note strong{ color: var(--nd-text, #fff); }
+
+@media (max-width: 640px){
+  .ipo-shell{ padding-left: 16px; padding-right: 16px; }
+  .ipo-tab{ padding: 8px 14px; }
+  .ipo-search{ min-width: 0; flex: 1 1 100%; }
+}

@@ -110,6 +110,38 @@ canvas.spark{display:block}
 .snap-asof{font-family:var(--sans,Inter,system-ui,sans-serif);font-size:.8rem;font-weight:400;color:var(--muted,#8A8474)}
 .snap .bk-table{margin-top:12px}
 .snap-note{font-size:.82rem;color:var(--muted,#8A8474);margin:12px 0 0}
+
+/* P15: Trending hero cards — modern, visual top-3 */
+.trend-hero{display:grid;gap:14px;margin:6px 0 26px}
+@media(min-width:760px){.trend-hero{grid-template-columns:repeat(3,1fr)}}
+.trend-card{
+  position:relative;overflow:hidden;
+  background:linear-gradient(150deg,var(--card) 0%,var(--paper-deep) 100%);
+  border:1px solid var(--hairline);border-radius:18px;
+  padding:20px 20px 18px;
+  text-decoration:none;color:inherit;display:block;
+  transition:transform .18s ease,box-shadow .18s ease;
+}
+.trend-card:hover{transform:translateY(-3px);box-shadow:0 14px 34px rgba(12,31,22,.12)}
+.trend-card .t-rank{
+  position:absolute;top:10px;right:16px;
+  font-family:var(--serif);font-size:2.6rem;font-weight:700;
+  color:var(--hairline);line-height:1;user-select:none;
+}
+.trend-card .t-sym{font-size:1.25rem;font-weight:800;letter-spacing:.01em;color:var(--ink)}
+.trend-card .t-name{font-size:.78rem;color:var(--muted);margin:2px 0 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trend-card .t-price{font-size:1.6rem;font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink)}
+.trend-card .t-chg{font-size:.85rem;font-weight:700;margin-left:8px}
+.trend-card .t-meta{display:flex;justify-content:space-between;align-items:center;margin-top:12px;gap:8px}
+.trend-card .t-turn{font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.trend-card .scorebar{width:100px}
+.trend-card .t-why{font-size:.76rem;color:var(--ink-soft);margin-top:10px;line-height:1.5;max-height:3.4em;overflow:hidden}
+.trend-card.tone-acc{border-top:4px solid var(--up)}
+.trend-card.tone-dist{border-top:4px solid var(--down)}
+.trend-card.tone-watch{border-top:4px solid var(--gold)}
+.trend-hero-head{display:flex;align-items:baseline;justify-content:space-between;margin:0 0 12px;flex-wrap:wrap;gap:8px}
+.trend-hero-head h2{font-family:var(--serif);font-size:1.3rem;margin:0}
+.trend-hero-head span{font-size:.8rem;color:var(--muted)}
 </style>
 <link rel="stylesheet" href="/css/theme.css?v=20261002d">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">
@@ -124,6 +156,13 @@ canvas.spark{display:block}
 <h1 class="page-title">Trending Stocks</h1>
 <p class="dek">Which NEPSE stocks are genuinely attracting activity — ranked by turnover acceleration, volume spikes, 5-day momentum, broker flow concentration and news mentions. A transparent formula: every input is published below. No black box, no borrowed scores.</p>
 <p lang="ne" class="ne-sum">संक्षेप: यो पृष्ठमा नेप्सेमा अहिले सबैभन्दा सक्रिय स्टकहरूको दैनिक सूची छ — उच्च कारोबार, मूल्य गति र ब्रोकर प्रवाहका आधारमा छानिएको। यो शैक्षिक जानकारी हो, लगानी सल्लाह होइन।</p>
+
+<!-- P15: Trending hero — top 3 visual cards, populated live -->
+<div class="trend-hero-head">
+  <h2>🔥 Hottest right now</h2>
+  <span id="trendHeroAsof"></span>
+</div>
+<div class="trend-hero" id="trendHero" aria-label="Top trending stocks"></div>
 
 <!-- SNAP-START -->
 <section class="snap" aria-label="Trending snapshot">
@@ -232,6 +271,34 @@ function filtered(){
   return r.slice(0,30);
 }
 
+/* P15: hero cards — top 3 by score, visual and modern */
+function renderHero(rows){
+  var host = $('trendHero');
+  if(!host) return;
+  var top3 = rows.slice(0,3);
+  if(!top3.length){ host.innerHTML = ''; return; }
+  var medals = ['🥇','🥈','🥉'];
+  host.innerHTML = top3.map(function(s, i){
+    var chg = (s.change_pct !== undefined && s.change_pct !== null) ? s.change_pct : s.ret_5d_pct;
+    var chgCls = chg > 0 ? 'pos' : (chg < 0 ? 'neg' : '');
+    var chgTxt = (chg > 0 ? '+' : '') + fmt(chg) + '%';
+    var why = (s.reasons||[]).slice(0,2).join(' · ');
+    var tl = TONE_LABEL[s.tone] || TONE_LABEL.watch;
+    return '<a class="trend-card tone-'+esc(s.tone||'watch')+'" href="/nepse-chart/?s='+esc(s.symbol)+'">'
+      + '<span class="t-rank">'+(i+1)+'</span>'
+      + '<div class="t-sym">'+medals[i]+' '+esc(s.symbol)+'</div>'
+      + '<div class="t-name">'+esc(s.name)+' · '+esc(s.sector)+'</div>'
+      + '<div><span class="t-price">Rs '+fmt(s.ltp)+'</span><span class="t-chg '+chgCls+'">'+chgTxt+'</span></div>'
+      + '<div class="t-meta"><span class="tone '+tl[0]+'">'+tl[1]+'</span>'
+      + '<span><span class="scorebar"><i style="width:'+Math.round(s.score)+'%"></i></span> <b>'+fmt(s.score,1)+'</b></span></div>'
+      + '<div class="t-turn">Rs '+fmt(s.turnover_rs_m,1)+' M turnover · '+fmt(s.turnover_ratio,1)+'× average</div>'
+      + (why ? '<div class="t-why">'+esc(why)+'</div>' : '')
+      + '</a>';
+  }).join('');
+  var asof = $('trendHeroAsof');
+  if(asof && state.meta && state.meta.asof) asof.textContent = 'Session of ' + state.meta.asof;
+}
+
 function render(){
   closeResearchPanels();
   var rows = filtered();
@@ -256,6 +323,7 @@ function render(){
   });
   if(!rows.length) html = '<tr><td colspan="10" style="text-align:center;color:var(--muted)">No stocks in this tone right now.</td></tr>';
   $('trendBody').innerHTML = html;
+  renderHero(rows);
   var cvs = $('trendBody').querySelectorAll('canvas.spark');
   rows.forEach(function(s, i){
     if(cvs[i]) sparkline(cvs[i], s.spark, s.ret_5d_pct >= 0);

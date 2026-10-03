@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0A0C10">
+<title>Seasonality: Best & Worst Months for NEPSE | Nepse Decode</title>
+<link rel="stylesheet" href="/css/nepse-design-system.css?v=c967c332">
+<meta name="description" content="NEPSE seasonality: which months and quarters has the Nepal stock market historically gained or lost? Average monthly returns from real index history. Educational use only.">
+<meta name="author" content="Shirjan Khadka">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-seasonality/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:title" content="Seasonality: Best & Worst Months for NEPSE">
+<meta property="og:description" content="Which months does NEPSE historically rise or fall? Average returns from real index history.">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-seasonality/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Seasonality: Best & Worst Months for NEPSE">
+<meta name="twitter:description" content="Historical monthly returns of the NEPSE index. Educational use only.">
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
+<link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Serif+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode Seasonality","url":"https://shirjankhadka.com.np/nepse-seasonality/","description":"Historical NEPSE seasonality: average monthly and quarterly returns from real index history. Educational use only, not investment advice.","author":{"@type":"Organization","name":"Nepse Decode"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
+{"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
+{"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-decode/"},
+{"@type":"ListItem","position":3,"name":"Seasonality","item":"https://shirjankhadka.com.np/nepse-seasonality/"}]}
+</script>
+<link rel="stylesheet" href="/css/theme.css?v=20261002d">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261003a">
+<link rel="stylesheet" href="/css/nd-seasonality.css?v=20261003a">
+</head>
+<body class="nd" data-page="seasonality">
+
+  <a class="skip-link" href="#main">Skip to content</a>
+<div id="nd-header"></div>
+<div class="fb-wrap" style="display:flex;justify-content:center;padding:10px 16px 0"><div data-freshness-badge></div></div>
+
+<div class="nd-shell">
+  <div class="nd-content">
+    <div class="nd-wrap">
+    <nav aria-label="Breadcrumb" style="margin:4px 0 16px;font-size:.85rem;color:var(--muted,#8A8474)">
+      <ol style="list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+        <li><a href="/nepse-decode/" style="color:inherit">Nepse Decode</a></li>
+        <li aria-hidden="true">/</li>
+        <li><span aria-current="page" style="color:var(--ink,#1C1A15);font-weight:600">Seasonality</span></li>
+      </ol>
+    </nav>
+<main id="main">
+
+  <div class="sn-masthead">
+    <p class="nd-kicker">Research</p>
+    <h1 class="sn-title">Seasonality</h1>
+    <p class="sn-lede">In which months does NEPSE tend to rise — and in which does it tend to fall? Average monthly and quarterly returns computed from the <strong>full real index history</strong>. History rhymes; it does not repeat.</p>
+    <p class="sn-meta"><span id="snCoverage">Loading…</span></p>
+  </div>
+
+  <section class="sn-verdicts" aria-label="Best and worst seasons">
+    <div class="sn-verdict best" id="snBest">
+      <span class="sn-eyebrow">Best season</span>
+      <div class="sn-big" id="snBestName">—</div>
+      <div class="sn-detail" id="snBestDetail"></div>
+    </div>
+    <div class="sn-verdict worst" id="snWorst">
+      <span class="sn-eyebrow">Worst season</span>
+      <div class="sn-big" id="snWorstName">—</div>
+      <div class="sn-detail" id="snWorstDetail"></div>
+    </div>
+  </section>
+
+  <section class="sn-section" aria-label="Monthly returns">
+    <h2>Average return by month</h2>
+    <p class="sn-note">Mean monthly return across all years on record, with hit-rate (share of years the month closed positive).</p>
+    <div class="sn-bars" id="snBars"></div>
+  </section>
+
+  <section class="sn-section" aria-label="Monthly detail table">
+    <h2>Month by month</h2>
+    <div class="sn-tablewrap">
+      <table class="sn-table">
+        <thead><tr><th class="l">Month</th><th class="r">Avg return</th><th class="r">Hit rate</th><th class="r">Best year</th><th class="r">Worst year</th><th class="r">Years</th></tr></thead>
+        <tbody id="snBody"><tr><td colspan="6" class="sn-loading">Computing seasonality…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="sn-section" aria-label="Quarterly returns">
+    <h2>By quarter</h2>
+    <div class="sn-quarters" id="snQuarters"></div>
+  </section>
+
+  <p class="sn-fine">Method: month-end to month-end log-free simple returns on the NEPSE index close. Averages are arithmetic means across calendar years with a complete month. Coverage and year counts are shown per row — months with fewer years carry less weight. Seasonality is a historical tendency, not a forecast: regimes, policy and liquidity change the pattern. For education only — not investment advice.</p>
+
+</main>
+    </div>
+  </div>
+</div>
+
+<div id="nd-footer"></div>
+<script src="/js/nd-chrome.js?v=20261003a"></script>
+<script src="/js/nd-seasonality.js?v=20261003a"></script>
+</body>
+</html>

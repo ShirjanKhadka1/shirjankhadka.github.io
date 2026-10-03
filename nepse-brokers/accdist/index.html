@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accumulation / Distribution — Nepse Decode</title>
+<meta name="description" content="Which stocks brokers are accumulating and distributing — top net bought and net sold from public NEPSE floorsheet flow. Free, no login.">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-brokers/accdist/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:title" content="Accumulation / Distribution — Nepse Decode">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-brokers/accdist/">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Accumulation / Distribution — Nepse Decode","url":"https://shirjankhadka.com.np/nepse-brokers/accdist/"}
+</script>
+<link rel="stylesheet" href="/css/nepse-design-system.css?v=c967c332">
+<link rel="stylesheet" href="/css/theme.css?v=20261002d">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261003a">
+<link rel="stylesheet" href="/css/broker-pages.css?v=20261003b">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="nd">
+<div id="nd-header"></div>
+<main class="bk-wrap">
+<p class="bk-eyebrow">Brokers</p>
+<h1 class="bk-title">Accumulation / Distribution</h1>
+<p class="bk-sub">Stocks brokers are net buying (accumulating) and net selling (distributing), ranked by net transaction value over the period.</p>
+<nav class="bk-nav" aria-label="Broker pages">
+<a href="/nepse-brokers/">Top Brokers</a>
+<a href="/nepse-brokers/trade-pattern/">Broker Trade Pattern</a>
+<a href="/nepse-brokers/stock-pattern/">Stock Trade Pattern</a>
+<a href="/nepse-brokers/holdings/">Stockwise Holdings</a>
+<a href="/nepse-brokers/accdist/" class="active">Accumulation / Distribution</a>
+</nav>
+<div class="bk-periods" id="bkPeriods">
+<span style="font-size:.85rem;color:var(--muted)">Period:</span>
+<button data-p="latest" class="active">Latest</button>
+<button data-p="1D">1D</button>
+<button data-p="1W">1W</button>
+<button data-p="1M">1M</button>
+<button data-p="3M">3M</button>
+<button data-p="6M">6M</button>
+</div>
+<div class="bk-meta" id="bkMeta">Loading…</div>
+<div style="display:grid;gap:24px" id="bkGrid">
+<div>
+<h2 style="font-family:var(--serif);font-size:1.2rem;margin:0 0 8px;color:var(--up)">Accumulating <span style="font-size:.8rem;color:var(--muted);font-family:var(--sans)">— top net bought</span></h2>
+<div class="bk-scroll"><table class="bk-table" id="accTable"><thead><tr>
+<th data-sort="symbol">Stock</th><th data-sort="broker">Broker</th><th data-sort="netQty">Net qty</th><th data-sort="netVal">Net value</th>
+</tr></thead><tbody id="accBody"><tr><td colspan="4" class="bk-loading">Loading…</td></tr></tbody></table></div>
+</div>
+<div>
+<h2 style="font-family:var(--serif);font-size:1.2rem;margin:0 0 8px;color:var(--down)">Distributing <span style="font-size:.8rem;color:var(--muted);font-family:var(--sans)">— top net sold</span></h2>
+<div class="bk-scroll"><table class="bk-table" id="distTable"><thead><tr>
+<th data-sort="symbol">Stock</th><th data-sort="broker">Broker</th><th data-sort="netQty">Net qty</th><th data-sort="netVal">Net value</th>
+</tr></thead><tbody id="distBody"><tr><td colspan="4" class="bk-loading">Loading…</td></tr></tbody></table></div>
+</div>
+</div>
+<p class="bk-note">"Accumulation" = net bought, "distribution" = net sold by transaction value — not beneficial ownership. Data: public NEPSE floorsheet records. <strong>For education only. Not investment advice.</strong></p>
+</main>
+<div id="nd-footer"></div>
+<script src="/js/broker-common.js?v=20261003b"></script>
+<script>
+(function(){
+"use strict";
+var BC = window.BrokerCommon;
+var state = { period: 'latest', brokers: {}, acc: [], dist: [] };
+var $ = function(id){ return document.getElementById(id); };
+function bname(code){ return state.brokers[code] || ('Broker '+code); }
+
+function norm(list){
+  return (list||[]).slice(0,50).map(function(x){
+    return { symbol: x.symbol||'—', broker: bname(x.broker), brokerCode: x.broker,
+      netQty: x.net_qty||0, netVal: x.net_value||0 };
+  });
+}
+function renderOne(tbodyId, rows, good){
+  $(tbodyId).innerHTML = rows.map(function(r){
+    return '<tr><td><strong>'+BC.esc(r.symbol)+'</strong></td><td>'+BC.esc(r.broker)+'</td>'+
+      '<td>'+BC.fmtN(r.netQty,0)+'</td><td class="'+(good?'pos':'neg')+'">'+BC.fmtV(r.netVal)+'</td></tr>';
+  }).join('') || '<tr><td colspan="4" class="bk-loading">No data.</td></tr>';
+}
+function load(){
+  $('accBody').innerHTML = '<tr><td colspan="4" class="bk-loading">Loading…</td></tr>';
+  $('distBody').innerHTML = '<tr><td colspan="4" class="bk-loading">Loading…</td></tr>';
+  BC.loadPeriod(state.period).then(function(d){
+    state.acc = norm(d.accumulation); state.dist = norm(d.distribution);
+    renderOne('accBody', state.acc, true);
+    renderOne('distBody', state.dist, false);
+    $('bkMeta').textContent = 'Data: ' + BC.label(state.period, d) + ' · Source: NEPSE floorsheets';
+    BC.makeSortable($('accTable'), function(){ return state.acc; }, function(rs){ renderOne('accBody', rs, true); });
+    BC.makeSortable($('distTable'), function(){ return state.dist; }, function(rs){ renderOne('distBody', rs, false); });
+  }).catch(function(){
+    $('accBody').innerHTML = '<tr><td colspan="4"><div class="bk-empty">Data not available for this period yet.</div></td></tr>';
+    $('distBody').innerHTML = '<tr><td colspan="4"><div class="bk-empty">Data not available for this period yet.</div></td></tr>';
+  });
+}
+$('bkPeriods').addEventListener('click', function(e){
+  var b = e.target.closest('button'); if(!b) return;
+  document.querySelectorAll('#bkPeriods button').forEach(function(x){x.classList.remove('active')});
+  b.classList.add('active'); state.period = b.dataset.p; load();
+});
+Promise.all([BC.loadMeta(), BC.loadBrokers()]).then(function(res){
+  state.brokers = res[1]; load();
+});
+setInterval(function(){ if(!document.hidden) load(); }, 60000);
+})();
+</script>
+<script src="/js/nd-chrome.js?v=20261003a" defer></script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+/**
+ * css/nd-daily.css — NEPSE Daily Summary page (Concept 03 editorial).
+ * Sortable full-market table, 50 rows/page pagination, symbol search.
+ * Uses --nd-* theme variables so light/dark both work.
+ */
+
+.ds-wrap { max-width: var(--nd-page-max, 1360px); margin: 0 auto; padding: 0 var(--nd-gutter, 24px); }
+
+/* ---------- Masthead ---------- */
+.ds-masthead { margin: 8px 0 20px; }
+.ds-kicker {
+  font: 600 0.72rem var(--nd-font-mono, "IBM Plex Mono", monospace);
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--nd-lime); margin: 0 0 8px;
+}
+.ds-masthead h1 {
+  font-family: var(--nd-font-display, "Fraunces", serif);
+  font-weight: 600; font-size: clamp(1.6rem, 4vw, 2.4rem);
+  letter-spacing: -0.015em; color: var(--nd-text); margin: 0;
+}
+.ds-lede { margin: 10px 0 0; max-width: 76ch; color: var(--nd-muted); line-height: 1.65; font-size: 0.95rem; }
+.ds-meta-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; align-items: center; }
+.ds-badge {
+  font: 600 0.7rem var(--nd-font-mono, "IBM Plex Mono", monospace);
+  letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 6px 12px; border-radius: 6px;
+  border: 1px solid var(--nd-border); color: var(--nd-muted);
+  background: var(--nd-panel);
+}
+.ds-badge.lime { color: var(--nd-lime); border-color: var(--nd-lime); }
+.ds-badge .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--nd-up); margin-right: 6px; }
+
+/* ---------- Controls ---------- */
+.ds-controls {
+  display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+  margin: 18px 0 6px;
+}
+.ds-search {
+  flex: 1 1 220px; max-width: 340px;
+  background: var(--nd-panel); border: 1px solid var(--nd-border);
+  color: var(--nd-text); border-radius: 8px; padding: 10px 14px;
+  font: 500 0.9rem var(--nd-font-sans, Inter, system-ui, sans-serif);
+}
+.ds-search::placeholder { color: var(--nd-dim); }
+.ds-search:focus { outline: none; border-color: var(--nd-lime); }
+.ds-select {
+  background: var(--nd-panel); border: 1px solid var(--nd-border);
+  color: var(--nd-text); border-radius: 8px; padding: 10px 12px;
+  font: 500 0.85rem var(--nd-font-sans, Inter, system-ui, sans-serif);
+}
+.ds-pills { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 4px; }
+.ds-pill {
+  background: var(--nd-panel); border: 1px solid var(--nd-border);
+  color: var(--nd-muted); border-radius: 999px; padding: 8px 16px;
+  font: 600 0.8rem var(--nd-font-sans, Inter, system-ui, sans-serif);
+  cursor: pointer; transition: border-color 0.15s, color 0.15s;
+  text-decoration: none; display: inline-block;
+}
+.ds-pill:hover { border-color: var(--nd-lime); color: var(--nd-text); }
+.ds-pill.active { background: var(--nd-lime); border-color: var(--nd-lime); color: var(--nd-on-lime); }
+.ds-count { margin-left: auto; font: 500 0.85rem var(--nd-font-sans, Inter, system-ui, sans-serif); color: var(--nd-dim); }
+
+/* ---------- Table ---------- */
+.ds-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--nd-border); border-radius: 12px; background: var(--nd-panel); }
+.ds-table { width: 100%; min-width: 1080px; border-collapse: collapse; font-size: 0.9rem; }
+.ds-table thead th {
+  position: sticky; top: 0; z-index: 1;
+  background: var(--nd-panel-2); color: var(--nd-muted);
+  font: 600 0.68rem var(--nd-font-mono, "IBM Plex Mono", monospace);
+  letter-spacing: 0.08em; text-transform: uppercase;
+  text-align: left; padding: 12px 14px; white-space: nowrap;
+  border-bottom: 1px solid var(--nd-border-strong);
+  cursor: pointer; user-select: none;
+}
+.ds-table thead th.num { text-align: right; }
+.ds-table thead th:hover { color: var(--nd-text); }
+.ds-table thead th.sorted { color: var(--nd-lime); }
+.ds-table thead th .arr { color: var(--nd-lime); margin-left: 4px; }
+.ds-table thead th.no-sort { cursor: default; }
+.ds-table thead th.no-sort:hover { color: var(--nd-muted); }
+.ds-table tbody td {
+  padding: 11px 14px; border-bottom: 1px solid var(--nd-border);
+  color: var(--nd-text); font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.ds-table tbody td.num { text-align: right; }
+.ds-table tbody tr:last-child td { border-bottom: 0; }
+.ds-table tbody tr:hover { background: var(--nd-lime-faint); }
+.ds-table .sym { font-weight: 700; }
+.ds-table .sym a { color: var(--nd-text); text-decoration: none; }
+.ds-table .sym a:hover { color: var(--nd-lime); }
+.ds-table .cname { display: block; font-weight: 400; font-size: 0.75rem; color: var(--nd-dim); max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+.ds-table .up { color: var(--nd-up); font-weight: 600; }
+.ds-table .dn { color: var(--nd-down); font-weight: 600; }
+.ds-table .flat { color: var(--nd-flat); }
+.ds-table .unavail { color: var(--nd-dim); font-style: italic; font-size: 0.8rem; }
+.ds-empty { text-align: center; padding: 40px 20px !important; color: var(--nd-dim); }
+
+/* ---------- Pagination ---------- */
+.ds-below { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin: 14px 0 8px; }
+.ds-range { font: 500 0.85rem var(--nd-font-sans, Inter, system-ui, sans-serif); color: var(--nd-dim); }
+.ds-pager { display: flex; gap: 8px; align-items: center; }
+.ds-page-btn {
+  background: var(--nd-panel); border: 1px solid var(--nd-border);
+  color: var(--nd-text); border-radius: 8px; padding: 9px 18px;
+  font: 600 0.85rem var(--nd-font-sans, Inter, system-ui, sans-serif);
+  cursor: pointer; transition: border-color 0.15s;
+}
+.ds-page-btn:hover:not(:disabled) { border-color: var(--nd-lime); }
+.ds-page-btn:disabled { opacity: 0.4; cursor: default; }
+.ds-page-num { font: 600 0.85rem var(--nd-font-mono, "IBM Plex Mono", monospace); color: var(--nd-muted); }
+
+/* ---------- Notes ---------- */
+.ds-note {
+  margin: 26px 0 8px; padding: 16px 18px;
+  border: 1px solid var(--nd-border); border-radius: 10px;
+  background: var(--nd-panel); color: var(--nd-muted);
+  font-size: 0.85rem; line-height: 1.7;
+}
+.ds-note strong { color: var(--nd-text); }
+.ds-credit { font-size: 0.8rem; color: var(--nd-dim); margin: 1.25rem 0 0; }
+.ds-credit a { color: var(--nd-lime); }
+
+@media (max-width: 640px) {
+  .ds-count { margin-left: 0; width: 100%; }
+  .ds-search { max-width: none; }
+}

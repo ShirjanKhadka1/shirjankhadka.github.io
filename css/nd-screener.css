@@ -99,3 +99,50 @@
 .sc-tbl-card td.sym { font-family: var(--nd-font-mono, "IBM Plex Mono", ui-monospace, monospace); font-weight: 600; }
 .sc-tbl-card th.sortable { cursor: pointer; user-select: none; }
 .sc-tbl-card th.sortable:hover { color: var(--nd-lime); }
+
+/* ---------- Verdict factor chips ---------- */
+.sc-factors { display: inline-flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.sc-fchip {
+  font-family: var(--nd-font-mono, "IBM Plex Mono", ui-monospace, monospace);
+  font-size: 11px; font-weight: 600;
+  background: var(--nd-lime-soft, rgba(184,230,46,.12));
+  border: 1px solid rgba(184,230,46,.3);
+  color: var(--nd-text);
+  border-radius: 99px; padding: 4px 10px; white-space: nowrap;
+}
+.sc-vsrc { font-size: 12px; color: var(--nd-dim); }
+
+/* ---------- NEPSE Reading Strategy explainer ---------- */
+.sc-strategy {
+  background: var(--nd-panel);
+  border: 1px solid var(--nd-border);
+  border-radius: 16px; padding: 24px; margin: 22px 0;
+}
+.sc-strategy h2 {
+  font-family: var(--nd-font-display, "Spectral", Georgia, serif);
+  font-size: 22px; font-weight: 600; margin: 0 0 4px; color: var(--nd-text);
+}
+.sc-strategy .sc-strat-sub { color: var(--nd-dim); font-size: 13.5px; margin: 0 0 16px; }
+.sc-steps { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+@media (min-width: 760px) { .sc-steps { grid-template-columns: repeat(2, 1fr); } }
+.sc-steps li {
+  background: var(--nd-inset, rgba(0,0,0,.03));
+  border: 1px solid var(--nd-border);
+  border-radius: 12px; padding: 14px 16px;
+}
+.sc-steps .sc-step-n {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--nd-lime); color: #0A0C10;
+  font-weight: 700; font-size: 13px; margin-bottom: 8px;
+}
+.sc-steps h3 { font-size: 15px; font-weight: 700; margin: 0 0 6px; color: var(--nd-text); }
+.sc-steps p { font-size: 13px; color: var(--nd-muted); margin: 0; line-height: 1.6; }
+.sc-gentle {
+  margin: 14px 0 0; padding: 12px 16px;
+  border-left: 3px solid var(--nd-lime);
+  background: var(--nd-lime-faint, rgba(184,230,46,.06));
+  border-radius: 0 10px 10px 0;
+  font-size: 13.5px; color: var(--nd-muted); line-height: 1.65;
+}
+.sc-gentle strong { color: var(--nd-text); }

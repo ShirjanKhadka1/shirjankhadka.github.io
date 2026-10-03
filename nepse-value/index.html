@@ -146,6 +146,12 @@ h2.bk-h{font-family:var(--serif);font-size:1.25rem;margin:28px 0 8px}
 <div class="ctl">
   <label for="sectorSel" style="font-size:.9rem;color:var(--muted)">Sector:</label>
   <select id="sectorSel"><option value="">All sectors</option></select>
+  <label for="perPageSel" style="font-size:.9rem;color:var(--muted)">Show:</label>
+  <select id="perPageSel">
+    <option value="20">20</option>
+    <option value="25" selected>25</option>
+    <option value="50">50</option>
+  </select>
 </div>
 
 <div class="scrollx">
@@ -166,6 +172,13 @@ h2.bk-h{font-family:var(--serif);font-size:1.25rem;margin:28px 0 8px}
 <tbody id="valueBody"><tr><td colspan="11" style="text-align:center;color:var(--muted)">Loading…</td></tr></tbody>
 </table>
 </div>
+<div class="ctl" id="valuePager" style="justify-content:space-between;margin-top:12px">
+  <span id="valueRange" style="font-size:.85rem;color:var(--muted)"></span>
+  <span style="display:flex;gap:8px">
+    <button id="valuePrev" class="rs-toggle" type="button">← Prev</button>
+    <button id="valueNext" class="rs-toggle" type="button">Next →</button>
+  </span>
+</div>
 
 <h2 class="bk-h">Methodology and caveats</h2>
 <div class="method" id="methodBox">Loading…</div>
@@ -176,7 +189,7 @@ h2.bk-h{font-family:var(--serif);font-size:1.25rem;margin:28px 0 8px}
 (function(){
 "use strict";
 var BASE = '/nepse-chart/data/';
-var state = { sector: '', sort: 'value_score', dir: -1, rows: [] };
+var state = { sector: '', sort: 'value_score', dir: -1, rows: [], page: 1, perPage: 25 };
 var $ = function(id){ return document.getElementById(id); };
 
 function fmt(n, d){ d = d===undefined?2:d; if(n===null||n===undefined||!isFinite(n)) return '–';
@@ -192,8 +205,13 @@ function filtered(){
 
 function render(){
   var rows = filtered();
+  var total = rows.length;
+  var pages = Math.max(1, Math.ceil(total / state.perPage));
+  if (state.page > pages) state.page = pages;
+  var start = (state.page - 1) * state.perPage;
+  var pageRows = rows.slice(start, start + state.perPage);
   var html = '';
-  rows.forEach(function(s){
+  pageRows.forEach(function(s){
     var research = (s.symbol === 'NBL')
       ? ' <a href="/blog/nepal-bank-nbl-company-analysis/" style="font-size:.72rem;font-weight:700;color:var(--green-800);text-decoration:none;border:1px solid var(--green-800);border-radius:var(--r-pill);padding:1px 8px;white-space:nowrap" title="Full equity research report on Nepal Bank">Research</a>' : '';
     html += '<tr>'
@@ -210,7 +228,7 @@ function render(){
       + '<td>'+esc(s.period||'–')+'</td>'
       + '</tr>';
   });
-  if(!rows.length) html = '<tr><td colspan="11" style="text-align:center;color:var(--muted)">No companies in this sector.</td></tr>';
+  if(!pageRows.length) html = '<tr><td colspan="11" style="text-align:center;color:var(--muted)">No companies in this sector.</td></tr>';
   $('valueBody').innerHTML = html;
   var ths = document.querySelectorAll('#valueTable th.sortable');
   ths.forEach(function(th){
@@ -218,6 +236,12 @@ function render(){
     var base = th.textContent.replace(/ [▲▼]/,'');
     th.innerHTML = esc(base) + (k===state.sort ? ' <span class="arr">'+(state.dir===-1?'▼':'▲')+'</span>' : '');
   });
+  // Pager
+  var range = $('valueRange');
+  if (range) range.textContent = total ? ('Showing ' + (start + 1) + '–' + Math.min(start + state.perPage, total) + ' of ' + total + ' companies · page ' + state.page + '/' + pages) : '';
+  var prev = $('valuePrev'), next = $('valueNext');
+  if (prev) prev.disabled = state.page <= 1;
+  if (next) next.disabled = state.page >= pages;
 }
 
 function load(silent){
@@ -230,14 +254,24 @@ function load(silent){
       Object.keys(sectors).sort().forEach(function(sc){
         var o = document.createElement('option'); o.value = sc; o.textContent = sc; sel.appendChild(o);
       });
-      sel.addEventListener('change', function(){ state.sector = sel.value; render(); });
+      sel.addEventListener('change', function(){ state.sector = sel.value; state.page = 1; render(); });
       document.querySelectorAll('#valueTable th.sortable').forEach(function(th){
         th.addEventListener('click', function(){
           var k = th.getAttribute('data-k');
           if(state.sort===k){ state.dir = -state.dir; } else { state.sort=k; state.dir=-1; }
+          state.page = 1;
           render();
         });
       });
+      var ppSel = $('perPageSel');
+      if (ppSel) ppSel.addEventListener('change', function(){
+        state.perPage = parseInt(ppSel.value, 10) || 25;
+        state.page = 1;
+        render();
+      });
+      var prev = $('valuePrev'), next = $('valueNext');
+      if (prev) prev.addEventListener('click', function(){ if (state.page > 1) { state.page--; render(); window.scrollTo({top: $('valueTable').offsetTop - 80, behavior: 'smooth'}); } });
+      if (next) next.addEventListener('click', function(){ state.page++; render(); window.scrollTo({top: $('valueTable').offsetTop - 80, behavior: 'smooth'}); });
       state.uiInit = true;
     }
   $('coverage').innerHTML = '<strong>Data as of ' + esc(d.asof) + '.</strong> ' + state.rows.length +
