@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0A0C10">
+<title>Ask Decode — NEPSE questions, answered from verified data | Nepse Decode</title>
+<meta name="description" content="Ask Decode: curated, grounded answers to common NEPSE questions — trading hours, data delays, sources, and how Nepse Decode's tools work. Educational, every answer cites its source.">
+<link rel="canonical" href="https://shirjankhadka.com.np/ask/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:title" content="Ask Decode — NEPSE questions, answered from verified data">
+<meta property="og:description" content="Curated, grounded answers to common NEPSE questions. Educational — every answer cites its source.">
+<meta property="og:url" content="https://shirjankhadka.com.np/ask/">
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
+<link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Spectral:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/nepse-d2.css?v=20261002d">
+<link rel="stylesheet" href="/css/theme.css?v=20261002d">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261003a">
+<style>
+.ask-wrap{max-width:860px;margin:0 auto;padding:40px 24px 64px}
+.ask-eyebrow{font-family:var(--nd-font-sans);font-size:var(--nd-text-eyebrow);font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--nd-lime);opacity:.85;margin:0 0 10px}
+.ask-wrap h1{font-family:var(--nd-font-display);font-weight:600;font-size:var(--nd-text-h1);color:var(--nd-text);margin:0 0 12px;letter-spacing:-.01em}
+.ask-lede{color:var(--nd-muted);font-size:.95rem;line-height:1.7;margin:0 0 8px;max-width:64ch}
+.ask-note{display:inline-block;margin:12px 0 28px;padding:8px 14px;border:1px solid var(--nd-border-strong);border-radius:var(--nd-r-pill);font-size:.75rem;color:var(--nd-muted);background:var(--nd-panel)}
+.ask-qa{border:1px solid var(--nd-border);border-radius:var(--nd-r-card);background:var(--nd-panel);margin-bottom:14px;overflow:hidden}
+.ask-qa>button{width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;background:none;border:0;padding:18px 20px;cursor:pointer;text-align:left;font:600 .95rem var(--nd-font-sans);color:var(--nd-text)}
+.ask-qa>button .car{color:var(--nd-lime);flex:none}
+.ask-qa .ans{display:none;padding:0 20px 20px;color:var(--nd-muted);font-size:.9rem;line-height:1.75}
+.ask-qa.open .ans{display:block}
+.ask-qa .ans p{margin:0 0 10px}
+.ask-src{font-size:.75rem;color:var(--nd-dim)}
+.ask-src a{color:var(--nd-lime);text-decoration:none}
+</style>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"What are NEPSE trading hours?","acceptedAnswer":{"@type":"Answer","text":"NEPSE trades Monday to Friday. Pre-open is 10:45:00–10:59:59 NPT and the continuous session runs 11:00–15:00 NPT. Saturday and Sunday are holidays, as are public holidays."}},
+{"@type":"Question","name":"Is Nepse Decode data real-time?","acceptedAnswer":{"@type":"Answer","text":"No. NEPSE publishes no free official real-time API, so quotes on Nepse Decode are delayed snapshots. Every figure carries its own timestamp — check it before acting."}},
+{"@type":"Question","name":"Where does Nepse Decode get its market data?","acceptedAnswer":{"@type":"Answer","text":"Market data is compiled from public sources including NEPSE (nepalstock.com). Corporate actions are verified against official NEPSE and company notices. The full source register lives on the /status/ page."}},
+{"@type":"Question","name":"Is anything here investment advice?","acceptedAnswer":{"@type":"Answer","text":"No. Everything on Nepse Decode — including engine verdicts, screeners and signals — is for education only. Always verify with your broker before trading."}}
+]}
+</script>
+</head>
+<body class="d2">
+<a class="skip-link" href="#main">Skip to content</a>
+<div id="nd-header"></div>
+<main id="main">
+<div class="ask-wrap">
+  <p class="ask-eyebrow">Ask Decode</p>
+  <h1>NEPSE questions, answered from verified data</h1>
+  <p class="ask-lede">Straight answers to the questions Nepali investors ask most — grounded in the same verified data that powers this site.</p>
+  <span class="ask-note">Curated Q&amp;A for education — not an AI chatbot. Every answer cites its source.</span>
+
+  <div class="ask-qa">
+    <button aria-expanded="false">What are NEPSE trading hours?<span class="car">+</span></button>
+    <div class="ans">
+      <p>NEPSE trades <strong>Monday to Friday</strong>. The pre-open session runs <strong>10:45:00–10:59:59 NPT</strong> and the continuous market runs <strong>11:00–15:00 NPT</strong>. Saturday and Sunday are market holidays, as are public holidays declared in Nepal.</p>
+      <p class="ask-src">Source: NEPSE trading calendar · <a href="https://www.nepalstock.com" target="_blank" rel="noopener">nepalstock.com</a></p>
+    </div>
+  </div>
+
+  <div class="ask-qa">
+    <button aria-expanded="false">Is the data on Nepse Decode real-time?<span class="car">+</span></button>
+    <div class="ans">
+      <p>No. NEPSE publishes no free official real-time API, so every quote here is a <strong>delayed snapshot</strong>. Each figure carries its own timestamp — check the timestamp, not just the number, before acting on it. During market hours the site polls fresh snapshots on a schedule; outside hours you see the last session's close.</p>
+      <p class="ask-src">Source: Nepse Decode data policy · <a href="/status/">/status/</a></p>
+    </div>
+  </div>
+
+  <div class="ask-qa">
+    <button aria-expanded="false">Where does the market data come from?<span class="car">+</span></button>
+    <div class="ans">
+      <p>Market data is compiled from public sources including <strong>NEPSE (nepalstock.com)</strong>. Corporate actions — dividends, bonus and right shares — are verified against <strong>official NEPSE and company notices</strong>, each linked to its source document. The full source register and pipeline health live on the status page.</p>
+      <p class="ask-src">Sources: <a href="https://www.nepalstock.com" target="_blank" rel="noopener">NEPSE</a> · <a href="/status/">Nepse Decode /status/</a></p>
+    </div>
+  </div>
+
+  <div class="ask-qa">
+    <button aria-expanded="false">What do the Alpha Lab verdicts (Strong Buy … Strong Exit) mean?<span class="car">+</span></button>
+    <div class="ans">
+      <p>They are <strong>mechanical output from a fixed, published rule set</strong> — ten factors scored on the daily chart and summed into a verdict. The scoring rules are transparent and identical for every stock. A verdict is a starting point for your own research, never a recommendation.</p>
+      <p class="ask-src">Source: Nepse Decode methodology · <a href="/nepse-chart/">Chart &amp; signals</a></p>
+    </div>
+  </div>
+
+  <div class="ask-qa">
+    <button aria-expanded="false">How should I verify a corporate action (dividend, bonus, right share)?<span class="car">+</span></button>
+    <div class="ans">
+      <p>Use this site's <a href="/nepse-actions/" style="color:var(--nd-lime)">corporate actions archive</a> as an index, then confirm the dates, ratios and book closure against the <strong>official NEPSE disclosure PDF</strong> linked on each notice — the official record always wins over any convenience index.</p>
+      <p class="ask-src">Source: <a href="https://www.nepalstock.com" target="_blank" rel="noopener">NEPSE disclosure archive</a></p>
+    </div>
+  </div>
+
+  <div class="ask-qa">
+    <button aria-expanded="false">Is anything on this site investment advice?<span class="car">+</span></button>
+    <div class="ans">
+      <p><strong>No.</strong> Everything on Nepse Decode — charts, screeners, signals, verdicts and these answers — is for <strong>education only</strong>. Nothing here is a buy, sell or hold recommendation. Always verify with your broker before trading.</p>
+      <p class="ask-src">Source: Nepse Decode editorial policy · <a href="/editorial-standards/">/editorial-standards/</a></p>
+    </div>
+  </div>
+
+  <div class="ask-qa">
+    <button aria-expanded="false">Why do some figures show "unavailable" instead of a number?<span class="car">+</span></button>
+    <div class="ans">
+      <p>Because we <strong>never invent data</strong>. If a value is missing, stale or unverified, the site says so openly instead of showing a zero, a dash that looks like a value, or yesterday's number dressed as today's. Honest gaps beat confident guesses.</p>
+      <p class="ask-src">Source: Nepse Decode data-honesty policy</p>
+    </div>
+  </div>
+
+  <div class="ask-qa">
+    <button aria-expanded="false">How can I follow one stock?<span class="car">+</span></button>
+    <div class="ans">
+      <p>Search any symbol in the header search (or press <strong>/</strong>) to open its page — price, chart, signals, financials and notices in one place. Add it to your <a href="/nepse-watchlist/" style="color:var(--nd-lime)">Watchlist</a> to track it across sessions, saved in your browser.</p>
+      <p class="ask-src">Source: Nepse Decode tools</p>
+    </div>
+  </div>
+</div>
+</main>
+<div id="nd-footer"></div>
+<script>
+document.querySelectorAll('.ask-qa > button').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var qa = b.parentElement, open = qa.classList.toggle('open');
+    b.setAttribute('aria-expanded', open ? 'true' : 'false');
+    b.querySelector('.car').textContent = open ? '–' : '+';
+  });
+});
+</script>
+<script src="/js/nd-chrome.js?v=20261003a" defer></script>
+</body>
+</html>

@@ -115,7 +115,7 @@
     var txt = st.code === 'LIVE' ? 'LIVE · ' + label
       : st.code === 'PRE-OPEN' ? 'PRE-OPEN · ' + label
       : 'MARKET CLOSED · ' + label;
-    return '<span class="nd-pill' + (st.code === 'LIVE' ? ' live' : '') + '" role="status">' +
+    return '<span class="nd-pill' + (st.code === 'LIVE' ? ' live' : '') + '" role="status" title="Scheduled NEPSE hours — public holidays not yet reflected">' +
       '<span class="dot"></span><span class="nd-pilltxt">' + esc(txt) + '</span></span>';
   }
 
@@ -260,9 +260,9 @@
       '<div class="nd-footbrand">' + LOGO_SVG + '<span class="t">Nepse Decode</span></div>' +
       '<p class="nd-footstate">NEPSE charts, the index today, and a daily market summary — in English and नेपाली, built for Nepal\u2019s investors at home and abroad.</p>' +
       '<div class="nd-footchips">' +
-      '<span class="nd-footchip">DELAYED ~15 MIN</span>' +
+      '<span class="nd-footchip">DELAYED MARKET DATA</span>' +
       '<span class="nd-footchip">MON–FRI 11:00–15:00 NPT</span>' +
-      '<span class="nd-footchip">433 COMPANIES</span>' +
+      '<span class="nd-footchip" id="nd-footsyms">LISTED SECURITIES</span>' +
       '</div>' +
       '<div class="nd-footgrid">' + cols + '</div>' +
       '<div class="nd-company">' +
@@ -286,7 +286,7 @@
 
   /* ---------------- search ---------------- */
 
-  var UNI = null, uniLoading = false;
+  var UNI = null, UNI_META = null, uniLoading = false;
 
   function loadUniverse(cb) {
     if (UNI) return cb(UNI);
@@ -297,8 +297,19 @@
       return r.json();
     }).then(function (d) {
       UNI = (d && d.symbols) || [];
+      UNI_META = d ? { asof: d.asof, count: d.count } : null;
       cb(UNI);
     }).catch(function () { UNI = []; cb(UNI); });
+  }
+
+  /* Footer securities chip: filled from the verified universe file, never hardcoded. */
+  function refreshFootSyms() {
+    var el = document.getElementById('nd-footsyms');
+    if (!el) return;
+    if (UNI_META && UNI_META.count && UNI_META.asof) {
+      el.textContent = UNI_META.count + ' SECURITIES · DATA AS OF ' + UNI_META.asof;
+      el.setAttribute('title', 'Listed securities in the site universe; universe data as of ' + UNI_META.asof + ' (NPT)');
+    }
   }
 
   function initSearch() {
@@ -422,13 +433,17 @@
     if (hh) hh.innerHTML = headerHTML();
     if (fh) fh.innerHTML = footerHTML();
 
-    applyTheme(read('nd-ed-theme') === 'light' ? 'light' : 'dark');
+    /* Honor the legacy theme key on first run so returning visitors
+       keep the mode they chose before the redesign. */
+    var savedTheme = read('nd-ed-theme') || read('sk-theme');
+    applyTheme(savedTheme === 'light' ? 'light' : 'dark');
     applyLang();
     initDropdowns();
     initSearch();
     initDrawer();
     refreshPill();
     setInterval(refreshPill, 30000);
+    loadUniverse(function () { refreshFootSyms(); });
 
     var tb = $('#nd-themebtn');
     if (tb) tb.addEventListener('click', function () {

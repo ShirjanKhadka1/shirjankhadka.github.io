@@ -1,0 +1,77 @@
+/* ============================================================
+   NEPSE DECODE — D3 homepage adoption layer
+   Maps the homepage's key typographic elements onto the
+   Editorial theme (--nd-*) tokens. Data components (tables,
+   charts, tapes) keep their d2 styles so every feed keeps working.
+   All colors come from tokens, so dark/light switching just works.
+   ============================================================ */
+
+/* Body text: editorial sans */
+body.d2 {
+  font-family: var(--nd-font-sans);
+}
+
+/* Kickers -> editorial eyebrow */
+body.d2 .d2-kicker {
+  font-family: var(--nd-font-sans);
+  font-size: var(--nd-text-eyebrow);
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--nd-lime);
+  opacity: 0.85;
+  margin: 0 0 6px;
+}
+
+/* Section headings -> editorial display serif */
+body.d2 .d2-card-head h2,
+body.d2 .d2-tools + .d2-card-head h2 {
+  font-family: var(--nd-font-display);
+  font-weight: 600;
+  font-size: var(--nd-text-h2);
+  letter-spacing: -0.01em;
+  color: var(--nd-text);
+  margin: 0;
+}
+
+/* Hero index price -> terminal mono, tabular so it never jumps */
+body.d2 .d2-hero-price {
+  font-family: var(--nd-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  letter-spacing: -0.02em;
+}
+
+/* Hero label -> quiet editorial meta */
+body.d2 .d2-hero-label {
+  font-size: var(--nd-text-meta);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nd-dim);
+  font-weight: 600;
+}
+
+/* Tool cards: hairline borders in the editorial scale */
+body.d2 .d2-card {
+  border-radius: var(--nd-r-card);
+}
+
+/* Card links -> lime on hover (was volt) */
+body.d2 .d2-card-link:hover {
+  color: var(--nd-lime);
+}
+
+/* Search button -> lime accent */
+body.d2 .d2-search button {
+  background: var(--nd-lime);
+  color: var(--nd-on-lime);
+  border-radius: var(--nd-r-pill);
+}
+
+/* Focus visibility on homepage interactives */
+body.d2 a:focus-visible,
+body.d2 button:focus-visible,
+body.d2 input:focus-visible {
+  outline: none;
+  box-shadow: var(--nd-focus-ring);
+}

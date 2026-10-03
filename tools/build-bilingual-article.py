@@ -453,6 +453,12 @@ def head_block(story, lang, self_url, other_url):
 <meta property="og:url" content="{self_url}">
 <meta property="og:locale" content="{'en_US' if lang == 'en' else 'ne_NP'}">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0A0C10">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261003a">
 <script type="application/ld+json">
 {ld_json}
 </script>
@@ -684,11 +690,7 @@ def render_page(story, lang):
         f'<html lang="{lang}">',
         head_block(story, lang, self_url, other_url),
         "<body>",
-        '<header class="topbar">',
-        '  <div class="topbar-in">',
-        f'    <a class="wordmark" href="/">{ICEBERG_SVG}Nepse <span class="g">Decode</span></a>',
-        "  </div>",
-        "</header>",
+        '<div id="nd-header"></div>',
         '<main class="article">',
         (f'  <nav class="crumb" aria-label="Breadcrumb"><a href="/">{esc(S(story, lang, "home"))}</a> / '
          f'<a href="/nepse-news/">{esc(S(story, lang, "news"))}</a> / {esc(story[f"section_{lang}"])}</nav>'),
@@ -712,10 +714,8 @@ def render_page(story, lang):
         disclaimer_block(story, lang),
         comments_block(story, lang),
         "</main>",
-        "<footer class=\"site\">",
-        f'  <a class="wordmark" href="/">Nepse <span class="g">Decode</span></a>',
-        f"  <p>{esc(S(story, lang, 'footer_tag'))}</p>",
-        "</footer>",
+        '<div id="nd-footer"></div>',
+        '<script src="/js/nd-chrome.js?v=20261003a" defer></script>',
         """<script>
 document.addEventListener('click', function (e) {
   var a = e.target.closest('a[data-copy-link]');
