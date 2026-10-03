@@ -146,11 +146,12 @@ body.d2 input:focus-visible {
 .nd-wrapmeta strong{ color: var(--nd-text); }
 .nd-btn-lime{
   display: inline-flex; align-items: center; gap: 8px;
-  background: var(--nd-lime); color: #0a0c10; font: 600 0.9375rem var(--nd-font-sans);
+  background: var(--nd-lime); color: #0a0c10 !important; font: 600 0.9375rem var(--nd-font-sans);
   padding: 14px 24px; border-radius: 10px; text-decoration: none; border: 0; cursor: pointer;
   transition: transform var(--nd-t-fast) var(--nd-ease), box-shadow var(--nd-t-fast) var(--nd-ease);
 }
-.nd-btn-lime:hover{ transform: translateY(-2px); box-shadow: 0 8px 24px rgba(184,230,46,.25); }
+.nd-btn-lime:hover{ transform: translateY(-2px); box-shadow: 0 8px 24px rgba(184,230,46,.25); color: #0a0c10 !important; }
+.nd-btn-lime:visited{ color: #0a0c10 !important; }
 
 /* NEPSE index card */
 .nd-ixcard{ background: var(--nd-panel); border: 1px solid var(--nd-border); border-radius: var(--nd-r-lg); padding: var(--nd-s6); }

@@ -233,26 +233,6 @@
         '<button class="on" data-tf="1D">1D</button><button data-tf="1W">1W</button>' +
         '<button data-tf="1M">1M</button><button data-tf="3M">3M</button><button data-tf="1Y">1Y</button>' +
       '</div>' +
-      '<div class="nd-ixstats">' +
-        '<div class="nd-stat-block"><div class="nd-stat-head"><span class="k">Day range</span><span class="meta">' + esc(sessDateShort) + '</span></div>' + dayBeam + '</div>' +
-        '<div class="nd-stat-block"><div class="nd-stat-head"><span class="k">Session range</span><span class="meta">' + esc(sessDates) + '</span></div>' + sessBeam + '</div>' +
-        '<div class="nd-stat-block"><div class="nd-stat-head"><span class="k">Market breadth</span><span class="meta">' + quotes.length + ' scrips</span></div>' +
-          '<div class="nd-breadth"><span><span class="up">' + adv + '</span> advancers</span><span><span class="dn">' + dec + '</span> decliners</span><span><span class="un">' + unc + '</span> unchanged</span></div></div>' +
-        '<div class="nd-stat-grid">' +
-          '<div class="nd-stat-card"><div class="k">Total turnover</div><div class="v">' + (totTurn > 0 ? esc(fmtCrore(totTurn)) : 'Unavailable') + '</div></div>' +
-          '<div class="nd-stat-card"><div class="k">Traded shares</div><div class="v">' + (totVol > 0 ? Math.round(totVol).toLocaleString('en-IN') : 'Unavailable') + '</div></div>' +
-          '<div class="nd-stat-card"><div class="k">Transactions</div><div class="v">' + (totTrades > 0 ? Math.round(totTrades).toLocaleString('en-IN') : 'Unavailable') + '</div></div>' +
-          '<div class="nd-stat-card"><div class="k">Scrips traded</div><div class="v">' + quotes.length + '</div></div>' +
-        '</div>' +
-      '</div>' +
-      '<div class="nd-ixgrid">' +
-        '<div class="cell"><div class="k">OPEN</div><div class="v">' + (ix.open ? fmtNum(ix.open) : 'Unavailable') + '</div></div>' +
-        '<div class="cell"><div class="k">HIGH</div><div class="v">' + fmtNum(ix.high) + '</div></div>' +
-        '<div class="cell"><div class="k">LOW</div><div class="v">' + fmtNum(ix.low) + '</div></div>' +
-        '<div class="cell"><div class="k">PREV CLOSE</div><div class="v">' + fmtNum(ix.previous_close) + '</div></div>' +
-        '<div class="cell"><div class="k">52W HIGH</div><div class="v">' + w52hi + '</div><div class="n">' + esc(w52note) + '</div></div>' +
-        '<div class="cell"><div class="k">52W LOW</div><div class="v">' + w52lo + '</div></div>' +
-      '</div>' +
       '<div class="nd-ixsearch"><input type="text" id="ndIxSearch" placeholder="Search any symbol, e.g. NABIL" aria-label="Search symbol"><button onclick="var v=document.getElementById(\'ndIxSearch\').value.trim().toUpperCase();if(v)location.href=\'/stocks/\'+encodeURIComponent(v)+\'/\'">Search</button></div>' +
       '<div class="nd-ixfoot"><span class="nd-badge amber">CLOSING FIGURES</span>' +
       '<span class="note">Quotes are delayed during trading hours; figures shown are the last close when the market is shut.</span></div>';
