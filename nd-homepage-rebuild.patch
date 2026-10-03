@@ -1,0 +1,600 @@
+From d5c35fdfecd74cf77b8be839ddf625849000e259 Mon Sep 17 00:00:00 2001
+From: Shirjan Khadka <shirjan.2.khadka@gmail.com>
+Date: Sat, 3 Oct 2026 10:18:45 +0000
+Subject: [PATCH 1/5] Fix mobile drawer stuck hover + add active states to menu
+ links
+
+---
+ css/nd-chrome.css | 8 +++++++-
+ js/nd-chrome.js   | 8 ++++++--
+ 2 files changed, 13 insertions(+), 3 deletions(-)
+
+diff --git a/css/nd-chrome.css b/css/nd-chrome.css
+index d94c8008..9f319be8 100644
+--- a/css/nd-chrome.css
++++ b/css/nd-chrome.css
+@@ -103,6 +103,7 @@
+   transition: all var(--nd-t-fast) var(--nd-ease);
+ }
+ #nd-header .nd-drop a:hover{ color: var(--nd-text); background: var(--nd-lime-faint); border-left-color: var(--nd-lime); }
++#nd-header .nd-drop a.active{ color: var(--nd-lime); font-weight: 600; }
+ /* Right cluster */
+ #nd-header .nd-cluster{ display: flex; align-items: center; gap: var(--nd-s2); margin-left: auto; flex: none; }
+ #nd-header .nd-pill{
+@@ -170,7 +171,12 @@
+   display: block; padding: 10px 4px; color: var(--nd-muted); text-decoration: none;
+   font: 500 0.8125rem var(--nd-font-sans); min-height: 44px;
+ }
+-#nd-header .nd-acc .nd-accbody a:hover{ color: var(--nd-lime); }
++#nd-header .nd-acc .nd-accbody a.active{ color: var(--nd-lime); font-weight: 600; }
++/* Hover lime only on devices with a real hover pointer — on touch screens a
++   tap leaves :hover stuck, falsely marking random items as current. */
++@media (hover: hover){
++  #nd-header .nd-acc .nd-accbody a:hover{ color: var(--nd-lime); }
++}
+ 
+ /* ============ FOOTER ============ */
+ #nd-footer{
+diff --git a/js/nd-chrome.js b/js/nd-chrome.js
+index fcb98687..2034204e 100644
+--- a/js/nd-chrome.js
++++ b/js/nd-chrome.js
+@@ -178,7 +178,8 @@
+     var h = '';
+     NAV.forEach(function (m, i) {
+       var links = m.links.map(function (l) {
+-        return '<a href="' + esc(l[1]) + '">' + esc(l[0]) + '</a>';
++        var cls = isActive(l[1]) ? ' class="active"' : '';
++        return '<a href="' + esc(l[1]) + '"' + cls + '>' + esc(l[0]) + '</a>';
+       }).join('');
+       h += '<div class="nd-navitem" data-i="' + i + '">' +
+         '<button class="nd-navbtn nd-focusable" aria-haspopup="true" aria-expanded="false">' +
+@@ -231,7 +232,10 @@
+     var h = '';
+     NAV.forEach(function (m) {
+       h += '<div class="nd-acc"><button aria-expanded="false"><span>' + esc(t(m.label)) + '</span><span>▾</span></button><div class="nd-accbody">' +
+-        m.links.map(function (l) { return '<a href="' + esc(l[1]) + '">' + esc(l[0]) + '</a>'; }).join('') +
++        m.links.map(function (l) {
++          var cls = isActive(l[1]) ? ' class="active"' : '';
++          return '<a href="' + esc(l[1]) + '"' + cls + '>' + esc(l[0]) + '</a>';
++        }).join('') +
+         '</div></div>';
+     });
+     PLAIN_LINKS.forEach(function (l) {
+-- 
+2.43.0
+
+
+From fa0bd1042f0551e83ce8f2879e0b27a429511d61 Mon Sep 17 00:00:00 2001
+From: Shirjan Khadka <shirjan.2.khadka@gmail.com>
+Date: Sat, 3 Oct 2026 10:22:27 +0000
+Subject: [PATCH 2/5] Honest nav: broker deep-links, consolidated news menu,
+ blog independence
+
+---
+ blog/index.html | 23 +----------------------
+ js/nd-chrome.js | 22 ++++++++++------------
+ 2 files changed, 11 insertions(+), 34 deletions(-)
+
+diff --git a/blog/index.html b/blog/index.html
+index 4c651b66..0672c04a 100644
+--- a/blog/index.html
++++ b/blog/index.html
+@@ -87,28 +87,7 @@
+ 
+   <a class="skip-link" href="#main">Skip to content</a>
+ 
+-  <header class="nav" id="nav">
+-    <div class="nav-inner">
+-      <a href="/" class="nav-logo" aria-label="Shirjan Khadka, home">
+-        <span class="logo-mark">SK</span>
+-        <span class="logo-text">Shirjan Khadka</span>
+-      </a>
+-      <nav class="nav-links" id="navLinks" aria-label="Primary">
+-        <a href="/#work">Work</a>
+-        <a href="/#experience">Experience</a>
+-        <a href="/blog/">Blog</a>
+-        <a href="/nepse-decode/">NEPSE Tools</a>
+-        <a href="/#contact">Contact</a>
+-      </nav>
+-      <div class="nav-right">
+-        <a class="avail-pill" href="mailto:shirjan.2.khadka@gmail.com"><span class="avail-dot" aria-hidden="true"></span>Available for opportunities</a>
+-        <a href="/#contact" class="btn btn-dark btn-sm">Let's Talk</a>
+-        <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
+-          <span></span><span></span><span></span>
+-        </button>
+-      </div>
+-    </div>
+-  </header>
++  <div id="nd-header"></div>
+ 
+   <main id="main">
+     <div class="section-inner">
+diff --git a/js/nd-chrome.js b/js/nd-chrome.js
+index 2034204e..312b67f1 100644
+--- a/js/nd-chrome.js
++++ b/js/nd-chrome.js
+@@ -31,18 +31,16 @@
+       ['Accumulation / Distribution', '/nepse-brokers/']
+     ]},
+     { label: 'Broker', links: [
+-      ['Broker Holding', '/nepse-brokers/'],
+-      ['Broker Ranking', '/nepse-brokers/'],
+-      ['Broker Compare', '/nepse-brokers/'],
+-      ['Bulk Transaction', '/nepse-brokers/'],
+-      ['Broker Map', '/nepse-brokers/']
++      ['Top Brokers', '/nepse-brokers/?view=top'],
++      ['Broker Trade Pattern', '/nepse-brokers/?view=broker'],
++      ['Stock Trade Pattern', '/nepse-brokers/?view=stock'],
++      ['Stockwise Holdings', '/nepse-brokers/?view=holdings'],
++      ['Accumulation / Distribution', '/nepse-brokers/?view=accdist']
+     ]},
+     { label: 'News', links: [
+-      ['Market news', '/nepse-news/'],
+-      ['Economic calendar', '/nepse-actions/'],
+-      ['SEBON Watch', '/nepse-news/'],
+-      ['IPO & FPO', '/nepse-actions/'],
+-      ['Dividend & Bonus', '/nepse-actions/']
++      ['Market News', '/nepse-news/'],
++      ['Market Wrap', '/blog/'],
++      ['Corporate Actions', '/nepse-actions/']
+     ]},
+     { label: 'Trade', links: [
+       ['Practice Trading', '/nepse-simulator/'],
+@@ -249,8 +247,8 @@
+   var FOOT = [
+     ['MARKETS', [['NEPSE Live', '/nepse-decode/'], ['Daily summary', '/nepse-dashboard/'], ['Market wrap', '/blog/'], ['Heat Map', '/nepse-sectors/'], ['Circuit watch', '/nepse-trending/'], ['IPO / FPO', '/nepse-actions/']]],
+     ['STOCKS', [['Listed securities', '/nepse-screener/'], ['Stock Screener', '/nepse-screener/'], ['Fair Value', '/nepse-value/'], ['Stock Scorecard', '/nepse-trending/'], ['Accumulation / Distribution', '/nepse-brokers/']]],
+-    ['BROKER', [['Broker Holding', '/nepse-brokers/'], ['Broker Ranking', '/nepse-brokers/'], ['Broker Compare', '/nepse-brokers/'], ['Bulk Transaction', '/nepse-brokers/'], ['Broker Map', '/nepse-brokers/']]],
+-    ['NEWS', [['Market news', '/nepse-news/'], ['Economic calendar', '/nepse-actions/'], ['SEBON Watch', '/nepse-news/'], ['IPO & FPO', '/nepse-actions/'], ['Dividend & Bonus', '/nepse-actions/']]],
++    ['BROKER', [['Top Brokers', '/nepse-brokers/?view=top'], ['Broker Trade Pattern', '/nepse-brokers/?view=broker'], ['Stock Trade Pattern', '/nepse-brokers/?view=stock'], ['Stockwise Holdings', '/nepse-brokers/?view=holdings'], ['Accumulation / Distribution', '/nepse-brokers/?view=accdist']]],
++    ['NEWS', [['Market News', '/nepse-news/'], ['Market Wrap', '/blog/'], ['Corporate Actions', '/nepse-actions/']]],
+     ['TRADE', [['Practice Trading', '/nepse-simulator/'], ['Trading Journal', '/nepse-portfolio/'], ['Price Alerts', '/nepse-watchlist/'], ['Replay Machine', '/nepse-simulator/']]],
+     ['RESEARCH', [['Money Flow', '/nepse-brokers/'], ['Market regime', '/nepse-chart/'], ['Market breadth', '/nepse-sectors/'], ['Seasonality', '/nepse-reports/'], ['Data sources', '/status/']]]
+   ];
+-- 
+2.43.0
+
+
+From 7a62839f37ae0e12166501809c034def468ecf15 Mon Sep 17 00:00:00 2001
+From: Shirjan Khadka <shirjan.2.khadka@gmail.com>
+Date: Sat, 3 Oct 2026 10:24:21 +0000
+Subject: [PATCH 3/5] Honest nav: unique destinations, broker deep-links, blog
+ independence
+
+---
+ js/nd-chrome.js | 14 +++++---------
+ 1 file changed, 5 insertions(+), 9 deletions(-)
+
+diff --git a/js/nd-chrome.js b/js/nd-chrome.js
+index 312b67f1..b0930ace 100644
+--- a/js/nd-chrome.js
++++ b/js/nd-chrome.js
+@@ -17,18 +17,15 @@
+   var NAV = [
+     { label: 'Markets', live: true, links: [
+       ['NEPSE Live', '/nepse-decode/'],
+-      ['Daily summary', '/nepse-dashboard/'],
+       ['Market wrap', '/blog/'],
+       ['Heat Map', '/nepse-sectors/'],
+       ['Circuit watch', '/nepse-trending/'],
+       ['IPO / FPO', '/nepse-actions/']
+     ]},
+     { label: 'Stocks', links: [
+-      ['Listed securities', '/nepse-screener/'],
+       ['Stock Screener', '/nepse-screener/'],
+       ['Fair Value', '/nepse-value/'],
+-      ['Stock Scorecard', '/nepse-trending/'],
+-      ['Accumulation / Distribution', '/nepse-brokers/']
++      ['Accumulation / Distribution', '/nepse-brokers/?view=accdist']
+     ]},
+     { label: 'Broker', links: [
+       ['Top Brokers', '/nepse-brokers/?view=top'],
+@@ -45,11 +42,10 @@
+     { label: 'Trade', links: [
+       ['Practice Trading', '/nepse-simulator/'],
+       ['Trading Journal', '/nepse-portfolio/'],
+-      ['Price Alerts', '/nepse-watchlist/'],
+-      ['Replay Machine', '/nepse-simulator/']
++      ['Price Alerts', '/nepse-watchlist/']
+     ]},
+     { label: 'Research', links: [
+-      ['Money Flow', '/nepse-brokers/'],
++      ['Money Flow', '/nepse-brokers/?view=accdist'],
+       ['Market regime', '/nepse-chart/'],
+       ['Market breadth', '/nepse-sectors/'],
+       ['Seasonality', '/nepse-reports/'],
+@@ -245,12 +241,12 @@
+   /* ---------------- footer ---------------- */
+ 
+   var FOOT = [
+-    ['MARKETS', [['NEPSE Live', '/nepse-decode/'], ['Daily summary', '/nepse-dashboard/'], ['Market wrap', '/blog/'], ['Heat Map', '/nepse-sectors/'], ['Circuit watch', '/nepse-trending/'], ['IPO / FPO', '/nepse-actions/']]],
++    ['MARKETS', [['NEPSE Live', '/nepse-decode/'], ['Market wrap', '/blog/'], ['Heat Map', '/nepse-sectors/'], ['Circuit watch', '/nepse-trending/'], ['IPO / FPO', '/nepse-actions/']]],
+     ['STOCKS', [['Listed securities', '/nepse-screener/'], ['Stock Screener', '/nepse-screener/'], ['Fair Value', '/nepse-value/'], ['Stock Scorecard', '/nepse-trending/'], ['Accumulation / Distribution', '/nepse-brokers/']]],
+     ['BROKER', [['Top Brokers', '/nepse-brokers/?view=top'], ['Broker Trade Pattern', '/nepse-brokers/?view=broker'], ['Stock Trade Pattern', '/nepse-brokers/?view=stock'], ['Stockwise Holdings', '/nepse-brokers/?view=holdings'], ['Accumulation / Distribution', '/nepse-brokers/?view=accdist']]],
+     ['NEWS', [['Market News', '/nepse-news/'], ['Market Wrap', '/blog/'], ['Corporate Actions', '/nepse-actions/']]],
+     ['TRADE', [['Practice Trading', '/nepse-simulator/'], ['Trading Journal', '/nepse-portfolio/'], ['Price Alerts', '/nepse-watchlist/'], ['Replay Machine', '/nepse-simulator/']]],
+-    ['RESEARCH', [['Money Flow', '/nepse-brokers/'], ['Market regime', '/nepse-chart/'], ['Market breadth', '/nepse-sectors/'], ['Seasonality', '/nepse-reports/'], ['Data sources', '/status/']]]
++    ['RESEARCH', [['Money Flow', '/nepse-brokers/?view=accdist'], ['Market regime', '/nepse-chart/'], ['Market breadth', '/nepse-sectors/'], ['Seasonality', '/nepse-reports/'], ['Data sources', '/status/']]]
+   ];
+ 
+   function footerHTML() {
+-- 
+2.43.0
+
+
+From 1b018b8c3094953a5f8511f50bc8b5e48bb03b80 Mon Sep 17 00:00:00 2001
+From: Shirjan Khadka <shirjan.2.khadka@gmail.com>
+Date: Sat, 3 Oct 2026 10:30:05 +0000
+Subject: [PATCH 4/5] Brand link goes to /nepse-decode/ overview, not site root
+
+---
+ js/nd-chrome.js | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/js/nd-chrome.js b/js/nd-chrome.js
+index b0930ace..a4ae9aee 100644
+--- a/js/nd-chrome.js
++++ b/js/nd-chrome.js
+@@ -198,7 +198,7 @@
+ 
+   function headerHTML() {
+     return '<div class="nd-bar">' +
+-      '<a class="nd-brand nd-focusable" href="/" aria-label="Nepse Decode home">' + LOGO_SVG +
++      '<a class="nd-brand nd-focusable" href="/nepse-decode/" aria-label="Nepse Decode home">' + LOGO_SVG +
+       '<span class="nd-brand-name">Nepse Decode</span></a>' +
+       '<div class="nd-search" role="search">' +
+       '<span class="nd-sicon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>' +
+-- 
+2.43.0
+
+
+From 497ea7e1be06caf9e131ac6794831d0313676708 Mon Sep 17 00:00:00 2001
+From: Shirjan Khadka <shirjan.2.khadka@gmail.com>
+Date: Sat, 3 Oct 2026 10:35:09 +0000
+Subject: [PATCH 5/5] Concept 03 homepage rebuild: index strip, market wrap,
+ newsroom with real data
+
+---
+ css/nd-home.css         | 101 +++++++++++++++++++++++
+ js/nd-home.js           | 177 ++++++++++++++++++++++++++++++++++++++++
+ nepse-decode/index.html |  23 ++++++
+ 3 files changed, 301 insertions(+)
+ create mode 100644 js/nd-home.js
+
+diff --git a/css/nd-home.css b/css/nd-home.css
+index f1c28a19..144715d0 100644
+--- a/css/nd-home.css
++++ b/css/nd-home.css
+@@ -75,3 +75,104 @@ body.d2 input:focus-visible {
+   outline: none;
+   box-shadow: var(--nd-focus-ring);
+ }
++
++/* ============================================================
++   Concept 03 homepage rebuild — editorial sections
++   Index strip, Market Wrap feature, NEPSE index card, Newsroom.
++   Real data only — no mock figures.
++   ============================================================ */
++
++.nd-home{ max-width: var(--nd-page-max); margin: 0 auto; padding: 0 var(--nd-gutter); }
++
++/* ---------- Index strip ---------- */
++.nd-istrip{ position: relative; margin: var(--nd-s6) 0; }
++.nd-istrip-track{
++  display: flex; gap: var(--nd-s3); overflow-x: auto; padding: 4px 2px 12px;
++  scrollbar-width: none; -webkit-overflow-scrolling: touch;
++}
++.nd-istrip-track::-webkit-scrollbar{ display: none; }
++.nd-icard{
++  flex: 0 0 auto; min-width: 148px; padding: var(--nd-s4) var(--nd-s4);
++  background: var(--nd-panel); border: 1px solid var(--nd-border);
++  border-radius: var(--nd-r-md); text-decoration: none; color: var(--nd-text);
++  transition: border-color var(--nd-t-fast) var(--nd-ease), transform var(--nd-t-fast) var(--nd-ease);
++}
++.nd-icard:hover{ border-color: var(--nd-lime); transform: translateY(-2px); }
++.nd-icard .nm{ font: 500 0.75rem var(--nd-font-sans); color: var(--nd-muted); margin-bottom: 6px; white-space: nowrap; }
++.nd-icard .vl{ font: 600 1.25rem var(--nd-font-sans); font-variant-numeric: tabular-nums; }
++.nd-icard .ch{ font: 500 0.8125rem var(--nd-font-sans); margin-top: 4px; font-variant-numeric: tabular-nums; }
++.nd-icard .ch.up{ color: #4ade80; }
++.nd-icard .ch.dn{ color: #f87171; }
++.nd-istrip-nav{
++  position: absolute; top: 50%; transform: translateY(-50%);
++  width: 36px; height: 36px; border-radius: 50%;
++  background: var(--nd-panel); border: 1px solid var(--nd-border);
++  color: var(--nd-text); cursor: pointer; z-index: 2;
++  display: flex; align-items: center; justify-content: center;
++}
++.nd-istrip-nav.prev{ left: -12px; }
++.nd-istrip-nav.next{ right: -12px; }
++.nd-istrip-nav:hover{ border-color: var(--nd-lime); }
++
++/* ---------- Market Wrap + Index card ---------- */
++.nd-wrapgrid{
++  display: grid; grid-template-columns: 1.4fr 1fr; gap: var(--nd-s8);
++  margin: var(--nd-s10) 0; align-items: start;
++}
++@media (max-width: 900px){ .nd-wrapgrid{ grid-template-columns: 1fr; } }
++.nd-badges{ display: flex; gap: var(--nd-s2); flex-wrap: wrap; margin-bottom: var(--nd-s4); }
++.nd-badge{
++  font: 600 0.6875rem var(--nd-font-mono); letter-spacing: 0.08em; text-transform: uppercase;
++  padding: 6px 12px; border-radius: 6px; border: 1px solid var(--nd-border);
++  color: var(--nd-muted); background: var(--nd-panel);
++}
++.nd-badge.lime{ color: var(--nd-lime); border-color: var(--nd-lime); }
++.nd-badge.amber{ color: #fbbf24; border-color: #fbbf24; }
++.nd-wraphead{
++  font-family: var(--nd-font-display); font-weight: 700;
++  font-size: clamp(2rem, 4vw, 3.25rem); line-height: 1.1; letter-spacing: -0.02em;
++  color: var(--nd-text); margin: 0 0 var(--nd-s5);
++}
++.nd-wraphead em{ font-style: italic; color: var(--nd-lime); }
++.nd-wrapbody{ font: 400 1.0625rem/1.7 var(--nd-font-sans); color: var(--nd-muted); margin: 0 0 var(--nd-s4); }
++.nd-wrapbody p{ margin: 0 0 var(--nd-s4); }
++.nd-wrapmeta{ font: 500 0.8125rem var(--nd-font-sans); color: var(--nd-dim); margin-bottom: var(--nd-s5); }
++.nd-wrapmeta strong{ color: var(--nd-text); }
++.nd-btn-lime{
++  display: inline-flex; align-items: center; gap: 8px;
++  background: var(--nd-lime); color: #0a0c10; font: 600 0.9375rem var(--nd-font-sans);
++  padding: 14px 24px; border-radius: 10px; text-decoration: none; border: 0; cursor: pointer;
++  transition: transform var(--nd-t-fast) var(--nd-ease), box-shadow var(--nd-t-fast) var(--nd-ease);
++}
++.nd-btn-lime:hover{ transform: translateY(-2px); box-shadow: 0 8px 24px rgba(184,230,46,.25); }
++
++/* NEPSE index card */
++.nd-ixcard{ background: var(--nd-panel); border: 1px solid var(--nd-border); border-radius: var(--nd-r-lg); padding: var(--nd-s6); }
++.nd-ixcard .lbl{ font: 600 0.75rem var(--nd-font-mono); letter-spacing: 0.1em; color: var(--nd-muted); display: flex; justify-content: space-between; align-items: center; }
++.nd-ixcard .big{ font: 700 2.5rem var(--nd-font-sans); font-variant-numeric: tabular-nums; color: var(--nd-text); margin: 8px 0 4px; }
++.nd-ixcard .chg{ font: 500 0.9375rem var(--nd-font-sans); margin-bottom: var(--nd-s4); }
++.nd-ixcard .chg.up{ color: #4ade80; }
++.nd-ixcard .chg.dn{ color: #f87171; }
++.nd-ixgrid{ display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--nd-s4); margin-bottom: var(--nd-s4); }
++.nd-ixgrid .cell .k{ font: 500 0.6875rem var(--nd-font-mono); letter-spacing: 0.06em; color: var(--nd-dim); margin-bottom: 4px; }
++.nd-ixgrid .cell .v{ font: 600 0.9375rem var(--nd-font-sans); color: var(--nd-text); font-variant-numeric: tabular-nums; }
++.nd-ixfoot{ border-top: 1px solid var(--nd-border); padding-top: var(--nd-s4); display: flex; gap: var(--nd-s4); align-items: flex-start; }
++.nd-ixfoot .note{ font: 400 0.8125rem/1.6 var(--nd-font-sans); color: var(--nd-dim); }
++
++/* ---------- Newsroom ---------- */
++.nd-newsroom{ margin: var(--nd-s12) 0; }
++.nd-newsroom-head{ display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--nd-s6); flex-wrap: wrap; gap: var(--nd-s3); }
++.nd-newsroom-head h2{ font-family: var(--nd-font-display); font-weight: 700; font-size: 1.75rem; color: var(--nd-text); margin: 0; }
++.nd-newsroom-head .sub{ font: 400 0.875rem var(--nd-font-sans); color: var(--nd-dim); }
++.nd-newsgrid{ display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--nd-s5); }
++@media (max-width: 900px){ .nd-newsgrid{ grid-template-columns: 1fr; } }
++.nd-newscard{ background: var(--nd-panel); border: 1px solid var(--nd-border); border-radius: var(--nd-r-lg); padding: var(--nd-s6); }
++.nd-newscard .cat{ display: flex; align-items: center; gap: 8px; font-family: var(--nd-font-display); font-weight: 600; font-size: 1.125rem; color: var(--nd-text); margin-bottom: var(--nd-s4); }
++.nd-newscard .cat .dot{ width: 10px; height: 10px; border-radius: 3px; background: var(--nd-lime); flex: none; }
++.nd-newsitem{ padding: var(--nd-s3) 0; border-bottom: 1px solid var(--nd-border); }
++.nd-newsitem:last-child{ border-bottom: 0; }
++.nd-newsitem a{ text-decoration: none; color: var(--nd-text); display: block; }
++.nd-newsitem a:hover .t{ color: var(--nd-lime); }
++.nd-newsitem .t{ font: 500 0.9375rem/1.5 var(--nd-font-sans); margin-bottom: 6px; transition: color var(--nd-t-fast); }
++.nd-newsitem .m{ font: 400 0.75rem var(--nd-font-mono); color: var(--nd-dim); display: flex; gap: 8px; align-items: center; }
++.nd-newsitem .m .tag{ color: var(--nd-lime); font-weight: 600; }
+diff --git a/js/nd-home.js b/js/nd-home.js
+new file mode 100644
+index 00000000..0c278ab3
+--- /dev/null
++++ b/js/nd-home.js
+@@ -0,0 +1,177 @@
++/**
++ * js/nd-home.js — Concept 03 editorial homepage sections.
++ * Renders index strip, market wrap, and newsroom from REAL data only.
++ * No mock figures. Every number comes from live.json or news.json.
++ */
++(function () {
++  'use strict';
++
++  var LIVE_URL = '/nepse-chart/data/live.json';
++  var NEWS_URL = '/nepse-chart/data/news.json';
++
++  function $(id) { return document.getElementById(id); }
++  function esc(s) {
++    return String(s == null ? '' : s).replace(/&/g, '&amp;')
++      .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
++  }
++  function fmtNum(v, dp) {
++    if (v == null || !isFinite(Number(v))) return '—';
++    return Number(v).toLocaleString('en-US', {
++      minimumFractionDigits: dp == null ? 2 : dp,
++      maximumFractionDigits: dp == null ? 2 : dp
++    });
++  }
++  function fetchJSON(url) {
++    return fetch(url, { cache: 'no-store' }).then(function (r) {
++      if (!r.ok) throw new Error('HTTP ' + r.status);
++      return r.json();
++    });
++  }
++
++  /* ---------- Index strip ---------- */
++  function renderStrip(indices) {
++    var track = $('ndStripTrack');
++    if (!track || !indices || !indices.length) return;
++    // Order: NEPSE first, then sub-indices by absolute change
++    var sorted = indices.slice().sort(function (a, b) {
++      if (a.name === 'NEPSE') return -1;
++      if (b.name === 'NEPSE') return 1;
++      return Math.abs(b.percent_change || 0) - Math.abs(a.percent_change || 0);
++    });
++    track.innerHTML = sorted.map(function (ix) {
++      var chg = Number(ix.percent_change) || 0;
++      var cls = chg > 0 ? 'up' : chg < 0 ? 'dn' : '';
++      var arrow = chg > 0 ? '▲' : chg < 0 ? '▼' : '·';
++      var href = ix.name === 'NEPSE' ? '/nepse-chart/' : '/nepse-sectors/';
++      return '<a class="nd-icard" href="' + href + '">' +
++        '<div class="nm">' + esc(ix.name) + '</div>' +
++        '<div class="vl">' + fmtNum(ix.value) + '</div>' +
++        '<div class="ch ' + cls + '">' + arrow + ' ' + (chg > 0 ? '+' : '') + chg.toFixed(2) + '%</div>' +
++        '</a>';
++    }).join('');
++    var prev = $('ndStripPrev'), next = $('ndStripNext');
++    if (prev) prev.onclick = function () { track.scrollBy({ left: -320, behavior: 'smooth' }); };
++    if (next) next.onclick = function () { track.scrollBy({ left: 320, behavior: 'smooth' }); };
++  }
++
++  /* ---------- Market Wrap (generated from real session data) ---------- */
++  function renderWrap(live) {
++    var host = $('ndWrap');
++    if (!host || !live || !live.index) return;
++    var ix = live.index;
++    var chg = Number(ix.change) || 0;
++    var pct = Number(ix.percent_change) || 0;
++    var dir = chg > 0 ? 'higher' : chg < 0 ? 'lower' : 'flat';
++    var sessDate = '';
++    try {
++      var d = new Date((live.data_asof || live.asof));
++      sessDate = d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kathmandu' });
++    } catch (e) {}
++    // Leading/lagging sectors from indices
++    var sectors = (live.indices || []).filter(function (x) {
++      return x.name !== 'NEPSE' && x.name !== 'Sensitive' && x.name !== 'Float' && x.name !== 'Sensitive Float';
++    });
++    sectors.sort(function (a, b) { return (b.percent_change || 0) - (a.percent_change || 0); });
++    var leaders = sectors.slice(0, 2).map(function (x) { return x.name; }).join(' and ');
++    var laggards = sectors.slice(-2).map(function (x) { return x.name; }).join(' and ');
++
++    var headline = 'NEPSE closes ' + dir;
++    if (Math.abs(pct) >= 0.5) headline += ' sharply';
++    headline += ' at ' + fmtNum(ix.value);
++    if (leaders) headline += ' as ' + esc(leaders.toLowerCase()) + ' lead';
++
++    var body1 = 'The NEPSE index closed at ' + fmtNum(ix.value) + ' (' +
++      (chg > 0 ? '+' : '') + fmtNum(chg) + ' points, ' +
++      (pct > 0 ? '+' : '') + pct.toFixed(2) + '%). ';
++    if (leaders) {
++      body1 += chg >= 0
++        ? 'Strength came from ' + esc(leaders) + ' shares. '
++        : esc(leaders) + ' shares declined the least. ';
++    }
++    if (laggards && laggards !== leaders) body1 += 'Weakness was concentrated in ' + esc(laggards) + '. ';
++    body1 += 'Day range: ' + fmtNum(ix.low) + ' – ' + fmtNum(ix.high) + '.';
++
++    host.innerHTML =
++      '<div class="nd-badges">' +
++        '<span class="nd-badge lime">Market Wrap</span>' +
++        '<span class="nd-badge">' + esc(sessDate) + '</span>' +
++        '<span class="nd-badge amber">Closing figures · ' + esc(sessDate.toUpperCase()) + '</span>' +
++      '</div>' +
++      '<h2 class="nd-wraphead">' + esc(headline) + '</h2>' +
++      '<div class="nd-wrapbody"><p>' + body1 + '</p>' +
++      '<p>All figures below are the official session close. Quotes refresh during market hours; ' +
++      'outside hours the last close is shown.</p></div>' +
++      '<div class="nd-wrapmeta"><strong>Nepse Decode Desk</strong> · Data as of ' + esc(sessDate) + ' · Source: NEPSE</div>' +
++      '<a class="nd-btn-lime" href="/nepse-chart/">See today\'s market →</a>';
++  }
++
++  /* ---------- NEPSE index card ---------- */
++  function renderIndexCard(live) {
++    var host = $('ndIxCard');
++    if (!host || !live || !live.index) return;
++    var ix = live.index;
++    var chg = Number(ix.change) || 0;
++    var pct = Number(ix.percent_change) || 0;
++    var cls = chg > 0 ? 'up' : chg < 0 ? 'dn' : '';
++    var arrow = chg > 0 ? '▲' : chg < 0 ? '▼' : '·';
++    host.innerHTML =
++      '<div class="lbl"><span>NEPSE INDEX</span><span class="nd-badge amber">' + esc(live.market || '—') + '</span></div>' +
++      '<div class="big">' + fmtNum(ix.value) + '</div>' +
++      '<div class="chg ' + cls + '">' + arrow + ' ' + (chg > 0 ? '+' : '') + fmtNum(chg) +
++        ' (' + (pct > 0 ? '+' : '') + pct.toFixed(2) + '%) today</div>' +
++      '<div class="nd-ixgrid">' +
++        '<div class="cell"><div class="k">OPEN</div><div class="v">—</div></div>' +
++        '<div class="cell"><div class="k">HIGH</div><div class="v">' + fmtNum(ix.high) + '</div></div>' +
++        '<div class="cell"><div class="k">LOW</div><div class="v">' + fmtNum(ix.low) + '</div></div>' +
++        '<div class="cell"><div class="k">PREV CLOSE</div><div class="v">' + fmtNum(ix.previous_close) + '</div></div>' +
++      '</div>' +
++      '<div class="nd-ixfoot"><span class="nd-badge amber">Source: NEPSE</span>' +
++      '<span class="note">Figures are the official session close. Live quotes resume at the next market open.</span></div>';
++  }
++
++  /* ---------- Newsroom ---------- */
++  function renderNewsroom(items) {
++    var host = $('ndNewsGrid');
++    if (!host || !items || !items.length) return;
++    // Categorize: markets / companies / economy (simple keyword buckets)
++    var cats = { Markets: [], Companies: [], 'Economy & Policy': [] };
++    items.forEach(function (n) {
++      var t = ((n.title || '') + ' ' + (n.summary || '')).toLowerCase();
++      if (/nrb|sebon|policy|economy|remittance|ipo|government|budget/.test(t)) cats['Economy & Policy'].push(n);
++      else if (/hydropower|bank|insurance|finance|company|ltd|dividend|bonus/.test(t)) cats.Companies.push(n);
++      else cats.Markets.push(n);
++    });
++    host.innerHTML = Object.keys(cats).map(function (cat) {
++      var list = cats[cat].slice(0, 4);
++      if (!list.length) return '';
++      return '<div class="nd-newscard"><div class="cat"><span class="dot"></span>' + esc(cat) + '</div>' +
++        list.map(function (n) {
++          var href = n.url || n.link || '/nepse-news/';
++          var time = n.published || n.date || '';
++          var tag = (n.tags && n.tags[0]) || (n.symbol || '');
++          return '<div class="nd-newsitem"><a href="' + esc(href) + '">' +
++            '<div class="t">' + esc(n.title || 'Untitled') + '</div>' +
++            '<div class="m"><span>' + esc(time) + '</span>' +
++            (tag ? '<span class="tag">' + esc(String(tag).toUpperCase()) + '</span>' : '') +
++            '</div></a></div>';
++        }).join('') + '</div>';
++    }).join('');
++  }
++
++  /* ---------- Init ---------- */
++  function init() {
++    if (!$('ndStripTrack') && !$('ndWrap') && !$('ndNewsGrid')) return;
++    fetchJSON(LIVE_URL).then(function (live) {
++      renderStrip(live.indices);
++      renderWrap(live);
++      renderIndexCard(live);
++    }).catch(function () {});
++    fetchJSON(NEWS_URL).then(function (news) {
++      var items = Array.isArray(news) ? news : (news.items || news.news || []);
++      renderNewsroom(items);
++    }).catch(function () {});
++  }
++
++  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
++  else init();
++})();
+diff --git a/nepse-decode/index.html b/nepse-decode/index.html
+index c906eedb..10fddf2a 100644
+--- a/nepse-decode/index.html
++++ b/nepse-decode/index.html
+@@ -91,6 +91,28 @@
+       <div class="d2-ticker-track" id="d2TickTrack"><span class="d2-skl" style="height:20px;width:40%;margin:2px 16px"></span></div>
+     </div>
+ 
++    <!-- Concept 03 editorial sections : real data only -->
++    <div class="nd-home">
++      <div class="nd-istrip" aria-label="Market indices">
++        <button class="nd-istrip-nav prev" id="ndStripPrev" aria-label="Scroll indices left">&lt;</button>
++        <div class="nd-istrip-track" id="ndStripTrack"></div>
++        <button class="nd-istrip-nav next" id="ndStripNext" aria-label="Scroll indices right">&gt;</button>
++      </div>
++
++      <div class="nd-wrapgrid">
++        <div id="ndWrap" aria-label="Market wrap"></div>
++        <div class="nd-ixcard" id="ndIxCard" aria-label="NEPSE index"></div>
++      </div>
++
++      <section class="nd-newsroom" aria-label="From the newsroom">
++        <div class="nd-newsroom-head">
++          <h2>From the newsroom</h2>
++          <span class="sub">Category feeds &middot; refreshed through the trading day</span>
++        </div>
++        <div class="nd-newsgrid" id="ndNewsGrid"></div>
++      </section>
++    </div>
++
+     <!-- S1 · MARKET COMMAND -->
+     <section class="d2-card" aria-label="Market overview" style="margin-bottom:20px">
+       <div class="d2-hero-grid">
+@@ -332,6 +354,7 @@ window.addEventListener('error', function (e) {
+ <script src="/js/nepse-flash.js?v=20261003a" defer></script>
+ <script src="/js/company-logos.js" defer></script>
+ <script src="/js/nepse-logos.js" defer></script>
++<script src="/js/nd-home.js?v=20261003a" defer></script>
+ <script src="/js/nd-chrome.js?v=20261003a" defer></script>
+ <script>
+ document.addEventListener('DOMContentLoaded', function(){
+-- 
+2.43.0
+
