@@ -103,6 +103,7 @@
   transition: all var(--nd-t-fast) var(--nd-ease);
 }
 #nd-header .nd-drop a:hover{ color: var(--nd-text); background: var(--nd-lime-faint); border-left-color: var(--nd-lime); }
+#nd-header .nd-drop a.active{ color: var(--nd-lime); font-weight: 600; }
 /* Right cluster */
 #nd-header .nd-cluster{ display: flex; align-items: center; gap: var(--nd-s2); margin-left: auto; flex: none; }
 #nd-header .nd-pill{
@@ -170,7 +171,12 @@
   display: block; padding: 10px 4px; color: var(--nd-muted); text-decoration: none;
   font: 500 0.8125rem var(--nd-font-sans); min-height: 44px;
 }
-#nd-header .nd-acc .nd-accbody a:hover{ color: var(--nd-lime); }
+#nd-header .nd-acc .nd-accbody a.active{ color: var(--nd-lime); font-weight: 600; }
+/* Hover lime only on devices with a real hover pointer — on touch screens a
+   tap leaves :hover stuck, falsely marking random items as current. */
+@media (hover: hover){
+  #nd-header .nd-acc .nd-accbody a:hover{ color: var(--nd-lime); }
+}
 
 /* ============ FOOTER ============ */
 #nd-footer{

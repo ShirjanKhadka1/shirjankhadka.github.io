@@ -31,18 +31,16 @@
       ['Accumulation / Distribution', '/nepse-brokers/']
     ]},
     { label: 'Broker', links: [
-      ['Broker Holding', '/nepse-brokers/'],
-      ['Broker Ranking', '/nepse-brokers/'],
-      ['Broker Compare', '/nepse-brokers/'],
-      ['Bulk Transaction', '/nepse-brokers/'],
-      ['Broker Map', '/nepse-brokers/']
+      ['Top Brokers', '/nepse-brokers/?view=top'],
+      ['Broker Trade Pattern', '/nepse-brokers/?view=broker'],
+      ['Stock Trade Pattern', '/nepse-brokers/?view=stock'],
+      ['Stockwise Holdings', '/nepse-brokers/?view=holdings'],
+      ['Accumulation / Distribution', '/nepse-brokers/?view=accdist']
     ]},
     { label: 'News', links: [
-      ['Market news', '/nepse-news/'],
-      ['Economic calendar', '/nepse-actions/'],
-      ['SEBON Watch', '/nepse-news/'],
-      ['IPO & FPO', '/nepse-actions/'],
-      ['Dividend & Bonus', '/nepse-actions/']
+      ['Market News', '/nepse-news/'],
+      ['Market Wrap', '/blog/'],
+      ['Corporate Actions', '/nepse-actions/']
     ]},
     { label: 'Trade', links: [
       ['Practice Trading', '/nepse-simulator/'],
@@ -178,7 +176,8 @@
     var h = '';
     NAV.forEach(function (m, i) {
       var links = m.links.map(function (l) {
-        return '<a href="' + esc(l[1]) + '">' + esc(l[0]) + '</a>';
+        var cls = isActive(l[1]) ? ' class="active"' : '';
+        return '<a href="' + esc(l[1]) + '"' + cls + '>' + esc(l[0]) + '</a>';
       }).join('');
       h += '<div class="nd-navitem" data-i="' + i + '">' +
         '<button class="nd-navbtn nd-focusable" aria-haspopup="true" aria-expanded="false">' +
@@ -231,7 +230,10 @@
     var h = '';
     NAV.forEach(function (m) {
       h += '<div class="nd-acc"><button aria-expanded="false"><span>' + esc(t(m.label)) + '</span><span>▾</span></button><div class="nd-accbody">' +
-        m.links.map(function (l) { return '<a href="' + esc(l[1]) + '">' + esc(l[0]) + '</a>'; }).join('') +
+        m.links.map(function (l) {
+          var cls = isActive(l[1]) ? ' class="active"' : '';
+          return '<a href="' + esc(l[1]) + '"' + cls + '>' + esc(l[0]) + '</a>';
+        }).join('') +
         '</div></div>';
     });
     PLAIN_LINKS.forEach(function (l) {
@@ -245,8 +247,8 @@
   var FOOT = [
     ['MARKETS', [['NEPSE Live', '/nepse-decode/'], ['Daily summary', '/nepse-dashboard/'], ['Market wrap', '/blog/'], ['Heat Map', '/nepse-sectors/'], ['Circuit watch', '/nepse-trending/'], ['IPO / FPO', '/nepse-actions/']]],
     ['STOCKS', [['Listed securities', '/nepse-screener/'], ['Stock Screener', '/nepse-screener/'], ['Fair Value', '/nepse-value/'], ['Stock Scorecard', '/nepse-trending/'], ['Accumulation / Distribution', '/nepse-brokers/']]],
-    ['BROKER', [['Broker Holding', '/nepse-brokers/'], ['Broker Ranking', '/nepse-brokers/'], ['Broker Compare', '/nepse-brokers/'], ['Bulk Transaction', '/nepse-brokers/'], ['Broker Map', '/nepse-brokers/']]],
-    ['NEWS', [['Market news', '/nepse-news/'], ['Economic calendar', '/nepse-actions/'], ['SEBON Watch', '/nepse-news/'], ['IPO & FPO', '/nepse-actions/'], ['Dividend & Bonus', '/nepse-actions/']]],
+    ['BROKER', [['Top Brokers', '/nepse-brokers/?view=top'], ['Broker Trade Pattern', '/nepse-brokers/?view=broker'], ['Stock Trade Pattern', '/nepse-brokers/?view=stock'], ['Stockwise Holdings', '/nepse-brokers/?view=holdings'], ['Accumulation / Distribution', '/nepse-brokers/?view=accdist']]],
+    ['NEWS', [['Market News', '/nepse-news/'], ['Market Wrap', '/blog/'], ['Corporate Actions', '/nepse-actions/']]],
     ['TRADE', [['Practice Trading', '/nepse-simulator/'], ['Trading Journal', '/nepse-portfolio/'], ['Price Alerts', '/nepse-watchlist/'], ['Replay Machine', '/nepse-simulator/']]],
     ['RESEARCH', [['Money Flow', '/nepse-brokers/'], ['Market regime', '/nepse-chart/'], ['Market breadth', '/nepse-sectors/'], ['Seasonality', '/nepse-reports/'], ['Data sources', '/status/']]]
   ];
