@@ -109,3 +109,37 @@ Contract fields every surface must eventually expose: value, unit, as_of (NPT, f
 ## Change log
 
 - 2026-10-03: skeleton created; full per-page inventory completed; register filled. Ready for [GATE].
+
+## Terms-status resolutions (2026-10-04 — strategist calls, owner to ratify)
+
+Five items were flagged UNVERIFIED in the V1 gate review. Resolutions below; the
+register is updated to match. "Ratify" = owner confirms or overrides.
+
+### R1 — NEPSE official API via reverse-engineered auth (S1)
+- Status: terms UNVERIFIED. Sole intraday source (quotes, index, floorsheet); no fallback exists.
+- Call: KEEP with safeguards — identifying UA (in place), polite cadence (15-min live / 5-min floorsheet, market hours only), kill switch (V9), no credential sharing, backoff on errors.
+- If NEPSE blocks automated access: intraday surfaces show UNAVAILABLE (never stale-as-live); site falls back to validated daily close data.
+- Medium term: owner seeks written permission from NEPSE for automated polling, or licenses a vendor feed. This is the highest-risk single dependency on the site.
+
+### R2 — ShareHub Nepal mirror as close "validation" (S2)
+- Status: unofficial third-party mirror; terms UNVERIFIED; poller sends a generic browser UA (fix queued, V2).
+- Call: DEMOTE to secondary sanity band-check only. The close itself comes from the NEPSE official API (S1); "validated" in our pipeline means OUR gates (quote-count vs universe, OHLC sanity, session checks, 8% band) — not ShareHub's authority. capture-close should prefer S1 close data when available.
+- UA fix: standardize on the identifying NepseDecode UA (V2 code fix).
+
+### R3 — Merolagani public floorsheets, republication rights (S4)
+- Status: permission NOT confirmed. Backfill from 2026-07-15; intraday via S1.
+- Call: KEEP with restrictions — factual flow numbers only (our aggregation and presentation are original); no Merolagani commentary or text copied; broker pages attribute the source ("Floorsheet records: NEPSE official / Merolagani public floorsheets").
+- Owner to send a permission request (template: V6 logo-request pattern). If refused: fall back to NEPSE official floorsheet only (backfill depth lost; label the coverage gap honestly).
+
+### R4 — Capital Max / Chukul automated extraction ToS (S9/S10)
+- Status: ToS NOT reviewed; automated extraction feasibility not confirmed.
+- Call: MANUAL EXPORT ONLY until reviewed — merge-quarterly.js already works from XLSX exports, so no pipeline change is needed. Formal policy: no automated scraping of Capital Max or Chukul. Owner reviews ToS / seeks permission before any automation.
+
+### R5 — 2003+ index-history seed provenance (S11)
+- Status: provenance UNVERIFIED. Base series believed seeded from the nepse-open-data study dataset (2026-09-24 backtest, 5,333 sessions 2003–2026); daily appends from the validated live.json close are sound and never invented.
+- Call: confirm the seed file's origin and license, document it here. Until confirmed, the chart-room history label carries its asof; no "verified" claim on the seed.
+
+## Change log
+
+- 2026-10-03: skeleton created; full per-page inventory completed; register filled. Ready for [GATE].
+- 2026-10-04: terms resolutions R1–R5 recorded (strategist calls, pending owner ratification).
