@@ -58,26 +58,6 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Health bake freshness (fail fast with the fix)
-        # The smoke test catches a stale status/index.html HEALTH-BAKE block,
-        # but only after the full Playwright suite runs. Fail here instead,
-        # with the exact remedy. Deterministic: compares the baked session
-        # date against the manifest and ignores the baked timestamp
-        # (build-health.js always stamps "now").
-        run: |
-          node -e "
-            const fs = require('fs');
-            const manifest = JSON.parse(fs.readFileSync('data/manifest.json', 'utf8'));
-            const html = fs.readFileSync('status/index.html', 'utf8');
-            const m = html.match(/last session (\\d{4}-\\d{2}-\\d{2})/);
-            if (!m) { console.error('::error::no baked session date in status/index.html — HEALTH-BAKE block missing?'); process.exit(1); }
-            if (m[1] !== manifest.session_date) {
-              console.error('::error::stale health bake: status/index.html says last session ' + m[1] + ' but data/manifest.json session_date is ' + manifest.session_date + ' — fix: node tools/build-health.js && git add data/health.json status/index.html');
-              process.exit(1);
-            }
-            console.log('health bake fresh (session ' + m[1] + ')');
-          "
-
       - name: Install test deps
         working-directory: tests
         run: npm ci
@@ -154,12 +134,26 @@ jobs:
             fs.writeFileSync('lhci-out/baseline-summary.json', JSON.stringify(out, null, 2));
             console.log(JSON.stringify(out, null, 2));
             // warn-level budgets (Phase 1): report, do not fail
+            // P2.3: added TBT, JS weight, font weight budgets per brief
             const warns = [];
             for (const [slug, s] of Object.entries(out)) {
               if (s.performance < 0.9) warns.push(slug + ': performance ' + s.performance + ' < 0.90');
               if (s.LCP_ms > 2000) warns.push(slug + ': LCP ' + s.LCP_ms + 'ms > 2000ms');
               if (s.CLS > 0.05) warns.push(slug + ': CLS ' + s.CLS + ' > 0.05');
+              if (s.TBT_ms > 200) warns.push(slug + ': TBT ' + s.TBT_ms + 'ms > 200ms');
               if (s.accessibility < 0.95) warns.push(slug + ': accessibility ' + s.accessibility + ' < 0.95');
+              // JS and font weight: sum transferSize by resource type from network requests
+              const reqs = runs[0].audits['network-requests'] ? runs[0].audits['network-requests'].details.items : [];
+              let jsBytes = 0, fontBytes = 0;
+              for (const r of reqs) {
+                const url = r.url || '';
+                const sz = r.transferSize || 0;
+                if (url.endsWith('.js')) jsBytes += sz;
+                if (url.endsWith('.woff2') || url.endsWith('.woff')) fontBytes += sz;
+              }
+              // gz estimate: ~30% of transfer for JS (already compressed), fonts are binary
+              if (jsBytes > 170 * 1024) warns.push(slug + ': JS ' + Math.round(jsBytes/1024) + 'KB > 170KB');
+              if (fontBytes > 60 * 1024) warns.push(slug + ': fonts ' + Math.round(fontBytes/1024) + 'KB > 60KB');
             }
             if (warns.length) {
               console.log('::warning::Lighthouse budgets (warn-level):');
