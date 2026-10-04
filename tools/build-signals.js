@@ -426,7 +426,15 @@ function r4(x) { return Math.round(x * 10000) / 10000; }
 function computeStats(system, sim, indexDaily, dataQuality) {
   const { trades, finalValue, charges, weeklyEq } = sim;
   const totalReturn = (finalValue - START_CAPITAL) / START_CAPITAL;
-  const years = indexDaily.years;
+  // FIX: compute years from actual equity curve span, not index file coverage.
+  // indexDaily.years only covers 2024-2026 (~2y) but trades span ~15y of symbol data.
+  let years = 0;
+  if (weeklyEq && weeklyEq.length >= 2) {
+    const parseW = (w) => { const [y, ww] = w.split('-W').map(Number); return y + (ww - 1) / 52; };
+    const first = parseW(weeklyEq[0].w), last = parseW(weeklyEq[weeklyEq.length - 1].w);
+    years = Math.max(0, last - first);
+  }
+  if (!years) years = indexDaily.years; // fallback
   const cagr = years > 0 ? Math.pow(finalValue / START_CAPITAL, 1 / years) - 1 : 0;
 
   const wins = trades.filter(t => t.pnl_rs > 0);
@@ -471,6 +479,7 @@ function computeStats(system, sim, indexDaily, dataQuality) {
 
   return {
     annual_return_pct: r2(cagr * 100),
+    backtest_years: r2(years),
     total_return_pct: r2(totalReturn * 100),
     capital_multiple: r2(finalValue / START_CAPITAL),
     final_value: Math.round(finalValue),

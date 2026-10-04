@@ -41,7 +41,8 @@ function money(n) {
 function page(sys, data) {
   const st = data.stats;
   const pageUrl = `https://shirjankhadka.com.np/nepse-signals/${sys}/`;
-  const shortDesc = `${data.title}: transparent rule-based NEPSE trading system. Backtested 2003–2026 — ${pct(st.annual_return_pct)} annual return, ${pct(st.win_rate_pct)} win rate. Educational only.`;
+  const yrs = st.backtest_years || '—';
+  const shortDesc = `${data.title}: transparent rule-based NEPSE trading system. Backtested over ${yrs} years — ${pct(st.annual_return_pct)} annual return, ${pct(st.win_rate_pct)} win rate. Educational only.`;
   const tabs = SLUGS.map(s => {
     const d = JSON.parse(fs.readFileSync(path.join(DATA, s + '.json'), 'utf8'));
     const active = s === sys ? ' aria-current="page" class="active"' : '';
@@ -93,9 +94,9 @@ function page(sys, data) {
     : '';
 
   const NOTES = {
-    'momentum': `<strong>What the backtest says.</strong> Over 23 years this rule set compounded at ${pct(st.annual_return_pct)} a year — below NEPSE buy &amp; hold (${pct(st.benchmark_cagr_pct)}), but with a far shallower worst fall (${pct(st.max_drawdown_pct)} vs the index's deep bear markets). It wins only ${pct(st.win_rate_pct)} of trades; it survives on letting winners run to multiples of risk.`,
-    'trend-relay': `<strong>What the backtest says.</strong> This patient re-entry system compounded at ${pct(st.annual_return_pct)} a year with the shallowest worst fall of the three (${pct(st.max_drawdown_pct)}). It trades rarely (${st.total_trades} trades in 23 years) and wins ${pct(st.win_rate_pct)} of them — a system for waiting, not for action.`,
-    'reversal': `<strong>Read this first.</strong> Over 23 years this system <em>lost</em> money (${pct(st.annual_return_pct)} a year, worst fall ${pct(st.max_drawdown_pct)}). That is itself the finding: on NEPSE, buying oversold dips against the trend has been a losing approach across two decades — sharp knives keep falling. It is published for education, so you can see exactly why, not as something to trade.`,
+    'momentum': `<strong>What the backtest says.</strong> Over ${yrs} years this rule set compounded at ${pct(st.annual_return_pct)} a year — below NEPSE buy &amp; hold (${pct(st.benchmark_cagr_pct)}), but with a far shallower worst fall (${pct(st.max_drawdown_pct)} vs the index's deep bear markets). It wins only ${pct(st.win_rate_pct)} of trades; it survives on letting winners run to multiples of risk.`,
+    'trend-relay': `<strong>What the backtest says.</strong> This patient re-entry system compounded at ${pct(st.annual_return_pct)} a year with the shallowest worst fall of the three (${pct(st.max_drawdown_pct)}). It trades rarely (${st.total_trades} trades in ${yrs} years) and wins ${pct(st.win_rate_pct)} of them — a system for waiting, not for action.`,
+    'reversal': `<strong>Read this first.</strong> Over ${yrs} years this system <em>lost</em> money (${pct(st.annual_return_pct)} a year, worst fall ${pct(st.max_drawdown_pct)}). That is itself the finding: on NEPSE, buying oversold dips against the trend has been a losing approach — sharp knives keep falling. It is published for education, so you can see exactly why, not as something to trade.`,
   };
 
   const GLOSSARY = `
