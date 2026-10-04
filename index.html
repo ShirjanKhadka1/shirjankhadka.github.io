@@ -163,8 +163,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:200;op
 [data-theme="light"] .portrait-ring{border-color:rgba(79,112,0,.3)}
 @keyframes spin{to{transform:translateZ(-40px) rotate(360deg)}}
 /* ============ STATS ============ */
-.stats{position:relative;z-index:1;display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:20px 0 8px}
-@media(min-width:860px){.stats{grid-template-columns:repeat(4,1fr)}}
+.stats{position:relative;z-index:1;display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:20px 0 8px;max-width:720px}
 .stat{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:18px;
   padding:26px 22px;box-shadow:var(--e1),var(--rim);position:relative;overflow:hidden;
   transform-style:preserve-3d;transition:transform .3s var(--ease),box-shadow .3s var(--ease)}
@@ -267,15 +266,6 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;
 /* reveal */
 .rv{opacity:0;transform:translateY(28px)}
 .rv.in{opacity:1;transform:none;transition:opacity .7s var(--ease),transform .7s var(--ease)}
-/* marquee */
-.marquee{border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden;position:relative;z-index:1;
-  background:rgba(184,230,46,.03);margin-top:70px}
-[data-theme="light"] .marquee{background:rgba(79,112,0,.05)}
-.marquee-track{display:flex;width:max-content;animation:mq 30s linear infinite;padding:16px 0}
-.marquee span{font-family:var(--mono);font-size:.85rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);
-  padding:0 34px;white-space:nowrap}
-.marquee span b{color:var(--acc)}
-@keyframes mq{to{transform:translateX(-50%)}}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
   .rv{opacity:1;transform:none}
@@ -329,16 +319,9 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;
 <div class="wrap">
   <div class="stats">
     <div class="stat rv"><div class="n" data-count="3.82" data-dec="2">0</div><div class="l">BBM CGPA · Tribhuvan University</div></div>
-    <div class="stat rv"><div class="n" data-count="30" data-suffix="+">0</div><div class="l">Finance articles published</div></div>
-    <div class="stat rv"><div class="n" data-count="12" data-suffix="+">0</div><div class="l">Free NEPSE tools shipped</div></div>
     <div class="stat rv"><div class="n" data-count="5">0</div><div class="l">Academic &amp; simulation awards</div></div>
   </div>
 </div>
-
-<div class="marquee" aria-hidden="true"><div class="marquee-track" id="mqTrack">
-  <span>Markets <b>·</b> decoded</span><span>Data <b>·</b> honest</span><span>Analysis <b>·</b> plain English</span>
-  <span>Education <b>·</b> first</span><span>NEPSE <b>·</b> tools</span><span>Finance <b>·</b> analyzed</span>
-</div></div>
 
 <section id="work"><div class="wrap">
   <div class="sec-head rv"><span class="sec-no">01</span><h2 class="sec-title">Selected work</h2></div>
@@ -553,9 +536,6 @@ if(fine && !reduced){
     card.addEventListener('pointerleave',function(){ if(raf)cancelAnimationFrame(raf); raf=null; card.style.transform=''; });
   });
 }
-/* marquee duplicate for seamless loop */
-var mq=document.getElementById('mqTrack');
-mq.innerHTML+=mq.innerHTML;
 /* magnetic buttons */
 if(fine && !reduced){
   document.querySelectorAll('.btn-lime').forEach(function(b){
