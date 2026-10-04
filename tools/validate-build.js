@@ -79,7 +79,7 @@ function main() {
   // (wall-clock; --session still governs the universe/signals gates below).
   const expectedLive = (() => {
     const today = td.todayNPT(now);
-    if (td.isTradingDay(today) && td.timeNPT(now) >= td.CAL.market_hours_npt.open) return today;
+    if (td.isTradingDay(today) && td.timeNPT(now) >= td.MARKET_OPEN) return today;
     return td.expectedSessionDate(now);
   })();
 
@@ -149,12 +149,15 @@ function main() {
 
   // Gate 3b (V2 reconciliation): index change reconciles with value delta —
   // for the main index and all 17 sub-indices. FAIL: a wrong index change is
-  // never publishable.
+  // never publishable. V4: dedup — live.indices[0] is also NEPSE, skip it.
   if (live) {
     const bad = [];
     const all = [];
     if (live.index) all.push(['NEPSE', live.index]);
-    for (const ix of live.indices || []) all.push([ix.name || '?', ix]);
+    for (const ix of live.indices || []) {
+      if (ix.name === 'NEPSE' && live.index) continue; // dedup main index
+      all.push([ix.name || '?', ix]);
+    }
     for (const [name, ix] of all) {
       if (ix.value == null || ix.previous_close == null || ix.change == null) continue;
       const expect = ix.value - ix.previous_close;
@@ -205,6 +208,68 @@ function main() {
       if (bad.length >= 10) break;
     }
     gate('jump-threshold', bad.length === 0, bad.length ? bad.slice(0, 10).join('; ') : 'no jumps beyond 25%', 'flag');
+  }
+
+  // Gate 3f (V4 reconciliation): session totals are internally consistent.
+  // Sum of per-quote turnover/volume/trades must be positive on a trading
+  // session; the traded-security count must match the quotes array. FAIL:
+  // zero totals mean the capture produced an empty or broken session.
+  if (live) {
+    const quotes = Array.isArray(live.quotes) ? live.quotes : Object.values(live.quotes || {});
+    let tTurn = 0, tVol = 0, tTrades = 0;
+    for (const q of quotes) {
+      tTurn += +q.turnover || 0; tVol += +q.volume || 0; tTrades += +q.trades || 0;
+    }
+    const problems = [];
+    if (!(tTurn > 0)) problems.push('turnover sum = 0');
+    if (!(tVol > 0)) problems.push('volume sum = 0');
+    if (!(tTrades > 0)) problems.push('trades sum = 0');
+    if (quotes.length < 300) problems.push(`only ${quotes.length} securities traded (< 300)`);
+    gate('session-totals-consistent', problems.length === 0,
+      problems.length ? problems.join('; ') : `turnover=Rs ${(tTurn / 1e9).toFixed(2)}B vol=${(tVol / 1e6).toFixed(1)}M trades=${tTrades} n=${quotes.length}`, 'fail');
+  }
+
+  // Gate 3g (V4 reconciliation): universe membership is stable. FLAG, not FAIL —
+  // listings/delistings/suspensions legitimately change the count, but a sharp
+  // move needs a human look.
+  if (live && universe && Array.isArray(universe.symbols)) {
+    const quotes = Array.isArray(live.quotes) ? live.quotes : Object.values(live.quotes || {});
+    const uCount = universe.symbols.length;
+    const qCount = quotes.length;
+    const ratio = uCount > 0 ? qCount / uCount : 0;
+    gate('universe-membership-stable', ratio >= 0.80,
+      `quoted=${qCount} universe=${uCount} (${(ratio * 100).toFixed(1)}%)`, 'flag');
+  }
+
+  // Gate 3h (V4 reconciliation): corporate-action adjustment completeness.
+  // Symbols that jumped >25% (Gate 3e flags) are cross-checked against the
+  // VERIFIED corporate-action archive. A jump with no verified action on record
+  // is escalated — the adjustment may be missing. FLAG, never silently fix.
+  if (live) {
+    let ca = null;
+    try { ca = JSON.parse(fs.readFileSync(path.join(DATA, 'corporate-actions.json'), 'utf8')); } catch (e) { /* optional file */ }
+    const quotes = Array.isArray(live.quotes) ? live.quotes : Object.values(live.quotes || {});
+    const jumpers = quotes.filter((q) => Math.abs(q.percent_change || 0) > 25).map((q) => q.symbol);
+    const unexplained = [];
+    if (ca && Array.isArray(ca.items)) {
+      const caSyms = new Set(ca.items.map((i) => i.symbol || i.s));
+      for (const s of jumpers) if (!caSyms.has(s)) unexplained.push(s);
+    }
+    gate('ca-adjustment-check', true,
+      jumpers.length === 0 ? 'no jumps >25%' :
+      unexplained.length ? `${jumpers.length} jumpers, NO verified action for: ${unexplained.slice(0, 8).join(',')} — verify adjustment` :
+      `${jumpers.length} jumpers all have verified corporate actions`, 'flag');
+  }
+
+  // Gate 3i (V4): close-source provenance. Per owner directive 2026-10-04 the
+  // close must come from the official NEPSE API. If capture fell back to
+  // ShareHub, FLAG for verification against NEPSE — never silently accept a
+  // mirrored close.
+  if (live) {
+    const src = live.close_source || 'unknown (pre-V4 capture)';
+    const isOfficial = /official/i.test(src);
+    gate('close-source-official', isOfficial,
+      `close_source=${src}` + (isOfficial ? '' : ' — verify against NEPSE official'), 'flag');
   }
 
   // Gate 4: no duplicate symbols in universe

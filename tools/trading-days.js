@@ -11,13 +11,19 @@ const fs = require('fs');
 const path = require('path');
 
 const CAL = JSON.parse(fs.readFileSync(path.join(__dirname, 'nepse-holidays.json'), 'utf8'));
+// V3 schema: holidays is a flat array with date_ad; only VERIFIED entries
+// affect trading-day computation (unverified entries are informational —
+// treating an unverified holiday as closed would skip a real session;
+// evidence wins, so the pipeline checks for a session anyway).
 const HOLIDAYS = new Set();
-for (const year of Object.keys(CAL.holidays || {})) {
-  for (const h of CAL.holidays[year]) {
-    if (h.date) HOLIDAYS.add(h.date);
-  }
+for (const h of CAL.holidays || []) {
+  if (h.status === 'verified' && h.date_ad) HOLIDAYS.add(h.date_ad);
 }
-const TRADING_DOW = new Set(CAL.weekly_trading_days); // 1=Mon..5=Fri
+// Weekend rule: Saturday/Sunday closed (verified) → trading days Mon-Fri.
+const TRADING_DOW = new Set([1, 2, 3, 4, 5]);
+// Trading hours from the V3 schema ("11:00-15:00").
+const _hours = (CAL.trading_hours && CAL.trading_hours.continuous_npt || '11:00-15:00').split('-');
+const MARKET_OPEN = _hours[0], MARKET_CLOSE = _hours[1];
 
 function parseYMD(ymd) {
   const [y, m, d] = ymd.split('-').map(Number);
@@ -82,7 +88,7 @@ function nextTradingDay(ymd) {
 function expectedSessionDate(now = new Date()) {
   const today = todayNPT(now);
   const t = timeNPT(now);
-  if (isTradingDay(today) && t >= CAL.market_hours_npt.close) return today;
+  if (isTradingDay(today) && t >= MARKET_CLOSE) return today;
   return lastTradingDay(addDays(today, -1));
 }
 /** LIVE / CLOSED market state for badge logic */
@@ -90,13 +96,14 @@ function marketState(now = new Date()) {
   const today = todayNPT(now);
   const t = timeNPT(now);
   if (!isTradingDay(today)) return 'CLOSED';
-  if (t >= CAL.market_hours_npt.open && t < CAL.market_hours_npt.close) return 'LIVE';
+  if (t >= MARKET_OPEN && t < MARKET_CLOSE) return 'LIVE';
   return 'CLOSED';
 }
 
 module.exports = {
   todayNPT, timeNPT, isTradingDay, isHoliday, isWeekend,
   lastTradingDay, nextTradingDay, expectedSessionDate, marketState,
+  MARKET_OPEN, MARKET_CLOSE,
   CAL
 };
 
