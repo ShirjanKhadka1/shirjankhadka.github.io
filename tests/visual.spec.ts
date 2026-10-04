@@ -39,8 +39,22 @@ const VIEWPORTS = [
   { name: 'mobile', width: 390, height: 844 },
 ];
 
-// Frozen clock: 2026-09-30 15:00 NPT (after market close, deterministic)
-const FROZEN_TIME = new Date('2026-09-30T15:00:00+05:45').getTime();
+// Frozen clock: derived from the live.json fixture's `asof` (+2h), so the
+// fixture data is never "in the future" relative to the frozen clock.
+// (PR #66 routes page data through NepseData.whenReady(), which validates
+// that asof <= now; a hardcoded frozen time older than the fixture makes
+// validation reject the fixture and pages render without data.)
+// Falls back to a fixed date if the fixture is unreadable.
+const FROZEN_TIME = (() => {
+  try {
+    const asof = JSON.parse(
+      fs.readFileSync(path.join(__dirname, 'fixtures', 'nepse-chart', 'data', 'live.json'), 'utf8')
+    ).asof;
+    const t = new Date(asof).getTime();
+    if (isFinite(t)) return t + 2 * 3600 * 1000;
+  } catch { /* fall through to default */ }
+  return new Date('2026-09-30T15:00:00+05:45').getTime();
+})();
 
 // CSS to disable all animations and transitions
 const DISABLE_ANIMATIONS_CSS = `
