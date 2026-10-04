@@ -58,18 +58,22 @@
     if (turnEl && isFinite(+q.turnover)) turnEl.textContent = 'Rs ' + F.fmtNum(q.turnover);
     var asofEl = document.querySelector('.hero .asof');
     if (asofEl && snapshot && snapshot.asof) {
+      // V2 honesty: never imply real-time — the quote feed is delayed.
       var state = snapshot.market === 'OPEN' ? 'market open' : 'market closed';
-      var txt = 'Live · ' + F.fmtDateTimeNPT(snapshot.asof) + ' · ' + state;
+      var ageMs = Date.now() - new Date(snapshot.asof).getTime();
+      var ageBit = isFinite(ageMs) && ageMs >= 0 ? ' · delayed ' + F.fmtAge(ageMs) : '';
+      var txt = 'Delayed' + ageBit + ' · as of ' + F.fmtDateTimeNPT(snapshot.asof) + ' · ' + state;
       if (status === 'stale') txt += ' · STALE';
       asofEl.textContent = txt;
     }
     var badge = snap.querySelector('[data-live-badge]');
     if (badge && snapshot) {
+      // V2 honesty: the quote feed is delayed, never real-time.
       if (status === 'stale') {
         badge.textContent = 'STALE';
         badge.style.display = '';
       } else if (snapshot.market === 'OPEN') {
-        badge.textContent = 'LIVE';
+        badge.textContent = 'DELAYED';
         badge.style.display = '';
       } else {
         badge.style.display = 'none';

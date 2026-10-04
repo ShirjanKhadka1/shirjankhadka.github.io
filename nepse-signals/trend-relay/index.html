@@ -76,6 +76,8 @@
 
 <p style="color:var(--muted);font-size:.9rem;margin-bottom:4px">Nepse Decode &middot; Chart &amp; signals &middot; rule-based, no black boxes</p>
 <h1 style="font-family:var(--serif);font-size:2rem;margin:0 0 6px">Trend Relay</h1>
+<div data-freshness-badge style="margin:10px 0"></div>
+<p class="sig-generated" style="color:var(--muted);font-size:.85rem;margin:0 0 4px">System data as of <span data-sig-generated>…</span></p>
 <p style="color:var(--ink-soft);max-width:640px">Built for the beginning of an uptrend. Catches the turn with volume confirmation.</p>
 
 <div class="sig-grid"><div class="sig-card up"><div class="sig-card-l">Annual return</div><div class="sig-card-v">1.94%</div></div><div class="sig-card "><div class="sig-card-l">Rs 1 Cr became</div><div class="sig-card-v">Rs 1.56 Cr</div></div><div class="sig-card "><div class="sig-card-l">Win rate</div><div class="sig-card-v">31.19%</div></div><div class="sig-card down"><div class="sig-card-l">Deepest fall</div><div class="sig-card-v">12.42%</div></div><div class="sig-card "><div class="sig-card-l">Profit factor</div><div class="sig-card-v">1.74</div></div><div class="sig-card "><div class="sig-card-l">Avg holding</div><div class="sig-card-v">29 days</div></div><div class="sig-card "><div class="sig-card-l">Charges paid</div><div class="sig-card-v">Rs 29.60 L</div></div><div class="sig-card down"><div class="sig-card-l">Alpha vs NEPSE</div><div class="sig-card-v">-9.62%</div></div></div>
@@ -153,6 +155,8 @@
 (function(){
   var sys = "trend-relay";
   fetch('/nepse-chart/data/signals/' + sys + '.json').then(function(r){return r.json()}).then(function(d){
+    var genEl = document.querySelector('[data-sig-generated]');
+    if (genEl) genEl.textContent = d.generated_at ? d.generated_at.replace('T',' ').slice(0,16) + ' UTC' : 'unavailable';
     // alerts
     var tb = document.querySelector('#alerts tbody');
     if (!d.alerts.length) { tb.innerHTML = '<tr><td colspan="11">No open positions right now — the system is flat.</td></tr>'; }
@@ -248,5 +252,7 @@
 <div id="nd-footer"></div>
 <script src="/js/theme-toggle.js?v=20261001a" defer></script>
 <script src="/js/nd-chrome.js?v=20261004b" defer></script>
+<script src="/js/nepse-market-config.js" defer></script>
+<script src="/js/freshness-badge.js" defer></script>
 </body>
 </html>
