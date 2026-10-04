@@ -58,6 +58,26 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Health bake freshness (fail fast with the fix)
+        # The smoke test catches a stale status/index.html HEALTH-BAKE block,
+        # but only after the full Playwright suite runs. Fail here instead,
+        # with the exact remedy. Deterministic: compares the baked session
+        # date against the manifest and ignores the baked timestamp
+        # (build-health.js always stamps "now").
+        run: |
+          node -e "
+            const fs = require('fs');
+            const manifest = JSON.parse(fs.readFileSync('data/manifest.json', 'utf8'));
+            const html = fs.readFileSync('status/index.html', 'utf8');
+            const m = html.match(/last session (\\d{4}-\\d{2}-\\d{2})/);
+            if (!m) { console.error('::error::no baked session date in status/index.html — HEALTH-BAKE block missing?'); process.exit(1); }
+            if (m[1] !== manifest.session_date) {
+              console.error('::error::stale health bake: status/index.html says last session ' + m[1] + ' but data/manifest.json session_date is ' + manifest.session_date + ' — fix: node tools/build-health.js && git add data/health.json status/index.html');
+              process.exit(1);
+            }
+            console.log('health bake fresh (session ' + m[1] + ')');
+          "
+
       - name: Install test deps
         working-directory: tests
         run: npm ci
