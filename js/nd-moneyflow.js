@@ -134,4 +134,23 @@
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
+
+  // Auto-refresh with market calendar awareness:
+  // - Mon-Fri 11:00-15:00 NPT: every 5 min
+  // - Mon-Fri outside hours: every 30 min (catches post-close pipeline update)
+  // - Sat/Sun (holiday): every 2 hours (Friday's data won't change)
+  function refreshIntervalMs() {
+    try {
+      var now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kathmandu' }));
+      var day = now.getDay();
+      if (day === 0 || day === 6) return 2 * 60 * 60 * 1000;
+      var mins = now.getHours() * 60 + now.getMinutes();
+      if (mins >= 660 && mins < 900) return 5 * 60 * 1000;
+      return 30 * 60 * 1000;
+    } catch (e) { return 30 * 60 * 1000; }
+  }
+  setInterval(function () {
+    if (document.hidden) return;
+    init();
+  }, refreshIntervalMs());
 })();
