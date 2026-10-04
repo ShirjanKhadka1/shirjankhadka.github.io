@@ -56,13 +56,19 @@
     var c = { sb: 0, b: 0, h: 0, e: 0, se: 0 };
     state.rows.forEach(function (r) { var k = vClass(r.v); c[k] = (c[k]||0)+1; });
     host.innerHTML =
-      '<div class="ev-stat buy"><div class="num">'+(c.sb+c.b)+'</div><div class="lbl">Buy-side</div></div>'+
-      '<div class="ev-stat"><div class="num">'+c.h+'</div><div class="lbl">Hold</div></div>'+
-      '<div class="ev-stat exit"><div class="num">'+(c.e+c.se)+'</div><div class="lbl">Exit-side</div></div>'+
-      '<div class="ev-stat"><div class="num">'+state.rows.length+'</div><div class="lbl">Securities scored</div></div>';
+      '<button type="button" class="ev-stat buy" data-v="buy-side" aria-pressed="'+(state.verdict==='buy-side')+'"><div class="num">'+(c.sb+c.b)+'</div><div class="lbl">Buy-side</div></button>'+
+      '<button type="button" class="ev-stat" data-v="Hold" aria-pressed="'+(state.verdict==='Hold')+'"><div class="num">'+c.h+'</div><div class="lbl">Hold</div></button>'+
+      '<button type="button" class="ev-stat exit" data-v="exit-side" aria-pressed="'+(state.verdict==='exit-side')+'"><div class="num">'+(c.e+c.se)+'</div><div class="lbl">Exit-side</div></button>'+
+      '<button type="button" class="ev-stat" data-v="all" aria-pressed="'+(state.verdict==='all')+'"><div class="num">'+state.rows.length+'</div><div class="lbl">Securities scored</div></button>';
+    host.querySelectorAll('.ev-stat').forEach(function (b) {
+      b.addEventListener('click', function () {
+        state.verdict = b.getAttribute('data-v'); state.page = 1;
+        renderStats(); renderFilters(); renderTable();
+      });
+    });
   }
 
-  var FILTERS = [['all','All'],['Strong Buy','Strong Buy'],['Buy','Buy'],['Hold','Hold'],['Exit','Exit'],['Strong Exit','Strong Exit']];
+  var FILTERS = [['all','All'],['buy-side','Buy-side'],['Strong Buy','Strong Buy'],['Buy','Buy'],['Hold','Hold'],['exit-side','Exit-side'],['Exit','Exit'],['Strong Exit','Strong Exit']];
   function renderFilters() {
     var host = $('evFilters');
     if (!host) return;
@@ -79,7 +85,11 @@
 
   function filtered() {
     var rows = state.rows.slice();
-    if (state.verdict !== 'all')
+    if (state.verdict === 'buy-side')
+      rows = rows.filter(function (r) { var k = vClass(r.v); return k === 'sb' || k === 'b'; });
+    else if (state.verdict === 'exit-side')
+      rows = rows.filter(function (r) { var k = vClass(r.v); return k === 'e' || k === 'se'; });
+    else if (state.verdict !== 'all')
       rows = rows.filter(function (r) { return r.v === state.verdict; });
     if (state.q) {
       var q = state.q.toLowerCase();
