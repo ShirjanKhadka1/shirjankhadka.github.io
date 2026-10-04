@@ -345,11 +345,17 @@
     }).join('');
     // Tab switching
     var tabs = document.querySelectorAll('.nd-active-tabs button');
+    // Map homepage metric -> daily page sort preset
+    var metricToSort = { turnover: 'turnover', volume: 'volume', transactions: 'transactions' };
+    var seemore = document.querySelector('.nd-movecard-head .nd-seemore');
     tabs.forEach(function (btn) {
       btn.onclick = function () {
         tabs.forEach(function (b) { b.classList.remove('on'); });
         btn.classList.add('on');
         activeMetric = btn.getAttribute('data-metric');
+        if (seemore && metricToSort[activeMetric]) {
+          seemore.setAttribute('href', '/nepse-daily/?sort=' + metricToSort[activeMetric] + '#all-stocks');
+        }
         renderActive();
       };
     });
@@ -382,7 +388,12 @@
     // Engine Verdicts: fetch from verdicts.json if available
     if (engineHost) {
       fetchJSON('/nepse-chart/data/verdicts.json').then(function (v) {
-        var verdicts = Array.isArray(v) ? v : (v.verdicts || v.data || []);
+        var raw = Array.isArray(v) ? v : (v.verdicts || v.data || []);
+        // verdicts.json uses {SYMBOL: {v, s, ...}} object format — normalize to array
+        var verdicts = Array.isArray(raw) ? raw : Object.keys(raw).map(function (sym) {
+          var x = raw[sym] || {};
+          return { symbol: sym, verdict: x.v || x.verdict, score: (x.s != null ? x.s : x.score) };
+        });
         if (!verdicts.length) {
           engineHost.innerHTML = '<p class="nd-pe-sub">Verdicts updating…</p>';
           return;
