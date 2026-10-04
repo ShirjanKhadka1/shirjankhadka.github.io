@@ -340,6 +340,7 @@
 [data-theme="dark"] .w1-note{ color:#9a9aa2 !important; }
 .sc-table td .sym-wrap{ display:inline-flex !important; align-items:center !important; gap:8px !important; }
 
-/* Fix: active RSI tab needs dark text on gold bg (inactive !important was overriding) */
+/* Fix: active RSI tab needs dark text on gold bg in dark mode (inactive !important was overriding),
+   and white text on dark ink bg in light mode. */
 [data-theme="dark"] .w1-tab[aria-selected="true"]{ color:#141311 !important; background:var(--gold) !important; border-color:var(--gold) !important; }
-.w1-tab[aria-selected="true"]{ color:#141311 !important; }
+.w1-tab[aria-selected="true"]{ color:#fff !important; background:var(--ink) !important; border-color:var(--ink) !important; }
