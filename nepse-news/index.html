@@ -234,18 +234,18 @@
   function hlFeatured(it, i){
     var cat = newsCategory(it.title, it.sym);
     return '<a class="nn-featured" href="/nepse-news/story/?src=news&i=' + i + '">' +
-      '<div class="nn-featured-art">' + logoHtml(it.sym, 72) + '</div>' +
+      '<div class="nn-featured-art"><span class="nn-mono nn-generic" style="background:var(--nd-card2)">📰</span></div>' +
       '<div class="nn-featured-body"><p class="nn-cat ' + CAT_CLASS[cat] + '">' + esc(cat) + ' · ' + esc(it.src || 'Market') + '</p>' +
       '<h2>' + esc(it.title) + '</h2>' +
-      '<div class="nn-meta">' + symLink(it.sym) + '<span>' + fmtDate(it.date) + '</span><span>Attributed to publisher</span></div></div></a>';
+      '<div class="nn-meta"><span>' + fmtDate(it.date) + '</span><span>Attributed to publisher</span></div></div></a>';
   }
   function hlRow(it, i){
     var cat = newsCategory(it.title, it.sym);
     return '<a class="nn-row" href="/nepse-news/story/?src=news&i=' + i + '">' +
-      logoHtml(it.sym, 40) +
+      '<span class="nn-mono nn-generic" style="background:var(--nd-card2)">📰</span>' +
       '<div><p class="nn-row-kicker"><span class="nn-cat ' + CAT_CLASS[cat] + '">' + esc(cat) + '</span> · ' + esc(it.src || 'Market') + '</p>' +
       '<h3 class="nn-row-title">' + esc(it.title) + '</h3>' +
-      '<div class="nn-meta">' + symLink(it.sym) + '<span>' + fmtDate(it.date) + '</span></div></div></a>';
+      '<div class="nn-meta"><span>' + fmtDate(it.date) + '</span></div></div></a>';
   }
   function renderHl(){
     var feed = document.getElementById('hlFeed'); if (!feed) return;
