@@ -4,9 +4,10 @@
  * Run after 15:00 NPT on trading days (Mon–Fri). Idempotent: exits quietly
  * if today's close is already captured.
  *
- * Source: ShareHub Nepal indices page (public, no auth). The NEPSE official
- * API needs a token dance and was unreliable at close time; ShareHub mirrors
- * the official closing values.
+ * Source (V4, owner directive 2026-10-04): the OFFICIAL NEPSE API
+ * (/api/nots/nepse-index + /api/nots) — no dependency on third-party mirrors
+ * for the close. ShareHub remains only as a fallback if the official API is
+ * unreachable, and as the secondary sanity check (R2).
  *
  * Output: nepse-chart/data/live.json with
  *   { asof: "<today>T15:00:00+05:45", market: "CLOSED", close: true,
@@ -81,6 +82,42 @@ function parseShareHub(html) {
   return rows;
 }
 
+// Fetch the official close from NEPSE's own API. Returns
+// {name: {open, high, low, close, change}} in the canonical short names.
+async function fetchOfficialClose(api) {
+  const LABELS = [
+    ['NEPSE Index', 'NEPSE'], ['Sensitive Index', 'Sensitive'],
+    ['Float Index', 'Float'], ['Sensitive Float Index', 'Sensitive Float'],
+    ['Banking SubIndex', 'Banking'], ['Development Bank Index', 'Development Bank'],
+    ['Hotels And Tourism Index', 'Hotels & Tourism'], ['Finance Index', 'Finance'],
+    ['Microfinance Index', 'Microfinance'], ['Life Insurance', 'Life Insurance'],
+    ['Non Life Insurance', 'Non-Life Insurance'], ['HydroPower Index', 'Hydropower'],
+    ['Investment Index', 'Investment'], ['Manufacturing And Processing', 'Manufacturing'],
+    ['Trading Index', 'Trading'], ['Others Index', 'Others'], ['Mutual Fund', 'Mutual Fund'],
+  ];
+  const byRaw = {};
+  for (const [raw, short] of LABELS) byRaw[raw] = short;
+  const rows = {};
+  const collect = (arr) => {
+    for (const x of Array.isArray(arr) ? arr : []) {
+      const short = x && byRaw[x.index];
+      if (!short || rows[short]) continue;
+      const close = parseFloat(x.currentValue);
+      const change = parseFloat(x.change);
+      if (!isFinite(close) || !isFinite(change)) continue;
+      rows[short] = {
+        open: parseFloat(x.open) || null,
+        high: parseFloat(x.high) || null,
+        low: parseFloat(x.low) || null,
+        close, change,
+      };
+    }
+  };
+  collect(await api.apiFetch('GET', '/api/nots/nepse-index'));
+  collect(await api.apiFetch('GET', '/api/nots'));
+  return rows;
+}
+
 async function main() {
   const now = nptNow();
   const today = nptDate(now);
@@ -98,12 +135,27 @@ async function main() {
   }
 
   log('capturing close for ' + today + '...');
-  const html = await fetchText('https://sharehubnepal.com/nepse/indices');
-  const rows = parseShareHub(html);
+
+  // V4 (owner directive 2026-10-04): the official NEPSE API is the PRIMARY
+  // close source — no dependency on third-party mirrors. ShareHub remains
+  // only as a fallback if the official API is unreachable, and as the
+  // secondary sanity check for Gate 3i.
+  const api = require('./nepse-api');
+  let rows = null;       // {name: {open, high, low, close, change}}
+  let source = 'NEPSE official API';
+  try {
+    rows = await fetchOfficialClose(api);
+    log('official API: ' + Object.keys(rows).length + ' indices');
+  } catch (e) {
+    log('official API failed (' + e.message + ') — falling back to ShareHub');
+    const html = await fetchText('https://sharehubnepal.com/nepse/indices');
+    rows = parseShareHub(html);
+    source = 'ShareHub (fallback)';
+    log('ShareHub fallback: ' + Object.keys(rows).length + ' indices');
+  }
   const names = Object.keys(rows);
-  log('parsed ' + names.length + ' indices');
   if (names.length < 15 || !rows['NEPSE']) {
-    throw new Error('parse failed: only ' + names.length + ' indices');
+    throw new Error('parse failed: only ' + names.length + ' indices from ' + source);
   }
 
   // Sanity: NEPSE close within 8% of previous close (from existing live.json or wave1).
@@ -140,10 +192,21 @@ async function main() {
     'Manufacturing', 'Trading', 'Others', 'Mutual Fund'];
   indices.sort((a, b) => order.indexOf(a.name) - order.indexOf(b.name));
 
+  // V4: provenance metadata. The close comes from the official NEPSE API
+  // (owner directive 2026-10-04); ShareHub only as fallback. Gate 3i reads this.
+  const closeSource = source;
+
   const out = Object.assign({}, live, {
     asof: today + 'T15:00:00+05:45',
     market: 'CLOSED',
     close: true,
+    close_source: closeSource,
+    cross_source: source === 'NEPSE official API' ? null : {
+      fallback: 'ShareHub',
+      nepse_fallback_close: +nepse.close,
+      checked_at: today + 'T15:00:00+05:45',
+      note: 'Official API unreachable; close from ShareHub fallback (R2 secondary). Verify against NEPSE.',
+    },
     index: {
       value: nepse.close, previous_close: prevClose,
       change: +nepse.change.toFixed(2),

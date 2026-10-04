@@ -28,8 +28,7 @@ const CANONICAL = path.join(ROOT, 'data', 'manifest.json');
 const LEGACY = path.join(DATA, 'manifest.json');
 
 /** Known provenance per data file. 'computed' = derived locally from other files. */
-const SOURCES = {
-  'live.json': ['NEPSE official site (nepalstock.com)'],
+const SOURCES = {  'live.json': ['NEPSE official site (nepalstock.com)'],
   'universe.json': ['NEPSE official site (nepalstock.com)'],
   'index-spark.json': ['NEPSE official site (nepalstock.com)'],
   'news.json': ['Arthasansar RSS', 'BizMandu RSS', 'OnlineKhabar RSS'],
@@ -51,6 +50,13 @@ const SOURCES = {
   'company-websites.json': ['company website monitor'],
   'version.json': ['computed: build metadata'],
 };
+
+/** V4: source tier per file — 1 = official/licensed, 2 = secondary/open, 3 = computed locally. */
+function tierFor(rel, sources) {
+  if (/^(live|universe|index-spark|corporate-actions|div-live)\.json$/.test(rel)) return 1;
+  if (/^(news|announcements|corp-history|div-history-yonepse|fundamentals|quarterly|company-websites)\.json$/.test(rel)) return 2;
+  return 3;
+}
 
 function sha256full(file) {
   return crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
@@ -98,6 +104,17 @@ function main() {
   // SESSION_OVERRIDE pins the session date (used by rollback: the manifest
   // describes the restored session, not "today").
   const session = process.env.SESSION_OVERRIDE || td.expectedSessionDate(now);
+  const generatedAt = today + 'T' + td.timeNPT(now) + ':00+05:45';
+  // V4: validation state from the last validate-build run (if any). Only
+  // trusted when it was computed for THIS session — otherwise "pending".
+  let validationState = 'pending';
+  try {
+    const v = JSON.parse(fs.readFileSync(path.join(DATA, 'validation.json'), 'utf8'));
+    if (v.expected_session === session) {
+      validationState = v.passed ? 'pass' : 'fail';
+      if (v.flagged && v.flagged.length) validationState += '+flag';
+    }
+  } catch (e) { /* no validation run yet */ }
   const files = {};
   for (const { rel, full } of walk(DATA)) {
     const repoRel = 'nepse-chart/data/' + rel; // canonical keys are repo-relative
@@ -109,12 +126,20 @@ function main() {
     } catch (e) {
       rows = 'unparseable';
     }
+    const sources = SOURCES[rel] || ['computed'];
+    const mtime = fs.statSync(full).mtime;
+    const fetchedAt = new Date(mtime.getTime() + 5.75 * 3600 * 1000).toISOString().replace('Z', '+05:45').slice(0, 19) + '+05:45';
     files[repoRel] = {
       rows,
       asof,
+      fetched_at: fetchedAt,
+      published_at: generatedAt,
+      source: sources[0],
+      sources,
+      tier: tierFor(rel, sources),
+      validation: validationState,
       sha256: sha256full(full),
       bytes: fs.statSync(full).size,
-      sources: SOURCES[rel] || ['computed'],
     };
   }
 
