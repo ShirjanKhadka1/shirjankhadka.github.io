@@ -79,7 +79,10 @@ const GENERIC = new Set([...SUFFIX, 'nepal', 'nepali', 'national', 'everest',
   // SY Panel Nepal; "house" as in parliament vs companies with House.
   'cablecar', 'cable', 'darshan', 'tourism', 'travels', 'holiday',
   'panel', 'house', 'committee', 'subcommittee', 'minister',
-  'ministry', 'government', 'election', 'police', 'uniform', 'procurement']);
+  'ministry', 'government', 'election', 'police', 'uniform', 'procurement',
+  // 'city' — "Manchester City" (football) vs CITY the NEPSE company.
+  // Ticker-only match now requires a market keyword (rule 4).
+  'city']);
 // Companies named after places (JHAPA/Jhapa Energy, MANDU/Mandu Hydro).
 // A headline mentioning only the place (wildlife, district news) is NOT
 // about the company — require company-context keywords for these.
