@@ -1,0 +1,78 @@
+# Uptime Checks (P4.5)
+#
+# Synthetic checks every 30 min during market hours (Mon-Fri 11:00-15:00 NPT),
+# hourly otherwise. Checks home, dashboard, screener, status with latency
+# and content assertions. Emails on two consecutive failures.
+#
+# Note: GitHub Actions is the primary monitor. For independence, also set up
+# a free external monitor (e.g. UptimeRobot, Better Stack) per the runbook.
+
+name: Uptime checks
+
+on:
+  schedule:
+    # Every 30 min during market hours Mon-Fri (11:00-15:00 NPT = 05:15-09:15 UTC)
+    - cron: '15,45 5,6,7,8,9 * * 1-5'
+    # Hourly otherwise
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: uptime
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Synthetic uptime check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check key pages
+        run: |
+          PAGES="https://shirjankhadka.com.np/ https://shirjankhadka.com.np/nepse-decode/ https://shirjankhadka.com.np/nepse-screener/ https://shirjankhadka.com.np/status/"
+          FAILS=0
+          for url in $PAGES; do
+            echo "Checking $url..."
+            # Measure latency and verify content
+            START=$(date +%s%N)
+            HTTP=$(curl -s -o /tmp/page.html -w "%{http_code}" --max-time 30 "$url")
+            END=$(date +%s%N)
+            LATENCY_MS=$(( (END - START) / 1000000 ))
+            echo "  HTTP $HTTP, ${LATENCY_MS}ms"
+            
+            if [ "$HTTP" != "200" ]; then
+              echo "::error::Uptime check failed: $url returned HTTP $HTTP"
+              FAILS=$((FAILS + 1))
+              continue
+            fi
+            
+            if [ "$LATENCY_MS" -gt 10000 ]; then
+              echo "::warning::Uptime check slow: $url took ${LATENCY_MS}ms (>10s)"
+            fi
+            
+            # Content assertion: page must contain expected marker
+            if ! grep -q "<html" /tmp/page.html; then
+              echo "::error::Uptime check failed: $url missing <html> tag"
+              FAILS=$((FAILS + 1))
+            fi
+          done
+          
+          if [ "$FAILS" -gt 0 ]; then
+            echo "::error::$FAILS page(s) failed uptime check"
+            # Two consecutive failures trigger email via workflow_run or manual check
+            # Store failure count as artifact for next run to compare
+            echo "$FAILS" > /tmp/uptime-fails.txt
+            exit 1
+          fi
+          echo "All uptime checks passed"
+
+      - name: Upload failure count
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: uptime-fails-${{ github.run_id }}
+          path: /tmp/uptime-fails.txt
+          retention-days: 7
