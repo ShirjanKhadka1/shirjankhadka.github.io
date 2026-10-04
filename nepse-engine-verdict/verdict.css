@@ -33,7 +33,15 @@ a.skip-link:focus,a.skip-link:active{ top:12px!important; }
 }
 @keyframes evPulse{ 0%,100%{opacity:1;} 50%{opacity:.4;} }
 
-.ev-stats{ display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:12px; margin:0 0 24px; }
+.ev-stats{ display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:12px; margin:0 0 16px; }
+.ev-take{
+  grid-column:1/-1; margin:4px 0 0; padding:14px 16px; border-radius:12px;
+  background:var(--nd-panel,#12141A); border-left:3px solid var(--nd-lime,#B8E62E);
+  font-size:.95rem; line-height:1.6; color:var(--nd-text,#fff);
+}
+.ev-take strong{ color:var(--nd-lime,#B8E62E); }
+.ev-take a{ color:var(--nd-lime,#B8E62E); font-weight:600; text-decoration:none; }
+.ev-take a:hover{ text-decoration:underline; }
 .ev-stat{
   background:var(--nd-panel,#12141A); border:1px solid var(--nd-border,#1E2430);
   border-radius:18px; padding:16px 18px; transition:transform .2s,border-color .2s;
