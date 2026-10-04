@@ -30,6 +30,9 @@
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=20261003a">
 <link rel="stylesheet" href="/css/nd-news.css?v=20261003b">
+<link rel="stylesheet" href="/css/nepse-logos.css?v=20261004a">
+<script src="/js/company-logos.js?v=20261004a"></script>
+<script src="/js/nepse-logos.js?v=20261004a"></script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"CollectionPage","name":"Nepse Decode Market News","url":"https://shirjankhadka.com.np/nepse-news/","description":"Official NEPSE company announcements and verified original market reporting.","author":{"@type":"Organization","name":"Nepse Decode"}}
 </script>
@@ -132,7 +135,7 @@
   var MONO_COLORS = ['#1d4d3b','#8a6d2f','#334155','#7c2d3e','#2f5d62','#5b4a8a'];
   var monoColor = function(sym){ var h = 0, s = String(sym || '?'); for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return MONO_COLORS[h % MONO_COLORS.length]; };
   var monoText = function(sym){ var s = String(sym || '?').replace(/[^A-Za-z0-9]/g, ''); return (s.slice(0, 2) || '?').toUpperCase(); };
-  var symLink = function(sym){ if(!sym) return ''; var s = String(sym).replace(/\//g,'-'); return '<a class="nn-sym" href="/stocks/' + esc(s) + '/">' + esc(sym) + '</a>'; };
+  var symLink = function(sym){ if(!sym) return ''; return '<span class="nn-sym">' + esc(sym) + '</span>'; };
 
   function newsCategory(title, sym){
     var t = ((title || '') + ' ' + (sym || '')).toLowerCase();
@@ -171,11 +174,19 @@
 
   /* Announcements */
   var annItems = [], annFilter;
+  function logoHtml(sym, px){
+    // Use company logo when available, fallback to monogram
+    if (window.NepseLogo && window.NepseLogo.html) {
+      return window.NepseLogo.html(sym, '', px || 40);
+    }
+    return '<span class="nn-mono" style="background:' + monoColor(sym) + '">' + esc(monoText(sym)) + '</span>';
+  }
   function annCard(it, i){
     var k = annKind(it.title);
+    var cat = newsCategory(it.title, it.sym);
     return '<a class="nn-card" href="/nepse-news/story/?src=ann&i=' + i + '">' +
-      '<div class="nn-card-top"><span class="nn-mono" style="background:' + monoColor(it.sym) + '">' + esc(monoText(it.sym)) + '</span>' +
-      '<div><p class="nn-cat companies">' + esc(newsCategory(it.title, it.sym)) + '</p>' +
+      '<div class="nn-card-top">' + logoHtml(it.sym, 40) +
+      '<div><p class="nn-cat ' + (CAT_CLASS[cat] || 'companies') + '">' + esc(cat) + '</p>' +
       '<span class="nn-kind' + (k.hot ? ' hot' : '') + '">' + esc(k.label) + '</span></div></div>' +
       '<h3>' + esc(it.title) + '</h3>' +
       '<div class="nn-foot">' + symLink(it.sym) + '<span>' + fmtDate(it.date) + '</span>' +
@@ -183,9 +194,10 @@
   }
   function annFeatured(it, i){
     var k = annKind(it.title);
+    var cat = newsCategory(it.title, it.sym);
     return '<a class="nn-featured" href="/nepse-news/story/?src=ann&i=' + i + '">' +
-      '<div class="nn-featured-art"><span class="nn-mono-lg" style="background:' + monoColor(it.sym) + '">' + esc(monoText(it.sym)) + '</span></div>' +
-      '<div class="nn-featured-body"><p class="nn-cat companies">' + esc(newsCategory(it.title, it.sym)) + ' · ' + esc(k.label) + '</p>' +
+      '<div class="nn-featured-art">' + logoHtml(it.sym, 72) + '</div>' +
+      '<div class="nn-featured-body"><p class="nn-cat ' + (CAT_CLASS[cat] || 'companies') + '">' + esc(cat) + ' · ' + esc(k.label) + '</p>' +
       '<h2>' + esc(it.title) + '</h2>' +
       '<div class="nn-meta">' + symLink(it.sym) + '<span>' + fmtDate(it.date) + '</span><span>Official disclosure</span></div></div></a>';
   }
@@ -219,7 +231,7 @@
   function hlFeatured(it, i){
     var cat = newsCategory(it.title, it.sym);
     return '<a class="nn-featured" href="/nepse-news/story/?src=news&i=' + i + '">' +
-      '<div class="nn-featured-art"><span class="nn-mono-lg" style="background:' + monoColor(it.sym) + '">' + esc(monoText(it.sym)) + '</span></div>' +
+      '<div class="nn-featured-art">' + logoHtml(it.sym, 72) + '</div>' +
       '<div class="nn-featured-body"><p class="nn-cat ' + CAT_CLASS[cat] + '">' + esc(cat) + ' · ' + esc(it.src || 'Market') + '</p>' +
       '<h2>' + esc(it.title) + '</h2>' +
       '<div class="nn-meta">' + symLink(it.sym) + '<span>' + fmtDate(it.date) + '</span><span>Attributed to publisher</span></div></div></a>';
@@ -227,7 +239,7 @@
   function hlRow(it, i){
     var cat = newsCategory(it.title, it.sym);
     return '<a class="nn-row" href="/nepse-news/story/?src=news&i=' + i + '">' +
-      '<span class="nn-mono" style="background:' + monoColor(it.sym) + '">' + esc(monoText(it.sym)) + '</span>' +
+      logoHtml(it.sym, 40) +
       '<div><p class="nn-row-kicker"><span class="nn-cat ' + CAT_CLASS[cat] + '">' + esc(cat) + '</span> · ' + esc(it.src || 'Market') + '</p>' +
       '<h3 class="nn-row-title">' + esc(it.title) + '</h3>' +
       '<div class="nn-meta">' + symLink(it.sym) + '<span>' + fmtDate(it.date) + '</span></div></div></a>';
@@ -253,7 +265,8 @@
       .then(function(d){
         hlItems = (d.items || []).slice().sort(function(a,b){ return String(b.date||'').localeCompare(String(a.date||'')); });
         var upd = document.getElementById('hlUpdated');
-        if (upd && d.updated) upd.textContent = 'Headlines, editorially reviewed · updated ' + fmtDate(d.updated) + '.';
+        var asof = d.asof || d.updated;
+        if (upd && asof) upd.textContent = 'Headlines, editorially reviewed · updated ' + fmtDate(asof) + '.';
         renderHl(); updateCounts();
       });
   }
