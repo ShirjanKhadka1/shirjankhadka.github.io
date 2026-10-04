@@ -1,1 +1,1787 @@
-{"_note":"symbol -> self-hosted official company logo path. Sourced ONLY from official company websites (never copied from aggregator sites). Normalized to webp, stored under /assets/logos/. Populated in batches by tools/build-company-logos.js into js/company-logos.js. Symbols without an entry render a sector-tinted monogram via the NepseLogo component.","logos":{"NABIL":"/assets/logos/NABIL.webp","SCB":"/assets/logos/SCB.webp","HBL":"/assets/logos/HBL.webp","EBL":"/assets/logos/EBL.webp","ADBL":"/assets/logos/ADBL.webp","NMB":"/assets/logos/NMB.webp","NIFRA":"/assets/logos/NIFRA.webp","HIDCL":"/assets/logos/HIDCL.webp","BARUN":"/assets/logos/BARUN.webp","CHCL":"/assets/logos/CHCL.webp","CIT":"/assets/logos/CIT.webp","MLBL":"/assets/logos/MLBL.webp","NHPC":"/assets/logos/NHPC.webp","NLIC":"/assets/logos/NLIC.webp","NTC":"/assets/logos/NTC.webp","SHIVM":"/assets/logos/SHIVM.webp","UPPER":"/assets/logos/UPPER.webp","HIDCLP":"/assets/logos/HIDCL.webp"}}
+{
+  "_note": "symbol -> self-hosted official company logo path. Sourced ONLY from official company channels (official website, official Facebook/LinkedIn page, or SEBON/NEPSE listing \u2014 never copied from aggregator sites), per user directive 2026-10-03. Normalized to webp, stored under /assets/logos/. Populated in batches by tools/build-company-logos.js into js/company-logos.js. Per-logo provenance (source_url, fetched_at) in _sources. Takedown requests honored. Symbols without an entry render a sector-tinted monogram via the NepseLogo component.",
+  "logos": {
+    "NABIL": "/assets/logos/NABIL.webp",
+    "SCB": "/assets/logos/SCB.webp",
+    "HBL": "/assets/logos/HBL.webp",
+    "EBL": "/assets/logos/EBL.webp",
+    "ADBL": "/assets/logos/ADBL.webp",
+    "NMB": "/assets/logos/NMB.webp",
+    "NIFRA": "/assets/logos/NIFRA.webp",
+    "HIDCL": "/assets/logos/HIDCL.webp",
+    "BARUN": "/assets/logos/BARUN.webp",
+    "CHCL": "/assets/logos/CHCL.webp",
+    "CIT": "/assets/logos/CIT.webp",
+    "MLBL": "/assets/logos/MLBL.webp",
+    "NHPC": "/assets/logos/NHPC.webp",
+    "NLIC": "/assets/logos/NLIC.webp",
+    "NTC": "/assets/logos/NTC.webp",
+    "SHIVM": "/assets/logos/SHIVM.webp",
+    "UPPER": "/assets/logos/UPPER.webp",
+    "HIDCLP": "/assets/logos/HIDCL.webp",
+    "ACLBSL": "/assets/logos/ACLBSL.webp",
+    "AHPC": "/assets/logos/AHPC.webp",
+    "AKJCL": "/assets/logos/AKJCL.webp",
+    "AKPL": "/assets/logos/AKPL.webp",
+    "ALBSL": "/assets/logos/ALBSL.webp",
+    "ALICL": "/assets/logos/ALICL.webp",
+    "ANLB": "/assets/logos/ANLB.webp",
+    "APHL": "/assets/logos/APHL.webp",
+    "API": "/assets/logos/API.webp",
+    "AVYAN": "/assets/logos/AVYAN.webp",
+    "BANDIPUR": "/assets/logos/BANDIPUR.webp",
+    "BBC": "/assets/logos/BBC.webp",
+    "BEDC": "/assets/logos/BEDC.webp",
+    "BFC": "/assets/logos/BFC.webp",
+    "BGWT": "/assets/logos/BGWT.webp",
+    "BHCL": "/assets/logos/BHCL.webp",
+    "BHDC": "/assets/logos/BHDC.webp",
+    "BHL": "/assets/logos/BHL.webp",
+    "BHPL": "/assets/logos/BHPL.webp",
+    "BJHL": "/assets/logos/BJHL.webp",
+    "BNHC": "/assets/logos/BNHC.webp",
+    "BNL": "/assets/logos/BNL.webp",
+    "BNT": "/assets/logos/BNT.webp",
+    "BPCL": "/assets/logos/BPCL.webp",
+    "BUNGAL": "/assets/logos/BUNGAL.webp",
+    "C30MF": "/assets/logos/C30MF.webp",
+    "CBBL": "/assets/logos/CBBL.webp",
+    "CFCL": "/assets/logos/CFCL.webp",
+    "CGH": "/assets/logos/CGH.webp",
+    "CHDC": "/assets/logos/CHDC.webp",
+    "CHL": "/assets/logos/CHL.webp",
+    "CITY": "/assets/logos/CITY.webp",
+    "CIZBD86": "/assets/logos/CIZBD86.webp",
+    "CKHL": "/assets/logos/CKHL.webp",
+    "CLI": "/assets/logos/CLI.webp",
+    "CORBL": "/assets/logos/CORBL.webp",
+    "CREST": "/assets/logos/CREST.webp",
+    "CSY": "/assets/logos/CSY.webp",
+    "CYCL": "/assets/logos/CYCL.webp",
+    "CZBIL": "/assets/logos/CZBIL.webp",
+    "DDBL": "/assets/logos/DDBL.webp",
+    "DHEL": "/assets/logos/DHEL.webp",
+    "DHPL": "/assets/logos/DHPL.webp",
+    "DLBS": "/assets/logos/DLBS.webp",
+    "DOLTI": "/assets/logos/DOLTI.webp",
+    "DORDI": "/assets/logos/DORDI.webp",
+    "EBLD85": "/assets/logos/EBLD85.webp",
+    "EBLD86": "/assets/logos/EBLD86.webp",
+    "EBLD91": "/assets/logos/EBLD91.webp",
+    "ECL": "/assets/logos/ECL.webp",
+    "EDBL": "/assets/logos/EDBL.webp",
+    "EHPL": "/assets/logos/EHPL.webp",
+    "ENL": "/assets/logos/ENL.webp",
+    "FMDBL": "/assets/logos/FMDBL.webp",
+    "FOWAD": "/assets/logos/FOWAD.webp",
+    "GBBD85": "/assets/logos/GBBD85.webp",
+    "GBBL": "/assets/logos/GBBL.webp",
+    "GBILD84/85": "/assets/logos/GBILD84_85.webp",
+    "GBIME": "/assets/logos/GBIME.webp",
+    "GBIMESY2": "/assets/logos/GBIMESY2.webp",
+    "GBLBS": "/assets/logos/GBLBS.webp",
+    "GCIL": "/assets/logos/GCIL.webp",
+    "GFCL": "/assets/logos/GFCL.webp",
+    "GHL": "/assets/logos/GHL.webp",
+    "GIBF1": "/assets/logos/GIBF1.webp",
+    "GILB": "/assets/logos/GILB.webp",
+    "GLBSL": "/assets/logos/GLBSL.webp",
+    "GLH": "/assets/logos/GLH.webp",
+    "GMFIL": "/assets/logos/GMFIL.webp",
+    "GMLI": "/assets/logos/GMLI.webp",
+    "GRDBL": "/assets/logos/GRDBL.webp",
+    "GSY": "/assets/logos/GSY.webp",
+    "GUFL": "/assets/logos/GUFL.webp",
+    "GVL": "/assets/logos/GVL.webp",
+    "H8020": "/assets/logos/HBL.webp",
+    "HATHY": "/assets/logos/HATHY.webp",
+    "HDHPC": "/assets/logos/HDHPC.webp",
+    "HDL": "/assets/logos/HDL.webp",
+    "HEI": "/assets/logos/HEI.webp",
+    "HEIP": "/assets/logos/HEIP.webp",
+    "HHL": "/assets/logos/HHL.webp",
+    "HIMSTAR": "/assets/logos/HIMSTAR.webp",
+    "HLBSL": "/assets/logos/HLBSL.webp",
+    "HLI": "/assets/logos/HLI.webp",
+    "HLICF": "/assets/logos/HLICF.webp",
+    "HPPL": "/assets/logos/HPPL.webp",
+    "HRL": "/assets/logos/HRL.webp",
+    "HURJA": "/assets/logos/HURJA.webp",
+    "ICFC": "/assets/logos/ICFC.webp",
+    "ICFCD88": "/assets/logos/ICFCD88.webp",
+    "ICFCD89": "/assets/logos/ICFCD89.webp",
+    "IGI": "/assets/logos/IGI.webp",
+    "IHL": "/assets/logos/IHL.webp",
+    "ILBS": "/assets/logos/ILBS.webp",
+    "ILI": "/assets/logos/ILI.webp",
+    "JBBL": "/assets/logos/JBBL.webp",
+    "JBLB": "/assets/logos/JBLB.webp",
+    "JFL": "/assets/logos/JFL.webp",
+    "JHAPA": "/assets/logos/JHAPA.webp",
+    "JOSHI": "/assets/logos/JOSHI.webp",
+    "JSLBB": "/assets/logos/JSLBB.webp",
+    "KAHL": "/assets/logos/KAHL.webp",
+    "KBL": "/assets/logos/KBL.webp",
+    "KBLD89": "/assets/logos/KBLD89.webp",
+    "KBLPO": "/assets/logos/KBLPO.webp",
+    "KBSH": "/assets/logos/KBSH.webp",
+    "KDBY": "/assets/logos/KDBY.webp",
+    "KDL": "/assets/logos/KDL.webp",
+    "KEF": "/assets/logos/KEF.webp",
+    "KHPL": "/assets/logos/KHPL.webp",
+    "KKHC": "/assets/logos/KKHC.webp",
+    "KMCDB": "/assets/logos/KMCDB.webp",
+    "KPCL": "/assets/logos/KPCL.webp",
+    "KSBBL": "/assets/logos/KSBBL.webp",
+    "KSY": "/assets/logos/KSY.webp",
+    "LBBL": "/assets/logos/LBBL.webp",
+    "LEC": "/assets/logos/LEC.webp",
+    "LICN": "/assets/logos/LICN.webp",
+    "LLBS": "/assets/logos/LLBS.webp",
+    "LSD92": "/assets/logos/LSD92.webp",
+    "LSH12": "/assets/logos/LSH12.webp",
+    "LSL": "/assets/logos/LSL.webp",
+    "LUK": "/assets/logos/LUK.webp",
+    "LVF2": "/assets/logos/LVF2.webp",
+    "MABEL": "/assets/logos/MABEL.webp",
+    "MAKAR": "/assets/logos/MAKAR.webp",
+    "MANDU": "/assets/logos/MANDU.webp",
+    "MATRI": "/assets/logos/MATRI.webp",
+    "MBJC": "/assets/logos/MBJC.webp",
+    "MBL": "/assets/logos/MBL.webp",
+    "MBLEF": "/assets/logos/MBLEF.webp",
+    "MCHL": "/assets/logos/MCHL.webp",
+    "MDB": "/assets/logos/MDB.webp",
+    "MEHL": "/assets/logos/MEHL.webp",
+    "MEL": "/assets/logos/MEL.webp",
+    "MEN": "/assets/logos/MEN.webp",
+    "MEPDL": "/assets/logos/MEPDL.webp",
+    "MERO": "/assets/logos/MERO.webp",
+    "MFIL": "/assets/logos/MFIL.webp",
+    "MHCL": "/assets/logos/MHCL.webp",
+    "MHL": "/assets/logos/MHL.webp",
+    "MHNL": "/assets/logos/MHNL.webp",
+    "MKCL": "/assets/logos/MKCL.webp",
+    "MKHC": "/assets/logos/MKHC.webp",
+    "MKHL": "/assets/logos/MKHL.webp",
+    "MKJC": "/assets/logos/MKJC.webp",
+    "MLBBL": "/assets/logos/MLBBL.webp",
+    "MLBS": "/assets/logos/MLBS.webp",
+    "MLBSL": "/assets/logos/MLBSL.webp",
+    "MMF1": "/assets/logos/MMF1.webp",
+    "MMKJL": "/assets/logos/MMKJL.webp",
+    "MNBBL": "/assets/logos/MNBBL.webp",
+    "MNBBLP": "/assets/logos/MNBBLP.webp",
+    "MNMF1": "/assets/logos/MNMF1.webp",
+    "MPFL": "/assets/logos/MPFL.webp",
+    "MSHL": "/assets/logos/MSHL.webp",
+    "MSLB": "/assets/logos/MSLB.webp",
+    "NABBC": "/assets/logos/NABBC.webp",
+    "NABILD2089": "/assets/logos/NABILD2089.webp",
+    "NABILD87": "/assets/logos/NABILD87.webp",
+    "NADEP": "/assets/logos/NADEP.webp",
+    "NBBD2085": "/assets/logos/NBBD2085.webp",
+    "NBF2": "/assets/logos/NBF2.webp",
+    "NBF3": "/assets/logos/NBF3.webp",
+    "NBL": "/assets/logos/NBL.webp",
+    "NBLD85": "/assets/logos/NBLD85.webp",
+    "NESDO": "/assets/logos/NESDO.webp",
+    "NFS": "/assets/logos/NFS.webp",
+    "NGPL": "/assets/logos/NGPL.webp",
+    "NHDL": "/assets/logos/NHDL.webp",
+    "NIBD84": "/assets/logos/NIBD84.webp",
+    "NIBLGF": "/assets/logos/NIBLGF.webp",
+    "NIBLSTF": "/assets/logos/NIBLSTF.webp",
+    "NIBSF2": "/assets/logos/NIBSF2.webp",
+    "NICA": "/assets/logos/NICA.webp",
+    "NICAD2091": "/assets/logos/NICAD2091.webp",
+    "NICBF": "/assets/logos/NICBF.webp",
+    "NICFC": "/assets/logos/NICFC.webp",
+    "NICGF2": "/assets/logos/NICGF2.webp",
+    "NICL": "/assets/logos/NICL.webp",
+    "NICLBSL": "/assets/logos/NICLBSL.webp",
+    "NICSF": "/assets/logos/NICSF.webp",
+    "NIFRAGED": "/assets/logos/NIFRAGED.webp",
+    "NIL": "/assets/logos/NIL.webp",
+    "NIMB": "/assets/logos/NIMB.webp",
+    "NIMBD90": "/assets/logos/NIMBD90.webp",
+    "NIMBPO": "/assets/logos/NIMBPO.webp",
+    "NLG": "/assets/logos/NLG.webp",
+    "NLICL": "/assets/logos/NLICL.webp",
+    "NMBD89/90": "/assets/logos/NMBD89_90.webp",
+    "NMBHF2": "/assets/logos/NMBHF2.webp",
+    "NMBMF": "/assets/logos/NMBMF.webp",
+    "NMBUR93/94": "/assets/logos/NMBUR93_94.webp",
+    "NMFBS": "/assets/logos/NMFBS.webp",
+    "NMIC": "/assets/logos/NMIC.webp",
+    "NMLBBL": "/assets/logos/NMLBBL.webp",
+    "NRIC": "/assets/logos/NRIC.webp",
+    "NRM": "/assets/logos/NRM.webp",
+    "NRN": "/assets/logos/NRN.webp",
+    "NSIF2": "/assets/logos/NSIF2.webp",
+    "NSY": "/assets/logos/NSY.webp",
+    "NUBL": "/assets/logos/NUBL.webp",
+    "NWCL": "/assets/logos/NWCL.webp",
+    "NYADI": "/assets/logos/NYADI.webp",
+    "OHL": "/assets/logos/OHL.webp",
+    "OMPL": "/assets/logos/OMPL.webp",
+    "PBD93": "/assets/logos/PBD93.webp",
+    "PCBL": "/assets/logos/PCBL.webp",
+    "PCIL": "/assets/logos/PCIL.webp",
+    "PFL": "/assets/logos/PFL.webp",
+    "PHCL": "/assets/logos/PHCL.webp",
+    "PMHPL": "/assets/logos/PMHPL.webp",
+    "PMLI": "/assets/logos/PMLI.webp",
+    "PPCL": "/assets/logos/PPCL.webp",
+    "PPL": "/assets/logos/PPL.webp",
+    "PRIN": "/assets/logos/PRIN.webp",
+    "PROFL": "/assets/logos/PROFL.webp",
+    "PRSF": "/assets/logos/PRSF.webp",
+    "PRVU": "/assets/logos/PRVU.webp",
+    "PSF": "/assets/logos/PSF.webp",
+    "PURE": "/assets/logos/PURE.webp",
+    "RADHI": "/assets/logos/RADHI.webp",
+    "RBBF40": "/assets/logos/RBBF40.webp",
+    "RBCL": "/assets/logos/RBCL.webp",
+    "RFPL": "/assets/logos/RFPL.webp",
+    "RHGCL": "/assets/logos/RHGCL.webp",
+    "RHPL": "/assets/logos/RHPL.webp",
+    "RIDI": "/assets/logos/RIDI.webp",
+    "RLEL": "/assets/logos/RLEL.webp",
+    "RLFL": "/assets/logos/RLFL.webp",
+    "RMF1": "/assets/logos/RMF1.webp",
+    "RMF2": "/assets/logos/RMF2.webp",
+    "RNLI": "/assets/logos/RNLI.webp",
+    "RSDC": "/assets/logos/RSDC.webp",
+    "RSML": "/assets/logos/RSML.webp",
+    "RSY": "/assets/logos/RSY.webp",
+    "RSY2": "/assets/logos/RSY2.webp",
+    "RURU": "/assets/logos/RURU.webp",
+    "SABBL": "/assets/logos/SABBL.webp",
+    "SADBL": "/assets/logos/SADBL.webp",
+    "SAEF2": "/assets/logos/SAEF2.webp",
+    "SAGAR": "/assets/logos/SAGAR.webp",
+    "SAGF": "/assets/logos/SAGF.webp",
+    "SAHAS": "/assets/logos/SAHAS.webp",
+    "SAIL": "/assets/logos/SAIL.webp",
+    "SALICO": "/assets/logos/SALICO.webp",
+    "SANIMA": "/assets/logos/SANIMA.webp",
+    "SANVI": "/assets/logos/SANVI.webp",
+    "SAPDBL": "/assets/logos/SAPDBL.webp",
+    "SAPIL": "/assets/logos/SAPIL.webp",
+    "SARBTM": "/assets/logos/SARBTM.webp",
+    "SBCF": "/assets/logos/SBCF.webp",
+    "SBI": "/assets/logos/SBI.webp",
+    "SBID2090": "/assets/logos/SBID2090.webp",
+    "SBL": "/assets/logos/SBL.webp",
+    "SBLD2091": "/assets/logos/SBLD2091.webp",
+    "SBLD89": "/assets/logos/SBLD89.webp",
+    "SEF": "/assets/logos/SEF.webp",
+    "SEF2": "/assets/logos/SEF2.webp",
+    "SFEF": "/assets/logos/SFEF.webp",
+    "SFMF": "/assets/logos/SFMF.webp",
+    "SGHC": "/assets/logos/SGHC.webp",
+    "SGHL": "/assets/logos/SGHL.webp",
+    "SGIC": "/assets/logos/SGIC.webp",
+    "SHEL": "/assets/logos/SHEL.webp",
+    "SHINE": "/assets/logos/SHINE.webp",
+    "SHINED": "/assets/logos/SHINED.webp",
+    "SHL": "/assets/logos/SHL.webp",
+    "SHPC": "/assets/logos/SHPC.webp",
+    "SICL": "/assets/logos/SICL.webp",
+    "SIFC": "/assets/logos/SIFC.webp",
+    "SIGS2": "/assets/logos/SIGS2.webp",
+    "SIGS3": "/assets/logos/SIGS3.webp",
+    "SIKLES": "/assets/logos/SIKLES.webp",
+    "SINDU": "/assets/logos/SINDU.webp",
+    "SJCL": "/assets/logos/SJCL.webp",
+    "SJLIC": "/assets/logos/SJLIC.webp",
+    "SKBBL": "/assets/logos/SKBBL.webp",
+    "SKHEL": "/assets/logos/SKHEL.webp",
+    "SKHL": "/assets/logos/SKHL.webp",
+    "SLBBL": "/assets/logos/SLBBL.webp",
+    "SLBSL": "/assets/logos/SLBSL.webp",
+    "SLCF": "/assets/logos/SLCF.webp",
+    "SMATA": "/assets/logos/SMATA.webp",
+    "SMB": "/assets/logos/SMB.webp",
+    "SMH": "/assets/logos/SMH.webp",
+    "SMHL": "/assets/logos/SMHL.webp",
+    "SMJC": "/assets/logos/SMJC.webp",
+    "SNLI": "/assets/logos/SNLI.webp",
+    "SNORL": "/assets/logos/SNORL.webp",
+    "SOHL": "/assets/logos/SOHL.webp",
+    "SONA": "/assets/logos/SONA.webp",
+    "SOPL": "/assets/logos/SOPL.webp",
+    "SPC": "/assets/logos/SPC.webp",
+    "SPDL": "/assets/logos/SPDL.webp",
+    "SPHL": "/assets/logos/SPHL.webp",
+    "SPIL": "/assets/logos/SPIL.webp",
+    "SPL": "/assets/logos/SPL.webp",
+    "SRLI": "/assets/logos/SRLI.webp",
+    "SRLIP": "/assets/logos/SRLIP.webp",
+    "SSHL": "/assets/logos/SSHL.webp",
+    "STC": "/assets/logos/STC.webp",
+    "SWASTIK": "/assets/logos/SWASTIK.webp",
+    "SWBBL": "/assets/logos/SWBBL.webp",
+    "SWMF": "/assets/logos/SWMF.webp",
+    "SYPNL": "/assets/logos/SYPNL.webp",
+    "TAMOR": "/assets/logos/TAMOR.webp",
+    "TPC": "/assets/logos/TPC.webp",
+    "TPKHL": "/assets/logos/TPKHL.webp",
+    "TRH": "/assets/logos/TRH.webp",
+    "TSHL": "/assets/logos/TSHL.webp",
+    "TTL": "/assets/logos/TTL.webp",
+    "UAIL": "/assets/logos/UAIL.webp",
+    "UHEWA": "/assets/logos/UHEWA.webp",
+    "ULBSL": "/assets/logos/ULBSL.webp",
+    "ULHC": "/assets/logos/ULHC.webp",
+    "UMHL": "/assets/logos/UMHL.webp",
+    "UMRH": "/assets/logos/UMRH.webp",
+    "UNHPL": "/assets/logos/UNHPL.webp",
+    "UNLB": "/assets/logos/UNLB.webp",
+    "UPCL": "/assets/logos/UPCL.webp",
+    "USHEC": "/assets/logos/USHEC.webp",
+    "USHL": "/assets/logos/USHL.webp",
+    "USLB": "/assets/logos/USLB.webp",
+    "VLBS": "/assets/logos/VLBS.webp",
+    "VLUCL": "/assets/logos/VLUCL.webp",
+    "YMHL": "/assets/logos/YMHL.webp",
+    "AHL": "/assets/logos/AHL.webp",
+    "SMFBS": "/assets/logos/SMFBS.webp",
+    "HFIN": "/assets/logos/HFIN.webp",
+    "TVCL": "/assets/logos/TVCL.webp",
+    "SHLB": "/assets/logos/SHLB.webp",
+    "GMFBS": "/assets/logos/GMFBS.webp",
+    "RAWA": "/assets/logos/RAWA.webp",
+    "SIPD": "/assets/logos/SIPD.webp",
+    "UNL": "/assets/logos/UNL.webp",
+    "SMPDA": "/assets/logos/SMPDA.webp",
+    "BOKD86": "/assets/logos/BOKD86.webp"
+  },
+  "_sources": {
+    "ACLBSL": {
+      "source_url": "https://www.aarambhachautari.com",
+      "fetched_at": ""
+    },
+    "ADBL": {
+      "source_url": "on-disk (pre-existing)",
+      "fetched_at": ""
+    },
+    "AHPC": {
+      "source_url": "https://arunhydro.com.np",
+      "fetched_at": ""
+    },
+    "AKJCL": {
+      "source_url": "https://aankhukholahydro.com.np",
+      "fetched_at": ""
+    },
+    "AKPL": {
+      "source_url": "https://arunkabeli.com.np",
+      "fetched_at": ""
+    },
+    "ALBSL": {
+      "source_url": "https://ashamicrofinance.com.np",
+      "fetched_at": ""
+    },
+    "ALICL": {
+      "source_url": "https://www.asianlife.com.np",
+      "fetched_at": ""
+    },
+    "ANLB": {
+      "source_url": "on-disk (source unknown)",
+      "fetched_at": ""
+    },
+    "APHL": {
+      "source_url": "https://appolohydro.com",
+      "fetched_at": ""
+    },
+    "API": {
+      "source_url": "https://www.apipower.com.np",
+      "fetched_at": ""
+    },
+    "AVYAN": {
+      "source_url": "https://www.aviyanlaghubitta.com.np",
+      "fetched_at": ""
+    },
+    "BANDIPUR": {
+      "source_url": "http://bandipurcablecar.com.np/",
+      "fetched_at": ""
+    },
+    "BARUN": {
+      "source_url": "on-disk (pre-existing)",
+      "fetched_at": ""
+    },
+    "BBC": {
+      "source_url": "https://bishalbazar.com.np",
+      "fetched_at": ""
+    },
+    "BEDC": {
+      "source_url": "https://www.bedc.com.np",
+      "fetched_at": ""
+    },
+    "BFC": {
+      "source_url": "https://bestfinance.com.np",
+      "fetched_at": ""
+    },
+    "BGWT": {
+      "source_url": "https://bhagawatihydro.com.np",
+      "fetched_at": ""
+    },
+    "BHCL": {
+      "source_url": "https://bikashhydro.com.np",
+      "fetched_at": ""
+    },
+    "BHDC": {
+      "source_url": "https://www.bindhyabasinihydro.com.np",
+      "fetched_at": ""
+    },
+    "BHL": {
+      "source_url": "https://balephihydro.com",
+      "fetched_at": ""
+    },
+    "BHPL": {
+      "source_url": "https://barahihydropower.com.np",
+      "fetched_at": ""
+    },
+    "BJHL": {
+      "source_url": "https://bhujunghydro.com",
+      "fetched_at": ""
+    },
+    "BNHC": {
+      "source_url": "https://buddhabhuminepalhydro.com.np",
+      "fetched_at": ""
+    },
+    "BNL": {
+      "source_url": "https://bnl.com.np",
+      "fetched_at": ""
+    },
+    "BNT": {
+      "source_url": "https://bnl.com.np",
+      "fetched_at": ""
+    },
+    "BPCL": {
+      "source_url": "https://bpc.com.np",
+      "fetched_at": ""
+    },
+    "BUNGAL": {
+      "source_url": "https://bungalhydro.com.np/wp-content/uploads/2024/03/logo-bungal.png",
+      "fetched_at": ""
+    },
+    "C30MF": {
+      "source_url": "https://citizenscapital.com.np/frontend/img/logo-cbil-lg.png",
+      "fetched_at": ""
+    },
+    "CBBL": {
+      "source_url": "https://www.chhimekbank.org/assets/backend/uploads/Images/logo.png",
+      "fetched_at": ""
+    },
+    "CFCL": {
+      "source_url": "https://centralfinance.com.np",
+      "fetched_at": ""
+    },
+    "CGH": {
+      "source_url": "https://www.chandragirihills.com",
+      "fetched_at": ""
+    },
+    "CHCL": {
+      "source_url": "on-disk (pre-existing)",
+      "fetched_at": ""
+    },
+    "CHDC": {
+      "source_url": "http://chdc.com.np/Resources/images/logo.png",
+      "fetched_at": ""
+    },
+    "CHL": {
+      "source_url": "http://www.chpl.com.np/uploads/icons/1683184923_logo_chhyangdi%20(1).png",
+      "fetched_at": ""
+    },
+    "CIT": {
+      "source_url": "on-disk (pre-existing)",
+      "fetched_at": ""
+    },
+    "CITY": {
+      "source_url": "https://cityhotel.com.np/wp-content/uploads/2022/10/ch-logo.jpg",
+      "fetched_at": ""
+    },
+    "CIZBD86": {
+      "source_url": "on-disk (source unknown)",
+      "fetched_at": ""
+    },
+    "CKHL": {
+      "source_url": "https://chirkhwahydropower.com/static/img/chi.png",
+      "fetched_at": ""
+    },
+    "CLI": {
+      "source_url": "https://citizenlifenepal.com/wp-content/uploads/2020/07/citizen-png-logo-1.png",
+      "fetched_at": ""
+    },
+    "CORBL": {
+      "source_url": "https://www.corporatebank.com.np/assets/images/myimg/curr-logo.jpg",
+      "fetched_at": ""
+    },
+    "CREST": {
+      "source_url": "https://cmli.com.np/images/CREST-1.svg",
+      "fetched_at": ""
+    },
+    "CSY": {
+      "source_url": "https://citizenscapital.com.np/frontend/img/logo-cbil-lg.png",
+      "fetched_at": ""
+    },
+    "CYCL": {
+      "source_url": "https://cycnlbsl.org.np/wp-content/uploads/2022/05/cyc-logo.jpg",
+      "fetched_at": ""
+    },
+    "CZBIL": {
+      "source_url": "https://www.ctznbank.com",
+      "fetched_at": ""
+    },
+    "DDBL": {
+      "source_url": "https://www.deproscbank.com.np (via ddbank.org.np)",
+      "fetched_at": ""
+    },
+    "DHEL": {
+      "source_url": "https://www.daramkholahydro.com",
+      "fetched_at": ""
+    },
+    "DHPL": {
+      "source_url": "https://dibyashwarihydro.com.np",
+      "fetched_at": ""
+    },
+    "DLBS": {
+      "source_url": "https://dhaulagiribank.com",
+      "fetched_at": ""
+    },
+    "DOLTI": {
+      "source_url": "https://www.doltipower.org.np",
+      "fetched_at": ""
+    },
+    "DORDI": {
+      "source_url": "http://dordikhola.com.np",
+      "fetched_at": ""
+    },
+    "EBL": {
+      "source_url": "pre-existing from earlier batch",
+      "fetched_at": ""
+    },
+    "EBLD85": {
+      "source_url": "parent EBL",
+      "fetched_at": ""
+    },
+    "EBLD86": {
+      "source_url": "parent EBL",
+      "fetched_at": ""
+    },
+    "EBLD91": {
+      "source_url": "parent EBL",
+      "fetched_at": ""
+    },
+    "ECL": {
+      "source_url": "https://everestcolour.com",
+      "fetched_at": ""
+    },
+    "EDBL": {
+      "source_url": "https://edb.com.np",
+      "fetched_at": ""
+    },
+    "EHPL": {
+      "source_url": "https://ehpl.com.np",
+      "fetched_at": ""
+    },
+    "ENL": {
+      "source_url": "https://www.emergingnep.com",
+      "fetched_at": ""
+    },
+    "FMDBL": {
+      "source_url": "https://www.fmdb.com.np",
+      "fetched_at": ""
+    },
+    "FOWAD": {
+      "source_url": "https://www.forwardmfbank.com.np",
+      "fetched_at": ""
+    },
+    "GBBD85": {
+      "source_url": "parent GBBL",
+      "fetched_at": ""
+    },
+    "GBBL": {
+      "source_url": "https://www.garimabank.com.np",
+      "fetched_at": ""
+    },
+    "GBILD84/85": {
+      "source_url": "parent GBIME",
+      "fetched_at": ""
+    },
+    "GBIME": {
+      "source_url": "https://gibl-assets.gibl.com.np (official Global IME asset domain)",
+      "fetched_at": ""
+    },
+    "GBIMESY2": {
+      "source_url": "parent GBIME",
+      "fetched_at": ""
+    },
+    "GBLBS": {
+      "source_url": "https://gblbs.com.np",
+      "fetched_at": ""
+    },
+    "GCIL": {
+      "source_url": "https://ghorahicement.com.np",
+      "fetched_at": ""
+    },
+    "GFCL": {
+      "source_url": "https://www.goodwillfinance.com.np",
+      "fetched_at": ""
+    },
+    "GHL": {
+      "source_url": "http://ghalemdi.com",
+      "fetched_at": ""
+    },
+    "GIBF1": {
+      "source_url": "parent GBIME",
+      "fetched_at": ""
+    },
+    "GILB": {
+      "source_url": "https://gilb.com.np",
+      "fetched_at": ""
+    },
+    "GLBSL": {
+      "source_url": "https://glbsl.com.np (site favicon; guranslaghubitta.com.np redirects here)",
+      "fetched_at": ""
+    },
+    "GLH": {
+      "source_url": "https://www.greenlifehydropower.com.np",
+      "fetched_at": ""
+    },
+    "GMFIL": {
+      "source_url": "https://www.gmbf.com.np (React static asset logo)",
+      "fetched_at": ""
+    },
+    "GMLI": {
+      "source_url": "https://www.facebook.com/guardianmicrolife (official FB page profile pic; linked from official site gmli.com.np)",
+      "fetched_at": ""
+    },
+    "GRDBL": {
+      "source_url": "https://www.greenbank.com.np",
+      "fetched_at": ""
+    },
+    "GSY": {
+      "source_url": "https://garimacapital.com (fund manager of Garima Samriddhi Yojana)",
+      "fetched_at": ""
+    },
+    "GUFL": {
+      "source_url": "https://www.gurkhasfinance.com.np",
+      "fetched_at": ""
+    },
+    "GVL": {
+      "source_url": "https://greenventuresnepal.com",
+      "fetched_at": ""
+    },
+    "H8020": {
+      "source_url": "parent HBL",
+      "fetched_at": ""
+    },
+    "HATHY": {
+      "source_url": "https://www.hathwaynepal.com.np",
+      "fetched_at": ""
+    },
+    "HBL": {
+      "source_url": "pre-existing from earlier batch",
+      "fetched_at": ""
+    },
+    "HDHPC": {
+      "source_url": "https://himaldolakhahydropower.com (site currently unreachable; file verified on disk)",
+      "fetched_at": ""
+    },
+    "HDL": {
+      "source_url": "https://himalayandistillery.com (logo PNG extracted from official SVG)",
+      "fetched_at": ""
+    },
+    "HEI": {
+      "source_url": "https://www.hei.com.np",
+      "fetched_at": ""
+    },
+    "HEIP": {
+      "source_url": "parent HEI",
+      "fetched_at": ""
+    },
+    "HHL": {
+      "source_url": "https://hhpl.com.np/",
+      "fetched_at": ""
+    },
+    "HIDCL": {
+      "source_url": "existing (batch 1)",
+      "fetched_at": ""
+    },
+    "HIDCLP": {
+      "source_url": "reuses HIDCL official logo (promoter share of HIDCL)",
+      "fetched_at": ""
+    },
+    "HIMSTAR": {
+      "source_url": "https://www.urjahimstar.com.np/",
+      "fetched_at": ""
+    },
+    "HLBSL": {
+      "source_url": "https://himalayanlaghubitta.com/static/mainapp/images/logo.png",
+      "fetched_at": ""
+    },
+    "HLI": {
+      "source_url": "https://himalayanlife.com.np",
+      "fetched_at": ""
+    },
+    "HLICF": {
+      "source_url": "https://himalayanlife.com.np/",
+      "fetched_at": ""
+    },
+    "HPPL": {
+      "source_url": "file present on disk from worker run (record incomplete)",
+      "fetched_at": ""
+    },
+    "HRL": {
+      "source_url": "https://himalayanre.com/wp-content/uploads/2025/04/Layer_1.svg",
+      "fetched_at": ""
+    },
+    "HURJA": {
+      "source_url": "https://himalurja.com",
+      "fetched_at": ""
+    },
+    "ICFC": {
+      "source_url": "file present on disk from worker run (record incomplete)",
+      "fetched_at": ""
+    },
+    "ICFCD88": {
+      "source_url": "https://www.icfcbank.com/",
+      "fetched_at": ""
+    },
+    "ICFCD89": {
+      "source_url": "file present on disk from worker run (record incomplete)",
+      "fetched_at": ""
+    },
+    "IGI": {
+      "source_url": "https://igiprudential.com",
+      "fetched_at": ""
+    },
+    "IHL": {
+      "source_url": "https://www.ingwahydropowerltd.com.np/",
+      "fetched_at": ""
+    },
+    "ILBS": {
+      "source_url": "https://www.infinitylbsl.com.np/",
+      "fetched_at": ""
+    },
+    "ILI": {
+      "source_url": "https://imelifeinsurance.com/media/2024/06/viber_image_2024-06-02_11-53-02-817.png",
+      "fetched_at": ""
+    },
+    "JBBL": {
+      "source_url": "https://jbbl.com.np",
+      "fetched_at": ""
+    },
+    "JBLB": {
+      "source_url": "https://jeevanbikasmf.com/",
+      "fetched_at": ""
+    },
+    "JFL": {
+      "source_url": "https://www.jfcjanakpur.com.np/",
+      "fetched_at": ""
+    },
+    "JHAPA": {
+      "source_url": "https://jhapaenergy.com.np/uploads/photos/4/WhatsApp%20Image%202024-05-12%20at%205.01.15%20PM.png",
+      "fetched_at": ""
+    },
+    "JOSHI": {
+      "source_url": "http://jhdc.com.np",
+      "fetched_at": ""
+    },
+    "JSLBB": {
+      "source_url": "https://www.jucbank.com.np/",
+      "fetched_at": ""
+    },
+    "KAHL": {
+      "source_url": "file present on disk from worker run (record incomplete)",
+      "fetched_at": ""
+    },
+    "KBL": {
+      "source_url": "https://www.kumaribank.com/images/logo.png",
+      "fetched_at": ""
+    },
+    "KBLD89": {
+      "source_url": "https://www.kumaribank.com",
+      "fetched_at": ""
+    },
+    "KBLPO": {
+      "source_url": "https://www.kumaribank.com/",
+      "fetched_at": ""
+    },
+    "KBSH": {
+      "source_url": "file present on disk from worker run (record incomplete)",
+      "fetched_at": ""
+    },
+    "KDBY": {
+      "source_url": "Kumari Bank logo (copied from /assets/logos/KBL.webp) - Kumari Dhanabriddhi Yojana mutual fund",
+      "fetched_at": ""
+    },
+    "KDL": {
+      "source_url": "https://kalinchowkdarshan.com.np",
+      "fetched_at": ""
+    },
+    "KEF": {
+      "source_url": "https://www.kumaribank.com/",
+      "fetched_at": ""
+    },
+    "KHPL": {
+      "source_url": "file present on disk from worker run (record incomplete)",
+      "fetched_at": ""
+    },
+    "KKHC": {
+      "source_url": "file present on disk from worker run (record incomplete)",
+      "fetched_at": ""
+    },
+    "KMCDB": {
+      "source_url": "http://www.kalikabank.com.np",
+      "fetched_at": ""
+    },
+    "KPCL": {
+      "source_url": "https://www.kalikapower.com.np/",
+      "fetched_at": ""
+    },
+    "KSBBL": {
+      "source_url": "file present on disk from worker run (record incomplete)",
+      "fetched_at": ""
+    },
+    "KSY": {
+      "source_url": "Kumari Bank logo (copied from /assets/logos/KBL.webp) - Kumari Sabal Yojana mutual fund",
+      "fetched_at": ""
+    },
+    "LBBL": {
+      "source_url": "https://www.lumbinibikasbank.com",
+      "fetched_at": ""
+    },
+    "LEC": {
+      "source_url": "https://www.libertyenergy.com.np/",
+      "fetched_at": ""
+    },
+    "LICN": {
+      "source_url": "file present on disk from worker run (record incomplete)",
+      "fetched_at": ""
+    },
+    "LLBS": {
+      "source_url": "file present on disk from worker run (record incomplete)",
+      "fetched_at": ""
+    },
+    "LSD92": {
+      "source_url": "https://www.laxmisunrise.com",
+      "fetched_at": ""
+    },
+    "LSH12": {
+      "source_url": "https://www.lscapital.com.np/",
+      "fetched_at": ""
+    },
+    "LSL": {
+      "source_url": "file present on disk from worker run (record incomplete)",
+      "fetched_at": ""
+    },
+    "LUK": {
+      "source_url": "https://www.laxmisunrise.com/wp-content/uploads/2022/04/laxmi-sunrise-orange.png",
+      "fetched_at": ""
+    },
+    "LVF2": {
+      "source_url": "https://www.laxmicapital.com.np",
+      "fetched_at": ""
+    },
+    "MABEL": {
+      "source_url": "https://www.mabilung.com",
+      "fetched_at": ""
+    },
+    "MAKAR": {
+      "source_url": "https://mjshydropower.com.np",
+      "fetched_at": ""
+    },
+    "MANDU": {
+      "source_url": "https://manduhydropower.com",
+      "fetched_at": ""
+    },
+    "MATRI": {
+      "source_url": "https://matribhumimf.com.np",
+      "fetched_at": ""
+    },
+    "MBJC": {
+      "source_url": "https://mbjcl.com.np",
+      "fetched_at": ""
+    },
+    "MBL": {
+      "source_url": "https://www.machbank.com",
+      "fetched_at": ""
+    },
+    "MBLEF": {
+      "source_url": "official fund-manager site",
+      "fetched_at": ""
+    },
+    "MCHL": {
+      "source_url": "https://menchhiyamhydro.com.np",
+      "fetched_at": ""
+    },
+    "MDB": {
+      "source_url": "https://miteribank.com.np",
+      "fetched_at": ""
+    },
+    "MEHL": {
+      "source_url": "https://hydromanakamana.com.np",
+      "fetched_at": ""
+    },
+    "MEL": {
+      "source_url": "https://www.modihydro.com",
+      "fetched_at": ""
+    },
+    "MEN": {
+      "source_url": "https://www.mountainenergy.com.np",
+      "fetched_at": ""
+    },
+    "MEPDL": {
+      "source_url": "https://mounteveresthydro.com/wp-content/uploads/2026/09/mount-everest-logo-1.png",
+      "fetched_at": ""
+    },
+    "MERO": {
+      "source_url": "https://meromicrofinance.com/images/logo.png",
+      "fetched_at": ""
+    },
+    "MFIL": {
+      "source_url": "https://manjushreefinance.com.np",
+      "fetched_at": ""
+    },
+    "MHCL": {
+      "source_url": "https://molunghydropower.com.np/wp-content/uploads/2021/07/molung-ltd.png",
+      "fetched_at": ""
+    },
+    "MHL": {
+      "source_url": "http://mandakinihydro.com.np/images/logo.png",
+      "fetched_at": ""
+    },
+    "MHNL": {
+      "source_url": "https://mhnl.com.np/wp-content/uploads/2025/11/logo_mh.gif",
+      "fetched_at": ""
+    },
+    "MKCL": {
+      "source_url": "https://muktinathkrishi.com/assets/frontend/img/logo-muktinath.svg",
+      "fetched_at": ""
+    },
+    "MKHC": {
+      "source_url": "http://mkhpcl.com.np/mkh-favicon.png",
+      "fetched_at": ""
+    },
+    "MKHL": {
+      "source_url": "http://www.maikholahydropower.com.np/assets/images/cropped-PNG-5.png",
+      "fetched_at": ""
+    },
+    "MKJC": {
+      "source_url": "https://mailungkhola.com.np",
+      "fetched_at": ""
+    },
+    "MLBBL": {
+      "source_url": "https://mlbbank.com.np/wp-content/uploads/2022/10/Logo_Mlbbank-e1666079023633.png",
+      "fetched_at": ""
+    },
+    "MLBL": {
+      "source_url": "pre-existing",
+      "fetched_at": ""
+    },
+    "MLBS": {
+      "source_url": "https://manushilbs.com.np/adminetic/static/logo.png",
+      "fetched_at": ""
+    },
+    "MLBSL": {
+      "source_url": "https://mlbsl.com.np",
+      "fetched_at": ""
+    },
+    "MMF1": {
+      "source_url": "https://nimbacecapital.com/wp-content/uploads/2024/10/nimb-ace-capital-logo-h-1.png",
+      "fetched_at": ""
+    },
+    "MMKJL": {
+      "source_url": "https://sanimamailung.com/assets/grocery_crud/themes/sanimadesign/assets/img/logo.png",
+      "fetched_at": ""
+    },
+    "MNBBL": {
+      "source_url": "https://muktinathbank.com.np",
+      "fetched_at": ""
+    },
+    "MNBBLP": {
+      "source_url": "https://www.muktinathbank.com.np/assets/backend/uploads/Banner_icon/logo.png",
+      "fetched_at": ""
+    },
+    "MNMF1": {
+      "source_url": "https://www.muktinathcapital.com/logo/favicon.png",
+      "fetched_at": ""
+    },
+    "MPFL": {
+      "source_url": "https://multipurposefinance.com/images/thumbnail/logo.png",
+      "fetched_at": ""
+    },
+    "MSHL": {
+      "source_url": "https://midsoluhydropower.com.np/wp-content/uploads/2022/12/midsolu-logo.png",
+      "fetched_at": ""
+    },
+    "MSLB": {
+      "source_url": "https://www.mslbsl.com.np/images/logo.png",
+      "fetched_at": ""
+    },
+    "NABBC": {
+      "source_url": "https://ndbl.com.np/wp-content/themes/ndbl/assets/img/logondbl.png",
+      "fetched_at": ""
+    },
+    "NABIL": {
+      "source_url": "pre-existing",
+      "fetched_at": ""
+    },
+    "NABILD2089": {
+      "source_url": "https://assets.nabilbank.com/uploads/logo/nabil%20logo.svg",
+      "fetched_at": ""
+    },
+    "NABILD87": {
+      "source_url": "https://assets.nabilbank.com/uploads/logo/nabil%20logo.svg",
+      "fetched_at": ""
+    },
+    "NADEP": {
+      "source_url": "https://www.nadeplaghubitta.com/wp-content/uploads/2025/12/cropped-logo_new_nadep_final.png",
+      "fetched_at": ""
+    },
+    "NBBD2085": {
+      "source_url": "https://www.nabilbank.com",
+      "fetched_at": ""
+    },
+    "NBF2": {
+      "source_url": "https://www.nabilbank.com",
+      "fetched_at": ""
+    },
+    "NBF3": {
+      "source_url": "https://www.nabilbank.com",
+      "fetched_at": ""
+    },
+    "NBL": {
+      "source_url": "https://www.nepalbank.com.np",
+      "fetched_at": ""
+    },
+    "NBLD85": {
+      "source_url": "https://www.nabilbank.com",
+      "fetched_at": ""
+    },
+    "NESDO": {
+      "source_url": "official company website (batch-4 worker, visually verified 2026-10-03)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NFS": {
+      "source_url": "official company website (batch-4 worker, visually verified 2026-10-03)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NGPL": {
+      "source_url": "official company website (batch-4 worker, visually verified 2026-10-03)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NHDL": {
+      "source_url": "official company website (batch-4 worker, visually verified 2026-10-03)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NHPC": {
+      "source_url": "pre-existing from earlier logo batches",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NIBD84": {
+      "source_url": "issuer company logo reuse (debenture/promoter share carries issuer brand; md5-verified copy by batch-4 worker)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NIBLGF": {
+      "source_url": "fund-manager logo reuse (mutual fund carries manager brand; md5-verified copy by batch-4 worker)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NIBLSTF": {
+      "source_url": "fund-manager logo reuse (mutual fund carries manager brand; md5-verified copy by batch-4 worker)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NIBSF2": {
+      "source_url": "fund-manager logo reuse (mutual fund carries manager brand; md5-verified copy by batch-4 worker)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NICA": {
+      "source_url": "official company website (batch-4 worker, visually verified 2026-10-03)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NICAD2091": {
+      "source_url": "issuer company logo reuse (debenture/promoter share carries issuer brand; md5-verified copy by batch-4 worker)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NICBF": {
+      "source_url": "fund-manager logo reuse (mutual fund carries manager brand; md5-verified copy by batch-4 worker)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NICFC": {
+      "source_url": "fund-manager logo reuse (mutual fund carries manager brand; md5-verified copy by batch-4 worker)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NICGF2": {
+      "source_url": "fund-manager logo reuse (mutual fund carries manager brand; md5-verified copy by batch-4 worker)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NICL": {
+      "source_url": "official company website (batch-4 worker, visually verified 2026-10-03)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NICLBSL": {
+      "source_url": "official company website (batch-4 worker, visually verified 2026-10-03)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NICSF": {
+      "source_url": "fund-manager logo reuse (mutual fund carries manager brand; md5-verified copy by batch-4 worker)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NIFRA": {
+      "source_url": "pre-existing from earlier logo batches",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NIFRAGED": {
+      "source_url": "issuer company logo reuse (debenture/promoter share carries issuer brand; md5-verified copy by batch-4 worker)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NIL": {
+      "source_url": "official company website (batch-4 worker, visually verified 2026-10-03)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NIMB": {
+      "source_url": "official company website (batch-4 worker, visually verified 2026-10-03)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NIMBD90": {
+      "source_url": "issuer company logo reuse (debenture/promoter share carries issuer brand; md5-verified copy by batch-4 worker)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NIMBPO": {
+      "source_url": "issuer company logo reuse (debenture/promoter share carries issuer brand; md5-verified copy by batch-4 worker)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NLG": {
+      "source_url": "official company website (batch-4 worker, visually verified 2026-10-03)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NLIC": {
+      "source_url": "official company website (batch-4 worker, visually verified 2026-10-03)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NLICL": {
+      "source_url": "official company website (batch-4 worker, visually verified 2026-10-03)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NMB": {
+      "source_url": "pre-existing from earlier logo batches",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NMBD89/90": {
+      "source_url": "issuer company logo reuse (debenture/promoter share carries issuer brand; md5-verified copy by batch-4 worker)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NMBHF2": {
+      "source_url": "issuer company logo reuse (debenture/promoter share carries issuer brand; md5-verified copy by batch-4 worker)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NMBMF": {
+      "source_url": "https://web.archive.org/web/20250114123442im_/https://nmbmicrofinance.com/wp-content/uploads/2019/06/NMB-Microfinance-newlog2.png (company's official site header logo; live site nmbmicrofinance.com blocked automated fetch with empty-reply bot protection, logo bytes retrieved from archive of same official URL)",
+      "fetched_at": "2026-10-03T17:04:33Z"
+    },
+    "NMBUR93/94": {
+      "source_url": "issuer company logo reuse (debenture/promoter share carries issuer brand; md5-verified copy by batch-4 worker)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NMFBS": {
+      "source_url": "official company website (batch-4 worker, visually verified 2026-10-03)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NMIC": {
+      "source_url": "official company website (batch-4 worker, visually verified 2026-10-03)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NMLBBL": {
+      "source_url": "official company website (batch-4 worker, visually verified 2026-10-03)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NRIC": {
+      "source_url": "official company website (batch-4 worker, visually verified 2026-10-03)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NRM": {
+      "source_url": "official company website (batch-4 worker, visually verified 2026-10-03)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NRN": {
+      "source_url": "official company website (batch-4 worker, visually verified 2026-10-03)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NSIF2": {
+      "source_url": "issuer company logo reuse (debenture/promoter share carries issuer brand; md5-verified copy by batch-4 worker)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NSY": {
+      "source_url": "https://nepallifecapital.com.np/assets/img/logo/logo.png",
+      "fetched_at": "2026-10-03T16:52:13Z"
+    },
+    "NTC": {
+      "source_url": "pre-existing from earlier logo batches",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NUBL": {
+      "source_url": "https://facebook.com/nirdhan.bank/ (official company Facebook page profile picture; website Cloudflare bot-challenged; user-authorized fallback 2026-10-03)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NWCL": {
+      "source_url": "official company website (batch-4 worker, visually verified 2026-10-03)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "NYADI": {
+      "source_url": "official company website (batch-4 worker, visually verified 2026-10-03)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "OHL": {
+      "source_url": "official company website (batch-4 worker, visually verified 2026-10-03)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "OMPL": {
+      "source_url": "official company website (batch-4 worker, visually verified 2026-10-03)",
+      "fetched_at": "2026-10-03T17:20:33Z"
+    },
+    "PBD93": {
+      "source_url": "https://primebank.com.np/logo192.png",
+      "fetched_at": ""
+    },
+    "PCBL": {
+      "source_url": "https://primebank.com.np/logo192.png",
+      "fetched_at": ""
+    },
+    "PCIL": {
+      "source_url": "https://static.wixstatic.com/media/961ed6_2fd512eea4b14dadbad181f19a8bec3c~mv2.png/v1/fill/w_182,h_160,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/TANSEN-Logo.png",
+      "fetched_at": ""
+    },
+    "PFL": {
+      "source_url": "https://www.pokharafinance.com.np/_next/static/media/logo.0baa79bf.jpg",
+      "fetched_at": ""
+    },
+    "PHCL": {
+      "source_url": "pre-existing from earlier batch (verified genuine: Peoples Hydropower logo)",
+      "fetched_at": ""
+    },
+    "PMHPL": {
+      "source_url": "http://panchakanyamai.com.np/images/panchakanya-logo.png",
+      "fetched_at": ""
+    },
+    "PMLI": {
+      "source_url": "pre-existing from earlier batch (verified genuine: Prabhu Mahalaxmi Life logo)",
+      "fetched_at": ""
+    },
+    "PPCL": {
+      "source_url": "https://www.ppcl.com.np/wp-content/themes/ppcl/assets/images/logo1.png",
+      "fetched_at": ""
+    },
+    "PPL": {
+      "source_url": "https://d3pz0xvsle9v95.cloudfront.net/profiles/20/profile/XK2QtamZNVVlSHEkh5NCsOIGparv5AzUvOjcJWft.png",
+      "fetched_at": ""
+    },
+    "PRIN": {
+      "source_url": "https://prabhuinsurance.com/wp-content/uploads/2021/01/logo.png",
+      "fetched_at": ""
+    },
+    "PROFL": {
+      "source_url": "https://pfltd.com.np/FinanceLogo.jpg",
+      "fetched_at": ""
+    },
+    "PRSF": {
+      "source_url": "https://prabhucapital.com/brand-logo.png",
+      "fetched_at": ""
+    },
+    "PRVU": {
+      "source_url": "pre-existing from earlier batch (verified genuine: Prabhu Bank logo)",
+      "fetched_at": ""
+    },
+    "PSF": {
+      "source_url": "https://prabhucapital.com/brand-logo.png",
+      "fetched_at": ""
+    },
+    "PURE": {
+      "source_url": "https://pureenergynepal.com/wp-content/uploads/2024/02/Pure-Energy-Logo.png",
+      "fetched_at": ""
+    },
+    "RADHI": {
+      "source_url": "http://radhibidyut.com.np/Resources/images/logo-stamp.png",
+      "fetched_at": ""
+    },
+    "RBBF40": {
+      "source_url": "https://rbb.com.np/uploads/config/1731390437-339067.png",
+      "fetched_at": ""
+    },
+    "RBCL": {
+      "source_url": "https://rbcl.gov.np/application/resources/site/img/logo.png",
+      "fetched_at": ""
+    },
+    "RFPL": {
+      "source_url": "http://www.riverfallshydro.com.np/assets/images/logo.png",
+      "fetched_at": ""
+    },
+    "RHGCL": {
+      "source_url": "http://raptihydro.com.np/Resources/images/logo-stamp.png",
+      "fetched_at": ""
+    },
+    "RHPL": {
+      "source_url": "https://rghpcl.com.np/media/2023/01/rasuwalogo.jpg",
+      "fetched_at": ""
+    },
+    "RIDI": {
+      "source_url": "https://ridipower.com.np/ridi-logo.png",
+      "fetched_at": ""
+    },
+    "RLEL": {
+      "source_url": "https://ridgeline.com.np/wp-content/uploads/2025/05/COMPANY_LOGO.jpeg-removebg-preview.png",
+      "fetched_at": ""
+    },
+    "RLFL": {
+      "source_url": "https://reliancenepal.com.np/assets/images/reliance/logo.png",
+      "fetched_at": ""
+    },
+    "RMF1": {
+      "source_url": "https://rbb.com.np/uploads/config/1731390437-339067.png",
+      "fetched_at": ""
+    },
+    "RMF2": {
+      "source_url": "https://rbb.com.np/uploads/config/1731390437-339067.png",
+      "fetched_at": ""
+    },
+    "RNLI": {
+      "source_url": "https://reliablelife.com.np/logo.png",
+      "fetched_at": ""
+    },
+    "RSDC": {
+      "source_url": "https://rsdcmf.com/img/RSDC%20logo.jpg",
+      "fetched_at": ""
+    },
+    "RSML": {
+      "source_url": "https://reliancespinningnepal.com/wp-content/uploads/2024/05/RSN-Logo-1.png",
+      "fetched_at": ""
+    },
+    "RSY": {
+      "source_url": "https://reliablecapital.com.np/images/logo.svg",
+      "fetched_at": ""
+    },
+    "RSY2": {
+      "source_url": "https://reliablecapital.com.np/images/logo.svg",
+      "fetched_at": ""
+    },
+    "RURU": {
+      "source_url": "https://www.ruruhydro.com/uploads/icons/1618560319_logo.png",
+      "fetched_at": ""
+    },
+    "SABBL": {
+      "source_url": "https://salapabikasbank.com.np/them_img/22-Dec-2024-10-12-40LOGO-WHITE.png",
+      "fetched_at": ""
+    },
+    "SADBL": {
+      "source_url": "https://shangrilabank.com/file-manager/photos/1/logo-removebg-preview.png",
+      "fetched_at": ""
+    },
+    "SAEF2": {
+      "source_url": "https://sanima.capital/images/sanima_high.png",
+      "fetched_at": ""
+    },
+    "SAGAR": {
+      "source_url": "https://www.sagardistilleries.com/images/logo/light_line_logo.png",
+      "fetched_at": ""
+    },
+    "SAGF": {
+      "source_url": "https://sanima.capital/images/sanima_high.png",
+      "fetched_at": ""
+    },
+    "SAHAS": {
+      "source_url": "https://sahasurja.com/wp-content/uploads/2017/08/logo.jpg",
+      "fetched_at": ""
+    },
+    "SAIL": {
+      "source_url": "https://safnepal.com/images/assets/logo/shreenagar-2025-new-logo.svg",
+      "fetched_at": ""
+    },
+    "SALICO": {
+      "source_url": "https://salico.com.np/public/images/setting/6512b637a40c8.png",
+      "fetched_at": ""
+    },
+    "SANIMA": {
+      "source_url": "https://web.archive.org/web/20221208190656id_/https://www.sanimabank.com/_next/image?url=%2Fstatic%2Fimages%2Flogo_bank.png&w=1080&q=75",
+      "fetched_at": ""
+    },
+    "SANVI": {
+      "source_url": "https://www.sanvienergy.com/frontend/image/files/logo.png",
+      "fetched_at": ""
+    },
+    "SAPDBL": {
+      "source_url": "https://skdbl.com.np/assets/logo-1WBaNhlO.png",
+      "fetched_at": ""
+    },
+    "SAPIL": {
+      "source_url": "https://sarvottampaints.com/wp-content/uploads/2023/09/cropped-cropped-Orgional-Logo-Sarvottam-e1694074651669.jpg",
+      "fetched_at": ""
+    },
+    "SARBTM": {
+      "source_url": "https://sarbottamcement.com/",
+      "fetched_at": "2026-10-03T16:36:53Z"
+    },
+    "SBCF": {
+      "source_url": "https://lscapital.com.np/",
+      "fetched_at": "2026-10-03T17:13:48Z"
+    },
+    "SBI": {
+      "source_url": "https://nsbl.statebank",
+      "fetched_at": "2026-10-03T16:36:53Z"
+    },
+    "SBID2090": {
+      "source_url": "https://nsbl.statebank",
+      "fetched_at": "2026-10-03T16:36:53Z"
+    },
+    "SBL": {
+      "source_url": "https://www.siddharthabank.com/",
+      "fetched_at": "2026-10-03T16:36:53Z"
+    },
+    "SBLD2091": {
+      "source_url": "https://www.siddharthabank.com/",
+      "fetched_at": "2026-10-03T16:36:53Z"
+    },
+    "SBLD89": {
+      "source_url": "https://www.siddharthabank.com/",
+      "fetched_at": "2026-10-03T16:36:53Z"
+    },
+    "SCB": {
+      "source_url": "pre-existing in assets/logos (earlier batch)",
+      "fetched_at": "2026-10-03T16:36:53Z"
+    },
+    "SEF": {
+      "source_url": "https://www.siddharthacapital.com/",
+      "fetched_at": "2026-10-03T16:36:53Z"
+    },
+    "SEF2": {
+      "source_url": "https://www.siddharthacapital.com/",
+      "fetched_at": "2026-10-03T16:36:53Z"
+    },
+    "SFEF": {
+      "source_url": "https://lscapital.com.np/",
+      "fetched_at": "2026-10-03T17:13:48Z"
+    },
+    "SFMF": {
+      "source_url": "https://lscapital.com.np/",
+      "fetched_at": "2026-10-03T17:13:48Z"
+    },
+    "SGHC": {
+      "source_url": "https://swetgangahydropower.com/",
+      "fetched_at": "2026-10-03T16:36:53Z"
+    },
+    "SGHL": {
+      "source_url": "https://sanigadhydro.com.np/",
+      "fetched_at": "2026-10-03T16:36:53Z"
+    },
+    "SGIC": {
+      "source_url": "https://sgic.com.np/",
+      "fetched_at": "2026-10-03T16:36:53Z"
+    },
+    "SHEL": {
+      "source_url": "file present on disk from worker run (record incomplete)",
+      "fetched_at": ""
+    },
+    "SHINE": {
+      "source_url": "https://srdb.com.np/",
+      "fetched_at": "2026-10-03T16:36:53Z"
+    },
+    "SHINED": {
+      "source_url": "https://srdb.com.np/",
+      "fetched_at": "2026-10-03T16:36:53Z"
+    },
+    "SHIVM": {
+      "source_url": "pre-existing in assets/logos (earlier batch)",
+      "fetched_at": "2026-10-03T16:36:53Z"
+    },
+    "SHL": {
+      "source_url": "https://www.soaltee.com/_next/image?url=http%3A%2F%2Fbackend%3A8083%2Fimg%2Fmedia.image%2F061f95ac-0bfe-4443-a0d7-98776f6c96fa&w=384&q=80",
+      "fetched_at": "2026-10-03T16:50:08Z"
+    },
+    "SHPC": {
+      "source_url": "https://maihydro.com/",
+      "fetched_at": "2026-10-03T16:42:59Z"
+    },
+    "SICL": {
+      "source_url": "https://www.facebook.com/shikharinsurance",
+      "fetched_at": "2026-10-03T16:45:40Z"
+    },
+    "SIFC": {
+      "source_url": "https://www.shreefinance.com.np/",
+      "fetched_at": "2026-10-03T16:43:00Z"
+    },
+    "SIGS2": {
+      "source_url": "https://www.siddharthacapital.com/",
+      "fetched_at": "2026-10-03T16:36:53Z"
+    },
+    "SIGS3": {
+      "source_url": "https://www.siddharthacapital.com/",
+      "fetched_at": "2026-10-03T16:36:53Z"
+    },
+    "SIKLES": {
+      "source_url": "https://www.sikleshydro.com.np/wp-content/uploads/elementor/thumbs/sikles-logo-plme1qsyd8mz0huh3pnwmquwnpeai5w6eg8d31c4qo.png",
+      "fetched_at": "2026-10-03T17:05:20Z"
+    },
+    "SINDU": {
+      "source_url": "https://www.sindhubank.com.np/",
+      "fetched_at": "2026-10-03T17:01:19Z"
+    },
+    "SJCL": {
+      "source_url": "https://sjcl.com.np/",
+      "fetched_at": "2026-10-03T17:02:11Z"
+    },
+    "SJLIC": {
+      "source_url": "https://suryajyotilife.com/",
+      "fetched_at": "2026-10-03T16:55:07Z"
+    },
+    "SKBBL": {
+      "source_url": "http://www.skbbl.com.np/",
+      "fetched_at": "2026-10-03T16:55:12Z"
+    },
+    "SKHEL": {
+      "source_url": "https://suryakundahydro.com.np/",
+      "fetched_at": "2026-10-03T17:03:51Z"
+    },
+    "SKHL": {
+      "source_url": "https://www.superkhudi.com.np/",
+      "fetched_at": "2026-10-03T17:05:00Z"
+    },
+    "SLBBL": {
+      "source_url": "https://www.slbbl.com.np/",
+      "fetched_at": "2026-10-03T17:06:06Z"
+    },
+    "SLBSL": {
+      "source_url": "https://www.slbsl.com.np/",
+      "fetched_at": "2026-10-03T17:06:14Z"
+    },
+    "SLCF": {
+      "source_url": "https://www.sanima.capital/",
+      "fetched_at": "2026-10-03T17:07:14Z"
+    },
+    "SMATA": {
+      "source_url": "https://www.samata.org.np/",
+      "fetched_at": "2026-10-03T17:07:19Z"
+    },
+    "SMB": {
+      "source_url": "https://www.supportmicrofinance.com.np/images/gallery/logo-EAoaASShrxrm36PVTgX3.PNG",
+      "fetched_at": "2026-10-03T17:18:00Z"
+    },
+    "SMH": {
+      "source_url": "https://supermaihydro.com.np/",
+      "fetched_at": "2026-10-03T17:10:34Z"
+    },
+    "SMHL": {
+      "source_url": "https://supermadihydro.com.np/",
+      "fetched_at": "2026-10-03T17:11:41Z"
+    },
+    "SMJC": {
+      "source_url": "https://sagarmathajbc.com.np/",
+      "fetched_at": "2026-10-03T17:12:31Z"
+    },
+    "SNLI": {
+      "source_url": "https://sunlife.com.np/",
+      "fetched_at": "2026-10-03T16:52:23Z"
+    },
+    "SNORL": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "SOHL": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "SONA": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "SOPL": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "SPC": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "SPDL": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "SPHL": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "SPIL": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "SPL": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "SRLI": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "SRLIP": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "SSHL": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "STC": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "SWASTIK": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "SWBBL": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "SWMF": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "SYPNL": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "TAMOR": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "TPC": {
+      "source_url": "file present on disk from worker run (record incomplete)",
+      "fetched_at": ""
+    },
+    "TPKHL": {
+      "source_url": "file present on disk from worker run (record incomplete)",
+      "fetched_at": ""
+    },
+    "TRH": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "TSHL": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "TTL": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "UAIL": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "UHEWA": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "ULBSL": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "ULHC": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "UMHL": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "UMRH": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "UNHPL": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "UNLB": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "UPCL": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "USHEC": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "USHL": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "USLB": {
+      "source_url": "file present on disk from worker run (record incomplete)",
+      "fetched_at": ""
+    },
+    "VLBS": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "VLUCL": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "YMHL": {
+      "source_url": "",
+      "fetched_at": ""
+    },
+    "UPPER": {
+      "source_url": "earlier logo batch (2026-10-02)",
+      "fetched_at": "2026-10-02"
+    },
+    "AHL": {
+      "source_url": "user-provided logo (official company branding)",
+      "fetched_at": "2026-10-04"
+    },
+    "SMFBS": {
+      "source_url": "user-provided logo (official company branding)",
+      "fetched_at": "2026-10-04"
+    },
+    "HFIN": {
+      "source_url": "user-provided logo (official company branding)",
+      "fetched_at": "2026-10-04"
+    },
+    "TVCL": {
+      "source_url": "user-provided logo (official company branding)",
+      "fetched_at": "2026-10-04"
+    },
+    "SHLB": {
+      "source_url": "https://shrijanshil.org/uploads/shrinjal-logo.png",
+      "fetched_at": "2026-10-04"
+    },
+    "GMFBS": {
+      "source_url": "https://ganapatimicro.com.np/uploads/logo.png",
+      "fetched_at": "2026-10-04"
+    },
+    "RAWA": {
+      "source_url": "https://rawakholahydro.com/assets/img/logo-png.png",
+      "fetched_at": "2026-10-04"
+    },
+    "SIPD": {
+      "source_url": "user-provided logo (official company branding)",
+      "fetched_at": "2026-10-04"
+    },
+    "UNL": {
+      "source_url": "user-provided logo (official company branding)",
+      "fetched_at": "2026-10-04"
+    },
+    "SMPDA": {
+      "source_url": "user-provided logo (official company branding)",
+      "fetched_at": "2026-10-04"
+    },
+    "BOKD86": {
+      "source_url": "user-provided logo (Bank of Kathmandu branding)",
+      "fetched_at": "2026-10-04"
+    }
+  }
+}
