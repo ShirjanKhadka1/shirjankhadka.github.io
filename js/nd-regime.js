@@ -200,19 +200,22 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 
-  // Auto-refresh: re-fetch data every 5 minutes during market hours (11:00-15:00 NPT, Mon-Fri),
-  // every 30 minutes otherwise. Index data updates after market close via pipeline.
-  function isMarketHours() {
+  // Auto-refresh with market calendar awareness:
+  // - Mon-Fri 11:00-15:00 NPT (market hours): every 5 min
+  // - Mon-Fri outside hours: every 30 min (catches post-close pipeline update)
+  // - Sat/Sun (market holiday): every 2 hours (data is Friday's close, won't change)
+  function refreshIntervalMs() {
     try {
       var now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kathmandu' }));
       var day = now.getDay(); // 0=Sun, 6=Sat
-      if (day === 0 || day === 6) return false;
+      if (day === 0 || day === 6) return 2 * 60 * 60 * 1000;
       var mins = now.getHours() * 60 + now.getMinutes();
-      return mins >= 660 && mins < 900; // 11:00-15:00 NPT
-    } catch (e) { return false; }
+      if (mins >= 660 && mins < 900) return 5 * 60 * 1000;
+      return 30 * 60 * 1000;
+    } catch (e) { return 30 * 60 * 1000; }
   }
   setInterval(function () {
     if (document.hidden) return; // don't poll in background tabs
     init();
-  }, isMarketHours() ? 5 * 60 * 1000 : 30 * 60 * 1000);
+  }, refreshIntervalMs());
 })();
