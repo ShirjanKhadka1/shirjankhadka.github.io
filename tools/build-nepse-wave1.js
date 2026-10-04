@@ -93,7 +93,7 @@ function main() {
 
   // ---------- market section: one session from live.json ----------
   const quotes = (live.quotes || []).filter((q) => q && q.symbol);
-  const sessDate = String(live.asof || '').slice(0, 10) ||
+  const sessDate = String(live.session_date || live.asof || '').slice(0, 10) ||
     String((live.index && live.index.last_updated) || '').slice(0, 10);
   const adv = [], dec = [], unc = [];
   quotes.forEach((q) => {

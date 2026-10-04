@@ -23,7 +23,7 @@
  *   UPDATE_SNAPSHOTS=1 npx playwright test visual --update-snapshots
  * Never blind-update: inspect the diff, confirm the change is intended.
  * Baselines MUST be generated in the official Playwright container image
- * (mcr.microsoft.com/playwright:v1.49.1-noble) to match CI.
+ * (mcr.microsoft.com/playwright:v1.63.0-noble) to match CI.
  */
 import { test, expect } from '@playwright/test';
 import * as fs from 'fs';

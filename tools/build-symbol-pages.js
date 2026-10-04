@@ -1067,7 +1067,7 @@ function main() {
   let liveDate = '';
   if (live && Array.isArray(live.quotes)) {
     for (const q of live.quotes) { if (q && q.symbol) liveMap[q.symbol] = q; }
-    liveDate = String(live.asof || '').slice(0, 10);
+    liveDate = String(live.session_date || live.asof || '').slice(0, 10);
   }
   const pageAsof = (liveDate && liveDate >= String((ver && ver.asof) || '')) ? liveDate : ((ver && ver.asof) || '');
   if (!universe || !universe.symbols || !ver || !ver.verdicts) {
