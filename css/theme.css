@@ -339,3 +339,7 @@
 [data-theme="dark"] .sc-summary{ color:#b8b8be !important; }
 [data-theme="dark"] .w1-note{ color:#9a9aa2 !important; }
 .sc-table td .sym-wrap{ display:inline-flex !important; align-items:center !important; gap:8px !important; }
+
+/* Fix: active RSI tab needs dark text on gold bg (inactive !important was overriding) */
+[data-theme="dark"] .w1-tab[aria-selected="true"]{ color:#141311 !important; background:var(--gold) !important; border-color:var(--gold) !important; }
+.w1-tab[aria-selected="true"]{ color:#141311 !important; }
