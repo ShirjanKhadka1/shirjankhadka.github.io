@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0A0C10">
+<title>Engine Verdict: Every NEPSE Stock Ranked by Score | Nepse Decode</title>
+<meta name="description" content="Every NEPSE-listed security ranked by the Nepse Decode rule-based engine score — Strong Buy to Strong Exit, with RSI, stop-loss, targets and chart setups. Free, no login.">
+<meta name="author" content="Shirjan Khadka">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-engine-verdict/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:title" content="Engine Verdict: Every NEPSE Stock Ranked by Score">
+<meta property="og:description" content="Every NEPSE-listed security ranked daily by a transparent rule-based engine. Free, no login.">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-engine-verdict/">
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261003a">
+<link rel="stylesheet" href="verdict.css?v=20261004a">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div id="nd-header"></div>
+
+<main id="main" class="ev-shell">
+  <p class="ev-eyebrow">Engine Verdict</p>
+  <h1 class="ev-title">Every stock, ranked by engine score</h1>
+  <p class="ev-lede">The full ranking behind the screener's summary — all securities scored by the transparent rule-based engine, strongest first. For education only, not investment advice.</p>
+  <p class="ev-asof" id="evAsof">Loading…</p>
+
+  <div class="ev-stats" id="evStats" aria-label="Verdict distribution"></div>
+
+  <div class="ev-toolbar">
+    <div class="ev-filters" id="evFilters" role="group" aria-label="Filter by verdict"></div>
+    <input type="search" class="ev-search" id="evSearch" placeholder="Search symbol, e.g. NABIL" aria-label="Search symbols">
+  </div>
+  <p class="ev-count" id="evCount" aria-live="polite"></p>
+
+  <div class="ev-tablewrap" id="evTableWrap" aria-live="polite">
+    <div class="ev-empty">Loading engine verdicts…</div>
+  </div>
+  <nav class="ev-pager" id="evPager" aria-label="Table pages"></nav>
+
+  <section class="ev-guide" aria-label="How to read engine verdicts">
+    <p class="ev-eyebrow">Reading strategy</p>
+    <h2 class="ev-h2">How to read this ranking</h2>
+    <p class="ev-lede">A six-step routine the engine itself follows — use it to audit every signal before you trust it.</p>
+    <div class="ev-cards">
+      <div class="ev-card"><span class="ev-n">1</span><h3>Start with the market verdict</h3><p>The score above blends four real factors — signal breadth, score momentum, RSI posture and participation. Trade with the wind: in a risk-off tape, even Strong Buys deserve smaller size.</p></div>
+      <div class="ev-card"><span class="ev-n">2</span><h3>Check the trend gate</h3><p>No Buy is issued while a price sits below its 200-day average. If the setup column is empty and the signal is Hold, the engine sees no edge — believe it.</p></div>
+      <div class="ev-card"><span class="ev-n">3</span><h3>Read RSI in context</h3><p>Below 30 is oversold fuel, above 70 is overbought caution — but an oversold stock in a downtrend is a falling knife, not a bargain. Pair RSI with the trend.</p></div>
+      <div class="ev-card"><span class="ev-n">4</span><h3>Respect the stop-loss</h3><p>Every row carries an ATR-based stop (2× ATR) and target (4× ATR) — a 1:2 risk-reward frame. If the stop feels too far for your capital, the position is too big.</p></div>
+      <div class="ev-card"><span class="ev-n">5</span><h3>Verify the hit rate</h3><p>Past Buy calls are replayed against their own targets and stops. High hit rates in the old regime can collapse in the new one — recency matters.</p></div>
+      <div class="ev-card"><span class="ev-n">6</span><h3>Confirm with volume</h3><p>A breakout on thin volume is a rumor; on heavy volume it is a vote. Energy matters each session.</p></div>
+    </div>
+    <div class="ev-reminder"><strong>A gentle reminder:</strong> no model — this one included — is right 100% of the time. The engine is a mechanical checklist, not a crystal ball: it summarizes what the chart looks like right now. Markets are uncertain, regimes change, and past patterns do not guarantee future results. Use these signals as a starting point for your own research, never as instructions.</div>
+  </section>
+
+  <div class="ev-note">
+    <strong>For education only. Not investment advice.</strong>
+    Scores are mechanical outputs of a published rule set (trend, RSI, MACD, turnover, 52-week position, patterns, market backdrop). Past scores do not predict future returns. Stop-loss is 2× ATR(14) below the last close; target is 4× ATR(14) above — a 1:2 risk-reward frame, not a recommendation.
+    <strong>Not affiliated with Nepal Stock Exchange Ltd.</strong>
+  </div>
+</main>
+
+<div id="nd-footer"></div>
+<script src="/js/nd-chrome.js?v=20261004a" defer></script>
+<script src="verdict.js?v=20261004a" defer></script>
+</body>
+</html>
