@@ -1,0 +1,96 @@
+# NEPSE calendar watch (V3) — holiday/closure notice monitor.
+#
+# Daily: fetches official NEPSE notice sources, diffs against
+# tools/nepse-holidays.json. On findings: opens a PR with the proposed
+# additions (always status=unverified) and emails [NEPSE NOTICE].
+# NEVER auto-applies a holiday change to production — the owner confirms.
+#
+# Safety: the calendar INFORMS labels; it never decides whether to fetch.
+# The market-close pipeline still checks for a real session every weekday
+# (evidence wins).
+#
+# Alert: email via SMTP (dawidd6/action-send-mail pinned to commit SHA),
+# subject "[NEPSE NOTICE] calendar-watch: ...". NEVER Facebook.
+# Needs repo secrets MAIL_USERNAME, MAIL_PASSWORD (Gmail app password),
+# ALERT_EMAIL_TO.
+
+name: NEPSE calendar watch
+
+on:
+  schedule:
+    # Daily 01:15 UTC = 07:00 NPT
+    - cron: '15 1 * * *'
+    # Extra checks during Dashain/Tihar season (Sep 16 – Nov 30): 13:15 UTC = 19:00 NPT
+    - cron: '15 13 16-30 9 *'
+    - cron: '15 13 * 10 *'
+    - cron: '15 13 1-30 11 *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Validate current holidays file
+        run: node tools/build-holidays.js --check
+
+      - name: Run calendar watcher
+        id: watch
+        run: |
+          node tools/watch-nepse-calendar.js --out /tmp/calendar-report.json
+          echo "exit=$?"
+        continue-on-error: true
+
+      - name: Check for findings
+        id: findings
+        run: |
+          if [ -f /tmp/calendar-report.json ]; then
+            C=$(node -e "const r=require('/tmp/calendar-report.json');console.log(r.candidates.length+r.stale_unverified.length)")
+            echo "count=$C" >> "$GITHUB_OUTPUT"
+            echo "Findings: $C"
+          else
+            echo "count=0" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open PR with proposed calendar changes
+        if: steps.findings.outputs.count != '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="calendar-watch/$(date -u +%Y%m%d)"
+          git config user.name "Nepse Decode calendar watch"
+          git config user.email "shirjan.2.khadka@gmail.com"
+          git checkout -b "$BRANCH"
+          mkdir -p tools/calendar-watch
+          cp /tmp/calendar-report.json "tools/calendar-watch/report-$(date -u +%Y%m%d).json"
+          git add tools/calendar-watch/
+          git commit -m "Calendar watch: $(date -u +%Y-%m-%d) findings (unverified, needs owner confirmation)"
+          git push -u origin "$BRANCH"
+          gh pr create --title "Calendar watch $(date -u +%Y-%m-%d): proposed holiday changes (UNVERIFIED)" \
+            --body "Automated findings from the NEPSE calendar watcher. Every item is status=unverified and needs owner confirmation against the official NEPSE notice before tools/nepse-holidays.json is updated. NEVER merge blindly." \
+            --base main --head "$BRANCH"
+
+      - name: Email [NEPSE NOTICE] — calendar findings
+        if: steps.findings.outputs.count != '0'
+        uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "[NEPSE NOTICE] calendar-watch: ${{ steps.findings.outputs.count }} finding(s) need your review"
+          to: ${{ secrets.ALERT_EMAIL_TO }}
+          from: Nepse Decode calendar watch
+          body: |
+            The NEPSE calendar watcher found items needing your confirmation.
+            A PR has been opened with the proposed (UNVERIFIED) changes.
+            Review the official NEPSE notice for each item before approving.
+            Nothing was applied to production.
