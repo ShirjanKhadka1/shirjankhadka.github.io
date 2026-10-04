@@ -31,9 +31,14 @@ const DATA = path.join(ROOT, 'nepse-chart', 'data');
 const MANIFEST = path.join(ROOT, 'data', 'manifest.json');
 
 const results = [];
-function gate(name, ok, detail) {
-  results.push({ gate: name, pass: !!ok, detail: detail || '' });
-  console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}${detail ? ' — ' + detail : ''}`);
+// severity: 'fail' blocks the deploy (default, preserves existing behavior);
+// 'flag' records the failure, publishes, and surfaces it for [NEPSE ALERT] —
+// it never blocks the deploy. Use 'flag' for anomalies that can be legitimate
+// (corporate actions, halts) — flag, do not silently fix.
+function gate(name, ok, detail, severity) {
+  severity = severity || 'fail';
+  results.push({ gate: name, pass: !!ok, detail: detail || '', severity });
+  console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}${detail ? ' — ' + detail : ''}${severity === 'flag' ? ' [flag]' : ''}`);
 }
 function readData(rel) {
   return JSON.parse(fs.readFileSync(path.join(DATA, rel), 'utf8'));
@@ -142,6 +147,66 @@ function main() {
     gate('price-sanity', bad.length === 0, bad.length ? bad.slice(0, 10).join('; ') : `${Object.keys(live.quotes).length} quotes ok`);
   }
 
+  // Gate 3b (V2 reconciliation): index change reconciles with value delta —
+  // for the main index and all 17 sub-indices. FAIL: a wrong index change is
+  // never publishable.
+  if (live) {
+    const bad = [];
+    const all = [];
+    if (live.index) all.push(['NEPSE', live.index]);
+    for (const ix of live.indices || []) all.push([ix.name || '?', ix]);
+    for (const [name, ix] of all) {
+      if (ix.value == null || ix.previous_close == null || ix.change == null) continue;
+      const expect = ix.value - ix.previous_close;
+      if (Math.abs(expect - ix.change) > 0.011) bad.push(`${name}: Δ=${ix.change} vs ${expect.toFixed(2)}`);
+      if (bad.length >= 8) break;
+    }
+    gate('index-change-reconciles', bad.length === 0, bad.length ? bad.join('; ') : `${all.length} indices reconcile`, 'fail');
+  }
+
+  // Gate 3c (V2 reconciliation): per-quote change and percent_change reconcile
+  // with ltp vs previous_close. FAIL: wrong per-symbol math is never publishable.
+  if (live) {
+    const bad = [];
+    const quotes = Array.isArray(live.quotes) ? live.quotes : Object.values(live.quotes || {});
+    for (const q of quotes) {
+      if (q.ltp == null || q.previous_close == null || !(q.previous_close > 0)) continue;
+      const dChange = Math.abs((q.ltp - q.previous_close) - (q.change || 0));
+      const dPct = Math.abs(((q.ltp - q.previous_close) / q.previous_close * 100) - (q.percent_change || 0));
+      if (dChange > 0.011 || dPct > 0.06) bad.push(`${q.symbol}: chgΔ=${dChange.toFixed(3)} pctΔ=${dPct.toFixed(3)}`);
+      if (bad.length >= 10) break;
+    }
+    gate('quote-math-reconciles', bad.length === 0, bad.length ? bad.slice(0, 10).join('; ') : `${quotes.length} quotes reconcile`, 'fail');
+  }
+
+  // Gate 3d (V2 reconciliation): NEPSE circuit limits (±10%). FLAG, not FAIL —
+  // corporate actions (bonus/rights price adjustments) legitimately break the
+  // band. Flag for human review; never silently fix.
+  if (live) {
+    const bad = [];
+    const quotes = Array.isArray(live.quotes) ? live.quotes : Object.values(live.quotes || {});
+    for (const q of quotes) {
+      if (q.ltp == null || q.previous_close == null || !(q.previous_close > 0)) continue;
+      const move = Math.abs(q.ltp - q.previous_close) / q.previous_close;
+      if (move > 0.1001) bad.push(`${q.symbol}: ${(move * 100).toFixed(1)}%`);
+      if (bad.length >= 10) break;
+    }
+    gate('circuit-limits', bad.length === 0, bad.length ? bad.slice(0, 10).join('; ') + ' — review for corporate actions' : 'all within ±10%', 'flag');
+  }
+
+  // Gate 3e (V2 reconciliation): sudden jumps beyond 25% in a session. FLAG —
+  // can be legitimate (relisting after book closure) but must be seen.
+  if (live) {
+    const bad = [];
+    const quotes = Array.isArray(live.quotes) ? live.quotes : Object.values(live.quotes || {});
+    for (const q of quotes) {
+      const pc = Math.abs(q.percent_change || 0);
+      if (pc > 25) bad.push(`${q.symbol}: ${q.percent_change}%`);
+      if (bad.length >= 10) break;
+    }
+    gate('jump-threshold', bad.length === 0, bad.length ? bad.slice(0, 10).join('; ') : 'no jumps beyond 25%', 'flag');
+  }
+
   // Gate 4: no duplicate symbols in universe
   if (universe && Array.isArray(universe.symbols)) {
     const seen = new Set(); const dups = [];
@@ -190,15 +255,20 @@ function main() {
     gate('sha256-integrity', bad.length === 0, bad.length ? bad.slice(0, 10).join('; ') : `${checked} files verified`);
   }
 
-  const failed = results.filter(r => !r.pass);
+  const failed = results.filter(r => !r.pass && r.severity !== 'flag');
+  const flagged = results.filter(r => !r.pass && r.severity === 'flag');
   const report = {
     ran_at_npt: td.todayNPT(now) + 'T' + td.timeNPT(now) + ':00+05:45',
     expected_session: expected,
     passed: failed.length === 0,
     gates: results,
   };
+  if (flagged.length) report.flagged = flagged.map(f => f.gate);
   fs.writeFileSync(path.join(DATA, 'validation.json'), JSON.stringify(report, null, 2) + '\n');
-  console.log(`\n${results.length - failed.length}/${results.length} gates passed — validation.json written`);
+  console.log(`\n${results.length - failed.length - flagged.length}/${results.length} gates passed, ${flagged.length} flagged — validation.json written`);
+  if (flagged.length) {
+    console.log('FLAGGED for review (deploy continues): ' + flagged.map(f => f.gate).join(', '));
+  }
   if (failed.length) {
     console.error('VALIDATION FAILED — deploy blocked.');
     process.exit(1);
