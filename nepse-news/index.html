@@ -181,7 +181,7 @@
   function logoHtml(sym, px){
     // Generic news (no verified company) gets a neutral icon — per data-honesty
     // rule, don't show a company logo next to news that isn't about that company.
-    if (!sym) return '<span class="nn-mono nn-generic" style="background:var(--nd-card2)">📰</span>';
+    if (!sym) return '<span style="font-size:28px;line-height:1;flex:none">📰</span>';
     // Use company logo when available, fallback to monogram
     if (window.NepseLogo && window.NepseLogo.html) {
       return window.NepseLogo.html(sym, '', px || 40);
@@ -238,7 +238,7 @@
   function hlFeatured(it, i){
     var cat = newsCategory(it.title, it.sym);
     return '<a class="nn-featured" href="/nepse-news/story/?src=news&i=' + i + '">' +
-      '<div class="nn-featured-art"><span class="nn-mono nn-generic" style="background:var(--nd-card2)">📰</span></div>' +
+      '<div class="nn-featured-art"><span style="font-size:28px;line-height:1;flex:none">📰</span></div>' +
       '<div class="nn-featured-body"><p class="nn-cat ' + CAT_CLASS[cat] + '">' + esc(cat) + ' · ' + esc(it.src || 'Market') + '</p>' +
       '<h2>' + escT(it.title) + '</h2>' +
       '<div class="nn-meta"><span>' + fmtDate(it.date) + '</span><span>Attributed to publisher</span></div></div></a>';
@@ -246,7 +246,7 @@
   function hlRow(it, i){
     var cat = newsCategory(it.title, it.sym);
     return '<a class="nn-row" href="/nepse-news/story/?src=news&i=' + i + '">' +
-      '<span class="nn-mono nn-generic" style="background:var(--nd-card2)">📰</span>' +
+      '<span style="font-size:28px;line-height:1;flex:none">📰</span>' +
       '<div><p class="nn-row-kicker"><span class="nn-cat ' + CAT_CLASS[cat] + '">' + esc(cat) + '</span> · ' + esc(it.src || 'Market') + '</p>' +
       '<h3 class="nn-row-title">' + escT(it.title) + '</h3>' +
       '<div class="nn-meta"><span>' + fmtDate(it.date) + '</span></div></div></a>';
@@ -262,9 +262,8 @@
     if (count) count.textContent = items.length + ' of ' + hlItems.length;
     if (!items.length) { feed.innerHTML = '<p class="nn-empty">No headlines match this filter.</p>'; return; }
     var idx = function(it){ return hlItems.indexOf(it); };
-    feed.innerHTML = hlFeatured(items[0], idx(items[0])) +
-      '<h2 class="nn-sec-h">More headlines</h2><div class="nn-rows">' +
-      items.slice(1, 10).map(function(it){ return hlRow(it, idx(it)); }).join('') + '</div>';
+    feed.innerHTML = '<div class="nn-rows">' +
+      items.slice(0, 10).map(function(it){ return hlRow(it, idx(it)); }).join('') + '</div>';
   }
   function loadHl(){
     return fetch('/nepse-chart/data/news.json', { cache: 'no-store' })
