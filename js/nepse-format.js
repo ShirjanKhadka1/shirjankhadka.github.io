@@ -129,6 +129,16 @@
     fmtDateTimeNPT: function (d) {
       var dt = d instanceof Date ? d : new Date(d);
       return isNaN(dt.getTime()) ? '—' : DATETIME_FMT.format(dt) + ' NPT';
+    },
+
+    /** Milliseconds → "23 min" / "2 h 15 min" / "3 d" (measured data age). */
+    fmtAge: function (ms) {
+      if (!isFinite(ms) || ms < 0) return '';
+      var m = Math.floor(ms / 60000);
+      if (m < 1) return 'just now';
+      if (m < 60) return m + ' min';
+      if (m < 1440) return Math.floor(m / 60) + ' h ' + (m % 60) + ' min';
+      return Math.floor(m / 1440) + ' d';
     }
   };
 

@@ -1,22 +1,28 @@
 /**
- * js/freshness-badge.js — the ONE freshness line for every NEPSE suite page.
+ * js/freshness-badge.js — the ONE honesty chip for every NEPSE suite page.
  *
- * V2 honesty: every figure carries the DATA's own timestamp (NEPSE's asOf,
- * not our fetch time), the source name, and the MEASURED end-to-end age.
- * No hardcoded delay figures — "updated X ago" is now minus data_asof.
+ * V2 honesty framework:
+ *  - Every figure carries the DATA's own timestamp (NEPSE's asOf, not our fetch
+ *    time), the source name, and the MEASURED end-to-end age. No hardcoded
+ *    delay figures — "Delayed X" is now minus data_asof, computed live.
+ *  - One chip set, same everywhere (icon + text, never colour alone):
+ *      DELAYED     in-session data, with measured age ("DELAYED 23 min · as of 14:45 NPT")
+ *      CLOSED      market shut, with reason ("CLOSED · weekend", "CLOSED · holiday", "CLOSED · after hours")
+ *      STALE       age beyond the freshness SLA (more than one session old)
+ *      UNVERIFIED  source or figure not verified (via data-chip="unverified")
+ *      UNAVAILABLE data feed unreachable
+ *      LIVE        reserved for truly real-time data — UNUSED (nothing on the site is real-time)
  *
  * Reads /nepse-chart/data/live.json FIRST (the same file the quotes come
- * from), so the badge can never say "session closed" while the page's own
- * figures are from a live session:
- *   "Data as of 2026-10-02 14:32 NPT · Source: NEPSE · Session open · updated 4 min ago"
- *   "Data as of 2026-10-02 · Source: NEPSE · Session closed"
- * Falls back to /data/manifest.json (overnight batch) when the live feed is
- * unreachable. Sessions more than one trading day old render amber.
+ * from), so the chip can never say "session closed" while the page's own
+ * figures are from a live session. Falls back to /data/manifest.json
+ * (overnight batch) when the live feed is unreachable.
  *
  * Session state comes from the canonical NepseMarketConfig (Mon–Fri trading
  * days, pre-open 10:45:00–10:59:59 NPT, open 11:00–15:00 NPT).
  *
  * Usage: <div data-freshness-badge></div> + <script src="/js/freshness-badge.js" defer></script>
+ * Override: <div data-freshness-badge data-chip="unverified" data-chip-detail="broker backfill"></div>
  * Works from any path depth (resolves data relative to site root).
  */
 (function () {
@@ -33,10 +39,20 @@
   function pad(n) { return ('0' + n).slice(-2); }
 
   // Canonical session state: 'PRE-OPEN' | 'OPEN' | 'CLOSED'.
-  // The calendar lives in NepseMarketConfig — no duplicated logic here.
   function sessionState() {
     if (CFG && typeof CFG.marketState === 'function') return CFG.marketState();
     return 'CLOSED';
+  }
+
+  // Why is the market closed right now? weekend | holiday | after hours.
+  function closedReason() {
+    try {
+      var now = CFG && typeof CFG.nowNPT === 'function' ? CFG.nowNPT() : new Date(Date.now() + NPT_MS);
+      var dow = now.getDay();
+      if (dow === 0 || dow === 6) return 'weekend';
+      if (CFG && typeof CFG.isHoliday === 'function' && CFG.isHoliday(now)) return 'holiday';
+      return 'after hours';
+    } catch (e) { return 'market closed'; }
   }
 
   // ISO instant -> 'YYYY-MM-DD' in NPT.
@@ -64,9 +80,9 @@
     var m = (Date.now() - t) / 60000;
     if (m < 0) return '';
     if (m < 1) return 'just now';
-    if (m < 60) return Math.floor(m) + ' min ago';
-    if (m < 60 * 24) return Math.floor(m / 60) + ' h ago';
-    return Math.floor(m / 1440) + ' d ago';
+    if (m < 60) return Math.floor(m) + ' min';
+    if (m < 60 * 24) return Math.floor(m / 60) + ' h ' + Math.floor(m % 60) + ' min';
+    return Math.floor(m / 1440) + ' d';
   }
 
   // Trading days strictly between fromYMD and toYMD (canonical calendar —
@@ -84,23 +100,45 @@
     return n;
   }
 
-  function render(text, cls) {
+  // Chip tones: delayed (amber) | closed (grey) | stale (red-amber) |
+  //             unverified (grey) | unavailable (grey) | live (green, UNUSED)
+  function render(text, tone) {
     var ms = mounts();
     for (var i = 0; i < ms.length; i++) {
       var m = ms[i];
-      var dot = cls === 'fb-live' ? '#16a34a' : cls === 'fb-stale' ? '#d97706' :
-        cls === 'fb-unknown' ? '#9ca3af' : '#16a34a';
+      if (m.getAttribute('data-chip')) continue; // override mounts render separately
+      var dot = tone === 'delayed' ? '#d97706' : tone === 'stale' ? '#b3261e' :
+        tone === 'live' ? '#16a34a' : '#6b7280';
       m.innerHTML =
         '<span class="fb-dot" style="background:' + dot + '"></span>' +
         '<span class="fb-text"></span>';
       m.querySelector('.fb-text').textContent = text;
-      m.className = (m.className + ' freshness-badge ' + cls).trim();
+      m.className = (m.className + ' freshness-badge fb-' + tone).trim();
+      m.setAttribute('role', 'status');
+    }
+  }
+
+  // Explicit per-mount override chip (UNVERIFIED / UNAVAILABLE), no fetch needed.
+  function renderOverrides() {
+    var ms = mounts();
+    for (var i = 0; i < ms.length; i++) {
+      var m = ms[i];
+      var chip = m.getAttribute('data-chip');
+      if (!chip) continue;
+      var detail = m.getAttribute('data-chip-detail');
+      var label = chip === 'unverified' ? 'UNVERIFIED' : 'UNAVAILABLE';
+      var text = label + (detail ? ' · ' + detail : '');
+      m.innerHTML =
+        '<span class="fb-dot" style="background:#6b7280"></span>' +
+        '<span class="fb-text"></span>';
+      m.querySelector('.fb-text').textContent = text;
+      m.className = (m.className + ' freshness-badge fb-' + chip).trim();
       m.setAttribute('role', 'status');
     }
   }
 
   function paint() {
-    render('Checking data freshness…', 'fb-unknown');
+    render('Checking data freshness…', 'unavailable');
   }
 
   function ensureCSS() {
@@ -112,9 +150,10 @@
       'padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.7);' +
       'border:1px solid #e5e7eb;color:#374151;font-variant-numeric:tabular-nums}' +
       '.freshness-badge .fb-dot{width:8px;height:8px;border-radius:50%;flex:none}' +
-      '.freshness-badge.fb-live .fb-dot{animation:fb-pulse 1.6s infinite}' +
-      '@keyframes fb-pulse{0%,100%{opacity:1}50%{opacity:.35}}' +
-      '.freshness-badge.fb-stale{background:#fffbeb;border-color:#fcd34d;color:#92400e}';
+      '.freshness-badge.fb-delayed{background:#fffbeb;border-color:#fcd34d;color:#92400e}' +
+      '.freshness-badge.fb-stale{background:#fef2f2;border-color:#fca5a5;color:#991b1b}' +
+      '.freshness-badge.fb-closed,.freshness-badge.fb-unverified,.freshness-badge.fb-unavailable' +
+      '{background:#f9fafb;border-color:#e5e7eb;color:#4b5563}';
     document.head.appendChild(s);
   }
 
@@ -131,19 +170,17 @@
     var stale = tradingDaysBetween(sessDate, today);
     var src = (live && live.source) ? ' · Source: ' + live.source : '';
     if (stale > 1) {
-      render('Data as of ' + sessDate + src + ' · ' + stale + ' sessions old — refresh delayed', 'fb-stale');
+      render('STALE · Data as of ' + sessDate + src + ' · ' + stale + ' sessions old — refresh delayed', 'stale');
       return true;
     }
     var age = ageText(dataTs);
-    var ageBit = age ? ' · updated ' + age : '';
     var tsBit = nptDateTime(dataTs);
-    var whenBit = tsBit ? ' ' + tsBit + ' NPT' : '';
-    if (st === 'OPEN') {
-      render('Data as of' + whenBit + src + ' · Session open' + ageBit, 'fb-live');
-    } else if (st === 'PRE-OPEN') {
-      render('Data as of' + whenBit + src + ' · Pre-open' + ageBit, 'fb-live');
+    var whenBit = tsBit ? ' · as of ' + tsBit + ' NPT' : '';
+    if (st === 'OPEN' || st === 'PRE-OPEN') {
+      // DELAYED with measured age — never imply real-time.
+      render('DELAYED' + (age ? ' ' + age : '') + whenBit + src, 'delayed');
     } else {
-      render('Data as of ' + sessDate + src + ' · Session closed', 'fb-ok');
+      render('CLOSED · ' + closedReason() + ' · Data as of ' + sessDate + src, 'closed');
     }
     return true;
   }
@@ -151,18 +188,16 @@
   // Fallback path: the overnight manifest (no quote feed available).
   function fromManifest(m) {
     var sessDate = (m && m.session_date) || null;
-    if (!sessDate) { render('Freshness unavailable', 'fb-unknown'); return; }
+    if (!sessDate) { render('UNAVAILABLE · could not reach the data feed', 'unavailable'); return; }
     var st = sessionState();
     var today = (m && m.today_npt) || todayNpt();
     var stale = tradingDaysBetween(sessDate, today);
     if (stale > 1) {
-      render('Data as of ' + sessDate + ' · ' + stale + ' sessions old — refresh delayed', 'fb-stale');
-    } else if (st === 'OPEN') {
-      render('Data as of ' + sessDate + ' · Source: NEPSE · Session open', 'fb-live');
-    } else if (st === 'PRE-OPEN') {
-      render('Data as of ' + sessDate + ' · Source: NEPSE · Pre-open', 'fb-live');
+      render('STALE · Data as of ' + sessDate + ' · ' + stale + ' sessions old — refresh delayed', 'stale');
+    } else if (st === 'OPEN' || st === 'PRE-OPEN') {
+      render('DELAYED · Data as of ' + sessDate + ' · Source: NEPSE', 'delayed');
     } else {
-      render('Data as of ' + sessDate + ' · Source: NEPSE · Session closed', 'fb-ok');
+      render('CLOSED · ' + closedReason() + ' · Data as of ' + sessDate + ' · Source: NEPSE', 'closed');
     }
   }
 
@@ -174,13 +209,14 @@
   }
 
   ensureCSS();
+  renderOverrides();
   paint();
   fetchJSON(LIVE_URL).then(function (live) {
     if (!fromLive(live)) throw new Error('no usable live snapshot');
   }).catch(function () {
     // Live feed unreachable — fall back to the overnight batch manifest.
     return fetchJSON(MANIFEST_URL).then(fromManifest, function () {
-      render('Freshness unavailable', 'fb-unknown');
+      render('UNAVAILABLE · could not reach the data feed', 'unavailable');
     });
   });
 })();
