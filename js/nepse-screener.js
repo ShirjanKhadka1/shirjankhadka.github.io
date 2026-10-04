@@ -350,14 +350,6 @@
       state.tf = e.target.value || 'd';
       applyTf();
       var tf = state.tf;
-      var c = { 'Strong Buy': 0, 'Buy': 0, 'Hold': 0, 'Exit / Reduce': 0, 'Strong Exit': 0 };
-      state.rows.forEach(function (r) { if (c[r.v] != null) c[r.v]++; });
-      $('sc-n-sbuy').textContent = c['Strong Buy'];
-      $('sc-n-buy').textContent = c['Buy'];
-      $('sc-n-hold').textContent = c['Hold'];
-      $('sc-n-exit').textContent = c['Exit / Reduce'];
-      $('sc-n-sexit').textContent = c['Strong Exit'];
-      $('sc-n-total').textContent = state.rows.length;
       var votes = {};
       state.rows.forEach(function (r) { if (r.tfasof) votes[r.tfasof] = (votes[r.tfasof] || 0) + 1; });
       var best = Object.keys(votes).sort(function (a, b) { return votes[b] - votes[a]; })[0]
@@ -483,25 +475,25 @@
     });
   }
 
-  function load() {
+  function fetchData() {
     function get(url) {
       return fetch(url, { cache: 'no-store' }).then(function (r) {
         if (!r.ok) throw new Error('http ' + r.status + ' ' + url);
         return r.json();
       });
     }
-    // skeleton rows: hold the table's footprint while the ranking loads
-    (function () {
-      var rows = '';
-      for (var i = 0; i < 10; i++) {
-        rows += '<tr><td colspan="11" aria-hidden="true"><span class="skl skl-row"></span></td></tr>';
-      }
-      $('sc-body').innerHTML = rows;
-    })();
     return Promise.all([
       get('../nepse-chart/data/verdicts.json'),
       get('../nepse-chart/data/universe.json').catch(function () { return null; })
-    ]).then(function (res) {
+    ]);
+  }
+
+  var controlsBound = false;
+
+  /* Apply one batch load to the table. Safe to call repeatedly: controls
+   * bind once, the sector filter is rebuilt from scratch, and the
+   * freshness badge is replaced rather than duplicated. */
+  function applyData(res) {
       var vj = res[0], uj = res[1];
       var names = {}, groups = {};
       if (uj && uj.symbols) uj.symbols.forEach(function (it) {
@@ -530,46 +522,16 @@
       scAsof.textContent = asof
         ? 'Signals as of ' + asof + ' · ' + state.rows.length + ' securities ranked'
         : state.rows.length + ' securities ranked';
-      if (window.NepseFresh && asof && !scAsof.querySelector('.fresh'))
+      var oldFresh = scAsof.querySelector('.fresh');
+      if (oldFresh) oldFresh.remove();
+      if (window.NepseFresh && asof)
         scAsof.insertAdjacentHTML('beforeend', ' ' + window.NepseFresh.badge(asof));
       $('sc-asof2').textContent = asof || 'the last close';
-      // keep the static snapshot heading in sync with the live data
-      var snapAsof = document.querySelector('.sc-top10 .sc-asof-inline');
-      if (snapAsof && asof) snapAsof.textContent = '· ' + asof;
-
-      // P0-5: the Top-10 teaser renders from the SAME dataset as the table
-      // (state.rows, this verdicts.json load) — never from baked-in HTML.
-      (function renderTop10() {
-        var tb = document.querySelector('.sc-top10 tbody');
-        if (!tb || !state.rows.length) return;
-        var top = state.rows.slice().sort(rankCmp).slice(0, 10);
-        tb.innerHTML = top.map(function (r, i) {
-          var ch = Number(r.ch);
-          var chTxt = (r.ch == null || !isFinite(ch)) ? '—'
-            : (ch > 0 ? '+' : '') + ch.toFixed(2) + '%';
-          return '<tr><td>' + (i + 1) + '</td>' +
-            '<td><a href="/nepse-chart/?s=' + esc(r.sym) + '">' + esc(r.sym) + '</a></td>' +
-            '<td>' + num2(r.p) + '</td><td>' + chTxt + '</td>' +
-            '<td>' + esc(r.v || '—') + '</td>' +
-            '<td>' + esc(r.setup || '—') + '</td>' +
-            '<td>' + num2(r.sl) + '</td><td>' + num2(r.tp) + '</td></tr>';
-        }).join('');
-      })();
-
-      // summary cards
-      var c = { 'Strong Buy': 0, 'Buy': 0, 'Hold': 0, 'Exit / Reduce': 0, 'Strong Exit': 0 };
-      state.rows.forEach(function (r) { if (c[r.v] != null) c[r.v]++; });
-      $('sc-n-sbuy').textContent = c['Strong Buy'];
-      $('sc-n-buy').textContent = c['Buy'];
-      $('sc-n-hold').textContent = c['Hold'];
-      $('sc-n-exit').textContent = c['Exit / Reduce'];
-      $('sc-n-sexit').textContent = c['Strong Exit'];
-      $('sc-n-total').textContent = state.rows.length;
-
-      // sector dropdown
+      // sector dropdown (rebuilt from scratch so refreshes never duplicate options)
       var secs = {};
       state.rows.forEach(function (r) { if (r.sec) secs[r.sec] = 1; });
       var sel = $('sc-sector');
+      while (sel.options.length > 1) sel.remove(1);
       Object.keys(secs).sort(function (a, b) {
         return a < b ? -1 : a > b ? 1 : 0;
       }).forEach(function (s) {
@@ -578,7 +540,7 @@
         sel.appendChild(o);
       });
 
-      bindControls();
+      if (!controlsBound) { bindControls(); controlsBound = true; }
 
       // sector deep link (used by the /nepse-sectors/ dashboard tiles): ?sector=Banking
       try {
@@ -590,10 +552,41 @@
       } catch (e) {}
       render();
       startLiveOverlay();
-    }).catch(function (e) {
-      $('sc-body').innerHTML = '<tr><td colspan="11" class="sc-empty">Could not load the ranking data. Please retry in a moment.</td></tr>';
-      $('sc-asof').textContent = 'Data unavailable';
-    });
+  }
+
+  function failLoad() {
+    $('sc-body').innerHTML = '<tr><td colspan="11" class="sc-empty">Could not load the ranking data. Please retry in a moment.</td></tr>';
+    $('sc-asof').textContent = 'Data unavailable';
+  }
+
+  function load() {
+    // skeleton rows: hold the table's footprint while the ranking loads
+    (function () {
+      var rows = '';
+      for (var i = 0; i < 10; i++) {
+        rows += '<tr><td colspan="11" aria-hidden="true"><span class="skl skl-row"></span></td></tr>';
+      }
+      $('sc-body').innerHTML = rows;
+    })();
+    fetchData().then(applyData).catch(failLoad);
+  }
+
+  /* Auto-refresh: re-pull the daily batch every 5 minutes during NEPSE
+   * market hours (Mon-Fri 11:00-15:00 NPT). RSI values, signals and the
+   * batch date update in place without a page reload; a failed poll keeps
+   * the last good data on screen. */
+  function nptNow() { return new Date(Date.now() + (5 * 60 + 45) * 60000); }
+  function inMarketHours() {
+    var n = nptNow(), day = n.getUTCDay(); /* 0=Sun, 6=Sat */
+    if (day === 0 || day === 6) return false;
+    var mins = n.getUTCHours() * 60 + n.getUTCMinutes();
+    return mins >= 11 * 60 && mins < 15 * 60;
+  }
+  function startAutoRefresh() {
+    setInterval(function () {
+      if (!inMarketHours()) return;
+      fetchData().then(applyData).catch(function () { /* keep stale data */ });
+    }, 5 * 60 * 1000);
   }
 
   /* Live overlay: when the 15-minute tape is fresh, repaint the Price and
@@ -608,8 +601,6 @@
         if (!d || !d.quotes) return;
         var quotes = d.quotes;
         repaintPrices($('sc-body'), quotes, '.sc-sym', /\/stocks\/([^\/]+)\//, 3, 4);
-        repaintPrices(document.querySelector('.sc-top10 tbody'), quotes,
-          'a[href*="/nepse-chart/?s="]', /[?&]s=([^&]+)/, 2, 3);
       }
     });
   }
@@ -645,4 +636,5 @@
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', load);
   else load();
+  startAutoRefresh();
 })();

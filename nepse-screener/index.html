@@ -35,7 +35,7 @@
 <link rel="stylesheet" href="screener.css?v=6dafb421">
 <link rel="stylesheet" href="../nepse-chart/chart.css?v=fe8cb0a6">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"Nepse Decode Screener","url":"https://shirjankhadka.com.np/nepse-screener/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Daily ranked NEPSE stock screener: every listed security scored by a transparent rule-based engine (Strong Buy to Strong Sell) with ATR-based stop-loss and target levels, sector, signal, RSI, price and volume filters, RSI extremes and biggest-movers lists, and search. Educational use only, not investment advice.","author":{"@type":"Organization","name":"Nepse Decode"}}
+{"@context":"https://schema.org","@type":"WebApplication","name":"Nepse Decode Screener","url":"https://shirjankhadka.com.np/nepse-screener/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Daily ranked NEPSE stock screener: every listed security scored by a transparent rule-based engine (Strong Buy to Strong Sell) with ATR-based stop-loss and target levels, sector, signal, RSI, price and volume filters, RSI extremes and biggest-movers tables, and search. Educational use only, not investment advice.","author":{"@type":"Organization","name":"Nepse Decode"}}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
@@ -46,7 +46,7 @@
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
 {"@type":"Question","name":"How are the screener signals computed?","acceptedAnswer":{"@type":"Answer","text":"Each listed security is scored by a rule-based engine on ten transparent factors: trend versus moving averages, RSI, MACD, turnover, 52-week position, divergences, chart patterns, market backdrop and support/resistance. Scores map to Strong Buy, Buy, Hold, Exit/Reduce or Strong Exit. Stop-loss sits 2× ATR(14) below the last close and the target 4× ATR(14) above it, a 1:2 risk-reward frame."}},
 {"@type":"Question","name":"How often is the ranking updated?","acceptedAnswer":{"@type":"Answer","text":"The ranking is rebuilt daily from the last closed session. The date of the data is shown above the table."}},
-{"@type":"Question","name":"What do the RSI extremes and Moves most lists show?","acceptedAnswer":{"@type":"Answer","text":"RSI extremes groups the latest batch by RSI(14): oversold below 30, overbought above 70, plus the ten lowest and ten highest readings. Moves most ranks securities by their 20-session average daily range (high minus low) as a share of the latest close. Both are mechanical measurements for education, not recommendations."}},
+{"@type":"Question","name":"What do the RSI extremes and Moves most tables show?","acceptedAnswer":{"@type":"Answer","text":"RSI extremes groups the latest batch by RSI(14): oversold below 30, overbought above 70, plus the ten lowest and ten highest readings. Moves most ranks securities by their 20-session average daily range (high minus low) as a share of the latest close. Both are mechanical measurements for education, not recommendations."}},
 {"@type":"Question","name":"Is this investment advice?","acceptedAnswer":{"@type":"Answer","text":"No. This is a mechanical, rule-based illustration for education. Markets are uncertain and past patterns do not guarantee future results. Do your own research before any investment decision."}},
 {"@type":"Question","name":"What is the Hit rate column?","acceptedAnswer":{"@type":"Answer","text":"For each security with enough history, the engine's past Buy and Strong Buy calls on equity securities over the last 250 sessions are replayed using only data available at the time. A call counts as a hit when the session's own target (+4x ATR) was reached before its stop-loss (-2x ATR) within the next 20 sessions. The hit rate is hits divided by decided calls; calls where neither level was touched are excluded. Fewer than 5 decided calls shows as a dash. Hit rates are regime-dependent: 31.0% across the older 250-session window (NEPSE +31.0%) versus 11.4% across the most recent 250 sessions (NEPSE -6.2%)."}}]}
 </script>
@@ -89,13 +89,13 @@
     <span class="nd-fresh" id="sc-asof">Loading…</span>
   </div>
 
-  <!-- Concept 03: editorial sec-head -->
+  <!-- Screener hero: RSI extremes & biggest movers -->
   <div class="sc-sec-head">
     <div>
       <p class="sc-eyebrow">Screener</p>
-      <h2>Stock Screener</h2>
+      <h2>RSI extremes &amp; biggest movers</h2>
     </div>
-    <span class="sc-note">Screen the market by RSI, moves and signals</span>
+    <span class="sc-note">Daily batch <span class="sc-asof-inline" id="w1-asof">—</span> &middot; auto-refreshes every 5 min during market hours</span>
   </div>
 
   <!-- Engine verdict now lives on its own page: /nepse-engine-verdict/ -->
@@ -113,7 +113,6 @@
 
 
   <section class="w1-sec" aria-label="RSI extremes and biggest movers">
-    <h2>RSI extremes &amp; biggest movers <span class="sc-asof-inline" id="w1-asof"></span></h2>
     <div class="w1-tabs" role="tablist" aria-label="RSI and range lists">
       <button class="w1-tab" role="tab" id="w1tab-os" aria-controls="w1p-os" aria-selected="true">Oversold</button>
       <button class="w1-tab" role="tab" id="w1tab-ob" aria-controls="w1p-ob" aria-selected="false" tabindex="-1">Overbought</button>
@@ -121,36 +120,14 @@
       <button class="w1-tab" role="tab" id="w1tab-hi" aria-controls="w1p-hi" aria-selected="false" tabindex="-1">Highest RSI</button>
       <button class="w1-tab" role="tab" id="w1tab-mv" aria-controls="w1p-mv" aria-selected="false" tabindex="-1">Moves most</button>
     </div>
-    <div class="w1-panel" role="tabpanel" id="w1p-os" aria-labelledby="w1tab-os" tabindex="0"><ul class="w1-list" id="w1-os"><li><span class="skl skl-row" aria-hidden="true"></span></li></ul></div>
-    <div class="w1-panel" role="tabpanel" id="w1p-ob" aria-labelledby="w1tab-ob" tabindex="0" hidden><ul class="w1-list" id="w1-ob"></ul></div>
-    <div class="w1-panel" role="tabpanel" id="w1p-lo" aria-labelledby="w1tab-lo" tabindex="0" hidden><ul class="w1-list" id="w1-lo"></ul></div>
-    <div class="w1-panel" role="tabpanel" id="w1p-hi" aria-labelledby="w1tab-hi" tabindex="0" hidden><ul class="w1-list" id="w1-hi"></ul></div>
-    <div class="w1-panel" role="tabpanel" id="w1p-mv" aria-labelledby="w1tab-mv" tabindex="0" hidden><ul class="w1-list" id="w1-mv"></ul></div>
+    <div class="w1-panel" role="tabpanel" id="w1p-os" aria-labelledby="w1tab-os" tabindex="0"><div class="table-scroll"><table class="sc-table w1-table"><caption class="visually-hidden">Oversold securities, RSI below 30</caption><thead><tr><th scope="col">Symbol</th><th scope="col">Company</th><th scope="col" class="num">RSI</th><th scope="col" class="num">Price</th><th scope="col" class="num">Change</th></tr></thead><tbody id="w1b-os"><tr><td colspan="5"><span class="skl skl-row" aria-hidden="true"></span></td></tr></tbody></table></div></div>
+    <div class="w1-panel" role="tabpanel" id="w1p-ob" aria-labelledby="w1tab-ob" tabindex="0" hidden><div class="table-scroll"><table class="sc-table w1-table"><caption class="visually-hidden">Overbought securities, RSI above 70</caption><thead><tr><th scope="col">Symbol</th><th scope="col">Company</th><th scope="col" class="num">RSI</th><th scope="col" class="num">Price</th><th scope="col" class="num">Change</th></tr></thead><tbody id="w1b-ob"><tr><td colspan="5"><span class="skl skl-row" aria-hidden="true"></span></td></tr></tbody></table></div></div>
+    <div class="w1-panel" role="tabpanel" id="w1p-lo" aria-labelledby="w1tab-lo" tabindex="0" hidden><div class="table-scroll"><table class="sc-table w1-table"><caption class="visually-hidden">Ten lowest RSI readings</caption><thead><tr><th scope="col">Symbol</th><th scope="col">Company</th><th scope="col" class="num">RSI</th><th scope="col" class="num">Price</th><th scope="col" class="num">Change</th></tr></thead><tbody id="w1b-lo"><tr><td colspan="5"><span class="skl skl-row" aria-hidden="true"></span></td></tr></tbody></table></div></div>
+    <div class="w1-panel" role="tabpanel" id="w1p-hi" aria-labelledby="w1tab-hi" tabindex="0" hidden><div class="table-scroll"><table class="sc-table w1-table"><caption class="visually-hidden">Ten highest RSI readings</caption><thead><tr><th scope="col">Symbol</th><th scope="col">Company</th><th scope="col" class="num">RSI</th><th scope="col" class="num">Price</th><th scope="col" class="num">Change</th></tr></thead><tbody id="w1b-hi"><tr><td colspan="5"><span class="skl skl-row" aria-hidden="true"></span></td></tr></tbody></table></div></div>
+    <div class="w1-panel" role="tabpanel" id="w1p-mv" aria-labelledby="w1tab-mv" tabindex="0" hidden><div class="table-scroll"><table class="sc-table w1-table"><caption class="visually-hidden">Biggest movers by 20-session average daily range</caption><thead><tr><th scope="col">Symbol</th><th scope="col">Company</th><th scope="col" class="num">Avg range %</th><th scope="col" class="num">Avg range</th><th scope="col" class="num">Sessions</th></tr></thead><tbody id="w1b-mv"><tr><td colspan="5"><span class="skl skl-row" aria-hidden="true"></span></td></tr></tbody></table></div></div>
     <p class="w1-note">RSI(14) below 30 reads oversold and above 70 overbought, by convention. Each RSI is from that security's latest scored session in the daily batch. Moves most ranks securities by 20-session average daily range (high minus low) as a share of the latest close. Mechanical measurements for education, not recommendations.</p>
   </section>
 
-  <!-- SNAP-START -->
-  <section class="sc-top10" aria-label="Top ranked signals">
-    <h2>Top 10 ranked signals <span class="sc-asof-inline">&middot; 2026-10-02</span></h2>
-    <div class="table-scroll"><table class="sc-table">
-      <caption class="visually-hidden">Top 10 ranked NEPSE signals from the daily snapshot</caption>
-      <thead><tr><th scope="col">#</th><th scope="col">Symbol</th><th scope="col">Price</th><th scope="col">Change</th><th scope="col">Signal</th><th scope="col">Setup</th><th scope="col">Stop loss</th><th scope="col">Target</th></tr></thead>
-      <tbody>
-      <tr><td>1</td><td><a href="/nepse-chart/?s=API">API</a></td><td>338.80</td><td>-0.65%</td><td>Strong Buy</td><td>Inverse Head & Shoulders</td><td>324.21</td><td>367.99</td></tr>
-      <tr><td>2</td><td><a href="/nepse-chart/?s=STC">STC</a></td><td>5550.00</td><td>-0.11%</td><td>Strong Buy</td><td>Double Bottom</td><td>5227.04</td><td>6195.92</td></tr>
-      <tr><td>3</td><td><a href="/nepse-chart/?s=NMFBS">NMFBS</a></td><td>1186.00</td><td>-0.75%</td><td>Strong Buy</td><td>Double Bottom</td><td>1138.94</td><td>1280.12</td></tr>
-      <tr><td>4</td><td><a href="/nepse-chart/?s=EBLD91">EBLD91</a></td><td>1120.00</td><td>+0.00%</td><td>Strong Buy</td><td>Double Top</td><td>1069.37</td><td>1221.25</td></tr>
-      <tr><td>5</td><td><a href="/nepse-chart/?s=KBLD90">KBLD90</a></td><td>1460.00</td><td>+0.00%</td><td>Strong Buy</td><td>Double Bottom</td><td>1381.57</td><td>1616.86</td></tr>
-      <tr><td>6</td><td><a href="/nepse-chart/?s=MBJC">MBJC</a></td><td>295.00</td><td>+0.44%</td><td>Strong Buy</td><td>Double Bottom</td><td>277.77</td><td>329.46</td></tr>
-      <tr><td>7</td><td><a href="/nepse-chart/?s=BNT">BNT</a></td><td>11900.00</td><td>+0.00%</td><td>Strong Buy</td><td>Double Bottom</td><td>11453.31</td><td>12793.39</td></tr>
-      <tr><td>8</td><td><a href="/nepse-chart/?s=CHDC">CHDC</a></td><td>2349.50</td><td>-0.54%</td><td>Strong Buy</td><td>Inverse Head & Shoulders</td><td>2246.41</td><td>2555.68</td></tr>
-      <tr><td>9</td><td><a href="/nepse-chart/?s=HBLD86">HBLD86</a></td><td>1198.00</td><td>+3.51%</td><td>Strong Buy</td><td>Double Bottom</td><td>1161.05</td><td>1271.91</td></tr>
-      <tr><td>10</td><td><a href="/nepse-chart/?s=HDHPC">HDHPC</a></td><td>220.00</td><td>-1.57%</td><td>Strong Buy</td><td>Double Top</td><td>201.08</td><td>257.84</td></tr>
-      </tbody>
-    </table></div>
-    <p class="sc-static-note">Static daily snapshot &middot; the full interactive ranking of 410 securities, with hit-rate tracking and filters, is below.</p>
-  </section>
-  <!-- SNAP-END -->
 
   <section class="sc-controls" aria-label="Screener controls">
     <label class="sc-show">Show
@@ -192,6 +169,7 @@
   </section>
 
   <section aria-label="Ranked stocks">
+    <h2 class="sc-rs-h">Ranked stocks</h2>
     <div class="sc-summary" id="sc-summary" role="status" aria-live="polite"><b>—</b>&nbsp;of&nbsp;<b>—</b>&nbsp;shown</div>
     <div class="table-scroll">
       <table class="sc-table" id="sc-table">
@@ -251,7 +229,7 @@
 <section class="nd-seo-copy" aria-label="About the NEPSE screener">
 <h2>About the NEPSE screener</h2>
 <p>The NEPSE screener ranks the whole market so you don&rsquo;t have to open 400 charts. Every listed security is scored by one transparent, rule-based engine on ten factors &mdash; trend versus moving averages, RSI, MACD, turnover, 52-week position, divergences, chart patterns, market backdrop and support/resistance &mdash; and mapped to a verdict from Strong Buy to Strong Exit. Every factor and its contribution is listed, so nothing is a black box.</p>
-<p>Each row carries the numbers a trader actually checks: the latest price and day change, RSI(14), an ATR-based stop-loss and target framing a 1:2 risk-reward, and the engine&rsquo;s hit rate &mdash; how often its past Buy calls on that security reached their target before their stop. The static snapshot above shows the day&rsquo;s top 10; the full interactive table below ranks all 410 securities with search, sector and signal filters.</p>
+<p>Each row carries the numbers a trader actually checks: the latest price and day change, RSI(14), an ATR-based stop-loss and target framing a 1:2 risk-reward, and the engine&rsquo;s hit rate &mdash; how often its past Buy calls on that security reached their target before their stop. The RSI tables above show the day&rsquo;s extremes; the full interactive table below ranks all 410 securities with search, sector and signal filters.</p>
 <p>The ranking is rebuilt daily from the last closed session, and the session date is printed above the table. NEPSE publishes no free official real-time API, so the screener works from the daily batch and free community mirrors &mdash; figures can lag during market hours and are final only after the close.</p>
 <p>Signals are mechanical outputs of published rules for education. A Strong Buy is the engine&rsquo;s summary of what the chart looks like right now, not a recommendation &mdash; past patterns do not guarantee future results, and you should do your own research before any investment decision.</p>
 </section>
@@ -259,7 +237,7 @@
 <h2>Screener questions</h2>
 <details><summary>How are the screener signals computed?</summary><p>Each listed security is scored by a rule-based engine on ten transparent factors: trend versus moving averages, RSI, MACD, turnover, 52-week position, divergences, chart patterns, market backdrop and support/resistance. Scores map to Strong Buy, Buy, Hold, Exit/Reduce or Strong Exit. Stop-loss sits 2&times; ATR(14) below the last close and the target 4&times; ATR(14) above it, a 1:2 risk-reward frame.</p></details>
 <details><summary>How often is the ranking updated?</summary><p>The ranking is rebuilt daily from the last closed session. The date of the data is shown above the table.</p></details>
-<details><summary>What do the RSI extremes and Moves most lists show?</summary><p>RSI extremes groups the latest batch by RSI(14): oversold below 30, overbought above 70, plus the ten lowest and ten highest readings. Moves most ranks securities by their 20-session average daily range (high minus low) as a share of the latest close. Both are mechanical measurements for education, not recommendations.</p></details>
+<details><summary>What do the RSI extremes and Moves most tables show?</summary><p>RSI extremes groups the latest batch by RSI(14): oversold below 30, overbought above 70, plus the ten lowest and ten highest readings. Moves most ranks securities by their 20-session average daily range (high minus low) as a share of the latest close. Both are mechanical measurements for education, not recommendations.</p></details>
 <details><summary>Is this investment advice?</summary><p>No. This is a mechanical, rule-based illustration for education. Markets are uncertain and past patterns do not guarantee future results. Do your own research before any investment decision.</p></details>
 <details><summary>What is the Hit rate column?</summary><p>For each security with enough history, the engine&rsquo;s past Buy and Strong Buy calls on equity securities over the last 250 sessions are replayed using only data available at the time. A call counts as a hit when the session&rsquo;s own target (+4x ATR) was reached before its stop-loss (-2x ATR) within the next 20 sessions. The hit rate is hits divided by decided calls; calls where neither level was touched are excluded. Fewer than 5 decided calls shows as a dash.</p></details>
 </section>
@@ -292,11 +270,11 @@
 <script src="../js/nepse-format.js?v=20261002c"></script>
 <script src="../js/nepse-data.js?v=20261003a"></script>
 <script src="../js/nepse-live.js?v=20261002c" defer></script>
-<script src="../js/nepse-wave1.js?v=38f8eead" defer></script>
+<script src="../js/nepse-wave1.js?v=20261004a" defer></script>
 <script src="../js/nepse-suite.js?v=1075e635" defer></script>
 <script src="/js/company-logos.js?v=20261004a" defer></script>
   <script src="/js/nepse-logos.js" defer></script>
-  <script src="../js/nepse-screener.js?v=20261002c" defer></script>
+  <script src="../js/nepse-screener.js?v=20261004a" defer></script>
 <script src="../js/nd-screener-verdict.js?v=20261003a" defer></script>
 <script src="/js/theme-toggle.js?v=20261002c" defer></script>
 <script src="/js/freshness-badge.js?v=20261002c" defer></script>

@@ -251,45 +251,49 @@
     { id: 'mv', label: 'Moves most', title: 'Biggest average daily range' },
   ];
 
-  function rsiItem(it) {
-    return '<li class="w1-item"><a class="sc-sym" href="' + chartLink(it.s) + '">' + esc(it.s) + '</a>' +
-      '<span class="w1-sub">' + esc(it.n) + '</span>' +
-      '<span class="w1-num">' + (+it.rsi).toFixed(1) + '</span>' +
-      '<span class="w1-sub">Rs ' + (it.p != null ? fmt2(it.p) : '—') + ' · ' +
-      (it.ch != null ? ((+it.ch >= 0 ? '+' : '') + (+it.ch).toFixed(2) + '%') : '—') + '</span></li>';
+  /* RSI tab rows: Symbol, Company, RSI, Price, Change. Missing figures
+   * render as a dash, never as an invented value. */
+  function rsiRow(it) {
+    var ch = it.ch, chOk = ch != null && isFinite(+ch);
+    var chTxt = chOk ? ((+ch >= 0 ? '+' : '') + (+ch).toFixed(2) + '%') : '—';
+    var chCls = chOk ? (+ch >= 0 ? 'up' : 'dn') : '';
+    return '<tr><td><a class="sc-sym" href="' + chartLink(it.s) + '">' + esc(it.s) + '</a></td>' +
+      '<td class="w1-comp">' + esc(it.n) + '</td>' +
+      '<td class="num">' + (it.rsi != null && isFinite(+it.rsi) ? (+it.rsi).toFixed(1) : '—') + '</td>' +
+      '<td class="num">' + (it.p != null ? 'Rs ' + fmt2(it.p) : '—') + '</td>' +
+      '<td class="num"><span class="sc-dist ' + chCls + '">' + chTxt + '</span></td></tr>';
   }
-  function mvItem(it) {
-    return '<li class="w1-item"><a class="sc-sym" href="' + chartLink(it.s) + '">' + esc(it.s) + '</a>' +
-      '<span class="w1-sub">' + esc(it.n) + '</span>' +
-      '<span class="w1-num">' + (+it.rangePct).toFixed(2) + '%</span>' +
-      '<span class="w1-sub">Rs ' + fmt2(it.avgRange) + ' avg range · ' + it.sessions + ' sessions</span></li>';
+  function mvRow(it) {
+    return '<tr><td><a class="sc-sym" href="' + chartLink(it.s) + '">' + esc(it.s) + '</a></td>' +
+      '<td class="w1-comp">' + esc(it.n) + '</td>' +
+      '<td class="num">' + (+it.rangePct).toFixed(2) + '%</td>' +
+      '<td class="num">Rs ' + fmt2(it.avgRange) + '</td>' +
+      '<td class="num">' + it.sessions + '</td></tr>';
   }
-  function emptyMsg(t) {
-    return '<p class="mkt-empty">No securities ' + t + ' in the latest batch.</p>';
+  function emptyMsg(t, cols) {
+    return '<tr><td colspan="' + cols + '" class="sc-empty">No securities ' + t + ' in the latest batch.</td></tr>';
   }
 
   function renderLists(d) {
     if (!d || !d.rsi) return;
     var r = d.rsi, mv = d.movers || {};
-    var lists = {
-      os: r.oversold && r.oversold.length ? '<ul class="w1-list">' + r.oversold.map(rsiItem).join('') + '</ul>'
-        : emptyMsg('are oversold right now'),
-      ob: r.overbought && r.overbought.length ? '<ul class="w1-list">' + r.overbought.map(rsiItem).join('') + '</ul>'
-        : emptyMsg('are overbought right now'),
-      lo: r.lowest && r.lowest.length ? '<ul class="w1-list">' + r.lowest.map(rsiItem).join('') + '</ul>'
-        : emptyMsg('have an RSI reading'),
-      hi: r.highest && r.highest.length ? '<ul class="w1-list">' + r.highest.map(rsiItem).join('') + '</ul>'
-        : emptyMsg('have an RSI reading'),
-      mv: mv.top && mv.top.length ? '<ul class="w1-list">' + mv.top.map(mvItem).join('') + '</ul>'
-        : emptyMsg('have enough history for a range ranking'),
+    var groups = {
+      os: { arr: r.oversold, msg: 'are oversold right now' },
+      ob: { arr: r.overbought, msg: 'are overbought right now' },
+      lo: { arr: r.lowest, msg: 'have an RSI reading' },
+      hi: { arr: r.highest, msg: 'have an RSI reading' }
     };
-    TABS.forEach(function (t) {
-      var p = $('w1p-' + t.id);
-      if (p) p.innerHTML = lists[t.id];
+    Object.keys(groups).forEach(function (id) {
+      var tb = $('w1b-' + id);
+      if (!tb) return;
+      var g = groups[id];
+      tb.innerHTML = (g.arr && g.arr.length) ? g.arr.map(rsiRow).join('') : emptyMsg(g.msg, 5);
     });
+    var tbm = $('w1b-mv');
+    if (tbm) tbm.innerHTML = (mv.top && mv.top.length) ? mv.top.map(mvRow).join('') : emptyMsg('have enough history for a range ranking', 5);
     var asof = $('w1-asof');
     if (asof && r.asof) {
-      asof.textContent = '· RSI batch ' + r.asof;
+      asof.textContent = r.asof;
       asof.insertAdjacentHTML('beforeend', fresh(r.asof));
     }
   }
@@ -336,15 +340,15 @@
   function fail() {
     var g = $('mktGrid');
     if (g) g.innerHTML = '<p class="mkt-empty">Market summary is temporarily unavailable. Please retry in a moment.</p>';
-    TABS.forEach(function (t) {
-      var p = $('w1p-' + t.id);
-      if (p) p.innerHTML = '<p class="mkt-empty">List unavailable. Please retry in a moment.</p>';
+    ['os', 'ob', 'lo', 'hi', 'mv'].forEach(function (id) {
+      var tb = $('w1b-' + id);
+      if (tb) tb.innerHTML = '<tr><td colspan="5" class="sc-empty">List unavailable. Please retry in a moment.</td></tr>';
     });
   }
 
   function init() {
     var needMarket = !!$('mktGrid');
-    var needLists = !!$('w1-os') || !!$('w1p-os');
+    var needLists = !!$('w1b-os') || !!$('w1p-os');
     if (!needMarket && !needLists) return;
     if (needLists) bindTabs();
     load().then(function (d) {
@@ -356,6 +360,29 @@
     }).catch(fail);
   }
 
+  /* Auto-refresh: re-pull the batch every 5 minutes during NEPSE market
+   * hours (Mon-Fri 11:00-15:00 NPT) so RSI values and the batch date stay
+   * current without a full page reload. A failed poll keeps the last good
+   * data on screen. */
+  function nptNow() { return new Date(Date.now() + (5 * 60 + 45) * 60000); }
+  function inMarketHours() {
+    var n = nptNow(), day = n.getUTCDay(); /* 0=Sun, 6=Sat */
+    if (day === 0 || day === 6) return false;
+    var mins = n.getUTCHours() * 60 + n.getUTCMinutes();
+    return mins >= 11 * 60 && mins < 15 * 60;
+  }
+  W1.refresh = function () {
+    promise = null; /* force a fresh fetch */
+    return load().then(function (d) {
+      if ($('w1b-os') || $('w1p-os')) renderLists(d);
+    }).catch(function () { /* keep stale data visible */ });
+  };
+  W1.inMarketHours = inMarketHours;
+  function startAutoRefresh() {
+    if (!$('w1b-os') && !$('w1p-os')) return;
+    setInterval(function () { if (inMarketHours()) W1.refresh(); }, 5 * 60 * 1000);
+  }
+
   W1.load = load;
   W1.renderMarket = renderMarket;
   W1.renderLists = renderLists;
@@ -363,4 +390,5 @@
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
+  startAutoRefresh();
 })();
