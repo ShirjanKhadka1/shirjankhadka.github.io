@@ -1,94 +1,142 @@
 {
-  "_comment": "NEPSE trading calendar. Trading days are Monday-Friday (Sunday declared a government holiday; schedule changed from Sun-Thu to Mon-Fri per owner, 2026-10-01). NEPSE follows Nepal government public holidays. EVERY Oct-Dec 2026 entry is marked status=unverified — dates were assembled from public lists, NOT verified against an official NEPSE/government notice; the owner will supply official holiday notices. Lunar-calendar festival dates shift yearly — refresh this file each January and verify Dashain/Tihar dates against the official notice. Missing-holiday handling: if the market-close pipeline finds no new session after the final retry, the day is treated as market closed and a low-priority [NEPSE NOTICE] email is sent (never a failure alert).",
-  "holidays": {
-    "2026": [
-      {
-        "date": "2026-10-19",
-        "name": "Maha Ashtami / Maha Navami (Dashain)",
-        "status": "unverified"
-      },
-      {
-        "date": "2026-10-20",
-        "name": "Vijaya Dashami (Dashain)",
-        "status": "unverified"
-      },
-      {
-        "date": "2026-10-21",
-        "name": "Ekadashi (Dashain)",
-        "status": "unverified"
-      },
-      {
-        "date": "2026-10-22",
-        "name": "Dwadashi (Dashain)",
-        "status": "unverified"
-      },
-      {
-        "date": "2026-10-23",
-        "name": "Kojagrat Purnima (Dashain)",
-        "status": "unverified"
-      },
-      {
-        "date": "2026-11-08",
-        "name": "Laxmi Puja (Tihar)",
-        "status": "unverified"
-      },
-      {
-        "date": "2026-11-09",
-        "name": "Gai Tihar (Tihar)",
-        "status": "unverified"
-      },
-      {
-        "date": "2026-11-10",
-        "name": "Govardhan Puja (Tihar)",
-        "status": "unverified"
-      },
-      {
-        "date": "2026-11-11",
-        "name": "Bhai Tika (Tihar)",
-        "status": "unverified"
-      },
-      {
-        "date": "2026-11-15",
-        "name": "Chhath Puja",
-        "status": "unverified"
-      },
-      {
-        "date": "2026-11-24",
-        "name": "Guru Nanak Jayanti",
-        "status": "unverified"
-      },
-      {
-        "date": "2026-12-24",
-        "name": "Udhauli Parva",
-        "status": "unverified"
-      },
-      {
-        "date": "2026-12-25",
-        "name": "Christmas Day",
-        "status": "unverified"
-      },
-      {
-        "date": "2026-12-30",
-        "name": "Tamu Lhosar",
-        "status": "unverified"
-      }
-    ],
-    "2027": [
-      {
-        "_todo": "Populate each January from the official Nepal government holiday notice. Lunar dates below are NOT yet verified for 2027 - do not guess."
-      }
-    ]
+ "_comment": "NEPSE trading calendar. Standing rule: Saturday and Sunday are closed (VERIFIED — owner-confirmed 2026-10-04; NEPSE trades Monday-Friday). Public holidays follow NEPSE's own official calendar/notices (owner, 2026-10-04). Per-date entries below are UNVERIFIED until confirmed by an official NEPSE notice — never treat an unverified entry as authoritative for labels; the pipeline always checks for a real session (evidence wins).",
+ "weekend_rule": {
+  "days": [
+   "Saturday",
+   "Sunday"
+  ],
+  "status": "verified",
+  "verified_by": "owner confirmed 2026-10-04",
+  "notes": "NEPSE moved to Mon-Fri trading in April 2026 (government weekend Sat-Sun)."
+ },
+ "trading_hours": {
+  "days": "Monday-Friday",
+  "pre_open_npt": "10:45-11:00",
+  "continuous_npt": "11:00-15:00",
+  "timezone": "Asia/Kathmandu",
+  "authority": "NEPSE official calendar"
+ },
+ "authority": "For any public holiday, NEPSE's own official calendar/notices are the authority (owner, 2026-10-04).",
+ "holidays": [
+  {
+   "date_ad": "2026-10-19",
+   "date_bs": "2083-07-02",
+   "name": "Maha Ashtami / Maha Navami (Dashain)",
+   "type": "closed",
+   "source_url": null,
+   "retrieved_at": null,
+   "status": "unverified",
+   "notes": "Assembled from public lists 2026-10-03; NOT verified against an official NEPSE notice. Lunar-calendar festival dates shift yearly."
   },
-  "market_hours_npt": {
-    "close": "15:00",
-    "open": "11:00"
+  {
+   "date_ad": "2026-10-20",
+   "date_bs": "2083-07-03",
+   "name": "Vijaya Dashami (Dashain)",
+   "type": "closed",
+   "source_url": null,
+   "retrieved_at": null,
+   "status": "unverified",
+   "notes": "Assembled from public lists 2026-10-03; NOT verified against an official NEPSE notice. Lunar-calendar festival dates shift yearly."
   },
-  "weekly_note": "1=Monday .. 7=Sunday. Saturday and Sunday are non-trading days.",
-  "weekly_trading_days": [
-    1,
-    2,
-    3,
-    4,
-    5
-  ]
+  {
+   "date_ad": "2026-10-21",
+   "date_bs": "2083-07-04",
+   "name": "Ekadashi (Dashain)",
+   "type": "closed",
+   "source_url": null,
+   "retrieved_at": null,
+   "status": "unverified",
+   "notes": "Assembled from public lists 2026-10-03; NOT verified against an official NEPSE notice. Lunar-calendar festival dates shift yearly."
+  },
+  {
+   "date_ad": "2026-10-22",
+   "date_bs": "2083-07-05",
+   "name": "Dwadashi (Dashain)",
+   "type": "closed",
+   "source_url": null,
+   "retrieved_at": null,
+   "status": "unverified",
+   "notes": "Assembled from public lists 2026-10-03; NOT verified against an official NEPSE notice. Lunar-calendar festival dates shift yearly."
+  },
+  {
+   "date_ad": "2026-10-23",
+   "date_bs": "2083-07-06",
+   "name": "Kojagrat Purnima (Dashain)",
+   "type": "closed",
+   "source_url": null,
+   "retrieved_at": null,
+   "status": "unverified",
+   "notes": "Assembled from public lists 2026-10-03; NOT verified against an official NEPSE notice. Lunar-calendar festival dates shift yearly."
+  },
+  {
+   "date_ad": "2026-11-09",
+   "date_bs": "2083-07-23",
+   "name": "Gai Tihar (Tihar)",
+   "type": "closed",
+   "source_url": null,
+   "retrieved_at": null,
+   "status": "unverified",
+   "notes": "Assembled from public lists 2026-10-03; NOT verified against an official NEPSE notice. Lunar-calendar festival dates shift yearly."
+  },
+  {
+   "date_ad": "2026-11-10",
+   "date_bs": "2083-07-24",
+   "name": "Govardhan Puja (Tihar)",
+   "type": "closed",
+   "source_url": null,
+   "retrieved_at": null,
+   "status": "unverified",
+   "notes": "Assembled from public lists 2026-10-03; NOT verified against an official NEPSE notice. Lunar-calendar festival dates shift yearly."
+  },
+  {
+   "date_ad": "2026-11-11",
+   "date_bs": "2083-07-25",
+   "name": "Bhai Tika (Tihar)",
+   "type": "closed",
+   "source_url": null,
+   "retrieved_at": null,
+   "status": "unverified",
+   "notes": "Assembled from public lists 2026-10-03; NOT verified against an official NEPSE notice. Lunar-calendar festival dates shift yearly."
+  },
+  {
+   "date_ad": "2026-11-24",
+   "date_bs": "2083-08-08",
+   "name": "Guru Nanak Jayanti",
+   "type": "closed",
+   "source_url": null,
+   "retrieved_at": null,
+   "status": "unverified",
+   "notes": "Assembled from public lists 2026-10-03; NOT verified against an official NEPSE notice. Lunar-calendar festival dates shift yearly."
+  },
+  {
+   "date_ad": "2026-12-24",
+   "date_bs": "2083-09-09",
+   "name": "Udhauli Parva",
+   "type": "closed",
+   "source_url": null,
+   "retrieved_at": null,
+   "status": "unverified",
+   "notes": "Assembled from public lists 2026-10-03; NOT verified against an official NEPSE notice. Lunar-calendar festival dates shift yearly."
+  },
+  {
+   "date_ad": "2026-12-25",
+   "date_bs": "2083-09-10",
+   "name": "Christmas Day",
+   "type": "closed",
+   "source_url": null,
+   "retrieved_at": null,
+   "status": "unverified",
+   "notes": "Assembled from public lists 2026-10-03; NOT verified against an official NEPSE notice. Lunar-calendar festival dates shift yearly."
+  },
+  {
+   "date_ad": "2026-12-30",
+   "date_bs": "2083-09-15",
+   "name": "Tamu Lhosar",
+   "type": "closed",
+   "source_url": null,
+   "retrieved_at": null,
+   "status": "unverified",
+   "notes": "Assembled from public lists 2026-10-03; NOT verified against an official NEPSE notice. Lunar-calendar festival dates shift yearly."
+  }
+ ]
 }
