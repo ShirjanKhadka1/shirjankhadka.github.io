@@ -401,7 +401,8 @@
     if (M && M.reduced) { set(); }
     else requestAnimationFrame(function () { requestAnimationFrame(set); });
     if (M) {
-      var els = document.querySelectorAll('#sx-heat .sx-tm-tile, #sx-cards .sx-card');
+      // Heatmap tiles: show immediately, no scroll-reveal (reveal was leaving invisible gaps)
+      var els = document.querySelectorAll('#sx-cards .sx-card');
       for (var j = 0; j < els.length; j++) els[j].classList.add('rv');
       M.reveal(document);
       M.watchCounts(document);
