@@ -23,7 +23,16 @@ function loadPeriod(p, asof){
   if (p === 'latest') url = BASE+'intraday.json';
   else if (p === 'asof') url = BASE+'daily/'+asof+'.json';
   else url = BASE+'periods/'+p+'.json';
-  return fetch(url, { cache: 'no-store' }).then(function(r){ if(!r.ok) throw new Error('no-data'); return r.json(); });
+  return fetch(url, { cache: 'no-store' }).then(function(r){
+    if(!r.ok) {
+      // FALLBACK: intraday.json only exists during market hours.
+      // Fall back to 1D period data when it's missing (weekends/holidays).
+      if (p === 'latest') return fetch(BASE+'periods/1D.json', { cache: 'no-store' })
+        .then(function(r2){ if(!r2.ok) throw new Error('no-data'); return r2.json(); });
+      throw new Error('no-data');
+    }
+    return r.json();
+  });
 }
 function label(p, d, asof){
   if(p==='latest') return 'live today'+(d&&d.asof?' (as of '+String(d.asof).slice(11,16)+' UTC)':'');

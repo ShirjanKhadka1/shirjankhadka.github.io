@@ -19,6 +19,12 @@
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=20261003a">
 <link rel="stylesheet" href="/css/broker-pages.css?v=20261003b">
+<style>
+/* AccDist: side-by-side on desktop, stacked on mobile */
+@media (max-width: 900px){
+  #bkGrid.bk-grid-2col{ grid-template-columns: 1fr !important; }
+}
+</style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -46,7 +52,11 @@
 <button data-p="6M">6M</button>
 </div>
 <div class="bk-meta" id="bkMeta">Loading…</div>
-<div style="display:grid;gap:24px" id="bkGrid">
+<div style="margin:0 0 16px;display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+<input type="search" id="bkStockSearch" placeholder="Filter by stock symbol, e.g. NABIL" aria-label="Filter by stock symbol"
+  style="flex:1;min-width:200px;max-width:320px;padding:10px 16px;border:1px solid var(--border);border-radius:12px;background:var(--inset);color:var(--text);font-size:.875rem">
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px" id="bkGrid" class="bk-grid-2col">
 <div>
 <h2 style="font-family:var(--serif);font-size:1.2rem;margin:0 0 8px;color:var(--up)">Accumulating <span style="font-size:.8rem;color:var(--muted);font-family:var(--sans)">— top net bought</span></h2>
 <div class="bk-scroll"><table class="bk-table" id="accTable"><thead><tr>
@@ -63,12 +73,12 @@
 <p class="bk-note">"Accumulation" = net bought, "distribution" = net sold by transaction value — not beneficial ownership. Data: public NEPSE floorsheet records. <strong>For education only. Not investment advice.</strong></p>
 </main>
 <div id="nd-footer"></div>
-<script src="/js/broker-common.js?v=20261003b"></script>
+<script src="/js/broker-common.js?v=20261004c"></script>
 <script>
 (function(){
 "use strict";
 var BC = window.BrokerCommon;
-var state = { period: 'latest', brokers: {}, acc: [], dist: [] };
+var state = { period: 'latest', brokers: {}, acc: [], dist: [], q: '' };
 var $ = function(id){ return document.getElementById(id); };
 function bname(code){ return state.brokers[code] || ('Broker '+code); }
 
@@ -78,22 +88,30 @@ function norm(list){
       netQty: x.net_qty||0, netVal: x.net_value||0 };
   });
 }
+function matchesQ(r){
+  if(!state.q) return true;
+  return r.symbol.toLowerCase().indexOf(state.q) !== -1;
+}
 function renderOne(tbodyId, rows, good){
-  $(tbodyId).innerHTML = rows.map(function(r){
+  var filtered = rows.filter(matchesQ);
+  $(tbodyId).innerHTML = filtered.map(function(r){
     return '<tr><td><strong>'+BC.esc(r.symbol)+'</strong></td><td>'+BC.esc(r.broker)+'</td>'+
       '<td>'+BC.fmtN(r.netQty,0)+'</td><td class="'+(good?'pos':'neg')+'">'+BC.fmtV(r.netVal)+'</td></tr>';
-  }).join('') || '<tr><td colspan="4" class="bk-loading">No data.</td></tr>';
+  }).join('') || '<tr><td colspan="4" class="bk-loading">No matches.</td></tr>';
+}
+function renderAll(){
+  renderOne('accBody', state.acc, true);
+  renderOne('distBody', state.dist, false);
 }
 function load(){
   $('accBody').innerHTML = '<tr><td colspan="4" class="bk-loading">Loading…</td></tr>';
   $('distBody').innerHTML = '<tr><td colspan="4" class="bk-loading">Loading…</td></tr>';
   BC.loadPeriod(state.period).then(function(d){
     state.acc = norm(d.accumulation); state.dist = norm(d.distribution);
-    renderOne('accBody', state.acc, true);
-    renderOne('distBody', state.dist, false);
+    renderAll();
     $('bkMeta').textContent = 'Data: ' + BC.label(state.period, d) + ' · Source: NEPSE floorsheets';
-    BC.makeSortable($('accTable'), function(){ return state.acc; }, function(rs){ renderOne('accBody', rs, true); });
-    BC.makeSortable($('distTable'), function(){ return state.dist; }, function(rs){ renderOne('distBody', rs, false); });
+    BC.makeSortable($('accTable'), function(){ return state.acc.filter(matchesQ); }, function(rs){ renderOne('accBody', rs, true); });
+    BC.makeSortable($('distTable'), function(){ return state.dist.filter(matchesQ); }, function(rs){ renderOne('distBody', rs, false); });
   }).catch(function(){
     $('accBody').innerHTML = '<tr><td colspan="4"><div class="bk-empty">Data not available for this period yet.</div></td></tr>';
     $('distBody').innerHTML = '<tr><td colspan="4"><div class="bk-empty">Data not available for this period yet.</div></td></tr>';
@@ -104,6 +122,8 @@ $('bkPeriods').addEventListener('click', function(e){
   document.querySelectorAll('#bkPeriods button').forEach(function(x){x.classList.remove('active')});
   b.classList.add('active'); state.period = b.dataset.p; load();
 });
+var searchEl = $('bkStockSearch');
+if (searchEl) searchEl.addEventListener('input', function(){ state.q = searchEl.value.trim().toLowerCase(); renderAll(); });
 Promise.all([BC.loadMeta(), BC.loadBrokers()]).then(function(res){
   state.brokers = res[1]; load();
 });
