@@ -347,7 +347,9 @@
     var tabs = document.querySelectorAll('.nd-active-tabs button');
     // Map homepage metric -> daily page sort preset
     var metricToSort = { turnover: 'turnover', volume: 'volume', transactions: 'transactions' };
-    var seemore = document.querySelector('.nd-movecard-head .nd-seemore');
+    // Scope to the Most Active card (there are multiple .nd-seemore links on the page)
+    var activeTitle = document.getElementById('ndActiveTitle');
+    var seemore = activeTitle ? activeTitle.parentElement.querySelector('.nd-seemore') : null;
     tabs.forEach(function (btn) {
       btn.onclick = function () {
         tabs.forEach(function (b) { b.classList.remove('on'); });
