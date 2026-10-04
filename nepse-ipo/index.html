@@ -34,7 +34,7 @@
 </script>
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=20261003a">
-<link rel="stylesheet" href="ipo.css?v=20261003a">
+<link rel="stylesheet" href="ipo.css?v=20261004a">
 </head>
 <body class="nd">
 
@@ -47,9 +47,13 @@
   <p class="ipo-lede">Every NEPSE primary issue in one place — IPOs, local IPOs, foreign employee IPOs, mutual fund IPOs, FPOs, right shares and auctions. Track units, opening and closing dates, listing dates, status and the issue manager for each. Records are verified against issue-manager notices and official filings.</p>
   <p class="ipo-asof" id="ipoAsof">Loading…</p>
 
+  <div class="ipo-stats" id="ipoStats" aria-label="Issue statistics"></div>
+
   <div class="ipo-open" id="ipoOpen" aria-label="Currently open issues"></div>
 
   <div class="ipo-tabs" id="ipoTabs" role="tablist" aria-label="Issue categories"></div>
+
+  <div class="ipo-statusfilter" id="ipoStatusFilter" aria-label="Filter by status"></div>
 
   <div class="ipo-toolbar">
     <span class="ipo-count" id="ipoCount" aria-live="polite"></span>
@@ -60,8 +64,11 @@
     <div class="ipo-empty">Loading IPO data…</div>
   </div>
 
+  <nav class="ipo-pager" id="ipoPager" aria-label="Table pages"></nav>
+
   <div class="ipo-note">
     <strong>For education only. Not investment advice.</strong> This tracker is a convenience index of public primary-issue records; the official record is the issue manager's notice and the SEBON/NEPSE disclosure archive. Allotment outcomes depend on the official lottery — this page tracks issues, not results. <strong>Not affiliated with Nepal Stock Exchange Ltd.</strong>
+    <span class="np">शेयर बजार सम्बन्धी जानकारीमूलक उद्देश्यका लागि मात्र हो — लगानी सल्लाह होइन। आधिकारिक रेकर्ड भनेको निष्काशन प्रबन्धकको सूचना तथा सेबोन/नेप्से खुलासा अभिलेख हो।</span>
   </div>
 </main>
 
@@ -69,6 +76,6 @@
 
 <script src="/js/theme-toggle.js?v=20261002c" defer></script>
 <script src="/js/nd-chrome.js?v=20261004a" defer></script>
-<script src="ipo.js?v=20261003a" defer></script>
+<script src="ipo.js?v=20261004a" defer></script>
 </body>
 </html>
