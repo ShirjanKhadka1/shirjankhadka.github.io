@@ -678,6 +678,26 @@
       };
     },
 
+    /**
+     * Promise for the first validated snapshot. Resolves with the snapshot
+     * object (same shape as live.json). Rejects if the feed fails and no
+     * last-good snapshot exists. Use this instead of fetching live.json
+     * directly — it dedupes the in-flight request across all consumers.
+     */
+    whenReady: function () {
+      var self = this;
+      return new Promise(function (resolve, reject) {
+        var snap = self.getSnapshot();
+        if (snap) { resolve(snap); return; }
+        var unsub = self.subscribe(function (s, status) {
+          if (s) { unsub(); resolve(s); }
+          else if (status === 'error') { unsub(); reject(new Error('live feed unavailable')); }
+        });
+        // Ensure polling has started
+        if (typeof self.start === 'function') { try { self.start(); } catch (e) {} }
+      });
+    },
+
     // Exposed for tests and Phase 2+:
     _validate: validateSnapshot,
     _normalizeQuote: normalizeQuote,

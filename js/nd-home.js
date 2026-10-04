@@ -55,6 +55,17 @@
     });
   }
 
+  /**
+   * P1.3: Get live data via shared NepseData module (dedupes fetches).
+   * Falls back to direct fetch if NepseData is unavailable.
+   */
+  function getLive() {
+    if (typeof window !== 'undefined' && window.NepseData && window.NepseData.whenReady) {
+      return window.NepseData.whenReady();
+    }
+    return fetchJSON(LIVE_URL);
+  }
+
   /* ---------- Index strip ---------- */
   function renderStrip(indices) {
     var track = $('ndStripTrack');
@@ -463,7 +474,8 @@
     if (!$('ndStripTrack') && !$('ndWrap') && !$('ndNewsGrid')) return;
     // Fetch spark data first for the index card chart
     fetchJSON(SPARK_URL).then(function (sp) { sparkData = sp; }).catch(function () {}).then(function () {
-      fetchJSON(LIVE_URL).then(function (live) {
+      // P1.3: Use shared NepseData module (dedupes live.json fetch)
+      getLive().then(function (live) {
         renderStrip(live.indices);
         renderWrap(live);
         renderIndexCard(live);

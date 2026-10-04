@@ -59,6 +59,17 @@
     });
   }
 
+  /**
+   * P1.3: Get live data via shared NepseData module (dedupes fetches).
+   * Falls back to direct fetch if NepseData is unavailable.
+   */
+  function getLive() {
+    if (typeof window !== 'undefined' && window.NepseData && window.NepseData.whenReady) {
+      return window.NepseData.whenReady();
+    }
+    return fetchJSON(LIVE_URL);
+  }
+
   /* ---------- Sort definitions ---------- */
   // key -> { label, get(q), dir: default direction ('desc'|'asc') }
   var COLS = {
@@ -498,7 +509,8 @@
     if (prev) prev.addEventListener('click', function () { if (state.page > 0) { state.page--; renderTable(); } });
     if (next) next.addEventListener('click', function () { state.page++; renderTable(); });
 
-    fetchJSON(LIVE_URL).then(function (live) {
+    // P1.3: Use shared NepseData module (dedupes live.json fetch)
+    getLive().then(function (live) {
       state.quotes = Array.isArray(live.quotes) ? live.quotes : [];
       // Classify sectors using authoritative map
       state.quotes.forEach(function (q) {
