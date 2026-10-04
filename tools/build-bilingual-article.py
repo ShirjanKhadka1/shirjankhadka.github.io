@@ -404,7 +404,14 @@ def head_block(story, lang, self_url, other_url):
     en_url, ne_url = page_urls(story["slug"])
     other_lang = "ne" if lang == "en" else "en"
     title = f"{L(story, lang, 'seo_title')} | {BRAND}"
-    desc = L(story, lang, "seo_desc")
+    # SEO guard: keep meta/OG descriptions <=180 chars (word boundary).
+    def trim180(s):
+        s = (s or "").strip()
+        if len(s) <= 180: return s
+        cut = s[:177].rsplit(" ", 1)[0]
+        return cut
+    desc = trim180(L(story, lang, "seo_desc"))
+    dek = trim180(L(story, lang, "dek"))
     og_img = f"{SITE}/assets/images/blog/{story['slug']}-og.jpg"
     pdfs = []
     for d in story.get("sources", []):
@@ -445,7 +452,7 @@ def head_block(story, lang, self_url, other_url):
 <link rel="alternate" hreflang="x-default" href="{en_url}">
 <meta property="og:type" content="article">
 <meta property="og:title" content="{esc(L(story, lang, 'headline'))}">
-<meta property="og:description" content="{esc(L(story, lang, 'dek'))}">
+<meta property="og:description" content="{esc(dek)}">
 <meta property="og:image" content="{og_img}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">

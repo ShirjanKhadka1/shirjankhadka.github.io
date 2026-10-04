@@ -117,9 +117,13 @@ function main() {
     '<meta property="og:title" content="' + esc(title) + '">\n' +
     '<meta property="og:description" content="' + esc(desc) + '">\n' +
     '<meta property="og:url" content="' + url + '">\n' +
+    '<meta property="og:image" content="' + SITE + '/assets/images/og/decode.png">\n' +
+    '<meta property="og:image:width" content="1200">\n' +
+    '<meta property="og:image:height" content="630">\n' +
     '<meta name="twitter:card" content="summary">\n' +
     '<meta name="twitter:title" content="' + esc(title) + '">\n' +
     '<meta name="twitter:description" content="' + esc(desc) + '">\n' +
+    '<meta name="twitter:image" content="' + SITE + '/assets/images/og/decode.png">\n' +
     '<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">\n' +
     '<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">\n' +
     '<link rel="apple-touch-icon" href="/apple-touch-icon.png">\n' +
