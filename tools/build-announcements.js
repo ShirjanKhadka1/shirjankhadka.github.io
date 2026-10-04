@@ -61,12 +61,14 @@ function buildMatcher() {
 
 function matchSymbol(title, matcher) {
   const t = ' ' + title.toLowerCase().replace(/[^a-z0-9 ]/g, ' ') + ' ';
+  // Generic words that alone should not trigger a fund match.
+  const STOP = new Set(['mutual', 'fund', 'equity', 'growth', 'balanced', 'select', 'dynamic', 'flexi']);
   for (const m of matcher) {
     if (m.core.length < 3) continue;
     // Whole-phrase match on the core name.
     if (t.includes(' ' + m.core + ' ')) return m;
-    // Token-subset match: every significant core token present.
-    const toks = m.core.split(' ').filter((w) => w.length > 3);
+    // Token-subset match: every significant core token present, excluding generic fund words.
+    const toks = m.core.split(' ').filter((w) => w.length > 3 && !STOP.has(w));
     if (toks.length >= 2 && toks.every((w) => t.includes(' ' + w))) return m;
   }
   return null;

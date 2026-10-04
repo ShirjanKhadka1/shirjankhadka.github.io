@@ -175,6 +175,9 @@
   /* Announcements */
   var annItems = [], annFilter;
   function logoHtml(sym, px){
+    // Generic news (no verified company) gets a neutral icon — per data-honesty
+    // rule, don't show a company logo next to news that isn't about that company.
+    if (!sym) return '<span class="nn-mono nn-generic" style="background:var(--nd-card2)">📰</span>';
     // Use company logo when available, fallback to monogram
     if (window.NepseLogo && window.NepseLogo.html) {
       return window.NepseLogo.html(sym, '', px || 40);

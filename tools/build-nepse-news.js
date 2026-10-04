@@ -75,8 +75,28 @@ const GENERIC = new Set([...SUFFIX, 'nepal', 'nepali', 'national', 'everest',
   'kavre', 'sindhuli', 'ramechhap', 'sindhupalchok', 'nuwakot', 'dhading',
   // Common nouns that don't identify a company on their own (Manakamana
   // cable-car news vs Bandipur Cablecar; temple "darshan" vs companies
-  // named "... Darshan").
-  'cablecar', 'cable', 'darshan', 'tourism', 'travels', 'holiday']);
+  // named "... Darshan"). "panel" as in committee/government panel vs
+  // SY Panel Nepal; "house" as in parliament vs companies with House.
+  'cablecar', 'cable', 'darshan', 'tourism', 'travels', 'holiday',
+  'panel', 'house', 'committee', 'subcommittee', 'minister',
+  'ministry', 'government', 'election', 'police', 'uniform', 'procurement']);
+// Companies named after places (JHAPA/Jhapa Energy, MANDU/Mandu Hydro).
+// A headline mentioning only the place (wildlife, district news) is NOT
+// about the company — require company-context keywords for these.
+const PLACE_COMPANIES = {
+  'JHAPA': ['energy', 'hydropower', 'power', 'electricity'],
+  'MANDU': ['hydropower', 'hydro', 'power', 'energy'],
+  'PFL': ['finance', 'banking', 'loan'],
+  'BPCL': ['power', 'energy', 'hydropower', 'electricity'],
+};
+// Words indicating the headline is about the PLACE, not the company.
+const PLACE_CONTEXT = new Set([
+  'elephant', 'wildlife', 'wild', 'animal', 'forest', 'jungle',
+  'district', 'municipality', 'rural', 'village', 'farmer', 'agriculture',
+  'land', 'issues', 'urges', 'magar', 'mp', // "MP Rana Magar urges..." is politics
+  // "Kathmandu" the city vs MANDU the hydro — "mandu" substring must not match.
+  'kathmandu', 'valley', 'urban', 'transport', 'master', 'plan',
+]);
 // Common Nepali function words whose consonant skeletons collide with
 // company aliases (मात्रै "mtr" vs MDB's मितेरी "mtr"). These tokens are
 // never used for skeleton matching; the real alias token still matches.
@@ -234,6 +254,19 @@ function matchSymbol(title, aliases) {
     // 4) Bare ticker + market keyword (catches Nepali headlines too).
     if (!strong && !weak && a.tickerRe.test(t) &&
       (hasKw || a.coreTokens.some((w) => tokens.includes(w)))) strong = true;
+    // 5) Place-named companies: "Jhapa" the district vs JHAPA the energy company.
+    //    If headline has place-context words (wildlife, district, MP urges...)
+    //    but no company-context words (energy, power, hydro...), it's about
+    //    the place — reject the match.
+    if ((strong || weak) && PLACE_COMPANIES[a.sym]) {
+      const companyCtx = PLACE_COMPANIES[a.sym].some((w) => t.includes(' ' + w));
+      const placeCtx = [...PLACE_CONTEXT].some((w) => tokens.includes(w));
+      // Full company phrase ("jhapa energy") always counts as company context.
+      const fullPhrase = t.includes(' ' + a.phrase + ' ');
+      if (placeCtx && !companyCtx && !fullPhrase && !hasKw) {
+        strong = false; weak = false;
+      }
+    }
     if (strong || (weak && hasKw)) hits.push(a.sym);
   }
   return hits;
