@@ -192,10 +192,14 @@ if not trending:
         trending = _prev['stocks']
         trending_out = dict(_prev)
         trending_out.update({'asof': session_date, 'built': today,
-                             'live_asof': live_asof})
+                             'live_asof': live_asof,
+                             'source': 'NEPSE official API + community OHLC archive + broker floorsheets',
+                             'tier': 'computed'})
     else:
         trending_out = {
             'asof': session_date, 'built': today, 'live_asof': live_asof,
+            'source': 'NEPSE official API + community OHLC archive + broker floorsheets',
+            'tier': 'computed',
             'method': 'Score 0-100 = 35% turnover acceleration + 20% volume spike + 20% 5-day momentum + 15% broker flow + 10% news.',
             'coverage': {'symbols': 0, 'history': 'daily OHLCV sessions per symbol'},
             'stocks': [],
@@ -205,6 +209,8 @@ else:
         'asof': session_date,
         'built': today,
         'live_asof': live_asof,
+        'source': 'NEPSE official API + community OHLC archive + broker floorsheets',
+        'tier': 'computed',
     'method': ('Score 0-100 = 35% turnover acceleration (vs 20-day avg, capped 5x) + '
                '20% volume spike (capped 5x) + 20% 5-day momentum (capped +15%) + '
                '15% broker flow concentration (top single-broker 5-day net bought / 5-day turnover, capped 25%) + '
@@ -323,6 +329,7 @@ else:
         'asof': session_date,
         'built': today,
         'source': 'Published quarterly filings via screener compilation (Q4 FY 2082/2083); LTP from Nepse Decode market snapshot',
+        'tier': 'computed',
         'method': ('Value score 0-100 ranks each company within its own sector only: '
                    '50% earnings-yield rank (higher yield = cheaper) + 50% price-to-book rank (lower = cheaper). '
                    'Quality gate: positive TTM EPS and positive net worth. Sectors with fewer than 4 members are not scored. '

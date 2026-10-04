@@ -236,6 +236,9 @@ def main():
     meta = {"earliest": earliest, "latest": latest, "trading_days": ndays,
             "periods": list(PERIODS.keys()),
             "updated_at": date.today().isoformat() + "T00:00:00+05:45",
+            "source": "NEPSE official floorsheet (intraday) + Merolagani public floorsheets (backfill)",
+            "tier": "tier-1 (unverified method) / tier-2",
+            "terms": "Merolagani republication permission not confirmed (R3) — factual flow data only",
             "note": "Transaction flow (net bought/sold), not verified beneficial holdings."}
     with open(os.path.join(OUT, "meta.json"), "w") as f:
         json.dump(meta, f, indent=1)
