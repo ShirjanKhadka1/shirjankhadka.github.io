@@ -182,4 +182,40 @@
       render('Freshness unavailable', 'fb-unknown');
     });
   });
+
+  // Midnight rollover + market-state transitions (user request 2026-10-04):
+  // Re-check every minute. If the NPT date rolled over (00:00) or the market
+  // state changed (CLOSED → PRE-OPEN at 10:45, PRE-OPEN → OPEN at 11:00,
+  // OPEN → CLOSED at 15:00), re-paint the badge so the page stays truthful
+  // without a manual reload. Skipped when tab is hidden.
+  var lastDateKey = null, lastState = null;
+  function dateKey(d) {
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  }
+  try {
+    var initNPT = CFG ? CFG.nowNPT() : new Date(Date.now() + NPT_MS);
+    lastDateKey = dateKey(initNPT);
+    lastState = stateNow();
+  } catch (e) { /* keep nulls, first tick will set */ }
+  setInterval(function () {
+    if (document.hidden) return;
+    try {
+      var npt = CFG ? CFG.nowNPT() : new Date(Date.now() + NPT_MS);
+      var dk = dateKey(npt);
+      var st = stateNow();
+      if (dk !== lastDateKey || st !== lastState) {
+        lastDateKey = dk;
+        lastState = st;
+        paint();
+        // Re-fetch fresh data after a transition so the badge reflects the new session
+        fetchJSON(LIVE_URL).then(function (live) {
+          if (!fromLive(live)) throw new Error('no usable live snapshot');
+        }).catch(function () {
+          return fetchJSON(MANIFEST_URL).then(fromManifest, function () {
+            render('Freshness unavailable', 'fb-unknown');
+          });
+        });
+      }
+    } catch (e) { /* never break the page on a timer error */ }
+  }, 60000);
 })();
