@@ -1,3 +1,13 @@
+/* ---- Accessibility: hide skip-link until focused ---- */
+.skip-link{
+  position: absolute; left: 16px; top: -60px; z-index: 5000;
+  background: var(--nd-lime, #B8E62E); color: #0A0C10;
+  font: 600 .875rem system-ui, sans-serif;
+  padding: 10px 18px; border-radius: 10px; text-decoration: none;
+  transition: top .2s ease;
+}
+.skip-link:focus{ top: 12px; }
+
 /* ============================================================
    nepse-ipo/ipo.css — IPO/FPO tracker redesign (2026-10-04)
    Modern editorial UI with animations, full light/dark support.
@@ -208,6 +218,13 @@
 .ipo-table td.sym{
   font-weight: 700; font-family: var(--nd-font-mono, monospace);
   font-size: .95rem; letter-spacing: .02em;
+}
+.ipo-src{
+  display: inline-block; margin-left: 8px; padding: 2px 8px;
+  font: 700 .625rem system-ui, sans-serif; letter-spacing: .06em;
+  background: rgba(184,230,46,.15); color: var(--nd-lime, #B8E62E);
+  border: 1px solid var(--nd-lime, #B8E62E); border-radius: 999px;
+  vertical-align: middle;
 }
 .ipo-table td.dim{ color: var(--nd-muted, #9AA3B2); }
 .ipo-status{

@@ -52,7 +52,12 @@
 
   function cellHtml(col, row) {
     var v = row[col];
-    if (col === 'symbol') return '<td class="sym">' + esc(v) + '</td>';
+    if (col === 'symbol') {
+      var src = row.source === 'SEBON'
+        ? ' <span class="ipo-src" title="Verified from SEBON prospectus listing ' + esc(row.verified_date || '') + '">SEBON ✓</span>'
+        : '';
+      return '<td class="sym">' + esc(v) + src + '</td>';
+    }
     if (col === 'status') {
       var st = normStatus(v);
       var label = st === 'open' ? 'Open' : st === 'upcoming' ? 'Upcoming' : 'Closed';

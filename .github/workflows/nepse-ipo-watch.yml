@@ -1,0 +1,39 @@
+name: IPO SEBON Watch
+
+# Daily check of SEBON's public prospectus listings for new IPO approvals.
+# New entries are added to data/ipo.json as "upcoming" with SEBON as source.
+# Existing entries are never modified by this workflow.
+
+on:
+  schedule:
+    # 01:15 UTC = 07:00 NPT daily
+    - cron: '15 1 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check SEBON for new prospectuses
+        run: node tools/ipo-sebon-watch.js
+
+      - name: Commit new entries
+        run: |
+          git config user.name "nepse-decode-bot"
+          git config user.email "info@shirjankhadka.com.np"
+          git add data/ipo.json
+          if git diff --cached --quiet; then
+            echo "No new IPO entries."
+          else
+            git commit -m "IPO watch: new SEBON-verified upcoming issues $(date -u +%F)"
+            git push
+          fi
