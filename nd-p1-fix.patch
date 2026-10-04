@@ -1,0 +1,52 @@
+diff --git a/css/nd-home.css b/css/nd-home.css
+index 8c74dc63..cd266ef6 100644
+--- a/css/nd-home.css
++++ b/css/nd-home.css
+@@ -85,9 +85,9 @@ body.d2 input:focus-visible {
+ .nd-home{ max-width: var(--nd-page-max); margin: 0 auto; padding: 0 var(--nd-gutter); }
+ 
+ /* ---------- Index strip ---------- */
+-.nd-istrip{ position: relative; margin: var(--nd-s6) 0; padding: 0 44px; }
++.nd-istrip{ display: flex; align-items: center; gap: 12px; margin: var(--nd-s6) 0; }
+ .nd-istrip-track{
+-  display: flex; gap: var(--nd-s3); overflow-x: auto; padding: 4px 2px 12px;
++  display: flex; gap: var(--nd-s3); overflow-x: auto; padding: 4px 2px 12px; flex: 1; min-width: 0;
+   scrollbar-width: none; -webkit-overflow-scrolling: touch;
+ }
+ .nd-istrip-track::-webkit-scrollbar{ display: none; }
+@@ -99,22 +99,20 @@ body.d2 input:focus-visible {
+ }
+ .nd-icard:hover{ border-color: var(--nd-lime); transform: translateY(-2px); }
+ .nd-icard .nm{ font: 500 0.75rem var(--nd-font-sans); color: var(--nd-muted); margin-bottom: 6px; white-space: nowrap; }
+-.nd-icard .vl{ font: 600 1.25rem var(--nd-font-sans); font-variant-numeric: tabular-nums; }
++.nd-icard .vl{ font: 600 1.25rem var(--nd-font-sans); font-variant-numeric: tabular-nums; color: #FFFFFF; }
++[data-theme="light"] .nd-icard .vl{ color: #0A0C10; }
+ .nd-icard .ch{ font: 500 0.8125rem var(--nd-font-sans); margin-top: 4px; font-variant-numeric: tabular-nums; }
+ .nd-icard .ch.up{ color: #16a34a; }
+ .nd-icard .ch.dn{ color: #dc2626; }
+ [data-theme="dark"] .nd-icard .ch.up{ color: #4ade80; }
+ [data-theme="dark"] .nd-icard .ch.dn{ color: #f87171; }
+ .nd-istrip-nav{
+-  position: absolute; top: 50%; transform: translateY(-50%);
+-  width: 36px; height: 36px; border-radius: 50%;
++  flex: none; width: 36px; height: 36px; border-radius: 50%;
+   background: var(--nd-panel); border: 1px solid var(--nd-border);
+-  color: var(--nd-text); cursor: pointer; z-index: 2;
++  color: var(--nd-text); cursor: pointer;
+   display: flex; align-items: center; justify-content: center;
+   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+ }
+-.nd-istrip-nav.prev{ left: 0; }
+-.nd-istrip-nav.next{ right: 0; }
+ .nd-istrip-nav:hover{ border-color: var(--nd-lime); }
+ 
+ /* ---------- Market Wrap + Index card ---------- */
+@@ -287,7 +285,7 @@ body.d2 input:focus-visible {
+ @media (max-width: 768px) {
+   :root{ --nd-gutter: 12px; }
+   .nd-home{ padding: 0 12px; }
+-  .nd-istrip{ padding: 0 36px; margin: var(--nd-s4) 0; }
++  .nd-istrip{ gap: 8px; margin: var(--nd-s4) 0; }
+   .nd-icard{ min-width: 128px; }
+   .nd-wrapgrid{ gap: var(--nd-s4); margin: var(--nd-s6) 0; }
+   .nd-moves-grid{ grid-template-columns: 1fr; gap: var(--nd-s4); }

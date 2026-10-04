@@ -1,0 +1,1034 @@
+diff --git a/css/nd-chrome.css b/css/nd-chrome.css
+index 9f319be8..3c475782 100644
+--- a/css/nd-chrome.css
++++ b/css/nd-chrome.css
+@@ -220,7 +220,7 @@ body:has(> #nd-header) .theme-toggle.fixed{ display: none !important; }
+   padding: 6px 12px; color: var(--nd-muted); background: var(--nd-panel);
+ }
+ #nd-footer .nd-footgrid{
+-  display: grid; grid-template-columns: repeat(6, 1fr);
++  display: grid; grid-template-columns: repeat(7, 1fr);
+   gap: var(--nd-s6); padding-bottom: var(--nd-s8);
+   border-bottom: 1px solid var(--nd-border);
+ }
+@@ -236,16 +236,10 @@ body:has(> #nd-header) .theme-toggle.fixed{ display: none !important; }
+   transition: color var(--nd-t-fast) var(--nd-ease), transform var(--nd-t-fast) var(--nd-ease);
+ }
+ #nd-footer .nd-footcol a:hover{ color: var(--nd-lime); transform: translateX(4px); }
+-#nd-footer .nd-company{
+-  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+-  gap: var(--nd-s2) var(--nd-s6); padding: var(--nd-s6) 0;
+-  border-bottom: 1px solid var(--nd-border);
+-  background: var(--nd-panel); border-radius: var(--nd-r-card);
+-  padding-left: var(--nd-s6); padding-right: var(--nd-s6); margin-top: var(--nd-s8);
++#nd-footer .nd-footplain{
++  display: block; padding: 7px 0; color: var(--nd-muted);
++  font: 400 var(--nd-text-footer-link) var(--nd-font-sans);
+ }
+-#nd-footer .nd-company .row{ font: 400 0.8125rem var(--nd-font-sans); color: var(--nd-muted); }
+-#nd-footer .nd-company .row b{ color: var(--nd-text); font-weight: 600; }
+-#nd-footer .nd-company .row a{ color: var(--nd-lime); text-decoration: none; }
+ #nd-footer .nd-made{ padding-top: var(--nd-s6); color: var(--nd-muted); font-size: 0.8125rem; line-height: 1.7; }
+ #nd-footer .nd-made .np{ color: var(--nd-dim); }
+ #nd-footer .nd-legal{
+diff --git a/css/nd-home.css b/css/nd-home.css
+index 144715d0..8c74dc63 100644
+--- a/css/nd-home.css
++++ b/css/nd-home.css
+@@ -85,7 +85,7 @@ body.d2 input:focus-visible {
+ .nd-home{ max-width: var(--nd-page-max); margin: 0 auto; padding: 0 var(--nd-gutter); }
+ 
+ /* ---------- Index strip ---------- */
+-.nd-istrip{ position: relative; margin: var(--nd-s6) 0; }
++.nd-istrip{ position: relative; margin: var(--nd-s6) 0; padding: 0 44px; }
+ .nd-istrip-track{
+   display: flex; gap: var(--nd-s3); overflow-x: auto; padding: 4px 2px 12px;
+   scrollbar-width: none; -webkit-overflow-scrolling: touch;
+@@ -101,23 +101,26 @@ body.d2 input:focus-visible {
+ .nd-icard .nm{ font: 500 0.75rem var(--nd-font-sans); color: var(--nd-muted); margin-bottom: 6px; white-space: nowrap; }
+ .nd-icard .vl{ font: 600 1.25rem var(--nd-font-sans); font-variant-numeric: tabular-nums; }
+ .nd-icard .ch{ font: 500 0.8125rem var(--nd-font-sans); margin-top: 4px; font-variant-numeric: tabular-nums; }
+-.nd-icard .ch.up{ color: #4ade80; }
+-.nd-icard .ch.dn{ color: #f87171; }
++.nd-icard .ch.up{ color: #16a34a; }
++.nd-icard .ch.dn{ color: #dc2626; }
++[data-theme="dark"] .nd-icard .ch.up{ color: #4ade80; }
++[data-theme="dark"] .nd-icard .ch.dn{ color: #f87171; }
+ .nd-istrip-nav{
+   position: absolute; top: 50%; transform: translateY(-50%);
+   width: 36px; height: 36px; border-radius: 50%;
+   background: var(--nd-panel); border: 1px solid var(--nd-border);
+   color: var(--nd-text); cursor: pointer; z-index: 2;
+   display: flex; align-items: center; justify-content: center;
++  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+ }
+-.nd-istrip-nav.prev{ left: -12px; }
+-.nd-istrip-nav.next{ right: -12px; }
++.nd-istrip-nav.prev{ left: 0; }
++.nd-istrip-nav.next{ right: 0; }
+ .nd-istrip-nav:hover{ border-color: var(--nd-lime); }
+ 
+ /* ---------- Market Wrap + Index card ---------- */
+ .nd-wrapgrid{
+-  display: grid; grid-template-columns: 1.4fr 1fr; gap: var(--nd-s8);
+-  margin: var(--nd-s10) 0; align-items: start;
++  display: grid; grid-template-columns: 1.4fr 1fr; gap: var(--nd-s6);
++  margin: var(--nd-s8) 0; align-items: start;
+ }
+ @media (max-width: 900px){ .nd-wrapgrid{ grid-template-columns: 1fr; } }
+ .nd-badges{ display: flex; gap: var(--nd-s2); flex-wrap: wrap; margin-bottom: var(--nd-s4); }
+@@ -160,7 +163,7 @@ body.d2 input:focus-visible {
+ .nd-ixfoot .note{ font: 400 0.8125rem/1.6 var(--nd-font-sans); color: var(--nd-dim); }
+ 
+ /* ---------- Newsroom ---------- */
+-.nd-newsroom{ margin: var(--nd-s12) 0; }
++.nd-newsroom{ margin: var(--nd-s8) 0; }
+ .nd-newsroom-head{ display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--nd-s6); flex-wrap: wrap; gap: var(--nd-s3); }
+ .nd-newsroom-head h2{ font-family: var(--nd-font-display); font-weight: 700; font-size: 1.75rem; color: var(--nd-text); margin: 0; }
+ .nd-newsroom-head .sub{ font: 400 0.875rem var(--nd-font-sans); color: var(--nd-dim); }
+@@ -169,10 +172,184 @@ body.d2 input:focus-visible {
+ .nd-newscard{ background: var(--nd-panel); border: 1px solid var(--nd-border); border-radius: var(--nd-r-lg); padding: var(--nd-s6); }
+ .nd-newscard .cat{ display: flex; align-items: center; gap: 8px; font-family: var(--nd-font-display); font-weight: 600; font-size: 1.125rem; color: var(--nd-text); margin-bottom: var(--nd-s4); }
+ .nd-newscard .cat .dot{ width: 10px; height: 10px; border-radius: 3px; background: var(--nd-lime); flex: none; }
+-.nd-newsitem{ padding: var(--nd-s3) 0; border-bottom: 1px solid var(--nd-border); }
++.nd-newsitem{ padding: var(--nd-s4) 0; border-bottom: 1px solid var(--nd-border); }
+ .nd-newsitem:last-child{ border-bottom: 0; }
+ .nd-newsitem a{ text-decoration: none; color: var(--nd-text); display: block; }
+ .nd-newsitem a:hover .t{ color: var(--nd-lime); }
+-.nd-newsitem .t{ font: 500 0.9375rem/1.5 var(--nd-font-sans); margin-bottom: 6px; transition: color var(--nd-t-fast); }
+-.nd-newsitem .m{ font: 400 0.75rem var(--nd-font-mono); color: var(--nd-dim); display: flex; gap: 8px; align-items: center; }
+-.nd-newsitem .m .tag{ color: var(--nd-lime); font-weight: 600; }
++.nd-newsitem .t{ font: 500 0.9375rem/1.55 var(--nd-font-sans); color: var(--nd-text); margin-bottom: 8px; transition: color var(--nd-t-fast); }
++.nd-newsitem .m{ font: 400 0.75rem var(--nd-font-mono); color: var(--nd-dim); display: flex; gap: 10px; align-items: center; }
++.nd-newsitem .m .tag{
++  color: var(--nd-lime); font-weight: 700; font-size: 0.6875rem;
++  letter-spacing: 0.06em; text-transform: uppercase;
++  background: var(--nd-lime-soft); padding: 2px 8px; border-radius: 4px;
++}
++
++/* NEPSE card sparkline + tabs (Concept 03) */
++.nd-ixcard .spark{ width: 100%; height: 120px; margin: var(--nd-s4) 0; display: block; }
++.nd-ixcard .tabs{ display: flex; gap: 6px; margin-bottom: var(--nd-s5); flex-wrap: wrap; }
++.nd-ixcard .tabs button{
++  font: 600 0.75rem var(--nd-font-sans); padding: 8px 14px; border-radius: 8px;
++  background: var(--nd-inset); border: 1px solid var(--nd-border); color: var(--nd-muted); cursor: pointer;
++  transition: all var(--nd-t-fast) var(--nd-ease);
++}
++.nd-ixcard .tabs button:hover{ border-color: var(--nd-lime); color: var(--nd-text); }
++.nd-ixcard .tabs button.on{ background: var(--nd-lime); color: #0a0c10; border-color: var(--nd-lime); }
++
++/* Biggest moves (Concept 03) */
++.nd-moves{ margin: var(--nd-s8) 0; }
++.nd-moves-head{ display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--nd-s5); flex-wrap: wrap; gap: var(--nd-s3); }
++.nd-moves-head h2{ font-family: var(--nd-font-display); font-weight: 700; font-size: 1.75rem; color: var(--nd-text); margin: 0; }
++.nd-moves-head .sub{ font: 400 0.875rem var(--nd-font-sans); color: var(--nd-dim); }
++.nd-moves-grid{ display: grid; grid-template-columns: 1fr 1fr; gap: var(--nd-s5); }
++@media (max-width: 900px){ .nd-moves-grid{ grid-template-columns: 1fr; } }
++.nd-movecard{ background: var(--nd-panel); border: 1px solid var(--nd-border); border-radius: var(--nd-r-lg); overflow: hidden; }
++.nd-movecard-head{ display: flex; justify-content: space-between; align-items: center; padding: var(--nd-s5) var(--nd-s6); border-bottom: 1px solid var(--nd-border); }
++.nd-movecard-head h3{ font-family: var(--nd-font-display); font-weight: 600; font-size: 1.25rem; color: var(--nd-text); margin: 0; }
++.nd-movecard-head .date{ font: 400 0.8125rem var(--nd-font-mono); color: var(--nd-dim); }
++.nd-movecard table{ width: 100%; border-collapse: collapse; }
++.nd-movecard th{ font: 600 0.6875rem var(--nd-font-mono); letter-spacing: 0.08em; color: var(--nd-dim); text-align: left; padding: var(--nd-s3) var(--nd-s6); border-bottom: 1px solid var(--nd-border); }
++.nd-movecard th.num{ text-align: right; }
++.nd-movecard td{ padding: var(--nd-s4) var(--nd-s6); border-bottom: 1px solid var(--nd-border); font: 500 0.9375rem var(--nd-font-sans); color: var(--nd-text); font-variant-numeric: tabular-nums; }
++.nd-movecard td.num{ text-align: right; }
++.nd-movecard tr:last-child td{ border-bottom: 0; }
++.nd-movecard .sym{ font-weight: 600; }
++.nd-movecard .sym a{ color: var(--nd-text); text-decoration: none; }
++.nd-movecard .sym a:hover{ color: var(--nd-lime); }
++.nd-movecard .up{ color: #4ade80; }
++.nd-movecard .dn{ color: #f87171; }
++
++/* NEPSE card stats + range beams (P2) */
++.nd-ixstats{ margin: var(--nd-s5) 0; border-top: 1px solid var(--nd-border); }
++.nd-stat-row{ display: flex; flex-direction: column; gap: 6px; padding: var(--nd-s4) 0; border-bottom: 1px solid var(--nd-border); }
++.nd-stat-row .k{ font: 600 0.6875rem var(--nd-font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--nd-dim); }
++.nd-stat-row .v{ font: 500 0.9375rem var(--nd-font-sans); color: var(--nd-text); font-variant-numeric: tabular-nums; }
++.nd-stat-row .v .up{ color: #16a34a; font-weight: 600; }
++.nd-stat-row .v .dn{ color: #dc2626; font-weight: 600; }
++[data-theme="dark"] .nd-stat-row .v .up{ color: #4ade80; }
++[data-theme="dark"] .nd-stat-row .v .dn{ color: #f87171; }
++.nd-stat-row .sess-note{ font: 400 0.75rem var(--nd-font-sans); color: var(--nd-dim); }
++.nd-range{ margin-top: 4px; }
++.nd-range-beam{
++  position: relative; height: 8px; border-radius: 4px;
++  background: linear-gradient(to right, #dc2626 0%, #f59e0b 50%, #16a34a 100%);
++}
++.nd-range-beam.dn{
++  background: linear-gradient(to right, #16a34a 0%, #f59e0b 50%, #dc2626 100%);
++}
++[data-theme="dark"] .nd-range-beam{
++  background: linear-gradient(to right, #f87171 0%, #fbbf24 50%, #4ade80 100%);
++}
++[data-theme="dark"] .nd-range-beam.dn{
++  background: linear-gradient(to right, #4ade80 0%, #fbbf24 50%, #f87171 100%);
++}
++.nd-range-marker{
++  position: absolute; top: -3px; width: 3px; height: 14px;
++  background: var(--nd-text); border-radius: 2px; transform: translateX(-50%);
++  box-shadow: 0 0 4px rgba(0,0,0,0.4);
++}
++.nd-range-labels{ display: flex; justify-content: space-between; margin-top: 4px; font: 400 0.75rem var(--nd-font-mono); color: var(--nd-dim); font-variant-numeric: tabular-nums; }
++.nd-ixsearch{ display: flex; gap: var(--nd-s2); margin: var(--nd-s5) 0; }
++.nd-ixsearch input{
++  flex: 1; padding: 10px 14px; border: 1px solid var(--nd-border); border-radius: var(--nd-r-md);
++  background: var(--nd-panel); color: var(--nd-text); font: 400 0.875rem var(--nd-font-sans);
++}
++.nd-ixsearch input::placeholder{ color: var(--nd-dim); }
++.nd-ixsearch button{
++  padding: 10px 20px; border: none; border-radius: var(--nd-r-md);
++  background: var(--nd-lime); color: #0A0C10; font: 600 0.875rem var(--nd-font-sans); cursor: pointer;
++}
++.nd-ixsearch button:hover{ filter: brightness(1.1); }
++.nd-ixgrid .cell .n{ font: 400 0.6875rem var(--nd-font-sans); color: var(--nd-dim); margin-top: 2px; }
++
++/* See more links + Most active (P3+P10) */
++.nd-seemore{
++  font: 600 0.8125rem var(--nd-font-sans); color: var(--nd-lime); text-decoration: none;
++  white-space: nowrap; margin-left: auto; padding-left: var(--nd-s3);
++}
++.nd-seemore:hover{ text-decoration: underline; }
++.nd-movecard-head{ gap: var(--nd-s3); }
++.nd-movecard-head .date{ margin-left: auto; }
++.nd-movecard-head .nd-seemore{ margin-left: 0; }
++.nd-active{ margin: var(--nd-s8) 0; }
++.nd-active-tabs{ display: flex; gap: var(--nd-s2); margin-bottom: var(--nd-s5); flex-wrap: wrap; }
++.nd-active-tabs button{
++  padding: 8px 18px; border: 1px solid var(--nd-border); border-radius: 20px;
++  background: var(--nd-panel); color: var(--nd-dim);
++  font: 500 0.875rem var(--nd-font-sans); cursor: pointer;
++  transition: all 0.2s ease;
++}
++.nd-active-tabs button:hover{ border-color: var(--nd-lime); color: var(--nd-text); }
++.nd-active-tabs button.on{
++  background: var(--nd-lime); border-color: var(--nd-lime); color: #0A0C10; font-weight: 600;
++}
++
++/* Responsive + whitespace fixes (P21) */
++@media (max-width: 768px) {
++  :root{ --nd-gutter: 12px; }
++  .nd-home{ padding: 0 12px; }
++  .nd-istrip{ padding: 0 36px; margin: var(--nd-s4) 0; }
++  .nd-icard{ min-width: 128px; }
++  .nd-wrapgrid{ gap: var(--nd-s4); margin: var(--nd-s6) 0; }
++  .nd-moves-grid{ grid-template-columns: 1fr; gap: var(--nd-s4); }
++  .nd-moves{ margin: var(--nd-s6) 0; }
++  .nd-active{ margin: var(--nd-s6) 0; }
++  .nd-movecard td, .nd-movecard th{ padding-left: var(--nd-s3); padding-right: var(--nd-s3); }
++}
++@media (max-width: 480px) {
++  :root{ --nd-gutter: 8px; }
++  .nd-home{ padding: 0 8px; }
++  .nd-moves-head h2{ font-size: 1.4rem; }
++  .nd-ixcard .big{ font-size: 2rem; }
++}
++
++/* Market Pulse + Engine Verdict side-by-side (P11) */
++.nd-pulse-engine{ margin: var(--nd-s8) 0; }
++.nd-pe-grid{ display: grid; grid-template-columns: 1fr 1fr; gap: var(--nd-s5); }
++@media (max-width: 900px){ .nd-pe-grid{ grid-template-columns: 1fr; } }
++.nd-pe-card{
++  background: var(--nd-panel); border: 1px solid var(--nd-border);
++  border-radius: var(--nd-r-lg); padding: var(--nd-s6);
++}
++.nd-pe-head{ display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--nd-s3); gap: var(--nd-s3); }
++.nd-pe-head h2{ font-family: var(--nd-font-display); font-weight: 700; font-size: 1.5rem; color: var(--nd-text); margin: 4px 0 0; }
++.nd-eyebrow{
++  font: 600 0.6875rem var(--nd-font-mono); letter-spacing: 0.12em; text-transform: uppercase;
++  color: var(--nd-lime);
++}
++.nd-pe-sub{ font: 400 0.8125rem var(--nd-font-sans); color: var(--nd-dim); margin: 0 0 var(--nd-s4); }
++.nd-pulse-list{ display: flex; flex-direction: column; gap: var(--nd-s3); }
++.nd-pulse-item{
++  display: flex; align-items: center; gap: var(--nd-s3);
++  padding: var(--nd-s3); border: 1px solid var(--nd-border); border-radius: var(--nd-r-md);
++  text-decoration: none; color: var(--nd-text);
++  transition: border-color var(--nd-t-fast);
++}
++.nd-pulse-item:hover{ border-color: var(--nd-lime); }
++.nd-pulse-item .rank{ font: 700 0.875rem var(--nd-font-mono); color: var(--nd-dim); min-width: 20px; }
++.nd-pulse-item .info{ flex: 1; min-width: 0; }
++.nd-pulse-item .sym{ font: 600 0.9375rem var(--nd-font-sans); color: var(--nd-text); }
++.nd-pulse-item .meta{ font: 400 0.75rem var(--nd-font-sans); color: var(--nd-dim); margin-top: 2px; }
++.nd-pulse-item .meta .up{ color: #16a34a; font-weight: 600; }
++.nd-pulse-item .meta .dn{ color: #dc2626; font-weight: 600; }
++[data-theme="dark"] .nd-pulse-item .meta .up{ color: #4ade80; }
++[data-theme="dark"] .nd-pulse-item .meta .dn{ color: #f87171; }
++.nd-engine-list{ display: flex; flex-direction: column; gap: var(--nd-s2); }
++.nd-engine-item{
++  display: flex; justify-content: space-between; align-items: center;
++  padding: var(--nd-s3) 0; border-bottom: 1px solid var(--nd-border);
++}
++.nd-engine-item:last-child{ border-bottom: 0; }
++.nd-engine-item .sym{ font: 600 0.9375rem var(--nd-font-sans); color: var(--nd-text); }
++.nd-engine-item .score{ font: 400 0.8125rem var(--nd-font-mono); color: var(--nd-dim); }
++.nd-verdict{
++  font: 600 0.75rem var(--nd-font-sans); padding: 4px 12px; border-radius: 12px;
++  white-space: nowrap;
++}
++.nd-verdict.buy{ background: rgba(22, 163, 74, 0.15); color: #16a34a; }
++.nd-verdict.exit{ background: rgba(220, 38, 38, 0.15); color: #dc2626; }
++[data-theme="dark"] .nd-verdict.buy{ background: rgba(74, 222, 128, 0.15); color: #4ade80; }
++[data-theme="dark"] .nd-verdict.exit{ background: rgba(248, 113, 113, 0.15); color: #f87171; }
++@media (max-width: 768px){
++  .nd-pe-card{ padding: var(--nd-s4); }
++  .nd-pe-head h2{ font-size: 1.25rem; }
++}
+diff --git a/js/nd-chrome.js b/js/nd-chrome.js
+index e02bb43d..d659833f 100644
+--- a/js/nd-chrome.js
++++ b/js/nd-chrome.js
+@@ -1,9 +1,9 @@
+ /**
+  * js/nd-chrome.js — Editorial header + footer (D2).
+  * Single-row 60px sticky header: brand, Ask/Stock search, six
+- * mega-dropdowns, Technical Analysis + Home links, market-status
++ * mega-dropdowns, Technical Analysis link, market-status
+  * pill, dark/light switch, EN/NE toggle, mobile drawer.
+- * Six-column design-rich footer with company block + disclaimers.
++ * Seven-column design-rich footer with company column + disclaimers.
+  *
+  * Mounts: <div id="nd-header"></div> and <div id="nd-footer"></div>.
+  * Requires css/nd-editorial-theme.css + css/nd-chrome.css.
+@@ -16,19 +16,15 @@
+ 
+   var NAV = [
+     { label: 'Markets', live: true, links: [
+-      ['NEPSE Live', '/nepse-decode/'],
+-      ['Daily summary', '/nepse-dashboard/'],
+-      ['Market wrap', '/blog/'],
++      ['Overview', '/nepse-decode/'],
++      ['Daily summary', '/nepse-daily/'],
+       ['Heat Map', '/nepse-sectors/'],
+       ['Circuit watch', '/nepse-trending/'],
+       ['IPO / FPO', '/nepse-actions/']
+     ]},
+     { label: 'Stocks', links: [
+-      ['Listed securities', '/nepse-screener/'],
+       ['Stock Screener', '/nepse-screener/'],
+-      ['Fair Value', '/nepse-value/'],
+-      ['Stock Scorecard', '/nepse-trending/'],
+-      ['Accumulation / Distribution', '/nepse-brokers/']
++      ['Fair Value', '/nepse-value/']
+     ]},
+     { label: 'Broker', links: [
+       ['Top Brokers', '/nepse-brokers/?view=top'],
+@@ -45,28 +41,25 @@
+     { label: 'Trade', links: [
+       ['Practice Trading', '/nepse-simulator/'],
+       ['Trading Journal', '/nepse-portfolio/'],
+-      ['Price Alerts', '/nepse-watchlist/'],
+-      ['Replay Machine', '/nepse-simulator/']
++      ['Watchlist', '/nepse-watchlist/']
+     ]},
+     { label: 'Research', links: [
+-      ['Money Flow', '/nepse-brokers/'],
++      ['Money Flow', '/nepse-brokers/?view=accdist'],
+       ['Market regime', '/nepse-chart/'],
+-      ['Market breadth', '/nepse-sectors/'],
+       ['Seasonality', '/nepse-reports/'],
+       ['Data sources', '/status/']
+     ]}
+   ];
+ 
+   var PLAIN_LINKS = [
+-    ['Technical Analysis', '/nepse-technical/'],
+-    ['Home', '/']
++    ['Technical Analysis', '/nepse-technical/']
+   ];
+ 
+   /* Nepali chrome dictionary (header/nav/footer chrome only) */
+   var NE = {
+     'Markets': 'बजार', 'Stocks': 'स्टकहरू', 'Broker': 'ब्रोकर',
+     'News': 'समाचार', 'Trade': 'कारोबार', 'Research': 'अनुसन्धान',
+-    'Technical Analysis': 'प्राविधिक विश्लेषण', 'Home': 'गृहपृष्ठ',
++    'Technical Analysis': 'प्राविधिक विश्लेषण',
+     'searchPh': 'सोध्नुहोस् / स्टक — NABIL प्रयास गर्नुहोस्',
+     'brandSub': 'नेप्से चार्ट र बजार डेटा'
+   };
+@@ -245,18 +238,22 @@
+   /* ---------------- footer ---------------- */
+ 
+   var FOOT = [
+-    ['MARKETS', [['NEPSE Live', '/nepse-decode/'], ['Daily summary', '/nepse-dashboard/'], ['Market wrap', '/blog/'], ['Heat Map', '/nepse-sectors/'], ['Circuit watch', '/nepse-trending/'], ['IPO / FPO', '/nepse-actions/']]],
+-    ['STOCKS', [['Listed securities', '/nepse-screener/'], ['Stock Screener', '/nepse-screener/'], ['Fair Value', '/nepse-value/'], ['Stock Scorecard', '/nepse-trending/'], ['Accumulation / Distribution', '/nepse-brokers/']]],
++    ['MARKETS', [['Overview', '/nepse-decode/'], ['Daily summary', '/nepse-daily/'], ['Heat Map', '/nepse-sectors/'], ['Circuit watch', '/nepse-trending/'], ['IPO / FPO', '/nepse-actions/']]],
++    ['STOCKS', [['Stock Screener', '/nepse-screener/'], ['Fair Value', '/nepse-value/'], ['Trending Stock', '/nepse-trending/']]],
+     ['BROKER', [['Top Brokers', '/nepse-brokers/?view=top'], ['Broker Trade Pattern', '/nepse-brokers/?view=broker'], ['Stock Trade Pattern', '/nepse-brokers/?view=stock'], ['Stockwise Holdings', '/nepse-brokers/?view=holdings'], ['Accumulation / Distribution', '/nepse-brokers/?view=accdist']]],
+     ['NEWS', [['Market News', '/nepse-news/'], ['Market Wrap', '/blog/'], ['Corporate Actions', '/nepse-actions/']]],
+-    ['TRADE', [['Practice Trading', '/nepse-simulator/'], ['Trading Journal', '/nepse-portfolio/'], ['Price Alerts', '/nepse-watchlist/'], ['Replay Machine', '/nepse-simulator/']]],
+-    ['RESEARCH', [['Money Flow', '/nepse-brokers/'], ['Market regime', '/nepse-chart/'], ['Market breadth', '/nepse-sectors/'], ['Seasonality', '/nepse-reports/'], ['Data sources', '/status/']]]
++    ['TRADE', [['Practice Trading', '/nepse-simulator/'], ['Trading Journal', '/nepse-portfolio/'], ['Watchlist', '/nepse-watchlist/']]],
++    ['RESEARCH', [['Money Flow', '/nepse-brokers/?view=accdist'], ['Market regime', '/nepse-chart/'], ['Seasonality', '/nepse-reports/'], ['Data sources', '/status/']]],
++    ['COMPANY', [['Nepse Decode', '/nepse-decode/'], ['info@shirjankhadka.com.np', 'mailto:info@shirjankhadka.com.np'], ['Kathmandu, Nepal', null]]]
+   ];
+ 
+   function footerHTML() {
+     var cols = FOOT.map(function (c) {
+       return '<div class="nd-footcol"><h3>' + esc(c[0]) + '</h3>' +
+-        c[1].map(function (l) { return '<a href="' + esc(l[1]) + '">' + esc(l[0]) + '</a>'; }).join('') +
++        c[1].map(function (l) {
++          if (!l[1]) return '<span class="nd-footplain">' + esc(l[0]) + '</span>';
++          return '<a href="' + esc(l[1]) + '">' + esc(l[0]) + '</a>';
++        }).join('') +
+         '</div>';
+     }).join('');
+     return '<div class="nd-footwrap">' +
+@@ -268,14 +265,6 @@
+       '<span class="nd-footchip" id="nd-footsyms">LISTED SECURITIES</span>' +
+       '</div>' +
+       '<div class="nd-footgrid">' + cols + '</div>' +
+-      '<div class="nd-company">' +
+-      '<div class="row"><b>Name:</b> Nepse Decode</div>' +
+-      '<div class="row"><b>Email:</b> <a href="mailto:info@shirjankhadka.com.np">info@shirjankhadka.com.np</a></div>' +
+-      '<div class="row"><b>Website:</b> shirjankhadka.com.np</div>' +
+-      '<div class="row"><b>Editor:</b> Shirjan Khadka</div>' +
+-      '<div class="row"><b>Coverage:</b> Nepal Stock Exchange (NEPSE)</div>' +
+-      '<div class="row"><b>Market hours:</b> Mon–Fri, 11:00–15:00 NPT</div>' +
+-      '</div>' +
+       '<div class="nd-made">Made with \u2665 in Nepal for NEPSE investors.<br>' +
+       '<span class="np">नेप्से चार्ट, नेप्से इन्डेक्स आज, र शेयर बजारको दैनिक सारांश एकै ठाउँमा।</span></div>' +
+       '<div class="nd-legal">' +
+diff --git a/js/nd-home.js b/js/nd-home.js
+index 0c278ab3..bca2606a 100644
+--- a/js/nd-home.js
++++ b/js/nd-home.js
+@@ -74,28 +74,49 @@
+     sectors.sort(function (a, b) { return (b.percent_change || 0) - (a.percent_change || 0); });
+     var leaders = sectors.slice(0, 2).map(function (x) { return x.name; }).join(' and ');
+     var laggards = sectors.slice(-2).map(function (x) { return x.name; }).join(' and ');
++    var leadPct = sectors.length ? Number(sectors[0].percent_change || 0) : 0;
++    var lagPct = sectors.length ? Number(sectors[sectors.length - 1].percent_change || 0) : 0;
+ 
++    // Market breadth
++    var quotes = live.quotes || [];
++    var adv = 0, dec = 0;
++    quotes.forEach(function (q) {
++      var pc = Number(q.percent_change);
++      if (pc > 0) adv++; else if (pc < 0) dec++;
++    });
++    var breadthTxt = adv > dec ? 'advancers outnumbered decliners' : dec > adv ? 'decliners outnumbered advancers' : 'advancers and decliners were evenly split';
++
++    // Dynamic headline based on actual close
+     var headline = 'NEPSE closes ' + dir;
+-    if (Math.abs(pct) >= 0.5) headline += ' sharply';
++    var mag = Math.abs(pct);
++    if (mag >= 2) headline += ' sharply';
++    else if (mag >= 1) headline += ' firmly';
++    else if (mag >= 0.5) headline += ' moderately';
+     headline += ' at ' + fmtNum(ix.value);
+-    if (leaders) headline += ' as ' + esc(leaders.toLowerCase()) + ' lead';
++    if (chg > 0 && leaders) headline += ' as ' + esc(leaders.toLowerCase()) + ' lead';
++    else if (chg < 0 && laggards) headline += ' as ' + esc(laggards.toLowerCase()) + ' drag';
+ 
+     var body1 = 'The NEPSE index closed at ' + fmtNum(ix.value) + ' (' +
+       (chg > 0 ? '+' : '') + fmtNum(chg) + ' points, ' +
+       (pct > 0 ? '+' : '') + pct.toFixed(2) + '%). ';
+-    if (leaders) {
+-      body1 += chg >= 0
+-        ? 'Strength came from ' + esc(leaders) + ' shares. '
+-        : esc(leaders) + ' shares declined the least. ';
++    if (chg > 0) {
++      body1 += 'Bulls were in control as ' + breadthTxt + ' (' + adv + ' vs ' + dec + '). ';
++      if (leaders) body1 += 'Strength came from ' + esc(leaders) + ' shares' + (leadPct ? ' (up ' + leadPct.toFixed(2) + '%)' : '') + '. ';
++    } else if (chg < 0) {
++      body1 += 'Bears dominated as ' + breadthTxt + ' (' + dec + ' vs ' + adv + '). ';
++      if (laggards) body1 += 'Weakness was concentrated in ' + esc(laggards) + (lagPct ? ' (down ' + Math.abs(lagPct).toFixed(2) + '%)' : '') + '. ';
++      if (leaders && leadPct > 0) body1 += esc(leaders) + ' declined the least' + ' (+' + leadPct.toFixed(2) + '%). ';
++    } else {
++      body1 += 'The market ended flat as ' + breadthTxt + '. ';
+     }
+-    if (laggards && laggards !== leaders) body1 += 'Weakness was concentrated in ' + esc(laggards) + '. ';
+     body1 += 'Day range: ' + fmtNum(ix.low) + ' – ' + fmtNum(ix.high) + '.';
+ 
+     host.innerHTML =
+       '<div class="nd-badges">' +
+         '<span class="nd-badge lime">Market Wrap</span>' +
+         '<span class="nd-badge">' + esc(sessDate) + '</span>' +
+-        '<span class="nd-badge amber">Closing figures · ' + esc(sessDate.toUpperCase()) + '</span>' +
++        '<span class="nd-badge ' + (chg > 0 ? 'lime' : chg < 0 ? 'amber' : '') + '">' +
++          (chg > 0 ? '▲ GREEN CLOSE' : chg < 0 ? '▼ RED CLOSE' : '· FLAT CLOSE') + '</span>' +
+       '</div>' +
+       '<h2 class="nd-wraphead">' + esc(headline) + '</h2>' +
+       '<div class="nd-wrapbody"><p>' + body1 + '</p>' +
+@@ -106,6 +127,26 @@
+   }
+ 
+   /* ---------- NEPSE index card ---------- */
++  var SPARK_URL = '/nepse-chart/data/index-spark.json';
++  var sparkData = null;
++
++  function sparklineSVG(closes, w, h) {
++    if (!closes || closes.length < 2) return '';
++    var vals = closes.map(function (c) { return c[1]; });
++    var min = Math.min.apply(null, vals), max = Math.max.apply(null, vals);
++    var rng = (max - min) || 1;
++    var pts = vals.map(function (v, i) {
++      var x = (i / (vals.length - 1)) * w;
++      var y = h - ((v - min) / rng) * (h - 8) - 4;
++      return x.toFixed(1) + ',' + y.toFixed(1);
++    }).join(' ');
++    var up = vals[vals.length - 1] >= vals[0];
++    var col = up ? '#4ade80' : '#f87171';
++    return '<svg class="spark" viewBox="0 0 ' + w + ' ' + h + '" width="100%" height="120" preserveAspectRatio="none" role="img" aria-label="NEPSE index trend">' +
++      '<polyline points="' + pts + '" fill="none" stroke="' + col + '" stroke-width="2"/>' +
++      '<circle cx="' + w + '" cy="' + (h - ((vals[vals.length-1] - min) / rng) * (h - 8) - 4).toFixed(1) + '" r="4" fill="' + col + '"/></svg>';
++  }
++
+   function renderIndexCard(live) {
+     var host = $('ndIxCard');
+     if (!host || !live || !live.index) return;
+@@ -114,19 +155,124 @@
+     var pct = Number(ix.percent_change) || 0;
+     var cls = chg > 0 ? 'up' : chg < 0 ? 'dn' : '';
+     var arrow = chg > 0 ? '▲' : chg < 0 ? '▼' : '·';
++    // 52w from spark data - be honest about the actual range
++    var w52lo = 'Unavailable', w52hi = 'Unavailable', w52note = '';
++    if (sparkData && sparkData.closes && sparkData.closes.length) {
++      var vals = sparkData.closes.map(function (c) { return c[1]; });
++      w52lo = fmtNum(Math.min.apply(null, vals));
++      w52hi = fmtNum(Math.max.apply(null, vals));
++      w52note = sparkData.closes.length + ' closes on record';
++    }
++    var spark = sparkData ? sparklineSVG(sparkData.closes.slice(-30), 600, 120) : '';
++
++    // Market breadth from quotes
++    var quotes = live.quotes || [];
++    var adv = 0, dec = 0, unc = 0;
++    quotes.forEach(function (q) {
++      var pc = Number(q.percent_change);
++      if (!isFinite(pc)) return;
++      if (pc > 0) adv++; else if (pc < 0) dec++; else unc++;
++    });
++
++    // Day range beam with gradient
++    var dayLo = Number(ix.low), dayHi = Number(ix.high), dayVal = Number(ix.value);
++    var dayBeam = '';
++    if (isFinite(dayLo) && isFinite(dayHi) && isFinite(dayVal) && dayHi > dayLo) {
++      var pos = ((dayVal - dayLo) / (dayHi - dayLo) * 100).toFixed(1);
++      var beamCls = chg >= 0 ? 'up' : 'dn';
++      dayBeam = '<div class="nd-range"><div class="nd-range-beam ' + beamCls + '">' +
++        '<div class="nd-range-marker" style="left:' + pos + '%"></div></div>' +
++        '<div class="nd-range-labels"><span>' + fmtNum(dayLo) + '</span><span>' + fmtNum(dayHi) + '</span></div></div>';
++    }
++
++    // Session range beam (from spark data range)
++    var sessBeam = '', sessLabel = '';
++    if (sparkData && sparkData.closes && sparkData.closes.length > 1) {
++      var sVals = sparkData.closes.map(function (c) { return c[1]; });
++      var sLo = Math.min.apply(null, sVals), sHi = Math.max.apply(null, sVals);
++      var sPos = ((dayVal - sLo) / ((sHi - sLo) || 1) * 100).toFixed(1);
++      var sCls = chg >= 0 ? 'up' : 'dn';
++      sessBeam = '<div class="nd-range"><div class="nd-range-beam ' + sCls + '">' +
++        '<div class="nd-range-marker" style="left:' + Math.max(0, Math.min(100, sPos)) + '%"></div></div>' +
++        '<div class="nd-range-labels"><span>' + fmtNum(sLo) + '</span><span>' + fmtNum(sHi) + '</span></div></div>';
++      sessLabel = sparkData.closes.length + ' closes';
++    }
++
+     host.innerHTML =
+       '<div class="lbl"><span>NEPSE INDEX</span><span class="nd-badge amber">' + esc(live.market || '—') + '</span></div>' +
+       '<div class="big">' + fmtNum(ix.value) + '</div>' +
+       '<div class="chg ' + cls + '">' + arrow + ' ' + (chg > 0 ? '+' : '') + fmtNum(chg) +
+         ' (' + (pct > 0 ? '+' : '') + pct.toFixed(2) + '%) today</div>' +
++      spark +
++      '<div class="tabs" role="group" aria-label="Chart timeframe">' +
++        '<button class="on" data-tf="1D">1D</button><button data-tf="1W">1W</button>' +
++        '<button data-tf="1M">1M</button><button data-tf="3M">3M</button><button data-tf="1Y">1Y</button>' +
++      '</div>' +
++      '<div class="nd-ixstats">' +
++        '<div class="nd-stat-row"><span class="k">Day range</span>' + dayBeam + '</div>' +
++        '<div class="nd-stat-row"><span class="k">Session range</span><span class="sess-note">' + esc(sessLabel) + '</span>' + sessBeam + '</div>' +
++        '<div class="nd-stat-row"><span class="k">Market breadth</span><span class="v"><span class="up">' + adv + ' adv</span> · <span class="dn">' + dec + ' dec</span> · ' + unc + ' unc · ' + quotes.length + ' scrips</span></div>' +
++        '<div class="nd-stat-row"><span class="k">Total turnover</span><span class="v">' + (ix.turnover ? fmtCrore(ix.turnover) : 'Unavailable') + '</span></div>' +
++        '<div class="nd-stat-row"><span class="k">Traded shares</span><span class="v">' + (ix.traded_shares ? Number(ix.traded_shares).toLocaleString('en-IN') : 'Unavailable') + '</span></div>' +
++        '<div class="nd-stat-row"><span class="k">Transactions</span><span class="v">' + (ix.transactions ? Number(ix.transactions).toLocaleString('en-IN') : 'Unavailable') + '</span></div>' +
++        '<div class="nd-stat-row"><span class="k">Scrips traded</span><span class="v">' + quotes.length + '</span></div>' +
++      '</div>' +
+       '<div class="nd-ixgrid">' +
+-        '<div class="cell"><div class="k">OPEN</div><div class="v">—</div></div>' +
++        '<div class="cell"><div class="k">OPEN</div><div class="v">' + (ix.open ? fmtNum(ix.open) : 'Unavailable') + '</div></div>' +
+         '<div class="cell"><div class="k">HIGH</div><div class="v">' + fmtNum(ix.high) + '</div></div>' +
+         '<div class="cell"><div class="k">LOW</div><div class="v">' + fmtNum(ix.low) + '</div></div>' +
+         '<div class="cell"><div class="k">PREV CLOSE</div><div class="v">' + fmtNum(ix.previous_close) + '</div></div>' +
++        '<div class="cell"><div class="k">52W HIGH</div><div class="v">' + w52hi + '</div><div class="n">' + esc(w52note) + '</div></div>' +
++        '<div class="cell"><div class="k">52W LOW</div><div class="v">' + w52lo + '</div></div>' +
+       '</div>' +
+-      '<div class="nd-ixfoot"><span class="nd-badge amber">Source: NEPSE</span>' +
+-      '<span class="note">Figures are the official session close. Live quotes resume at the next market open.</span></div>';
++      '<div class="nd-ixsearch"><input type="text" id="ndIxSearch" placeholder="Search any symbol, e.g. NABIL" aria-label="Search symbol"><button onclick="var v=document.getElementById(\'ndIxSearch\').value.trim().toUpperCase();if(v)location.href=\'/stocks/\'+encodeURIComponent(v)+\'/\'">Search</button></div>' +
++      '<div class="nd-ixfoot"><span class="nd-badge amber">CLOSING FIGURES</span>' +
++      '<span class="note">Quotes are delayed during trading hours; figures shown are the last close when the market is shut.</span></div>';
++    // Tab switching filters sparkline range
++    var tabs = host.querySelectorAll('.tabs button');
++    tabs.forEach(function (btn) {
++      btn.onclick = function () {
++        tabs.forEach(function (b) { b.classList.remove('on'); });
++        btn.classList.add('on');
++        if (!sparkData) return;
++        var tf = btn.getAttribute('data-tf');
++        // 1D shows the full available range (single session = single point, show all)
++        var n = { '1D': sparkData.closes.length, '1W': 5, '1M': 22, '3M': 66, '1Y': 250 }[tf] || 30;
++        var svg = host.querySelector('.spark');
++        if (svg) svg.outerHTML = sparklineSVG(sparkData.closes.slice(-n), 600, 120);
++      };
++    });
++  }
++
++  /* ---------- Biggest moves ---------- */
++  function fmtCrore(v) {
++    if (v == null || !isFinite(Number(v))) return '—';
++    var cr = Number(v) / 10000000;
++    if (cr >= 1) return 'Rs ' + cr.toFixed(2) + ' crore';
++    var lk = Number(v) / 100000;
++    return 'Rs ' + lk.toFixed(2) + ' lakh';
++  }
++  function renderMoves(quotes, sessDate) {
++    var gb = $('ndGainersBody'), lb = $('ndLosersBody');
++    if (!gb || !lb || !quotes || !quotes.length) return;
++    var valid = quotes.filter(function (q) { return q.percent_change != null && isFinite(Number(q.percent_change)); });
++    var gainers = valid.slice().sort(function (a, b) { return b.percent_change - a.percent_change; }).slice(0, 5);
++    var losers = valid.slice().sort(function (a, b) { return a.percent_change - b.percent_change; }).slice(0, 5);
++    function row(q, isUp) {
++      var pct = Number(q.percent_change);
++      var arrow = isUp ? '▲' : '▼';
++      var cls = isUp ? 'up' : 'dn';
++      return '<tr><td class="sym"><a href="/stocks/' + esc(q.symbol) + '/">' + esc(q.symbol) + '</a></td>' +
++        '<td class="num">' + fmtNum(q.ltp) + '</td>' +
++        '<td class="num ' + cls + '">' + arrow + ' ' + (pct > 0 ? '+' : '') + pct.toFixed(2) + '%</td>' +
++        '<td class="num">' + fmtCrore(q.turnover) + '</td></tr>';
++    }
++    gb.innerHTML = gainers.map(function (q) { return row(q, true); }).join('');
++    lb.innerHTML = losers.map(function (q) { return row(q, false); }).join('');
++    var ds = $('ndGainersDate'), dl = $('ndLosersDate'), ms = $('ndMovesSub');
++    if (ds) ds.textContent = sessDate || '';
++    if (dl) dl.textContent = sessDate || '';
++    if (ms && sessDate) ms.textContent = 'Ranked by % change · last session · closing figures from ' + sessDate;
+   }
+ 
+   /* ---------- Newsroom ---------- */
+@@ -158,14 +304,134 @@
+     }).join('');
+   }
+ 
++  /* ---------- Most active ---------- */
++  var activeQuotes = [];
++  var activeMetric = 'turnover';
++  function renderActive() {
++    var body = $('ndActiveBody'), title = $('ndActiveTitle'), colHead = $('ndActiveColHead');
++    if (!body || !activeQuotes.length) return;
++    var metric = activeMetric;
++    var sorted = activeQuotes.slice().filter(function (q) {
++      var v = metric === 'turnover' ? q.turnover : metric === 'volume' ? q.volume : q.transactions;
++      return v != null && isFinite(Number(v)) && Number(v) > 0;
++    });
++    sorted.sort(function (a, b) {
++      var va = metric === 'turnover' ? a.turnover : metric === 'volume' ? a.volume : a.transactions;
++      var vb = metric === 'turnover' ? b.turnover : metric === 'volume' ? b.volume : b.transactions;
++      return Number(vb) - Number(va);
++    });
++    var top = sorted.slice(0, 7);
++    var titles = { turnover: 'By turnover', volume: 'By traded shares', transactions: 'By transactions' };
++    var heads = { turnover: 'TURNOVER', volume: 'SHARES', transactions: 'TXNS' };
++    if (title) title.textContent = titles[metric] || '';
++    if (colHead) colHead.textContent = heads[metric] || '';
++    body.innerHTML = top.map(function (q) {
++      var v = metric === 'turnover' ? q.turnover : metric === 'volume' ? q.volume : q.transactions;
++      var vTxt = metric === 'turnover' ? fmtCrore(v) : Number(v).toLocaleString('en-IN');
++      var pct = Number(q.percent_change) || 0;
++      var cls = pct > 0 ? 'up' : pct < 0 ? 'dn' : '';
++      return '<tr><td class="sym"><a href="/stocks/' + esc(q.symbol) + '/">' + esc(q.symbol) + '</a></td>' +
++        '<td class="num">' + vTxt + '</td>' +
++        '<td class="num ' + cls + '">' + (pct > 0 ? '+' : '') + pct.toFixed(2) + '%</td>' +
++        '<td class="num">' + fmtNum(q.ltp) + '</td></tr>';
++    }).join('');
++    // Tab switching
++    var tabs = document.querySelectorAll('.nd-active-tabs button');
++    tabs.forEach(function (btn) {
++      btn.onclick = function () {
++        tabs.forEach(function (b) { b.classList.remove('on'); });
++        btn.classList.add('on');
++        activeMetric = btn.getAttribute('data-metric');
++        renderActive();
++      };
++    });
++  }
++
++  /* ---------- Market Pulse + Engine Verdicts ---------- */
++  function renderPulseEngine(quotes, sessDate) {
++    var pulseHost = $('ndPulseList'), engineHost = $('ndEngineList');
++    if (!quotes || !quotes.length) return;
++
++    // Market Pulse: top 6 by turnover
++    if (pulseHost) {
++      var byTurnover = quotes.slice()
++        .filter(function (q) { return q.turnover && Number(q.turnover) > 0; })
++        .sort(function (a, b) { return Number(b.turnover) - Number(a.turnover); })
++        .slice(0, 6);
++      pulseHost.innerHTML = byTurnover.map(function (q, i) {
++        var pct = Number(q.percent_change) || 0;
++        var cls = pct > 0 ? 'up' : pct < 0 ? 'dn' : '';
++        return '<a class="nd-pulse-item" href="/stocks/' + esc(q.symbol) + '/">' +
++          '<span class="rank">' + (i + 1) + '</span>' +
++          '<div class="info"><div class="sym">' + esc(q.symbol) + '</div>' +
++          '<div class="meta">Rs ' + fmtNum(q.ltp) + ' · <span class="' + cls + '">' +
++          (pct > 0 ? '+' : '') + pct.toFixed(2) + '%</span> · ' + fmtCrore(q.turnover) + '</div></div></a>';
++      }).join('');
++      var ps = $('ndPulseSub');
++      if (ps && sessDate) ps.textContent = 'Ranked by live turnover · session of ' + sessDate;
++    }
++
++    // Engine Verdicts: fetch from verdicts.json if available
++    if (engineHost) {
++      fetchJSON('/nepse-chart/data/verdicts.json').then(function (v) {
++        var verdicts = Array.isArray(v) ? v : (v.verdicts || v.data || []);
++        if (!verdicts.length) {
++          engineHost.innerHTML = '<p class="nd-pe-sub">Verdicts updating…</p>';
++          return;
++        }
++        // Top 4 buys and top 4 exits
++        var buys = verdicts.filter(function (x) { return /buy/i.test(x.verdict || ''); })
++          .sort(function (a, b) { return (b.score || 0) - (a.score || 0); }).slice(0, 4);
++        var exits = verdicts.filter(function (x) { return /exit|sell/i.test(x.verdict || ''); })
++          .sort(function (a, b) { return (a.score || 0) - (b.score || 0); }).slice(0, 4);
++        var html = '';
++        if (buys.length) {
++          html += '<div class="nd-eyebrow" style="margin-bottom:8px">Strongest buys</div>';
++          html += buys.map(function (x) {
++            return '<div class="nd-engine-item"><span class="sym">' + esc(x.symbol) + '</span>' +
++              '<span class="score">score ' + esc(String(x.score)) + '</span>' +
++              '<span class="nd-verdict buy">' + esc(x.verdict) + '</span></div>';
++          }).join('');
++        }
++        if (exits.length) {
++          html += '<div class="nd-eyebrow" style="margin:12px 0 8px">Strongest exits</div>';
++          html += exits.map(function (x) {
++            return '<div class="nd-engine-item"><span class="sym">' + esc(x.symbol) + '</span>' +
++              '<span class="score">score ' + esc(String(x.score)) + '</span>' +
++              '<span class="nd-verdict exit">' + esc(x.verdict) + '</span></div>';
++          }).join('');
++        }
++        engineHost.innerHTML = html || '<p class="nd-pe-sub">No verdicts available.</p>';
++        var es = $('ndEngineSub');
++        if (es) es.textContent = 'Batch of ' + sessDate + ' · ' + verdicts.length + ' securities scored · Not investment advice';
++      }).catch(function () {
++        engineHost.innerHTML = '<p class="nd-pe-sub">Verdicts unavailable.</p>';
++      });
++    }
++  }
++
+   /* ---------- Init ---------- */
+   function init() {
+     if (!$('ndStripTrack') && !$('ndWrap') && !$('ndNewsGrid')) return;
+-    fetchJSON(LIVE_URL).then(function (live) {
+-      renderStrip(live.indices);
+-      renderWrap(live);
+-      renderIndexCard(live);
+-    }).catch(function () {});
++    // Fetch spark data first for the index card chart
++    fetchJSON(SPARK_URL).then(function (sp) { sparkData = sp; }).catch(function () {}).then(function () {
++      fetchJSON(LIVE_URL).then(function (live) {
++        renderStrip(live.indices);
++        renderWrap(live);
++        renderIndexCard(live);
++        var sessDate = '';
++        try {
++          var d = new Date((live.data_asof || live.asof));
++          sessDate = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kathmandu' });
++        } catch (e) {}
++        renderMoves(live.quotes, sessDate);
++        activeQuotes = live.quotes || [];
++        renderActive();
++        renderPulseEngine(live.quotes, sessDate);
++        var as = $('ndActiveSub');
++        if (as && sessDate) as.textContent = 'Ranked by trading activity · session of ' + sessDate;
++      }).catch(function () {});
++    });
+     fetchJSON(NEWS_URL).then(function (news) {
+       var items = Array.isArray(news) ? news : (news.items || news.news || []);
+       renderNewsroom(items);
+diff --git a/nepse-decode/index.html b/nepse-decode/index.html
+index 10fddf2a..5de9a580 100644
+--- a/nepse-decode/index.html
++++ b/nepse-decode/index.html
+@@ -104,232 +104,68 @@
+         <div class="nd-ixcard" id="ndIxCard" aria-label="NEPSE index"></div>
+       </div>
+ 
+-      <section class="nd-newsroom" aria-label="From the newsroom">
+-        <div class="nd-newsroom-head">
+-          <h2>From the newsroom</h2>
+-          <span class="sub">Category feeds &middot; refreshed through the trading day</span>
+-        </div>
+-        <div class="nd-newsgrid" id="ndNewsGrid"></div>
+-      </section>
+-    </div>
+-
+-    <!-- S1 · MARKET COMMAND -->
+-    <section class="d2-card" aria-label="Market overview" style="margin-bottom:20px">
+-      <div class="d2-hero-grid">
+-        <div>
+-          <div class="d2-hero-label">NEPSE Index · <span id="d2State">—</span></div>
+-          <div class="d2-hero-price" id="d2IdxVal" data-flash-symbol="NEPSE"><span class="d2-skl" style="height:64px;width:70%"></span></div>
+-          <div style="margin-top:8px"><span class="d2-hero-badge" id="d2IdxChg"><span class="d2-skl" style="height:24px;width:180px"></span></span></div>
+-          <!-- NOSCRIPT-BAKE-START -->
+-<noscript>
+-  <div style="border:1px solid #ddd;border-radius:8px;padding:16px;margin:16px 0;background:#fafafa;font-family:system-ui,sans-serif">
+-    <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:1px">NEPSE Index — static snapshot (JavaScript disabled)</div>
+-    <div style="font-size:32px;font-weight:700;margin:8px 0">2,599.15 <span style="font-size:18px;color:#0a7a3d">▲ +0.26 (+0.00%)</span></div>
+-    <div style="font-size:13px;color:#444">Session: <b>2026-10-01</b> · Market: <b>CLOSED</b></div>
+-    <div style="font-size:12px;color:#888;margin-top:6px">Baked at build time from data as of 2026-10-01. Enable JavaScript for live updates during market hours.</div>
+-  </div>
+-</noscript>
+-<!-- NOSCRIPT-BAKE-END -->
+-          <div class="d2-hero-chart nic-wrap">
+-            <div class="nic-pills" role="group" aria-label="Chart timeframe">
+-              <button type="button" data-range="1D" aria-pressed="false">1D</button>
+-              <button type="button" data-range="1W" aria-pressed="false">1W</button>
+-              <button type="button" data-range="1M" aria-pressed="true" class="on">1M</button>
+-              <button type="button" data-range="1Y" aria-pressed="false">1Y</button>
+-              <button type="button" data-range="5Y" aria-pressed="false">5Y</button>
+-              <button type="button" data-range="MAX" aria-pressed="false">MAX</button>
+-            </div>
+-            <div id="nicChart" class="nic-chart" role="img" aria-label="NEPSE index candlestick chart. Loading."><span class="nic-loading">Loading chart…</span></div>
+-            <div id="nicFallback" class="nic-fallback" hidden></div>
+-          </div>
+-          <div class="d2-daystats" aria-label="Session day statistics">
+-            <span>Open<b id="d2DayO">—</b></span><span>High<b id="d2DayH">—</b></span><span>Low<b id="d2DayL">—</b></span><span>Prev. close<b id="d2DayP">—</b></span>
+-          </div>
+-          <p class="d2-caption" id="d2HeroCap" style="margin-top:10px">Loading the latest session…</p>
++      <section class="nd-moves" aria-label="Biggest moves">
++        <div class="nd-moves-head">
++          <h2>Biggest moves</h2>
++          <span class="sub" id="ndMovesSub">Ranked by % change · last session</span>
+         </div>
+-        <div>
+-          <div class="d2-range-block">
+-            <div class="d2-range-label"><strong>Day range</strong><span id="d2DayRangeSes">session –</span></div>
+-            <div class="d2-range" id="d2DayRange"><div class="d2-range-fill"></div><div class="d2-range-marker"></div></div>
+-            <div class="d2-range-vals"><span>Low <b id="d2DayLow">—</b></span><span>High <b id="d2DayHigh">—</b></span></div>
++        <div class="nd-moves-grid">
++          <div class="nd-movecard">
++            <div class="nd-movecard-head"><h3>Top gainers</h3><span class="date" id="ndGainersDate"></span><a class="nd-seemore" href="/nepse-daily/?sort=gainers">See more →</a></div>
++            <table aria-label="Top gainers"><thead><tr><th>SYMBOL</th><th class="num">LTP (RS)</th><th class="num">CHANGE</th><th class="num">TURNOVER</th></tr></thead><tbody id="ndGainersBody"></tbody></table>
+           </div>
+-          <div class="d2-range-block">
+-            <div class="d2-range-label"><strong>Session range</strong><span id="d2SesRangeLbl">recent closes</span></div>
+-            <div class="d2-range" id="d2SesRange"><div class="d2-range-fill"></div><div class="d2-range-marker"></div></div>
+-            <div class="d2-range-vals"><span>Low <b id="d2SesLow">—</b></span><span>High <b id="d2SesHigh">—</b></span></div>
++          <div class="nd-movecard">
++            <div class="nd-movecard-head"><h3>Top losers</h3><span class="date" id="ndLosersDate"></span><a class="nd-seemore" href="/nepse-daily/?sort=losers">See more →</a></div>
++            <table aria-label="Top losers"><thead><tr><th>SYMBOL</th><th class="num">LTP (RS)</th><th class="num">CHANGE</th><th class="num">TURNOVER</th></tr></thead><tbody id="ndLosersBody"></tbody></table>
+           </div>
+-          <div>
+-            <div class="d2-range-label" style="margin-bottom:8px"><strong>Market breadth</strong><span id="d2BreadthN">– scrips</span></div>
+-            <div class="d2-breadth" id="d2Breadth"><div class="d2-b-up"></div><div class="d2-b-fl"></div><div class="d2-b-dn"></div></div>
+-            <div class="d2-breadth-legend">
+-              <span><b class="up" id="d2BUp">—</b> advancers</span>
+-              <span><b class="down" id="d2BDn">—</b> decliners</span>
+-              <span><b class="flat" id="d2BFl">—</b> unchanged</span>
+-            </div>
+-          </div>
+-          <div class="d2-stat-grid" style="margin-top:18px">
+-            <div class="d2-stat"><div class="d2-stat-l">Total turnover</div><div class="d2-stat-v" id="d2StatTurn">—</div></div>
+-            <div class="d2-stat"><div class="d2-stat-l">Traded shares</div><div class="d2-stat-v" id="d2StatShares">—</div></div>
+-            <div class="d2-stat"><div class="d2-stat-l">Transactions</div><div class="d2-stat-v" id="d2StatTxns">—</div></div>
+-            <div class="d2-stat"><div class="d2-stat-l">Scrips traded</div><div class="d2-stat-v" id="d2StatScrips">—</div></div>
+-          </div>
+-          <form class="d2-search" id="d2Search" role="search" onsubmit="return false">
+-            <input id="d2SearchInput" type="search" placeholder="Search any symbol, e.g. NABIL" aria-label="Search a NEPSE symbol" autocomplete="off" list="d2Symbols">
+-            <datalist id="d2Symbols"></datalist>
+-            <button type="submit">Search</button>
+-          </form>
+-          <div class="d2-search-list" id="d2SearchMatches" aria-live="polite"></div>
+         </div>
+-      </div>
+-      <div class="d2-fresh">
+-        <span id="d2LiveBadge"></span>
+-        <span id="d2HeroSrc">Source: validated market snapshot · refreshes during market hours</span>
+-      </div>
+-    </section>
+-
+-    <!-- MOVERS -->
+-    <div class="d2-movers-row" style="margin-bottom:20px">
+-      <section class="d2-card" aria-label="Top gainers">
+-        <div class="d2-card-head"><div><p class="d2-kicker">Movers</p><h2>Top gainers</h2></div></div>
+-        <div class="d2-tscroll"><table class="d2-table"><thead><tr><th>Symbol</th><th class="num">Ch</th><th class="num">Ch %</th><th class="num">LTP</th></tr></thead><tbody id="d2GainersT"><tr><td colspan="4"><span class="d2-skl" style="height:20px"></span></td></tr></tbody></table></div>
+       </section>
+-      <section class="d2-card" aria-label="Top losers">
+-        <div class="d2-card-head"><div><p class="d2-kicker">Movers</p><h2>Top losers</h2></div></div>
+-        <div class="d2-tscroll"><table class="d2-table"><thead><tr><th>Symbol</th><th class="num">Ch</th><th class="num">Ch %</th><th class="num">LTP</th></tr></thead><tbody id="d2LosersT"><tr><td colspan="4"><span class="d2-skl" style="height:20px"></span></td></tr></tbody></table></div>
+-      </section>
+-    </div>
+ 
+-    <!-- S9 · MARKET PULSE -->
+-    <section class="d2-card" aria-label="Market pulse" style="margin-bottom:20px">
+-      <div class="d2-card-head">
+-        <div><p class="d2-kicker">Market pulse</p><h2>Event tape</h2></div>
+-        <a class="d2-card-link" href="/nepse-news/">All news →</a>
+-      </div>
+-      <p class="d2-caption" style="margin-bottom:12px">NEPSE moves in dated events, not ticks — every announcement, filing and index milestone, newest first.</p>
+-      <div class="d2-pulse-head">
+-        <div class="d2-pulse-state">
+-          <span class="d2-chip" id="d2PulseState"><span class="d2-dot"></span>checking</span>
+-          <span class="d2-pulse-updated" id="d2PulseUpdated">last checked just now</span>
+-          <span class="d2-pulse-flash" id="d2PulseFlash" aria-hidden="true">feed checked ✓</span>
++      <section class="nd-active" aria-label="Most active">
++        <div class="nd-moves-head">
++          <h2>Most active</h2>
++          <span class="sub" id="ndActiveSub">Ranked by trading activity · last session</span>
+         </div>
+-        <div class="d2-pulse-refresh">
+-          <span class="d2-pulse-count" id="d2PulseCount">1:00</span>
+-          <button class="d2-pill-btn" id="d2PulseToggle" aria-pressed="true">Auto-refresh on</button>
++        <div class="nd-active-tabs" role="tablist" aria-label="Activity metric">
++          <button class="on" data-metric="turnover" role="tab">Turnover</button>
++          <button data-metric="volume" role="tab">Traded shares</button>
++          <button data-metric="transactions" role="tab">Transactions</button>
+         </div>
+-      </div>
+-      <div class="d2-pulse-filters" id="d2PulseFilters" role="group" aria-label="Filter pulse events"></div>
+-      <div class="d2-pulse-tape" id="d2PulseTape" aria-live="polite"><span class="d2-skl" style="height:44px"></span></div>
+-      <div class="d2-pulse-pages" id="d2PulsePages" hidden>
+-        <label class="d2-pulse-rpp">Rows per page
+-          <select id="d2PulseSize" aria-label="Rows per page">
+-            <option value="5">5</option><option value="8" selected>8</option><option value="10">10</option><option value="15">15</option>
+-          </select>
+-        </label>
+-        <span class="d2-pulse-pageinfo" id="d2PulseInfo" aria-live="polite"></span>
+-        <span class="d2-pulse-nav">
+-          <button type="button" class="d2-pill-btn" id="d2PulsePrev" aria-label="Previous news page">← Prev</button>
+-          <button type="button" class="d2-pill-btn" id="d2PulseNext" aria-label="Next news page">Next →</button>
+-        </span>
+-      </div>
+-      <div class="d2-fresh">
+-        <span class="d2-chip" id="d2PulseSrcChip"><span class="d2-dot"></span>FEED</span>
+-        <span id="d2PulseSrc">Sources: news.json · corporate-actions.json · index milestones from verified history · polls every 60 s</span>
+-      </div>
+-    </section>
+-
+-    <!-- INDICES + MOST ACTIVE -->
+-    <div class="d2-grid3" style="margin-bottom:20px">
+-      <section class="d2-card" aria-label="Indices">
+-        <div class="d2-card-head"><div><p class="d2-kicker">Benchmarks</p><h2>Indices</h2></div><a class="d2-card-link" href="/nepse-chart/">Chart →</a></div>
+-        <div class="d2-tscroll"><table class="d2-table"><thead><tr><th>Index</th><th class="num">Ch</th><th class="num">Ch %</th><th class="num">Current</th></tr></thead><tbody id="d2IndicesT"><tr><td colspan="4"><span class="d2-skl" style="height:20px"></span></td></tr></tbody></table></div>
+-      </section>
+-      <section class="d2-card" aria-label="Sub-indices">
+-        <div class="d2-card-head"><div><p class="d2-kicker">Benchmarks</p><h2>Sub-indices</h2><p class="d2-card-sub">NEPSE official sub-index</p></div><a class="d2-card-link" href="/nepse-sectors/">Sectors →</a></div>
+-        <div class="d2-tscroll"><table class="d2-table"><thead><tr><th>Sub-index</th><th class="num">Ch</th><th class="num">Ch %</th><th class="num">Current</th></tr></thead><tbody id="d2SubIndicesT"><tr><td colspan="4"><span class="d2-skl" style="height:20px"></span></td></tr></tbody></table></div>
+-      </section>
+-      <section class="d2-card" aria-label="Most active">
+-        <div class="d2-card-head"><div><p class="d2-kicker">Liquidity</p><h2>Most active</h2></div><a class="d2-card-link" href="/nepse-screener/">Screener →</a></div>
+-        <div class="d2-tabs" role="tablist" aria-label="Most active by">
+-          <button class="d2-tab active" data-tt="turnover" role="tab" aria-selected="true">Turnover</button>
+-          <button class="d2-tab" data-tt="volume" role="tab" aria-selected="false">Traded shares</button>
+-          <button class="d2-tab" data-tt="trades" role="tab" aria-selected="false">Transactions</button>
++        <div class="nd-movecard">
++          <div class="nd-movecard-head"><h3 id="ndActiveTitle">By turnover</h3><a class="nd-seemore" href="/nepse-daily/?sort=turnover">See more →</a></div>
++          <table aria-label="Most active stocks"><thead><tr><th>SYMBOL</th><th class="num" id="ndActiveColHead">TURNOVER</th><th class="num">CH %</th><th class="num">LTP (RS)</th></tr></thead><tbody id="ndActiveBody"></tbody></table>
+         </div>
+-        <div class="d2-tscroll"><table class="d2-table"><thead><tr><th>Symbol</th><th class="num" id="d2TurnValH">Turnover</th><th class="num">Ch %</th><th class="num">LTP</th></tr></thead><tbody id="d2TurnT"><tr><td colspan="4"><span class="d2-skl" style="height:20px"></span></td></tr></tbody></table></div>
+       </section>
+-    </div>
+-
+-    <!-- TRENDING NOW — rebuilt from live data every load, never a baked snapshot -->
+-    <div class="d2-card-head" style="margin-bottom:4px">
+-      <div><p class="d2-kicker">Market pulse</p><h2>Trending now</h2></div>
+-      <a class="d2-card-link" href="/nepse-trending/">All trending →</a>
+-    </div>
+-    <p class="d2-caption" style="margin-bottom:12px" id="d2TrendCap">Ranked by today's live turnover — refreshes with the market feed, never a stale snapshot.</p>
+-    <div class="d2-tools" id="d2TrendNow" style="margin-bottom:20px" aria-live="polite"></div>
+ 
+-    <!-- ENGINE VERDICTS teaser -->
+-    <div class="d2-card-head" style="margin-bottom:4px">
+-      <div><p class="d2-kicker">The engine</p><h2>Latest verdicts</h2></div>
+-      <a class="d2-card-link" href="/nepse-alpha/">Full rankings →</a>
+-    </div>
+-    <p class="d2-caption" id="d2VdAsof" style="margin-bottom:12px">Loading the latest batch…</p>
+-    <div class="d2-movers-row" style="margin-bottom:20px">
+-      <section class="d2-card" aria-label="Strongest buys">
+-        <p class="d2-kicker" style="margin-bottom:8px;color:var(--d2-gain)">Strongest buys</p>
+-        <div id="d2VdBuys"><span class="d2-skl" style="height:20px"></span></div>
+-      </section>
+-      <section class="d2-card" aria-label="Strongest exits">
+-        <p class="d2-kicker" style="margin-bottom:8px;color:var(--d2-loss)">Strongest exits</p>
+-        <div id="d2VdExits"><span class="d2-skl" style="height:20px"></span></div>
++      <section class="nd-pulse-engine" aria-label="Market pulse and engine verdicts">
++        <div class="nd-pe-grid">
++          <div class="nd-pe-card">
++            <div class="nd-pe-head">
++              <div><span class="nd-eyebrow">Market Pulse</span><h2>Trending now</h2></div>
++              <a class="nd-seemore" href="/nepse-trending/">See more →</a>
++            </div>
++            <p class="nd-pe-sub" id="ndPulseSub">Ranked by live turnover</p>
++            <div id="ndPulseList" class="nd-pulse-list"></div>
++          </div>
++          <div class="nd-pe-card">
++            <div class="nd-pe-head">
++              <div><span class="nd-eyebrow">The Engine</span><h2>Latest verdicts</h2></div>
++              <a class="nd-seemore" href="/nepse-engine/">See more →</a>
++            </div>
++            <p class="nd-pe-sub" id="ndEngineSub">Mechanical signals, not advice</p>
++            <div id="ndEngineList" class="nd-engine-list"></div>
++          </div>
++        </div>
+       </section>
+-    </div>
+-    <p class="d2-caption" style="margin-bottom:20px;max-width:64ch">Mechanical output from a fixed rule set, not investment advice. Ten factors are scored on the daily chart; the points add up to a verdict from Strong Buy to Strong Exit.</p>
+ 
+-    <!-- TOOLS -->
+-    <div class="d2-card-head" style="margin-bottom:12px">
+-      <div><p class="d2-kicker">The suite</p><h2>Every tool, one suite</h2></div>
+-    </div>
+-    <div class="d2-tools" style="margin-bottom:20px">
+-      <a class="d2-card d2-tool" href="/nepse-chart/">
+-        <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M7 14l4-4 3 3 5-6"/></svg></span>
+-        <span><h3>Chart &amp; signals</h3><p>Candlesticks, patterns and the rule-based verdict on one screen.</p></span>
+-      </a>
+-      <a class="d2-card d2-tool" href="/nepse-alpha/">
+-        <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 7l7-4 7 4"/><path d="M3 13l4-4 4 4 4-4 4 4"/></svg></span>
+-        <span><h3>Engine verdicts</h3><p>Today's Alpha Lab verdicts on every covered stock — Strong Buy to Strong Exit, with the score behind each.</p></span>
+-      </a>
+-      <a class="d2-card d2-tool" href="/nepse-screener/">
+-        <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg></span>
+-        <span><h3>Market Screener</h3><p>All listed securities ranked daily, stop-loss and target on every row.</p></span>
+-      </a>
+-      <a class="d2-card d2-tool" href="/nepse-trending/">
+-        <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></span>
+-        <span><h3>Trending Stocks</h3><p>What the market is actually doing today — ranked by real activity, with the reason shown on every row.</p></span>
+-      </a>
+-      <a class="d2-card d2-tool" href="/nepse-value/">
+-        <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 7l7-4 7 4"/><path d="M5 7v6a7 7 0 0 0 14 0V7"/></svg></span>
+-        <span><h3>Value Investing</h3><p>A sector-aware value screen on verified filings — earnings yield, price-to-book, ROE.</p></span>
+-      </a>
+-      <a class="d2-card d2-tool" href="/nepse-news/">
+-        <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5z"/><path d="M18 8h1a1 1 0 0 1 1 1v9a2 2 0 0 1-2 2"/><path d="M8 9h6M8 13h6M8 17h4"/></svg></span>
+-        <span><h3>Market News</h3><p>Announcements and headlines, always with the source attached.</p></span>
+-      </a>
+-      <a class="d2-card d2-tool" href="/nepse-sectors/">
+-        <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="5" rx="1.5"/><rect x="13" y="10" width="8" height="11" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/></svg></span>
+-        <span><h3>Sector map</h3><p>Which parts of the market are moving, at a glance.</p></span>
+-      </a>
+-      <a class="d2-card d2-tool" href="/nepse-watchlist/">
+-        <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.5-9 9-9 9z"/></svg></span>
+-        <span><h3>Watchlist</h3><p>The securities you follow, with signal and RSI on every row.</p></span>
+-      </a>
+-      <a class="d2-card d2-tool" href="/nepse-portfolio/">
+-        <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7H4a2 2 0 0 1 0-4h14v4"/><path d="M4 7v12a2 2 0 0 0 2 2h14V7"/></svg></span>
+-        <span><h3>Portfolio</h3><p>Holdings, honestly accounted: cost, P&amp;L, allocation.</p></span>
+-      </a>
++      <section class="nd-newsroom" aria-label="From the newsroom">
++        <div class="nd-newsroom-head">
++          <h2>From the newsroom</h2>
++          <span class="sub">Category feeds &middot; refreshed through the trading day</span>
++        </div>
++        <div class="nd-newsgrid" id="ndNewsGrid"></div>
++      </section>
+     </div>
+-
+-    <div id="nd-footer"></div>
+-
+-  </div>
+ </main>
+ </div><!-- /.d2-shell -->
+ 
