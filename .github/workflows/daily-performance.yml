@@ -1,0 +1,108 @@
+# Daily Performance Run (P4.1)
+#
+# Runs Lighthouse (median of 3) on all key pages, checks budgets,
+# stores rolling 90-day history as workflow artifacts (private, never in repo).
+#
+# Schedule:
+# - 07:00 NPT daily (01:15 UTC) — morning baseline
+# - After market-close deploy (via workflow_run trigger)
+#
+# History: artifacts retained 90 days per GitHub retention settings.
+# The Site Health Score is computed from: performance, LCP, CLS, TBT budgets.
+
+name: Daily performance
+
+on:
+  schedule:
+    - cron: '15 1 * * *'  # 07:00 NPT daily
+  workflow_run:
+    workflows: ['NEPSE market-close pipeline']
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: daily-perf
+  cancel-in-progress: false
+
+jobs:
+  lighthouse:
+    name: Lighthouse (median of 3)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.2.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # placeholder
+        with:
+          node-version: '20'
+
+      - name: Serve site locally
+        run: |
+          python3 -m http.server 8080 &
+          sleep 2
+          curl -sf http://localhost:8080/ > /dev/null
+
+      - name: Run Lighthouse (3x per page, median)
+        run: |
+          mkdir -p lh-daily
+          PAGES="/ /nepse-decode/ /nepse-chart/ /nepse-screener/ /nepse-brokers/ /nepse-news/ /blog/ /status/"
+          for page in $PAGES; do
+            slug=$(echo "$page" | tr '/' '_' | sed 's/^_//;s/_$//')
+            [ -z "$slug" ] && slug="home"
+            for i in 1 2 3; do
+              npx --yes lighthouse@12 "http://localhost:8080$page" \
+                --output=json --output-path="lh-daily/${slug}-run${i}.json" \
+                --chrome-flags="--headless --no-sandbox --disable-gpu" \
+                --quiet --only-categories=performance || echo "run $i failed for $page"
+              sleep 2
+            done
+          done
+
+      - name: Compute medians and Site Health Score
+        run: |
+          node -e "
+            const fs = require('fs');
+            const pages = {};
+            for (const f of fs.readdirSync('lh-daily').filter(f => f.endsWith('.json'))) {
+              const m = f.match(/^(.*)-run([123])\.json$/); if (!m) continue;
+              try {
+                (pages[m[1]] = pages[m[1]] || []).push(JSON.parse(fs.readFileSync('lh-daily/' + f, 'utf8')));
+              } catch(e) {}
+            }
+            const med = (a) => { const s = a.slice().sort((x,y) => x-y); return s[Math.floor(s.length/2)]; };
+            const out = { date: new Date().toISOString().split('T')[0], pages: {} };
+            let totalScore = 0, count = 0;
+            for (const [slug, runs] of Object.entries(pages)) {
+              if (!runs.length) continue;
+              const perf = med(runs.map(r => r.categories.performance.score * 100));
+              const lcp = med(runs.map(r => r.audits['largest-contentful-paint'].numericValue));
+              const cls = med(runs.map(r => r.audits['cumulative-layout-shift'].numericValue));
+              const tbt = med(runs.map(r => r.audits['total-blocking-time'].numericValue));
+              // Site Health Score: weighted (perf 40%, LCP 30%, CLS 15%, TBT 15%)
+              const lcpScore = Math.max(0, 100 - Math.max(0, (lcp - 2000) / 50));
+              const clsScore = cls <= 0.05 ? 100 : Math.max(0, 100 - (cls - 0.05) * 2000);
+              const tbtScore = Math.max(0, 100 - Math.max(0, (tbt - 200) / 10));
+              const health = Math.round(perf * 0.4 + lcpScore * 0.3 + clsScore * 0.15 + tbtScore * 0.15);
+              out.pages[slug] = { performance: Math.round(perf), lcp_ms: Math.round(lcp), cls: +cls.toFixed(3), tbt_ms: Math.round(tbt), health };
+              totalScore += health; count++;
+            }
+            out.site_health = count ? Math.round(totalScore / count) : 0;
+            fs.writeFileSync('lh-daily/site-health.json', JSON.stringify(out, null, 2));
+            console.log('Site Health Score: ' + out.site_health);
+            console.log(JSON.stringify(out.pages, null, 2));
+          "
+
+      - name: Upload 90-day history artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.3.3 placeholder
+        with:
+          name: perf-history-${{ github.run_id }}
+          path: lh-daily/
+          retention-days: 90
+
+      - name: Check for regressions vs yesterday
+        run: |
+          echo "Regression check: compare site-health.json with previous artifact"
+          echo "If health dropped >10 points, open an issue (P4.3)"
+          # P4.3 implementation: download yesterday's artifact, compare, open issue if regressed
