@@ -248,6 +248,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,su
   color:var(--muted);padding:8px 18px;border-radius:999px;cursor:pointer;
   transition:all .25s var(--ease)}
 .seg button.on{background:var(--ink);color:#fff;box-shadow:0 4px 12px rgba(12,31,22,.25)}
+/* Dark mode: --ink becomes light for the pill background, so text must go dark for contrast */
+[data-theme="dark"] .seg button.on{color:#0C1F16}
 .seg button:active{transform:scale(.95)}
 .seg button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .toggles{display:inline-flex;gap:8px;margin-left:auto;flex-wrap:wrap}
