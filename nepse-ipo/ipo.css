@@ -76,8 +76,10 @@
   display: inline-flex; align-items: center; gap: 10px;
   background: linear-gradient(135deg, var(--nd-lime-soft, rgba(184,230,46,.12)), var(--nd-lime-soft, rgba(184,230,46,.06)));
   border: 1px solid var(--nd-lime, #B8E62E);
-  border-radius: var(--nd-r-pill, 999px); padding: 10px 18px;
-  font-size: var(--nd-text-body-sm, .8125rem); font-weight: 700; color: var(--nd-text, #fff);
+  border-radius: var(--nd-r-pill, 999px); padding: 8px 16px;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: .8125rem; font-weight: 700; line-height: 1.4; color: var(--nd-text, #fff);
+  flex: 0 0 auto; width: auto; max-width: 100%; white-space: nowrap;
   animation: ipoSlideIn .4s ease both;
   transition: transform .2s ease, box-shadow .2s ease;
 }
@@ -96,9 +98,12 @@
 .ipo-tab{
   appearance: none; cursor: pointer; border: 1px solid var(--nd-border, #1E2430);
   background: var(--nd-panel, #12141A); color: var(--nd-muted, #9AA3B2);
-  border-radius: var(--nd-r-pill, 999px); padding: 10px 20px;
-  font: 600 var(--nd-text-body-sm, .8125rem) var(--nd-font-sans, system-ui);
+  border-radius: var(--nd-r-pill, 999px); padding: 8px 16px;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: .8125rem; font-weight: 600; line-height: 1.4;
+  flex: 0 0 auto; width: auto; max-width: none;
   transition: all .2s ease; position: relative; overflow: hidden;
+  white-space: nowrap;
 }
 .ipo-tab::before{
   content: ''; position: absolute; inset: 0;
@@ -123,8 +128,10 @@
 .ipo-sf{
   appearance: none; cursor: pointer; border: 1px solid var(--nd-border, #1E2430);
   background: transparent; color: var(--nd-dim, #6B7280);
-  border-radius: var(--nd-r-pill, 999px); padding: 7px 16px;
-  font: 600 .75rem var(--nd-font-sans, system-ui); letter-spacing: .04em;
+  border-radius: var(--nd-r-pill, 999px); padding: 6px 14px;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: .75rem; font-weight: 600; letter-spacing: .04em; line-height: 1.4;
+  flex: 0 0 auto; width: auto; white-space: nowrap;
   transition: all .2s ease;
 }
 .ipo-sf:hover{ border-color: var(--nd-border-strong, #2A3140); color: var(--nd-text, #fff); }
