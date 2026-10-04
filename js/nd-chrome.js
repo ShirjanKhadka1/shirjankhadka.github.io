@@ -19,7 +19,6 @@
       ['Overview', '/nepse-decode/'],
       ['Daily summary', '/nepse-daily/'],
       ['Heat Map', '/nepse-sectors/'],
-      ['Circuit watch', '/nepse-circuit/'],
       ['IPO / FPO', '/nepse-ipo/']
     ]},
     { label: 'Stocks', links: [
@@ -237,7 +236,7 @@
   /* ---------------- footer ---------------- */
 
   var FOOT = [
-    ['MARKETS', [['Overview', '/nepse-decode/'], ['Daily summary', '/nepse-daily/'], ['Heat Map', '/nepse-sectors/'], ['Circuit watch', '/nepse-circuit/'], ['IPO / FPO', '/nepse-ipo/']]],
+    ['MARKETS', [['Overview', '/nepse-decode/'], ['Daily summary', '/nepse-daily/'], ['Heat Map', '/nepse-sectors/'], ['IPO / FPO', '/nepse-ipo/']]],
     ['STOCKS', [['Stock Screener', '/nepse-screener/'], ['Fair Value', '/nepse-value/'], ['Trending Stock', '/nepse-trending/']]],
     ['BROKER', [['Top Brokers', '/nepse-brokers/'], ['Broker Trade Pattern', '/nepse-brokers/trade-pattern/'], ['Stock Trade Pattern', '/nepse-brokers/stock-pattern/'], ['Stockwise Holdings', '/nepse-brokers/holdings/'], ['Accumulation / Distribution', '/nepse-brokers/accdist/']]],
     ['NEWS', [['Market News', '/nepse-news/'], ['Market Wrap', '/blog/'], ['Corporate Actions', '/nepse-actions/']]],
