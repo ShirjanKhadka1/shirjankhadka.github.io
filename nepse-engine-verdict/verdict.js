@@ -55,11 +55,25 @@
     if (!host) return;
     var c = { sb: 0, b: 0, h: 0, e: 0, se: 0 };
     state.rows.forEach(function (r) { var k = vClass(r.v); c[k] = (c[k]||0)+1; });
+    var buySide = c.sb + c.b, exitSide = c.e + c.se;
+    // Market take: one-line interpretation that sells the verdict
+    var take = '';
+    if (exitSide > buySide * 2) {
+      take = '<p class="ev-take">The engine is cautious: <strong>' + exitSide + ' exit signals</strong> vs <strong>' + buySide + ' buys</strong>. ' +
+        'In this tape, even Strong Buys deserve smaller size. <a href="/nepse-screener/">See the Strong Buys →</a></p>';
+    } else if (buySide > exitSide) {
+      take = '<p class="ev-take">The engine is constructive: <strong>' + buySide + ' buy signals</strong> vs <strong>' + exitSide + ' exits</strong>. ' +
+        'Momentum favors the buy-side. <a href="/nepse-screener/">Rank the buys →</a></p>';
+    } else {
+      take = '<p class="ev-take">The engine is mixed: <strong>' + buySide + ' buys</strong> vs <strong>' + exitSide + ' exits</strong>. ' +
+        'Stock-picking matters more than market direction today.</p>';
+    }
     host.innerHTML =
-      '<button type="button" class="ev-stat buy" data-v="buy-side" aria-pressed="'+(state.verdict==='buy-side')+'"><div class="num">'+(c.sb+c.b)+'</div><div class="lbl">Buy-side</div></button>'+
+      '<button type="button" class="ev-stat buy" data-v="buy-side" aria-pressed="'+(state.verdict==='buy-side')+'"><div class="num">'+buySide+'</div><div class="lbl">Buy-side</div></button>'+
       '<button type="button" class="ev-stat" data-v="Hold" aria-pressed="'+(state.verdict==='Hold')+'"><div class="num">'+c.h+'</div><div class="lbl">Hold</div></button>'+
-      '<button type="button" class="ev-stat exit" data-v="exit-side" aria-pressed="'+(state.verdict==='exit-side')+'"><div class="num">'+(c.e+c.se)+'</div><div class="lbl">Exit-side</div></button>'+
-      '<button type="button" class="ev-stat" data-v="all" aria-pressed="'+(state.verdict==='all')+'"><div class="num">'+state.rows.length+'</div><div class="lbl">Securities scored</div></button>';
+      '<button type="button" class="ev-stat exit" data-v="exit-side" aria-pressed="'+(state.verdict==='exit-side')+'"><div class="num">'+exitSide+'</div><div class="lbl">Exit-side</div></button>'+
+      '<button type="button" class="ev-stat" data-v="all" aria-pressed="'+(state.verdict==='all')+'"><div class="num">'+state.rows.length+'</div><div class="lbl">Securities scored</div></button>' +
+      take;
     host.querySelectorAll('.ev-stat').forEach(function (b) {
       b.addEventListener('click', function () {
         state.verdict = b.getAttribute('data-v'); state.page = 1;
