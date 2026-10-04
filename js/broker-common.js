@@ -28,14 +28,22 @@ function loadPeriod(p, asof){
       // FALLBACK: intraday.json only exists during market hours.
       // Fall back to 1D period data when it's missing (weekends/holidays).
       if (p === 'latest') return fetch(BASE+'periods/1D.json', { cache: 'no-store' })
-        .then(function(r2){ if(!r2.ok) throw new Error('no-data'); return r2.json(); });
+        .then(function(r2){ if(!r2.ok) throw new Error('no-data'); return r2.json(); })
+        .then(function(d){ d._fallback = true; return d; });
       throw new Error('no-data');
     }
     return r.json();
   });
 }
 function label(p, d, asof){
-  if(p==='latest') return 'live today'+(d&&d.asof?' (as of '+String(d.asof).slice(11,16)+' UTC)':'');
+  if(p==='latest') {
+    // If we fell back to 1D.json (weekends/holidays), don't claim "live today"
+    if (d && d._fallback) {
+      var dateStr = d.asof ? String(d.asof).slice(0,10) : 'last session';
+      return 'last session (' + dateStr + ')';
+    }
+    return 'live today'+(d&&d.asof?' (as of '+String(d.asof).slice(11,16)+' UTC)':'');
+  }
   if(p==='asof') return asof;
   return d && d.from ? d.from+' → '+d.to+' ('+d.trading_days+' sessions)' : p;
 }
