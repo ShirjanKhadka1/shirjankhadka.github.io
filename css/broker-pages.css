@@ -54,3 +54,35 @@
 .bk-note{ font-size: .82rem; color: var(--muted, #6F6A5E); margin: 24px 0 0; line-height: 1.7; }
 .bk-loading{ color: var(--muted, #6F6A5E); padding: 24px 0; }
 .bk-empty{ background: var(--gold-soft, #FFF8E1); border: 1px solid var(--hairline, #E7DFCE); border-radius: 12px; padding: 14px 18px; font-size: .9rem; color: var(--ink-soft, #4A463C); margin: 12px 0; }
+
+/* Stock pattern: buyers left, sellers right on desktop */
+.bk-buy-sell-grid{ display:grid; gap:16px; grid-template-columns:1fr 1fr; }
+@media (max-width: 900px){
+  .bk-buy-sell-grid{ grid-template-columns:1fr; }
+}
+
+/* Stock filter search — themed for both modes */
+.bk-searchrow{ margin: 0 0 16px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.bk-search{
+  flex: 1; min-width: 200px; max-width: 340px;
+  padding: 11px 18px 11px 40px;
+  border: 2px solid var(--hairline, #E7DFCE); border-radius: 14px;
+  background: var(--card, #fff) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239AA3B2' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M21 21l-4.3-4.3'/%3E%3C/svg%3E") 14px center no-repeat;
+  color: var(--text, #1a1d24); font-size: .875rem;
+  transition: border-color .2s, box-shadow .2s;
+}
+.bk-search::placeholder{ color: var(--muted, #6F6A5E); }
+.bk-search:focus{
+  outline: none; border-color: var(--green-900, #0B3D2E);
+  box-shadow: 0 0 0 3px rgba(11,61,46,.12);
+}
+.bk-search:hover{ border-color: var(--green-900, #0B3D2E); }
+[data-theme="dark"] .bk-search{
+  background-color: #161A23; border: 2px solid #2A3140; color: #fff;
+}
+[data-theme="dark"] .bk-search::placeholder{ color: #9AA3B2; }
+[data-theme="dark"] .bk-search:hover{ border-color: #3A4356; }
+[data-theme="dark"] .bk-search:focus{
+  border-color: var(--nd-lime, #B8E62E);
+  box-shadow: 0 0 0 3px rgba(184,230,46,.15);
+}
