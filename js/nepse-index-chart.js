@@ -100,6 +100,17 @@
     });
   }
 
+  /**
+   * P1.3: Get live data via shared NepseData module (dedupes fetches).
+   * Falls back to direct fetch if NepseData is unavailable.
+   */
+  function getLive() {
+    if (typeof window !== 'undefined' && window.NepseData && window.NepseData.whenReady) {
+      return window.NepseData.whenReady();
+    }
+    return fetchJSON('/nepse-chart/data/live.json');
+  }
+
   /* ---------- stats ---------- */
 
   // All stats from real data only. live.json's index has no open/turnover/
@@ -280,7 +291,8 @@
     var host = $('nl-ix-stats');
     if (!host) return;
     var rows = dailyRows();
-    fetchJSON('/nepse-chart/data/live.json').then(function (live) {
+    // P1.3: Use shared NepseData module (dedupes live.json fetch)
+    getLive().then(function (live) {
       host.innerHTML = statsHTML(live && live.index, rows);
       // V2 honesty: stamp the footer with the data's own timestamp (NPT).
       var asofEl = $('nl-ix-asof');

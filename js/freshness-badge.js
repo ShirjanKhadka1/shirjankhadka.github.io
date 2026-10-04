@@ -36,6 +36,17 @@
 
   var CFG = (typeof window !== 'undefined' && window.NepseMarketConfig) || null;
 
+  /**
+   * P1.3: Get live data via shared NepseData module (dedupes fetches).
+   * Falls back to direct fetch if NepseData is unavailable (e.g. script load order).
+   */
+  function getLive() {
+    if (typeof window !== 'undefined' && window.NepseData && window.NepseData.whenReady) {
+      return window.NepseData.whenReady();
+    }
+    return fetchJSON(LIVE_URL);
+  }
+
   function pad(n) { return ('0' + n).slice(-2); }
 
   // Canonical session state: 'PRE-OPEN' | 'OPEN' | 'CLOSED'.
@@ -211,7 +222,8 @@
   ensureCSS();
   renderOverrides();
   paint();
-  fetchJSON(LIVE_URL).then(function (live) {
+  // P1.3: Use shared NepseData module instead of direct fetch (dedupes live.json)
+  getLive().then(function (live) {
     if (!fromLive(live)) throw new Error('no usable live snapshot');
   }).catch(function () {
     // Live feed unreachable — fall back to the overnight batch manifest.
