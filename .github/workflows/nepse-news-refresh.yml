@@ -1,0 +1,89 @@
+# NEPSE news refresh — real-time news feed (V4).
+#
+# Every 30 minutes: rebuilds news.json from RSS feeds (Arthasansar, BizMandu,
+# OnlineKhabar, MeroLagani) and deploys if changed. Lightweight: news only,
+# no full content pipeline. The site's news sections fetch news.json
+# client-side, so new items appear automatically.
+#
+# Owner directive 2026-10-04: news must be automated real-time, not manual —
+# "lots of news are happening and time really matters."
+#
+# Alert: email via SMTP on failure (dawidd6/action-send-mail pinned to SHA),
+# subject "[NEPSE ALERT] news-refresh: ...". NEVER Facebook.
+
+name: NEPSE news refresh (real-time)
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'  # every 30 minutes
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '20'
+
+      - name: Rebuild news.json
+        run: node tools/build-nepse-news.js
+
+      - name: Validate news.json
+        id: validate
+        run: |
+          node -e "
+            const n = require('./nepse-chart/data/news.json');
+            const items = n.items || n;
+            if (!Array.isArray(items) || items.length === 0) {
+              console.error('news.json has no items');
+              process.exit(1);
+            }
+            // Every item must have title, link, source — no junk.
+            for (const it of items.slice(0, 50)) {
+              if (!it.title || !it.link || !it.src) {
+                console.error('bad item: ' + JSON.stringify(it).slice(0, 100));
+                process.exit(1);
+              }
+            }
+            console.log('news.json OK: ' + items.length + ' items');
+          "
+          echo "valid=true" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and push if changed
+        if: steps.validate.outputs.valid == 'true'
+        run: |
+          git config user.name "Nepse Decode news refresh"
+          git config user.email "shirjan.2.khadka@gmail.com"
+          if git diff --quiet nepse-chart/data/news.json; then
+            echo "no news changes"
+          else
+            git add nepse-chart/data/news.json
+            git commit -m "news: refresh $(date -u +%Y-%m-%dT%H:%M) ($(node -e "console.log(require('./nepse-chart/data/news.json').items.length)") items)"
+            git push origin main
+            echo "news deployed"
+          fi
+
+      - name: Email alert — news refresh failed
+        if: failure()
+        uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "[NEPSE ALERT] news-refresh: build or validation failed"
+          to: ${{ secrets.ALERT_EMAIL_TO }}
+          from: Nepse Decode news refresh
+          body: |
+            The NEPSE news refresh workflow FAILED. No news was deployed.
+            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

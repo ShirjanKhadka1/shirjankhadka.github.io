@@ -26,6 +26,9 @@ jobs:
       - name: Check SEBON for new prospectuses
         run: node tools/ipo-sebon-watch.js
 
+      - name: Update IPO statuses (Open/Closed by date)
+        run: node tools/ipo-status-update.js
+
       - name: Commit new entries
         run: |
           git config user.name "nepse-decode-bot"
