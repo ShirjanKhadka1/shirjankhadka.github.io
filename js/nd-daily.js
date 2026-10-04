@@ -15,6 +15,32 @@
     return String(s == null ? '' : s).replace(/&/g, '&amp;')
       .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
+  // True trading session date: derived from market-data timestamps, NOT the fetch time.
+  // live.asof is when the pipeline fetched; the session is when the market actually traded.
+  function getSessionDate(live) {
+    if (live && live.data_asof) return new Date(live.data_asof);
+    var ts = null;
+    if (live) {
+      var idx = live.indices || [];
+      for (var i = 0; i < idx.length; i++) {
+        if (idx[i] && idx[i].last_updated) {
+          var t = new Date(idx[i].last_updated).getTime();
+          if (isFinite(t) && (ts == null || t > ts)) ts = t;
+        }
+      }
+      if (ts == null) {
+        var qs = live.quotes || [];
+        for (var j = 0; j < qs.length; j++) {
+          if (qs[j] && qs[j].last_updated) {
+            var t2 = new Date(qs[j].last_updated).getTime();
+            if (isFinite(t2) && (ts == null || t2 > ts)) ts = t2;
+          }
+        }
+      }
+    }
+    if (ts != null) return new Date(ts);
+    return live && live.asof ? new Date(live.asof) : new Date();
+  }
   function fmtNum(v, dp) {
     if (v == null || !isFinite(Number(v))) return '—';
     return Number(v).toLocaleString('en-US', {
@@ -261,7 +287,7 @@
   function renderMeta(live) {
     var sessDate = '';
     try {
-      var d = new Date(live.data_asof || live.asof);
+      var d = getSessionDate(live);
       sessDate = d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kathmandu' });
     } catch (e) {}
     var asof = $('dsAsof');
