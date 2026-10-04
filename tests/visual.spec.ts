@@ -50,6 +50,13 @@ const DISABLE_ANIMATIONS_CSS = `
     transition-duration: 0s !important;
     transition-delay: 0s !important;
   }
+  /* The closed mobile nav drawer (#nd-drawer) is position:fixed +
+     translateX(100%). Chrome counts its off-canvas bounds toward
+     body.scrollWidth, so fullPage screenshots come out 340px too wide
+     (1780px desktop / 730px mobile) and the page re-lays out at the wrong
+     viewport. The drawer is visibility:hidden when closed (invisible in
+     every shot), so remove it from the render for deterministic widths. */
+  #nd-drawer{ display: none !important; }
 `;
 
 // Selectors for dynamic regions to mask (tickers, live badges, timestamps)
@@ -99,10 +106,13 @@ for (const vp of VIEWPORTS) {
         }
       });
 
-      // 3. Disable animations via CSS (injected before navigation)
-      await page.addStyleTag({ content: DISABLE_ANIMATIONS_CSS });
-
       await page.goto(p, { waitUntil: 'networkidle', timeout: 60000 });
+
+      // 3. Disable animations via CSS.
+      // MUST run after goto: addStyleTag injects into the current document,
+      // and navigation to a new document discards it (injecting before goto
+      // silently does nothing).
+      await page.addStyleTag({ content: DISABLE_ANIMATIONS_CSS });
 
       // 4. Wait for web fonts to load (critical: prevents fallback-font diffs)
       await page.evaluate(() => document.fonts.ready);
