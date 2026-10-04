@@ -688,6 +688,15 @@
   function paintLiveFromTape(d, st) {
     var NL = window.NepseLive;
     if (!NL || !d || !d.quotes || !d.asof || d.asof === lastLiveAsOf) return;
+    // CRITICAL: Don't use fetch timestamp (d.asof) to determine "today's session".
+    // On weekends, a fresh poll has today's timestamp but Friday's data.
+    // Check if today is actually a trading day first.
+    var CFG = window.NepseMarketConfig;
+    try {
+      if (CFG && typeof CFG.isHoliday === 'function' && CFG.isHoliday(NL.nowNPT())) return;
+      var dow = NL.nowNPT().getUTCDay();
+      if (dow === 0 || dow === 6) return; // Saturday/Sunday: never "live"
+    } catch (e) { /* continue with date check */ }
     var dayStr = null, todayStr = null;
     try {
       dayStr = new Date(d.asof + 5.75 * 3600 * 1000).toISOString().slice(0, 10);
