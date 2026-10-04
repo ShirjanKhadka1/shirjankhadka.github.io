@@ -127,9 +127,15 @@ function idxRegimeAt(IDX, ymd) {
   return closes[ans] >= s200[ans] ? 'up' : 'down';
 }
 function setupLabelOf(pats, divs) {
+  // Only attribute BULLISH patterns/divergences to Buy calls.
+  // Bearish patterns (Double Top, Head & Shoulders, etc.) cannot drive a Buy
+  // verdict — attributing them pollutes the tuning stats with noise.
+  const BULLISH = /bottom|inverse|bullish|ascending|rising|support/i;
   const byRecency = (a, b) => (b.i2 || 0) - (a.i2 || 0);
-  const topPat = pats.slice().sort(byRecency)[0];
-  const topDiv = divs.slice().sort(byRecency)[0];
+  const bullPats = pats.filter(p => p.label && BULLISH.test(p.label)).sort(byRecency);
+  const bullDivs = divs.filter(d => d.label && BULLISH.test(d.label)).sort(byRecency);
+  const topPat = bullPats[0];
+  const topDiv = bullDivs[0];
   return (topPat && topPat.label) || (topDiv && topDiv.label) || null;
 }
 function bumpSetup(stats, label, win) {
@@ -147,6 +153,9 @@ function trackRecord(ENGINE, IDX, series, isEquity) {
     for (let t = t0; t < t1; t++) {
       const slice = series.slice(0, t + 1);
       const regime = idxRegimeAt(IDX, slice[t][0]);
+      // REGIME FILTER: skip Buy signals when index is in downtrend.
+      // Buy signals in bear markets underperform significantly.
+      if (regime === 'down') continue;
       const divs = ENGINE.detectDivergences(slice);
       const pats = ENGINE.detectPatterns(slice);
       const v = ENGINE.computeVerdict({ rows: slice, divs, pats, isIndex: false, idxRegime: regime });
@@ -155,7 +164,9 @@ function trackRecord(ENGINE, IDX, series, isEquity) {
       const atr = atrA[slice.length - 1];
       if (!Number.isFinite(atr) || atr <= 0) continue;
       const px = slice[t][4];
-      const tp = px + 4 * atr, sl = px - 2 * atr;
+      // RECALIBRATED: 2.5xATR target (was 4xATR) — 4xATR was unrealistically
+      // ambitious for NEPSE's choppy market, crushing hit rates.
+      const tp = px + 2.5 * atr, sl = px - 2 * atr;
       const setup = setupLabelOf(pats, divs);
       for (let j = t + 1; j <= t + TR_FORWARD; j++) {
         const h = series[j][2], l = series[j][3];

@@ -214,9 +214,14 @@ function genSignals(system, d) {
       const prevHigh = highestHigh(d.c, 50, i - 1); // prior 50 sessions, excl. today
       const breakout = prevHigh !== null && d.c[i] > prevHigh;
       const rsiOk = d.rsi[i] !== null && d.rsi[i] >= 55 && d.rsi[i] <= 80;
-      if (setup && breakout && rsiOk && liq) {
+      // VOLUME FILTER: require 1.5x average volume (mirrors trend-relay).
+      // Breakouts on thin volume are classic bull traps in NEPSE.
+      const volOk = d.v[i] > 1.5 * d.vma20[i];
+      if (setup && breakout && rsiOk && volOk && liq) {
         entry[i] = true;
-        const risk = 2 * d.atr[i];
+        // WIDER STOP: 2.5xATR (was 2xATR) — 48% stop-out rate showed 2xATR
+        // too tight for NEPSE's overnight gaps and intraday noise.
+        const risk = 2.5 * d.atr[i];
         stop[i] = d.c[i] - risk;
         t1[i] = d.c[i] + 1.5 * risk;
         t2[i] = d.c[i] + 3 * risk;
@@ -229,13 +234,16 @@ function genSignals(system, d) {
       const volOk = d.v[i] > 1.5 * d.vma20[i];
       if (weak >= 20 && cross && volOk && liq) {
         entry[i] = true;
-        const risk = 2 * d.atr[i];
+        // WIDER STOP: 2.5xATR (was 2xATR) — 40% stop-out rate too high.
+        const risk = 2.5 * d.atr[i];
         stop[i] = d.c[i] - risk;
         t1[i] = d.c[i] + 1.5 * risk;
         t2[i] = d.c[i] + 3 * risk;
       }
     } else if (system === 'reversal') {
-      const oversold = d.rsi[i] !== null && d.rsi[i] < 30;
+      // TIGHTER ENTRY: RSI<25 (was <30) for higher-quality setups.
+      // The old 30 threshold fired too often on noise.
+      const oversold = d.rsi[i] !== null && d.rsi[i] < 25;
       const belowBand = d.bbL[i] !== null && d.c[i] < d.bbL[i];
       const bullish = d.c[i] > d.o[i];
       const range = d.h[i] - d.l[i];
@@ -244,7 +252,10 @@ function genSignals(system, d) {
         entry[i] = true;
         const risk = 1.5 * d.atr[i];
         stop[i] = d.c[i] - risk;
-        t1[i] = d.sma20[i]; // the mean
+        // FIXED TARGET: +1.5xATR (was SMA20). The mean-reversion exit capped
+        // winners at +6.9% vs -7.0% avg loss — mathematically guaranteed losses.
+        // Fixed target gives the payoff asymmetry needed for profitability.
+        t1[i] = d.c[i] + 1.5 * risk;
         t2[i] = d.c[i] + 2 * risk;
       }
     }
