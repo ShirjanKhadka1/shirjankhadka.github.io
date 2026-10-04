@@ -122,7 +122,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:200;op
 [data-theme="light"] .theme-toggle .ic-sun{display:block}
 [data-theme="light"] .theme-toggle .ic-moon{display:none}
 /* ============ HERO ============ */
-.hero{position:relative;z-index:1;min-height:100svh;display:flex;align-items:center;padding:120px 0 60px;perspective:1600px}
+.hero{position:relative;z-index:1;min-height:100svh;display:flex;align-items:center;padding:120px 0 60px;perspective:1600px;overflow-x:clip}/* clip: contains .portrait-ring 34px overhang, fixes mobile h-overflow (CI smoke) */
 .hero-grid-bg{position:absolute;inset:0;pointer-events:none;opacity:.5;
   background-image:linear-gradient(rgba(184,230,46,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(184,230,46,.045) 1px,transparent 1px);
   background-size:56px 56px;
