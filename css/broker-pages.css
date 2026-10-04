@@ -27,9 +27,30 @@
 .bk-tile .k{ font-size: 11px; color: var(--muted, #6F6A5E); text-transform: uppercase; letter-spacing: .09em; font-weight: 600; }
 .bk-tile .v{ font-size: 1.3rem; font-weight: 700; margin-top: 4px; }
 .bk-tile .s{ font-size: 12px; color: var(--muted, #6F6A5E); margin-top: 2px; }
-.bk-nav{ display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 20px; }
-.bk-nav a{ padding: 8px 16px; border-radius: 999px; border: 1px solid var(--hairline, #E7DFCE); text-decoration: none; font-size: .85rem; font-weight: 600; color: var(--ink-soft, #4A463C); background: var(--card, #fff); }
-.bk-nav a.active{ background: var(--green-900, #0B3D2E); color: #fff; border-color: var(--green-900, #0B3D2E); }
+.bk-nav{
+  display: flex; gap: 4px; flex-wrap: wrap; margin: 0 0 24px;
+  background: var(--inset, #0D0F14); border: 1px solid var(--hairline, #E7DFCE);
+  border-radius: 16px; padding: 6px; width: fit-content; max-width: 100%;
+}
+.bk-nav a{
+  padding: 10px 20px; border-radius: 12px; border: 1px solid transparent;
+  text-decoration: none; font-size: .85rem; font-weight: 600;
+  color: var(--muted, #6F6A5E); background: transparent;
+  transition: all .2s ease; white-space: nowrap;
+}
+.bk-nav a:hover{ color: var(--text, #1a1d24); background: rgba(0,0,0,.04); }
+.bk-nav a.active{
+  background: var(--green-900, #0B3D2E); color: #fff;
+  border-color: var(--green-900, #0B3D2E);
+  box-shadow: 0 2px 8px rgba(11,61,46,.25);
+}
+[data-theme="dark"] .bk-nav{ background: #0D0F14; border-color: #1E2430; }
+[data-theme="dark"] .bk-nav a{ color: #9AA3B2; }
+[data-theme="dark"] .bk-nav a:hover{ color: #fff; background: rgba(255,255,255,.06); }
+[data-theme="dark"] .bk-nav a.active{
+  background: var(--nd-lime, #B8E62E); color: #0A0C10; border-color: var(--nd-lime, #B8E62E);
+  box-shadow: 0 2px 12px rgba(184,230,46,.3);
+}
 .bk-note{ font-size: .82rem; color: var(--muted, #6F6A5E); margin: 24px 0 0; line-height: 1.7; }
 .bk-loading{ color: var(--muted, #6F6A5E); padding: 24px 0; }
 .bk-empty{ background: var(--gold-soft, #FFF8E1); border: 1px solid var(--hairline, #E7DFCE); border-radius: 12px; padding: 14px 18px; font-size: .9rem; color: var(--ink-soft, #4A463C); margin: 12px 0; }
