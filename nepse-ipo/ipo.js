@@ -43,8 +43,11 @@
     var n = Number(v);
     return isFinite(n) ? n.toLocaleString('en-US') : esc(v);
   }
-  function normStatus(v) {
+  function normStatus(v, row) {
     var s = String(v || '').toLowerCase().trim();
+    if (s === 'open' && row && row.closing_date && state.data && state.data.updated) {
+      if (String(row.closing_date) < String(state.data.updated)) return 'closed';
+    }
     if (s === 'open') return 'open';
     if (s.indexOf('upcoming') !== -1 || s.indexOf('up coming') !== -1 || s === 'announced') return 'upcoming';
     return 'closed';
@@ -59,7 +62,7 @@
       return '<td class="sym">' + esc(v) + src + '</td>';
     }
     if (col === 'status') {
-      var st = normStatus(v);
+      var st = normStatus(v, row);
       var label = st === 'open' ? 'Open' : st === 'upcoming' ? 'Upcoming' : 'Closed';
       return '<td><span class="ipo-status ' + st + '">' + esc(label) + '</span></td>';
     }
@@ -78,7 +81,7 @@
 
   // Open first, then upcoming, then by sort key (default: closing_date desc)
   function statusRank(r) {
-    var s = normStatus(r.status);
+    var s = normStatus(r.status, r);
     return s === 'open' ? 0 : s === 'upcoming' ? 1 : 2;
   }
 
@@ -91,7 +94,7 @@
       rows = rows.filter(function (r) { return String(r.symbol || '').toLowerCase().indexOf(q) !== -1; });
     }
     if (state.statusFilter !== 'all') {
-      rows = rows.filter(function (r) { return normStatus(r.status) === state.statusFilter; });
+      rows = rows.filter(function (r) { return normStatus(r.status, r) === state.statusFilter; });
     }
     var defaultSort = (state.sortKey === 'closing_date' && state.sortDir === -1);
     rows.sort(function (a, b) {
@@ -116,7 +119,7 @@
     Object.keys(cats).forEach(function (k) {
       (cats[k].items || []).forEach(function (it) {
         total++;
-        var s = normStatus(it.status);
+        var s = normStatus(it.status, it);
         if (s === 'open') open++;
         else if (s === 'upcoming') upcoming++;
       });
@@ -236,7 +239,7 @@
     var open = [];
     Object.keys(state.data.categories).forEach(function (k) {
       (state.data.categories[k].items || []).forEach(function (it) {
-        if (normStatus(it.status) === 'open') open.push({ sym: it.symbol, label: state.data.categories[k].label, close: it.closing_date });
+        if (normStatus(it.status, it) === 'open') open.push({ sym: it.symbol, label: state.data.categories[k].label, close: it.closing_date });
       });
     });
     // Soonest closing first
