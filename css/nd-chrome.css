@@ -12,6 +12,11 @@
      <script src="/js/nd-chrome.js" defer></script>
    ============================================================ */
 
+/* Guard against off-canvas elements (e.g. the closed mobile drawer, which is
+   translated 100% past the viewport edge) expanding the document scroll area.
+   `clip` (not `hidden`) preserves position:sticky descendants. */
+html, body{ overflow-x: clip; }
+
 #nd-header{
   position: sticky; top: 0; z-index: 40;
   height: var(--nd-header-h);
@@ -155,10 +160,11 @@
 #nd-header .nd-drawerpanel{
   position: fixed; top: 0; right: 0; bottom: 0; width: min(340px, 88vw); z-index: 40;
   background: var(--nd-panel); border-left: 1px solid var(--nd-border);
-  transform: translateX(100%); transition: transform var(--nd-t-enter) var(--nd-ease);
+  transform: translateX(100%); visibility: hidden;
+  transition: transform var(--nd-t-enter) var(--nd-ease), visibility 0s linear var(--nd-t-enter);
   overflow-y: auto; padding: var(--nd-s5);
 }
-#nd-header .nd-drawerpanel.open{ transform: none; }
+#nd-header .nd-drawerpanel.open{ transform: none; visibility: visible; transition: transform var(--nd-t-enter) var(--nd-ease), visibility 0s linear 0s; }
 #nd-header .nd-acc{ border-bottom: 1px solid var(--nd-border); }
 #nd-header .nd-acc > button{
   width: 100%; display: flex; justify-content: space-between; align-items: center;

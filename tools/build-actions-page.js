@@ -131,7 +131,7 @@ function main() {
     '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n' +
     '<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">\n' +
     '<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">\n' +
-    '<link rel="stylesheet" href="/css/nd-chrome.css?v=20261003a">\n' +
+    '<link rel="stylesheet" href="/css/nd-chrome.css?v=20261004a">\n' +
     '<link rel="stylesheet" href="/css/nd-actions.css?v=20261003b">\n' +
     '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>\n' +
     '</head>\n<body class="nd" data-page="actions">\n' +

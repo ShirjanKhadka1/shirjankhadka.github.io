@@ -174,7 +174,7 @@ function head(sym, name, slug) {
     '<link rel="stylesheet" href="/css/nepse-wave8.css?v=20261003a">\n' +    '<link rel="stylesheet" href="/css/theme.css?v=20261001a">\n' +
     '<link rel="stylesheet" href="/css/nepse-d2.css?v=20261001a">\n' +
     '<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">\n' +
-    '<link rel="stylesheet" href="/css/nd-chrome.css?v=20261003a">\n' +
+    '<link rel="stylesheet" href="/css/nd-chrome.css?v=20261004a">\n' +
 
     '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>\n' +
     '</head>\n';
@@ -976,7 +976,7 @@ function indexPage(symbols, asof) {
     '<link rel="stylesheet" href="/css/nepse-brand.css?v=20261003a">\n' +
     '<link rel="stylesheet" href="/css/nepse-wave8.css?v=20261003a">\n' +
     '<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">\n' +
-    '<link rel="stylesheet" href="/css/nd-chrome.css?v=20261003a">\n' +
+    '<link rel="stylesheet" href="/css/nd-chrome.css?v=20261004a">\n' +
     '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>\n</head>\n' +
     RAIL + '<main id="main" class="wrap">\n' +
     '<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> / <span>Stocks</span></nav>\n' +
