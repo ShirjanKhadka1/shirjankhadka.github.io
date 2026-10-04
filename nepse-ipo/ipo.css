@@ -247,6 +247,16 @@
   background: rgba(96,165,250,.12); color: #60A5FA;
   border: 1px solid rgba(96,165,250,.4);
 }
+.ipo-status.local-open{
+  background: rgba(251,191,36,.12); color: #FBBF24;
+  border: 1px solid rgba(251,191,36,.4);
+}
+.ipo-status.local-open::before{ animation: ipoPulse 1.5s ease-in-out infinite; }
+.ipo-status.foreign-open{
+  background: rgba(167,139,250,.12); color: #A78BFA;
+  border: 1px solid rgba(167,139,250,.4);
+}
+.ipo-status.foreign-open::before{ animation: ipoPulse 1.5s ease-in-out infinite; }
 .ipo-empty{ padding: var(--nd-s8, 32px); text-align: center; color: var(--nd-dim, #6B7280); font-size: var(--nd-text-body, .875rem); }
 
 /* ---- Pagination ---- */

@@ -45,9 +45,11 @@
   }
   function normStatus(v, row) {
     var s = String(v || '').toLowerCase().trim();
-    if (s === 'open' && row && row.closing_date && state.data && state.data.updated) {
+    if ((s === 'open' || s === 'local-open' || s === 'foreign-open') && row && row.closing_date && state.data && state.data.updated) {
       if (String(row.closing_date) < String(state.data.updated)) return 'closed';
     }
+    if (s === 'local-open') return 'local-open';
+    if (s === 'foreign-open') return 'foreign-open';
     if (s === 'open') return 'open';
     if (s.indexOf('upcoming') !== -1 || s.indexOf('up coming') !== -1 || s === 'announced') return 'upcoming';
     return 'closed';
@@ -63,7 +65,10 @@
     }
     if (col === 'status') {
       var st = normStatus(v, row);
-      var label = st === 'open' ? 'Open' : st === 'upcoming' ? 'Upcoming' : 'Closed';
+      var label = st === 'open' ? 'Open' :
+                  st === 'local-open' ? 'Local Phase' :
+                  st === 'foreign-open' ? 'Foreign Employment' :
+                  st === 'upcoming' ? 'Upcoming' : 'Closed';
       return '<td><span class="ipo-status ' + st + '">' + esc(label) + '</span></td>';
     }
     if (NUMERIC_COLS[col]) return '<td class="num">' + fmtNum(v) + '</td>';
@@ -79,10 +84,10 @@
     return String(v == null ? '' : v).toLowerCase();
   }
 
-  // Open first, then upcoming, then by sort key (default: closing_date desc)
+  // Open phases first (local → foreign → public), then upcoming, then closed.
   function statusRank(r) {
     var s = normStatus(r.status, r);
-    return s === 'open' ? 0 : s === 'upcoming' ? 1 : 2;
+    return s === 'local-open' ? 0 : s === 'foreign-open' ? 1 : s === 'open' ? 2 : s === 'upcoming' ? 3 : 4;
   }
 
   function rowsFor() {

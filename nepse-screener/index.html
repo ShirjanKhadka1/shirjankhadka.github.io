@@ -127,6 +127,13 @@
     <div class="w1-panel" role="tabpanel" id="w1p-mv" aria-labelledby="w1tab-mv" tabindex="0" hidden><div class="table-scroll"><table class="sc-table w1-table"><caption class="visually-hidden">Biggest movers by 20-session average daily range</caption><thead><tr><th scope="col">Symbol</th><th scope="col">Company</th><th scope="col" class="num">Avg range %</th><th scope="col" class="num">Avg range</th><th scope="col" class="num">Sessions</th></tr></thead><tbody id="w1b-mv"><tr><td colspan="5"><span class="skl skl-row" aria-hidden="true"></span></td></tr></tbody></table></div></div>
     <p class="w1-note">RSI(14) below 30 reads oversold and above 70 overbought, by convention. Each RSI is from that security's latest scored session in the daily batch. Moves most ranks securities by 20-session average daily range (high minus low) as a share of the latest close. Mechanical measurements for education, not recommendations.</p>
   <section class="sc-controls" aria-label="Screener controls">
+    <label class="sc-show">Timeframe
+      <select id="sc-tf" class="sc-select" aria-label="Verdict timeframe">
+        <option value="d" selected>Daily</option>
+        <option value="w">Weekly</option>
+        <option value="m">Monthly</option>
+      </select>
+    </label>
     <label class="sc-show">Show
       <select id="sc-perpage" class="sc-select" aria-label="Rows per page">
         <option value="10">10</option>
