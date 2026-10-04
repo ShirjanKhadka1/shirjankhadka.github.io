@@ -43,8 +43,11 @@ function readRepo(rel) {
   return JSON.parse(fs.readFileSync(path.join(ROOT, rel), 'utf8'));
 }
 function sessionOf(obj) {
-  // live.json asof is ISO datetime; universe.json asof is YYYY-MM-DD
-  const a = obj.asof || obj.updated || '';
+  // Prefer the explicit session_date stamp (last trading session, never a
+  // weekend/holiday calendar date). Fall back to asof/updated for files
+  // written before session_date existed. live.json asof is ISO datetime;
+  // universe.json asof is YYYY-MM-DD.
+  const a = (obj && (obj.session_date || obj.asof || obj.updated)) || '';
   return String(a).slice(0, 10);
 }
 

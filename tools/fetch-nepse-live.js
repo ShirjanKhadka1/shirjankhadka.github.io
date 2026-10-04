@@ -41,6 +41,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const td = require('./trading-days');
 
 const ROOT = 'https://www.nepalstock.com';
 const OUT = path.join(__dirname, '..', 'nepse-chart', 'data', 'live.json');
@@ -100,6 +101,21 @@ function abort(msg) {
 function nptDate(isoOrMs) {
   const ms = typeof isoOrMs === 'number' ? isoOrMs : Date.parse(isoOrMs);
   return new Date(ms + (5 * 60 + 45) * 60 * 1000).toISOString().slice(0, 10);
+}
+
+/**
+ * The trading session this snapshot belongs to — the LAST TRADING SESSION,
+ * never a weekend/holiday calendar date. Mirrors the validator's
+ * live-session-current expectation exactly:
+ *   - trading day at/after market open  -> today (session in progress/closed)
+ *   - trading day before open            -> last completed session
+ *   - weekend / holiday                  -> last completed session (Friday)
+ * asof stays the honest fetch time; session_date is the market session.
+ */
+function snapshotSessionDate(now) {
+  const today = td.todayNPT(now);
+  if (td.isTradingDay(today) && td.timeNPT(now) >= td.CAL.market_hours_npt.open) return today;
+  return td.expectedSessionDate(now);
 }
 
 function readLive() {
@@ -275,11 +291,14 @@ async function main() {
     // data forever and the actual close never lands on the site.
     let closingRun = false;
     if (!marketOpen) {
-      const today = nptDate(Date.now());
+      const now = new Date();
+      const thisSession = snapshotSessionDate(now);
       const prev = readLive();
-      const prevDay = prev && prev.asof ? nptDate(prev.asof) : null;
-      if (prev && prevDay === today && prev.market === 'CLOSED') {
-        log('closing snapshot for ' + today + ' already captured; leaving live.json untouched');
+      // Prefer the explicit session stamp; fall back to the asof date for
+      // snapshots written before session_date existed.
+      const prevSession = prev && (prev.session_date || (prev.asof ? nptDate(prev.asof) : null));
+      if (prev && prevSession === thisSession && prev.market === 'CLOSED') {
+        log('closing snapshot for session ' + thisSession + ' already captured; leaving live.json untouched');
         process.exit(0);
       }
       if (!mo || mo.id == null) {
@@ -287,7 +306,7 @@ async function main() {
         process.exit(0);
       }
       closingRun = true;
-      log('market ' + (mo.isOpen || 'UNKNOWN') + ' — capturing closing snapshot for ' + today + ' (session id=' + mo.id + ')');
+      log('market ' + (mo.isOpen || 'UNKNOWN') + ' — capturing closing snapshot for session ' + thisSession + ' (id=' + mo.id + ')');
     } else {
       log('market OPEN (asOf=' + mo.asOf + ', id=' + mo.id + ')');
     }
@@ -388,6 +407,10 @@ async function main() {
 
     const payload = {
       asof: new Date().toISOString(),
+      // The trading session this snapshot belongs to: the last trading
+      // session, never a weekend/holiday calendar date. Validators and the
+      // site read this (not asof) for "which session is this data".
+      session_date: snapshotSessionDate(new Date()),
       // V2 honesty: NEPSE's own timestamp for this data (not our fetch time).
       // mo.asOf is the exchange's authoritative "as of" for the market state.
       data_asof: (mo && mo.asOf) || null,

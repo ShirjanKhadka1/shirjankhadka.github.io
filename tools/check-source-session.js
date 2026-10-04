@@ -23,7 +23,9 @@ const ROOT = path.join(__dirname, '..');
 const DATA = path.join(ROOT, 'nepse-chart', 'data');
 
 function sessionOf(obj) {
-  const a = (obj && (obj.asof || obj.updated)) || '';
+  // Prefer the explicit session_date stamp (last trading session); fall back
+  // to asof/updated for files written before session_date existed.
+  const a = (obj && (obj.session_date || obj.asof || obj.updated)) || '';
   return String(a).slice(0, 10);
 }
 function readData(rel) {
