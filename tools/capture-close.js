@@ -25,7 +25,7 @@ const { execSync } = require('child_process');
 
 const ROOT = path.join(__dirname, '..');
 const LIVE = path.join(ROOT, 'nepse-chart', 'data', 'live.json');
-const UA = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:89.0) Gecko/20100101 Firefox/89.0';
+const UA = 'NepseDecode/1.0 (+https://shirjankhadka.com.np; contact: shirjan.2.khadka@gmail.com)';
 
 function nptNow() {
   return new Date(Date.now() + (5 * 60 + 45) * 60000);

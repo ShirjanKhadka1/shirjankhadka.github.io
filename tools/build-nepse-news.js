@@ -24,7 +24,7 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, 'nepse-chart', 'data', 'news.json');
 const UNIVERSE = path.join(ROOT, 'nepse-chart', 'data', 'universe.json');
-const UA = { 'User-Agent': 'Mozilla/5.0 (NEPSE-Alpha-Lab news collector)' };
+const UA = { 'User-Agent': 'NepseDecode/1.0 (+https://shirjankhadka.com.np; contact: shirjan.2.khadka@gmail.com)' };
 const KEEP_DAYS = 30;
 const MAX_ITEMS = 500;
 

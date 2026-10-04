@@ -45,7 +45,7 @@ const U = {
   prices: (s) => 'https://samirwagle.github.io/Nepse-All-Scraper/docs/api/prices/' + s.replace('/', '-') + '.json',
   live: 'https://shubhamnpk.github.io/yonepse/data/market/live.json'
 };
-const UA = { 'User-Agent': 'Mozilla/5.0 (NEPSE-Alpha-Lab universe builder)' };
+const UA = { 'User-Agent': 'NepseDecode/1.0 (+https://shirjankhadka.com.np; contact: shirjan.2.khadka@gmail.com)' };
 
 function getJSON(url, tries) {
   tries = tries == null ? 3 : tries;
