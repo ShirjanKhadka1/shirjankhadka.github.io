@@ -1,0 +1,104 @@
+/* NEPSE Technical — chart workspace styles.
+   Built on the d2 design tokens (see /css/nepse-d2.css): generous
+   spacing, nothing crowded. Light + dark via [data-theme]. */
+
+/* The shared sidebar script injects a .nav-sub span (Momentum / Trend Relay /
+   Reversal) into the mobile nav; without this its links wrap and collide.
+   Scoped here so other pages are untouched. */
+.d2-mobilenav .nav-sub { display: inline-flex; gap: 8px; flex: none; align-items: center; }
+
+.nt-wrap { max-width: 1180px; margin: 0 auto; padding: 40px 24px 72px; }
+.nt-kicker { margin-bottom: 10px; }
+.nt-wrap h1 { margin: 0 0 12px; }
+.nt-lede { color: var(--d2-ink-soft); font-size: 16px; line-height: 1.65; max-width: 72ch; margin: 0 0 28px; }
+
+/* search */
+.nt-search { background: var(--d2-surface2); border: 1px solid var(--d2-line);
+  border-radius: var(--d2-r-md); padding: 20px; margin-bottom: 20px; }
+.nt-search-row { display: flex; gap: 10px; }
+.nt-search-row input {
+  flex: 1; min-width: 0; padding: 11px 14px; font-size: 15px;
+  border: 1px solid var(--d2-line); border-radius: var(--d2-r-sm, 8px);
+  background: var(--d2-bg, #fff); color: var(--d2-ink);
+}
+.nt-search-row input:focus { outline: 2px solid var(--d2-accent, #0B3D2E); outline-offset: 1px; }
+.nt-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.nt-chips button {
+  border: 1px solid var(--d2-line); background: transparent; color: var(--d2-ink-soft);
+  border-radius: 999px; padding: 6px 14px; font-size: 13px; cursor: pointer;
+}
+.nt-chips button:hover { border-color: var(--d2-accent, #0B3D2E); color: var(--d2-ink); }
+
+/* toolbar */
+.nt-tools { display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center;
+  margin: 0 0 14px; }
+.nt-seg { display: inline-flex; border: 1px solid var(--d2-line); border-radius: 999px;
+  overflow: hidden; background: var(--d2-surface2); }
+.nt-seg button { border: 0; background: transparent; color: var(--d2-ink-soft);
+  padding: 8px 14px; font-size: 13px; cursor: pointer; }
+.nt-seg button + button { border-left: 1px solid var(--d2-line); }
+.nt-seg button.on { background: var(--d2-ink); color: var(--d2-bg, #fff); font-weight: 600; }
+.nt-ov { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; }
+.nt-ov-title { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--d2-muted); }
+.nt-ovl { display: inline-flex; align-items: center; gap: 7px; font-size: 13.5px;
+  color: var(--d2-ink-soft); cursor: pointer; }
+.nt-ovl input { accent-color: var(--d2-accent, #0B3D2E); width: 15px; height: 15px; }
+.nt-ovl input:disabled + span { opacity: .4; }
+
+/* chart card */
+.nt-card { background: var(--d2-surface2); border: 1px solid var(--d2-line);
+  border-radius: var(--d2-r-md); padding: 18px; margin-bottom: 20px; position: relative; }
+.nt-legend { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: baseline;
+  font-size: 13.5px; color: var(--d2-muted); margin-bottom: 10px; min-height: 24px; }
+.nt-lg-sym { font-weight: 700; color: var(--d2-ink); font-size: 15px; }
+.nt-lg-ohlc b { color: var(--d2-ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.nt-lg-chg.up { color: #0E6B3A; font-weight: 600; }
+.nt-lg-chg.down { color: #B23A2E; font-weight: 600; }
+.nt-lg-chg.flat { color: var(--d2-muted); }
+[data-theme="dark"] .nt-lg-chg.up { color: #3DDC84; }
+[data-theme="dark"] .nt-lg-chg.down { color: #FF6B5E; }
+.nt-live { font-size: 11px; font-weight: 700; letter-spacing: .08em; color: #fff;
+  background: #0E6B3A; border-radius: 4px; padding: 2px 8px; }
+[data-theme="dark"] .nt-live { background: #3DDC84; color: #101410; }
+
+#nt-chart { width: 100%; height: 480px; position: relative; }
+#nt-chart.loading::after { content: ""; position: absolute; inset: 0;
+  background: linear-gradient(100deg, transparent 30%, rgba(128,128,128,.12) 50%, transparent 70%);
+  background-size: 200% 100%; animation: nt-shimmer 1.2s infinite; border-radius: 6px; pointer-events: none; }
+@keyframes nt-shimmer { to { background-position: -200% 0; } }
+.nt-spinner { text-align: center; color: var(--d2-muted); font-size: 14px; padding: 18px 0 4px; }
+.nt-session { font-size: 12.5px; color: var(--d2-muted); margin: 10px 2px 0; }
+.nt-flag { font-size: 13px; color: var(--d2-ink-soft); background: rgba(199,126,0,.1);
+  border: 1px solid rgba(199,126,0,.35); border-radius: 8px; padding: 10px 14px; margin-top: 12px; }
+
+/* stats */
+.nt-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px; margin-bottom: 28px; }
+.nt-stat { background: var(--d2-surface2); border: 1px solid var(--d2-line);
+  border-radius: var(--d2-r-md); padding: 14px 16px; }
+.nt-stat .k { display: block; font-size: 11.5px; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--d2-muted); margin-bottom: 6px; }
+.nt-stat .v { font-size: 19px; font-weight: 650; color: var(--d2-ink);
+  font-variant-numeric: tabular-nums; }
+.nt-stat .v.up { color: #0E6B3A; }
+.nt-stat .v.down { color: #B23A2E; }
+[data-theme="dark"] .nt-stat .v.up { color: #3DDC84; }
+[data-theme="dark"] .nt-stat .v.down { color: #FF6B5E; }
+
+/* notes */
+.nt-notes { max-width: 76ch; color: var(--d2-ink-soft); font-size: 14px; line-height: 1.7; }
+.nt-notes h2 { font-size: 17px; color: var(--d2-ink); margin: 0 0 10px; }
+.nt-notes p { margin: 0 0 12px; }
+.nt-notes .fine { font-size: 12.5px; color: var(--d2-muted); }
+.nt-faq { margin-top: 26px; }
+.nt-faq details { border-top: 1px solid var(--d2-line); padding: 12px 0; }
+.nt-faq details:last-child { border-bottom: 1px solid var(--d2-line); }
+.nt-faq summary { cursor: pointer; font-weight: 600; color: var(--d2-ink); font-size: 14.5px; }
+.nt-faq details p { margin: 8px 0 2px; font-size: 14px; }
+
+@media (max-width: 640px) {
+  .nt-wrap { padding: 28px 16px 56px; }
+  #nt-chart { height: 360px; }
+  .nt-search-row { flex-direction: column; }
+  .nt-card { padding: 12px; }
+}
