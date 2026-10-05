@@ -37,6 +37,12 @@
 
   function apply(theme) {
     document.documentElement.setAttribute('data-theme', theme);
+    /* Mirror to data-nd-ed so the --nd-* editorial tokens in
+       css/nd-editorial-theme.css pick the light palette too (dark is the
+       token default = attribute absent). Same mapping as js/nd-chrome.js
+       applyTheme(); needed by d2-shell pages that don't load nd-chrome. */
+    if (theme === 'light') document.documentElement.setAttribute('data-nd-ed', 'light');
+    else document.documentElement.removeAttribute('data-nd-ed');
     try { localStorage.setItem(KEY, theme); } catch (e) { /* private mode */ }
     syncMeta(theme);
     document.querySelectorAll('.theme-toggle').forEach(syncButton);
@@ -75,6 +81,10 @@
 
   function init() {
     syncMeta(current());
+    /* Ensure data-nd-ed mirrors the initial theme for --nd-* token pages
+       whose <head> pre-paint snippet predates the mirror. */
+    if (current() === 'light') document.documentElement.setAttribute('data-nd-ed', 'light');
+    else document.documentElement.removeAttribute('data-nd-ed');
     inject();
   }
 
