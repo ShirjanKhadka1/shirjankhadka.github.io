@@ -280,3 +280,45 @@
   .nt-card { padding: 12px; }
   .nt-notes { padding: 20px 16px; }
 }
+
+/* ============================================================
+ * Premium 3D layer — technical charts
+ * ============================================================ */
+.nt-card{
+  background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,0) 35%), var(--nd-panel, #12141A);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 2px 6px rgba(0,0,0,.4), 0 16px 40px rgba(0,0,0,.35);
+}
+.nt-go{
+  background: linear-gradient(180deg, rgba(255,255,255,.2), rgba(255,255,255,0) 45%), var(--nd-lime, #B8E62E);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.35), inset 0 -1px 0 rgba(0,0,0,.12), 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.3);
+  transition: transform .2s cubic-bezier(.22,1,.36,1), box-shadow .2s, filter .2s;
+}
+.nt-go:hover{
+  transform: translateY(-2px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 4px 10px rgba(0,0,0,.45), 0 4px 16px rgba(184,230,46,.3), 0 16px 36px rgba(0,0,0,.35);
+}
+.nt-go:active{ transform: translateY(1px) scale(.98); box-shadow: inset 0 2px 5px rgba(0,0,0,.25); }
+.nt-chips button{
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0) 50%), var(--nd-panel-2, #161A23);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 1px 3px rgba(0,0,0,.35);
+  transition: transform .18s cubic-bezier(.22,1,.36,1), box-shadow .18s;
+}
+.nt-chips button:hover{ transform: translateY(-1px); box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 3px 8px rgba(0,0,0,.4); }
+.nt-chips button:active{ transform: translateY(1px) scale(.97); }
+.nt-search-row input{
+  box-shadow: inset 0 2px 6px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.03);
+}
+.nt-search-row input:focus{
+  box-shadow: inset 0 2px 6px rgba(0,0,0,.3), 0 0 0 3px var(--nd-lime-soft, rgba(184,230,46,.12));
+}
+.nt-live{
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 1px 3px rgba(0,0,0,.35);
+}
+.nt-flag{
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0) 40%), var(--nd-chip-closed-bg, rgba(245,179,1,.12));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 1px 2px rgba(0,0,0,.35), 0 6px 18px rgba(0,0,0,.25);
+}
+@media (prefers-reduced-motion: reduce){
+  .nt-go, .nt-chips button{ transition: none; }
+  .nt-go:hover, .nt-chips button:hover{ transform: none; }
+}

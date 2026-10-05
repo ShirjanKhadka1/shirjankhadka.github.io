@@ -272,3 +272,51 @@
 .inv-pill{display:inline-block;padding:.18rem .75rem;border-radius:999px;font-size:.78rem;font-weight:600;letter-spacing:.02em;line-height:1.5;white-space:nowrap}
 .inv-pill-open{background:#e3f2e8;color:#14532d}
 .inv-pill-closed{background:#efefef;color:#6b655a}
+
+/* ============================================================
+ * Premium 3D layer — per-stock pages
+ * ============================================================ */
+.sp-price-card{
+  background: linear-gradient(180deg, rgba(255,255,255,.7), rgba(255,255,255,0) 40%), #fff;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.8), 0 1px 2px rgba(30,40,30,.06), 0 10px 28px rgba(30,40,30,.08);
+  transition: transform .25s cubic-bezier(.22,1,.36,1), box-shadow .25s;
+}
+.sp-price-card:hover{
+  transform: translateY(-2px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.8), 0 3px 8px rgba(30,40,30,.08), 0 18px 44px rgba(30,40,30,.1);
+}
+[data-theme="dark"] .sp-price-card{
+  background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,0) 40%), var(--nd-panel, #12141A);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 1px 2px rgba(0,0,0,.4), 0 10px 28px rgba(0,0,0,.3);
+}
+.vpill{
+  background: linear-gradient(180deg, rgba(255,255,255,.6), rgba(255,255,255,0) 40%), #fff;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 1px 2px rgba(30,40,30,.05), 0 6px 18px rgba(30,40,30,.06);
+}
+[data-theme="dark"] .vpill{
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0) 40%), var(--nd-panel, #12141A);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.28);
+}
+.vpill-v{
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 1px 3px rgba(0,0,0,.15);
+}
+.sp-fund{
+  background: linear-gradient(180deg, rgba(255,255,255,.6), rgba(255,255,255,0) 40%), #fff;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 1px 2px rgba(30,40,30,.05), 0 6px 18px rgba(30,40,30,.06);
+  transition: transform .25s cubic-bezier(.22,1,.36,1), box-shadow .25s;
+}
+.sp-fund:hover{
+  transform: translateY(-3px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 3px 8px rgba(30,40,30,.08), 0 16px 36px rgba(30,40,30,.1);
+}
+[data-theme="dark"] .sp-fund{
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0) 40%), var(--nd-panel, #12141A);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.28);
+}
+[data-theme="dark"] .sp-fund:hover{
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 3px 8px rgba(0,0,0,.45), 0 16px 36px rgba(0,0,0,.35);
+}
+@media (prefers-reduced-motion: reduce){
+  .sp-price-card, .sp-fund{ transition: none; }
+  .sp-price-card:hover, .sp-fund:hover{ transform: none; }
+}
