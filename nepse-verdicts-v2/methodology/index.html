@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0A0C10">
+<title>Methodology — Verdict Engine v2 | Nepse Decode</title>
+<meta name="description" content="Every rule, factor, weight and honesty gate behind Nepse Decode's Verdict Engine v2 warning radar: pump-footprint detection, calibration, validation stats and known limitations.">
+<meta name="author" content="Shirjan Khadka">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-verdicts-v2/methodology/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:title" content="Methodology — Verdict Engine v2">
+<meta property="og:description" content="Every rule, factor, weight and honesty gate behind the Warning Radar: how pump footprints are scored and what the engine refuses to claim.">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Methodology — Verdict Engine v2">
+<meta name="twitter:description" content="Every rule, factor, weight and honesty gate behind the Warning Radar.">
+<meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-verdicts-v2/methodology/">
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261004a">
+<link rel="stylesheet" href="../verdicts-v2.css?v=20261005a">
+<style>
+.v2-method{max-width:76ch}
+.v2-method h2{font-family:Georgia,serif;font-weight:700;font-size:1.5rem;color:var(--nd-text,#fff);margin:40px 0 10px}
+.v2-method h3{font-size:1.05rem;color:var(--nd-text,#fff);margin:24px 0 8px}
+.v2-method p,.v2-method li{line-height:1.7;color:var(--nd-muted,#9AA3B2);font-size:.95rem}
+.v2-method li{margin-bottom:6px}
+.v2-method code{font-family:monospace;font-size:.85em;background:var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);padding:1px 6px;border-radius:4px;color:var(--nd-text,#fff)}
+.v2-method table{width:100%;border-collapse:collapse;font-size:.85rem;margin:16px 0;background:var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);border-radius:12px;overflow:hidden}
+.v2-method th,.v2-method td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--nd-border,#1E2430);vertical-align:top;line-height:1.55;color:var(--nd-muted,#9AA3B2)}
+.v2-method th{background:var(--nd-panel-2,#161A23);color:var(--nd-text,#fff);font-weight:600}
+.v2-method .note{border-left:3px solid var(--nd-lime,#B8E62E);background:var(--nd-panel,#12141A);border-radius:0 12px 12px 0;padding:14px 18px;margin:20px 0;font-size:.9rem;line-height:1.65;color:var(--nd-text,#fff)}
+.v2-method .warn{border-left:3px solid #f87171}
+.v2-method a{color:var(--nd-lime,#B8E62E)}
+.v2-crumbs{font-size:.8125rem;color:var(--nd-dim,#6B7280);margin:0 0 8px}
+.v2-crumbs a{color:var(--nd-dim,#6B7280);text-decoration:none}
+.v2-crumbs a:hover{color:var(--nd-lime,#B8E62E)}
+</style>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Methodology — Verdict Engine v2","url":"https://shirjankhadka.com.np/nepse-verdicts-v2/methodology/","description":"Every rule, factor, weight and honesty gate behind Nepse Decode's Verdict Engine v2 warning radar.","author":{"@type":"Organization","name":"Nepse Decode"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
+{"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
+{"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-decode/"},
+{"@type":"ListItem","position":3,"name":"Warning Radar","item":"https://shirjankhadka.com.np/nepse-verdicts-v2/"},
+{"@type":"ListItem","position":4,"name":"Methodology","item":"https://shirjankhadka.com.np/nepse-verdicts-v2/methodology/"}]}
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div id="nd-header"></div>
+
+<main id="main" class="v2-shell">
+<div data-freshness-badge style="margin:12px 0"></div>
+<nav class="v2-crumbs" aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/nepse-decode/">Nepse Decode</a> / <a href="/nepse-verdicts-v2/">Warning Radar</a> / Methodology</nav>
+
+<div class="v2-method">
+<p class="v2-eyebrow">Verdict Engine v2 · Methodology</p>
+<h1 class="v2-title">How the warning radar is built</h1>
+<p class="v2-lede">Every figure on the Warning Radar is produced by <code>tools/build-verdicts-v2.js</code> running the engine in <code>tools/verdict-engine-v2/</code> — the coded rules in <code>rules.js</code> are the single source of truth. This page states every rule, weight, gate, and known limitation exactly as coded, so any verdict can be traced and reproduced. Educational research — not investment advice. Past patterns do not predict future results.</p>
+
+<div class="note">The honest frame, first: the engine flagged 89.4% of historical pump episodes 5 sessions before the peak — and it still misses some, and its flags are not trade instructions. As a mechanical trading system it adds zero edge over buy-and-hold (measured). Its proven value is telling you <em>which names are dangerous and why</em>.</div>
+
+<h2>1. What the engine outputs</h2>
+<p>Each symbol receives one verdict label, two scores, and a confidence value — plus an evidence bundle (circuit record, volume anatomy, factor readings, fundamentals context) shown on every expanded row.</p>
+<ul>
+<li><strong>pump_score</strong> (0–1): weighted composite of six scored bearish flags. Higher means more pump-and-distribution footprints active.</li>
+<li><strong>opportunity_score</strong> (0–1): weighted composite of two scored bullish flags (ignition, bounce setup).</li>
+<li><strong>confidence</strong>: 0.35 base + 0.10 per agreeing scored flag, capped at 0.90. Always below 1 — never overstated. Experimental flags never count.</li>
+<li><strong>Verdict labels</strong> (as coded): <code>DISTRIBUTION_WARNING</code> when pump_score ≥ 0.60 or ≥ 2 bearish flags are active; <code>ELEVATED_RISK</code> when pump_score ≥ 0.35; <code>EXHAUSTION_RISK</code> when the circuit-exhaustion flag is active; <code>IGNITION</code> when listing age ≤ 10 with an active tick-aware circuit run; <code>BOUNCE_SETUP</code> when bounce criteria are met; <code>NEUTRAL</code> when clean; <code>UNRELIABLE</code> when the data itself is poisoned (rule 11); <code>EXCLUDED_NON_EQUITY</code> for debentures, mutual funds and promoter-share lines (rule 4); <code>INSUFFICIENT_DATA</code> when there are fewer than 30 sessions and no dossier. The 0.60 / 0.35 cutoffs are operational choices, not research-derived.</li>
+</ul>
+
+<h2>2. Data</h2>
+<ul>
+<li><strong>Source:</strong> daily OHLCV per NEPSE symbol from the open <code>samirwagle/Nepse-All-Scraper</code> dataset (MIT licence), fetched at build time per symbol. Price history is never republished — only the derived verdicts are.</li>
+<li><strong>Window:</strong> at most the most recent 750 sessions per symbol (the research mirror window the engine was validated on), so ancient unadjusted corporate-action bars cannot poison the data-quality gate.</li>
+<li><strong>Session date:</strong> the authoritative trading day comes from <code>live.json session_date</code> — never from fetch timestamps. NEPSE trades Monday–Friday; a weekend pipeline refresh must never stamp a weekend date.</li>
+<li><strong>Official close merge:</strong> after market close, the validated official quotes are appended as the latest bar when the fetched history has not ingested the new session yet. The official feed never publishes the session open — it stays 0 (never invented).</li>
+<li><strong>Market regime:</strong> computed from the site's own index daily history — bull if close &gt; SMA200 and SMA200 rising, bear if close &lt; SMA200 and SMA200 falling, else sideways.</li>
+</ul>
+
+<h2>3. The scored flags</h2>
+<h3>Bearish — pump_score weights (sum to 1.0)</h3>
+<table>
+<tr><th>Flag</th><th>Weight</th><th>What it measures</th></tr>
+<tr><td>EXHAUSTION</td><td>0.20</td><td>Circuit clustering in older listings (age ≥ 15) — repeated limit-ups read as operator exhaustion, not strength.</td></tr>
+<tr><td>PARABOLIC (markup_asym)</td><td>0.13</td><td>Markup asymmetry — upside runs far exceeding downside pullbacks.</td></tr>
+<tr><td>DIST_VOLUME (vol_surge)</td><td>0.22</td><td>Distribution-volume footprint — heavy turnover into highs. Upweighted: stronger per-symbol evidence than cross-sectionally.</td></tr>
+<tr><td>CLIMAX (turnover_spike)</td><td>0.10</td><td>Single-session turnover climax — climax volume predicts 5–10 session weakness. (The T+2-lag variant was rejected.)</td></tr>
+<tr><td>WINNER_FADE (mom20, inverted)</td><td>0.25</td><td>20-session momentum exhaustion — strong past-month winners fading. Upweighted: 80% of symbols negative per-symbol.</td></tr>
+<tr><td>LATE_CIRCUIT_FADE</td><td>0.10</td><td>Rule 7: a limit-up within the last 5 sessions while the 20-day return is below −15% — distribution into weakness.</td></tr>
+</table>
+<h3>Bullish — opportunity_score weights (sum to 1.0)</h3>
+<table>
+<tr><th>Flag</th><th>Weight</th><th>What it measures</th></tr>
+<tr><td>IGNITION</td><td>0.60</td><td>Young listing (age ≤ 10) with a tick-aware circuit run — the ignition-continuation pattern (fine-bin ρ +0.287, p&lt;0.0001).</td></tr>
+<tr><td>BOUNCE_SETUP</td><td>0.40</td><td>Trough (≥30% drawdown) + first close above the 5-session high + volume ≥1.5× baseline. Shown with the 45% failure rate, never projected past the median +12% snap.</td></tr>
+</table>
+
+<h2>4. Circuit detection and the age gates</h2>
+<ul>
+<li><strong>NEPSE circuit limits:</strong> ±10% before 2026-04-20, ±15% from 2026-04-20.</li>
+<li>A bar counts as a limit-up day at 0.999 of the limit (canonical); the ignition run uses a looser 0.995 tick-aware tolerance — genuine circuits print 9.97–10.03%.</li>
+<li><strong>Age gates (rule 1):</strong> listing age ≤ 10 → bullish ignition weight; age 11–14 → transition, circuit signal suppressed (no signal); age ≥ 15 → bearish exhaustion weight. Both sides rest on 57 listings at p&lt;0.01 — core weights are not promoted without out-of-sample confirmation.</li>
+<li>If the most recent limit-up was more than 30 sessions ago, the circuit weight decays ×0.5 (stale-window guard).</li>
+</ul>
+
+<h2>5. Honesty gates</h2>
+<ul>
+<li><strong>Regime gates (rule 2):</strong> circuit, markup_asym and vol_surge are scored in bull regimes only (they invert sideways); slowbleed_v2 scores in bear regimes only and stays experimental — never in the composite; mom20 and turnover_spike are regime-independent. When the regime is unknown, gated factors are shown but <em>not</em> scored — honest abstention, not a guess.</li>
+<li><strong>Sector multipliers (rule 6):</strong> Finance and Development Bank → bearish factor weights ×0 (a CONTRADICTORY_SECTOR note is emitted; readings are shown, not scored); Hydropower ×0.5; every other equity sector ×1.0.</li>
+<li><strong>Excluded instruments (rule 4):</strong> Debentures, Mutual Funds and Promoter Shares receive EXCLUDED_NON_EQUITY — NAV/par-pegged tapes make momentum and markup meaningless and institutional block crosses trigger false distribution flags.</li>
+<li><strong>Volume floors (rule 5):</strong> a limit-up day counts only on ≥500 shares (young listings ≤10 exempt — genuine ignitions print tiny); vol_surge needs a 120-day median baseline ≥1,000 shares; a turnover-spike signal day needs ≥2,000 shares. Odd-lot artifacts are not climaxes.</li>
+<li><strong>Late-circuit fade (rule 7):</strong> limit-up within the last 5 sessions AND 20-day return below −15% → bearish flag. Post-peak limit-ups during bleeds consistently failed (SAIL, RFPL, CITY, SHIVM; SOHL the lone exception).</li>
+<li><strong>Hydro cliff (rule 8):</strong> a limit-down on less than 0.5× median volume is an info-level "absent bids" bearish acceleration note, not a scored flag — tops break from absent bids, not selling pressure (e.g. DORDI 4,637; BHL 5,247; KKHC 26,118 shares on limit-down cliffs).</li>
+<li><strong>Event suppressions (rule 9):</strong> volume-spike flags are suppressed on 2024-03-04 (market-wide dead-volume day) and 2026-07-13/14 (cross-debenture institutional rebalance) — those were market-wide artifacts, not single-name signal.</li>
+<li><strong>Data-quality poison (rule 11):</strong> any single-day |return| above 25% is impossible under any circuit regime → verdict UNRELIABLE, factors not scored. The engine refuses to score rather than guess.</li>
+<li><strong>Withheld float:</strong> sub-1,000-share days on a large (Rs 1b+ paid-up, an engine choice) young listing (≤60 sessions) is an info-level ignition-precondition note. The measured version — traded public float below 1.0% of the public float with active ignition — is experimental and shown as unbacktested evidence only.</li>
+<li><strong>Short-horizon lenses:</strong> for listings under 60 sessions, experimental 20/10-day volume lenses are computed for diagnosis but never enter the core score.</li>
+</ul>
+
+<h2>6. Lock-in dates — the hard rule</h2>
+<p>The engine <em>never</em> publishes a lock-in expiry computed from a price-series-start proxy as fact. A precise expiry is shown only from verified sources: Shirjan-supplied corrections (<code>user-verified</code>) or the Capital Max IPO lock-in table (<code>lockin-table</code>). Proxy-derived dates carry the explicit note "computed from price-series start; true IPO date pending". The reference example: our series-start proxy implied a 2026-10-11 expiry for HATHY; Shirjan's correction showed true listing around 2023-09-29/30 with lock-in already expired — nearly two weeks earlier. Verdict semantics differ completely between "expiry approaching" and "promoters already free to sell".</p>
+
+<h2>7. Fundamentals context (evidence only, never scored)</h2>
+<p>Point-in-time company-quality context is attached as evidence only: EPS (TTM), ROE (TTM), cash dividend %, BVPS, P/E (TTM), net profit. Research finding: pumped new listings do not have weak fundamentals — they have <em>absent</em> fundamentals (75% no EPS vs 10% market). Missing earnings on a young listing with ignition/pump activity is a first-class risk input ("no anchor"); where earnings exist, P/E (TTM) above 100 is flagged as an extreme-multiple note. Historical quarterly fundamentals are unavailable, so no trend scoring is attempted.</p>
+
+<h2>8. Calibration</h2>
+<p>"Elevated" readings are calibrated to the pooled top quintile (p80) over the universe, measured 2026-10-05 across 274 equity symbols (debentures, mutual funds, promoter-share lines excluded):</p>
+<table>
+<tr><th>Factor</th><th>Elevated at</th><th>Pooled sample</th></tr>
+<tr><td>markup_asym</td><td>≥ 1.119</td><td>n = 169,967</td></tr>
+<tr><td>mom20 (raw 20d return)</td><td>≥ 0.070</td><td>n = 180,653</td></tr>
+<tr><td>vol_surge</td><td>≥ 0.524</td><td>n = 148,137</td></tr>
+<tr><td>turnover_spike</td><td>≥ 0.815</td><td>n = 169,693</td></tr>
+</table>
+
+<h2>9. Validation — measured research results</h2>
+<p>Each flag carries its backtest statistics. These are <em>measured research results</em>, not claims about the future:</p>
+<table>
+<tr><th>Flag</th><th>Result</th></tr>
+<tr><td>IGNITION</td><td>age 0–10 ρ +0.287 (p&lt;0.0001) — ignition continuation; crossover N≈13–15 (n=57 listings — needs out-of-sample confirmation)</td></tr>
+<tr><td>EXHAUSTION</td><td>IC −0.076 cross-sectional; 16/16 episodes, 5.4× lift; age-gated — inactive at age ≤14</td></tr>
+<tr><td>PARABOLIC</td><td>IC −0.051; 14/16 episodes; no age gate</td></tr>
+<tr><td>DIST_VOLUME</td><td>cross-sectional IC −0.02..−0.03; per-symbol IC −0.086 — upweighted</td></tr>
+<tr><td>CLIMAX</td><td>IC −0.037; climax volume predicts 5–10 session weakness</td></tr>
+<tr><td>WINNER_FADE</td><td>per-symbol IC −0.102; 80% of symbols negative — upweighted</td></tr>
+<tr><td>SLOW_BLEED</td><td>IC −0.015; 42% contradict — experimental, never scored</td></tr>
+<tr><td>LATE_CIRCUIT_FADE</td><td>post-peak limit-ups during bleeds consistently failed (SAIL, RFPL, CITY, SHIVM); SOHL the lone exception</td></tr>
+<tr><td>BOUNCE_SETUP</td><td>55% bounced &gt;10% / 45% bled out / 9% reclaimed half the drawdown (n=53 new listings) — always shown with the failure rate</td></tr>
+<tr><td>WITHHELD_FLOAT</td><td>3/3 2026 new-listing ignitions opened on sub-1,000-share days — precondition note, not a scored flag</td></tr>
+<tr><td>CORNERED_FLOAT</td><td>single snapshot 2026-10-05 — unbacktested, evidence only</td></tr>
+<tr><td>HYDRO_CLIFF</td><td>tops break from absent bids, not selling pressure — info-level note</td></tr>
+</table>
+
+<h2>10. Known limitations</h2>
+<ul>
+<li>The 0.60 / 0.35 verdict cutoffs are operational choices, not research-derived.</li>
+<li>Values marked [ENGINE CHOICE] in the code (e.g. the Rs 1b "large paid-up" line) are engine-parameterized, not research-derived.</li>
+<li>The cornered-float snapshot has no history to backtest against; fundamentals are point-in-time with no quarterly history; the engine was validated on ≤750-session histories.</li>
+<li>Every research value is cited to the document that produced it; hand-tuned parameters are labeled as such. The engine never emits buy/sell calls and never claims to be a market-beating system.</li>
+</ul>
+
+<div class="note warn"><strong>For education only. Not investment advice.</strong> Verdicts are mechanical outputs of a published, walk-forward-validated rule set. They are risk flags with attached evidence — never buy/sell calls. <strong>Not affiliated with Nepal Stock Exchange Ltd.</strong></div>
+</div>
+
+<p class="v2-methodlink"><a href="/nepse-verdicts-v2/">← Back to the Warning Radar</a></p>
+
+<div id="nd-footer"></div>
+<script src="/js/nd-chrome.js?v=20261005a" defer></script>
+<script src="/js/freshness-badge.js" defer></script>
+</main>
+</body>
+</html>
