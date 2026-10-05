@@ -111,8 +111,20 @@ function main() {
   // while universe.json lists every listed security incl. untraded
   // debentures / mutual funds / suspended equities. A ±5% band (not ±3%)
   // because suspensions and trading halts legitimately move the count.
+  //
+  // INTRADAY EXCEPTION: the content pipeline is scheduled for 06:00/18:00 NPT
+  // (outside market hours), but GitHub schedule drift can push a run into
+  // market hours. Mid-session snapshots legitimately GROW through the session
+  // (observed: 63 quotes at 10:54 NPT → 313 by 12:15 NPT on 2026-10-05), so a
+  // full-day baseline false-fails. When live.json carries today's still-open
+  // session, baseline = the largest earlier same-session snapshot already
+  // committed (live-quotes commits every ~5 min); the count must not
+  // collapse intraday. Requires full git history (checkout fetch-depth: 0).
   if (live) {
     const q = Object.values(live.quotes || {}).length;
+    const liveSession = sessionOf(live);
+    const today = td.todayNPT(now);
+    const intraday = liveSession === today && td.isTradingDay(today) && td.timeNPT(now) < td.MARKET_CLOSE;
     let baseline = null, baselineSrc = '';
     try {
       const prev = child_process.execSync('git show HEAD:data/manifest.json', { cwd: ROOT, stdio: ['ignore', 'pipe', 'ignore'] });
@@ -122,6 +134,27 @@ function main() {
     } catch (e) { /* first run: no baseline */ }
     if (overrideCountGate) {
       gate('security-count-stable', true, `OVERRIDDEN by operator — quotes=${q} baseline=${baseline || 'n/a'} reason="${overrideCountReason}"`);
+    } else if (intraday) {
+      let prevQ = null, prevQSrc = '';
+      try {
+        const log = child_process.execSync('git log --format=%H -40 -- nepse-chart/data/live.json', { cwd: ROOT, stdio: ['ignore', 'pipe', 'ignore'] })
+          .toString().trim().split('\n').filter(Boolean);
+        let skippedTip = false;
+        for (const h of log) {
+          const snap = JSON.parse(child_process.execSync(`git show ${h}:nepse-chart/data/live.json`, { cwd: ROOT, stdio: ['ignore', 'pipe', 'ignore'] }).toString());
+          if (String(snap.session_date || '').slice(0, 10) !== today) continue;
+          if (!skippedTip) { skippedTip = true; continue; } // newest = current working-tree snapshot
+          const c = Object.keys(snap.quotes || {}).length;
+          if (prevQ === null || c > prevQ) { prevQ = c; prevQSrc = 'same-session snapshot ' + h.slice(0, 7); }
+        }
+      } catch (e) { /* shallow clone / no history — fall through to floor */ }
+      if (prevQ !== null && prevQ > 0) {
+        gate('security-count-stable', q >= prevQ * 0.98,
+          `intraday: quotes=${q} baseline=${prevQ} (${prevQSrc}) — no intraday collapse`);
+      } else {
+        gate('security-count-stable', q >= 50,
+          `intraday: quotes=${q} (no earlier same-session snapshot; early-session floor 50)`);
+      }
     } else if (baseline && typeof baseline === 'number' && baseline > 0) {
       const drift = Math.abs(q - baseline) / baseline;
       gate('security-count-stable', drift <= 0.05, `quotes=${q} baseline=${baseline} (${baselineSrc}) drift=${(drift * 100).toFixed(1)}% band=±5%`);
@@ -161,7 +194,15 @@ function main() {
     for (const [name, ix] of all) {
       if (ix.value == null || ix.previous_close == null || ix.change == null) continue;
       const expect = ix.value - ix.previous_close;
-      if (Math.abs(expect - ix.change) > 0.011) bad.push(`${name}: Δ=${ix.change} vs ${expect.toFixed(2)}`);
+      // The official feed reports the main index change rounded to 1dp while
+      // value/previous_close carry more precision (e.g. change=-18.8 vs
+      // value-prev=-18.8135) — compare at the change field's own precision so
+      // official rounding alone never fails the gate. A genuinely wrong
+      // change still exceeds the 0.011 tolerance after rounding.
+      const cStr = String(ix.change);
+      const dp = cStr.includes('.') ? (cStr.split('.')[1] || '').length : 0;
+      const expectRounded = Number(expect.toFixed(dp));
+      if (Math.abs(expectRounded - ix.change) > 0.011) bad.push(`${name}: Δ=${ix.change} vs ${expect.toFixed(2)}`);
       if (bad.length >= 8) break;
     }
     gate('index-change-reconciles', bad.length === 0, bad.length ? bad.join('; ') : `${all.length} indices reconcile`, 'fail');
