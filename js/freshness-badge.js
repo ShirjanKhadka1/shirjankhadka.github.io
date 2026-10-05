@@ -195,14 +195,14 @@
   try {
     var initNPT = CFG ? CFG.nowNPT() : new Date(Date.now() + NPT_MS);
     lastDateKey = dateKey(initNPT);
-    lastState = stateNow();
+    lastState = sessionState();
   } catch (e) { /* keep nulls, first tick will set */ }
   setInterval(function () {
     if (document.hidden) return;
     try {
       var npt = CFG ? CFG.nowNPT() : new Date(Date.now() + NPT_MS);
       var dk = dateKey(npt);
-      var st = stateNow();
+      var st = sessionState();
       if (dk !== lastDateKey || st !== lastState) {
         lastDateKey = dk;
         lastState = st;
