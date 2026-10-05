@@ -40,11 +40,25 @@
   };
   var UNIVERSE_V = '20261002b'; // bump when universe.json is rebuilt
 
+  /* Timeframes: `slice` = how many daily sessions of history to show,
+     `agg` = how many daily sessions form one candle (1 = daily candles).
+     1D..1M are candle-period timeframes (resampled client-side from the
+     same daily OHLCV — volume sums, never invented); 3M..All keep the
+     original daily-candle windows. */
   var TFS = [
-    { id: '1M', sessions: 22 }, { id: '3M', sessions: 66 },
-    { id: '6M', sessions: 132 }, { id: '1Y', sessions: 250 },
-    { id: '2Y', sessions: 500 }, { id: '5Y', sessions: 1250 },
-    { id: 'All', sessions: Infinity }
+    { id: '1D', slice: 66, agg: 1 },
+    { id: '2D', slice: 132, agg: 2 },
+    { id: '3D', slice: 132, agg: 3 },
+    { id: '1W', slice: 500, agg: 5 },
+    { id: '2W', slice: 500, agg: 10 },
+    { id: '3W', slice: 1250, agg: 15 },
+    { id: '1M', slice: 1250, agg: 22 },
+    { id: '3M', slice: 66, agg: 1 },
+    { id: '6M', slice: 132, agg: 1 },
+    { id: '1Y', slice: 250, agg: 1 },
+    { id: '2Y', slice: 500, agg: 1 },
+    { id: '5Y', slice: 1250, agg: 1 },
+    { id: 'All', slice: Infinity, agg: 1 }
   ];
   var TYPES = ['candles', 'line', 'area'];
   var OVERLAYS = [
@@ -161,7 +175,6 @@
 
   var chart = null;
   var S = {};            // series handles: candles, line, area, vol, sma20, sma50, sma200, ema20
-  var maCache = {};      // full-length MA arrays keyed by id
   var unsubLive = null;
 
   /* ---------- data ---------- */
@@ -264,9 +277,34 @@
   }
   /* ---------- chart ---------- */
 
-  function tfSessions() {
-    for (var i = 0; i < TFS.length; i++) if (TFS[i].id === state.tf) return TFS[i].sessions;
-    return 250;
+  function tfDef() {
+    for (var i = 0; i < TFS.length; i++) if (TFS[i].id === state.tf) return TFS[i];
+    return TFS[9]; // '1Y'
+  }
+
+  function resample(rows, n) {
+    // Aggregate every n daily sessions into one candle: open = first open,
+    // high/low = extremes, close = last close, volume = sum. Real data only.
+    if (n <= 1 || !rows.length) return rows;
+    var out = [];
+    for (var i = 0; i < rows.length; i += n) {
+      var chunk = rows.slice(i, i + n);
+      var o = chunk[0][1], h = -Infinity, l = Infinity, v = 0, j;
+      for (j = 0; j < chunk.length; j++) {
+        if (chunk[j][2] > h) h = chunk[j][2];
+        if (chunk[j][3] < l) l = chunk[j][3];
+        v += chunk[j][5] || 0;
+      }
+      out.push([chunk[chunk.length - 1][0], o, h, l, chunk[chunk.length - 1][4], v]);
+    }
+    return out;
+  }
+
+  function viewRows() {
+    // Daily rows sliced to the timeframe window, resampled to the candle period.
+    var d = tfDef(), full = state.rows;
+    var sliced = d.slice === Infinity ? full : full.slice(-d.slice);
+    return resample(sliced, d.agg);
   }
 
   function candleData(rows) { // rows: already sliced to the timeframe
@@ -350,30 +388,29 @@
     paintData(); // re-color volume bars
   }
 
-  function paintData() {
+  function paintData(fit) {
     if (!chart || !state.rows.length) return;
-    var full = state.rows;
-    var n = tfSessions();
-    var rows = n === Infinity ? full : full.slice(-n);
-    var cut = full.length - rows.length; // offset into full-length MA arrays
+    var rows = viewRows(); // timeframe window, resampled to the candle period
+    if (!rows.length) return;
     S.candles.setData(candleData(rows));
     S.line.setData(lineData(rows));
     S.area.setData(lineData(rows));
     S.vol.setData(volumeData(rows));
-    var cl = closes(full);
-    maCache = {
-      sma20: sma(cl, 20), sma50: sma(cl, 50), sma200: sma(cl, 200), ema20: ema(cl, 20)
-    };
+    // Moving averages follow the displayed candles (e.g. SMA 20 on a weekly
+    // chart = 20 weeks), computed from the same real closes.
+    var cl = closes(rows);
+    var defs = { sma20: 20, sma50: 50, sma200: 200 };
     ['sma20', 'sma50', 'sma200', 'ema20'].forEach(function (id) {
-      var pts = [], arr = maCache[id];
-      for (var i = cut; i < full.length; i++) {
-        if (arr[i] != null) pts.push({ time: isoOf(full[i][0]), value: arr[i] });
+      var arr = id === 'ema20' ? ema(cl, 20) : sma(cl, defs[id]);
+      var pts = [];
+      for (var i = 0; i < rows.length; i++) {
+        if (arr[i] != null) pts.push({ time: isoOf(rows[i][0]), value: arr[i] });
       }
       S[id].setData(pts);
     });
     applyVisibility();
-    chart.timeScale().fitContent();
-    paintLegend(full[full.length - 1]);
+    if (fit !== false) chart.timeScale().fitContent();
+    paintLegend(rows[rows.length - 1]);
     paintStats();
   }
 
@@ -392,7 +429,7 @@
 
   function onCrosshair(param) {
     if (!chart || !state.rows.length) return;
-    var rows = state.rows;
+    var rows = viewRows();
     var bar = rows[rows.length - 1];
     if (param && param.time) {
       var iso = typeof param.time === 'string' ? param.time : null;
@@ -479,6 +516,10 @@
     state.sym = sym; state.symName = isIndex ? 'NEPSE Index' : (state.names[sym] || sym);
     store(LS.sym, sym);
     var inp = $('nt-sym'); if (inp && document.activeElement !== inp) inp.value = sym;
+    var chips = document.querySelectorAll('[data-chip]');
+    for (var ci = 0; ci < chips.length; ci++) {
+      chips[ci].classList.toggle('on', chips[ci].getAttribute('data-chip') === sym);
+    }
 
     var p = isIndex ? indexRows().then(function (r) { return { rows: r, ltpOnly: false }; }) : loadStock(sym);
     p.then(function (r) {
@@ -491,7 +532,7 @@
         state.sessionDate = isoOf(state.rows[state.rows.length - 1][0]);
       }
       if (!chart && !buildChart()) throw new Error('lib');
-      paintData();
+      paintData(true);
       syncOverlayUI();
       setLtpNote();
       state.loading = false; setLoading(false);
@@ -511,13 +552,13 @@
   }
 
   function syncOverlayUI() {
-    var boxes = document.querySelectorAll('#nt-ov input[type="checkbox"]');
-    for (var i = 0; i < boxes.length; i++) {
-      var id = boxes[i].getAttribute('data-ov');
+    var btns = document.querySelectorAll('#nt-ov [data-ov]');
+    for (var i = 0; i < btns.length; i++) {
+      var id = btns[i].getAttribute('data-ov');
       var isMA = id !== 'vol';
-      boxes[i].disabled = state.ltpOnly && isMA;
-      if (state.ltpOnly && isMA) boxes[i].checked = false;
-      else boxes[i].checked = !!state.ov[id];
+      var dis = state.ltpOnly && isMA;
+      btns[i].disabled = dis;
+      btns[i].setAttribute('aria-pressed', (!dis && state.ov[id]) ? 'true' : 'false');
     }
   }
 
@@ -529,7 +570,14 @@
     if (merged.rows.length !== state.rows.length) {
       // A new session opened — re-slice the timeframe window and repaint.
       state.rows = merged.rows;
-      paintData();
+      paintData(true);
+      return;
+    }
+    if (tfDef().agg > 1) {
+      // Aggregated timeframe: the live session sits inside the last
+      // multi-session candle — repaint data without resetting the zoom.
+      state.rows = merged.rows;
+      paintData(false);
       return;
     }
     var last = merged.rows[merged.rows.length - 1];
@@ -584,7 +632,7 @@
       state.tf = b.getAttribute('data-tf');
       store(LS.tf, state.tf);
       markSeg('nt-tf', state.tf, 'tf');
-      paintData();
+      paintData(true);
     });
 
     // Chart type
@@ -598,18 +646,19 @@
       applyVisibility();
     });
 
-    // Overlays
+    // Overlays — pill toggle buttons (same language as the tracker's pills)
     var ovHost = $('nt-ov');
-    ovHost.innerHTML = OVERLAYS.map(function (o) {
-      return '<label class="nt-ovl"><input type="checkbox" data-ov="' + o.id + '"' +
-        (state.ov[o.id] ? ' checked' : '') + '><span>' + esc(o.label) + '</span></label>';
+    ovHost.innerHTML = '<span class="nt-ov-title">Overlays</span>' + OVERLAYS.map(function (o) {
+      return '<button type="button" class="nt-ovl" data-ov="' + o.id + '"' +
+        ' aria-pressed="' + (state.ov[o.id] ? 'true' : 'false') + '">' + esc(o.label) + '</button>';
     }).join('');
-    ovHost.addEventListener('change', function (e) {
-      var box = e.target.closest('[data-ov]');
-      if (!box || box.disabled) return;
-      var id = box.getAttribute('data-ov');
-      state.ov[id] = box.checked;
+    ovHost.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-ov]');
+      if (!b || b.disabled) return;
+      var id = b.getAttribute('data-ov');
+      state.ov[id] = !state.ov[id];
       store(LS.ov, JSON.stringify(state.ov));
+      syncOverlayUI();
       applyVisibility();
     });
 

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Technical Charts — Free NEPSE Candlestick Charts with Moving Averages | Nepse Decode</title>
-<meta name="description" content="Free NEPSE technical charts, no login: interactive candlestick charts for the NEPSE index and every listed stock, with volume, SMA/EMA overlays and timeframes from 1M to all history. Built on TradingView's free open-source Lightweight Charts.">
+<meta name="description" content="Free NEPSE technical charts, no login: interactive candlestick charts for the NEPSE index and every listed stock, with volume, SMA/EMA overlays and timeframes from 1 day to all history. Built on TradingView's free open-source Lightweight Charts.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-technical/">
 <meta name="robots" content="index, follow">
 <meta property="og:type" content="website">
@@ -19,9 +19,11 @@
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<link rel="stylesheet" href="/css/fonts.css">
 <link rel="stylesheet" href="/css/nepse-d2.css?v=df8f909e">
 <link rel="stylesheet" href="/css/theme.css?v=edd1fe3c">
-<link rel="stylesheet" href="/nepse-technical/tech.css?v=20261005a">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">
+<link rel="stylesheet" href="/nepse-technical/tech.css?v=20261005b">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"Nepse Decode Technical Charts","url":"https://shirjankhadka.com.np/nepse-technical/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Free interactive NEPSE technical charts: candlesticks, volume, SMA/EMA overlays and timeframes for the NEPSE index and every listed stock. No login.","author":{"@type":"Organization","name":"Nepse Decode","url":"https://shirjankhadka.com.np/"}}
 </script>
@@ -73,16 +75,16 @@
 </aside>
 <main class="d2-main">
 <div class="nt-wrap">
-  <div style="display:flex;justify-content:center;margin-bottom:14px"><div data-freshness-badge></div></div>
-  <p class="d2-kicker nt-kicker">Technical analysis</p>
-  <h1 class="d2-h1">NEPSE technical charts</h1>
-  <p class="nt-lede">Interactive candlestick charts for the NEPSE index and every listed stock — volume, SMA and EMA overlays, timeframes from 1 month to full history. Built on TradingView&rsquo;s free open-source Lightweight Charts engine, fed by our own verified NEPSE data. Free forever, no login.</p>
+  <div class="nt-badge-row"><div data-freshness-badge></div></div>
+  <p class="nt-kicker">Technical analysis</p>
+  <h1>NEPSE technical charts</h1>
+  <p class="nt-lede">Interactive candlestick charts for the NEPSE index and every listed stock — volume, SMA and EMA overlays, timeframes from 1 day to full history. Built on TradingView&rsquo;s free open-source Lightweight Charts engine, fed by our own verified NEPSE data. Free forever, no login.</p>
 
   <section class="nt-search" aria-label="Symbol search">
     <div class="nt-search-row">
       <input id="nt-sym" list="nt-syms" placeholder="Search symbol, e.g. NABIL, HIDCL, UPPER… (NEPSE = index)" autocomplete="off" spellcheck="false" aria-label="Stock symbol">
       <datalist id="nt-syms"></datalist>
-      <button id="nt-go" class="d2-btn primary" type="button">Open chart</button>
+      <button id="nt-go" class="nt-go" type="button">Open chart</button>
     </div>
     <div class="nt-chips">
       <button type="button" data-chip="NEPSE">NEPSE index</button>
@@ -99,9 +101,7 @@
     <div class="nt-seg" id="nt-type" role="group" aria-label="Chart type">
       <button type="button" data-type="candles" class="on" aria-pressed="true">Candles</button><button type="button" data-type="line" aria-pressed="false">Line</button><button type="button" data-type="area" aria-pressed="false">Area</button>
     </div>
-    <div class="nt-ov" id="nt-ov" role="group" aria-label="Overlays">
-      <span class="nt-ov-title">Overlays</span>
-    </div>
+    <div class="nt-ov" id="nt-ov" role="group" aria-label="Overlays"></div>
   </div>
 
   <section class="nt-card" aria-label="Price chart">
@@ -142,7 +142,7 @@
 <script src="/js/nepse-daily.js?v=51f68f5d" defer></script>
 <script src="/js/nepse-market-config.js?v=20261002c" defer></script>
 <script src="/js/nepse-data.js?v=20261003a" defer></script>
-<script src="/js/nepse-technical.js?v=20261005a" defer></script>
+<script src="/js/nepse-technical.js?v=20261005b" defer></script>
 <script src="/js/nepse-sidebar.js?v=20261002c" defer></script>
 <script src="/js/theme-toggle.js?v=a383d477" defer></script>
 <script src="/js/freshness-badge.js?v=20261002c" defer></script>
