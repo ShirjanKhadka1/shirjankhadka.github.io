@@ -119,6 +119,20 @@ for (const vp of VIEWPORTS) {
           await route.continue();
         }
       });
+      // js/nepse-daily.js ships inline index history (not JSON) that also
+      // drives rendered dates — freeze it the same way.
+      await page.route('**/js/nepse-daily.js', async (route) => {
+        const fixturePath = path.join(__dirname, 'fixtures', 'js', 'nepse-daily.js');
+        if (fs.existsSync(fixturePath)) {
+          await route.fulfill({
+            status: 200,
+            contentType: 'application/javascript',
+            body: fs.readFileSync(fixturePath),
+          });
+        } else {
+          await route.continue();
+        }
+      });
 
       await page.goto(p, { waitUntil: 'networkidle', timeout: 60000 });
 
