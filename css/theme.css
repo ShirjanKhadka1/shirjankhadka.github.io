@@ -163,6 +163,9 @@
   --down: #e07a6a;
   --down-bg: #3a1f19;
 }
+/* Signal tags: dark-mode needs light text on the dark green pill
+   (was --green-900 on --green-100 = 1.31:1, axe violation) */
+[data-theme="dark"] body.nd .tag.entry{color:var(--green-700);}
 
 /* Hardcoded spots in nepse-design-system.css */
 [data-theme="dark"] .w1-tab[aria-selected="true"] {
