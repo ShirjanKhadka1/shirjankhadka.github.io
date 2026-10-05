@@ -491,3 +491,28 @@ p.sec-sub{color:var(--muted);font-size:17.5px;max-width:64ch;margin-bottom:48px;
   white-space:nowrap}
 .w1-sub{color:var(--faint);font-size:12.5px;white-space:nowrap}
 .w1-note{font-size:.8rem;color:var(--faint);margin:10px 2px 0;max-width:80ch;line-height:1.6}
+
+/* ---- premium 3D layer for verdict rows ---- */
+.vd-row{
+  background:linear-gradient(180deg, rgba(255,255,255,.5), rgba(255,255,255,0) 45%), var(--ivory);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7), 0 1px 2px rgba(40,55,25,.06), 0 4px 12px rgba(40,55,25,.06);
+}
+.vd-row:hover{
+  transform:translateY(-3px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7), 0 3px 8px rgba(40,55,25,.09), 0 14px 30px rgba(40,55,25,.1);
+}
+.vd-row:active{ transform:translateY(0) scale(.99); }
+.vd-pill{
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.25), 0 1px 3px rgba(0,0,0,.2);
+}
+[data-theme="dark"] .vd-row{
+  background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,0) 45%), var(--nd-panel,#12141A);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07), 0 1px 2px rgba(0,0,0,.4), 0 4px 12px rgba(0,0,0,.3);
+}
+[data-theme="dark"] .vd-row:hover{
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.09), 0 3px 8px rgba(0,0,0,.45), 0 14px 30px rgba(0,0,0,.4);
+}
+@media (prefers-reduced-motion: reduce){
+  .vd-row{ transition:none; }
+  .vd-row:hover{ transform:none; }
+}

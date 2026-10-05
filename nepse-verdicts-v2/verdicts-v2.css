@@ -428,3 +428,90 @@ a.skip-link:focus,a.skip-link:active{ top:12px!important; }
   .v2-banner{ flex-direction:column; align-items:flex-start; }
   .v2-bconf{ width:100%; }
 }
+
+/* ============================================================
+ * Premium 3D layer — depth, rim light, physical press
+ * ============================================================ */
+.v2-stat{
+  background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0) 40%), var(--nd-panel,#10141C);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07), 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.35);
+  transition:transform .25s cubic-bezier(.22,1,.36,1), box-shadow .25s cubic-bezier(.22,1,.36,1), border-color .25s;
+}
+.v2-stat:hover{
+  transform:translateY(-3px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.1), 0 4px 10px rgba(0,0,0,.45), 0 22px 48px rgba(0,0,0,.4);
+}
+.v2-stat:active{ transform:translateY(0) scale(.98); }
+.v2-stat[aria-pressed="true"]{
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 0 0 2px rgba(184,230,46,.25), 0 4px 14px rgba(0,0,0,.35);
+}
+
+.v2-f{
+  background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,0) 50%), var(--nd-panel-2,#161A23);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07), 0 1px 3px rgba(0,0,0,.4);
+  transition:transform .2s cubic-bezier(.22,1,.36,1), box-shadow .2s, color .2s, border-color .2s;
+}
+.v2-f:hover{ transform:translateY(-1px); box-shadow:inset 0 1px 0 rgba(255,255,255,.09), 0 3px 8px rgba(0,0,0,.45); }
+.v2-f:active{ transform:translateY(1px) scale(.97); box-shadow:inset 0 2px 4px rgba(0,0,0,.3); }
+.v2-f[aria-pressed="true"]{
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 0 0 2px rgba(184,230,46,.22), 0 2px 6px rgba(0,0,0,.4);
+}
+
+.v2-search{
+  background:var(--nd-bg,#07090D);
+  box-shadow:inset 0 2px 6px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.04);
+}
+.v2-search:focus{
+  box-shadow:inset 0 2px 6px rgba(0,0,0,.35), 0 0 0 3px rgba(184,230,46,.15);
+}
+
+.v2-tablewrap{
+  background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,0) 30%), var(--nd-panel,#10141C);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 2px 6px rgba(0,0,0,.4), 0 14px 34px rgba(0,0,0,.35);
+  border-radius:16px;
+}
+.v3-row{ transition:background .2s; }
+.v3-row:hover{ background:rgba(255,255,255,.025); }
+
+.v2-banner{
+  background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0) 40%), var(--nd-panel,#10141C);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07), 0 2px 6px rgba(0,0,0,.4), 0 14px 34px rgba(0,0,0,.35);
+  border-radius:16px;
+}
+.v2-bconf{
+  background:linear-gradient(180deg, #c8f04a, #a8d62a);
+  border:1px solid #86ad1f;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35), inset 0 -1px 0 rgba(0,0,0,.12), 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.3);
+  transition:transform .2s cubic-bezier(.22,1,.36,1), box-shadow .2s, filter .2s;
+}
+.v2-bconf:hover{ transform:translateY(-2px); filter:brightness(1.05); box-shadow:inset 0 1px 0 rgba(255,255,255,.35), 0 4px 10px rgba(0,0,0,.45), 0 18px 40px rgba(0,0,0,.35); }
+.v2-bconf:active{ transform:translateY(1px) scale(.98); }
+
+@media (prefers-reduced-motion: reduce){
+  .v2-stat, .v2-f, .v2-bconf{ transition:none; }
+  .v2-stat:hover, .v2-f:hover, .v2-bconf:hover{ transform:none; }
+}
+
+/* ---- methodology page 3D ---- */
+.v2-method .note{
+  background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0) 40%), var(--nd-panel,#10141C);
+  border:1px solid var(--nd-border,#1E2532);
+  border-radius:14px;
+  padding:1.1rem 1.3rem;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07), 0 1px 2px rgba(0,0,0,.4), 0 8px 22px rgba(0,0,0,.3);
+}
+.v2-method .note.warn{
+  border-left:3px solid #f59e0b;
+}
+.v2-methodlink a{
+  display:inline-flex; align-items:center; gap:.4em;
+  padding:.65em 1.3em;
+  background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,0) 50%), var(--nd-panel-2,#161A23);
+  border:1px solid var(--nd-border-strong,#2A3140);
+  border-radius:12px;
+  color:var(--nd-lime,#B8E62E); font-weight:600; text-decoration:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07), 0 1px 3px rgba(0,0,0,.4);
+  transition:transform .2s cubic-bezier(.22,1,.36,1), box-shadow .2s;
+}
+.v2-methodlink a:hover{ transform:translateY(-2px); box-shadow:inset 0 1px 0 rgba(255,255,255,.09), 0 4px 12px rgba(0,0,0,.45); }
+.v2-methodlink a:active{ transform:translateY(1px) scale(.98); }
