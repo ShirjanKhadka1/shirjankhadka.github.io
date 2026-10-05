@@ -15,6 +15,16 @@
      off — same rule as the Chart & signals lab).
    - NEPSE index: window.NEPSE_DAILY (inline, recent) merged with
      /data/index-history.json (2003 → 2024-08, lazy) → full history.
+   - 15-minute intraday: our own snapshot archive
+     (nepse-chart/data/intraday/quotes-YYYY-MM-DD.json for stocks,
+     nepse-chart/data/intraday-index.json for the index), written every
+     15 min during market hours by tools/build-intraday-quotes.js from the
+     committed live.json — never polled faster (NEPSE rate-limit guard).
+     Bars are built client-side: open = first ltp in the bucket,
+     close = last, high/low = max/min of ltp, volume = last cumulative
+     volume in the bucket minus the previous bucket's (session volume for
+     the first bucket). Forward-only: before the archive starts, the 15m
+     view shows an honest empty state.
    - Live session candle: NepseData snapshot (js/nepse-data.js), same
      staleness guards as the lab (quote older than 180 min is ignored;
      LIVE badge only while the market is actually open).
@@ -36,16 +46,21 @@
     universe: '/nepse-chart/data/universe.json',
     prices: function (s) { return 'https://samirwagle.github.io/Nepse-All-Scraper/docs/api/prices/' + s.replace('/', '-') + '.json'; },
     ltp: function (s) { return '/nepse-chart/data/ltp/' + s.replace('/', '-') + '.json'; },
-    indexHistory: '/data/index-history.json'
+    indexHistory: '/data/index-history.json',
+    intraDir: '/nepse-chart/data/intraday/',
+    intraIndex: '/nepse-chart/data/intraday-index.json'
   };
   var UNIVERSE_V = '20261002b'; // bump when universe.json is rebuilt
 
   /* Timeframes: `slice` = how many daily sessions of history to show,
      `agg` = how many daily sessions form one candle (1 = daily candles).
-     1D..1M are candle-period timeframes (resampled client-side from the
-     same daily OHLCV — volume sums, never invented); 3M..All keep the
-     original daily-candle windows. */
+     15m is the intraday timeframe — bars built client-side from our own
+     15-minute snapshot archive (no backfill; honest empty state until the
+     archive accumulates). 1D..1M are candle-period timeframes (resampled
+     client-side from the same daily OHLCV — volume sums, never invented);
+     3M..All keep the original daily-candle windows. */
   var TFS = [
+    { id: '15m', intra: true },
     { id: '1D', slice: 66, agg: 1 },
     { id: '2D', slice: 132, agg: 2 },
     { id: '3D', slice: 132, agg: 3 },
@@ -170,7 +185,8 @@
     live: null,          // latest quote (stocks) or index snapshot
     liveBadge: false,
     sessionDate: null,
-    loading: false, err: ''
+    loading: false, err: '',
+    intra: null          // 15m cache: {sym, rows:[[epochSec,o,h,l,c,vol|null]], baseVol, empty}
   };
 
   var chart = null;
@@ -279,7 +295,8 @@
 
   function tfDef() {
     for (var i = 0; i < TFS.length; i++) if (TFS[i].id === state.tf) return TFS[i];
-    return TFS[9]; // '1Y'
+    for (var j = 0; j < TFS.length; j++) if (TFS[j].id === '1Y') return TFS[j];
+    return TFS[0];
   }
 
   function resample(rows, n) {
@@ -307,22 +324,125 @@
     return resample(sliced, d.agg);
   }
 
+  /* ---------- 15-minute intraday (own snapshot archive) ---------- */
+
+  function epochOf(iso) { return Math.floor(new Date(iso).getTime() / 1000); }
+
+  function fmtTimeNPT(sec) {
+    // '2 Oct 2026, 11:45 NPT' — wall clock via the UTC getters (UTC+5:45).
+    var d = new Date(sec * 1000);
+    var hh = d.getUTCHours(), mm = d.getUTCMinutes();
+    return d.getUTCDate() + ' ' + MONTHS[d.getUTCMonth()] + ' ' + d.getUTCFullYear() +
+      ', ' + (hh < 10 ? '0' : '') + hh + ':' + (mm < 10 ? '0' : '') + mm + ' NPT';
+  }
+
+  // NPT midnight sits exactly on an epoch 15-minute boundary (UTC+5:45 =
+  // 345 min = 23 x 15 min), so Math.floor(t/900) buckets align to NPT wall
+  // clock with no offset math.
+  function buildIntraBars(pts) {
+    // pts: [{t: epochSec, ltp, vol|null}] ascending. 15-minute NPT buckets:
+    // open = first ltp, close = last, high/low = max/min of ltp (the honest
+    // extremes at 15-minute sampling), volume = last cumulative volume in
+    // the bucket minus the previous bucket's (session volume for the first).
+    var bars = [], cur = null, prevVol = null;
+    for (var i = 0; i < pts.length; i++) {
+      var p = pts[i];
+      if (p.ltp == null || !isFinite(p.ltp)) continue;
+      var b = Math.floor(p.t / 900);
+      if (!cur || cur.b !== b) {
+        if (cur) bars.push(cur.row);
+        var v0 = (p.vol != null && prevVol != null) ? Math.max(0, p.vol - prevVol) : (p.vol != null ? p.vol : null);
+        cur = { b: b, row: [p.t - (p.t % 900), p.ltp, p.ltp, p.ltp, p.ltp, v0] };
+      } else {
+        if (p.ltp > cur.row[2]) cur.row[2] = p.ltp;
+        if (p.ltp < cur.row[3]) cur.row[3] = p.ltp;
+        cur.row[4] = p.ltp;
+        if (p.vol != null && prevVol != null) cur.row[5] = Math.max(0, p.vol - prevVol);
+        else if (p.vol != null && cur.row[5] == null) cur.row[5] = p.vol;
+      }
+      if (p.vol != null) prevVol = p.vol;
+    }
+    if (cur) bars.push(cur.row);
+    return bars;
+  }
+
+  function loadIntraday(sym) {
+    // Resolve 15m bars for the symbol. Never invents data: no archive (or
+    // no snapshots for this symbol) -> {rows: [], note} honest empty state.
+    var isIndex = sym === 'NEPSE';
+    function emptyNote() {
+      return 'No 15-minute history yet — the intraday archive starts ' +
+        'accumulating from today, Mon–Fri 10:45–15:00 NPT. ' +
+        (isIndex ? 'The NEPSE index archive keeps today\u2019s session only.' :
+          'Check back during market hours once snapshots for ' + sym + ' land.');
+    }
+    if (isIndex) {
+      return fetchJSON(SRC.intraIndex).then(function (d) {
+        var obs = (d && d.obs) || [];
+        var pts = obs.map(function (o) {
+          return { t: epochOf(o.t), ltp: Number(o.v), vol: null };
+        }).filter(function (p) { return p.t > 0 && isFinite(p.ltp); });
+        pts.sort(function (a, b) { return a.t - b.t; });
+        return { rows: buildIntraBars(pts), baseVol: null, note: emptyNote() };
+      }).catch(function () { return { rows: [], baseVol: null, note: emptyNote() }; });
+    }
+    return fetchJSON(SRC.intraDir + 'manifest.json').then(function (m) {
+      var days = (m && m.days) || [];
+      if (!days.length) return { rows: [], baseVol: null, note: emptyNote() };
+      return Promise.all(days.map(function (day) {
+        return fetchJSON(SRC.intraDir + 'quotes-' + day + '.json')
+          .catch(function () { return null; });
+      })).then(function (files) {
+        var pts = [];
+        files.forEach(function (f) {
+          if (!f || !Array.isArray(f.obs)) return;
+          f.obs.forEach(function (o) {
+            var s = o && o.q && o.q[sym];
+            if (!s) return;
+            pts.push({ t: epochOf(o.t), ltp: Number(s[0]), vol: s[3] != null ? Number(s[3]) : null });
+          });
+        });
+        pts = pts.filter(function (p) { return p.t > 0 && isFinite(p.ltp); });
+        pts.sort(function (a, b) { return a.t - b.t; });
+        var baseVol = null;
+        for (var i = pts.length - 1; i >= 0; i--) {
+          if (pts[i].vol != null) { baseVol = pts[i].vol; break; }
+        }
+        return { rows: buildIntraBars(pts), baseVol: baseVol, note: emptyNote() };
+      });
+    }).catch(function () { return { rows: [], baseVol: null, note: emptyNote() }; });
+  }
+
+  function curRows() {
+    // Rows for the active timeframe: 15m bars or the daily slice.
+    if (tfDef().intra) return (state.intra && state.intra.rows) || [];
+    return viewRows();
+  }
+
+  function timeOf(r) { // library `time` for a row: epoch seconds for 15m, ISO day otherwise
+    return tfDef().intra ? r[0] : isoOf(r[0]);
+  }
+
+  function fmtBarDate(bar) {
+    return tfDef().intra ? fmtTimeNPT(bar[0]) : fmtDate(isoOf(bar[0]));
+  }
+
   function candleData(rows) { // rows: already sliced to the timeframe
     return rows.map(function (r) {
-      return { time: isoOf(r[0]), open: r[1], high: r[2], low: r[3], close: r[4] };
+      return { time: timeOf(r), open: r[1], high: r[2], low: r[3], close: r[4] };
     });
   }
   function volumeData(rows) { // rows: already sliced to the timeframe
     return rows.map(function (r) {
       return {
-        time: isoOf(r[0]), value: r[5] || 0,
+        time: timeOf(r), value: r[5] || 0,
         color: r[4] >= r[1] ? themeColors().volUp : themeColors().volDown
       };
     });
   }
   function lineData(rows) { // rows: already sliced to the timeframe
     return rows.map(function (r) {
-      return { time: isoOf(r[0]), value: r[4] };
+      return { time: timeOf(r), value: r[4] };
     });
   }
 
@@ -345,7 +465,18 @@
         horzLine: { color: c.cross, labelBackgroundColor: c.cross }
       },
       rightPriceScale: { borderColor: c.border, scaleMargins: { top: 0.08, bottom: 0.24 } },
-      timeScale: { borderColor: c.border, timeVisible: true, secondsVisible: false }
+      timeScale: { borderColor: c.border, timeVisible: true, secondsVisible: false },
+      // Interaction, spelled out (these match the v4.2.3 defaults, verified
+      // against the vendored bundle): wheel zooms the time axis, drag pans,
+      // pinch zooms on touch, touch scroll has momentum; double-clicking an
+      // axis resets that scale (axisDoubleClickReset).
+      handleScroll: { mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: true },
+      handleScale: {
+        mouseWheel: true, pinch: true,
+        axisPressedMouseMove: { time: true, price: true },
+        axisDoubleClickReset: { time: true, price: true }
+      },
+      kineticScroll: { mouse: false, touch: true }
     });
     chart.priceScale('vol').applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
 
@@ -365,6 +496,12 @@
     });
 
     chart.subscribeCrosshairMove(onCrosshair);
+    // Double-click anywhere on the pane resets the zoom (fitContent) — the
+    // library's idiomatic pane-level reset; axis double-clicks are already
+    // handled by axisDoubleClickReset above.
+    if (chart.subscribeDblClick) {
+      chart.subscribeDblClick(function () { chart.timeScale().fitContent(); });
+    }
     new ResizeObserver(function () {
       if (chart && el) chart.applyOptions({ width: el.clientWidth || 800, height: el.clientHeight || 480 });
     }).observe(el);
@@ -388,14 +525,11 @@
     paintData(); // re-color volume bars
   }
 
-  function paintData(fit) {
-    if (!chart || !state.rows.length) return;
-    var rows = viewRows(); // timeframe window, resampled to the candle period
-    if (!rows.length) return;
+  function setSeriesData(rows, noVol) {
     S.candles.setData(candleData(rows));
     S.line.setData(lineData(rows));
     S.area.setData(lineData(rows));
-    S.vol.setData(volumeData(rows));
+    S.vol.setData(noVol ? [] : volumeData(rows));
     // Moving averages follow the displayed candles (e.g. SMA 20 on a weekly
     // chart = 20 weeks), computed from the same real closes.
     var cl = closes(rows);
@@ -404,14 +538,53 @@
       var arr = id === 'ema20' ? ema(cl, 20) : sma(cl, defs[id]);
       var pts = [];
       for (var i = 0; i < rows.length; i++) {
-        if (arr[i] != null) pts.push({ time: isoOf(rows[i][0]), value: arr[i] });
+        if (arr[i] != null) pts.push({ time: timeOf(rows[i]), value: arr[i] });
       }
       S[id].setData(pts);
     });
     applyVisibility();
+  }
+
+  function paintData(fit) {
+    if (!chart) return;
+    if (tfDef().intra) { paintIntraday(fit); return; }
+    if (!state.rows.length) return;
+    var rows = viewRows(); // timeframe window, resampled to the candle period
+    if (!rows.length) return;
+    setSeriesData(rows, false);
     if (fit !== false) chart.timeScale().fitContent();
     paintLegend(rows[rows.length - 1]);
     paintStats();
+  }
+
+  function paintIntraday(fit) {
+    // 15m: bars from our own snapshot archive (async). Cached per symbol so
+    // re-selecting the timeframe or toggling theme doesn't refetch.
+    var sym = state.sym;
+    var done = function (r) {
+      if (state.sym !== sym || !tfDef().intra) return; // user moved on
+      setLoading(false);
+      if (!r.rows.length) {
+        state.intra = { sym: sym, rows: [], baseVol: null, empty: true };
+        ['candles', 'line', 'area', 'vol', 'sma20', 'sma50', 'sma200', 'ema20']
+          .forEach(function (id) { S[id].setData([]); });
+        setNote(r.note);
+        return;
+      }
+      state.intra = { sym: sym, rows: r.rows, baseVol: r.baseVol, empty: false };
+      setSeriesData(r.rows, sym === 'NEPSE'); // the index archive carries no volume
+      if (fit !== false) chart.timeScale().fitContent();
+      paintLegend(r.rows[r.rows.length - 1]);
+      paintStats();
+    };
+    if (state.intra && state.intra.sym === sym && !state.intra.empty) {
+      done({ rows: state.intra.rows, baseVol: state.intra.baseVol, note: '' });
+      return;
+    }
+    setLoading(true); setNote(null);
+    loadIntraday(sym).then(done).catch(function () {
+      done({ rows: [], baseVol: null, note: 'Could not load the 15-minute archive right now — try again in a bit.' });
+    });
   }
 
   function applyVisibility() {
@@ -428,15 +601,19 @@
   }
 
   function onCrosshair(param) {
-    if (!chart || !state.rows.length) return;
-    var rows = viewRows();
+    if (!chart) return;
+    var rows = curRows();
+    if (!rows.length) return;
     var bar = rows[rows.length - 1];
-    if (param && param.time) {
-      var iso = typeof param.time === 'string' ? param.time : null;
-      if (iso) {
-        var ymd = ymdOf(iso);
+    if (param && param.time != null) {
+      if (typeof param.time === 'number') {
         for (var i = rows.length - 1; i >= 0; i--) {
-          if (rows[i][0] <= ymd) { bar = rows[i]; break; }
+          if (rows[i][0] === param.time) { bar = rows[i]; break; }
+        }
+      } else {
+        var ymd = ymdOf(param.time);
+        for (var j = rows.length - 1; j >= 0; j--) {
+          if (rows[j][0] <= ymd) { bar = rows[j]; break; }
         }
       }
     }
@@ -451,7 +628,7 @@
     var cls = chg > 0 ? 'up' : (chg < 0 ? 'down' : 'flat');
     el.innerHTML =
       '<span class="nt-lg-sym">' + esc(state.symName) + '</span>' +
-      '<span class="nt-lg-date">' + esc(fmtDate(isoOf(bar[0]))) + '</span>' +
+      '<span class="nt-lg-date">' + esc(fmtBarDate(bar)) + '</span>' +
       '<span class="nt-lg-ohlc">O <b>' + fmtNum(bar[1]) + '</b> H <b>' + fmtNum(bar[2]) +
       '</b> L <b>' + fmtNum(bar[3]) + '</b> C <b>' + fmtNum(bar[4]) + '</b></span>' +
       '<span class="nt-lg-chg ' + cls + '">' + fmtSigned(chg) + ' (' + fmtSigned(pct, 2) + '%)</span>' +
@@ -481,11 +658,15 @@
     set('nt-52h', fmtNum(hi)); set('nt-52l', fmtNum(lo));
     var cl = closes(rows);
     var s20 = sma(cl, 20), s50 = sma(cl, 50), s200 = sma(cl, 200);
-    set('nt-sma20', state.ltpOnly ? '—' : fmtNum(s20[s20.length - 1]));
-    set('nt-sma50', state.ltpOnly ? '—' : fmtNum(s50[s50.length - 1]));
-    set('nt-sma200', state.ltpOnly ? '—' : fmtNum(s200[s200.length - 1]));
+    var intra = tfDef().intra;
+    var na = state.ltpOnly || intra; // daily SMAs are meaningless on the 15m view
+    set('nt-sma20', na ? '—' : fmtNum(s20[s20.length - 1]));
+    set('nt-sma50', na ? '—' : fmtNum(s50[s50.length - 1]));
+    set('nt-sma200', na ? '—' : fmtNum(s200[s200.length - 1]));
     var sd = state.sessionDate || (rows.length ? isoOf(rows[rows.length - 1][0]) : null);
-    set('nt-session', 'Session ' + fmtDate(sd) + ' · data delayed ~15 min');
+    set('nt-session', intra
+      ? 'Intraday 15m · our 15-min snapshots · delayed ~15 min'
+      : 'Session ' + fmtDate(sd) + ' · data delayed ~15 min');
   }
 
   /* ---------- symbol loading ---------- */
@@ -514,6 +695,7 @@
     state.loading = true; state.err = '';
     setLoading(true); setNote(null);
     state.sym = sym; state.symName = isIndex ? 'NEPSE Index' : (state.names[sym] || sym);
+    state.intra = null; // drop the cached 15m bars — rebuilt for the new symbol
     store(LS.sym, sym);
     var inp = $('nt-sym'); if (inp && document.activeElement !== inp) inp.value = sym;
     var chips = document.querySelectorAll('[data-chip]');
@@ -562,11 +744,60 @@
     }
   }
 
+  function refreshIntraLive() {
+    // 15m: fold the latest live quote into the forming 15-minute bar —
+    // no refetch. Gated on the LIVE badge (market open, quote < 45 min),
+    // so a stale quote can never fabricate a bar. When the wall clock
+    // rolls into a new bucket, start the forming bar from the live quote
+    // (volume accumulates from there); the archive takes over on reload.
+    var c = state.intra;
+    if (!c || !c.rows.length || !state.live || !state.liveBadge) return;
+    var q = state.live;
+    var ltp = Number(state.sym === 'NEPSE' ? q.value : q.ltp);
+    if (!isFinite(ltp) || ltp <= 0) return;
+    var vol = Number(q.volume);
+    vol = isFinite(vol) ? vol : null;
+    var nowBucket = Math.floor(Date.now() / 1000 / 900);
+    var last = c.rows[c.rows.length - 1];
+    if (Math.floor(last[0] / 900) < nowBucket) {
+      last = [nowBucket * 900, ltp, ltp, ltp, ltp, 0];
+      c.rows.push(last);
+      if (vol != null) c.baseVol = vol;
+    }
+    last[4] = ltp;
+    if (ltp > last[2]) last[2] = ltp;
+    if (ltp < last[3]) last[3] = ltp;
+    if (vol != null && c.baseVol != null) last[5] = Math.max(0, vol - c.baseVol);
+    var t = last[0];
+    try {
+      S.candles.update({ time: t, open: last[1], high: last[2], low: last[3], close: last[4] });
+      S.line.update({ time: t, value: last[4] });
+      S.area.update({ time: t, value: last[4] });
+      if (state.sym !== 'NEPSE') {
+        S.vol.update({ time: t, value: last[5] || 0, color: last[4] >= last[1] ? themeColors().volUp : themeColors().volDown });
+      }
+      if (!state.ltpOnly) {
+        var cl = closes(c.rows);
+        var defs = { sma20: 20, sma50: 50, sma200: 200 };
+        ['sma20', 'sma50', 'sma200'].forEach(function (id) {
+          var arr = sma(cl, defs[id]);
+          var v = arr[arr.length - 1];
+          if (v != null) S[id].update({ time: t, value: v });
+        });
+        var e = ema(cl, 20), ev = e[e.length - 1];
+        if (ev != null) S.ema20.update({ time: t, value: ev });
+      }
+    } catch (err) { /* series not ready yet */ }
+    paintLegend(last);
+    paintStats();
+  }
+
   function refreshLive() {
     // Re-apply the live session candle on every NepseData tick.
     if (state.loading || !state.rows.length || !chart) return;
     var isIndex = state.sym === 'NEPSE';
     var merged = applyLiveToRows(state.rows, isIndex);
+    if (tfDef().intra) { refreshIntraLive(); return; }
     if (merged.rows.length !== state.rows.length) {
       // A new session opened — re-slice the timeframe window and repaint.
       state.rows = merged.rows;
