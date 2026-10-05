@@ -15,9 +15,13 @@
     return String(s == null ? '' : s).replace(/&/g, '&amp;')
       .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
-  // True trading session date: derived from market-data timestamps, NOT the fetch time.
-  // live.asof is when the pipeline fetched; the session is when the market actually traded.
+  // True trading session date: the pipeline's session_date (authoritative trading day).
+  // live.asof / data_asof are when the pipeline fetched (a refresh can land on a weekend).
   function getSessionDate(live) {
+    if (live && live.session_date) {
+      var sd = new Date(live.session_date + 'T12:00:00+05:45');
+      if (isFinite(sd.getTime())) return sd;
+    }
     if (live && live.data_asof) return new Date(live.data_asof);
     var ts = null;
     if (live) {
