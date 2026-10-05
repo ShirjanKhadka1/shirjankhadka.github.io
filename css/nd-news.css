@@ -207,3 +207,20 @@
 .nn-seo h2 { font-family: var(--nd-font-display, "Spectral", serif); font-size: 1.1rem; color: var(--nd-text); }
 .nn-credit { font-size: 0.8rem; color: var(--nd-dim); margin: 1.25rem 0 0; }
 .nn-credit a { color: inherit; }
+
+/* ---- premium 3D layer ---- */
+.nn-card{
+  background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,0) 40%), var(--nd-panel);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+  transition: border-color .15s, transform .25s cubic-bezier(.22,1,.36,1), box-shadow .25s;
+}
+.nn-card:hover{
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 3px 8px rgba(0,0,0,.45), 0 18px 44px rgba(0,0,0,.35);
+}
+.nn-mono{
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 1px 3px rgba(0,0,0,.35);
+}
+@media (prefers-reduced-motion: reduce){
+  .nn-card{ transition: none; }
+  .nn-card:hover{ transform: none; }
+}
