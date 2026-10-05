@@ -195,7 +195,7 @@
   }
 
   function headerHTML() {
-    return '<div class="nd-bar">' +
+    return '<header class="nd-bar">' +
       '<a class="nd-brand nd-focusable" href="/nepse-decode/" aria-label="Nepse Decode home">' + LOGO_SVG +
       '<span class="nd-brand-name">Nepse Decode</span></a>' +
       '<div class="nd-search" role="search">' +
@@ -215,7 +215,7 @@
       '<button class="nd-iconbtn nd-focusable nd-burger" id="nd-burger" aria-label="Open menu" aria-expanded="false">' +
       '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>' +
       '</div>' +
-      '</div>' +
+      '</header>' +
       '<div class="nd-scrim" id="nd-scrim"></div>' +
       '<aside class="nd-drawerpanel" id="nd-drawer" aria-label="Menu">' + drawerHTML() + '</aside>';
   }
