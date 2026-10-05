@@ -1,42 +1,42 @@
 {
-  "ran_at_npt": "2026-10-04T22:35:00+05:45",
-  "expected_session": "2026-10-02",
+  "ran_at_npt": "2026-10-06T01:07:00+05:45",
+  "expected_session": "2026-10-05",
   "passed": true,
   "gates": [
     {
       "gate": "manifest-present",
       "pass": true,
-      "detail": "data/manifest.json session=2026-10-02",
+      "detail": "data/manifest.json session=2026-10-05",
       "severity": "fail"
     },
     {
       "gate": "live-session-current",
       "pass": true,
-      "detail": "live=2026-10-02 expected=2026-10-02",
+      "detail": "live=2026-10-05 expected=2026-10-05",
       "severity": "fail"
     },
     {
       "gate": "universe-session-current",
       "pass": true,
-      "detail": "universe=2026-10-02 expected=2026-10-02",
+      "detail": "universe=2026-10-05 expected=2026-10-05",
       "severity": "fail"
     },
     {
       "gate": "security-count-stable",
       "pass": true,
-      "detail": "quotes=356 baseline=356 (previous manifest) drift=0.0% band=±5%",
+      "detail": "quotes=359 baseline=359 (previous manifest) drift=0.0% band=±5%",
       "severity": "fail"
     },
     {
       "gate": "no-dup-quotes",
       "pass": true,
-      "detail": "356 unique quoted symbols",
+      "detail": "359 unique quoted symbols",
       "severity": "fail"
     },
     {
       "gate": "price-sanity",
       "pass": true,
-      "detail": "356 quotes ok",
+      "detail": "359 quotes ok",
       "severity": "fail"
     },
     {
@@ -48,13 +48,13 @@
     {
       "gate": "quote-math-reconciles",
       "pass": true,
-      "detail": "356 quotes reconcile",
+      "detail": "359 quotes reconcile",
       "severity": "fail"
     },
     {
       "gate": "circuit-limits",
-      "pass": false,
-      "detail": "NMBD89/90: 14.3% — review for corporate actions",
+      "pass": true,
+      "detail": "all within ±10%",
       "severity": "flag"
     },
     {
@@ -66,13 +66,13 @@
     {
       "gate": "session-totals-consistent",
       "pass": true,
-      "detail": "turnover=Rs 4.29B vol=11.9M trades=43685 n=356",
+      "detail": "turnover=Rs 3.28B vol=9.0M trades=44777 n=359",
       "severity": "fail"
     },
     {
       "gate": "universe-membership-stable",
       "pass": true,
-      "detail": "quoted=356 universe=410 (86.8%)",
+      "detail": "quoted=359 universe=410 (87.6%)",
       "severity": "flag"
     },
     {
@@ -96,36 +96,35 @@
     {
       "gate": "signals/momentum.json-fresh",
       "pass": true,
-      "detail": "generated=2026-10-02 expected>=2026-10-02",
+      "detail": "generated=2026-10-05 expected>=2026-10-05",
       "severity": "fail"
     },
     {
       "gate": "signals/trend-relay.json-fresh",
       "pass": true,
-      "detail": "generated=2026-10-02 expected>=2026-10-02",
+      "detail": "generated=2026-10-05 expected>=2026-10-05",
       "severity": "fail"
     },
     {
       "gate": "signals/reversal.json-fresh",
       "pass": true,
-      "detail": "generated=2026-10-02 expected>=2026-10-02",
+      "detail": "generated=2026-10-05 expected>=2026-10-05",
       "severity": "fail"
     },
     {
       "gate": "all-files-parse",
       "pass": true,
-      "detail": "71 files ok",
+      "detail": "73 files ok",
       "severity": "fail"
     },
     {
       "gate": "sha256-integrity",
       "pass": true,
-      "detail": "71 files verified",
+      "detail": "73 files verified",
       "severity": "fail"
     }
   ],
   "flagged": [
-    "circuit-limits",
     "close-source-official"
   ]
 }
