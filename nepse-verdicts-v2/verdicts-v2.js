@@ -25,9 +25,16 @@
     var n = Number(v);
     return isFinite(n) ? n.toLocaleString('en-US', {minimumFractionDigits: d||0, maximumFractionDigits: d||0}) : '—';
   }
-  function fmtPct(v) {
-    if (v == null || !isFinite(Number(v))) return '—';
+  function fmtPct(v) {    if (v == null || !isFinite(Number(v))) return '—';
     return (Number(v) * 100).toFixed(1) + '%';
+  }
+  /* age_sessions → plain words: sessions since listing */
+  function fmtAge(s) {
+    if (s == null || !isFinite(Number(s))) return '—';
+    s = Math.round(Number(s));
+    if (s < 22) return s + ' sessions';
+    if (s < 250) return '≈' + Math.round(s / 21) + ' mo';
+    return (s / 250).toFixed(1) + ' yrs';
   }
 
   var VCLASS = {
@@ -162,7 +169,7 @@
     var v;
     if (k === 'confidence') v = '<span class="v3-num">' + fmtPct(r.confidence) + '</span>';
     else if (k === 'pump') v = '<span class="v3-num">' + (r.pump == null ? '—' : r.pump.toFixed(2)) + '</span>';
-    else if (k === 'age') v = '<span class="v3-dim">' + (r.age == null ? '—' : r.age) + '</span>';
+    else if (k === 'age') v = '<span class="v3-dim" title="Trading sessions since this stock listed">' + fmtAge(r.age) + '</span>';
     else if (k === 'sec') v = '<span class="v3-dim">' + esc(r.sec == null ? '—' : r.sec) + '</span>';
     else v = lockinCell(r.lockin);
     return '<div class="v3-c stat" data-l="' + esc(label) + '">' + v + '</div>';

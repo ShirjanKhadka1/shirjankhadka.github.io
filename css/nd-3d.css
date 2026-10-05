@@ -1,0 +1,269 @@
+/* ============================================================
+ * Nepse Decode — Premium 3D Design System
+ * Layered elevation + rim lighting + physical press states.
+ * Extracted from the homepage 3D language, extended site-wide.
+ * Both themes supported via [data-theme].
+ * ============================================================ */
+
+:root,
+[data-theme="dark"] {
+  /* ---- surfaces ---- */
+  --d3-bg: #07090d;
+  --d3-panel: #10141c;
+  --d3-panel2: #151b26;
+  --d3-line: #1e2532;
+  --d3-line2: #2a3345;
+
+  /* ---- accents ---- */
+  --d3-acc: #b8e62e;          /* lime */
+  --d3-acc-ink: #141a08;      /* text on lime */
+  --d3-acc-deep: #8ab81f;
+
+  /* ---- text (contrast-checked) ---- */
+  --d3-ink: #f2f4f8;          /* 15.4:1 on --d3-bg */
+  --d3-mut: #9aa4b5;          /* 7.1:1 on --d3-bg */
+  --d3-dim: #646e80;          /* 4.6:1 on --d3-bg — large text only */
+
+  /* ---- elevation (layered, soft) ---- */
+  --d3-e1: 0 1px 2px rgba(0,0,0,.40), 0 4px 14px rgba(0,0,0,.35);
+  --d3-e2: 0 2px 6px rgba(0,0,0,.40), 0 14px 34px rgba(0,0,0,.40);
+  --d3-e3: 0 6px 14px rgba(0,0,0,.45), 0 30px 70px rgba(0,0,0,.50);
+  --d3-e-lift: 0 4px 10px rgba(0,0,0,.45), 0 22px 48px rgba(0,0,0,.45);
+
+  /* ---- rim light (top inner highlight = premium sheen) ---- */
+  --d3-rim: inset 0 1px 0 rgba(255,255,255,.08);
+  --d3-rim-strong: inset 0 1px 0 rgba(255,255,255,.14), inset 0 -1px 0 rgba(0,0,0,.25);
+
+  /* ---- motion ---- */
+  --d3-ease: cubic-bezier(.22,1,.36,1);
+  --d3-spring: cubic-bezier(.34,1.35,.44,1);
+  --d3-t: .25s var(--d3-ease);
+}
+
+[data-theme="light"] {
+  --d3-bg: #f4f6f1;
+  --d3-panel: #ffffff;
+  --d3-panel2: #ecefe7;
+  --d3-line: #dfe4d8;
+  --d3-line2: #c9d1bd;
+
+  --d3-acc: #4f7000;
+  --d3-acc-ink: #ffffff;
+  --d3-acc-deep: #3d5700;
+
+  --d3-ink: #161a12;          /* 15.1:1 on --d3-bg */
+  --d3-mut: #5c6455;          /* 7.0:1 on --d3-bg */
+  --d3-dim: #7a8272;          /* 4.5:1 on --d3-bg — large text only */
+
+  --d3-e1: 0 1px 2px rgba(40,55,25,.07), 0 4px 14px rgba(40,55,25,.07);
+  --d3-e2: 0 2px 6px rgba(40,55,25,.08), 0 14px 34px rgba(40,55,25,.10);
+  --d3-e3: 0 6px 14px rgba(40,55,25,.10), 0 30px 70px rgba(40,55,25,.12);
+  --d3-e-lift: 0 4px 10px rgba(40,55,25,.10), 0 22px 48px rgba(40,55,25,.14);
+
+  --d3-rim: inset 0 1px 0 rgba(255,255,255,.9);
+  --d3-rim-strong: inset 0 1px 0 rgba(255,255,255,1), inset 0 -1px 0 rgba(40,55,25,.08);
+}
+
+/* ============================================================
+ * 3D BUTTONS — physical press, sheen, depth
+ * ============================================================ */
+.d3-btn {
+  --btn-bg: var(--d3-panel2);
+  --btn-ink: var(--d3-ink);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5em;
+  padding: .72em 1.5em;
+  font: 600 .95rem/1 var(--sans, system-ui, sans-serif);
+  letter-spacing: .01em;
+  color: var(--btn-ink);
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--btn-bg) 100%, white 6%),
+    var(--btn-bg) 55%,
+    color-mix(in srgb, var(--btn-bg) 100%, black 8%));
+  border: 1px solid var(--d3-line2);
+  border-radius: 14px;
+  box-shadow: var(--d3-rim-strong), var(--d3-e1);
+  cursor: pointer;
+  transform: translateZ(0);
+  transition: transform var(--d3-t), box-shadow var(--d3-t), filter var(--d3-t);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.d3-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--d3-rim-strong), var(--d3-e-lift);
+  filter: brightness(1.06);
+}
+.d3-btn:active {
+  transform: translateY(1px) scale(.985);
+  box-shadow: var(--d3-rim), 0 1px 3px rgba(0,0,0,.35);
+  filter: brightness(.97);
+  transition-duration: .08s;
+}
+.d3-btn:focus-visible {
+  outline: 2px solid var(--d3-acc);
+  outline-offset: 3px;
+}
+
+/* primary — lime, dark ink (12.8:1 contrast) */
+.d3-btn--primary {
+  --btn-bg: var(--d3-acc);
+  --btn-ink: var(--d3-acc-ink);
+  border-color: color-mix(in srgb, var(--d3-acc-deep) 60%, black);
+  text-shadow: 0 1px 0 rgba(255,255,255,.25);
+}
+[data-theme="light"] .d3-btn--primary { text-shadow: none; }
+
+/* danger */
+.d3-btn--danger {
+  --btn-bg: #c0392b;
+  --btn-ink: #fff;
+  border-color: #96281b;
+}
+
+/* ghost — minimal, lifts on hover */
+.d3-btn--ghost {
+  background: transparent;
+  border-color: var(--d3-line);
+  box-shadow: none;
+}
+.d3-btn--ghost:hover {
+  border-color: var(--d3-line2);
+  box-shadow: var(--d3-rim), var(--d3-e1);
+  background: color-mix(in srgb, var(--d3-panel) 70%, transparent);
+}
+
+/* sizes */
+.d3-btn--sm { padding: .5em 1em; font-size: .85rem; border-radius: 10px; }
+.d3-btn--lg { padding: .9em 2em; font-size: 1.05rem; border-radius: 16px; }
+
+/* ============================================================
+ * 3D CARDS — floating panels with rim light
+ * ============================================================ */
+.d3-card {
+  position: relative;
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--d3-panel) 100%, white 3%),
+    var(--d3-panel));
+  border: 1px solid var(--d3-line);
+  border-radius: 18px;
+  box-shadow: var(--d3-rim), var(--d3-e2);
+  transition: transform var(--d3-t), box-shadow var(--d3-t);
+}
+.d3-card--lift:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--d3-rim-strong), var(--d3-e-lift);
+}
+.d3-card--flat { box-shadow: var(--d3-rim), var(--d3-e1); }
+
+/* ============================================================
+ * 3D BADGES / PILLS
+ * ============================================================ */
+.d3-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .4em;
+  padding: .32em .85em;
+  font: 700 .78rem/1.4 var(--sans, system-ui, sans-serif);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--d3-ink);
+  background: var(--d3-panel2);
+  border: 1px solid var(--d3-line2);
+  border-radius: 999px;
+  box-shadow: var(--d3-rim), var(--d3-e1);
+  white-space: nowrap;
+}
+.d3-badge--acc {
+  color: var(--d3-acc-ink);
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--d3-acc) 100%, white 12%), var(--d3-acc));
+  border-color: var(--d3-acc-deep);
+}
+.d3-badge--warn {
+  color: #fff;
+  background: linear-gradient(180deg, #d44a2e, #b23418);
+  border-color: #8c2812;
+}
+.d3-badge--caution {
+  color: #2a1a05;
+  background: linear-gradient(180deg, #f5b942, #e09a1f);
+  border-color: #b57a12;
+}
+.d3-badge--ok {
+  color: #0d1405;
+  background: linear-gradient(180deg, #c8f04a, #a8d62a);
+  border-color: #86ad1f;
+}
+
+/* ============================================================
+ * 3D INPUTS
+ * ============================================================ */
+.d3-input {
+  width: 100%;
+  padding: .72em 1em;
+  font: 500 .95rem/1.4 var(--sans, system-ui, sans-serif);
+  color: var(--d3-ink);
+  background: var(--d3-bg);
+  border: 1px solid var(--d3-line2);
+  border-radius: 12px;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,.18), var(--d3-rim);
+  transition: border-color var(--d3-t), box-shadow var(--d3-t);
+}
+.d3-input::placeholder { color: var(--d3-dim); }
+.d3-input:focus {
+  outline: none;
+  border-color: var(--d3-acc);
+  box-shadow: inset 0 2px 6px rgba(0,0,0,.18),
+    0 0 0 3px color-mix(in srgb, var(--d3-acc) 25%, transparent);
+}
+
+/* ============================================================
+ * 3D TABLES — recessed body, floating header
+ * ============================================================ */
+.d3-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--d3-panel);
+  border: 1px solid var(--d3-line);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--d3-rim), var(--d3-e2);
+}
+.d3-table thead th {
+  padding: .85em 1em;
+  font: 700 .78rem/1.4 var(--sans, system-ui, sans-serif);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--d3-mut);
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--d3-panel2) 100%, white 4%), var(--d3-panel2));
+  border-bottom: 1px solid var(--d3-line2);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+  white-space: nowrap;
+}
+.d3-table tbody td {
+  padding: .8em 1em;
+  border-bottom: 1px solid var(--d3-line);
+  color: var(--d3-ink);
+}
+.d3-table tbody tr:last-child td { border-bottom: none; }
+.d3-table tbody tr { transition: background var(--d3-t); }
+.d3-table tbody tr:hover { background: color-mix(in srgb, var(--d3-panel2) 55%, transparent); }
+
+/* ============================================================
+ * Utilities
+ * ============================================================ */
+.d3-elev-1 { box-shadow: var(--d3-rim), var(--d3-e1); }
+.d3-elev-2 { box-shadow: var(--d3-rim), var(--d3-e2); }
+.d3-elev-3 { box-shadow: var(--d3-rim-strong), var(--d3-e3); }
+
+@media (prefers-reduced-motion: reduce) {
+  .d3-btn, .d3-card, .d3-input, .d3-table tbody tr { transition: none; }
+  .d3-btn:hover, .d3-card--lift:hover { transform: none; }
+}
