@@ -295,13 +295,17 @@
     }).catch(function () { UNI = []; cb(UNI); });
   }
 
-  /* Footer securities chip: filled from the verified universe file, never hardcoded. */
+  /* Footer securities chip: count from the verified universe file, never hardcoded.
+   * No "as of" date on the chip itself — the universe rebuilds at each market
+   * close, so a mid-session date would look stale to shoppers even though the
+   * count is current. The verification date stays in the tooltip. */
   function refreshFootSyms() {
     var el = document.getElementById('nd-footsyms');
     if (!el) return;
-    if (UNI_META && UNI_META.count && UNI_META.asof) {
-      el.textContent = UNI_META.count + ' SECURITIES · DATA AS OF ' + UNI_META.asof;
-      el.setAttribute('title', 'Listed securities in the site universe; universe data as of ' + UNI_META.asof + ' (NPT)');
+    if (UNI_META && UNI_META.count) {
+      el.textContent = UNI_META.count + ' LISTED SECURITIES';
+      el.setAttribute('title', 'Listed securities in the site universe' +
+        (UNI_META.asof ? '; universe verified ' + UNI_META.asof + ' (NPT)' : ''));
     }
   }
 
