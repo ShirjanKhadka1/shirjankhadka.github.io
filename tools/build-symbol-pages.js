@@ -174,6 +174,7 @@ function head(sym, name, slug) {
     '<link rel="stylesheet" href="/css/nepse-wave8.css?v=20261003a">\n' +    '<link rel="stylesheet" href="/css/theme.css?v=20261001a">\n' +
     '<link rel="stylesheet" href="/css/nepse-d2.css?v=20261001a">\n' +
     '<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">\n' +
+    '<link rel="stylesheet" href="/css/verdict-v2-banner.css?v=20261005a">\n' +
     '<link rel="stylesheet" href="/css/nd-chrome.css?v=20261004a">\n' +
 
     '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>\n' +
@@ -187,6 +188,7 @@ const RAIL = '<body>\n<a class="skip" href="#main">Skip to content</a>\n\n' +
   '<div id="nd-footer"></div>\n' +
   '<script src="/js/nd-chrome.js?v=20261003a" defer></script>\n' +
   '<script src="/js/stock-live.js?v=20260930a" defer></script>\n' +  '<script src="/js/val-lab.js?v=20261003a" defer></script>\n' +  '<script src="/js/theme-toggle.js?v=20261001a" defer></script>\n' +
+  '<script src="/js/verdict-v2-banner.js?v=20261005a" defer></script>\n' +
 
   '</body>\n</html>\n';
 
@@ -808,6 +810,10 @@ function symbolPage(u, v, newsItems, fund, liveQ, liveDate, sector, sectorPeers,
   h += '<p class="eyebrow">' + esc(u.t || 'Security') + ' · NEPSE</p>\n';
   h += '<h1>' + esc(name) + ' (' + esc(sym) + ')</h1>\n';
   h += '<p class="asof">Data as of ' + esc(asofD) + ' · refreshed daily after market close</p></section>\n';
+
+  // Verdict Engine v2 warning banner — hydrated client-side from
+  // /data/verdicts-v2-summary.json (async, no first-paint cost).
+  h += '<div data-verdict-v2-banner data-sym="' + esc(sym) + '"></div>\n';
 
   // Price snapshot — hydrated live in the browser by /js/stock-live.js
   // (data-live-symbol), so the page stays fresh without rebuilds.
