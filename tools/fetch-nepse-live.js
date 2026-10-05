@@ -47,6 +47,44 @@ const api = require('./nepse-api');
 const { ROOT, UA, REQ_TIMEOUT_MS, DUMMY } = api;
 const { fetchWithTimeout, baseHeaders, getJSON } = api;
 const { authenticate, apiFetch, payloadId } = api;
+
+function log(msg) { console.log('[fetch-nepse-live] ' + msg); }
+// Fail-safe: report to stderr, exit 0, never touch live.json.
+function abort(msg) {
+  console.error('[fetch-nepse-live] ABORT (keeping existing live.json): ' + msg);
+  process.exit(0);
+}
+
+// YYYY-MM-DD of a timestamp in NPT (UTC+5:45). live.json asof is UTC ISO;
+// the trading day is NPT, so compare dates in NPT.
+function nptDate(isoOrMs) {
+  const ms = typeof isoOrMs === 'number' ? isoOrMs : Date.parse(isoOrMs);
+  return new Date(ms + (5 * 60 + 45) * 60 * 1000).toISOString().slice(0, 10);
+}
+
+/**
+ * The trading session this snapshot belongs to — the LAST TRADING SESSION,
+ * never a weekend/holiday calendar date. Mirrors the validator's
+ * live-session-current expectation exactly:
+ *   - trading day at/after market open  -> today (session in progress/closed)
+ *   - trading day before open            -> last completed session
+ *   - weekend / holiday                  -> last completed session (Friday)
+ * asof stays the honest fetch time; session_date is the market session.
+ */
+function snapshotSessionDate(now) {
+  const today = td.todayNPT(now);
+  // V3 CAL schema keeps pre-open under trading_hours.pre_open_npt
+  // ("10:45-11:00"); the pre-open session is part of today's session.
+  const preOpenStart = ((td.CAL.trading_hours && td.CAL.trading_hours.pre_open_npt) || '10:45-11:00').split('-')[0];
+  if (td.isTradingDay(today) && td.timeNPT(now) >= preOpenStart) return today;
+  return td.expectedSessionDate(now);
+}
+
+function readLive() {
+  try {
+    return JSON.parse(fs.readFileSync(OUT, 'utf8'));
+  } catch (e) { return null; }
+}
 const OUT = path.join(__dirname, '..', 'nepse-chart', 'data', 'live.json');
 const PAGE_SIZE = 500;
 const MAX_PAGES = 10;
