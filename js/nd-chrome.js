@@ -215,8 +215,14 @@
       '<button class="nd-iconbtn nd-focusable nd-burger" id="nd-burger" aria-label="Open menu" aria-expanded="false">' +
       '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>' +
       '</div>' +
-      '</header>' +
-      '<div class="nd-scrim" id="nd-scrim"></div>' +
+      '</header>';
+  }
+
+  /* Fixed overlays mount on <body>, NOT inside #nd-header: the sticky header
+     uses backdrop-filter, which per spec becomes the containing block for
+     position:fixed descendants and would trap the drawer inside the 60px bar. */
+  function overlayHTML() {
+    return '<div class="nd-scrim" id="nd-scrim"></div>' +
       '<aside class="nd-drawerpanel" id="nd-drawer" aria-label="Menu">' + drawerHTML() + '</aside>';
   }
 
@@ -429,6 +435,9 @@
     if (!hh && !fh) return; /* not an opted-in page */
     if (hh) hh.innerHTML = headerHTML();
     if (fh) fh.innerHTML = footerHTML();
+    /* Drawer + scrim are fixed overlays: mount on body so the header's
+       backdrop-filter can't trap them (see overlayHTML note). */
+    if (!$('#nd-drawer')) document.body.insertAdjacentHTML('beforeend', overlayHTML());
 
     /* Honor the legacy theme key on first run so returning visitors
        keep the mode they chose before the redesign. */

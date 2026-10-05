@@ -45,14 +45,14 @@
   }
 
   function lockinCell(lk) {
-    if (!lk) return '<span class="dim">—</span>';
+    if (!lk) return '<span class="v3-dim">—</span>';
     // HARD RULE: precise expiry only from verified tiers.
     if (lk.expiry) {
       var exp = lk.status === 'expired';
       return '<span class="v2-lock ' + (exp ? 'exp' : '') + '">' +
         (exp ? 'expired ' : 'expires ') + esc(lk.expiry) + '</span>';
     }
-    return '<span class="dim">expiry unverified</span>';
+    return '<span class="v3-dim">expiry unverified</span>';
   }
 
   function load() {
@@ -158,14 +158,14 @@
     {k:'pump', l:'Pump score', n:1}, {k:'age', l:'Age', n:1}, {k:'sec', l:'Sector'}, {k:'lockin', l:'Lock-in'}
   ];
 
-  function cell(r, k) {
-    if (k === 'sym') return '<td class="sym">'+esc(r.sym)+(r.early?' <span class="v2-early">Early</span>':'')+'</td>';
-    if (k === 'label') return '<td><span class="v2-v '+vClass(r.label)+'">'+esc(vLabel(r.label))+'</span></td>';
-    if (k === 'confidence') return '<td class="num">'+fmtPct(r.confidence)+'</td>';
-    if (k === 'pump') return '<td class="num">'+(r.pump==null?'—':r.pump.toFixed(2))+'</td>';
-    if (k === 'age') return '<td class="num dim">'+(r.age==null?'—':r.age)+'</td>';
-    if (k === 'lockin') return '<td>'+lockinCell(r.lockin)+'</td>';
-    return '<td class="dim">'+esc(r[k]==null?'—':r[k])+'</td>';
+  function statCell(r, k, label) {
+    var v;
+    if (k === 'confidence') v = '<span class="v3-num">' + fmtPct(r.confidence) + '</span>';
+    else if (k === 'pump') v = '<span class="v3-num">' + (r.pump == null ? '—' : r.pump.toFixed(2)) + '</span>';
+    else if (k === 'age') v = '<span class="v3-dim">' + (r.age == null ? '—' : r.age) + '</span>';
+    else if (k === 'sec') v = '<span class="v3-dim">' + esc(r.sec == null ? '—' : r.sec) + '</span>';
+    else v = lockinCell(r.lockin);
+    return '<div class="v3-c stat" data-l="' + esc(label) + '">' + v + '</div>';
   }
 
   function renderTable() {
@@ -179,37 +179,52 @@
     var th = COLS.map(function (c) {
       var active = state.sortKey === c.k;
       var arr = active ? (state.sortDir===1?'▲':'▼') : '';
-      return '<th scope="col" data-k="'+c.k+'" class="sortable'+(c.n?' num':'')+'">'+esc(c.l)+'<span class="arr">'+arr+'</span></th>';
-    }).join('');
-    var body = page.length ? page.map(function (r) {
+      return '<div class="v3-th sortable' + (c.n?' num':'') + '" data-k="'+c.k+'" role="columnheader" tabindex="0">'+esc(c.l)+'<span class="arr">'+arr+'</span></div>';
+    }).join('') + '<div class="v3-th v3-th-chev" aria-hidden="true"></div>';
+
+    var cards = page.length ? page.map(function (r) {
       var open = state.expanded === r.sym;
-      var h = '<tr class="v2-row'+(open?' open':'')+'" data-sym="'+esc(r.sym)+'">'+
-        COLS.map(function (c){return cell(r,c.k);}).join('')+'</tr>';
-      if (open) h += '<tr class="v2-detail"><td colspan="'+COLS.length+'"><div id="v2Detail-'+esc(r.sym)+'">'+
-        '<div class="v2-empty">Loading evidence…</div></div></td></tr>';
+      var cls = vClass(r.label);
+      var h = '<div class="v3-card ' + cls + (open ? ' open' : '') + '" data-sym="'+esc(r.sym)+'" role="button" tabindex="0" aria-expanded="'+open+'">' +
+        '<div class="v3-c sym"><span class="v3-sym">'+esc(r.sym)+'</span>'+(r.early?' <span class="v2-early">Early</span>':'')+'</div>' +
+        '<div class="v3-c verdict"><span class="v2-v '+cls+'">'+esc(vLabel(r.label))+'</span></div>' +
+        '<div class="v3-statrow">' +
+          statCell(r,'confidence','Confidence') + statCell(r,'pump','Pump score') +
+          statCell(r,'age','Age') + statCell(r,'sec','Sector') + statCell(r,'lockin','Lock-in') +
+        '</div>' +
+        '<div class="v3-chev" aria-hidden="true">▾</div>' +
+      '</div>';
+      if (open) h += '<div class="v3-detailwrap"><div class="v3-detail" id="v3Detail-'+esc(r.sym)+'"><div class="v2-empty">Loading evidence…</div></div></div>';
       return h;
-    }).join('') : '<tr><td colspan="'+COLS.length+'"><div class="v2-empty">No securities match your filters.</div></td></tr>';
-    host.innerHTML = '<table class="v2-table"><caption>Warning radar · '+
-      (state.sortDir===1?'ascending':'descending')+' · '+esc(state.session||'date unavailable')+
-      '</caption><thead><tr>'+th+'</tr></thead><tbody>'+body+'</tbody></table>';
-    host.querySelectorAll('th.sortable').forEach(function (h) {
-      h.addEventListener('click', function () {
+    }).join('') : '<div class="v2-empty">No securities match your filters.</div>';
+
+    host.innerHTML = '<div class="v3-board" role="table" aria-label="Warning radar">' +
+      '<div class="v3-thead" role="row">'+th+'</div>' +
+      '<div class="v3-rows">'+cards+'</div></div>' +
+      '<p class="v3-cap">Warning radar · ' + (state.sortDir===1?'ascending':'descending') + ' · ' + esc(state.session||'date unavailable') + '</p>';
+
+    host.querySelectorAll('.v3-th.sortable').forEach(function (h) {
+      var go = function () {
         var k = h.getAttribute('data-k');
         if (state.sortKey === k) state.sortDir *= -1;
         else { state.sortKey = k; state.sortDir = (k==='sym'||k==='label'||k==='sec' ? 1 : -1); }
         state.page = 1; renderTable();
-      });
+      };
+      h.addEventListener('click', go);
+      h.addEventListener('keydown', function (e) { if (e.key==='Enter'||e.key===' ') { e.preventDefault(); go(); } });
     });
-    host.querySelectorAll('tr.v2-row').forEach(function (tr) {
-      tr.addEventListener('click', function () {
-        var sym = tr.getAttribute('data-sym');
+    host.querySelectorAll('.v3-card').forEach(function (card) {
+      var toggle = function () {
+        var sym = card.getAttribute('data-sym');
         state.expanded = (state.expanded === sym) ? null : sym;
         renderTable();
         if (state.expanded) loadDetail(state.expanded);
-      });
+      };
+      card.addEventListener('click', toggle);
+      card.addEventListener('keydown', function (e) { if (e.key==='Enter'||e.key===' ') { e.preventDefault(); toggle(); } });
     });
     if (cnt) cnt.textContent = rows.length
-      ? 'Showing '+(start+1)+'–'+Math.min(start+PER_PAGE,rows.length)+' of '+rows.length+' securities · click a row for evidence'
+      ? 'Showing '+(start+1)+'–'+Math.min(start+PER_PAGE,rows.length)+' of '+rows.length+' securities · click a card for evidence'
       : 'No securities found';
     renderPager(pager, totalPages);
     if (state.expanded) loadDetail(state.expanded);
@@ -242,7 +257,7 @@
   /* ---------------- evidence accordion ---------------- */
 
   function loadDetail(sym) {
-    var host = $('v2Detail-'+sym);
+    var host = $('v3Detail-'+sym);
     if (!host) return;
     if (fullCache) { host.innerHTML = renderEvidence(fullCache.verdicts[sym]); return; }
     if (fullLoading) return;
@@ -251,12 +266,12 @@
       .then(function (r) { if (!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
       .then(function (json) {
         fullCache = json; fullLoading = false;
-        var h = $('v2Detail-'+sym);
+        var h = $('v3Detail-'+sym);
         if (h && state.expanded === sym) h.innerHTML = renderEvidence((json.verdicts||{})[sym]);
       })
       .catch(function () {
         fullLoading = false;
-        var h = $('v2Detail-'+sym);
+        var h = $('v3Detail-'+sym);
         if (h) h.innerHTML = '<div class="v2-empty">Could not load evidence. Please reload.</div>';
       });
   }
