@@ -47,7 +47,12 @@ jobs:
       # dry_run=true on dispatch) enables real commits/pushes.
       DRY_RUN: ${{ inputs.dry_run == true || vars.DRY_RUN != 'false' }}
     steps:
+      # Full history: tools/validate-build.js walks live.json's git history for
+      # the intraday count gate (same-session snapshot baseline) when a
+      # scheduled run drifts into market hours.
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
@@ -128,10 +133,27 @@ jobs:
           if [ "$DRY_RUN" != "true" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add nepse-chart/data/jobs.json nepse-chart/data/validation.json
-            git commit -m "content: validation FAILED (deploy blocked)"
-            git pull --rebase origin main
-            git push origin main
+            # Guarded adds: a crashed validator may not have written these —
+            # an unguarded `git add` exits 128 on a missing pathspec and the
+            # failure record never lands (seen 2026-10-02..05: 5 runs, 0 records).
+            [ -f nepse-chart/data/jobs.json ] && git add nepse-chart/data/jobs.json
+            [ -f nepse-chart/data/validation.json ] && git add nepse-chart/data/validation.json
+            if git diff --cached --quiet; then
+              echo "nothing new to record — failure already recorded on main"
+            else
+              git commit -m "content: validation FAILED (deploy blocked)"
+              git pull --rebase origin main
+              pushed=false
+              for i in 1 2 3; do
+                if git push origin main; then pushed=true; break; fi
+                echo "Push attempt $i failed, retrying after pull..."
+                git pull --rebase origin main
+                sleep 5
+              done
+              if [ "$pushed" != "true" ]; then
+                echo "::error::failure-record push failed after 3 attempts — record kept locally only"
+              fi
+            fi
           else
             echo "dry-run: git commit/push skipped — nothing reaches main"
           fi
