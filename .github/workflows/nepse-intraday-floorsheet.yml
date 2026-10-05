@@ -4,6 +4,14 @@ name: NEPSE intraday floorsheet
 # nepse-brokers/data/intraday.json for the Broker Analytics "Latest" view.
 # Near-real-time polling (5 min), not exchange-grade streaming.
 #
+# The two "Accumulate" steps below archive snapshots for the Technical
+# Charts page's 15-minute timeframe. They read only the locally committed
+# nepse-chart/data/live.json (published every 15 min by the live-quotes
+# workflow) and dedupe by live.asof — they NEVER poll NEPSE themselves, so
+# the archive cadence can never exceed 15 minutes. Do not add a faster
+# intraday poll: NEPSE rate-limits aggressively and an IP ban would kill
+# the site's live feed (owner decision, 2026-10-05).
+#
 # Failure alerts: email via SMTP (pinned SHA), never Facebook.
 # Needs repo secrets MAIL_USERNAME, MAIL_PASSWORD, ALERT_EMAIL_TO.
 
@@ -56,6 +64,9 @@ jobs:
         run: node tools/fetch-intraday-floorsheet.js
       - name: Accumulate intraday index observation
         run: node tools/build-intraday-index.js
+      - name: Archive intraday stock quote snapshots (15m)
+        # Reads only the local live.json; deduped by asof (see script header).
+        run: node tools/build-intraday-quotes.js
       - name: Commit if changed
         if: ${{ env.DRY_RUN != 'true' }}
         run: |
@@ -66,6 +77,11 @@ jobs:
           # so a missing file can't fatal the step (exit 128) and fire a
           # false failure alert.
           git add nepse-chart/data/intraday-index.json
+          # The quotes archive: staging the directory picks up the day's
+          # file, the manifest, and deletions of pruned (>5 session) files.
+          if [ -d nepse-chart/data/intraday ]; then
+            git add nepse-chart/data/intraday/
+          fi
           if [ -f nepse-brokers/data/intraday.json ]; then
             git add nepse-brokers/data/intraday.json
           fi
