@@ -3,15 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#0A0C10">
-<title>Technical Chart — Coming Soon | Nepse Decode</title>
-<meta name="description" content="The NEPSE Technical Chart is coming soon: a full TradingView-powered drawing toolkit for the NEPSE index and every listed stock. Draw support & resistance, trend lines, Fibonacci retracements and chart patterns. Free, no login.">
+<title>Technical Charts — Free NEPSE Candlestick Charts with Moving Averages | Nepse Decode</title>
+<meta name="description" content="Free NEPSE technical charts, no login: interactive candlestick charts for the NEPSE index and every listed stock, with volume, SMA/EMA overlays and timeframes from 1M to all history. Built on TradingView's free open-source Lightweight Charts.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-technical/">
 <meta name="robots" content="index, follow">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Nepse Decode">
-<meta property="og:title" content="Technical Chart — Coming Soon | Nepse Decode">
-<meta property="og:description" content="A full TradingView-powered technical chart for NEPSE is on the way: drawing tools, support/resistance, Fibonacci, patterns. Free, no login.">
+<meta property="og:title" content="Technical Charts — Free NEPSE Candlestick Charts | Nepse Decode">
+<meta property="og:description" content="Free interactive NEPSE technical charts: candlesticks, volume and moving averages for the index and every listed stock. No login, free forever.">
 <meta property="og:url" content="https://shirjankhadka.com.np/nepse-technical/">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/favicon.ico" sizes="any">
@@ -20,51 +19,132 @@
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
-<link rel="stylesheet" href="/css/fonts.css">
 <link rel="stylesheet" href="/css/nepse-d2.css?v=df8f909e">
 <link rel="stylesheet" href="/css/theme.css?v=edd1fe3c">
-<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=20261004a">
-<style>
-.tv-coming { max-width: 680px; margin: 48px auto; text-align: center; padding: 0 20px; }
-.tv-coming .d2-kicker { margin-bottom: 12px; }
-.tv-coming h1 { margin-bottom: 16px; }
-.tv-coming p.lede { color: var(--d2-ink-soft); font-size: 16px; line-height: 1.6; margin-bottom: 28px; }
-.tv-feats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 0 0 32px; text-align: left; }
-.tv-feats div { background: var(--d2-surface2); border: 1px solid var(--d2-line); border-radius: var(--d2-r-md); padding: 16px; }
-.tv-feats strong { display: block; font-size: 14px; margin-bottom: 6px; color: var(--d2-ink); }
-.tv-feats span { font-size: 13px; color: var(--d2-muted); line-height: 1.5; }
-.tv-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-</style>
+<link rel="stylesheet" href="/nepse-technical/tech.css?v=20261005a">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"Nepse Decode Technical Chart","url":"https://shirjankhadka.com.np/nepse-technical/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Coming soon: free interactive NEPSE technical chart with TradingView drawing tools. No login.","author":{"@type":"Organization","name":"Nepse Decode","url":"https://shirjankhadka.com.np/"}}
+{"@context":"https://schema.org","@type":"WebApplication","name":"Nepse Decode Technical Charts","url":"https://shirjankhadka.com.np/nepse-technical/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Free interactive NEPSE technical charts: candlesticks, volume, SMA/EMA overlays and timeframes for the NEPSE index and every listed stock. No login.","author":{"@type":"Organization","name":"Nepse Decode","url":"https://shirjankhadka.com.np/"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
+{"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
+{"@type":"ListItem","position":2,"name":"Technical Charts","item":"https://shirjankhadka.com.np/nepse-technical/"}]}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Is the NEPSE technical chart free? Do I need an account?","acceptedAnswer":{"@type":"Answer","text":"Yes, free, and no account or login is needed. The chart runs on TradingView's free open-source Lightweight Charts engine with Nepse Decode's own market data."}},
+{"@type":"Question","name":"Where does the chart data come from?","acceptedAnswer":{"@type":"Answer","text":"Per-stock daily OHLC comes from the open Nepse-All-Scraper dataset, the NEPSE index history stretches back to 2003 from the nepse-open-data archive, and the in-progress session is appended from our own market snapshots during trading hours. Data is delayed about 15 minutes."}},
+{"@type":"Question","name":"Does it have drawing tools like trend lines or Fibonacci?","acceptedAnswer":{"@type":"Answer","text":"Not in this version. The chart is built on TradingView's free open-source Lightweight Charts engine, which does not include the annotation toolkit. It covers candlesticks, line and area views, volume, SMA/EMA overlays and full timeframe history."}},
+{"@type":"Question","name":"Is this investment advice?","acceptedAnswer":{"@type":"Answer","text":"No. The charts and overlays are mechanical presentations of historical data for education. Past performance does not guarantee future results."}}]}
 </script>
 </head>
 <body>
-<div id="nd-header"></div>
+<nav class="d2-mobilenav" aria-label="Sections">
+  <a href="/nepse-decode/">Dashboard</a>
+  <a href="/nepse-chart/">Chart</a>
+  <a href="/nepse-technical/" class="on">Technical</a>
+  <a href="/nepse-screener/">Screener</a>
+  <a href="/nepse-sectors/">Sectors</a>
+  <a href="/nepse-trending/">Trending</a>
+  <a href="/nepse-watchlist/">Watchlist</a>
+  <a href="/nepse-news/">News</a>
+  <a href="/nepse-brokers/">Brokers</a>
+</nav>
 <div class="d2-shell">
+<aside class="d2-side" aria-label="Site navigation">
+  <a class="d2-brand" href="/nepse-decode/"><span class="d2-mark" aria-hidden="true">◈</span> Nepse Decode</a>
+  <nav id="d2SideNav">
+    <a href="/nepse-decode/">Overview</a>
+    <a href="/nepse-chart/">Chart &amp; signals</a>
+    <a href="/nepse-technical/" class="on" aria-current="page">Technical</a>
+    <a href="/nepse-screener/">Screener</a>
+    <a href="/nepse-trending/">Trending Stocks</a>
+    <a href="/nepse-value/">Value Investing</a>
+    <a href="/nepse-brokers/">Broker Analytics</a>
+    <a href="/nepse-sectors/">Sectors</a>
+    <a href="/nepse-news/">Market news</a>
+    <a href="/nepse-watchlist/">Watchlist</a>
+    <a href="/nepse-portfolio/">Portfolio</a>
+    <a href="/nepse-simulator/">Simulator</a>
+    <a href="/nepse-reports/">Reports</a>
+    <a href="/nepse-actions/">Corp. actions</a>
+  </nav>
+  <p class="d2-side-foot">Free forever · no login</p>
+</aside>
 <main class="d2-main">
-  <div class="tv-coming">
-    <p class="d2-kicker">Technical analysis</p>
-    <h1 class="d2-h1">Pro charting is on the way</h1>
-    <p class="lede">We're building a full TradingView-powered technical chart for the NEPSE index and every listed stock — with the drawing toolkit Nepali traders already know. Your drawings will save automatically in your browser. No account, no login, free forever.</p>
-    <div class="tv-feats">
-      <div><strong>Drawing toolkit</strong><span>Trend lines, support &amp; resistance, rays, brushes and text annotations.</span></div>
-      <div><strong>Fibonacci</strong><span>Retracements and extensions to map pullbacks and targets.</span></div>
-      <div><strong>Chart patterns</strong><span>Draw and label the patterns you trade — triangles, channels, head &amp; shoulders.</span></div>
-      <div><strong>Auto-save</strong><span>Every line you draw is stored in your browser. Nothing uploaded, nothing lost.</span></div>
+<div class="nt-wrap">
+  <div style="display:flex;justify-content:center;margin-bottom:14px"><div data-freshness-badge></div></div>
+  <p class="d2-kicker nt-kicker">Technical analysis</p>
+  <h1 class="d2-h1">NEPSE technical charts</h1>
+  <p class="nt-lede">Interactive candlestick charts for the NEPSE index and every listed stock — volume, SMA and EMA overlays, timeframes from 1 month to full history. Built on TradingView&rsquo;s free open-source Lightweight Charts engine, fed by our own verified NEPSE data. Free forever, no login.</p>
+
+  <section class="nt-search" aria-label="Symbol search">
+    <div class="nt-search-row">
+      <input id="nt-sym" list="nt-syms" placeholder="Search symbol, e.g. NABIL, HIDCL, UPPER… (NEPSE = index)" autocomplete="off" spellcheck="false" aria-label="Stock symbol">
+      <datalist id="nt-syms"></datalist>
+      <button id="nt-go" class="d2-btn primary" type="button">Open chart</button>
     </div>
-    <div class="tv-cta">
-      <a class="d2-btn primary" href="/nepse-chart/">Use the Chart &amp; signals page</a>
-      <a class="d2-btn" href="/nepse-decode/">Back to Overview</a>
+    <div class="nt-chips">
+      <button type="button" data-chip="NEPSE">NEPSE index</button>
+      <button type="button" data-chip="NABIL">NABIL</button>
+      <button type="button" data-chip="NICA">NICA</button>
+      <button type="button" data-chip="HIDCL">HIDCL</button>
+      <button type="button" data-chip="UPPER">UPPER</button>
+      <button type="button" data-chip="NIFRA">NIFRA</button>
     </div>
-    <p style="margin-top:24px;font-size:13px;color:var(--d2-muted)">Market data on Nepse Decode is delayed — every figure carries its own timestamp. Educational use only — not investment advice.</p>
+  </section>
+
+  <div class="nt-tools">
+    <div class="nt-seg" id="nt-tf" role="group" aria-label="Timeframe"></div>
+    <div class="nt-seg" id="nt-type" role="group" aria-label="Chart type">
+      <button type="button" data-type="candles" class="on" aria-pressed="true">Candles</button><button type="button" data-type="line" aria-pressed="false">Line</button><button type="button" data-type="area" aria-pressed="false">Area</button>
+    </div>
+    <div class="nt-ov" id="nt-ov" role="group" aria-label="Overlays">
+      <span class="nt-ov-title">Overlays</span>
+    </div>
   </div>
+
+  <section class="nt-card" aria-label="Price chart">
+    <div class="nt-legend" id="nt-legend" aria-live="polite"></div>
+    <div id="nt-chart" role="img" aria-label="Interactive price chart. Hover or drag to inspect any session."></div>
+    <p class="nt-spinner" id="nt-spinner">Loading chart…</p>
+    <p class="nt-flag" id="nt-note" hidden></p>
+    <p class="nt-flag" id="nt-ltponly" hidden>LTP-only history: this security has no full OHLC archive yet, so the chart shows closing levels and moving-average overlays are off.</p>
+    <p class="nt-session" id="nt-session"></p>
+  </section>
+
+  <section class="nt-stats" aria-label="Key figures">
+    <div class="nt-stat"><span class="k">Last close</span><span class="v" id="nt-last">—</span></div>
+    <div class="nt-stat"><span class="k">Day change</span><span class="v" id="nt-chg">—</span></div>
+    <div class="nt-stat"><span class="k">52-week high</span><span class="v" id="nt-52h">—</span></div>
+    <div class="nt-stat"><span class="k">52-week low</span><span class="v" id="nt-52l">—</span></div>
+    <div class="nt-stat"><span class="k">SMA 20</span><span class="v" id="nt-sma20">—</span></div>
+    <div class="nt-stat"><span class="k">SMA 50</span><span class="v" id="nt-sma50">—</span></div>
+    <div class="nt-stat"><span class="k">SMA 200</span><span class="v" id="nt-sma200">—</span></div>
+  </section>
+
+  <section class="nt-notes" aria-label="About these charts">
+    <h2>What this chart shows — and what it doesn&rsquo;t</h2>
+    <p>Every candle is a real NEPSE trading session: per-stock daily OHLC from the open Nepse-All-Scraper archive, the NEPSE index back to 2003, and the session in progress appended from our own market snapshots while the market is open (Mon–Fri, 11:00–15:00 NPT). Moving averages are computed in your browser from those closes — nothing hidden, nothing invented.</p>
+    <p>Drawing tools (trend lines, Fibonacci) are not part of this chart: it runs on TradingView&rsquo;s free open-source Lightweight Charts engine, which ships without the annotation toolkit. For pattern detection and rule-based signals, see the <a href="/nepse-chart/">Chart &amp; signals lab</a>.</p>
+    <p class="fine">Data delayed ~15 minutes, like the rest of Nepse Decode. Securities without a full OHLC archive are clearly flagged as LTP-only. Educational use only — not investment advice.</p>
+    <div class="nt-faq">
+      <details><summary>Is this free? Do I need an account?</summary><p>Yes, free — no account, no login. Your symbol, timeframe and overlay choices are remembered in your own browser only.</p></details>
+      <details><summary>Where does the data come from?</summary><p>Per-stock daily OHLC from the open Nepse-All-Scraper dataset, NEPSE index history (2003–present) from the nepse-open-data archive, and the live session from our own market snapshots.</p></details>
+      <details><summary>Why no drawing tools?</summary><p>This chart is built on TradingView&rsquo;s free open-source Lightweight Charts engine, which doesn&rsquo;t include the annotation toolkit — so what you get is fast, honest price action with moving averages instead.</p></details>
+    </div>
+  </section>
+</div>
 </main>
 </div>
-<div id="nd-footer"></div>
+<script src="/js/vendor/lightweight-charts.standalone.production.js?v=4.2.3" defer></script>
+<script src="/js/nepse-fresh.js?v=ed4a8618" defer></script>
+<script src="/js/nepse-daily.js?v=51f68f5d" defer></script>
+<script src="/js/nepse-market-config.js?v=20261002c" defer></script>
+<script src="/js/nepse-data.js?v=20261003a" defer></script>
+<script src="/js/nepse-technical.js?v=20261005a" defer></script>
 <script src="/js/nepse-sidebar.js?v=20261002c" defer></script>
 <script src="/js/theme-toggle.js?v=a383d477" defer></script>
-<script src="/js/nd-chrome.js?v=20261005a" defer></script>
+<script src="/js/freshness-badge.js?v=20261002c" defer></script>
 </body>
 </html>

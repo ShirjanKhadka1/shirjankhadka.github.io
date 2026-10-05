@@ -1,0 +1,702 @@
+/* ============================================================
+   NEPSE TECHNICAL — free chart workspace (vendored Lightweight Charts)
+   /nepse-technical/
+
+   A full technical chart for the NEPSE index and every listed stock,
+   built on TradingView Lightweight Charts v4.2.3 (Apache 2.0,
+   self-hosted at /js/vendor/ — no license key, no account needed).
+
+   Data — real data only, nothing synthetic:
+   - Stocks: daily OHLC from the open Nepse-All-Scraper dataset
+     (https://samirwagle.github.io/Nepse-All-Scraper/docs/api/prices/<SYM>.json)
+     → rows [YYYYMMDD, open, high, low, close, volume].
+   - LTP-only fallback: /nepse-chart/data/ltp/<SYM>.json for listed
+     securities the scraper has no OHLC for (flagged honestly; overlays
+     off — same rule as the Chart & signals lab).
+   - NEPSE index: window.NEPSE_DAILY (inline, recent) merged with
+     /data/index-history.json (2003 → 2024-08, lazy) → full history.
+   - Live session candle: NepseData snapshot (js/nepse-data.js), same
+     staleness guards as the lab (quote older than 180 min is ignored;
+     LIVE badge only while the market is actually open).
+   - Symbol universe: /nepse-chart/data/universe.json.
+
+   Session date: snapshot.session_date when available, else the last
+   data row's date — never a fetch timestamp (see SESSION-DATE RULE).
+   ============================================================ */
+(function () {
+  'use strict';
+
+  /* ---------- constants ---------- */
+
+  var MOUNT_ID = 'nt-chart';
+  var LEGEND_ID = 'nt-legend';
+  var VENDOR_OK = typeof window !== 'undefined' && !!window.LightweightCharts;
+
+  var SRC = {
+    universe: '/nepse-chart/data/universe.json',
+    prices: function (s) { return 'https://samirwagle.github.io/Nepse-All-Scraper/docs/api/prices/' + s.replace('/', '-') + '.json'; },
+    ltp: function (s) { return '/nepse-chart/data/ltp/' + s.replace('/', '-') + '.json'; },
+    indexHistory: '/data/index-history.json'
+  };
+  var UNIVERSE_V = '20261002b'; // bump when universe.json is rebuilt
+
+  var TFS = [
+    { id: '1M', sessions: 22 }, { id: '3M', sessions: 66 },
+    { id: '6M', sessions: 132 }, { id: '1Y', sessions: 250 },
+    { id: '2Y', sessions: 500 }, { id: '5Y', sessions: 1250 },
+    { id: 'All', sessions: Infinity }
+  ];
+  var TYPES = ['candles', 'line', 'area'];
+  var OVERLAYS = [
+    { id: 'vol', label: 'Volume', on: true },
+    { id: 'sma20', label: 'SMA 20', on: true },
+    { id: 'sma50', label: 'SMA 50', on: true },
+    { id: 'sma200', label: 'SMA 200', on: false },
+    { id: 'ema20', label: 'EMA 20', on: false }
+  ];
+
+  var LS = { sym: 'nt-sym', tf: 'nt-tf', type: 'nt-type', ov: 'nt-ov' };
+
+  /* ---------- small helpers ---------- */
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function missing(v) { return v == null || v === '' || !isFinite(Number(v)); }
+  function fmtNum(v, dp) {
+    if (missing(v)) return '—';
+    return Number(v).toLocaleString('en-US', {
+      minimumFractionDigits: dp == null ? 2 : dp,
+      maximumFractionDigits: dp == null ? 2 : dp
+    });
+  }
+  function fmtInt(v) {
+    if (missing(v)) return '—';
+    return Math.round(Number(v)).toLocaleString('en-US');
+  }
+  function fmtSigned(v, dp) {
+    if (missing(v)) return '—';
+    var n = Number(v);
+    return (n > 0 ? '+' : '') + n.toLocaleString('en-US', {
+      minimumFractionDigits: dp == null ? 2 : dp,
+      maximumFractionDigits: dp == null ? 2 : dp
+    });
+  }
+  function isoOf(ymd) {
+    var s = String(ymd);
+    return s.slice(0, 4) + '-' + s.slice(4, 6) + '-' + s.slice(6, 8);
+  }
+  function ymdOf(iso) { // 'YYYY-MM-DD' -> YYYYMMDD number
+    return Number(String(iso).replace(/-/g, ''));
+  }
+  var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  function fmtDate(iso) { // 'YYYY-MM-DD' -> '2 Oct 2026' (no weekday — never guessed)
+    var p = String(iso || '').split('-');
+    if (p.length !== 3) return '—';
+    return Number(p[2]) + ' ' + MONTHS[Number(p[1]) - 1] + ' ' + p[0];
+  }
+  function isDark() {
+    return document.documentElement.getAttribute('data-theme') === 'dark';
+  }
+  function themeColors() {
+    if (isDark()) {
+      return {
+        bg: '#151310', text: '#E9E4D6', grid: '#2B2922', border: '#3A372C',
+        up: '#3DDC84', down: '#FF6B5E', line: '#C9A86F', cross: '#8A8474',
+        volUp: 'rgba(61,220,132,0.45)', volDown: 'rgba(255,107,94,0.40)',
+        sma20: '#4C9AFF', sma50: '#FFAB00', sma200: '#C377E0', ema20: '#36D1DC'
+      };
+    }
+    return {
+      bg: '#FFFFFF', text: '#1C1A15', grid: '#ECE5D3', border: '#DCD2B8',
+      up: '#0E6B3A', down: '#B23A2E', line: '#8A6D3B', cross: '#8A8474',
+      volUp: 'rgba(14,107,58,0.45)', volDown: 'rgba(178,58,46,0.35)',
+      sma20: '#1D6FD1', sma50: '#C77E00', sma200: '#8E44AD', ema20: '#0E9AA7'
+    };
+  }
+  function todayNPT() { // Kathmandu wall-clock via the UTC getters (UTC+5:45)
+    return new Date(Date.now() + 5.75 * 3600e3);
+  }
+  function marketOpenNPT() {
+    if (typeof window !== 'undefined' && window.NepseMarketConfig) {
+      return window.NepseMarketConfig.isMarketOpen();
+    }
+    return false;
+  }
+  function parseMarketTime(s) {
+    var t = String(s || '');
+    if (!t) return NaN;
+    if (!(/[zZ]|[+-]\d{2}:?\d{2}$/.test(t))) t += '+05:45';
+    return new Date(t).getTime();
+  }
+  function fetchJSON(url, timeout) {
+    return new Promise(function (res, rej) {
+      var to = setTimeout(function () { rej(new Error('timeout')); }, timeout || 20000);
+      fetch(url, { cache: 'no-store' }).then(function (r) {
+        if (!r.ok) throw new Error('http ' + r.status);
+        return r.json();
+      }).then(function (j) { clearTimeout(to); res(j); })
+        .catch(function (e) { clearTimeout(to); rej(e); });
+    });
+  }
+  function store(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  function read(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+
+  /* ---------- state ---------- */
+
+  var state = {
+    sym: 'NEPSE', symName: 'NEPSE Index',
+    tf: '1Y', type: 'candles',
+    ov: { vol: true, sma20: true, sma50: true, sma200: false, ema20: false },
+    rows: [],            // full [ymd, o, h, l, c, vol] sorted asc
+    ltpOnly: false,
+    names: {},           // sym -> company name
+    live: null,          // latest quote (stocks) or index snapshot
+    liveBadge: false,
+    sessionDate: null,
+    loading: false, err: ''
+  };
+
+  var chart = null;
+  var S = {};            // series handles: candles, line, area, vol, sma20, sma50, sma200, ema20
+  var maCache = {};      // full-length MA arrays keyed by id
+  var unsubLive = null;
+
+  /* ---------- data ---------- */
+
+  function loadUniverse() {
+    return fetchJSON(SRC.universe + '?v=' + UNIVERSE_V).then(function (u) {
+      var list = (u && u.symbols) || [];
+      list.forEach(function (e) { if (e && e.s) state.names[e.s] = e.n || e.s; });
+      return list;
+    }).catch(function () { return []; });
+  }
+
+  function loadStock(sym) {
+    return fetchJSON(SRC.prices(sym)).then(function (j) {
+      var rows = (j.data || []).map(function (d) {
+        return [ymdOf(d.date), +d.open || 0, +d.high || 0, +d.low || 0, +d.ltp || 0, +d.qty || 0];
+      }).filter(function (r) { return r[4] > 0; });
+      rows.sort(function (a, b) { return a[0] - b[0]; });
+      return { rows: rows, ltpOnly: false };
+    }).catch(function () {
+      // LTP-only fallback — open/high/low are never fabricated.
+      return fetchJSON(SRC.ltp(sym)).then(function (j) {
+        var rows = (j.rows || []).map(function (d) {
+          return [d[0], d[1], d[1], d[1], d[1], d[2] || 0];
+        }).filter(function (r) { return r[4] > 0; });
+        rows.sort(function (a, b) { return a[0] - b[0]; });
+        if (!rows.length) throw new Error('empty');
+        return { rows: rows, ltpOnly: true };
+      });
+    });
+  }
+
+  function indexRows() {
+    var rows = (window.NEPSE_DAILY || []).filter(function (r) {
+      return r && r.length >= 5 && isFinite(r[4]) && r[4] > 0;
+    }).map(function (r) { return [r[0], r[1], r[2], r[3], r[4], r[5] || 0]; });
+    return fetchJSON(SRC.indexHistory).then(function (h) {
+      var seen = {};
+      rows.forEach(function (r) { seen[r[0]] = 1; });
+      (h.rows || []).forEach(function (r) {
+        if (r && r.length >= 5 && !seen[r[0]] && isFinite(r[4]) && r[4] > 0) {
+          rows.push([r[0], r[1], r[2], r[3], r[4], r[5] || 0]);
+        }
+      });
+      rows.sort(function (a, b) { return a[0] - b[0]; });
+      return rows;
+    }).catch(function () {
+      rows.sort(function (a, b) { return a[0] - b[0]; });
+      return rows; // inline daily only — still real data
+    });
+  }
+
+  function applyLiveToRows(rows, isIndex) {
+    // Mirrors the lab's honesty guards: stale quotes are ignored, the live
+    // candle is replaced (never duplicated) for today's session.
+    var snap = null;
+    try { snap = window.NepseData && window.NepseData.getSnapshot ? window.NepseData.getSnapshot() : null; } catch (e) {}
+    if (snap && snap.session_date) state.sessionDate = snap.session_date;
+    var q = isIndex ? (snap && snap.index) : (snap && snap.map && snap.map[state.sym]);
+    state.live = q || null;
+    state.liveBadge = false;
+    if (!q) return { rows: rows, live: false };
+    var ltp = isIndex ? q.value : q.ltp;
+    var upd = q.last_updated;
+    if (!ltp || !upd) return { rows: rows, live: false };
+    var ageMin = (Date.now() - parseMarketTime(upd)) / 60000;
+    if (!(ageMin >= 0) || ageMin > 180) return { rows: rows, live: false };
+    var t = todayNPT();
+    var ymd = t.getUTCFullYear() * 10000 + (t.getUTCMonth() + 1) * 100 + t.getUTCDate();
+    var prev = isIndex ? q.previous_close : q.previous_close;
+    var candle = [ymd, prev || ltp, q.high || ltp, q.low || ltp, ltp, q.volume || 0];
+    var out = rows.slice();
+    var last = out[out.length - 1];
+    if (last && last[0] === ymd) out[out.length - 1] = candle;
+    else if (!last || ymd > last[0]) out.push(candle);
+    else return { rows: rows, live: false };
+    state.liveBadge = marketOpenNPT() && ageMin < 45;
+    return { rows: out, live: true };
+  }
+
+  /* ---------- indicators (client-side, transparent) ---------- */
+
+  function closes(rows) { return rows.map(function (r) { return r[4]; }); }
+  function sma(vals, n) {
+    var out = new Array(vals.length), sum = 0;
+    for (var i = 0; i < vals.length; i++) {
+      sum += vals[i];
+      if (i >= n) sum -= vals[i - n];
+      out[i] = i >= n - 1 ? sum / n : null;
+    }
+    return out;
+  }
+  function ema(vals, n) {
+    var out = new Array(vals.length), k = 2 / (n + 1), prev = null;
+    for (var i = 0; i < vals.length; i++) {
+      prev = prev == null ? vals[i] : vals[i] * k + prev * (1 - k);
+      out[i] = i >= n - 1 ? prev : null;
+    }
+    return out;
+  }
+  /* ---------- chart ---------- */
+
+  function tfSessions() {
+    for (var i = 0; i < TFS.length; i++) if (TFS[i].id === state.tf) return TFS[i].sessions;
+    return 250;
+  }
+
+  function candleData(rows) { // rows: already sliced to the timeframe
+    return rows.map(function (r) {
+      return { time: isoOf(r[0]), open: r[1], high: r[2], low: r[3], close: r[4] };
+    });
+  }
+  function volumeData(rows) { // rows: already sliced to the timeframe
+    return rows.map(function (r) {
+      return {
+        time: isoOf(r[0]), value: r[5] || 0,
+        color: r[4] >= r[1] ? themeColors().volUp : themeColors().volDown
+      };
+    });
+  }
+  function lineData(rows) { // rows: already sliced to the timeframe
+    return rows.map(function (r) {
+      return { time: isoOf(r[0]), value: r[4] };
+    });
+  }
+
+  function buildChart() {
+    var el = $(MOUNT_ID);
+    if (!el || !VENDOR_OK) return false;
+    if (chart) { try { chart.remove(); } catch (e) {} chart = null; S = {}; }
+    var c = themeColors();
+    chart = window.LightweightCharts.createChart(el, {
+      width: el.clientWidth || 800,
+      height: el.clientHeight || 480,
+      layout: {
+        background: { type: 'solid', color: c.bg },
+        textColor: c.text, fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12
+      },
+      grid: { vertLines: { color: c.grid }, horzLines: { color: c.grid } },
+      crosshair: {
+        mode: window.LightweightCharts.CrosshairMode.Normal,
+        vertLine: { color: c.cross, labelBackgroundColor: c.cross },
+        horzLine: { color: c.cross, labelBackgroundColor: c.cross }
+      },
+      rightPriceScale: { borderColor: c.border, scaleMargins: { top: 0.08, bottom: 0.24 } },
+      timeScale: { borderColor: c.border, timeVisible: true, secondsVisible: false }
+    });
+    chart.priceScale('vol').applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
+
+    S.candles = chart.addCandlestickSeries({
+      upColor: c.up, downColor: c.down, wickUpColor: c.up, wickDownColor: c.down,
+      borderVisible: false, priceLineVisible: true, lastValueVisible: true
+    });
+    S.line = chart.addLineSeries({ color: c.line, lineWidth: 2, priceLineVisible: true, visible: false });
+    S.area = chart.addAreaSeries({
+      topColor: 'rgba(138,109,59,0.28)', bottomColor: 'rgba(138,109,59,0.0)',
+      lineColor: c.line, lineWidth: 2, priceLineVisible: true, visible: false
+    });
+    S.vol = chart.addHistogramSeries({ priceScaleId: 'vol', priceFormat: { type: 'volume' }, lastValueVisible: false, priceLineVisible: false });
+    var maColors = { sma20: c.sma20, sma50: c.sma50, sma200: c.sma200, ema20: c.ema20 };
+    ['sma20', 'sma50', 'sma200', 'ema20'].forEach(function (id) {
+      S[id] = chart.addLineSeries({ color: maColors[id], lineWidth: 1, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false });
+    });
+
+    chart.subscribeCrosshairMove(onCrosshair);
+    new ResizeObserver(function () {
+      if (chart && el) chart.applyOptions({ width: el.clientWidth || 800, height: el.clientHeight || 480 });
+    }).observe(el);
+    return true;
+  }
+
+  function applyTheme() {
+    if (!chart) return;
+    var c = themeColors();
+    chart.applyOptions({
+      layout: { background: { type: 'solid', color: c.bg }, textColor: c.text },
+      grid: { vertLines: { color: c.grid }, horzLines: { color: c.grid } },
+      rightPriceScale: { borderColor: c.border },
+      timeScale: { borderColor: c.border }
+    });
+    S.candles.applyOptions({ upColor: c.up, downColor: c.down, wickUpColor: c.up, wickDownColor: c.down });
+    S.line.applyOptions({ color: c.line });
+    S.area.applyOptions({ lineColor: c.line });
+    S.sma20.applyOptions({ color: c.sma20 }); S.sma50.applyOptions({ color: c.sma50 });
+    S.sma200.applyOptions({ color: c.sma200 }); S.ema20.applyOptions({ color: c.ema20 });
+    paintData(); // re-color volume bars
+  }
+
+  function paintData() {
+    if (!chart || !state.rows.length) return;
+    var full = state.rows;
+    var n = tfSessions();
+    var rows = n === Infinity ? full : full.slice(-n);
+    var cut = full.length - rows.length; // offset into full-length MA arrays
+    S.candles.setData(candleData(rows));
+    S.line.setData(lineData(rows));
+    S.area.setData(lineData(rows));
+    S.vol.setData(volumeData(rows));
+    var cl = closes(full);
+    maCache = {
+      sma20: sma(cl, 20), sma50: sma(cl, 50), sma200: sma(cl, 200), ema20: ema(cl, 20)
+    };
+    ['sma20', 'sma50', 'sma200', 'ema20'].forEach(function (id) {
+      var pts = [], arr = maCache[id];
+      for (var i = cut; i < full.length; i++) {
+        if (arr[i] != null) pts.push({ time: isoOf(full[i][0]), value: arr[i] });
+      }
+      S[id].setData(pts);
+    });
+    applyVisibility();
+    chart.timeScale().fitContent();
+    paintLegend(full[full.length - 1]);
+    paintStats();
+  }
+
+  function applyVisibility() {
+    if (!chart) return;
+    var t = state.type;
+    S.candles.applyOptions({ visible: t === 'candles' });
+    S.line.applyOptions({ visible: t === 'line' });
+    S.area.applyOptions({ visible: t === 'area' });
+    S.vol.applyOptions({ visible: state.ov.vol });
+    var maOn = !state.ltpOnly;
+    ['sma20', 'sma50', 'sma200', 'ema20'].forEach(function (id) {
+      S[id].applyOptions({ visible: maOn && !!state.ov[id] });
+    });
+  }
+
+  function onCrosshair(param) {
+    if (!chart || !state.rows.length) return;
+    var rows = state.rows;
+    var bar = rows[rows.length - 1];
+    if (param && param.time) {
+      var iso = typeof param.time === 'string' ? param.time : null;
+      if (iso) {
+        var ymd = ymdOf(iso);
+        for (var i = rows.length - 1; i >= 0; i--) {
+          if (rows[i][0] <= ymd) { bar = rows[i]; break; }
+        }
+      }
+    }
+    paintLegend(bar);
+  }
+
+  function paintLegend(bar) {
+    var el = $(LEGEND_ID);
+    if (!el || !bar) return;
+    var chg = bar[4] - bar[1];
+    var pct = bar[1] ? (chg / bar[1]) * 100 : null;
+    var cls = chg > 0 ? 'up' : (chg < 0 ? 'down' : 'flat');
+    el.innerHTML =
+      '<span class="nt-lg-sym">' + esc(state.symName) + '</span>' +
+      '<span class="nt-lg-date">' + esc(fmtDate(isoOf(bar[0]))) + '</span>' +
+      '<span class="nt-lg-ohlc">O <b>' + fmtNum(bar[1]) + '</b> H <b>' + fmtNum(bar[2]) +
+      '</b> L <b>' + fmtNum(bar[3]) + '</b> C <b>' + fmtNum(bar[4]) + '</b></span>' +
+      '<span class="nt-lg-chg ' + cls + '">' + fmtSigned(chg) + ' (' + fmtSigned(pct, 2) + '%)</span>' +
+      (state.liveBadge ? '<span class="nt-live">LIVE</span>' : '');
+  }
+
+  function paintStats() {
+    var rows = state.rows;
+    if (!rows.length) return;
+    var last = rows[rows.length - 1];
+    var prev = rows.length > 1 ? rows[rows.length - 2] : null;
+    var chg = prev ? last[4] - prev[4] : null;
+    var pct = prev && prev[4] ? (chg / prev[4]) * 100 : null;
+    var hi = null, lo = null;
+    var from = Math.max(0, rows.length - 250);
+    for (var i = from; i < rows.length; i++) {
+      hi = hi == null ? rows[i][2] : Math.max(hi, rows[i][2]);
+      lo = lo == null ? rows[i][3] : Math.min(lo, rows[i][3]);
+    }
+    function set(id, v) { var e = $(id); if (e) e.textContent = v; }
+    function setCls(id, v) {
+      var e = $(id); if (!e) return;
+      e.classList.toggle('up', v > 0); e.classList.toggle('down', v < 0);
+    }
+    set('nt-last', fmtNum(last[4]));
+    set('nt-chg', fmtSigned(chg) + ' (' + fmtSigned(pct, 2) + '%)'); setCls('nt-chg', chg);
+    set('nt-52h', fmtNum(hi)); set('nt-52l', fmtNum(lo));
+    var cl = closes(rows);
+    var s20 = sma(cl, 20), s50 = sma(cl, 50), s200 = sma(cl, 200);
+    set('nt-sma20', state.ltpOnly ? '—' : fmtNum(s20[s20.length - 1]));
+    set('nt-sma50', state.ltpOnly ? '—' : fmtNum(s50[s50.length - 1]));
+    set('nt-sma200', state.ltpOnly ? '—' : fmtNum(s200[s200.length - 1]));
+    var sd = state.sessionDate || (rows.length ? isoOf(rows[rows.length - 1][0]) : null);
+    set('nt-session', 'Session ' + fmtDate(sd) + ' · data delayed ~15 min');
+  }
+
+  /* ---------- symbol loading ---------- */
+
+  function setNote(msg) {
+    var n = $('nt-note');
+    if (!n) return;
+    if (msg) { n.textContent = msg; n.hidden = false; } else { n.hidden = true; n.textContent = ''; }
+  }
+  function setLoading(on) {
+    var el = $(MOUNT_ID);
+    if (el) el.classList.toggle('loading', !!on);
+    var sp = $('nt-spinner');
+    if (sp) sp.hidden = !on;
+  }
+
+  function loadSymbol(sym, opts) {
+    opts = opts || {};
+    sym = String(sym || '').trim().toUpperCase();
+    if (!sym) return;
+    var isIndex = sym === 'NEPSE';
+    if (!isIndex && !state.names[sym]) {
+      setNote('No data source lists ' + sym + ' yet. Check the spelling, or try one of the symbols above.');
+      return;
+    }
+    state.loading = true; state.err = '';
+    setLoading(true); setNote(null);
+    state.sym = sym; state.symName = isIndex ? 'NEPSE Index' : (state.names[sym] || sym);
+    store(LS.sym, sym);
+    var inp = $('nt-sym'); if (inp && document.activeElement !== inp) inp.value = sym;
+
+    var p = isIndex ? indexRows().then(function (r) { return { rows: r, ltpOnly: false }; }) : loadStock(sym);
+    p.then(function (r) {
+      state.rows = r.rows;
+      state.ltpOnly = !!r.ltpOnly;
+      var merged = applyLiveToRows(state.rows, isIndex);
+      state.rows = merged.rows;
+      if (!state.rows.length) throw new Error('empty');
+      if (!state.sessionDate && state.rows.length) {
+        state.sessionDate = isoOf(state.rows[state.rows.length - 1][0]);
+      }
+      if (!chart && !buildChart()) throw new Error('lib');
+      paintData();
+      syncOverlayUI();
+      setLtpNote();
+      state.loading = false; setLoading(false);
+      refreshLive(); // sync in case the live snapshot landed mid-load
+    }).catch(function (e) {
+      state.loading = false; setLoading(false);
+      setNote(e && e.message === 'lib'
+        ? 'The chart library failed to load. Check your connection and reload.'
+        : 'Could not load ' + sym + ' right now. The data source may be down — try again in a bit.');
+    });
+  }
+
+  function setLtpNote() {
+    var n = $('nt-ltponly');
+    if (!n) return;
+    n.hidden = !state.ltpOnly;
+  }
+
+  function syncOverlayUI() {
+    var boxes = document.querySelectorAll('#nt-ov input[type="checkbox"]');
+    for (var i = 0; i < boxes.length; i++) {
+      var id = boxes[i].getAttribute('data-ov');
+      var isMA = id !== 'vol';
+      boxes[i].disabled = state.ltpOnly && isMA;
+      if (state.ltpOnly && isMA) boxes[i].checked = false;
+      else boxes[i].checked = !!state.ov[id];
+    }
+  }
+
+  function refreshLive() {
+    // Re-apply the live session candle on every NepseData tick.
+    if (state.loading || !state.rows.length || !chart) return;
+    var isIndex = state.sym === 'NEPSE';
+    var merged = applyLiveToRows(state.rows, isIndex);
+    if (merged.rows.length !== state.rows.length) {
+      // A new session opened — re-slice the timeframe window and repaint.
+      state.rows = merged.rows;
+      paintData();
+      return;
+    }
+    var last = merged.rows[merged.rows.length - 1];
+    if (!last) return;
+    var prevClose = state.rows[state.rows.length - 1][4];
+    state.rows = merged.rows;
+    if (prevClose === last[4] && !state.liveBadge) { paintLegend(last); return; }
+    var iso = isoOf(last[0]);
+    var data = { time: iso, open: last[1], high: last[2], low: last[3], close: last[4] };
+    try {
+      S.candles.update(data);
+      S.line.update({ time: iso, value: last[4] });
+      S.area.update({ time: iso, value: last[4] });
+      S.vol.update({ time: iso, value: last[5] || 0, color: last[4] >= last[1] ? themeColors().volUp : themeColors().volDown });
+      if (!state.ltpOnly) {
+        var cl = closes(state.rows);
+        var defs = { sma20: 20, sma50: 50, sma200: 200 };
+        ['sma20', 'sma50', 'sma200'].forEach(function (id) {
+          var arr = sma(cl, defs[id]);
+          var v = arr[arr.length - 1];
+          if (v != null) S[id].update({ time: iso, value: v });
+        });
+        var e = ema(cl, 20), ev = e[e.length - 1];
+        if (ev != null) S.ema20.update({ time: iso, value: ev });
+      }
+    } catch (err) { /* series not ready yet */ }
+    paintLegend(last);
+    paintStats();
+  }
+
+  /* ---------- UI wiring ---------- */
+
+  function markSeg(id, val, attr) {
+    var btns = document.querySelectorAll('#' + id + ' [data-' + attr + ']');
+    for (var i = 0; i < btns.length; i++) {
+      var on = btns[i].getAttribute('data-' + attr) === val;
+      btns[i].classList.toggle('on', on);
+      btns[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+  }
+
+  function initUI() {
+    // Timeframes
+    var tfHost = $('nt-tf');
+    tfHost.innerHTML = TFS.map(function (t) {
+      return '<button type="button" data-tf="' + t.id + '">' + t.id + '</button>';
+    }).join('');
+    markSeg('nt-tf', state.tf, 'tf');
+    tfHost.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-tf]');
+      if (!b) return;
+      state.tf = b.getAttribute('data-tf');
+      store(LS.tf, state.tf);
+      markSeg('nt-tf', state.tf, 'tf');
+      paintData();
+    });
+
+    // Chart type
+    markSeg('nt-type', state.type, 'type');
+    $('nt-type').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-type]');
+      if (!b) return;
+      state.type = b.getAttribute('data-type');
+      store(LS.type, state.type);
+      markSeg('nt-type', state.type, 'type');
+      applyVisibility();
+    });
+
+    // Overlays
+    var ovHost = $('nt-ov');
+    ovHost.innerHTML = OVERLAYS.map(function (o) {
+      return '<label class="nt-ovl"><input type="checkbox" data-ov="' + o.id + '"' +
+        (state.ov[o.id] ? ' checked' : '') + '><span>' + esc(o.label) + '</span></label>';
+    }).join('');
+    ovHost.addEventListener('change', function (e) {
+      var box = e.target.closest('[data-ov]');
+      if (!box || box.disabled) return;
+      var id = box.getAttribute('data-ov');
+      state.ov[id] = box.checked;
+      store(LS.ov, JSON.stringify(state.ov));
+      applyVisibility();
+    });
+
+    // Search
+    var go = function () {
+      var v = $('nt-sym').value;
+      if (v && v.trim()) loadSymbol(v);
+    };
+    $('nt-go').addEventListener('click', go);
+    $('nt-sym').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); go(); }
+    });
+    document.querySelectorAll('[data-chip]').forEach(function (c) {
+      c.addEventListener('click', function () { loadSymbol(c.getAttribute('data-chip')); });
+    });
+
+    // Theme toggle re-theme
+    new MutationObserver(function () { applyTheme(); }).observe(
+      document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  }
+
+  function fillDatalist() {
+    var dl = $('nt-syms');
+    if (!dl) return;
+    var html = '<option value="NEPSE">NEPSE — Nepal Stock Exchange Index</option>';
+    Object.keys(state.names).sort().forEach(function (s) {
+      html += '<option value="' + esc(s) + '">' + esc(s + ' — ' + state.names[s]) + '</option>';
+    });
+    dl.innerHTML = html;
+  }
+
+  /* ---------- init ---------- */
+
+  function init() {
+    if (!$(MOUNT_ID)) return;
+    if (!VENDOR_OK) {
+      setNote('The chart library failed to load. Check your connection and reload the page.');
+      return;
+    }
+    // Restore preferences
+    var rsym = read(LS.sym), rtf = read(LS.tf), rtype = read(LS.type), rov = read(LS.ov);
+    if (rsym) state.sym = rsym.toUpperCase();
+    if (rtf && TFS.some(function (t) { return t.id === rtf; })) state.tf = rtf;
+    if (rtype && TYPES.indexOf(rtype) !== -1) state.type = rtype;
+    try {
+      var o = rov ? JSON.parse(rov) : null;
+      if (o) Object.keys(state.ov).forEach(function (k) { if (typeof o[k] === 'boolean') state.ov[k] = o[k]; });
+    } catch (e) {}
+    initUI();
+    var inp = $('nt-sym');
+    if (inp) inp.value = state.sym;
+
+    // Start the live-data layer FIRST (idempotent) so the snapshot can
+    // arrive while we wait for the deferred data scripts below.
+    if (window.NepseData) {
+      if (typeof window.NepseData.start === 'function') {
+        try { window.NepseData.start(); } catch (e) {}
+      }
+      if (window.NepseData.subscribe && !unsubLive) {
+        unsubLive = window.NepseData.subscribe(function () { refreshLive(); });
+      }
+    }
+
+    loadUniverse().then(function () {
+      fillDatalist();
+      // Wait for the deferred data scripts (nepse-daily.js) and the first
+      // live snapshot — getSnapshot() existing is not enough, the first
+      // live.json fetch resolves asynchronously.
+      var tries = 0;
+      (function waitDeps() {
+        var dailyReady = state.sym === 'NEPSE'
+          ? (window.NEPSE_DAILY && window.NEPSE_DAILY.length)
+          : true;
+        var snap = null;
+        try { snap = window.NepseData && window.NepseData.getSnapshot ? window.NepseData.getSnapshot() : null; } catch (e) {}
+        if ((dailyReady && snap) || tries++ > 80) {
+          loadSymbol(state.sym);
+        } else {
+          setTimeout(waitDeps, 150);
+        }
+      })();
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
