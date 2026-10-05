@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0A0C10">
+<title>How the Warning Radar Is Built — Verdict Engine v2 Methodology | Nepse Decode</title>
+<meta name="description" content="The complete methodology behind Nepse Decode's Verdict Engine v2: NEPSE-native factors, walk-forward validation, honest base rates, and what the engine refuses to claim.">
+<meta name="author" content="Shirjan Khadka">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-verdicts-v2/methodology/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:title" content="How the Warning Radar Is Built — Verdict Engine v2 Methodology">
+<meta property="og:description" content="Every rule, every factor, every validation number behind the NEPSE warning radar — including what it gets wrong.">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-verdicts-v2/methodology/">
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261004a">
+<link rel="stylesheet" href="../verdicts-v2.css?v=20261005a">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"How the Warning Radar Is Built — Verdict Engine v2 Methodology","author":{"@type":"Organization","name":"Nepse Decode"},"datePublished":"2026-10-05"}
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div id="nd-header"></div>
+
+<main id="main" class="v2-shell">
+<div data-freshness-badge style="margin:12px 0"></div>
+  <p class="v2-eyebrow">Methodology</p>
+  <h1 class="v2-title">How the warning radar is built</h1>
+  <p class="v2-lede">Every rule, every factor, every validation number — including what the engine gets wrong. If a methodology page won't show you its failures, it isn't one.</p>
+
+  <section class="v2-guide" aria-label="What this engine is">
+    <h2 class="v2-h2">A warning instrument, not a trading system</h2>
+    <p class="v2-lede">Verdict Engine v2 scans every NEPSE stock's price history for <strong>operator footprints</strong> — the recurring shapes left by pump-and-distribution campaigns — and attaches the evidence to every flag. It answers <em>"which names look dangerous, and why?"</em></p>
+    <p class="v2-lede">What it does <strong>not</strong> do: issue buy/sell calls, promise returns, or trade for you. We tested converting its warnings into mechanical exit rules across 251 stocks with full NEPSE costs — the median edge over buy-and-hold was <strong>exactly zero</strong>. So we don't sell it as a trading system. Its proven value is the warning itself: <strong>89.4% of historical pump episodes were flagged 5 sessions before the peak</strong>.</p>
+    <div class="v2-reminder"><strong>The confidence cap:</strong> no verdict ever exceeds 0.90 confidence. Nothing on this page claims certainty — certainty about markets is always a sales pitch, never a measurement.</div>
+  </section>
+
+  <section class="v2-guide" aria-label="The nine engine rules">
+    <h2 class="v2-h2">The nine engine rules</h2>
+    <p class="v2-lede">Derived from NEPSE's own data — 365 symbols, up to 750 sessions each, June 2023 to October 2026 — not imported from foreign markets.</p>
+    <div class="v2-cards">
+      <div class="v2-card"><span class="v2-n">1</span><h3>Age-gated circuits</h3><p>Repeated limit-ups mean <em>ignition</em> for listings under ~15 sessions old, and <em>exhaustion</em> above it. The sign flips at 13–15 sessions — measured, not assumed.</p></div>
+      <div class="v2-card"><span class="v2-n">2</span><h3>Regime gates</h3><p>Circuit, markup and volume-surge factors score only in bull regimes — they invert sideways. A flat market mutes the warnings honestly instead of firing them blindly.</p></div>
+      <div class="v2-card"><span class="v2-n">3</span><h3>Slow-bleed stays experimental</h3><p>Quiet distribution detection works only in bear regimes and stays out of the score until it earns its way in. Shown, never scored.</p></div>
+      <div class="v2-card"><span class="v2-n">4</span><h3>Upweighted reversals</h3><p>20-day winner-fade and volume surge carry extra weight — they tested ~3× stronger per-symbol than cross-sectionally.</p></div>
+      <div class="v2-card"><span class="v2-n">5</span><h3>Circuits select, don't time</h3><p>Circuit clustering picks <em>which</em> stocks are pump-shaped across the market; it is a weak timer for any single stock.</p></div>
+      <div class="v2-card"><span class="v2-n">6</span><h3>Sector honesty</h3><p>Finance and development-bank stocks actively contradict the bearish factors — their readings are shown, not scored. Hydropower gets half weight.</p></div>
+      <div class="v2-card"><span class="v2-n">7</span><h3>Young-listing lenses</h3><p>Volume factors are blind in a new listing's first weeks, so short-horizon lenses cover the gap instead of pretending the standard ones work.</p></div>
+      <div class="v2-card"><span class="v2-n">8</span><h3>No breakout worship</h3><p>A heavy-volume supply zone breaking upward is <em>not</em> scored as fuel — the median new-listing breakout fails. Breakouts need confirmation.</p></div>
+      <div class="v2-card"><span class="v2-n">9</span><h3>Tick-aware circuits</h3><p>Limit-ups are detected at 0.995× the band for ignition runs — NEPSE prints settle a tick under the theoretical limit.</p></div>
+    </div>
+  </section>
+
+  <section class="v2-guide" aria-label="The six factors">
+    <h2 class="v2-h2">The six factors, with their measured stats</h2>
+    <div class="v2-cards">
+      <div class="v2-card"><span class="v2-n">C</span><h3>Circuit clustering</h3><p>Limit-up days in 60 sessions. Cross-sectional IC −0.076 — the strongest pump-top flag: it fired before 16 of 16 labeled episodes (5.4× lift over base rate).</p></div>
+      <div class="v2-card"><span class="v2-n">M</span><h3>Markup asymmetry</h3><p>60-day run-up ÷ max drawdown. IC −0.051; caught 14/16 episodes. Parabolic, pullback-free advances are the operator footprint — healthy trends breathe.</p></div>
+      <div class="v2-card"><span class="v2-n">W</span><h3>Winner fade (inverted momentum)</h3><p>20-day cross-sectional return, faded. Per-symbol IC −0.102; 80% of symbols negative. On NEPSE, hot stocks cool — the opposite of foreign momentum lore.</p></div>
+      <div class="v2-card"><span class="v2-n">V</span><h3>Volume surge</h3><p>20-day vs 120-day turnover. Per-symbol IC −0.086. On NEPSE, abnormal volume is distribution more often than accumulation.</p></div>
+      <div class="v2-card"><span class="v2-n">T</span><h3>Turnover spike</h3><p>Single-day vs 60-day median. IC −0.037. Climax volume predicts 5–10 session weakness — the T+2-specific version of this story was tested and rejected.</p></div>
+      <div class="v2-card"><span class="v2-n">S</span><h3>Slow-bleed v2 (experimental)</h3><p>Range compression × volume, no circuits. IC −0.015 with 42% of symbols contradicting — shown as evidence, never in the score.</p></div>
+    </div>
+    <p class="v2-lede">Rejected hypotheses are published too: the T+2 settlement-lag effect didn't survive the data, and listing age alone predicts nothing. A factor that fails is a finding, not an embarrassment.</p>
+  </section>
+
+  <section class="v2-guide" aria-label="Validation">
+    <h2 class="v2-h2">Validation — the numbers we stand behind</h2>
+    <div class="v2-cards">
+      <div class="v2-card"><span class="v2-n">89%</span><h3>Episode flag rate</h3><p>59 of 66 pump episodes flagged 5 sessions before the peak (15/16 on the labeled set; the 16th was correctly refused as poisoned data, not missed).</p></div>
+      <div class="v2-card"><span class="v2-n">−1.8</span><h3>Walk-forward spread</h3><p>Flagged days fell −3.33% over the next 20 sessions vs −1.58% unflagged (70.6% of flagged days negative). Direction correct; the flag is rare by design (~2% of days).</p></div>
+      <div class="v2-card"><span class="v2-n">0</span><h3>Mechanical edge</h3><p>Turning warnings into exit rules: median ΔCAGR 0.00pp vs buy-and-hold, full costs. This is why the engine is a warning instrument — and why we say so on every page.</p></div>
+    </div>
+    <div class="v2-reminder"><strong>What we refuse to do:</strong> score poisoned data (impossible single-day moves from unadjusted corporate actions return UNRELIABLE, never a guess); publish lock-in expiries from proxy dates (the HATHY precedent — a 12-day error that flipped the entire read); show a signal without its failure rate.</div>
+  </section>
+
+  <section class="v2-guide" aria-label="Caveats">
+    <h2 class="v2-h2">Caveats — read before citing a number</h2>
+    <p class="v2-lede">Survivorship: listed symbols only. 750-session window (2023-06 → 2026-10). Prices unadjusted for corporate actions. Daily bars only — no intraday, no order book. 45 symbols lack history and are excluded, never invented. The age-crossover rests on 57 listings — significant, but young. ICs measure signal strength, not profit.</p>
+    <p class="v2-methodlink"><a href="/nepse-verdicts-v2/">Back to the warning radar →</a></p>
+  </section>
+
+  <div class="v2-note">
+    <strong>For education only. Not investment advice.</strong>
+    Past patterns do not guarantee future results. Every verdict carries its evidence and its failure rates — that is the product.
+    <strong>Not affiliated with Nepal Stock Exchange Ltd.</strong>
+  </div>
+</main>
+
+<div id="nd-footer"></div>
+<script src="/js/nd-chrome.js?v=20261005a" defer></script>
+<script src="/js/nepse-market-config.js" defer></script>
+<script src="/js/freshness-badge.js" defer></script>
+</body>
+</html>

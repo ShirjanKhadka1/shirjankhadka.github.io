@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0A0C10">
+<title>NEPSE Warning Radar — Verdict Engine v2 | Nepse Decode</title>
+<meta name="description" content="Verdict Engine v2 scans every NEPSE stock for pump-and-distribution footprints — circuit clustering, markup asymmetry, volume tells — with full evidence. A warning instrument, not a trading system. Free, no login.">
+<meta name="author" content="Shirjan Khadka">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-verdicts-v2/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:title" content="NEPSE Warning Radar — Verdict Engine v2">
+<meta property="og:description" content="Every NEPSE stock scanned for pump-and-distribution footprints, with the evidence shown. 89.4% of past pump episodes flagged before the peak. Free, no login.">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="NEPSE Warning Radar — Verdict Engine v2">
+<meta name="twitter:description" content="Every NEPSE stock scanned for pump-and-distribution footprints, with the evidence shown. Free, no login.">
+<meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-verdicts-v2/">
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261004a">
+<link rel="stylesheet" href="verdicts-v2.css?v=20261005a">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"NEPSE Warning Radar — Verdict Engine v2","url":"https://shirjankhadka.com.np/nepse-verdicts-v2/","description":"Verdict Engine v2 scans every NEPSE stock for pump-and-distribution footprints with full evidence. A warning instrument, not a trading system.","author":{"@type":"Organization","name":"Nepse Decode"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
+{"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
+{"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-decode/"},
+{"@type":"ListItem","position":3,"name":"Warning Radar","item":"https://shirjankhadka.com.np/nepse-verdicts-v2/"}]}
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div id="nd-header"></div>
+
+<main id="main" class="v2-shell">
+<div data-freshness-badge style="margin:12px 0"></div>
+  <p class="v2-eyebrow">Verdict Engine v2 · Warning Radar</p>
+  <h1 class="v2-title">Every NEPSE stock, scanned for traps</h1>
+  <p class="v2-lede">The engine reads each stock's price history for operator footprints — repeated limit-ups, parabolic markups, distribution volume — and shows its evidence. It is a <strong>warning instrument, not a trading system</strong>: it tells you which names look dangerous and why. No black box, no login, free forever. For education only, not investment advice.</p>
+  <p class="v2-regime" id="v2Regime">Loading market regime…</p>
+  <p class="v2-asof" id="v2Asof">Loading…</p>
+
+  <div class="v2-stats" id="v2Stats" aria-label="Verdict distribution"></div>
+
+  <div class="v2-toolbar">
+    <div class="v2-filters" id="v2Filters" role="group" aria-label="Filter by verdict"></div>
+    <input type="search" class="v2-search" id="v2Search" placeholder="Search symbol, e.g. SONA" aria-label="Search symbols">
+  </div>
+  <p class="v2-count" id="v2Count" aria-live="polite"></p>
+
+  <div class="v2-tablewrap" id="v2TableWrap" aria-live="polite">
+    <div class="v2-empty">Loading warning radar…</div>
+  </div>
+  <nav class="v2-pager" id="v2Pager" aria-label="Table pages"></nav>
+
+  <section class="v2-guide" aria-label="How to read the warning radar">
+    <p class="v2-eyebrow">Reading guide</p>
+    <h2 class="v2-h2">How to read a verdict</h2>
+    <p class="v2-lede">Every row expands to the full evidence. What each label means:</p>
+    <div class="v2-cards">
+      <div class="v2-card"><span class="v2-n">!</span><h3>Distribution warning</h3><p>Multiple bearish footprints active — the tape looks like smart money handing bags to chasers. 70.6% of past flagged days fell over the next 20 sessions.</p></div>
+      <div class="v2-card"><span class="v2-n">△</span><h3>Elevated risk</h3><p>Early warning — one or two footprints forming. Worth watching, not yet a pattern.</p></div>
+      <div class="v2-card"><span class="v2-n">○</span><h3>Neutral</h3><p>No active footprints. The engine sees nothing alarming — which is itself information.</p></div>
+      <div class="v2-card"><span class="v2-n">?</span><h3>Unreliable</h3><p>The price data itself looks poisoned (impossible moves from unadjusted corporate actions). The engine refuses to score rather than guess.</p></div>
+    </div>
+    <div class="v2-reminder"><strong>The honest frame:</strong> this engine flagged 89.4% of historical pump episodes 5 sessions before the peak — and it still misses some, and its flags are not trade instructions. As a mechanical trading system it adds zero edge over buy-and-hold (measured). Its proven value is telling you <em>which names are dangerous and why</em>. Past patterns do not guarantee future results.</div>
+    <p class="v2-methodlink"><a href="/nepse-verdicts-v2/methodology/">How the engine is built — rules, factors, validation →</a></p>
+  </section>
+
+  <div class="v2-note">
+    <strong>For education only. Not investment advice.</strong>
+    Verdicts are mechanical outputs of a published, walk-forward-validated rule set. They are risk flags with attached evidence — never buy/sell calls.
+    <strong>Not affiliated with Nepal Stock Exchange Ltd.</strong>
+  </div>
+</main>
+
+<div id="nd-footer"></div>
+<script src="/js/nd-chrome.js?v=20261005a" defer></script>
+<script src="/js/nepse-market-config.js" defer></script>
+<script src="/js/freshness-badge.js" defer></script>
+<script src="verdicts-v2.js?v=20261005a" defer></script>
+</body>
+</html>
