@@ -102,6 +102,9 @@
     var host = $('ndWrap');
     if (!host || !live || !live.index) return;
     var ix = live.index;
+    // Live wording follows the feed's own market flag — the same value the
+    // index-card pill shows, so the editorial can never contradict it.
+    var isLive = !!(live.market === 'OPEN');
     var chg = Number(ix.change) || 0;
     var pct = Number(ix.percent_change) || 0;
     var dir = chg > 0 ? 'higher' : chg < 0 ? 'lower' : 'flat';
@@ -133,7 +136,7 @@
     var dirCls = chg > 0 ? 'dir-up' : chg < 0 ? 'dir-dn' : '';
     var dirWord = chg > 0 ? 'higher' : chg < 0 ? 'lower' : 'flat';
     var dirSpan = dirCls ? '<span class="' + dirCls + '">' + dirWord + '</span>' : dirWord;
-    var headlineHtml = 'NEPSE closes ' + dirSpan;
+    var headlineHtml = (isLive ? 'NEPSE trading ' : 'NEPSE closes ') + dirSpan;
     var mag = Math.abs(pct);
     if (mag >= 2) headlineHtml += ' sharply';
     else if (mag >= 1) headlineHtml += ' firmly';
@@ -142,32 +145,36 @@
     if (chg > 0 && leaders) headlineHtml += ' as ' + esc(leaders.toLowerCase()) + ' lead';
     else if (chg < 0 && laggards) headlineHtml += ' as ' + esc(laggards.toLowerCase()) + ' drag';
 
-    var body1 = 'The NEPSE index closed at <strong>' + esc(fmtNum(ix.value)) + '</strong> (' +
+    var body1 = (isLive ? 'The NEPSE index is trading at <strong>' : 'The NEPSE index closed at <strong>') + esc(fmtNum(ix.value)) + '</strong> (' +
       (chg > 0 ? '+' : '') + esc(fmtNum(chg)) + ' points, ' +
       (pct > 0 ? '+' : '') + pct.toFixed(2) + '%). ';
     if (chg > 0) {
-      body1 += 'Bulls were in control as ' + esc(breadthTxt) + ' (<strong>' + adv + '</strong> vs ' + dec + '). ';
-      if (leaders) body1 += 'Strength came from <strong>' + esc(leaders) + '</strong> shares' + (leadPct ? ' (up ' + leadPct.toFixed(2) + '%)' : '') + '. ';
+      body1 += (isLive ? 'Bulls are in control as ' : 'Bulls were in control as ') + esc(breadthTxt) + ' (<strong>' + adv + '</strong> vs ' + dec + '). ';
+      if (leaders) body1 += (isLive ? 'Strength is coming from <strong>' : 'Strength came from <strong>') + esc(leaders) + '</strong> shares' + (leadPct ? ' (up ' + leadPct.toFixed(2) + '%)' : '') + '. ';
     } else if (chg < 0) {
-      body1 += 'Bears dominated as ' + esc(breadthTxt) + ' (<strong>' + dec + '</strong> vs ' + adv + '). ';
-      if (laggards) body1 += 'Weakness was concentrated in <strong>' + esc(laggards) + '</strong>' + (lagPct ? ' (down ' + Math.abs(lagPct).toFixed(2) + '%)' : '') + '. ';
-      if (leaders && leadPct > 0) body1 += esc(leaders) + ' declined the least' + ' (+' + leadPct.toFixed(2) + '%). ';
+      body1 += (isLive ? 'Bears are dominating as ' : 'Bears dominated as ') + esc(breadthTxt) + ' (<strong>' + dec + '</strong> vs ' + adv + '). ';
+      if (laggards) body1 += (isLive ? 'Weakness is concentrated in <strong>' : 'Weakness was concentrated in <strong>') + esc(laggards) + '</strong>' + (lagPct ? ' (down ' + Math.abs(lagPct).toFixed(2) + '%)' : '') + '. ';
+      if (leaders && leadPct > 0) body1 += esc(leaders) + (isLive ? ' have declined the least' : ' declined the least') + ' (+' + leadPct.toFixed(2) + '%). ';
     } else {
-      body1 += 'The market ended flat as ' + esc(breadthTxt) + '. ';
+      body1 += (isLive ? 'The market is flat as ' : 'The market ended flat as ') + esc(breadthTxt) + '. ';
     }
-    body1 += 'Day range: <strong>' + esc(fmtNum(ix.low)) + ' – ' + esc(fmtNum(ix.high)) + '</strong>.';
+    body1 += (isLive ? 'Day range so far: <strong>' : 'Day range: <strong>') + esc(fmtNum(ix.low)) + ' – ' + esc(fmtNum(ix.high)) + '</strong>.';
 
     host.innerHTML =
       '<div class="nd-badges">' +
         '<span class="nd-badge lime">Market Wrap</span>' +
         '<span class="nd-badge">' + esc(sessDate) + '</span>' +
         '<span class="nd-badge ' + (chg > 0 ? 'lime' : chg < 0 ? 'amber' : '') + '">' +
-          (chg > 0 ? '▲ GREEN CLOSE' : chg < 0 ? '▼ RED CLOSE' : '· FLAT CLOSE') + '</span>' +
+          (isLive
+            ? (chg > 0 ? '▲ LIVE' : chg < 0 ? '▼ LIVE' : '· LIVE')
+            : (chg > 0 ? '▲ GREEN CLOSE' : chg < 0 ? '▼ RED CLOSE' : '· FLAT CLOSE')) + '</span>' +
       '</div>' +
       '<h2 class="nd-wraphead">' + headlineHtml + '</h2>' +
       '<div class="nd-wrapbody"><p>' + body1 + '</p>' +
-      '<p>All figures below are the official session close. Quotes refresh during market hours; ' +
-      'outside hours the last close is shown.</p></div>' +
+      '<p>' + (isLive
+        ? 'Figures are live intraday and refresh during market hours; the official close prints at 15:00 NPT.'
+        : 'All figures below are the official session close. Quotes refresh during market hours; ' +
+          'outside hours the last close is shown.') + '</p></div>' +
       '<div class="nd-wrapmeta"><strong>Nepse Decode Desk</strong> · Data as of ' + esc(sessDate) + ' · Source: NEPSE</div>' +
       '<a class="nd-btn-lime" href="/nepse-daily/">See today\'s market →</a>';
   }
@@ -475,26 +482,46 @@
   }
 
   /* ---------- Init ---------- */
+  // Renders every data-driven panel from one live snapshot. Called once on
+  // load and again whenever the shared feed delivers a NEWER snapshot —
+  // the first paint can come from a stale localStorage restore, with the
+  // fresh fetch landing a moment later.
+  var lastAsofMs = 0;
+  function renderAll(live) {
+    if (!live) return;
+    lastAsofMs = live.asofMs || 0;
+    renderStrip(live.indices);
+    renderWrap(live);
+    renderIndexCard(live);
+    var sessDate = '';
+    try {
+      var d = getSessionDate(live);
+      sessDate = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kathmandu' });
+    } catch (e) {}
+    renderMoves(live.quotes, sessDate);
+    activeQuotes = live.quotes || [];
+    renderActive();
+    renderPulseEngine(live.quotes, sessDate);
+    var as = $('ndActiveSub');
+    if (as && sessDate) as.textContent = 'Ranked by trading activity · session of ' + sessDate;
+  }
   function init() {
     if (!$('ndStripTrack') && !$('ndWrap') && !$('ndNewsGrid')) return;
     // Fetch spark data first for the index card chart
     fetchJSON(SPARK_URL).then(function (sp) { sparkData = sp; }).catch(function () {}).then(function () {
       // P1.3: Use shared NepseData module (dedupes live.json fetch)
       getLive().then(function (live) {
-        renderStrip(live.indices);
-        renderWrap(live);
-        renderIndexCard(live);
-        var sessDate = '';
+        renderAll(live);
+        // Stay in sync: if the first paint used a stale cached snapshot, the
+        // background fetch delivers the fresh one here. NepseData only
+        // notifies on real changes, so re-renders are cheap and rare.
         try {
-          var d = getSessionDate(live);
-          sessDate = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kathmandu' });
+          if (window.NepseData && typeof window.NepseData.subscribe === 'function') {
+            window.NepseData.subscribe(function (snap) {
+              if (snap && (snap.asofMs || 0) !== lastAsofMs) renderAll(snap);
+            });
+          }
         } catch (e) {}
-        renderMoves(live.quotes, sessDate);
-        activeQuotes = live.quotes || [];
-        renderActive();
-        renderPulseEngine(live.quotes, sessDate);
-        var as = $('ndActiveSub');
-        if (as && sessDate) as.textContent = 'Ranked by trading activity · session of ' + sessDate;
       }).catch(function () {});
     });
     fetchJSON(NEWS_URL).then(function (news) {
