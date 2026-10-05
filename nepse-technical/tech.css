@@ -12,13 +12,19 @@
    Scoped here so other pages are untouched. */
 .d2-mobilenav .nav-sub { display: inline-flex; gap: 8px; flex: none; align-items: center; }
 
+/* ---- Page canvas (explicit: never depend on the browser default, which
+   color-scheme: dark would paint dark) ---- */
+body {
+  background: var(--nd-bg, #F6F7F9);
+  color: var(--nd-text, #0A0C10);
+}
+
 .nt-wrap {
   max-width: var(--nd-page-max, 1360px);
   margin: 0 auto;
   padding: 0 var(--nd-gutter, 24px) var(--nd-s16, 64px);
   animation: ntFadeIn .5s ease both;
-}
-@keyframes ntFadeIn {
+}@keyframes ntFadeIn {
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: none; }
 }
