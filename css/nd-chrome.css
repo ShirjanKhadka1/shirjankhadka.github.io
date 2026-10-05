@@ -152,36 +152,37 @@ html, body{ overflow-x: clip; }
   #nd-header .nd-lang button{ height: 32px; padding: 0 9px; }
   #nd-header .nd-pill{ height: 32px; padding: 0 10px; }
 }
-#nd-header .nd-scrim{
+#nd-scrim{
   position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 39;
   opacity: 0; visibility: hidden; transition: opacity var(--nd-t-med) var(--nd-ease), visibility var(--nd-t-med);
 }
-#nd-header .nd-scrim.open{ opacity: 1; visibility: visible; }
-#nd-header .nd-drawerpanel{
+#nd-scrim.open{ opacity: 1; visibility: visible; }
+#nd-drawer{
   position: fixed; top: 0; right: 0; bottom: 0; width: min(340px, 88vw); z-index: 40;
+  box-sizing: border-box;
   background: var(--nd-panel); border-left: 1px solid var(--nd-border);
   transform: translateX(100%); visibility: hidden;
   transition: transform var(--nd-t-enter) var(--nd-ease), visibility 0s linear var(--nd-t-enter);
   overflow-y: auto; padding: var(--nd-s5);
 }
-#nd-header .nd-drawerpanel.open{ transform: none; visibility: visible; transition: transform var(--nd-t-enter) var(--nd-ease), visibility 0s linear 0s; }
-#nd-header .nd-acc{ border-bottom: 1px solid var(--nd-border); }
-#nd-header .nd-acc > button{
+#nd-drawer.open{ transform: none; visibility: visible; transition: transform var(--nd-t-enter) var(--nd-ease), visibility 0s linear 0s; }
+#nd-drawer .nd-acc{ border-bottom: 1px solid var(--nd-border); }
+#nd-drawer .nd-acc > button{
   width: 100%; display: flex; justify-content: space-between; align-items: center;
   background: none; border: 0; padding: 14px 4px; cursor: pointer;
   font: 600 0.875rem var(--nd-font-sans); color: var(--nd-text); min-height: 44px;
 }
-#nd-header .nd-acc .nd-accbody{ display: none; padding: 0 4px 12px; }
-#nd-header .nd-acc.open .nd-accbody{ display: block; }
-#nd-header .nd-acc .nd-accbody a{
+#nd-drawer .nd-acc .nd-accbody{ display: none; padding: 0 4px 12px; }
+#nd-drawer .nd-acc.open .nd-accbody{ display: block; }
+#nd-drawer .nd-acc .nd-accbody a{
   display: block; padding: 10px 4px; color: var(--nd-muted); text-decoration: none;
   font: 500 0.8125rem var(--nd-font-sans); min-height: 44px;
 }
-#nd-header .nd-acc .nd-accbody a.active{ color: var(--nd-lime); font-weight: 600; }
+#nd-drawer .nd-acc .nd-accbody a.active{ color: var(--nd-lime); font-weight: 600; }
 /* Hover lime only on devices with a real hover pointer — on touch screens a
    tap leaves :hover stuck, falsely marking random items as current. */
 @media (hover: hover){
-  #nd-header .nd-acc .nd-accbody a:hover{ color: var(--nd-lime); }
+  #nd-drawer .nd-acc .nd-accbody a:hover{ color: var(--nd-lime); }
 }
 
 /* ============ FOOTER ============ */
@@ -266,5 +267,5 @@ body:has(> #nd-header) .theme-toggle.fixed{ display: none !important; }
 
 @media (prefers-reduced-motion: reduce) {
   #nd-header .nd-livedot.pulse, #nd-header .nd-pill.live .dot{ animation: none; }
-  #nd-header .nd-drop, #nd-header .nd-drawerpanel, #nd-header .nd-scrim{ transition-duration: 150ms; }
+  #nd-header .nd-drop, #nd-drawer, #nd-scrim{ transition-duration: 150ms; }
 }
