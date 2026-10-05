@@ -1,0 +1,58 @@
+# TEMPORARY — one-shot visual baseline regeneration.
+# Created by the email-error-watch worker 2026-10-05 to fix the red
+# "Visual regression (Playwright container)" job on main (run 37248425459).
+# It regenerates tests/visual.spec.ts-snapshots/ in the OFFICIAL Playwright
+# container (same image as ci.yml) and commits them to THIS branch for review
+# before merging to main. DELETE this file after the merge.
+name: VR baseline refresh (temporary)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    name: Regenerate visual baselines
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    container:
+      # MUST match ci.yml's visual job image exactly.
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Install test deps
+        working-directory: tests
+        run: npm ci
+
+      - name: Serve site
+        run: |
+          (python3 -m http.server 8080 >/tmp/http.log 2>&1 &)
+          sleep 2
+          curl -sf -o /dev/null http://localhost:8080/
+
+      - name: Regenerate baselines
+        working-directory: tests
+        run: npx playwright test visual.spec.ts --update-snapshots
+        env:
+          BASE_URL: http://localhost:8080
+
+      - name: Verify suite is green on new baselines
+        working-directory: tests
+        run: npx playwright test visual.spec.ts
+        env:
+          BASE_URL: http://localhost:8080
+
+      - name: Commit baselines to this branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add tests/visual.spec.ts-snapshots/
+          if git diff --cached --quiet; then
+            echo "No baseline changes."
+          else
+            git commit -m "Regenerate visual baselines (CI, Playwright v1.63.0 container, 2026-10-05)"
+            git push origin HEAD:${{ github.ref_name }}
+          fi
