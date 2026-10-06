@@ -188,7 +188,12 @@
     if(cNext)cNext.onclick=function(){var s=parseInt(cSize.value,10)||50;if(cPage<Math.ceil(cBody.rows.length/s)-1){cPage++;cRender();}};
     cRender();
   }
-  fetch('/nepse-chart/data/signals/'+sys+'.json').then(function(r){return r.json();}).then(function(d){
+  var lastGen='';
+  function loadData(isAuto){
+    var url='/nepse-chart/data/signals/'+sys+'.json'+(isAuto?('?t='+Date.now()):'');
+    fetch(url).then(function(r){return r.json();}).then(function(d){
+    if(isAuto&&d.generated_at&&d.generated_at===lastGen)return; // no new build
+    if(d.generated_at)lastGen=d.generated_at;
     /* freshness */
     var fr=document.getElementById('sig-fresh'),ft=document.getElementById('sig-fresh-text');
     if(fr&&ft){
@@ -253,10 +258,21 @@
     /* equity curve */
     eqPts=(d.stats&&d.stats.equity_curve)||null;
     drawEquity();
-  }).catch(function(){
-    document.querySelector('#alerts tbody').innerHTML='<tr><td colspan="11">Could not load signal data.</td></tr>';
-    var cb=document.getElementById('closed-body');
-    if(cb)cb.innerHTML='<tr><td colspan="8">Could not load trade history.</td></tr>';
+    }).catch(function(){
+      if(isAuto)return; // silent on background refresh
+      document.querySelector('#alerts tbody').innerHTML='<tr><td colspan="11">Could not load signal data.</td></tr>';
+      var cb=document.getElementById('closed-body');
+      if(cb)cb.innerHTML='<tr><td colspan="8">Could not load trade history.</td></tr>';
+    });
+  }
+  loadData(false);
+  /* auto-refresh: daily-candle data rebuilds once per day; poll every 15 min
+     and on tab-visible so the page picks up the new build without reload */
+  setInterval(function(){loadData(true);},15*60*1000);
+  var lastHidden=0;
+  document.addEventListener('visibilitychange',function(){
+    if(document.hidden){lastHidden=Date.now();return;}
+    if(Date.now()-lastHidden>2*60*1000)loadData(true);
   });
 })();
 </script>

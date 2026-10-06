@@ -3,6 +3,9 @@
    Used by: nepse-signals/momentum, trend-relay, reversal, methodology
    ============================================================ */
 .sig-wrap{max-width:1080px;margin:0 auto;padding:28px 20px 72px}
+/* Contrast fix: --nd-dim (#6B7280) is 3.81:1 on dark panels — below AA for
+   small text. Scope a brighter dim to signal pages only. */
+.sig-wrap{--nd-dim:#7D8590}
 .sig-kicker{color:var(--nd-dim,#6B7280);font-size:.85rem;margin:0 0 6px;letter-spacing:.14em;text-transform:uppercase;font-weight:600}
 .sig-wrap h1{font-family:var(--nd-font-display,Georgia,serif);font-size:2.1rem;margin:0 0 8px;color:var(--nd-text,#fff);letter-spacing:-.01em}
 .sig-lede{color:var(--nd-muted,#9AA3B2);max-width:660px;margin:0 0 6px;line-height:1.6}
