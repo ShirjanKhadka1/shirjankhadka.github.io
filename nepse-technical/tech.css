@@ -135,28 +135,84 @@ body {
 }
 .nt-ovl:disabled { opacity: .35; cursor: not-allowed; }
 
-/* ---- Chart card ---- */
+/* ---- Two-column layout: fundamentals + chart (Merolagani-style) ---- */
+.nt-cols {
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap: 18px;
+  margin-bottom: var(--nd-s6, 24px);
+  align-items: start;
+}
+.nt-fund {
+  background: var(--nd-panel, #12141A);
+  border: 1px solid var(--nd-border, #1E2430);
+  border-radius: var(--nd-r-card, 18px);
+  overflow: hidden;
+  position: sticky;
+  top: 76px;
+}
+.nt-fund-head {
+  background: var(--nd-lime, #B8E62E);
+  color: var(--nd-on-lime, #0A0C10);
+  font: 700 .95rem var(--nd-font-sans, system-ui);
+  padding: 12px 18px;
+  line-height: 1.4;
+}
+[data-theme="light"] .nt-fund-head { background: #4D7C0F; color: #fff; }
+.nt-fund-table { margin: 0; padding: 0; }
+.nt-frow {
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: 12px; padding: 10px 18px;
+  border-bottom: 1px solid var(--nd-border, #1E2430);
+  font-size: .875rem;
+}
+.nt-frow:last-child { border-bottom: none; }
+.nt-frow dt {
+  color: var(--nd-text, #fff); font-weight: 600; flex: none;
+  font-size: .85rem;
+}
+.nt-frow dd {
+  margin: 0; text-align: right;
+  font-family: var(--nd-font-mono, monospace);
+  font-variant-numeric: tabular-nums;
+  color: var(--nd-muted, #9AA3B2);
+  font-size: .85rem;
+  overflow-wrap: anywhere;
+}
+.nt-frow dd.up { color: var(--nd-up, #4ADE80); font-weight: 700; }
+.nt-frow dd.down { color: var(--nd-down, #F87171); font-weight: 700; }
+.nt-frow dd.strong { color: var(--nd-text, #fff); font-weight: 700; }
+
+/* ---- Chart card (right column) ---- */
 .nt-card {
   background: var(--nd-panel, #12141A); border: 1px solid var(--nd-border, #1E2430);
   border-radius: var(--nd-r-card, 18px); padding: 18px;
-  margin-bottom: var(--nd-s6, 24px); position: relative;
+  margin-bottom: 0; position: relative;
   animation: ntFadeIn .4s ease both;
+  min-width: 0;
 }
+/* Merolagani-style two-line legend */
 .nt-legend {
-  display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: baseline;
+  display: block;
   font-size: 13.5px; color: var(--nd-muted, #9AA3B2);
-  margin-bottom: 10px; min-height: 24px;
+  margin-bottom: 10px; min-height: 44px; line-height: 1.5;
 }
+.nt-lg-line1 { display: block; margin-bottom: 2px; }
+.nt-lg-line2 { display: block; font-family: var(--nd-font-mono, monospace); font-size: 12.5px; }
 .nt-lg-sym { font-weight: 700; color: var(--nd-text, #fff); font-size: 15px; }
-.nt-lg-date { font-family: var(--nd-font-mono, monospace); font-size: 12px; }
+.nt-lg-tf { color: var(--nd-dim, #6B7280); font-size: 13px; margin-left: 6px; }
+.nt-lg-date { font-family: var(--nd-font-mono, monospace); font-size: 12px; color: var(--nd-dim, #6B7280); margin-left: 8px; }
+.nt-lg-ohlc { color: var(--nd-muted, #9AA3B2); }
 .nt-lg-ohlc b {
   color: var(--nd-text, #fff); font-weight: 600;
-  font-family: var(--nd-font-mono, monospace); font-size: 12.5px;
 }
-.nt-lg-chg { font-family: var(--nd-font-mono, monospace); font-size: 12.5px; }
-.nt-lg-chg.up { color: var(--nd-up, #4ADE80); font-weight: 600; }
-.nt-lg-chg.down { color: var(--nd-down, #F87171); font-weight: 600; }
+.nt-lg-chg { font-weight: 600; margin-left: 8px; }
+.nt-lg-chg.up { color: var(--nd-up, #4ADE80); }
+.nt-lg-chg.down { color: var(--nd-down, #F87171); }
 .nt-lg-chg.flat { color: var(--nd-muted, #9AA3B2); }
+
+/* ---- Moving-average stats (below columns) ---- */
+.nt-stats-ma { grid-template-columns: repeat(3, 1fr); max-width: 640px; }
 .nt-live {
   font-size: 11px; font-weight: 700; letter-spacing: .08em; color: #fff;
   background: var(--nd-up, #4ADE80); border-radius: 4px; padding: 2px 8px;
@@ -277,10 +333,15 @@ body {
 [data-theme="light"] .nt-notes a { color: #4D7C0F; }
 
 /* ---- Mobile ---- */
+@media (max-width: 960px) {
+  .nt-cols { grid-template-columns: 1fr; }
+  .nt-fund { position: static; }
+}
 @media (max-width: 640px) {
   .nt-wrap { padding-left: 16px; padding-right: 16px; }
   .nt-wrap h1 { font-size: 1.6rem; }
   .nt-stats { grid-template-columns: repeat(2, 1fr); }
+  .nt-stats-ma { grid-template-columns: repeat(3, 1fr); }
   #nt-chart { height: 360px; }
   .nt-search-row { flex-direction: column; }
   .nt-card { padding: 12px; }

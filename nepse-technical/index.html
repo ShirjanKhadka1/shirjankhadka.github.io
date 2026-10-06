@@ -23,7 +23,7 @@
 <link rel="stylesheet" href="/css/nd-chrome.css?v=20261006c">
 <link rel="stylesheet" href="/css/theme.css?v=edd1fe3c">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">
-<link rel="stylesheet" href="/nepse-technical/tech.css?v=20261006b">
+<link rel="stylesheet" href="/nepse-technical/tech.css?v=20261006c">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"Nepse Decode Technical Charts","url":"https://shirjankhadka.com.np/nepse-technical/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Free interactive NEPSE technical charts: candlesticks, volume, SMA/EMA overlays and timeframes for the NEPSE index and every listed stock. No login.","author":{"@type":"Organization","name":"Nepse Decode","url":"https://shirjankhadka.com.np/"}}
 </script>
@@ -87,20 +87,39 @@
     <div class="nt-ov" id="nt-ov" role="group" aria-label="Overlays"></div>
   </div>
 
-  <section class="nt-card" aria-label="Price chart">
-    <div class="nt-legend" id="nt-legend" aria-live="polite"></div>
-    <div id="nt-chart" role="img" aria-label="Interactive price chart. Hover or drag to inspect any session."></div>
-    <p class="nt-spinner" id="nt-spinner">Loading chart…</p>
-    <p class="nt-flag" id="nt-note" hidden></p>
-    <p class="nt-flag" id="nt-ltponly" hidden>LTP-only history: this security has no full OHLC archive yet, so the chart shows closing levels and moving-average overlays are off.</p>
-    <p class="nt-session" id="nt-session"></p>
-  </section>
+  <div class="nt-cols">
+    <aside class="nt-fund" aria-label="Company fundamentals">
+      <div class="nt-fund-head" id="nt-fund-name">—</div>
+      <dl class="nt-fund-table">
+        <div class="nt-frow"><dt>Sector</dt><dd id="nt-f-sector">—</dd></div>
+        <div class="nt-frow"><dt>Shares Outstanding</dt><dd id="nt-f-shares">—</dd></div>
+        <div class="nt-frow"><dt>Market Price</dt><dd id="nt-f-price">—</dd></div>
+        <div class="nt-frow"><dt>% Change</dt><dd id="nt-f-chg">—</dd></div>
+        <div class="nt-frow"><dt>Last Traded On</dt><dd id="nt-f-traded">—</dd></div>
+        <div class="nt-frow"><dt>52 Weeks High - Low</dt><dd id="nt-f-52w">—</dd></div>
+        <div class="nt-frow"><dt>120 Day Average</dt><dd id="nt-f-avg120">—</dd></div>
+        <div class="nt-frow"><dt>1 Year Yield</dt><dd id="nt-f-yield1y">—</dd></div>
+        <div class="nt-frow"><dt>EPS</dt><dd id="nt-f-eps">—</dd></div>
+        <div class="nt-frow"><dt>P/E Ratio</dt><dd id="nt-f-pe">—</dd></div>
+        <div class="nt-frow"><dt>Book Value</dt><dd id="nt-f-bv">—</dd></div>
+        <div class="nt-frow"><dt>PBV</dt><dd id="nt-f-pbv">—</dd></div>
+        <div class="nt-frow"><dt>% Dividend</dt><dd id="nt-f-div">—</dd></div>
+        <div class="nt-frow"><dt>% Bonus</dt><dd id="nt-f-bonus">—</dd></div>
+        <div class="nt-frow"><dt>Right Share</dt><dd id="nt-f-right">—</dd></div>
+      </dl>
+    </aside>
 
-  <section class="nt-stats" aria-label="Key figures">
-    <div class="nt-stat"><span class="k">Last close</span><span class="v" id="nt-last">—</span></div>
-    <div class="nt-stat"><span class="k">Day change</span><span class="v" id="nt-chg">—</span></div>
-    <div class="nt-stat"><span class="k">52-week high</span><span class="v" id="nt-52h">—</span></div>
-    <div class="nt-stat"><span class="k">52-week low</span><span class="v" id="nt-52l">—</span></div>
+    <section class="nt-card" aria-label="Price chart">
+      <div class="nt-legend" id="nt-legend" aria-live="polite"></div>
+      <div id="nt-chart" role="img" aria-label="Interactive price chart. Hover or drag to inspect any session."></div>
+      <p class="nt-spinner" id="nt-spinner">Loading chart…</p>
+      <p class="nt-flag" id="nt-note" hidden></p>
+      <p class="nt-flag" id="nt-ltponly" hidden>LTP-only history: this security has no full OHLC archive yet, so the chart shows closing levels and moving-average overlays are off.</p>
+      <p class="nt-session" id="nt-session"></p>
+    </section>
+  </div>
+
+  <section class="nt-stats nt-stats-ma" aria-label="Moving averages">
     <div class="nt-stat"><span class="k">SMA 20</span><span class="v" id="nt-sma20">—</span></div>
     <div class="nt-stat"><span class="k">SMA 50</span><span class="v" id="nt-sma50">—</span></div>
     <div class="nt-stat"><span class="k">SMA 200</span><span class="v" id="nt-sma200">—</span></div>
@@ -128,7 +147,7 @@
 <script src="/js/nepse-daily.js?v=51f68f5d" defer></script>
 <script src="/js/nepse-market-config.js?v=20261002c" defer></script>
 <script src="/js/nepse-data.js?v=20261003a" defer></script>
-<script src="/js/nepse-technical.js?v=20261006b" defer></script>
+<script src="/js/nepse-technical.js?v=20261006c" defer></script>
 <script src="/js/nd-chrome.js?v=20261006c" defer></script>
 <script src="/js/theme-toggle.js?v=a383d477" defer></script>
 <script src="/js/freshness-badge.js?v=20261002c" defer></script>

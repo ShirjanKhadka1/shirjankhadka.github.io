@@ -51,6 +51,9 @@
     intraIndex: '/nepse-chart/data/intraday-index.json'
   };
   var UNIVERSE_V = '20261002b'; // bump when universe.json is rebuilt
+  var FUND_URL = '/nepse-chart/data/fundamentals.json';
+
+  var fundCache = null; // {symbol: {eps_ttm, pe_ttm}} — loaded once, shared across symbols
 
   /* Timeframes: `slice` = how many daily sessions of history to show,
      `agg` = how many daily sessions form one candle (1 = daily candles).
@@ -186,7 +189,8 @@
     liveBadge: false,
     sessionDate: null,
     loading: false, err: '',
-    intra: null          // 15m cache: {sym, rows:[[epochSec,o,h,l,c,vol|null]], baseVol, empty}
+    intra: null,         // 15m cache: {sym, rows:[[epochSec,o,h,l,c,vol|null]], baseVol, empty}
+    fund: null           // fundamentals row for the symbol (eps_ttm, pe_ttm), null if unavailable
   };
 
   var chart = null;
@@ -201,6 +205,98 @@
       list.forEach(function (e) { if (e && e.s) state.names[e.s] = e.n || e.s; });
       return list;
     }).catch(function () { return []; });
+  }
+
+  function loadFundamentals() {
+    // Cached for the page lifetime — one fetch, shared across symbol switches.
+    if (fundCache) return Promise.resolve(fundCache);
+    return fetchJSON(FUND_URL).then(function (d) {
+      fundCache = (d && d.companies) || {};
+      return fundCache;
+    }).catch(function () {
+      fundCache = {};
+      return fundCache;
+    });
+  }
+
+  /* Format a datetime like Merolagani: "2026/10/06 12:15:50" (NPT wall clock). */
+  function fmtDateTimeNPT(ms) {
+    if (!isFinite(ms) || ms <= 0) return '—';
+    var d = new Date(ms + 5.75 * 3600e3); // shift to NPT, read via UTC getters
+    function p(n) { return (n < 10 ? '0' : '') + n; }
+    return d.getUTCFullYear() + '/' + p(d.getUTCMonth() + 1) + '/' + p(d.getUTCDate()) +
+      ' ' + p(d.getUTCHours()) + ':' + p(d.getUTCMinutes()) + ':' + p(d.getUTCSeconds());
+  }
+
+  function setFund(id, text, cls) {
+    var e = $(id);
+    if (!e) return;
+    e.textContent = text;
+    e.classList.remove('up', 'down', 'strong');
+    if (cls) e.classList.add(cls);
+  }
+
+  function paintFundamentals() {
+    // Merolagani-style left panel. Fields we cannot source reliably stay "—".
+    var rows = state.rows;
+    var sym = state.sym;
+    var isIndex = sym === 'NEPSE';
+    setFund('nt-fund-name', state.symName || sym);
+    if (!rows.length) return;
+    var last = rows[rows.length - 1];
+    var prev = rows.length > 1 ? rows[rows.length - 2] : null;
+    var chg = prev ? last[4] - prev[4] : null;
+    var pct = prev && prev[4] ? (chg / prev[4]) * 100 : null;
+
+    setFund('nt-f-sector', '—');
+    setFund('nt-f-shares', '—');
+    setFund('nt-f-price', fmtNum(last[4]), chg == null ? '' : (chg > 0 ? 'up' : (chg < 0 ? 'down' : '')));
+    setFund('nt-f-chg', (chg == null ? '—' : fmtSigned(pct, 2) + ' %'), chg == null ? '' : (chg > 0 ? 'up' : (chg < 0 ? 'down' : '')));
+
+    // Last traded: live quote timestamp when fresh, else the session date.
+    var traded = '—';
+    var q = state.live;
+    if (q && q.last_updated) {
+      var ms = parseMarketTime(q.last_updated);
+      if (isFinite(ms)) traded = fmtDateTimeNPT(ms);
+    }
+    if (traded === '—') {
+      var sd = state.sessionDate || isoOf(last[0]);
+      traded = sd ? String(sd).replace(/-/g, '/') : '—';
+    }
+    setFund('nt-f-traded', traded);
+
+    // 52-week high/low from the last ~250 sessions of real chart data.
+    var hi = null, lo = null;
+    var from = Math.max(0, rows.length - 250);
+    for (var i = from; i < rows.length; i++) {
+      hi = hi == null ? rows[i][2] : Math.max(hi, rows[i][2]);
+      lo = lo == null ? rows[i][3] : Math.min(lo, rows[i][3]);
+    }
+    setFund('nt-f-52w', fmtNum(hi) + '–' + fmtNum(lo));
+
+    // 120-day average of closes.
+    var n120 = Math.min(120, rows.length), s120 = 0;
+    for (var j = rows.length - n120; j < rows.length; j++) s120 += rows[j][4];
+    setFund('nt-f-avg120', rows.length ? fmtNum(s120 / n120) : '—');
+
+    // 1-year yield: last close vs the close ~250 sessions ago.
+    var y1 = null;
+    if (rows.length > 250 && rows[rows.length - 251][4] > 0) {
+      y1 = (last[4] / rows[rows.length - 251][4] - 1) * 100;
+    }
+    setFund('nt-f-yield1y', y1 == null ? '—' : fmtSigned(y1, 2) + '%',
+      y1 == null ? '' : (y1 > 0 ? 'up' : (y1 < 0 ? 'down' : '')));
+
+    // Fundamentals (quarterly archive) — honest "—" when the symbol is absent.
+    var f = !isIndex && fundCache ? fundCache[sym] : null;
+    setFund('nt-f-eps', f && isFinite(+f.eps_ttm) ? fmtNum(+f.eps_ttm) : '—');
+    setFund('nt-f-pe', f && isFinite(+f.pe_ttm) ? fmtNum(+f.pe_ttm) : '—');
+    setFund('nt-f-bv', '—');
+    setFund('nt-f-pbv', '—');
+    setFund('nt-f-div', '—');
+    setFund('nt-f-bonus', '—');
+    setFund('nt-f-right', '—');
   }
 
   function loadStock(sym) {
@@ -626,36 +722,30 @@
     var chg = bar[4] - bar[1];
     var pct = bar[1] ? (chg / bar[1]) * 100 : null;
     var cls = chg > 0 ? 'up' : (chg < 0 ? 'down' : 'flat');
+    // Merolagani-style two-line legend:
+    // line 1: "Company Name · 1D" (+ date, LIVE badge)
+    // line 2: "Oxxx.xx Hxxx.xx Lxxx.xx Cxxx.xx +x.xx (+x.xx%)"
     el.innerHTML =
-      '<span class="nt-lg-sym">' + esc(state.symName) + '</span>' +
-      '<span class="nt-lg-date">' + esc(fmtBarDate(bar)) + '</span>' +
-      '<span class="nt-lg-ohlc">O <b>' + fmtNum(bar[1]) + '</b> H <b>' + fmtNum(bar[2]) +
-      '</b> L <b>' + fmtNum(bar[3]) + '</b> C <b>' + fmtNum(bar[4]) + '</b></span>' +
-      '<span class="nt-lg-chg ' + cls + '">' + fmtSigned(chg) + ' (' + fmtSigned(pct, 2) + '%)</span>' +
-      (state.liveBadge ? '<span class="nt-live">LIVE</span>' : '');
+      '<span class="nt-lg-line1">' +
+        '<span class="nt-lg-sym">' + esc(state.symName) + '</span>' +
+        '<span class="nt-lg-tf">· ' + esc(state.tf) + '</span>' +
+        '<span class="nt-lg-date">' + esc(fmtBarDate(bar)) + '</span>' +
+        (state.liveBadge ? '<span class="nt-live">LIVE</span>' : '') +
+      '</span>' +
+      '<span class="nt-lg-line2">' +
+        '<span class="nt-lg-ohlc">O <b>' + fmtNum(bar[1]) + '</b> ' +
+        'H <b>' + fmtNum(bar[2]) + '</b> ' +
+        'L <b>' + fmtNum(bar[3]) + '</b> ' +
+        'C <b>' + fmtNum(bar[4]) + '</b></span>' +
+        '<span class="nt-lg-chg ' + cls + '">' + fmtSigned(chg) + ' (' + fmtSigned(pct, 2) + '%)</span>' +
+      '</span>';
   }
 
   function paintStats() {
     var rows = state.rows;
     if (!rows.length) return;
-    var last = rows[rows.length - 1];
-    var prev = rows.length > 1 ? rows[rows.length - 2] : null;
-    var chg = prev ? last[4] - prev[4] : null;
-    var pct = prev && prev[4] ? (chg / prev[4]) * 100 : null;
-    var hi = null, lo = null;
-    var from = Math.max(0, rows.length - 250);
-    for (var i = from; i < rows.length; i++) {
-      hi = hi == null ? rows[i][2] : Math.max(hi, rows[i][2]);
-      lo = lo == null ? rows[i][3] : Math.min(lo, rows[i][3]);
-    }
+    paintFundamentals();
     function set(id, v) { var e = $(id); if (e) e.textContent = v; }
-    function setCls(id, v) {
-      var e = $(id); if (!e) return;
-      e.classList.toggle('up', v > 0); e.classList.toggle('down', v < 0);
-    }
-    set('nt-last', fmtNum(last[4]));
-    set('nt-chg', fmtSigned(chg) + ' (' + fmtSigned(pct, 2) + '%)'); setCls('nt-chg', chg);
-    set('nt-52h', fmtNum(hi)); set('nt-52l', fmtNum(lo));
     var cl = closes(rows);
     var s20 = sma(cl, 20), s50 = sma(cl, 50), s200 = sma(cl, 200);
     var intra = tfDef().intra;
@@ -955,6 +1045,11 @@
 
     loadUniverse().then(function () {
       fillDatalist();
+      // Fundamentals (EPS/P/E) load in parallel — repaint the panel when they
+      // land in case the chart beat them.
+      loadFundamentals().then(function () {
+        if (state.rows.length) paintFundamentals();
+      });
       // Wait for the deferred data scripts (nepse-daily.js) and the first
       // live snapshot — getSnapshot() existing is not enough, the first
       // live.json fetch resolves asynchronously.
