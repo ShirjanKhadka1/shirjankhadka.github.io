@@ -30,10 +30,13 @@ function main() {
   const ymd = +(m[1] + m[2] + m[3]);
   const iso = m[1] + '-' + m[2] + '-' + m[3];
   // The official NEPSE index API does not publish the session open. The
-  // sparkline (closes only) can always be updated; the full OHLC row is
-  // appended only when open/high/low/value are all present — never invented.
-  const hasOHLC = ['open', 'high', 'low', 'value'].every((k) => Number.isFinite(+ix[k]));
-  if (!hasOHLC) log('index.open missing; OHLC row skipped (sparkline still updates)');
+  // sparkline (closes only) can always be updated; the full OHLC row needs
+  // high/low/value, with open falling back to previous_close (the index's
+  // published reference price — flagged in the row comment, never invented).
+  const hasOHLC = ['high', 'low', 'value'].every((k) => Number.isFinite(+ix[k]));
+  const openPx = Number.isFinite(+ix.open) ? +ix.open
+    : (Number.isFinite(+ix.previous_close) ? +ix.previous_close : null);
+  if (!hasOHLC || openPx == null) log('index OHLC incomplete; daily.js row skipped (sparkline still updates)');
   // Session turnover = sum of quote turnovers (same canonical payload).
   let turnover = 0;
   if (Array.isArray(live.quotes)) {
@@ -48,7 +51,7 @@ function main() {
     const lastRow = js.match(/\[(\d{8}),[^\]]*\]\];?\s*$/);
     const lastYmd = lastRow ? +lastRow[1] : 0;
     if (ymd > lastYmd) {
-      const row = '[' + ymd + ',' + ix.open + ',' + ix.high + ',' + ix.low + ',' + ix.value + ',' + turnover + ']';
+      const row = '[' + ymd + ',' + openPx + ',' + ix.high + ',' + ix.low + ',' + ix.value + ',' + turnover + ']';
       // Insert the new row between the last row's closing "]" and the outer
       // array's closing "]". The regex consumes the final "]];": the head then
       // ends with the last row still open, so the replacement re-closes it ("]"),

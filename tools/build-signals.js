@@ -551,6 +551,31 @@ function prepare(symbol, raw) {
     if (b.c > b.h || b.c < b.l) { b.c = Math.min(Math.max(b.c, b.l), b.h); repaired++; }
   }
 
+  // Overlay our own daily-OHLC archive (tools/build-daily-ohlc.js): our rows
+  // win on date collision and extend past the scraper's last date, so the
+  // backtest always runs on the freshest verified data.
+  try {
+    const ownPath = path.join(REPO, 'nepse-chart', 'data', 'daily-ohlc', symbol.replace('/', '-') + '.json');
+    if (fs.existsSync(ownPath)) {
+      const own = JSON.parse(fs.readFileSync(ownPath, 'utf8'));
+      const ownRows = (own && own.rows) || [];
+      if (ownRows.length) {
+        const byDate = {};
+        ded.forEach(b => { byDate[b.d] = b; });
+        for (const r of ownRows) {
+          if (!r || !r[0] || !(+r[4] > 0)) continue;
+          const s = String(r[0]);
+          const dt = s.slice(0, 4) + '-' + s.slice(4, 6) + '-' + s.slice(6, 8);
+          const o = +r[1] || 0, h = +r[2] || 0, l = +r[3] || 0, c = +r[4];
+          if (!(o > 0 && h > 0 && l > 0 && c > 0) || h < l) continue;
+          byDate[dt] = { d: dt, o, h, l, c, v: +r[5] || 0, turn: 0 };
+        }
+        ded.length = 0;
+        Object.keys(byDate).sort().forEach(k => ded.push(byDate[k]));
+      }
+    }
+  } catch (e) { /* own archive missing/unreadable — scraper bars stand */ }
+
   if (ded.length < MIN_SESSIONS) return null;
 
   // Corporate-action adjustment: NEPSE enforces a ±10% daily circuit, so any
@@ -596,11 +621,30 @@ function prepare(symbol, raw) {
 function num2(v) { const x = parseFloat(v); return Number.isFinite(x) ? x : 0; }
 
 function loadIndexDaily() {
+  // Merge the full archive (data/index-history.json, 2003-2024) with the
+  // recent inline sessions (js/nepse-daily.js, 2024-present) for the complete
+  // ~23y benchmark history. Rows: [YYYYMMDD, open, high, low, close, volume].
+  const rows = [];
+  try {
+    const hist = JSON.parse(fs.readFileSync(path.join(REPO, 'data', 'index-history.json'), 'utf8'));
+    for (const r of (hist.rows || [])) {
+      if (r && r[0] && +r[4] > 0) rows.push([String(r[0]), +r[1], +r[2], +r[3], +r[4], +r[5] || 0]);
+    }
+  } catch (e) { /* archive missing — inline data stands */ }
   const src = fs.readFileSync(path.join(REPO, 'js', 'nepse-daily.js'), 'utf8');
   const m = src.match(/window\.NEPSE_DAILY=\[([\s\S]*?)\];\s*$/);
   if (!m) throw new Error('NEPSE_DAILY not found');
-  const rows = m[1].split('],[').map(s => s.replace(/[\[\]]/g, '').split(','));
-  const closes = rows.map(r => parseFloat(r[3])).filter(Number.isFinite);
+  const inline = m[1].split('],[').map(s => s.replace(/[\[\]]/g, '').split(','));
+  const seen = new Set(rows.map(r => r[0]));
+  for (const r of inline) {
+    const dt = String(r[0] || '');
+    if (!/^\d{8}$/.test(dt) || seen.has(dt)) continue;
+    if (!(+r[4] > 0)) continue;
+    rows.push([dt, +r[1] || 0, +r[2] || 0, +r[3] || 0, +r[4], +r[5] || 0]);
+    seen.add(dt);
+  }
+  rows.sort((a, b) => a[0] < b[0] ? -1 : 1);
+  const closes = rows.map(r => r[4]).filter(Number.isFinite);
   const first = rows[0][0], last = rows[rows.length - 1][0];
   const from = `${first.slice(0, 4)}-${first.slice(4, 6)}-${first.slice(6, 8)}`;
   const to = `${last.slice(0, 4)}-${last.slice(4, 6)}-${last.slice(6, 8)}`;

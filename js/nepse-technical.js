@@ -323,13 +323,33 @@
     setFund('nt-f-right', '—');
   }
 
+  var OWN_OHLC = function (s) { return '/nepse-chart/data/daily-ohlc/' + s.replace('/', '-') + '.json'; };
+
+  function mergeOwnRows(rows, sym) {
+    // Overlay our own daily-OHLC archive on the scraper history: our rows
+    // win on date collision and extend past the scraper's last date.
+    return fetchJSON(OWN_OHLC(sym)).then(function (j) {
+      var own = (j && j.rows) || [];
+      if (!own.length) return rows;
+      var byDate = {};
+      rows.forEach(function (r) { byDate[r[0]] = r; });
+      own.forEach(function (r) {
+        // Own row: [YYYYMMDD, open, high, low, close, volume, open_src]
+        if (r && r[0] && +r[4] > 0) byDate[r[0]] = [r[0], +r[1] || 0, +r[2] || 0, +r[3] || 0, +r[4], +r[5] || 0];
+      });
+      var merged = Object.keys(byDate).map(function (k) { return byDate[k]; });
+      merged.sort(function (a, b) { return a[0] - b[0]; });
+      return merged;
+    }).catch(function () { return rows; }); // archive missing — scraper data stands
+  }
+
   function loadStock(sym) {
     return fetchJSON(SRC.prices(sym)).then(function (j) {
       var rows = (j.data || []).map(function (d) {
         return [ymdOf(d.date), +d.open || 0, +d.high || 0, +d.low || 0, +d.ltp || 0, +d.qty || 0];
       }).filter(function (r) { return r[4] > 0; });
       rows.sort(function (a, b) { return a[0] - b[0]; });
-      return { rows: rows, ltpOnly: false };
+      return mergeOwnRows(rows, sym).then(function (m) { return { rows: m, ltpOnly: false }; });
     }).catch(function () {
       // LTP-only fallback — open/high/low are never fabricated.
       return fetchJSON(SRC.ltp(sym)).then(function (j) {
