@@ -90,7 +90,7 @@
     { id: 'ema20', label: 'EMA 20', on: false }
   ];
 
-  var LS = { sym: 'nt-sym', tf: 'nt-tf', type: 'nt-type', ov: 'nt-ov' };
+  var LS = { sym: 'nt-sym', type: 'nt-type', ov: 'nt-ov' };
 
   /* ---------- small helpers ---------- */
 
@@ -183,7 +183,7 @@
 
   var state = {
     sym: 'NEPSE', symName: 'NEPSE Index',
-    tf: '1Y', type: 'candles',
+    tf: 'All', type: 'candles',
     ov: { vol: true, sma20: true, sma50: true, sma200: false, ema20: false },
     rows: [],            // full [ymd, o, h, l, c, vol] sorted asc
     ltpOnly: false,
@@ -454,7 +454,7 @@
 
   function tfDef() {
     for (var i = 0; i < TFS.length; i++) if (TFS[i].id === state.tf) return TFS[i];
-    for (var j = 0; j < TFS.length; j++) if (TFS[j].id === '1Y') return TFS[j];
+    for (var j = 0; j < TFS.length; j++) if (TFS[j].id === 'All') return TFS[j];
     return TFS[0];
   }
 
@@ -791,7 +791,6 @@
     el.innerHTML =
       '<span class="nt-lg-line1">' +
         '<span class="nt-lg-sym">' + esc(state.symName) + '</span>' +
-        '<span class="nt-lg-tf">· ' + esc(state.tf) + '</span>' +
         '<span class="nt-lg-date">' + esc(fmtBarDate(bar)) + '</span>' +
         (state.liveBadge ? '<span class="nt-live">LIVE</span>' : '') +
       '</span>' +
@@ -1004,21 +1003,6 @@
   }
 
   function initUI() {
-    // Timeframes
-    var tfHost = $('nt-tf');
-    tfHost.innerHTML = TFS.map(function (t) {
-      return '<button type="button" data-tf="' + t.id + '">' + t.id + '</button>';
-    }).join('');
-    markSeg('nt-tf', state.tf, 'tf');
-    tfHost.addEventListener('click', function (e) {
-      var b = e.target.closest('[data-tf]');
-      if (!b) return;
-      state.tf = b.getAttribute('data-tf');
-      store(LS.tf, state.tf);
-      markSeg('nt-tf', state.tf, 'tf');
-      paintData(true);
-    });
-
     // Chart type
     markSeg('nt-type', state.type, 'type');
     $('nt-type').addEventListener('click', function (e) {
@@ -1083,9 +1067,8 @@
       return;
     }
     // Restore preferences
-    var rsym = read(LS.sym), rtf = read(LS.tf), rtype = read(LS.type), rov = read(LS.ov);
+    var rsym = read(LS.sym), rtype = read(LS.type), rov = read(LS.ov);
     if (rsym) state.sym = rsym.toUpperCase();
-    if (rtf && TFS.some(function (t) { return t.id === rtf; })) state.tf = rtf;
     if (rtype && TYPES.indexOf(rtype) !== -1) state.type = rtype;
     try {
       var o = rov ? JSON.parse(rov) : null;
