@@ -41,38 +41,6 @@ body {
 .skip-link:focus { top: 12px; }
 [data-theme="light"] .skip-link { background: #4D7C0F; color: #fff; }
 
-/* ---- Breadcrumb: clean inline trail (no list markup, no numbering even if CSS is stale) ---- */
-nav[aria-label="Breadcrumb"] {
-  margin: 4px 0 16px;
-}
-.nt-breadcrumb {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  font-size: .85rem;
-  color: var(--nd-dim, #6B7280);
-}
-.nt-breadcrumb a {
-  color: var(--nd-muted, #9AA3B2);
-  text-decoration: none;
-}
-.nt-breadcrumb a:hover {
-  color: var(--nd-lime, #B8E62E);
-  text-decoration: underline;
-}
-.nt-breadcrumb .nt-bc-sep {
-  opacity: .5;
-  user-select: none;
-}
-.nt-breadcrumb [aria-current="page"] {
-  color: var(--nd-text, #fff);
-  font-weight: 600;
-}
-
 /* ---- Masthead ---- */
 .nt-kicker {
   font: 600 var(--nd-text-eyebrow, .6875rem) var(--nd-font-sans, system-ui);
