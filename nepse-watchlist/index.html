@@ -44,15 +44,10 @@
 .d2-wl-row:hover .d2-wl-act,.d2-wl-row:focus-within .d2-wl-act{opacity:1}
 .d2-wl-act:hover{color:var(--d2-volt);border-color:var(--d2-volt)}
 @media (hover:none){.d2-wl-act,.d2-wl-x{opacity:1}}
-.d2-wl-addbtn{
-  flex:none;border:1px solid var(--d2-volt);background:var(--d2-volt);color:var(--d2-volt-ink);
-  font:700 13.5px var(--d2-font);padding:10px 18px;border-radius:var(--d2-r-md);cursor:pointer;
-}
-.d2-wl-addbtn:hover{background:var(--d2-volt-dim);border-color:var(--d2-volt-dim)}
+.d2-wl-updated{font-size:12.5px;color:var(--d2-faint);margin-top:14px}
 .d2-wl-count{font-size:13px;color:var(--d2-muted);margin:12px 0 0;font-variant-numeric:tabular-nums}
 .d2-wl-hint{font-size:13px;color:var(--d2-muted);margin:8px 0 0}
 .d2-wl-hint[hidden]{display:none}
-.d2-wl-updated{font-size:12.5px;color:var(--d2-faint);margin-top:14px}
 /* engine watchlist rows */
 .d2-ewl-row{
   display:grid;grid-template-columns:minmax(150px,220px) 1fr 1.2fr 1fr;gap:12px;align-items:center;
@@ -78,12 +73,13 @@
 .d2-promise .d2-card p{font-size:13.5px;color:var(--d2-muted);margin:0;line-height:1.65}
 .d2-note{margin-top:22px;font-size:13px;line-height:1.75;color:var(--d2-muted)}
 .d2-note strong{color:var(--d2-ink-soft)}
-/* ---- 3D Pro card treatment ---- */
+/* ---- 3D Pro card treatment (single source — do not redeclare .tbl-card below) ---- */
 .tbl-card,.d2-card{
-  background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,0) 35%),var(--d2-surface);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 2px 6px rgba(0,0,0,.4),0 16px 40px rgba(0,0,0,.35);
-  border-radius:var(--d2-r-lg,18px);
+  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,0) 35%),var(--nd-panel,var(--d2-surface));
+  border:1px solid var(--nd-border,var(--d2-line));border-radius:18px;overflow:hidden;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07),inset 0 -2px 6px rgba(0,0,0,.12),0 3px 8px rgba(0,0,0,.4),0 18px 44px rgba(0,0,0,.35);
 }
+.tbl-card .d2-wl-list{border:0;border-radius:0}
 .d2-ewl-row{
   display:grid;grid-template-columns:minmax(150px,220px) 1fr 1.2fr 1fr;gap:12px;align-items:center;
   padding:11px 16px;border-bottom:1px solid var(--d2-line-soft);background:transparent;
@@ -111,15 +107,46 @@
 .eyebrow{font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--nd-lime);margin:0 0 8px}
 .filter-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
 .filter-row .d2-wl-add{flex:1;min-width:220px;max-width:460px}
-.mini-btn{background:var(--nd-inset);border:1px solid var(--nd-border);color:var(--nd-text);font-size:12.5px;font-weight:600;padding:10px 16px;border-radius:9px;cursor:pointer;white-space:nowrap}
-.mini-btn:hover{border-color:var(--nd-lime);color:var(--nd-lime)}
+.mini-btn{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,0) 50%),var(--nd-inset);border:1px solid var(--nd-border);color:var(--nd-text);font-size:12.5px;font-weight:600;padding:10px 16px;border-radius:10px;cursor:pointer;white-space:nowrap;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 2px 5px rgba(0,0,0,.3);transition:border-color .15s,transform .15s}
+.mini-btn:hover{border-color:var(--nd-lime);color:var(--nd-lime);transform:translateY(-1px)}
 .count-note{font-size:12px;color:var(--nd-dim);margin-left:auto;font-variant-numeric:tabular-nums}
-.tbl-card{background:var(--nd-panel);border:1px solid var(--nd-border);border-radius:14px;overflow:hidden}
-.tbl-card .d2-wl-list{border:0;border-radius:0}
+/* 3D watchlist tabs */
+.d2-wl-tab{
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0) 50%),var(--d2-surface2);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 2px 5px rgba(0,0,0,.3);transition:transform .15s,border-color .15s;
+}
+.d2-wl-tab:hover{transform:translateY(-1px)}
+.d2-wl-tab[aria-selected="true"]{border-color:var(--d2-volt);color:var(--d2-ink);
+  background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,0) 50%),var(--d2-surface2);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 2px 6px rgba(0,0,0,.4),0 0 14px rgba(184,230,46,.2)}
+.d2-wl-addbtn{
+  flex:none;border:1px solid var(--d2-volt);
+  background:linear-gradient(180deg,rgba(255,255,255,.2),rgba(255,255,255,0) 50%),var(--d2-volt);color:var(--d2-volt-ink);
+  font:700 13.5px var(--d2-font);padding:10px 18px;border-radius:var(--d2-r-md);cursor:pointer;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 2px 6px rgba(0,0,0,.35);
+}
+.d2-wl-addbtn:hover{background:linear-gradient(180deg,rgba(255,255,255,.25),rgba(255,255,255,0) 50%),var(--d2-volt-dim);border-color:var(--d2-volt-dim)}
+.ewl-tf select{
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0) 50%),var(--d2-surface2);
+  border:1px solid var(--d2-line);color:var(--d2-ink);
+  font:600 13px var(--d2-font);padding:8px 12px;border-radius:var(--d2-r-md);cursor:pointer;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 2px 5px rgba(0,0,0,.3);
+}
 .tbl-scroll{overflow-x:auto}
 .matrix-note{font-size:12px;color:var(--nd-dim);margin:10px 2px 0}
 .d2-wl-keys-row{font-size:12.5px;color:var(--d2-faint);margin:-6px 0 14px}
 .d2-wl-keys-row kbd{font:600 11px var(--nd-font-mono);background:var(--nd-inset);border:1px solid var(--nd-border);border-radius:4px;padding:1px 6px}
+/* ---- Light theme: strong 3D on light surfaces ---- */
+[data-theme="light"] .tbl-card,[data-theme="light"] .d2-card{
+  background:linear-gradient(180deg,#FFFFFF 0%,#F2F5F8 100%);border:1px solid #CBD4DE;border-top-color:#E8EEF3;
+  box-shadow:inset 0 2px 0 #FFFFFF,inset 0 -3px 8px rgba(10,12,16,.05),0 1px 2px rgba(10,12,16,.12),0 8px 24px rgba(10,12,16,.12),0 20px 48px rgba(10,12,16,.1)}
+[data-theme="light"] .d2-wl-tab{background:linear-gradient(180deg,#FFFFFF 0%,#EDF1F5 100%);border:1px solid #CBD4DE;
+  box-shadow:inset 0 2px 0 #FFFFFF,0 1px 2px rgba(10,12,16,.1),0 4px 12px rgba(10,12,16,.08)}
+[data-theme="light"] .mini-btn{background:linear-gradient(180deg,#FFFFFF 0%,#EDF1F5 100%);border:1px solid #CBD4DE;
+  box-shadow:inset 0 2px 0 #FFFFFF,0 1px 2px rgba(10,12,16,.1),0 4px 12px rgba(10,12,16,.08)}
+[data-theme="light"] .ewl-tf select{background:linear-gradient(180deg,#FFFFFF 0%,#EDF1F5 100%);border:1px solid #CBD4DE;
+  box-shadow:inset 0 2px 0 #FFFFFF,0 1px 2px rgba(10,12,16,.1),0 4px 12px rgba(10,12,16,.08)}
 </style>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode Watchlist","url":"https://shirjankhadka.com.np/nepse-watchlist/","description":"A personal, browser-local NEPSE watchlist: four numbered lists with price, day change, signal and RSI. Free, unlimited, no login.","author":{"@type":"Organization","name":"Nepse Decode"}}
