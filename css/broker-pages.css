@@ -119,3 +119,29 @@
   .bk-nav a{ transition: none; }
   .bk-nav a:hover{ transform: none; }
 }
+
+/* ---- broker stat tiles + table 3D ---- */
+.bk-tile{
+  background: linear-gradient(180deg, rgba(255,255,255,.5), rgba(255,255,255,0) 40%), var(--card, #fff);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 1px 2px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.07);
+  transition: transform .25s cubic-bezier(.22,1,.36,1), box-shadow .25s;
+}
+.bk-tile:hover{
+  transform: translateY(-2px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 3px 8px rgba(0,0,0,.09), 0 16px 36px rgba(0,0,0,.1);
+}
+[data-theme="dark"] .bk-tile{
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0) 40%), var(--card, #12141A);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+}
+.bk-table{
+  border-radius: 12px; overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 2px 6px rgba(0,0,0,.08), 0 12px 30px rgba(0,0,0,.08);
+}
+[data-theme="dark"] .bk-table{
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 2px 6px rgba(0,0,0,.4), 0 12px 30px rgba(0,0,0,.3);
+}
+@media (prefers-reduced-motion: reduce){
+  .bk-tile{ transition: none; }
+  .bk-tile:hover{ transform: none; }
+}

@@ -515,3 +515,13 @@ a.skip-link:focus,a.skip-link:active{ top:12px!important; }
 }
 .v2-methodlink a:hover{ transform:translateY(-2px); box-shadow:inset 0 1px 0 rgba(255,255,255,.09), 0 4px 12px rgba(0,0,0,.45); }
 .v2-methodlink a:active{ transform:translateY(1px) scale(.98); }
+
+/* ---- light-mode contrast for colored verdict pills/stats ---- */
+[data-theme="light"] .v2-stat.warn .num{ color:#B91C1C; }
+[data-theme="light"] .v2-stat.opp .num{ color:#1D4ED8; }
+[data-theme="light"] .v2-v.warn{ background:rgba(220,38,38,.07); color:#B91C1C; border-color:rgba(220,38,38,.35); box-shadow:none; }
+[data-theme="light"] .v2-v.elev{ background:rgba(180,83,9,.07); color:#B45309; border-color:rgba(180,83,9,.35); box-shadow:none; }
+[data-theme="light"] .v2-v.opp{ background:rgba(37,99,235,.07); color:#1D4ED8; border-color:rgba(37,99,235,.35); box-shadow:none; }
+[data-theme="light"] .v2-v.neu, [data-theme="light"] .v2-v.unr{ color:#5b6472; }
+[data-theme="light"] .v2-early{ background:rgba(37,99,235,.1); color:#1D4ED8; }
+[data-theme="light"] .v2-lock.exp{ color:#B91C1C; }

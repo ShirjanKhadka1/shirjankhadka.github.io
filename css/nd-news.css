@@ -224,3 +224,22 @@
   .nn-card{ transition: none; }
   .nn-card:hover{ transform: none; }
 }
+
+/* ---- premium 3D layer — news cards ---- */
+.nn-card{
+  background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,0) 40%), var(--nd-panel);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+  transition: transform .25s cubic-bezier(.22,1,.36,1), box-shadow .25s, border-color .25s;
+}
+.nn-card:hover{
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 3px 8px rgba(0,0,0,.45), 0 18px 44px rgba(0,0,0,.35);
+}
+.nn-tabs button{
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 1px 3px rgba(0,0,0,.3);
+  transition: transform .18s, box-shadow .18s;
+}
+.nn-tabs button:active{ transform: translateY(1px) scale(.97); }
+@media (prefers-reduced-motion: reduce){
+  .nn-card, .nn-tabs button{ transition: none; }
+  .nn-card:hover{ transform: none; }
+}

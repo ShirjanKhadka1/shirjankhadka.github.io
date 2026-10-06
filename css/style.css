@@ -1286,3 +1286,20 @@ body.loaded .hero-title {
   .post-card, .blog-feature-link{ transition: none; }
   .post-card:hover, .blog-feature-link:hover{ transform: none; }
 }
+
+/* ---- blog article dark-mode contrast ---- */
+[data-theme="dark"] .article-body{ color:#e8eaf0; }
+[data-theme="dark"] .article-body h2,
+[data-theme="dark"] .article-body h3,
+[data-theme="dark"] .article-body strong{ color:#ffffff; }
+[data-theme="dark"] .article-dek{ color:#b8bfcc; }
+[data-theme="dark"] .article-meta{ color:#9aa3b2; }
+[data-theme="dark"] .nepali-summary p:last-child{ color:#d5dae3; }
+[data-theme="dark"] .faq details p{ color:#c8cfdb; }
+[data-theme="dark"] .key-facts li{ color:#c8cfdb; }
+[data-theme="dark"] .article-body a{ color:#b8e62e; }
+[data-theme="dark"] .article-body blockquote{ color:#c8cfdb; border-left-color:#3a4150; }
+[data-theme="dark"] .blog-kicker{ color:#b8e62e; }
+@media (prefers-reduced-motion: reduce){
+  .post-card, .blog-feature-link{ transition:none; }
+}
