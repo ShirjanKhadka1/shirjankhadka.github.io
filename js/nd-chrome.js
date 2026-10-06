@@ -23,7 +23,7 @@
     ]},
     { label: 'Stocks', links: [
       ['Warning Radar', '/nepse-verdicts-v2/'],
-      ['Chart & Signals', '/nepse-chart/'],
+      ['Technical Charts', '/nepse-technical/'],
       ['Stock Screener', '/nepse-screener/'],
       ['Fair Value', '/nepse-value/'],
       ['Trending Stocks', '/nepse-trending/']
@@ -52,9 +52,7 @@
     ]}
   ];
 
-  var PLAIN_LINKS = [
-    ['Technical Analysis', '/nepse-technical/']
-  ];
+  var PLAIN_LINKS = [];
 
   /* Nepali chrome dictionary (header/nav/footer chrome only) */
   var NE = {
@@ -246,7 +244,7 @@
 
   var FOOT = [
     ['MARKETS', [['Overview', '/nepse-decode/'], ['Daily summary', '/nepse-daily/'], ['Heat Map', '/nepse-sectors/'], ['IPO / FPO', '/nepse-ipo/']]],
-    ['STOCKS', [['Warning Radar', '/nepse-verdicts-v2/'], ['Chart & Signals', '/nepse-chart/'], ['Stock Screener', '/nepse-screener/'], ['Fair Value', '/nepse-value/'], ['Trending Stocks', '/nepse-trending/']]],
+    ['STOCKS', [['Warning Radar', '/nepse-verdicts-v2/'], ['Technical Charts', '/nepse-technical/'], ['Stock Screener', '/nepse-screener/'], ['Fair Value', '/nepse-value/'], ['Trending Stocks', '/nepse-trending/']]],
     ['BROKER', [['Top Brokers', '/nepse-brokers/'], ['Broker Trade Pattern', '/nepse-brokers/trade-pattern/'], ['Stock Trade Pattern', '/nepse-brokers/stock-pattern/'], ['Stockwise Holdings', '/nepse-brokers/holdings/'], ['Accumulation / Distribution', '/nepse-brokers/accdist/']]],
     ['NEWS', [['Market News', '/nepse-news/'], ['Market Wrap', '/blog/'], ['Corporate Actions', '/nepse-actions/']]],
     ['TRADE', [['Practice Trading', '/nepse-simulator/'], ['Trading Journal', '/nepse-portfolio/'], ['Watchlist', '/nepse-watchlist/']]],
