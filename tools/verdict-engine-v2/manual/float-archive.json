@@ -1966,7 +1966,7 @@
    "listing_date": "2011-07-03",
    "float_shares": 1575000,
    "float_status": "measured",
-   "note": "[REVIEW 2026-10-06: 52w high discrepancy: ours 3183.00 vs Chukul 2768.00 (2026-10-06) \u2014 needs manual review]",
+   "note": "[VERIFIED 2026-10-06: 52w high 3183.00 confirmed vs broker terminal (NEPSE feed); Chukul's 2768.00 was stale]",
    "sector": "Development Banks",
    "ltp": 786.1,
    "market_cap": 4127025000.0,
@@ -8451,20 +8451,20 @@
    "listing_date": "2020-06-10",
    "float_shares": 21475499,
    "float_status": "measured",
-   "note": "52w low not displayed; only high 1465.00 shown [REVIEW 2026-10-06: BVPS conflict: ours 72.53 vs Chukul Net Worth 109.02 (2026-10-06) \u2014 needs manual review; P/B derived from our BVPS]",
+   "note": "[VERIFIED 2026-10-06 vs Merolagani (user screenshot) + Chukul: BVPS 109.20 (was 72.53, wrong); P/B recomputed 7.33; 52w low 765.90 filled (was not displayed); 52w high 1465.00 confirmed]",
    "sector": "Others",
    "ltp": 800.0,
    "market_cap": 107377496800.0,
    "high_52w": 1465.0,
-   "low_52w": null,
+   "low_52w": 765.9,
    "pct_below_52w_high": 45.39,
    "avg_vol_3m": 23225.85,
    "vwap_120d": 944.58,
    "beta_3y": 1.31,
    "eps_ttm": -39.88,
    "pe_ttm": -20.06,
-   "bvps": 72.53,
-   "pb_ratio": 11.03,
+   "bvps": 109.2,
+   "pb_ratio": 7.33,
    "peg": 0.0,
    "roe_ttm": -42.69,
    "roa_ttm": -14.43,
@@ -10794,54 +10794,6 @@
    ],
    "derived_fields": [
     "pb_ratio"
-   ],
-   "snapshot_date": "2026-10-06",
-   "fund_batch": 15
-  },
-  "SFCL": {
-   "paidup_shares": 8189114,
-   "promoter_pct": 51.0,
-   "public_pct": 49.0,
-   "ownership_asof": "2025-02-16",
-   "listing_date": "2007-07-30",
-   "float_shares": 4012666,
-   "float_status": "measured",
-   "note": "[REVIEW 2026-10-06: 52w high discrepancy: ours 565.00 vs Chukul 440.00 (2026-10-06) \u2014 needs manual review]",
-   "sector": "Finance",
-   "ltp": 370.0,
-   "market_cap": 3029972180.0,
-   "high_52w": 565.0,
-   "low_52w": 359.4,
-   "pct_below_52w_high": 34.51,
-   "avg_vol_3m": 6008.67,
-   "vwap_120d": 380.32,
-   "beta_3y": 0.96,
-   "eps_ttm": 8.35,
-   "pe_ttm": 44.31,
-   "bvps": 60.3,
-   "pb_ratio": 6.14,
-   "peg": 30.21,
-   "roe_ttm": 14.65,
-   "roa_ttm": 1.98,
-   "dividend_yield": null,
-   "dividend_hist": [],
-   "top_holders": [
-    {
-     "name": "Shiva Prasad Ghimire",
-     "pct": 7.56
-    },
-    {
-     "name": "Indra Bahadur Thapa",
-     "pct": 5.76
-    },
-    {
-     "name": "Bhesh Raj Lohani",
-     "pct": 5.01
-    }
-   ],
-   "derived_fields": [
-    "pb_ratio",
-    "pct_below_52w_high"
    ],
    "snapshot_date": "2026-10-06",
    "fund_batch": 15
@@ -14075,14 +14027,14 @@
   }
  },
  "counts": {
-  "equities_measured": 270,
-  "with_listing_date": 268,
-  "float_status_measured": 268,
-  "with_fundamentals": 268,
+  "equities_measured": 269,
+  "with_listing_date": 267,
+  "float_status_measured": 267,
+  "with_fundamentals": 267,
   "not_found": 19,
   "debentures_skipped": 13,
   "mutual_funds_skipped": 29,
-  "merged_away": 2
+  "merged_away": 3
  },
  "conflicts": [],
  "stale_asof": [
@@ -14433,29 +14385,29 @@
    "earlier_batch": 5,
    "later_batch": 10,
    "differing_fields": {
+    "pe_ttm": {
+     "earlier": 20.47,
+     "later": 20.71
+    },
     "ltp": {
      "earlier": 1265.0,
      "later": 1280.0
-    },
-    "_batch": {
-     "earlier": 5,
-     "later": null
-    },
-    "pct_below_52w_high": {
-     "earlier": 23.05,
-     "later": 22.14
     },
     "market_cap": {
      "earlier": 22153130340.0,
      "later": 22415815680.0
     },
-    "pe_ttm": {
-     "earlier": 20.47,
-     "later": 20.71
+    "_batch": {
+     "earlier": 5,
+     "later": null
     },
     "pb_ratio": {
      "earlier": 4.52,
      "later": 4.57
+    },
+    "pct_below_52w_high": {
+     "earlier": 23.05,
+     "later": 22.14
     }
    }
   }
@@ -14476,10 +14428,6 @@
   {
    "symbol": "JFL",
    "note": "[DERIVED 2026-10-06: pb_ratio = ltp/bvps = -309.10; BVPS is negative (-0.89), so P/B is negative by construction]"
-  },
-  {
-   "symbol": "NRIC",
-   "note": "52w low not displayed; only high 1465.00 shown [REVIEW 2026-10-06: BVPS conflict: ours 72.53 vs Chukul Net Worth 109.02 (2026-10-06) \u2014 needs manual review; P/B derived from our BVPS]"
   }
  ],
  "missing_fundamentals": [
@@ -14510,7 +14458,8 @@
  ],
  "merged_away": [
   "NIBL",
-  "SDLBSL"
+  "SDLBSL",
+  "SFCL"
  ],
  "validation_errors": [],
  "validation_error_count": 0,
@@ -14942,32 +14891,32 @@
   }
  ],
  "coverage": {
-  "paidup_shares": 267,
-  "promoter_pct": 268,
-  "public_pct": 268,
-  "float_shares": 267,
-  "listing_date": 268,
-  "ownership_asof": 268,
-  "sector": 268,
-  "ltp": 268,
-  "market_cap": 267,
-  "high_52w": 236,
+  "paidup_shares": 266,
+  "promoter_pct": 267,
+  "public_pct": 267,
+  "float_shares": 266,
+  "listing_date": 267,
+  "ownership_asof": 267,
+  "sector": 267,
+  "ltp": 267,
+  "market_cap": 266,
+  "high_52w": 235,
   "low_52w": 232,
-  "pct_below_52w_high": 265,
-  "avg_vol_3m": 268,
-  "vwap_120d": 268,
-  "beta_3y": 259,
-  "eps_ttm": 267,
-  "pe_ttm": 259,
-  "bvps": 267,
-  "pb_ratio": 267,
-  "peg": 259,
-  "roe_ttm": 267,
-  "roa_ttm": 267,
+  "pct_below_52w_high": 264,
+  "avg_vol_3m": 267,
+  "vwap_120d": 267,
+  "beta_3y": 258,
+  "eps_ttm": 266,
+  "pe_ttm": 258,
+  "bvps": 266,
+  "pb_ratio": 266,
+  "peg": 258,
+  "roe_ttm": 266,
+  "roa_ttm": 266,
   "dividend_yield": 130,
-  "dividend_hist": 268,
-  "top_holders": 268,
-  "snapshot_date": 268
+  "dividend_hist": 267,
+  "top_holders": 267,
+  "snapshot_date": 267
  },
  "missing_by_field": {
   "paidup_shares": [
@@ -15062,7 +15011,6 @@
    "NHPC",
    "NICLBSL",
    "NIMB",
-   "NRIC",
    "NWCL",
    "PFL",
    "PPCL",
@@ -15279,7 +15227,6 @@
    "SAHAS",
    "SAPDBL",
    "SCB",
-   "SFCL",
    "SGHC",
    "SGIC",
    "SHEL",
