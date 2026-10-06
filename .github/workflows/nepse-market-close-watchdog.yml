@@ -1,0 +1,78 @@
+# NEPSE market-close watchdog
+#
+# Runs at 18:00 NPT Mon-Fri (12:15 UTC). Checks if today's market-close pipeline
+# completed successfully. If not, triggers it via workflow_dispatch as a fallback.
+#
+# This guards against GitHub Actions scheduled-workflow reliability issues
+# (2026-10-06: the 15:20 NPT run never triggered at all).
+#
+# Flow:
+#   1. Check if today is a weekday (Mon-Fri)
+#   2. Query the API for today's market-close runs
+#   3. If no successful run found, dispatch the market-close workflow
+#   4. If dispatch fails, send email alert
+
+name: NEPSE market-close watchdog
+
+on:
+  schedule:
+    - cron: '15 12 * * 1-5'  # 18:00 NPT Mon-Fri (12:15 UTC)
+  workflow_dispatch:
+
+jobs:
+  watchdog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check today's market-close status
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TODAY=$(date -u +%Y-%m-%d)
+          echo "Checking for market-close runs on $TODAY..."
+
+          # Get today's runs of the market-close workflow
+          RUNS=$(gh api "repos/${{ github.repository }}/actions/workflows/nepse-market-close.yml/runs?created=$TODAY&per_page=10" \
+            --jq '[.workflow_runs[] | select(.conclusion == "success")] | length')
+
+          echo "Successful runs today: $RUNS"
+          echo "success_count=$RUNS" >> "$GITHUB_OUTPUT"
+
+          if [ "$RUNS" -gt 0 ]; then
+            echo "Market-close completed successfully today. Watchdog standing down."
+          else
+            echo "No successful market-close run today. Triggering fallback..."
+          fi
+
+      - name: Trigger market-close fallback
+        if: steps.check.outputs.success_count == '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Dispatching market-close workflow as fallback..."
+          gh workflow run nepse-market-close.yml \
+            --repo "${{ github.repository }}" \
+            --ref main
+
+          echo "Fallback dispatched. The market-close will run within a few minutes."
+
+      - name: Email alert — watchdog triggered fallback
+        if: steps.check.outputs.success_count == '0'
+        uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          secure: false
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "[NEPSE NOTICE] market-close watchdog: triggered fallback run"
+          to: ${{ secrets.ALERT_EMAIL_TO }}
+          from: ${{ secrets.MAIL_USERNAME }}
+          body: |
+            The NEPSE market-close pipeline did not complete successfully today.
+            The watchdog triggered a fallback run via workflow_dispatch.
+
+            This can happen if GitHub Actions skipped the scheduled trigger
+            (as on 2026-10-06) or if all scheduled attempts failed.
+
+            Monitor: ${{ github.server_url }}/${{ github.repository }}/actions

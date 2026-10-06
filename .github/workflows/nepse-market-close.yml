@@ -372,6 +372,15 @@ jobs:
           TAG="data-${SESSION}-1"
           n=1; while git rev-parse "$TAG" >/dev/null 2>&1; do n=$((n+1)); TAG="data-${SESSION}-${n}"; done
           git tag "$TAG"
+          # Pre-rebase guard (2026-10-06): fail fast if unstaged changes would block rebase.
+          # Transient build artifacts must be cleaned before this point; anything left is a bug.
+          UNSTAGED=$(git status --porcelain | grep -v '^M ' | grep -v '^A ' || true)
+          if [ -n "$UNSTAGED" ]; then
+            echo "ERROR: Unstaged changes would block rebase:"
+            echo "$UNSTAGED"
+            echo "Fix: add legitimate files to 'git add' above, or clean transient files before this step."
+            exit 1
+          fi
           git pull --rebase origin main
           git push origin main
           git push origin "$TAG"
