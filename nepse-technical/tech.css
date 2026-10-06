@@ -41,6 +41,21 @@ body {
 .skip-link:focus { top: 12px; }
 [data-theme="light"] .skip-link { background: #4D7C0F; color: #fff; }
 
+/* ---- Dividend marker key ---- */
+.nt-divkey {
+  font-size: .78rem; color: var(--nd-dim, #6B7280);
+  display: inline-flex; align-items: center; gap: 4px;
+  margin-left: auto;
+}
+.nt-divkey i {
+  font-style: normal; font-weight: 700; font-size: .68rem;
+  width: 20px; height: 20px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: #0A0C10;
+}
+.nt-divkey .nt-dk-d { background: #A3D614; }
+.nt-divkey .nt-dk-bc { background: #F59E0B; width: auto; padding: 0 6px; border-radius: 10px; }
+
 /* ---- Masthead ---- */
 .nt-kicker {
   font: 600 var(--nd-text-eyebrow, .6875rem) var(--nd-font-sans, system-ui);

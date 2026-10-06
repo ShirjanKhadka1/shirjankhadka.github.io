@@ -689,6 +689,7 @@
     S.line.setData(lineData(rows));
     S.area.setData(lineData(rows));
     S.vol.setData(noVol ? [] : volumeData(rows));
+    paintDivMarkers(rows);
     // Moving averages follow the displayed candles (e.g. SMA 20 on a weekly
     // chart = 20 weeks), computed from the same real closes.
     var cl = closes(rows);
@@ -702,6 +703,37 @@
       S[id].setData(pts);
     });
     applyVisibility();
+  }
+
+  /* Dividend + book-close markers on the price chart.
+     D (lime) = dividend declared on announcement_date;
+     BC (amber) = book closure on bookclose_date. Only placed on
+     dates present in the displayed rows. */
+  function paintDivMarkers(rows) {
+    var markers = [];
+    var dv = divCache && divCache[state.sym] ? divCache[state.sym] : null;
+    if (dv && dv.length && !tfDef().intra && rows && rows.length) {
+      var inRows = {};
+      for (var i = 0; i < rows.length; i++) inRows[isoOf(rows[i][0])] = true;
+      var seen = {};
+      dv.forEach(function (r) {
+        if (!r) return;
+        var ad = String(r.announcement_date || '');
+        if (ad && inRows[ad] && !seen['d' + ad]) {
+          seen['d' + ad] = true;
+          markers.push({ time: ad, position: 'belowBar', color: '#A3D614', shape: 'circle', text: 'D' });
+        }
+        var bc = String(r.bookclose_date || '');
+        if (bc && inRows[bc] && !seen['b' + bc]) {
+          seen['b' + bc] = true;
+          markers.push({ time: bc, position: 'belowBar', color: '#F59E0B', shape: 'circle', text: 'BC' });
+        }
+      });
+      markers.sort(function (a, b) { return a.time < b.time ? -1 : a.time > b.time ? 1 : 0; });
+    }
+    S.candles.setMarkers(markers);
+    S.line.setMarkers(markers);
+    S.area.setMarkers(markers);
   }
 
   function paintData(fit) {
@@ -1097,7 +1129,7 @@
         if (state.rows.length) paintFundamentals();
       });
       loadDividends().then(function () {
-        if (state.rows.length) paintFundamentals();
+        if (state.rows.length) { paintFundamentals(); paintData(false); }
       });
       // Wait for the deferred data scripts (nepse-daily.js) and the first
       // live snapshot — getSnapshot() existing is not enough, the first
