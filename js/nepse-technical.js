@@ -52,11 +52,13 @@
   };
   var UNIVERSE_V = '20261002b'; // bump when universe.json is rebuilt
   var FUND_URL = '/nepse-chart/data/fundamentals.json';
+  var TECHFUND_URL = '/nepse-chart/data/tech-fundamentals.json';
   var DIV_URL = '/nepse-chart/data/div-live.json';
   var DIV_HIST_URL = '/nepse-chart/data/div-history-yonepse.json';
   var divCache = null; // {symbol: [{cash_dividend, bonus_share, ...}]} — loaded once
 
   var fundCache = null; // {symbol: {eps_ttm, pe_ttm}} — loaded once, shared across symbols
+  var techCache = null; // {symbol: {sector, shares_outstanding, book_value, pbv}} — own data bank
 
   /* Timeframes: `slice` = how many daily sessions of history to show,
      `agg` = how many daily sessions form one candle (1 = daily candles).
@@ -210,6 +212,19 @@
     }).catch(function () { return []; });
   }
 
+  function loadTechFundamentals() {
+    // Own data bank: sector, shares outstanding, book value, P/BV.
+    // Cached for the page lifetime — one fetch, shared across symbol switches.
+    if (techCache) return Promise.resolve(techCache);
+    return fetchJSON(TECHFUND_URL).then(function (d) {
+      techCache = (d && d.companies) || {};
+      return techCache;
+    }).catch(function () {
+      techCache = {};
+      return techCache;
+    });
+  }
+
   function loadFundamentals() {
     // Cached for the page lifetime — one fetch, shared across symbol switches.
     if (fundCache) return Promise.resolve(fundCache);
@@ -281,8 +296,10 @@
     var chg = prev ? last[4] - prev[4] : null;
     var pct = prev && prev[4] ? (chg / prev[4]) * 100 : null;
 
-    setFund('nt-f-sector', '—');
-    setFund('nt-f-shares', '—');
+    // Own data bank: sector, shares outstanding, book value, P/BV.
+    var t = !isIndex && techCache ? techCache[sym] : null;
+    setFund('nt-f-sector', t && t.sector ? t.sector : '—');
+    setFund('nt-f-shares', t && t.shares_outstanding ? fmtInt(t.shares_outstanding) : '—');
     setFund('nt-f-price', fmtNum(last[4]), chg == null ? '' : (chg > 0 ? 'up' : (chg < 0 ? 'down' : '')));
     setFund('nt-f-chg', (chg == null ? '—' : fmtSigned(pct, 2) + ' %'), chg == null ? '' : (chg > 0 ? 'up' : (chg < 0 ? 'down' : '')));
 
@@ -325,8 +342,8 @@
     var f = !isIndex && fundCache ? fundCache[sym] : null;
     setFund('nt-f-eps', f && isFinite(+f.eps_ttm) ? fmtNum(+f.eps_ttm) : '—');
     setFund('nt-f-pe', f && isFinite(+f.pe_ttm) ? fmtNum(+f.pe_ttm) : '—');
-    setFund('nt-f-bv', '—');
-    setFund('nt-f-pbv', '—');
+    setFund('nt-f-bv', t && isFinite(+t.book_value) ? fmtNum(+t.book_value) : '—');
+    setFund('nt-f-pbv', t && isFinite(+t.pbv) ? fmtNum(+t.pbv) : '—');
     // Dividend history — latest declared dividend per symbol.
     var dv = !isIndex && divCache && divCache[sym] ? divCache[sym] : null;
     var latest = null;
@@ -1126,6 +1143,9 @@
       // Fundamentals (EPS/P/E) and dividends load in parallel — repaint the
       // panel when they land in case the chart beat them.
       loadFundamentals().then(function () {
+        if (state.rows.length) paintFundamentals();
+      });
+      loadTechFundamentals().then(function () {
         if (state.rows.length) paintFundamentals();
       });
       loadDividends().then(function () {
