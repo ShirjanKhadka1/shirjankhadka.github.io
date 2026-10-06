@@ -1,0 +1,468 @@
+/* ============================================================
+ * Nepse Decode — Market Pages 3D Upgrade
+ * Applies the premium 3D design system (nd-3d.css) to:
+ * - Market Overview (nepse-decode)
+ * - Daily Summary (nepse-daily)
+ * - IPO / FPO (nepse-ipo)
+ * - Newsroom (nepse-news)
+ * - Heat Map (nepse-sectors)
+ *
+ * Layered elevation + rim lighting + physical press states.
+ * Requires nd-3d.css loaded before this file.
+ * ============================================================ */
+
+/* ---- Shared: masthead titles get depth ---- */
+.nd-eyebrow, .ds-kicker, .ipo-eyebrow, .nn-masthead h1, .d2-kicker {
+  text-shadow: 0 2px 12px rgba(0,0,0,.08);
+}
+[data-theme="dark"] .nd-eyebrow,
+[data-theme="dark"] .ds-kicker,
+[data-theme="dark"] .ipo-eyebrow,
+[data-theme="dark"] .nn-masthead h1,
+[data-theme="dark"] .d2-kicker {
+  text-shadow: 0 2px 16px rgba(0,0,0,.4);
+}
+
+/* ============================================================
+ * MARKET OVERVIEW (nepse-decode) — .nd-*, .d2-*
+ * ============================================================ */
+
+/* Index cards: elevated 3D panels with rim light */
+.nd-ixcard {
+  background: var(--d3-panel);
+  border: 1px solid var(--d3-line);
+  border-radius: 18px;
+  box-shadow: var(--d3-rim), var(--d3-e2);
+  transition: transform var(--d3-t), box-shadow var(--d3-t);
+}
+.nd-ixcard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--d3-rim), var(--d3-e-lift);
+}
+
+/* Top movers cards: 3D elevated */
+.nd-movecard {
+  background: var(--d3-panel);
+  border: 1px solid var(--d3-line);
+  border-radius: 16px;
+  box-shadow: var(--d3-rim), var(--d3-e2);
+  transition: transform var(--d3-t), box-shadow var(--d3-t);
+}
+.nd-movecard:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--d3-rim-strong), var(--d3-e-lift);
+}
+
+/* Verdict engine list rows: subtle 3D */
+.nd-engine-list > * {
+  background: var(--d3-panel);
+  border: 1px solid var(--d3-line);
+  border-radius: 12px;
+  box-shadow: var(--d3-rim), var(--d3-e1);
+  transition: transform var(--d3-t), box-shadow var(--d3-t);
+}
+.nd-engine-list > *:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--d3-rim), var(--d3-e2);
+}
+
+/* P/E card + index strip: 3D panels */
+.nd-pe-card, .nd-istrip {
+  background: var(--d3-panel);
+  border: 1px solid var(--d3-line);
+  border-radius: 16px;
+  box-shadow: var(--d3-rim), var(--d3-e2);
+}
+
+/* News grid cards on overview */
+.nd-newsgrid > * {
+  background: var(--d3-panel);
+  border: 1px solid var(--d3-line);
+  border-radius: 14px;
+  box-shadow: var(--d3-rim), var(--d3-e1);
+  transition: transform var(--d3-t), box-shadow var(--d3-t);
+}
+.nd-newsgrid > *:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--d3-rim-strong), var(--d3-e2);
+}
+
+/* Active tabs: 3D press states */
+.nd-active-tabs button {
+  background: var(--d3-panel2);
+  border: 1px solid var(--d3-line);
+  border-radius: 12px;
+  box-shadow: var(--d3-rim), var(--d3-e1);
+  transition: all var(--d3-t);
+}
+.nd-active-tabs button:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--d3-rim), var(--d3-e2);
+}
+.nd-active-tabs button.on,
+.nd-active-tabs button[aria-selected="true"] {
+  background: var(--d3-acc);
+  color: var(--d3-acc-ink);
+  border-color: var(--d3-acc-deep);
+  box-shadow: var(--d3-rim-strong), var(--d3-e2);
+}
+.nd-active-tabs button:active {
+  transform: translateY(1px);
+  box-shadow: var(--d3-rim), var(--d3-e1);
+}
+
+/* Shared d2 cards (overview + heat map) */
+.d2-card {
+  background: var(--d3-panel);
+  border: 1px solid var(--d3-line);
+  border-radius: 18px;
+  box-shadow: var(--d3-rim), var(--d3-e2);
+  transition: transform var(--d3-t), box-shadow var(--d3-t);
+}
+.d2-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--d3-rim), var(--d3-e-lift);
+}
+
+/* Index value: dimensional with glow */
+.nd-ixcard .val, .nd-ix-val {
+  text-shadow: 0 2px 8px rgba(0,0,0,.1);
+}
+.nd-ixcard .up { text-shadow: 0 0 16px rgba(22,163,74,.25); }
+.nd-ixcard .down { text-shadow: 0 0 16px rgba(220,38,38,.25); }
+
+/* ============================================================
+ * DAILY SUMMARY (nepse-daily) — .ds-*
+ * ============================================================ */
+
+/* Masthead + overview panels: 3D elevated */
+.ds-masthead, .ds-overview, .ds-ov-summary {
+  background: var(--d3-panel);
+  border: 1px solid var(--d3-line);
+  border-radius: 18px;
+  box-shadow: var(--d3-rim), var(--d3-e2);
+}
+
+/* Per-index overview cards: 3D with hover lift */
+.ds-ov-card {
+  background: var(--d3-panel);
+  border: 1px solid var(--d3-line);
+  border-radius: 14px;
+  box-shadow: var(--d3-rim), var(--d3-e1);
+  transition: transform var(--d3-t), box-shadow var(--d3-t);
+}
+.ds-ov-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--d3-rim-strong), var(--d3-e2);
+}
+
+/* Daily tables: 3D container with floating header feel */
+.ds-table-scroll {
+  background: var(--d3-panel);
+  border: 1px solid var(--d3-line);
+  border-radius: 16px;
+  box-shadow: var(--d3-rim), var(--d3-e2);
+  overflow: hidden;
+}
+.ds-table-scroll table tr:hover {
+  background: var(--d3-panel2);
+}
+
+/* Pills + pager buttons: 3D press states */
+.ds-pill, .ds-page-btn {
+  background: var(--d3-panel2);
+  border: 1px solid var(--d3-line);
+  border-radius: 12px;
+  box-shadow: var(--d3-rim), var(--d3-e1);
+  transition: all var(--d3-t);
+}
+.ds-pill:hover, .ds-page-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--d3-rim), var(--d3-e2);
+}
+.ds-pill.on, .ds-page-btn.on,
+.ds-page-num[aria-current="page"] {
+  background: var(--d3-acc);
+  color: var(--d3-acc-ink);
+  border-color: var(--d3-acc-deep);
+  box-shadow: var(--d3-rim-strong), var(--d3-e2);
+}
+.ds-pill:active, .ds-page-btn:active {
+  transform: translateY(1px);
+  box-shadow: var(--d3-rim), var(--d3-e1);
+}
+
+/* Range bars: dimensional */
+.ds-range-block {
+  background: var(--d3-panel);
+  border: 1px solid var(--d3-line);
+  border-radius: 12px;
+  box-shadow: var(--d3-rim), var(--d3-e1);
+  padding: 10px 14px;
+  transition: transform var(--d3-t), box-shadow var(--d3-t);
+}
+.ds-range-block:hover {
+  transform: translateX(2px);
+  box-shadow: var(--d3-rim), var(--d3-e2);
+}
+
+/* Overview chart panel */
+.ds-ov-chart {
+  background: var(--d3-panel);
+  border: 1px solid var(--d3-line);
+  border-radius: 16px;
+  box-shadow: var(--d3-rim), var(--d3-e2);
+}
+
+/* ============================================================
+ * IPO / FPO (nepse-ipo) — .ipo-*
+ * ============================================================ */
+
+/* Stat tiles: 3D elevated with hover lift */
+.ipo-stat {
+  background: var(--d3-panel);
+  border: 1px solid var(--d3-line);
+  border-radius: 16px;
+  box-shadow: var(--d3-rim), var(--d3-e2);
+  transition: transform var(--d3-t), box-shadow var(--d3-t);
+}
+.ipo-stat:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--d3-rim-strong), var(--d3-e-lift);
+}
+
+/* IPO table: 3D container */
+.ipo-tablewrap {
+  background: var(--d3-panel);
+  border: 1px solid var(--d3-line);
+  border-radius: 16px;
+  box-shadow: var(--d3-rim), var(--d3-e2);
+  overflow: hidden;
+}
+.ipo-tablewrap table tr:hover {
+  background: var(--d3-panel2);
+}
+
+/* Tabs + status filter: 3D press states */
+.ipo-tab, .ipo-statusfilter button, .ipo-sf {
+  background: var(--d3-panel2);
+  border: 1px solid var(--d3-line);
+  border-radius: 12px;
+  box-shadow: var(--d3-rim), var(--d3-e1);
+  transition: all var(--d3-t);
+}
+.ipo-tab:hover, .ipo-statusfilter button:hover, .ipo-sf:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--d3-rim), var(--d3-e2);
+}
+.ipo-tab.on, .ipo-tab[aria-selected="true"],
+.ipo-statusfilter button.on {
+  background: var(--d3-acc);
+  color: var(--d3-acc-ink);
+  border-color: var(--d3-acc-deep);
+  box-shadow: var(--d3-rim-strong), var(--d3-e2);
+}
+.ipo-tab:active, .ipo-statusfilter button:active {
+  transform: translateY(1px);
+  box-shadow: var(--d3-rim), var(--d3-e1);
+}
+
+/* Toolbar + open badge panel */
+.ipo-toolbar, .ipo-open {
+  background: var(--d3-panel);
+  border: 1px solid var(--d3-line);
+  border-radius: 14px;
+  box-shadow: var(--d3-rim), var(--d3-e1);
+}
+
+/* Status badges: dimensional */
+.ipo-status {
+  box-shadow: var(--d3-rim), var(--d3-e1);
+  font-weight: 700;
+}
+
+/* ============================================================
+ * NEWSROOM (nepse-news) — .nn-*
+ * ============================================================ */
+
+/* News cards: 3D elevated with hover lift */
+.nn-card {
+  background: var(--d3-panel);
+  border: 1px solid var(--d3-line);
+  border-radius: 16px;
+  box-shadow: var(--d3-rim), var(--d3-e2);
+  transition: transform var(--d3-t), box-shadow var(--d3-t);
+}
+.nn-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--d3-rim-strong), var(--d3-e-lift);
+}
+
+/* Featured article: hero 3D panel */
+.nn-featured-art {
+  background: var(--d3-panel);
+  border: 1px solid var(--d3-line);
+  border-radius: 18px;
+  box-shadow: var(--d3-rim), var(--d3-e3);
+  transition: transform var(--d3-t), box-shadow var(--d3-t);
+}
+.nn-featured-art:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--d3-rim-strong), var(--d3-e-lift);
+}
+
+/* Filter row + tabs + pills: 3D press states */
+.nn-filter-row {
+  background: var(--d3-panel);
+  border: 1px solid var(--d3-line);
+  border-radius: 14px;
+  box-shadow: var(--d3-rim), var(--d3-e1);
+}
+.nn-tabs button, .nn-pills button {
+  background: var(--d3-panel2);
+  border: 1px solid var(--d3-line);
+  border-radius: 12px;
+  box-shadow: var(--d3-rim), var(--d3-e1);
+  transition: all var(--d3-t);
+}
+.nn-tabs button:hover, .nn-pills button:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--d3-rim), var(--d3-e2);
+}
+.nn-tabs button.on, .nn-tabs button[aria-selected="true"],
+.nn-pills button.on {
+  background: var(--d3-acc);
+  color: var(--d3-acc-ink);
+  border-color: var(--d3-acc-deep);
+  box-shadow: var(--d3-rim-strong), var(--d3-e2);
+}
+.nn-tabs button:active, .nn-pills button:active {
+  transform: translateY(1px);
+  box-shadow: var(--d3-rim), var(--d3-e1);
+}
+
+/* Masthead + promise panels */
+.nn-masthead, .nn-promise {
+  background: var(--d3-panel);
+  border: 1px solid var(--d3-line);
+  border-radius: 18px;
+  box-shadow: var(--d3-rim), var(--d3-e2);
+}
+
+/* FAQ rows: subtle 3D */
+.nn-faq > * {
+  background: var(--d3-panel);
+  border: 1px solid var(--d3-line);
+  border-radius: 12px;
+  box-shadow: var(--d3-rim), var(--d3-e1);
+}
+
+/* Symbol links in card footers: dimensional */
+.nn-sym {
+  text-shadow: 0 1px 4px rgba(0,0,0,.1);
+  font-weight: 700;
+}
+
+/* ============================================================
+ * HEAT MAP (nepse-sectors) — .sx-*
+ * ============================================================ */
+
+/* Sector cards: 3D elevated with hover lift */
+.sx-cards > * {
+  background: var(--d3-panel);
+  border: 1px solid var(--d3-line);
+  border-radius: 16px;
+  box-shadow: var(--d3-rim), var(--d3-e2);
+  transition: transform var(--d3-t), box-shadow var(--d3-t);
+}
+.sx-cards > *:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--d3-rim-strong), var(--d3-e-lift);
+}
+
+/* Heat map container: recessed 3D panel */
+.sx-heat {
+  background: var(--d3-panel);
+  border: 1px solid var(--d3-line);
+  border-radius: 18px;
+  box-shadow: var(--d3-rim), var(--d3-e2);
+  padding: 16px;
+}
+
+/* Heat cells: physical tiles with depth */
+.sx-heat .sx-cell, .sx-heat [data-heat] {
+  border-radius: 10px;
+  box-shadow: var(--d3-rim), var(--d3-e1);
+  transition: transform var(--d3-t), box-shadow var(--d3-t);
+}
+.sx-heat .sx-cell:hover, .sx-heat [data-heat]:hover {
+  transform: scale(1.04);
+  box-shadow: var(--d3-rim-strong), var(--d3-e2);
+  z-index: 2;
+}
+
+/* Sector table: 3D container */
+.sx-table-wrap {
+  background: var(--d3-panel);
+  border: 1px solid var(--d3-line);
+  border-radius: 16px;
+  box-shadow: var(--d3-rim), var(--d3-e2);
+  overflow: hidden;
+}
+.sx-table-wrap table tr:hover {
+  background: var(--d3-panel2);
+}
+
+/* Controls + legend: 3D panels */
+.sx-controls, .sx-legend {
+  background: var(--d3-panel);
+  border: 1px solid var(--d3-line);
+  border-radius: 14px;
+  box-shadow: var(--d3-rim), var(--d3-e1);
+}
+
+/* Segmented control: 3D press states */
+.d2-seg button, .sx-sort button {
+  background: var(--d3-panel2);
+  border: 1px solid var(--d3-line);
+  border-radius: 10px;
+  box-shadow: var(--d3-rim), var(--d3-e1);
+  transition: all var(--d3-t);
+}
+.d2-seg button:hover, .sx-sort button:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--d3-rim), var(--d3-e2);
+}
+.d2-seg button.on, .d2-seg button[aria-selected="true"],
+.sx-sort button.on {
+  background: var(--d3-acc);
+  color: var(--d3-acc-ink);
+  border-color: var(--d3-acc-deep);
+  box-shadow: var(--d3-rim-strong), var(--d3-e2);
+}
+.d2-seg button:active, .sx-sort button:active {
+  transform: translateY(1px);
+  box-shadow: var(--d3-rim), var(--d3-e1);
+}
+
+/* Map toolbar */
+.d2-map-toolbar {
+  background: var(--d3-panel);
+  border: 1px solid var(--d3-line);
+  border-radius: 12px;
+  box-shadow: var(--d3-rim), var(--d3-e1);
+}
+
+/* Sector performance numbers: dimensional */
+.sx-sec .num, .sx-cards .num {
+  text-shadow: 0 2px 8px rgba(0,0,0,.1);
+  font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nd-ixcard, .nd-movecard, .nd-engine-list > *, .nd-newsgrid > *,
+  .ds-ov-card, .ds-range-block, .ipo-stat, .nn-card, .nn-featured-art,
+  .sx-cards > *, .sx-heat .sx-cell, .d2-card { transition: none; }
+  .nd-ixcard:hover, .nd-movecard:hover, .nn-card:hover,
+  .sx-cards > *:hover { transform: none; }
+}
