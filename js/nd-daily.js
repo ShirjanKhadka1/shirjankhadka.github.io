@@ -67,6 +67,10 @@
    * P1.3: Get live data via shared NepseData module (dedupes fetches).
    * Falls back to direct fetch if NepseData is unavailable.
    */
+  function sectorOfRow(q) {
+    return (state.sectorBySymbol && state.sectorBySymbol[q.symbol]) || sectorOf(q.symbol, q.name);
+  }
+
   function getLive() {
     if (typeof window !== 'undefined' && window.NepseData && window.NepseData.whenReady) {
       // Prefer the shared module, but fall back to a direct fetch if it
@@ -183,7 +187,7 @@
     var q = state.query.trim().toLowerCase();
     var rows = state.quotes;
     if (state.sector) {
-      rows = rows.filter(function (r) { return r._sector === state.sector; });
+      rows = rows.filter(function (r) { return sectorOfRow(r) === state.sector; });
     }
     if (q) {
       rows = rows.filter(function (r) {
@@ -241,7 +245,7 @@
         var dayRange = (q.low != null && q.high != null && isFinite(Number(q.low)) && isFinite(Number(q.high)))
           ? fmtNum(q.low) + ' – ' + fmtNum(q.high)
           : '<span class="unavail">Unavailable</span>';
-        var logo = (window.NepseLogo ? window.NepseLogo.html(q.symbol, q._sector, 28) : '');
+        var logo = (window.NepseLogo ? window.NepseLogo.html(q.symbol, sectorOfRow(q), 28) : '');
         return '<tr>' +
           '<td><span class="sym">' + logo + '<a href="/stocks/' + sym + '/">' + sym + '</a></span>' +
             '<span class="cname">' + esc(q.name || '') + '</span></td>' +
@@ -519,9 +523,12 @@
     // P1.3: Use shared NepseData module (dedupes live.json fetch)
     getLive().then(function (live) {
       state.quotes = Array.isArray(live.quotes) ? live.quotes : [];
-      // Classify sectors using authoritative map
+      // Classify sectors using authoritative map. NOTE: quotes from the
+      // shared NepseData module are deep-frozen — never mutate them.
+      // Keep sector in a side Map keyed by symbol instead.
+      state.sectorBySymbol = {};
       state.quotes.forEach(function (q) {
-        q._sector = sectorOf(q.symbol, q.name);
+        state.sectorBySymbol[q.symbol] = sectorOf(q.symbol, q.name);
       });
       populateSectors();
       renderMeta(live);
@@ -533,7 +540,7 @@
     var sel = $('dsSector');
     if (!sel) return;
     var sectors = {};
-    state.quotes.forEach(function (q) { if (q._sector) sectors[q._sector] = true; });
+    state.quotes.forEach(function (q) { var sc = sectorOfRow(q); if (sc) sectors[sc] = true; });
     var list = Object.keys(sectors).sort();
     sel.innerHTML = '<option value="">All Sectors</option>' +
       list.map(function (s) { return '<option value="' + esc(s) + '">' + esc(s) + '</option>'; }).join('');
