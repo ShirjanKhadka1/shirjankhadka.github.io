@@ -70,6 +70,7 @@
         state.session = json.session_date || '';
         state.regime = json.regime || '';
         state.regimeNote = json.regime_note || '';
+        state.coverage = json.coverage || null;
         var v = json.verdicts || {};
         state.rows = Object.keys(v).map(function (sym) {
           var r = v[sym] || {};
@@ -116,6 +117,7 @@
       '<button type="button" class="v2-stat" data-v="NEUTRAL" aria-pressed="'+(state.verdict==='NEUTRAL')+'"><div class="num">'+neu+'</div><div class="lbl">Neutral</div></button>'+
       '<button type="button" class="v2-stat opp" data-v="opps" aria-pressed="'+(state.verdict==='opps')+'"><div class="num">'+opp+'</div><div class="lbl">Opportunity flags</div></button>'+
       '<button type="button" class="v2-stat" data-v="all" aria-pressed="'+(state.verdict==='all')+'"><div class="num">'+state.rows.length+'</div><div class="lbl">Securities scanned</div></button>'+
+      (state.coverage ? '<p class="v2-coverage">'+state.coverage.with_today_quote+' current · '+state.coverage.without_today_quote+' on older session · '+state.coverage.failures+' no data</p>' : '')+
       '<p class="v2-take">The radar is a warning instrument: it flags names that look dangerous and shows why. ' +
       '<a href="/nepse-verdicts-v2/methodology/">How it is validated →</a></p>';
     host.querySelectorAll('.v2-stat').forEach(function (b) {

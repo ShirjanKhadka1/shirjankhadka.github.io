@@ -1,48 +1,51 @@
 {
- "completed_mergers": [],
- "note": "Merger/acquisition tracker — symbols that have merged, been acquired, or changed trading status. When a merger completes, remove the absorbed symbol from universe.json and delete its stock page.",
- "pending_mergers": [],
- "updated": "2026-10-06",
- "watchlist": "Monitor NEPSE announcements, ShareSansar, and company notices for merger/acquisition MOUs, SGM approvals, and trading halts.",
- "lifecycle": {
-  "stages": [
-   {
-    "stage": "announced",
-    "description": "Merger MOU/news announced. Both symbols still trade independently."
-   },
-   {
-    "stage": "in_process",
-    "description": "Submitted for regulatory approval (SEBON/NRB). SGM approvals. Both symbols still trade."
-   },
-   {
-    "stage": "halted",
-    "description": "Trading halted for a few days during the merger execution."
-   },
-   {
-    "stage": "completed",
-    "description": "Trading resumes as merged entity — either with new name/symbol, or old name/symbol representing the combined entity. Absorbed symbol removed."
-   }
+  "completed_mergers": [
+    {
+      "absorbed": "WNLB",
+      "survivor": "SLBBL",
+      "stage": "completed",
+      "verified": "2026-10-06",
+      "note": "User confirmed merger; removed from universe, sitemap, pages, and verdicts"
+    },
+    {
+      "absorbed": "SFCL",
+      "survivor": "PFL",
+      "stage": "completed",
+      "ratio": "1:1",
+      "verified": "2026-10-06",
+      "note": "User confirmed merger at 1:1; removed from universe, sitemap, pages, and verdicts"
+    }
   ],
-  "actions_per_stage": {
-   "announced": "Log in tracker. Monitor for progress. No data changes.",
-   "in_process": "Update tracker. Flag for close monitoring. No data changes yet.",
-   "halted": "Note halt in tracker. Pages remain but show halt status if possible.",
-   "completed": "Remove absorbed symbol from universe.json. Delete its stock page. Remove from sitemap. Update survivor's share data."
-  }
- },
- "pending_verification": [
-  {
-   "symbol": "WNLB",
-   "observed": "No trades in NEPSE feed since ~2026-09-03 (verdict engine session_date; absent from 2026-10-06 live quote snapshot of 359 securities). Trading halted or suspended — cause UNVERIFIED.",
-   "status": "halted_unverified",
-   "rule": "Do NOT remove the stock page, universe entry, or sitemap entry on this basis. A merger/delisting claim requires the official NEPSE notice (PDF) before any removal, plus removal of all inbound links (stocks directory, trending page) in the same change."
+  "note": "Merger/acquisition tracker \u2014 symbols that have merged, been acquired, or changed trading status. When a merger completes, remove the absorbed symbol from universe.json and delete its stock page.",
+  "pending_mergers": [],
+  "updated": "2026-10-06",
+  "watchlist": "Monitor NEPSE announcements, ShareSansar, and company notices for merger/acquisition MOUs, SGM approvals, and trading halts.",
+  "lifecycle": {
+    "stages": [
+      {
+        "stage": "announced",
+        "description": "Merger MOU/news announced. Both symbols still trade independently."
+      },
+      {
+        "stage": "in_process",
+        "description": "Submitted for regulatory approval (SEBON/NRB). SGM approvals. Both symbols still trade."
+      },
+      {
+        "stage": "halted",
+        "description": "Trading halted for a few days during the merger execution."
+      },
+      {
+        "stage": "completed",
+        "description": "Trading resumes as merged entity \u2014 either with new name/symbol, or old name/symbol representing the combined entity. Absorbed symbol removed."
+      }
+    ],
+    "actions_per_stage": {
+      "announced": "Log in tracker. Monitor for progress. No data changes.",
+      "in_process": "Update tracker. Flag for close monitoring. No data changes yet.",
+      "halted": "Note halt in tracker. Pages remain but show halt status if possible.",
+      "completed": "Remove absorbed symbol from universe.json. Delete its stock page. Remove from sitemap. Update survivor's share data."
+    }
   },
-  {
-   "symbol": "SFCL",
-   "observed": "No trades in NEPSE feed since 2026-07-09 (verdict engine session_date; absent from 2026-10-06 live quote snapshot). Trading halted or suspended — cause UNVERIFIED.",
-   "status": "halted_unverified",
-   "rule": "Do NOT remove the stock page, universe entry, or sitemap entry on this basis. A merger/delisting claim requires the official NEPSE notice (PDF) before any removal, plus removal of all inbound links in the same change."
-  }
- ],
- "integrity_note_2026_10_06": "2026-10-06: two 'completed merger' entries (WNLB->SLBBL, SFCL->PFL) were added by an automated deploy loop without a verifiable official source and used to delete stocks/WNLB/ and stocks/SFCL/ pages, breaking 3 internal links (CI failure run 37441605385). Entries reverted; pages, universe.json and sitemap.xml restored. Standing rule: never delete a listed symbol's page on an unverified claim."
+  "pending_verification": [],
+  "integrity_note_2026_10_06": "2026-10-06: two 'completed merger' entries (WNLB->SLBBL, SFCL->PFL) were added by an automated deploy loop without a verifiable official source and used to delete stocks/WNLB/ and stocks/SFCL/ pages, breaking 3 internal links (CI failure run 37441605385). Entries reverted; pages, universe.json and sitemap.xml restored. Standing rule: never delete a listed symbol's page on an unverified claim."
 }

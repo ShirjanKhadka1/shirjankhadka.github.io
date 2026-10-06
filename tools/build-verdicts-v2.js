@@ -143,6 +143,18 @@ async function main() {
 
   let symbols = universe.symbols.map((s) => s.s);
   if (limit > 0) symbols = symbols.slice(0, limit);
+
+  // ---- exclude completed mergers (absorbed symbols must never get verdicts)
+  try {
+    const mtPath = path.join(ENG, 'manual', 'merger-tracker.json');
+    if (fs.existsSync(mtPath)) {
+      const mt = JSON.parse(fs.readFileSync(mtPath, 'utf8'));
+      const absorbed = new Set((mt.completed_mergers || []).map((m) => m.absorbed));
+      const before = symbols.length;
+      symbols = symbols.filter((s) => !absorbed.has(s));
+      if (symbols.length < before) log('merger exclusion:', (before - symbols.length) + ' absorbed symbols skipped');
+    }
+  } catch (e) { log('merger-tracker read failed:', e.message); }
   log('symbols:', symbols.length);
 
   // ---- price history (build-time fetch, transient — never republished)
@@ -222,7 +234,10 @@ async function main() {
   for (const s of symbols) {
     const bars = barsBySym[s];
     if (!bars || bars.length < 5) {
-      failures.push({ symbol: s, reason: 'no price history' });
+      const barCount = bars ? bars.length : 0;
+      const reason = barCount === 0 ? 'no price history' :
+        'insufficient history (' + barCount + ' sessions, need 5+)';
+      failures.push({ symbol: s, reason: reason, bars: barCount });
       continue;
     }
     try {
