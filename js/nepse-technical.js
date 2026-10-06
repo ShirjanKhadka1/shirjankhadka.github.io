@@ -276,12 +276,18 @@
       ' ' + p(d.getUTCHours()) + ':' + p(d.getUTCMinutes()) + ':' + p(d.getUTCSeconds());
   }
 
-  function setFund(id, text, cls) {
+  function setFund(id, text, cls, html) {
     var e = $(id);
     if (!e) return;
-    e.textContent = text;
+    if (html) e.innerHTML = text; else e.textContent = text;
     e.classList.remove('up', 'down', 'strong');
     if (cls) e.classList.add(cls);
+  }
+
+  function shortFY(y) { // "2082/2083" -> "82/83"
+    var s = String(y || '');
+    var m = s.match(/(\d{4})\s*\/\s*(\d{4})/);
+    return m ? m[1].slice(2) + '/' + m[2].slice(2) : s;
   }
 
   function paintFundamentals() {
@@ -344,7 +350,7 @@
     setFund('nt-f-pe', f && isFinite(+f.pe_ttm) ? fmtNum(+f.pe_ttm) : '—');
     setFund('nt-f-bv', t && isFinite(+t.book_value) ? fmtNum(+t.book_value) : '—');
     setFund('nt-f-pbv', t && isFinite(+t.pbv) ? fmtNum(+t.pbv) : '—');
-    // Dividend history — latest declared dividend per symbol.
+    // Dividend history — latest declared dividend per symbol, with fiscal year.
     var dv = !isIndex && divCache && divCache[sym] ? divCache[sym] : null;
     var latest = null;
     if (dv && dv.length) {
@@ -354,8 +360,9 @@
       });
       latest = sorted[0];
     }
-    setFund('nt-f-div', latest && latest.cash_dividend ? fmtNum(+latest.cash_dividend) + '%' : '—');
-    setFund('nt-f-bonus', latest && latest.bonus_share ? fmtNum(+latest.bonus_share) + '%' : '—');
+    var fyTag = latest && latest.year ? ' <span class="nt-fy">FY ' + esc(shortFY(latest.year)) + '</span>' : '';
+    setFund('nt-f-div', latest && latest.cash_dividend ? fmtNum(+latest.cash_dividend) + '%' + fyTag : '—', '', true);
+    setFund('nt-f-bonus', latest && latest.bonus_share ? fmtNum(+latest.bonus_share) + '%' + fyTag : '—', '', true);
     setFund('nt-f-right', '—');
   }
 
