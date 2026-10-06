@@ -974,6 +974,10 @@ function indexPage(symbols, asof) {
     '<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/nepse-decode-og.jpg">\n' +
     '<meta property="og:image:width" content="1200">\n' +
     '<meta property="og:image:height" content="630">\n' +
+    '<meta name="twitter:card" content="summary_large_image">\n' +
+    '<meta name="twitter:title" content="' + esc(title) + '">\n' +
+    '<meta name="twitter:description" content="' + esc(desc) + '">\n' +
+    '<meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">\n' +
     '<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">\n' +
     '<link rel="preconnect" href="https://fonts.googleapis.com">\n' +
     '<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">\n' +
