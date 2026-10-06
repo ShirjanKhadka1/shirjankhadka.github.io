@@ -1,0 +1,185 @@
+/* ============================================================
+ * Nepse Decode — Research Pages 3D Upgrade
+ * Applies the premium 3D design system (nd-3d.css) to:
+ * - Market Regime (nepse-regime)
+ * - Seasonality (nepse-seasonality)
+ * - Money Flow (nepse-money-flow)
+ *
+ * Layered elevation + rim lighting + physical press states.
+ * Requires nd-3d.css loaded before this file.
+ * ============================================================ */
+
+/* ---- Shared: masthead titles get depth ---- */
+.rg-title, .sn-title, .mf-title {
+  text-shadow: 0 2px 12px rgba(0,0,0,.08);
+}
+[data-theme="dark"] .rg-title,
+[data-theme="dark"] .sn-title,
+[data-theme="dark"] .mf-title {
+  text-shadow: 0 2px 16px rgba(0,0,0,.4);
+}
+
+/* ============================================================
+ * MARKET REGIME (.rg-*)
+ * ============================================================ */
+
+/* Gauge card: elevated 3D panel with rim light */
+.rg-gauge-wrap {
+  background: var(--d3-panel);
+  border: 1px solid var(--d3-line);
+  border-radius: 18px;
+  box-shadow: var(--d3-rim), var(--d3-e2);
+  transition: transform var(--d3-t), box-shadow var(--d3-t);
+}
+.rg-gauge-wrap:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--d3-rim), var(--d3-e-lift);
+}
+
+/* Signal cards: 3D elevated */
+.rg-signals > * {
+  background: var(--d3-panel);
+  border: 1px solid var(--d3-line);
+  border-radius: 14px;
+  box-shadow: var(--d3-rim), var(--d3-e1);
+  padding: 14px 16px;
+  transition: transform var(--d3-t), box-shadow var(--d3-t);
+}
+.rg-signals > *:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--d3-rim), var(--d3-e2);
+}
+
+/* Regime name: dimensional text with glow */
+.rg-regime-name {
+  text-shadow: 0 2px 8px rgba(0,0,0,.1);
+}
+.rg-regime-name.bull { text-shadow: 0 0 24px rgba(22,163,74,.3); }
+.rg-regime-name.bear { text-shadow: 0 0 24px rgba(220,38,38,.3); }
+.rg-regime-name.correction { text-shadow: 0 0 24px rgba(217,119,6,.3); }
+.rg-regime-name.recovery { text-shadow: 0 0 24px rgba(37,99,235,.3); }
+
+/* Rules cards */
+.rg-rules > * {
+  background: var(--d3-panel);
+  border: 1px solid var(--d3-line);
+  border-radius: 14px;
+  box-shadow: var(--d3-rim), var(--d3-e1);
+  transition: transform var(--d3-t), box-shadow var(--d3-t);
+}
+.rg-rules > *:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--d3-rim-strong), var(--d3-e2);
+}
+
+/* ============================================================
+ * SEASONALITY (.sn-*)
+ * ============================================================ */
+
+/* Verdict cards: premium 3D with top accent */
+.sn-verdict {
+  background: var(--d3-panel);
+  border: 1px solid var(--d3-line);
+  border-top: 3px solid var(--d3-acc);
+  border-radius: 16px;
+  box-shadow: var(--d3-rim), var(--d3-e2);
+  transition: transform var(--d3-t), box-shadow var(--d3-t);
+}
+.sn-verdict:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--d3-rim-strong), var(--d3-e-lift);
+}
+.sn-verdict.worst {
+  border-top-color: #dc2626;
+}
+.sn-verdict.best {
+  border-top-color: #16a34a;
+}
+
+/* Big month names: dimensional */
+.sn-big {
+  text-shadow: 0 2px 12px rgba(0,0,0,.1);
+  font-size: 2.5rem;
+}
+
+/* Monthly bars: 3D with depth */
+.sn-bar-row {
+  background: var(--d3-panel);
+  border: 1px solid var(--d3-line);
+  border-radius: 12px;
+  box-shadow: var(--d3-rim), var(--d3-e1);
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  transition: transform var(--d3-t), box-shadow var(--d3-t);
+}
+.sn-bar-row:hover {
+  transform: translateX(2px);
+  box-shadow: var(--d3-rim), var(--d3-e2);
+}
+
+/* ============================================================
+ * MONEY FLOW (.mf-*)
+ * ============================================================ */
+
+/* Tiles: 3D elevated with hover lift */
+.mf-tile {
+  background: var(--d3-panel);
+  border: 1px solid var(--d3-line);
+  border-radius: 16px;
+  box-shadow: var(--d3-rim), var(--d3-e2);
+  transition: transform var(--d3-t), box-shadow var(--d3-t);
+}
+.mf-tile:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--d3-rim-strong), var(--d3-e-lift);
+}
+
+/* Tab buttons: 3D press states */
+.mf-tabs button,
+[role="tab"] {
+  background: var(--d3-panel2);
+  border: 1px solid var(--d3-line);
+  border-radius: 12px;
+  box-shadow: var(--d3-rim), var(--d3-e1);
+  transition: all var(--d3-t);
+}
+.mf-tabs button:hover,
+[role="tab"]:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--d3-rim), var(--d3-e2);
+}
+.mf-tabs button.on,
+[role="tab"][aria-selected="true"],
+button.on[data-sort] {
+  background: var(--d3-acc);
+  color: var(--d3-acc-ink);
+  border-color: var(--d3-acc-deep);
+  box-shadow: var(--d3-rim-strong), var(--d3-e2);
+}
+.mf-tabs button:active,
+[role="tab"]:active {
+  transform: translateY(1px);
+  box-shadow: var(--d3-rim), var(--d3-e1);
+}
+
+/* Broker table: 3D container */
+.mf-table-wrap {
+  background: var(--d3-panel);
+  border: 1px solid var(--d3-line);
+  border-radius: 16px;
+  box-shadow: var(--d3-rim), var(--d3-e2);
+  overflow: hidden;
+}
+.mf-table-wrap table tr:hover {
+  background: var(--d3-panel2);
+}
+
+/* Net flow values: dimensional with glow */
+.mf-net-pos {
+  text-shadow: 0 0 16px rgba(22,163,74,.25);
+  font-weight: 700;
+}
+.mf-net-neg {
+  text-shadow: 0 0 16px rgba(220,38,38,.25);
+  font-weight: 700;
+}
