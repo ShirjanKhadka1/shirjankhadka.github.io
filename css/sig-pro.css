@@ -2,6 +2,13 @@
    Signal pages: dark 3D Pro editorial theme (shared)
    Used by: nepse-signals/momentum, trend-relay, reversal, methodology
    ============================================================ */
+/* Opaque canvas: these pages dropped theme.css, which used to set
+   body.nd's background. Without it, light-on-dark text is measured
+   against a white canvas and every muted line fails contrast.
+   (Same root cause as the f016c313 methodology fix — now in the shared
+   stylesheet so a page restyle can't wipe it again. --nd-bg is
+   theme-aware: #0A0C10 dark / #F6F7F9 light.) */
+body.nd{background:var(--nd-bg,#0A0C10)}
 .sig-wrap{max-width:1080px;margin:0 auto;padding:28px 20px 72px}
 /* Contrast fix: --nd-dim (#6B7280) is 3.81:1 on dark panels — below AA for
    small text. Scope a brighter dim to signal pages only. */
