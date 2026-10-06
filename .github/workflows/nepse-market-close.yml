@@ -167,6 +167,7 @@ jobs:
         if: steps.trading.outputs.trading == 'true' && steps.idem.outputs.done != 'true' && inputs.rollback_to_tag == ''
         run: |
           node tools/build-nepse-universe.js
+          python3 tools/build_trending_value.py
           node tools/build-nepse-wave1.js
           node tools/build-nepse-news.js
           node tools/collect-corporate-actions.js
