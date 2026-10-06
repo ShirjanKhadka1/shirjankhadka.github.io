@@ -20,10 +20,10 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);if(t==='light')document.documentElement.setAttribute('data-nd-ed','light')}catch(e){}</script>
 <link rel="stylesheet" href="/css/fonts.css">
-<link rel="stylesheet" href="/css/nepse-d2.css?v=df8f909e">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261004a">
 <link rel="stylesheet" href="/css/theme.css?v=edd1fe3c">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">
-<link rel="stylesheet" href="/nepse-technical/tech.css?v=20261005d">
+<link rel="stylesheet" href="/nepse-technical/tech.css?v=20261006b">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"Nepse Decode Technical Charts","url":"https://shirjankhadka.com.np/nepse-technical/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Free interactive NEPSE technical charts: candlesticks, volume, SMA/EMA overlays and timeframes for the NEPSE index and every listed stock. No login.","author":{"@type":"Organization","name":"Nepse Decode","url":"https://shirjankhadka.com.np/"}}
 </script>
@@ -40,40 +40,23 @@
 {"@type":"Question","name":"Is this investment advice?","acceptedAnswer":{"@type":"Answer","text":"No. The charts and overlays are mechanical presentations of historical data for education. Past performance does not guarantee future results."}}]}
 </script>
 </head>
-<body>
-<nav class="d2-mobilenav" aria-label="Sections">
-  <a href="/nepse-decode/">Dashboard</a>
-  <a href="/nepse-chart/">Chart</a>
-  <a href="/nepse-technical/" class="on">Technical</a>
-  <a href="/nepse-screener/">Screener</a>
-  <a href="/nepse-sectors/">Sectors</a>
-  <a href="/nepse-trending/">Trending</a>
-  <a href="/nepse-watchlist/">Watchlist</a>
-  <a href="/nepse-news/">News</a>
-  <a href="/nepse-brokers/">Brokers</a>
+<body class="nd" data-page="technical">
+<a class="skip-link" href="#main">Skip to content</a>
+<div id="nd-header"></div>
+<div class="fb-wrap" style="display:flex;justify-content:center;padding:10px 16px 0"><div data-freshness-badge></div></div>
+<div class="nd-shell">
+<div class="nd-content">
+<div class="nd-wrap">
+<nav aria-label="Breadcrumb" style="margin:4px 0 16px;font-size:.85rem;color:var(--muted,#8A8474)">
+  <ol style="list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+    <li><a href="/" style="color:inherit">Home</a></li>
+    <li aria-hidden="true">/</li>
+    <li><a href="/nepse-decode/" style="color:inherit">Nepse Decode</a></li>
+    <li aria-hidden="true">/</li>
+    <li><span aria-current="page" style="color:var(--ink,#1C1A15);font-weight:600">Technical Charts</span></li>
+  </ol>
 </nav>
-<div class="d2-shell">
-<aside class="d2-side" aria-label="Site navigation">
-  <a class="d2-brand" href="/nepse-decode/"><span class="d2-mark" aria-hidden="true">◈</span> Nepse Decode</a>
-  <nav id="d2SideNav">
-    <a href="/nepse-decode/">Overview</a>
-    <a href="/nepse-chart/">Chart &amp; signals</a>
-    <a href="/nepse-technical/" class="on" aria-current="page">Technical</a>
-    <a href="/nepse-screener/">Screener</a>
-    <a href="/nepse-trending/">Trending Stocks</a>
-    <a href="/nepse-value/">Value Investing</a>
-    <a href="/nepse-brokers/">Broker Analytics</a>
-    <a href="/nepse-sectors/">Sectors</a>
-    <a href="/nepse-news/">Market news</a>
-    <a href="/nepse-watchlist/">Watchlist</a>
-    <a href="/nepse-portfolio/">Portfolio</a>
-    <a href="/nepse-simulator/">Simulator</a>
-    <a href="/nepse-reports/">Reports</a>
-    <a href="/nepse-actions/">Corp. actions</a>
-  </nav>
-  <p class="d2-side-foot">Free forever · no login</p>
-</aside>
-<main class="d2-main">
+<main id="main">
 <div class="nt-wrap">
   <div class="nt-badge-row"><div data-freshness-badge></div></div>
   <p class="nt-kicker">Technical analysis</p>
@@ -137,13 +120,16 @@
 </div>
 </main>
 </div>
+</div>
+</div>
+<div id="nd-footer"></div>
 <script src="/js/vendor/lightweight-charts.standalone.production.js?v=4.2.3" defer></script>
 <script src="/js/nepse-fresh.js?v=ed4a8618" defer></script>
 <script src="/js/nepse-daily.js?v=51f68f5d" defer></script>
 <script src="/js/nepse-market-config.js?v=20261002c" defer></script>
 <script src="/js/nepse-data.js?v=20261003a" defer></script>
-<script src="/js/nepse-technical.js?v=20261005c" defer></script>
-<script src="/js/nepse-sidebar.js?v=20261002c" defer></script>
+<script src="/js/nepse-technical.js?v=20261006b" defer></script>
+<script src="/js/nd-chrome.js?v=20261006a" defer></script>
 <script src="/js/theme-toggle.js?v=a383d477" defer></script>
 <script src="/js/freshness-badge.js?v=20261002c" defer></script>
 </body>
