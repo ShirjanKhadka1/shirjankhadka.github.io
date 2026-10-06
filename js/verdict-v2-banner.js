@@ -25,6 +25,19 @@
       'INSUFFICIENT_DATA': 'unr' }[v] || 'neu';
   }
 
+  function vPlain(v) {
+    return {
+      'EXHAUSTION_RISK': 'This stock ran up very fast and looks tired — late buyers often get stuck here.',
+      'DISTRIBUTION_WARNING': 'Danger signs: big players look like they are selling into excited buyers. Be careful.',
+      'ELEVATED_RISK': 'Early warning signs are forming. Worth watching, not a full pattern yet.',
+      'IGNITION': 'Fresh upward energy is building. Momentum is starting, not a danger flag.',
+      'BOUNCE_SETUP': 'After a fall, the setup for a short rebound is forming. Still risky.',
+      'NEUTRAL': 'No danger signs right now. Nothing alarming in the price action.',
+      'UNRELIABLE': 'The price data looks broken, so no verdict can be trusted here.',
+      'EXCLUDED_NON_EQUITY': 'This is not a regular company share, so the engine skips it.',
+      'INSUFFICIENT_DATA': 'Not enough price history yet to form any verdict.'
+    }[v] || '';
+  }
   function render(mount, r) {
     if (!r) { mount.style.display = 'none'; return; }
     var cls = vClass(r.label);
@@ -32,6 +45,7 @@
     var h = '<section class="v2b v2b-' + cls + '" aria-label="Verdict Engine v2">' +
       '<div class="v2b-kicker">Verdict Engine v2</div>' +
       '<div class="v2b-headline"><span class="v2b-pill">' + esc(vLabel(r.label)) + '</span></div>' +
+      '<p class="v2b-plain">' + esc(vPlain(r.label)) + '</p>' +
       '<span class="v2b-meta">' + esc(conf) + ' confidence' +
       (r.pump_score != null ? ' · pump score ' + Number(r.pump_score).toFixed(2) : '') + '</span>' +
       '<a class="v2b-link" href="/nepse-verdicts-v2/">Open the warning radar →</a>' +

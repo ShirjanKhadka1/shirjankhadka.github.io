@@ -851,7 +851,7 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
   h += '</ul></div>';
   h += '<div class="sp-tabpanel" data-panel="signals" role="tabpanel" hidden>';
   h += '<h2>Verdict Engine v2</h2>';
-  h += '<p class="sp-note">Warning-radar verdict with full evidence — distribution, exhaustion and pump footprints. Educational, not investment advice.</p>';
+  h += '<p class="sp-note">The warning radar checks this stock for danger signs — prices that shot up too fast, big sellers hiding behind excitement — and shows the proof. A warning tool, not buy/sell advice. Educational only.</p>';
   h += '<div data-verdict-v2-banner data-sym="' + esc(sym) + '"></div>';
   h += '<p class="sp-note"><a href="/nepse-verdicts-v2/">Open the full warning radar →</a></p>';
   h += '</div>';

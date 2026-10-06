@@ -22,7 +22,7 @@
       ['IPO / FPO', '/nepse-ipo/']
     ]},
     { label: 'Stocks', links: [
-      ['Engine Verdict', '/nepse-engine-verdict/'],
+      ['Warning Radar', '/nepse-verdicts-v2/'],
       ['Chart & Signals', '/nepse-chart/'],
       ['Stock Screener', '/nepse-screener/'],
       ['Fair Value', '/nepse-value/'],
@@ -246,7 +246,7 @@
 
   var FOOT = [
     ['MARKETS', [['Overview', '/nepse-decode/'], ['Daily summary', '/nepse-daily/'], ['Heat Map', '/nepse-sectors/'], ['IPO / FPO', '/nepse-ipo/']]],
-    ['STOCKS', [['Engine Verdict', '/nepse-engine-verdict/'], ['Chart & Signals', '/nepse-chart/'], ['Stock Screener', '/nepse-screener/'], ['Fair Value', '/nepse-value/'], ['Trending Stocks', '/nepse-trending/']]],
+    ['STOCKS', [['Warning Radar', '/nepse-verdicts-v2/'], ['Chart & Signals', '/nepse-chart/'], ['Stock Screener', '/nepse-screener/'], ['Fair Value', '/nepse-value/'], ['Trending Stocks', '/nepse-trending/']]],
     ['BROKER', [['Top Brokers', '/nepse-brokers/'], ['Broker Trade Pattern', '/nepse-brokers/trade-pattern/'], ['Stock Trade Pattern', '/nepse-brokers/stock-pattern/'], ['Stockwise Holdings', '/nepse-brokers/holdings/'], ['Accumulation / Distribution', '/nepse-brokers/accdist/']]],
     ['NEWS', [['Market News', '/nepse-news/'], ['Market Wrap', '/blog/'], ['Corporate Actions', '/nepse-actions/']]],
     ['TRADE', [['Practice Trading', '/nepse-simulator/'], ['Trading Journal', '/nepse-portfolio/'], ['Watchlist', '/nepse-watchlist/']]],

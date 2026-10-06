@@ -70,6 +70,8 @@
 <h1 class="v2-title">How the warning radar is built</h1>
 <p class="v2-lede">Every figure on the Warning Radar is produced by <code>tools/build-verdicts-v2.js</code> running the engine in <code>tools/verdict-engine-v2/</code> — the coded rules in <code>rules.js</code> are the single source of truth. This page states every rule, weight, gate, and known limitation exactly as coded, so any verdict can be traced and reproduced. Educational research — not investment advice. Past patterns do not predict future results.</p>
 
+<div class="note"><strong>In plain words:</strong> the engine looks at how each stock's price and trading volume moved over time, hunting for the classic signs of a pump-and-dump — sudden limit-up runs, prices stretched far above normal, heavy selling hidden under excitement. Each sign gets a weight, the weights add up to a risk score, and the score decides the label you see. Everything below is the exact, unedited rulebook — written for anyone who wants to check our work.</div>
+
 <div class="note">The honest frame, first: the engine flagged 89.4% of historical pump episodes 5 sessions before the peak — and it still misses some, and its flags are not trade instructions. As a mechanical trading system it adds zero edge over buy-and-hold (measured). Its proven value is telling you <em>which names are dangerous and why</em>.</div>
 
 <h2>1. What the engine outputs</h2>

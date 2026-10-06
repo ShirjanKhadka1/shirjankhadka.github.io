@@ -73,3 +73,11 @@ section.v2b{
   display: block;
   padding: 20px 22px;
 }
+
+/* ---- plain-language verdict line ---- */
+.v2b-plain{
+  margin: 6px 0 8px; font-size: 14px; line-height: 1.55;
+  color: var(--nd-text-2, #c8cfdb); max-width: 60ch;
+}
+[data-theme="light"] .v2b-plain{ color: #3d4451; }
+@media (prefers-reduced-motion: reduce){ .v2b{ transition: none; } }
