@@ -28,6 +28,15 @@
 
 const F = require('./factors.js');
 const R = require('./rules.js');
+
+/* Float/ownership archive (manual/float-archive.json): manually transcribed
+ * promoter/public ownership + paid-up shares, verified 2026-10-06 against
+ * NEPSE official, Capital Max and Chukul. Primary float source; the
+ * lock-in table below is the fallback. */
+let FLOAT_ARCHIVE = null;
+try {
+  FLOAT_ARCHIVE = require('./manual/float-archive.json').stocks || null;
+} catch (e) { FLOAT_ARCHIVE = null; }
 const L = require('./lifecycle.js');
 const B = require('./bsdate.js');
 
@@ -206,8 +215,21 @@ function buildLockin(symbol, bars, dossier, asofDate) {
   };
 }
 
-/* --- float: measured where the lock-in table covers, proxy otherwise --- */
+/* --- float: measured where the archive or lock-in table covers, proxy otherwise --- */
 function buildFloat(symbol, dossier) {
+  // Tier 1: manually verified ownership archive (primary).
+  const arch = FLOAT_ARCHIVE && FLOAT_ARCHIVE[symbol];
+  if (arch && arch.float_shares != null) {
+    return {
+      float_status: 'measured',
+      float_shares: arch.float_shares,
+      promoter_pct: arch.promoter_pct != null ? arch.promoter_pct / 100 : null,
+      float_note: 'public float from Nepse Decode ownership archive (manual transcription, verified 2026-10-06)' +
+        (arch.ownership_asof ? '; ownership as of ' + arch.ownership_asof : '') + '.',
+      traded_public_pct: null,
+    };
+  }
+  // Tier 2: IPO lock-in table transcription.
   const row = R.LOCKIN_TABLE.find((r) => r.symbol === symbol);
   // SITE PATCH 2026-10-05: a row without share counts is not "measured" —
   // fall through to the proxy tier with its honest label.
