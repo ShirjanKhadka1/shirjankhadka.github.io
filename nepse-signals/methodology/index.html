@@ -24,39 +24,7 @@
 <link rel="stylesheet" href="/css/fonts.css">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=20261006c">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">
-<style>
-/* ---- Methodology: dark 3D Pro editorial theme ---- */
-/* axe ratchet needs an opaque canvas: theme.css (which set body.nd's
-   background) was dropped from this page's <head>; restore it via the
-   editorial token so both themes get a real background. */
-body.nd{background:var(--nd-bg,#0A0C10)}
-.sig-wrap{max-width:1080px;margin:0 auto;padding:28px 20px 72px}
-.sig-kicker{color:var(--nd-muted,#9AA3B2);font-size:.85rem;margin:0 0 6px}
-.sig-wrap h1{font-family:var(--nd-font-display,Georgia,serif);font-size:2.1rem;margin:0 0 8px;color:var(--nd-text,#fff);letter-spacing:-.01em}
-.sig-lede{color:var(--nd-muted,#9AA3B2);max-width:660px;margin:0 0 6px;line-height:1.6}
-.sig-lede code,.method code{background:var(--nd-inset,#0D0F14);border:1px solid var(--nd-border,#1E2430);padding:1px 7px;border-radius:6px;font-size:.85em;color:var(--nd-lime,#B8E62E)}
-.sig-tabs{display:flex;gap:8px;margin:0 0 26px;flex-wrap:wrap}
-.sig-tabs a{padding:9px 18px;color:var(--nd-muted,#9AA3B2);text-decoration:none;font-weight:600;font-size:.9rem;background:var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);border-radius:999px;transition:border-color .15s,color .15s}
-.sig-tabs a:hover:not(.active){border-color:var(--nd-lime,#B8E62E);color:var(--nd-text,#fff)}
-.sig-tabs a.active{color:var(--nd-on-lime,#0A0C10);background:var(--nd-lime,#B8E62E);border-color:var(--nd-lime,#B8E62E)}
-.method{max-width:780px}
-.method h2{font-family:var(--nd-font-display,Georgia,serif);font-size:1.3rem;margin:36px 0 10px;color:var(--nd-text,#fff);letter-spacing:-.01em}
-.method h3{margin:22px 0 8px;color:var(--nd-text,#fff);font-size:1.05rem}
-.method p,.method li{line-height:1.7;color:var(--nd-muted,#9AA3B2)}
-.method li{margin:7px 0}
-.method strong{color:var(--nd-text,#fff)}
-.method table{width:100%;border-collapse:collapse;font-size:.85rem;background:var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);border-radius:14px;overflow:hidden;margin:18px 0;color:var(--nd-text,#fff)}
-.method th,.method td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--nd-border,#1E2430);vertical-align:top}
-.method th{background:var(--nd-panel-2,#161A23);color:var(--nd-lime,#B8E62E);font-size:.76rem;letter-spacing:.07em;text-transform:uppercase}
-.method tr:last-child td{border-bottom:none}
-.note{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,0) 40%),var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);border-left:3px solid var(--nd-lime,#B8E62E);border-radius:14px;padding:15px 20px;margin:20px 0;font-size:.92rem;color:var(--nd-muted,#9AA3B2);line-height:1.65;box-shadow:0 2px 6px rgba(0,0,0,.35)}
-.note strong{color:var(--nd-text,#fff)}
-.sig-foot{color:var(--nd-muted,#9AA3B2);font-size:.85rem;margin:36px 0 0}
-.skip-link{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
-.skip-link:focus{left:12px;top:12px;width:auto;height:auto;padding:10px 18px;background:var(--nd-lime,#B8E62E);color:var(--nd-on-lime,#0A0C10);font-weight:700;border-radius:10px;z-index:9999}
-[data-theme="light"] .sig-wrap{--nd-panel:#FFFFFF;--nd-panel-2:#EFF1F5;--nd-inset:#EDEFF3;--nd-border:#E2E6EC;--nd-lime:#4D7C0F;--nd-on-lime:#FFFFFF;--nd-text:#0A0C10;--nd-muted:#4B5563;--nd-dim:#8A94A3}
-[data-theme="light"] .sig-tabs a.active{box-shadow:0 2px 8px rgba(77,124,15,.3)}
-</style>
+<link rel="stylesheet" href="/css/sig-pro.css?v=20261006a">
 </head>
 <body class="nd">
 <a class="skip-link" href="#main">Skip to content</a>
