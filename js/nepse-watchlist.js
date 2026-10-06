@@ -601,4 +601,40 @@
   }
 
   loadData();
+
+  /* ---- Auto-refresh: re-fetch batch data periodically and when the tab
+     becomes visible, so the page picks up new batches without a reload. ---- */
+  var REFRESH_MS = 5 * 60 * 1000;
+  var lastHidden = 0;
+  function autoRefresh() {
+    // cache-bust so we get the fresh batch, not a cached copy
+    var bust = '?t=' + Date.now();
+    Promise.all([
+      fetch('/nepse-chart/data/universe.json' + bust).then(function (r) { return r.ok ? r.json() : null; }),
+      fetch('/nepse-chart/data/verdicts.json' + bust).then(function (r) { return r.ok ? r.json() : null; })
+    ]).then(function (res) {
+      var u = res[0], v = res[1];
+      var changed = false;
+      if (u && Array.isArray(u.symbols)) { universe = u.symbols; changed = true; }
+      if (v && v.verdicts) {
+        if (v.asof !== dataAsof) changed = true;
+        verdicts = v.verdicts; dataAsof = v.asof || '';
+      }
+      if (changed && dataReady) {
+        if (dataAsof && updatedEl) {
+          updatedEl.innerHTML = 'Prices and signals as of ' + esc(dataAsof) + '. ' +
+            (window.NepseFresh ? NepseFresh.badge(dataAsof) : '');
+        }
+        renderTabs();
+        renderList();
+        renderEngine();
+      }
+    }).catch(function () { /* keep old data on failure */ });
+  }
+  setInterval(autoRefresh, REFRESH_MS);
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) { lastHidden = Date.now(); return; }
+    // refetch if the tab was hidden for more than 2 minutes
+    if (Date.now() - lastHidden > 2 * 60 * 1000) autoRefresh();
+  });
 })();

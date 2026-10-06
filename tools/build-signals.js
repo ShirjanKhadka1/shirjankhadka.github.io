@@ -434,6 +434,37 @@ function r4(x) { return Math.round(x * 10000) / 10000; }
 
 /* -------------------------------- stats -------------------------------- */
 
+/* Rolling live track record: win rate on trades closed in recent windows.
+   Recomputed every rebuild from the full trade ledger — fully autonomous,
+   no manual tracking. asOf is 'YYYY-MM-DD'. */
+function computeTrackRecord(trades, asOf) {
+  const windows = [
+    { id: 'm3', label: 'Last 3 months', months: 3 },
+    { id: 'm6', label: 'Last 6 months', months: 6 },
+    { id: 'm12', label: 'Last 12 months', months: 12 },
+    { id: 'all', label: 'All time', months: Infinity },
+  ];
+  const asOfD = new Date(asOf + 'T00:00:00Z');
+  const out = {};
+  for (const w of windows) {
+    const cutoff = new Date(asOfD);
+    cutoff.setUTCMonth(cutoff.getUTCMonth() - w.months);
+    const inWin = w.months === Infinity
+      ? trades
+      : trades.filter(t => t.exit_date && new Date(t.exit_date + 'T00:00:00Z') >= cutoff);
+    const wins = inWin.filter(t => t.pnl_rs > 0).length;
+    const pnl = inWin.reduce((s, t) => s + (t.pnl_rs || 0), 0);
+    out[w.id] = {
+      label: w.label,
+      trades: inWin.length,
+      wins,
+      win_rate_pct: inWin.length ? r2(wins / inWin.length * 100) : 0,
+      total_pnl_rs: Math.round(pnl),
+    };
+  }
+  return out;
+}
+
 function computeStats(system, sim, indexDaily, dataQuality) {
   const { trades, finalValue, charges, weeklyEq } = sim;
   const totalReturn = (finalValue - START_CAPITAL) / START_CAPITAL;
@@ -750,6 +781,8 @@ async function main() {
     });
     // full closed-trade ledger, most recent 500
     const ledger = sim.trades.slice(-500);
+    // rolling live track record from the FULL ledger (not sliced)
+    const trackRecord = computeTrackRecord(sim.trades, indexDaily.to);
     const out = {
       system: sys, title: SYSTEMS[sys].title, tagline: SYSTEMS[sys].tagline,
       rules: SYSTEMS[sys].rules,
@@ -759,6 +792,7 @@ async function main() {
       tier: 'computed',
       universe_symbols: usable.length,
       stats, alerts: sim.alerts, recent_trades: ledger,
+      track_record: trackRecord,
       trade_counts: { closed_total: sim.trades.length, closed_in_ledger: ledger.length, active: sim.alerts.length },
       costs: '0.5% round-trip (broker + SEBON + DP, simplified)',
       portfolio: { start: START_CAPITAL, max_positions: MAX_POSITIONS, notional: POSITION_NOTIONAL,
