@@ -121,7 +121,7 @@ function pill(tfLabel, vobj) {
 
 function head(sym, name, slug) {
   const title = sym + ' Share Price, Signals and News | Nepse Decode';
-  const desc = name + ' (' + sym + '): latest NEPSE price, Alpha Lab signals, 52-week range and headlines. Free, educational.';
+  const desc = name + ' (' + sym + '): latest NEPSE price, Verdict Engine v2 warning radar, 52-week range and headlines. Free, educational.';
   const url = SITE + '/stocks/' + slug + '/';
   const ld = {
     '@context': 'https://schema.org',
@@ -850,9 +850,10 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
   h += '<li><a href="/nepse-screener/">Ranked screener <span aria-hidden="true">→</span></a></li>';
   h += '</ul></div>';
   h += '<div class="sp-tabpanel" data-panel="signals" role="tabpanel" hidden>';
-  h += '<h2>Alpha Lab engine signals</h2>';
-  h += '<p class="sp-note">Transparent rule-based readings, one per timeframe. A daily Buy can be weak while the weekly read is stronger; each pill names its own timeframe and data date.</p>';
-  h += pill('Daily', v) + pill('Weekly', v && v.w) + pill('Monthly', v && v.m);
+  h += '<h2>Verdict Engine v2</h2>';
+  h += '<p class="sp-note">Warning-radar verdict with full evidence — distribution, exhaustion and pump footprints. Educational, not investment advice.</p>';
+  h += '<div data-verdict-v2-banner data-sym="' + esc(sym) + '"></div>';
+  h += '<p class="sp-note"><a href="/nepse-verdicts-v2/">Open the full warning radar →</a></p>';
   h += '</div>';
   h += '<div class="sp-tabpanel" id="fundamentals" data-panel="fundamentals" role="tabpanel" hidden>';
   h += valLab(sym, name, sector, sectorPeers, quarterly, fund, { p: pNum, ch: cNum }, asofD);

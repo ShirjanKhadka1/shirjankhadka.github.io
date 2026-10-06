@@ -29,12 +29,13 @@
     if (!r) { mount.style.display = 'none'; return; }
     var cls = vClass(r.label);
     var conf = typeof r.confidence === 'number' ? Math.round(r.confidence * 100) + '%' : '—';
-    var h = '<div class="v2b v2b-' + cls + '">' +
-      '<span class="v2b-pill">' + esc(vLabel(r.label)) + '</span>' +
-      '<span class="v2b-meta">Warning radar · ' + esc(conf) + ' confidence' +
+    var h = '<section class="v2b v2b-' + cls + '" aria-label="Verdict Engine v2">' +
+      '<div class="v2b-kicker">Verdict Engine v2</div>' +
+      '<div class="v2b-headline"><span class="v2b-pill">' + esc(vLabel(r.label)) + '</span></div>' +
+      '<span class="v2b-meta">' + esc(conf) + ' confidence' +
       (r.pump_score != null ? ' · pump score ' + Number(r.pump_score).toFixed(2) : '') + '</span>' +
-      '<a class="v2b-link" href="/nepse-verdicts-v2/">Why? See the evidence →</a>' +
-      '</div>';
+      '<a class="v2b-link" href="/nepse-verdicts-v2/">Open the warning radar →</a>' +
+      '</section>';
     mount.innerHTML = h;
   }
 

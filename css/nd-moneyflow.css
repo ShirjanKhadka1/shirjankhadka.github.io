@@ -78,3 +78,16 @@
 [data-theme="dark"] .mf-flowitem .amt.neg{ color: #f87171; }
 
 .mf-fine{ font-size: .8125rem; line-height: 1.6; color: var(--nd-dim); max-width: 80ch; margin: 8px 0 0; }
+
+/* ---- premium 3D layer ---- */
+.mf-card, .mf-stat{
+  background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,0) 40%), var(--nd-panel, #12141A);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+  border-radius: 14px;
+  transition: transform .25s cubic-bezier(.22,1,.36,1), box-shadow .25s;
+}
+.mf-card:hover, .mf-stat:hover{
+  transform: translateY(-2px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 3px 8px rgba(0,0,0,.45), 0 16px 36px rgba(0,0,0,.35);
+}
+@media (prefers-reduced-motion: reduce){ .mf-card, .mf-stat{ transition: none; } .mf-card:hover, .mf-stat:hover{ transform: none; } }

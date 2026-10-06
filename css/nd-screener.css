@@ -184,3 +184,34 @@
   .sc-fchip, .sc-strategy{ transition: none; }
   .sc-fchip:hover, .sc-strategy:hover{ transform: none; }
 }
+
+/* ---- RSI/movers tabs and tables 3D ---- */
+.w1-tab{
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0) 50%), var(--nd-panel-2, #161A23);
+  border: 1px solid var(--nd-border, #1E2430);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 1px 3px rgba(0,0,0,.35);
+  transition: transform .18s cubic-bezier(.22,1,.36,1), box-shadow .18s, background .18s;
+}
+.w1-tab:hover{
+  transform: translateY(-1px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 3px 8px rgba(0,0,0,.4);
+}
+.w1-tab:active{ transform: translateY(1px) scale(.97); }
+.w1-tab[aria-selected="true"]{
+  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,0) 50%), var(--nd-panel-2, #161A23);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 0 0 2px rgba(184,230,46,.2), 0 2px 6px rgba(0,0,0,.4);
+}
+.w1-table{
+  border-radius: 14px; overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 2px 6px rgba(0,0,0,.4), 0 14px 34px rgba(0,0,0,.32);
+}
+.w1-table thead th{
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,0) 60%), var(--th-bg, #1a1a1e);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+}
+.w1-table tbody tr{ transition: transform .15s, background .15s; }
+.w1-table tbody tr:hover{ transform: translateX(2px); }
+@media (prefers-reduced-motion: reduce){
+  .w1-tab, .w1-table tbody tr{ transition: none; }
+  .w1-tab:hover, .w1-table tbody tr:hover{ transform: none; }
+}

@@ -69,7 +69,10 @@
    */
   function getLive() {
     if (typeof window !== 'undefined' && window.NepseData && window.NepseData.whenReady) {
-      return window.NepseData.whenReady();
+      // Prefer the shared module, but fall back to a direct fetch if it
+      // rejects (e.g. leader-election or validation hiccup) — the table
+      // should never go blank when live.json itself is reachable.
+      return window.NepseData.whenReady().catch(function () { return fetchJSON(LIVE_URL); });
     }
     return fetchJSON(LIVE_URL);
   }
