@@ -117,9 +117,12 @@ function main() {
   // market hours. Mid-session snapshots legitimately GROW through the session
   // (observed: 63 quotes at 10:54 NPT → 313 by 12:15 NPT on 2026-10-05), so a
   // full-day baseline false-fails. When live.json carries today's still-open
-  // session, baseline = the largest earlier same-session snapshot already
-  // committed (live-quotes commits every ~5 min); the count must not
-  // collapse intraday. Requires full git history (checkout fetch-depth: 0).
+  // session, baseline = the largest earlier same-session snapshot captured at
+  // or after MARKET_OPEN already committed (live-quotes commits every ~5 min);
+  // pre-open snapshots are excluded because they carry the previous session's
+  // full book (seen 2026-10-06: 359 pre-open quotes → 69 at the open) and would
+  // false-fail. The count must not collapse intraday. Requires full git
+  // history (checkout fetch-depth: 0).
   if (live) {
     const q = Object.values(live.quotes || {}).length;
     const liveSession = sessionOf(live);
@@ -144,8 +147,16 @@ function main() {
           const snap = JSON.parse(child_process.execSync(`git show ${h}:nepse-chart/data/live.json`, { cwd: ROOT, stdio: ['ignore', 'pipe', 'ignore'] }).toString());
           if (String(snap.session_date || '').slice(0, 10) !== today) continue;
           if (!skippedTip) { skippedTip = true; continue; } // newest = current working-tree snapshot
+          // Pre-open snapshots carry the PREVIOUS session's full book — the
+          // intraday feed resets at the continuous open (seen 2026-10-06:
+          // 359 quotes stamped session 2026-10-06 at 10:45:58 NPT, then 69 at
+          // 11:00:43 NPT growing to 318). Using a pre-open snapshot as the
+          // "largest same-session" baseline false-fails the gate, so only
+          // snapshots captured at/after MARKET_OPEN qualify as the baseline.
+          const asofT = snap.asof ? new Date(snap.asof) : null;
+          if (asofT && !isNaN(asofT) && td.timeNPT(asofT) < td.MARKET_OPEN) continue;
           const c = Object.keys(snap.quotes || {}).length;
-          if (prevQ === null || c > prevQ) { prevQ = c; prevQSrc = 'same-session snapshot ' + h.slice(0, 7); }
+          if (prevQ === null || c > prevQ) { prevQ = c; prevQSrc = 'same-session post-open snapshot ' + h.slice(0, 7); }
         }
       } catch (e) { /* shallow clone / no history — fall through to floor */ }
       if (prevQ !== null && prevQ > 0) {
@@ -153,7 +164,7 @@ function main() {
           `intraday: quotes=${q} baseline=${prevQ} (${prevQSrc}) — no intraday collapse`);
       } else {
         gate('security-count-stable', q >= 50,
-          `intraday: quotes=${q} (no earlier same-session snapshot; early-session floor 50)`);
+          `intraday: quotes=${q} (no earlier same-session POST-OPEN snapshot; early-session floor 50)`);
       }
     } else if (baseline && typeof baseline === 'number' && baseline > 0) {
       const drift = Math.abs(q - baseline) / baseline;
