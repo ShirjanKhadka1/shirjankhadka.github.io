@@ -53,6 +53,7 @@
   var UNIVERSE_V = '20261002b'; // bump when universe.json is rebuilt
   var FUND_URL = '/nepse-chart/data/fundamentals.json';
   var DIV_URL = '/nepse-chart/data/div-live.json';
+  var DIV_HIST_URL = '/nepse-chart/data/div-history-yonepse.json';
   var divCache = null; // {symbol: [{cash_dividend, bonus_share, ...}]} — loaded once
 
   var fundCache = null; // {symbol: {eps_ttm, pe_ttm}} — loaded once, shared across symbols
@@ -222,10 +223,28 @@
   }
 
   function loadDividends() {
-    // Dividend history — one fetch, cached for the page lifetime.
+    // Dividend history — live + full historical archive merged, cached for page lifetime.
+    // div-live.json (manual latest) takes precedence over div-history-yonepse.json.
     if (divCache) return Promise.resolve(divCache);
-    return fetchJSON(DIV_URL).then(function (d) {
-      divCache = (d && d.companies) || {};
+    return Promise.all([
+      fetchJSON(DIV_URL).catch(function () { return null; }),
+      fetchJSON(DIV_HIST_URL).catch(function () { return null; })
+    ]).then(function (res) {
+      var live = (res[0] && res[0].companies) || {};
+      var hist = (res[1] && res[1].companies) || {};
+      var merged = {};
+      var sym;
+      for (sym in hist) { if (Object.prototype.hasOwnProperty.call(hist, sym)) merged[sym] = hist[sym]; }
+      for (sym in live) {
+        if (!Object.prototype.hasOwnProperty.call(live, sym)) continue;
+        var liveRows = live[sym] || [];
+        var histRows = merged[sym] || [];
+        var liveYears = {};
+        liveRows.forEach(function (r) { if (r && r.year) liveYears[r.year] = true; });
+        var kept = histRows.filter(function (r) { return !(r && r.year && liveYears[r.year]); });
+        merged[sym] = liveRows.concat(kept);
+      }
+      divCache = merged;
       return divCache;
     }).catch(function () {
       divCache = {};
