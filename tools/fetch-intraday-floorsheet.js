@@ -154,7 +154,17 @@ async function main() {
     const mo = await apiFetch('GET', '/api/nots/nepse-data/market-open');
     const marketOpen = !!(mo && mo.isOpen === 'OPEN');
     log('market status:', mo && mo.isOpen, 'session id:', mo && mo.id);
-    if (!mo || mo.id == null) { log('no session id; leaving intraday.json untouched'); process.exit(0); }
+    if (!mo || mo.id == null) {
+      // Distinguish "market closed, no session expected" from "API failed"
+      // If the API returned a response but no session ID, market is likely closed — graceful exit
+      // If mo is null/undefined, the API call itself failed — this is an error
+      if (mo === null || mo === undefined) {
+        log('FATAL: market-open API returned no response — API may be down or blocking');
+        process.exit(1);
+      }
+      log('no session id (market closed); leaving intraday.json untouched');
+      process.exit(0);
+    }
 
     const pid = payloadId(mo.id, AUTH.salts);
     const brokers = {};  // code -> {buy_value, sell_value, buy_qty, sell_qty}
@@ -189,7 +199,11 @@ async function main() {
     }
 
     log('total rows: ' + totalRows + ', mapped: ' + mapped + ', pages: ' + pages);
-    if (mapped === 0) { log('no rows mapped — field mapping needs fixing; leaving intraday.json untouched'); process.exit(0); }
+    if (mapped === 0) {
+      log('FATAL: no rows mapped — API returned data but field mapping failed');
+      log('This means NEPSE changed their API format. Field mapping needs fixing.');
+      process.exit(1);
+    }
 
     // round for compactness
     const round2 = (n) => Math.round(n * 100) / 100;
@@ -219,8 +233,9 @@ async function main() {
     log('wrote ' + OUT + ' (' + Object.keys(brokers).length + ' brokers, ' +
         Object.keys(symbols).length + ' symbols)');
   } catch (e) {
-    log('FAILED:', e.message, '-- leaving intraday.json untouched');
-    process.exit(0);
+    log('FATAL:', e.message);
+    log('Stack:', e.stack);
+    process.exit(1);
   }
 }
 
