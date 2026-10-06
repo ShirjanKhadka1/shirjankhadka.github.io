@@ -216,3 +216,22 @@
   --nd-rim: inset 0 1px 0 rgba(255,255,255,.9);
   --nd-press: inset 0 2px 5px rgba(40,55,25,.12);
 }
+
+/* ============================================================
+ * Blog cards: Pro 3D treatment (overrides style.css flat cards)
+ * ============================================================ */
+.mag-card,.post-card,.event-card{
+  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 40%),var(--nd-panel);
+  border:1px solid var(--nd-border);
+  box-shadow:var(--nd-rim),var(--nd-e2);
+  transition:transform .2s var(--nd-ease),box-shadow .2s var(--nd-ease);
+}
+.mag-card:hover,.post-card:hover,.event-card:hover{
+  transform:translateY(-3px);
+  box-shadow:var(--nd-rim),var(--nd-e3);
+}
+.cert-card,.hub-method-card,.chart-card{
+  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 40%),var(--nd-panel);
+  border:1px solid var(--nd-border);
+  box-shadow:var(--nd-rim),var(--nd-e2);
+}
