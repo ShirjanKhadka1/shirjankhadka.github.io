@@ -52,6 +52,8 @@
   };
   var UNIVERSE_V = '20261002b'; // bump when universe.json is rebuilt
   var FUND_URL = '/nepse-chart/data/fundamentals.json';
+  var DIV_URL = '/nepse-chart/data/div-live.json';
+  var divCache = null; // {symbol: [{cash_dividend, bonus_share, ...}]} — loaded once
 
   var fundCache = null; // {symbol: {eps_ttm, pe_ttm}} — loaded once, shared across symbols
 
@@ -219,6 +221,18 @@
     });
   }
 
+  function loadDividends() {
+    // Dividend history — one fetch, cached for the page lifetime.
+    if (divCache) return Promise.resolve(divCache);
+    return fetchJSON(DIV_URL).then(function (d) {
+      divCache = (d && d.companies) || {};
+      return divCache;
+    }).catch(function () {
+      divCache = {};
+      return divCache;
+    });
+  }
+
   /* Format a datetime like Merolagani: "2026/10/06 12:15:50" (NPT wall clock). */
   function fmtDateTimeNPT(ms) {
     if (!isFinite(ms) || ms <= 0) return '—';
@@ -294,8 +308,18 @@
     setFund('nt-f-pe', f && isFinite(+f.pe_ttm) ? fmtNum(+f.pe_ttm) : '—');
     setFund('nt-f-bv', '—');
     setFund('nt-f-pbv', '—');
-    setFund('nt-f-div', '—');
-    setFund('nt-f-bonus', '—');
+    // Dividend history — latest declared dividend per symbol.
+    var dv = !isIndex && divCache && divCache[sym] ? divCache[sym] : null;
+    var latest = null;
+    if (dv && dv.length) {
+      // Sort by announcement date descending, take the latest.
+      var sorted = dv.slice().sort(function (a, b) {
+        return String(b.announcement_date || '').localeCompare(String(a.announcement_date || ''));
+      });
+      latest = sorted[0];
+    }
+    setFund('nt-f-div', latest && latest.cash_dividend ? fmtNum(+latest.cash_dividend) + '%' : '—');
+    setFund('nt-f-bonus', latest && latest.bonus_share ? fmtNum(+latest.bonus_share) + '%' : '—');
     setFund('nt-f-right', '—');
   }
 
@@ -1045,9 +1069,12 @@
 
     loadUniverse().then(function () {
       fillDatalist();
-      // Fundamentals (EPS/P/E) load in parallel — repaint the panel when they
-      // land in case the chart beat them.
+      // Fundamentals (EPS/P/E) and dividends load in parallel — repaint the
+      // panel when they land in case the chart beat them.
       loadFundamentals().then(function () {
+        if (state.rows.length) paintFundamentals();
+      });
+      loadDividends().then(function () {
         if (state.rows.length) paintFundamentals();
       });
       // Wait for the deferred data scripts (nepse-daily.js) and the first

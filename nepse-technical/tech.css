@@ -389,3 +389,7 @@ body {
   .nt-go, .nt-chips button{ transition: none; }
   .nt-go:hover, .nt-chips button:hover{ transform: none; }
 }
+
+/* Skip link: visually hidden until keyboard-focused (a11y best practice) */
+.skip-link{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;z-index:9999;background:var(--nd-lime,#B8E62E);color:#0A0C10;padding:10px 18px;border-radius:8px;font-weight:700;text-decoration:none}
+.skip-link:focus,.skip-link:active{left:12px;top:12px;width:auto;height:auto;overflow:visible}
