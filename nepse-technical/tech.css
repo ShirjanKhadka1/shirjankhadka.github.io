@@ -30,7 +30,18 @@ body {
 }
 .nt-badge-row { display: flex; justify-content: center; margin-bottom: 14px; }
 
-/* ---- Breadcrumb (was rendering as a numbered list: no list reset existed) ---- */
+/* ---- Skip link: visually hidden until keyboard focus ---- */
+.skip-link {
+  position: absolute; left: 16px; top: -80px; z-index: 5000;
+  background: var(--nd-lime, #B8E62E); color: #0a0d12;
+  font-size: 14px; font-weight: 700;
+  padding: 10px 18px; border-radius: 10px; text-decoration: none;
+  transition: top .2s ease;
+}
+.skip-link:focus { top: 12px; }
+[data-theme="light"] .skip-link { background: #4D7C0F; color: #fff; }
+
+/* ---- Breadcrumb: clean inline trail (no list markup, no numbering even if CSS is stale) ---- */
 nav[aria-label="Breadcrumb"] {
   margin: 4px 0 16px;
 }
@@ -265,7 +276,7 @@ nav[aria-label="Breadcrumb"] {
 }
 .nt-session {
   font-family: var(--nd-font-mono, monospace); font-size: var(--nd-text-meta, .6875rem);
-  color: var(--nd-dim, #6B7280); margin: 12px 2px 0;
+  color: var(--nd-muted, #9AA3B2); margin: 12px 2px 0;
   display: flex; align-items: center; gap: 8px;
 }
 .nt-session::before {
@@ -315,7 +326,7 @@ nav[aria-label="Breadcrumb"] {
   border: 1px solid var(--nd-border, #1E2430); border-radius: var(--nd-r-card, 18px);
   background: linear-gradient(135deg, var(--nd-panel-2, #161A23), var(--nd-panel, #12141A));
   color: var(--nd-muted, #9AA3B2);
-  font-size: var(--nd-text-body-sm, .8125rem); line-height: 1.8; max-width: 88ch;
+  font-size: var(--nd-text-body-sm, .8125rem); line-height: 1.8;
   position: relative; overflow: hidden;
 }
 .nt-notes::before {
@@ -329,7 +340,7 @@ nav[aria-label="Breadcrumb"] {
 }
 .nt-notes p { margin: 0 0 12px; }
 .nt-notes a { color: var(--nd-lime, #B8E62E); }
-.nt-notes .fine { font-size: 12.5px; color: var(--nd-dim, #6B7280); }
+.nt-notes .fine { font-size: 12.5px; color: var(--nd-muted, #9AA3B2); }
 .nt-faq { margin-top: 20px; }
 .nt-faq details { border-top: 1px solid var(--nd-border, #1E2430); padding: 12px 0; }
 .nt-faq details:last-child { border-bottom: 1px solid var(--nd-border, #1E2430); }
