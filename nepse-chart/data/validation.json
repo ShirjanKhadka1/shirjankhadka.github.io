@@ -1,24 +1,24 @@
 {
-  "ran_at_npt": "2026-10-06T01:07:00+05:45",
-  "expected_session": "2026-10-05",
+  "ran_at_npt": "2026-10-06T23:07:00+05:45",
+  "expected_session": "2026-10-06",
   "passed": true,
   "gates": [
     {
       "gate": "manifest-present",
       "pass": true,
-      "detail": "data/manifest.json session=2026-10-05",
+      "detail": "data/manifest.json session=2026-10-06",
       "severity": "fail"
     },
     {
       "gate": "live-session-current",
       "pass": true,
-      "detail": "live=2026-10-05 expected=2026-10-05",
+      "detail": "live=2026-10-06 expected=2026-10-06",
       "severity": "fail"
     },
     {
       "gate": "universe-session-current",
       "pass": true,
-      "detail": "universe=2026-10-05 expected=2026-10-05",
+      "detail": "universe=2026-10-06 expected=2026-10-06",
       "severity": "fail"
     },
     {
@@ -66,13 +66,13 @@
     {
       "gate": "session-totals-consistent",
       "pass": true,
-      "detail": "turnover=Rs 3.28B vol=9.0M trades=44777 n=359",
+      "detail": "turnover=Rs 3.04B vol=8.7M trades=40201 n=359",
       "severity": "fail"
     },
     {
       "gate": "universe-membership-stable",
       "pass": true,
-      "detail": "quoted=359 universe=410 (87.6%)",
+      "detail": "quoted=359 universe=408 (88.0%)",
       "severity": "flag"
     },
     {
@@ -90,37 +90,37 @@
     {
       "gate": "no-dup-symbols",
       "pass": true,
-      "detail": "410 unique",
+      "detail": "408 unique",
       "severity": "fail"
     },
     {
       "gate": "signals/momentum.json-fresh",
       "pass": true,
-      "detail": "generated=2026-10-05 expected>=2026-10-05",
+      "detail": "generated=2026-10-06 expected>=2026-10-06",
       "severity": "fail"
     },
     {
       "gate": "signals/trend-relay.json-fresh",
       "pass": true,
-      "detail": "generated=2026-10-05 expected>=2026-10-05",
+      "detail": "generated=2026-10-06 expected>=2026-10-06",
       "severity": "fail"
     },
     {
       "gate": "signals/reversal.json-fresh",
       "pass": true,
-      "detail": "generated=2026-10-05 expected>=2026-10-05",
+      "detail": "generated=2026-10-06 expected>=2026-10-06",
       "severity": "fail"
     },
     {
       "gate": "all-files-parse",
       "pass": true,
-      "detail": "73 files ok",
+      "detail": "452 files ok",
       "severity": "fail"
     },
     {
       "gate": "sha256-integrity",
       "pass": true,
-      "detail": "73 files verified",
+      "detail": "452 files verified",
       "severity": "fail"
     }
   ],
