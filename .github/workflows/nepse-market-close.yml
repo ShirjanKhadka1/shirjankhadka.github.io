@@ -367,7 +367,7 @@ jobs:
           git add nepse-chart/data data js/nepse-daily.js nepse-screener/index.html stocks nepse-actions sitemap.xml \
             nepse-decode/index.html nepse-chart/index.html nepse-trending/index.html nepse-value/index.html \
             nepse-news/index.html nepse-sectors/index.html nepse-reports/index.html nepse-simulator/index.html \
-            js/freshness-badge.js status/index.html
+            js/freshness-badge.js status/index.html tools/nepse-universe-report.txt
           git diff --cached --quiet && echo "no changes — nothing to deploy" && exit 0
           git commit -m "market-close: data refresh for session $SESSION (validated)"
           TAG="data-${SESSION}-1"
