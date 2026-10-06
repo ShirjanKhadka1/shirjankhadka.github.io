@@ -79,7 +79,7 @@ function normalizeBars(bars) {
             close: +b[4] || 0, volume: +b[5] || 0, turnover: +b[6] || 0 };
     } else {
       o = { ymd: +b.ymd || 0, open: +b.open || 0, high: +b.high || 0, low: +b.low || 0,
-            close: +b.close || 0, volume: +b.volume || 0, turnover: +b.turnover || 0 };
+            close: +b.close || 0, volume: +(b.volume ?? b.qty) || 0, turnover: +b.turnover || 0 };
     }
     if (o.ymd > 0 && o.close > 0) out.push(o);
   }
