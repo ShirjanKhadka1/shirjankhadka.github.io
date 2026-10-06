@@ -1087,7 +1087,18 @@ function main() {
   }
   const symbols = onlySym
     ? universe.symbols.filter((u) => String(u.s).toUpperCase() === onlySym)
-    : universe.symbols;
+    : universe.symbols.filter((u) => {
+        // Merger lifecycle exclusion: never generate pages for absorbed symbols
+        try {
+          const mtPath = path.join(__dirname, 'verdict-engine-v2', 'manual', 'merger-tracker.json');
+          if (fs.existsSync(mtPath)) {
+            const mt = JSON.parse(fs.readFileSync(mtPath, 'utf8'));
+            const absorbed = new Set((mt.completed_mergers || []).map((m) => m.absorbed));
+            if (absorbed.has(u.s)) return false;
+          }
+        } catch (e) { /* merger-tracker read failed, allow symbol */ }
+        return true;
+      });
   const verdicts = ver.verdicts;
   const newsBySym = {};
   if (news && news.items) {

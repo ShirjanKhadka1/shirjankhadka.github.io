@@ -272,6 +272,26 @@ async function main() {
   console.log('> union universe (currently listed):', symbols.length, 'symbols');
   console.log('  monthly-only historical symbols (excluded):', monthlyOnly.length);
 
+  // Merger lifecycle exclusion: absorbed symbols from completed mergers must
+  // never re-enter the universe, even if they appear in source feeds.
+  const MERGER_TRACKER = path.join(__dirname, 'verdict-engine-v2', 'manual', 'merger-tracker.json');
+  let absorbedSet = new Set();
+  try {
+    if (fs.existsSync(MERGER_TRACKER)) {
+      const mt = JSON.parse(fs.readFileSync(MERGER_TRACKER, 'utf8'));
+      (mt.completed_mergers || []).forEach((m) => { if (m.absorbed) absorbedSet.add(m.absorbed); });
+    }
+  } catch (e) { console.log('  merger-tracker read failed:', e.message); }
+  const preMergerCount = symbols.length;
+  const filteredSymbols = symbols.filter((s) => !absorbedSet.has(s));
+  if (filteredSymbols.length < preMergerCount) {
+    console.log('  MERGER EXCLUSION: removed', (preMergerCount - filteredSymbols.length), 'absorbed symbols:',
+      symbols.filter((s) => absorbedSet.has(s)).join(', '));
+  }
+  // Replace symbols with filtered version for downstream processing
+  symbols.length = 0;
+  filteredSymbols.forEach((s) => symbols.push(s));
+
   // New listings: symbols in today's union that were absent from the last
   // published universe (e.g. newly listed IPOs). Only computed when a
   // previous universe exists, so the very first build flags nothing.
