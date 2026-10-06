@@ -34,6 +34,11 @@
   background: linear-gradient(180deg, #1e242e 0%, #141821 100%);
   box-shadow: 0 1px 0 rgba(255,255,255,.08) inset, 0 3px 10px rgba(184,230,46,.15);
 }
+/* active pill must beat the dark base rule (equal specificity, later rule wins) */
+[data-theme="dark"] .bk-periods button.active{
+  background: var(--nd-lime, #B8E62E); border-color: var(--nd-lime, #B8E62E); color: #0A0C10;
+  box-shadow: 0 1px 0 rgba(255,255,255,.25) inset, 0 3px 10px rgba(184,230,46,.3);
+}
 .bk-ctl{ display: flex; gap: 10px; flex-wrap: wrap; margin: 0 0 16px; align-items: center; }
 .bk-ctl select, .bk-ctl input{ border: 1px solid var(--hairline, #E7DFCE); border-radius: 8px; padding: 8px 12px; font-size: .9rem; background: var(--card, #fff); max-width: 100%; }
 .bk-scroll{ overflow-x: auto; margin: 12px 0; border: 1px solid var(--hairline, #E7DFCE); border-radius: 12px; }
