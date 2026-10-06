@@ -6,7 +6,8 @@
       "notes": "WNLB merged into SLBBL. WNLB no longer trades independently. Page removed 2026-10-06.",
       "status": "completed",
       "survivor": "SLBBL",
-      "type": "merger"
+      "type": "merger",
+      "stage": "completed"
     },
     {
       "absorbed": "SFCL",
@@ -14,11 +15,38 @@
       "type": "merger",
       "status": "completed",
       "notes": "SFCL (Samriddhi Finance) merged into PFL (Pokhara Finance) at 1:1 swap. Trading suspended 2026-07-09. 19,014,680 merged PFL shares listed 2026-09-15. Page removed 2026-10-06. PFL share count needs official NEPSE re-check (archive still shows pre-merger 10.8M).",
-      "action_taken": "Removed stocks/SFCL/index.html, removed from universe.json and sitemap.xml"
+      "action_taken": "Removed stocks/SFCL/index.html, removed from universe.json and sitemap.xml",
+      "stage": "completed"
     }
   ],
   "note": "Merger/acquisition tracker \u2014 symbols that have merged, been acquired, or changed trading status. When a merger completes, remove the absorbed symbol from universe.json and delete its stock page.",
   "pending_mergers": [],
   "updated": "2026-10-06",
-  "watchlist": "Monitor NEPSE announcements, ShareSansar, and company notices for merger/acquisition MOUs, SGM approvals, and trading halts."
+  "watchlist": "Monitor NEPSE announcements, ShareSansar, and company notices for merger/acquisition MOUs, SGM approvals, and trading halts.",
+  "lifecycle": {
+    "stages": [
+      {
+        "stage": "announced",
+        "description": "Merger MOU/news announced. Both symbols still trade independently."
+      },
+      {
+        "stage": "in_process",
+        "description": "Submitted for regulatory approval (SEBON/NRB). SGM approvals. Both symbols still trade."
+      },
+      {
+        "stage": "halted",
+        "description": "Trading halted for a few days during the merger execution."
+      },
+      {
+        "stage": "completed",
+        "description": "Trading resumes as merged entity \u2014 either with new name/symbol, or old name/symbol representing the combined entity. Absorbed symbol removed."
+      }
+    ],
+    "actions_per_stage": {
+      "announced": "Log in tracker. Monitor for progress. No data changes.",
+      "in_process": "Update tracker. Flag for close monitoring. No data changes yet.",
+      "halted": "Note halt in tracker. Pages remain but show halt status if possible.",
+      "completed": "Remove absorbed symbol from universe.json. Delete its stock page. Remove from sitemap. Update survivor's share data."
+    }
+  }
 }
