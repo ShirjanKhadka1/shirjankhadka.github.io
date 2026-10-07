@@ -466,7 +466,9 @@ function load(silent){
   // 2026-10-07: fetch live.json alongside trending.json so LTP stays fresh
   // intraday. The daily rebuild provides scores/reasons; live LTP overrides
   // the stale close for the price column.
-  var liveP = fetch(BASE+'../nepse-chart/data/live.json', { cache: 'no-store' })
+  // (BASE is '/nepse-chart/data/'; the old '../nepse-chart/data/live.json'
+  // resolved to /nepse-chart/nepse-chart/data/live.json -> 404.)
+  var liveP = fetch(BASE+'live.json', { cache: 'no-store' })
     .then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; });
   fetch(BASE+'trending.json', { cache: 'no-store' }).then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(d){
     return liveP.then(function(live){
