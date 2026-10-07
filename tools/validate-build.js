@@ -142,10 +142,12 @@ function main() {
   }
 
   // Gate 2: quoted count stable vs PREVIOUS build (±5%).
-  // Compared against the previous manifest's live.json row count, NOT the
-  // universe count: live.json only carries securities with quotes (traded),
-  // while universe.json lists every listed security incl. untraded
-  // debentures / mutual funds / suspended equities. A ±5% band (not ±3%)
+  // Compared against the last good full-day deploy (newest data-* tag)'s
+  // manifest live.json row count, NOT HEAD's manifest: the content pipeline's
+  // midday manifest rebuild records a mid-session partial count (298 at noon
+  // 2026-10-07 vs 359 at the close). live.json only carries securities with
+  // quotes (traded), while universe.json lists every listed security incl.
+  // untraded debentures / mutual funds / suspended equities. A ±5% band (not ±3%)
   // because suspensions and trading halts legitimately move the count.
   //
   // INTRADAY EXCEPTION: the content pipeline is scheduled for 06:00/18:00 NPT
@@ -166,10 +168,21 @@ function main() {
     const intraday = liveSession === today && td.isTradingDay(today) && td.timeNPT(now) < td.MARKET_CLOSE;
     let baseline = null, baselineSrc = '';
     try {
-      const prev = child_process.execSync('git show HEAD:data/manifest.json', { cwd: ROOT, stdio: ['ignore', 'pipe', 'ignore'] });
+      // Baseline = the last good full-day deploy (newest data-* tag), NOT
+      // HEAD:data/manifest.json. The content pipeline's midday manifest
+      // rebuild records the then-current (mid-session, partial) live.json row
+      // count into HEAD's manifest — seen 2026-10-07: 298 rows at noon vs 359
+      // at the close → false FAIL (drift 20.5%). The last good tag always
+      // carries a full-day close book, which is what "previous build" means.
+      let tag = '';
+      try {
+        tag = child_process.execSync("git tag --list 'data-*' --sort=-creatordate | head -n1", { cwd: ROOT, stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+      } catch (e) { /* no data tags yet */ }
+      const ref = tag || 'HEAD';
+      const prev = child_process.execSync('git show ' + ref + ':data/manifest.json', { cwd: ROOT, stdio: ['ignore', 'pipe', 'ignore'] });
       const pm = JSON.parse(prev.toString());
       baseline = pm.files && pm.files['nepse-chart/data/live.json'] && pm.files['nepse-chart/data/live.json'].rows;
-      baselineSrc = 'previous manifest';
+      baselineSrc = tag ? ('last good tag ' + tag) : 'previous manifest (HEAD)';
     } catch (e) { /* first run: no baseline */ }
     if (overrideCountGate) {
       gate('security-count-stable', true, `OVERRIDDEN by operator — quotes=${q} baseline=${baseline || 'n/a'} reason="${overrideCountReason}"`);
