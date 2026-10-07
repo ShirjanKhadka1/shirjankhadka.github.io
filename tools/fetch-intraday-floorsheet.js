@@ -166,6 +166,15 @@ async function main() {
       process.exit(0);
     }
 
+    if (!marketOpen) {
+      // Market-hours poller: when the market is not OPEN (e.g. a cron run
+      // delayed past 15:00 NPT), the floorsheet endpoint returns zero rows
+      // for the last session — not a field-mapping change. Exit cleanly so a
+      // delayed out-of-hours run can't fire a false failure alert.
+      log('market is', mo.isOpen || 'unknown', '- not OPEN; leaving intraday.json untouched');
+      process.exit(0);
+    }
+
     const pid = payloadId(mo.id, AUTH.salts);
     const brokers = {};  // code -> {buy_value, sell_value, buy_qty, sell_qty}
     const symbols = {};  // sym -> {qty, value, buyers:{}, sellers:{}}
