@@ -111,7 +111,7 @@ h2.bk-h{font-family:var(--serif);font-size:1.25rem;margin:20px 0 8px}
 <!-- SNAP-END -->
 <div class="cover" id="coverage">Loading data…</div>
 
-<div class="bk-tabs" role="tablist" id="viewTabs">
+<div class="bk-tabs" role="group" aria-label="Broker views" id="viewTabs">
 <button data-view="top" class="active">Top Brokers</button>
 <button data-view="broker">Broker Trade Pattern</button>
 <button data-view="stock">Stock Trade Pattern</button>
@@ -131,7 +131,7 @@ h2.bk-h{font-family:var(--serif);font-size:1.25rem;margin:20px 0 8px}
 <button data-p="1Y">1Y</button>
 <button data-p="2Y">2Y</button>
 <button data-p="3Y">3Y</button>
-<input type="date" id="asofDate" title="As of date" style="border:1px solid var(--hairline);border-radius:var(--r-pill);padding:5px 10px;font-size:.85rem">
+<input type="date" id="asofDate" aria-label="As of date" title="As of date" style="border:1px solid var(--hairline);border-radius:var(--r-pill);padding:5px 10px;font-size:.85rem">
 </div>
 
 <div class="ctl" id="viewControls" style="display:none">
