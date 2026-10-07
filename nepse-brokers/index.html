@@ -61,12 +61,12 @@ h2.bk-h{font-family:var(--serif);font-size:1.25rem;margin:20px 0 8px}
 .snap .bk-table{margin-top:12px}
 .snap-note{font-size:.82rem;color:var(--muted,#6F6A5E);margin:12px 0 0}
 /* 3D depth: cards lift with layered shadows, tables get depth on hover */
-.bk-card,.snap,.stat-tile{
+.bk-card,.snap,.stat,.stat-row>div{
   transform:perspective(1000px) translateZ(0);
   transition:transform .25s ease,box-shadow .25s ease;
   box-shadow:0 1px 3px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.06);
 }
-.bk-card:hover,.snap:hover,.stat-tile:hover{
+.bk-card:hover,.snap:hover,.stat:hover{
   transform:perspective(1000px) translateZ(8px);
   box-shadow:0 4px 8px rgba(0,0,0,.10),0 12px 28px rgba(0,0,0,.12),0 2px 4px rgba(0,0,0,.08);
 }
