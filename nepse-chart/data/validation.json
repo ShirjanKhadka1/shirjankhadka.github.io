@@ -1,12 +1,12 @@
 {
-  "ran_at_npt": "2026-10-07T12:03:00+05:45",
-  "expected_session": "2026-10-06",
+  "ran_at_npt": "2026-10-07T17:27:00+05:45",
+  "expected_session": "2026-10-07",
   "passed": true,
   "gates": [
     {
       "gate": "manifest-present",
       "pass": true,
-      "detail": "data/manifest.json session=2026-10-06",
+      "detail": "data/manifest.json session=2026-10-07",
       "severity": "fail"
     },
     {
@@ -18,25 +18,25 @@
     {
       "gate": "universe-session-current",
       "pass": true,
-      "detail": "universe=2026-10-06 expected=2026-10-06",
+      "detail": "universe=2026-10-07 expected=2026-10-07",
       "severity": "fail"
     },
     {
       "gate": "security-count-stable",
       "pass": true,
-      "detail": "intraday: quotes=298 baseline=288 (same-session post-open snapshot 2a23ca5) — no intraday collapse",
+      "detail": "quotes=359 baseline=359 (last good tag data-2026-10-06-1) drift=0.0% band=±5%",
       "severity": "fail"
     },
     {
       "gate": "no-dup-quotes",
       "pass": true,
-      "detail": "298 unique quoted symbols",
+      "detail": "359 unique quoted symbols",
       "severity": "fail"
     },
     {
       "gate": "price-sanity",
       "pass": true,
-      "detail": "298 quotes ok",
+      "detail": "359 quotes ok",
       "severity": "fail"
     },
     {
@@ -48,7 +48,7 @@
     {
       "gate": "quote-math-reconciles",
       "pass": true,
-      "detail": "298 quotes reconcile",
+      "detail": "359 quotes reconcile",
       "severity": "fail"
     },
     {
@@ -66,13 +66,13 @@
     {
       "gate": "session-totals-consistent",
       "pass": true,
-      "detail": "turnover=Rs 0.60B vol=1.7M trades=6747 n=298",
+      "detail": "turnover=Rs 3.74B vol=10.3M trades=39372 n=359",
       "severity": "fail"
     },
     {
       "gate": "universe-membership-stable",
-      "pass": false,
-      "detail": "quoted=298 universe=408 (73.0%)",
+      "pass": true,
+      "detail": "quoted=359 universe=404 (88.9%)",
       "severity": "flag"
     },
     {
@@ -90,42 +90,41 @@
     {
       "gate": "no-dup-symbols",
       "pass": true,
-      "detail": "408 unique",
+      "detail": "404 unique",
       "severity": "fail"
     },
     {
       "gate": "signals/momentum.json-fresh",
       "pass": true,
-      "detail": "generated=2026-10-06 expected>=2026-10-06",
+      "detail": "generated=2026-10-07 expected>=2026-10-07",
       "severity": "fail"
     },
     {
       "gate": "signals/trend-relay.json-fresh",
       "pass": true,
-      "detail": "generated=2026-10-06 expected>=2026-10-06",
+      "detail": "generated=2026-10-07 expected>=2026-10-07",
       "severity": "fail"
     },
     {
       "gate": "signals/reversal.json-fresh",
       "pass": true,
-      "detail": "generated=2026-10-06 expected>=2026-10-06",
+      "detail": "generated=2026-10-07 expected>=2026-10-07",
       "severity": "fail"
     },
     {
       "gate": "all-files-parse",
       "pass": true,
-      "detail": "452 files ok",
+      "detail": "465 files ok",
       "severity": "fail"
     },
     {
       "gate": "sha256-integrity",
       "pass": true,
-      "detail": "452 files verified",
+      "detail": "465 files verified",
       "severity": "fail"
     }
   ],
   "flagged": [
-    "universe-membership-stable",
     "close-source-official"
   ]
 }
