@@ -125,7 +125,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add nepse-chart/data data
           git commit -m "market-close: manual rollback data to $ROLLBACK_TAG"
-          git pull --rebase --autostash origin main
+          git pull --rebase origin main
           git push origin main
           echo "## Market-close: manual rollback to \`$ROLLBACK_TAG\`" >> "$GITHUB_STEP_SUMMARY"
 
@@ -156,7 +156,7 @@ jobs:
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add nepse-chart/data/jobs.json
             git diff --cached --quiet || git commit -m "market-close: skipped (non-trading day)"
-            git pull --rebase --autostash origin main
+            git pull --rebase origin main
             git push origin main
           else
             echo "dry-run: git commit/push skipped — nothing reaches main"
@@ -221,7 +221,7 @@ jobs:
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add nepse-chart/data/jobs.json data/manifest.json nepse-chart/data/manifest.json
             git diff --cached --quiet || git commit -m "market-close: no new session for $SESSION — treated as market closed (notice)"
-            git pull --rebase --autostash origin main
+            git pull --rebase origin main
             git push origin main
           else
             echo "dry-run: git commit/push skipped — nothing reaches main"
@@ -282,7 +282,7 @@ jobs:
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add nepse-chart/data data
             git commit -m "market-close: AUTO-ROLLBACK to $TAG after validation failure (session ${{ steps.trading.outputs.session }})"
-            git pull --rebase --autostash origin main
+            git pull --rebase origin main
             git push origin main
           else
             echo "dry-run: git commit/push skipped — nothing reaches main"
