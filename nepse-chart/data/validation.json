@@ -1,5 +1,5 @@
 {
-  "ran_at_npt": "2026-10-07T00:04:00+05:45",
+  "ran_at_npt": "2026-10-07T12:03:00+05:45",
   "expected_session": "2026-10-06",
   "passed": true,
   "gates": [
@@ -12,7 +12,7 @@
     {
       "gate": "live-session-current",
       "pass": true,
-      "detail": "live=2026-10-06 expected=2026-10-06",
+      "detail": "live=2026-10-07 expected=2026-10-07",
       "severity": "fail"
     },
     {
@@ -24,19 +24,19 @@
     {
       "gate": "security-count-stable",
       "pass": true,
-      "detail": "quotes=359 baseline=359 (previous manifest) drift=0.0% band=±5%",
+      "detail": "intraday: quotes=298 baseline=288 (same-session post-open snapshot 2a23ca5) — no intraday collapse",
       "severity": "fail"
     },
     {
       "gate": "no-dup-quotes",
       "pass": true,
-      "detail": "359 unique quoted symbols",
+      "detail": "298 unique quoted symbols",
       "severity": "fail"
     },
     {
       "gate": "price-sanity",
       "pass": true,
-      "detail": "359 quotes ok",
+      "detail": "298 quotes ok",
       "severity": "fail"
     },
     {
@@ -48,7 +48,7 @@
     {
       "gate": "quote-math-reconciles",
       "pass": true,
-      "detail": "359 quotes reconcile",
+      "detail": "298 quotes reconcile",
       "severity": "fail"
     },
     {
@@ -66,13 +66,13 @@
     {
       "gate": "session-totals-consistent",
       "pass": true,
-      "detail": "turnover=Rs 3.04B vol=8.7M trades=40201 n=359",
+      "detail": "turnover=Rs 0.60B vol=1.7M trades=6747 n=298",
       "severity": "fail"
     },
     {
       "gate": "universe-membership-stable",
-      "pass": true,
-      "detail": "quoted=359 universe=408 (88.0%)",
+      "pass": false,
+      "detail": "quoted=298 universe=408 (73.0%)",
       "severity": "flag"
     },
     {
@@ -125,6 +125,7 @@
     }
   ],
   "flagged": [
+    "universe-membership-stable",
     "close-source-official"
   ]
 }
