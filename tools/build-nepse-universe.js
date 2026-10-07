@@ -44,16 +44,11 @@ const U = {
   companies: 'https://samirwagle.github.io/Nepse-All-Scraper/docs/api/companies.json',
   prices: (s) => 'https://samirwagle.github.io/Nepse-All-Scraper/docs/api/prices/' + s.replace('/', '-') + '.json',
   live: 'https://shubhamnpk.github.io/yonepse/data/market/live.json',
-  // Chukul: live OHLC API for recent sessions (fills gap when yonepse is stale).
-  // Requires Referer header. See ~/workspace/nepse-data-archive/ for snapshots.
-  chukulHistory: (sym, fromTs, toTs) => `https://chukul.com/api/data/historydata/?symbol=${encodeURIComponent(sym)}&from=${fromTs}&to=${toTs}`,
 };
 const UA = { 'User-Agent': 'Mozilla/5.0 (NEPSE-Alpha-Lab universe builder)' };
-const UA_CHUKUL = {
-  'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-  'Accept': 'application/json',
-  'Referer': 'https://chukul.com/nepse-charts',
-};
+// Proprietary archive: our own OHLC store at ~/workspace/nepse-data-archive/.
+// Populated by tools/update-ohlc-archive.js (scheduled). The builder NEVER
+// hits source platforms directly — it reads only our archive. No footprint.
 
 function getJSON(url, tries) {
   tries = tries == null ? 3 : tries;
@@ -257,73 +252,37 @@ async function main() {
   });
   console.log('  monthly files ok:', monthlyOk + '/' + months.length, '| symbols with monthly data:', monthlySeries.size);
 
-  // ---- Chukul recent OHLC: fills the gap when yonepse monthly is stale ----
-  // yonepse manifest latestDate can lag by days/weeks. Chukul's historydata API
-  // provides recent daily OHLC (open/high/low/close/volume). We fetch the last
-  // 10 days for all union symbols and merge into monthlySeries (only fills
-  // missing dates, never overwrites existing).
-  // Falls back to local archive at ~/workspace/nepse-data-archive/ if API fails.
-  console.log('> chukul recent OHLC…');
+  // ---- Proprietary OHLC archive: fills gaps when community monthly files lag ----
+  // Reads ONLY from our own archive at ~/workspace/nepse-data-archive/.
+  // The archive is populated by tools/update-ohlc-archive.js (scheduled job).
+  // The builder never contacts source platforms directly — no footprint.
+  // Merges into monthlySeries: only fills missing dates, never overwrites.
+  console.log('> proprietary OHLC archive…');
   try {
-    const nowTs = Math.floor(Date.now() / 1000);
-    const fromTs = nowTs - 10 * 86400; // last 10 days
-    // Build symbol list from companies (already fetched) for the Chukul pull
-    const chukulSyms = companies.slice(0, 500); // cap to avoid hammering
-    const chukulResults = await pool(chukulSyms, 6, async (sym) => {
-      const url = U.chukulHistory(sym, fromTs, nowTs);
-      const ctl = new AbortController();
-      const timer = setTimeout(() => ctl.abort(), 15000);
-      try {
-        const res = await fetch(url, { headers: UA_CHUKUL, signal: ctl.signal });
-        clearTimeout(timer);
-        if (!res.ok) return null;
-        const data = await res.json();
-        return Array.isArray(data) ? data : null;
-      } catch (e) {
-        clearTimeout(timer);
-        return null;
-      }
-    });
-    let chukulFilled = 0;
-    chukulResults.forEach((rows, idx) => {
-      if (!rows || !rows.length) return;
-      const sym = chukulSyms[idx];
-      let m = monthlySeries.get(sym);
-      if (!m) { m = new Map(); monthlySeries.set(sym, m); }
-      rows.forEach((r) => {
-        if (!r.date || !r.close) return;
-        const ymd = ymdNum(r.date);
-        if (!m.has(ymd)) {
-          // [ltp, vol, turnover, trades] — Chukul gives volume; turnover est from close*vol
-          const vol = r.volume || 0;
-          m.set(ymd, [r.close, vol, (r.amount || r.close * vol), 0]);
-          chukulFilled++;
-        }
-      });
-    });
-    console.log('  chukul filled:', chukulFilled, 'date-points');
-  } catch (e) {
-    console.log('  !! chukul fetch failed:', e.message, '(continuing with yonepse data)');
-    // Fallback: try local archive
-    try {
-      const archPath = '/home/hatch/workspace/nepse-data-archive/chukul-oct05-06-2026.json';
-      if (fs.existsSync(archPath)) {
-        const arch = JSON.parse(fs.readFileSync(archPath, 'utf8'));
-        let archFilled = 0;
-        Object.keys(arch.data || {}).forEach((sym) => {
-          let m = monthlySeries.get(sym);
-          if (!m) { m = new Map(); monthlySeries.set(sym, m); }
-          arch.data[sym].forEach((r) => {
-            const ymd = ymdNum(r.date);
-            if (ymd && r.close && !m.has(ymd)) {
-              m.set(ymd, [r.close, r.volume || 0, r.amount || 0, 0]);
-              archFilled++;
-            }
+    const archDir = '/home/hatch/workspace/nepse-data-archive';
+    let archFilled = 0;
+    if (fs.existsSync(archDir)) {
+      const files = fs.readdirSync(archDir).filter(f => f.endsWith('.json'));
+      files.forEach((fn) => {
+        try {
+          const arch = JSON.parse(fs.readFileSync(path.join(archDir, fn), 'utf8'));
+          Object.keys(arch.data || {}).forEach((sym) => {
+            let m = monthlySeries.get(sym);
+            if (!m) { m = new Map(); monthlySeries.set(sym, m); }
+            arch.data[sym].forEach((r) => {
+              const ymd = ymdNum(r.date);
+              if (ymd && r.close && !m.has(ymd)) {
+                m.set(ymd, [r.close, r.volume || 0, r.amount || 0, 0]);
+                archFilled++;
+              }
+            });
           });
-        });
-        console.log('  archive fallback filled:', archFilled, 'date-points');
-      }
-    } catch (ae) { console.log('  !! archive fallback failed:', ae.message); }
+        } catch (e) { /* skip bad files */ }
+      });
+    }
+    console.log('  archive filled:', archFilled, 'date-points');
+  } catch (e) {
+    console.log('  !! archive read failed:', e.message, '(continuing with community data)');
   }
 
   // ---- union universe: currently-listed securities only ----
