@@ -277,29 +277,37 @@
 <script>
 // Live price badges for analysis cards — fetches current LTP so cards don't show stale prices as current
 (function() {
-  var LIVE_URL = '/nepse-chart/data/live.json';
-  function fmt(n) { return 'Rs ' + Number(n).toLocaleString('en-NP', {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
-  fetch(LIVE_URL, {credentials: 'same-origin'})
-    .then(function(r) { if (!r.ok) throw 0; return r.json(); })
-    .then(function(live) {
-      var quotes = {};
-      (live.quotes || []).forEach(function(q) { if (q.symbol) quotes[q.symbol] = q; });
-      document.querySelectorAll('.mag-card').forEach(function(card) {
-        var kicker = card.querySelector('.mag-kicker');
-        if (!kicker) return;
-        var m = kicker.textContent.match(/NEPSE:\s*([A-Z0-9\/]+)/);
-        if (!m) return;
-        var sym = m[1];
-        var q = quotes[sym];
-        if (!q || !q.ltp) return;
-        var badge = document.createElement('p');
-        badge.className = 'mag-live-price';
-        badge.innerHTML = 'Live: <strong>' + fmt(q.ltp) + '</strong> <span class="mag-live-asof">(' + (live.session_date || 'latest') + ')</span>';
-        var body = card.querySelector('.mag-card-body');
-        if (body) body.appendChild(badge);
-      });
-    })
-    .catch(function() {});
+  function init() {
+    var LIVE_URL = '/nepse-chart/data/live.json';
+    function fmt(n) { return 'Rs ' + Number(n).toLocaleString('en-NP', {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
+    fetch(LIVE_URL + '?v=' + Date.now(), {cache: 'no-store'})
+      .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function(live) {
+        var quotes = {};
+        (live.quotes || []).forEach(function(q) { if (q.symbol) quotes[q.symbol] = q; });
+        document.querySelectorAll('.mag-card').forEach(function(card) {
+          var kicker = card.querySelector('.mag-kicker');
+          if (!kicker) return;
+          var m = kicker.textContent.match(/NEPSE:\s*([A-Z0-9\/]+)/);
+          if (!m) return;
+          var sym = m[1];
+          var q = quotes[sym];
+          if (!q || !q.ltp) return;
+          if (card.querySelector('.mag-live-price')) return;
+          var badge = document.createElement('p');
+          badge.className = 'mag-live-price';
+          badge.innerHTML = 'Latest: <strong>' + fmt(q.ltp) + '</strong> <span class="mag-live-asof">(' + (live.session_date || 'latest') + ' · ~15 min delayed)</span>';
+          var body = card.querySelector('.mag-card-body');
+          if (body) body.appendChild(badge);
+        });
+      })
+      .catch(function(e) { console.warn('Live price badges failed:', e.message); });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 })();
 </script>
 </body>
