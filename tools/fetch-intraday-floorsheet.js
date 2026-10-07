@@ -117,8 +117,8 @@ function num(v, fb) { const n = typeof v === 'number' ? v : parseFloat(v); retur
 /* ---- floorsheet row mapping (defensive; keys logged on first row) ---- */
 const FIELD_CANDIDATES = {
   symbol: ['symbol', 'stockSymbol', 'scrip', 'securityName'],
-  buyer: ['buyerMemberId', 'buyerBroker', 'buyer', 'buyerMemberCode'],
-  seller: ['sellerMemberId', 'sellerBroker', 'seller', 'sellerMemberCode'],
+  buyer: ['buyerBrokerName', 'buyerMemberId', 'buyerBroker', 'buyer', 'buyerMemberCode'],
+  seller: ['sellerBrokerName', 'sellerMemberId', 'sellerBroker', 'seller', 'sellerMemberCode'],
   qty: ['contractQuantity', 'quantity', 'tradedQuantity', 'qty'],
   amount: ['contractAmount', 'amount', 'tradedValue', 'totalAmount'],
 };
