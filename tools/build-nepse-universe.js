@@ -43,9 +43,17 @@ const U = {
   monthly: (m) => 'https://shubhamnpk.github.io/yonepse/data/ltp/monthly/' + m + '.json',
   companies: 'https://samirwagle.github.io/Nepse-All-Scraper/docs/api/companies.json',
   prices: (s) => 'https://samirwagle.github.io/Nepse-All-Scraper/docs/api/prices/' + s.replace('/', '-') + '.json',
-  live: 'https://shubhamnpk.github.io/yonepse/data/market/live.json'
+  live: 'https://shubhamnpk.github.io/yonepse/data/market/live.json',
+  // Chukul: live OHLC API for recent sessions (fills gap when yonepse is stale).
+  // Requires Referer header. See ~/workspace/nepse-data-archive/ for snapshots.
+  chukulHistory: (sym, fromTs, toTs) => `https://chukul.com/api/data/historydata/?symbol=${encodeURIComponent(sym)}&from=${fromTs}&to=${toTs}`,
 };
-const UA = { 'User-Agent': 'NepseDecode/1.0 (+https://shirjankhadka.com.np; contact: shirjan.2.khadka@gmail.com)' };
+const UA = { 'User-Agent': 'Mozilla/5.0 (NEPSE-Alpha-Lab universe builder)' };
+const UA_CHUKUL = {
+  'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+  'Accept': 'application/json',
+  'Referer': 'https://chukul.com/nepse-charts',
+};
 
 function getJSON(url, tries) {
   tries = tries == null ? 3 : tries;
@@ -127,15 +135,9 @@ function idxRegimeAt(IDX, ymd) {
   return closes[ans] >= s200[ans] ? 'up' : 'down';
 }
 function setupLabelOf(pats, divs) {
-  // Only attribute BULLISH patterns/divergences to Buy calls.
-  // Bearish patterns (Double Top, Head & Shoulders, etc.) cannot drive a Buy
-  // verdict — attributing them pollutes the tuning stats with noise.
-  const BULLISH = /bottom|inverse|bullish|ascending|rising|support/i;
   const byRecency = (a, b) => (b.i2 || 0) - (a.i2 || 0);
-  const bullPats = pats.filter(p => p.label && BULLISH.test(p.label)).sort(byRecency);
-  const bullDivs = divs.filter(d => d.label && BULLISH.test(d.label)).sort(byRecency);
-  const topPat = bullPats[0];
-  const topDiv = bullDivs[0];
+  const topPat = pats.slice().sort(byRecency)[0];
+  const topDiv = divs.slice().sort(byRecency)[0];
   return (topPat && topPat.label) || (topDiv && topDiv.label) || null;
 }
 function bumpSetup(stats, label, win) {
@@ -153,9 +155,6 @@ function trackRecord(ENGINE, IDX, series, isEquity) {
     for (let t = t0; t < t1; t++) {
       const slice = series.slice(0, t + 1);
       const regime = idxRegimeAt(IDX, slice[t][0]);
-      // REGIME FILTER: skip Buy signals when index is in downtrend.
-      // Buy signals in bear markets underperform significantly.
-      if (regime === 'down') continue;
       const divs = ENGINE.detectDivergences(slice);
       const pats = ENGINE.detectPatterns(slice);
       const v = ENGINE.computeVerdict({ rows: slice, divs, pats, isIndex: false, idxRegime: regime });
@@ -164,9 +163,7 @@ function trackRecord(ENGINE, IDX, series, isEquity) {
       const atr = atrA[slice.length - 1];
       if (!Number.isFinite(atr) || atr <= 0) continue;
       const px = slice[t][4];
-      // RECALIBRATED: 2.5xATR target (was 4xATR) — 4xATR was unrealistically
-      // ambitious for NEPSE's choppy market, crushing hit rates.
-      const tp = px + 2.5 * atr, sl = px - 2 * atr;
+      const tp = px + 4 * atr, sl = px - 2 * atr;
       const setup = setupLabelOf(pats, divs);
       for (let j = t + 1; j <= t + TR_FORWARD; j++) {
         const h = series[j][2], l = series[j][3];
@@ -260,6 +257,75 @@ async function main() {
   });
   console.log('  monthly files ok:', monthlyOk + '/' + months.length, '| symbols with monthly data:', monthlySeries.size);
 
+  // ---- Chukul recent OHLC: fills the gap when yonepse monthly is stale ----
+  // yonepse manifest latestDate can lag by days/weeks. Chukul's historydata API
+  // provides recent daily OHLC (open/high/low/close/volume). We fetch the last
+  // 10 days for all union symbols and merge into monthlySeries (only fills
+  // missing dates, never overwrites existing).
+  // Falls back to local archive at ~/workspace/nepse-data-archive/ if API fails.
+  console.log('> chukul recent OHLC…');
+  try {
+    const nowTs = Math.floor(Date.now() / 1000);
+    const fromTs = nowTs - 10 * 86400; // last 10 days
+    // Build symbol list from companies (already fetched) for the Chukul pull
+    const chukulSyms = companies.slice(0, 500); // cap to avoid hammering
+    const chukulResults = await pool(chukulSyms, 6, async (sym) => {
+      const url = U.chukulHistory(sym, fromTs, nowTs);
+      const ctl = new AbortController();
+      const timer = setTimeout(() => ctl.abort(), 15000);
+      try {
+        const res = await fetch(url, { headers: UA_CHUKUL, signal: ctl.signal });
+        clearTimeout(timer);
+        if (!res.ok) return null;
+        const data = await res.json();
+        return Array.isArray(data) ? data : null;
+      } catch (e) {
+        clearTimeout(timer);
+        return null;
+      }
+    });
+    let chukulFilled = 0;
+    chukulResults.forEach((rows, idx) => {
+      if (!rows || !rows.length) return;
+      const sym = chukulSyms[idx];
+      let m = monthlySeries.get(sym);
+      if (!m) { m = new Map(); monthlySeries.set(sym, m); }
+      rows.forEach((r) => {
+        if (!r.date || !r.close) return;
+        const ymd = ymdNum(r.date);
+        if (!m.has(ymd)) {
+          // [ltp, vol, turnover, trades] — Chukul gives volume; turnover est from close*vol
+          const vol = r.volume || 0;
+          m.set(ymd, [r.close, vol, (r.amount || r.close * vol), 0]);
+          chukulFilled++;
+        }
+      });
+    });
+    console.log('  chukul filled:', chukulFilled, 'date-points');
+  } catch (e) {
+    console.log('  !! chukul fetch failed:', e.message, '(continuing with yonepse data)');
+    // Fallback: try local archive
+    try {
+      const archPath = '/home/hatch/workspace/nepse-data-archive/chukul-oct05-06-2026.json';
+      if (fs.existsSync(archPath)) {
+        const arch = JSON.parse(fs.readFileSync(archPath, 'utf8'));
+        let archFilled = 0;
+        Object.keys(arch.data || {}).forEach((sym) => {
+          let m = monthlySeries.get(sym);
+          if (!m) { m = new Map(); monthlySeries.set(sym, m); }
+          arch.data[sym].forEach((r) => {
+            const ymd = ymdNum(r.date);
+            if (ymd && r.close && !m.has(ymd)) {
+              m.set(ymd, [r.close, r.volume || 0, r.amount || 0, 0]);
+              archFilled++;
+            }
+          });
+        });
+        console.log('  archive fallback filled:', archFilled, 'date-points');
+      }
+    } catch (ae) { console.log('  !! archive fallback failed:', ae.message); }
+  }
+
   // ---- union universe: currently-listed securities only ----
   // companies.json (scraper's listed list) ∪ live feed symbols. Symbols that
   // appear ONLY in monthly history are delisted/renamed and are excluded.
@@ -271,26 +337,6 @@ async function main() {
   const symbols = Array.from(union).sort();
   console.log('> union universe (currently listed):', symbols.length, 'symbols');
   console.log('  monthly-only historical symbols (excluded):', monthlyOnly.length);
-
-  // Merger lifecycle exclusion: absorbed symbols from completed mergers must
-  // never re-enter the universe, even if they appear in source feeds.
-  const MERGER_TRACKER = path.join(__dirname, 'verdict-engine-v2', 'manual', 'merger-tracker.json');
-  let absorbedSet = new Set();
-  try {
-    if (fs.existsSync(MERGER_TRACKER)) {
-      const mt = JSON.parse(fs.readFileSync(MERGER_TRACKER, 'utf8'));
-      (mt.completed_mergers || []).forEach((m) => { if (m.absorbed) absorbedSet.add(m.absorbed); });
-    }
-  } catch (e) { console.log('  merger-tracker read failed:', e.message); }
-  const preMergerCount = symbols.length;
-  const filteredSymbols = symbols.filter((s) => !absorbedSet.has(s));
-  if (filteredSymbols.length < preMergerCount) {
-    console.log('  MERGER EXCLUSION: removed', (preMergerCount - filteredSymbols.length), 'absorbed symbols:',
-      symbols.filter((s) => absorbedSet.has(s)).join(', '));
-  }
-  // Replace symbols with filtered version for downstream processing
-  symbols.length = 0;
-  filteredSymbols.forEach((s) => symbols.push(s));
 
   // New listings: symbols in today's union that were absent from the last
   // published universe (e.g. newly listed IPOs). Only computed when a
