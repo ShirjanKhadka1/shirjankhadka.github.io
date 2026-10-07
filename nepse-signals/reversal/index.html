@@ -197,7 +197,14 @@
   var lastGen='';
   function loadData(isAuto){
     var url='/nepse-chart/data/signals/'+sys+'.json'+(isAuto?('?t='+Date.now()):'');
-    fetch(url).then(function(r){return r.json();}).then(function(d){
+    Promise.all([
+      fetch(url).then(function(r){return r.json();}),
+      fetch('/nepse-chart/data/live.json').then(function(r){return r.json();}).catch(function(){return null;})
+    ]).then(function(res){
+      var d=res[0], live=res[1];
+      // Live LTP map from our own market data (15-min delayed intraday, final close after 3:20 PM)
+      var ltpMap={};
+      if(live&&live.quotes){live.quotes.forEach(function(q){if(q.symbol&&q.ltp)ltpMap[q.symbol]=+q.ltp;});}
     if(isAuto&&d.generated_at&&d.generated_at===lastGen)return; // no new build
     if(d.generated_at)lastGen=d.generated_at;
     /* freshness */
@@ -231,15 +238,19 @@
     var tb=document.querySelector('#alerts tbody');
     if(!d.alerts||!d.alerts.length){tb.innerHTML='<tr><td colspan="11">No open positions right now — the system is flat.</td></tr>';}
     else tb.innerHTML=d.alerts.map(function(a){
-      var pnl=a.unrealized_pct>=0?'+'+a.unrealized_pct+'%':a.unrealized_pct+'%';
-      var cls=a.unrealized_pct>=0?'color:var(--nd-up,#4ADE80)':'color:var(--nd-down,#F87171)';
+      // Override stale 'current' with live LTP; recalc unrealized % and progress
+      var cur=ltpMap[a.symbol]||+a.current||0;
+      var upct=a.entry?Math.round((cur-(+a.entry))/(+a.entry)*10000)/100:(+a.unrealized_pct||0);
+      var prog=(+a.target_2)>(+a.entry)?Math.max(0,Math.min(100,(cur-(+a.entry))/((+a.target_2)-(+a.entry))*100)):(+a.progress||0);
+      var pnl=upct>=0?'+'+upct+'%':upct+'%';
+      var cls=upct>=0?'color:var(--nd-up,#4ADE80)':'color:var(--nd-down,#F87171)';
       return '<tr><td>'+esc(a.date)+'</td><td><strong>'+esc(a.symbol)+'</strong></td>'+
         '<td><span class="tag entry">'+esc(a.alert)+'</span></td>'+
         '<td>'+fmtN(a.entry)+'</td><td>'+fmtN(a.stop_loss)+'</td>'+
         '<td>'+fmtN(a.trail_stop)+'</td><td>'+fmtN(a.target_1)+'</td>'+
-        '<td>'+fmtN(a.target_2)+'</td><td>'+fmtN(a.current)+'</td>'+
+        '<td>'+fmtN(a.target_2)+'</td><td>'+fmtN(cur)+'</td>'+
         '<td style="'+cls+'">'+esc(pnl)+'</td>'+
-        '<td><div class="prog"><i style="width:'+Math.min(100,+a.progress||0)+'%"></i></div></td></tr>';
+        '<td><div class="prog"><i style="width:'+Math.min(100,prog)+'%"></i></div></td></tr>';
     }).join('');
     /* closed history — client-rendered from JSON (was 500-row SSR bake) */
     var cb=document.getElementById('closed-body');
