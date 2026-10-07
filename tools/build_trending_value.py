@@ -124,6 +124,9 @@ for cf in cache_files:
     volume_ratio = t0[3] / avg_vol
     ltp5 = sess[-6][1]
     ret_5d = t0[1] / ltp5 - 1 if ltp5 > 0 else 0
+    # 1-day change: today vs previous session
+    prev_close = sess[-2][1] if len(sess) >= 2 else 0
+    ret_1d = t0[1] / prev_close - 1 if prev_close > 0 else 0
     hi252 = max(s[2] for s in sess[-252:])
     dist_52w = t0[1] / hi252 - 1 if hi252 > 0 else 0
     conc = broker_conc.get(sym, 0.0)
@@ -159,7 +162,7 @@ for cf in cache_files:
         'name': u.get('n', sym),
         'sector': sector,
         'ltp': round(t0[1], 2),
-        'change_pct': round(ret_5d * 100, 2),
+        'change_pct': round(ret_1d * 100, 2),
         'turnover_rs_m': round(t0[4] / 1e6, 2),
         'turnover_ratio': round(turnover_ratio, 2),
         'volume_ratio': round(volume_ratio, 2),
@@ -192,14 +195,10 @@ if not trending:
         trending = _prev['stocks']
         trending_out = dict(_prev)
         trending_out.update({'asof': session_date, 'built': today,
-                             'live_asof': live_asof,
-                             'source': 'NEPSE official API + community OHLC archive + broker floorsheets',
-                             'tier': 'computed'})
+                             'live_asof': live_asof})
     else:
         trending_out = {
             'asof': session_date, 'built': today, 'live_asof': live_asof,
-            'source': 'NEPSE official API + community OHLC archive + broker floorsheets',
-            'tier': 'computed',
             'method': 'Score 0-100 = 35% turnover acceleration + 20% volume spike + 20% 5-day momentum + 15% broker flow + 10% news.',
             'coverage': {'symbols': 0, 'history': 'daily OHLCV sessions per symbol'},
             'stocks': [],
@@ -209,8 +208,6 @@ else:
         'asof': session_date,
         'built': today,
         'live_asof': live_asof,
-        'source': 'NEPSE official API + community OHLC archive + broker floorsheets',
-        'tier': 'computed',
     'method': ('Score 0-100 = 35% turnover acceleration (vs 20-day avg, capped 5x) + '
                '20% volume spike (capped 5x) + 20% 5-day momentum (capped +15%) + '
                '15% broker flow concentration (top single-broker 5-day net bought / 5-day turnover, capped 25%) + '
@@ -329,7 +326,6 @@ else:
         'asof': session_date,
         'built': today,
         'source': 'Published quarterly filings via screener compilation (Q4 FY 2082/2083); LTP from Nepse Decode market snapshot',
-        'tier': 'computed',
         'method': ('Value score 0-100 ranks each company within its own sector only: '
                    '50% earnings-yield rank (higher yield = cheaper) + 50% price-to-book rank (lower = cheaper). '
                    'Quality gate: positive TTM EPS and positive net worth. Sectors with fewer than 4 members are not scored. '
