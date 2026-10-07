@@ -308,6 +308,14 @@
   function init() {
     var mount = $(MOUNT_ID);
     if (!mount || !window.LightweightCharts) return;
+    // Only show NEPSE benchmark when viewing NEPSE itself, not individual stocks
+    // (user 2026-10-07: benchmark should not replace the stock's own chart)
+    var m = /[?&]s=([A-Za-z0-9/-]+)/.exec(location.search);
+    var sym = m ? m[1].toUpperCase() : 'NEPSE';
+    if (sym !== 'NEPSE' && sym !== 'NEPSE-INDEX' && sym !== 'INDEX') {
+      mount.style.display = 'none';
+      return;
+    }
     mount.innerHTML = mountHTML();
     var btns = mount.querySelectorAll('[data-tf]');
     for (var i = 0; i < btns.length; i++) {
