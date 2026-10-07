@@ -142,12 +142,16 @@ jobs:
               echo "nothing new to record — failure already recorded on main"
             else
               git commit -m "content: validation FAILED (deploy blocked)"
-              git pull --rebase origin main
+              # --autostash: the failed run's manifest rewrite leaves unstaged
+              # changes (data/manifest.json), which make plain pull --rebase
+              # exit 128 — dropping the failure record, the job summary, and
+              # the exit-1 marker (seen 2026-10-07 run 37579495891).
+              git pull --rebase --autostash origin main
               pushed=false
               for i in 1 2 3; do
                 if git push origin main; then pushed=true; break; fi
                 echo "Push attempt $i failed, retrying after pull..."
-                git pull --rebase origin main
+                git pull --rebase --autostash origin main
                 sleep 5
               done
               if [ "$pushed" != "true" ]; then
