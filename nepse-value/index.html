@@ -242,8 +242,19 @@ function render(){
 }
 
 function load(silent){
+  // 2026-10-07: fetch live.json alongside value.json so LTP stays fresh intraday.
+  var liveP = fetch(BASE+'../nepse-chart/data/live.json', { cache: 'no-store' })
+    .then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; });
   fetch(BASE+'value.json', { cache: 'no-store' }).then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(d){
-    state.rows = d.stocks || [];
+    return liveP.then(function(live){
+      var ltpMap = {};
+      if (live && live.quotes) {
+        live.quotes.forEach(function(q){ if (q.ltp > 0) ltpMap[q.symbol] = q.ltp; });
+      }
+      state.rows = d.stocks || [];
+      state.rows.forEach(function(s){
+        if (ltpMap[s.symbol]) s.ltp = ltpMap[s.symbol];
+      });
     if (!state.uiInit) {
       var sectors = {};
       state.rows.forEach(function(s){ sectors[s.sector] = 1; });
@@ -283,9 +294,9 @@ function load(silent){
   });
 }
 load();
-/* Auto-refresh every 60s (skipped while tab hidden) so a page left open picks
-   up the fresh rebuild without a reload. Silent: no flash, errors keep data. */
-setInterval(function(){ if(!document.hidden) load(true); }, 60000);
+/* Auto-refresh every 15 min (skipped while tab hidden) so LTPs stay fresh
+   intraday. Silent: no flash, errors keep data. */
+setInterval(function(){ if(!document.hidden) load(true); }, 15*60*1000);
 })();
 </script>
 <script src="/js/theme-toggle.js?v=20261002c" defer></script>

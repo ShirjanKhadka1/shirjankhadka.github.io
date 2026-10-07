@@ -463,19 +463,35 @@ function initResearch(){
 }
 
 function load(silent){
+  // 2026-10-07: fetch live.json alongside trending.json so LTP stays fresh
+  // intraday. The daily rebuild provides scores/reasons; live LTP overrides
+  // the stale close for the price column.
+  var liveP = fetch(BASE+'../nepse-chart/data/live.json', { cache: 'no-store' })
+    .then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; });
   fetch(BASE+'trending.json', { cache: 'no-store' }).then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(d){
-    state.rows = d.stocks || [];
-    state.meta = d;
-    var counts = {accumulation:0, distribution:0, watch:0};
-    state.rows.forEach(function(s){ if(counts[s.tone]!==undefined) counts[s.tone]++; });
-    $('coverage').innerHTML = '<strong>Data as of ' + esc(d.asof) + '.</strong> ' + state.rows.length +
-      ' equities scored (' + counts.accumulation + ' accumulation · ' + counts.distribution +
-      ' distribution · ' + counts.watch + ' watch). Scores rebuild every trading day from the daily close.';
-    $('methodBox').textContent = d.method || '';
-    $('toneKey').style.display = '';
-    if (!state.tabsInit) { initTabs(); state.tabsInit = true; }
-    if (!state.rsInit) { initResearch(); state.rsInit = true; } // RESEARCH-LAYER: wire once
-    render();
+    return liveP.then(function(live){
+      var ltpMap = {};
+      if (live && live.quotes) {
+        live.quotes.forEach(function(q){ if (q.ltp > 0) ltpMap[q.symbol] = q.ltp; });
+      }
+      state.rows = d.stocks || [];
+      // Override stale LTP with live price
+      state.rows.forEach(function(s){
+        if (ltpMap[s.symbol]) s.ltp = ltpMap[s.symbol];
+      });
+      state.meta = d;
+      var counts = {accumulation:0, distribution:0, watch:0};
+      state.rows.forEach(function(s){ if(counts[s.tone]!==undefined) counts[s.tone]++; });
+      var liveNote = Object.keys(ltpMap).length ? ' LTPs live.' : '';
+      $('coverage').innerHTML = '<strong>Data as of ' + esc(d.asof) + '.' + liveNote + '</strong> ' + state.rows.length +
+        ' equities scored (' + counts.accumulation + ' accumulation · ' + counts.distribution +
+        ' distribution · ' + counts.watch + ' watch). Scores rebuild every trading day from the daily close.';
+      $('methodBox').textContent = d.method || '';
+      $('toneKey').style.display = '';
+      if (!state.tabsInit) { initTabs(); state.tabsInit = true; }
+      if (!state.rsInit) { initResearch(); state.rsInit = true; } // RESEARCH-LAYER: wire once
+      render();
+    });
   }).catch(function(){
     if (silent) return; /* background refresh failed: keep last good render */
     $('coverage').textContent = 'Could not load trending data. Please try again later.';
@@ -483,9 +499,9 @@ function load(silent){
   });
 }
 load();
-/* Auto-refresh every 60s (skipped while tab hidden) so a page left open picks
-   up the fresh rebuild without a reload. Silent: no flash, errors keep data. */
-setInterval(function(){ if(!document.hidden) load(true); }, 60000);
+/* Auto-refresh every 15 min during market hours (skipped while tab hidden) so
+   LTPs stay fresh intraday. Silent: no flash, errors keep data. */
+setInterval(function(){ if(!document.hidden) load(true); }, 15*60*1000);
 })();
 </script>
 <script src="/js/theme-toggle.js?v=20261002c" defer></script>
