@@ -91,6 +91,12 @@ for (const vp of VIEWPORTS) {
       const page = await browser.newPage({
         viewport: { width: vp.width, height: vp.height },
         reducedMotion: 'reduce',
+        // THEME DETERMINISM (2026-10-07): the <head> theme snippet falls back
+        // to prefers-color-scheme when no saved preference exists. Fresh CI
+        // contexts default to light, so /nepse-brokers/ (the only tested page
+        // that neither loads nd-chrome.js nor defaults dark) rendered light
+        // against dark baselines. Pin dark so every page renders deterministically.
+        colorScheme: 'dark',
       });
 
       // 1. Freeze the clock before navigation (deterministic timestamps)
