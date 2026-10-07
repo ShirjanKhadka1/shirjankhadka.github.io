@@ -56,6 +56,42 @@ function sessionOf(obj) {
   return String(a).slice(0, 10);
 }
 
+// Largest earlier same-session POST-OPEN live.json snapshot committed in git
+// history (live-quotes commits every ~15 min). Used by the intraday
+// exceptions: mid-session snapshots legitimately GROW through the session
+// (observed: 63 quotes at 10:54 NPT → 313 by 12:15 NPT on 2026-10-05), so
+// full-day baselines false-fail when schedule drift pushes a pipeline run
+// into market hours (seen 2026-10-07: content pipeline ran at 11:49 NPT).
+// Pre-open snapshots are excluded — they carry the PREVIOUS session's full
+// book (seen 2026-10-06: 359 pre-open quotes stamped session 2026-10-06 at
+// 10:45:58 NPT, then 69 at 11:00:43 NPT growing to 318), and would
+// false-fail. The count must not COLLAPSE intraday. Requires full git
+// history (checkout fetch-depth: 0). Result is cached per process.
+let postOpenBaselineCache = null;
+function largestPostOpenSnapshot(today) {
+  if (postOpenBaselineCache) return postOpenBaselineCache;
+  let count = null, src = '';
+  try {
+    const log = child_process.execSync('git log --format=%H -40 -- nepse-chart/data/live.json', { cwd: ROOT, stdio: ['ignore', 'pipe', 'ignore'] })
+      .toString().trim().split('\n').filter(Boolean);
+    let skippedTip = false;
+    for (const h of log) {
+      const snap = JSON.parse(child_process.execSync(`git show ${h}:nepse-chart/data/live.json`, { cwd: ROOT, stdio: ['ignore', 'pipe', 'ignore'] }).toString());
+      if (String(snap.session_date || '').slice(0, 10) !== today) continue;
+      if (!skippedTip) { skippedTip = true; continue; } // newest = current working-tree snapshot
+      // Pre-open snapshots carry the PREVIOUS session's full book — using one
+      // as the "largest same-session" baseline false-fails the gate, so only
+      // snapshots captured at/after MARKET_OPEN qualify as the baseline.
+      const asofT = snap.asof ? new Date(snap.asof) : null;
+      if (asofT && !isNaN(asofT) && td.timeNPT(asofT) < td.MARKET_OPEN) continue;
+      const c = Object.keys(snap.quotes || {}).length;
+      if (count === null || c > count) { count = c; src = 'same-session post-open snapshot ' + h.slice(0, 7); }
+    }
+  } catch (e) { /* shallow clone / no history — fall through to floor */ }
+  postOpenBaselineCache = { count, src };
+  return postOpenBaselineCache;
+}
+
 function main() {
   const argSession = (process.argv.find(a => a.startsWith('--session=')) || '').split('=')[1];
   const overrideCountGate = process.argv.includes('--override-count-gate');
@@ -138,30 +174,10 @@ function main() {
     if (overrideCountGate) {
       gate('security-count-stable', true, `OVERRIDDEN by operator — quotes=${q} baseline=${baseline || 'n/a'} reason="${overrideCountReason}"`);
     } else if (intraday) {
-      let prevQ = null, prevQSrc = '';
-      try {
-        const log = child_process.execSync('git log --format=%H -40 -- nepse-chart/data/live.json', { cwd: ROOT, stdio: ['ignore', 'pipe', 'ignore'] })
-          .toString().trim().split('\n').filter(Boolean);
-        let skippedTip = false;
-        for (const h of log) {
-          const snap = JSON.parse(child_process.execSync(`git show ${h}:nepse-chart/data/live.json`, { cwd: ROOT, stdio: ['ignore', 'pipe', 'ignore'] }).toString());
-          if (String(snap.session_date || '').slice(0, 10) !== today) continue;
-          if (!skippedTip) { skippedTip = true; continue; } // newest = current working-tree snapshot
-          // Pre-open snapshots carry the PREVIOUS session's full book — the
-          // intraday feed resets at the continuous open (seen 2026-10-06:
-          // 359 quotes stamped session 2026-10-06 at 10:45:58 NPT, then 69 at
-          // 11:00:43 NPT growing to 318). Using a pre-open snapshot as the
-          // "largest same-session" baseline false-fails the gate, so only
-          // snapshots captured at/after MARKET_OPEN qualify as the baseline.
-          const asofT = snap.asof ? new Date(snap.asof) : null;
-          if (asofT && !isNaN(asofT) && td.timeNPT(asofT) < td.MARKET_OPEN) continue;
-          const c = Object.keys(snap.quotes || {}).length;
-          if (prevQ === null || c > prevQ) { prevQ = c; prevQSrc = 'same-session post-open snapshot ' + h.slice(0, 7); }
-        }
-      } catch (e) { /* shallow clone / no history — fall through to floor */ }
-      if (prevQ !== null && prevQ > 0) {
-        gate('security-count-stable', q >= prevQ * 0.98,
-          `intraday: quotes=${q} baseline=${prevQ} (${prevQSrc}) — no intraday collapse`);
+      const pb = largestPostOpenSnapshot(today);
+      if (pb.count !== null && pb.count > 0) {
+        gate('security-count-stable', q >= pb.count * 0.98,
+          `intraday: quotes=${q} baseline=${pb.count} (${pb.src}) — no intraday collapse`);
       } else {
         gate('security-count-stable', q >= 50,
           `intraday: quotes=${q} (no earlier same-session POST-OPEN snapshot; early-session floor 50)`);
@@ -266,6 +282,13 @@ function main() {
   // Sum of per-quote turnover/volume/trades must be positive on a trading
   // session; the traded-security count must match the quotes array. FAIL:
   // zero totals mean the capture produced an empty or broken session.
+  //
+  // INTRADAY EXCEPTION: same class as security-count-stable — schedule drift
+  // can push the content pipeline into market hours, when only a fraction of
+  // the day's securities have traded. The absolute 300 floor false-fails
+  // mid-session (seen 2026-10-07 run 37579495891: 288 traded at 11:49 NPT).
+  // Intraday the count must not COLLAPSE vs the largest earlier same-session
+  // post-open snapshot instead.
   if (live) {
     const quotes = Array.isArray(live.quotes) ? live.quotes : Object.values(live.quotes || {});
     let tTurn = 0, tVol = 0, tTrades = 0;
@@ -276,7 +299,19 @@ function main() {
     if (!(tTurn > 0)) problems.push('turnover sum = 0');
     if (!(tVol > 0)) problems.push('volume sum = 0');
     if (!(tTrades > 0)) problems.push('trades sum = 0');
-    if (quotes.length < 300) problems.push(`only ${quotes.length} securities traded (< 300)`);
+    const liveSessionT = sessionOf(live);
+    const todayT = td.todayNPT(now);
+    const intradayT = liveSessionT === todayT && td.isTradingDay(todayT) && td.timeNPT(now) < td.MARKET_CLOSE;
+    if (intradayT) {
+      const pbT = largestPostOpenSnapshot(todayT);
+      if (pbT.count !== null && pbT.count > 0) {
+        if (quotes.length < pbT.count * 0.98) problems.push(`intraday collapse: ${quotes.length} vs post-open baseline ${pbT.count} (${pbT.src})`);
+      } else if (quotes.length < 50) {
+        problems.push(`intraday early-session: only ${quotes.length} securities traded (< 50)`);
+      }
+    } else if (quotes.length < 300) {
+      problems.push(`only ${quotes.length} securities traded (< 300)`);
+    }
     gate('session-totals-consistent', problems.length === 0,
       problems.length ? problems.join('; ') : `turnover=Rs ${(tTurn / 1e9).toFixed(2)}B vol=${(tVol / 1e6).toFixed(1)}M trades=${tTrades} n=${quotes.length}`, 'fail');
   }
