@@ -1,7 +1,7 @@
 {
-  "ran_at_npt": "2026-10-08T11:55:00+05:45",
+  "ran_at_npt": "2026-10-08T12:16:00+05:45",
   "expected_session": "2026-10-07",
-  "passed": false,
+  "passed": true,
   "gates": [
     {
       "gate": "manifest-present",
@@ -24,37 +24,37 @@
     {
       "gate": "security-count-stable",
       "pass": true,
-      "detail": "intraday: quotes=297 baseline=297 (same-session post-open snapshot 890f0eb) — no intraday collapse",
+      "detail": "intraday: quotes=329 baseline=311 (same-session post-open snapshot 88a419f) — no intraday collapse",
       "severity": "fail"
     },
     {
       "gate": "no-dup-quotes",
       "pass": true,
-      "detail": "297 unique quoted symbols",
+      "detail": "329 unique quoted symbols",
       "severity": "fail"
     },
     {
       "gate": "price-sanity",
       "pass": true,
-      "detail": "297 quotes ok",
+      "detail": "329 quotes ok",
       "severity": "fail"
     },
     {
       "gate": "index-change-reconciles",
-      "pass": false,
-      "detail": "NEPSE: Δ=-2.55 vs -2.57",
+      "pass": true,
+      "detail": "17 indices reconcile",
       "severity": "fail"
     },
     {
       "gate": "quote-math-reconciles",
       "pass": true,
-      "detail": "297 quotes reconcile",
+      "detail": "329 quotes reconcile",
       "severity": "fail"
     },
     {
       "gate": "circuit-limits",
-      "pass": true,
-      "detail": "all within ±10%",
+      "pass": false,
+      "detail": "KBSH: 13.9% — review for corporate actions",
       "severity": "flag"
     },
     {
@@ -66,13 +66,13 @@
     {
       "gate": "session-totals-consistent",
       "pass": true,
-      "detail": "turnover=Rs 0.55B vol=1.6M trades=6454 n=297",
+      "detail": "turnover=Rs 1.02B vol=3.1M trades=11850 n=329",
       "severity": "fail"
     },
     {
       "gate": "universe-membership-stable",
-      "pass": false,
-      "detail": "quoted=297 universe=404 (73.5%)",
+      "pass": true,
+      "detail": "quoted=329 universe=404 (81.4%)",
       "severity": "flag"
     },
     {
@@ -125,7 +125,7 @@
     }
   ],
   "flagged": [
-    "universe-membership-stable",
+    "circuit-limits",
     "close-source-official"
   ]
 }
