@@ -284,9 +284,11 @@ function load(silent){
       if (next) next.addEventListener('click', function(){ state.page++; render(); window.scrollTo({top: $('valueTable').offsetTop - 80, behavior: 'smooth'}); });
       state.uiInit = true;
     }
+  var prov = d.provenance || {};
+  var provText = prov.verified ? ' LTPs verified against ' + esc(prov.source_session) + ' close (' + (prov.source_quotes || '?') + ' quotes).' : '';
   $('coverage').innerHTML = '<strong>Data as of ' + esc(d.asof) + '.</strong> ' + state.rows.length +
     ' companies scored across ' + Object.keys(sectors).length + ' sectors (' +
-    (d.coverage && d.coverage.companies || '?') + ' companies in source filings). Source: ' + esc(d.source) + '.';
+    (d.coverage && d.coverage.companies || '?') + ' companies in source filings). Source: ' + esc(d.source) + '.' + provText;
   $('methodBox').textContent = d.method || '';
   render();
     });
