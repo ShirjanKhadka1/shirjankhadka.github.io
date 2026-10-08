@@ -14,6 +14,10 @@
  *   2. Company-name match: corporate suffixes stripped ("Nabil Bank
  *      Limited" -> "nabil"), matched as a phrase or as all core tokens.
  * Latin tickers also match inside Nepali-language headlines.
+ *   5. Disambiguation: when several symbols match one headline via a single
+ *      shared token, only the best-evidenced symbol(s) are kept; ties with
+ *      < 2 distinctive tokens are dropped (the headline is about the theme,
+ *      not a specific company).
  *
  * Node 18+, no npm dependencies. Run: node tools/build-nepse-news.js
  */
@@ -24,7 +28,7 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, 'nepse-chart', 'data', 'news.json');
 const UNIVERSE = path.join(ROOT, 'nepse-chart', 'data', 'universe.json');
-const UA = { 'User-Agent': 'NepseDecode/1.0 (+https://shirjankhadka.com.np; contact: shirjan.2.khadka@gmail.com)' };
+const UA = { 'User-Agent': 'Mozilla/5.0 (NEPSE-Alpha-Lab news collector)' };
 const KEEP_DAYS = 30;
 const MAX_ITEMS = 500;
 
@@ -75,35 +79,22 @@ const GENERIC = new Set([...SUFFIX, 'nepal', 'nepali', 'national', 'everest',
   'kavre', 'sindhuli', 'ramechhap', 'sindhupalchok', 'nuwakot', 'dhading',
   // Common nouns that don't identify a company on their own (Manakamana
   // cable-car news vs Bandipur Cablecar; temple "darshan" vs companies
-  // named "... Darshan"). "panel" as in committee/government panel vs
-  // SY Panel Nepal; "house" as in parliament vs companies with House.
-  'cablecar', 'cable', 'darshan', 'tourism', 'travels', 'holiday',
-  'panel', 'house', 'committee', 'subcommittee', 'minister',
-  'ministry', 'government', 'election', 'police', 'uniform', 'procurement',
-  // 'city' — "Manchester City" (football) vs CITY the NEPSE company.
-  // Ticker-only match now requires a market keyword (rule 4).
-  'city']);
-// Companies named after places (JHAPA/Jhapa Energy, MANDU/Mandu Hydro).
-// A headline mentioning only the place (wildlife, district news) is NOT
-// about the company — require company-context keywords for these.
-const PLACE_COMPANIES = {
-  'JHAPA': ['energy', 'hydropower', 'power', 'electricity'],
-  'MANDU': ['hydropower', 'hydro', 'power', 'energy'],
-  'PFL': ['finance', 'banking', 'loan'],
-  'BPCL': ['power', 'energy', 'hydropower', 'electricity'],
-};
-// Words indicating the headline is about the PLACE, not the company.
-const PLACE_CONTEXT = new Set([
-  'elephant', 'wildlife', 'wild', 'animal', 'forest', 'jungle',
-  'district', 'municipality', 'rural', 'village', 'farmer', 'agriculture',
-  'land', 'issues', 'urges', 'magar', 'mp', // "MP Rana Magar urges..." is politics
-  // "Kathmandu" the city vs MANDU the hydro — "mandu" substring must not match.
-  'kathmandu', 'valley', 'urban', 'transport', 'master', 'plan',
-]);
+  // named "... Darshan").
+  'cablecar', 'cable', 'darshan', 'tourism', 'travels', 'holiday']);
 // Common Nepali function words whose consonant skeletons collide with
 // company aliases (मात्रै "mtr" vs MDB's मितेरी "mtr"). These tokens are
 // never used for skeleton matching; the real alias token still matches.
 const DEVA_STOPWORDS = new Set(['मात्रै']);
+
+// Noise words that carry no identifying power when scoring how well a
+// headline matches a company name. Corporate SUFFIX words (bank, insurance,
+// hydropower...) are deliberately KEPT: "प्रभु बैंक" vs "प्रभु इन्स्योरेन्स"
+// is exactly the distinction the disambiguation pass needs.
+const EVIDENCE_NOISE = new Set(['limited', 'ltd', 'company', 'co', 'corp',
+  'incorporated', 'inc', 'the', 'and', 'of']);
+// GENERIC minus SUFFIX: "nepal"/"everest"/place-names stay excluded from
+// evidence, but bank/insurance/hydropower-style words count.
+const EVIDENCE_GENERIC = new Set([...GENERIC].filter((w) => !SUFFIX.has(w)));
 
 function decodeEntities(s) {
   return s.replace(/&#(\d+);/g, (_, n) => String.fromCharCode(+n))
@@ -147,7 +138,9 @@ function skeleton(tok) {
     for (const ch of tok) {
       if (!/[a-z]/.test(ch)) continue;
       if ('aeiouy'.includes(ch)) continue;
-      out += (ch === 'c' ? 'k' : ch); // nic <-> निक
+      // x -> ksh: क्ष (लक्ष्मी/laxmi, महालक्ष्मी/mahalaxmi). (2026-10-07:
+      // "mahalaxmi" reduced to "mhlxm" but महालक्ष्मी to "mhlkshm".)
+      out += (ch === 'c' ? 'k' : ch === 'x' ? 'ksh' : ch);
     }
   }
   return out;
@@ -159,8 +152,10 @@ function skeleton(tok) {
 const NE_ALIAS = {
   ADBL: ['कृषि विकास'],
   NABIL: ['नबिल'],
+  NBL: ['नेपाल बैंक'],
   NICA: ['एनआईसी एसिया', 'एनआईसी एशिया'],
   HBL: ['हिमालयन'],
+  HLBSL: ['हिमालयन लघुवित्त'],
   SCB: ['स्टान्डर्ड चार्टर्ड'],
   NIFRA: ['निफ्रा'],
   HIDCL: ['एचआईडीसीएल'],
@@ -196,6 +191,11 @@ function buildAliases(symbols) {
       coreTokens,
       skels: [...new Set(skels)],
       nePhrases,
+      // Full distinctive name tokens (suffixes kept: bank/insurance/
+      // hydropower disambiguate sister companies). Used only by the
+      // disambiguation pass below, never for the initial match.
+      fullTokens: words.filter((w) => w.length > 2 && !/^\d+$/.test(w) &&
+        !EVIDENCE_GENERIC.has(w) && !EVIDENCE_NOISE.has(w)),
     });
   }
   return out;
@@ -203,7 +203,14 @@ function buildAliases(symbols) {
 
 function matchSymbol(title, aliases) {
   const t = ' ' + title.toLowerCase() + ' ';
-  const hasKw = MARKET_KW.some((k) => t.includes(k));
+  // Keyword gate: 'बन्द' must not fire inside "बन्दै" (becoming) or similar
+  // word stems — a Devanagari vowel sign right after it means a different
+  // word, not a closure. (2026-10-07: a cricket headline "सन्तुलित बन्दै टोली"
+  // wrongly gated CSY via this substring + the सन्तुलित/santulit skeleton.)
+  const kwHit = (k) => (k === 'बन्द'
+    ? /बन्द(?![\u093E-\u094C\u0962\u0963])/.test(t)
+    : t.includes(k));
+  const hasKw = MARKET_KW.some(kwHit);
   const tokens = title.toLowerCase().split(/[^\u0900-\u097Fa-z0-9]+/)
     .filter((w) => w.length >= 2 && !DEVA_STOPWORDS.has(w));
   const hs = tokens.map(skeleton);
@@ -250,29 +257,62 @@ function matchSymbol(title, aliases) {
       else if (autoHit(4) === 1) weak = true;
       if (!strong && !weak) {
         for (const phrase of a.nePhrases) {
-          if (phrase.every((s) => hs.includes(s))) { strong = true; break; }
+          // Prefix match: postpositions attach to the last token
+          // ("लघुवित्तकी", "बैंकको") — the alias still identifies the company.
+          if (phrase.every((s) => hs.some((h) => h === s || h.startsWith(s)))) { strong = true; break; }
         }
       }
     }
     // 4) Bare ticker + market keyword (catches Nepali headlines too).
     if (!strong && !weak && a.tickerRe.test(t) &&
       (hasKw || a.coreTokens.some((w) => tokens.includes(w)))) strong = true;
-    // 5) Place-named companies: "Jhapa" the district vs JHAPA the energy company.
-    //    If headline has place-context words (wildlife, district, MP urges...)
-    //    but no company-context words (energy, power, hydro...), it's about
-    //    the place — reject the match.
-    if ((strong || weak) && PLACE_COMPANIES[a.sym]) {
-      const companyCtx = PLACE_COMPANIES[a.sym].some((w) => t.includes(' ' + w));
-      const placeCtx = [...PLACE_CONTEXT].some((w) => tokens.includes(w));
-      // Full company phrase ("jhapa energy") always counts as company context.
-      const fullPhrase = t.includes(' ' + a.phrase + ' ');
-      if (placeCtx && !companyCtx && !fullPhrase && !hasKw) {
-        strong = false; weak = false;
-      }
-    }
-    if (strong || (weak && hasKw)) hits.push(a.sym);
+    if (strong || (weak && hasKw)) hits.push(a);
   }
-  return hits;
+  return disambiguate(title, hits);
+}
+
+// How many of the company's distinctive name tokens actually appear in the
+// headline (English whole-word or Devanagari skeleton). Suffixes count:
+// "प्रभु बैंक" scores 2 for PRVU (prabhu+bank) but 1 for PRIN (prabhu only).
+// An explicit ticker mention counts 2; each matched vetted Nepali phrase
+// counts its tokens. Empty skeletons (digits, vowel-only tokens) are skipped
+// so e.g. "2087" can never count as evidence.
+function evidenceCount(title, a) {
+  const t = ' ' + title.toLowerCase() + ' ';
+  const toks = title.toLowerCase().split(/[^\u0900-\u097Fa-z0-9]+/)
+    .filter((w) => w.length >= 2);
+  const hs = toks.map(skeleton);
+  let n = 0;
+  if (a.tickerRe.test(t)) n += 2;
+  for (const w of a.fullTokens) {
+    const sk = skeleton(w);
+    if (!sk) continue;
+    // Prefix: postpositions attach ("बैंकको" still evidences bank).
+    if (toks.includes(w) || hs.some((h) => h === sk || h.startsWith(sk))) n++;
+  }
+  for (const phrase of a.nePhrases) {
+    if (phrase.length > 0 &&
+        phrase.every((s) => hs.some((h) => h === s || h.startsWith(s)))) n += phrase.length;
+  }
+  return n;
+}
+
+// Drop wrong-company pile-ups. Several symbols routinely match one headline
+// via a single shared token ("प्रभु" -> 7 Prabhu-group companies,
+// "प्रमोटर" -> every promoter-share line, "बन्दसत्र" -> Ghorahi Cement via
+// a skeleton substring). Keep every symbol with >= 2 distinctive tokens of
+// evidence (genuine multi-company headlines keep all subjects); when the
+// best evidence is < 2, the headline is about the shared token's theme —
+// not a specific company — so emit nothing.
+// (2026-10-07: PMLI promoter-sale story was live on 8 wrong symbols' tabs.)
+function disambiguate(title, hits) {
+  if (hits.length === 0) return [];
+  const scored = hits.map((a) => ({ sym: a.sym, e: evidenceCount(title, a) }));
+  const best = Math.max(...scored.map((s) => s.e));
+  if (best === 0) return [];                     // no real evidence: drop
+  if (hits.length === 1) return [scored[0].sym]; // unambiguous: keep
+  if (best < 2) return [];                        // shared-token tie: drop
+  return [...new Set(scored.filter((s) => s.e >= 2).sort((a, b) => b.e - a.e).map((s) => s.sym))];
 }
 
 async function fetchFeed(f) {
@@ -325,28 +365,29 @@ async function main() {
     }
   }
 
+  // One link = one row: a headline matched to several symbols keeps only
+  // the best-evidenced symbol (disambiguate returns best-first). The old
+  // sym|link key emitted the same story once per symbol (2026-10-08: the
+  // Beni Hydropower registrar story lived on 8 symbols' rows).
   const matched = [];
-  const seen = new Set();
+  const seenLink = new Set();
   for (const it of fresh) {
+    if (seenLink.has(it.link)) continue;
+    seenLink.add(it.link);
     const syms = matchSymbol(it.title, aliases);
-    for (const sym of syms) {
-      const key = sym + '|' + it.link;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      matched.push({ sym, title: it.title, link: it.link, src: it.src, date: it.date.slice(0, 10) });
-    }
+    if (syms.length === 0) continue;
+    matched.push({ sym: syms[0], syms, title: it.title, link: it.link, src: it.src, date: it.date.slice(0, 10) });
   }
 
   // Merge with the existing rolling file; drop items older than KEEP_DAYS.
   let prev = [];
   try { prev = JSON.parse(fs.readFileSync(OUT, 'utf8')).items || []; } catch (e) { /* first run */ }
   const cutoff = Date.now() - KEEP_DAYS * 864e5;
-  const byKey = new Map();
-  for (const it of prev.concat(matched)) {
-    const key = it.sym + '|' + it.link;
-    if (!byKey.has(key)) byKey.set(key, it);
+  const byLink = new Map();
+  for (const it of matched.concat(prev)) {
+    if (!byLink.has(it.link)) byLink.set(it.link, it);
   }
-  const items = [...byKey.values()]
+  const items = [...byLink.values()]
     .filter((it) => new Date(it.date + 'T00:00:00Z').getTime() >= cutoff)
     .sort((a, b) => (a.date < b.date ? 1 : -1))
     .slice(0, MAX_ITEMS);
