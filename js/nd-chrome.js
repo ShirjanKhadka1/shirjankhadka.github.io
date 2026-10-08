@@ -422,7 +422,7 @@
     if (hh) hh.innerHTML = headerHTML();
     if (fh) fh.innerHTML = footerHTML();
 
-    applyTheme(read('nd-ed-theme') === 'light' ? 'light' : 'dark');
+    applyTheme(read('nd-ed-theme') === 'dark' ? 'dark' : 'light');
     applyLang();
     initDropdowns();
     initSearch();
