@@ -65,16 +65,15 @@ function page(sys, data) {
   // First 50 rows visible; the rest sit in a hidden tbody revealed by "Show all".
   const trades = Array.isArray(data.recent_trades) ? data.recent_trades : [];
   function tradeRow(t) {
-    // 2026-10-02: data fields are entry/exit/reason (not entry_price/exit_price/exit_reason);
-    // P&L Rs dropped (no data), hold days derived from dates
+    // 2026-10-08 FIX: data fields are entry_price/exit_price/exit_reason (the 2026-10-02 comment was wrong)
     const pos = (t.pnl_pct || 0) >= 0;
     const cls = pos ? 'color:var(--up)' : 'color:var(--down)';
     const sign = pos ? '+' : '';
     const pc = t.pnl_pct === null || t.pnl_pct === undefined || !Number.isFinite(t.pnl_pct)
       ? '–' : sign + pct(t.pnl_pct);
-    const hd = holdDays(t);
+    const hd = (t.hold_days !== null && t.hold_days !== undefined && Number.isFinite(t.hold_days)) ? t.hold_days : holdDays(t);
     return `<tr><td><strong>${t.symbol}</strong></td><td class="num">${t.entry_date || '–'}</td><td class="num">${t.exit_date || '–'}</td>` +
-      `<td class="num">${fmt(t.entry)}</td><td class="num">${fmt(t.exit)}</td><td>${reasonPill(t.reason)}</td>` +
+      `<td class="num">${fmt(t.entry_price)}</td><td class="num">${fmt(t.exit_price)}</td><td>${reasonPill(t.exit_reason)}</td>` +
       `<td class="num" style="${cls}"><strong>${pc}</strong></td><td class="num">${hd === null ? '–' : hd}</td></tr>`;
   }
   const closedFirst = trades.slice(0, 50).map(tradeRow).join('');
@@ -187,6 +186,42 @@ function page(sys, data) {
 </style>
 </head>
 <body class="nd">
+<header class="nd-topbar">
+  <a class="brand" href="/nepse-decode/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="24" height="24">Nepse Decode</a>
+  <a class="nd-btn primary" href="/nepse-chart/" style="padding:8px 18px;font-size:0.85rem">Open the Lab</a>
+</header>
+<nav class="nd-mobilenav" aria-label="Suite tools"><a href="/nepse-decode/">Overview</a><a href="/nepse-chart/">Chart &amp; signals</a><span class="nav-sub"><a href="/nepse-signals/momentum/"${sys === 'momentum' ? ' class="active" aria-current="page"' : ''}>Momentum</a><a href="/nepse-signals/trend-relay/"${sys === 'trend-relay' ? ' class="active" aria-current="page"' : ''}>Trend Relay</a><a href="/nepse-signals/reversal/"${sys === 'reversal' ? ' class="active" aria-current="page"' : ''}>Reversal</a></span><a href="/nepse-screener/">Screener</a><a href="/nepse-radar/">Warning Radar</a><a href="/nepse-trending/">Trending Stocks</a><a href="/nepse-value/">Value Investing</a><a href="/nepse-brokers/">Broker Analytics</a><a href="/nepse-sectors/">Sectors</a><a href="/nepse-news/">Market news</a><a href="/nepse-watchlist/">Watchlist</a><a href="/nepse-portfolio/">Portfolio</a><a href="/nepse-simulator/">Simulator</a><a href="/nepse-reports/">Reports</a><a href="/nepse-actions/">Corp. actions</a></nav>
+
+<div class="nd-shell">
+  <aside class="nd-side" aria-label="Nepse Decode suite">
+    <a class="brand" href="/nepse-decode/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
+    <nav class="nd-nav" aria-label="Suite tools">
+      <p class="nav-kicker">Suite</p>
+      <a href="/nepse-decode/">Overview</a>
+      <a href="/nepse-chart/">Chart &amp; signals</a>
+      <span class="nav-sub">
+        <a href="/nepse-signals/momentum/"${sys === 'momentum' ? ' class="active" aria-current="page"' : ''}>Momentum</a>
+        <a href="/nepse-signals/trend-relay/"${sys === 'trend-relay' ? ' class="active" aria-current="page"' : ''}>Trend Relay</a>
+        <a href="/nepse-signals/reversal/"${sys === 'reversal' ? ' class="active" aria-current="page"' : ''}>Reversal</a>
+      </span>
+      <a href="/nepse-screener/">Screener</a>
+      <a href="/nepse-radar/">Warning Radar</a>
+      <a href="/nepse-trending/">Trending Stocks</a>
+      <a href="/nepse-value/">Value Investing</a>
+      <a href="/nepse-brokers/">Broker Analytics</a>
+      <a href="/nepse-sectors/">Sectors</a>
+      <a href="/nepse-news/">Market news</a>
+      <a href="/nepse-watchlist/">Watchlist</a>
+      <a href="/nepse-portfolio/">Portfolio</a>
+      <a href="/nepse-simulator/">Simulator</a>
+      <a href="/nepse-reports/">Reports</a>
+      <a href="/nepse-actions/">Corp. actions</a>
+    </nav>
+    <p class="nd-caption" style="margin-top:32px">Free forever · no login</p>
+  </aside>
+
+  <div class="nd-content">
+    <div class="nd-wrap">
 <main style="max-width:1080px;margin:0 auto;padding:24px 16px">
 <nav class="sig-tabs" aria-label="Signal systems">${tabs}</nav>
 
@@ -222,8 +257,9 @@ function page(sys, data) {
 </table></div>
 
 <h2 style="font-family:var(--serif);margin-top:28px">Live track record — forward-tested signals</h2>
-<p style="color:var(--muted);font-size:.9rem">Real paper trades from live BUY alerts, tracked daily. Win = hit target, Loss = hit stop, Time exit = closed after 20 days. Updates automatically every trading day.</p>
-<div id="live-track-section" class="scrollx"><table class="sig-table" id="live-track-table">
+<p style="color:var(--muted);font-size:.9rem">Real paper trades from live BUY alerts, tracked daily and updated automatically. Win = hit target, Loss = hit stop, Time exit = closed after 20 days. Every closed trade appears below — nothing is hand-picked.</p>
+<div class="sig-grid" id="live-stat-cards" style="margin:16px 0"></div>
+<div class="scrollx"><table class="sig-table" id="live-track-table">
 <thead><tr><th>Metric</th><th class="num">Value</th><th>Metric</th><th class="num">Value</th></tr></thead>
 <tbody id="live-track-body"><tr><td colspan="4">Loading live track record...</td></tr></tbody>
 </table></div>
@@ -236,8 +272,8 @@ function page(sys, data) {
 <h2 style="font-family:var(--serif);margin-top:28px">The rules (exactly as coded)</h2>
 <div class="rules"><ol>${rules}</ol></div>
 
-<h2 style="font-family:var(--serif);margin-top:28px">Closed history — finished trades</h2>
-<p style="color:var(--muted);font-size:.9rem">Every finished trade this system took in the backtest, newest first. P&amp;L is after the same trading charges the backtest applies.</p>
+<h2 style="font-family:var(--serif);margin-top:28px">Backtest closed history — 500 finished trades</h2>
+<p style="color:var(--muted);font-size:.9rem">Every finished trade this system took in the historical backtest, newest first. P&amp;L is after the same trading charges the backtest applies. For live forward-tested results, see the Live track record above.</p>
 <div class="scrollx"><table class="sig-table" id="closed"><thead><tr>
 <th>Symbol</th><th class="num">Entry date</th><th class="num">Exit date</th><th class="num">Entry price</th><th class="num">Exit price</th><th>Exit reason</th><th class="num">P&amp;L %</th><th class="num">Hold days</th>
 </tr></thead><tbody id="closed-body">${closedFirst}${closedRest}</tbody></table></div>
@@ -250,6 +286,9 @@ ${GLOSSARY}
 
 <p style="color:var(--muted);font-size:.85rem;margin:32px 0">Data: daily NEPSE OHLCV, corporate-action adjusted. Generated ${new Date().toISOString().slice(0, 10)}. Educational only — not investment advice.</p>
 </main>
+    </div>
+  </div>
+</div>
 <script>
 (function(){
   var sys = ${JSON.stringify(sys)};
@@ -271,11 +310,21 @@ ${GLOSSARY}
     // Live track record
     var ltr = d.live_track_record;
     var ltb = document.getElementById('live-track-body');
+    var lsc = document.getElementById('live-stat-cards');
     if (ltr && ltr.stats && ltb) {
       var s = ltr.stats;
-      var wrCls = s.win_rate_pct >= 50 ? 'color:var(--up)' : 'color:var(--down)';
+      var wrCls = s.win_rate_pct >= 50 ? 'up' : 'down';
+      // Stat cards (design-rich, matching page style)
+      if (lsc) {
+        lsc.innerHTML =
+          '<div class="sig-card ' + wrCls + '"><div class="sig-card-l">Live win rate</div><div class="sig-card-v">' + s.win_rate_pct + '%</div></div>' +
+          '<div class="sig-card"><div class="sig-card-l">Signals tracked</div><div class="sig-card-v">' + s.total_signals + '</div></div>' +
+          '<div class="sig-card up"><div class="sig-card-l">Wins</div><div class="sig-card-v">' + s.wins + '</div></div>' +
+          '<div class="sig-card down"><div class="sig-card-l">Losses</div><div class="sig-card-v">' + s.losses + '</div></div>';
+      }
+      var wrTxtCls = s.win_rate_pct >= 50 ? 'color:var(--up)' : 'color:var(--down)';
       ltb.innerHTML =
-        '<tr><td>Live win rate</td><td class="num" style="' + wrCls + '"><strong>' + s.win_rate_pct + '%</strong></td>' +
+        '<tr><td>Live win rate</td><td class="num" style="' + wrTxtCls + '"><strong>' + s.win_rate_pct + '%</strong></td>' +
         '<td>Signals tracked</td><td class="num">' + s.total_signals + '</td></tr>' +
         '<tr><td>Wins</td><td class="num" style="color:var(--up)">' + s.wins + '</td>' +
         '<td>Losses</td><td class="num" style="color:var(--down)">' + s.losses + '</td></tr>' +
@@ -285,25 +334,34 @@ ${GLOSSARY}
         '<td>Open positions</td><td class="num">' + s.open_positions + '</td></tr>';
       var lop = document.getElementById('live-open-positions');
       if (lop && ltr.open_positions && ltr.open_positions.length) {
-        lop.innerHTML = '<h3 style="font-size:1rem;margin:0 0 8px">Currently tracking (' + ltr.open_positions.length + ')</h3>' +
-          '<div class="scrollx"><table class="sig-table"><thead><tr><th>Symbol</th><th class="num">Entry</th><th class="num">Current</th><th class="num">Unrealized</th><th class="num">Days</th></tr></thead><tbody>' +
+        lop.innerHTML = '<h3 style="font-family:var(--serif);font-size:1.1rem;margin:0 0 8px">Currently tracking (' + ltr.open_positions.length + ')</h3>' +
+          '<div class="scrollx"><table class="sig-table"><thead><tr><th>Symbol</th><th class="num">Entry date</th><th class="num">Entry</th><th class="num">Stop</th><th class="num">Target</th><th class="num">Current</th><th class="num">Unrealized</th><th class="num">Days</th></tr></thead><tbody>' +
           ltr.open_positions.map(function(t){
             var cls = t.unrealized_pct >= 0 ? 'color:var(--up)' : 'color:var(--down)';
-            return '<tr><td><strong>' + t.symbol + '</strong></td><td class="num">' + t.entry_price + '</td><td class="num">' + t.current_price + '</td><td class="num" style="' + cls + '">' + (t.unrealized_pct >= 0 ? '+' : '') + t.unrealized_pct + '%</td><td class="num">' + t.hold_days + '</td></tr>';
+            var sign = t.unrealized_pct >= 0 ? '+' : '';
+            return '<tr><td><strong>' + t.symbol + '</strong></td><td class="num">' + (t.entry_date || '–') + '</td><td class="num">' + t.entry_price.toLocaleString() + '</td><td class="num">' + (t.stop_loss ? t.stop_loss.toLocaleString() : '–') + '</td><td class="num">' + (t.target_1 ? t.target_1.toLocaleString() : '–') + '</td><td class="num">' + t.current_price.toLocaleString() + '</td><td class="num" style="' + cls + '"><strong>' + sign + t.unrealized_pct + '%</strong></td><td class="num">' + t.hold_days + '</td></tr>';
           }).join('') + '</tbody></table></div>';
+      } else if (lop) {
+        lop.innerHTML = '<p style="color:var(--muted);font-size:.9rem">No open positions being tracked right now.</p>';
       }
+      // Recent closed — ALL trades, auto-updating (no fixed limit)
       var lct = document.getElementById('live-closed-trades');
       if (lct && ltr.recent_closed && ltr.recent_closed.length) {
-        lct.innerHTML = '<h3 style="font-size:1rem;margin:0 0 8px">Recent closed (' + ltr.recent_closed.length + ')</h3>' +
-          '<div class="scrollx"><table class="sig-table"><thead><tr><th>Symbol</th><th class="num">Entry</th><th class="num">Exit</th><th>Outcome</th><th class="num">P&L</th></tr></thead><tbody>' +
-          ltr.recent_closed.slice(0, 10).map(function(t){
+        lct.innerHTML = '<h3 style="font-family:var(--serif);font-size:1.1rem;margin:0 0 8px">Closed trades (' + ltr.recent_closed.length + ') — auto-updating</h3>' +
+          '<div class="scrollx"><table class="sig-table"><thead><tr><th>Symbol</th><th class="num">Entry date</th><th class="num">Exit date</th><th class="num">Entry</th><th class="num">Exit</th><th>Exit reason</th><th class="num">P&L</th></tr></thead><tbody>' +
+          ltr.recent_closed.map(function(t){
             var cls = t.pnl_pct >= 0 ? 'color:var(--up)' : 'color:var(--down)';
+            var sign = t.pnl_pct >= 0 ? '+' : '';
             var oc = t.outcome === 'win' ? 'rp-win' : (t.outcome === 'loss' ? 'rp-loss' : 'rp-trail');
-            return '<tr><td><strong>' + t.symbol + '</strong></td><td class="num">' + t.entry_price + '</td><td class="num">' + t.exit_price + '</td><td><span class="rpill ' + oc + '">' + t.outcome + '</span></td><td class="num" style="' + cls + '"><strong>' + (t.pnl_pct >= 0 ? '+' : '') + t.pnl_pct + '%</strong></td></tr>';
+            var reason = t.exit_reason || t.outcome || '–';
+            return '<tr><td><strong>' + t.symbol + '</strong></td><td class="num">' + (t.entry_date || '–') + '</td><td class="num">' + (t.exit_date || '–') + '</td><td class="num">' + t.entry_price.toLocaleString() + '</td><td class="num">' + t.exit_price.toLocaleString() + '</td><td><span class="rpill ' + oc + '">' + reason + '</span></td><td class="num" style="' + cls + '"><strong>' + sign + t.pnl_pct + '%</strong></td></tr>';
           }).join('') + '</tbody></table></div>';
+      } else if (lct) {
+        lct.innerHTML = '<p style="color:var(--muted);font-size:.9rem">No closed trades yet — they will appear here automatically as signals complete.</p>';
       }
-    } else if (ltb) {
-      ltb.innerHTML = '<tr><td colspan="4">No live signals tracked yet — check back after the next rebuild.</td></tr>';
+    } else {
+      if (ltb) ltb.innerHTML = '<tr><td colspan="4">No live signals tracked yet — check back after the next rebuild.</td></tr>';
+      if (lsc) lsc.innerHTML = '';
     }
     // equity curve
     var cv = document.getElementById('eqchart'), ctx = cv.getContext('2d');
