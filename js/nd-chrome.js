@@ -1,9 +1,9 @@
 /**
  * js/nd-chrome.js — Editorial header + footer (D2).
  * Single-row 60px sticky header: brand, Ask/Stock search, six
- * mega-dropdowns, Technical Analysis + Home links, market-status
+ * mega-dropdowns, Technical Analysis link, market-status
  * pill, dark/light switch, EN/NE toggle, mobile drawer.
- * Six-column design-rich footer with company block + disclaimers.
+ * Seven-column design-rich footer with company column + disclaimers.
  *
  * Mounts: <div id="nd-header"></div> and <div id="nd-footer"></div>.
  * Requires css/nd-editorial-theme.css + css/nd-chrome.css.
@@ -16,59 +16,52 @@
 
   var NAV = [
     { label: 'Markets', live: true, links: [
-      ['NEPSE Live', '/nepse-decode/'],
-      ['Daily summary', '/nepse-dashboard/'],
-      ['Market wrap', '/blog/'],
+      ['Overview', '/nepse-decode/'],
+      ['Daily summary', '/nepse-daily/'],
       ['Heat Map', '/nepse-sectors/'],
-      ['Circuit watch', '/nepse-trending/'],
-      ['IPO / FPO', '/nepse-actions/']
+      ['IPO / FPO', '/nepse-ipo/']
     ]},
     { label: 'Stocks', links: [
-      ['Listed securities', '/nepse-screener/'],
+      ['Warning Radar', '/nepse-verdicts-v2/'],
       ['Stock Screener', '/nepse-screener/'],
       ['Fair Value', '/nepse-value/'],
-      ['Stock Scorecard', '/nepse-trending/'],
-      ['Accumulation / Distribution', '/nepse-brokers/']
+      ['Trending Stocks', '/nepse-trending/']
+    ]},
+    { label: 'Technical Analysis', links: [
+      ['Technical Chart', '/nepse-technical/'],
+      ['Trading Signals', '/nepse-signals/']
     ]},
     { label: 'Broker', links: [
-      ['Broker Holding', '/nepse-brokers/'],
-      ['Broker Ranking', '/nepse-brokers/'],
-      ['Broker Compare', '/nepse-brokers/'],
-      ['Bulk Transaction', '/nepse-brokers/'],
-      ['Broker Map', '/nepse-brokers/']
+      ['Top Brokers', '/nepse-brokers/'],
+      ['Broker Trade Pattern', '/nepse-brokers/trade-pattern/'],
+      ['Stock Trade Pattern', '/nepse-brokers/stock-pattern/'],
+      ['Stockwise Holdings', '/nepse-brokers/holdings/'],
+      ['Accumulation / Distribution', '/nepse-brokers/accdist/']
     ]},
     { label: 'News', links: [
-      ['Market news', '/nepse-news/'],
-      ['Economic calendar', '/nepse-actions/'],
-      ['SEBON Watch', '/nepse-news/'],
-      ['IPO & FPO', '/nepse-actions/'],
-      ['Dividend & Bonus', '/nepse-actions/']
+      ['Market News', '/nepse-news/'],
+      ['Market Wrap', '/blog/'],
+      ['Corporate Actions', '/nepse-actions/']
     ]},
     { label: 'Trade', links: [
       ['Practice Trading', '/nepse-simulator/'],
       ['Trading Journal', '/nepse-portfolio/'],
-      ['Price Alerts', '/nepse-watchlist/'],
-      ['Replay Machine', '/nepse-simulator/']
+      ['Watchlist', '/nepse-watchlist/']
     ]},
     { label: 'Research', links: [
-      ['Money Flow', '/nepse-brokers/'],
-      ['Market regime', '/nepse-chart/'],
-      ['Market breadth', '/nepse-sectors/'],
-      ['Seasonality', '/nepse-reports/'],
-      ['Data sources', '/status/']
+      ['Money Flow', '/nepse-money-flow/'],
+      ['Market regime', '/nepse-regime/'],
+      ['Seasonality', '/nepse-seasonality/'],
     ]}
   ];
 
-  var PLAIN_LINKS = [
-    ['Technical Analysis', '/nepse-technical/'],
-    ['Home', '/']
-  ];
+  var PLAIN_LINKS = [];
 
   /* Nepali chrome dictionary (header/nav/footer chrome only) */
   var NE = {
     'Markets': 'बजार', 'Stocks': 'स्टकहरू', 'Broker': 'ब्रोकर',
     'News': 'समाचार', 'Trade': 'कारोबार', 'Research': 'अनुसन्धान',
-    'Technical Analysis': 'प्राविधिक विश्लेषण', 'Home': 'गृहपृष्ठ',
+    'Technical Analysis': 'प्राविधिक विश्लेषण',
     'searchPh': 'सोध्नुहोस् / स्टक — NABIL प्रयास गर्नुहोस्',
     'brandSub': 'नेप्से चार्ट र बजार डेटा'
   };
@@ -115,7 +108,7 @@
     var txt = st.code === 'LIVE' ? 'LIVE · ' + label
       : st.code === 'PRE-OPEN' ? 'PRE-OPEN · ' + label
       : 'MARKET CLOSED · ' + label;
-    return '<span class="nd-pill' + (st.code === 'LIVE' ? ' live' : '') + '" role="status">' +
+    return '<span class="nd-pill' + (st.code === 'LIVE' ? ' live' : '') + '" role="status" title="Scheduled NEPSE hours — public holidays not yet reflected">' +
       '<span class="dot"></span><span class="nd-pilltxt">' + esc(txt) + '</span></span>';
   }
 
@@ -133,6 +126,7 @@
     /* mirror legacy data-theme so existing chart observers keep working */
     root.setAttribute('data-theme', mode === 'light' ? 'light' : 'dark');
     store('nd-ed-theme', mode);
+    store('sk-theme', mode); /* keep the legacy pre-paint snippet in sync */
     var btn = $('#nd-themebtn');
     if (btn) {
       btn.setAttribute('aria-pressed', mode === 'light' ? 'true' : 'false');
@@ -177,7 +171,8 @@
     var h = '';
     NAV.forEach(function (m, i) {
       var links = m.links.map(function (l) {
-        return '<a href="' + esc(l[1]) + '">' + esc(l[0]) + '</a>';
+        var cls = isActive(l[1]) ? ' class="active"' : '';
+        return '<a href="' + esc(l[1]) + '"' + cls + '>' + esc(l[0]) + '</a>';
       }).join('');
       h += '<div class="nd-navitem" data-i="' + i + '">' +
         '<button class="nd-navbtn nd-focusable" aria-haspopup="true" aria-expanded="false">' +
@@ -201,8 +196,8 @@
   }
 
   function headerHTML() {
-    return '<div class="nd-bar">' +
-      '<a class="nd-brand nd-focusable" href="/" aria-label="Nepse Decode home">' + LOGO_SVG +
+    return '<header class="nd-bar">' +
+      '<a class="nd-brand nd-focusable" href="/nepse-decode/" aria-label="Nepse Decode home">' + LOGO_SVG +
       '<span class="nd-brand-name">Nepse Decode</span></a>' +
       '<div class="nd-search" role="search">' +
       '<span class="nd-sicon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>' +
@@ -221,8 +216,14 @@
       '<button class="nd-iconbtn nd-focusable nd-burger" id="nd-burger" aria-label="Open menu" aria-expanded="false">' +
       '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>' +
       '</div>' +
-      '</div>' +
-      '<div class="nd-scrim" id="nd-scrim"></div>' +
+      '</header>';
+  }
+
+  /* Fixed overlays mount on <body>, NOT inside #nd-header: the sticky header
+     uses backdrop-filter, which per spec becomes the containing block for
+     position:fixed descendants and would trap the drawer inside the 60px bar. */
+  function overlayHTML() {
+    return '<div class="nd-scrim" id="nd-scrim"></div>' +
       '<aside class="nd-drawerpanel" id="nd-drawer" aria-label="Menu">' + drawerHTML() + '</aside>';
   }
 
@@ -230,7 +231,10 @@
     var h = '';
     NAV.forEach(function (m) {
       h += '<div class="nd-acc"><button aria-expanded="false"><span>' + esc(t(m.label)) + '</span><span>▾</span></button><div class="nd-accbody">' +
-        m.links.map(function (l) { return '<a href="' + esc(l[1]) + '">' + esc(l[0]) + '</a>'; }).join('') +
+        m.links.map(function (l) {
+          var cls = isActive(l[1]) ? ' class="active"' : '';
+          return '<a href="' + esc(l[1]) + '"' + cls + '>' + esc(l[0]) + '</a>';
+        }).join('') +
         '</div></div>';
     });
     PLAIN_LINKS.forEach(function (l) {
@@ -242,37 +246,34 @@
   /* ---------------- footer ---------------- */
 
   var FOOT = [
-    ['MARKETS', [['NEPSE Live', '/nepse-decode/'], ['Daily summary', '/nepse-dashboard/'], ['Market wrap', '/blog/'], ['Heat Map', '/nepse-sectors/'], ['Circuit watch', '/nepse-trending/'], ['IPO / FPO', '/nepse-actions/']]],
-    ['STOCKS', [['Listed securities', '/nepse-screener/'], ['Stock Screener', '/nepse-screener/'], ['Fair Value', '/nepse-value/'], ['Stock Scorecard', '/nepse-trending/'], ['Accumulation / Distribution', '/nepse-brokers/']]],
-    ['BROKER', [['Broker Holding', '/nepse-brokers/'], ['Broker Ranking', '/nepse-brokers/'], ['Broker Compare', '/nepse-brokers/'], ['Bulk Transaction', '/nepse-brokers/'], ['Broker Map', '/nepse-brokers/']]],
-    ['NEWS', [['Market news', '/nepse-news/'], ['Economic calendar', '/nepse-actions/'], ['SEBON Watch', '/nepse-news/'], ['IPO & FPO', '/nepse-actions/'], ['Dividend & Bonus', '/nepse-actions/']]],
-    ['TRADE', [['Practice Trading', '/nepse-simulator/'], ['Trading Journal', '/nepse-portfolio/'], ['Price Alerts', '/nepse-watchlist/'], ['Replay Machine', '/nepse-simulator/']]],
-    ['RESEARCH', [['Money Flow', '/nepse-brokers/'], ['Market regime', '/nepse-chart/'], ['Market breadth', '/nepse-sectors/'], ['Seasonality', '/nepse-reports/'], ['Data sources', '/status/']]]
+    ['MARKETS', [['Overview', '/nepse-decode/'], ['Daily summary', '/nepse-daily/'], ['Heat Map', '/nepse-sectors/'], ['IPO / FPO', '/nepse-ipo/']]],
+    ['STOCKS', [['Warning Radar', '/nepse-verdicts-v2/'], ['Stock Screener', '/nepse-screener/'], ['Fair Value', '/nepse-value/'], ['Trending Stocks', '/nepse-trending/']]],
+    ['TECHNICAL', [['Technical Chart', '/nepse-technical/'], ['Trading Signals', '/nepse-signals/'], ['Momentum Signal', '/nepse-signals/momentum/'], ['Trend Relay', '/nepse-signals/trend-relay/'], ['Reversal Signal', '/nepse-signals/reversal/']]],
+    ['BROKER', [['Top Brokers', '/nepse-brokers/'], ['Broker Trade Pattern', '/nepse-brokers/trade-pattern/'], ['Stock Trade Pattern', '/nepse-brokers/stock-pattern/'], ['Stockwise Holdings', '/nepse-brokers/holdings/'], ['Accumulation / Distribution', '/nepse-brokers/accdist/']]],
+    ['NEWS', [['Market News', '/nepse-news/'], ['Market Wrap', '/blog/'], ['Corporate Actions', '/nepse-actions/']]],
+    ['TRADE', [['Practice Trading', '/nepse-simulator/'], ['Trading Journal', '/nepse-portfolio/'], ['Watchlist', '/nepse-watchlist/']]],
+    ['RESEARCH', [['Money Flow', '/nepse-money-flow/'], ['Market regime', '/nepse-regime/'], ['Seasonality', '/nepse-seasonality/']]],
+    ['COMPANY', [['Nepse Decode', '/nepse-decode/'], ['info@shirjankhadka.com.np', 'mailto:info@shirjankhadka.com.np'], ['Kathmandu, Nepal', null]]]
   ];
 
   function footerHTML() {
     var cols = FOOT.map(function (c) {
       return '<div class="nd-footcol"><h3>' + esc(c[0]) + '</h3>' +
-        c[1].map(function (l) { return '<a href="' + esc(l[1]) + '">' + esc(l[0]) + '</a>'; }).join('') +
+        c[1].map(function (l) {
+          if (!l[1]) return '<span class="nd-footplain">' + esc(l[0]) + '</span>';
+          return '<a href="' + esc(l[1]) + '">' + esc(l[0]) + '</a>';
+        }).join('') +
         '</div>';
     }).join('');
     return '<div class="nd-footwrap">' +
       '<div class="nd-footbrand">' + LOGO_SVG + '<span class="t">Nepse Decode</span></div>' +
       '<p class="nd-footstate">NEPSE charts, the index today, and a daily market summary — in English and नेपाली, built for Nepal\u2019s investors at home and abroad.</p>' +
       '<div class="nd-footchips">' +
-      '<span class="nd-footchip">DELAYED ~15 MIN</span>' +
+      '<span class="nd-footchip">DELAYED MARKET DATA</span>' +
       '<span class="nd-footchip">MON–FRI 11:00–15:00 NPT</span>' +
-      '<span class="nd-footchip">433 COMPANIES</span>' +
+      '<span class="nd-footchip" id="nd-footsyms">LISTED SECURITIES</span>' +
       '</div>' +
       '<div class="nd-footgrid">' + cols + '</div>' +
-      '<div class="nd-company">' +
-      '<div class="row"><b>Name:</b> Nepse Decode</div>' +
-      '<div class="row"><b>Email:</b> <a href="mailto:info@shirjankhadka.com.np">info@shirjankhadka.com.np</a></div>' +
-      '<div class="row"><b>Website:</b> shirjankhadka.com.np</div>' +
-      '<div class="row"><b>Editor:</b> Shirjan Khadka</div>' +
-      '<div class="row"><b>Coverage:</b> Nepal Stock Exchange (NEPSE)</div>' +
-      '<div class="row"><b>Market hours:</b> Mon–Fri, 11:00–15:00 NPT</div>' +
-      '</div>' +
       '<div class="nd-made">Made with \u2665 in Nepal for NEPSE investors.<br>' +
       '<span class="np">नेप्से चार्ट, नेप्से इन्डेक्स आज, र शेयर बजारको दैनिक सारांश एकै ठाउँमा।</span></div>' +
       '<div class="nd-legal">' +
@@ -286,7 +287,7 @@
 
   /* ---------------- search ---------------- */
 
-  var UNI = null, uniLoading = false;
+  var UNI = null, UNI_META = null, uniLoading = false;
 
   function loadUniverse(cb) {
     if (UNI) return cb(UNI);
@@ -297,8 +298,23 @@
       return r.json();
     }).then(function (d) {
       UNI = (d && d.symbols) || [];
+      UNI_META = d ? { asof: d.asof, count: d.count } : null;
       cb(UNI);
     }).catch(function () { UNI = []; cb(UNI); });
+  }
+
+  /* Footer securities chip: count from the verified universe file, never hardcoded.
+   * No "as of" date on the chip itself — the universe rebuilds at each market
+   * close, so a mid-session date would look stale to shoppers even though the
+   * count is current. The verification date stays in the tooltip. */
+  function refreshFootSyms() {
+    var el = document.getElementById('nd-footsyms');
+    if (!el) return;
+    if (UNI_META && UNI_META.count) {
+      el.textContent = UNI_META.count + ' LISTED SECURITIES';
+      el.setAttribute('title', 'Listed securities in the site universe' +
+        (UNI_META.asof ? '; universe verified ' + UNI_META.asof + ' (NPT)' : ''));
+    }
   }
 
   function initSearch() {
@@ -421,14 +437,21 @@
     if (!hh && !fh) return; /* not an opted-in page */
     if (hh) hh.innerHTML = headerHTML();
     if (fh) fh.innerHTML = footerHTML();
+    /* Drawer + scrim are fixed overlays: mount on body so the header's
+       backdrop-filter can't trap them (see overlayHTML note). */
+    if (!$('#nd-drawer')) document.body.insertAdjacentHTML('beforeend', overlayHTML());
 
-    applyTheme(read('nd-ed-theme') === 'light' ? 'light' : 'dark');
+    /* Honor the legacy theme key on first run so returning visitors
+       keep the mode they chose before the redesign. */
+    var savedTheme = read('nd-ed-theme') || read('sk-theme');
+    applyTheme(savedTheme === 'light' ? 'light' : 'dark');
     applyLang();
     initDropdowns();
     initSearch();
     initDrawer();
     refreshPill();
     setInterval(refreshPill, 30000);
+    loadUniverse(function () { refreshFootSyms(); });
 
     var tb = $('#nd-themebtn');
     if (tb) tb.addEventListener('click', function () {

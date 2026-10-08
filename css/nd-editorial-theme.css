@@ -70,8 +70,8 @@
 
   /* ---- Typography ---- */
   --nd-font-display: "Spectral", Georgia, serif;
-  --nd-font-sans: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
-  --nd-font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+  --nd-font-sans: "Inter", "Noto Sans Devanagari", system-ui, -apple-system, sans-serif;
+  --nd-font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* Strict type scale — if a size is not here, it does not ship */
   --nd-text-h1: clamp(17px, 1.65rem + 0.5vw, 1.85rem); /* display 600 */
@@ -118,7 +118,7 @@
 }
 
 /* ============ LIGHT THEME (opt-in via data-nd-ed="light") ============ */
-[data-nd-ed="light"] {
+[data-nd-ed="light"], [data-theme="light"] {
   color-scheme: light;
 
   --nd-bg: #F6F7F9;
@@ -196,4 +196,56 @@
     --nd-t-enter: 150ms;
     --nd-t-max: 150ms;
   }
+}
+
+/* ============================================================
+ * 3D elevation tokens — shared depth scale for all nd pages
+ * ============================================================ */
+:root{
+  --nd-e1: 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.35);
+  --nd-e2: 0 2px 6px rgba(0,0,0,.4), 0 14px 34px rgba(0,0,0,.4);
+  --nd-e3: 0 6px 14px rgba(0,0,0,.45), 0 30px 70px rgba(0,0,0,.5);
+  --nd-rim: inset 0 1px 0 rgba(255,255,255,.07);
+  --nd-rim-strong: inset 0 1px 0 rgba(255,255,255,.1), inset 0 -1px 0 rgba(0,0,0,.2);
+  --nd-press: inset 0 2px 5px rgba(0,0,0,.35);
+}
+[data-nd-ed="light"], [data-theme="light"]{
+  --nd-e1: 0 1px 2px rgba(40,55,25,.07), 0 4px 14px rgba(40,55,25,.07);
+  --nd-e2: 0 2px 6px rgba(40,55,25,.08), 0 14px 34px rgba(40,55,25,.1);
+  --nd-e3: 0 6px 14px rgba(40,55,25,.1), 0 30px 70px rgba(40,55,25,.12);
+  --nd-rim: inset 0 1px 0 rgba(255,255,255,.9);
+  --nd-press: inset 0 2px 5px rgba(40,55,25,.12);
+}
+
+/* ============================================================
+ * Blog cards: Pro 3D treatment (overrides style.css flat cards)
+ * ============================================================ */
+.mag-card,.post-card,.event-card{
+  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 40%),var(--nd-panel);
+  border:1px solid var(--nd-border);
+  box-shadow:var(--nd-rim),var(--nd-e2);
+  transition:transform .2s var(--nd-ease),box-shadow .2s var(--nd-ease);
+}
+.mag-card:hover,.post-card:hover,.event-card:hover{
+  transform:translateY(-3px);
+  box-shadow:var(--nd-rim),var(--nd-e3);
+}
+.cert-card,.hub-method-card,.chart-card{
+  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 40%),var(--nd-panel);
+  border:1px solid var(--nd-border);
+  box-shadow:var(--nd-rim),var(--nd-e2);
+}
+
+/* Live price badge for analysis cards */
+.mag-live-price {
+  margin-top: 8px;
+  font-size: 0.85em;
+  color: var(--nd-dim, #666);
+}
+.mag-live-price strong {
+  color: var(--nd-green, #2d7d32);
+}
+.mag-live-asof {
+  font-size: 0.85em;
+  opacity: 0.7;
 }

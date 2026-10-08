@@ -51,15 +51,8 @@ def sym_to_dir(s):
 universe_dirs = {sym_to_dir(s) for s in universe_syms}
 
 # Orphaned pages (page exists, not in universe)
-# Debentures and preference shares have pages but aren't in the equity universe
-KNOWN_NON_EQUITY = {
-    'GBBLPO', 'ICFCD83', 'KBLD86', 'LBBLD89', 'MND84-85', 'NABILP',
-    'NCCD86', 'NICD88', 'NLO', 'NMFBSP', 'SBLD89',
-}
 for p in sorted(page_syms - universe_dirs):
     if p in ('index.html',):
-        continue
-    if p in KNOWN_NON_EQUITY:
         continue
     errors.append(f"ORPHANED_PAGE: stocks/{p}/ exists but no matching symbol in universe.json")
 

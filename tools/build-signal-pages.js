@@ -41,7 +41,8 @@ function money(n) {
 function page(sys, data) {
   const st = data.stats;
   const pageUrl = `https://shirjankhadka.com.np/nepse-signals/${sys}/`;
-  const shortDesc = `${data.title}: transparent rule-based NEPSE trading system. Backtested 2003–2026 — ${pct(st.annual_return_pct)} annual return, ${pct(st.win_rate_pct)} win rate. Educational only.`;
+  const yrs = st.backtest_years || '—';
+  const shortDesc = `${data.title}: transparent rule-based NEPSE trading system. Backtested over ${yrs} years — ${pct(st.annual_return_pct)} annual return, ${pct(st.win_rate_pct)} win rate. Educational only.`;
   const tabs = SLUGS.map(s => {
     const d = JSON.parse(fs.readFileSync(path.join(DATA, s + '.json'), 'utf8'));
     const active = s === sys ? ' aria-current="page" class="active"' : '';
@@ -65,15 +66,16 @@ function page(sys, data) {
   // First 50 rows visible; the rest sit in a hidden tbody revealed by "Show all".
   const trades = Array.isArray(data.recent_trades) ? data.recent_trades : [];
   function tradeRow(t) {
-    // 2026-10-08 FIX: data fields are entry_price/exit_price/exit_reason (the 2026-10-02 comment was wrong)
+    // 2026-10-02: data fields are entry/exit/reason (not entry_price/exit_price/exit_reason);
+    // P&L Rs dropped (no data), hold days derived from dates
     const pos = (t.pnl_pct || 0) >= 0;
     const cls = pos ? 'color:var(--up)' : 'color:var(--down)';
     const sign = pos ? '+' : '';
     const pc = t.pnl_pct === null || t.pnl_pct === undefined || !Number.isFinite(t.pnl_pct)
       ? '–' : sign + pct(t.pnl_pct);
-    const hd = (t.hold_days !== null && t.hold_days !== undefined && Number.isFinite(t.hold_days)) ? t.hold_days : holdDays(t);
+    const hd = holdDays(t);
     return `<tr><td><strong>${t.symbol}</strong></td><td class="num">${t.entry_date || '–'}</td><td class="num">${t.exit_date || '–'}</td>` +
-      `<td class="num">${fmt(t.entry_price)}</td><td class="num">${fmt(t.exit_price)}</td><td>${reasonPill(t.exit_reason)}</td>` +
+      `<td class="num">${fmt(t.entry)}</td><td class="num">${fmt(t.exit)}</td><td>${reasonPill(t.reason)}</td>` +
       `<td class="num" style="${cls}"><strong>${pc}</strong></td><td class="num">${hd === null ? '–' : hd}</td></tr>`;
   }
   const closedFirst = trades.slice(0, 50).map(tradeRow).join('');
@@ -92,9 +94,9 @@ function page(sys, data) {
     : '';
 
   const NOTES = {
-    'momentum': `<strong>What the backtest says.</strong> Over 23 years this rule set compounded at ${pct(st.annual_return_pct)} a year — below NEPSE buy &amp; hold (${pct(st.benchmark_cagr_pct)}), but with a far shallower worst fall (${pct(st.max_drawdown_pct)} vs the index's deep bear markets). It wins only ${pct(st.win_rate_pct)} of trades; it survives on letting winners run to multiples of risk.`,
-    'trend-relay': `<strong>What the backtest says.</strong> This patient re-entry system compounded at ${pct(st.annual_return_pct)} a year with the shallowest worst fall of the three (${pct(st.max_drawdown_pct)}). It trades rarely (${st.total_trades} trades in 23 years) and wins ${pct(st.win_rate_pct)} of them — a system for waiting, not for action.`,
-    'reversal': `<strong>Read this first.</strong> Over 23 years this system <em>lost</em> money (${pct(st.annual_return_pct)} a year, worst fall ${pct(st.max_drawdown_pct)}). That is itself the finding: on NEPSE, buying oversold dips against the trend has been a losing approach across two decades — sharp knives keep falling. It is published for education, so you can see exactly why, not as something to trade.`,
+    'momentum': `<strong>What the backtest says.</strong> Over ${yrs} years this rule set compounded at ${pct(st.annual_return_pct)} a year — below NEPSE buy &amp; hold (${pct(st.benchmark_cagr_pct)}), but with a far shallower worst fall (${pct(st.max_drawdown_pct)} vs the index's deep bear markets). It wins only ${pct(st.win_rate_pct)} of trades; it survives on letting winners run to multiples of risk.`,
+    'trend-relay': `<strong>What the backtest says.</strong> This patient re-entry system compounded at ${pct(st.annual_return_pct)} a year with the shallowest worst fall of the three (${pct(st.max_drawdown_pct)}). It trades rarely (${st.total_trades} trades in ${yrs} years) and wins ${pct(st.win_rate_pct)} of them — a system for waiting, not for action.`,
+    'reversal': `<strong>Read this first.</strong> Over ${yrs} years this system <em>lost</em> money (${pct(st.annual_return_pct)} a year, worst fall ${pct(st.max_drawdown_pct)}). That is itself the finding: on NEPSE, buying oversold dips against the trend has been a losing approach — sharp knives keep falling. It is published for education, so you can see exactly why, not as something to trade.`,
   };
 
   const GLOSSARY = `
@@ -144,19 +146,14 @@ function page(sys, data) {
 {"@context":"https://schema.org","@type":"WebPage","name":"${data.title} — Nepse Decode Signals","url":"${pageUrl}","description":"${shortDesc}","isPartOf":{"@type":"WebSite","name":"Nepse Decode","url":"https://shirjankhadka.com.np/"},"author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
 </script>
 <link rel="stylesheet" href="/css/nepse-design-system.css">
-<link rel="stylesheet" href="/css/nepse-d2.css">\n<link rel="stylesheet" href="/css/nd-chrome.css?v=20261008g">
-<link rel="stylesheet" href="/css/theme.css?v=20261002d">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/theme.css?v=20261001a">
 <style>
 .sig-tabs{display:flex;gap:4px;border-bottom:2px solid var(--hairline);margin:0 0 24px;flex-wrap:wrap}
 .sig-tabs a{padding:10px 18px;color:var(--ink-soft);text-decoration:none;font-weight:600;border-bottom:3px solid transparent;margin-bottom:-2px}
 .sig-tabs a.active{color:var(--green-900);border-bottom-color:var(--green-900)}
-.sig-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:20px 0}
+.sig-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:20px 0}
 @media(min-width:760px){.sig-grid{grid-template-columns:repeat(4,1fr)}}
-.sig-card{background:linear-gradient(145deg,var(--card),color-mix(in srgb,var(--card) 85%,black));border:1px solid var(--hairline);border-top:1px solid rgba(255,255,255,.08);border-radius:var(--r-md);padding:18px 20px;box-shadow:0 2px 8px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.05);transition:box-shadow .2s ease,transform .2s ease}
-.sig-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.5),0 12px 32px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.08);transform:translateY(-2px)}
+.sig-card{background:var(--card);border:1px solid var(--hairline);border-radius:var(--r-md);padding:14px 16px}
 .sig-card-l{font-size:.78rem;color:var(--muted);margin-bottom:4px}
 .sig-card-v{font-family:var(--serif);font-size:1.35rem;font-weight:700}
 .sig-card.up .sig-card-v{color:var(--up)}.sig-card.down .sig-card-v{color:var(--down)}
@@ -191,19 +188,8 @@ function page(sys, data) {
 </style>
 </head>
 <body class="nd">
-<div id="nd-header"></div>
-<nav class="d2-mobilenav" aria-label="Sections"><a href="/nepse-decode/">Overview</a><a href="/nepse-chart/">Chart &amp; signals</a><span class="nav-sub"><a href="/nepse-signals/momentum/"${sys === 'momentum' ? ' class="on" aria-current="page"' : ''}>Momentum</a><a href="/nepse-signals/trend-relay/"${sys === 'trend-relay' ? ' class="on" aria-current="page"' : ''}>Trend Relay</a><a href="/nepse-signals/reversal/"${sys === 'reversal' ? ' class="on" aria-current="page"' : ''}>Reversal</a></span><a href="/nepse-screener/">Screener</a><a href="/nepse-radar/">Warning Radar</a><a href="/nepse-trending/">Trending Stocks</a><a href="/nepse-value/">Value Investing</a><a href="/nepse-brokers/">Broker Analytics</a><a href="/nepse-sectors/">Sectors</a><a href="/nepse-news/">Market news</a><a href="/nepse-watchlist/">Watchlist</a><a href="/nepse-portfolio/">Portfolio</a><a href="/nepse-simulator/">Simulator</a><a href="/nepse-reports/">Reports</a><a href="/nepse-actions/">Corp. actions</a></nav>
-
-<div class="d2-shell">
-  <aside class="d2-side" aria-label="Site navigation">
-    <a class="d2-brand" href="/nepse-decode/"><span class="d2-mark" aria-hidden="true">◈</span> Nepse Decode</a>
-    <nav><a href="/nepse-decode/">Overview</a><a href="/nepse-chart/">Chart &amp; signals</a><span class="nav-sub"><a href="/nepse-signals/momentum/"${sys === 'momentum' ? ' class="on" aria-current="page"' : ''}>Momentum</a><a href="/nepse-signals/trend-relay/"${sys === 'trend-relay' ? ' class="on" aria-current="page"' : ''}>Trend Relay</a><a href="/nepse-signals/reversal/"${sys === 'reversal' ? ' class="on" aria-current="page"' : ''}>Reversal</a></span><a href="/nepse-screener/">Screener</a><a href="/nepse-radar/">Warning Radar</a><a href="/nepse-trending/">Trending Stocks</a><a href="/nepse-value/">Value Investing</a><a href="/nepse-brokers/">Broker Analytics</a><a href="/nepse-sectors/">Sectors</a><a href="/nepse-news/">Market news</a><a href="/nepse-watchlist/">Watchlist</a><a href="/nepse-portfolio/">Portfolio</a><a href="/nepse-simulator/">Simulator</a><a href="/nepse-reports/">Reports</a><a href="/nepse-actions/">Corp. actions</a></nav>
-    <p class="d2-side-foot">Free forever · no login</p>
-  </aside>
-
-  <main class="d2-main" id="main">
-    <div class="d2-wrap">
-<div class="d2-fresh-mount"><div data-freshness-badge></div></div>
+<main style="max-width:1080px;margin:0 auto;padding:24px 16px">
+<nav class="sig-tabs" aria-label="Signal systems">${tabs}</nav>
 
 <p style="color:var(--muted);font-size:.9rem;margin-bottom:4px">Nepse Decode &middot; Chart &amp; signals &middot; rule-based, no black boxes</p>
 <h1 style="font-family:var(--serif);font-size:2rem;margin:0 0 6px">${data.title}</h1>
@@ -236,21 +222,18 @@ function page(sys, data) {
 <tr><td>Charges paid</td><td>${money(st.charges_paid)}</td><td>Backtest window</td><td>${st.backtest_from} &rarr; ${st.backtest_to}</td></tr>
 </table></div>
 
-<h2 style="font-family:var(--serif);margin-top:28px">Live track record — forward-tested signals</h2>
-<p style="color:var(--muted);font-size:.9rem">Real paper trades from live BUY alerts, tracked daily and updated automatically. Win = hit target, Loss = hit stop, Time exit = closed after 20 days. Every closed trade appears below — nothing is hand-picked.</p>
-<div class="sig-grid" id="live-stat-cards" style="margin:16px 0"></div>
-<div class="scrollx"><table class="sig-table" id="live-track-table">
-<thead><tr><th>Metric</th><th class="num">Value</th><th>Metric</th><th class="num">Value</th></tr></thead>
-<tbody id="live-track-body"><tr><td colspan="4">Loading live track record...</td></tr></tbody>
-</table></div>
-<div id="live-open-positions" style="margin-top:16px"></div>
-<div id="live-closed-trades" style="margin-top:16px"></div>
-
 <h2 style="font-family:var(--serif);margin-top:28px">Equity curve — Rs 1 Cr through this system</h2>
 <canvas id="eqchart"></canvas>
 
 <h2 style="font-family:var(--serif);margin-top:28px">The rules (exactly as coded)</h2>
 <div class="rules"><ol>${rules}</ol></div>
+
+<h2 style="font-family:var(--serif);margin-top:28px">Closed history — finished trades</h2>
+<p style="color:var(--muted);font-size:.9rem">Every finished trade this system took in the backtest, newest first. P&amp;L is after the same trading charges the backtest applies.</p>
+<div class="scrollx"><table class="sig-table" id="closed"><thead><tr>
+<th>Symbol</th><th class="num">Entry date</th><th class="num">Exit date</th><th class="num">Entry price</th><th class="num">Exit price</th><th>Exit reason</th><th class="num">P&amp;L %</th><th class="num">Hold days</th>
+</tr></thead><tbody id="closed-body">${closedFirst}${closedRest}</tbody></table></div>
+${closedMore}
 
 <h2 style="font-family:var(--serif);margin-top:28px">About this system</h2>
 <div class="rules"><p>${data.title} is one of Nepse Decode's transparent signal systems, run by the Alpha Lab engine. Every rule above is public — there is no hidden model and no "AI prediction". Signals are generated mechanically from daily OHLCV data (corporate-action adjusted); a stock appears here only if it passes every filter, including a Rs 10 lakh average-turnover liquidity bar. This page is educational and is not investment advice.</p></div>
@@ -258,9 +241,7 @@ function page(sys, data) {
 ${GLOSSARY}
 
 <p style="color:var(--muted);font-size:.85rem;margin:32px 0">Data: daily NEPSE OHLCV, corporate-action adjusted. Generated ${new Date().toISOString().slice(0, 10)}. Educational only — not investment advice.</p>
-    </div>
-  </main>
-</div>
+</main>
 <script>
 (function(){
   var sys = ${JSON.stringify(sys)};
@@ -279,62 +260,6 @@ ${GLOSSARY}
         '<td style="' + cls + '">' + pnl + '</td>' +
         '<td><div class="prog"><i style="width:' + Math.min(100, a.progress) + '%"></i></div></td></tr>';
     }).join('');
-    // Live track record
-    var ltr = d.live_track_record;
-    var ltb = document.getElementById('live-track-body');
-    var lsc = document.getElementById('live-stat-cards');
-    if (ltr && ltr.stats && ltb) {
-      var s = ltr.stats;
-      var wrCls = s.win_rate_pct >= 50 ? 'up' : 'down';
-      // Stat cards (design-rich, matching page style)
-      if (lsc) {
-        lsc.innerHTML =
-          '<div class="sig-card ' + wrCls + '"><div class="sig-card-l">Live win rate</div><div class="sig-card-v">' + s.win_rate_pct + '%</div></div>' +
-          '<div class="sig-card"><div class="sig-card-l">Signals tracked</div><div class="sig-card-v">' + s.total_signals + '</div></div>' +
-          '<div class="sig-card up"><div class="sig-card-l">Wins</div><div class="sig-card-v">' + s.wins + '</div></div>' +
-          '<div class="sig-card down"><div class="sig-card-l">Losses</div><div class="sig-card-v">' + s.losses + '</div></div>';
-      }
-      var wrTxtCls = s.win_rate_pct >= 50 ? 'color:var(--up)' : 'color:var(--down)';
-      ltb.innerHTML =
-        '<tr><td>Live win rate</td><td class="num" style="' + wrTxtCls + '"><strong>' + s.win_rate_pct + '%</strong></td>' +
-        '<td>Signals tracked</td><td class="num">' + s.total_signals + '</td></tr>' +
-        '<tr><td>Wins</td><td class="num" style="color:var(--up)">' + s.wins + '</td>' +
-        '<td>Losses</td><td class="num" style="color:var(--down)">' + s.losses + '</td></tr>' +
-        '<tr><td>Avg win</td><td class="num" style="color:var(--up)">+' + s.avg_win_pct + '%</td>' +
-        '<td>Avg loss</td><td class="num" style="color:var(--down)">' + s.avg_loss_pct + '%</td></tr>' +
-        '<tr><td>Profit factor</td><td class="num">' + s.profit_factor + '</td>' +
-        '<td>Open positions</td><td class="num">' + s.open_positions + '</td></tr>';
-      var lop = document.getElementById('live-open-positions');
-      if (lop && ltr.open_positions && ltr.open_positions.length) {
-        lop.innerHTML = '<h3 style="font-family:var(--serif);font-size:1.1rem;margin:0 0 8px">Currently tracking (' + ltr.open_positions.length + ')</h3>' +
-          '<div class="scrollx"><table class="sig-table"><thead><tr><th>Symbol</th><th class="num">Entry date</th><th class="num">Entry</th><th class="num">Stop</th><th class="num">Target</th><th class="num">Current</th><th class="num">Unrealized</th><th class="num">Days</th></tr></thead><tbody>' +
-          ltr.open_positions.map(function(t){
-            var cls = t.unrealized_pct >= 0 ? 'color:var(--up)' : 'color:var(--down)';
-            var sign = t.unrealized_pct >= 0 ? '+' : '';
-            return '<tr><td><strong>' + t.symbol + '</strong></td><td class="num">' + (t.entry_date || '–') + '</td><td class="num">' + t.entry_price.toLocaleString() + '</td><td class="num">' + (t.stop_loss ? t.stop_loss.toLocaleString() : '–') + '</td><td class="num">' + (t.target_1 ? t.target_1.toLocaleString() : '–') + '</td><td class="num">' + t.current_price.toLocaleString() + '</td><td class="num" style="' + cls + '"><strong>' + sign + t.unrealized_pct + '%</strong></td><td class="num">' + t.hold_days + '</td></tr>';
-          }).join('') + '</tbody></table></div>';
-      } else if (lop) {
-        lop.innerHTML = '<p style="color:var(--muted);font-size:.9rem">No open positions being tracked right now.</p>';
-      }
-      // Recent closed — ALL trades, auto-updating (no fixed limit)
-      var lct = document.getElementById('live-closed-trades');
-      if (lct && ltr.recent_closed && ltr.recent_closed.length) {
-        lct.innerHTML = '<h3 style="font-family:var(--serif);font-size:1.1rem;margin:0 0 8px">Closed trades (' + ltr.recent_closed.length + ') — auto-updating</h3>' +
-          '<div class="scrollx"><table class="sig-table"><thead><tr><th>Symbol</th><th class="num">Entry date</th><th class="num">Exit date</th><th class="num">Entry</th><th class="num">Exit</th><th>Exit reason</th><th class="num">P&L</th></tr></thead><tbody>' +
-          ltr.recent_closed.map(function(t){
-            var cls = t.pnl_pct >= 0 ? 'color:var(--up)' : 'color:var(--down)';
-            var sign = t.pnl_pct >= 0 ? '+' : '';
-            var oc = t.outcome === 'win' ? 'rp-win' : (t.outcome === 'loss' ? 'rp-loss' : 'rp-trail');
-            var reason = t.exit_reason || t.outcome || '–';
-            return '<tr><td><strong>' + t.symbol + '</strong></td><td class="num">' + (t.entry_date || '–') + '</td><td class="num">' + (t.exit_date || '–') + '</td><td class="num">' + t.entry_price.toLocaleString() + '</td><td class="num">' + t.exit_price.toLocaleString() + '</td><td><span class="rpill ' + oc + '">' + reason + '</span></td><td class="num" style="' + cls + '"><strong>' + sign + t.pnl_pct + '%</strong></td></tr>';
-          }).join('') + '</tbody></table></div>';
-      } else if (lct) {
-        lct.innerHTML = '<p style="color:var(--muted);font-size:.9rem">No closed trades yet — they will appear here automatically as signals complete.</p>';
-      }
-    } else {
-      if (ltb) ltb.innerHTML = '<tr><td colspan="4">No live signals tracked yet — check back after the next rebuild.</td></tr>';
-      if (lsc) lsc.innerHTML = '';
-    }
     // equity curve
     var cv = document.getElementById('eqchart'), ctx = cv.getContext('2d');
     var W = cv.width = cv.offsetWidth * 2, H = cv.height = 560;

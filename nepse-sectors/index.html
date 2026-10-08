@@ -26,11 +26,9 @@
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
 <link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/nepse-d2.css?v=20261008e">
-<link rel="stylesheet" href="sectors.css?v=20261002b">
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/nepse-d2.css?v=20261002d">
+<link rel="stylesheet" href="sectors.css?v=20261006a">
 <style>
 /* D2 dark-first remap of the sectors component palette.
    sectors.css ships light (cream) token values; on the D2 dark theme we
@@ -93,7 +91,10 @@
 </script>
 <link rel="stylesheet" href="/css/theme.css?v=20261002d">
 <link rel="stylesheet" href="/css/nepse-logos.css">
-<link rel="stylesheet" href="/css/nd-chrome.css">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261004a">
+<link rel="stylesheet" href="/css/nd-3d.css">
+<link rel="stylesheet" href="/css/nd-market-3d.css">
 </head>
 <body class="d2">
 <a class="skip-link" href="#main">Skip to content</a>
@@ -101,14 +102,10 @@
 
 
 <div id="nd-header"></div>
-<nav class="d2-mobilenav" aria-label="Sections"><a href="/nepse-decode/">Overview</a><a href="/nepse-chart/">Chart &amp; signals</a><span class="nav-sub"><a href="/nepse-signals/momentum/">Momentum</a><a href="/nepse-signals/trend-relay/">Trend Relay</a><a href="/nepse-signals/reversal/">Reversal</a></span><a href="/nepse-screener/">Screener</a><a href="/nepse-trending/">Trending Stocks</a><a href="/nepse-value/">Value Investing</a><a href="/nepse-brokers/">Broker Analytics</a><a href="/nepse-sectors/" class="on" aria-current="page">Sectors</a><a href="/nepse-news/">Market news</a><a href="/nepse-watchlist/">Watchlist</a><a href="/nepse-portfolio/">Portfolio</a><a href="/nepse-simulator/">Simulator</a><a href="/nepse-reports/">Reports</a><a href="/nepse-actions/">Corp. actions</a></nav>
+
 
 <div class="d2-shell">
-<aside class="d2-side" aria-label="Site navigation">
-  <a class="d2-brand" href="/nepse-decode/"><span class="d2-mark" aria-hidden="true">◈</span> Nepse Decode</a>
-  <nav><a href="/nepse-decode/">Overview</a><a href="/nepse-chart/">Chart &amp; signals</a><span class="nav-sub"><a href="/nepse-signals/momentum/">Momentum</a><a href="/nepse-signals/trend-relay/">Trend Relay</a><a href="/nepse-signals/reversal/">Reversal</a></span><a href="/nepse-screener/">Screener</a><a href="/nepse-trending/">Trending Stocks</a><a href="/nepse-value/">Value Investing</a><a href="/nepse-brokers/">Broker Analytics</a><a href="/nepse-sectors/" class="on" aria-current="page">Sectors</a><a href="/nepse-news/">Market news</a><a href="/nepse-watchlist/">Watchlist</a><a href="/nepse-portfolio/">Portfolio</a><a href="/nepse-simulator/">Simulator</a><a href="/nepse-reports/">Reports</a><a href="/nepse-actions/">Corp. actions</a></nav>
-  <p class="d2-side-foot">Free forever · no login</p>
-</aside>
+
 
 <div class="d2-main">
   <div class="d2-wrap">
@@ -151,8 +148,11 @@
       </section>
 
       <section class="sx-sec" aria-labelledby="sx-heat-h">
-        <h2 id="sx-heat-h">Sector heatmap</h2>
-        <p class="sx-sub">One tile per security: tile color follows its day change. Every tile links to that security's page. <a href="#sx-legend-note" class="sx-jump">How to read it</a></p>
+        <div class="sec-head">
+          <div><p class="eyebrow">Heatmap</p><h2 id="sx-heat-h">Market heatmap</h2></div>
+          <span class="note">Tile size follows turnover · colour follows % change · click a tile to open that security's page</span>
+        </div>
+        <div class="pillrow" id="sx-heat-filters" role="group" aria-label="Filter heatmap by sector"></div>
         <div class="sx-heat" id="sx-heat" aria-label="Sector heatmap">
           <span class="d2-skl skl-block" aria-hidden="true"></span>
           <span class="d2-skl skl-block" aria-hidden="true"></span>
@@ -171,9 +171,11 @@
       </section>
 
       <section class="sx-sec" aria-labelledby="sx-cards-h">
-        <h2 id="sx-cards-h">Sector breadth</h2>
-        <p class="sx-sub">Advancers versus decliners for the latest session, with the top 3 gainers and losers inside each sector.</p>
-        <div class="sx-cards" id="sx-cards">
+        <div class="sec-head">
+          <div><p class="eyebrow">Sectors</p><h2 id="sx-cards-h">Sectors</h2></div>
+          <span class="note">Click a sector to filter the screener and the stock table</span>
+        </div>
+        <div class="sx-cards cards-grid" id="sx-cards">
           <div class="d2-skl skl-block" aria-hidden="true"></div>
           <div class="d2-skl skl-block" aria-hidden="true"></div>
           <div class="d2-skl skl-block" aria-hidden="true"></div>
@@ -217,49 +219,7 @@
         <p><strong>How this page is built.</strong> Every figure on this page is a mechanical aggregation of the latest daily batch: tile color comes from each security's day change, breadth counts securities that closed higher or lower, leaders and laggards rank by day change, and turnover share divides each sector's session turnover by total turnover. Securities with no day change are left out of breadth, leaders and laggards, and average change. The grouping is honest about its limits: <strong>Debentures</strong>, <strong>Mutual Funds</strong> and <strong>Promoter Shares</strong> are instrument types, not NEPSE sectors (taken from the universe instrument-type field, NEPSE debenture symbol suffixes, and bond/rinpatra/fund/kosh in the official company name). <strong>Banking</strong>, <strong>Hydropower</strong> and the other named groups are NEPSE sub-indexes, mapped per symbol from explicit business words in the official company name plus verified overrides for symbols whose names do not reveal the business (for example BNL and UNL in manufacturing, SCBD and SHINED as debentures, Chandragiri Hills and Kalinchowk Darshan in hotels and tourism). <strong>Others</strong> is NEPSE's own Others sub-index bucket (for example NTC, NRM, Nepal Warehousing). Every listed security sits in exactly one group. This is for education only, not investment advice.</p>
       </section>
     </main>
-<footer class="d2-foot" aria-label="Nepse Decode site footer">
-      <div style="display:flex;gap:14px;align-items:flex-start">
-        <svg width="40" height="40" viewBox="0 0 64 64" role="img" aria-label="Nepse Decode iceberg mark" style="border-radius:10px;flex:none"><rect width="64" height="64" rx="14" fill="#013E2E"/><polygon points="32,9 21,25 43,25" fill="#FFFFFF"/><polygon points="13,27.5 51,27.5 45,42 32,57 21,45 15,37" fill="#FFFFFF"/><rect x="4" y="25" width="56" height="2.6" rx="1.3" fill="#0B3D2E" opacity=".55"/></svg>
-        <div>
-          <p style="font-weight:700;color:var(--d2-ink);margin:2px 0 8px">Nepse Decode</p>
-          <p style="margin:0;max-width:62ch;line-height:1.7">Free, honest NEPSE intelligence for every Nepali investor — live market data, screeners, signals and research, rebuilt every trading day. No login, no paywall, no buy calls.</p>
-        </div>
-      </div>
-      <nav class="d2-foot-grid" aria-label="Footer sections">
-        <div><h3>Tools</h3><ul>
-          <li><a href="/nepse-screener/">Stock Screener</a></li>
-          <li><a href="/nepse-chart/">Chart</a></li>
-          <li><a href="/nepse-trending/">Trending Stocks</a></li>
-          <li><a href="/nepse-value/">Value Investing</a></li>
-          <li><a href="/nepse-signals/momentum/">Trading Signals</a></li>
-          <li><a href="/nepse-watchlist/">Watchlist</a></li>
-        </ul></div>
-        <div><h3>Market data</h3><ul>
-          <li><a href="/nepse-decode/">Dashboard</a></li>
-          <li><a href="/nepse-brokers/">Broker Analytics</a></li>
-          <li><a href="/nepse-sectors/">Sectors</a></li>
-          <li><a href="/nepse-news/">Market News</a></li>
-          <li><a href="/nepse-actions/">Corp. Actions</a></li>
-          <li><a href="/stocks/">All Stocks</a></li>
-        </ul></div>
-        <div><h3>Research</h3><ul>
-          <li><a href="/blog/">Daily Blog</a></li>
-          <li><a href="/nepse-decode/">Market Dashboard</a></li>
-        </ul></div>
-        <div><h3>Company</h3><ul>
-          <li><a href="/about.html">About</a></li>
-          <li><a href="/contact.html">Contact</a></li>
-          <li><a href="/privacy.html">Privacy</a></li>
-          <li><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Facebook Page</a></li>
-        </ul></div>
-      </nav>
-      <p style="max-width:88ch;line-height:1.7"><strong style="color:var(--d2-ink-soft)">Educational use only.</strong> Nothing on this site is investment advice. Prices and figures are compiled from public sources and refreshed every trading day — always verify with your broker before trading.</p>
-      <p style="max-width:88ch;line-height:1.7"><strong style="color:var(--d2-ink-soft)">Data sources:</strong> Market data from <a href="https://www.nepalstock.com" target="_blank" rel="noopener" style="color:var(--d2-ink-soft)">NEPSE (nepalstock.com)</a> and <a href="https://www.sharesansar.com" target="_blank" rel="noopener" style="color:var(--d2-ink-soft)">ShareSansar</a>. Corporate actions verified against official NEPSE/company notices.</p>
-      <div style="display:flex;flex-wrap:wrap;gap:10px 20px;justify-content:space-between;margin-top:22px;padding-top:18px;border-top:1px solid var(--d2-line-soft)">
-        <span>© 2026 Nepse Decode · Built by <a href="/" style="color:var(--d2-ink-soft)">Shirjan Khadka</a> in Kathmandu, Nepal</span>
-        <span><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener" style="color:var(--d2-ink-soft);margin-right:14px">Facebook</a><a href="/blog/" style="color:var(--d2-ink-soft);margin-right:14px">Blog</a><a href="/contact.html" style="color:var(--d2-ink-soft)">Contact</a></span>
-      </div>
-    </footer>
+<div id="nd-footer"></div>
   </div>
 </div>
 </div><!-- /.d2-shell -->
@@ -270,12 +230,12 @@
 <script src="/js/nepse-data.js?v=20261003a"></script>
 <script src="/js/nepse-live.js?v=20261002c"></script>
 <script src="/js/nepse-suite.js?v=1075e635"></script>
-<script src="/js/company-logos.js" defer></script>
+<script src="/js/company-logos.js?v=20261004a" defer></script>
 <script src="/js/nepse-logos.js" defer></script>
-<script src="/js/nepse-sectors.js?v=20261002c" defer></script>
+<script src="/js/nepse-sectors.js?v=20261004a" defer></script>
 <script src="/js/theme-toggle.js?v=20261002c" defer></script>
-<script src="/js/freshness-badge.js?v=20261002c" defer></script>
+<script src="/js/freshness-badge.js?v=20261005a" defer></script>
 <script src="/js/nepse-sidebar.js?v=20261002c" defer></script>
-<script src="/js/nd-chrome.js" defer></script>
+<script src="/js/nd-chrome.js?v=20261006a" defer></script>
 </body>
 </html>
