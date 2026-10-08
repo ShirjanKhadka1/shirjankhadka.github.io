@@ -132,6 +132,18 @@ body.d2 .d2-num { font-variant-numeric: tabular-nums; }
   align-items: center; gap: 12px;
 }
 .d2-topbar .d2-brand { padding: 0; font-size: 16px; }
+.d2-topnav {
+  display: flex; align-items: center; gap: 4px;
+  margin-left: 24px; overflow-x: auto; scrollbar-width: none;
+}
+.d2-topnav::-webkit-scrollbar { display: none; }
+.d2-topnav a {
+  padding: 8px 12px; border-radius: 8px; font-size: 13.5px; font-weight: 500;
+  color: var(--d2-muted); text-decoration: none; white-space: nowrap;
+  transition: background .15s, color .15s;
+}
+.d2-topnav a:hover { background: var(--d2-hover); color: var(--d2-ink); }
+.d2-topnav a[aria-current="page"] { background: var(--d2-active); color: var(--d2-ink); font-weight: 600; }
 .d2-mobilenav {
   display: none;
   gap: 8px; overflow-x: auto; scrollbar-width: none;
@@ -171,15 +183,16 @@ body.d2 .d2-num { font-variant-numeric: tabular-nums; }
 
 /* ---------- cards & buttons ---------- */
 .d2-card {
-  background: var(--d2-surface);
+  background: linear-gradient(145deg, var(--d2-surface), color-mix(in srgb, var(--d2-surface) 88%, black));
   border: 1px solid var(--d2-line-soft);
+  border-top: 1px solid rgba(255,255,255,.07);
   border-radius: var(--d2-r-lg);
   padding: 22px;
-  box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 4px 12px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.04);
+  box-shadow: 0 2px 8px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.04);
   transition: box-shadow .2s ease, transform .2s ease;
 }
 .d2-card:hover {
-  box-shadow: 0 2px 4px rgba(0,0,0,.05), 0 8px 20px rgba(0,0,0,.09), 0 16px 40px rgba(0,0,0,.06);
+  box-shadow: 0 4px 16px rgba(0,0,0,.45), 0 12px 32px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.07);
   transform: translateY(-1px);
 }
 .d2-card + .d2-card { margin-top: 18px; }
