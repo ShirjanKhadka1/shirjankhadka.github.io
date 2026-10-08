@@ -41,8 +41,7 @@ function money(n) {
 function page(sys, data) {
   const st = data.stats;
   const pageUrl = `https://shirjankhadka.com.np/nepse-signals/${sys}/`;
-  const yrs = st.backtest_years || '—';
-  const shortDesc = `${data.title}: transparent rule-based NEPSE trading system. Backtested over ${yrs} years — ${pct(st.annual_return_pct)} annual return, ${pct(st.win_rate_pct)} win rate. Educational only.`;
+  const shortDesc = `${data.title}: transparent rule-based NEPSE trading system. Backtested 2003–2026 — ${pct(st.annual_return_pct)} annual return, ${pct(st.win_rate_pct)} win rate. Educational only.`;
   const tabs = SLUGS.map(s => {
     const d = JSON.parse(fs.readFileSync(path.join(DATA, s + '.json'), 'utf8'));
     const active = s === sys ? ' aria-current="page" class="active"' : '';
@@ -94,9 +93,9 @@ function page(sys, data) {
     : '';
 
   const NOTES = {
-    'momentum': `<strong>What the backtest says.</strong> Over ${yrs} years this rule set compounded at ${pct(st.annual_return_pct)} a year — below NEPSE buy &amp; hold (${pct(st.benchmark_cagr_pct)}), but with a far shallower worst fall (${pct(st.max_drawdown_pct)} vs the index's deep bear markets). It wins only ${pct(st.win_rate_pct)} of trades; it survives on letting winners run to multiples of risk.`,
-    'trend-relay': `<strong>What the backtest says.</strong> This patient re-entry system compounded at ${pct(st.annual_return_pct)} a year with the shallowest worst fall of the three (${pct(st.max_drawdown_pct)}). It trades rarely (${st.total_trades} trades in ${yrs} years) and wins ${pct(st.win_rate_pct)} of them — a system for waiting, not for action.`,
-    'reversal': `<strong>Read this first.</strong> Over ${yrs} years this system <em>lost</em> money (${pct(st.annual_return_pct)} a year, worst fall ${pct(st.max_drawdown_pct)}). That is itself the finding: on NEPSE, buying oversold dips against the trend has been a losing approach — sharp knives keep falling. It is published for education, so you can see exactly why, not as something to trade.`,
+    'momentum': `<strong>What the backtest says.</strong> Over 23 years this rule set compounded at ${pct(st.annual_return_pct)} a year — below NEPSE buy &amp; hold (${pct(st.benchmark_cagr_pct)}), but with a far shallower worst fall (${pct(st.max_drawdown_pct)} vs the index's deep bear markets). It wins only ${pct(st.win_rate_pct)} of trades; it survives on letting winners run to multiples of risk.`,
+    'trend-relay': `<strong>What the backtest says.</strong> This patient re-entry system compounded at ${pct(st.annual_return_pct)} a year with the shallowest worst fall of the three (${pct(st.max_drawdown_pct)}). It trades rarely (${st.total_trades} trades in 23 years) and wins ${pct(st.win_rate_pct)} of them — a system for waiting, not for action.`,
+    'reversal': `<strong>Read this first.</strong> Over 23 years this system <em>lost</em> money (${pct(st.annual_return_pct)} a year, worst fall ${pct(st.max_drawdown_pct)}). That is itself the finding: on NEPSE, buying oversold dips against the trend has been a losing approach across two decades — sharp knives keep falling. It is published for education, so you can see exactly why, not as something to trade.`,
   };
 
   const GLOSSARY = `
@@ -222,6 +221,15 @@ function page(sys, data) {
 <tr><td>Charges paid</td><td>${money(st.charges_paid)}</td><td>Backtest window</td><td>${st.backtest_from} &rarr; ${st.backtest_to}</td></tr>
 </table></div>
 
+<h2 style="font-family:var(--serif);margin-top:28px">Live track record — forward-tested signals</h2>
+<p style="color:var(--muted);font-size:.9rem">Real paper trades from live BUY alerts, tracked daily. Win = hit target, Loss = hit stop, Time exit = closed after 20 days. Updates automatically every trading day.</p>
+<div id="live-track-section" class="scrollx"><table class="sig-table" id="live-track-table">
+<thead><tr><th>Metric</th><th class="num">Value</th><th>Metric</th><th class="num">Value</th></tr></thead>
+<tbody id="live-track-body"><tr><td colspan="4">Loading live track record...</td></tr></tbody>
+</table></div>
+<div id="live-open-positions" style="margin-top:16px"></div>
+<div id="live-closed-trades" style="margin-top:16px"></div>
+
 <h2 style="font-family:var(--serif);margin-top:28px">Equity curve — Rs 1 Cr through this system</h2>
 <canvas id="eqchart"></canvas>
 
@@ -260,6 +268,43 @@ ${GLOSSARY}
         '<td style="' + cls + '">' + pnl + '</td>' +
         '<td><div class="prog"><i style="width:' + Math.min(100, a.progress) + '%"></i></div></td></tr>';
     }).join('');
+    // Live track record
+    var ltr = d.live_track_record;
+    var ltb = document.getElementById('live-track-body');
+    if (ltr && ltr.stats && ltb) {
+      var s = ltr.stats;
+      var wrCls = s.win_rate_pct >= 50 ? 'color:var(--up)' : 'color:var(--down)';
+      ltb.innerHTML =
+        '<tr><td>Live win rate</td><td class="num" style="' + wrCls + '"><strong>' + s.win_rate_pct + '%</strong></td>' +
+        '<td>Signals tracked</td><td class="num">' + s.total_signals + '</td></tr>' +
+        '<tr><td>Wins</td><td class="num" style="color:var(--up)">' + s.wins + '</td>' +
+        '<td>Losses</td><td class="num" style="color:var(--down)">' + s.losses + '</td></tr>' +
+        '<tr><td>Avg win</td><td class="num" style="color:var(--up)">+' + s.avg_win_pct + '%</td>' +
+        '<td>Avg loss</td><td class="num" style="color:var(--down)">' + s.avg_loss_pct + '%</td></tr>' +
+        '<tr><td>Profit factor</td><td class="num">' + s.profit_factor + '</td>' +
+        '<td>Open positions</td><td class="num">' + s.open_positions + '</td></tr>';
+      var lop = document.getElementById('live-open-positions');
+      if (lop && ltr.open_positions && ltr.open_positions.length) {
+        lop.innerHTML = '<h3 style="font-size:1rem;margin:0 0 8px">Currently tracking (' + ltr.open_positions.length + ')</h3>' +
+          '<div class="scrollx"><table class="sig-table"><thead><tr><th>Symbol</th><th class="num">Entry</th><th class="num">Current</th><th class="num">Unrealized</th><th class="num">Days</th></tr></thead><tbody>' +
+          ltr.open_positions.map(function(t){
+            var cls = t.unrealized_pct >= 0 ? 'color:var(--up)' : 'color:var(--down)';
+            return '<tr><td><strong>' + t.symbol + '</strong></td><td class="num">' + t.entry_price + '</td><td class="num">' + t.current_price + '</td><td class="num" style="' + cls + '">' + (t.unrealized_pct >= 0 ? '+' : '') + t.unrealized_pct + '%</td><td class="num">' + t.hold_days + '</td></tr>';
+          }).join('') + '</tbody></table></div>';
+      }
+      var lct = document.getElementById('live-closed-trades');
+      if (lct && ltr.recent_closed && ltr.recent_closed.length) {
+        lct.innerHTML = '<h3 style="font-size:1rem;margin:0 0 8px">Recent closed (' + ltr.recent_closed.length + ')</h3>' +
+          '<div class="scrollx"><table class="sig-table"><thead><tr><th>Symbol</th><th class="num">Entry</th><th class="num">Exit</th><th>Outcome</th><th class="num">P&L</th></tr></thead><tbody>' +
+          ltr.recent_closed.slice(0, 10).map(function(t){
+            var cls = t.pnl_pct >= 0 ? 'color:var(--up)' : 'color:var(--down)';
+            var oc = t.outcome === 'win' ? 'rp-win' : (t.outcome === 'loss' ? 'rp-loss' : 'rp-trail');
+            return '<tr><td><strong>' + t.symbol + '</strong></td><td class="num">' + t.entry_price + '</td><td class="num">' + t.exit_price + '</td><td><span class="rpill ' + oc + '">' + t.outcome + '</span></td><td class="num" style="' + cls + '"><strong>' + (t.pnl_pct >= 0 ? '+' : '') + t.pnl_pct + '%</strong></td></tr>';
+          }).join('') + '</tbody></table></div>';
+      }
+    } else if (ltb) {
+      ltb.innerHTML = '<tr><td colspan="4">No live signals tracked yet — check back after the next rebuild.</td></tr>';
+    }
     // equity curve
     var cv = document.getElementById('eqchart'), ctx = cv.getContext('2d');
     var W = cv.width = cv.offsetWidth * 2, H = cv.height = 560;
