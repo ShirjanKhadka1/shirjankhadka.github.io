@@ -93,7 +93,7 @@ function main() {
 
   // ---------- market section: one session from live.json ----------
   const quotes = (live.quotes || []).filter((q) => q && q.symbol);
-  const sessDate = String(live.session_date || live.asof || '').slice(0, 10) ||
+  const sessDate = String(live.asof || '').slice(0, 10) ||
     String((live.index && live.index.last_updated) || '').slice(0, 10);
   const adv = [], dec = [], unc = [];
   quotes.forEach((q) => {
@@ -204,9 +204,10 @@ async function run() {
   const { names, ohlcSyms, market, rsi, vj } = main();
   const movers = await buildMovers(names, ohlcSyms);
   const today = new Date().toISOString().slice(0, 10);
+  const builtAt = new Date().toISOString();
   const out = {
     asof: market.date || vj.asof || today,
-    built: today,
+    built: builtAt,
     sources: {
       market: 'nepse-chart/data/live.json',
       rsi: 'nepse-chart/data/verdicts.json',
