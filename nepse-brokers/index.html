@@ -161,7 +161,7 @@ h2.bk-h{font-family:var(--serif);font-size:1.25rem;margin:20px 0 8px}
 <!-- SNAP-START -->
 <section class="snap" aria-label="Broker coverage snapshot">
   <h2>Latest session broker flow <span class="snap-asof">· 2026-10-08 · 57 trading days on record (2026-07-15 → 2026-10-08)</span></h2>
-  <div class="scrollx"><table class="bk-table">
+  <div class="scrollx" tabindex="0" role="region" aria-label="Top brokers snapshot"><table class="bk-table">
     <thead><tr><th>#</th><th>Broker</th><th>Bought</th><th>Sold</th><th>Net flow</th></tr></thead>
     <tbody>
       <tr><td>1</td><td>Broker 58</td><td>Rs 34.9 Cr</td><td>Rs 40.3 Cr</td><td>-5.4 Cr</td></tr>
@@ -176,7 +176,7 @@ h2.bk-h{font-family:var(--serif);font-size:1.25rem;margin:20px 0 8px}
 <!-- SNAP-END -->
 <div class="cover" id="coverage">Loading data…</div>
 
-<div class="bk-tabs" role="tablist" id="viewTabs">
+<div class="bk-tabs" role="group" aria-label="Broker views" id="viewTabs">
 <button data-view="top" class="active">Top Brokers</button>
 <button data-view="broker">Broker Trade Pattern</button>
 <button data-view="stock">Stock Trade Pattern</button>
@@ -196,7 +196,7 @@ h2.bk-h{font-family:var(--serif);font-size:1.25rem;margin:20px 0 8px}
 <button data-p="1Y">1Y</button>
 <button data-p="2Y">2Y</button>
 <button data-p="3Y">3Y</button>
-<input type="date" id="asofDate" title="As of date" style="border:1px solid var(--hairline);border-radius:var(--r-pill);padding:5px 10px;font-size:.85rem">
+<input type="date" id="asofDate" title="As of date" aria-label="As of date" style="border:1px solid var(--hairline);border-radius:var(--r-pill);padding:5px 10px;font-size:.85rem">
 </div>
 
 <div class="ctl" id="viewControls" style="display:none">
@@ -425,7 +425,7 @@ function renderTop(d){
       '<td class="'+cls(b.net_qty)+'">'+fmtN(b.net_qty,0)+'</td><td class="'+cls(b.net)+'">'+fmtV(b.net)+'</td></tr>';
   }).join('');
   return '<h2 class="bk-h">Top brokers by turnover — '+label()+'</h2>'+
-    '<div class="scrollx"><table class="bk-table"><thead><tr><th>#</th><th class="bk-name">Broker</th><th>Buy vol</th><th>Buy value</th><th>Sell vol</th><th>Sell value</th><th>Total vol</th><th>Total value</th><th>Net vol</th><th>Net value</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+    '<div class="scrollx" tabindex="0" role="region" aria-label="Top brokers by turnover table"><table class="bk-table"><thead><tr><th>#</th><th class="bk-name">Broker</th><th>Buy vol</th><th>Buy value</th><th>Sell vol</th><th>Sell value</th><th>Total vol</th><th>Total value</th><th>Net vol</th><th>Net value</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 
 function renderBroker(d){
@@ -447,7 +447,7 @@ function renderBroker(d){
     '<div class="stat"><div class="l">Net volume</div><div class="v '+cls((t.buy_qty||0)-(t.sell_qty||0))+'">'+fmtN((t.buy_qty||0)-(t.sell_qty||0),0)+'</div></div>'+
     '<div class="stat"><div class="l">Net value</div><div class="v '+cls((t.buy_value||0)-(t.sell_value||0))+'">'+fmtV((t.buy_value||0)-(t.sell_value||0))+'</div></div>'+
     '<div class="stat"><div class="l">Stocks traded</div><div class="v">'+syms.length+'</div></div></div>'+
-    '<div class="scrollx"><table class="bk-table"><thead><tr><th>Symbol</th><th>Buy qty</th><th>Buy value</th><th>Sell qty</th><th>Sell value</th><th>Net value</th></tr></thead><tbody>'+(rows||'<tr><td colspan="6">No trades in this period.</td></tr>')+'</tbody></table></div>';
+    '<div class="scrollx" tabindex="0" role="region" aria-label="Broker symbol trades table"><table class="bk-table"><thead><tr><th>Symbol</th><th>Buy qty</th><th>Buy value</th><th>Sell qty</th><th>Sell value</th><th>Net value</th></tr></thead><tbody>'+(rows||'<tr><td colspan="6">No trades in this period.</td></tr>')+'</tbody></table></div>';
 }
 
 function symbolOptions(d){
@@ -469,7 +469,7 @@ function renderStock(d){
       .slice(0,10).map(function(x,i){
         return '<tr><td>'+(i+1)+'</td><td class="bk-name">'+bname(x[0])+'</td><td>'+fmtN(x[1][0],0)+'</td><td>'+fmtV(x[1][1])+'</td></tr>';
       }).join('');
-    return '<div><h2 class="bk-h">'+title+'</h2><div class="scrollx"><table class="bk-table"><thead><tr><th>#</th><th class="bk-name">Broker</th><th>Qty (shares)</th><th>Value</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+    return '<div><h2 class="bk-h">'+title+'</h2><div class="scrollx" tabindex="0" role="region" aria-label="Stockwise holdings table"><table class="bk-table"><thead><tr><th>#</th><th class="bk-name">Broker</th><th>Qty (shares)</th><th>Value</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
   }
   var activeN = (s.netflow && Object.keys(s.netflow).length)
     ? Object.keys(s.netflow).length
@@ -517,7 +517,7 @@ function renderHoldings(d){
     }).join('');
   return '<h2 class="bk-h">'+sym+' — stockwise broker flow, '+label()+'</h2>'+
     '<p style="font-size:.85rem;color:var(--muted)">Every broker that traded this stock, netted over the period. Net bought = accumulating · net sold = distributing (by transaction value). This is transaction flow, not verified shareholding.</p>'+
-    '<div class="scrollx"><table class="bk-table"><thead><tr><th class="bk-name">Broker</th><th>Code</th><th>Buy qty</th><th>Buy value</th><th>Sell qty</th><th>Sell value</th><th>Net qty</th><th>Net value</th><th>Flow</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+    '<div class="scrollx" tabindex="0" role="region" aria-label="Stockwise broker flow table"><table class="bk-table"><thead><tr><th class="bk-name">Broker</th><th>Code</th><th>Buy qty</th><th>Buy value</th><th>Sell qty</th><th>Sell value</th><th>Net qty</th><th>Net value</th><th>Flow</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 
 function renderAccDist(d){
@@ -526,7 +526,7 @@ function renderAccDist(d){
       return '<tr><td>'+(i+1)+'</td><td><strong>'+x.symbol+'</strong></td><td class="bk-name">'+bname(x.broker)+'</td>'+
         '<td>'+fmtN(x.net_qty,0)+'</td><td class="'+(good?'pos':'neg')+'">'+fmtV(x.net_value)+'</td></tr>';
     }).join('');
-    return '<div><h2 class="bk-h">'+title+'</h2><div class="scrollx"><table class="bk-table"><thead><tr><th>#</th><th>Stock</th><th class="bk-name">Broker</th><th>Net qty</th><th>Net value</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+    return '<div><h2 class="bk-h">'+title+'</h2><div class="scrollx" tabindex="0" role="region" aria-label="'+title+' table"><table class="bk-table"><thead><tr><th>#</th><th>Stock</th><th class="bk-name">Broker</th><th>Net qty</th><th>Net value</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
   }
   return '<div class="two">'+tbl(d.accumulation||[],'Accumulating — top net bought',true)+tbl(d.distribution||[],'Distributing — top net sold',false)+'</div>';
 }
