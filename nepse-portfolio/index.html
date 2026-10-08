@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#FAF7F0">
 <title>NEPSE Portfolio Tracker: Holdings, P&L, Allocation | Nepse Decode</title>
 <link rel="stylesheet" href="/css/nepse-design-system.css?v=c967c332">
-<link rel="stylesheet" href="/css/nepse-d2.css?v=20261008i">
+<link rel="stylesheet" href="/css/nepse-d2.css?v=20261008e">
 <meta name="description" content="Free NEPSE portfolio tracker, no login: record holdings, see unrealized and realized P&L, allocation and analytics. Unlimited, saved in your browser.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-portfolio/">
 <meta property="og:type" content="website">
@@ -157,29 +157,12 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Where is my portfolio data stored?","acceptedAnswer":{"@type":"Answer","text":"Only in your own browser, using local storage. Nothing is uploaded to any server and no account is needed — but clearing your browser data will erase it, so the printable report is there for your records."}},{"@type":"Question","name":"How is average cost calculated?","acceptedAnswer":{"@type":"Answer","text":"Weighted average cost: the total amount paid for a security divided by the total quantity held. Each new buy updates it; each recorded sale computes realized P&L against the average cost at the time of sale."}},{"@type":"Question","name":"Are portfolio prices real-time?","acceptedAnswer":{"@type":"Answer","text":"No. Prices come from the latest daily batch, which can lag during trading hours. NEPSE publishes no free official real-time API, so community mirrors and batch data may be delayed."}},{"@type":"Question","name":"Is this investment advice?","acceptedAnswer":{"@type":"Answer","text":"No. The tracker is arithmetic for education — it never recommends buying or selling. Verify figures with your broker before any decision."}}]}
 </script>
+<link rel="stylesheet" href="/css/nd-chrome.css">
 </head>
 <body class="nd" data-page="portfolio">
 
   <a class="skip-link" href="#main">Skip to content</a>
-<header class="d2-topbar">
-  <a class="d2-brand" href="/nepse-decode/"><span class="d2-mark" aria-hidden="true">◈</span> Nepse Decode</a><nav class="d2-topnav" aria-label="Main navigation">
-<a href="/nepse-decode/">Overview</a>
-<a href="/nepse-chart/">Chart & signals</a>
-<a href="/nepse-screener/">Screener</a>
-<a href="/nepse-radar/">Warning Radar</a>
-<a href="/nepse-trending/">Trending</a>
-<a href="/nepse-value/">Value</a>
-<a href="/nepse-brokers/">Brokers</a>
-<a href="/nepse-sectors/">Sectors</a>
-<a href="/nepse-news/">News</a>
-<a href="/nepse-watchlist/">Watchlist</a>
-<a href="/nepse-portfolio/">Portfolio</a>
-<a href="/nepse-simulator/">Simulator</a>
-<a href="/nepse-reports/">Reports</a>
-<a href="/nepse-actions/">Corp. actions</a>
-</nav>
-  <span style="margin-left:auto" id="d2TopState"></span>
-</header>
+<div id="nd-header"></div>
 <nav class="d2-mobilenav" aria-label="Sections"><a href="/nepse-decode/">Overview</a><a href="/nepse-chart/">Chart &amp; signals</a><span class="nav-sub"><a href="/nepse-signals/momentum/">Momentum</a><a href="/nepse-signals/trend-relay/">Trend Relay</a><a href="/nepse-signals/reversal/">Reversal</a></span><a href="/nepse-screener/">Screener</a><a href="/nepse-radar/">Warning Radar</a><a href="/nepse-trending/">Trending Stocks</a><a href="/nepse-value/">Value Investing</a><a href="/nepse-brokers/">Broker Analytics</a><a href="/nepse-sectors/">Sectors</a><a href="/nepse-news/">Market news</a><a href="/nepse-watchlist/">Watchlist</a><a href="/nepse-portfolio/" class="on" aria-current="page">Portfolio</a><a href="/nepse-simulator/">Simulator</a><a href="/nepse-reports/">Reports</a><a href="/nepse-actions/">Corp. actions</a></nav>
 
 <div class="d2-shell">
@@ -430,5 +413,6 @@
 <script src="/js/freshness-badge.js?v=20261002c" defer></script>
 <script src="/js/theme-toggle.js?v=20261002c" defer></script>
 <script src="/js/nepse-sidebar.js?v=20261002c" defer></script>
+<script src="/js/nd-chrome.js" defer></script>
 </body>
 </html>

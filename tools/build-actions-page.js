@@ -110,29 +110,11 @@ function main() {
     '<link rel="stylesheet" href="/css/nepse-brand.css?v=20261003a">\n' +
     '<link rel="stylesheet" href="/css/nepse-wave8.css?v=20261003a">\n' +
     '<link rel="stylesheet" href="/css/nepse-actions.css?v=20261002a">\n' +
-    '<link rel="stylesheet" href="/css/nepse-d2.css?v=20261008i">\n' +
+    '<link rel="stylesheet" href="/css/nepse-d2.css">\n<link rel="stylesheet" href="/css/nd-chrome.css?v=20261008e">\n' +
     '<link rel="stylesheet" href="/css/theme.css?v=20261001a">\n' +
     '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>\n' +
     '</head>\n<body>\n<a class="skip" href="#main">Skip to content</a>\n\n' +
-    '<header class="d2-topbar">\n' +
-    '  <a class="d2-brand" href="/nepse-decode/"><span class="d2-mark" aria-hidden="true">◈</span> Nepse Decode</a><nav class="d2-topnav" aria-label="Main navigation">
-<a href="/nepse-decode/">Overview</a>
-<a href="/nepse-chart/">Chart & signals</a>
-<a href="/nepse-screener/">Screener</a>
-<a href="/nepse-radar/">Warning Radar</a>
-<a href="/nepse-trending/">Trending</a>
-<a href="/nepse-value/">Value</a>
-<a href="/nepse-brokers/">Brokers</a>
-<a href="/nepse-sectors/">Sectors</a>
-<a href="/nepse-news/">News</a>
-<a href="/nepse-watchlist/">Watchlist</a>
-<a href="/nepse-portfolio/">Portfolio</a>
-<a href="/nepse-simulator/">Simulator</a>
-<a href="/nepse-reports/">Reports</a>
-<a href="/nepse-actions/">Corp. actions</a>
-</nav>\n' +
-    '  <span style="margin-left:auto" id="d2TopState"></span>\n' +
-    '</header>\n' +
+    '<div id="nd-header"></div>\n' +
     '<nav class="d2-mobilenav" aria-label="Sections"><a href="/nepse-decode/">Overview</a><a href="/nepse-chart/">Chart &amp; signals</a><span class="nav-sub"><a href="/nepse-signals/momentum/">Momentum</a><a href="/nepse-signals/trend-relay/">Trend Relay</a><a href="/nepse-signals/reversal/">Reversal</a></span><a href="/nepse-screener/">Screener</a><a href="/nepse-radar/">Warning Radar</a><a href="/nepse-trending/">Trending Stocks</a><a href="/nepse-value/">Value Investing</a><a href="/nepse-brokers/">Broker Analytics</a><a href="/nepse-sectors/">Sectors</a><a href="/nepse-news/">Market news</a><a href="/nepse-watchlist/">Watchlist</a><a href="/nepse-portfolio/">Portfolio</a><a href="/nepse-simulator/">Simulator</a><a href="/nepse-reports/">Reports</a><a href="/nepse-actions/" class="on" aria-current="page">Corp. actions</a></nav>\n\n' +
     '<div class="d2-shell">\n' +
     '<aside class="d2-side" aria-label="Site navigation">\n' +
