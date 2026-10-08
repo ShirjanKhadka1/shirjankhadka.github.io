@@ -1,7 +1,7 @@
 {
-  "ran_at_npt": "2026-10-08T00:40:00+05:45",
+  "ran_at_npt": "2026-10-08T11:55:00+05:45",
   "expected_session": "2026-10-07",
-  "passed": true,
+  "passed": false,
   "gates": [
     {
       "gate": "manifest-present",
@@ -12,7 +12,7 @@
     {
       "gate": "live-session-current",
       "pass": true,
-      "detail": "live=2026-10-07 expected=2026-10-07",
+      "detail": "live=2026-10-08 expected=2026-10-08",
       "severity": "fail"
     },
     {
@@ -24,31 +24,31 @@
     {
       "gate": "security-count-stable",
       "pass": true,
-      "detail": "quotes=359 baseline=359 (last good tag data-2026-10-07-1) drift=0.0% band=±5%",
+      "detail": "intraday: quotes=297 baseline=297 (same-session post-open snapshot 890f0eb) — no intraday collapse",
       "severity": "fail"
     },
     {
       "gate": "no-dup-quotes",
       "pass": true,
-      "detail": "359 unique quoted symbols",
+      "detail": "297 unique quoted symbols",
       "severity": "fail"
     },
     {
       "gate": "price-sanity",
       "pass": true,
-      "detail": "359 quotes ok",
+      "detail": "297 quotes ok",
       "severity": "fail"
     },
     {
       "gate": "index-change-reconciles",
-      "pass": true,
-      "detail": "17 indices reconcile",
+      "pass": false,
+      "detail": "NEPSE: Δ=-2.55 vs -2.57",
       "severity": "fail"
     },
     {
       "gate": "quote-math-reconciles",
       "pass": true,
-      "detail": "359 quotes reconcile",
+      "detail": "297 quotes reconcile",
       "severity": "fail"
     },
     {
@@ -66,13 +66,13 @@
     {
       "gate": "session-totals-consistent",
       "pass": true,
-      "detail": "turnover=Rs 3.74B vol=10.3M trades=39372 n=359",
+      "detail": "turnover=Rs 0.55B vol=1.6M trades=6454 n=297",
       "severity": "fail"
     },
     {
       "gate": "universe-membership-stable",
-      "pass": true,
-      "detail": "quoted=359 universe=404 (88.9%)",
+      "pass": false,
+      "detail": "quoted=297 universe=404 (73.5%)",
       "severity": "flag"
     },
     {
@@ -125,6 +125,7 @@
     }
   ],
   "flagged": [
+    "universe-membership-stable",
     "close-source-official"
   ]
 }
