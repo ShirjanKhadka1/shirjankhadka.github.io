@@ -237,12 +237,23 @@ function main() {
       // The official feed reports the main index change rounded to 1dp while
       // value/previous_close carry more precision (e.g. change=-18.8 vs
       // value-prev=-18.8135) — compare at the change field's own precision so
-      // official rounding alone never fails the gate. A genuinely wrong
-      // change still exceeds the 0.011 tolerance after rounding.
+      // official rounding alone never fails the gate.
+      //
+      // TOLERANCE 0.05 (was 0.011): NEPSE's own API serves a change field that
+      // systematically disagrees with currentValue − previousClose by
+      // ~0.014–0.020 — observed 2026-10-08 on three intraday snapshots, where
+      // change reconciles EXACTLY against previousClose=2572.33 while the
+      // published previousClose field is 2572.3456 (the feed computes change
+      // against a differently-rounded previous close). The 0.011
+      // rounding-only tolerance false-failed every intraday snapshot and
+      // nearly failed the 2026-10-07 close (0.010 vs 0.011). 0.05 keeps the
+      // gate's purpose — a genuinely wrong change (stale tick, sign flip,
+      // feed glitch) is off by whole points, never hundredths — while the
+      // feed's own skew passes.
       const cStr = String(ix.change);
       const dp = cStr.includes('.') ? (cStr.split('.')[1] || '').length : 0;
       const expectRounded = Number(expect.toFixed(dp));
-      if (Math.abs(expectRounded - ix.change) > 0.011) bad.push(`${name}: Δ=${ix.change} vs ${expect.toFixed(2)}`);
+      if (Math.abs(expectRounded - ix.change) > 0.05) bad.push(`${name}: Δ=${ix.change} vs ${expect.toFixed(2)}`);
       if (bad.length >= 8) break;
     }
     gate('index-change-reconciles', bad.length === 0, bad.length ? bad.join('; ') : `${all.length} indices reconcile`, 'fail');
