@@ -1,41 +1,41 @@
 {
-  "generated_at_npt": "2026-10-08T14:52:47+05:45",
+  "generated_at_npt": "2026-10-08T15:48:48+05:45",
   "pipeline_version": 5,
-  "last_session": "2026-10-07",
-  "market_state": "LIVE",
-  "manifest_version": 16,
+  "last_session": "2026-10-08",
+  "market_state": "CLOSED",
+  "manifest_version": 17,
   "data_tag": null,
   "checks": [
     {
       "name": "live.json valid",
       "status": "ok",
-      "detail": "352 quotes, asof 2026-10-08T09:01:19.427Z",
-      "checked_at_npt": "2026-10-08T14:52:47+05:45"
+      "detail": "354 quotes, asof 2026-10-08T09:15:47.065Z",
+      "checked_at_npt": "2026-10-08T15:48:48+05:45"
     },
     {
       "name": "manifest version",
       "status": "ok",
-      "detail": "version 16, session 2026-10-07",
-      "checked_at_npt": "2026-10-08T14:52:47+05:45"
+      "detail": "version 17, session 2026-10-08",
+      "checked_at_npt": "2026-10-08T15:48:48+05:45"
     },
     {
       "name": "trending/value fresh",
-      "status": "ok",
-      "detail": "session matches manifest",
-      "checked_at_npt": "2026-10-08T14:52:47+05:45"
+      "status": "warn",
+      "detail": "stale vs manifest session: trending (2026-10-07 vs 2026-10-08); value (2026-10-07 vs 2026-10-08)",
+      "checked_at_npt": "2026-10-08T15:48:48+05:45"
     },
     {
       "name": "sitemap.xml valid",
       "status": "ok",
       "detail": "92165 bytes",
-      "checked_at_npt": "2026-10-08T14:52:47+05:45"
+      "checked_at_npt": "2026-10-08T15:48:48+05:45"
     },
     {
       "name": "no empty data files",
       "status": "ok",
       "detail": "26 JSON files, none empty",
-      "checked_at_npt": "2026-10-08T14:52:47+05:45"
+      "checked_at_npt": "2026-10-08T15:48:48+05:45"
     }
   ],
-  "overall": "ok"
+  "overall": "warn"
 }
