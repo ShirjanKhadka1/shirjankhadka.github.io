@@ -153,9 +153,10 @@ function page(sys, data) {
 .sig-tabs{display:flex;gap:4px;border-bottom:2px solid var(--hairline);margin:0 0 24px;flex-wrap:wrap}
 .sig-tabs a{padding:10px 18px;color:var(--ink-soft);text-decoration:none;font-weight:600;border-bottom:3px solid transparent;margin-bottom:-2px}
 .sig-tabs a.active{color:var(--green-900);border-bottom-color:var(--green-900)}
-.sig-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:20px 0}
+.sig-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:20px 0}
 @media(min-width:760px){.sig-grid{grid-template-columns:repeat(4,1fr)}}
-.sig-card{background:var(--card);border:1px solid var(--hairline);border-radius:var(--r-md);padding:14px 16px}
+.sig-card{background:var(--card);border:1px solid var(--hairline);border-radius:var(--r-md);padding:18px 20px;box-shadow:0 1px 2px rgba(0,0,0,.04),0 4px 12px rgba(0,0,0,.06),0 8px 24px rgba(0,0,0,.04);transition:box-shadow .2s ease,transform .2s ease}
+.sig-card:hover{box-shadow:0 2px 4px rgba(0,0,0,.05),0 8px 20px rgba(0,0,0,.09),0 16px 40px rgba(0,0,0,.06);transform:translateY(-2px)}
 .sig-card-l{font-size:.78rem;color:var(--muted);margin-bottom:4px}
 .sig-card-v{font-family:var(--serif);font-size:1.35rem;font-weight:700}
 .sig-card.up .sig-card-v{color:var(--up)}.sig-card.down .sig-card-v{color:var(--down)}
@@ -205,7 +206,7 @@ function page(sys, data) {
 
   <main class="d2-main" id="main">
     <div class="d2-wrap">
-<nav class="sig-tabs" aria-label="Signal systems">${tabs}</nav>
+<div class="d2-fresh-mount"><div data-freshness-badge></div></div>
 
 <p style="color:var(--muted);font-size:.9rem;margin-bottom:4px">Nepse Decode &middot; Chart &amp; signals &middot; rule-based, no black boxes</p>
 <h1 style="font-family:var(--serif);font-size:2rem;margin:0 0 6px">${data.title}</h1>
@@ -253,13 +254,6 @@ function page(sys, data) {
 
 <h2 style="font-family:var(--serif);margin-top:28px">The rules (exactly as coded)</h2>
 <div class="rules"><ol>${rules}</ol></div>
-
-<h2 style="font-family:var(--serif);margin-top:28px">Backtest closed history — 500 finished trades</h2>
-<p style="color:var(--muted);font-size:.9rem">Every finished trade this system took in the historical backtest, newest first. P&amp;L is after the same trading charges the backtest applies. For live forward-tested results, see the Live track record above.</p>
-<div class="scrollx"><table class="sig-table" id="closed"><thead><tr>
-<th>Symbol</th><th class="num">Entry date</th><th class="num">Exit date</th><th class="num">Entry price</th><th class="num">Exit price</th><th>Exit reason</th><th class="num">P&amp;L %</th><th class="num">Hold days</th>
-</tr></thead><tbody id="closed-body">${closedFirst}${closedRest}</tbody></table></div>
-${closedMore}
 
 <h2 style="font-family:var(--serif);margin-top:28px">About this system</h2>
 <div class="rules"><p>${data.title} is one of Nepse Decode's transparent signal systems, run by the Alpha Lab engine. Every rule above is public — there is no hidden model and no "AI prediction". Signals are generated mechanically from daily OHLCV data (corporate-action adjusted); a stock appears here only if it passes every filter, including a Rs 10 lakh average-turnover liquidity bar. This page is educational and is not investment advice.</p></div>

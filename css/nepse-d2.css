@@ -100,6 +100,7 @@ body.d2 .d2-num { font-variant-numeric: tabular-nums; }
   padding: 20px 14px;
   display: flex; flex-direction: column; gap: 4px;
   overflow-y: auto;
+  box-shadow: 2px 0 12px rgba(0,0,0,.04);
 }
 .d2-brand {
   display: flex; align-items: center; gap: 10px;
@@ -122,7 +123,7 @@ body.d2 .d2-num { font-variant-numeric: tabular-nums; }
 .d2-side .d2-side-foot { margin-top: auto; padding: 14px 10px 4px; font-size: 12px; color: var(--d2-faint); }
 
 .d2-topbar {
-  display: none;
+  display: flex;
   position: sticky; top: 0; z-index: 60;
   background: color-mix(in srgb, var(--d2-bg) 88%, transparent);
   backdrop-filter: blur(10px);
@@ -174,6 +175,12 @@ body.d2 .d2-num { font-variant-numeric: tabular-nums; }
   border: 1px solid var(--d2-line-soft);
   border-radius: var(--d2-r-lg);
   padding: 22px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 4px 12px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.04);
+  transition: box-shadow .2s ease, transform .2s ease;
+}
+.d2-card:hover {
+  box-shadow: 0 2px 4px rgba(0,0,0,.05), 0 8px 20px rgba(0,0,0,.09), 0 16px 40px rgba(0,0,0,.06);
+  transform: translateY(-1px);
 }
 .d2-card + .d2-card { margin-top: 18px; }
 .d2-card-sub { font-size: 12.5px; color: var(--d2-faint); margin: 4px 0 0; font-weight: 500; }
@@ -582,97 +589,3 @@ body.d2 .d2-num { font-variant-numeric: tabular-nums; }
 .d2-spark-tip{ position:absolute; z-index:5; display:none; pointer-events:none; background:var(--d2-surface3); border:1px solid var(--d2-line); border-radius:8px; padding:8px 10px; font-size:12px; line-height:1.5; color:var(--d2-ink); white-space:nowrap; box-shadow:var(--d2-shadow); font-variant-numeric:tabular-nums; }
 .d2-spark-tip .tt-d{ color:var(--d2-muted); font-weight:600; }
 .d2-spark-tip .tt-v{ font-weight:800; }
-
-/* ============================================================
- * Premium 3D layer — d2 design system
- * ============================================================ */
-
-/* Cards: floating panels */
-.d2-card{
-  background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,0) 40%), var(--d2-surface);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
-  transition: transform .25s cubic-bezier(.22,1,.36,1), box-shadow .25s;
-}
-.d2-card:hover{
-  transform: translateY(-2px);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 3px 8px rgba(0,0,0,.45), 0 18px 44px rgba(0,0,0,.35);
-}
-
-/* Primary buttons: physical press */
-.d2-btn{
-  background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,0) 45%), var(--d2-volt);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.3), inset 0 -1px 0 rgba(0,0,0,.12), 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.3);
-  transition: transform .2s cubic-bezier(.22,1,.36,1), box-shadow .2s, filter .2s;
-}
-.d2-btn:hover{ transform: translateY(-2px); box-shadow: inset 0 1px 0 rgba(255,255,255,.3), 0 3px 8px rgba(0,0,0,.45), 0 14px 32px rgba(0,0,0,.35); }
-.d2-btn:active{ transform: translateY(1px) scale(.98); box-shadow: inset 0 2px 5px rgba(0,0,0,.25); transition-duration: .08s; }
-
-/* Ghost buttons: lift on hover */
-.d2-btn-ghost{
-  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0) 50%), transparent;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
-  transition: transform .2s cubic-bezier(.22,1,.36,1), box-shadow .2s, border-color .2s, color .2s;
-}
-.d2-btn-ghost:hover{
-  transform: translateY(-1px);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 3px 8px rgba(0,0,0,.4);
-}
-.d2-btn-ghost:active{ transform: translateY(1px) scale(.98); }
-
-/* Pill buttons: tactile toggles */
-.d2-pill-btn{
-  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0) 50%), var(--d2-surface2);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 1px 3px rgba(0,0,0,.35);
-  transition: transform .18s cubic-bezier(.22,1,.36,1), box-shadow .18s, background .18s, color .18s;
-}
-.d2-pill-btn:hover{ transform: translateY(-1px); box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 2px 6px rgba(0,0,0,.4); }
-.d2-pill-btn:active{ transform: translateY(1px) scale(.97); }
-.d2-pill-btn[aria-pressed="true"]{
-  background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,0) 45%), var(--d2-volt);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.3), 0 0 0 2px rgba(184,230,46,.2), 0 2px 6px rgba(0,0,0,.4);
-}
-
-/* Segmented control: recessed track, raised active */
-.d2-seg{
-  background: var(--d2-bg, #07090d);
-  box-shadow: inset 0 2px 6px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.03);
-}
-.d2-seg button{ transition: background .18s, color .18s, box-shadow .18s, transform .18s; }
-.d2-seg button[aria-pressed="true"]{
-  background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,0) 50%), var(--d2-surface3);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 1px 3px rgba(0,0,0,.4);
-}
-.d2-seg button:active{ transform: scale(.96); }
-
-/* Chips: subtle depth */
-.d2-chip{
-  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0) 50%), var(--d2-surface2);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 1px 3px rgba(0,0,0,.35);
-}
-
-/* Filter buttons */
-.d2-fbtn{
-  transition: transform .18s cubic-bezier(.22,1,.36,1), box-shadow .18s, border-color .18s, color .18s;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
-}
-.d2-fbtn:hover{
-  transform: translateY(-1px);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 2px 6px rgba(0,0,0,.4);
-}
-.d2-fbtn:active{ transform: translateY(1px) scale(.97); }
-
-/* Metric rows: hover lift */
-.d2-metric-row{
-  transition: background .18s, transform .18s;
-  border-radius: 8px;
-}
-.d2-metric-row:hover{
-  background: rgba(255,255,255,.02);
-  transform: translateX(2px);
-}
-
-@media (prefers-reduced-motion: reduce){
-  .d2-card, .d2-btn, .d2-btn-ghost, .d2-pill-btn, .d2-fbtn{ transition: none; }
-  .d2-card:hover, .d2-btn:hover, .d2-btn-ghost:hover,
-  .d2-pill-btn:hover, .d2-fbtn:hover{ transform: none; }
-}
