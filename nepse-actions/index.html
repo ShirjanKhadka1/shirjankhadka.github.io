@@ -77,7 +77,7 @@
 <p class="na-meta">Kutheli Bukhari Small Hydropower Limited <span class="na-dot">·</span> Announced 8 Oct 2026 <span class="na-dot">·</span> <a href="https://www.nepalstock.com/api/nots/security/fetchFiles?fileLocation=Kutheli_Bukhari_Small_Hydropower_Limited/Company%20News/2026-10-08/Bonus%20Share%20Declaration_1791435564907.PDF" rel="noopener" target="_blank">Official NEPSE PDF ↗</a></p>
 </article>
 <article class="na-card" data-kind="dividend" data-sym="nmbpnp" data-year="2026">
-<div class="na-top"><span class="na-kind k-dividend">Dividend</span><a class="na-sym" href="/stocks/NMBPNP/">NMBPNP</a></div>
+<div class="na-top"><span class="na-kind k-dividend">Dividend</span><span class="na-sym na-sym--nolink">NMBPNP</span></div>
 <h3 class="na-head">Dividend Declaration- NMB Perpetual Non-Cumulative Preference Share -NMBPNP [NMBPNP]</h3>
 <p class="na-meta">Announced 8 Oct 2026 <span class="na-dot">·</span> <a href="https://www.nepalstock.com/api/nots/security/fetchFiles?fileLocation=nmb_user/2026-10-08/NMB%20Dividend%20Declaration_1791433708809.pdf" rel="noopener" target="_blank">Official NEPSE PDF ↗</a></p>
 </article>
@@ -148,6 +148,14 @@
   var MON3 = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   var fmtAnnounced = function(d){ var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(d || ""); if(!m) return esc(d || ""); return String(+m[3]) + " " + MON3[+m[2]-1] + " " + m[1]; };
   var KIND_LABEL = {"dividend":"Dividend","bonus-share":"Bonus share","right-share":"Right share","promoter-share":"Promoter share","auction":"Auction","lock-in":"Lock-in","meeting":"Meeting"};
+  var STOCK_PAGES = ["ACLBSL","ADBL","ADBLB86","ADBLD83","AHL","AHPC","AKJCL","AKPL","ALBSL","ALICL","ANLB","APHL","API","AVYAN","BANDIPUR","BARUN","BBC","BEDC","BFC","BGWT","BHCL","BHDC","BHL","BHPL","BJHL","BNHC","BNL","BNT","BOKD86","BOKD86KA","BPCL","BUNGAL","C30MF","CBBL","CBLD88","CCBD88","CFCL","CGH","CHCL","CHDC","CHL","CIT","CITY","CIZBD86","CIZBD90","CKHL","CLI","CMF2","CORBL","CREST","CSBY","CSY","CYCL","CZBIL","DDBL","DHEL","DHPL","DLBS","DOLTI","DORDI","EBL","EBLD85","EBLD86","EBLD91","ECL","EDBL","EHPL","ELIS","ENL","FMDBL","FOWAD","GBBD85","GBBL","GBBLPO","GBILD84-85","GBILD86-87","GBIME","GBIMESY2","GBLBS","GCIL","GFCL","GHL","GIBF1","GILB","GLBSL","GLH","GMFBS","GMFIL","GMLI","GRDBL","GSY","GSYM","GUFL","GVL","GWFD83","H8020","HATHY","HBL","HBLD83","HBLD86","HDHPC","HDL","HEI","HEIP","HFIN","HHL","HIDCL","HIDCLP","HIMSTAR","HLBSL","HLI","HLICF","HPPL","HRL","HURJA","ICFC","ICFCD83","ICFCD88","ICFCD89","IGI","IHL","ILBS","ILI","JBBD87","JBBL","JBLB","JBLBP","JFL","JHAPA","JOSHI","JSLBB","KAHL","KBL","KBLD86","KBLD90","KBLPO","KBSH","KDBY","KDL","KEF","KHPL","KKHC","KMCDB","KPCL","KSBBL","KSLY","KSY","LBBL","LBBLD89","LEC","LICN","LLBS","LSD92","LSH12","LSL","LUK","LVF2","MABEL","MAKAR","MANDU","MATRI","MBJC","MBL","MBLD2085","MBLEF","MCHL","MDB","MEHL","MEL","MEN","MEPDL","MERO","MFIL","MFLD85","MHCL","MHL","MHNL","MKCL","MKHC","MKHL","MKJC","MLBBL","MLBL","MLBLD89","MLBLPO","MLBS","MLBSL","MMF1","MMKJL","MNBBL","MND84-85","MNMF1","MPFL","MSHL","MSIP","MSLB","NABBC","NABIL","NABILD2089","NABILD87","NABILP","NADDF","NADEP","NBBD2085","NBF2","NBF3","NBL","NBLD82","NBLD85","NBLD87","NCCD86","NESDO","NFCF","NFS","NGPL","NHDL","NHPC","NI31","NIBD84","NIBLGF","NIBLSF","NIBLSTF","NIBSF2","NICA","NICAD2091","NICAD85-86","NICBF","NICD88","NICFC","NICGF2","NICL","NICLBSL","NICSF","NIFRA","NIFRAGED","NIL","NIMB","NIMBPO","NLG","NLIC","NLICL","NLO","NMB","NMB50","NMBD87-88","NMBHF2","NMBMF","NMBSBFE","NMBUR93-94","NMFBS","NMFBSP","NMIC","NMLBBL","NRIC","NRM","NRN","NSIF2","NSY","NTC","NUBL","NWCL","NYADI","OHL","OMPL","PBD85","PBD88","PBD93","PBLD84","PBLD87","PCBL","PCIL","PFL","PHCL","PMHPL","PMLI","PPCL","PPL","PRIN","PROFL","PRSF","PRVU","PSF","PSIS","PURE","RADHI","RAWA","RBBD2088","RBBD83","RBBF40","RBCL","RBCLPO","RFPL","RHGCL","RHPL","RIDI","RLEL","RLFL","RMF1","RMF2","RNLI","RSDC","RSML","RSY","RSY2","RURU","SABBL","SADBL","SAEF2","SAGAR","SAGF","SAHAS","SAIL","SALICO","SAND2085","SANIMA","SANVI","SAPDBL","SAPIL","SARBTM","SBCF","SBI","SBIBD86","SBID2090","SBID83","SBID89","SBL","SBLD2091","SBLD84","SBLD89","SCB","SCBD","SDBD87","SEF","SEF2","SFEF","SFF","SFMF","SGHC","SGHL","SGIC","SHEL","SHINE","SHINED","SHIVM","SHL","SHLB","SHPC","SICL","SIFC","SIGS2","SIGS3","SIKLES","SINDU","SIPD","SJCL","SJLIC","SKBBL","SKHEL","SKHL","SLBBL","SLBSL","SLCF","SLK","SMATA","SMB","SMFBS","SMH","SMHL","SMJC","SMPDA","SNLI","SNORL","SOHL","SONA","SOPL","SPC","SPDL","SPHL","SPIL","SPL","SRLI","SRLIP","SSHL","SSIS","STC","SWASTIK","SWBBL","SWMF","SYPNL","TAMOR","TPC","TPKHL","TRH","TSHL","TTL","TVCL","UAIL","UHEWA","ULBSL","ULHC","UMHL","UMRH","UNHPL","UNL","UNLB","UPCL","UPPER","USHEC","USHL","USLB","VLBS","VLUCL","YMHL"];
+  function symChip(sym){
+    if(!sym) return "";
+    var slug = String(sym).replace(/\//g, "-");
+    return STOCK_PAGES.indexOf(slug) !== -1
+      ? '<a class="na-sym" href="/stocks/' + esc(slug) + '/">' + esc(sym) + "</a>"
+      : '<span class="na-sym na-sym--nolink">' + esc(sym) + "</span>";
+  }
   var feed = document.getElementById("na-feed"),
       year = document.getElementById("na-year"),
       q = document.getElementById("na-q"),
@@ -175,7 +183,7 @@
     }
     return '<article class="na-card">' +
       '<div class="na-top"><span class="na-kind k-' + esc(it.kind) + '">' + esc(kind) + "</span>" +
-      (it.symbol ? '<a class="na-sym" href="/stocks/' + esc(String(it.symbol).replace(/\//g, "-")) + '/">' + esc(it.symbol) + "</a>" : "") + "</div>" +
+      symChip(it.symbol) + "</div>" +
       '<h3 class="na-head">' + esc(it.headline) + "</h3>" + facts +
       '<p class="na-meta">' + (it.company ? esc(it.company) + dot : "") +
       (it.announced ? "Announced " + fmtAnnounced(it.announced) + dot : "") +

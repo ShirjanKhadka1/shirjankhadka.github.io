@@ -23,6 +23,26 @@ const esc = (s) => String(s == null ? '' : s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   .replace(/"/g, '&quot;');
 
+/* Symbols that have a live /stocks/ page. Announcement titles sometimes name
+ * codes with no stock page (e.g. a preference-share code like NMBPNP); those
+ * render as plain text instead of a dead link. */
+const STOCKS_DIR = path.join(ROOT, 'stocks');
+let stockPages = new Set();
+try {
+  for (const d of fs.readdirSync(STOCKS_DIR, { withFileTypes: true })) {
+    if (d.isDirectory()) stockPages.add(d.name);
+  }
+} catch { /* no stocks dir — all symbol chips render as plain text */ }
+const symSlug = (s) => String(s == null ? '' : s).replace(/\//g, '-');
+function symChip(sym) {
+  if (!sym) return '';
+  const slug = symSlug(sym);
+  if (stockPages.has(slug)) {
+    return '<a class="na-sym" href="/stocks/' + esc(slug) + '/">' + esc(sym) + '</a>';
+  }
+  return '<span class="na-sym na-sym--nolink">' + esc(sym) + '</span>';
+}
+
 const KIND_LABEL = {
   'dividend': 'Dividend',
   'bonus-share': 'Bonus share',
@@ -64,7 +84,7 @@ function cardHTML(it) {
   const dot = ' <span class="na-dot">·</span> ';
   return '<article class="na-card" data-kind="' + esc(it.kind) + '" data-sym="' + esc((it.symbol || '').toLowerCase()) + '" data-year="' + esc(String(it.announced || '').slice(0, 4)) + '">\n' +
     '<div class="na-top"><span class="na-kind k-' + esc(it.kind) + '">' + esc(kind) + '</span>' +
-    (it.symbol ? '<a class="na-sym" href="/stocks/' + esc(String(it.symbol).replace(/\//g, '-')) + '/">' + esc(it.symbol) + '</a>' : '') + '</div>\n' +
+    symChip(it.symbol) + '</div>\n' +
     '<h3 class="na-head">' + esc(it.headline) + '</h3>\n' +
     fmtFacts(it.facts) +
     '<p class="na-meta">' + (it.company ? esc(it.company) + dot : '') +
@@ -198,6 +218,14 @@ function main() {
     '  var MON3 = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];\n' +
     '  var fmtAnnounced = function(d){ var m = /^(\\d{4})-(\\d{2})-(\\d{2})/.exec(d || ""); if(!m) return esc(d || ""); return String(+m[3]) + " " + MON3[+m[2]-1] + " " + m[1]; };\n' +
     '  var KIND_LABEL = ' + JSON.stringify(KIND_LABEL) + ';\n' +
+    '  var STOCK_PAGES = ' + JSON.stringify([...stockPages]) + ';\n' +
+    '  function symChip(sym){\n' +
+    '    if(!sym) return "";\n' +
+    '    var slug = String(sym).replace(/\\//g, "-");\n' +
+    '    return STOCK_PAGES.indexOf(slug) !== -1\n' +
+    '      ? \'<a class="na-sym" href="/stocks/\' + esc(slug) + \'/">\' + esc(sym) + "</a>"\n' +
+    '      : \'<span class="na-sym na-sym--nolink">\' + esc(sym) + "</span>";\n' +
+    '  }\n' +
     '  var feed = document.getElementById("na-feed"),\n' +
     '      year = document.getElementById("na-year"),\n' +
     '      q = document.getElementById("na-q"),\n' +
@@ -225,7 +253,7 @@ function main() {
     '    }\n' +
     '    return \'<article class="na-card">\' +\n' +
     '      \'<div class="na-top"><span class="na-kind k-\' + esc(it.kind) + \'">\' + esc(kind) + "</span>" +\n' +
-    '      (it.symbol ? \'<a class="na-sym" href="/stocks/\' + esc(String(it.symbol).replace(/\\//g, "-")) + \'/">\' + esc(it.symbol) + "</a>" : "") + "</div>" +\n' +
+    '      symChip(it.symbol) + "</div>" +\n' +
     '      \'<h3 class="na-head">\' + esc(it.headline) + "</h3>" + facts +\n' +
     '      \'<p class="na-meta">\' + (it.company ? esc(it.company) + dot : "") +\n' +
     '      (it.announced ? "Announced " + fmtAnnounced(it.announced) + dot : "") +\n' +

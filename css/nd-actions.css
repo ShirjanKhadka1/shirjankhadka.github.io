@@ -92,6 +92,11 @@
   color: var(--nd-text); text-decoration: none; letter-spacing: 0.04em;
 }
 .na-sym:hover { color: var(--nd-lime); }
+/* Symbol without a stock page: rendered as plain text, not a link
+ * (prevents broken internal links when an announcement names a symbol
+ * that has no /stocks/ page, e.g. a preference-share code). */
+span.na-sym--nolink { cursor: default; }
+span.na-sym--nolink:hover { color: var(--nd-text); }
 .na-head {
   font-family: var(--nd-font-display, "Spectral", Georgia, serif);
   font-weight: 600; font-size: 1.08rem; line-height: 1.4;
