@@ -779,8 +779,8 @@ async function main() {
       targets_traded: false,
       costs: '0.5% round-trip (broker + SEBON + DP, simplified): half charged at entry, half at exit.',
     });
-    // full closed-trade ledger, most recent 500
-    const ledger = sim.trades.slice(-500);
+    // full closed-trade ledger, most recent 500, newest first
+    const ledger = sim.trades.slice(-500).reverse();
     // rolling live track record from the FULL ledger (not sliced)
     const trackRecord = computeTrackRecord(sim.trades, indexDaily.to);
     const out = {
