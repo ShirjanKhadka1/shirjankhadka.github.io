@@ -144,7 +144,11 @@ function page(sys, data) {
 {"@context":"https://schema.org","@type":"WebPage","name":"${data.title} — Nepse Decode Signals","url":"${pageUrl}","description":"${shortDesc}","isPartOf":{"@type":"WebSite","name":"Nepse Decode","url":"https://shirjankhadka.com.np/"},"author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
 </script>
 <link rel="stylesheet" href="/css/nepse-design-system.css">
-<link rel="stylesheet" href="/css/theme.css?v=20261001a">
+<link rel="stylesheet" href="/css/nepse-d2.css?v=20261002d">
+<link rel="stylesheet" href="/css/theme.css?v=20261002d">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 .sig-tabs{display:flex;gap:4px;border-bottom:2px solid var(--hairline);margin:0 0 24px;flex-wrap:wrap}
 .sig-tabs a{padding:10px 18px;color:var(--ink-soft);text-decoration:none;font-weight:600;border-bottom:3px solid transparent;margin-bottom:-2px}
@@ -186,43 +190,21 @@ function page(sys, data) {
 </style>
 </head>
 <body class="nd">
-<header class="nd-topbar">
-  <a class="brand" href="/nepse-decode/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="24" height="24">Nepse Decode</a>
-  <a class="nd-btn primary" href="/nepse-chart/" style="padding:8px 18px;font-size:0.85rem">Open the Lab</a>
+<header class="d2-topbar">
+  <a class="d2-brand" href="/nepse-decode/"><span class="d2-mark" aria-hidden="true">◈</span> Nepse Decode</a>
+  <span style="margin-left:auto" id="d2TopState"></span>
 </header>
-<nav class="nd-mobilenav" aria-label="Suite tools"><a href="/nepse-decode/">Overview</a><a href="/nepse-chart/">Chart &amp; signals</a><span class="nav-sub"><a href="/nepse-signals/momentum/"${sys === 'momentum' ? ' class="active" aria-current="page"' : ''}>Momentum</a><a href="/nepse-signals/trend-relay/"${sys === 'trend-relay' ? ' class="active" aria-current="page"' : ''}>Trend Relay</a><a href="/nepse-signals/reversal/"${sys === 'reversal' ? ' class="active" aria-current="page"' : ''}>Reversal</a></span><a href="/nepse-screener/">Screener</a><a href="/nepse-radar/">Warning Radar</a><a href="/nepse-trending/">Trending Stocks</a><a href="/nepse-value/">Value Investing</a><a href="/nepse-brokers/">Broker Analytics</a><a href="/nepse-sectors/">Sectors</a><a href="/nepse-news/">Market news</a><a href="/nepse-watchlist/">Watchlist</a><a href="/nepse-portfolio/">Portfolio</a><a href="/nepse-simulator/">Simulator</a><a href="/nepse-reports/">Reports</a><a href="/nepse-actions/">Corp. actions</a></nav>
+<nav class="d2-mobilenav" aria-label="Sections"><a href="/nepse-decode/">Overview</a><a href="/nepse-chart/">Chart &amp; signals</a><span class="nav-sub"><a href="/nepse-signals/momentum/"${sys === 'momentum' ? ' class="on" aria-current="page"' : ''}>Momentum</a><a href="/nepse-signals/trend-relay/"${sys === 'trend-relay' ? ' class="on" aria-current="page"' : ''}>Trend Relay</a><a href="/nepse-signals/reversal/"${sys === 'reversal' ? ' class="on" aria-current="page"' : ''}>Reversal</a></span><a href="/nepse-screener/">Screener</a><a href="/nepse-radar/">Warning Radar</a><a href="/nepse-trending/">Trending Stocks</a><a href="/nepse-value/">Value Investing</a><a href="/nepse-brokers/">Broker Analytics</a><a href="/nepse-sectors/">Sectors</a><a href="/nepse-news/">Market news</a><a href="/nepse-watchlist/">Watchlist</a><a href="/nepse-portfolio/">Portfolio</a><a href="/nepse-simulator/">Simulator</a><a href="/nepse-reports/">Reports</a><a href="/nepse-actions/">Corp. actions</a></nav>
 
-<div class="nd-shell">
-  <aside class="nd-side" aria-label="Nepse Decode suite">
-    <a class="brand" href="/nepse-decode/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
-    <nav class="nd-nav" aria-label="Suite tools">
-      <p class="nav-kicker">Suite</p>
-      <a href="/nepse-decode/">Overview</a>
-      <a href="/nepse-chart/">Chart &amp; signals</a>
-      <span class="nav-sub">
-        <a href="/nepse-signals/momentum/"${sys === 'momentum' ? ' class="active" aria-current="page"' : ''}>Momentum</a>
-        <a href="/nepse-signals/trend-relay/"${sys === 'trend-relay' ? ' class="active" aria-current="page"' : ''}>Trend Relay</a>
-        <a href="/nepse-signals/reversal/"${sys === 'reversal' ? ' class="active" aria-current="page"' : ''}>Reversal</a>
-      </span>
-      <a href="/nepse-screener/">Screener</a>
-      <a href="/nepse-radar/">Warning Radar</a>
-      <a href="/nepse-trending/">Trending Stocks</a>
-      <a href="/nepse-value/">Value Investing</a>
-      <a href="/nepse-brokers/">Broker Analytics</a>
-      <a href="/nepse-sectors/">Sectors</a>
-      <a href="/nepse-news/">Market news</a>
-      <a href="/nepse-watchlist/">Watchlist</a>
-      <a href="/nepse-portfolio/">Portfolio</a>
-      <a href="/nepse-simulator/">Simulator</a>
-      <a href="/nepse-reports/">Reports</a>
-      <a href="/nepse-actions/">Corp. actions</a>
-    </nav>
-    <p class="nd-caption" style="margin-top:32px">Free forever · no login</p>
+<div class="d2-shell">
+  <aside class="d2-side" aria-label="Site navigation">
+    <a class="d2-brand" href="/nepse-decode/"><span class="d2-mark" aria-hidden="true">◈</span> Nepse Decode</a>
+    <nav><a href="/nepse-decode/">Overview</a><a href="/nepse-chart/">Chart &amp; signals</a><span class="nav-sub"><a href="/nepse-signals/momentum/"${sys === 'momentum' ? ' class="on" aria-current="page"' : ''}>Momentum</a><a href="/nepse-signals/trend-relay/"${sys === 'trend-relay' ? ' class="on" aria-current="page"' : ''}>Trend Relay</a><a href="/nepse-signals/reversal/"${sys === 'reversal' ? ' class="on" aria-current="page"' : ''}>Reversal</a></span><a href="/nepse-screener/">Screener</a><a href="/nepse-radar/">Warning Radar</a><a href="/nepse-trending/">Trending Stocks</a><a href="/nepse-value/">Value Investing</a><a href="/nepse-brokers/">Broker Analytics</a><a href="/nepse-sectors/">Sectors</a><a href="/nepse-news/">Market news</a><a href="/nepse-watchlist/">Watchlist</a><a href="/nepse-portfolio/">Portfolio</a><a href="/nepse-simulator/">Simulator</a><a href="/nepse-reports/">Reports</a><a href="/nepse-actions/">Corp. actions</a></nav>
+    <p class="d2-side-foot">Free forever · no login</p>
   </aside>
 
-  <div class="nd-content">
-    <div class="nd-wrap">
-<main style="max-width:1080px;margin:0 auto;padding:24px 16px">
+  <main class="d2-main" id="main">
+    <div class="d2-wrap">
 <nav class="sig-tabs" aria-label="Signal systems">${tabs}</nav>
 
 <p style="color:var(--muted);font-size:.9rem;margin-bottom:4px">Nepse Decode &middot; Chart &amp; signals &middot; rule-based, no black boxes</p>
@@ -285,9 +267,8 @@ ${closedMore}
 ${GLOSSARY}
 
 <p style="color:var(--muted);font-size:.85rem;margin:32px 0">Data: daily NEPSE OHLCV, corporate-action adjusted. Generated ${new Date().toISOString().slice(0, 10)}. Educational only — not investment advice.</p>
-</main>
     </div>
-  </div>
+  </main>
 </div>
 <script>
 (function(){
