@@ -1085,20 +1085,25 @@ function main() {
     console.error('build-symbol-pages: missing universe/verdicts data');
     process.exit(1);
   }
+  // Sector peers are ALWAYS classified from the full universe, even in
+  // --symbol mode: filtering first left single-symbol rebuilds with an empty
+  // peer set and silently stripped the "Sector peer comparison" section
+  // (2026-10-08: KBSH/NMB pages degraded by --symbol rebuilds).
+  const allSymbols = universe.symbols.filter((u) => {
+    // Merger lifecycle exclusion: never generate pages for absorbed symbols
+    try {
+      const mtPath = path.join(__dirname, 'verdict-engine-v2', 'manual', 'merger-tracker.json');
+      if (fs.existsSync(mtPath)) {
+        const mt = JSON.parse(fs.readFileSync(mtPath, 'utf8'));
+        const absorbed = new Set((mt.completed_mergers || []).map((m) => m.absorbed));
+        if (absorbed.has(u.s)) return false;
+      }
+    } catch (e) { /* merger-tracker read failed, allow symbol */ }
+    return true;
+  });
   const symbols = onlySym
-    ? universe.symbols.filter((u) => String(u.s).toUpperCase() === onlySym)
-    : universe.symbols.filter((u) => {
-        // Merger lifecycle exclusion: never generate pages for absorbed symbols
-        try {
-          const mtPath = path.join(__dirname, 'verdict-engine-v2', 'manual', 'merger-tracker.json');
-          if (fs.existsSync(mtPath)) {
-            const mt = JSON.parse(fs.readFileSync(mtPath, 'utf8'));
-            const absorbed = new Set((mt.completed_mergers || []).map((m) => m.absorbed));
-            if (absorbed.has(u.s)) return false;
-          }
-        } catch (e) { /* merger-tracker read failed, allow symbol */ }
-        return true;
-      });
+    ? allSymbols.filter((u) => String(u.s).toUpperCase() === onlySym)
+    : allSymbols;
   const verdicts = ver.verdicts;
   const newsBySym = {};
   if (news && news.items) {
@@ -1112,7 +1117,7 @@ function main() {
   const scoreOf = (s) => { const e = verdicts[s]; const sc = e && e.s; return (sc === null || sc === undefined) ? -Infinity : Number(sc); };
   const sectorOf = {};
   const bySector = {};
-  for (const u of symbols) {
+  for (const u of allSymbols) {
     const sec = classifySymbol(u.s, u.n, u.t);
     sectorOf[u.s] = sec;
     if (sec) (bySector[sec] = bySector[sec] || []).push(u);

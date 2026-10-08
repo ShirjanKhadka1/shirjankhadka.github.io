@@ -15,7 +15,11 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-const WT = '/home/hatch/workspace/wt-news';
+// Worktree is selectable: the intraday news cron owns wt-news and the
+// approval feed owns wt-news-feed — separate trees so one's
+// fetch+reset --hard can never wipe the other's in-progress commit
+// (2026-10-08: race caused index.lock + lost changes).
+const WT = process.env.WT_DIR || '/home/hatch/workspace/wt-news';
 const NEWS = path.join(WT, 'nepse-chart', 'data', 'news.json');
 const PUSH = '/home/hatch/workspace/skills/github/bin/github-push.py';
 const REPO = 'ShirjanKhadka1/shirjankhadka.github.io';
