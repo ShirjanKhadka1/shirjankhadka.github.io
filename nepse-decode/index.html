@@ -122,20 +122,21 @@ fetch('/nepse-chart/data/live.json',{cache:'no-store'}).then(r=>r.json()).then(d
   var days=['SUN','MON','TUE','WED','THU','FRI','SAT'];
   var months=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
   document.getElementById('ed-date').textContent=days[dt.getDay()]+', '+dt.getDate()+' '+months[dt.getMonth()]+' '+dt.getFullYear();
-  var chg=idx.change||0, pct=idx.change_pct||0;
+  var chg=idx.change||0, pct=idx.percent_change||0;
   var dir=chg>=0?'higher':'lower';
   var dirWord=chg>=0?'gains':'drags';
+  var closeVal=idx.value||'—';
   document.getElementById('ed-close-tag').textContent=(chg>=0?'▲ GREEN CLOSE':'▼ RED CLOSE');
-  document.getElementById('ed-headline').innerHTML='NEPSE closes <span class="red">'+dir+'</span> at '+idx.close+' as market '+dirWord;
-  document.getElementById('ed-article').innerHTML='<p class="ed-body">The NEPSE index closed at <b>'+idx.close+'</b> ('+chg+' points, '+pct+'%). Market breadth and sector performance data from the latest session.</p>';
+  document.getElementById('ed-headline').innerHTML='NEPSE closes <span class="red">'+dir+'</span> at '+closeVal+' as market '+dirWord;
+  document.getElementById('ed-article').innerHTML='<p class="ed-body">The NEPSE index closed at <b>'+closeVal+'</b> ('+chg+' points, '+pct+'%). Market breadth and sector performance data from the latest session.</p>';
   document.getElementById('ed-byline-date').textContent='Data as of '+asof;
-  document.getElementById('ed-index-val').textContent=idx.close||'—';
-  document.getElementById('ed-index-chg').textContent=(chg>=0?'▲ ':'▼ ')+Math.abs(chg)+' ('+pct+'%) · '+asof;
+  document.getElementById('ed-index-val').textContent=closeVal;
+  document.getElementById('ed-index-chg').textContent=(chg>=0?'▲ +':'▼ ')+Math.abs(chg)+' ('+pct+'%) · '+asof;
   var sc=document.getElementById('ed-sectors');
   (d.indices||[]).slice(0,7).forEach(s=>{
     var div=document.createElement('div');div.className='ed-sector';
-    var c=s.change||0, cp=s.change_pct||'0%';
-    div.innerHTML='<div class="s-name">'+s.name+'</div><div class="s-val">'+s.close+'</div><div class="s-chg '+(c>=0?'up':'down')+'">'+(c>=0?'▲ +':'▼ ')+cp+'</div>';
+    var c=s.change||0, cp=s.percent_change||0;
+    div.innerHTML='<div class="s-name">'+s.name+'</div><div class="s-val">'+s.value+'</div><div class="s-chg '+(c>=0?'up':'down')+'">'+(c>=0?'▲ +':'▼ ')+cp+'%</div>';
     sc.insertBefore(div,sc.lastElementChild);
   });
 }).catch(e=>{document.getElementById('ed-headline').textContent='Market data unavailable';});
