@@ -172,7 +172,7 @@ function head(sym, name, slug) {
     '<link rel="stylesheet" href="/css/nepse-wave7.css?v=20261002c">\n' +
     '<link rel="stylesheet" href="/css/nepse-brand.css?v=20261003a">\n' +
     '<link rel="stylesheet" href="/css/nepse-wave8.css?v=20261003a">\n' +    '<link rel="stylesheet" href="/css/theme.css?v=20261001a">\n' +
-    '<link rel="stylesheet" href="/css/nepse-d2.css?v=20261001a">\n' +
+    '<link rel="stylesheet" href="/css/nepse-d2.css?v=20261008i">\n' +
     '<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">\n' +
     '<link rel="stylesheet" href="/css/verdict-v2-banner.css?v=20261005a">\n' +
     '<link rel="stylesheet" href="/css/nd-chrome.css?v=20261004a">\n' +

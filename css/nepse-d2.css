@@ -93,14 +93,15 @@ body.d2 .d2-num { font-variant-numeric: tabular-nums; }
 /* ---------- layout ---------- */
 .d2-shell { display: flex; min-height: 100vh; }
 .d2-side {
-  width: 232px; flex: none;
-  position: sticky; top: 0; height: 100vh;
-  background: var(--d2-surface);
-  border-right: 1px solid var(--d2-line-soft);
-  padding: 20px 14px;
-  display: flex; flex-direction: column; gap: 4px;
-  overflow-y: auto;
-  box-shadow: 2px 0 12px rgba(0,0,0,.04);
+  display: none !important;
+}
+.d2-shell {
+  display: block;
+}
+.d2-main {
+  margin-left: 0;
+  max-width: 1280px;
+  margin: 0 auto;
 }
 .d2-brand {
   display: flex; align-items: center; gap: 10px;
@@ -130,6 +131,7 @@ body.d2 .d2-num { font-variant-numeric: tabular-nums; }
   border-bottom: 1px solid var(--d2-line-soft);
   padding: 10px 16px;
   align-items: center; gap: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.15);
 }
 .d2-topbar .d2-brand { padding: 0; font-size: 16px; }
 .d2-topnav {
