@@ -86,6 +86,8 @@ function main() {
     if (windowDates.length === 0) continue;
 
     const brokers = {};  // code -> {buy_value, sell_value, buy_qty, sell_qty, total, net}
+    const symbols = {};  // sym -> {qty, value, buyers: {code: [qty, value]}, sellers: {code: [qty, value]}}
+    const brokerSymbols = {};  // broker code -> {sym -> {buy_qty, buy_value, sell_qty, sell_value}}
 
     for (const d of windowDates) {
       const df = JSON.parse(fs.readFileSync(path.join(dailyDir, d + '.json'), 'utf8'));
@@ -97,6 +99,33 @@ function main() {
         brokers[code].sell_value += b.sell_value || 0;
         brokers[code].buy_qty += b.buy_qty || 0;
         brokers[code].sell_qty += b.sell_qty || 0;
+      }
+      // Aggregate symbols (stock-wise)
+      for (const [sym, s] of Object.entries(df.symbols || {})) {
+        if (!symbols[sym]) {
+          symbols[sym] = { qty: 0, value: 0, buyers: {}, sellers: {} };
+        }
+        symbols[sym].qty += s.qty || 0;
+        symbols[sym].value += s.value || 0;
+        for (const [bcode, bv] of Object.entries(s.buyers || {})) {
+          if (!symbols[sym].buyers[bcode]) symbols[sym].buyers[bcode] = [0, 0];
+          symbols[sym].buyers[bcode][0] += bv[0] || 0;
+          symbols[sym].buyers[bcode][1] += bv[1] || 0;
+          // Track per-broker symbols
+          if (!brokerSymbols[bcode]) brokerSymbols[bcode] = {};
+          if (!brokerSymbols[bcode][sym]) brokerSymbols[bcode][sym] = {buy_qty: 0, buy_value: 0, sell_qty: 0, sell_value: 0};
+          brokerSymbols[bcode][sym].buy_qty += bv[0] || 0;
+          brokerSymbols[bcode][sym].buy_value += bv[1] || 0;
+        }
+        for (const [scode, sv] of Object.entries(s.sellers || {})) {
+          if (!symbols[sym].sellers[scode]) symbols[sym].sellers[scode] = [0, 0];
+          symbols[sym].sellers[scode][0] += sv[0] || 0;
+          symbols[sym].sellers[scode][1] += sv[1] || 0;
+          if (!brokerSymbols[scode]) brokerSymbols[scode] = {};
+          if (!brokerSymbols[scode][sym]) brokerSymbols[scode][sym] = {buy_qty: 0, buy_value: 0, sell_qty: 0, sell_value: 0};
+          brokerSymbols[scode][sym].sell_qty += sv[0] || 0;
+          brokerSymbols[scode][sym].sell_value += sv[1] || 0;
+        }
       }
     }
 
@@ -111,12 +140,57 @@ function main() {
       net: r2(b.buy_value - b.sell_value),
     })).sort((a, b) => b.total - a.total);
 
+    // Build symbol list with top buyers/sellers
+    const symbolList = {};
+    for (const [sym, s] of Object.entries(symbols)) {
+      const buyers = Object.entries(s.buyers)
+        .map(([c, v]) => [c, r2(v[0]), r2(v[1])])
+        .sort((a, b) => b[2] - a[2])
+        .slice(0, 25);
+      const sellers = Object.entries(s.sellers)
+        .map(([c, v]) => [c, r2(v[0]), r2(v[1])])
+        .sort((a, b) => b[2] - a[2])
+        .slice(0, 25);
+      symbolList[sym] = {
+        qty: r2(s.qty),
+        value: r2(s.value),
+        avg_rate: s.qty > 0 ? r2(s.value / s.qty) : 0,
+        buyers: Object.fromEntries(buyers.map(([c, q, v]) => [c, [q, v]])),
+        sellers: Object.fromEntries(sellers.map(([c, q, v]) => [c, [q, v]])),
+      };
+    }
+
+    // Build accumulation/distribution (net flow per symbol-broker)
+    const flows = [];
+    for (const [sym, s] of Object.entries(symbols)) {
+      const netByBroker = {};
+      for (const [c, v] of Object.entries(s.buyers)) {
+        netByBroker[c] = (netByBroker[c] || 0) + v[1];
+      }
+      for (const [c, v] of Object.entries(s.sellers)) {
+        netByBroker[c] = (netByBroker[c] || 0) - v[1];
+      }
+      for (const [c, net] of Object.entries(netByBroker)) {
+        if (Math.abs(net) > 0) {
+          flows.push({symbol: sym, broker: c, net_value: r2(net)});
+        }
+      }
+    }
+    flows.sort((a, b) => b.net_value - a.net_value);
+    const accumulation = flows.filter(f => f.net_value > 0).slice(0, 200);
+    const distribution = flows.filter(f => f.net_value < 0).slice(0, 200);
+
     const out = {
       period,
       from: windowDates[0],
       to: windowDates[windowDates.length - 1],
       trading_days: windowDates.length,
       brokers: brokerList,
+      symbols: symbolList,
+      symbol_count: Object.keys(symbolList).length,
+      broker_symbols: brokerSymbols,
+      accumulation,
+      distribution,
     };
 
     fs.writeFileSync(path.join(periodsDir, period + '.json'), JSON.stringify(out));
