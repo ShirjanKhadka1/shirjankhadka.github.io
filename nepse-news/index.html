@@ -21,18 +21,16 @@
 <meta name="twitter:title" content="NEPSE News Today: Company Announcements & Market Headlines">
 <meta name="twitter:description" content="Official NEPSE company announcements and verified original reporting. Free, no login, educational.">
 <meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/og/news.png">
-<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
-<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
-<link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" href="/nepse-decode/icon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/nepse-decode/icon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/nepse-decode/icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Serif+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode News","url":"https://shirjankhadka.com.np/nepse-news/","description":"Official NEPSE company announcements and verified original market reporting.","author":{"@type":"Organization","name":"Nepse Decode","url":"https://shirjankhadka.com.np/nepse-news/"}}
 </script>
-<link rel="stylesheet" href="/css/nepse-design-system.css?v=c967c332">
-<link rel="stylesheet" href="/css/nepse-d2.css?v=20261008e">
+<link rel="stylesheet" href="/css/nepse-design-system.css?v=d976dab8">
 <style>
 /* news-only: announcements + editorial feed */
 .nd-masthead { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
@@ -49,7 +47,7 @@
 .ann:last-child { border-bottom: 0; }
 .ann:hover { background: var(--paper-deep); }
 .ann-mono { flex: none; width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 0.8rem; letter-spacing: 0.04em; }
-.ann-body { min-width: 0; flex: 1; display: block; }
+.ann-body { min-width: 0; }
 .ann-title { font-weight: 600; font-size: 0.95rem; line-height: 1.45; display: block; margin-bottom: 6px; }
 
 .nd-sec-h2{font-size:1.08rem;font-weight:700;margin:2px 0 12px;letter-spacing:-0.01em}
@@ -87,31 +85,72 @@
 @media (min-width: 720px) { .promise-grid { grid-template-columns: repeat(3, 1fr); } }
 .promise-card h3 { font-family: var(--serif); font-size: 1.05rem; margin-bottom: 6px; }
 </style>
-<link rel="stylesheet" href="/css/theme.css?v=20261002d">
+<link rel="stylesheet" href="/css/theme.css?v=5b3458b0">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Where do the company announcements come from?","acceptedAnswer":{"@type":"Answer","text":"From the companies’ own filings with NEPSE and official company notices — not rumors or social media posts. Each announcement links to its source document where available."}},{"@type":"Question","name":"Do you rewrite other publishers&rsquo; news?","acceptedAnswer":{"@type":"Answer","text":"No. Headlines are shown as published, attributed and linked to the original publisher. Our own reporting is clearly labeled as Nepse Decode originals."}},{"@type":"Question","name":"How often is the news updated?","acceptedAnswer":{"@type":"Answer","text":"The feeds refresh daily, and breaking corporate actions publish as they are verified. The timestamp on the page shows the latest update."}},{"@type":"Question","name":"Is this investment advice?","acceptedAnswer":{"@type":"Answer","text":"No. News and announcements are information for education. Nothing here recommends buying or selling any security."}}]}
 </script>
-<link rel="stylesheet" href="/css/nd-chrome.css">
 </head>
 <body class="nd" data-page="news">
 
   <a class="skip-link" href="#main">Skip to content</a>
 
 <!-- Mobile top bar -->
-<div id="nd-header"></div>
+<header class="nd-topbar">
+  <a class="brand" href="/nepse-decode/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="24" height="24">Nepse Decode</a>
+  <a class="nd-btn primary" href="/nepse-chart/" style="padding:8px 18px;font-size:0.85rem">Open the Lab</a>
+</header>
 <div class="fb-wrap" style="display:flex;justify-content:center;padding:10px 16px 0"><div data-freshness-badge></div></div>
-<div id="nd-header"></div>
-<nav class="d2-mobilenav" aria-label="Sections"><a href="/nepse-decode/">Overview</a><a href="/nepse-chart/">Chart &amp; signals</a><span class="nav-sub"><a href="/nepse-signals/momentum/">Momentum</a><a href="/nepse-signals/trend-relay/">Trend Relay</a><a href="/nepse-signals/reversal/">Reversal</a></span><a href="/nepse-screener/">Screener</a><a href="/nepse-radar/">Warning Radar</a><a href="/nepse-trending/">Trending Stocks</a><a href="/nepse-value/">Value Investing</a><a href="/nepse-brokers/">Broker Analytics</a><a href="/nepse-sectors/">Sectors</a><a href="/nepse-news/" class="on" aria-current="page">Market news</a><a href="/nepse-watchlist/">Watchlist</a><a href="/nepse-portfolio/">Portfolio</a><a href="/nepse-simulator/">Simulator</a><a href="/nepse-reports/">Reports</a><a href="/nepse-actions/">Corp. actions</a></nav>
+<nav class="nd-mobilenav" aria-label="Suite tools">
+  <a href="/nepse-decode/">Overview</a>
+  <a href="/nepse-chart/">Chart &amp; signals</a>
+  <span class="nav-sub">
+    <a href="/nepse-signals/momentum/">Momentum</a>
+    <a href="/nepse-signals/trend-relay/">Trend Relay</a>
+    <a href="/nepse-signals/reversal/">Reversal</a>
+  </span>
+  <a href="/nepse-screener/">Screener</a>
+  <a href="/nepse-trending/">Trending Stocks</a>
+  <a href="/nepse-value/">Value Investing</a>
+  <a href="/nepse-brokers/">Broker Analytics</a>
+  <a href="/nepse-sectors/">Sectors</a>
+  <a href="/nepse-news/" class="active" aria-current="page">Market news</a>
+  <a href="/nepse-watchlist/">Watchlist</a>
+  <a href="/nepse-portfolio/">Portfolio</a>
+  <a href="/nepse-simulator/">Simulator</a>
+  <a href="/nepse-reports/">Reports</a>
+  <a href="/nepse-actions/">Corp. actions</a>
+</nav>
 
-<div class="d2-shell">
-<aside class="d2-side" aria-label="Site navigation">
-  <a class="d2-brand" href="/nepse-decode/"><span class="d2-mark" aria-hidden="true">◈</span> Nepse Decode</a>
-  <nav><a href="/nepse-decode/">Overview</a><a href="/nepse-chart/">Chart &amp; signals</a><span class="nav-sub"><a href="/nepse-signals/momentum/">Momentum</a><a href="/nepse-signals/trend-relay/">Trend Relay</a><a href="/nepse-signals/reversal/">Reversal</a></span><a href="/nepse-screener/">Screener</a><a href="/nepse-radar/">Warning Radar</a><a href="/nepse-trending/">Trending Stocks</a><a href="/nepse-value/">Value Investing</a><a href="/nepse-brokers/">Broker Analytics</a><a href="/nepse-sectors/">Sectors</a><a href="/nepse-news/" class="on" aria-current="page">Market news</a><a href="/nepse-watchlist/">Watchlist</a><a href="/nepse-portfolio/">Portfolio</a><a href="/nepse-simulator/">Simulator</a><a href="/nepse-reports/">Reports</a><a href="/nepse-actions/">Corp. actions</a></nav>
-  <p class="d2-side-foot">Free forever · no login</p>
-</aside>
+<div class="nd-shell">
+  <!-- Desktop sidebar -->
+  <aside class="nd-side" aria-label="Nepse Decode suite">
+    <a class="brand" href="/nepse-decode/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
+    <nav class="nd-nav" aria-label="Suite tools">
+      <p class="nav-kicker">Suite</p>
+      <a href="/nepse-decode/">Overview</a>
+      <a href="/nepse-chart/">Chart &amp; signals</a>
+      <span class="nav-sub">
+        <a href="/nepse-signals/momentum/">Momentum</a>
+        <a href="/nepse-signals/trend-relay/">Trend Relay</a>
+        <a href="/nepse-signals/reversal/">Reversal</a>
+      </span>
+      <a href="/nepse-screener/">Screener</a>
+      <a href="/nepse-trending/">Trending Stocks</a>
+      <a href="/nepse-value/">Value Investing</a>
+      <a href="/nepse-brokers/">Broker Analytics</a>
+      <a href="/nepse-sectors/">Sectors</a>
+      <a href="/nepse-news/" class="active" aria-current="page">Market news</a>
+      <a href="/nepse-watchlist/">Watchlist</a>
+      <a href="/nepse-portfolio/">Portfolio</a>
+      <a href="/nepse-simulator/">Simulator</a>
+      <a href="/nepse-reports/">Reports</a>
+      <a href="/nepse-actions/">Corp. actions</a>
+    </nav>
+    <p class="nd-caption" style="margin-top:32px">Free forever · no login</p>
+  </aside>
 
-<main class="d2-main" id="main">
-  <div class="d2-wrap">
+  <div class="nd-content">
+    <main id="main" class="nd-wrap">
     <nav aria-label="Breadcrumb" style="margin:4px 0 16px;font-size:.85rem;color:var(--muted,#8A8474)">
       <ol style="list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
         <li><a href="/" style="color:inherit">Home</a></li>
@@ -247,7 +286,7 @@
 @media(max-width:820px){.sf-cols{grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 20px}}
 @media(max-width:520px){.sf-inner{padding:44px 20px 26px}.sf-top{margin-bottom:34px}.sf-cols{margin-bottom:34px}}
 </style>
-    </div>
+    </main>
 <p class="data-credit" style="font-size:.8rem;color:var(--muted,#6b7280);margin:1.25rem 0 0;">Announcements via official NEPSE/company filings; headlines attributed to publishers — <a href="/data-terms.html">see our data terms</a>.</p>
 <footer class="sf" aria-label="Nepse Decode site footer">
   <div class="sf-inner">
@@ -309,8 +348,8 @@
 </footer>
 
 
-</main>
-</div><!-- /.d2-shell -->
+  </div>
+</div>
 
 <script>
 /* Shared helpers — isolated scope */
@@ -552,10 +591,7 @@
   } catch(e){}
 })();
 </script>
-<script src="/js/theme-toggle.js?v=20261002c" defer></script>
-<script src="/js/nepse-market-config.js?v=20261002c"></script>
-<script src="/js/freshness-badge.js?v=20261002c" defer></script>
-<script src="/js/nepse-sidebar.js?v=20261002c" defer></script>
-<script src="/js/nd-chrome.js" defer></script>
+<script src="/js/theme-toggle.js?v=4643d10e" defer></script>
+<script src="/js/freshness-badge.js" defer></script>
 </body>
 </html>
