@@ -14,7 +14,7 @@
 
   /* Honest sector/instrument grouping.
    * The repo ships no per-symbol sector field (tools/sector-map.json is
-   * absent, so verdicts.json sec is null for all 410 symbols). Groups below
+   * absent, so verdicts.json sec is null for all symbols). Groups below
    * are derived ONLY from real repo data in nepse-chart/data/universe.json:
    *  - the instrument-type field `t` (Debenture / Mutual fund /
    *    Promoter share), plus NEPSE's own debenture symbol suffixes
