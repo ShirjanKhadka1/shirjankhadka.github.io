@@ -144,7 +144,7 @@ function page(sys, data) {
 {"@context":"https://schema.org","@type":"WebPage","name":"${data.title} — Nepse Decode Signals","url":"${pageUrl}","description":"${shortDesc}","isPartOf":{"@type":"WebSite","name":"Nepse Decode","url":"https://shirjankhadka.com.np/"},"author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
 </script>
 <link rel="stylesheet" href="/css/nepse-design-system.css">
-<link rel="stylesheet" href="/css/nepse-d2.css?v=20261002d">
+<link rel="stylesheet" href="/css/nepse-d2.css?v=20261008f">
 <link rel="stylesheet" href="/css/theme.css?v=20261002d">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

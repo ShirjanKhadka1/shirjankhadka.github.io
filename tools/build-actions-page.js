@@ -110,7 +110,7 @@ function main() {
     '<link rel="stylesheet" href="/css/nepse-brand.css?v=20261003a">\n' +
     '<link rel="stylesheet" href="/css/nepse-wave8.css?v=20261003a">\n' +
     '<link rel="stylesheet" href="/css/nepse-actions.css?v=20261002a">\n' +
-    '<link rel="stylesheet" href="/css/nepse-d2.css?v=20261002d">\n' +
+    '<link rel="stylesheet" href="/css/nepse-d2.css?v=20261008f">\n' +
     '<link rel="stylesheet" href="/css/theme.css?v=20261001a">\n' +
     '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>\n' +
     '</head>\n<body>\n<a class="skip" href="#main">Skip to content</a>\n\n' +
