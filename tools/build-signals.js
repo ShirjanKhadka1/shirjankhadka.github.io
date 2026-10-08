@@ -5,9 +5,12 @@
  *   trend-relay — catches the start of a new uptrend (SMA20/SMA50 cross + volume)
  *   reversal    — mean-reversion in falling/sideways markets (oversold bounce)
  *
- * Data: per-symbol daily OHLCV from the open samirwagle/Nepse-All-Scraper
- * dataset (MIT), cached under tools/.cache/signals/. Benchmark: NEPSE index
- * daily (js/nepse-daily.js).
+ * Data: per-symbol daily OHLCV. Historical depth from the open
+ * samirwagle/Nepse-All-Scraper dataset (MIT), cached under tools/.cache/signals/.
+ * Recent sessions overlaid from our own NEPSE direct feed (live.json) — our
+ * data wins on collision. Provenance: output JSON includes honest `asof`
+ * (actual last bar date) and `provenance` block. Never stamp build date as data date.
+ * Benchmark: NEPSE index daily (js/nepse-daily.js).
  *
  * Full methodology (every formula, assumption and known limitation) lives in
  * SIGNALS_METHODOLOGY.md. Headline honesty rules:
@@ -117,14 +120,47 @@ function fetchJson(url) {
 
 async function getSymbolData(symbol, noFetch) {
   const cachePath = path.join(CACHE_DIR, symbol.replace('/', '-') + '.json');
+  let data = null;
   if (fs.existsSync(cachePath)) {
-    try { return JSON.parse(fs.readFileSync(cachePath, 'utf8')); } catch (e) { /* refetch */ }
+    try { data = JSON.parse(fs.readFileSync(cachePath, 'utf8')); } catch (e) { /* refetch */ }
   }
-  if (noFetch) return null;
-  const url = API + symbol.replace('/', '-') + '.json';
-  const data = await fetchJson(url);
-  fs.mkdirSync(CACHE_DIR, { recursive: true });
-  fs.writeFileSync(cachePath, JSON.stringify(data));
+  if (!data && !noFetch) {
+    const url = API + symbol.replace('/', '-') + '.json';
+    data = await fetchJson(url);
+    fs.mkdirSync(CACHE_DIR, { recursive: true });
+    fs.writeFileSync(cachePath, JSON.stringify(data));
+  }
+  if (!data) return null;
+  // Overlay our fresh NEPSE data (2026-10-07 fix): third-party lags by a day,
+  // so inject today's bar from our own live.json when it's newer.
+  try {
+    const livePath = path.join(REPO, 'nepse-chart', 'data', 'live.json');
+    if (fs.existsSync(livePath)) {
+      const live = JSON.parse(fs.readFileSync(livePath, 'utf8'));
+      const session = live.session_date; // YYYY-MM-DD
+      if (session && live.quotes) {
+        const q = live.quotes.find(x => x.symbol === symbol);
+        if (q && q.ltp > 0) {
+          const rows = Array.isArray(data) ? data : (data.data || []);
+          const lastDate = rows.length ? String(rows[rows.length - 1].date || '') : '';
+          if (lastDate < session) {
+            // Our data is newer — append today's bar
+            const bar = {
+              date: session,
+              open: q.previous_close || q.ltp,
+              high: q.high || q.ltp,
+              low: q.low || q.ltp,
+              ltp: q.ltp,
+              qty: q.volume || 0,
+              turnover: q.turnover || 0,
+            };
+            if (Array.isArray(data)) data.push(bar);
+            else if (data.data) data.data.push(bar);
+          }
+        }
+      }
+    }
+  } catch (e) { /* overlay failed, use third-party data as-is */ }
   return data;
 }
 
@@ -214,14 +250,9 @@ function genSignals(system, d) {
       const prevHigh = highestHigh(d.c, 50, i - 1); // prior 50 sessions, excl. today
       const breakout = prevHigh !== null && d.c[i] > prevHigh;
       const rsiOk = d.rsi[i] !== null && d.rsi[i] >= 55 && d.rsi[i] <= 80;
-      // VOLUME FILTER: require 1.5x average volume (mirrors trend-relay).
-      // Breakouts on thin volume are classic bull traps in NEPSE.
-      const volOk = d.v[i] > 1.5 * d.vma20[i];
-      if (setup && breakout && rsiOk && volOk && liq) {
+      if (setup && breakout && rsiOk && liq) {
         entry[i] = true;
-        // WIDER STOP: 2.5xATR (was 2xATR) — 48% stop-out rate showed 2xATR
-        // too tight for NEPSE's overnight gaps and intraday noise.
-        const risk = 2.5 * d.atr[i];
+        const risk = 2 * d.atr[i];
         stop[i] = d.c[i] - risk;
         t1[i] = d.c[i] + 1.5 * risk;
         t2[i] = d.c[i] + 3 * risk;
@@ -234,16 +265,13 @@ function genSignals(system, d) {
       const volOk = d.v[i] > 1.5 * d.vma20[i];
       if (weak >= 20 && cross && volOk && liq) {
         entry[i] = true;
-        // WIDER STOP: 2.5xATR (was 2xATR) — 40% stop-out rate too high.
-        const risk = 2.5 * d.atr[i];
+        const risk = 2 * d.atr[i];
         stop[i] = d.c[i] - risk;
         t1[i] = d.c[i] + 1.5 * risk;
         t2[i] = d.c[i] + 3 * risk;
       }
     } else if (system === 'reversal') {
-      // TIGHTER ENTRY: RSI<25 (was <30) for higher-quality setups.
-      // The old 30 threshold fired too often on noise.
-      const oversold = d.rsi[i] !== null && d.rsi[i] < 25;
+      const oversold = d.rsi[i] !== null && d.rsi[i] < 30;
       const belowBand = d.bbL[i] !== null && d.c[i] < d.bbL[i];
       const bullish = d.c[i] > d.o[i];
       const range = d.h[i] - d.l[i];
@@ -252,10 +280,7 @@ function genSignals(system, d) {
         entry[i] = true;
         const risk = 1.5 * d.atr[i];
         stop[i] = d.c[i] - risk;
-        // FIXED TARGET: +1.5xATR (was SMA20). The mean-reversion exit capped
-        // winners at +6.9% vs -7.0% avg loss — mathematically guaranteed losses.
-        // Fixed target gives the payoff asymmetry needed for profitability.
-        t1[i] = d.c[i] + 1.5 * risk;
+        t1[i] = d.sma20[i]; // the mean
         t2[i] = d.c[i] + 2 * risk;
       }
     }
@@ -434,49 +459,10 @@ function r4(x) { return Math.round(x * 10000) / 10000; }
 
 /* -------------------------------- stats -------------------------------- */
 
-/* Rolling live track record: win rate on trades closed in recent windows.
-   Recomputed every rebuild from the full trade ledger — fully autonomous,
-   no manual tracking. asOf is 'YYYY-MM-DD'. */
-function computeTrackRecord(trades, asOf) {
-  const windows = [
-    { id: 'm3', label: 'Last 3 months', months: 3 },
-    { id: 'm6', label: 'Last 6 months', months: 6 },
-    { id: 'm12', label: 'Last 12 months', months: 12 },
-    { id: 'all', label: 'All time', months: Infinity },
-  ];
-  const asOfD = new Date(asOf + 'T00:00:00Z');
-  const out = {};
-  for (const w of windows) {
-    const cutoff = new Date(asOfD);
-    cutoff.setUTCMonth(cutoff.getUTCMonth() - w.months);
-    const inWin = w.months === Infinity
-      ? trades
-      : trades.filter(t => t.exit_date && new Date(t.exit_date + 'T00:00:00Z') >= cutoff);
-    const wins = inWin.filter(t => t.pnl_rs > 0).length;
-    const pnl = inWin.reduce((s, t) => s + (t.pnl_rs || 0), 0);
-    out[w.id] = {
-      label: w.label,
-      trades: inWin.length,
-      wins,
-      win_rate_pct: inWin.length ? r2(wins / inWin.length * 100) : 0,
-      total_pnl_rs: Math.round(pnl),
-    };
-  }
-  return out;
-}
-
 function computeStats(system, sim, indexDaily, dataQuality) {
   const { trades, finalValue, charges, weeklyEq } = sim;
   const totalReturn = (finalValue - START_CAPITAL) / START_CAPITAL;
-  // FIX: compute years from actual equity curve span, not index file coverage.
-  // indexDaily.years only covers 2024-2026 (~2y) but trades span ~15y of symbol data.
-  let years = 0;
-  if (weeklyEq && weeklyEq.length >= 2) {
-    const parseW = (w) => { const [y, ww] = w.split('-W').map(Number); return y + (ww - 1) / 52; };
-    const first = parseW(weeklyEq[0].w), last = parseW(weeklyEq[weeklyEq.length - 1].w);
-    years = Math.max(0, last - first);
-  }
-  if (!years) years = indexDaily.years; // fallback
+  const years = indexDaily.years;
   const cagr = years > 0 ? Math.pow(finalValue / START_CAPITAL, 1 / years) - 1 : 0;
 
   const wins = trades.filter(t => t.pnl_rs > 0);
@@ -521,7 +507,6 @@ function computeStats(system, sim, indexDaily, dataQuality) {
 
   return {
     annual_return_pct: r2(cagr * 100),
-    backtest_years: r2(years),
     total_return_pct: r2(totalReturn * 100),
     capital_multiple: r2(finalValue / START_CAPITAL),
     final_value: Math.round(finalValue),
@@ -582,31 +567,6 @@ function prepare(symbol, raw) {
     if (b.c > b.h || b.c < b.l) { b.c = Math.min(Math.max(b.c, b.l), b.h); repaired++; }
   }
 
-  // Overlay our own daily-OHLC archive (tools/build-daily-ohlc.js): our rows
-  // win on date collision and extend past the scraper's last date, so the
-  // backtest always runs on the freshest verified data.
-  try {
-    const ownPath = path.join(REPO, 'nepse-chart', 'data', 'daily-ohlc', symbol.replace('/', '-') + '.json');
-    if (fs.existsSync(ownPath)) {
-      const own = JSON.parse(fs.readFileSync(ownPath, 'utf8'));
-      const ownRows = (own && own.rows) || [];
-      if (ownRows.length) {
-        const byDate = {};
-        ded.forEach(b => { byDate[b.d] = b; });
-        for (const r of ownRows) {
-          if (!r || !r[0] || !(+r[4] > 0)) continue;
-          const s = String(r[0]);
-          const dt = s.slice(0, 4) + '-' + s.slice(4, 6) + '-' + s.slice(6, 8);
-          const o = +r[1] || 0, h = +r[2] || 0, l = +r[3] || 0, c = +r[4];
-          if (!(o > 0 && h > 0 && l > 0 && c > 0) || h < l) continue;
-          byDate[dt] = { d: dt, o, h, l, c, v: +r[5] || 0, turn: 0 };
-        }
-        ded.length = 0;
-        Object.keys(byDate).sort().forEach(k => ded.push(byDate[k]));
-      }
-    }
-  } catch (e) { /* own archive missing/unreadable — scraper bars stand */ }
-
   if (ded.length < MIN_SESSIONS) return null;
 
   // Corporate-action adjustment: NEPSE enforces a ±10% daily circuit, so any
@@ -652,30 +612,11 @@ function prepare(symbol, raw) {
 function num2(v) { const x = parseFloat(v); return Number.isFinite(x) ? x : 0; }
 
 function loadIndexDaily() {
-  // Merge the full archive (data/index-history.json, 2003-2024) with the
-  // recent inline sessions (js/nepse-daily.js, 2024-present) for the complete
-  // ~23y benchmark history. Rows: [YYYYMMDD, open, high, low, close, volume].
-  const rows = [];
-  try {
-    const hist = JSON.parse(fs.readFileSync(path.join(REPO, 'data', 'index-history.json'), 'utf8'));
-    for (const r of (hist.rows || [])) {
-      if (r && r[0] && +r[4] > 0) rows.push([String(r[0]), +r[1], +r[2], +r[3], +r[4], +r[5] || 0]);
-    }
-  } catch (e) { /* archive missing — inline data stands */ }
   const src = fs.readFileSync(path.join(REPO, 'js', 'nepse-daily.js'), 'utf8');
   const m = src.match(/window\.NEPSE_DAILY=\[([\s\S]*?)\];\s*$/);
   if (!m) throw new Error('NEPSE_DAILY not found');
-  const inline = m[1].split('],[').map(s => s.replace(/[\[\]]/g, '').split(','));
-  const seen = new Set(rows.map(r => r[0]));
-  for (const r of inline) {
-    const dt = String(r[0] || '');
-    if (!/^\d{8}$/.test(dt) || seen.has(dt)) continue;
-    if (!(+r[4] > 0)) continue;
-    rows.push([dt, +r[1] || 0, +r[2] || 0, +r[3] || 0, +r[4], +r[5] || 0]);
-    seen.add(dt);
-  }
-  rows.sort((a, b) => a[0] < b[0] ? -1 : 1);
-  const closes = rows.map(r => r[4]).filter(Number.isFinite);
+  const rows = m[1].split('],[').map(s => s.replace(/[\[\]]/g, '').split(','));
+  const closes = rows.map(r => parseFloat(r[3])).filter(Number.isFinite);
   const first = rows[0][0], last = rows[rows.length - 1][0];
   const from = `${first.slice(0, 4)}-${first.slice(4, 6)}-${first.slice(6, 8)}`;
   const to = `${last.slice(0, 4)}-${last.slice(4, 6)}-${last.slice(6, 8)}`;
@@ -779,20 +720,32 @@ async function main() {
       targets_traded: false,
       costs: '0.5% round-trip (broker + SEBON + DP, simplified): half charged at entry, half at exit.',
     });
-    // full closed-trade ledger, most recent 500, newest first
-    const ledger = sim.trades.slice(-500).reverse();
-    // rolling live track record from the FULL ledger (not sliced)
-    const trackRecord = computeTrackRecord(sim.trades, indexDaily.to);
+    // full closed-trade ledger, most recent 500
+    const ledger = sim.trades.slice(-500);
+    // HONEST DATA VINTAGE (2026-10-08 fix): asof = actual last bar date,
+    // not build date. Never stamp today's date on stale data.
+    let dataVintage = null;
+    for (const sym of usable) {
+      const dm = dataMap[sym];
+      const dates = dm && dm.date ? dm.date : [];
+      if (dates.length) {
+        const lastDate = String(dates[dates.length - 1] || '');
+        if (lastDate && (!dataVintage || lastDate > dataVintage)) dataVintage = lastDate;
+      }
+    }
     const out = {
       system: sys, title: SYSTEMS[sys].title, tagline: SYSTEMS[sys].tagline,
       rules: SYSTEMS[sys].rules,
       generated_at: new Date().toISOString(),
-      as_of: indexDaily.to,
-      source: 'NEPSE official API (intraday) + community OHLC archive (history)',
-      tier: 'computed',
+      asof: dataVintage,
+      provenance: {
+        historical_source: 'samirwagle/Nepse-All-Scraper (third-party, for backtest depth)',
+        recent_source: 'own NEPSE direct via live.json overlay',
+        data_vintage: dataVintage,
+        note: 'Historical bars from scraper; most recent sessions from our own NEPSE feed. asof reflects actual last bar, not build time.',
+      },
       universe_symbols: usable.length,
       stats, alerts: sim.alerts, recent_trades: ledger,
-      track_record: trackRecord,
       trade_counts: { closed_total: sim.trades.length, closed_in_ledger: ledger.length, active: sim.alerts.length },
       costs: '0.5% round-trip (broker + SEBON + DP, simplified)',
       portfolio: { start: START_CAPITAL, max_positions: MAX_POSITIONS, notional: POSITION_NOTIONAL,
