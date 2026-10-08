@@ -23,7 +23,9 @@
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
 <link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="stylesheet" href="/css/fonts.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Serif+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebPage","name":"Trending Stocks — Nepse Decode","url":"https://shirjankhadka.com.np/nepse-trending/","description":"NEPSE stocks ranked daily by genuine trading activity: turnover acceleration, volume spikes, 5-day momentum, broker flow concentration and news mentions.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"},"isPartOf":{"@type":"WebSite","name":"Nepse Decode","url":"https://shirjankhadka.com.np/nepse-decode/"}}
 </script>
@@ -31,6 +33,7 @@
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-decode/"},{"@type":"ListItem","position":2,"name":"Trending Stocks","item":"https://shirjankhadka.com.np/nepse-trending/"}]}
 </script>
 <link rel="stylesheet" href="/css/nepse-design-system.css?v=c967c332">
+<link rel="stylesheet" href="/css/nepse-d2.css?v=20261002d">
 <style>
 .bk-tabs{display:flex;gap:4px;border-bottom:2px solid var(--hairline);margin:0 0 16px;flex-wrap:wrap;overflow-x:auto}
 .bk-tabs button{background:none;border:none;padding:10px 14px;color:var(--ink-soft);font-weight:600;font-size:.92rem;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;font-family:var(--sans)}
@@ -107,81 +110,54 @@ canvas.spark{display:block}
 .snap-asof{font-family:var(--sans,Inter,system-ui,sans-serif);font-size:.8rem;font-weight:400;color:var(--muted,#8A8474)}
 .snap .bk-table{margin-top:12px}
 .snap-note{font-size:.82rem;color:var(--muted,#8A8474);margin:12px 0 0}
-
-/* P15: Trending hero cards — modern, visual top-3 */
-.trend-hero{display:grid;gap:14px;margin:6px 0 26px}
-@media(min-width:760px){.trend-hero{grid-template-columns:repeat(3,1fr)}}
-.trend-card{
-  position:relative;overflow:hidden;
-  background:linear-gradient(150deg,var(--card) 0%,var(--paper-deep) 100%);
-  border:1px solid var(--hairline);border-radius:18px;
-  padding:20px 20px 18px;
-  text-decoration:none;color:inherit;display:block;
-  transition:transform .18s ease,box-shadow .18s ease;
-}
-.trend-card:hover{transform:translateY(-3px);box-shadow:0 14px 34px rgba(12,31,22,.12)}
-.trend-card .t-rank{
-  position:absolute;top:10px;right:16px;
-  font-family:var(--serif);font-size:2.6rem;font-weight:700;
-  color:var(--hairline);line-height:1;user-select:none;
-}
-.trend-card .t-sym{font-size:1.25rem;font-weight:800;letter-spacing:.01em;color:var(--ink)}
-.trend-card .t-name{font-size:.78rem;color:var(--muted);margin:2px 0 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.trend-card .t-price{font-size:1.6rem;font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink)}
-.trend-card .t-chg{font-size:.85rem;font-weight:700;margin-left:8px}
-.trend-card .t-meta{display:flex;justify-content:space-between;align-items:center;margin-top:12px;gap:8px}
-.trend-card .t-turn{font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
-.trend-card .scorebar{width:100px}
-.trend-card .t-why{font-size:.76rem;color:var(--ink-soft);margin-top:10px;line-height:1.5;max-height:3.4em;overflow:hidden}
-.trend-card.tone-acc{border-top:4px solid var(--up)}
-.trend-card.tone-dist{border-top:4px solid var(--down)}
-.trend-card.tone-watch{border-top:4px solid var(--gold)}
-.trend-hero-head{display:flex;align-items:baseline;justify-content:space-between;margin:0 0 12px;flex-wrap:wrap;gap:8px}
-.trend-hero-head h2{font-family:var(--serif);font-size:1.3rem;margin:0}
-.trend-hero-head span{font-size:.8rem;color:var(--muted)}
 </style>
 <link rel="stylesheet" href="/css/theme.css?v=20261002d">
-<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=20261004a">
 </head>
 <body class="nd">
-<div id="nd-header"></div>
 <div class="fb-wrap" style="display:flex;justify-content:center;padding:10px 16px 0"><div data-freshness-badge></div></div>
-<main style="max-width:1160px;margin:0 auto;padding:24px 16px">
+<header class="d2-topbar">
+  <a class="d2-brand" href="/nepse-decode/"><span class="d2-mark" aria-hidden="true">◈</span> Nepse Decode</a>
+  <span style="margin-left:auto" id="d2TopState"></span>
+</header>
+<nav class="d2-mobilenav" aria-label="Sections"><a href="/nepse-decode/">Overview</a><a href="/nepse-chart/">Chart &amp; signals</a><span class="nav-sub"><a href="/nepse-signals/momentum/">Momentum</a><a href="/nepse-signals/trend-relay/">Trend Relay</a><a href="/nepse-signals/reversal/">Reversal</a></span><a href="/nepse-screener/">Screener</a><a href="/nepse-radar/">Warning Radar</a><a href="/nepse-trending/" class="on" aria-current="page">Trending Stocks</a><a href="/nepse-value/">Value Investing</a><a href="/nepse-brokers/">Broker Analytics</a><a href="/nepse-sectors/">Sectors</a><a href="/nepse-news/">Market news</a><a href="/nepse-watchlist/">Watchlist</a><a href="/nepse-portfolio/">Portfolio</a><a href="/nepse-simulator/">Simulator</a><a href="/nepse-reports/">Reports</a><a href="/nepse-actions/">Corp. actions</a></nav>
+
+<div class="d2-shell">
+<aside class="d2-side" aria-label="Site navigation">
+  <a class="d2-brand" href="/nepse-decode/"><span class="d2-mark" aria-hidden="true">◈</span> Nepse Decode</a>
+  <nav><a href="/nepse-decode/">Overview</a><a href="/nepse-chart/">Chart &amp; signals</a><span class="nav-sub"><a href="/nepse-signals/momentum/">Momentum</a><a href="/nepse-signals/trend-relay/">Trend Relay</a><a href="/nepse-signals/reversal/">Reversal</a></span><a href="/nepse-screener/">Screener</a><a href="/nepse-radar/">Warning Radar</a><a href="/nepse-trending/" class="on" aria-current="page">Trending Stocks</a><a href="/nepse-value/">Value Investing</a><a href="/nepse-brokers/">Broker Analytics</a><a href="/nepse-sectors/">Sectors</a><a href="/nepse-news/">Market news</a><a href="/nepse-watchlist/">Watchlist</a><a href="/nepse-portfolio/">Portfolio</a><a href="/nepse-simulator/">Simulator</a><a href="/nepse-reports/">Reports</a><a href="/nepse-actions/">Corp. actions</a></nav>
+  <p class="d2-side-foot">Free forever · no login</p>
+</aside>
+
+<main class="d2-main" id="main">
+  <div class="d2-wrap">
+<div>
 <p class="crumbs"><a href="/nepse-decode/">Nepse Decode</a> <span class="csep">/</span> <span aria-current="page">Trending Stocks</span></p>
 <p class="kicker">Market pulse</p>
 <h1 class="page-title">Trending Stocks</h1>
 <p class="dek">Which NEPSE stocks are genuinely attracting activity — ranked by turnover acceleration, volume spikes, 5-day momentum, broker flow concentration and news mentions. A transparent formula: every input is published below. No black box, no borrowed scores.</p>
 <p lang="ne" class="ne-sum">संक्षेप: यो पृष्ठमा नेप्सेमा अहिले सबैभन्दा सक्रिय स्टकहरूको दैनिक सूची छ — उच्च कारोबार, मूल्य गति र ब्रोकर प्रवाहका आधारमा छानिएको। यो शैक्षिक जानकारी हो, लगानी सल्लाह होइन।</p>
 
-<!-- P15: Trending hero — top 3 visual cards, populated live -->
-<div class="trend-hero-head">
-  <h2>🔥 Hottest right now</h2>
-  <span id="trendHeroAsof"></span>
-</div>
-<div class="trend-hero" id="trendHero" aria-label="Top trending stocks"></div>
-
 <!-- SNAP-START -->
 <section class="snap" aria-label="Trending snapshot">
-  <h2>Top trending stocks <span class="snap-asof">· snapshot 2026-10-08</span></h2>
+  <h2>Top trending stocks <span class="snap-asof">· snapshot 2026-10-02</span></h2>
   <div class="scrollx"><table class="bk-table">
     <thead><tr><th>#</th><th>Stock</th><th>LTP</th><th>Day %</th><th>5-day %</th><th>Turnover</th><th>Tone</th><th>Score</th></tr></thead>
     <tbody>
-      <tr><td>1</td><td><a class="symlink" href="/stocks/KBSH/">KBSH</a><span class="sname">Kutheli Bukhari Small Hydropower Limited · Hydropower</span></td><td>924.60</td><td class="pos">+15.00%</td><td class="pos">+14.43%</td><td>Rs 50.9 M<span class="submed">13.1× avg</span></td><td><span class="tone tone-acc">Accumulation interest</span></td><td><span class="scorebar"><i style="width:74%"></i></span> 74.2</td></tr>
-      <tr><td>2</td><td><a class="symlink" href="/stocks/OHL/">OHL</a><span class="sname">Oriental Hotels Limited · Hotels And Tourism</span></td><td>610.00</td><td class="neg">-0.18%</td><td class="neg">-2.09%</td><td>Rs 6.1 M<span class="submed">5.5× avg</span></td><td><span class="tone tone-dist">Distribution pressure</span></td><td><span class="scorebar"><i style="width:55%"></i></span> 55.0</td></tr>
-      <tr><td>3</td><td><a class="symlink" href="/stocks/SKBBL/">SKBBL</a><span class="sname">Sana Kisan Bikas Laghubitta Bittiya Sanstha Limited · Microfinance</span></td><td>750.00</td><td class="">0.00%</td><td class="neg">-1.70%</td><td>Rs 36.8 M<span class="submed">5.8× avg</span></td><td><span class="tone tone-watch">Watch</span></td><td><span class="scorebar"><i style="width:55%"></i></span> 55.0</td></tr>
-      <tr><td>4</td><td><a class="symlink" href="/stocks/NYADI/">NYADI</a><span class="sname">Nyadi Hydropower Limited · Hydropower</span></td><td>339.80</td><td class="neg">-0.06%</td><td class="neg">-2.19%</td><td>Rs 5.8 M<span class="submed">3.8× avg</span></td><td><span class="tone tone-dist">Distribution pressure</span></td><td><span class="scorebar"><i style="width:43%"></i></span> 43.0</td></tr>
-      <tr><td>5</td><td><a class="symlink" href="/stocks/HPPL/">HPPL</a><span class="sname">Himalayan Power Partner Ltd. · Hydropower</span></td><td>400.00</td><td class="pos">+2.04%</td><td class="pos">+5.29%</td><td>Rs 114.9 M<span class="submed">3.3× avg</span></td><td><span class="tone tone-acc">Accumulation interest</span></td><td><span class="scorebar"><i style="width:42%"></i></span> 42.5</td></tr>
-      <tr><td>6</td><td><a class="symlink" href="/stocks/GLH/">GLH</a><span class="sname">GreenLife Hydropower Limited · Hydropower</span></td><td>277.60</td><td class="pos">+0.18%</td><td class="neg">-0.79%</td><td>Rs 87.0 M<span class="submed">3.6× avg</span></td><td><span class="tone tone-watch">Watch</span></td><td><span class="scorebar"><i style="width:39%"></i></span> 38.8</td></tr>
-      <tr><td>7</td><td><a class="symlink" href="/stocks/BHL/">BHL</a><span class="sname">Balephi Hydropower Limited · Hydropower</span></td><td>218.80</td><td class="pos">+2.72%</td><td class="pos">+1.91%</td><td>Rs 84.8 M<span class="submed">3.1× avg</span></td><td><span class="tone tone-watch">Watch</span></td><td><span class="scorebar"><i style="width:36%"></i></span> 36.3</td></tr>
-      <tr><td>8</td><td><a class="symlink" href="/stocks/SPDL/">SPDL</a><span class="sname">Synergy Power Development Ltd. · Hydropower</span></td><td>349.90</td><td class="pos">+2.61%</td><td class="pos">+0.60%</td><td>Rs 30.4 M<span class="submed">3.0× avg</span></td><td><span class="tone tone-watch">Watch</span></td><td><span class="scorebar"><i style="width:34%"></i></span> 34.1</td></tr>
-      <tr><td>9</td><td><a class="symlink" href="/stocks/SONA/">SONA</a><span class="sname">Sonapur Minerals And Oil Limited · Manufacturing And Processing</span></td><td>430.00</td><td class="pos">+3.61%</td><td class="pos">+2.38%</td><td>Rs 119.9 M<span class="submed">2.8× avg</span></td><td><span class="tone tone-acc">Accumulation interest</span></td><td><span class="scorebar"><i style="width:34%"></i></span> 33.7</td></tr>
-      <tr><td>10</td><td><a class="symlink" href="/stocks/HDHPC/">HDHPC</a><span class="sname">Himal Dolakha Hydropower Company Limited · Hydropower</span></td><td>228.00</td><td class="pos">+2.24%</td><td class="pos">+2.01%</td><td>Rs 192.4 M<span class="submed">2.8× avg</span></td><td><span class="tone tone-acc">Accumulation interest</span></td><td><span class="scorebar"><i style="width:33%"></i></span> 33.1</td></tr>
-      <tr><td>11</td><td><a class="symlink" href="/stocks/GHL/">GHL</a><span class="sname">Ghalemdi Hydro Limited · Hydropower</span></td><td>285.00</td><td class="neg">-3.36%</td><td class="pos">+4.17%</td><td>Rs 260.7 M<span class="submed">2.0× avg</span></td><td><span class="tone tone-acc">Accumulation interest</span></td><td><span class="scorebar"><i style="width:27%"></i></span> 27.1</td></tr>
-      <tr><td>12</td><td><a class="symlink" href="/stocks/UMHL/">UMHL</a><span class="sname">United Modi Hydropower Ltd. · Hydropower</span></td><td>553.90</td><td class="pos">+1.28%</td><td class="pos">+0.38%</td><td>Rs 44.2 M<span class="submed">2.4× avg</span></td><td><span class="tone tone-watch">Watch</span></td><td><span class="scorebar"><i style="width:27%"></i></span> 26.7</td></tr>
-      <tr><td>13</td><td><a class="symlink" href="/stocks/NHPC/">NHPC</a><span class="sname">National Hydro Power Company Limited · Hydropower</span></td><td>268.00</td><td class="pos">+3.92%</td><td class="pos">+2.45%</td><td>Rs 95.2 M<span class="submed">2.1× avg</span></td><td><span class="tone tone-acc">Accumulation interest</span></td><td><span class="scorebar"><i style="width:26%"></i></span> 26.2</td></tr>
-      <tr><td>14</td><td><a class="symlink" href="/stocks/VLBS/">VLBS</a><span class="sname">Vijaya laghubitta Bittiya Sanstha Ltd. · Microfinance</span></td><td>590.30</td><td class="neg">-1.78%</td><td class="neg">-4.40%</td><td>Rs 3.1 M<span class="submed">2.1× avg</span></td><td><span class="tone tone-dist">Distribution pressure</span></td><td><span class="scorebar"><i style="width:23%"></i></span> 23.4</td></tr>
-      <tr><td>15</td><td><a class="symlink" href="/stocks/SIKLES/">SIKLES</a><span class="sname">Sikles Hydropower Limited · Hydropower</span></td><td>593.50</td><td class="pos">+0.94%</td><td class="pos">+5.32%</td><td>Rs 10.3 M<span class="submed">1.5× avg</span></td><td><span class="tone tone-acc">Accumulation interest</span></td><td><span class="scorebar"><i style="width:23%"></i></span> 23.2</td></tr>
+      <tr><td>1</td><td><a class="symlink" href="/stocks/BFC/">BFC</a><span class="sname">Best Finance Company Ltd. · Finance</span></td><td>460.30</td><td class="pos">+2.98%</td><td class="pos">+2.98%</td><td>Rs 33.5 M<span class="submed">4.3× avg</span></td><td><span class="tone tone-acc">Accumulation interest</span></td><td><span class="scorebar"><i style="width:55%"></i></span> 54.6</td></tr>
+      <tr><td>2</td><td><a class="symlink" href="/stocks/ULHC/">ULHC</a><span class="sname">Upper Lohore Khola Hydropower Company Limited · Hydropower</span></td><td>345.00</td><td class="pos">+1.77%</td><td class="pos">+1.77%</td><td>Rs 13.1 M<span class="submed">2.8× avg</span></td><td><span class="tone tone-watch">Watch</span></td><td><span class="scorebar"><i style="width:47%"></i></span> 47.3</td></tr>
+      <tr><td>3</td><td><a class="symlink" href="/stocks/SINDU/">SINDU</a><span class="sname">Sindhu Bikash Bank Ltd · Banking</span></td><td>448.00</td><td class="pos">+7.20%</td><td class="pos">+7.20%</td><td>Rs 29.3 M<span class="submed">2.2× avg</span></td><td><span class="tone tone-acc">Accumulation interest</span></td><td><span class="scorebar"><i style="width:42%"></i></span> 41.9</td></tr>
+      <tr><td>4</td><td><a class="symlink" href="/stocks/MKCL/">MKCL</a><span class="sname">Muktinath Krishi Company Limited · Others</span></td><td>810.10</td><td class="neg">-6.56%</td><td class="neg">-6.56%</td><td>Rs 4.6 M<span class="submed">2.9× avg</span></td><td><span class="tone tone-dist">Distribution pressure</span></td><td><span class="scorebar"><i style="width:35%"></i></span> 34.6</td></tr>
+      <tr><td>5</td><td><a class="symlink" href="/stocks/GHL/">GHL</a><span class="sname">Ghalemdi Hydro Limited · Hydropower</span></td><td>268.80</td><td class="pos">+5.95%</td><td class="pos">+5.95%</td><td>Rs 139.2 M<span class="submed">1.6× avg</span></td><td><span class="tone tone-acc">Accumulation interest</span></td><td><span class="scorebar"><i style="width:34%"></i></span> 34.2</td></tr>
+      <tr><td>6</td><td><a class="symlink" href="/stocks/ICFC/">ICFC</a><span class="sname">ICFC Finance Limited · Finance</span></td><td>592.00</td><td class="neg">-0.50%</td><td class="neg">-0.50%</td><td>Rs 7.4 M<span class="submed">2.0× avg</span></td><td><span class="tone tone-watch">Watch</span></td><td><span class="scorebar"><i style="width:34%"></i></span> 34.2</td></tr>
+      <tr><td>7</td><td><a class="symlink" href="/stocks/MCHL/">MCHL</a><span class="sname">Menchhiyam Hydropower Limited · Hydropower</span></td><td>266.90</td><td class="neg">-1.07%</td><td class="neg">-1.07%</td><td>Rs 3.5 M<span class="submed">2.2× avg</span></td><td><span class="tone tone-watch">Watch</span></td><td><span class="scorebar"><i style="width:34%"></i></span> 33.6</td></tr>
+      <tr><td>8</td><td><a class="symlink" href="/stocks/SIFC/">SIFC</a><span class="sname">Shree Investment Finance Co. Ltd. · Finance</span></td><td>475.00</td><td class="neg">-1.10%</td><td class="neg">-1.10%</td><td>Rs 7.0 M<span class="submed">1.6× avg</span></td><td><span class="tone tone-watch">Watch</span></td><td><span class="scorebar"><i style="width:33%"></i></span> 32.8</td></tr>
+      <tr><td>9</td><td><a class="symlink" href="/stocks/MHCL/">MHCL</a><span class="sname">Molung Hydropower Company Limited · Hydropower</span></td><td>281.00</td><td class="neg">-5.07%</td><td class="neg">-5.07%</td><td>Rs 3.2 M<span class="submed">2.5× avg</span></td><td><span class="tone tone-dist">Distribution pressure</span></td><td><span class="scorebar"><i style="width:33%"></i></span> 32.7</td></tr>
+      <tr><td>10</td><td><a class="symlink" href="/stocks/AHL/">AHL</a><span class="sname">Asian Hydropower Limited · Hydropower</span></td><td>375.10</td><td class="neg">-6.85%</td><td class="neg">-6.85%</td><td>Rs 2.1 M<span class="submed">2.3× avg</span></td><td><span class="tone tone-dist">Distribution pressure</span></td><td><span class="scorebar"><i style="width:32%"></i></span> 31.5</td></tr>
+      <tr><td>11</td><td><a class="symlink" href="/stocks/CZBIL/">CZBIL</a><span class="sname">Citizens Bank International Limited · Banking</span></td><td>211.00</td><td class="neg">-1.12%</td><td class="neg">-1.12%</td><td>Rs 27.7 M<span class="submed">1.7× avg</span></td><td><span class="tone tone-watch">Watch</span></td><td><span class="scorebar"><i style="width:32%"></i></span> 31.5</td></tr>
+      <tr><td>12</td><td><a class="symlink" href="/stocks/WNLB/">WNLB</a><span class="sname">WNLB · Microfinance</span></td><td>1055.00</td><td class="neg">-6.31%</td><td class="neg">-6.31%</td><td>Rs 2.1 M<span class="submed">2.8× avg</span></td><td><span class="tone tone-dist">Distribution pressure</span></td><td><span class="scorebar"><i style="width:31%"></i></span> 31.2</td></tr>
+      <tr><td>13</td><td><a class="symlink" href="/stocks/FOWAD/">FOWAD</a><span class="sname">Forward Microfinance Laghubitta Bittiya Sanstha Limited · Microfinance</span></td><td>882.50</td><td class="neg">-1.94%</td><td class="neg">-1.94%</td><td>Rs 5.8 M<span class="submed">2.4× avg</span></td><td><span class="tone tone-watch">Watch</span></td><td><span class="scorebar"><i style="width:30%"></i></span> 30.5</td></tr>
+      <tr><td>14</td><td><a class="symlink" href="/stocks/OHL/">OHL</a><span class="sname">Oriental Hotels Limited · Hotels And Tourism</span></td><td>610.00</td><td class="neg">-4.39%</td><td class="neg">-4.39%</td><td>Rs 2.0 M<span class="submed">1.8× avg</span></td><td><span class="tone tone-dist">Distribution pressure</span></td><td><span class="scorebar"><i style="width:30%"></i></span> 30.4</td></tr>
+      <tr><td>15</td><td><a class="symlink" href="/stocks/SMB/">SMB</a><span class="sname">Support Microfinance Bittiya Sanstha Ltd. · Microfinance</span></td><td>1825.00</td><td class="neg">-2.09%</td><td class="neg">-2.09%</td><td>Rs 1.7 M<span class="submed">1.4× avg</span></td><td><span class="tone tone-dist">Distribution pressure</span></td><td><span class="scorebar"><i style="width:30%"></i></span> 30.4</td></tr>
     </tbody>
   </table></div>
   <p class="snap-note">Static daily snapshot · the full interactive ranking below refreshes every 60 seconds.</p>
@@ -226,7 +202,10 @@ canvas.spark{display:block}
 <div class="method" id="methodBox">Loading…</div>
 
 <div class="disclaimer"><strong>Educational only — not investment advice.</strong> A high activity score means a stock is attracting attention, not that it is a good buy. Distribution-pressure stocks are falling on heavy volume; treat them as caution flags, never as opportunities. Verify every price with your broker before trading. Nepse Decode publishes no buy/sell calls.</div>
+</div>
+  </div>
 </main>
+</div><!-- /.d2-shell -->
 <script>
 (function(){
 "use strict";
@@ -268,34 +247,6 @@ function filtered(){
   return r.slice(0,30);
 }
 
-/* P15: hero cards — top 3 by score, visual and modern */
-function renderHero(rows){
-  var host = $('trendHero');
-  if(!host) return;
-  var top3 = rows.slice(0,3);
-  if(!top3.length){ host.innerHTML = ''; return; }
-  var medals = ['🥇','🥈','🥉'];
-  host.innerHTML = top3.map(function(s, i){
-    var chg = (s.change_pct !== undefined && s.change_pct !== null) ? s.change_pct : s.ret_5d_pct;
-    var chgCls = chg > 0 ? 'pos' : (chg < 0 ? 'neg' : '');
-    var chgTxt = (chg > 0 ? '+' : '') + fmt(chg) + '%';
-    var why = (s.reasons||[]).slice(0,2).join(' · ');
-    var tl = TONE_LABEL[s.tone] || TONE_LABEL.watch;
-    return '<a class="trend-card tone-'+esc(s.tone||'watch')+'" href="/nepse-chart/?s='+esc(s.symbol)+'">'
-      + '<span class="t-rank">'+(i+1)+'</span>'
-      + '<div class="t-sym">'+medals[i]+' '+esc(s.symbol)+'</div>'
-      + '<div class="t-name">'+esc(s.name)+' · '+esc(s.sector)+'</div>'
-      + '<div><span class="t-price">Rs '+fmt(s.ltp)+'</span><span class="t-chg '+chgCls+'">'+chgTxt+'</span></div>'
-      + '<div class="t-meta"><span class="tone '+tl[0]+'">'+tl[1]+'</span>'
-      + '<span><span class="scorebar"><i style="width:'+Math.round(s.score)+'%"></i></span> <b>'+fmt(s.score,1)+'</b></span></div>'
-      + '<div class="t-turn">Rs '+fmt(s.turnover_rs_m,1)+' M turnover · '+fmt(s.turnover_ratio,1)+'× average</div>'
-      + (why ? '<div class="t-why">'+esc(why)+'</div>' : '')
-      + '</a>';
-  }).join('');
-  var asof = $('trendHeroAsof');
-  if(asof && state.meta && state.meta.asof) asof.textContent = 'Session of ' + state.meta.asof;
-}
-
 function render(){
   closeResearchPanels();
   var rows = filtered();
@@ -320,7 +271,6 @@ function render(){
   });
   if(!rows.length) html = '<tr><td colspan="10" style="text-align:center;color:var(--muted)">No stocks in this tone right now.</td></tr>';
   $('trendBody').innerHTML = html;
-  renderHero(rows);
   var cvs = $('trendBody').querySelectorAll('canvas.spark');
   rows.forEach(function(s, i){
     if(cvs[i]) sparkline(cvs[i], s.spark, s.ret_5d_pct >= 0);
@@ -466,9 +416,7 @@ function load(silent){
   // 2026-10-07: fetch live.json alongside trending.json so LTP stays fresh
   // intraday. The daily rebuild provides scores/reasons; live LTP overrides
   // the stale close for the price column.
-  // (BASE is '/nepse-chart/data/'; the old '../nepse-chart/data/live.json'
-  // resolved to /nepse-chart/nepse-chart/data/live.json -> 404.)
-  var liveP = fetch(BASE+'live.json', { cache: 'no-store' })
+  var liveP = fetch(BASE+'../nepse-chart/data/live.json', { cache: 'no-store' })
     .then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; });
   fetch(BASE+'trending.json', { cache: 'no-store' }).then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(d){
     return liveP.then(function(live){
@@ -485,11 +433,9 @@ function load(silent){
       var counts = {accumulation:0, distribution:0, watch:0};
       state.rows.forEach(function(s){ if(counts[s.tone]!==undefined) counts[s.tone]++; });
       var liveNote = Object.keys(ltpMap).length ? ' LTPs live.' : '';
-      var prov = d.provenance || {};
-      var provText = prov.verified ? ' Verified against ' + esc(prov.source_session) + ' close (' + (prov.source_quotes || '?') + ' quotes).' : '';
       $('coverage').innerHTML = '<strong>Data as of ' + esc(d.asof) + '.' + liveNote + '</strong> ' + state.rows.length +
         ' equities scored (' + counts.accumulation + ' accumulation · ' + counts.distribution +
-        ' distribution · ' + counts.watch + ' watch). Scores rebuild every trading day from the daily close.' + provText;
+        ' distribution · ' + counts.watch + ' watch). Scores rebuild every trading day from the daily close.';
       $('methodBox').textContent = d.method || '';
       $('toneKey').style.display = '';
       if (!state.tabsInit) { initTabs(); state.tabsInit = true; }
@@ -530,10 +476,65 @@ setInterval(function(){ if(!document.hidden) load(true); }, 15*60*1000);
 @media(max-width:820px){.sf-cols{grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 20px}}
 @media(max-width:520px){.sf-inner{padding:44px 20px 26px}.sf-top{margin-bottom:34px}.sf-cols{margin-bottom:34px}}
 </style>
-<div id="nd-footer"></div>
+<footer class="sf" aria-label="Nepse Decode site footer">
+  <div class="sf-inner">
+    <div class="sf-top">
+      <svg class="sf-mark" viewBox="0 0 64 64" role="img" aria-label="Nepse Decode iceberg mark"><rect width="64" height="64" rx="14" fill="#013E2E"/><polygon points="32,9 21,25 43,25" fill="#FFFFFF"/><polygon points="32,9 37,25 27,25" fill="#EEF2EF"/><polygon points="13,27.5 51,27.5 45,42 32,57 21,45 15,37" fill="#FFFFFF"/><polygon points="13,27.5 27,27.5 21,45 15,37" fill="#D6DDD9"/><polygon points="51,27.5 45,42 38,27.5" fill="#C6CECA"/><polygon points="32,57 45,42 36,40 28,49" fill="#E4E9E6"/><polygon points="21,45 32,57 28,49 24,44" fill="#D6DDD9"/><rect x="4" y="25" width="56" height="2.6" rx="1.3" fill="#0B3D2E" opacity=".55"/></svg>
+      <div>
+        <p class="sf-name">Nepse Decode</p>
+        <p class="sf-mission">Free, honest NEPSE intelligence for every Nepali investor — live market data, screeners, signals and research, rebuilt every trading day. No login, no paywall, no buy calls.</p>
+      </div>
+    </div>
+    <nav class="sf-cols" aria-label="Footer sections">
+      <div class="sf-col">
+        <h3>Tools</h3>
+        <ul>
+          <li><a href="/nepse-screener/">Stock Screener</a></li>
+          <li><a href="/nepse-chart/">Chart</a></li>
+          <li><a href="/nepse-trending/">Trending Stocks</a></li>
+          <li><a href="/nepse-value/">Value Investing</a></li>
+          <li><a href="/nepse-signals/momentum/">Trading Signals</a></li>
+          <li><a href="/nepse-watchlist/">Watchlist</a></li>
+        </ul>
+      </div>
+      <div class="sf-col">
+        <h3>Market data</h3>
+        <ul>
+          <li><a href="/nepse-decode/">Dashboard</a></li>
+          <li><a href="/nepse-brokers/">Broker Analytics</a></li>
+          <li><a href="/nepse-sectors/">Sectors</a></li>
+          <li><a href="/nepse-news/">Market News</a></li>
+          <li><a href="/nepse-actions/">Corp. Actions</a></li>
+          <li><a href="/stocks/">All Stocks</a></li>
+        </ul>
+      </div>
+      <div class="sf-col">
+        <h3>Research</h3>
+        <ul>
+          <li><a href="/blog/">Daily Blog</a></li>
+          <li><a href="/nepse-decode/">Market Dashboard</a></li>
+        </ul>
+      </div>
+      <div class="sf-col">
+        <h3>Company</h3>
+        <ul>
+          <li><a href="/about.html">About</a></li>
+          <li><a href="/contact.html">Contact</a></li>
+          <li><a href="/privacy.html">Privacy</a></li>
+          <li><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Facebook Page</a></li>
+        </ul>
+      </div>
+    </nav>
+    <p class="sf-note"><strong>Educational use only.</strong> Nothing on this site is investment advice. Prices and figures are compiled from public sources and refreshed every trading day — always verify with your broker before trading.</p>
+    <p class="sf-note"><strong>Data sources:</strong> Market data from <a href="https://www.nepalstock.com" target="_blank" rel="noopener">NEPSE (nepalstock.com)</a> and <a href="https://www.sharesansar.com" target="_blank" rel="noopener">ShareSansar</a>. Corporate actions verified against official NEPSE/company notices.</p>
+    <div class="sf-bottom">
+      <span>© 2026 Nepse Decode · Built by <a href="/">Shirjan Khadka</a> in Kathmandu, Nepal</span>
+      <span class="sf-social"><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Facebook</a><a href="/blog/">Blog</a><a href="/contact.html">Contact</a></span>
+    </div>
+  </div>
+</footer>
 
 <script src="/js/nepse-market-config.js?v=20261002c"></script>
-<script src="/js/freshness-badge.js?v=20261005a" defer></script>
-<script src="/js/nd-chrome.js?v=20261006a" defer></script>
+<script src="/js/freshness-badge.js?v=20261002c" defer></script>
 </body>
 </html>

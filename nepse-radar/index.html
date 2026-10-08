@@ -7,6 +7,7 @@
 <meta name="theme-color" content="#FAF7F0">
 <title>Warning Radar: NEPSE Distribution & Risk Alerts | Nepse Decode</title>
 <link rel="stylesheet" href="/css/nepse-design-system.css?v=c967c332">
+<link rel="stylesheet" href="/css/nepse-d2.css?v=20261002d">
 <meta name="description" content="Free NEPSE warning radar: distribution warnings, elevated risk flags, and bounce setups from a transparent rule-based verdict engine. Updated daily.">
 <meta name="author" content="Shirjan Khadka">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-radar/">
@@ -54,42 +55,22 @@
 <body class="nd" data-page="radar">
 
   <a class="skip-link" href="#main">Skip to content</a>
-<header class="nd-topbar">
-  <a class="brand" href="/nepse-decode/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="24" height="24">Nepse Decode</a>
-  <a class="nd-btn primary" href="/nepse-chart/" style="padding:8px 18px;font-size:0.85rem">Open the Lab</a>
+<header class="d2-topbar">
+  <a class="d2-brand" href="/nepse-decode/"><span class="d2-mark" aria-hidden="true">◈</span> Nepse Decode</a>
+  <span style="margin-left:auto" id="d2TopState"></span>
 </header>
 <div class="fb-wrap" style="display:flex;justify-content:center;padding:10px 16px 0"><div data-freshness-badge></div></div>
-<nav class="nd-mobilenav" aria-label="Suite tools"><a href="/nepse-decode/">Overview</a><a href="/nepse-chart/">Chart &amp; signals</a><span class="nav-sub"><a href="/nepse-signals/momentum/">Momentum</a><a href="/nepse-signals/trend-relay/">Trend Relay</a><a href="/nepse-signals/reversal/">Reversal</a></span><a href="/nepse-screener/">Screener</a><a href="/nepse-radar/" class="active" aria-current="page">Warning Radar</a><a href="/nepse-trending/">Trending Stocks</a><a href="/nepse-value/">Value Investing</a><a href="/nepse-brokers/">Broker Analytics</a><a href="/nepse-sectors/">Sectors</a><a href="/nepse-news/">Market news</a><a href="/nepse-watchlist/">Watchlist</a><a href="/nepse-portfolio/">Portfolio</a><a href="/nepse-simulator/">Simulator</a><a href="/nepse-reports/">Reports</a><a href="/nepse-actions/">Corp. actions</a></nav>
+<nav class="d2-mobilenav" aria-label="Sections"><a href="/nepse-decode/">Overview</a><a href="/nepse-chart/">Chart &amp; signals</a><span class="nav-sub"><a href="/nepse-signals/momentum/">Momentum</a><a href="/nepse-signals/trend-relay/">Trend Relay</a><a href="/nepse-signals/reversal/">Reversal</a></span><a href="/nepse-screener/">Screener</a><a href="/nepse-radar/" class="on" aria-current="page">Warning Radar</a><a href="/nepse-trending/">Trending Stocks</a><a href="/nepse-value/">Value Investing</a><a href="/nepse-brokers/">Broker Analytics</a><a href="/nepse-sectors/">Sectors</a><a href="/nepse-news/">Market news</a><a href="/nepse-watchlist/">Watchlist</a><a href="/nepse-portfolio/">Portfolio</a><a href="/nepse-simulator/">Simulator</a><a href="/nepse-reports/">Reports</a><a href="/nepse-actions/">Corp. actions</a></nav>
 
-<div class="nd-shell">
-  <aside class="nd-side" aria-label="Nepse Decode suite">
-    <a class="brand" href="/nepse-decode/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
-    <nav class="nd-nav" aria-label="Suite tools">
-      <p class="nav-kicker">Suite</p>
-      <a href="/nepse-decode/">Overview</a>
-      <a href="/nepse-chart/">Chart &amp; signals</a>
-      <span class="nav-sub">
-        <a href="/nepse-signals/momentum/">Momentum</a>
-        <a href="/nepse-signals/trend-relay/">Trend Relay</a>
-        <a href="/nepse-signals/reversal/">Reversal</a>
-      </span>
-      <a href="/nepse-screener/">Screener</a>
-      <a href="/nepse-trending/">Trending Stocks</a>
-      <a href="/nepse-value/">Value Investing</a>
-      <a href="/nepse-brokers/">Broker Analytics</a>
-      <a href="/nepse-sectors/">Sectors</a>
-      <a href="/nepse-news/">Market news</a>
-      <a href="/nepse-watchlist/">Watchlist</a>
-      <a href="/nepse-portfolio/">Portfolio</a>
-      <a href="/nepse-simulator/">Simulator</a>
-      <a href="/nepse-reports/">Reports</a>
-      <a href="/nepse-actions/">Corp. actions</a>
-    </nav>
-    <p class="nd-caption" style="margin-top:32px">Free forever · no login</p>
-  </aside>
+<div class="d2-shell">
+<aside class="d2-side" aria-label="Site navigation">
+  <a class="d2-brand" href="/nepse-decode/"><span class="d2-mark" aria-hidden="true">◈</span> Nepse Decode</a>
+  <nav><a href="/nepse-decode/">Overview</a><a href="/nepse-chart/">Chart &amp; signals</a><span class="nav-sub"><a href="/nepse-signals/momentum/">Momentum</a><a href="/nepse-signals/trend-relay/">Trend Relay</a><a href="/nepse-signals/reversal/">Reversal</a></span><a href="/nepse-screener/">Screener</a><a href="/nepse-radar/" class="on" aria-current="page">Warning Radar</a><a href="/nepse-trending/">Trending Stocks</a><a href="/nepse-value/">Value Investing</a><a href="/nepse-brokers/">Broker Analytics</a><a href="/nepse-sectors/">Sectors</a><a href="/nepse-news/">Market news</a><a href="/nepse-watchlist/">Watchlist</a><a href="/nepse-portfolio/">Portfolio</a><a href="/nepse-simulator/">Simulator</a><a href="/nepse-reports/">Reports</a><a href="/nepse-actions/">Corp. actions</a></nav>
+  <p class="d2-side-foot">Free forever · no login</p>
+</aside>
 
-  <div class="nd-content">
-    <div class="nd-wrap">
+<main class="d2-main" id="main">
+  <div class="d2-wrap">
     <nav aria-label="Breadcrumb" style="margin:4px 0 16px;font-size:.85rem;color:var(--muted,#8A8474)">
       <ol style="list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
         <li><a href="/" style="color:inherit">Home</a></li>
@@ -99,7 +80,7 @@
         <li><span aria-current="page" style="color:var(--ink,#1C1A15);font-weight:600">Warning Radar</span></li>
       </ol>
     </nav>
-<main id="main">
+<div>
   <div class="nd-masthead">
     <div>
       <p class="nd-kicker">Warning Radar</p>
@@ -133,10 +114,10 @@
   <details style="margin-top:24px"><summary>How does the Warning Radar work?</summary>
   <p>The v2 verdict engine analyses price action, volume patterns, and market regime for every NEPSE-listed equity daily. <strong>Distribution Warning</strong> flags stocks showing operator distribution footprints. <strong>Elevated Risk</strong> flags deteriorating technical structure. <strong>Bounce Setup</strong> flags oversold conditions with reversal potential. All rules are transparent. Educational use only; not investment advice.</p>
   </details>
-</main>
-    </div>
-  </div>
 </div>
+  </div>
+</main>
+</div><!-- /.d2-shell -->
 
 <section class="nd-seo-copy" aria-label="About the NEPSE screener">
 <h2>About the NEPSE screener</h2>
