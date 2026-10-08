@@ -86,9 +86,46 @@ h2.bk-h{font-family:var(--serif);font-size:1.25rem;margin:20px 0 8px}
 </style>
 <link rel="stylesheet" href="/css/theme.css?v=20261002d">
 </head>
-<body class="nd">
-<div id="nd-header"></div>
-<main style="max-width:1160px;margin:0 auto;padding:24px 16px">
+<body class="nd" data-page="brokers">
+
+  <a class="skip-link" href="#main">Skip to content</a>
+<header class="nd-topbar">
+  <a class="brand" href="/nepse-decode/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="24" height="24">Nepse Decode</a>
+  <a class="nd-btn primary" href="/nepse-chart/" style="padding:8px 18px;font-size:0.85rem">Open the Lab</a>
+</header>
+<div class="fb-wrap" style="display:flex;justify-content:center;padding:10px 16px 0"><div data-freshness-badge></div></div>
+<nav class="nd-mobilenav" aria-label="Suite tools"><a href="/nepse-decode/">Overview</a><a href="/nepse-chart/">Chart &amp; signals</a><span class="nav-sub"><a href="/nepse-signals/momentum/">Momentum</a><a href="/nepse-signals/trend-relay/">Trend Relay</a><a href="/nepse-signals/reversal/">Reversal</a></span><a href="/nepse-screener/">Screener</a><a href="/nepse-trending/">Trending Stocks</a><a href="/nepse-value/">Value Investing</a><a href="/nepse-brokers/" class="active" aria-current="page">Broker Analytics</a><a href="/nepse-sectors/">Sectors</a><a href="/nepse-news/">Market news</a><a href="/nepse-watchlist/">Watchlist</a><a href="/nepse-portfolio/">Portfolio</a><a href="/nepse-simulator/">Simulator</a><a href="/nepse-reports/">Reports</a><a href="/nepse-actions/">Corp. actions</a></nav>
+
+<div class="nd-shell">
+  <aside class="nd-side" aria-label="Nepse Decode suite">
+    <a class="brand" href="/nepse-decode/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
+    <nav class="nd-nav" aria-label="Suite tools">
+      <p class="nav-kicker">Suite</p>
+      <a href="/nepse-decode/">Overview</a>
+      <a href="/nepse-chart/">Chart &amp; signals</a>
+      <span class="nav-sub">
+        <a href="/nepse-signals/momentum/">Momentum</a>
+        <a href="/nepse-signals/trend-relay/">Trend Relay</a>
+        <a href="/nepse-signals/reversal/">Reversal</a>
+      </span>
+      <a href="/nepse-screener/">Screener</a>
+      <a href="/nepse-trending/">Trending Stocks</a>
+      <a href="/nepse-value/">Value Investing</a>
+      <a href="/nepse-brokers/" class="active" aria-current="page">Broker Analytics</a>
+      <a href="/nepse-sectors/">Sectors</a>
+      <a href="/nepse-news/">Market news</a>
+      <a href="/nepse-watchlist/">Watchlist</a>
+      <a href="/nepse-portfolio/">Portfolio</a>
+      <a href="/nepse-simulator/">Simulator</a>
+      <a href="/nepse-reports/">Reports</a>
+      <a href="/nepse-actions/">Corp. actions</a>
+    </nav>
+    <p class="nd-caption" style="margin-top:32px">Free forever · no login</p>
+  </aside>
+
+  <div class="nd-content">
+    <div class="nd-wrap">
+<main id="main" style="max-width:1160px;margin:0 auto;padding:24px 16px">
 <p style="color:var(--muted);font-size:.9rem;margin-bottom:4px">Nepse Decode &middot; Broker Analytics</p>
 <h1 style="font-family:var(--serif);font-size:2rem;margin:0 0 6px">Broker Analytics</h1>
 <p style="color:var(--ink-soft);max-width:680px">Where the brokers' money moved — buy/sell flow by broker and by stock, from public floorsheet records. <strong>Net bought / net sold is transaction flow, not verified shareholding.</strong></p>
@@ -96,15 +133,15 @@ h2.bk-h{font-family:var(--serif);font-size:1.25rem;margin:20px 0 8px}
 
 <!-- SNAP-START -->
 <section class="snap" aria-label="Broker coverage snapshot">
-  <h2>Latest session broker flow <span class="snap-asof">· 2026-10-07 · 56 trading days on record (2026-07-15 → 2026-10-07)</span></h2>
+  <h2>Latest session broker flow <span class="snap-asof">· 2026-10-08 · 57 trading days on record (2026-07-15 → 2026-10-08)</span></h2>
   <div class="scrollx"><table class="bk-table">
     <thead><tr><th>#</th><th>Broker</th><th>Bought</th><th>Sold</th><th>Net flow</th></tr></thead>
     <tbody>
-      <tr><td>1</td><td>Broker Naasa Securities Co. Ltd. (Broker 58)</td><td>Rs 28.9 Cr</td><td>Rs 22.8 Cr</td><td>+6.0 Cr</td></tr>
-      <tr><td>2</td><td>Broker Nabil Stock Dealer Ltd. (Broker 77)</td><td>Rs 20.8 Cr</td><td>Rs 20.7 Cr</td><td>+0.1 Cr</td></tr>
-      <tr><td>3</td><td>Broker Dynamic Money Managers Securities Pvt.Ltd (Broker 44)</td><td>Rs 16.8 Cr</td><td>Rs 17.9 Cr</td><td>-1.1 Cr</td></tr>
-      <tr><td>4</td><td>Broker Imperial Securities Co .Pvt.Limited (Broker 45)</td><td>Rs 9.9 Cr</td><td>Rs 13.8 Cr</td><td>-3.9 Cr</td></tr>
-      <tr><td>5</td><td>Broker Online Securities Pvt.Ltd (Broker 49)</td><td>Rs 9.9 Cr</td><td>Rs 12.3 Cr</td><td>-2.4 Cr</td></tr>
+      <tr><td>1</td><td>Broker 58</td><td>Rs 34.9 Cr</td><td>Rs 40.3 Cr</td><td>-5.4 Cr</td></tr>
+      <tr><td>2</td><td>Broker 42</td><td>Rs 13.4 Cr</td><td>Rs 19.6 Cr</td><td>-6.2 Cr</td></tr>
+      <tr><td>3</td><td>Broker 45</td><td>Rs 16.3 Cr</td><td>Rs 14.2 Cr</td><td>+2.1 Cr</td></tr>
+      <tr><td>4</td><td>Broker 34</td><td>Rs 15.3 Cr</td><td>Rs 14.2 Cr</td><td>+1.1 Cr</td></tr>
+      <tr><td>5</td><td>Broker 49</td><td>Rs 9.1 Cr</td><td>Rs 13.5 Cr</td><td>-4.4 Cr</td></tr>
     </tbody>
   </table></div>
   <p class="snap-note">Static snapshot · net bought/sold is transaction flow, not verified shareholding. The interactive period selectors below range from 1D to 3Y; views show whatever history is on record (currently from 2026-07-15, growing daily).</p>
@@ -112,7 +149,7 @@ h2.bk-h{font-family:var(--serif);font-size:1.25rem;margin:20px 0 8px}
 <!-- SNAP-END -->
 <div class="cover" id="coverage">Loading data…</div>
 
-<div class="bk-tabs" role="group" aria-label="Broker views" id="viewTabs">
+<div class="bk-tabs" role="tablist" id="viewTabs">
 <button data-view="top" class="active">Top Brokers</button>
 <button data-view="broker">Broker Trade Pattern</button>
 <button data-view="stock">Stock Trade Pattern</button>
@@ -132,7 +169,7 @@ h2.bk-h{font-family:var(--serif);font-size:1.25rem;margin:20px 0 8px}
 <button data-p="1Y">1Y</button>
 <button data-p="2Y">2Y</button>
 <button data-p="3Y">3Y</button>
-<input type="date" id="asofDate" aria-label="As of date" title="As of date" style="border:1px solid var(--hairline);border-radius:var(--r-pill);padding:5px 10px;font-size:.85rem">
+<input type="date" id="asofDate" title="As of date" style="border:1px solid var(--hairline);border-radius:var(--r-pill);padding:5px 10px;font-size:.85rem">
 </div>
 
 <div class="ctl" id="viewControls" style="display:none">
@@ -538,6 +575,10 @@ setInterval(function(){
     </div>
   </div>
 </footer>
+
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
