@@ -63,11 +63,13 @@ jobs:
             if [ "$overall" = "invalid" ] || [ -z "$overall" ]; then
               ALERT="${ALERT}health.json is not valid JSON. "
             else
-              # staleness: generated_at_npt older than 2h?
+              # staleness: generated_at_npt older than 2h? (market hours only —
+              # health.json updates once daily at market close, so overnight
+              # staleness is expected, not an error)
               if [ -n "$gen" ]; then
                 gen_epoch=$(date -d "$gen" +%s 2>/dev/null || echo 0)
                 age_min=$(( (now_utc - gen_epoch) / 60 ))
-                if [ "$age_min" -gt 120 ]; then
+                if [ "$market_open" = "1" ] && [ "$age_min" -gt 120 ]; then
                   ALERT="${ALERT}health.json stale (${age_min} min old). "
                 fi
                 NOTE="${NOTE}health.json: $overall, generated $gen (${age_min}m ago). "
