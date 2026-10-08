@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#FAF7F0">
+<title>Warning Radar: NEPSE Distribution & Risk Alerts | Nepse Decode</title>
+<link rel="stylesheet" href="/css/nepse-design-system.css?v=c967c332">
+<meta name="description" content="Free NEPSE warning radar: distribution warnings, elevated risk flags, and bounce setups from a transparent rule-based verdict engine. Updated daily.">
+<meta name="author" content="Shirjan Khadka">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-radar/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css?v=1f3f5f3e">
+<style>
+.radar-table{width:100%;border-collapse:collapse;font-size:.9rem}
+.radar-table th{background:#1C1A15;color:#FAF7F0;padding:10px 12px;text-align:left;font-size:.75rem;letter-spacing:.05em;text-transform:uppercase}
+.radar-table td{padding:10px 12px;border-bottom:1px solid #e5e0d5}
+.radar-table tr:hover td{background:#f5f1e8}
+.label-pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.75rem;font-weight:600}
+.label-DISTRIBUTION_WARNING{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
+.label-ELEVATED_RISK{background:#fffbeb;color:#d97706;border:1px solid #fde68a}
+.label-BOUNCE_SETUP{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0}
+.label-NEUTRAL{background:#f9fafb;color:#6b7280;border:1px solid #e5e7eb}
+.label-UNRELIABLE{background:#f3f4f6;color:#9ca3af;border:1px solid #e5e7eb}
+.filter-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
+.filter-tabs button{padding:8px 18px;border-radius:999px;border:1px solid #d6cfbd;background:#fff;font-size:.85rem;cursor:pointer}
+.filter-tabs button.active{background:#1C1A15;color:#FAF7F0;border-color:#1C1A15}
+</style>
+</head>
+<body class="nd" data-page="radar">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="nd-topbar">
+  <a class="brand" href="/nepse-decode/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="24" height="24">Nepse Decode</a>
+  <a class="nd-btn primary" href="/nepse-chart/" style="padding:8px 18px;font-size:0.85rem">Open the Lab</a>
+</header>
+<div class="fb-wrap" style="display:flex;justify-content:center;padding:10px 16px 0"><div data-freshness-badge></div></div>
+<div id="nd-header"></div>
+<nav class="nd-mobilenav" aria-label="Suite tools"><a href="/nepse-decode/">Overview</a><a href="/nepse-chart/">Chart &amp; signals</a><a href="/nepse-screener/">Screener</a><a href="/nepse-radar/" class="active" aria-current="page">Warning Radar</a><a href="/nepse-trending/">Trending Stocks</a><a href="/nepse-value/">Value Investing</a><a href="/nepse-brokers/">Broker Analytics</a><a href="/nepse-news/">Market news</a><a href="/nepse-portfolio/">Portfolio</a></nav>
+
+<div class="nd-shell">
+  <aside class="nd-side" aria-label="Nepse Decode suite">
+    <a class="brand" href="/nepse-decode/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
+    <nav class="nd-nav" aria-label="Suite tools">
+      <p class="nav-kicker">Suite</p>
+      <a href="/nepse-decode/">Overview</a>
+      <a href="/nepse-chart/">Chart &amp; signals</a>
+      <a href="/nepse-screener/">Screener</a>
+      <a href="/nepse-radar/" class="active" aria-current="page">Warning Radar</a>
+      <a href="/nepse-trending/">Trending Stocks</a>
+      <a href="/nepse-value/">Value Investing</a>
+      <a href="/nepse-brokers/">Broker Analytics</a>
+      <a href="/nepse-news/">Market news</a>
+      <a href="/nepse-watchlist/">Watchlist</a>
+      <a href="/nepse-portfolio/">Portfolio</a>
+    </nav>
+    <p class="nd-caption" style="margin-top:32px">Free forever · no login</p>
+  </aside>
+
+  <div class="nd-content">
+    <div class="nd-wrap">
+    <nav aria-label="Breadcrumb" style="margin:4px 0 16px;font-size:.85rem;color:var(--muted,#8A8474)">
+      <ol style="list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+        <li><a href="/" style="color:inherit">Home</a></li>
+        <li aria-hidden="true">/</li>
+        <li><a href="/nepse-decode/" style="color:inherit">Tools</a></li>
+        <li aria-hidden="true">/</li>
+        <li><span aria-current="page" style="color:var(--ink,#1C1A15);font-weight:600">Warning Radar</span></li>
+      </ol>
+    </nav>
+<main id="main">
+  <div class="nd-masthead">
+    <div>
+      <p class="nd-kicker">Warning Radar</p>
+      <h1 style="font-family:var(--serif);font-weight:600;font-size:clamp(1.6rem,4vw,2.3rem);letter-spacing:-0.015em">NEPSE Warning Radar: Distribution &amp; Risk Alerts</h1>
+      <p class="nd-lede" style="margin:10px 0 0;max-width:72ch;color:var(--ink-soft,#4A463C)">A transparent, rule-based engine scans every NEPSE stock daily for distribution footprints, elevated risk, and bounce setups. No black box — every flag shows its reason. Educational use only; not investment advice.</p>
+      <p class="nd-caption" style="margin-top:8px"><span id="radar-meta"></span></p>
+    </div>
+  </div>
+
+  <div class="filter-tabs" id="radar-filters">
+    <button data-filter="warnings" class="active">Warnings</button>
+    <button data-filter="all">All verdicts</button>
+    <button data-filter="DISTRIBUTION_WARNING">Distribution</button>
+    <button data-filter="ELEVATED_RISK">Elevated Risk</button>
+    <button data-filter="BOUNCE_SETUP">Bounce Setups</button>
+  </div>
+
+  <div style="overflow-x:auto">
+  <table class="radar-table" id="radar-table">
+    <thead><tr><th>Symbol</th><th>Verdict</th><th>Confidence</th><th>Sector</th><th>Detail</th></tr></thead>
+    <tbody id="radar-body"><tr><td colspan="5">Loading…</td></tr></tbody>
+  </table>
+  </div>
+
+  <details style="margin-top:24px"><summary>How does the Warning Radar work?</summary>
+  <p>The v2 verdict engine analyses price action, volume patterns, and market regime for every NEPSE-listed equity daily. <strong>Distribution Warning</strong> flags stocks showing operator distribution footprints (heavy selling into strength). <strong>Elevated Risk</strong> flags deteriorating technical structure. <strong>Bounce Setup</strong> flags oversold conditions with reversal potential. All rules are transparent and backtested. This is educational, not investment advice.</p>
+  </details>
+</main>
+    </div>
+  </div>
+</div>
+
+<script src="../js/nepse-fresh.js"></script>
+<script src="../js/nepse-market-config.js"></script>
+<script src="/js/freshness-badge.js" defer></script>
+<script>
+(function(){
+  var LABELS = {
+    'DISTRIBUTION_WARNING': 'Distribution Warning',
+    'ELEVATED_RISK': 'Elevated Risk',
+    'BOUNCE_SETUP': 'Bounce Setup',
+    'NEUTRAL': 'Neutral',
+    'UNRELIABLE': 'Unreliable data',
+    'EXCLUDED_NON_EQUITY': 'Non-equity'
+  };
+  var currentFilter = 'warnings';
+  var allVerdicts = {};
+
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function render(){
+    var body = document.getElementById('radar-body');
+    var rows = [];
+    Object.keys(allVerdicts).forEach(function(sym){
+      var v = allVerdicts[sym];
+      var label = v.label || 'NEUTRAL';
+      if (currentFilter === 'warnings') {
+        if (['DISTRIBUTION_WARNING','ELEVATED_RISK','BOUNCE_SETUP'].indexOf(label) < 0) return;
+      } else if (currentFilter !== 'all' && label !== currentFilter) {
+        return;
+      }
+      // Skip non-equity and unreliable in warnings view
+      if (currentFilter === 'warnings' && (label === 'UNRELIABLE' || label === 'EXCLUDED_NON_EQUITY')) return;
+      rows.push({sym: sym, v: v, label: label});
+    });
+    // Sort: warnings first by confidence desc
+    rows.sort(function(a,b){ return (b.v.confidence||0) - (a.v.confidence||0); });
+
+    if (!rows.length) {
+      body.innerHTML = '<tr><td colspan="5">No verdicts match this filter.</td></tr>';
+      return;
+    }
+    body.innerHTML = rows.map(function(r){
+      var v = r.v;
+      var conf = v.confidence != null ? Math.round(v.confidence*100)+'%' : '—';
+      var detail = '';
+      if (v.scores) {
+        var s = v.scores;
+        var parts = [];
+        if (s.pump_score) parts.push('pump '+s.pump_score);
+        if (s.opportunity_score) parts.push('opp '+s.opportunity_score);
+        if (parts.length) detail = parts.join(' · ');
+      }
+      if (v.sector && v.sector !== 'pending') detail += (detail?' · ':'') + v.sector;
+      return '<tr><td><strong>'+esc(r.sym)+'</strong></td>'+
+        '<td><span class="label-pill label-'+esc(r.label)+'">'+esc(LABELS[r.label]||r.label)+'</span></td>'+
+        '<td>'+esc(conf)+'</td>'+
+        '<td>'+esc(v.sector||'—')+'</td>'+
+        '<td>'+esc(detail||'—')+'</td></tr>';
+    }).join('');
+  }
+
+  document.getElementById('radar-filters').addEventListener('click', function(e){
+    var btn = e.target.closest('button[data-filter]');
+    if (!btn) return;
+    currentFilter = btn.getAttribute('data-filter');
+    this.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    render();
+  });
+
+  fetch('/data/verdicts-v2-summary.json', {cache: 'no-store'})
+    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+    .then(function(d){
+      allVerdicts = d.verdicts || {};
+      var count = Object.keys(allVerdicts).length;
+      var asof = d.asof || d.session_date || '';
+      var meta = document.getElementById('radar-meta');
+      var warnCount = Object.keys(allVerdicts).filter(function(k){
+        return ['DISTRIBUTION_WARNING','ELEVATED_RISK','BOUNCE_SETUP'].indexOf(allVerdicts[k].label) >= 0;
+      }).length;
+      meta.innerHTML = 'Verdicts as of ' + esc(asof) + ' · ' + count + ' securities analysed · ' +
+        '<strong>' + warnCount + ' warnings</strong> ' +
+        (window.NepseFresh ? window.NepseFresh.badge(d.built || asof) : '');
+      render();
+    })
+    .catch(function(err){
+      document.getElementById('radar-body').innerHTML =
+        '<tr><td colspan="5">Could not load verdicts: ' + esc(err.message) + '</td></tr>';
+    });
+})();
+</script>
+</body>
+</html>
