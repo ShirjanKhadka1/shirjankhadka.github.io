@@ -234,7 +234,7 @@ function syncStaticControls(){
   if(state.period==='asof' && state.asof) $('asofDate').value = state.asof;
 }
 
-function fmtN(n, d){ d = d===undefined?2:d; if(!isFinite(n)) return '–';
+function fmtN(n, d){ d = d===undefined?2:d; if(n==null||n===''||!isFinite(Number(n))) return '–';
   return Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}); }
 function fmtV(n){ if(!isFinite(n)) return '–'; var a=Math.abs(n);
   if(a>=1e7) return 'Rs '+(n/1e7).toFixed(2)+' Cr';
@@ -283,10 +283,10 @@ function loadPeriod(silent){
 function renderTop(d){
   var rows = d.brokers.map(function(b,i){
     return '<tr><td>'+(i+1)+'</td><td class="bk-name"><strong>'+bname(b.code)+'</strong><br><span style="color:var(--muted)">'+b.code+'</span></td>'+
-      '<td>'+fmtN(b.buy_qty||0,0)+'</td><td>'+fmtV(b.buy_value)+'</td>'+
-      '<td>'+fmtN(b.sell_qty||0,0)+'</td><td>'+fmtV(b.sell_value)+'</td>'+
-      '<td><strong>'+fmtN(b.total_qty||0,0)+'</strong></td><td><strong>'+fmtV(b.total)+'</strong></td>'+
-      '<td class="'+cls(b.net_qty||0)+'">'+fmtN(b.net_qty||0,0)+'</td><td class="'+cls(b.net)+'">'+fmtV(b.net)+'</td></tr>';
+      '<td>'+fmtN(b.buy_qty,0)+'</td><td>'+fmtV(b.buy_value)+'</td>'+
+      '<td>'+fmtN(b.sell_qty,0)+'</td><td>'+fmtV(b.sell_value)+'</td>'+
+      '<td><strong>'+fmtN(b.total_qty,0)+'</strong></td><td><strong>'+fmtV(b.total)+'</strong></td>'+
+      '<td class="'+cls(b.net_qty)+'">'+fmtN(b.net_qty,0)+'</td><td class="'+cls(b.net)+'">'+fmtV(b.net)+'</td></tr>';
   }).join('');
   return '<h2 class="bk-h">Top brokers by turnover — '+label()+'</h2>'+
     '<div class="scrollx"><table class="bk-table"><thead><tr><th>#</th><th class="bk-name">Broker</th><th>Buy vol</th><th>Buy value</th><th>Sell vol</th><th>Sell value</th><th>Total vol</th><th>Total value</th><th>Net vol</th><th>Net value</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
