@@ -6,7 +6,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#FAF7F0">
 <title>NEPSE Screener: Free Ranked Buy/Hold/Exit Signals, No Login | Nepse Decode</title>
-<link rel="stylesheet" href="/css/nepse-design-system.css?v=d976dab8">
+<link rel="stylesheet" href="/css/nepse-design-system.css?v=c967c332">
+<link rel="stylesheet" href="/css/nepse-d2.css?v=20261008e">
 <meta name="description" content="Free NEPSE screener, no login: every listed security ranked daily by a transparent rule-based buy/hold/exit engine, with RSI, stop-loss & targets.">
 <meta name="author" content="Shirjan Khadka">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-screener/">
@@ -23,14 +24,15 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="NEPSE Screener: Free Ranked NEPSE Signals, No Login">
 <meta name="twitter:description" content="Every NEPSE-listed security ranked daily by a transparent rule-based engine, with stop-loss and target levels. Free, no login.">
-<link rel="icon" href="/nepse-screener/icon-32.png" sizes="32x32" type="image/png">
-<link rel="icon" href="/nepse-screener/icon-16.png" sizes="16x16" type="image/png">
-<link rel="apple-touch-icon" href="/nepse-screener/icon-180.png">
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
+<link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Serif+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/style.css?v=c0d4a8c0">
-<link rel="stylesheet" href="screener.css?v=7fba9a5d">
+<link rel="stylesheet" href="../css/style.css?v=1f3f5f3e">
+<link rel="stylesheet" href="screener.css?v=6dafb421">
 <link rel="stylesheet" href="../nepse-chart/chart.css?v=fe8cb0a6">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"Nepse Decode Screener","url":"https://shirjankhadka.com.np/nepse-screener/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Daily ranked NEPSE stock screener: every listed security scored by a transparent rule-based engine (Strong Buy to Strong Sell) with ATR-based stop-loss and target levels, sector, signal, RSI, price and volume filters, RSI extremes and biggest-movers lists, and search. Educational use only, not investment advice.","author":{"@type":"Organization","name":"Nepse Decode"}}
@@ -48,66 +50,26 @@
 {"@type":"Question","name":"Is this investment advice?","acceptedAnswer":{"@type":"Answer","text":"No. This is a mechanical, rule-based illustration for education. Markets are uncertain and past patterns do not guarantee future results. Do your own research before any investment decision."}},
 {"@type":"Question","name":"What is the Hit rate column?","acceptedAnswer":{"@type":"Answer","text":"For each security with enough history, the engine's past Buy and Strong Buy calls on equity securities over the last 250 sessions are replayed using only data available at the time. A call counts as a hit when the session's own target (+4x ATR) was reached before its stop-loss (-2x ATR) within the next 20 sessions. The hit rate is hits divided by decided calls; calls where neither level was touched are excluded. Fewer than 5 decided calls shows as a dash. Hit rates are regime-dependent: 31.0% across the older 250-session window (NEPSE +31.0%) versus 11.4% across the most recent 250 sessions (NEPSE -6.2%)."}}]}
 </script>
-<link rel="stylesheet" href="/css/theme.css?v=5b3458b0">
+<link rel="stylesheet" href="/css/theme.css?v=20261002d">
+<link rel="stylesheet" href="/css/nepse-logos.css">
+<link rel="stylesheet" href="/css/nd-chrome.css">
 </head>
 <body class="nd" data-page="screener">
 
   <a class="skip-link" href="#main">Skip to content</a>
-<header class="nd-topbar">
-  <a class="brand" href="/nepse-decode/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="24" height="24">Nepse Decode</a>
-  <a class="nd-btn primary" href="/nepse-chart/" style="padding:8px 18px;font-size:0.85rem">Open the Lab</a>
-</header>
+<div id="nd-header"></div>
 <div class="fb-wrap" style="display:flex;justify-content:center;padding:10px 16px 0"><div data-freshness-badge></div></div>
-<nav class="nd-mobilenav" aria-label="Suite tools">
-  <a href="/nepse-decode/">Overview</a>
-  <a href="/nepse-chart/">Chart &amp; signals</a>
-  <span class="nav-sub">
-    <a href="/nepse-signals/momentum/">Momentum</a>
-    <a href="/nepse-signals/trend-relay/">Trend Relay</a>
-    <a href="/nepse-signals/reversal/">Reversal</a>
-  </span>
-  <a href="/nepse-screener/" class="active" aria-current="page">Screener</a>
-  <a href="/nepse-trending/">Trending Stocks</a>
-  <a href="/nepse-value/">Value Investing</a>
-  <a href="/nepse-brokers/">Broker Analytics</a>
-  <a href="/nepse-sectors/">Sectors</a>
-  <a href="/nepse-news/">Market news</a>
-  <a href="/nepse-watchlist/">Watchlist</a>
-  <a href="/nepse-portfolio/">Portfolio</a>
-  <a href="/nepse-simulator/">Simulator</a>
-  <a href="/nepse-reports/">Reports</a>
-  <a href="/nepse-actions/">Corp. actions</a>
-</nav>
+<nav class="d2-mobilenav" aria-label="Sections"><a href="/nepse-decode/">Overview</a><a href="/nepse-chart/">Chart &amp; signals</a><span class="nav-sub"><a href="/nepse-signals/momentum/">Momentum</a><a href="/nepse-signals/trend-relay/">Trend Relay</a><a href="/nepse-signals/reversal/">Reversal</a></span><a href="/nepse-screener/" class="on" aria-current="page">Screener</a><a href="/nepse-radar/">Warning Radar</a><a href="/nepse-trending/">Trending Stocks</a><a href="/nepse-value/">Value Investing</a><a href="/nepse-brokers/">Broker Analytics</a><a href="/nepse-sectors/">Sectors</a><a href="/nepse-news/">Market news</a><a href="/nepse-watchlist/">Watchlist</a><a href="/nepse-portfolio/">Portfolio</a><a href="/nepse-simulator/">Simulator</a><a href="/nepse-reports/">Reports</a><a href="/nepse-actions/">Corp. actions</a></nav>
 
-<div class="nd-shell">
-  <aside class="nd-side" aria-label="Nepse Decode suite">
-    <a class="brand" href="/nepse-decode/"><img src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
-    <nav class="nd-nav" aria-label="Suite tools">
-      <p class="nav-kicker">Suite</p>
-      <a href="/nepse-decode/">Overview</a>
-      <a href="/nepse-chart/">Chart &amp; signals</a>
-      <span class="nav-sub">
-        <a href="/nepse-signals/momentum/">Momentum</a>
-        <a href="/nepse-signals/trend-relay/">Trend Relay</a>
-        <a href="/nepse-signals/reversal/">Reversal</a>
-      </span>
-      <a href="/nepse-screener/" class="active" aria-current="page">Screener</a>
-      <a href="/nepse-trending/">Trending Stocks</a>
-      <a href="/nepse-value/">Value Investing</a>
-      <a href="/nepse-brokers/">Broker Analytics</a>
-      <a href="/nepse-sectors/">Sectors</a>
-      <a href="/nepse-news/">Market news</a>
-      <a href="/nepse-watchlist/">Watchlist</a>
-      <a href="/nepse-portfolio/">Portfolio</a>
-      <a href="/nepse-simulator/">Simulator</a>
-      <a href="/nepse-reports/">Reports</a>
-      <a href="/nepse-actions/">Corp. actions</a>
-    </nav>
-    <p class="nd-caption" style="margin-top:32px">Free forever · no login</p>
-  </aside>
+<div class="d2-shell">
+<aside class="d2-side" aria-label="Site navigation">
+  <a class="d2-brand" href="/nepse-decode/"><span class="d2-mark" aria-hidden="true">◈</span> Nepse Decode</a>
+  <nav><a href="/nepse-decode/">Overview</a><a href="/nepse-chart/">Chart &amp; signals</a><span class="nav-sub"><a href="/nepse-signals/momentum/">Momentum</a><a href="/nepse-signals/trend-relay/">Trend Relay</a><a href="/nepse-signals/reversal/">Reversal</a></span><a href="/nepse-screener/" class="on" aria-current="page">Screener</a><a href="/nepse-radar/">Warning Radar</a><a href="/nepse-trending/">Trending Stocks</a><a href="/nepse-value/">Value Investing</a><a href="/nepse-brokers/">Broker Analytics</a><a href="/nepse-sectors/">Sectors</a><a href="/nepse-news/">Market news</a><a href="/nepse-watchlist/">Watchlist</a><a href="/nepse-portfolio/">Portfolio</a><a href="/nepse-simulator/">Simulator</a><a href="/nepse-reports/">Reports</a><a href="/nepse-actions/">Corp. actions</a></nav>
+  <p class="d2-side-foot">Free forever · no login</p>
+</aside>
 
-  <div class="nd-content">
-    <div class="nd-wrap">
+<main class="d2-main" id="main">
+  <div class="d2-wrap">
     <nav aria-label="Breadcrumb" style="margin:4px 0 16px;font-size:.85rem;color:var(--muted,#8A8474)">
       <ol style="list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
         <li><a href="/" style="color:inherit">Home</a></li>
@@ -117,7 +79,7 @@
         <li><span aria-current="page" style="color:var(--ink,#1C1A15);font-weight:600">Screener</span></li>
       </ol>
     </nav>
-<main id="main">
+<div>
   <div class="nd-masthead">
     <div>
       <p class="nd-kicker">Screener</p>
@@ -141,12 +103,12 @@
 
   <section aria-label="Signal summary">
     <div class="sc-cards" id="sc-cards">
-      <div class="sc-card sc-sbuy" data-v="Strong Buy" role="button" tabindex="0" aria-label="Filter: Strong Buy. Securities with a Strong Buy verdict in the latest batch."><span class="sc-num" id="sc-n-sbuy">–</span><span class="sc-lab">Strong Buy<span class="info-tip" data-tip="Securities with a Strong Buy verdict in the latest batch." aria-hidden="true">i</span></span></div>
-      <div class="sc-card sc-buy" data-v="Buy" role="button" tabindex="0" aria-label="Filter: Buy. Securities with a Buy verdict in the latest batch."><span class="sc-num" id="sc-n-buy">–</span><span class="sc-lab">Buy<span class="info-tip" data-tip="Securities with a Buy verdict in the latest batch." aria-hidden="true">i</span></span></div>
-      <div class="sc-card sc-hold" data-v="Hold" role="button" tabindex="0" aria-label="Filter: Hold. Securities with a Hold verdict: no strong edge either way."><span class="sc-num" id="sc-n-hold">–</span><span class="sc-lab">Hold / Neutral<span class="info-tip" data-tip="Securities with a Hold verdict: no strong edge either way." aria-hidden="true">i</span></span></div>
-      <div class="sc-card sc-exit" data-v="Exit / Reduce" role="button" tabindex="0" aria-label="Filter: Sell. Securities with an Exit / Reduce verdict in the latest batch."><span class="sc-num" id="sc-n-exit">–</span><span class="sc-lab">Sell<span class="info-tip" data-tip="Securities with an Exit / Reduce verdict in the latest batch." aria-hidden="true">i</span></span></div>
-      <div class="sc-card sc-sexit" data-v="Strong Exit" role="button" tabindex="0" aria-label="Filter: Strong Sell. Securities with a Strong Exit verdict in the latest batch."><span class="sc-num" id="sc-n-sexit">–</span><span class="sc-lab">Strong Sell<span class="info-tip" data-tip="Securities with a Strong Exit verdict in the latest batch." aria-hidden="true">i</span></span></div>
-      <div class="sc-card sc-total"><span class="sc-num" id="sc-n-total">–</span><span class="sc-lab">Total<span class="info-tip tip-edge" data-tip="All listed securities ranked in the latest batch." aria-hidden="true">i</span></span></div>
+      <div class="sc-card sc-sbuy" data-v="Strong Buy" role="button" tabindex="0" aria-label="Filter: Strong Buy. Securities with a Strong Buy verdict in the latest batch."><span class="sc-num" id="sc-n-sbuy">—</span><span class="sc-lab">Strong Buy<span class="info-tip" data-tip="Securities with a Strong Buy verdict in the latest batch." aria-hidden="true">i</span></span></div>
+      <div class="sc-card sc-buy" data-v="Buy" role="button" tabindex="0" aria-label="Filter: Buy. Securities with a Buy verdict in the latest batch."><span class="sc-num" id="sc-n-buy">—</span><span class="sc-lab">Buy<span class="info-tip" data-tip="Securities with a Buy verdict in the latest batch." aria-hidden="true">i</span></span></div>
+      <div class="sc-card sc-hold" data-v="Hold" role="button" tabindex="0" aria-label="Filter: Hold. Securities with a Hold verdict: no strong edge either way."><span class="sc-num" id="sc-n-hold">—</span><span class="sc-lab">Hold / Neutral<span class="info-tip" data-tip="Securities with a Hold verdict: no strong edge either way." aria-hidden="true">i</span></span></div>
+      <div class="sc-card sc-exit" data-v="Exit / Reduce" role="button" tabindex="0" aria-label="Filter: Sell. Securities with an Exit / Reduce verdict in the latest batch."><span class="sc-num" id="sc-n-exit">—</span><span class="sc-lab">Sell<span class="info-tip" data-tip="Securities with an Exit / Reduce verdict in the latest batch." aria-hidden="true">i</span></span></div>
+      <div class="sc-card sc-sexit" data-v="Strong Exit" role="button" tabindex="0" aria-label="Filter: Strong Sell. Securities with a Strong Exit verdict in the latest batch."><span class="sc-num" id="sc-n-sexit">—</span><span class="sc-lab">Strong Sell<span class="info-tip" data-tip="Securities with a Strong Exit verdict in the latest batch." aria-hidden="true">i</span></span></div>
+      <div class="sc-card sc-total"><span class="sc-num" id="sc-n-total">—</span><span class="sc-lab">Total<span class="info-tip tip-edge" data-tip="All listed securities ranked in the latest batch." aria-hidden="true">i</span></span></div>
     </div>
   </section>
 
@@ -171,41 +133,26 @@
 
   <!-- SNAP-START -->
   <section class="sc-top10" aria-label="Top ranked signals">
-    <h2>Top 10 ranked signals <span class="sc-asof-inline" id="sc-top10-asof">&middot; 2026-09-30</span></h2>
+    <h2>Top 10 ranked signals <span class="sc-asof-inline">&middot; 2026-10-01</span></h2>
     <div class="table-scroll"><table class="sc-table">
       <caption class="visually-hidden">Top 10 ranked NEPSE signals from the daily snapshot</caption>
       <thead><tr><th scope="col">#</th><th scope="col">Symbol</th><th scope="col">Price</th><th scope="col">Change</th><th scope="col">Signal</th><th scope="col">Setup</th><th scope="col">Stop loss</th><th scope="col">Target</th></tr></thead>
       <tbody>
-      <tr><td>1</td><td><a href="/nepse-chart/?s=NMFBS">NMFBS</a></td><td>1181.20</td><td>-1.24%</td><td>Strong Buy</td><td>Double Bottom</td><td>1132.17</td><td>1279.25</td></tr>
-      <tr><td>2</td><td><a href="/nepse-chart/?s=BNT">BNT</a></td><td>11900.00</td><td>+0.00%</td><td>Strong Buy</td><td>Double Bottom</td><td>11418.71</td><td>12862.58</td></tr>
-      <tr><td>3</td><td><a href="/nepse-chart/?s=MBJC">MBJC</a></td><td>297.00</td><td>+1.75%</td><td>Strong Buy</td><td>Double Bottom</td><td>279.72</td><td>331.56</td></tr>
-      <tr><td>4</td><td><a href="/nepse-chart/?s=SPHL">SPHL</a></td><td>580.00</td><td>+8.41%</td><td>Strong Buy</td><td>Double Bottom</td><td>513.16</td><td>713.68</td></tr>
-      <tr><td>5</td><td><a href="/nepse-chart/?s=KBLD90">KBLD90</a></td><td>1460.00</td><td>+0.00%</td><td>Strong Buy</td><td>Double Bottom</td><td>1381.57</td><td>1616.86</td></tr>
-      <tr><td>6</td><td><a href="/nepse-chart/?s=PHCL">PHCL</a></td><td>333.80</td><td>+4.28%</td><td>Strong Buy</td><td>Double Top</td><td>314.78</td><td>371.84</td></tr>
-      <tr><td>7</td><td><a href="/nepse-chart/?s=STC">STC</a></td><td>5625.00</td><td>+0.45%</td><td>Strong Buy</td><td>Double Bottom</td><td>5311.95</td><td>6251.10</td></tr>
-      <tr><td>8</td><td><a href="/nepse-chart/?s=EBLD91">EBLD91</a></td><td>1100.00</td><td>+0.00%</td><td>Strong Buy</td><td>Double Top</td><td>1052.09</td><td>1195.82</td></tr>
-      <tr><td>9</td><td><a href="/nepse-chart/?s=HBLD86">HBLD86</a></td><td>1198.00</td><td>+3.51%</td><td>Strong Buy</td><td>Double Bottom</td><td>1161.05</td><td>1271.91</td></tr>
-      <tr><td>10</td><td><a href="/nepse-chart/?s=LEC">LEC</a></td><td>252.80</td><td>+2.10%</td><td>Strong Buy</td><td>Double Bottom</td><td>230.70</td><td>297.00</td></tr>
+      <tr><td>1</td><td><a href="/nepse-chart/?s=MBJC">MBJC</a></td><td>293.70</td><td>-1.11%</td><td>Strong Buy</td><td>Double Bottom</td><td>276.67</td><td>327.76</td></tr>
+      <tr><td>2</td><td><a href="/nepse-chart/?s=STC">STC</a></td><td>5555.90</td><td>-1.23%</td><td>Strong Buy</td><td>Double Bottom</td><td>5255.28</td><td>6157.14</td></tr>
+      <tr><td>3</td><td><a href="/nepse-chart/?s=NMFBS">NMFBS</a></td><td>1195.00</td><td>+1.17%</td><td>Strong Buy</td><td>Double Bottom</td><td>1146.93</td><td>1291.13</td></tr>
+      <tr><td>4</td><td><a href="/nepse-chart/?s=SSHL">SSHL</a></td><td>208.60</td><td>+1.36%</td><td>Strong Buy</td><td>Head & Shoulders</td><td>191.53</td><td>242.74</td></tr>
+      <tr><td>5</td><td><a href="/nepse-chart/?s=API">API</a></td><td>341.00</td><td>+1.79%</td><td>Strong Buy</td><td>Double Bottom</td><td>326.64</td><td>369.73</td></tr>
+      <tr><td>6</td><td><a href="/nepse-chart/?s=EBLD91">EBLD91</a></td><td>1120.00</td><td>+1.82%</td><td>Strong Buy</td><td>Double Top</td><td>1070.53</td><td>1218.95</td></tr>
+      <tr><td>7</td><td><a href="/nepse-chart/?s=HDHPC">HDHPC</a></td><td>223.50</td><td>+2.52%</td><td>Strong Buy</td><td>Double Top</td><td>205.12</td><td>260.25</td></tr>
+      <tr><td>8</td><td><a href="/nepse-chart/?s=KBLD90">KBLD90</a></td><td>1460.00</td><td>+0.00%</td><td>Strong Buy</td><td>Double Bottom</td><td>1381.57</td><td>1616.86</td></tr>
+      <tr><td>9</td><td><a href="/nepse-chart/?s=BNT">BNT</a></td><td>11900.00</td><td>+0.00%</td><td>Strong Buy</td><td>Double Bottom</td><td>11418.95</td><td>12862.11</td></tr>
+      <tr><td>10</td><td><a href="/nepse-chart/?s=HBLD86">HBLD86</a></td><td>1198.00</td><td>+3.51%</td><td>Strong Buy</td><td>Double Bottom</td><td>1161.05</td><td>1271.91</td></tr>
       </tbody>
     </table></div>
-    <p class="sc-static-note">Static daily snapshot &middot; the full interactive ranking of 410 securities, with hit-rate tracking and filters, is below.</p>
+    <p class="sc-static-note">Top-ranked signals from the latest batch &middot; the full interactive ranking of 410 securities, with hit-rate tracking and filters, is below.</p>
   </section>
   <!-- SNAP-END -->
-  <script>
-  /* Render the Top-10 snapshot date from /data/manifest.json at runtime;
-     the baked-in date above stays as the no-JS fallback. */
-  (function(){
-    var el = document.getElementById('sc-top10-asof');
-    if(!el) return;
-    fetch('/data/manifest.json', {cache:'no-store'})
-      .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
-      .then(function(m){
-        var d = m && (m.session_date || String(m.generated_at_npt || '').slice(0, 10));
-        if(d) el.textContent = '\u00b7 ' + d;
-      })
-      .catch(function(){});
-  })();
-  </script>
 
   <section class="sc-controls" aria-label="Screener controls">
     <label class="sc-show">Show
@@ -247,7 +194,7 @@
   </section>
 
   <section aria-label="Ranked stocks">
-    <div class="sc-summary" id="sc-summary" role="status" aria-live="polite"><b>–</b>&nbsp;of&nbsp;<b>–</b>&nbsp;shown</div>
+    <div class="sc-summary" id="sc-summary" role="status" aria-live="polite"><b>—</b>&nbsp;of&nbsp;<b>—</b>&nbsp;shown</div>
     <div class="table-scroll">
       <table class="sc-table" id="sc-table">
         <caption class="visually-hidden">Ranked NEPSE securities: price, day change, volume, RSI, signal and setup, hit rate, stop loss and target</caption>
@@ -279,13 +226,13 @@
 
   <section class="sc-note" aria-label="Methodology note">
     <p><strong>How to read this table.</strong> Signals come from a rule-based engine (trend, RSI, MACD, turnover, 52-week position, divergences, chart patterns, market backdrop, support/resistance), the same Alpha Lab engine behind Nepse Decode. Buy signals are gated: no Buy is issued while the price sits below its 200-day average, entries only fire in long-term stock uptrends. The Sector column groups each security honestly: Debentures, Mutual Funds and Promoter Shares are instrument types (from the universe instrument-type field, debenture symbol suffixes, and bond/rinpatra/fund/kosh in the official name), while Banking, Hydropower and the rest are NEPSE sub-indexes inferred from explicit business words in the official company name. Every listed security sits in exactly one group; anything outside the named sub-indexes falls into Others. Hit rates are regime-dependent, and both regimes are published: across the older 250-session window (NEPSE +31.0%) the engine’s buy calls hit 31.0%; across the most recent 250 sessions (NEPSE −6.2%) they hit 11.4%. Stop-loss = last close − 2 × ATR(14); target = last close + 4 × ATR(14), a 1:2 risk-reward frame. “Setup” names the most recent chart pattern or divergence detected. <strong>Hit rate</strong> replays the engine’s past Buy/Strong Buy calls on equity securities over the last 250 sessions: a call is a hit when its own target was touched before its stop within the next 20 sessions. Calls touching neither level are excluded; under 5 decided calls shows “–”.</p>
-    <p class="sc-disclaim">Rule-based screening for education only, not investment advice. Signals computed from the last close (<span id="sc-asof2">–</span>). Securities with under 60 sessions of history get no signal.</p>
+    <p class="sc-disclaim">Rule-based screening for education only, not investment advice. Signals computed from the last close (<span id="sc-asof2">—</span>). Securities with under 60 sessions of history get no signal.</p>
   </section>
 <p class="data-credit" style="font-size:.8rem;color:var(--muted,#6b7280);margin:1.25rem 0 0;">Live quotes via our own 15-minute market snapshot; figures may be delayed — <a href="/data-terms.html">see our data terms</a>.</p>
-</main>
-    </div>
-  </div>
 </div>
+  </div>
+</main>
+</div><!-- /.d2-shell -->
 
 <section class="nd-seo-copy" aria-label="About the NEPSE screener">
 <h2>About the NEPSE screener</h2>
@@ -384,11 +331,18 @@
 
 
 <script src="../js/nepse-fresh.js?v=ed4a8618" defer></script>
-<script src="../js/nepse-live.js?v=59aad286" defer></script>
-<script src="../js/nepse-wave1.js?v=78773988" defer></script>
-<script src="../js/nepse-suite.js?v=8016ccd9" defer></script>
-<script src="../js/nepse-screener.js?v=56b73ec4" defer></script>
-<script src="/js/theme-toggle.js?v=4643d10e" defer></script>
-<script src="/js/freshness-badge.js" defer></script>
+<script src="../js/nepse-market-config.js?v=20261002c"></script>
+<script src="../js/nepse-format.js?v=20261002c"></script>
+<script src="../js/nepse-data.js?v=20261003a"></script>
+<script src="../js/nepse-live.js?v=20261002c" defer></script>
+<script src="../js/nepse-wave1.js?v=38f8eead" defer></script>
+<script src="../js/nepse-suite.js?v=1075e635" defer></script>
+<script src="/js/company-logos.js" defer></script>
+  <script src="/js/nepse-logos.js" defer></script>
+  <script src="../js/nepse-screener.js?v=20261002c" defer></script>
+<script src="/js/theme-toggle.js?v=20261002c" defer></script>
+<script src="/js/freshness-badge.js?v=20261002c" defer></script>
+<script src="/js/nepse-sidebar.js?v=20261002c" defer></script>
+<script src="/js/nd-chrome.js" defer></script>
 </body>
 </html>
