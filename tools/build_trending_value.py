@@ -381,6 +381,19 @@ def _fmt(x, dec=2, dash='–'):
 def _esc(s):
     return _htmllib.escape('' if s is None else str(s), quote=True)
 
+# 2026-10-08: baked snapshots must never link a stock page that does not
+# exist (e.g. symbols removed on completed mergers — WNLB/SFCL broke CI's
+# zero-broken-links gate). Link only when stocks/{sym}/index.html is present.
+_STOCK_PAGE_CACHE = {}
+def _sym_link(sym):
+    sym_e = _esc(sym)
+    if sym not in _STOCK_PAGE_CACHE:
+        _STOCK_PAGE_CACHE[sym] = os.path.isfile(
+            os.path.join(REPO, 'stocks', str(sym), 'index.html'))
+    if _STOCK_PAGE_CACHE[sym]:
+        return f'<a class="symlink" href="/stocks/{sym_e}/">{sym_e}</a>'
+    return f'<span class="symlink">{sym_e}</span>'
+
 _TONE_PILL = {'accumulation': ('tone-acc', 'Accumulation interest'),
               'distribution': ('tone-dist', 'Distribution pressure'),
               'watch': ('tone-watch', 'Watch')}
@@ -398,7 +411,7 @@ try:
         score = s['score']
         _trows.append(
             f'      <tr><td>{i}</td>'
-            f'<td><a class="symlink" href="/stocks/{_esc(s["symbol"])}/">{_esc(s["symbol"])}</a>'
+            f'<td>{_sym_link(s["symbol"])}'
             f'<span class="sname">{_esc(s["name"])} · {_esc(s["sector"])}</span></td>'
             f'<td>{_fmt(s["ltp"])}</td>'
             f'<td class="{chg_cls}">{chg_s}</td>'
@@ -425,7 +438,7 @@ try:
         _vrows.append(
             f'      <tr>'
             f'<td><span class="scorebar"><i style="width:{round(vscore)}%"></i></span> {vscore:.1f}</td>'
-            f'<td><a class="symlink" href="/stocks/{_esc(s["symbol"])}/">{_esc(s["symbol"])}</a>'
+            f'<td>{_sym_link(s["symbol"])}'
             f'<span class="sname">{_esc(s["name"])}</span></td>'
             f'<td>{_esc(s["sector"])}</td>'
             f'<td>{_fmt(s["ltp"])}</td>'

@@ -293,7 +293,21 @@ async function main() {
   Object.keys(liveMap).forEach((s) => union.add(s));
   const monthlyOnly = [];
   monthlySeries.forEach((_, s) => { if (!union.has(s)) monthlyOnly.push(s); });
-  const symbols = Array.from(union).sort();
+  const unionSymbols = Array.from(union).sort();
+  // Completed mergers: the absorbed symbol no longer trades as a separate
+  // listing (tracker: tools/verdict-engine-v2/manual/merger-tracker.json).
+  // Its stock page is deleted on completion, so it must never re-enter the
+  // universe even if the source feeds still carry it (2026-10-08: stale
+  // WNLB->SLBBL and SFCL->PFL entries broke CI's zero-broken-links gate).
+  const mergerTrackerAbsorbed = (() => {
+    try {
+      const tracker = JSON.parse(fs.readFileSync(path.join(ROOT, 'tools', 'verdict-engine-v2', 'manual', 'merger-tracker.json'), 'utf8'));
+      return (tracker.completed_mergers || []).map((m) => m.absorbed).filter(Boolean);
+    } catch (e) { console.log('  merger-tracker unavailable, skipping exclusion:', e.message); return []; }
+  })();
+  const absorbedSet = new Set(mergerTrackerAbsorbed);
+  const symbols = unionSymbols.filter((s) => !absorbedSet.has(s));
+  if (mergerTrackerAbsorbed.length) console.log('  completed mergers excluded:', mergerTrackerAbsorbed.filter((s) => unionSymbols.includes(s)).join(', ') || '(none present)');
   console.log('> union universe (currently listed):', symbols.length, 'symbols');
   console.log('  monthly-only historical symbols (excluded):', monthlyOnly.length);
 
