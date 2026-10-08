@@ -721,7 +721,7 @@ async function main() {
       costs: '0.5% round-trip (broker + SEBON + DP, simplified): half charged at entry, half at exit.',
     });
     // full closed-trade ledger, most recent 500
-    const ledger = sim.trades.slice(-500);
+    const ledger = sim.trades.slice(-500).reverse();
     // HONEST DATA VINTAGE (2026-10-08 fix): asof = actual last bar date,
     // not build date. Never stamp today's date on stale data.
     let dataVintage = null;
