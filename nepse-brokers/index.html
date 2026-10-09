@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t='dark';document.documentElement.setAttribute('data-theme',t);if(t==='light')document.documentElement.setAttribute('data-nd-ed','light')}catch(e){}</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#FAF7F0">
 <title>Broker Analytics — Nepse Decode</title>
 <meta name="description" content="NEPSE broker analytics: top brokers, trade patterns and accumulation/distribution from public floorsheet transaction flow. Free, no login.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-brokers/">
@@ -25,9 +24,6 @@
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
 <link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"Nepse Decode Broker Analytics","url":"https://shirjankhadka.com.np/nepse-brokers/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"NEPSE broker analytics: top brokers, trade patterns and accumulation/distribution from public floorsheet transaction flow. Free, no login.","author":{"@type":"Organization","name":"Nepse Decode"}}
 </script>
@@ -36,81 +32,131 @@
 {"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
 {"@type":"ListItem","position":2,"name":"Broker Analytics","item":"https://shirjankhadka.com.np/nepse-brokers/"}]}
 </script>
-<link rel="stylesheet" href="/css/nepse-d2.css?v=20261008e">
-<link rel="stylesheet" href="/css/theme.css?v=20261002d">
-<link rel="stylesheet" href="/css/nepse-logos.css">
 <style>
-/* ---- Broker Analytics components, mapped to the d2 design system ---- */
-:root{ --muted: var(--d2-muted); }
+/* ---- Broker Analytics components, new design system (sig-pro) ---- */
 
-/* view tabs */
-.bk-tabs{ display:flex; gap:6px; margin:0 0 18px; flex-wrap:wrap; }
-.bk-tabs button{ background:var(--d2-surface2); color:var(--d2-ink-soft); border:1px solid var(--d2-line); border-radius:var(--d2-r-pill); font:inherit; font-size:.82rem; font-weight:700; padding:8px 16px; cursor:pointer; }
-.bk-tabs button:hover{ border-color:var(--d2-volt); color:var(--d2-ink); }
-.bk-tabs button.active{ background:var(--d2-volt); border-color:var(--d2-volt); color:var(--d2-volt-ink); }
+/* view tabs: dimensional pills, lime active */
+.bk-tabs{display:flex;gap:10px;margin:0 0 28px;flex-wrap:wrap}
+.bk-tabs button{padding:10px 20px;color:var(--nd-muted,#B8C0CE);font:inherit;font-weight:600;font-size:.9rem;cursor:pointer;
+  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 50%),var(--nd-panel,#12141A);
+  border:1px solid var(--nd-border,#1E2430);border-radius:999px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 2px 5px rgba(0,0,0,.35);
+  transition:border-color .15s,color .15s,transform .15s}
+.bk-tabs button:hover:not(.active){border-color:var(--nd-lime,#B8E62E);color:var(--nd-text,#fff);transform:translateY(-1px)}
+.bk-tabs button.active{color:#0A0C10;font-weight:700;
+  background:linear-gradient(180deg,#D4F34A 0%,var(--nd-lime,#B8E62E) 55%,#9BCB24 100%);
+  border-color:#D4F34A;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.5),inset 0 -3px 6px rgba(0,0,0,.18),0 2px 6px rgba(0,0,0,.5),0 6px 18px rgba(184,230,46,.35),0 0 24px rgba(184,230,46,.3)}
 
-/* period pills */
-.periods{ display:flex; gap:6px; flex-wrap:wrap; margin:0 0 18px; align-items:center; }
-.periods button{ background:transparent; color:var(--d2-ink-soft); border:1px solid var(--d2-line); border-radius:var(--d2-r-pill); font:inherit; font-size:.78rem; font-weight:600; padding:6px 12px; cursor:pointer; }
-.periods button:hover{ border-color:var(--d2-volt); color:var(--d2-ink); }
-.periods button.active{ background:var(--d2-surface3); color:var(--d2-ink); border-color:var(--d2-volt); }
-.periods input[type="date"]{ border:1px solid var(--d2-line); border-radius:var(--d2-r-pill); padding:5px 10px; font:inherit; font-size:.82rem; background:var(--d2-surface2); color:var(--d2-ink); color-scheme:light dark; }
-.periods .p-label{ font-size:.85rem; color:var(--d2-muted); }
+/* period pills: smaller variant */
+.periods{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 24px;align-items:center}
+.periods button{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 50%),var(--nd-panel,#12141A);
+  color:var(--nd-muted,#B8C0CE);border:1px solid var(--nd-border,#1E2430);border-radius:999px;
+  font:inherit;font-size:.8rem;font-weight:600;padding:7px 14px;cursor:pointer;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 2px 5px rgba(0,0,0,.35);
+  transition:border-color .15s,color .15s,transform .15s}
+.periods button:hover:not(.active){border-color:var(--nd-lime,#B8E62E);color:var(--nd-text,#fff)}
+.periods button.active{color:#0A0C10;font-weight:700;
+  background:linear-gradient(180deg,#D4F34A 0%,var(--nd-lime,#B8E62E) 55%,#9BCB24 100%);border-color:#D4F34A;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.5),0 2px 6px rgba(0,0,0,.5),0 6px 18px rgba(184,230,46,.35)}
+.periods input[type="date"]{border:1px solid var(--nd-border,#1E2430);border-radius:999px;padding:6px 12px;
+  font:inherit;font-size:.82rem;background:var(--nd-panel,#12141A);color:var(--nd-text,#fff);color-scheme:light dark}
+.periods .p-label{font-size:.85rem;color:var(--nd-dim,#8E98A8)}
 
-/* tables (d2-table look, kept under bk-table for the broker engine) */
-.bk-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
-.bk-table th{ text-align:right; padding:10px 14px; font-size:11.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--d2-faint); font-weight:700; border-bottom:1px solid var(--d2-line); white-space:nowrap; }
-.bk-table td{ padding:10px 14px; border-bottom:1px solid var(--d2-line-soft); color:var(--d2-ink-soft); text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; }
-.bk-table tr:last-child td{ border-bottom:0; }
-.bk-table tbody tr:hover td{ background:var(--d2-surface2); }
-.bk-table th:first-child,.bk-table td:first-child{ text-align:left; }
-.bk-table td.bk-name,.bk-table th.bk-name{ text-align:left; }
-.bk-table td strong{ color:var(--d2-ink); }
-.scrollx{ overflow-x:auto; border:1px solid var(--d2-line-soft); border-radius:var(--d2-r-md); background:var(--d2-surface); }
+/* tables: sig-table look, numerics stay right-aligned */
+.bk-table{width:100%;border-collapse:separate;border-spacing:0;font-size:.85rem;
+  background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,0) 60px),var(--nd-panel,#12141A);
+  border:1px solid var(--nd-border,#1E2430);border-radius:20px;overflow:hidden;color:var(--nd-text,#fff)}
+.bk-table th,.bk-table td{padding:11px 13px;text-align:right;border-bottom:1px solid var(--nd-border,#1E2430);
+  white-space:nowrap;font-variant-numeric:tabular-nums}
+.bk-table th:first-child,.bk-table td:first-child,.bk-table th.bk-name,.bk-table td.bk-name{text-align:left}
+.bk-table th{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0)),var(--nd-panel-2,#161A23);
+  font-weight:700;color:var(--nd-lime,#B8E62E);font-size:.76rem;letter-spacing:.07em;text-transform:uppercase;
+  text-shadow:0 1px 2px rgba(0,0,0,.4);border-bottom:1px solid var(--nd-border-strong,#2A3342)}
+.bk-table tr:last-child td{border-bottom:none}
+.bk-table tbody tr{transition:background .12s}
+.bk-table tbody tr:hover td{background:rgba(255,255,255,.025)}
+.bk-table td strong{color:var(--nd-text,#fff)}
 
-/* stat cards */
-.stat-row{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin:14px 0; }
-@media(min-width:760px){ .stat-row{ grid-template-columns:repeat(4,1fr); } }
-.stat{ background:var(--d2-surface); border:1px solid var(--d2-line-soft); border-radius:var(--d2-r-lg); padding:14px 16px; box-shadow:var(--d2-shadow); }
-.stat .l{ font-size:12px; color:var(--d2-faint); font-weight:600; margin-bottom:4px; }
-.stat .v{ font-size:1.3rem; font-weight:800; color:var(--d2-ink); letter-spacing:-.01em; font-variant-numeric:tabular-nums; }
+/* stat cards: 3D like sig-card */
+.stat-row{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:24px 0}
+@media(min-width:760px){.stat-row{grid-template-columns:repeat(4,1fr)}}
+.stat{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0) 38%),var(--nd-panel,#12141A);
+  border:1px solid var(--nd-border,#1E2430);border-radius:20px;padding:18px 20px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 -2px 6px rgba(0,0,0,.15),0 3px 8px rgba(0,0,0,.45),0 18px 44px rgba(0,0,0,.4);
+  transition:transform .2s ease,box-shadow .2s ease}
+.stat:hover{transform:translateY(-2px)}
+.stat .l{font-size:.78rem;color:var(--nd-dim,#8E98A8);margin-bottom:6px;font-weight:600}
+.stat .v{font-size:1.5rem;font-weight:700;color:var(--nd-text,#fff);letter-spacing:-.01em;font-variant-numeric:tabular-nums}
 
-/* info cover */
-.cover{ background:var(--d2-surface); border:1px solid var(--d2-line-soft); border-radius:var(--d2-r-lg); padding:14px 18px; font-size:.88rem; color:var(--d2-ink-soft); margin:0 0 18px; box-shadow:var(--d2-shadow); }
-.cover strong{ color:var(--d2-ink); }
+/* info cover: lime-bordered note */
+.cover{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 45%),var(--nd-panel,#12141A);
+  border:1px solid var(--nd-border,#1E2430);border-left:4px solid var(--nd-lime,#B8E62E);border-radius:16px;
+  padding:17px 22px;margin:22px 0;font-size:.92rem;color:var(--nd-muted,#B8C0CE);line-height:1.65;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 3px 8px rgba(0,0,0,.4),0 14px 34px rgba(0,0,0,.3)}
+.cover strong{color:var(--nd-text,#fff)}
 
 /* controls */
-.ctl{ display:flex; gap:10px; flex-wrap:wrap; margin:0 0 18px; align-items:center; }
-.ctl select,.ctl input{ border:1px solid var(--d2-line); border-radius:var(--d2-r-md); padding:9px 14px; font:inherit; font-size:.9rem; background:var(--d2-surface2); color:var(--d2-ink); max-width:100%; }
+.ctl{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 18px;align-items:center}
+.ctl select,.ctl input{border:1px solid var(--nd-border,#1E2430);border-radius:12px;padding:9px 14px;
+  font:inherit;font-size:.9rem;background:var(--nd-panel,#12141A);color:var(--nd-text,#fff);max-width:100%}
 
 /* static snapshot card */
-.snap.d2-card{ margin-bottom:20px; }
-.snap h2{ font-size:1.15rem; font-weight:800; letter-spacing:-.01em; margin:0 0 4px; color:var(--d2-ink); }
-.snap-asof{ font-size:.78rem; font-weight:500; color:var(--d2-faint); }
-.snap .scrollx{ margin-top:12px; }
-.snap-note{ font-size:.82rem; color:var(--d2-muted); margin:12px 0 0; line-height:1.6; }
+.snap{margin-bottom:20px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0) 38%),var(--nd-panel,#12141A);
+  border:1px solid var(--nd-border,#1E2430);border-radius:20px;padding:22px 24px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 -2px 6px rgba(0,0,0,.15),0 3px 8px rgba(0,0,0,.45),0 18px 44px rgba(0,0,0,.4)}
+.snap h2{font-size:1.15rem;font-weight:700;margin:0 0 4px;color:var(--nd-text,#fff)}
+.snap-asof{font-size:.78rem;font-weight:500;color:var(--nd-dim,#8E98A8)}
+.snap-note{font-size:.82rem;color:var(--nd-muted,#B8C0CE);margin:12px 0 0;line-height:1.6}
 
 /* in-view section headings */
-h2.bk-h{ font-size:1.15rem; font-weight:800; letter-spacing:-.01em; margin:22px 0 10px; color:var(--d2-ink); }
-.two{ display:grid; gap:16px; }
-@media(min-width:900px){ .two{ grid-template-columns:1fr 1fr; } }
+h2.bk-h{font-size:1.35rem;margin:34px 0 8px;color:var(--nd-text,#fff);letter-spacing:-.01em;font-weight:700}
+.two h2.bk-h{margin-top:4px}
+.two{display:grid;gap:16px}
+@media(min-width:900px){.two{grid-template-columns:1fr 1fr}}
 
 /* pos/neg */
-.pos{ color:var(--d2-gain); font-weight:700; }
-.neg{ color:var(--d2-loss); font-weight:700; }
+.pos{color:var(--nd-up,#4ADE80);font-weight:700}
+.neg{color:var(--nd-down,#F87171);font-weight:700}
 
-/* 3D depth: cards and stats lift on hover */
-.stat,.snap.d2-card,.cover{
-  transform:perspective(1000px) translateZ(0);
-  transition:transform .25s ease, box-shadow .25s ease;
-}
-.stat:hover,.snap.d2-card:hover{
-  transform:perspective(1000px) translateZ(6px);
-}
+/* lede strong */
+.sig-lede strong{color:var(--nd-text,#fff)}
+
+/* light mode */
+[data-theme="light"] .bk-tabs button,[data-theme="light"] .periods button{background:linear-gradient(180deg,#FFFFFF 0%,#EDF1F5 100%);
+  border:1px solid #CBD4DE;border-top-color:#E8EEF3;color:#3F4753;
+  box-shadow:inset 0 2px 0 #FFFFFF,0 1px 2px rgba(10,12,16,.1),0 4px 12px rgba(10,12,16,.08)}
+[data-theme="light"] .bk-tabs button:hover:not(.active),[data-theme="light"] .periods button:hover:not(.active){border-color:#4D7C0F;color:#0A0C10}
+[data-theme="light"] .bk-tabs button.active,[data-theme="light"] .periods button.active{
+  background:linear-gradient(180deg,#6BAE16 0%,#4D7C0F 60%,#3E650C 100%);border-color:#3E650C;border-top-color:#8FD41F;color:#fff;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.4),inset 0 -3px 6px rgba(0,0,0,.18),0 2px 4px rgba(77,124,15,.4),0 8px 20px rgba(77,124,15,.3)}
+[data-theme="light"] .bk-table{background:#fff;color:#0A0C10}
+[data-theme="light"] .bk-table th{background:linear-gradient(180deg,#FFFFFF,#F2F5F8);color:#4D7C0F;text-shadow:none}
+[data-theme="light"] .bk-table th,[data-theme="light"] .bk-table td{border-bottom-color:#E2E6EC}
+[data-theme="light"] .bk-table td{color:#3F4753}
+[data-theme="light"] .bk-table td strong{color:#0A0C10}
+[data-theme="light"] .bk-table tbody tr:hover td{background:#F0F5EA}
+[data-theme="light"] .stat{background:linear-gradient(180deg,#FFFFFF 0%,#F2F5F8 100%);border:1px solid #CBD4DE;border-top-color:#E8EEF3;
+  box-shadow:inset 0 2px 0 #FFFFFF,inset 0 -3px 8px rgba(10,12,16,.05),0 1px 2px rgba(10,12,16,.12),0 8px 24px rgba(10,12,16,.12)}
+[data-theme="light"] .stat .l{color:#6B7280}
+[data-theme="light"] .stat .v{color:#0A0C10}
+[data-theme="light"] .cover{background:linear-gradient(180deg,#FFFFFF 0%,#F4F7FA 100%);border:1px solid #CBD4DE;border-left:4px solid #4D7C0F;color:#3F4753;
+  box-shadow:inset 0 2px 0 #FFFFFF,0 1px 2px rgba(10,12,16,.1),0 8px 24px rgba(10,12,16,.1)}
+[data-theme="light"] .cover strong{color:#0A0C10}
+[data-theme="light"] .snap{background:linear-gradient(180deg,#FFFFFF 0%,#F2F5F8 100%);border:1px solid #CBD4DE;border-top-color:#E8EEF3;
+  box-shadow:inset 0 2px 0 #FFFFFF,0 1px 2px rgba(10,12,16,.1),0 8px 24px rgba(10,12,16,.1)}
+[data-theme="light"] .snap h2{color:#0A0C10}
+[data-theme="light"] .snap-asof,[data-theme="light"] .snap-note{color:#6B7280}
+[data-theme="light"] h2.bk-h{color:#0A0C10}
+[data-theme="light"] .ctl select,[data-theme="light"] .ctl input,[data-theme="light"] .periods input[type="date"]{background:#fff;border-color:#CBD4DE;color:#0A0C10}
+[data-theme="light"] .sig-lede strong{color:#0A0C10}
 </style>
-<link rel="stylesheet" href="/css/nd-chrome.css">
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261006c">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261009b">
+<link rel="stylesheet" href="/css/sig-pro.css?v=20261006a">
 </head>
-<body class="d2">
+<body class="nd">
 <a class="skip-link" href="#main">Skip to content</a>
 
 <div id="nd-header"></div>
@@ -119,18 +165,17 @@ h2.bk-h{ font-size:1.15rem; font-weight:800; letter-spacing:-.01em; margin:22px 
 
 
 
-<main class="d2-main" id="main">
-  <div class="d2-wrap">
-    <div class="d2-fresh-mount"><div data-freshness-badge></div></div>
+<main id="main" class="sig-wrap">
+    <div class="sig-fresh" data-freshness-badge></div>
 
     <div style="margin:4px 0 20px">
-      <p class="d2-kicker">Broker Analytics</p>
-      <h1 class="d2-h1">Where the brokers&rsquo; money moved</h1>
-      <p class="d2-lede">Buy/sell flow by broker and by stock, from public floorsheet records. <strong>Net bought / net sold is transaction flow, not verified shareholding.</strong></p>
-      <p lang="ne" style="color:var(--d2-muted);font-size:.92rem;max-width:700px;margin-top:10px">संक्षेप: यहाँ ब्रोकरहरूले कुन स्टकमा कति किनबेच गरे भन्ने दैनिक प्रवाह देखिन्छ — यो कारोबारको रेकर्ड हो, कसको स्वामित्वमा कति शेयर छ भन्ने होइन।</p>
+      <p class="sig-kicker">Broker Analytics</p>
+      <h1>Where the brokers&rsquo; money moved</h1>
+      <p class="sig-lede">Buy/sell flow by broker and by stock, from public floorsheet records. <strong>Net bought / net sold is transaction flow, not verified shareholding.</strong></p>
+      <p lang="ne" style="color:var(--nd-muted,#B8C0CE);font-size:.92rem;max-width:700px;margin-top:10px">संक्षेप: यहाँ ब्रोकरहरूले कुन स्टकमा कति किनबेच गरे भन्ने दैनिक प्रवाह देखिन्छ — यो कारोबारको रेकर्ड हो, कसको स्वामित्वमा कति शेयर छ भन्ने होइन।</p>
     </div>
 <!-- SNAP-START -->
-<section class="d2-card snap" aria-label="Broker coverage snapshot">
+<section class="snap" aria-label="Broker coverage snapshot">
   <h2>Latest session broker flow <span class="snap-asof">· 2026-10-08 · 57 trading days on record (2026-07-15 → 2026-10-08)</span></h2>
   <div class="scrollx" tabindex="0" role="region" aria-label="Latest session broker flow table"><table class="bk-table">
     <thead><tr><th>#</th><th>Broker</th><th>Bought</th><th>Sold</th><th>Net flow</th></tr></thead>
@@ -179,54 +224,11 @@ h2.bk-h{ font-size:1.15rem; font-weight:800; letter-spacing:-.01em; margin:22px 
 
 <section id="view"></section>
 
-<p class="d2-caption" style="margin:32px 0 0">Figures are aggregated transaction flow (quantity &times; rate per contract). &ldquo;Accumulation&rdquo; = net bought, &ldquo;distribution&rdquo; = net sold over the period — not beneficial ownership. Educational only, not investment advice.</p>
+<p class="sig-foot">Figures are aggregated transaction flow (quantity &times; rate per contract). &ldquo;Accumulation&rdquo; = net bought, &ldquo;distribution&rdquo; = net sold over the period — not beneficial ownership. Educational only, not investment advice.</p>
 
-  </div>
 </main>
 
-    <footer class="d2-foot" aria-label="Nepse Decode site footer">
-      <div style="display:flex;gap:14px;align-items:flex-start">
-        <svg width="40" height="40" viewBox="0 0 64 64" role="img" aria-label="Nepse Decode iceberg mark" style="border-radius:10px;flex:none"><rect width="64" height="64" rx="14" fill="#013E2E"/><polygon points="32,9 21,25 43,25" fill="#FFFFFF"/><polygon points="13,27.5 51,27.5 45,42 32,57 21,45 15,37" fill="#FFFFFF"/><rect x="4" y="25" width="56" height="2.6" rx="1.3" fill="#0B3D2E" opacity=".55"/></svg>
-        <div>
-          <p style="font-weight:700;color:var(--d2-ink);margin:2px 0 8px">Nepse Decode</p>
-          <p style="margin:0;max-width:62ch;line-height:1.7">Free, honest NEPSE intelligence for every Nepali investor — live market data, screeners, signals and research, rebuilt every trading day. No login, no paywall, no buy calls.</p>
-        </div>
-      </div>
-      <nav class="d2-foot-grid" aria-label="Footer sections">
-        <div><h3>Tools</h3><ul>
-          <li><a href="/nepse-screener/">Stock Screener</a></li>
-          <li><a href="/nepse-chart/">Chart</a></li>
-          <li><a href="/nepse-trending/">Trending Stocks</a></li>
-          <li><a href="/nepse-value/">Value Investing</a></li>
-          <li><a href="/nepse-signals/momentum/">Trading Signals</a></li>
-          <li><a href="/nepse-watchlist/">Watchlist</a></li>
-        </ul></div>
-        <div><h3>Market data</h3><ul>
-          <li><a href="/nepse-decode/">Dashboard</a></li>
-          <li><a href="/nepse-brokers/">Broker Analytics</a></li>
-          <li><a href="/nepse-sectors/">Sectors</a></li>
-          <li><a href="/nepse-news/">Market News</a></li>
-          <li><a href="/nepse-actions/">Corp. Actions</a></li>
-          <li><a href="/stocks/">All Stocks</a></li>
-        </ul></div>
-        <div><h3>Research</h3><ul>
-          <li><a href="/blog/">Daily Blog</a></li>
-          <li><a href="/nepse-decode/">Market Dashboard</a></li>
-        </ul></div>
-        <div><h3>Company</h3><ul>
-          <li><a href="/about.html">About</a></li>
-          <li><a href="/contact.html">Contact</a></li>
-          <li><a href="/privacy.html">Privacy</a></li>
-          <li><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Facebook Page</a></li>
-        </ul></div>
-      </nav>
-      <p style="max-width:88ch;line-height:1.7"><strong style="color:var(--d2-ink-soft)">Educational use only.</strong> Nothing on this site is investment advice. Prices and figures are compiled from public sources and refreshed every trading day — always verify with your broker before trading.</p>
-      <p style="max-width:88ch;line-height:1.7"><strong style="color:var(--d2-ink-soft)">Data sources:</strong> Market data from <a href="https://www.nepalstock.com" target="_blank" rel="noopener" style="color:var(--d2-ink-soft);text-decoration:underline">NEPSE (nepalstock.com)</a> and <a href="https://www.sharesansar.com" target="_blank" rel="noopener" style="color:var(--d2-ink-soft);text-decoration:underline">ShareSansar</a>. Corporate actions verified against official NEPSE/company notices.</p>
-      <div style="display:flex;flex-wrap:wrap;gap:10px 20px;justify-content:space-between;margin-top:22px;padding-top:18px;border-top:1px solid var(--d2-line-soft)">
-        <span>© 2026 Nepse Decode · Built by <a href="/" style="color:var(--d2-ink-soft);text-decoration:underline">Shirjan Khadka</a> in Kathmandu, Nepal</span>
-        <span><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener" style="color:var(--d2-ink-soft);margin-right:14px">Facebook</a><a href="/blog/" style="color:var(--d2-ink-soft);margin-right:14px">Blog</a><a href="/contact.html" style="color:var(--d2-ink-soft)">Contact</a></span>
-      </div>
-    </footer>
+    <div id="nd-footer"></div>
 <script>
 (function(){
 "use strict";
@@ -294,7 +296,7 @@ function loadMeta(){
     $('coverage').innerHTML = '<strong>Data:</strong> ' + m.earliest + ' → ' + m.latest +
       ' (' + m.trading_days + ' trading days)' +
       (m.trading_days < 60 ? ' — <strong>history still building;</strong> longer periods fill in automatically.' : '') +
-      ' <span style="color:var(--muted)">Updated ' + m.updated_at.slice(0,10) + '</span>';
+      ' <span style="color:var(--nd-muted,#B8C0CE)">Updated ' + m.updated_at.slice(0,10) + '</span>';
     return fetch(BASE+'brokers.json').then(function(r){return r.json()}).then(function(b){
       state.brokers = b;
       var sel = $('brokerSel');
@@ -311,7 +313,7 @@ function loadPeriod(silent){
   if (p === 'latest') url = BASE+'intraday.json';
   else if (p === 'asof') url = BASE+'daily/'+state.asof+'.json';
   else url = BASE+'periods/'+p+'.json';
-  if (!silent) $('view').innerHTML = '<p style="color:var(--muted)">Loading…</p>';
+  if (!silent) $('view').innerHTML = '<p style="color:var(--nd-muted,#B8C0CE)">Loading…</p>';
   return fetch(url, { cache: 'no-store' }).then(function(r){ if(!r.ok) throw 0; return r.json(); })
     .then(function(d){ state.data = d; render(); })
     .catch(function(){
@@ -328,7 +330,7 @@ function loadPeriod(silent){
 function fmtQ(qty,val){ return (qty===0||qty==='0'||qty==null) && val>0 ? '—' : fmtN(qty||0,0); }
 function renderTop(d){
   var rows = d.brokers.map(function(b,i){
-    return '<tr><td>'+(i+1)+'</td><td class="bk-name"><strong>'+bname(b.code)+'</strong><br><span style="color:var(--muted)">'+b.code+'</span></td>'+
+    return '<tr><td>'+(i+1)+'</td><td class="bk-name"><strong>'+bname(b.code)+'</strong><br><span style="color:var(--nd-muted,#B8C0CE)">'+b.code+'</span></td>'+
       '<td>'+fmtQ(b.buy_qty,b.buy_value)+'</td><td>'+fmtV(b.buy_value)+'</td>'+
       '<td>'+fmtQ(b.sell_qty,b.sell_value)+'</td><td>'+fmtV(b.sell_value)+'</td>'+
       '<td><strong>'+fmtQ(b.total_qty,b.total)+'</strong></td><td><strong>'+fmtV(b.total)+'</strong></td>'+
@@ -426,7 +428,7 @@ function renderHoldings(d){
         '<td>'+fmtN(nq,0)+'</td><td class="'+cls(nv)+'">'+fmtV(nv)+'</td><td>'+tag+'</td></tr>';
     }).join('');
   return '<h2 class="bk-h">'+sym+' — stockwise broker flow, '+label()+'</h2>'+
-    '<p style="font-size:.85rem;color:var(--muted)">Every broker that traded this stock, netted over the period. Net bought = accumulating · net sold = distributing (by transaction value). This is transaction flow, not verified shareholding.</p>'+
+    '<p style="font-size:.85rem;color:var(--nd-muted,#B8C0CE)">Every broker that traded this stock, netted over the period. Net bought = accumulating · net sold = distributing (by transaction value). This is transaction flow, not verified shareholding.</p>'+
     '<div class="scrollx" tabindex="0" role="region" aria-label="'+sym+' stockwise broker flow table"><table class="bk-table"><thead><tr><th class="bk-name">Broker</th><th>Code</th><th>Buy qty</th><th>Buy value</th><th>Sell qty</th><th>Sell value</th><th>Net qty</th><th>Net value</th><th>Flow</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 
@@ -541,7 +543,7 @@ setInterval(function(){
 }, 60000);
 })();
 </script>
-<script src="/js/theme-toggle.js?v=20261002c" defer></script>
+<script src="/js/theme-toggle.js?v=20261006c" defer></script>
 <script src="/js/freshness-badge.js?v=20261009a" defer></script>
 <script src="/js/nd-chrome.js" defer></script>
 </body>
