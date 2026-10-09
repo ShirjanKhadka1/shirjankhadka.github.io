@@ -274,28 +274,6 @@
     if (avgCh > -1.5) return 'sx-dn1';
     return 'sx-dn2';
   }
-  /* Inline heat colors (like treemap) — guaranteed to apply */
-  function heatStyle(ch) {
-    var light = document.documentElement.getAttribute('data-theme') === 'light';
-    var band;
-    if (ch == null || isNaN(ch)) band = 'none';
-    else if (ch >= 1.5) band = 'up2';
-    else if (ch >= 0.25) band = 'up1';
-    else if (ch > -0.25) band = 'n';
-    else if (ch > -1.5) band = 'dn1';
-    else band = 'dn2';
-    var colors = light ? {
-      up2: ['#1E7A44', '#FFFFFF'], up1: ['#DDEEDD', '#0C1F16'],
-      n: ['#FAF8F2', '#0C1F16'], dn1: ['#F3D9D4', '#0C1F16'],
-      dn2: ['#B23A2E', '#FFFFFF'], none: ['#E7DFCE', '#66705F']
-    } : {
-      up2: ['#22a355', '#FFFFFF'], up1: ['#1d5c38', '#d9f5e5'],
-      n: ['#232c3a', '#aeb8c6'], dn1: ['#7a2f28', '#ffd9d4'],
-      dn2: ['#d64545', '#FFFFFF'], none: ['#1a2230', '#525c6c']
-    };
-    var c = colors[band];
-    return 'background:' + c[0] + ';color:' + c[1] + ';border-color:transparent;';
-  }
 
   function tileLink(sec) {
     return '/nepse-screener/?sector=' + encodeURIComponent(sec);
@@ -335,7 +313,6 @@
           (t.ch != null ? ' · day ' + pctText(t.ch) : ' · no day-change data') +
           (t.turn > 0 ? ' · turnover ' + fmtTurn(t.turn) : '');
         return '<a class="sx-tm-tile ' + heatClass(t.ch) + '"' +
-          ' style="' + heatStyle(t.ch) + '"' +
           ' href="/stocks/' + esc(String(t.sym).replace(/\//g, '-')) + '/"' +
           ' title="' + esc(tip) + '">' +
           '<span class="sx-tm-sym">' + esc(t.sym) + '</span>' +
@@ -440,15 +417,17 @@
   var mapRects = [];
   var MAP_TOP = 60;
   function mapBands() {
+    /* Kept in sync with the --heat-* tokens in nepse-sectors/index.html and
+       nepse-sectors/sectors.css (2026-10-09 mid-band brightening). */
     var light = document.documentElement.getAttribute('data-theme') === 'light';
     if (light) return {
-      up2: ['#1E7A44', '#FAF8F2'], up1: ['#DDEEDD', '#0C1F16'],
-      n: ['#FAF8F2', '#0C1F16'], dn1: ['#F3D9D4', '#0C1F16'],
+      up2: ['#1E7A44', '#FAF8F2'], up1: ['#cfe8cf', '#0C1F16'],
+      n: ['#FAF8F2', '#0C1F16'], dn1: ['#f2cfc7', '#0C1F16'],
       dn2: ['#B23A2E', '#FAF8F2'], none: ['#E7DFCE', '#66705F']
     };
     return {
-      up2: ['#3ddc84', '#06120c'], up1: ['#1d5c38', '#d9f5e5'],
-      n: ['#232c3a', '#aeb8c6'], dn1: ['#7a2f28', '#ffd9d4'],
+      up2: ['#3ddc84', '#06120c'], up1: ['#2f8f57', '#07130c'],
+      n: ['#232c3a', '#aeb8c6'], dn1: ['#c2544c', '#ffffff'],
       dn2: ['#ff5d5d', '#1c0605'], none: ['#1a2230', '#525c6c']
     };
   }

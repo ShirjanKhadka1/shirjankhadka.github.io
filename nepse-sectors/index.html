@@ -42,10 +42,11 @@
   --up:#3ddc84; --down:#ff5d5d;
   --shadow:0 12px 40px rgba(0,0,0,.35); --shadow-hover:0 22px 60px rgba(0,0,0,.45);
   --serif:'Inter',system-ui,sans-serif;
+  /* heatmap ramp — mid-bands brightened 2026-10-09 for band distinction vs neutral */
   --heat-up2:#3ddc84; --heat-up2-ink:#06120c;
-  --heat-up1:#1d5c38; --heat-up1-ink:#d9f5e5;
+  --heat-up1:#2f8f57; --heat-up1-ink:#07130c;
   --heat-neutral:#232c3a; --heat-neutral-ink:#aeb8c6;
-  --heat-dn1:#7a2f28; --heat-dn1-ink:#ffd9d4;
+  --heat-dn1:#c2544c; --heat-dn1-ink:#ffffff;
   --heat-dn2:#ff5d5d; --heat-dn2-ink:#1c0605;
 }
 [data-theme="light"]{
@@ -57,9 +58,9 @@
   --up:#1E7A44; --down:#B23A2E;
   --shadow:0 12px 40px rgba(12,31,22,.08); --shadow-hover:0 22px 60px rgba(12,31,22,.14);
   --heat-up2:#1E7A44; --heat-up2-ink:#FAF8F2;
-  --heat-up1:#DDEEDD; --heat-up1-ink:#0C1F16;
+  --heat-up1:#cfe8cf; --heat-up1-ink:#0C1F16;
   --heat-neutral:#FAF8F2; --heat-neutral-ink:#0C1F16;
-  --heat-dn1:#F3D9D4; --heat-dn1-ink:#0C1F16;
+  --heat-dn1:#f2cfc7; --heat-dn1-ink:#0C1F16;
   --heat-dn2:#B23A2E; --heat-dn2-ink:#FAF8F2;
 }
 /* S2 market-map treemap */
@@ -131,11 +132,11 @@
             <button aria-pressed="false" data-size="volume">Volume</button>
           </div>
           <div class="d2-map-legend" aria-label="Map color legend">
-            <span><span class="lg" style="background:#ff5d5d"></span>−1.5% or worse</span>
-            <span><span class="lg" style="background:#7a2f28"></span>−1.5%…−0.25%</span>
-            <span><span class="lg" style="background:#232c3a"></span>flat</span>
-            <span><span class="lg" style="background:#1d5c38"></span>+0.25%…+1.5%</span>
-            <span><span class="lg" style="background:#3ddc84"></span>+1.5% or more</span>
+            <span><span class="lg" style="background:var(--heat-dn2)"></span>−1.5% or worse</span>
+            <span><span class="lg" style="background:var(--heat-dn1)"></span>−1.5%…−0.25%</span>
+            <span><span class="lg" style="background:var(--heat-neutral)"></span>flat</span>
+            <span><span class="lg" style="background:var(--heat-up1)"></span>+0.25%…+1.5%</span>
+            <span><span class="lg" style="background:var(--heat-up2)"></span>+1.5% or more</span>
             <span id="sxMapCount"></span>
           </div>
         </div>
@@ -232,7 +233,7 @@
 <script src="/js/nepse-suite.js?v=1075e635"></script>
 <script src="/js/company-logos.js?v=20261004a" defer></script>
 <script src="/js/nepse-logos.js" defer></script>
-<script src="/js/nepse-sectors.js?v=20261009c" defer></script>
+<script src="/js/nepse-sectors.js?v=20261009d" defer></script>
 <script src="/js/theme-toggle.js?v=20261002c" defer></script>
 <script src="/js/freshness-badge.js?v=20261009a" defer></script>
 <script src="/js/nepse-sidebar.js?v=20261002c" defer></script>

@@ -18,19 +18,20 @@
   --sans:'Inter',-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Helvetica,Arial,sans-serif;
   --space-1:8px; --space-2:12px; --space-3:16px; --space-4:24px;
   --space-5:32px; --space-6:48px; --space-7:64px; --space-8:96px;
-  /* heatmap ramp (5 steps on average day change) */
+  /* heatmap ramp (5 steps on average day change) — brightened mid-bands
+     (2026-10-09) so +0.25/+1.5 bands read clearly against neutral in both themes */
   --heat-up2:#1E7A44; --heat-up2-ink:#FAF8F2;
-  --heat-up1:#DDEEDD; --heat-up1-ink:#0C1F16;
+  --heat-up1:#cfe8cf; --heat-up1-ink:#0C1F16;
   --heat-neutral:#FAF8F2; --heat-neutral-ink:#0C1F16;
-  --heat-dn1:#F3D9D4; --heat-dn1-ink:#0C1F16;
+  --heat-dn1:#f2cfc7; --heat-dn1-ink:#0C1F16;
   --heat-dn2:#B23A2E; --heat-dn2-ink:#FAF8F2;
 }
 [data-theme="dark"]{
-  --heat-up2:#22a355; --heat-up2-ink:#ffffff;
-  --heat-up1:#1a3325; --heat-up1-ink:#d4edda;
-  --heat-neutral:#1a1d23; --heat-neutral-ink:#e8eaed;
-  --heat-dn1:#3d2422; --heat-dn1-ink:#f8d7da;
-  --heat-dn2:#d64545; --heat-dn2-ink:#ffffff;
+  --heat-up2:#3ddc84; --heat-up2-ink:#06120c;
+  --heat-up1:#2f8f57; --heat-up1-ink:#07130c;
+  --heat-neutral:#232c3a; --heat-neutral-ink:#aeb8c6;
+  --heat-dn1:#c2544c; --heat-dn1-ink:#ffffff;
+  --heat-dn2:#ff5d5d; --heat-dn2-ink:#1c0605;
 }
 
 /* ---------- section rhythm ---------- */
@@ -252,8 +253,13 @@ span.sx-swatch.sx-dn1,span.sx-swatch.sx-dn2,span.sx-swatch.sx-none{padding:0}
   .sx-card:hover, .sx-table tbody tr:hover{ transform: none; }
 }
 
-/* ---- heatmap tile 3D depth ---- */
+/* ---- heatmap tile 3D depth ----
+   NOTE: background-IMAGE only (never the `background` shorthand) so the
+   heat-band background-color from .sx-up2/.sx-up1/.sx-n/.sx-dn1/.sx-dn2
+   survives — the shorthand reset was painting tiles transparent and leaving
+   only colored text on the section background. */
 .sx-tm-tile{
+  background-image: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 45%);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.18), inset 0 -2px 4px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.18);
 }
 .sx-tm-tile:hover{
