@@ -133,6 +133,11 @@ h2.bk-h{font-size:1.35rem;margin:34px 0 8px;color:var(--nd-text,#fff);letter-spa
 [data-theme="light"] .bk-table{background:#fff;color:#0A0C10}
 [data-theme="light"] .bk-table th{background:linear-gradient(180deg,#FFFFFF,#F2F5F8);color:#4D7C0F;text-shadow:none}
 [data-theme="light"] .bk-table th,[data-theme="light"] .bk-table td{border-bottom-color:#E2E6EC}
+/* sortable headers (stockwise holdings): pointer + visible active state in both themes, never yellow */
+.bk-table th[data-sk]{cursor:pointer}
+.bk-table th[data-sk]:hover{text-decoration:underline}
+.bk-table th.sorted{color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.4)}
+[data-theme="light"] .bk-table th.sorted{color:#0A0C10;text-shadow:none}
 [data-theme="light"] .bk-table td{color:#3F4753}
 [data-theme="light"] .bk-table td strong{color:#0A0C10}
 [data-theme="light"] .bk-table tbody tr:hover td{background:#F0F5EA}
@@ -234,7 +239,7 @@ h2.bk-h{font-size:1.35rem;margin:34px 0 8px;color:var(--nd-text,#fff);letter-spa
 (function(){
 "use strict";
 var BASE = '/nepse-brokers/data/';
-var state = { view: 'top', period: 'latest', data: null, brokers: {}, meta: null, asof: null, symbol: null, broker: null, topPage: 0, holdPage: 0, brkPage: 0, brkQuery: '', accPage: 0, distPage: 0, accSearch: '' };
+var state = { view: 'top', period: 'latest', data: null, brokers: {}, meta: null, asof: null, symbol: null, broker: null, topPage: 0, holdPage: 0, brkPage: 0, brkQuery: '', accPage: 0, distPage: 0, accSearch: '', holdSort: { key: 'net_value', dir: -1 } };
 var $ = function(id){ return document.getElementById(id); };
 
 /* ---------- URL-backed state (replaceState; no history spam) ---------- */
@@ -456,7 +461,24 @@ function renderHoldings(d){
       var e = net[c] = net[c] || [0,0,0,0,0,0]; e[4]+=v[0]; e[5]+=v[1]; e[0]-=v[0]; e[1]-=v[1]; });
   }
   var PER_PAGE = 10;
-  var all = Object.keys(net).map(function(c){return [c,net[c]]}).sort(function(a,b){return b[1][1]-a[1][1]});
+  var all = Object.keys(net).map(function(c){return [c,net[c]]});
+  // sortable columns: netflow entries are [net_qty, net_value, buy_qty, buy_value, sell_qty, sell_value]
+  var sortVal = {
+    broker: function(x){ return bname(x[0]).toLowerCase(); },
+    code: function(x){ return x[0]; },
+    buy_qty: function(x){ return x[1][2]; },
+    buy_value: function(x){ return x[1][3]; },
+    sell_qty: function(x){ return x[1][4]; },
+    sell_value: function(x){ return x[1][5]; },
+    net_qty: function(x){ return x[1][0]; },
+    net_value: function(x){ return x[1][1]; }
+  };
+  var sk = (sortVal[state.holdSort.key] ? state.holdSort.key : 'net_value'), sd = state.holdSort.dir;
+  all.sort(function(a,b){
+    var va = sortVal[sk](a), vb = sortVal[sk](b);
+    var c = (typeof va === 'string') ? (va < vb ? -1 : va > vb ? 1 : 0) : (va - vb);
+    return c * sd;
+  });
   var totalPages = Math.max(1, Math.ceil(all.length / PER_PAGE));
   if (state.holdPage >= totalPages) state.holdPage = totalPages - 1;
   if (state.holdPage < 0) state.holdPage = 0;
@@ -474,9 +496,16 @@ function renderHoldings(d){
     '<button id="hdPrev" '+(state.holdPage===0?'disabled':'')+' style="padding:6px 14px;border-radius:8px;cursor:pointer;">← Prev</button>'+
     '<span style="font-size:.85rem;">Page '+(state.holdPage+1)+' of '+totalPages+' ('+all.length+' brokers)</span>'+
     '<button id="hdNext" '+(state.holdPage>=totalPages-1?'disabled':'')+' style="padding:6px 14px;border-radius:8px;cursor:pointer;">Next →</button></div>';
+  function hd(label, key, clsName){
+    var active = state.holdSort.key === key;
+    var arrow = active ? (state.holdSort.dir === 1 ? ' ▲' : ' ▼') : '';
+    return '<th data-sk="'+key+'" class="'+((clsName||'')+(active?' sorted':''))+'">'+label+arrow+'</th>';
+  }
   return '<h2 class="bk-h">'+sym+' — stockwise broker flow, '+label()+'</h2>'+
     '<p style="font-size:.85rem;color:var(--nd-muted,#B8C0CE)">Every broker that traded this stock, netted over the period. Net bought = accumulating · net sold = distributing (by transaction value). This is transaction flow, not verified shareholding.</p>'+
-    '<div class="scrollx" tabindex="0" role="region" aria-label="'+sym+' stockwise broker flow table"><table class="bk-table"><thead><tr><th class="bk-name">Broker</th><th>Code</th><th>Buy qty</th><th>Buy value</th><th>Sell qty</th><th>Sell value</th><th>Net qty</th><th>Net value</th><th>Flow</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+pager;
+    '<div class="scrollx" tabindex="0" role="region" aria-label="'+sym+' stockwise broker flow table"><table class="bk-table"><thead><tr>'+
+    hd('Broker','broker','bk-name')+hd('Code','code')+hd('Buy qty','buy_qty')+hd('Buy value','buy_value')+hd('Sell qty','sell_qty')+hd('Sell value','sell_value')+hd('Net qty','net_qty')+hd('Net value','net_value')+
+    '<th>Flow</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+pager;
 }
 
 function renderAccDist(d){
@@ -577,6 +606,15 @@ function render(){
   });
   document.querySelectorAll('.accNext').forEach(function(btn){
     btn.addEventListener('click', function(){ var k=btn.getAttribute('data-k'); state[k]++; render(); });
+  });
+  document.querySelectorAll('#view th[data-sk]').forEach(function(th){
+    th.addEventListener('click', function(){
+      var k = th.getAttribute('data-sk');
+      if (state.holdSort.key === k) state.holdSort.dir *= -1;
+      else state.holdSort = { key: k, dir: (k === 'broker') ? 1 : -1 };
+      state.holdPage = 0;
+      render();
+    });
   });
   syncURL();
 }
