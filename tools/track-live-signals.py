@@ -67,7 +67,10 @@ def load_track_record():
         "method": ("Paper trades from live Entry alerts. Exits on real forward OHLC: "
                    "stop loss / ratcheted trailing stop / target 1 / 20-session time exit. "
                    "P&L net of 0.5% round-trip charges. Conservative same-bar precedence: "
-                   "stop, then trail, then target."),
+                   "stop, then trail, then target. "
+                   "The initial ledger was seeded from the engine's verifiable alert history "
+                   "(every distinct BUY alert in git-committed signal JSONs, each traced to "
+                   "its real alert record) — never from the backtest replay."),
         "systems": {s: {"open": [], "closed": [], "stats": {}} for s in SYSTEMS},
     }
 
@@ -104,8 +107,13 @@ def walk_trade(trade, bars):
     stop = trade['stop_loss']
     target = trade['target_1']
     risk = entry - stop if entry and stop else 0
-    trail = trade.get('trail_stop', stop) or stop
-    sessions = trade.get('sessions_held', 0)
+    # IDEMPOTENCY: the walk is a pure function of (entry params, bars).
+    # sessions and trail are ALWAYS recomputed from entry_date forward —
+    # never carried over from a previous run — so re-running can never
+    # double-count sessions or re-apply an already-ratcheted trail to
+    # early bars (that bug closed 4 trades on phantom exits).
+    sessions = 0
+    trail = stop
 
     fwd = [b for b in bars if b['date'] > trade['entry_date']]
     current_close = trade.get('current_price', entry)
