@@ -170,13 +170,30 @@
             : (chg > 0 ? '▲ GREEN CLOSE' : chg < 0 ? '▼ RED CLOSE' : '· FLAT CLOSE')) + '</span>' +
       '</div>' +
       '<h2 class="nd-wraphead">' + headlineHtml + '</h2>' +
+      '<div class="nd-wrap-chips" aria-label="Market breadth">' +
+        '<span class="nd-wchip up">' + adv + ' advancers</span>' +
+        '<span class="nd-wchip dn">' + dec + ' decliners</span>' +
+        '<span class="nd-wchip">' + esc(fmtNum(ix.value)) + '</span>' +
+      '</div>' +
       '<div class="nd-wrapbody"><p>' + body1 + '</p>' +
       '<p>' + (isLive
         ? 'Figures are live intraday and refresh during market hours; the official close prints at 15:00 NPT.'
         : 'All figures below are the official session close. Quotes refresh during market hours; ' +
           'outside hours the last close is shown.') + '</p></div>' +
+      (function () {
+        var lo = Number(ix.low), hi = Number(ix.high), vl = Number(ix.value);
+        if (!(isFinite(lo) && isFinite(hi) && isFinite(vl) && hi > lo)) return '';
+        var pos = ((vl - lo) / (hi - lo) * 100).toFixed(1);
+        var beamCls = chg >= 0 ? 'up' : 'dn';
+        return '<div class="nd-wrap-range"><div class="nd-wr-labels"><span>Day range</span><span>' +
+          esc(fmtNum(lo)) + ' – ' + esc(fmtNum(hi)) + '</span></div>' +
+          '<div class="nd-wr-beam ' + beamCls + '"><div class="nd-wr-marker" style="left:' + pos + '%"></div></div></div>';
+      })() +
       '<div class="nd-wrapmeta"><strong>Nepse Decode Desk</strong> · Data as of ' + esc(sessDate) + ' · Source: NEPSE</div>' +
-      '<a class="nd-btn-lime" href="/nepse-daily/">See today\'s market →</a>';
+      '<div class="nd-wrap-actions">' +
+        '<a class="nd-btn-lime" href="/nepse-daily/">See today\'s market →</a>' +
+        '<a class="nd-link-more" href="/nepse-decode/wrap/">Every session’s wrap →</a>' +
+      '</div>';
   }
 
   /* ---------- NEPSE index card ---------- */

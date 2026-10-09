@@ -29,7 +29,7 @@
 {"@context":"https://schema.org","@type":"WebApplication","name":"Nepse Decode","url":"https://shirjankhadka.com.np/nepse-decode/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Free NEPSE analysis suite: live quotes for any listed stock, candlestick charts with SMA and RSI, automatic chart-pattern and divergence detection, verdicts by the Alpha Lab engine, a transparent rule-based buy/hold/exit signal system, a full-market screener and attributed market news. Educational use only.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
 </script>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the market doing today?","acceptedAnswer":{"@type":"Answer","text":"The Nepse Decode homepage shows the NEPSE index with day change, market breadth, turnover, transactions, top gainers and losers, and the most active stocks — rebuilt from the latest session data."}},{"@type":"Question","name":"Is the market data real-time?","acceptedAnswer":{"@type":"Answer","text":"During market hours the page polls fresh quote files every 60 seconds; NEPSE publishes no free official real-time API, so quotes can be delayed up to 15 minutes. Every figure carries its session date."}},{"@type":"Question","name":"How does the signal engine work?","acceptedAnswer":{"@type":"Answer","text":"Ten transparent factors are scored on the daily chart and summed into a verdict from Strong Buy to Strong Exit, with every factor's contribution listed. It is a mechanical illustration for education, not investment advice."}}]}
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the market doing today?","acceptedAnswer":{"@type":"Answer","text":"The Nepse Decode homepage shows the NEPSE index with day change, market breadth, turnover, transactions, top gainers and losers, and the most active stocks — rebuilt from the latest session data."}},{"@type":"Question","name":"Is the market data real-time?","acceptedAnswer":{"@type":"Answer","text":"During market hours the page polls fresh quote files every 60 seconds; NEPSE publishes no free official real-time API, so quotes can be delayed up to 15 minutes. Every figure carries its session date."}},{"@type":"Question","name":"Where can I read past NEPSE market wraps?","acceptedAnswer":{"@type":"Answer","text":"The market wrap archive at https://shirjankhadka.com.np/nepse-decode/wrap/ keeps one entry per trading session — index close, change, sector leaders and market breadth — recorded automatically after each market close."}},{"@type":"Question","name":"How does the signal engine work?","acceptedAnswer":{"@type":"Answer","text":"Ten transparent factors are scored on the daily chart and summed into a verdict from Strong Buy to Strong Exit, with every factor's contribution listed. It is a mechanical illustration for education, not investment advice."}}]}
 </script>
 <link rel="stylesheet" href="/css/sig-pro.css?v=20261006a">
 <link rel="stylesheet" href="/css/nepse-index-candles.css?v=20261002j">
@@ -133,6 +133,49 @@ gap:2px;padding:8px 6px;border-radius:10px;border:1px solid var(--hairline,#e5e7
 .sx-dn1{background:var(--heat-dn1)!important;color:var(--heat-dn1-ink)!important}
 .sx-dn2{background:var(--heat-dn2)!important;color:var(--heat-dn2-ink)!important;border-color:transparent}
 .sx-none{background:transparent!important;color:var(--muted,#6b7280)!important;border-style:dashed}
+</style>
+<style>
+/* ===== Market Wrap card — PAGE-SCOPED (#ndWrap only) ===== */
+#ndWrap{
+  border:1px solid var(--nd-border,#1E2430); border-radius:18px;
+  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,0) 40%),var(--nd-panel,#12141A);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 6px 22px rgba(0,0,0,.35);
+  padding:clamp(18px,3vw,30px);
+}
+[data-theme="light"] #ndWrap{
+  background:linear-gradient(180deg,#FFFFFF,#F6F8FA);
+  border-color:#D5DCE4; box-shadow:inset 0 1px 0 #FFFFFF,0 4px 14px rgba(10,12,16,.08);
+}
+#ndWrap .nd-wraphead{margin-bottom:14px}
+#ndWrap .nd-wrap-chips{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px}
+#ndWrap .nd-wchip{
+  font:600 .78rem var(--nd-font-sans,system-ui,sans-serif); font-variant-numeric:tabular-nums;
+  padding:6px 12px;border-radius:999px;border:1px solid var(--nd-border,#1E2430);
+  color:var(--nd-muted,#B8C0CE);background:rgba(255,255,255,.03);
+}
+#ndWrap .nd-wchip.up{color:#4ade80;border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.08)}
+#ndWrap .nd-wchip.dn{color:#f87171;border-color:rgba(248,113,113,.4);background:rgba(248,113,113,.08)}
+[data-theme="light"] #ndWrap .nd-wchip.up{color:#16a34a}
+[data-theme="light"] #ndWrap .nd-wchip.dn{color:#dc2626}
+#ndWrap .nd-wrapbody{margin-bottom:6px}
+#ndWrap .nd-wrap-range{margin:16px 0 4px}
+#ndWrap .nd-wr-labels{display:flex;justify-content:space-between;font:500 .78rem var(--nd-font-sans,system-ui,sans-serif);
+  color:var(--nd-dim,#8E98A8);font-variant-numeric:tabular-nums;margin-bottom:8px}
+#ndWrap .nd-wr-labels span:last-child{color:var(--nd-text,#fff);font-weight:600}
+#ndWrap .nd-wr-beam{position:relative;height:8px;border-radius:999px;background:var(--nd-panel-2,#161A23);
+  border:1px solid var(--nd-border,#1E2430)}
+#ndWrap .nd-wr-beam.up{background:linear-gradient(90deg,rgba(74,222,128,.08),rgba(74,222,128,.28))}
+#ndWrap .nd-wr-beam.dn{background:linear-gradient(90deg,rgba(248,113,113,.28),rgba(248,113,113,.08))}
+#ndWrap .nd-wr-marker{position:absolute;top:50%;width:14px;height:14px;border-radius:50%;
+  transform:translate(-50%,-50%);background:#fff;border:3px solid var(--nd-lime,#B8E62E);
+  box-shadow:0 1px 5px rgba(0,0,0,.5)}
+#ndWrap .nd-wrapmeta{margin:14px 0 16px;padding-top:12px;border-top:1px solid var(--nd-border,#1E2430)}
+#ndWrap .nd-wrap-actions{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+#ndWrap .nd-link-more{font:600 .9rem var(--nd-font-sans,system-ui,sans-serif);
+  color:var(--nd-lime,#B8E62E);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .15s}
+#ndWrap .nd-link-more:hover{border-bottom-color:var(--nd-lime,#B8E62E)}
+[data-theme="light"] #ndWrap .nd-link-more{color:#4D7C0F}
+[data-theme="light"] #ndWrap .nd-link-more:hover{border-bottom-color:#4D7C0F}
 </style>
 </head>
 <body class="nd">
