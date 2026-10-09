@@ -84,7 +84,9 @@ const GENERIC = new Set([...SUFFIX, 'nepal', 'nepali', 'national', 'everest',
 // Common Nepali function words whose consonant skeletons collide with
 // company aliases (मात्रै "mtr" vs MDB's मितेरी "mtr"). These tokens are
 // never used for skeleton matching; the real alias token still matches.
-const DEVA_STOPWORDS = new Set(['मात्रै']);
+// (2026-10-09: "मात्र" — the more common form — fired MDB on a branding
+// interview headline, "उत्पादन मात्र पर्याप्त छैन ...".)
+const DEVA_STOPWORDS = new Set(['मात्रै', 'मात्र']);
 
 // Noise words that carry no identifying power when scoring how well a
 // headline matches a company name. Corporate SUFFIX words (bank, insurance,
@@ -264,8 +266,15 @@ function matchSymbol(title, aliases) {
       }
     }
     // 4) Bare ticker + market keyword (catches Nepali headlines too).
-    if (!strong && !weak && a.tickerRe.test(t) &&
-      (hasKw || a.coreTokens.some((w) => tokens.includes(w)))) strong = true;
+    // A ticker that is also a common English word (upper/lower) identifies
+    // the company only with a market keyword or a distinctive co-token —
+    // a bare whole-word "upper" is usually the adjective. (2026-10-09:
+    // "Yeti Air suspends upper-class fares ..." was live tagged UPPER.)
+    if (!strong && !weak && a.tickerRe.test(t)) {
+      const distinctive = a.coreTokens.some(
+        (w) => tokens.includes(w) && !COMMON_WORD_TOKENS.has(w));
+      if (hasKw || distinctive) strong = true;
+    }
     if (strong || (weak && hasKw)) hits.push(a);
   }
   return disambiguate(title, hits);
@@ -315,6 +324,11 @@ function disambiguate(title, hits) {
   return [...new Set(scored.filter((s) => s.e >= 2).sort((a, b) => b.e - a.e).map((s) => s.sym))];
 }
 
+// Company-name tokens that are also ordinary English words: they must not
+// identify a company on their own in rule 4 (bare ticker). A distinctive
+// co-token ("tamakoshi") or a market keyword ("dividend") still matches.
+const COMMON_WORD_TOKENS = new Set(['upper', 'lower']);
+
 // Market-wide headlines: NEPSE index moves, turnover, whole-market moves.
 // Mirrors the page's own "Markets" newsCategory rule. A company symbol may
 // sit on one only with EXPLICIT evidence (bare ticker or full company-name
@@ -322,6 +336,12 @@ function disambiguate(title, hits) {
 // (2026-10-09: "NEPSE gains 11.96 points, turnover declines" was live with
 // SAPIL; "Stock market falls double digits" with RFPL.)
 const MARKET_INDEX = /nepse|stock market|share market|\bmarket\s+(falls|rises|gains|index)|index\s+(falls|rises|gains)|turnover\s+(tops|crosses|declines)|bullish|bearish/i;
+
+// Commodity/macro price headlines: gold, silver, oil, forex moves are not
+// company news. A symbol survives one only with explicit evidence, same as
+// the market-index gate. (2026-10-09: "Gold price rises by Rs 500 per tola"
+// was live tagged RFPL via the 'price' keyword + 'falls' skeleton.)
+const COMMODITY = /gold|silver|crude\s*oil|\bpetrol\b|\bdiesel\b|forex|\bdollar\b|exchange\s*rate|remittance/i;
 
 function hasExplicitEvidence(title, a) {
   const t = ' ' + String(title || '').toLowerCase() + ' ';
@@ -396,9 +416,11 @@ async function main() {
     if (seenLink.has(it.link)) continue;
     seenLink.add(it.link);
     const syms0 = matchSymbol(it.title, aliases);
-    // Market-wide story: keep a company symbol only with explicit evidence;
-    // genuine market headlines with no company stay in the feed as sym=null.
-    const syms = (syms0.length && MARKET_INDEX.test(it.title))
+    // Market-wide or commodity story: keep a company symbol only with
+    // explicit evidence; genuine market headlines with no company stay in
+    // the feed as sym=null.
+    const isMacro = MARKET_INDEX.test(it.title) || COMMODITY.test(it.title);
+    const syms = (syms0.length && isMacro)
       ? explicitCompanySyms(it.title, syms0, aliases)
       : syms0;
     matched.push({ sym: syms.length ? syms[0] : null, syms, title: it.title, link: it.link, src: it.src, date: it.date.slice(0, 10) });
@@ -410,12 +432,18 @@ async function main() {
   const cutoff = Date.now() - KEEP_DAYS * 864e5;
   const byLink = new Map();
   // Retroactive scrub: old rows merged from previous runs keep a company
-  // symbol on a market-index headline only with explicit evidence.
+  // symbol only if the current matcher still produces it for that title.
+  // Covers the market-index/commodity explicit-evidence rule AND fossil
+  // symbols from older matcher versions (2026-10-09: PBLD87 fossil rows on
+  // the Prabhu Mahalaxmi Life promoter-sale and Beni Hydropower registrar
+  // headlines; the current matcher says PMLI / nothing).
+  const isMacro = (title) => MARKET_INDEX.test(title || '') || COMMODITY.test(title || '');
   for (const it of prev) {
-    if (it.sym && MARKET_INDEX.test(it.title || '')) {
-      const a = aliases.find((x) => x.sym === it.sym);
-      if (!(a && hasExplicitEvidence(it.title, a))) it.sym = null;
-    }
+    if (!it.sym) continue;
+    const re = matchSymbol(it.title || '', aliases);
+    const gated = (re.length && isMacro(it.title))
+      ? explicitCompanySyms(it.title, re, aliases) : re;
+    if (!gated.includes(it.sym)) { it.sym = null; it.syms = []; }
   }
   for (const it of matched.concat(prev)) {
     if (!byLink.has(it.link)) byLink.set(it.link, it);
