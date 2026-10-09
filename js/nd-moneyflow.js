@@ -32,7 +32,8 @@
   var brokerNames = {};
   var flowData = null;
   var sortMode = 'net-desc';
-  var showAll = false;
+  var mfPage = 0;
+  var MF_PER_PAGE = 10;
 
   function sortBrokers(list) {
     var arr = list.slice();
@@ -49,7 +50,11 @@
     var body = $('mfBody');
     if (!body || !flowData) return;
     var all = sortBrokers(flowData.brokers || []);
-    var rows = showAll ? all : all.slice(0, 25);
+    var totalPages = Math.max(1, Math.ceil(all.length / MF_PER_PAGE));
+    if (mfPage >= totalPages) mfPage = totalPages - 1;
+    if (mfPage < 0) mfPage = 0;
+    var start = mfPage * MF_PER_PAGE;
+    var rows = all.slice(start, start + MF_PER_PAGE);
     body.innerHTML = rows.map(function (b) {
       var name = brokerNames[b.code] || ('Broker ' + b.code);
       var net = Number(b.net || 0);
@@ -64,13 +69,27 @@
     var note = $('mfTableNote');
     if (note && flowData) {
       var total = (flowData.brokers || []).length;
-      note.textContent = (showAll ? 'All ' + total : 'Top 25 of ' + total) + ' brokers · ' + flowData.from + ' → ' + flowData.to;
+      note.textContent = 'Page ' + (mfPage + 1) + ' of ' + totalPages + ' · ' + total + ' brokers · ' + flowData.from + ' → ' + flowData.to;
     }
-    // Show all toggle
-    var toggle = $('mfShowAll');
-    if (toggle) {
-      toggle.textContent = showAll ? 'Show top 25' : 'Show all ' + (flowData.brokers || []).length + ' brokers';
-    }
+    renderPager();
+  }
+
+  function renderPager() {
+    var total = (flowData.brokers || []).length;
+    var totalPages = Math.max(1, Math.ceil(total / MF_PER_PAGE));
+    var html = '<button class="mfPrevBtn"' + (mfPage === 0 ? ' disabled' : '') + '>← Prev</button>' +
+      '<span>Page ' + (mfPage + 1) + ' of ' + totalPages + '</span>' +
+      '<button class="mfNextBtn"' + (mfPage >= totalPages - 1 ? ' disabled' : '') + '>Next →</button>';
+    ['mfPager', 'mfPagerBottom'].forEach(function (id) {
+      var host = $(id);
+      if (host) host.innerHTML = html;
+    });
+    document.querySelectorAll('.mfPrevBtn').forEach(function (btn) {
+      btn.addEventListener('click', function () { if (mfPage > 0) { mfPage--; renderTable(); } });
+    });
+    document.querySelectorAll('.mfNextBtn').forEach(function (btn) {
+      btn.addEventListener('click', function () { if (mfPage < totalPages - 1) { mfPage++; renderTable(); } });
+    });
   }
 
   function renderTiles() {
@@ -121,17 +140,10 @@
         tabs.forEach(function (b) { b.classList.remove('on'); });
         btn.classList.add('on');
         sortMode = btn.getAttribute('data-sort');
+        mfPage = 0;
         renderTable();
       });
     });
-    // Show all toggle
-    var showAllBtn = $('mfShowAll');
-    if (showAllBtn) {
-      showAllBtn.addEventListener('click', function () {
-        showAll = !showAll;
-        renderTable();
-      });
-    }
     // Load broker names + latest flow
     fetchJSON(BASE + 'brokers.json').then(function (bn) { brokerNames = bn || {}; }).catch(function () {})
       .then(function () { return fetchJSON(BASE + 'periods/1D.json'); })
