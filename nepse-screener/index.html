@@ -98,6 +98,17 @@
 .nd-faq details p{color:var(--nd-muted,#9AA3B2);line-height:1.65;font-size:.9rem;margin:10px 0 0}
 [data-theme="light"] .nd-faq details{background:#fff;border-color:#D5DCE4}
 [data-theme="light"] .nd-faq summary{color:#0A0C10}
+/* Ranked stocks: white symbols + white headers, no yellow (both themes) */
+#sc-table thead th{color:#fff}
+#sc-table thead th.sorted{color:#fff}
+#sc-table thead th .arr{color:#fff}
+#sc-table .sc-sym{color:#fff;text-decoration:none}
+#sc-table .sc-sym:hover{color:#fff;text-decoration:underline}
+[data-theme="light"] #sc-table thead th{color:#0A0C10;text-shadow:none}
+[data-theme="light"] #sc-table thead th.sorted{color:#0A0C10}
+[data-theme="light"] #sc-table thead th .arr{color:#0A0C10}
+[data-theme="light"] #sc-table .sc-sym{color:#0A0C10}
+[data-theme="light"] #sc-table .sc-sym:hover{color:#0A0C10}
 [data-theme="light"] .nd-faq details p{color:#3F4753}
 .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .skl{display:block;height:14px;border-radius:7px;background:linear-gradient(90deg,var(--nd-panel-2,#161A23) 25%,var(--nd-border,#1E2430) 50%,var(--nd-panel-2,#161A23) 75%);background-size:200% 100%;animation:skl 1.2s infinite}
