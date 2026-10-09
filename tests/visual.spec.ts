@@ -159,6 +159,21 @@ for (const vp of VIEWPORTS) {
       // 4. Wait for web fonts to load (critical: prevents fallback-font diffs)
       await page.evaluate(() => document.fonts.ready);
 
+      // 4b. Wait for images (2026-10-09): a hero image that hasn't finished
+      // decoding leaves a blank box that diffs against the baseline on the
+      // next run. Resolve once every <img> is complete or errored.
+      await page.evaluate(() =>
+        Promise.all(
+          Array.from(document.images).map((img) =>
+            img.complete
+              ? 1
+              : new Promise((r) => {
+                  img.onload = img.onerror = r;
+                })
+          )
+        )
+      );
+
       // 5. Let charts/badges settle
       await page.waitForTimeout(2500);
 
