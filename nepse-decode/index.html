@@ -655,7 +655,7 @@ document.addEventListener('DOMContentLoaded', function(){
       : status==='live' ? (snapshot.market==='OPEN'?'live':'closed') : 'unknown';
     var st={ state:state };
     paintBadge(st);
-    var sesNpt=paintHero(d, st);
+    var sesNpt=''; try{ sesNpt=paintHero(d, st); }catch(e){ if(window.__nepseErrors) window.__nepseErrors.push(String(e&&e.message||e)); }
     // Phase 3: flash the hero price when the index moved between polls.
     if(window.NepseFlash) window.NepseFlash.apply(document);
     paintBreadthStats(quotes);
