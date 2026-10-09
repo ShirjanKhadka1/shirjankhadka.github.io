@@ -18,8 +18,15 @@ Each periods/<P>.json:
                     buyers: {code: [buy_qty, buy_value]} (top 25 by value),
                     sellers: {code: [sell_qty, sell_value]} (top 25 by value),
                     netflow: {code: [net_qty, net_value]} (ALL brokers, sorted by net value desc)}},
-    accumulation: [{symbol, broker, net_qty, net_value}] (top 200),
-    distribution: [{symbol, broker, net_qty, net_value}] (top 200, most negative) }
+    accumulation: [{symbol, broker, net_qty, net_value}] (top 200 net bought,
+                    only flows with traded value >= MIN_FLOW_VALUE),
+    distribution: [{symbol, broker, net_qty, net_value}] (top 200 net sold,
+                    same floor) }
+
+Rows whose symbol is an aggregate marker ("", "*", "__TOTAL__") count toward
+broker totals only and are never emitted as symbol flows or
+accumulation/distribution entries. Brokers stored as "Name (Broker N)" are
+normalized to the numeric code.
 
 Honesty: this is transaction FLOW (net bought/sold), not verified beneficial
 holdings. UI labels must say "net bought (accumulation)" / "net sold
@@ -28,6 +35,7 @@ holdings. UI labels must say "net bought (accumulation)" / "net sold
 import argparse
 import json
 import os
+import re
 import sqlite3
 from datetime import date, timedelta
 
@@ -39,6 +47,26 @@ PERIODS = {"1D": 1, "2D": 2, "1W": 7, "2W": 14, "1M": 30, "3M": 91,
            "6M": 182, "1Y": 365, "2Y": 730, "3Y": 1095}
 
 BROKER_MAP = {}  # filled from brokers.json source if present
+
+# Sanity bounds for accumulation/distribution classification (accdist keeper,
+# 2026-10-09). A broker+symbol flow is only classified as accumulating /
+# distributing when the broker actually traded a meaningful amount in that
+# symbol over the period — this keeps trivial-volume noise out of the tables.
+MIN_FLOW_VALUE = 500_000  # Rs 5 lakh total traded value (buy+sell)
+
+# Symbols that mark a row as a broker-day aggregate (no per-symbol breakdown),
+# never a real tradeable symbol. Such rows count toward broker totals only.
+AGGREGATE_SYMBOLS = {"", "*", "__TOTAL__"}
+
+# Some archive days stored the broker as "Name (Broker N)" instead of the
+# numeric code (e.g. 2026-10-07). Normalize to the code so broker totals merge.
+_BROKER_CODE_RE = re.compile(r"\(Broker\s*(\d+)\)\s*$")
+
+
+def norm_broker(code):
+    code = str(code or "").strip()
+    m = _BROKER_CODE_RE.search(code)
+    return m.group(1) if m else code
 
 
 def r2(x):
@@ -122,11 +150,18 @@ def aggregate(con, dates):
     flows = []
     for broker, sym, bq, bv, sq, sv in rows:
         bq, bv, sq, sv = bq or 0, bv or 0, sq or 0, sv or 0
+        broker = norm_broker(broker)
+        # Aggregate-marker rows are broker-day totals with no per-symbol
+        # breakdown. They count toward broker totals only and must never
+        # become symbol flows / accumulation entries.
+        is_agg = (sym or "").strip() in AGGREGATE_SYMBOLS
         bt = brokers.get(broker)
         if bt is None:
             bt = brokers[broker] = {"buy_value": 0, "sell_value": 0, "buy_qty": 0, "sell_qty": 0}
         bt["buy_value"] += bv; bt["sell_value"] += sv
         bt["buy_qty"] += bq; bt["sell_qty"] += sq
+        if is_agg:
+            continue  # aggregate rows stop here: no symbol flow, no acc/dist
 
         bs = bsym.setdefault(broker, {})
         e = bs.get(sym)
@@ -202,9 +237,14 @@ def export_period(con, period, days, end_iso):
                         "sellers": {k: [r2(v[0]), r2(v[1])] for k, v in sellers.items()},
                         "netflow": netflow.get(sym, {})}
 
-    flows_sorted = sorted(flows, key=lambda x: -x["net_value"])
-    accumulation = flows_sorted[:200]
-    distribution = sorted(flows, key=lambda x: x["net_value"])[:200]
+    # Trivial-volume floor: a flow only qualifies as accumulation/distribution
+    # when the broker traded at least MIN_FLOW_VALUE in that symbol.
+    real_flows = [f for f in flows
+                  if (f["buy_value"] + f["sell_value"]) >= MIN_FLOW_VALUE]
+    flows_sorted = sorted(real_flows, key=lambda x: -x["net_value"])
+    accumulation = [f for f in flows_sorted if f["net_value"] > 0][:200]
+    distribution = [f for f in sorted(real_flows, key=lambda x: x["net_value"])
+                    if f["net_value"] < 0][:200]
 
     return {"period": period, "from": dates[0], "to": dates[-1],
             "trading_days": len(dates),
@@ -273,8 +313,11 @@ def main():
             # Check-and-balance: never silently publish a degenerate symbols map
             # (stock-pattern keeper) — keeps yesterday's good data on failure.
             data = guard_period_symbols(path, data)
-            with open(path, "w") as f:
+            # Atomic write: a killed run must never leave a truncated JSON.
+            tmp = path + ".tmp"
+            with open(tmp, "w") as f:
                 json.dump(data, f, separators=(",", ":"))
+            os.replace(tmp, path)
             print(f"periods/{p}.json: {data['trading_days']}d, "
                   f"{len(data['brokers'])} brokers, {len(data['symbols'])} symbols, "
                   f"{os.path.getsize(path)//1024}KB")
