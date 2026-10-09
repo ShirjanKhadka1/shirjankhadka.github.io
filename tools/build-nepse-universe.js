@@ -543,6 +543,24 @@ async function main() {
     universe.asof = trueAsof;
   }
 
+  // Defensive purge (2026-10-09): completed-merger absorbed symbols must never
+  // reach the derived outputs. The exclusion above covers the build loop, but a
+  // tree restore resurrected stale WNLB/SFCL verdicts (months-old data) onto the
+  // live screener on 2026-10-08, so purge again right before writing — loud in
+  // the log, self-healing on write.
+  const absorbedVerdicts = Object.keys(verdicts).filter((s) => absorbedSet.has(s));
+  for (const s of absorbedVerdicts) delete verdicts[s];
+  const absorbedAudits = audit.filter((r) => absorbedSet.has(r.s)).map((r) => r.s);
+  for (let i = audit.length - 1; i >= 0; i--) if (absorbedSet.has(audit[i].s)) audit.splice(i, 1);
+  const strayVerdicts = Object.keys(verdicts).filter((s) => symbols.indexOf(s) < 0);
+  if (absorbedVerdicts.length || absorbedAudits.length) {
+    console.log('  !! purged absorbed symbols from derived outputs: ' +
+      Array.from(new Set(absorbedVerdicts.concat(absorbedAudits))).join(', '));
+  }
+  if (strayVerdicts.length) {
+    console.log('  !! verdicts without universe entry (investigate): ' + strayVerdicts.join(', '));
+  }
+
   fs.writeFileSync(path.join(OUT, 'universe.json'), JSON.stringify(universe));
   fs.writeFileSync(path.join(OUT, 'verdicts.json'), JSON.stringify({ asof: universe.asof, count: symbols.length, verdicts }));
   // Per-stock data-check audit: one row per listed security (source, history

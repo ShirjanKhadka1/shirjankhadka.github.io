@@ -198,9 +198,11 @@ for cf in cache_files:
     })
 
 # Data session date: the trading session the numbers describe (from live.json),
-# not the build date. live_asof is UTC; NEPSE sessions always map 1:1 here
-# because the timestamp is intraday Kathmandu time.
-session_date = (live_asof or '')[:10] or today
+# not the build date. Prefer live.session_date — the pipeline's authoritative
+# trading-day stamp. live.asof is a FETCH timestamp and must never be used as a
+# session date (SESSION-DATE RULE 2026-10-05: a weekend refresh would otherwise
+# stamp a Sunday date on Friday's session).
+session_date = live.get('session_date') or (live_asof or '')[:10] or today
 trending.sort(key=lambda x: -x['score'])
 if not trending:
     # Fail-soft: the per-symbol OHLCV cache is not available in every
