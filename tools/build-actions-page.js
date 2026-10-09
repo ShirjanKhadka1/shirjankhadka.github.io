@@ -45,13 +45,16 @@ function symChip(sym) {
 
 const KIND_LABEL = {
   'dividend': 'Dividend',
-  'bonus-share': 'Bonus share',
   'right-share': 'Right share',
   'promoter-share': 'Promoter share',
   'auction': 'Auction',
   'lock-in': 'Lock-in',
   'meeting': 'Meeting',
 };
+/* Bonus shares are a form of dividend — remap to the dividend kind so the
+ * page only shows Dividend / Right share / Promoter share (+ All). */
+const KIND_REMAP = { 'bonus-share': 'dividend' };
+const normKind = (k) => KIND_REMAP[k] || k;
 
 const MON3 = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 function fmtAnnounced(d) {
@@ -96,14 +99,14 @@ function cardHTML(it) {
 
 function main() {
   const store = loadJson(DATA_FILE, null);
-  const items = (store && store.items) || [];
+  const items = ((store && store.items) || []).map((it) => ({ ...it, kind: normKind(it.kind) }));
   const updated = (store && store.updated) || '';
 
   const years = Array.from(new Set(items.map((it) => String(it.announced || '').slice(0, 4)).filter((y) => /^\d{4}$/.test(y)))).sort().reverse();
   const kinds = Object.keys(KIND_LABEL).filter((k) => items.some((it) => it.kind === k));
 
-  const title = 'NEPSE Corporate Actions: Dividends, Bonus, Rights, Promoter Sales | Nepse Decode';
-  const desc = 'Verified NEPSE corporate actions — dividend, bonus share, right share, promoter-share sale, lock-in and auction notices — each linked to its official NEPSE disclosure PDF. Free, educational.';
+  const title = 'NEPSE Corporate Actions: Dividends, Rights, Promoter Sales | Nepse Decode';
+  const desc = 'Verified NEPSE corporate actions — dividend (incl. bonus), right share, promoter-share sale, lock-in and auction notices — each linked to its official NEPSE disclosure PDF. Free, educational.';
   const url = SITE + '/nepse-actions/';
 
   const itemList = items.map((it, i) => ({
@@ -170,7 +173,7 @@ function main() {
     '<div class="na-masthead">\n' +
     '<p class="na-kicker">News · Corporate actions</p>\n' +
     '<h1>Corporate actions, verified</h1>\n' +
-    '<p class="na-lede">Dividend, bonus share, right share, promoter-share sale, lock-in and auction notices — each linked to its official NEPSE disclosure PDF. The official record is the NEPSE disclosure archive; this page is a convenience index of notices verified at capture time.</p>\n' +
+    '<p class="na-lede">Dividend (incl. bonus), right share, promoter-share sale, lock-in and auction notices — each linked to its official NEPSE disclosure PDF. The official record is the NEPSE disclosure archive; this page is a convenience index of notices verified at capture time.</p>\n' +
     '<div class="na-meta-row">\n' +
     '  <span class="na-badge lime"><span id="naFreshDot"></span><span id="naFresh">' + esc(updated ? 'Archive updated ' + updated.slice(0, 10) : 'Archive') + '</span></span>\n' +
     '  <span class="na-badge" id="naTotal">' + items.length + ' verified notices</span>\n' +
