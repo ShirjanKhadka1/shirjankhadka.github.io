@@ -49,9 +49,15 @@ function devanagariDigits(s) {
 function backtestNote(sys, st) {
   const yrs = backtestYears(st), an = fmt(st.annual_return_pct), win = fmt(st.win_rate_pct),
         dd = fmt(st.max_drawdown_pct), bench = fmt(st.benchmark_cagr_pct), tr = st.total_trades;
-  if (sys === 'momentum') return "<strong>What the backtest says.</strong> Over " + yrs + " years this rule set compounded at " + an + "% a year \u2014 below NEPSE buy &amp; hold (" + bench + "%), but with a far shallower worst fall (" + dd + "% vs the index's deep bear markets). It wins only " + win + "% of trades; it survives on letting winners run to multiples of risk.";
-  if (sys === 'trend-relay') return "<strong>What the backtest says.</strong> This patient re-entry system compounded at " + an + "% a year with the shallowest worst fall of the three (" + dd + "%). It trades rarely (" + tr + " trades in " + yrs + " years) and wins " + win + "% of them \u2014 a system for waiting, not for action.";
-  if (sys === 'reversal') return "<strong>Read this first.</strong> Over " + yrs + " years this system <em>lost</em> money (" + an + "% a year, worst fall " + dd + "%). That is itself the finding: on NEPSE, buying oversold dips against the trend has been a losing approach \u2014 sharp knives keep falling. It is published for education, so you can see exactly why, not as something to trade.";
+  if (sys === 'momentum') {
+    const rel = (st.annual_return_pct >= st.benchmark_cagr_pct) ? 'above' : 'below';
+    return "<strong>What the backtest says.</strong> Over " + yrs + " years this rule set compounded at " + an + "% a year \u2014 " + rel + " NEPSE buy &amp; hold (" + bench + "%) over the same window, with a worst fall of " + dd + "%. It wins only " + win + "% of trades; it survives on letting winners run to multiples of risk.";
+  }
+  if (sys === 'trend-relay') return "<strong>What the backtest says.</strong> This patient re-entry system compounded at " + an + "% a year with a worst fall of " + dd + "%. It trades rarely (" + tr + " trades in " + yrs + " years) and wins " + win + "% of them \u2014 a system for waiting, not for action.";
+  if (sys === 'reversal') {
+    if (st.annual_return_pct < 0) return "<strong>Read this first.</strong> Over " + yrs + " years this system <em>lost</em> money (" + an + "% a year, worst fall " + dd + "%). That is itself the finding: on NEPSE, buying oversold dips against the trend has been a losing approach \u2014 sharp knives keep falling. It is published for education, so you can see exactly why, not as something to trade.";
+    return "<strong>Read this first.</strong> Over " + yrs + " years this system made " + an + "% a year (worst fall " + dd + "%). It is published for education \u2014 the finding stands or falls on the data, not as something to trade.";
+  }
   return '';
 }
 function nepaliNote(sys, st) {

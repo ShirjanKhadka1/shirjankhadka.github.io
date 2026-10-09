@@ -40,14 +40,14 @@
 
 <p class="sig-kicker">Nepse Decode &middot; Chart &amp; signals &middot; rule-based, no black boxes</p>
 <h1>Signal Systems Methodology</h1>
-<p class="sig-lede">Every number on the signal pages is produced by <code>tools/build-signals.js</code> and nothing else. This page states every rule, formula, and assumption exactly as coded, so any figure can be traced and reproduced. Educational research — not investment advice. Past performance does not predict future results.</p>
+<p class="sig-lede">Backtest numbers are produced by <code>tools/build-signals.js</code>; the three signal pages are built by <code>tools/build-signal-pages.js</code> (the sole source of truth for those pages); the Live forward record on each page is rendered from <code>live_track_record</code> in the signal JSON, rewritten daily after close by <code>tools/track-live-signals.py</code>. This page states every rule, formula, and assumption exactly as coded, so any figure can be traced and reproduced. Educational research — not investment advice. Past performance does not predict future results.</p>
 
 <div class="method">
 <h2>1. Data</h2>
 <ul>
-<li><strong>Source:</strong> daily OHLCV per NEPSE symbol from the open <code>samirwagle/Nepse-All-Scraper</code> dataset (MIT licence). No fabricated bars.</li>
-<li><strong>Universe:</strong> every symbol with ≥ 250 valid sessions (315 symbols). Symbols whose data ends more than 90 days before the newest bar are excluded as stale/delisted.</li>
-<li><strong>Sample period:</strong> 2003-07-17 → 2026-09-29 (≈ 23.2 years). Individual symbols start later; signals are evaluated from each symbol's 61st bar.</li>
+<li><strong>Source:</strong> daily OHLCV per NEPSE symbol — historical bars from the open <code>samirwagle/Nepse-All-Scraper</code> dataset (MIT licence), with the most recent sessions overlaid from our own NEPSE feed. No fabricated bars.</li>
+<li><strong>Universe:</strong> every symbol with ≥ 250 valid sessions (<span id="m-symbols">313</span> symbols in the latest build). Symbols whose data ends more than 90 days before the newest bar are excluded as stale/delisted.</li>
+<li><strong>Sample period:</strong> <span id="m-window">2024-09-01 → 2026-10-08</span> (<span id="m-window-yrs">≈ 2.1</span> years) — the published backtest window, filled from the live data below. Individual symbols start later; signals are evaluated from each symbol's 61st bar.</li>
 <li><strong>Cash dividends are not received</strong> in the simulation — a stated limitation that slightly understates high-dividend stocks.</li>
 </ul>
 
@@ -95,7 +95,7 @@
 </ul>
 
 <h2>8. How each statistic is calculated</h2>
-<p>Let <code>V0 = Rs 1 Cr</code>, <code>Vf</code> = final portfolio value (<strong>cash + open positions at last close − exit costs</strong>), <code>T</code> = 23.20 years.</p>
+<p>Let <code>V0 = Rs 1 Cr</code>, <code>Vf</code> = final portfolio value (<strong>cash + open positions at last close − exit costs</strong>), <code>T</code> = <span id="m-T">2.10</span> years (the published backtest window, filled from the live data below).</p>
 <table>
 <tr><th>Figure</th><th>Formula</th></tr>
 <tr><td>Total return %</td><td><code>(Vf − V0) / V0 × 100</code></td></tr>
@@ -121,6 +121,17 @@
 <li>One realised history — regimes change; nothing here predicts the future.</li>
 </ol>
 <div class="note"><strong>Reproducibility:</strong> <code>node tools/build-signals.js --no-fetch</code> rebuilds the published JSONs from the checked-in cache — every stat above recomputes exactly (only <code>generated_at</code> changes).</div>
+
+<h2>10. Live forward record — paper trades from real alerts</h2>
+<p>Each signal page also carries a <strong>Live forward record</strong>: a forward paper-trade ledger built from real alerts, not from the backtest.</p>
+<ul>
+<li>Every live Entry alert becomes a <strong>Rs 10 lakh</strong> paper trade at the signal close.</li>
+<li>Exits fire on <strong>real forward OHLC</strong> — Target 1, stop loss, a ratcheting trailing stop, or a 20-session time exit. No lookahead: only bars after the entry date are used.</li>
+<li>P&amp;L is net of <strong>0.5% round-trip</strong> charges.</li>
+<li>Seeded from the engine's verifiable alert history: every distinct BUY alert found in git-committed signal JSONs on origin/main (2026-09-30 commits onward), each traced to its real alert record (system, symbol, signal date, published entry/stop/targets). Forward tracking started 2026-08-03; SIKLES was excluded because no verifiable alert record exists for it — never invented.</li>
+<li>Recomputed <strong>daily after market close</strong> by <code>tools/track-live-signals.py</code>, which rewrites <code>live_track_record</code> in each signal JSON. The pages render these numbers client-side, so they stay fresh with no page rebuild.</li>
+<li><strong>Honesty rule:</strong> win/failure rates appear only after trades close. With zero closed trades the section says so plainly — never 0%, never the backtest rate.</li>
+</ul>
 </div>
 
 <p class="sig-foot">Data: daily NEPSE OHLCV, corporate-action adjusted. <span id="method-gen">…</span>. Educational only — not investment advice.</p>
@@ -136,11 +147,25 @@
     return n.getUTCDate()+' '+M[n.getUTCMonth()]+' '+n.getUTCFullYear()+', '+p(n.getUTCHours())+':'+p(n.getUTCMinutes())+' NPT';
   }
   var el=document.getElementById('method-gen');
+  function yrs(a,b){
+    var t1=Date.parse(a+'T00:00:00Z'),t2=Date.parse(b+'T00:00:00Z');
+    if(!isFinite(t1)||!isFinite(t2)||t2<=t1)return '';
+    return ((t2-t1)/864e5/365.25).toFixed(2);
+  }
   fetch('/nepse-chart/data/signals/momentum.json').then(function(r){return r.json();}).then(function(d){
     var txt=[];
-    if(d.as_of)txt.push('data through '+d.as_of);
+    if(d.asof)txt.push('data through '+d.asof);
     if(d.generated_at)txt.push('generated '+fmtNPT(d.generated_at));
     if(el)el.textContent=txt.length?txt.join(' · '):'recently rebuilt';
+    /* keep the documented window / universe / T in sync with the published data */
+    var st=d.stats||{};
+    function set(id,v){var n=document.getElementById(id);if(n&&v!=null&&v!=='')n.textContent=v;}
+    if(st.backtest_from&&st.backtest_to){
+      set('m-window',st.backtest_from+' → '+st.backtest_to);
+      var y=yrs(st.backtest_from,st.backtest_to);
+      if(y){set('m-window-yrs','≈ '+(+y).toFixed(1));set('m-T',y);}
+    }
+    set('m-symbols',d.universe_symbols);
   }).catch(function(){if(el)el.textContent='recently rebuilt';});
 })();
 </script>
