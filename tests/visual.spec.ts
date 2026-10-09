@@ -161,17 +161,22 @@ for (const vp of VIEWPORTS) {
 
       // 4b. Wait for images (2026-10-09): a hero image that hasn't finished
       // decoding leaves a blank box that diffs against the baseline on the
-      // next run. Resolve once every <img> is complete or errored.
+      // next run. Wait up to 10s for every <img> to complete or error, then
+      // proceed regardless (a hard wait here would hang the suite if the
+      // single-threaded test server backlogs under parallel workers).
       await page.evaluate(() =>
-        Promise.all(
-          Array.from(document.images).map((img) =>
-            img.complete
-              ? 1
-              : new Promise((r) => {
-                  img.onload = img.onerror = r;
-                })
-          )
-        )
+        Promise.race([
+          Promise.all(
+            Array.from(document.images).map((img) =>
+              img.complete
+                ? 1
+                : new Promise((r) => {
+                    img.onload = img.onerror = r;
+                  })
+            )
+          ),
+          new Promise((r) => setTimeout(r, 10000)),
+        ])
       );
 
       // 5. Let charts/badges settle
