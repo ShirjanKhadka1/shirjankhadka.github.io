@@ -71,11 +71,22 @@ def is_trading_day(d):
 
 
 def get_last_trading_day():
-    """Get the most recent trading day."""
-    d = date.today()
+    """Get the most recent trading day.
+
+    NEPSE closes at 15:00 NPT; Capital Max broker data lands ~15:20-15:30.
+    MUST use Asia/Kathmandu explicitly: the server runs on UTC, where
+    15:35 NPT is 09:50 UTC and a naive datetime.now().hour < 15 check
+    would wrongly pick yesterday (validation would then fail and the
+    daily run would silently collect nothing).
+    """
+    try:
+        from zoneinfo import ZoneInfo
+        now = datetime.now(ZoneInfo("Asia/Kathmandu"))
+    except Exception:
+        now = datetime.now()  # fallback: server local time
+    d = now.date()
     # If it's before market close, use yesterday
     # Market closes at 15:00 NPT
-    now = datetime.now()
     if d.weekday() < 5 and now.hour < 15:
         d -= timedelta(days=1)
     while not is_trading_day(d):
