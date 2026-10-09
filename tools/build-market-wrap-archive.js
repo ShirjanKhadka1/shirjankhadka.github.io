@@ -24,6 +24,10 @@
  * "already current" and exits 0 without touching pages or the sitemap.
  * Pass --force to rebuild pages/sitemap regardless.
  *
+ * Self-healing: sessions from the last 10 days that are present in
+ * js/nepse-daily.js but missing from the archive are backfilled as
+ * index-only entries, so a missed run never leaves a permanent gap.
+ *
  * Usage: node tools/build-market-wrap-archive.js [--force]
  */
 'use strict';
@@ -33,7 +37,11 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..');
 const LIVE = path.join(ROOT, 'nepse-chart', 'data', 'live.json');
 const ARCH = path.join(ROOT, 'nepse-chart', 'data', 'wrap-archive.json');
-const IDX_HIST = path.join(ROOT, 'data', 'index-history.json');
+// Maintained index history: js/nepse-daily.js is the market-close pipeline's
+// file of record (rows: [YYYYMMDD, open, high, low, close, volume], per that
+// file's header). The legacy data/index-history.json has stale recent rows
+// and misses sessions, so it is NOT used here.
+const IDX_HIST = path.join(ROOT, 'js', 'nepse-daily.js');
 const SM = path.join(ROOT, 'sitemap.xml');
 const WRAP_DIR = path.join(ROOT, 'nepse-decode', 'wrap');
 const SITE = 'https://shirjankhadka.com.np';
@@ -47,6 +55,17 @@ const fmt = (v, dp) => (v == null || !isFinite(Number(v)))
   ? '—'
   : Number(v).toLocaleString('en-US', { minimumFractionDigits: dp == null ? 2 : dp, maximumFractionDigits: dp == null ? 2 : dp });
 const readJson = (p, fb) => { try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch (e) { return fb; } };
+
+// Parse the JS-wrapped history file: /* comment */ window.NEPSE_DAILY=[...];
+function readIndexHistory() {
+  try {
+    const txt = fs.readFileSync(IDX_HIST, 'utf8');
+    const m = txt.match(/window\.NEPSE_DAILY\s*=\s*(\[[\s\S]*\])\s*;/);
+    if (!m) return [];
+    const rows = JSON.parse(m[1]);
+    return Array.isArray(rows) ? rows : [];
+  } catch (e) { return []; }
+}
 
 function sessLabel(sessDate) { // "Fri, 9 Oct 2026"
   const d = new Date(sessDate + 'T12:00:00+05:45');
@@ -133,15 +152,17 @@ function entryFromLive(live) {
   };
 }
 
-// Index-only entry from data/index-history.json rows: [date, open, close, ...].
-// Open/close pairing verified (each day's open == previous day's close); the
-// remaining columns' meaning is not established, so high/low stay null.
-function entryFromIndexRow(row) {
+// Index-only entry from js/nepse-daily.js rows: [YYYYMMDD, open, high, low,
+// close, volume] (layout documented in that file's header). Change is measured
+// vs the PREVIOUS session's close — matching the published change figures and
+// the live path's semantics — not vs the session's own open.
+function entryFromIndexRow(row, prevClose) {
   const ymd = String(row[0]);
   const sessDate = ymd.slice(0, 4) + '-' + ymd.slice(4, 6) + '-' + ymd.slice(6, 8);
-  const open = Number(row[1]), close = Number(row[2]);
-  const chg = close - open;
-  const pct = open ? (chg / open) * 100 : 0;
+  const open = Number(row[1]), high = Number(row[2]), low = Number(row[3]), close = Number(row[4]);
+  const ref = prevClose != null && isFinite(Number(prevClose)) ? Number(prevClose) : open;
+  const chg = close - ref;
+  const pct = ref ? (chg / ref) * 100 : 0;
   const dir = chg > 0 ? 'higher' : chg < 0 ? 'lower' : 'flat';
   const mag = Math.abs(pct);
   const magWord = mag >= 2 ? 'sharply' : mag >= 1 ? 'firmly' : mag >= 0.5 ? 'moderately' : '';
@@ -153,7 +174,7 @@ function entryFromIndexRow(row) {
   return {
     session_date: sessDate,
     market: 'CLOSED',
-    index: { value: close, open, change: Number(chg.toFixed(2)), pct: Number(pct.toFixed(2)), high: null, low: null },
+    index: { value: close, open, change: Number(chg.toFixed(2)), pct: Number(pct.toFixed(2)), high, low },
     breadth: { adv: null, dec: null },
     sectors: { leaders: [], laggards: [] },
     headline, body: [body1, body2],
@@ -378,13 +399,14 @@ function main() {
   const have = new Set(archive.map((e) => e.session_date));
   const added = [];
 
+  // NPT "now": Date.now() + 5:45 in ms, as ISO date part.
+  const npt = new Date(Date.now() + (5 * 60 + 45) * 60000);
+  const nptISO = npt.toISOString().slice(0, 10);
+  const nptH = npt.getUTCHours() + npt.getUTCMinutes() / 60;
+
   const live = readJson(LIVE, null);
   if (live && live.session_date && live.index && !have.has(live.session_date)) {
     const mkt = live.market || '';
-    // NPT "now": Date.now() + 5:45 in ms, as ISO date part.
-    const npt = new Date(Date.now() + (5 * 60 + 45) * 60000);
-    const nptISO = npt.toISOString().slice(0, 10);
-    const nptH = npt.getUTCHours() + npt.getUTCMinutes() / 60;
     const closePassed = nptISO > live.session_date || (nptISO === live.session_date && nptH >= 15 + 35 / 60);
     if (mkt === 'OPEN' && !closePassed) {
       console.log(JSON.stringify({ status: 'market still open, skipping', session_date: live.session_date }));
@@ -396,12 +418,47 @@ function main() {
     }
   }
 
+  // Backfill: any session in the maintained index history that is missing
+  // from the archive gets an index-only entry. Window is the last 10 days —
+  // a longer outage already escalates to Shirjan per the cron body, and this
+  // keeps a missed run from silently leaving a permanent gap. Idempotent via
+  // the session_date dedup above. Never extends the archive backward past its
+  // earliest entry (the archive's start date is a scope decision, not a gap).
+  // Today's session still waits for the close.
+  const cutoff = new Date(npt.getTime() - 10 * 86400000).toISOString().slice(0, 10);
+  const earliest = archive.reduce((m, e) => (e.session_date < m ? e.session_date : m), '9999-99-99');
+  const rows = readIndexHistory();
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i];
+    if (!Array.isArray(r) || r.length < 5) continue;
+    const close = Number(r[4]);
+    if (!isFinite(close) || close <= 0) continue;
+    const ymd = String(r[0]);
+    const sessDate = ymd.slice(0, 4) + '-' + ymd.slice(4, 6) + '-' + ymd.slice(6, 8);
+    if (sessDate < cutoff || sessDate > nptISO || sessDate < earliest || have.has(sessDate)) continue;
+    if (sessDate === nptISO && live && live.market === 'OPEN' &&
+        !(nptH >= 15 + 35 / 60)) continue; // today, pre-close
+    const prevClose = i > 0 && Array.isArray(rows[i - 1]) ? Number(rows[i - 1][4]) : null;
+    const e = entryFromIndexRow(r, prevClose);
+    archive.push(e);
+    have.add(e.session_date);
+    added.push(e.session_date);
+  }
+
   const newEntries = added.length > 0;
   if (!newEntries && !FORCE) {
     console.log(JSON.stringify({ status: 'already current', entries: archive.length }));
     return;
   }
 
+  const { totalPages, urls } = rebuildPages(archive);
+  console.log(JSON.stringify({
+    status: 'rebuilt', added, entries: archive.length,
+    pages: totalPages, urls,
+  }));
+}
+
+function rebuildPages(archive) {
   archive.sort((a, b) => (a.session_date < b.session_date ? 1 : -1));
   fs.mkdirSync(WRAP_DIR, { recursive: true });
   fs.writeFileSync(ARCH, JSON.stringify(archive, null, 2) + '\n');
@@ -424,10 +481,8 @@ function main() {
   try { fs.rmdirSync(path.join(WRAP_DIR, 'page')); } catch (e) { /* not empty — fine */ }
 
   const urls = updateSitemap(totalPages);
-  console.log(JSON.stringify({
-    status: 'rebuilt', added, entries: archive.length,
-    pages: totalPages, urls,
-  }));
+  return { totalPages, urls };
 }
 
-main();
+if (require.main === module) main();
+module.exports = { entryFromIndexRow, readIndexHistory, rebuildPages, readJson };
