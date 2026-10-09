@@ -110,6 +110,12 @@ async function fetchOfficialClose(api) {
         high: parseFloat(x.high) || null,
         low: parseFloat(x.low) || null,
         close, change,
+        // Raw API fields for the EOD field-shift cross-check (2026-10-09:
+        // the API's "close" went stale = yesterday's close while
+        // "currentValue" held the true close). NaN when absent (fallback).
+        rawClose: parseFloat(x.close),
+        rawPrevClose: parseFloat(x.previousClose),
+        rawPerChange: parseFloat(x.perChange),
       };
     }
   };
@@ -129,7 +135,13 @@ async function main() {
   let live = {};
   try { live = JSON.parse(fs.readFileSync(LIVE, 'utf8')); } catch (e) { /* missing is fine */ }
   const liveDate = String(live.asof || '').slice(0, 10);
-  if ((live.close === true || live.market === 'CLOSED') && liveDate === today) {
+  // 2026-10-09 FIX: only the validated close:true marker proves the official
+  // close was captured. market:'CLOSED' alone is NOT proof — the intraday
+  // poll and the Alpha Lab snapshot both write CLOSED with the last tick
+  // (2026-10-09: CLOSED at 2587.83, the 15:00 tick, while the official close
+  // was 2591.8). Exiting on CLOSED alone skips the capture and leaves the
+  // session without its validated close.
+  if (live.close === true && liveDate === today) {
     log('close already captured for ' + today + '; nothing to do');
     return;
   }
@@ -171,6 +183,20 @@ async function main() {
     if (Math.abs(derived - nepse.close) / nepse.close <= 0.003) {
       nepse.close = derived;
     }
+  }
+  // 2026-10-09 field-shift guard (owner rule): never trust the EOD "close"
+  // field blindly. Flag a stale "close" field (equals yesterday's close while
+  // currentValue moved on), and fail loud if currentValue is inconsistent
+  // with (prevClose + change) — the value must cohere with the day's ticks.
+  if (isFinite(nepse.rawClose) && isFinite(prevClose) &&
+      Math.abs(nepse.rawClose - prevClose) / prevClose <= 0.001 &&
+      Math.abs(nepse.rawClose - nepse.close) / nepse.close > 0.001) {
+    log('WARNING: API "close" field (' + nepse.rawClose + ') is stale (= yesterday\'s close); trusting currentValue + change');
+  }
+  const recon = prevClose + nepse.change;
+  if (Math.abs(nepse.close - recon) / nepse.close > 0.01) {
+    throw new Error('close/currentValue/change inconsistent: close=' + nepse.close +
+      ' vs prevClose+change=' + recon.toFixed(2) + ' — refusing to publish');
   }
   if (Math.abs(nepse.close - prevClose) / prevClose > 0.08) {
     throw new Error('NEPSE close ' + nepse.close + ' deviates >8% from prev ' + prevClose);
