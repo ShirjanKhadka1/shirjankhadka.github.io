@@ -85,6 +85,13 @@ const DYNAMIC_SELECTORS = [
   '.snap-asof',
 ];
 
+// RETRY (2026-10-09): /blog/ intermittently crashes the CI renderer's
+// screencast during fullPage capture ("screencast.showOverlays: Target
+// page, context or browser has been closed"). The page itself renders
+// fine — the crash is environmental. Scoped here (not in the shared
+// config) so smoke.spec.ts keeps zero retries and still fails fast.
+test.describe.configure({ retries: 2 });
+
 for (const vp of VIEWPORTS) {
   for (const p of PAGES) {
     test(`visual ${vp.name} ${p}`, async ({ browser }) => {
