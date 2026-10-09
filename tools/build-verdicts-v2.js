@@ -275,7 +275,10 @@ async function main() {
       age_sessions: ev.identity ? ev.identity.age_sessions : null,
       sector: ev.identity ? ev.identity.sector : null,
       early_lifecycle: !!(ev.identity && ev.identity.age_sessions != null && ev.identity.age_sessions < 30),
-      flags: (v.flags || []).map((f) => f.name || f),
+      // active scored factor names (evidence.flags is the source of truth;
+      // v.flags does not exist on the verdict object)
+      flags: (ev.flags || []).filter((f) => f && f.active && f.status === 'scored')
+        .map((f) => f.name),
       // lock-in for the index table: precise expiry ONLY when the source is
       // verified (user-verified / lockin-table tiers). Proxy sources carry
       // no date — the UI must not render a countdown from them (§2.1).
