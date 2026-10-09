@@ -234,7 +234,7 @@ h2.bk-h{font-size:1.35rem;margin:34px 0 8px;color:var(--nd-text,#fff);letter-spa
 (function(){
 "use strict";
 var BASE = '/nepse-brokers/data/';
-var state = { view: 'top', period: 'latest', data: null, brokers: {}, meta: null, asof: null, symbol: null, broker: null, topPage: 0, holdPage: 0, brkPage: 0, brkQuery: '' };
+var state = { view: 'top', period: 'latest', data: null, brokers: {}, meta: null, asof: null, symbol: null, broker: null, topPage: 0, holdPage: 0, brkPage: 0, brkQuery: '', accPage: 0, distPage: 0, accSearch: '' };
 var $ = function(id){ return document.getElementById(id); };
 
 /* ---------- URL-backed state (replaceState; no history spam) ---------- */
@@ -480,14 +480,33 @@ function renderHoldings(d){
 }
 
 function renderAccDist(d){
-  function tbl(list, title, good){
-    var rows = list.slice(0,50).map(function(x,i){
-      return '<tr><td>'+(i+1)+'</td><td><strong>'+x.symbol+'</strong></td><td class="bk-name">'+bname(x.broker)+'</td>'+
+  var PER_PAGE = 10;
+  var search = (state.accSearch || '').toUpperCase();
+  function filterList(list){
+    if(!search) return list;
+    return list.filter(function(x){ return (x.symbol||'').toUpperCase().indexOf(search) >= 0; });
+  }
+  function tbl(list, title, good, pageKey){
+    var filtered = filterList(list);
+    var totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+    var pg = state[pageKey] || 0;
+    if(pg >= totalPages) pg = totalPages - 1;
+    if(pg < 0) pg = 0;
+    state[pageKey] = pg;
+    var start = pg * PER_PAGE;
+    var page = filtered.slice(start, start + PER_PAGE);
+    var rows = page.map(function(x,i){
+      return '<tr><td>'+(start+i+1)+'</td><td><strong>'+x.symbol+'</strong></td><td class="bk-name">'+bname(x.broker)+'</td>'+
         '<td>'+fmtN(x.net_qty,0)+'</td><td class="'+(good?'pos':'neg')+'">'+fmtV(x.net_value)+'</td></tr>';
     }).join('');
-    return '<div><h2 class="bk-h">'+title+'</h2><div class="scrollx" tabindex="0" role="region" aria-label="'+title+' table"><table class="bk-table"><thead><tr><th>#</th><th>Stock</th><th class="bk-name">Broker</th><th>Net qty</th><th>Net value</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+    var pager = '<div class="bk-pager" style="display:flex;gap:8px;align-items:center;justify-content:center;margin:8px 0;">'+
+      '<button class="accPrev" data-k="'+pageKey+'" '+(pg===0?'disabled':'')+'>← Prev</button>'+
+      '<span style="font-size:.8rem;">Page '+(pg+1)+' of '+totalPages+'</span>'+
+      '<button class="accNext" data-k="'+pageKey+'" '+(pg>=totalPages-1?'disabled':'')+'>Next →</button></div>';
+    return '<div><h2 class="bk-h">'+title+'</h2><div class="scrollx" tabindex="0" role="region" aria-label="'+title+' table"><table class="bk-table"><thead><tr><th>#</th><th>Stock</th><th class="bk-name">Broker</th><th>Net qty</th><th>Net value</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+pager+'</div>';
   }
-  return '<div class="two">'+tbl(d.accumulation||[],'Accumulating — top net bought',true)+tbl(d.distribution||[],'Distributing — top net sold',false)+'</div>';
+  var searchBox = '<div style="margin:0 0 12px;"><input id="accSearch" type="text" placeholder="Search symbol (e.g. NABIL)…" value="'+(state.accSearch||'')+'" style="padding:8px 12px;border-radius:8px;width:250px;"></div>';
+  return searchBox+'<div class="two">'+tbl(d.accumulation||[],'Accumulating — top net bought',true,'accPage')+tbl(d.distribution||[],'Distributing — top net sold',false,'distPage')+'</div>';
 }
 
 function label(){
@@ -548,6 +567,17 @@ function render(){
     if (bsq.value !== (state.brkQuery||'')) bsq.value = state.brkQuery||'';
     bsq.oninput = function(){ state.brkQuery = this.value; state.brkPage = 0; render(); };
   }
+  var asq = $('accSearch');
+  if (asq){
+    if (document.activeElement !== asq) asq.value = state.accSearch||'';
+    asq.oninput = function(){ state.accSearch = this.value; state.accPage = 0; state.distPage = 0; render(); };
+  }
+  document.querySelectorAll('.accPrev').forEach(function(btn){
+    btn.addEventListener('click', function(){ var k=btn.getAttribute('data-k'); if(state[k]>0){ state[k]--; render(); } });
+  });
+  document.querySelectorAll('.accNext').forEach(function(btn){
+    btn.addEventListener('click', function(){ var k=btn.getAttribute('data-k'); state[k]++; render(); });
+  });
   syncURL();
 }
 
