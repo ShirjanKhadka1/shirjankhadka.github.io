@@ -27,6 +27,25 @@ def load_json(p):
 # ---------- shared reference data ----------
 sector_map = load_json('tools/sector-map.json')          # sym -> {'sector': ...}
 universe = {s['s']: s for s in load_json('nepse-chart/data/universe.json')['symbols']}
+
+# Merger guard (2026-10-09): universe.json can drift back to a stale state on
+# restores/rollbacks (2026-10-08: the 21:22 design restore resurrected absorbed
+# WNLB/SFCL; the signals rebuild re-scored them into trending 269->267 and the
+# baked snapshot carried a dead /stocks/WNLB/ link until the watch re-applied
+# the cleanup). Exclude completed-merger absorbed symbols at the builder level
+# too, mirroring build-nepse-universe.js. Fail-soft: an unreadable tracker
+# means no exclusion, never a broken build.
+_absorbed_merged = set()
+try:
+    _mt = load_json('tools/verdict-engine-v2/manual/merger-tracker.json')
+    for _m in _mt.get('completed_mergers', []) or []:
+        _a = _m.get('absorbed')
+        if _a:
+            _absorbed_merged.add(str(_a))
+    if _absorbed_merged:
+        print(f"  merger-tracker: excluding absorbed {sorted(_absorbed_merged)}")
+except Exception as _mte:
+    print(f"  merger-tracker unavailable ({_mte}); no merger exclusion")
 live = load_json('nepse-chart/data/live.json')
 live_q = {q['symbol']: q for q in live['quotes']}
 live_asof = live.get('asof', '')
@@ -77,6 +96,8 @@ for cf in cache_files:
     sym = os.path.basename(cf)[:-5]
     u = universe.get(sym)
     if not u or u.get('t') != 'Equity':
+        continue
+    if sym in _absorbed_merged:   # completed merger: absorbed listing no longer trades
         continue
     sector = (sector_map.get(sym) or {}).get('sector', '—')
     if sector in EXCLUDE_SECTORS:
@@ -236,6 +257,8 @@ companies = []
 for sym, v in funda.items():
     u = universe.get(sym)
     if not u or u.get('t') != 'Equity':
+        continue
+    if sym in _absorbed_merged:   # completed merger: absorbed listing no longer trades
         continue
     sector = (sector_map.get(sym) or {}).get('sector', 'Other')
     if sector in EXCLUDE_SECTORS:
