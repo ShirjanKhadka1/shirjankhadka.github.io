@@ -18,6 +18,7 @@ const ROOT = path.join(__dirname, '..');
 const LIVE = path.join(ROOT, 'nepse-chart', 'data', 'live.json');
 const DAILY_JS = path.join(ROOT, 'js', 'nepse-daily.js');
 const SPARK = path.join(ROOT, 'nepse-chart', 'data', 'index-spark.json');
+const ARCH = path.join(ROOT, 'data', 'index-history.json'); // /nepse-technical/ long OHLC archive
 
 function log(...a) { console.log('[update-index-history]', ...a); }
 
@@ -83,6 +84,29 @@ function main() {
     log('appended ' + iso + ' to index-spark.json');
   } else {
     log('index-spark.json already at/after ' + iso + '; skipping');
+  }
+
+  // 3) data/index-history.json — the /nepse-technical/ chart's long OHLC
+  // archive (rows [YYYYMMDD, open, high, low, close, volume]). Appended only
+  // with full validated OHLC (same gate as nepse-daily.js — never invented);
+  // volume stays 0 per this archive's convention; `to` tracks the last row.
+  // Idempotent: exits quietly if the session is already the last row.
+  if (hasOHLC) {
+    const arch = JSON.parse(fs.readFileSync(ARCH, 'utf8'));
+    const arows = arch.rows || [];
+    const lastA = arows.length ? arows[arows.length - 1][0] : 0;
+    if (ymd > lastA) {
+      const r2 = (x) => Math.round(x * 100) / 100;
+      arows.push([ymd, r2(openPx), r2(+ix.high), r2(+ix.low), r2(+ix.value), 0]);
+      arch.rows = arows;
+      arch.to = iso;
+      fs.writeFileSync(ARCH, JSON.stringify(arch));
+      log('appended ' + iso + ' to data/index-history.json');
+    } else {
+      log('data/index-history.json already at/after ' + iso + '; skipping');
+    }
+  } else {
+    log('data/index-history.json OHLC skipped (incomplete)');
   }
 }
 
