@@ -114,7 +114,7 @@ button#valuePrev:disabled,button#valueNext:disabled{opacity:.45;cursor:default}
       <tr><td><span class="scorebar"><i style="width:86%"></i></span> 85.7</td><td><a class="symlink" href="/stocks/ADBL/">ADBL</a><span class="sname">Agricultural Development Bank Limited</span></td><td>Development Bank</td><td class="num">311.90</td><td class="num">22.99<span class="submed">sector 28.1</span></td><td class="num">1.58<span class="submed">sector 3.54</span></td><td class="num">4.3%</td><td class="num">6.8%</td></tr>
     </tbody>
   </table></div>
-  <p class="snap-note">Static daily snapshot · ranked within each sector; the full interactive screen below refreshes every 60 seconds.</p>
+  <p class="snap-note">Static daily snapshot, rebuilt automatically after each trading session · ranked within each sector; the full interactive screen below refreshes every 60 seconds.</p>
 </section>
 <!-- SNAP-END -->
 <div class="note" id="coverage">Loading data…</div>
@@ -279,7 +279,7 @@ function load(silent){
     }
   $('coverage').innerHTML = '<strong>Data as of ' + esc(d.asof) + '.</strong> ' + state.rows.length +
     ' companies scored across ' + Object.keys(sectors).length + ' sectors (' +
-    (d.coverage && d.coverage.companies || '?') + ' companies in source filings). Source: ' + esc(d.source) + '.';
+    (d.coverage && d.coverage.companies || '?') + ' companies in source filings). Rebuilt automatically each trading day after market close. Source: ' + esc(d.source) + '.';
   $('methodBox').textContent = d.method || '';
   render();
     });

@@ -493,7 +493,7 @@ try:
         '<th class="num">P/E (TTM)</th><th class="num">P/BV</th><th class="num">Earn. yield</th><th class="num">ROE (TTM)</th></tr></thead>\n'
         '    <tbody>\n' + '\n'.join(_vrows) + '\n    </tbody>\n'
         '  </table></div>\n'
-        '  <p class="snap-note">Static daily snapshot · ranked within each sector; the full interactive screen below refreshes every 60 seconds.</p>\n'
+        '  <p class="snap-note">Static daily snapshot, rebuilt automatically after each trading session · ranked within each sector; the full interactive screen below refreshes every 60 seconds.</p>\n'
         '</section>')
     _bake_snapshot('nepse-value/index.html', _vfrag)
 except Exception as _e:
