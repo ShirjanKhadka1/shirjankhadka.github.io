@@ -443,6 +443,17 @@ function renderStock(d){
   function union(a,b){ var u={}; Object.keys(a||{}).forEach(function(k){u[k]=1}); Object.keys(b||{}).forEach(function(k){u[k]=1}); return u; }
   var s = d.symbols[sym];
   if(!s) return '<div class="cover">No trades for '+sym+' in this period.</div>';
+  // 1D netflow-only periods lack top-level qty/value/avg_rate — derive from netflow
+  if (s.netflow && (s.qty == null || s.value == null)){
+    var tq = 0, tv = 0;
+    Object.keys(s.netflow).forEach(function(c){
+      var v = s.netflow[c] || [];
+      tq += (v[2]||0) + (v[4]||0);
+      tv += (v[3]||0) + (v[5]||0);
+    });
+    s.qty = tq / 2; s.value = tv / 2;
+    s.avg_rate = s.qty ? s.value / s.qty : 0;
+  }
   function bt(obj, title){
     // buyers/sellers entries are [qty, value]; tolerate legacy value-only schema
     // and missing objects entirely (1D periods carry netflow only)
