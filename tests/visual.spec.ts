@@ -83,6 +83,11 @@ const DYNAMIC_SELECTORS = [
   '.live-badge',
   '[data-asof]',                       // "as of" timestamps
   '.snap-asof',
+  // BLOG HERO (2026-10-09): the featured-article image loads unreliably
+  // under the single-threaded CI test server (blank white box on some
+  // runs, loaded image on others). Mask it so the baseline is
+  // deterministic. Matches nothing on other pages.
+  '.mag-fimg img',
 ];
 
 // RETRY (2026-10-09): /blog/ intermittently crashes the CI renderer's
