@@ -33,8 +33,16 @@ function card(l, v, cls) {
   return '<div class="sig-card ' + cls + '"><div class="sig-card-l">' + l + '</div><div class="sig-card-v">' + v + '</div></div>';
 }
 
+// backtest_years is not emitted by build-signals.js; derive it from the window dates.
+// (2026-10-09: pages + meta descriptions rendered "undefined years" otherwise.)
+function backtestYears(st) {
+  if (st.backtest_years) return st.backtest_years;
+  const a = new Date(st.backtest_from).getTime(), b = new Date(st.backtest_to).getTime();
+  if (!isFinite(a) || !isFinite(b) || b <= a) return '–';
+  return fmt((b - a) / (365.25 * 86400000), 1);
+}
 function backtestNote(sys, st) {
-  const yrs = st.backtest_years, an = fmt(st.annual_return_pct), win = fmt(st.win_rate_pct),
+  const yrs = backtestYears(st), an = fmt(st.annual_return_pct), win = fmt(st.win_rate_pct),
         dd = fmt(st.max_drawdown_pct), bench = fmt(st.benchmark_cagr_pct), tr = st.total_trades;
   if (sys === 'momentum') return "<strong>What the backtest says.</strong> Over " + yrs + " years this rule set compounded at " + an + "% a year \u2014 below NEPSE buy &amp; hold (" + bench + "%), but with a far shallower worst fall (" + dd + "% vs the index's deep bear markets). It wins only " + win + "% of trades; it survives on letting winners run to multiples of risk.";
   if (sys === 'trend-relay') return "<strong>What the backtest says.</strong> This patient re-entry system compounded at " + an + "% a year with the shallowest worst fall of the three (" + dd + "%). It trades rarely (" + tr + " trades in " + yrs + " years) and wins " + win + "% of them \u2014 a system for waiting, not for action.";
@@ -54,7 +62,7 @@ function page(sys, data) {
   const title = data.title;
   const tagline = data.tagline;
   const pageUrl = 'https://shirjankhadka.com.np/nepse-signals/' + sys + '/';
-  const metaDesc = title + ': transparent rule-based NEPSE trading system. Backtested over ' + st.backtest_years + ' years — ' + fmt(st.annual_return_pct) + '% annual return, ' + fmt(st.win_rate_pct) + '% win rate. Educational only.';
+  const metaDesc = title + ': transparent rule-based NEPSE trading system. Backtested over ' + backtestYears(st) + ' years — ' + fmt(st.annual_return_pct) + '% annual return, ' + fmt(st.win_rate_pct) + '% win rate. Educational only.';
   const genDate = new Date().toISOString().slice(0, 10);
   const tabs = SLUGS.map(s => {
     const d = JSON.parse(fs.readFileSync(path.join(DATA, s + '.json'), 'utf8'));
@@ -121,7 +129,7 @@ function page(sys, data) {
 {"@context":"https://schema.org","@type":"WebPage","name":"${title} — Nepse Decode Signals","url":"${pageUrl}","description":"${metaDesc}","isPartOf":{"@type":"WebSite","name":"Nepse Decode","url":"https://shirjankhadka.com.np/"},"author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
 </script>
 <link rel="stylesheet" href="/css/fonts.css">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=20261009c">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261009f">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261009b">
 <link rel="stylesheet" href="/css/sig-pro.css?v=20261006a">
 </head>
