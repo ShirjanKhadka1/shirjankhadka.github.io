@@ -340,7 +340,17 @@ function loadPeriod(silent){
   else if (p === 'asof') url = BASE+'daily/'+state.asof+'.json';
   else url = BASE+'periods/'+p+'.json';
   if (!silent) $('view').innerHTML = '<p style="color:var(--nd-muted,#B8C0CE)">Loading…</p>';
-  return fetch(url, { cache: 'no-store' }).then(function(r){ if(!r.ok) throw 0; return r.json(); })
+  return fetch(url, { cache: 'no-store' }).then(function(r){
+    if(!r.ok){
+      // intraday.json only exists while a market-hours poller writes it —
+      // fall back to the last session (1D), same as the standalone pages.
+      if (p === 'latest') return fetch(BASE+'periods/1D.json', { cache: 'no-store' })
+        .then(function(r2){ if(!r2.ok) throw 0; return r2.json(); })
+        .then(function(d){ d._fallback = true; return d; });
+      throw 0;
+    }
+    return r.json();
+  })
     .then(function(d){ state.data = d; render(); })
     .catch(function(){
       if (silent) return; /* background refresh failed: keep last good render */
@@ -462,7 +472,7 @@ function renderStock(d){
       return [c, Array.isArray(v) ? v : [0, v]];
     }).sort(function(a,b){return b[1][1]-a[1][1]})
       .slice(0,10).map(function(x,i){
-        return '<tr><td>'+(i+1)+'</td><td class="bk-name">'+bname(x[0])+'</td><td>'+fmtN(x[1][0],0)+'</td><td>'+fmtV(x[1][1])+'</td></tr>';
+        return '<tr><td>'+(i+1)+'</td><td class="bk-name">'+bname(x[0])+'</td><td>'+fmtQ(x[1][0],x[1][1])+'</td><td>'+fmtV(x[1][1])+'</td></tr>';
       }).join('');
     return '<div><h2 class="bk-h">'+title+'</h2><div class="scrollx" tabindex="0" role="region" aria-label="'+title+' table"><table class="bk-table"><thead><tr><th>#</th><th class="bk-name">Broker</th><th>Qty (shares)</th><th>Value</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
   }
@@ -508,9 +518,9 @@ function renderHoldings(d){
   if (s.netflow && Object.keys(s.netflow).length){
     Object.keys(s.netflow).forEach(function(c){ net[c] = pair6(s.netflow[c]); });
   } else {
-    Object.keys(s.buyers).forEach(function(c){ var v=qv(s.buyers[c]);
+    Object.keys(s.buyers||{}).forEach(function(c){ var v=qv(s.buyers[c]);
       var e = net[c] = net[c] || [0,0,0,0,0,0]; e[2]+=v[0]; e[3]+=v[1]; e[0]+=v[0]; e[1]+=v[1]; });
-    Object.keys(s.sellers).forEach(function(c){ var v=qv(s.sellers[c]);
+    Object.keys(s.sellers||{}).forEach(function(c){ var v=qv(s.sellers[c]);
       var e = net[c] = net[c] || [0,0,0,0,0,0]; e[4]+=v[0]; e[5]+=v[1]; e[0]-=v[0]; e[1]-=v[1]; });
   }
   var PER_PAGE = 10;
@@ -539,9 +549,9 @@ function renderHoldings(d){
       var n = x[1], nq = n[0], nv = n[1];
       var tag = nv>0?'<span class="pos">accumulating</span>':'<span class="neg">distributing</span>';
       return '<tr><td class="bk-name">'+bname(x[0])+'</td><td>'+x[0]+'</td>'+
-        '<td>'+fmtN(n[2],0)+'</td><td>'+fmtV(n[3])+'</td>'+
-        '<td>'+fmtN(n[4],0)+'</td><td>'+fmtV(n[5])+'</td>'+
-        '<td>'+fmtN(nq,0)+'</td><td class="'+cls(nv)+'">'+fmtV(nv)+'</td><td>'+tag+'</td></tr>';
+        '<td>'+fmtQ(n[2],n[3])+'</td><td>'+fmtV(n[3])+'</td>'+
+        '<td>'+fmtQ(n[4],n[5])+'</td><td>'+fmtV(n[5])+'</td>'+
+        '<td>'+fmtQ(nq,Math.abs(nv))+'</td><td class="'+cls(nv)+'">'+fmtV(nv)+'</td><td>'+tag+'</td></tr>';
     }).join('');
   var pager = '<div class="bk-pager" style="display:flex;gap:8px;align-items:center;justify-content:center;margin:12px 0;">'+
     '<button id="hdPrev" '+(state.holdPage===0?'disabled':'')+' style="padding:6px 14px;border-radius:8px;cursor:pointer;">← Prev</button>'+
@@ -580,7 +590,7 @@ function renderAccDist(d){
     var page = filtered.slice(start, start + PER_PAGE);
     var rows = page.map(function(x,i){
       return '<tr><td>'+(start+i+1)+'</td><td><strong>'+x.symbol+'</strong></td><td class="bk-name">'+bname(x.broker)+'</td>'+
-        '<td>'+fmtN(x.net_qty,0)+'</td><td class="'+(good?'pos':'neg')+'">'+fmtV(x.net_value)+'</td></tr>';
+        '<td>'+fmtQ(x.net_qty,Math.abs(x.net_value))+'</td><td class="'+(good?'pos':'neg')+'">'+fmtV(x.net_value)+'</td></tr>';
     }).join('');
     var pager = '<div class="bk-pager" style="display:flex;gap:8px;align-items:center;justify-content:center;margin:8px 0;">'+
       '<button class="accPrev" data-k="'+pageKey+'" '+(pg===0?'disabled':'')+'>← Prev</button>'+
@@ -595,7 +605,16 @@ function renderAccDist(d){
 }
 
 function label(){
-  if(state.period==='latest') return 'live today'+(state.data&&state.data.asof?' (as of '+state.data.asof.slice(11,16)+' UTC)':'');
+  if(state.period==='latest'){
+    // intraday.json missing (no market-hours poller yet) -> we fell back to
+    // 1D: label it as the last session, never "live today".
+    if (state.data && state.data._fallback){
+      var ds = state.data.asof ? String(state.data.asof).slice(0,10)
+        : (state.data.to ? String(state.data.to).slice(0,10) : 'last session');
+      return 'last session ('+ds+')';
+    }
+    return 'live today'+(state.data&&state.data.asof?' (as of '+state.data.asof.slice(11,16)+' UTC)':'');
+  }
   if(state.period==='asof') return state.asof;
   var d = state.data;
   return d && d.from ? d.from+' → '+d.to+' ('+d.trading_days+' sessions)' : state.period;

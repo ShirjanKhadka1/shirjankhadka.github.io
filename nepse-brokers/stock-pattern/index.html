@@ -58,7 +58,7 @@
 <p class="bk-note">Transaction flow from public NEPSE floorsheet records — not verified shareholding. <strong>For education only. Not investment advice.</strong></p>
 </main>
 <div id="nd-footer"></div>
-<script src="/js/broker-common.js?v=20261003b"></script>
+<script src="/js/broker-common.js?v=20261009a"></script>
 <script>
 (function(){
 "use strict";
@@ -83,7 +83,7 @@ function sideTable(obj, title){
   }).sort(function(a,b){return b.val-a.val}).slice(0,10);
   return '<div><h2 style="font-family:var(--serif);font-size:1.1rem;margin:0 0 8px">'+title+'</h2>'+
     '<div class="bk-scroll"><table class="bk-table"><thead><tr><th>Broker</th><th>Qty</th><th>Value</th></tr></thead><tbody>'+
-    rows.map(function(r,i){return '<tr><td>'+(i+1)+'. '+BC.esc(r.broker)+'</td><td>'+BC.fmtN(r.qty,0)+'</td><td>'+BC.fmtV(r.val)+'</td></tr>'}).join('')+
+    rows.map(function(r,i){return '<tr><td>'+(i+1)+'. '+BC.esc(r.broker)+'</td><td>'+BC.fmtQ(r.qty,r.val)+'</td><td>'+BC.fmtV(r.val)+'</td></tr>'}).join('')+
     '</tbody></table></div></div>';
 }
 function render(){

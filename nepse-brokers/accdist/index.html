@@ -78,7 +78,7 @@
 <p class="bk-note">"Accumulation" = net bought, "distribution" = net sold by transaction value — not beneficial ownership. Data: public NEPSE floorsheet records. <strong>For education only. Not investment advice.</strong></p>
 </main>
 <div id="nd-footer"></div>
-<script src="/js/broker-common.js?v=20261004c"></script>
+<script src="/js/broker-common.js?v=20261009a"></script>
 <script>
 (function(){
 "use strict";
@@ -101,7 +101,7 @@ function renderOne(tbodyId, rows, good){
   var filtered = rows.filter(matchesQ);
   $(tbodyId).innerHTML = filtered.map(function(r){
     return '<tr><td><strong>'+BC.esc(r.symbol)+'</strong></td><td>'+BC.esc(r.broker)+'</td>'+
-      '<td>'+BC.fmtN(r.netQty,0)+'</td><td class="'+(good?'pos':'neg')+'">'+BC.fmtV(r.netVal)+'</td></tr>';
+      '<td>'+BC.fmtQ(r.netQty,Math.abs(r.netVal))+'</td><td class="'+(good?'pos':'neg')+'">'+BC.fmtV(r.netVal)+'</td></tr>';
   }).join('') || '<tr><td colspan="4" class="bk-loading">No matches.</td></tr>';
 }
 function renderAll(){

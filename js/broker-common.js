@@ -11,6 +11,10 @@ function fmtV(n){ if(n==null||!isFinite(Number(n))) return '–'; var a=Math.abs
   return 'Rs '+Math.round(Number(n)).toLocaleString('en-US'); }
 function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function cls(v){ return v>0?'pos':(v<0?'neg':''); }
+/* Volume display rule (2026-10-08): Capital Max aggregate rows carry values but
+   no share quantities — render '—' when qty is missing/zero but value > 0,
+   never a misleading 0. */
+function fmtQ(qty,val){ return (qty===0||qty==='0'||qty==null) && val>0 ? '—' : fmtN(qty||0,0); }
 
 function loadMeta(){
   return fetch(BASE+'meta.json').then(function(r){return r.json()});
@@ -80,7 +84,7 @@ function makeSortable(table, getRows, renderRows){
 }
 
 window.BrokerCommon = {
-  BASE: BASE, fmtN: fmtN, fmtV: fmtV, esc: esc, cls: cls,
+  BASE: BASE, fmtN: fmtN, fmtV: fmtV, fmtQ: fmtQ, esc: esc, cls: cls,
   loadMeta: loadMeta, loadBrokers: loadBrokers, loadPeriod: loadPeriod,
   label: label, makeSortable: makeSortable
 };

@@ -58,7 +58,7 @@
 <p class="bk-note">Net positions derived from public NEPSE floorsheet transaction records. <strong>For education only. Not investment advice.</strong></p>
 </main>
 <div id="nd-footer"></div>
-<script src="/js/broker-common.js?v=20261003b"></script>
+<script src="/js/broker-common.js?v=20261009a"></script>
 <script>
 (function(){
 "use strict";
@@ -112,7 +112,7 @@ function render(){
       return '<tr><td><strong>'+BC.esc(r.name)+'</strong> <span style="color:var(--muted)">'+BC.esc(r.code)+'</span></td>'+
         '<td>'+BC.fmtV(r.bv)+'</td><td>'+BC.fmtV(r.sv)+'</td>'+
         '<td class="'+BC.cls(r.nv)+'">'+BC.fmtV(r.nv)+'</td>'+
-        '<td>'+BC.fmtN(r.nq,0)+'</td><td data-flow="'+(r.nv>0?'acc':'dist')+'">'+tag+'</td></tr>';
+        '<td>'+BC.fmtQ(r.nq,Math.abs(r.nv))+'</td><td data-flow="'+(r.nv>0?'acc':'dist')+'">'+tag+'</td></tr>';
     }).join('');
   }
   rows.forEach(function(r){ r.flow = r.nv>0 ? 1 : 0; });
