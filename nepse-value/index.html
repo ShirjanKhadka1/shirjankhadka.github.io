@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t='dark';document.documentElement.setAttribute('data-theme',t);if(t==='light')document.documentElement.setAttribute('data-nd-ed','light')}catch(e){}</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Value Investing — Nepse Decode</title>
@@ -30,120 +30,100 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-decode/"},{"@type":"ListItem","position":2,"name":"Value Investing","item":"https://shirjankhadka.com.np/nepse-value/"}]}
 </script>
-<link rel="stylesheet" href="/css/nepse-design-system.css?v=c967c332">
-<style>
-.bk-table{width:100%;border-collapse:collapse;font-size:.85rem;background:var(--card)}
-.bk-table th,.bk-table td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--hairline-soft);white-space:nowrap;font-variant-numeric:tabular-nums}
-.bk-table th:first-child,.bk-table td:first-child,.bk-table th:nth-child(2),.bk-table td:nth-child(2){text-align:left}
-.bk-table th{background:var(--paper-deep);font-weight:600;color:var(--ink-soft);position:sticky;top:0}
-.bk-table th.sortable{cursor:pointer;user-select:none}
-.bk-table th.sortable:hover{color:var(--green-900)}
-.bk-table th .arr{color:var(--gold);font-size:.75rem}
-.bk-table tr:last-child td{border-bottom:none}
-.scrollx{overflow-x:auto;margin:12px 0;border:1px solid var(--hairline);border-radius:var(--r-md)}
-.ctl{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 16px;align-items:center}
-.ctl select{border:1px solid var(--hairline);border-radius:var(--r-sm);padding:8px 12px;font-size:.9rem;font-family:var(--sans);background:var(--card);max-width:100%}
-.cover{background:var(--gold-soft);border:1px solid var(--hairline);border-radius:var(--r-md);padding:10px 16px;font-size:.85rem;margin:0 0 16px;color:var(--ink-soft)}
-h2.bk-h{font-family:var(--serif);font-size:1.25rem;margin:28px 0 8px}
-.factors{display:grid;gap:10px;margin:16px 0 4px}
-@media(min-width:760px){.factors{grid-template-columns:repeat(2,1fr)}}
-@media(min-width:1020px){.factors{grid-template-columns:repeat(4,1fr)}}
-.factor{background:var(--card);border:1px solid var(--hairline);border-radius:var(--r-md);padding:14px 16px}
-.factor h3{font-family:var(--serif);font-size:1.02rem;margin:0 0 6px}
-.factor p{font-size:.83rem;color:var(--ink-soft);margin:0;line-height:1.55}
-.factor .lim{color:var(--muted);font-size:.78rem;display:block;margin-top:6px}
-.scorebar{width:80px;height:8px;background:var(--paper-deep);border-radius:var(--r-pill);overflow:hidden;display:inline-block;vertical-align:middle}
-.scorebar i{display:block;height:100%;background:linear-gradient(90deg,var(--green-700),var(--gold));border-radius:var(--r-pill)}
-.symlink{font-weight:700;color:var(--green-800);text-decoration:none}
-.symlink:hover{text-decoration:underline}
-.sname{font-size:.75rem;color:var(--muted);display:block;font-weight:400}
-.submed{font-size:.72rem;color:var(--muted);display:block;font-weight:400}
-.method{background:var(--paper-deep);border:1px solid var(--hairline);border-radius:var(--r-md);padding:14px 18px;font-size:.86rem;color:var(--ink-soft);margin:20px 0;line-height:1.6}
-.disclaimer{border-left:3px solid var(--gold);padding:10px 16px;margin:28px 0;font-size:.87rem;color:var(--ink-soft);background:var(--gold-soft);border-radius:0 var(--r-md) var(--r-md) 0}
-.crumbs{font-size:.85rem;color:var(--muted);margin-bottom:10px}
-.crumbs a{color:var(--muted);text-decoration:none}
-.crumbs a:hover{color:var(--green-900)}
-.crumbs .csep{margin:0 5px}
-.kicker{font-size:.74rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--green-800);margin:0 0 8px}
-.page-title{font-family:var(--serif);font-size:2rem;margin:0 0 10px;line-height:1.15;letter-spacing:-.01em}
-.dek{color:var(--ink-soft);max-width:68ch;font-size:1rem;line-height:1.65;margin:0 0 12px}
-.dek strong{color:var(--ink)}
-.ne-sum{color:var(--muted);font-size:.92rem;max-width:68ch;margin:0 0 22px;line-height:1.7}
-.research-callout{background:var(--card);border:1px solid var(--hairline);border-left:4px solid var(--green-800);border-radius:var(--r-md);padding:16px 20px;margin:0 0 8px;max-width:880px}
-.rc-kicker{font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
-.rc-text{margin:0 0 10px;font-size:.93rem;line-height:1.6;color:var(--ink-soft);max-width:70ch}
-.rc-text strong{color:var(--ink)}
-.rc-link{font-weight:700;color:var(--green-800);text-decoration:none;font-size:.9rem}
-.rc-link:hover{text-decoration:underline}
-
-/* Static daily snapshot (baked at build time; SEO/no-JS fallback) */
-.snap{margin:26px 0 30px;padding:22px 20px;border:1px solid var(--hairline,#E7DFCE);border-radius:14px;background:var(--card,#FFFFFF)}
-.snap h2{font-family:var(--serif);font-size:1.25rem;margin:0 0 4px}
-.snap-asof{font-family:var(--sans,Inter,system-ui,sans-serif);font-size:.8rem;font-weight:400;color:var(--muted,#8A8474)}
-.snap .bk-table{margin-top:12px}
-.snap-note{font-size:.82rem;color:var(--muted,#8A8474);margin:12px 0 0}
-</style>
-<link rel="stylesheet" href="/css/theme.css?v=20261002d">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261006c">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261009b">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=20261004a">
+<link rel="stylesheet" href="/css/sig-pro.css?v=20261006a">
+<style>
+/* Value page: score bars, symbol links, controls — new design tokens */
+.scorebar{width:80px;height:8px;background:var(--nd-inset,#0D0F14);border-radius:999px;overflow:hidden;display:inline-block;vertical-align:middle;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.5)}
+.scorebar i{display:block;height:100%;border-radius:999px;
+  background:linear-gradient(90deg,var(--nd-lime,#B8E62E),#7BAE1F);
+  box-shadow:0 0 6px rgba(184,230,46,.4)}
+.symlink{font-weight:700;color:var(--nd-lime,#B8E62E);text-decoration:none}
+.symlink:hover{text-decoration:underline}
+.sname{font-size:.75rem;color:var(--nd-dim,#6B7280);display:block;font-weight:400}
+.submed{font-size:.72rem;color:var(--nd-dim,#6B7280);display:block;font-weight:400}
+[data-theme="light"] .symlink{color:#4D7C0F}
+.ctl{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 16px;align-items:center}
+.ctl label{font-size:.9rem;color:var(--nd-dim,#6B7280)}
+.ctl select{padding:9px 14px;border:1px solid var(--nd-border,#1E2430);border-radius:12px;font-size:.9rem;font-family:inherit;max-width:100%;
+  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 50%),var(--nd-panel,#12141A);
+  color:var(--nd-text,#fff);box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 2px 5px rgba(0,0,0,.3)}
+[data-theme="light"] .ctl label{color:#5F6B7A}
+[data-theme="light"] .ctl select{background:linear-gradient(180deg,#FFFFFF,#F4F6F9);border-color:#D5DCE4;color:#0A0C10}
+.sig-table th .arr{color:var(--nd-lime,#B8E62E);font-size:.75rem}
+.sig-table th.sortable{cursor:pointer;user-select:none}
+button.rs-toggle,button#valuePrev,button#valueNext{padding:9px 20px;border:1px solid var(--nd-border,#1E2430);border-radius:12px;font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit;
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,0) 50%),var(--nd-panel,#12141A);
+  color:var(--nd-text,#fff);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 2px 5px rgba(0,0,0,.35);transition:border-color .15s}
+button.rs-toggle:hover,button#valuePrev:hover:not(:disabled),button#valueNext:hover:not(:disabled){border-color:var(--nd-lime,#B8E62E)}
+button#valuePrev:disabled,button#valueNext:disabled{opacity:.45;cursor:default}
+[data-theme="light"] button.rs-toggle,[data-theme="light"] button#valuePrev,[data-theme="light"] button#valueNext{
+  background:linear-gradient(180deg,#FFFFFF,#F4F6F9);border-color:#D5DCE4;color:#0A0C10}
+.ne-sum{color:var(--nd-dim,#6B7280);font-size:.92rem;max-width:68ch;margin:0 0 22px;line-height:1.7}
+.snap-asof{font-size:.8rem;font-weight:400;color:var(--nd-dim,#6B7280)}
+.snap-note{font-size:.82rem;color:var(--nd-dim,#6B7280);margin:12px 0 0}
+</style>
 </head>
 <body class="nd">
+<a class="skip-link" href="#main">Skip to content</a>
 <div id="nd-header"></div>
 <div class="fb-wrap" style="display:flex;justify-content:center;padding:10px 16px 0"><div data-freshness-badge></div></div>
-<main style="max-width:1160px;margin:0 auto;padding:24px 16px">
+<main id="main" class="sig-wrap">
 
-<p class="kicker">Factor research</p>
-<h1 class="page-title">Value Investing</h1>
-<p class="dek">A sector-aware value screen for NEPSE equities, built on published Q4 FY 2082/83 filings. Every company is scored <strong>within its own sector only</strong> — a bank is never measured against a hydropower company. A starting point for your own research, not a verdict.</p>
+<p class="sig-kicker">Factor research</p>
+<h1>Value Investing</h1>
+<p class="sig-lede">A sector-aware value screen for NEPSE equities, built on published Q4 FY 2082/83 filings. Every company is scored <strong style="color:var(--nd-text,#fff)">within its own sector only</strong> — a bank is never measured against a hydropower company. A starting point for your own research, not a verdict.</p>
 <p lang="ne" class="ne-sum">संक्षेप: यो स्क्रिनरले आफ्नै सेक्टरभित्र सस्ता देखिने कम्पनीहरू छान्छ — कम मूल्य–आम्दानी अनुपात र बलियो इक्विटी प्रतिफलका आधारमा। यो तपाईंको अनुसन्धानको सुरुवात हो, लगानी सल्लाह होइन।</p>
 
-<aside class="research-callout" id="research">
-  <p class="rc-kicker">Featured research</p>
-  <p class="rc-text"><strong>Nepal Bank (NBL)</strong> — the screen's top-ranked bank, analyzed in depth: Rs 30.63 EPS against a Rs 293.00 close, and why the market still will not pay above book.</p>
-  <a class="rc-link" href="/blog/nepal-bank-nbl-company-analysis/">Read the NBL report →</a>
-</aside>
+<div class="note" id="research">
+  <p class="sig-kicker" style="margin-bottom:8px">Featured research</p>
+  <p style="margin:0 0 10px"><strong>Nepal Bank (NBL)</strong> — the screen's top-ranked bank, analyzed in depth: Rs 30.63 EPS against a Rs 293.00 close, and why the market still will not pay above book.</p>
+  <a class="symlink" href="/blog/nepal-bank-nbl-company-analysis/">Read the NBL report →</a>
+</div>
 
 <!-- SNAP-START -->
-<section class="snap" aria-label="Value snapshot">
+<section aria-label="Value snapshot">
   <h2>Top value-ranked companies <span class="snap-asof">· snapshot 2026-10-08</span></h2>
-  <div class="scrollx"><table class="bk-table">
-    <thead><tr><th>Score</th><th>Stock</th><th>Sector</th><th>LTP</th><th>P/E (TTM)</th><th>P/BV</th><th>Earn. yield</th><th>ROE (TTM)</th></tr></thead>
+  <div class="scrollx"><table class="sig-table">
+    <thead><tr><th>Score</th><th>Stock</th><th>Sector</th><th class="num">LTP</th><th class="num">P/E (TTM)</th><th class="num">P/BV</th><th class="num">Earn. yield</th><th class="num">ROE (TTM)</th></tr></thead>
     <tbody>
-      <tr><td><span class="scorebar"><i style="width:96%"></i></span> 96.0</td><td><a class="symlink" href="/stocks/NBL/">NBL</a><span class="sname">Nepal Bank Limited</span></td><td>Banking</td><td>292.90</td><td>9.54<span class="submed">sector 20.6</span></td><td>1.02<span class="submed">sector 2.02</span></td><td>10.5%</td><td>10.7%</td></tr>
-      <tr><td><span class="scorebar"><i style="width:95%"></i></span> 95.0</td><td><a class="symlink" href="/stocks/GUFL/">GUFL</a><span class="sname">Gurkhas Finance Ltd.</span></td><td>Finance</td><td>488.10</td><td>19.43<span class="submed">sector 42.2</span></td><td>2.92<span class="submed">sector 3.86</span></td><td>5.2%</td><td>15.1%</td></tr>
-      <tr><td><span class="scorebar"><i style="width:95%"></i></span> 94.7</td><td><a class="symlink" href="/stocks/FOWAD/">FOWAD</a><span class="sname">Forward Microfinance Laghubitta Bittiya Sanstha Limited</span></td><td>Microfinance</td><td>868.00</td><td>16.88<span class="submed">sector 31.9</span></td><td>3.10<span class="submed">sector 5.48</span></td><td>5.9%</td><td>18.6%</td></tr>
-      <tr><td><span class="scorebar"><i style="width:94%"></i></span> 93.6</td><td><a class="symlink" href="/stocks/MATRI/">MATRI</a><span class="sname">Matribhumi Lagubitta Bittiya Sanstha Limited</span></td><td>Microfinance</td><td>706.00</td><td>15.84<span class="submed">sector 31.9</span></td><td>3.38<span class="submed">sector 5.48</span></td><td>6.3%</td><td>21.6%</td></tr>
-      <tr><td><span class="scorebar"><i style="width:93%"></i></span> 92.9</td><td><a class="symlink" href="/stocks/SADBL/">SADBL</a><span class="sname">Shangrila Development Bank Ltd.</span></td><td>Development Bank</td><td>400.90</td><td>16.66<span class="submed">sector 28.1</span></td><td>2.37<span class="submed">sector 3.54</span></td><td>6.0%</td><td>14.1%</td></tr>
-      <tr><td><span class="scorebar"><i style="width:92%"></i></span> 91.7</td><td><a class="symlink" href="/stocks/API/">API</a><span class="sname">Api Power Company Ltd.</span></td><td>Hydropower</td><td>335.70</td><td>22.19<span class="submed">sector 52.0</span></td><td>2.81<span class="submed">sector 3.66</span></td><td>4.5%</td><td>12.6%</td></tr>
-      <tr><td><span class="scorebar"><i style="width:92%"></i></span> 91.7</td><td><a class="symlink" href="/stocks/BNT/">BNT</a><span class="sname">Bottlers Nepal (Terai) Limited</span></td><td>Manufacturing And Processing</td><td>11751.00</td><td>21.84<span class="submed">sector 38.2</span></td><td>3.39<span class="submed">sector 4.00</span></td><td>4.6%</td><td>15.7%</td></tr>
-      <tr><td><span class="scorebar"><i style="width:91%"></i></span> 91.0</td><td><a class="symlink" href="/stocks/BHL/">BHL</a><span class="sname">Balephi Hydropower Limited</span></td><td>Hydropower</td><td>218.80</td><td>27.40<span class="submed">sector 52.0</span></td><td>2.69<span class="submed">sector 3.66</span></td><td>3.6%</td><td>9.5%</td></tr>
-      <tr><td><span class="scorebar"><i style="width:90%"></i></span> 90.0</td><td><a class="symlink" href="/stocks/KBL/">KBL</a><span class="sname">Kumari Bank Limited</span></td><td>Banking</td><td>227.80</td><td>7.91<span class="submed">sector 20.6</span></td><td>1.33<span class="submed">sector 2.02</span></td><td>12.6%</td><td>16.5%</td></tr>
-      <tr><td><span class="scorebar"><i style="width:90%"></i></span> 90.0</td><td><a class="symlink" href="/stocks/NIFRA/">NIFRA</a><span class="sname">Nepal Infrastructure Bank Limited</span></td><td>Investment</td><td>244.90</td><td>54.07<span class="submed">sector 89.6</span></td><td>2.09<span class="submed">sector 3.63</span></td><td>1.9%</td><td>3.9%</td></tr>
-      <tr><td><span class="scorebar"><i style="width:89%"></i></span> 89.4</td><td><a class="symlink" href="/stocks/CYCL/">CYCL</a><span class="sname">CYC Nepal Laghubitta Bittiya Sanstha Limited</span></td><td>Microfinance</td><td>1450.20</td><td>13.70<span class="submed">sector 31.9</span></td><td>4.27<span class="submed">sector 5.48</span></td><td>7.3%</td><td>32.6%</td></tr>
-      <tr><td><span class="scorebar"><i style="width:89%"></i></span> 89.4</td><td><a class="symlink" href="/stocks/SWBBL/">SWBBL</a><span class="sname">Swabalamban Laghubitta Bittiya Sanstha Limited</span></td><td>Microfinance</td><td>680.00</td><td>19.77<span class="submed">sector 31.9</span></td><td>3.19<span class="submed">sector 5.48</span></td><td>5.1%</td><td>16.6%</td></tr>
-      <tr><td><span class="scorebar"><i style="width:88%"></i></span> 87.5</td><td><a class="symlink" href="/stocks/HEI/">HEI</a><span class="sname">Himalayan Everest Insurance Limited</span></td><td>Non Life Insurance</td><td>447.00</td><td>33.49<span class="submed">sector 88.0</span></td><td>4.03<span class="submed">sector 4.68</span></td><td>3.0%</td><td>12.2%</td></tr>
-      <tr><td><span class="scorebar"><i style="width:88%"></i></span> 87.5</td><td><a class="symlink" href="/stocks/HURJA/">HURJA</a><span class="sname">Himalaya Urja Bikas Company Limited</span></td><td>Hydropower</td><td>260.00</td><td>33.62<span class="submed">sector 52.0</span></td><td>2.65<span class="submed">sector 3.66</span></td><td>3.0%</td><td>7.7%</td></tr>
-      <tr><td><span class="scorebar"><i style="width:86%"></i></span> 85.7</td><td><a class="symlink" href="/stocks/ADBL/">ADBL</a><span class="sname">Agricultural Development Bank Limited</span></td><td>Development Bank</td><td>311.90</td><td>22.99<span class="submed">sector 28.1</span></td><td>1.58<span class="submed">sector 3.54</span></td><td>4.3%</td><td>6.8%</td></tr>
+      <tr><td><span class="scorebar"><i style="width:96%"></i></span> 96.0</td><td><a class="symlink" href="/stocks/NBL/">NBL</a><span class="sname">Nepal Bank Limited</span></td><td>Banking</td><td class="num">292.90</td><td class="num">9.54<span class="submed">sector 20.6</span></td><td class="num">1.02<span class="submed">sector 2.02</span></td><td class="num">10.5%</td><td class="num">10.7%</td></tr>
+      <tr><td><span class="scorebar"><i style="width:95%"></i></span> 95.0</td><td><a class="symlink" href="/stocks/GUFL/">GUFL</a><span class="sname">Gurkhas Finance Ltd.</span></td><td>Finance</td><td class="num">488.10</td><td class="num">19.43<span class="submed">sector 42.2</span></td><td class="num">2.92<span class="submed">sector 3.86</span></td><td class="num">5.2%</td><td class="num">15.1%</td></tr>
+      <tr><td><span class="scorebar"><i style="width:95%"></i></span> 94.7</td><td><a class="symlink" href="/stocks/FOWAD/">FOWAD</a><span class="sname">Forward Microfinance Laghubitta Bittiya Sanstha Limited</span></td><td>Microfinance</td><td class="num">868.00</td><td class="num">16.88<span class="submed">sector 31.9</span></td><td class="num">3.10<span class="submed">sector 5.48</span></td><td class="num">5.9%</td><td class="num">18.6%</td></tr>
+      <tr><td><span class="scorebar"><i style="width:94%"></i></span> 93.6</td><td><a class="symlink" href="/stocks/MATRI/">MATRI</a><span class="sname">Matribhumi Lagubitta Bittiya Sanstha Limited</span></td><td>Microfinance</td><td class="num">706.00</td><td class="num">15.84<span class="submed">sector 31.9</span></td><td class="num">3.38<span class="submed">sector 5.48</span></td><td class="num">6.3%</td><td class="num">21.6%</td></tr>
+      <tr><td><span class="scorebar"><i style="width:93%"></i></span> 92.9</td><td><a class="symlink" href="/stocks/SADBL/">SADBL</a><span class="sname">Shangrila Development Bank Ltd.</span></td><td>Development Bank</td><td class="num">400.90</td><td class="num">16.66<span class="submed">sector 28.1</span></td><td class="num">2.37<span class="submed">sector 3.54</span></td><td class="num">6.0%</td><td class="num">14.1%</td></tr>
+      <tr><td><span class="scorebar"><i style="width:92%"></i></span> 91.7</td><td><a class="symlink" href="/stocks/API/">API</a><span class="sname">Api Power Company Ltd.</span></td><td>Hydropower</td><td class="num">335.70</td><td class="num">22.19<span class="submed">sector 52.0</span></td><td class="num">2.81<span class="submed">sector 3.66</span></td><td class="num">4.5%</td><td class="num">12.6%</td></tr>
+      <tr><td><span class="scorebar"><i style="width:92%"></i></span> 91.7</td><td><a class="symlink" href="/stocks/BNT/">BNT</a><span class="sname">Bottlers Nepal (Terai) Limited</span></td><td>Manufacturing And Processing</td><td class="num">11751.00</td><td class="num">21.84<span class="submed">sector 38.2</span></td><td class="num">3.39<span class="submed">sector 4.00</span></td><td class="num">4.6%</td><td class="num">15.7%</td></tr>
+      <tr><td><span class="scorebar"><i style="width:92%"></i></span> 91.0</td><td><a class="symlink" href="/stocks/BHL/">BHL</a><span class="sname">Balephi Hydropower Limited</span></td><td>Hydropower</td><td class="num">218.80</td><td class="num">27.40<span class="submed">sector 52.0</span></td><td class="num">2.69<span class="submed">sector 3.66</span></td><td class="num">3.6%</td><td class="num">9.5%</td></tr>
+      <tr><td><span class="scorebar"><i style="width:90%"></i></span> 90.0</td><td><a class="symlink" href="/stocks/KBL/">KBL</a><span class="sname">Kumari Bank Limited</span></td><td>Banking</td><td class="num">227.80</td><td class="num">7.91<span class="submed">sector 20.6</span></td><td class="num">1.33<span class="submed">sector 2.02</span></td><td class="num">12.6%</td><td class="num">16.5%</td></tr>
+      <tr><td><span class="scorebar"><i style="width:90%"></i></span> 90.0</td><td><a class="symlink" href="/stocks/NIFRA/">NIFRA</a><span class="sname">Nepal Infrastructure Bank Limited</span></td><td>Investment</td><td class="num">244.90</td><td class="num">54.07<span class="submed">sector 89.6</span></td><td class="num">2.09<span class="submed">sector 3.63</span></td><td class="num">1.9%</td><td class="num">3.9%</td></tr>
+      <tr><td><span class="scorebar"><i style="width:89%"></i></span> 89.4</td><td><a class="symlink" href="/stocks/CYCL/">CYCL</a><span class="sname">CYC Nepal Laghubitta Bittiya Sanstha Limited</span></td><td>Microfinance</td><td class="num">1450.20</td><td class="num">13.70<span class="submed">sector 31.9</span></td><td class="num">4.27<span class="submed">sector 5.48</span></td><td class="num">7.3%</td><td class="num">32.6%</td></tr>
+      <tr><td><span class="scorebar"><i style="width:89%"></i></span> 89.4</td><td><a class="symlink" href="/stocks/SWBBL/">SWBBL</a><span class="sname">Swabalamban Laghubitta Bittiya Sanstha Limited</span></td><td>Microfinance</td><td class="num">680.00</td><td class="num">19.77<span class="submed">sector 31.9</span></td><td class="num">3.19<span class="submed">sector 5.48</span></td><td class="num">5.1%</td><td class="num">16.6%</td></tr>
+      <tr><td><span class="scorebar"><i style="width:88%"></i></span> 87.5</td><td><a class="symlink" href="/stocks/HEI/">HEI</a><span class="sname">Himalayan Everest Insurance Limited</span></td><td>Non Life Insurance</td><td class="num">447.00</td><td class="num">33.49<span class="submed">sector 88.0</span></td><td class="num">4.03<span class="submed">sector 4.68</span></td><td class="num">3.0%</td><td class="num">12.2%</td></tr>
+      <tr><td><span class="scorebar"><i style="width:88%"></i></span> 87.5</td><td><a class="symlink" href="/stocks/HURJA/">HURJA</a><span class="sname">Himalaya Urja Bikas Company Limited</span></td><td>Hydropower</td><td class="num">260.00</td><td class="num">33.62<span class="submed">sector 52.0</span></td><td class="num">2.65<span class="submed">sector 3.66</span></td><td class="num">3.0%</td><td class="num">7.7%</td></tr>
+      <tr><td><span class="scorebar"><i style="width:86%"></i></span> 85.7</td><td><a class="symlink" href="/stocks/ADBL/">ADBL</a><span class="sname">Agricultural Development Bank Limited</span></td><td>Development Bank</td><td class="num">311.90</td><td class="num">22.99<span class="submed">sector 28.1</span></td><td class="num">1.58<span class="submed">sector 3.54</span></td><td class="num">4.3%</td><td class="num">6.8%</td></tr>
     </tbody>
   </table></div>
   <p class="snap-note">Static daily snapshot · ranked within each sector; the full interactive screen below refreshes every 60 seconds.</p>
 </section>
 <!-- SNAP-END -->
-<div class="cover" id="coverage">Loading data…</div>
+<div class="note" id="coverage">Loading data…</div>
 
-<h2 class="bk-h">The four factors, in plain language</h2>
-<div class="factors">
-  <div class="factor"><h3>Earnings yield (1 ÷ P/E)</h3><p>What the business earns for every rupee of price you pay. Higher means you are paying less for each rupee of earnings.</p><span class="lim">Limit: earnings can be one-off or cyclical — a high yield can be a trap.</span></div>
-  <div class="factor"><h3>Price-to-book (P/BV)</h3><p>Price versus the accounting value of net assets per share. Below 1 means you pay less than book value.</p><span class="lim">Limit: book value may overstate assets that are hard to sell, like bad loans.</span></div>
-  <div class="factor"><h3>ROE (TTM)</h3><p>Return on equity: how much profit each rupee of shareholder capital generated over the last twelve months.</p><span class="lim">Limit: high ROE from heavy leverage is fragile, not strong.</span></div>
-  <div class="factor"><h3>P/E (TTM)</h3><p>How many years of current earnings the price implies. Lower usually means cheaper — within the same sector.</p><span class="lim">Limit: meaningless for loss-making companies; we exclude those.</span></div>
+<h2>The four factors, in plain language</h2>
+<div class="sig-grid" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
+  <div class="sig-card"><div class="sig-card-l">Earnings yield (1 ÷ P/E)</div><p class="sig-sub">What the business earns for every rupee of price you pay. Higher means you are paying less for each rupee of earnings.</p><p class="sig-card-s">Limit: earnings can be one-off or cyclical — a high yield can be a trap.</p></div>
+  <div class="sig-card"><div class="sig-card-l">Price-to-book (P/BV)</div><p class="sig-sub">Price versus the accounting value of net assets per share. Below 1 means you pay less than book value.</p><p class="sig-card-s">Limit: book value may overstate assets that are hard to sell, like bad loans.</p></div>
+  <div class="sig-card"><div class="sig-card-l">ROE (TTM)</div><p class="sig-sub">Return on equity: how much profit each rupee of shareholder capital generated over the last twelve months.</p><p class="sig-card-s">Limit: high ROE from heavy leverage is fragile, not strong.</p></div>
+  <div class="sig-card"><div class="sig-card-l">P/E (TTM)</div><p class="sig-sub">How many years of current earnings the price implies. Lower usually means cheaper — within the same sector.</p><p class="sig-card-s">Limit: meaningless for loss-making companies; we exclude those.</p></div>
 </div>
 
-<h2 class="bk-h">The screen</h2>
+<h2>The screen</h2>
 <div class="ctl">
-  <label for="sectorSel" style="font-size:.9rem;color:var(--muted)">Sector:</label>
+  <label for="sectorSel">Sector:</label>
   <select id="sectorSel"><option value="">All sectors</option></select>
-  <label for="perPageSel" style="font-size:.9rem;color:var(--muted)">Show:</label>
+  <label for="perPageSel">Show:</label>
   <select id="perPageSel">
     <option value="20">20</option>
     <option value="25" selected>25</option>
@@ -152,36 +132,40 @@ h2.bk-h{font-family:var(--serif);font-size:1.25rem;margin:28px 0 8px}
 </div>
 
 <div class="scrollx">
-<table class="bk-table" id="valueTable">
+<table class="sig-table" id="valueTable">
 <thead><tr>
 <th class="sortable" data-k="value_score">Score</th>
 <th>Stock</th>
 <th>Sector</th>
-<th class="sortable" data-k="ltp">LTP</th>
-<th class="sortable" data-k="pe_ttm">P/E (TTM)</th>
-<th class="sortable" data-k="pbv">P/BV</th>
-<th class="sortable" data-k="ey_pct">Earn. yield</th>
-<th class="sortable" data-k="roe_ttm_pct">ROE (TTM)</th>
-<th>EPS (TTM)</th>
-<th>BVPS</th>
+<th class="sortable num" data-k="ltp">LTP</th>
+<th class="sortable num" data-k="pe_ttm">P/E (TTM)</th>
+<th class="sortable num" data-k="pbv">P/BV</th>
+<th class="sortable num" data-k="ey_pct">Earn. yield</th>
+<th class="sortable num" data-k="roe_ttm_pct">ROE (TTM)</th>
+<th class="num">EPS (TTM)</th>
+<th class="num">BVPS</th>
 <th>Period</th>
 </tr></thead>
-<tbody id="valueBody"><tr><td colspan="11" style="text-align:center;color:var(--muted)">Loading…</td></tr></tbody>
+<tbody id="valueBody"><tr><td colspan="11" style="text-align:center;color:var(--nd-dim,#6B7280)">Loading…</td></tr></tbody>
 </table>
 </div>
-<div class="ctl" id="valuePager" style="justify-content:space-between;margin-top:12px">
-  <span id="valueRange" style="font-size:.85rem;color:var(--muted)"></span>
-  <span style="display:flex;gap:8px">
+<div class="sig-pager" id="valuePager">
+  <span id="valueRange"></span>
+  <span style="display:flex;gap:8px;margin-left:auto">
     <button id="valuePrev" class="rs-toggle" type="button">← Prev</button>
     <button id="valueNext" class="rs-toggle" type="button">Next →</button>
   </span>
 </div>
 
-<h2 class="bk-h">Methodology and caveats</h2>
+<h2>Methodology and caveats</h2>
 <div class="method" id="methodBox">Loading…</div>
 
-<div class="disclaimer"><strong>Educational only — not investment advice.</strong> A high value score means a stock looks cheap on two accounting ratios relative to its sector peers. Cheap can mean undervalued, or it can mean the market sees risks the ratios miss — bad loans, weak governance, stalled projects. We publish no price targets and no buy/sell calls. Read the filings yourself before deciding anything.</div>
+<div class="note"><p style="margin:0"><strong>Educational only — not investment advice.</strong> A high value score means a stock looks cheap on two accounting ratios relative to its sector peers. Cheap can mean undervalued, or it can mean the market sees risks the ratios miss — bad loans, weak governance, stalled projects. We publish no price targets and no buy/sell calls. Read the filings yourself before deciding anything.</p></div>
+
+<p class="sig-foot">Educational only — not investment advice.</p>
 </main>
+<div id="nd-footer"></div>
+
 <script>
 (function(){
 "use strict";
@@ -210,22 +194,22 @@ function render(){
   var html = '';
   pageRows.forEach(function(s){
     var research = (s.symbol === 'NBL')
-      ? ' <a href="/blog/nepal-bank-nbl-company-analysis/" style="font-size:.72rem;font-weight:700;color:var(--green-800);text-decoration:none;border:1px solid var(--green-800);border-radius:var(--r-pill);padding:1px 8px;white-space:nowrap" title="Full equity research report on Nepal Bank">Research</a>' : '';
+      ? ' <a href="/blog/nepal-bank-nbl-company-analysis/" style="font-size:.72rem;font-weight:700;color:var(--nd-lime,#B8E62E);text-decoration:none;border:1px solid var(--nd-lime,#B8E62E);border-radius:999px;padding:1px 8px;white-space:nowrap" title="Full equity research report on Nepal Bank">Research</a>' : '';
     html += '<tr>'
       + '<td><span class="scorebar"><i style="width:'+Math.round(s.value_score)+'%"></i></span> '+fmt(s.value_score,1)+'</td>'
       + '<td><a class="symlink" href="/nepse-chart/?s='+esc(s.symbol)+'">'+esc(s.symbol)+'</a>'+research+'<span class="sname">'+esc(s.name)+'</span></td>'
       + '<td>'+esc(s.sector)+'</td>'
-      + '<td>'+fmt(s.ltp)+'</td>'
-      + '<td>'+fmt(s.pe_ttm)+'<span class="submed">sector '+fmt(s.sector_median_pe,1)+'</span></td>'
-      + '<td>'+fmt(s.pbv)+'<span class="submed">sector '+fmt(s.sector_median_pbv,2)+'</span></td>'
-      + '<td>'+fmt(s.ey_pct)+'%</td>'
-      + '<td>'+fmt(s.roe_ttm_pct)+'%</td>'
-      + '<td>'+fmt(s.eps_ttm)+'</td>'
-      + '<td>'+fmt(s.bvps)+'</td>'
+      + '<td class="num">'+fmt(s.ltp)+'</td>'
+      + '<td class="num">'+fmt(s.pe_ttm)+'<span class="submed">sector '+fmt(s.sector_median_pe,1)+'</span></td>'
+      + '<td class="num">'+fmt(s.pbv)+'<span class="submed">sector '+fmt(s.sector_median_pbv,2)+'</span></td>'
+      + '<td class="num">'+fmt(s.ey_pct)+'%</td>'
+      + '<td class="num">'+fmt(s.roe_ttm_pct)+'%</td>'
+      + '<td class="num">'+fmt(s.eps_ttm)+'</td>'
+      + '<td class="num">'+fmt(s.bvps)+'</td>'
       + '<td>'+esc(s.period||'–')+'</td>'
       + '</tr>';
   });
-  if(!pageRows.length) html = '<tr><td colspan="11" style="text-align:center;color:var(--muted)">No companies in this sector.</td></tr>';
+  if(!pageRows.length) html = '<tr><td colspan="11" style="text-align:center;color:var(--nd-dim,#6B7280)">No companies in this sector.</td></tr>';
   $('valueBody').innerHTML = html;
   var ths = document.querySelectorAll('#valueTable th.sortable');
   ths.forEach(function(th){
@@ -293,7 +277,7 @@ function load(silent){
   }).catch(function(){
     if (silent) return; /* background refresh failed: keep last good render */
     $('coverage').textContent = 'Could not load value data. Please try again later.';
-    $('valueBody').innerHTML = '<tr><td colspan="11" style="text-align:center;color:var(--muted)">Data unavailable.</td></tr>';
+    $('valueBody').innerHTML = '<tr><td colspan="11" style="text-align:center;color:var(--nd-dim,#6B7280)">Data unavailable.</td></tr>';
   });
 }
 load();
@@ -302,32 +286,9 @@ load();
 setInterval(function(){ if(!document.hidden) load(true); }, 15*60*1000);
 })();
 </script>
-<script src="/js/theme-toggle.js?v=20261002c" defer></script>
-<style>
-.sf{border-top:1px solid var(--hairline,#E7DFCE);margin-top:64px;background:var(--paper,#FAF8F2);color:var(--ink-soft,#4A463C);font-family:var(--sans,Inter,system-ui,-apple-system,"Segoe UI",sans-serif)}
-.sf-inner{max-width:1200px;margin:0 auto;padding:56px 24px 30px}
-.sf-top{display:flex;gap:18px;align-items:flex-start;margin-bottom:42px}
-.sf-mark{width:46px;height:46px;border-radius:12px;flex:none;box-shadow:0 2px 10px rgba(11,61,46,.12)}
-.sf-name{font-weight:700;font-size:1.06rem;color:var(--ink,#1C1A15);margin:2px 0 8px;letter-spacing:.01em}
-.sf-mission{margin:0;max-width:62ch;line-height:1.75;font-size:.92rem;color:var(--ink-soft,#4A463C)}
-.sf-cols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:36px 28px;margin-bottom:42px}
-.sf-col h3{font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted,#8A8474);margin:0 0 16px;font-weight:700}
-.sf-col ul{list-style:none;margin:0;padding:0;display:grid;gap:11px}
-.sf-col a{color:var(--ink-soft,#4A463C);text-decoration:none;font-size:.92rem;line-height:1.5}
-.sf-col a:hover{color:var(--green-900,#0B3D2E);text-decoration:underline}
-.sf-note{border-top:1px solid var(--hairline,#E7DFCE);padding-top:26px;font-size:.85rem;line-height:1.75;color:var(--muted,#8A8474);max-width:88ch;margin:0}
-.sf-note strong{color:var(--ink-soft,#4A463C)}
-.sf-bottom{display:flex;flex-wrap:wrap;gap:10px 20px;justify-content:space-between;align-items:center;margin-top:26px;padding-top:22px;border-top:1px solid var(--hairline,#E7DFCE);font-size:.85rem;color:var(--muted,#8A8474)}
-.sf-bottom a{color:var(--ink-soft,#4A463C);text-decoration:none;font-weight:600}
-.sf-bottom a:hover{color:var(--green-900,#0B3D2E);text-decoration:underline}
-.sf-social{display:flex;gap:16px;align-items:center}
-@media(max-width:820px){.sf-cols{grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 20px}}
-@media(max-width:520px){.sf-inner{padding:44px 20px 26px}.sf-top{margin-bottom:34px}.sf-cols{margin-bottom:34px}}
-</style>
-<div id="nd-footer"></div>
-
+<script src="/js/theme-toggle.js?v=20261006c" defer></script>
 <script src="/js/nepse-market-config.js?v=20261002c"></script>
 <script src="/js/freshness-badge.js?v=20261009a" defer></script>
-<script src="/js/nd-chrome.js?v=20261006a" defer></script>
+<script src="/js/nd-chrome.js?v=20261006c" defer></script>
 </body>
 </html>
