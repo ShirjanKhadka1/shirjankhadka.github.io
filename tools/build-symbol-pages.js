@@ -957,7 +957,55 @@ function investmentCalendarCard(sym, name, hist) {
   return h;
 }
 
-function symbolPage(u, v, newsItems, fund, liveQ, liveDate, sector, sectorPeers, verdicts, quarterly, corpHist) {
+/* SEO cross-linking: scan each blog article page (blog/<slug>/index.html) for
+ * articles whose <title> or meta keywords mention a listed symbol (strict
+ * token match on title/keywords only, never body text, so no false-positive
+ * links). Returns [{ url, title, date }], newest first (JSON-LD date).
+ * Built once in main() and passed into symbolPage as `related`. */
+function scanRelatedArticles() {
+  const blogDir = path.join(ROOT, 'blog');
+  const out = {};
+  let dirs = [];
+  try { dirs = fs.readdirSync(blogDir, { withFileTypes: true }); } catch { return out; }
+  const arts = [];
+  for (const d of dirs) {
+    if (!d.isDirectory()) continue;
+    const f = path.join(blogDir, d.name, 'index.html');
+    let html;
+    try { html = fs.readFileSync(f, 'utf8'); } catch { continue; }
+    const head = html.slice(0, html.indexOf('</head>') > 0 ? html.indexOf('</head>') : 8000);
+    const t = head.match(/<title>([\s\S]*?)<\/title>/i);
+    const k = head.match(/<meta[^>]*name=["']keywords["'][^>]*content=["']([\s\S]*?)["']/i) ||
+              head.match(/<meta[^>]*content=["']([\s\S]*?)["'][^>]*name=["']keywords["']/i);
+    const title = t ? t[1].trim() : '';
+    const hay = ((title + ' ' + (k ? k[1] : '')).toUpperCase());
+    const ld = head.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/i);
+    let date = '';
+    if (ld) {
+      try {
+        const j = JSON.parse(ld[1]);
+        date = String((j && j.datePublished) || '').slice(0, 10);
+      } catch { /* ignore */ }
+    }
+    if (!title) continue;
+    arts.push({ url: '/blog/' + d.name + '/', title, hay, date });
+  }
+  arts.sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  return arts;
+}
+
+function relatedForSymbol(arts, sym) {
+  const s = String(sym).toUpperCase().replace(/-/g, '/');
+  const re = new RegExp('(^|[^A-Z0-9/])' + s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '([^A-Z0-9/]|$)');
+  const hits = [];
+  for (const a of arts) {
+    if (re.test(a.hay)) hits.push({ url: a.url, title: a.title });
+    if (hits.length >= 3) break;
+  }
+  return hits;
+}
+
+function symbolPage(u, v, newsItems, fund, liveQ, liveDate, sector, sectorPeers, verdicts, quarterly, corpHist, related) {
   const sym = u.s, name = u.n, slug = slugOf(sym);
   // Headline price prefers our canonical live payload (NEPSE API) when it is
   // at least as fresh as the batch verdict — the batch daily history comes
@@ -1047,6 +1095,15 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
     h += '<section aria-label="' + esc(moreLabel) + '"><h2>' + esc(moreLabel) + '</h2><ul class="sp-peers">\n';
     for (const p of morePeers) {
       h += '<li><a href="/stocks/' + slugOf(p.s) + '/">' + esc(p.n) + ' (' + esc(p.s) + ')</a></li>\n';
+    }
+    h += '</ul></section>\n';
+  }
+
+  // SEO cross-linking: Nepse Decode articles that cover this symbol.
+  if (related && related.length) {
+    h += '<section aria-label="Related analysis"><h2>Related analysis</h2><ul class="sp-peers">\n';
+    for (const r of related) {
+      h += '<li><a href="' + esc(r.url) + '">' + esc(r.title) + '</a></li>\n';
     }
     h += '</ul></section>\n';
   }
@@ -1265,15 +1322,21 @@ function main() {
   }
   for (const sec of Object.keys(bySector)) bySector[sec].sort((a, b) => scoreOf(b.s) - scoreOf(a.s));
 
+  /* SEO cross-linking source: blog articles whose title/meta keywords mention
+   * a symbol token. Scanned once per run (works for --symbol=XYZ too, since
+   * the map is built from the blog tree, not the symbol batch). */
+  const blogArts = scanRelatedArticles();
+
   let made = 0;
   for (const u of symbols) {
     const sym = u.s, slug = slugOf(sym);
     const v = verdicts[sym] || null;
     const sector = sectorOf[sym] || null;
     const sectorPeers = sector ? (bySector[sector] || []) : [];
+    const related = relatedForSymbol(blogArts, sym);
     const dir = path.join(OUT, slug);
     fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, 'index.html'), symbolPage(u, v, newsBySym[sym] || [], fund, liveMap[sym], liveDate, sector, sectorPeers, verdicts, quarterly, corpHist[sym]));
+    fs.writeFileSync(path.join(dir, 'index.html'), symbolPage(u, v, newsBySym[sym] || [], fund, liveMap[sym], liveDate, sector, sectorPeers, verdicts, quarterly, corpHist[sym], related));
     made++;
   }
   if (!onlySym) fs.writeFileSync(path.join(OUT, 'index.html'), indexPage(symbols, pageAsof));
