@@ -39,7 +39,7 @@ html, body{ overflow-x: clip; }
   font-size: 1.05rem; color: var(--nd-text); line-height: 1.1; white-space: nowrap;
 }
 /* Search */
-#nd-header .nd-search{ position: relative; flex: 1 1 200px; max-width: 280px; min-width: 0; }
+#nd-header .nd-search{ position: relative; flex: 1 1 240px; max-width: 320px; min-width: 200px; }
 #nd-header .nd-search input{
   width: 100%; height: 38px; padding: 0 44px 0 36px;
   background: var(--nd-panel); border: 1px solid var(--nd-border);
@@ -57,7 +57,7 @@ html, body{ overflow-x: clip; }
   background: var(--nd-inset); pointer-events: none;
 }
 #nd-header .nd-results{
-  position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+  position: absolute; top: calc(100% + 6px); left: 0; min-width: 320px; max-width: 420px;
   background: var(--nd-panel-2); border: 1px solid var(--nd-border-strong);
   border-radius: var(--nd-r-md); box-shadow: var(--nd-shadow);
   max-height: 320px; overflow: auto; display: none; padding: 6px;
