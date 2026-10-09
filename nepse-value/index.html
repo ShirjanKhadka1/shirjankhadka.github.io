@@ -42,6 +42,14 @@
   box-shadow:0 0 6px rgba(184,230,46,.4)}
 .symlink{font-weight:700;color:var(--nd-lime,#B8E62E);text-decoration:none}
 .symlink:hover{text-decoration:underline}
+/* 2026-10-09: stock symbols in the value table render white (dark theme). Scoped to .sig-table so the NBL report link keeps its accent color. Light theme keeps its readable green. */
+.sig-table .symlink{color:#fff}
+[data-theme="light"] .sig-table .symlink{color:#4D7C0F}
+/* 2026-10-09: headers neutral by default; only the active sort column goes yellow */
+.sig-table th{color:#fff}
+.sig-table th.sorted{color:var(--nd-lime,#B8E62E)}
+[data-theme="light"] .sig-table th{color:#0A0C10}
+[data-theme="light"] .sig-table th.sorted{color:#4D7C0F}
 .sname{font-size:.75rem;color:var(--nd-dim,#6B7280);display:block;font-weight:400}
 .submed{font-size:.72rem;color:var(--nd-dim,#6B7280);display:block;font-weight:400}
 [data-theme="light"] .symlink{color:#4D7C0F}
@@ -84,7 +92,7 @@ button#valuePrev:disabled,button#valueNext:disabled{opacity:.45;cursor:default}
 </div>
 
 <!-- SNAP-START -->
-<section aria-label="Value snapshot">
+<section class="snap" aria-label="Value snapshot">
   <h2>Top value-ranked companies <span class="snap-asof">· snapshot 2026-10-08</span></h2>
   <div class="scrollx"><table class="sig-table">
     <thead><tr><th>Score</th><th>Stock</th><th>Sector</th><th class="num">LTP</th><th class="num">P/E (TTM)</th><th class="num">P/BV</th><th class="num">Earn. yield</th><th class="num">ROE (TTM)</th></tr></thead>
@@ -96,7 +104,7 @@ button#valuePrev:disabled,button#valueNext:disabled{opacity:.45;cursor:default}
       <tr><td><span class="scorebar"><i style="width:93%"></i></span> 92.9</td><td><a class="symlink" href="/stocks/SADBL/">SADBL</a><span class="sname">Shangrila Development Bank Ltd.</span></td><td>Development Bank</td><td class="num">400.90</td><td class="num">16.66<span class="submed">sector 28.1</span></td><td class="num">2.37<span class="submed">sector 3.54</span></td><td class="num">6.0%</td><td class="num">14.1%</td></tr>
       <tr><td><span class="scorebar"><i style="width:92%"></i></span> 91.7</td><td><a class="symlink" href="/stocks/API/">API</a><span class="sname">Api Power Company Ltd.</span></td><td>Hydropower</td><td class="num">335.70</td><td class="num">22.19<span class="submed">sector 52.0</span></td><td class="num">2.81<span class="submed">sector 3.66</span></td><td class="num">4.5%</td><td class="num">12.6%</td></tr>
       <tr><td><span class="scorebar"><i style="width:92%"></i></span> 91.7</td><td><a class="symlink" href="/stocks/BNT/">BNT</a><span class="sname">Bottlers Nepal (Terai) Limited</span></td><td>Manufacturing And Processing</td><td class="num">11751.00</td><td class="num">21.84<span class="submed">sector 38.2</span></td><td class="num">3.39<span class="submed">sector 4.00</span></td><td class="num">4.6%</td><td class="num">15.7%</td></tr>
-      <tr><td><span class="scorebar"><i style="width:92%"></i></span> 91.0</td><td><a class="symlink" href="/stocks/BHL/">BHL</a><span class="sname">Balephi Hydropower Limited</span></td><td>Hydropower</td><td class="num">218.80</td><td class="num">27.40<span class="submed">sector 52.0</span></td><td class="num">2.69<span class="submed">sector 3.66</span></td><td class="num">3.6%</td><td class="num">9.5%</td></tr>
+      <tr><td><span class="scorebar"><i style="width:91%"></i></span> 91.0</td><td><a class="symlink" href="/stocks/BHL/">BHL</a><span class="sname">Balephi Hydropower Limited</span></td><td>Hydropower</td><td class="num">218.80</td><td class="num">27.40<span class="submed">sector 52.0</span></td><td class="num">2.69<span class="submed">sector 3.66</span></td><td class="num">3.6%</td><td class="num">9.5%</td></tr>
       <tr><td><span class="scorebar"><i style="width:90%"></i></span> 90.0</td><td><a class="symlink" href="/stocks/KBL/">KBL</a><span class="sname">Kumari Bank Limited</span></td><td>Banking</td><td class="num">227.80</td><td class="num">7.91<span class="submed">sector 20.6</span></td><td class="num">1.33<span class="submed">sector 2.02</span></td><td class="num">12.6%</td><td class="num">16.5%</td></tr>
       <tr><td><span class="scorebar"><i style="width:90%"></i></span> 90.0</td><td><a class="symlink" href="/stocks/NIFRA/">NIFRA</a><span class="sname">Nepal Infrastructure Bank Limited</span></td><td>Investment</td><td class="num">244.90</td><td class="num">54.07<span class="submed">sector 89.6</span></td><td class="num">2.09<span class="submed">sector 3.63</span></td><td class="num">1.9%</td><td class="num">3.9%</td></tr>
       <tr><td><span class="scorebar"><i style="width:89%"></i></span> 89.4</td><td><a class="symlink" href="/stocks/CYCL/">CYCL</a><span class="sname">CYC Nepal Laghubitta Bittiya Sanstha Limited</span></td><td>Microfinance</td><td class="num">1450.20</td><td class="num">13.70<span class="submed">sector 31.9</span></td><td class="num">4.27<span class="submed">sector 5.48</span></td><td class="num">7.3%</td><td class="num">32.6%</td></tr>
@@ -215,6 +223,7 @@ function render(){
   ths.forEach(function(th){
     var k = th.getAttribute('data-k');
     var base = th.textContent.replace(/ [▲▼]/,'');
+    th.classList.toggle('sorted', k===state.sort);
     th.innerHTML = esc(base) + (k===state.sort ? ' <span class="arr">'+(state.dir===-1?'▼':'▲')+'</span>' : '');
   });
   // Pager
