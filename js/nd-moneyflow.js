@@ -32,6 +32,7 @@
   var brokerNames = {};
   var flowData = null;
   var sortMode = 'net-desc';
+  var showAll = false;
 
   function sortBrokers(list) {
     var arr = list.slice();
@@ -47,7 +48,8 @@
   function renderTable() {
     var body = $('mfBody');
     if (!body || !flowData) return;
-    var rows = sortBrokers(flowData.brokers || []).slice(0, 25);
+    var all = sortBrokers(flowData.brokers || []);
+    var rows = showAll ? all : all.slice(0, 25);
     body.innerHTML = rows.map(function (b) {
       var name = brokerNames[b.code] || ('Broker ' + b.code);
       var net = Number(b.net || 0);
@@ -60,7 +62,15 @@
         '<td class="r">' + fmtNum(b.total_qty) + '</td></tr>';
     }).join('');
     var note = $('mfTableNote');
-    if (note && flowData) note.textContent = 'Top 25 of ' + (flowData.brokers || []).length + ' brokers · ' + flowData.from + ' → ' + flowData.to;
+    if (note && flowData) {
+      var total = (flowData.brokers || []).length;
+      note.textContent = (showAll ? 'All ' + total : 'Top 25 of ' + total) + ' brokers · ' + flowData.from + ' → ' + flowData.to;
+    }
+    // Show all toggle
+    var toggle = $('mfShowAll');
+    if (toggle) {
+      toggle.textContent = showAll ? 'Show top 25' : 'Show all ' + (flowData.brokers || []).length + ' brokers';
+    }
   }
 
   function renderTiles() {
@@ -114,6 +124,14 @@
         renderTable();
       });
     });
+    // Show all toggle
+    var showAllBtn = $('mfShowAll');
+    if (showAllBtn) {
+      showAllBtn.addEventListener('click', function () {
+        showAll = !showAll;
+        renderTable();
+      });
+    }
     // Load broker names + latest flow
     fetchJSON(BASE + 'brokers.json').then(function (bn) { brokerNames = bn || {}; }).catch(function () {})
       .then(function () { return fetchJSON(BASE + 'periods/1D.json'); })

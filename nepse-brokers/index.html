@@ -233,7 +233,7 @@ h2.bk-h{font-size:1.35rem;margin:34px 0 8px;color:var(--nd-text,#fff);letter-spa
 (function(){
 "use strict";
 var BASE = '/nepse-brokers/data/';
-var state = { view: 'top', period: 'latest', data: null, brokers: {}, meta: null, asof: null, symbol: null, broker: null };
+var state = { view: 'top', period: 'latest', data: null, brokers: {}, meta: null, asof: null, symbol: null, broker: null, topPage: 0 };
 var $ = function(id){ return document.getElementById(id); };
 
 /* ---------- URL-backed state (replaceState; no history spam) ---------- */
@@ -329,15 +329,27 @@ function loadPeriod(silent){
 /* ---------- views ---------- */
 function fmtQ(qty,val){ return (qty===0||qty==='0'||qty==null) && val>0 ? '—' : fmtN(qty||0,0); }
 function renderTop(d){
-  var rows = d.brokers.map(function(b,i){
-    return '<tr><td>'+(i+1)+'</td><td class="bk-name"><strong>'+bname(b.code)+'</strong><br><span style="color:var(--nd-muted,#B8C0CE)">'+b.code+'</span></td>'+
+  var PER_PAGE = 10;
+  var all = d.brokers || [];
+  var totalPages = Math.max(1, Math.ceil(all.length / PER_PAGE));
+  if (state.topPage >= totalPages) state.topPage = totalPages - 1;
+  if (state.topPage < 0) state.topPage = 0;
+  var start = state.topPage * PER_PAGE;
+  var page = all.slice(start, start + PER_PAGE);
+  var rows = page.map(function(b,i){
+    var idx = start + i + 1;
+    return '<tr><td>'+idx+'</td><td class="bk-name"><strong>'+bname(b.code)+'</strong><br><span style="color:var(--nd-muted,#B8C0CE)">'+b.code+'</span></td>'+
       '<td>'+fmtQ(b.buy_qty,b.buy_value)+'</td><td>'+fmtV(b.buy_value)+'</td>'+
       '<td>'+fmtQ(b.sell_qty,b.sell_value)+'</td><td>'+fmtV(b.sell_value)+'</td>'+
       '<td><strong>'+fmtQ(b.total_qty,b.total)+'</strong></td><td><strong>'+fmtV(b.total)+'</strong></td>'+
       '<td class="'+cls(b.net_qty)+'">'+fmtQ(b.net_qty,Math.abs(b.net))+'</td><td class="'+cls(b.net)+'">'+fmtV(b.net)+'</td></tr>';
   }).join('');
+  var pager = '<div class="bk-pager" style="display:flex;gap:8px;align-items:center;justify-content:center;margin:12px 0;">'+
+    '<button id="bkPrev" '+(state.topPage===0?'disabled':'')+' style="padding:6px 14px;border-radius:8px;cursor:pointer;">← Prev</button>'+
+    '<span style="font-size:.85rem;">Page '+(state.topPage+1)+' of '+totalPages+' ('+all.length+' brokers)</span>'+
+    '<button id="bkNext" '+(state.topPage>=totalPages-1?'disabled':'')+' style="padding:6px 14px;border-radius:8px;cursor:pointer;">Next →</button></div>';
   return '<h2 class="bk-h">Top brokers by turnover — '+label()+'</h2>'+
-    '<div class="scrollx" tabindex="0" role="region" aria-label="Top brokers by turnover table"><table class="bk-table"><thead><tr><th>#</th><th class="bk-name">Broker</th><th>Buy vol</th><th>Buy value</th><th>Sell vol</th><th>Sell value</th><th>Total vol</th><th>Total value</th><th>Net vol</th><th>Net value</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+    '<div class="scrollx" tabindex="0" role="region" aria-label="Top brokers by turnover table"><table class="bk-table"><thead><tr><th>#</th><th class="bk-name">Broker</th><th>Buy vol</th><th>Buy value</th><th>Sell vol</th><th>Sell value</th><th>Total vol</th><th>Total value</th><th>Net vol</th><th>Net value</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+pager;
 }
 
 function renderBroker(d){
@@ -486,6 +498,10 @@ function render(){
   else if(state.view==='holdings') html = renderHoldings(d);
   else html = renderAccDist(d);
   $('view').innerHTML = html;
+  // Pagination handlers for Top Brokers
+  var bp = $('bkPrev'), bn = $('bkNext');
+  if (bp) bp.addEventListener('click', function(){ if(state.topPage>0){ state.topPage--; render(); } });
+  if (bn) bn.addEventListener('click', function(){ state.topPage++; render(); });
   syncURL();
 }
 
