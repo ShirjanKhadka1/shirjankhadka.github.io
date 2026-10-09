@@ -314,7 +314,10 @@
   function fmtPct(x) { return (x >= 0 ? '+' : '') + fmtNum(x, 2) + '%'; }
   function cls(x) { return x > 0 ? 'up' : x < 0 ? 'down' : ''; }
 
-  var PRICES = function (s) { return 'https://samirwagle.github.io/Nepse-All-Scraper/docs/api/prices/' + s.replace('/', '-') + '.json'; };
+  /* Own archive (tools/build-sim-history.js, refreshed daily after close):
+   * nepse-chart/data/history/{SYM}.json = { symbol, updated, data: [[YYYYMMDD, open, high, low, close, volume, turnover], ...] }.
+   * Replaced the stale third-party prices API (stopped 2026-02-12). */
+  var PRICES = function (s) { return '/nepse-chart/data/history/' + s.replace('/', '-') + '.json'; };
   var universe = [], rows = [], curSym = null, lastRun = null, runSeq = 0;
   /* ---------- journal UI ---------- */
   function renderJournal() {
@@ -367,7 +370,7 @@
       return r.json();
     }).then(function (j) {
       rows = ((j && j.data) || []).map(function (d) {
-        return [Number(String(d.date).replace(/-/g, '')), +d.open || 0, +d.high || 0, +d.low || 0, +d.ltp || 0, +d.qty || 0, +d.turnover || 0];
+        return [d[0], +d[1] || 0, +d[2] || 0, +d[3] || 0, +d[4] || 0, +d[5] || 0, +d[6] || 0];
       }).filter(function (r) { return r[4] > 0 && r[2] > 0 && r[3] > 0; });
       rows.sort(function (a, b) { return a[0] - b[0]; });
       if (rows.length < 60) throw new Error('only ' + rows.length + ' sessions');
