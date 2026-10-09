@@ -26,6 +26,11 @@ jobs:
       - name: Check SEBON for new prospectuses
         run: node tools/ipo-sebon-watch.js
 
+      - name: Advance IPO lifecycle phases from announcements
+        # upcoming -> local-open -> foreign-open -> open from issue-manager
+        # notices, plus date-driven close transitions. Never invents dates.
+        run: node tools/ipo-lifecycle.js
+
       - name: Update IPO statuses (Open/Closed by date)
         run: node tools/ipo-status-update.js
 
@@ -37,6 +42,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No new IPO entries."
           else
-            git commit -m "IPO watch: new SEBON-verified upcoming issues $(date -u +%F)"
+            git commit -m "IPO watch: SEBON prospectus + lifecycle + status update $(date -u +%F)"
             git push
           fi
