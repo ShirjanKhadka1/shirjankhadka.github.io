@@ -233,7 +233,7 @@ h2.bk-h{font-size:1.35rem;margin:34px 0 8px;color:var(--nd-text,#fff);letter-spa
 (function(){
 "use strict";
 var BASE = '/nepse-brokers/data/';
-var state = { view: 'top', period: 'latest', data: null, brokers: {}, meta: null, asof: null, symbol: null, broker: null, topPage: 0 };
+var state = { view: 'top', period: 'latest', data: null, brokers: {}, meta: null, asof: null, symbol: null, broker: null, topPage: 0, holdPage: 0 };
 var $ = function(id){ return document.getElementById(id); };
 
 /* ---------- URL-backed state (replaceState; no history spam) ---------- */
@@ -430,7 +430,13 @@ function renderHoldings(d){
     Object.keys(s.sellers).forEach(function(c){ var v=qv(s.sellers[c]);
       var e = net[c] = net[c] || [0,0,0,0,0,0]; e[4]+=v[0]; e[5]+=v[1]; e[0]-=v[0]; e[1]-=v[1]; });
   }
-  var rows = Object.keys(net).map(function(c){return [c,net[c]]}).sort(function(a,b){return b[1][1]-a[1][1]})
+  var PER_PAGE = 10;
+  var all = Object.keys(net).map(function(c){return [c,net[c]]}).sort(function(a,b){return b[1][1]-a[1][1]});
+  var totalPages = Math.max(1, Math.ceil(all.length / PER_PAGE));
+  if (state.holdPage >= totalPages) state.holdPage = totalPages - 1;
+  if (state.holdPage < 0) state.holdPage = 0;
+  var start = state.holdPage * PER_PAGE;
+  var rows = all.slice(start, start + PER_PAGE)
     .map(function(x){
       var n = x[1], nq = n[0], nv = n[1];
       var tag = nv>0?'<span class="pos">accumulating</span>':'<span class="neg">distributing</span>';
@@ -439,9 +445,13 @@ function renderHoldings(d){
         '<td>'+fmtN(n[4],0)+'</td><td>'+fmtV(n[5])+'</td>'+
         '<td>'+fmtN(nq,0)+'</td><td class="'+cls(nv)+'">'+fmtV(nv)+'</td><td>'+tag+'</td></tr>';
     }).join('');
+  var pager = '<div class="bk-pager" style="display:flex;gap:8px;align-items:center;justify-content:center;margin:12px 0;">'+
+    '<button id="hdPrev" '+(state.holdPage===0?'disabled':'')+' style="padding:6px 14px;border-radius:8px;cursor:pointer;">← Prev</button>'+
+    '<span style="font-size:.85rem;">Page '+(state.holdPage+1)+' of '+totalPages+' ('+all.length+' brokers)</span>'+
+    '<button id="hdNext" '+(state.holdPage>=totalPages-1?'disabled':'')+' style="padding:6px 14px;border-radius:8px;cursor:pointer;">Next →</button></div>';
   return '<h2 class="bk-h">'+sym+' — stockwise broker flow, '+label()+'</h2>'+
     '<p style="font-size:.85rem;color:var(--nd-muted,#B8C0CE)">Every broker that traded this stock, netted over the period. Net bought = accumulating · net sold = distributing (by transaction value). This is transaction flow, not verified shareholding.</p>'+
-    '<div class="scrollx" tabindex="0" role="region" aria-label="'+sym+' stockwise broker flow table"><table class="bk-table"><thead><tr><th class="bk-name">Broker</th><th>Code</th><th>Buy qty</th><th>Buy value</th><th>Sell qty</th><th>Sell value</th><th>Net qty</th><th>Net value</th><th>Flow</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+    '<div class="scrollx" tabindex="0" role="region" aria-label="'+sym+' stockwise broker flow table"><table class="bk-table"><thead><tr><th class="bk-name">Broker</th><th>Code</th><th>Buy qty</th><th>Buy value</th><th>Sell qty</th><th>Sell value</th><th>Net qty</th><th>Net value</th><th>Flow</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+pager;
 }
 
 function renderAccDist(d){
@@ -502,6 +512,9 @@ function render(){
   var bp = $('bkPrev'), bn = $('bkNext');
   if (bp) bp.addEventListener('click', function(){ if(state.topPage>0){ state.topPage--; render(); } });
   if (bn) bn.addEventListener('click', function(){ state.topPage++; render(); });
+  var hp = $('hdPrev'), hn = $('hdNext');
+  if (hp) hp.addEventListener('click', function(){ if(state.holdPage>0){ state.holdPage--; render(); } });
+  if (hn) hn.addEventListener('click', function(){ state.holdPage++; render(); });
   syncURL();
 }
 
@@ -521,7 +534,7 @@ $('viewTabs').addEventListener('click', function(e){
 $('periodBar').addEventListener('click', function(e){
   var b = e.target.closest('button'); if(!b) return;
   document.querySelectorAll('#periodBar button').forEach(function(x){x.classList.remove('active')});
-  b.classList.add('active'); state.period = b.dataset.p; state.asof = null; $('asofDate').value='';
+  b.classList.add('active'); state.period = b.dataset.p; state.asof = null; state.holdPage = 0; $('asofDate').value='';
   // Selections live in state and are restored by render() — never wipe them here.
   syncURL();
   loadPeriod();
@@ -535,7 +548,7 @@ $('asofDate').addEventListener('change', function(e){
   loadPeriod();
 });
 $('brokerSel').addEventListener('change', function(){ state.broker = this.value || null; syncURL(); render(); });
-$('symbolSel').addEventListener('change', function(){ state.symbol = this.value || null; syncURL(); render(); });
+$('symbolSel').addEventListener('change', function(){ state.symbol = this.value || null; state.holdPage = 0; syncURL(); render(); });
 
 initFromURL();
 syncStaticControls();
