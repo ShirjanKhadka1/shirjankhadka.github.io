@@ -34,6 +34,8 @@ function main() {
     process.exit(1);
   }
   const num = (v) => { const x = Number(v); return Number.isFinite(x) ? String(x) : ''; };
+  const hasFigures = (r.bonus_share !== undefined && r.bonus_share !== '' && r.bonus_share !== null) ||
+                     (r.cash_dividend !== undefined && r.cash_dividend !== '' && r.cash_dividend !== null);
   const rec = {
     bonus_share: num(r.bonus_share),
     cash_dividend: num(r.cash_dividend),
@@ -48,8 +50,28 @@ function main() {
   try { db = JSON.parse(fs.readFileSync(FILE, 'utf8')); } catch { /* first run */ }
   if (!db.companies) db.companies = {};
   const arr = db.companies[sym] || (db.companies[sym] = []);
-  const ix = arr.findIndex((x) =>
-    [String(x.year || ''), Number(x.bonus_share) || 0, Number(x.cash_dividend) || 0].join('|') === key);
+  /* Book-close fill-in: when the call carries a bookclose_date but no
+   * figures (a book-closure notice verified against the official PDF),
+   * attach it to the latest row for this symbol + fiscal year that still
+   * lacks a book close date — never invent, never duplicate. */
+  let ix;
+  if (rec.bookclose_date && !hasFigures) {
+    let best = -1, bestAnn = '';
+    arr.forEach((x, i) => {
+      if (String(x.year || '') !== year) return;
+      if (x.bookclose_date && String(x.bookclose_date).trim() !== '') return;
+      const ann = String(x.announcement_date || '');
+      if (best < 0 || ann >= bestAnn) { best = i; bestAnn = ann; }
+    });
+    ix = best;
+    if (ix < 0) {
+      console.error(`record-live-dividend: no open dividend row for ${sym} ${year} to attach bookclose_date`);
+      process.exit(2);
+    }
+  } else {
+    ix = arr.findIndex((x) =>
+      [String(x.year || ''), Number(x.bonus_share) || 0, Number(x.cash_dividend) || 0].join('|') === key);
+  }
   let updated = false;
   if (ix >= 0) {
     for (const k of Object.keys(rec)) {

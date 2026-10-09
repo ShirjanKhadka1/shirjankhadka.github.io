@@ -97,6 +97,19 @@
 .na-kind.k-right-share { color: var(--nd-amber, #F5B301); border-color: var(--nd-amber, #F5B301); background: rgba(245,179,1,0.1); }
 .na-kind.k-promoter-share { color: var(--nd-down); border-color: var(--nd-down); background: var(--nd-down-soft); }
 .na-kind.k-auction { color: var(--nd-muted); border-color: var(--nd-border-strong); background: var(--nd-panel-2); }
+.na-kind.k-book-close { color: var(--nd-muted); border-color: var(--nd-border-strong); background: var(--nd-panel-2); }
+/* Open/Closed status pill for dividend/bonus/right-share cards. Same pill
+ * language as .na-kind; the text is painted in the browser from the
+ * book-close date vs today (Asia/Kathmandu), so it flips on its own.
+ * Hidden (display:none via JS) when the status is unknown. */
+.na-status {
+  font: 700 0.66rem var(--nd-font-mono, "IBM Plex Mono", monospace);
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 4px 12px; border-radius: 999px;
+  border: 1px solid transparent;
+}
+.na-status.is-open { color: var(--nd-up); border-color: var(--nd-up); background: var(--nd-up-soft); }
+.na-status.is-closed { color: var(--nd-muted); border-color: var(--nd-border-strong); background: var(--nd-panel-2); }
 .na-sym {
   font: 700 0.78rem var(--nd-font-mono, "IBM Plex Mono", monospace);
   color: var(--nd-text); text-decoration: none; letter-spacing: 0.04em;

@@ -50,6 +50,7 @@ const KIND_LABEL = {
   'auction': 'Auction',
   'lock-in': 'Lock-in',
   'meeting': 'Meeting',
+  'book-close': 'Book close',
 };
 /* Bonus shares are a form of dividend — remap to the dividend kind so the
  * page only shows Dividend / Right share / Promoter share (+ All). */
@@ -129,12 +130,24 @@ function figuresHTML(it) {
 
 /* Static card markup — mirrored by the client-side renderer below so a
  * live JSON refresh paints identical cards. */
+function statusSpan(it) {
+  /* Open/Closed pill for dividend/bonus/right-share actions, driven by the
+   * book-close date. The pill text is painted in the browser (Asia/Kathmandu
+   * today) so the status flips on its own when the book close passes — no
+   * rebuild needed. Unknown when no book-close date is on record and the
+   * announcement is older than a year: the span stays empty and is hidden. */
+  const k = String(it.kind || '');
+  if (k !== 'dividend' && k !== 'bonus-share' && k !== 'right-share') return '';
+  const bc = (/^(\d{4}-\d{2}-\d{2})/.exec(String(it.bookclose_date || '')) || [])[1] || '';
+  const ann = (/^(\d{4}-\d{2}-\d{2})/.exec(String(it.announced || '')) || [])[1] || '';
+  return '<span class="na-status" data-bc="' + esc(bc) + '" data-ann="' + esc(ann) + '"></span>';
+}
 function cardHTML(it) {
   const kind = KIND_LABEL[it.kind] || esc(it.kind || 'Notice');
   const dot = ' <span class="na-dot">·</span> ';
   return '<article class="na-card" data-kind="' + esc(it.kind) + '" data-sym="' + esc((it.symbol || '').toLowerCase()) + '" data-year="' + esc(String(it.announced || '').slice(0, 4)) + '">\n' +
     '<div class="na-top"><span class="na-kind k-' + esc(it.kind) + '">' + esc(kind) + '</span>' +
-    symChip(it.symbol) + '</div>\n' +
+    symChip(it.symbol) + statusSpan(it) + '</div>\n' +
     '<h3 class="na-head">' + esc(it.headline) + '</h3>\n' +
     figuresHTML(it) +
     fmtFacts(it.facts) +
@@ -309,6 +322,35 @@ function main() {
     '      ? \'<a class="na-sym" href="/stocks/\' + esc(slug) + \'/">\' + esc(sym) + "</a>"\n' +
     '      : \'<span class="na-sym na-sym--nolink">\' + esc(sym) + "</span>";\n' +
     '  }\n' +
+    '  function statusSpan(it){\n' +
+    '    var k = String(it.kind || "");\n' +
+    '    if (k !== "dividend" && k !== "bonus-share" && k !== "right-share") return "";\n' +
+    '    var bcm = /^(\\d{4}-\\d{2}-\\d{2})/.exec(String(it.bookclose_date || ""));\n' +
+    '    var anm = /^(\\d{4}-\\d{2}-\\d{2})/.exec(String(it.announced || ""));\n' +
+    '    return \'<span class="na-status" data-bc="\' + esc(bcm ? bcm[1] : "") + \'" data-ann="\' + esc(anm ? anm[1] : "") + \'"></span>\';\n' +
+    '  }\n' +
+    '  /* Open/Closed pill, computed in the browser against TODAY IN KATHMANDU\n' +
+    '     (Asia/Kathmandu), so the status flips on its own when the book close\n' +
+    '     passes — no rebuild needed. Falls back to the announcement date (Open\n' +
+    '     while within a year); unknown otherwise, and the span stays hidden. */\n' +
+    '  function nptToday(){\n' +
+    '    try { return new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Kathmandu",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date()); }\n' +
+    '    catch(e){ var kd = new Date(Date.now() + 20700000); return kd.getUTCFullYear() + "-" + ("0"+(kd.getUTCMonth()+1)).slice(-2) + "-" + ("0"+kd.getUTCDate()).slice(-2); }\n' +
+    '  }\n' +
+    '  function paintStatus(){\n' +
+    '    var today = nptToday(), iso = /^\\d{4}-\\d{2}-\\d{2}$/;\n' +
+    '    document.querySelectorAll("#na-feed .na-status").forEach(function(el){\n' +
+    '      var bc = el.getAttribute("data-bc") || "", ann = el.getAttribute("data-ann") || "", label = "", cls = "";\n' +
+    '      if (iso.test(bc)) { var closed = bc < today; label = closed ? "Closed" : "Open"; cls = closed ? "is-closed" : "is-open"; }\n' +
+    '      else if (iso.test(ann)) {\n' +
+    '        var days = Math.floor((new Date(today + "T00:00:00") - new Date(ann + "T00:00:00")) / 86400000);\n' +
+    '        if (days >= 0 && days <= 365) { label = "Open"; cls = "is-open"; }\n' +
+    '      }\n' +
+    '      if (!label) { el.style.display = "none"; return; }\n' +
+    '      el.className = "na-status " + cls;\n' +
+    '      el.textContent = label;\n' +
+    '    });\n' +
+    '  }\n' +
     '  var feed = document.getElementById("na-feed"),\n' +
     '      year = document.getElementById("na-year"),\n' +
     '      q = document.getElementById("na-q"),\n' +
@@ -337,7 +379,7 @@ function main() {
     '    }\n' +
     '    return \'<article class="na-card" data-kind="\' + esc(kk) + \'">\' +\n' +
     '      \'<div class="na-top"><span class="na-kind k-\' + esc(kk) + \'">\' + esc(kind) + "</span>" +\n' +
-    '      symChip(it.symbol) + "</div>" +\n' +
+    '      symChip(it.symbol) + statusSpan(it) + "</div>" +\n' +
     '      \'<h3 class="na-head">\' + esc(it.headline) + "</h3>" + figuresHTML(it) + facts +\n' +
     '      \'<p class="na-meta">\' + (it.company ? esc(it.company) + dot : "") +\n' +
     '      (it.announced ? "Announced " + fmtAnnounced(it.announced) + dot : "") +\n' +
@@ -372,6 +414,7 @@ function main() {
     '    prev.disabled = page <= 1;\n' +
     '    next.disabled = page >= pages;\n' +
     '    pager.style.display = pages > 1 ? "" : "none";\n' +
+    '    paintStatus();\n' +
     '  }\n' +
     '  function reset(){ page = 1; render(); }\n' +
     '  pills.forEach(function(btn){\n' +
