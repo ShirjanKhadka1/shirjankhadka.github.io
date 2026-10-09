@@ -85,6 +85,32 @@ function readLive() {
     return JSON.parse(fs.readFileSync(OUT, 'utf8'));
   } catch (e) { return null; }
 }
+
+/**
+ * INTRADAY PRESERVE (2026-10-09 guard): the intraday-ohlc-poll cron owns the
+ * `intraday` key in live.json (the site's intraday feed). This snapshot
+ * rewrites live.json wholesale; without an explicit carry-forward, every
+ * Alpha Lab run wipes `intraday` until the next poll repairs it (observed
+ * 2026-10-09: commit 965829440 wiped it, 4c0fa5a62 repaired it, and the
+ * wipe/repair ping-pong repeated every 15 minutes all session).
+ *
+ * Returns the intraday dict to carry forward, or undefined when there is
+ * nothing worth keeping: no intraday key, a non-object value, or a stale
+ * intraday from a prior session (a new session must never show yesterday's
+ * intraday numbers — the poll rewrites it within ~15 min anyway).
+ */
+function preserveIntraday(prevLive, sessionDate) {
+  if (!prevLive || prevLive.intraday == null) return undefined;
+  if (typeof prevLive.intraday !== 'object') {
+    log('dropping non-object intraday value (' + typeof prevLive.intraday + ')');
+    return undefined;
+  }
+  const prevSession = prevLive.session_date ||
+    (prevLive.asof ? nptDate(prevLive.asof) : null);
+  if (prevSession === sessionDate) return prevLive.intraday;
+  log('dropping stale intraday (session ' + prevSession + ' != ' + sessionDate + ')');
+  return undefined;
+}
 const OUT = path.join(__dirname, '..', 'nepse-chart', 'data', 'live.json');
 const PAGE_SIZE = 500;
 const MAX_PAGES = 10;
@@ -284,6 +310,15 @@ async function main() {
       quotes: quotes
     };
 
+    // 2d. Carry the intraday-ohlc-poll's `intraday` key forward (see
+    // preserveIntraday above): a wholesale rewrite must never drop the
+    // site's intraday feed mid-session.
+    const keptIntraday = preserveIntraday(readLive(), payload.session_date);
+    if (keptIntraday !== undefined) {
+      payload.intraday = keptIntraday;
+      log('preserved intraday key for session ' + payload.session_date);
+    }
+
     // 3. Atomic write: temp file + rename, never a partial live.json.
     const tmp = OUT + '.tmp-' + process.pid;
     fs.writeFileSync(tmp, JSON.stringify(payload));
@@ -295,4 +330,8 @@ async function main() {
   }
 }
 
-main();
+if (require.main === module) main();
+
+// Exported for the intraday-guard regression test (no network, main() is not
+// run when required as a module).
+module.exports = { preserveIntraday, nptDate, snapshotSessionDate };
