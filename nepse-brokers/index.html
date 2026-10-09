@@ -71,7 +71,7 @@
   white-space:nowrap;font-variant-numeric:tabular-nums}
 .bk-table th:first-child,.bk-table td:first-child,.bk-table th.bk-name,.bk-table td.bk-name{text-align:left}
 .bk-table th{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0)),var(--nd-panel-2,#161A23);
-  font-weight:700;color:var(--nd-lime,#B8E62E);font-size:.76rem;letter-spacing:.07em;text-transform:uppercase;
+  font-weight:700;color:#fff;font-size:.76rem;letter-spacing:.07em;text-transform:uppercase;
   text-shadow:0 1px 2px rgba(0,0,0,.4);border-bottom:1px solid var(--nd-border-strong,#2A3342)}
 .bk-table tr:last-child td{border-bottom:none}
 .bk-table tbody tr{transition:background .12s}
@@ -131,11 +131,11 @@ h2.bk-h{font-size:1.35rem;margin:34px 0 8px;color:var(--nd-text,#fff);letter-spa
   background:linear-gradient(180deg,#6BAE16 0%,#4D7C0F 60%,#3E650C 100%);border-color:#3E650C;border-top-color:#8FD41F;color:#fff;
   box-shadow:inset 0 2px 0 rgba(255,255,255,.4),inset 0 -3px 6px rgba(0,0,0,.18),0 2px 4px rgba(77,124,15,.4),0 8px 20px rgba(77,124,15,.3)}
 [data-theme="light"] .bk-table{background:#fff;color:#0A0C10}
-[data-theme="light"] .bk-table th{background:linear-gradient(180deg,#FFFFFF,#F2F5F8);color:#4D7C0F;text-shadow:none}
+[data-theme="light"] .bk-table th{background:linear-gradient(180deg,#FFFFFF,#F2F5F8);color:#0A0C10;text-shadow:none}
 [data-theme="light"] .bk-table th,[data-theme="light"] .bk-table td{border-bottom-color:#E2E6EC}
-/* sortable headers (stockwise holdings): pointer + visible active state in both themes, never yellow */
-.bk-table th[data-sk]{cursor:pointer}
-.bk-table th[data-sk]:hover{text-decoration:underline}
+/* sortable headers: pointer + visible active state in both themes, never yellow */
+.bk-table th[data-sort]{cursor:pointer}
+.bk-table th[data-sort]:hover{text-decoration:underline}
 .bk-table th.sorted{color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.4)}
 [data-theme="light"] .bk-table th.sorted{color:#0A0C10;text-shadow:none}
 [data-theme="light"] .bk-table td{color:#3F4753}
@@ -239,7 +239,7 @@ h2.bk-h{font-size:1.35rem;margin:34px 0 8px;color:var(--nd-text,#fff);letter-spa
 (function(){
 "use strict";
 var BASE = '/nepse-brokers/data/';
-var state = { view: 'top', period: 'latest', data: null, brokers: {}, meta: null, asof: null, symbol: null, broker: null, topPage: 0, holdPage: 0, brkPage: 0, brkQuery: '', accPage: 0, distPage: 0, accSearch: '', holdSort: { key: 'net_value', dir: -1 } };
+var state = { view: 'top', period: 'latest', data: null, brokers: {}, meta: null, asof: null, symbol: null, broker: null, topPage: 0, holdPage: 0, brkPage: 0, brkQuery: '', accPage: 0, distPage: 0, accSearch: '', sorts: {} };
 var $ = function(id){ return document.getElementById(id); };
 
 /* ---------- URL-backed state (replaceState; no history spam) ---------- */
@@ -296,6 +296,26 @@ function fmtV(n){ if(!isFinite(n)) return '–'; var a=Math.abs(n);
 function bname(code){ return state.brokers[code] || ('Broker '+code); }
 function cls(v){ return v>0?'pos':(v<0?'neg':''); }
 
+/* ---------- generic table sorting (all broker tables) ---------- */
+var sortPageKey = { top:'topPage', broker:'brkPage', holdings:'holdPage', acc:'accPage', dist:'distPage' };
+function sortState(view){ return state.sorts[view] || (state.sorts[view] = {key:null, dir:-1}); }
+function thS(view, key, label, clsName){
+  var s = sortState(view), active = s.key === key;
+  var arrow = active ? (s.dir===1 ? ' ▲' : ' ▼') : '';
+  return '<th data-sort="'+view+':'+key+'" class="'+((clsName||'')+(active?' sorted':''))+'">'+label+arrow+'</th>';
+}
+function applySort(arr, view, get){
+  var s = sortState(view);
+  if(!s.key || !get[s.key]) return arr;
+  var d = s.dir, g = get[s.key];
+  return arr.sort(function(a,b){
+    var va=g(a), vb=g(b);
+    var c=(typeof va==='string') ? (va<vb?-1:va>vb?1:0) : (va-vb);
+    return c*d;
+  });
+}
+function numCode(v){ var n = parseFloat(v); return isNaN(n) ? String(v==null?'':v).toLowerCase() : n; }
+
 function loadMeta(){
   return fetch(BASE+'meta.json').then(function(r){return r.json()}).then(function(m){
     state.meta = m;
@@ -336,7 +356,15 @@ function loadPeriod(silent){
 function fmtQ(qty,val){ return (qty===0||qty==='0'||qty==null) && val>0 ? '—' : fmtN(qty||0,0); }
 function renderTop(d){
   var PER_PAGE = 10;
-  var all = d.brokers || [];
+  var get = {
+    broker: function(b){ return bname(b.code).toLowerCase(); },
+    code: function(b){ return numCode(b.code); },
+    buy_qty: function(b){ return b.buy_qty||0; }, buy_value: function(b){ return b.buy_value||0; },
+    sell_qty: function(b){ return b.sell_qty||0; }, sell_value: function(b){ return b.sell_value||0; },
+    total_qty: function(b){ return b.total_qty||0; }, total_value: function(b){ return b.total||0; },
+    net_qty: function(b){ return b.net_qty||0; }, net_value: function(b){ return b.net||0; }
+  };
+  var all = applySort((d.brokers || []).slice(), 'top', get);
   var totalPages = Math.max(1, Math.ceil(all.length / PER_PAGE));
   if (state.topPage >= totalPages) state.topPage = totalPages - 1;
   if (state.topPage < 0) state.topPage = 0;
@@ -355,7 +383,11 @@ function renderTop(d){
     '<span style="font-size:.85rem;">Page '+(state.topPage+1)+' of '+totalPages+' ('+all.length+' brokers)</span>'+
     '<button id="bkNext" '+(state.topPage>=totalPages-1?'disabled':'')+' style="padding:6px 14px;border-radius:8px;cursor:pointer;">Next →</button></div>';
   return '<h2 class="bk-h">Top brokers by turnover — '+label()+'</h2>'+
-    '<div class="scrollx" tabindex="0" role="region" aria-label="Top brokers by turnover table"><table class="bk-table"><thead><tr><th>#</th><th class="bk-name">Broker</th><th>Buy vol</th><th>Buy value</th><th>Sell vol</th><th>Sell value</th><th>Total vol</th><th>Total value</th><th>Net vol</th><th>Net value</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+pager;
+    '<div class="scrollx" tabindex="0" role="region" aria-label="Top brokers by turnover table"><table class="bk-table"><thead><tr><th>#</th>'+
+    thS('top','broker','Broker','bk-name')+thS('top','buy_qty','Buy vol')+thS('top','buy_value','Buy value')+
+    thS('top','sell_qty','Sell vol')+thS('top','sell_value','Sell value')+thS('top','total_qty','Total vol')+
+    thS('top','total_value','Total value')+thS('top','net_qty','Net vol')+thS('top','net_value','Net value')+
+    '</tr></thead><tbody>'+rows+'</tbody></table></div>'+pager;
 }
 
 function renderBroker(d){
@@ -364,6 +396,13 @@ function renderBroker(d){
   var allSyms = (d.broker_symbols && d.broker_symbols[code]) || [];
   var q = (state.brkQuery||'').trim().toUpperCase();
   var syms = q ? allSyms.filter(function(s){ return s.symbol.toUpperCase().indexOf(q) >= 0; }) : allSyms;
+  var bget = {
+    symbol: function(s){ return s.symbol; },
+    buy_qty: function(s){ return s.buy_qty||0; }, buy_value: function(s){ return s.buy_value||0; },
+    sell_qty: function(s){ return s.sell_qty||0; }, sell_value: function(s){ return s.sell_value||0; },
+    net_value: function(s){ return (s.buy_value||0)-(s.sell_value||0); }
+  };
+  syms = applySort(syms.slice(), 'broker', bget);
   var t = d.brokers.filter(function(b){return b.code===code})[0] || {};
   var PER_PAGE = 10;
   var totalPages = Math.max(1, Math.ceil(syms.length / PER_PAGE));
@@ -388,7 +427,10 @@ function renderBroker(d){
     '<div class="stat"><div class="l">Net volume</div><div class="v '+cls((t.buy_qty||0)-(t.sell_qty||0))+'">'+fmtQ((t.buy_qty||0)-(t.sell_qty||0),Math.abs((t.buy_value||0)-(t.sell_value||0)))+'</div></div>'+
     '<div class="stat"><div class="l">Net value</div><div class="v '+cls((t.buy_value||0)-(t.sell_value||0))+'">'+fmtV((t.buy_value||0)-(t.sell_value||0))+'</div></div>'+
     '<div class="stat"><div class="l">Stocks traded</div><div class="v">'+allSyms.length+'</div></div></div>'+
-    '<div class="scrollx" tabindex="0" role="region" aria-label="Broker stock detail table"><table class="bk-table"><thead><tr><th>Symbol</th><th>Buy qty</th><th>Buy value</th><th>Sell qty</th><th>Sell value</th><th>Net value</th></tr></thead><tbody>'+(rows||'<tr><td colspan="6">'+(q?'No symbols match "'+q+'".':'No trades in this period.')+'</td></tr>')+'</tbody></table></div>'+pager;
+    '<div class="scrollx" tabindex="0" role="region" aria-label="Broker stock detail table"><table class="bk-table"><thead><tr>'+
+    thS('broker','symbol','Symbol')+thS('broker','buy_qty','Buy qty')+thS('broker','buy_value','Buy value')+
+    thS('broker','sell_qty','Sell qty')+thS('broker','sell_value','Sell value')+thS('broker','net_value','Net value')+
+    '</tr></thead><tbody>'+(rows||'<tr><td colspan="6">'+(q?'No symbols match "'+q+'".':'No trades in this period.')+'</td></tr>')+'</tbody></table></div>'+pager;
 }
 
 function symbolOptions(d){
@@ -462,10 +504,10 @@ function renderHoldings(d){
   }
   var PER_PAGE = 10;
   var all = Object.keys(net).map(function(c){return [c,net[c]]});
-  // sortable columns: netflow entries are [net_qty, net_value, buy_qty, buy_value, sell_qty, sell_value]
-  var sortVal = {
+  // netflow entries: [net_qty, net_value, buy_qty, buy_value, sell_qty, sell_value]
+  var hget = {
     broker: function(x){ return bname(x[0]).toLowerCase(); },
-    code: function(x){ return x[0]; },
+    code: function(x){ return numCode(x[0]); },
     buy_qty: function(x){ return x[1][2]; },
     buy_value: function(x){ return x[1][3]; },
     sell_qty: function(x){ return x[1][4]; },
@@ -473,12 +515,10 @@ function renderHoldings(d){
     net_qty: function(x){ return x[1][0]; },
     net_value: function(x){ return x[1][1]; }
   };
-  var sk = (sortVal[state.holdSort.key] ? state.holdSort.key : 'net_value'), sd = state.holdSort.dir;
-  all.sort(function(a,b){
-    var va = sortVal[sk](a), vb = sortVal[sk](b);
-    var c = (typeof va === 'string') ? (va < vb ? -1 : va > vb ? 1 : 0) : (va - vb);
-    return c * sd;
-  });
+  // default order: net value descending (same as before sorting existed)
+  var hs = sortState('holdings');
+  if(!hs.key){ hs.key = 'net_value'; hs.dir = -1; }
+  all = applySort(all, 'holdings', hget);
   var totalPages = Math.max(1, Math.ceil(all.length / PER_PAGE));
   if (state.holdPage >= totalPages) state.holdPage = totalPages - 1;
   if (state.holdPage < 0) state.holdPage = 0;
@@ -496,15 +536,11 @@ function renderHoldings(d){
     '<button id="hdPrev" '+(state.holdPage===0?'disabled':'')+' style="padding:6px 14px;border-radius:8px;cursor:pointer;">← Prev</button>'+
     '<span style="font-size:.85rem;">Page '+(state.holdPage+1)+' of '+totalPages+' ('+all.length+' brokers)</span>'+
     '<button id="hdNext" '+(state.holdPage>=totalPages-1?'disabled':'')+' style="padding:6px 14px;border-radius:8px;cursor:pointer;">Next →</button></div>';
-  function hd(label, key, clsName){
-    var active = state.holdSort.key === key;
-    var arrow = active ? (state.holdSort.dir === 1 ? ' ▲' : ' ▼') : '';
-    return '<th data-sk="'+key+'" class="'+((clsName||'')+(active?' sorted':''))+'">'+label+arrow+'</th>';
-  }
   return '<h2 class="bk-h">'+sym+' — stockwise broker flow, '+label()+'</h2>'+
     '<p style="font-size:.85rem;color:var(--nd-muted,#B8C0CE)">Every broker that traded this stock, netted over the period. Net bought = accumulating · net sold = distributing (by transaction value). This is transaction flow, not verified shareholding.</p>'+
     '<div class="scrollx" tabindex="0" role="region" aria-label="'+sym+' stockwise broker flow table"><table class="bk-table"><thead><tr>'+
-    hd('Broker','broker','bk-name')+hd('Code','code')+hd('Buy qty','buy_qty')+hd('Buy value','buy_value')+hd('Sell qty','sell_qty')+hd('Sell value','sell_value')+hd('Net qty','net_qty')+hd('Net value','net_value')+
+    thS('holdings','broker','Broker','bk-name')+thS('holdings','code','Code')+thS('holdings','buy_qty','Buy qty')+thS('holdings','buy_value','Buy value')+
+    thS('holdings','sell_qty','Sell qty')+thS('holdings','sell_value','Sell value')+thS('holdings','net_qty','Net qty')+thS('holdings','net_value','Net value')+
     '<th>Flow</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+pager;
 }
 
@@ -516,7 +552,14 @@ function renderAccDist(d){
     return list.filter(function(x){ return (x.symbol||'').toUpperCase().indexOf(search) >= 0; });
   }
   function tbl(list, title, good, pageKey){
-    var filtered = filterList(list);
+    var view = pageKey === 'accPage' ? 'acc' : 'dist';
+    var aget = {
+      stock: function(x){ return x.symbol; },
+      broker: function(x){ return bname(x.broker).toLowerCase(); },
+      net_qty: function(x){ return x.net_qty||0; },
+      net_value: function(x){ return x.net_value||0; }
+    };
+    var filtered = applySort(filterList(list).slice(), view, aget);
     var totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
     var pg = state[pageKey] || 0;
     if(pg >= totalPages) pg = totalPages - 1;
@@ -532,7 +575,9 @@ function renderAccDist(d){
       '<button class="accPrev" data-k="'+pageKey+'" '+(pg===0?'disabled':'')+'>← Prev</button>'+
       '<span style="font-size:.8rem;">Page '+(pg+1)+' of '+totalPages+'</span>'+
       '<button class="accNext" data-k="'+pageKey+'" '+(pg>=totalPages-1?'disabled':'')+'>Next →</button></div>';
-    return '<div><h2 class="bk-h">'+title+'</h2><div class="scrollx" tabindex="0" role="region" aria-label="'+title+' table"><table class="bk-table"><thead><tr><th>#</th><th>Stock</th><th class="bk-name">Broker</th><th>Net qty</th><th>Net value</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+pager+'</div>';
+    return '<div><h2 class="bk-h">'+title+'</h2><div class="scrollx" tabindex="0" role="region" aria-label="'+title+' table"><table class="bk-table"><thead><tr><th>#</th>'+
+      thS(view,'stock','Stock')+thS(view,'broker','Broker','bk-name')+thS(view,'net_qty','Net qty')+thS(view,'net_value','Net value')+
+      '</tr></thead><tbody>'+rows+'</tbody></table></div>'+pager+'</div>';
   }
   var searchBox = '<div style="margin:0 0 12px;"><input id="accSearch" type="text" placeholder="Search symbol (e.g. NABIL)…" value="'+(state.accSearch||'')+'" style="padding:8px 12px;border-radius:8px;width:250px;"></div>';
   return searchBox+'<div class="two">'+tbl(d.accumulation||[],'Accumulating — top net bought',true,'accPage')+tbl(d.distribution||[],'Distributing — top net sold',false,'distPage')+'</div>';
@@ -629,12 +674,14 @@ function render(){
   document.querySelectorAll('.accNext').forEach(function(btn){
     btn.addEventListener('click', function(){ var k=btn.getAttribute('data-k'); state[k]++; render(); });
   });
-  document.querySelectorAll('#view th[data-sk]').forEach(function(th){
+  document.querySelectorAll('#view th[data-sort]').forEach(function(th){
     th.addEventListener('click', function(){
-      var k = th.getAttribute('data-sk');
-      if (state.holdSort.key === k) state.holdSort.dir *= -1;
-      else state.holdSort = { key: k, dir: (k === 'broker') ? 1 : -1 };
-      state.holdPage = 0;
+      var parts = th.getAttribute('data-sort').split(':'), v = parts[0], k = parts[1];
+      var s = sortState(v);
+      if (s.key === k) s.dir *= -1;
+      else { s.key = k; s.dir = /^(broker|symbol|stock|code)$/.test(k) ? 1 : -1; }
+      var pk = sortPageKey[v];
+      if (pk) state[pk] = 0;
       render();
     });
   });
