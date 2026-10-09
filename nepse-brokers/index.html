@@ -545,6 +545,22 @@ function label(){
   return d && d.from ? d.from+' → '+d.to+' ('+d.trading_days+' sessions)' : state.period;
 }
 
+var _searchTimer = null;
+// Debounced re-render for search inputs: waits until the user pauses typing,
+// then re-renders and restores focus + caret so typing stays fluid.
+function debounceRender(focusId){
+  if (_searchTimer) clearTimeout(_searchTimer);
+  _searchTimer = setTimeout(function(){
+    _searchTimer = null;
+    render();
+    var el = focusId ? $(focusId) : null;
+    if (el){
+      el.focus();
+      try { el.setSelectionRange(el.value.length, el.value.length); } catch(e){}
+    }
+  }, 250);
+}
+
 function render(){
   var d = state.data; if(!d) return;
   // Rebuild the stock dropdown from the current dataset, then restore the
@@ -593,13 +609,19 @@ function render(){
   if (rn) rn.addEventListener('click', function(){ state.brkPage++; render(); });
   var bsq = $('brokerSymSearch');
   if (bsq){
-    if (bsq.value !== (state.brkQuery||'')) bsq.value = state.brkQuery||'';
-    bsq.oninput = function(){ state.brkQuery = this.value; state.brkPage = 0; render(); };
+    if (document.activeElement !== bsq) bsq.value = state.brkQuery||'';
+    bsq.oninput = function(){
+      state.brkQuery = this.value; state.brkPage = 0;
+      debounceRender('brokerSymSearch');
+    };
   }
   var asq = $('accSearch');
   if (asq){
     if (document.activeElement !== asq) asq.value = state.accSearch||'';
-    asq.oninput = function(){ state.accSearch = this.value; state.accPage = 0; state.distPage = 0; render(); };
+    asq.oninput = function(){
+      state.accSearch = this.value; state.accPage = 0; state.distPage = 0;
+      debounceRender('accSearch');
+    };
   }
   document.querySelectorAll('.accPrev').forEach(function(btn){
     btn.addEventListener('click', function(){ var k=btn.getAttribute('data-k'); if(state[k]>0){ state[k]--; render(); } });
