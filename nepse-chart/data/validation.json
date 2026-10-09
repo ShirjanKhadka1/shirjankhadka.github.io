@@ -1,5 +1,5 @@
 {
-  "ran_at_npt": "2026-10-09T00:35:00+05:45",
+  "ran_at_npt": "2026-10-09T11:58:00+05:45",
   "expected_session": "2026-10-08",
   "passed": true,
   "gates": [
@@ -12,7 +12,7 @@
     {
       "gate": "live-session-current",
       "pass": true,
-      "detail": "live=2026-10-08 expected=2026-10-08",
+      "detail": "live=2026-10-09 expected=2026-10-09",
       "severity": "fail"
     },
     {
@@ -24,19 +24,19 @@
     {
       "gate": "security-count-stable",
       "pass": true,
-      "detail": "quotes=354 baseline=359 (last good tag data-2026-10-07-1) drift=1.4% band=±5%",
+      "detail": "intraday: quotes=289 baseline=289 (same-session post-open snapshot ac8ae8a) — no intraday collapse",
       "severity": "fail"
     },
     {
       "gate": "no-dup-quotes",
       "pass": true,
-      "detail": "354 unique quoted symbols",
+      "detail": "289 unique quoted symbols",
       "severity": "fail"
     },
     {
       "gate": "price-sanity",
       "pass": true,
-      "detail": "354 quotes ok",
+      "detail": "289 quotes ok",
       "severity": "fail"
     },
     {
@@ -48,13 +48,13 @@
     {
       "gate": "quote-math-reconciles",
       "pass": true,
-      "detail": "354 quotes reconcile",
+      "detail": "289 quotes reconcile",
       "severity": "fail"
     },
     {
       "gate": "circuit-limits",
-      "pass": false,
-      "detail": "KBSH: 15.0% — review for corporate actions",
+      "pass": true,
+      "detail": "all within ±10%",
       "severity": "flag"
     },
     {
@@ -66,13 +66,13 @@
     {
       "gate": "session-totals-consistent",
       "pass": true,
-      "detail": "turnover=Rs 3.93B vol=11.2M trades=43812 n=354",
+      "detail": "turnover=Rs 0.56B vol=1.6M trades=7078 n=289",
       "severity": "fail"
     },
     {
       "gate": "universe-membership-stable",
-      "pass": true,
-      "detail": "quoted=354 universe=402 (88.1%)",
+      "pass": false,
+      "detail": "quoted=289 universe=402 (71.9%)",
       "severity": "flag"
     },
     {
@@ -96,36 +96,36 @@
     {
       "gate": "signals/momentum.json-fresh",
       "pass": true,
-      "detail": "generated=2026-10-08 expected>=2026-10-08",
+      "detail": "generated=2026-10-09 expected>=2026-10-08",
       "severity": "fail"
     },
     {
       "gate": "signals/trend-relay.json-fresh",
       "pass": true,
-      "detail": "generated=2026-10-08 expected>=2026-10-08",
+      "detail": "generated=2026-10-09 expected>=2026-10-08",
       "severity": "fail"
     },
     {
       "gate": "signals/reversal.json-fresh",
       "pass": true,
-      "detail": "generated=2026-10-08 expected>=2026-10-08",
+      "detail": "generated=2026-10-09 expected>=2026-10-08",
       "severity": "fail"
     },
     {
       "gate": "all-files-parse",
       "pass": true,
-      "detail": "466 files ok",
+      "detail": "468 files ok",
       "severity": "fail"
     },
     {
       "gate": "sha256-integrity",
       "pass": true,
-      "detail": "466 files verified",
+      "detail": "468 files verified",
       "severity": "fail"
     }
   ],
   "flagged": [
-    "circuit-limits",
+    "universe-membership-stable",
     "close-source-official"
   ]
 }
