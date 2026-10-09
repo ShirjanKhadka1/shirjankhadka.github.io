@@ -315,6 +315,27 @@ function disambiguate(title, hits) {
   return [...new Set(scored.filter((s) => s.e >= 2).sort((a, b) => b.e - a.e).map((s) => s.sym))];
 }
 
+// Market-wide headlines: NEPSE index moves, turnover, whole-market moves.
+// Mirrors the page's own "Markets" newsCategory rule. A company symbol may
+// sit on one only with EXPLICIT evidence (bare ticker or full company-name
+// phrase) — skeleton/weak/core-token matches misfire on generic words.
+// (2026-10-09: "NEPSE gains 11.96 points, turnover declines" was live with
+// SAPIL; "Stock market falls double digits" with RFPL.)
+const MARKET_INDEX = /nepse|stock market|share market|\bmarket\s+(falls|rises|gains|index)|index\s+(falls|rises|gains)|turnover\s+(tops|crosses|declines)|bullish|bearish/i;
+
+function hasExplicitEvidence(title, a) {
+  const t = ' ' + String(title || '').toLowerCase() + ' ';
+  if (a.tickerRe.test(t)) return true;
+  return !!(a.phrase && a.phrase.length >= 4 && t.includes(' ' + a.phrase + ' '));
+}
+
+function explicitCompanySyms(title, syms, aliases) {
+  return syms.filter((sym) => {
+    const a = aliases.find((x) => x.sym === sym);
+    return a && hasExplicitEvidence(title, a);
+  });
+}
+
 async function fetchFeed(f) {
   const ctl = new AbortController();
   const timer = setTimeout(() => ctl.abort(), 25000);
@@ -374,9 +395,13 @@ async function main() {
   for (const it of fresh) {
     if (seenLink.has(it.link)) continue;
     seenLink.add(it.link);
-    const syms = matchSymbol(it.title, aliases);
-    if (syms.length === 0) continue;
-    matched.push({ sym: syms[0], syms, title: it.title, link: it.link, src: it.src, date: it.date.slice(0, 10) });
+    const syms0 = matchSymbol(it.title, aliases);
+    // Market-wide story: keep a company symbol only with explicit evidence;
+    // genuine market headlines with no company stay in the feed as sym=null.
+    const syms = (syms0.length && MARKET_INDEX.test(it.title))
+      ? explicitCompanySyms(it.title, syms0, aliases)
+      : syms0;
+    matched.push({ sym: syms.length ? syms[0] : null, syms, title: it.title, link: it.link, src: it.src, date: it.date.slice(0, 10) });
   }
 
   // Merge with the existing rolling file; drop items older than KEEP_DAYS.
@@ -384,6 +409,14 @@ async function main() {
   try { prev = JSON.parse(fs.readFileSync(OUT, 'utf8')).items || []; } catch (e) { /* first run */ }
   const cutoff = Date.now() - KEEP_DAYS * 864e5;
   const byLink = new Map();
+  // Retroactive scrub: old rows merged from previous runs keep a company
+  // symbol on a market-index headline only with explicit evidence.
+  for (const it of prev) {
+    if (it.sym && MARKET_INDEX.test(it.title || '')) {
+      const a = aliases.find((x) => x.sym === it.sym);
+      if (!(a && hasExplicitEvidence(it.title, a))) it.sym = null;
+    }
+  }
   for (const it of matched.concat(prev)) {
     if (!byLink.has(it.link)) byLink.set(it.link, it);
   }

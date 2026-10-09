@@ -188,6 +188,15 @@
   background: var(--nd-panel);
 }
 
+/* ---------- Show more ---------- */
+.nn-more {
+  display: block; margin: 20px auto 4px; padding: 10px 30px;
+  font-weight: 700; font-size: 0.8rem; letter-spacing: 0.05em;
+  color: var(--nd-lime); background: var(--nd-lime-faint, rgba(184,230,46,0.06));
+  border: 1px solid var(--nd-lime); border-radius: 999px; cursor: pointer;
+}
+.nn-more:hover { background: var(--nd-lime); color: var(--nd-on-lime); }
+
 /* ---------- Promises / FAQ ---------- */
 .nn-promise-grid { display: grid; grid-template-columns: 1fr; gap: 14px; margin-top: 44px; }
 @media (min-width: 720px) { .nn-promise-grid { grid-template-columns: repeat(3, 1fr); } }
