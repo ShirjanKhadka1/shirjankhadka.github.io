@@ -40,9 +40,9 @@
 .scorebar i{display:block;height:100%;border-radius:999px;
   background:linear-gradient(90deg,var(--nd-lime,#B8E62E),#7BAE1F);
   box-shadow:0 0 6px rgba(184,230,46,.4)}
-.symlink{font-weight:700;color:var(--nd-lime,#B8E62E);text-decoration:none}
+.symlink{font-weight:700;color:#fff;text-decoration:none}
 .symlink:hover{text-decoration:underline}
-/* 2026-10-09: stock symbols in the value table render white (dark theme). Scoped to .sig-table so the NBL report link keeps its accent color. Light theme keeps its readable green. */
+/* 2026-10-09: stock symbols in the value table render white (dark theme). The base .symlink rule is white too, so the featured NBL report link matches (his "sure"). Light theme keeps its readable green. */
 .sig-table .symlink{color:#fff}
 [data-theme="light"] .sig-table .symlink{color:#4D7C0F}
 /* 2026-10-09: headers neutral by default; only the active sort column goes yellow */
