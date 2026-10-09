@@ -91,13 +91,37 @@ function render(){
   if(!d || !sym) return;
   var s = d.symbols[sym];
   if(!s){ $('bkResult').innerHTML = '<div class="bk-empty">No trades for '+BC.esc(sym)+' in this period.</div>'; return; }
+  // 1D (Capital Max) periods carry netflow only — derive tiles and ranked
+  // buyer/seller lists from it so this tab renders. netflow entries:
+  // [net_qty, net_value, buy_qty, buy_value, sell_qty, sell_value]
+  var qty = s.qty, value = s.value, avg = s.avg_rate;
+  var buyers = s.buyers, sellers = s.sellers;
+  if (s.netflow && Object.keys(s.netflow).length){
+    if (qty == null || value == null){
+      qty = 0; value = 0;
+      Object.keys(s.netflow).forEach(function(c){
+        var v = s.netflow[c] || [];
+        qty += ((v[2]||0) + (v[4]||0)) / 2;
+        value += ((v[3]||0) + (v[5]||0)) / 2;
+      });
+      avg = qty ? value / qty : 0;
+    }
+    if ((!buyers || !Object.keys(buyers).length) && (!sellers || !Object.keys(sellers).length)){
+      buyers = {}; sellers = {};
+      Object.keys(s.netflow).forEach(function(c){
+        var v = s.netflow[c] || [];
+        if ((v[3]||0) > 0) buyers[c] = [v[2]||0, v[3]||0];
+        if ((v[5]||0) > 0) sellers[c] = [v[4]||0, v[5]||0];
+      });
+    }
+  }
   var html = '<div class="bk-tiles">'+
-    '<div class="bk-tile"><div class="k">Total value</div><div class="v">'+BC.fmtV(s.value||0)+'</div></div>'+
-    '<div class="bk-tile"><div class="k">Total quantity</div><div class="v">'+BC.fmtN(s.qty||0,0)+'</div></div>'+
-    '<div class="bk-tile"><div class="k">Avg rate</div><div class="v">Rs '+BC.fmtN(s.avg_rate||0)+'</div></div>'+
+    '<div class="bk-tile"><div class="k">Total value</div><div class="v">'+BC.fmtV(value||0)+'</div></div>'+
+    '<div class="bk-tile"><div class="k">Total quantity</div><div class="v">'+BC.fmtN(qty||0,0)+'</div></div>'+
+    '<div class="bk-tile"><div class="k">Avg rate</div><div class="v">Rs '+BC.fmtN(avg||0)+'</div></div>'+
     '<div class="bk-tile"><div class="k">Period</div><div class="v" style="font-size:1rem">'+BC.esc(BC.label(state.period,d))+'</div></div></div>';
   html += '<h2 style="font-family:var(--serif);font-size:1.2rem;margin:18px 0 8px">'+BC.esc(sym)+' — top buyers & sellers</h2>';
-  html += '<div class="bk-buy-sell-grid">'+sideTable(s.buyers,'Top buyers')+sideTable(s.sellers,'Top sellers')+'</div>';
+  html += '<div class="bk-buy-sell-grid">'+sideTable(buyers,'Top buyers')+sideTable(sellers,'Top sellers')+'</div>';
   $('bkResult').innerHTML = html;
 }
 function load(){

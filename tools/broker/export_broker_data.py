@@ -45,6 +45,59 @@ def r2(x):
     return round(x * 100) / 100
 
 
+def healthy_symbols(symbols):
+    """True if the symbols map carries real per-stock data (not degenerate).
+
+    A rebuild from aggregate-only DB rows yields {'': {...}} (or empty) —
+    publishing that would blank the Stock Trade Pattern / Holdings /
+    Accumulation pages. Never silently publish it.
+    """
+    if not symbols:
+        return False
+    real = [k for k in symbols.keys() if k and k != "__TOTAL__"]
+    return len(real) >= 10
+
+
+def guard_period_symbols(path, data):
+    """Check-and-balance gate for period files (stock-pattern keeper).
+
+    If the rebuilt symbol-level data is degenerate (no detailed per-stock rows
+    in the DB for this window) but the existing file on disk has healthy
+    detailed symbols, keep the existing symbols / broker_symbols /
+    accumulation / distribution and refresh only the broker aggregates.
+    Logs LOUDLY in both cases. Returns the (possibly patched) data dict.
+    """
+    if healthy_symbols(data.get("symbols")):
+        return data
+    pname = os.path.basename(path)
+    prev = None
+    if os.path.exists(path):
+        try:
+            with open(path) as f:
+                prev = json.load(f)
+        except Exception as e:
+            print(f"*** LOUD *** {pname}: rebuilt symbols are DEGENERATE and the "
+                  f"existing file could not be read ({e}) — publishing as-is. "
+                  f"Stock-pattern pages will show no data. Investigate immediately!")
+            return data
+    if prev and healthy_symbols(prev.get("symbols")):
+        asof = prev.get("symbols_asof", prev.get("to"))
+        print(f"*** LOUD *** {pname}: rebuilt symbols are DEGENERATE (no detailed "
+              f"per-stock rows for {data.get('to')}); keeping previous healthy detailed "
+              f"symbols from {asof} instead of publishing blank data. "
+              f"Investigate the detailed broker collection!")
+        data["symbols"] = prev["symbols"]
+        data["broker_symbols"] = prev.get("broker_symbols", {})
+        data["accumulation"] = prev.get("accumulation", [])
+        data["distribution"] = prev.get("distribution", [])
+        data["symbols_asof"] = asof
+    else:
+        print(f"*** LOUD *** {pname}: rebuilt symbols are DEGENERATE and no healthy "
+              f"previous file exists — publishing as-is. Stock-pattern pages will "
+              f"show no data. Investigate immediately!")
+    return data
+
+
 def trading_days(con, end_iso, n):
     rows = con.execute(
         "SELECT DISTINCT date FROM daily_summary WHERE date <= ? ORDER BY date DESC LIMIT ?",
@@ -217,6 +270,9 @@ def main():
             if data is None:
                 continue
             path = os.path.join(OUT, "periods", f"{p}.json")
+            # Check-and-balance: never silently publish a degenerate symbols map
+            # (stock-pattern keeper) — keeps yesterday's good data on failure.
+            data = guard_period_symbols(path, data)
             with open(path, "w") as f:
                 json.dump(data, f, separators=(",", ":"))
             print(f"periods/{p}.json: {data['trading_days']}d, "
