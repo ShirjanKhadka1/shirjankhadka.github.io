@@ -136,7 +136,7 @@ h2.bk-h{ font-size:1.15rem; font-weight:800; letter-spacing:-.01em; margin:22px 
 <!-- SNAP-START -->
 <section class="d2-card snap" aria-label="Broker coverage snapshot">
   <h2>Latest session broker flow <span class="snap-asof">· 2026-10-08 · 57 trading days on record (2026-07-15 → 2026-10-08)</span></h2>
-  <div class="scrollx"><table class="bk-table">
+  <div class="scrollx" tabindex="0" role="region" aria-label="Latest session broker flow table"><table class="bk-table">
     <thead><tr><th>#</th><th>Broker</th><th>Bought</th><th>Sold</th><th>Net flow</th></tr></thead>
     <tbody>
       <tr><td>1</td><td>Naasa Securities Co. Ltd.</td><td>Rs 34.9 Cr</td><td>Rs 40.3 Cr</td><td>-5.4 Cr</td></tr>
@@ -152,7 +152,7 @@ h2.bk-h{ font-size:1.15rem; font-weight:800; letter-spacing:-.01em; margin:22px 
 
 <div class="cover" id="coverage">Loading data…</div>
 
-<div class="bk-tabs" role="tablist" id="viewTabs">
+<div class="bk-tabs" role="group" aria-label="Broker views" id="viewTabs">
 <button data-view="top" class="active">Top Brokers</button>
 <button data-view="broker">Broker Trade Pattern</button>
 <button data-view="stock">Stock Trade Pattern</button>
@@ -172,7 +172,7 @@ h2.bk-h{ font-size:1.15rem; font-weight:800; letter-spacing:-.01em; margin:22px 
 <button data-p="1Y">1Y</button>
 <button data-p="2Y">2Y</button>
 <button data-p="3Y">3Y</button>
-<input type="date" id="asofDate" title="As of date">
+<input type="date" id="asofDate" title="As of date" aria-label="As of date">
 </div>
 
 <div class="ctl" id="viewControls" style="display:none">
@@ -225,9 +225,9 @@ h2.bk-h{ font-size:1.15rem; font-weight:800; letter-spacing:-.01em; margin:22px 
         </ul></div>
       </nav>
       <p style="max-width:88ch;line-height:1.7"><strong style="color:var(--d2-ink-soft)">Educational use only.</strong> Nothing on this site is investment advice. Prices and figures are compiled from public sources and refreshed every trading day — always verify with your broker before trading.</p>
-      <p style="max-width:88ch;line-height:1.7"><strong style="color:var(--d2-ink-soft)">Data sources:</strong> Market data from <a href="https://www.nepalstock.com" target="_blank" rel="noopener" style="color:var(--d2-ink-soft)">NEPSE (nepalstock.com)</a> and <a href="https://www.sharesansar.com" target="_blank" rel="noopener" style="color:var(--d2-ink-soft)">ShareSansar</a>. Corporate actions verified against official NEPSE/company notices.</p>
+      <p style="max-width:88ch;line-height:1.7"><strong style="color:var(--d2-ink-soft)">Data sources:</strong> Market data from <a href="https://www.nepalstock.com" target="_blank" rel="noopener" style="color:var(--d2-ink-soft);text-decoration:underline">NEPSE (nepalstock.com)</a> and <a href="https://www.sharesansar.com" target="_blank" rel="noopener" style="color:var(--d2-ink-soft);text-decoration:underline">ShareSansar</a>. Corporate actions verified against official NEPSE/company notices.</p>
       <div style="display:flex;flex-wrap:wrap;gap:10px 20px;justify-content:space-between;margin-top:22px;padding-top:18px;border-top:1px solid var(--d2-line-soft)">
-        <span>© 2026 Nepse Decode · Built by <a href="/" style="color:var(--d2-ink-soft)">Shirjan Khadka</a> in Kathmandu, Nepal</span>
+        <span>© 2026 Nepse Decode · Built by <a href="/" style="color:var(--d2-ink-soft);text-decoration:underline">Shirjan Khadka</a> in Kathmandu, Nepal</span>
         <span><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener" style="color:var(--d2-ink-soft);margin-right:14px">Facebook</a><a href="/blog/" style="color:var(--d2-ink-soft);margin-right:14px">Blog</a><a href="/contact.html" style="color:var(--d2-ink-soft)">Contact</a></span>
       </div>
     </footer>
