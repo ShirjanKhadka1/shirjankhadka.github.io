@@ -80,6 +80,53 @@ function fmtFacts(facts) {
   return '<dl class="na-facts">\n' + rows.join('\n') + '\n</dl>\n';
 }
 
+/* Dividend figures for a notice, sourced from the verified investment-calendar
+ * record (nepse-chart/data/div-live.json — written only from official notices).
+ * Matches by symbol, preferring a record whose announcement date is within
+ * 60 days of the notice date; falls back to the latest record. Returns
+ * {bonus, cash, total} percentages or null. Never invented. */
+const DIV_DB = loadJson(path.join(ROOT, 'nepse-chart', 'data', 'div-live.json'), null);
+function divFigures(symbol, announced) {
+  if (!symbol || !DIV_DB || !DIV_DB.companies) return null;
+  const recs = DIV_DB.companies[String(symbol).toUpperCase()];
+  if (!recs || !recs.length) return null;
+  const ad = String(announced || '').slice(0, 10);
+  let best = null, bestScore = Infinity;
+  for (const r of recs) {
+    const rd = String(r.announcement_date || '').slice(0, 10);
+    let score = 365;
+    if (ad && rd && !Number.isNaN(Date.parse(ad)) && !Number.isNaN(Date.parse(rd))) {
+      const dd = Math.abs(Date.parse(ad) - Date.parse(rd)) / 864e5;
+      score = dd <= 60 ? dd : 365 + dd;
+    }
+    if (score < bestScore) { bestScore = score; best = r; }
+  }
+  if (!best) return null;
+  const num = (v) => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
+  const b = num(best.bonus_share), c = num(best.cash_dividend);
+  const t = num(best.total_dividend) || b + c;
+  if (t <= 0) return null;
+  return { bonus: b, cash: c, total: t };
+}
+const trimNum = (v) => {
+  const s = String(v);
+  return s.indexOf('.') >= 0 ? s.replace(/0+$/, '').replace(/\.$/, '') : s;
+};
+/* Hero figure strip on dividend cards: bonus / cash / total chips. Skipped
+ * when the card already carries figures (facts block or a % in the headline)
+ * so verified numbers never double-render. */
+function figuresHTML(it) {
+  if (normKind(it.kind) !== 'dividend') return '';
+  if (it.facts && Object.keys(it.facts).length) return '';
+  if (/%/.test(it.headline || '')) return '';
+  const f = divFigures(it.symbol, it.announced);
+  if (!f) return '';
+  const chip = (label, v, total) => v > 0
+    ? '<span class="na-fig' + (total ? ' na-fig-total' : '') + '" title="Figures as recorded in the verified investment calendar"><b>' + esc(trimNum(v)) + '%</b>&nbsp;' + label + '</span>'
+    : '';
+  return '<div class="na-figs">' + chip('bonus', f.bonus) + chip('cash', f.cash) + chip('total', f.total, true) + '</div>\n';
+}
+
 /* Static card markup — mirrored by the client-side renderer below so a
  * live JSON refresh paints identical cards. */
 function cardHTML(it) {
@@ -89,6 +136,7 @@ function cardHTML(it) {
     '<div class="na-top"><span class="na-kind k-' + esc(it.kind) + '">' + esc(kind) + '</span>' +
     symChip(it.symbol) + '</div>\n' +
     '<h3 class="na-head">' + esc(it.headline) + '</h3>\n' +
+    figuresHTML(it) +
     fmtFacts(it.facts) +
     '<p class="na-meta">' + (it.company ? esc(it.company) + dot : '') +
     (it.announced ? 'Announced ' + fmtAnnounced(it.announced) + dot : '') +
@@ -155,7 +203,7 @@ function main() {
     '<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">\n' +
     '<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">\n' +
     '<link rel="stylesheet" href="/css/nd-chrome.css?v=20261004a">\n' +
-    '<link rel="stylesheet" href="/css/nd-actions.css?v=20261003b">\n' +
+    '<link rel="stylesheet" href="/css/nd-actions.css?v=20261009a">\n' +
     '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>\n' +
     '</head>\n<body class="nd" data-page="actions">\n' +
     '<a class="skip-link" href="#main">Skip to content</a>\n' +
@@ -221,6 +269,38 @@ function main() {
     '  var MON3 = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];\n' +
     '  var fmtAnnounced = function(d){ var m = /^(\\d{4})-(\\d{2})-(\\d{2})/.exec(d || ""); if(!m) return esc(d || ""); return String(+m[3]) + " " + MON3[+m[2]-1] + " " + m[1]; };\n' +
     '  var KIND_LABEL = ' + JSON.stringify(KIND_LABEL) + ';\n' +
+    '  /* bonus-share is a form of dividend — same remap as the server build. */\n' +
+    '  var NORM_KIND = { "bonus-share": "dividend" };\n' +
+    '  var normKind = function(k){ return NORM_KIND[k] || k; };\n' +
+    '  var DIV = null;\n' +
+    '  var trimNum = function(v){ var s = String(v); return s.indexOf(".") >= 0 ? s.replace(/0+$/, "").replace(/\\.$/, "") : s; };\n' +
+    '  var divFigures = function(symbol, announced){\n' +
+    '    if (!symbol || !DIV || !DIV.companies) return null;\n' +
+    '    var recs = DIV.companies[String(symbol).toUpperCase()];\n' +
+    '    if (!recs || !recs.length) return null;\n' +
+    '    var ad = String(announced || "").slice(0,10), best = null, bestScore = Infinity;\n' +
+    '    recs.forEach(function(r){\n' +
+    '      var rd = String(r.announcement_date || "").slice(0,10), score = 365;\n' +
+    '      var ta = Date.parse(ad), tr = Date.parse(rd);\n' +
+    '      if (ad && rd && !isNaN(ta) && !isNaN(tr)) { var dd = Math.abs(ta - tr) / 864e5; score = dd <= 60 ? dd : 365 + dd; }\n' +
+    '      if (score < bestScore) { bestScore = score; best = r; }\n' +
+    '    });\n' +
+    '    if (!best) return null;\n' +
+    '    var num = function(v){ var n = Number(v); return isFinite(n) ? n : 0; };\n' +
+    '    var b = num(best.bonus_share), c = num(best.cash_dividend), t = num(best.total_dividend) || b + c;\n' +
+    '    return t > 0 ? { bonus: b, cash: c, total: t } : null;\n' +
+    '  };\n' +
+    '  var figuresHTML = function(it){\n' +
+    '    if (normKind(it.kind) !== "dividend") return "";\n' +
+    '    if (it.facts && Object.keys(it.facts).length) return "";\n' +
+    '    if (/%/.test(it.headline || "")) return "";\n' +
+    '    var f = divFigures(it.symbol, it.announced);\n' +
+    '    if (!f) return "";\n' +
+    '    var chip = function(label, v, total){\n' +
+    '      return v > 0 ? \'<span class="na-fig\' + (total ? " na-fig-total" : "") + \'" title="Figures as recorded in the verified investment calendar"><b>\' + esc(trimNum(v)) + "%</b>&nbsp;" + label + "</span>" : "";\n' +
+    '    };\n' +
+    '    return \'<div class="na-figs">\' + chip("bonus", f.bonus) + chip("cash", f.cash) + chip("total", f.total, true) + "</div>";\n' +
+    '  };\n' +
     '  var STOCK_PAGES = ' + JSON.stringify([...stockPages]) + ';\n' +
     '  function symChip(sym){\n' +
     '    if(!sym) return "";\n' +
@@ -240,7 +320,8 @@ function main() {
     '      pills = document.querySelectorAll("#naPills .na-pill"),\n' +
     '      PAGE = 6, page = 1, activeKind = "", items = [];\n' +
     '  function cardHTML(it){\n' +
-    '    var kind = KIND_LABEL[it.kind] || esc(it.kind || "Notice");\n' +
+    '    var kk = normKind(it.kind);\n' +
+    '    var kind = KIND_LABEL[kk] || esc(kk || "Notice");\n' +
     '    var dot = \' <span class="na-dot">·</span> \';\n' +
     '    var facts = "";\n' +
     '    if (it.facts && typeof it.facts === "object") {\n' +
@@ -254,10 +335,10 @@ function main() {
     '      });\n' +
     '      if (rows.length) facts = \'<dl class="na-facts">\' + rows.join("") + "</dl>";\n' +
     '    }\n' +
-    '    return \'<article class="na-card">\' +\n' +
-    '      \'<div class="na-top"><span class="na-kind k-\' + esc(it.kind) + \'">\' + esc(kind) + "</span>" +\n' +
+    '    return \'<article class="na-card" data-kind="\' + esc(kk) + \'">\' +\n' +
+    '      \'<div class="na-top"><span class="na-kind k-\' + esc(kk) + \'">\' + esc(kind) + "</span>" +\n' +
     '      symChip(it.symbol) + "</div>" +\n' +
-    '      \'<h3 class="na-head">\' + esc(it.headline) + "</h3>" + facts +\n' +
+    '      \'<h3 class="na-head">\' + esc(it.headline) + "</h3>" + figuresHTML(it) + facts +\n' +
     '      \'<p class="na-meta">\' + (it.company ? esc(it.company) + dot : "") +\n' +
     '      (it.announced ? "Announced " + fmtAnnounced(it.announced) + dot : "") +\n' +
     '      (it.officialPdf ? \'<a href="\' + esc(it.officialPdf) + \'" rel="noopener" target="_blank">Official NEPSE PDF ↗</a>\' : "") + "</p></article>";\n' +
@@ -265,7 +346,7 @@ function main() {
     '  function isMatch(it){\n' +
     '    var y = year ? year.value : "", s = q.value.trim().toLowerCase();\n' +
     '    return (!y || String(it.announced || "").slice(0,4) === y) &&\n' +
-    '           (!activeKind || it.kind === activeKind) &&\n' +
+    '           (!activeKind || normKind(it.kind) === activeKind) &&\n' +
     '           (!s || String(it.symbol || "").toLowerCase().indexOf(s) !== -1);\n' +
     '  }\n' +
     '  function render(){\n' +
@@ -308,9 +389,16 @@ function main() {
     '     a fetch here keeps the archive fresh between runs. Failure keeps the\n' +
     '     baked snapshot on screen. */\n' +
     '  function load(){\n' +
-    '    return fetch("/nepse-chart/data/corporate-actions.json", { cache: "no-store" })\n' +
-    '      .then(function(r){ if(!r.ok) throw new Error("HTTP " + r.status); return r.json(); })\n' +
-    '      .then(function(d){\n' +
+    '    return Promise.all([\n' +
+    '      fetch("/nepse-chart/data/corporate-actions.json", { cache: "no-store" })\n' +
+    '        .then(function(r){ if(!r.ok) throw new Error("HTTP " + r.status); return r.json(); }),\n' +
+    '      /* Dividend figures for the hero strips; failure keeps cards figure-less. */\n' +
+    '      fetch("/nepse-chart/data/div-live.json", { cache: "no-store" })\n' +
+    '        .then(function(r){ return r.ok ? r.json() : null; })\n' +
+    '        .catch(function(){ return null; })\n' +
+    '    ])\n' +
+    '      .then(function(pair){\n' +
+    '        var d = pair[0]; DIV = pair[1];\n' +
     '        var fresh = d.items || [];\n' +
     '        if (!fresh.length) return;\n' +
     '        items = fresh.slice().sort(function(a,b){ return String(b.announced||"").localeCompare(String(a.announced||"")); });\n' +
