@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t='dark';document.documentElement.setAttribute('data-theme',t);if(t==='light')document.documentElement.setAttribute('data-nd-ed','light')}catch(e){}</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EBL Share Price, Signals and News | Nepse Decode</title>
@@ -23,68 +23,184 @@
 <meta name="twitter:description" content="Everest Bank Limited (EBL): latest NEPSE price, Alpha Lab signals, 52-week range and headlines. Free, educational.">
 <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930c">
-<link rel="stylesheet" href="/css/nepse-wave7.css?v=20261002c">
-<link rel="stylesheet" href="/css/nepse-brand.css?v=20261003a">
-<link rel="stylesheet" href="/css/nepse-wave8.css?v=20261003a">
-<link rel="stylesheet" href="/css/theme.css?v=20261001a">
-<link rel="stylesheet" href="/css/nepse-d2.css?v=20261001a">
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261009d">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261009b">
+<link rel="stylesheet" href="/css/sig-pro.css?v=20261006a">
+<style>
+/* price snapshot: 3D card */
+.sp-snap{margin:22px 0}
+.sp-price-card{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0) 38%),var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);border-radius:20px;padding:22px 24px;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 -2px 6px rgba(0,0,0,.15),0 3px 8px rgba(0,0,0,.45),0 18px 44px rgba(0,0,0,.4);display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;justify-content:space-between}
+.sp-price-main{min-width:200px}
+.sp-price{font-family:var(--nd-font-display,Georgia,serif);font-size:2rem;font-weight:700;color:var(--nd-text,#fff);letter-spacing:-.01em}
+.sp-chg{font-size:.95rem;font-weight:700;margin-top:6px}
+.sp-chg.pos{color:var(--nd-up,#4ADE80)}
+.sp-chg.neg{color:var(--nd-down,#F87171)}
+.sp-live-badge{display:inline-block;margin-top:8px;padding:3px 10px;border-radius:999px;font-size:.72rem;font-weight:700;background:var(--nd-lime,#B8E62E);color:#0A0C10}
+.sp-price-side{display:flex;gap:28px;flex-wrap:wrap}
+.sp-stat{display:flex;flex-direction:column;gap:4px}
+.sp-stat-v{font-size:1.05rem;font-weight:700;color:var(--nd-text,#fff);font-variant-numeric:tabular-nums}
+.sp-stat-l{font-size:.75rem;color:var(--nd-dim,#8E98A8);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+/* tabs: dimensional pills like sig-tabs */
+.sp-tabs{display:flex;gap:10px;margin:6px 0 28px;flex-wrap:wrap}
+.sp-tab{padding:10px 20px;color:var(--nd-muted,#B8C0CE);font:inherit;font-weight:600;font-size:.9rem;cursor:pointer;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 50%),var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);border-radius:999px;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 2px 5px rgba(0,0,0,.35);transition:border-color .15s,color .15s,transform .15s}
+.sp-tab:hover{border-color:var(--nd-lime,#B8E62E);color:var(--nd-text,#fff);transform:translateY(-1px)}
+.sp-tab.active{color:#0A0C10;font-weight:700;background:linear-gradient(180deg,#D4F34A 0%,var(--nd-lime,#B8E62E) 55%,#9BCB24 100%);border-color:#D4F34A;box-shadow:inset 0 2px 0 rgba(255,255,255,.5),inset 0 -3px 6px rgba(0,0,0,.18),0 2px 6px rgba(0,0,0,.5),0 6px 18px rgba(184,230,46,.35)}
+.sp-tabpanel{margin-bottom:8px}
+/* notes */
+.sp-note{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 45%),var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);border-left:4px solid var(--nd-lime,#B8E62E);border-radius:16px;padding:15px 20px;margin:18px 0;font-size:.9rem;color:var(--nd-muted,#B8C0CE);line-height:1.65;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 3px 8px rgba(0,0,0,.4)}
+.sp-note strong{color:var(--nd-text,#fff)}
+/* overview links */
+.sp-links{list-style:none;margin:18px 0;padding:0;display:grid;gap:10px}
+.sp-links a{display:block;padding:14px 20px;border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 50%),var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);color:var(--nd-text,#fff);text-decoration:none;font-weight:600;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 2px 5px rgba(0,0,0,.3);transition:border-color .15s,transform .15s}
+.sp-links a:hover{border-color:var(--nd-lime,#B8E62E);transform:translateY(-1px)}
+/* verdict pills */
+.vpill{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 45%),var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);border-radius:16px;padding:16px 20px;margin:14px 0;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 3px 8px rgba(0,0,0,.35)}
+.vpill-tf{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--nd-dim,#8E98A8);margin-right:12px}
+.vpill-v{display:inline-block;padding:4px 14px;border-radius:999px;font-weight:700;font-size:.85rem}
+.vpill-v.vg-sb{background:rgba(74,222,128,.15);color:var(--nd-up,#4ADE80);border:1px solid rgba(74,222,128,.4)}
+.vpill-v.vg-b{background:rgba(184,230,46,.12);color:var(--nd-lime,#B8E62E);border:1px solid rgba(184,230,46,.35)}
+.vpill-v.vg-h{background:rgba(255,255,255,.06);color:var(--nd-muted,#B8C0CE);border:1px solid var(--nd-border,#1E2430)}
+.vpill-v.vg-e{background:rgba(248,113,113,.12);color:var(--nd-down,#F87171);border:1px solid rgba(248,113,113,.35)}
+.vpill-v.vg-se{background:rgba(248,113,113,.2);color:#FCA5A5;border:1px solid rgba(248,113,113,.5)}
+.vpill-v.vg-na{background:rgba(255,255,255,.04);color:var(--nd-dim,#8E98A8);border:1px solid var(--nd-border,#1E2430)}
+.vpill-meta{display:block;margin-top:8px;font-size:.82rem;color:var(--nd-dim,#8E98A8)}
+.vpill-na{color:var(--nd-dim,#8E98A8);font-size:.88rem}
+/* fundamentals */
+.sp-fund-group{margin:24px 0}
+.sp-fund-sub{font-size:1rem;font-weight:700;color:var(--nd-text,#fff);margin:0 0 12px}
+.sp-fund-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(min-width:700px){.sp-fund-grid{grid-template-columns:repeat(3,1fr)}}
+.sp-fund{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0) 38%),var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);border-radius:16px;padding:14px 16px;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 2px 6px rgba(0,0,0,.35)}
+.sp-fund-l{display:block;font-size:.75rem;color:var(--nd-dim,#8E98A8);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.sp-fund-v{display:block;font-size:1.1rem;font-weight:700;color:var(--nd-text,#fff);font-variant-numeric:tabular-nums}
+.sp-fund-v.na{color:var(--nd-dim,#8E98A8);font-weight:400}
+/* tables */
+.sp-table-wrap{overflow-x:auto;margin:18px 0;border-radius:20px;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 3px 8px rgba(0,0,0,.45),0 18px 44px rgba(0,0,0,.35)}
+.sp-peer-table{width:100%;border-collapse:separate;border-spacing:0;font-size:.85rem;background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,0) 60px),var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);border-radius:20px;overflow:hidden;color:var(--nd-text,#fff)}
+.sp-peer-table th,.sp-peer-table td{padding:11px 13px;text-align:left;border-bottom:1px solid var(--nd-border,#1E2430);white-space:nowrap}
+.sp-peer-table th{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0)),var(--nd-panel-2,#161A23);font-weight:700;color:var(--nd-lime,#B8E62E);font-size:.76rem;letter-spacing:.07em;text-transform:uppercase;border-bottom:1px solid var(--nd-border-strong,#2A3342)}
+.sp-peer-table tr:last-child td{border-bottom:none}
+.sp-peer-table td.num,.sp-peer-table th.num{text-align:right;font-variant-numeric:tabular-nums}
+.sp-peer-table tbody tr:hover td{background:rgba(255,255,255,.025)}
+.sp-peer-table tr.cur td{background:rgba(184,230,46,.06)}
+.sp-peer-table td.pos{color:var(--nd-up,#4ADE80);font-weight:700}
+.sp-peer-table td.neg{color:var(--nd-down,#F87171);font-weight:700}
+.sp-peer-table a{color:var(--nd-text,#fff);font-weight:600;text-decoration:none}
+.sp-peer-table a:hover{color:var(--nd-lime,#B8E62E);text-decoration:underline}
+.sp-sec-row td{background:var(--nd-panel-2,#161A23);padding:10px 13px}
+.sp-sec-row strong{color:var(--nd-lime,#B8E62E);font-size:.8rem;letter-spacing:.06em;text-transform:uppercase}
+/* news */
+.sp-news{list-style:none;margin:16px 0;padding:0;display:grid;gap:10px}
+.sp-news li{padding:14px 18px;border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 50%),var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 2px 5px rgba(0,0,0,.3)}
+.sp-news a{color:var(--nd-text,#fff);font-weight:600;text-decoration:none;line-height:1.5}
+.sp-news a:hover{color:var(--nd-lime,#B8E62E)}
+.sp-news-src{display:block;margin-top:6px;font-size:.8rem;color:var(--nd-dim,#8E98A8)}
+/* peers + disclaimer + directory */
+.sp-peers{list-style:none;margin:14px 0;padding:0;display:flex;flex-wrap:wrap;gap:10px}
+.sp-peers a{display:inline-block;padding:9px 18px;border-radius:999px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 50%),var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);color:var(--nd-text,#fff);text-decoration:none;font-size:.88rem;font-weight:600;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 2px 5px rgba(0,0,0,.3);transition:border-color .15s,transform .15s}
+.sp-peers a:hover{border-color:var(--nd-lime,#B8E62E);transform:translateY(-1px)}
+.sp-disc{margin:32px 0 0;padding:16px 20px;border-radius:14px;background:rgba(255,255,255,.02);border:1px dashed var(--nd-border,#1E2430);font-size:.85rem;color:var(--nd-dim,#8E98A8);line-height:1.6}
+.sp-dir{list-style:none;margin:20px 0;padding:0;display:grid;gap:8px}
+.sp-dir li{padding:12px 18px;border-radius:12px;background:var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430)}
+.sp-dir a{color:var(--nd-text,#fff);font-weight:600;text-decoration:none}
+.sp-dir a:hover{color:var(--nd-lime,#B8E62E)}
+.sp-type{font-size:.8rem;color:var(--nd-dim,#8E98A8);margin-left:8px}
+/* investment calendar: new design */
+.inv-cal{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 45%),var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);border-radius:20px;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 3px 8px rgba(0,0,0,.4),0 16px 40px rgba(0,0,0,.3);margin:20px 0;overflow:hidden}
+.inv-cal-head{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:1rem 1.4rem;border-bottom:1px solid var(--nd-border,#1E2430)}
+.inv-cal-head h2{margin:0;font-size:1.15rem;font-weight:700;color:var(--nd-text,#fff)}
+.inv-cal-co{font-size:.82rem;color:var(--nd-dim,#8E98A8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:45%}
+.inv-cal-body{display:flex;gap:0;padding:1.25rem;flex-wrap:wrap}
+.inv-cal-nav{display:flex;flex-direction:column;min-width:150px;border:1px solid var(--nd-border,#1E2430);border-radius:12px;overflow:hidden;align-self:flex-start;background:var(--nd-panel-2,#161A23)}
+.inv-cal-tab{appearance:none;border:0;border-bottom:1px solid var(--nd-border,#1E2430);background:transparent;padding:.85rem 1rem;font-size:.8rem;font-weight:600;letter-spacing:.04em;color:var(--nd-muted,#B8C0CE);cursor:pointer;text-align:center;transition:background .15s,color .15s}
+.inv-cal-tab:last-child{border-bottom:0}
+.inv-cal-tab:hover{color:var(--nd-text,#fff)}
+.inv-cal-tab.active{background:linear-gradient(180deg,#D4F34A 0%,var(--nd-lime,#B8E62E) 55%,#9BCB24 100%);color:#0A0C10;font-weight:700}
+.inv-cal-count{display:inline-block;background:rgba(0,0,0,.15);border-radius:10px;padding:1px 7px;font-size:.72rem;margin-left:4px}
+.inv-cal-tab.active .inv-cal-count{background:rgba(0,0,0,.18)}
+.inv-cal-main{flex:1;min-width:0;padding-left:1.25rem}
+.inv-cal-controls{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:.8rem;flex-wrap:wrap}
+.inv-cal-controls label{font-size:.88rem;color:var(--nd-muted,#B8C0CE)}
+.inv-cal-perpage,.inv-cal-q{border:1px solid var(--nd-border,#1E2430);border-radius:10px;padding:.45rem .7rem;font-size:.88rem;background:var(--nd-panel-2,#161A23);color:var(--nd-text,#fff)}
+.inv-cal-q{width:180px}
+.inv-cal-scroll{overflow-x:auto;border:1px solid var(--nd-border,#1E2430);border-radius:14px}
+.inv-cal-table{width:100%;border-collapse:collapse;font-size:.88rem;min-width:520px;background:var(--nd-panel,#12141A);color:var(--nd-text,#fff)}
+.inv-cal-table thead th{background:var(--nd-panel-2,#161A23);color:var(--nd-lime,#B8E62E);font-weight:700;padding:.7rem .8rem;text-align:center;white-space:nowrap;font-size:.78rem;letter-spacing:.05em;text-transform:uppercase;border-bottom:1px solid var(--nd-border-strong,#2A3342)}
+.inv-cal-table tbody td{padding:.65rem .8rem;border-bottom:1px solid var(--nd-border,#1E2430);text-align:center;font-variant-numeric:tabular-nums}
+.inv-cal-table tbody tr:last-child td{border-bottom:none}
+.inv-cal-table tbody tr:hover td{background:rgba(255,255,255,.02)}
+.inv-pill{display:inline-block;padding:3px 12px;border-radius:999px;font-size:.75rem;font-weight:700}
+.inv-pill-open{background:rgba(74,222,128,.15);color:var(--nd-up,#4ADE80);border:1px solid rgba(74,222,128,.4)}
+.inv-pill-closed{background:rgba(255,255,255,.05);color:var(--nd-dim,#8E98A8);border:1px solid var(--nd-border,#1E2430)}
+.inv-cal-foot{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-top:.9rem;flex-wrap:wrap}
+.inv-cal-info{font-size:.85rem;color:var(--nd-dim,#8E98A8)}
+.inv-cal-pages{display:flex;gap:6px;align-items:center}
+.inv-cal-prev,.inv-cal-next,.inv-cal-pg{padding:7px 14px;border:1px solid var(--nd-border,#1E2430);border-radius:10px;background:var(--nd-panel-2,#161A23);color:var(--nd-text,#fff);cursor:pointer;font-size:.82rem;font-weight:600}
+.inv-cal-prev:hover:not(:disabled),.inv-cal-next:hover:not(:disabled),.inv-cal-pg:hover{border-color:var(--nd-lime,#B8E62E)}
+.inv-cal-prev:disabled,.inv-cal-next:disabled{opacity:.4;cursor:default}
+.inv-cal-pg.cur{background:var(--nd-lime,#B8E62E);color:#0A0C10;border-color:var(--nd-lime,#B8E62E);font-weight:700}
+.inv-cal-empty{margin:1.2rem}
+/* valuation lab: new design */
+.d2-val-lab{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 45%),var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);border-radius:20px;padding:22px 24px;margin:22px 0;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 3px 8px rgba(0,0,0,.4),0 16px 40px rgba(0,0,0,.3)}
+.d2-val-label{font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--nd-dim,#8E98A8);margin:0 0 12px}
+.d2-val-grid{display:grid;gap:20px}
+@media(min-width:900px){.d2-val-grid{grid-template-columns:340px 1fr}}
+.d2-bank-chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 16px}
+.d2-bank-chips button{padding:7px 14px;border-radius:999px;border:1px solid var(--nd-border,#1E2430);background:var(--nd-panel-2,#161A23);color:var(--nd-muted,#B8C0CE);font:inherit;font-size:.82rem;font-weight:600;cursor:pointer;transition:border-color .15s,color .15s}
+.d2-bank-chips button:hover{border-color:var(--nd-lime,#B8E62E);color:var(--nd-text,#fff)}
+.d2-bank-chips button[aria-pressed="true"]{background:var(--nd-lime,#B8E62E);color:#0A0C10;border-color:var(--nd-lime,#B8E62E);font-weight:700}
+.d2-val-co-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin:6px 0 14px}
+.d2-val-co-sym{font-size:1.3rem;font-weight:800;color:var(--nd-text,#fff)}
+.d2-val-co-name{font-size:.85rem;color:var(--nd-dim,#8E98A8);margin-top:2px}
+.d2-val-co-price{text-align:right}
+.d2-val-co-price .p{font-size:1.2rem;font-weight:700;color:var(--nd-text,#fff);font-variant-numeric:tabular-nums}
+.d2-val-co-price .c{font-size:.85rem;font-weight:700}
+.d2-val-co-price .c.up{color:var(--nd-up,#4ADE80)}
+.d2-val-co-price .c.dn{color:var(--nd-down,#F87171)}
+.d2-metric-rows{display:grid;gap:8px}
+.d2-metric-row{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 16px;border-radius:14px;border:1px solid var(--nd-border,#1E2430);background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,0) 50%),var(--nd-panel-2,#161A23);cursor:pointer;color:var(--nd-text,#fff);font:inherit;transition:border-color .15s,transform .15s}
+.d2-metric-row:hover{border-color:var(--nd-lime,#B8E62E);transform:translateY(-1px)}
+.d2-metric-row[aria-pressed="true"]{border-color:var(--nd-lime,#B8E62E);box-shadow:0 0 0 1px var(--nd-lime,#B8E62E),0 4px 14px rgba(184,230,46,.15)}
+.d2-metric-row .m-name{font-weight:700;font-size:.9rem}
+.d2-metric-row .m-name small{display:block;font-weight:400;font-size:.75rem;color:var(--nd-dim,#8E98A8);margin-top:2px}
+.d2-metric-row .m-val{font-weight:700;font-variant-numeric:tabular-nums;color:var(--nd-lime,#B8E62E)}
+.d2-val-chart-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.d2-val-chart-head strong{color:var(--nd-text,#fff);font-size:1.05rem}
+.d2-val-chart-head span{display:block;font-size:.8rem;color:var(--nd-dim,#8E98A8);margin-top:2px}
+.d2-val-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.78rem;color:var(--nd-dim,#8E98A8)}
+.d2-val-chart{background:var(--nd-inset,#0D0F14);border:1px solid var(--nd-border,#1E2430);border-radius:14px;padding:12px;min-height:280px}
+.d2-val-chart canvas{width:100%;height:280px;display:block}
+.d2-fresh{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px;font-size:.8rem;color:var(--nd-dim,#8E98A8)}
+.d2-fresh b{color:var(--nd-muted,#B8C0CE)}
+/* light theme */
+[data-theme="light"] .sp-price-card,[data-theme="light"] .vpill,[data-theme="light"] .sp-fund,[data-theme="light"] .inv-cal,[data-theme="light"] .d2-val-lab{background:linear-gradient(180deg,#FFFFFF 0%,#F4F7FA 100%);border-color:#CBD4DE;box-shadow:inset 0 2px 0 #FFFFFF,0 1px 2px rgba(10,12,16,.1),0 8px 24px rgba(10,12,16,.1)}
+[data-theme="light"] .sp-tab{background:linear-gradient(180deg,#FFFFFF 0%,#EDF1F5 100%);border-color:#CBD4DE;color:#3F4753;box-shadow:inset 0 2px 0 #FFFFFF,0 1px 2px rgba(10,12,16,.1)}
+[data-theme="light"] .sp-tab:hover{border-color:#4D7C0F;color:#0A0C10}
+[data-theme="light"] .sp-tab.active{background:linear-gradient(180deg,#6BAE16 0%,#4D7C0F 60%,#3E650C 100%);border-color:#3E650C;color:#fff}
+[data-theme="light"] .sp-price,[data-theme="light"] .sp-stat-v,[data-theme="light"] .sp-fund-v,[data-theme="light"] .d2-val-co-sym,[data-theme="light"] .inv-cal-head h2{color:#0A0C10}
+[data-theme="light"] .sp-note{background:linear-gradient(180deg,#FFFFFF 0%,#F4F7FA 100%);border-color:#CBD4DE;border-left-color:#4D7C0F;color:#3F4753}
+[data-theme="light"] .sp-note strong{color:#0A0C10}
+[data-theme="light"] .sp-peer-table,[data-theme="light"] .inv-cal-table{background:#fff;color:#0A0C10;border-color:#CBD4DE}
+[data-theme="light"] .sp-peer-table th,[data-theme="light"] .inv-cal-table thead th{background:linear-gradient(180deg,#FFFFFF,#E8EDF2);color:#3E650C}
+[data-theme="light"] .sp-peer-table td,[data-theme="light"] .inv-cal-table tbody td{border-bottom-color:#E8EDF2}
+[data-theme="light"] .sp-peer-table a{color:#0A0C10}
+[data-theme="light"] .sp-links a,[data-theme="light"] .sp-news li,[data-theme="light"] .sp-peers a,[data-theme="light"] .sp-dir li{background:linear-gradient(180deg,#FFFFFF,#F4F7FA);border-color:#CBD4DE;color:#0A0C10}
+[data-theme="light"] .sp-links a,[data-theme="light"] .sp-news a{color:#0A0C10}
+[data-theme="light"] .d2-metric-row{background:linear-gradient(180deg,#FFFFFF,#F4F7FA);border-color:#CBD4DE;color:#0A0C10}
+[data-theme="light"] .d2-metric-row .m-val{color:#4D7C0F}
+[data-theme="light"] .d2-bank-chips button{background:#EFF2F6;border-color:#D5DCE4;color:#3F4753}
+[data-theme="light"] .d2-bank-chips button[aria-pressed="true"]{background:#4D7C0F;border-color:#4D7C0F;color:#fff}
+</style>
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebPage","name":"EBL Share Price, Signals and News | Nepse Decode","url":"https://shirjankhadka.com.np/stocks/EBL/","description":"Everest Bank Limited (EBL): latest NEPSE price, Alpha Lab signals, 52-week range and headlines. Free, educational.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},{"@type":"ListItem","position":2,"name":"Stocks","item":"https://shirjankhadka.com.np/stocks/"},{"@type":"ListItem","position":3,"name":"EBL","item":"https://shirjankhadka.com.np/stocks/EBL/"}]}]}</script>
 </head>
-<body>
-<a class="skip" href="#main">Skip to content</a>
-
-<aside class="suite-rail" aria-label="Nepse Decode suite">
-  <a class="rail-word" href="/nepse-decode/"><img class="wm-mark" src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>
-  <p class="rail-k">Suite</p>
-  <nav class="rail-links">
-    <a href="/nepse-decode/">Overview</a>
-    <a href="/nepse-chart/">Chart &amp; signals</a>
-    <span class="nav-sub">
-      <a href="/nepse-signals/momentum/">Momentum</a>
-      <a href="/nepse-signals/trend-relay/">Trend Relay</a>
-      <a href="/nepse-signals/reversal/">Reversal</a>
-    </span>
-    <a href="/nepse-screener/">Screener</a>
-    <a href="/nepse-brokers/">Broker Analytics</a>
-    <a href="/nepse-sectors/">Sectors</a>
-    <a href="/nepse-news/">Market news</a>
-    <a href="/nepse-watchlist/">Watchlist</a>
-    <a href="/nepse-dashboard/">Dashboard</a>
-    <a href="/nepse-portfolio/">Portfolio</a>
-    <a href="/nepse-simulator/">Simulator</a>
-    <a href="/nepse-reports/">Reports</a>
-    <a href="/nepse-actions/">Corp. actions</a>
-    <a href="/nepse-chart/data-check.html">Data check</a>
-  </nav>
-  <p class="rail-foot">Free forever · no login</p>
-</aside>
-
-<header class="topbar">
-  <div class="wrap topbar-in">
-    <a class="wordmark" href="/nepse-decode/"><img class="wm-mark" src="/assets/brand/nepse-decode-mark.svg" alt="" width="30" height="30">Nepse Decode</a>
-    <nav class="suite-links" aria-label="Nepse Decode suite">
-      <a href="/nepse-chart/">The Lab</a>
-      <a href="/nepse-screener/">Screener</a>
-      <a href="/nepse-sectors/">Sectors</a>
-      <a href="/nepse-news/">News</a>
-      <a href="/nepse-watchlist/">Watchlist</a>
-      <a href="/nepse-actions/">Corp. actions</a>
-    </nav>
-    <div class="spacer"></div>
-    <a class="btn small" href="/nepse-chart/">Open the Lab →</a>
-  </div>
-</header>
-
-<main id="main" class="wrap">
-<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/stocks/">Stocks</a> / <span>EBL</span></nav>
-<section class="hero"><div class="hero-rule"></div>
-<p class="eyebrow">Equity · NEPSE</p>
+<body class="nd">
+<a class="skip-link" href="#main">Skip to content</a>
+<div id="nd-header"></div>
+<main id="main" class="sig-wrap">
+<p class="sig-kicker">Equity · NEPSE</p>
 <h1>Everest Bank Limited (EBL)</h1>
-<p class="asof">Data as of 2026-10-09 · refreshed daily after market close</p></section>
+<p class="sig-sub">Data as of 2026-10-09 · refreshed daily after market close</p>
 <section class="sp-snap" aria-label="Price snapshot" data-live-symbol="EBL"><div class="sp-price-card">
 <div class="sp-price-main">
 <div class="sp-price">Rs 702</div>
@@ -99,9 +215,14 @@
 <p class="d2-val-label">Valuation lab · Banking</p>
 <div class="d2-val-grid">
 <div>
-<div class="d2-val-label">Peer set · 1 Banking</div>
+<div class="d2-val-label">Peer set · 6 Banking</div>
 <div class="d2-bank-chips" role="group" aria-label="Choose a company to highlight">
 <button type="button" data-sym="EBL" aria-pressed="true" aria-label="Highlight EBL in the chart">EBL</button>
+<button type="button" data-sym="KBL" aria-pressed="false" aria-label="Highlight KBL in the chart">KBL</button>
+<button type="button" data-sym="MBL" aria-pressed="false" aria-label="Highlight MBL in the chart">MBL</button>
+<button type="button" data-sym="SCB" aria-pressed="false" aria-label="Highlight SCB in the chart">SCB</button>
+<button type="button" data-sym="LSL" aria-pressed="false" aria-label="Highlight LSL in the chart">LSL</button>
+<button type="button" data-sym="SANIMA" aria-pressed="false" aria-label="Highlight SANIMA in the chart">SANIMA</button>
 </div>
 <div class="d2-val-co"><div class="d2-val-co-head"><div><div class="d2-val-co-sym" id="valCoSym">EBL</div><div class="d2-val-co-name" id="valCoName">Everest Bank Limited</div></div><div class="d2-val-co-price"><div class="p">Rs 702</div><div class="c up">+0.14%</div></div></div></div>
 <div class="d2-metric-rows" role="group" aria-label="Valuation metrics">
@@ -120,7 +241,7 @@
 <div class="d2-fresh"><b>Fundamentals</b><span>as of Q4 FY 2082/2083</span><span aria-hidden="true">·</span><span>Source: published quarterly filings</span><span aria-hidden="true">·</span><span>Prices: session 2026-10-09</span></div>
 </div>
 </div>
-<script type="application/json" id="val-lab-data">{"quarters":["Q1 80/81","Q2 80/81","Q3 80/81","Q4 80/81","Q1 81/82","Q2 81/82","Q3 81/82","Q4 81/82","Q1 82/83","Q2 82/83","Q3 82/83","Q4 82/83"],"series":{"EBL":{"netprofit":[0.780759,0.932389,0.895316,1.092184,1.127741,0.947022,1.382872,1.46053,1.179274,0.937844,1.212198,1.74062],"revenue":[5.838932,5.644313,5.486902,5.484768,5.381891,4.918644,5.157777,5.360676,5.309342,4.86873,4.838488,5.086025],"eps_ttm":[30.96,29.9,30.04,31.45,31.27,31.38,35.15,37.99,38.39,36.15,34.91,36.95],"npl_pct":[0.9,0.77,0.7,0.71,0.77,0.66,0.64,0.38,0.74,0.68,0.61,0.49],"deposits":[213.77005,213.862486,214.57706,232.316604,237.643891,250.430513,266.439185,298.8184,313.890276,304.958719,302.433448,316.018577]}},"pe":{"EBL":18.84},"focus":"EBL","peerNames":{"EBL":"Everest Bank Limited"},"sector":"Banking","metrics":[{"key":"netprofit","label":"Net profit","unit":"Rs b","kind":"pl","fmt":"money","zeroBased":false},{"key":"revenue","label":"Revenue","unit":"Rs b","kind":"pl","fmt":"money","zeroBased":true},{"key":"eps_ttm","label":"EPS (TTM)","unit":"Rs","kind":"pt","fmt":"rs","zeroBased":false},{"key":"npl_pct","label":"NPL ratio","unit":"%","kind":"pt","fmt":"pct","zeroBased":true},{"key":"deposits","label":"Deposits","unit":"Rs b","kind":"pt","fmt":"money","zeroBased":true}]}</script>
+<script type="application/json" id="val-lab-data">{"quarters":["Q1 80/81","Q2 80/81","Q3 80/81","Q4 80/81","Q1 81/82","Q2 81/82","Q3 81/82","Q4 81/82","Q1 82/83","Q2 82/83","Q3 82/83","Q4 82/83"],"series":{"EBL":{"netprofit":[0.780759,0.932389,0.895316,1.092184,1.127741,0.947022,1.382872,1.46053,1.179274,0.937844,1.212198,1.74062],"revenue":[5.838932,5.644313,5.486902,5.484768,5.381891,4.918644,5.157777,5.360676,5.309342,4.86873,4.838488,5.086025],"eps_ttm":[30.96,29.9,30.04,31.45,31.27,31.38,35.15,37.99,38.39,36.15,34.91,36.95],"npl_pct":[0.9,0.77,0.7,0.71,0.77,0.66,0.64,0.38,0.74,0.68,0.61,0.49],"deposits":[213.77005,213.862486,214.57706,232.316604,237.643891,250.430513,266.439185,298.8184,313.890276,304.958719,302.433448,316.018577]},"KBL":{"netprofit":[0.26393512,0.60327636,0.18558305000000005,1.2554178800000002,1.07817778,-0.8024473200000001,0.010092609999999986,1.8305859799999997,1.05653117,1.6635544100000001,1.45796283,3.2091495],"revenue":[10.6038351,9.76332049,9.18241294,9.132774909999997,8.64081033,7.69626008,7.438518620000001,8.514993079999998,7.336110440000001,7.839727819999999,6.402463160000002,6.881234369999997],"eps_ttm":[4.65,6.91,6.51,8.8,11.91,6.55,5.88,8.07,7.99,17.39,22.91,28.17],"npl_pct":[4.89,4.97,4.95,4.95,4.96,6.96,6.98,6.42,6.98,6.92,6.94,7.46],"deposits":[321.68804373,318.76572242000003,318.86210829000004,333.11132249,347.20452851,348.74910785000003,350.0792242,364.63916151,360.40664553,371.37692860000004,381.66666691,402.73620779000004]},"MBL":{"netprofit":[0.54223951,0.26314139000000003,0.05006566000000003,0.39472096999999995,0.5032633,0,0.5993645400000001,0.90883368,0.41795634000000004,0.5932171199999999,0.6474863500000001,0.4554609499999997],"revenue":[4.69259463,4.26509047,3.8962806500000005,3.765620699999999,3.9019443199999997,0,7.014160799999999,3.6646609199999998,3.48540383,3.36708942,3.28218535,3.5858915300000014],"eps_ttm":[16.71,14.04,11.66,10.76,10.42,8.16,12.88,17.31,15.94,18.33,17.02,14.01],"npl_pct":[2.56,2.62,3.68,3.63,3.15,4.54,4.59,3.83,4.13,4.25,4.01,3.98],"deposits":[148.85836963999998,152.48525441,149.06007406999998,157.94182025,167.7846259,165.484423,169.65904869,184.1760499,193.54101405,204.04717513,213.56352224,220.49845480000002]},"SCB":{"netprofit":[0.8277,0.898728,0.720694,0.861832,0.862201,0.778429,0.533147,0.855526,0.692168,0.681156,0.708297,0.76859],"revenue":[3.312258,2.821387,2.582994,2.363685,2.197626,1.94436,1.987617,2.207591,1.977443,1.749633,1.769525,1.927224],"eps_ttm":[37.56,37.1,35.66,35.09,35.46,32.1,30.23,30.17,28.47,27.5,29.25,28.38],"npl_pct":[1.1,1.6,2.14,2.14,1.95,1.71,1.44,1.47,1.71,1.88,1.81,2.03],"deposits":[119.100792,115.70261,110.065253,112.483887,113.529218,122.165207,122.603744,125.338848,129.62721,137.427348,145.014876,147.683924]},"LSL":{"netprofit":[0.103041,0.956169,0.556693,1.418636,0.536358,0.625718,0.490086,2.464804,0.33233,-0.605946,2.3118,1.078949],"revenue":[9.330881,8.784973,8.458054,8.478003,7.722828,6.995548,6.891146,7.846438,6.710122,6.110007,6.091114,7.491431],"eps_ttm":[null,null,10.2,13.09,14.96,12.89,12.61,16.91,16.07,10.01,16.81,11.64],"npl_pct":[4.69,4.67,5.49,4.72,5.44,5.67,5.86,4.25,5.42,5.5,5.29,5.23],"deposits":[292.198666,310.591321,311.610777,328.931512,334.459929,340.499661,344.203067,367.053706,375.009644,384.230854,403.956023,424.379669]},"SANIMA":{"netprofit":[0.48290995000000003,0.65570476,0.3008281000000001,0.9424986200000001,0.39953049,0.7927808000000001,0.46016554000000004,0.9186791200000001,0.45491815,0.93615757,0.9591272,1.1999416099999998],"revenue":[5.579309599999999,5.222467480000001,4.936822230000001,4.981829479999998,4.45562147,4.37513445,4.193956900000001,5.016075009999998,4.33220282,4.134194150000001,3.94794776,4.18949518],"eps_ttm":[20.5,18.2,17.28,17.54,16.92,17.93,19.11,18.93,19.34,20.39,20.98,22.78],"npl_pct":[1.79,1.72,1.89,1.73,1.38,1.51,1.6,1.21,1.58,1.33,3.99,1.02],"deposits":[185.55119673,183.49348733000002,186.96207719,197.19707112,199.84745446,207.89449983,213.77895369,223.95467922999998,227.03137482,231.05004683,233.86912522,249.11801713]}},"pe":{"EBL":18.84,"KBL":7.91,"MBL":17.7,"SCB":23.11,"LSL":21.55,"SANIMA":15.9},"focus":"EBL","peerNames":{"EBL":"Everest Bank Limited","KBL":"Kumari Bank Limited","MBL":"Machhapuchhre Bank Limited","SCB":"Standard Chartered Bank Limited","LSL":"Laxmi Sunrise Bank Limited","SANIMA":"Sanima Bank Limited"},"sector":"Banking","metrics":[{"key":"netprofit","label":"Net profit","unit":"Rs b","kind":"pl","fmt":"money","zeroBased":false},{"key":"revenue","label":"Revenue","unit":"Rs b","kind":"pl","fmt":"money","zeroBased":true},{"key":"eps_ttm","label":"EPS (TTM)","unit":"Rs","kind":"pt","fmt":"rs","zeroBased":false},{"key":"npl_pct","label":"NPL ratio","unit":"%","kind":"pt","fmt":"pct","zeroBased":true},{"key":"deposits","label":"Deposits","unit":"Rs b","kind":"pt","fmt":"money","zeroBased":true}]}</script>
 </section>
 <section aria-label="Fundamentals"><h2>Fundamentals</h2>
 <p class="sp-note">Latest published quarter: Q4 FY 2082/2083 · figures as published, not estimates</p>
@@ -164,6 +285,23 @@
 <tr><td>Interest rate spread</td><td class="neg">-2.2%</td><td class="neg">-12.4%</td><td class="num">3.05%</td><td class="num">3.12%</td><td class="num">3.24%</td><td class="num">3.36%</td><td class="num">3.48%</td><td class="num">3.67%</td><td class="num">3.99%</td><td class="num">4.00%</td><td class="num">3.98%</td><td class="num">4.00%</td><td class="num">4.00%</td><td class="num">4.00%</td></tr>
 </tbody></table></div>
 <p class="sp-note">Profit figures are published cumulative for the fiscal year; the quarterly profit row shows the implied standalone quarter (this quarter minus the prior quarter). P/E is not shown as a trend: the screener prices every historical quarter at today’s price, so a historical P/E would be misleading. – means not published.</p>
+</section>
+<section aria-label="Sector peer comparison"><h2>Sector peers · Banking</h2>
+<p class="sp-note">Same-sector equities by engine score. P/E and EPS show published quarterly figures where available; – means not yet published.</p>
+<div class="sp-table-wrap"><table class="sp-peer-table">
+<thead><tr><th scope="col">Symbol</th><th scope="col">Price (Rs)</th><th scope="col">Session</th><th scope="col">P/E (TTM)</th><th scope="col">EPS (TTM)</th></tr></thead>
+<tbody>
+<tr><td><a href="/stocks/KBL/">KBL</a></td><td>227.8</td><td class="pos">+0.75%</td><td>7.91x</td><td>Rs 28.17</td></tr>
+<tr><td><a href="/stocks/MBL/">MBL</a></td><td>257.9</td><td class="pos">+0.94%</td><td>17.7x</td><td>Rs 14.01</td></tr>
+<tr><td><a href="/stocks/SCB/">SCB</a></td><td>660</td><td class="neg">-0.3%</td><td>23.11x</td><td>Rs 28.38</td></tr>
+<tr><td><a href="/stocks/LSL/">LSL</a></td><td>255.8</td><td class="neg">-0.08%</td><td>21.55x</td><td>Rs 11.64</td></tr>
+<tr><td><a href="/stocks/SANIMA/">SANIMA</a></td><td>373.5</td><td class="pos">+1%</td><td>15.9x</td><td>Rs 22.78</td></tr>
+<tr><td><a href="/stocks/PCBL/">PCBL</a></td><td>261</td><td class="pos">+0.04%</td><td>13.14x</td><td>Rs 19.63</td></tr>
+<tr><td><a href="/stocks/CZBIL/">CZBIL</a></td><td>205</td><td class="pos">+0.54%</td><td>15.74x</td><td>Rs 13.53</td></tr>
+<tr><td><a href="/stocks/NABIL/">NABIL</a></td><td>533</td><td class="pos">+0.02%</td><td>21.57x</td><td>Rs 24.66</td></tr>
+<tr><td><a href="/stocks/NBL/">NBL</a></td><td>292.9</td><td class="neg">-0.03%</td><td>9.54x</td><td>Rs 30.63</td></tr>
+</tbody></table></div>
+<p class="sp-note">Figures from the same data date as this page. Educational comparison only, not investment advice.</p>
 </section>
 </div><div class="sp-tabpanel" data-panel="news" role="tabpanel" hidden><h2>Latest headlines</h2><p class="sp-note">No recent headlines mention EBL in the tracked press.</p></div><div class="sp-tabpanel" data-panel="actions" role="tabpanel" hidden><h2>Corporate actions</h2><p class="sp-note">Past dividends, bonus shares, right shares, auctions and AGM history.</p><section class="inv-cal" aria-label="Investment Calendar">
 <div class="inv-cal-head"><h2><span aria-hidden="true">📅</span> Investment Calendar</h2><span class="inv-cal-co">Everest Bank Limited</span></div>
@@ -251,87 +389,19 @@
 </div>
 </div>
 </section>
-</div><p class="sp-disc">Educational use only, not investment advice. Signals are mechanical readings of past prices; past patterns do not guarantee future results.</p>
+</div><section aria-label="More in the Banking sector"><h2>More in the Banking sector</h2><ul class="sp-peers">
+<li><a href="/stocks/KBL/">Kumari Bank Limited (KBL)</a></li>
+<li><a href="/stocks/MBL/">Machhapuchhre Bank Limited (MBL)</a></li>
+<li><a href="/stocks/SCB/">Standard Chartered Bank Limited (SCB)</a></li>
+<li><a href="/stocks/LSL/">Laxmi Sunrise Bank Limited (LSL)</a></li>
+<li><a href="/stocks/SANIMA/">Sanima Bank Limited (SANIMA)</a></li>
+</ul></section>
+<p class="sp-disc">Educational use only, not investment advice. Signals are mechanical readings of past prices; past patterns do not guarantee future results.</p>
 <script>(function(){var tabs=document.querySelectorAll(".sp-tab"),panels=document.querySelectorAll(".sp-tabpanel");function on(n){tabs.forEach(function(t){var a=t.dataset.tab===n;t.classList.toggle("active",a);t.setAttribute("aria-selected",a);});panels.forEach(function(p){var a=p.dataset.panel===n;p.classList.toggle("active",a);if(a)p.removeAttribute("hidden");else p.setAttribute("hidden","");});}tabs.forEach(function(t){t.addEventListener("click",function(){on(t.dataset.tab);});t.addEventListener("keydown",function(e){if(e.key==="ArrowRight"||e.key==="ArrowLeft"){var i=Array.prototype.indexOf.call(tabs,t);var nx=e.key==="ArrowRight"?(i+1)%tabs.length:(i-1+tabs.length)%tabs.length;tabs[nx].focus();on(tabs[nx].dataset.tab);}});});document.querySelectorAll("[data-goto-tab]").forEach(function(a){a.addEventListener("click",function(){on(a.dataset.gotoTab);});});if(location.hash==="#fundamentals"){on("fundamentals");}if(location.hash==="#actions"){on("actions");}document.querySelectorAll(".inv-cal").forEach(function(card){var uid=card.querySelector("[data-inv-uid]").dataset.invUid;var state={tab:"dividends",q:"",page:1,per:10};function rows(){var p=card.querySelector("[data-inv-panel=\""+state.tab+"\"]");if(!p)return[];return Array.prototype.slice.call(p.querySelectorAll("tbody tr"));}function filtered(){var q=state.q.toLowerCase();return rows().filter(function(r){return !q||r.textContent.toLowerCase().indexOf(q)>-1;});}function render(){var list=filtered(),total=list.length,pages=Math.max(1,Math.ceil(total/state.per));if(state.page>pages)state.page=pages;var s=(state.page-1)*state.per;rows().forEach(function(r){r.style.display="none";});list.slice(s,s+state.per).forEach(function(r){r.style.display="";});var info=card.querySelector(".inv-cal-info");info.textContent=total?("Showing "+(s+1)+" to "+Math.min(s+state.per,total)+" of "+total+" entries"):"Showing 0 entries";var nums=card.querySelector(".inv-cal-pagenums");nums.innerHTML="";for(var i=1;i<=pages&&i<=7;i++){var b=document.createElement("button");b.textContent=i;b.className="inv-cal-pg"+(i===state.page?" cur":"");b.dataset.pg=i;b.addEventListener("click",function(){state.page=+this.dataset.pg;render();});nums.appendChild(b);}card.querySelector(".inv-cal-prev").disabled=state.page<=1;card.querySelector(".inv-cal-next").disabled=state.page>=pages;}card.querySelectorAll("[data-inv-tab]").forEach(function(t){t.addEventListener("click",function(){card.querySelectorAll("[data-inv-tab]").forEach(function(x){x.classList.remove("active");x.setAttribute("aria-selected","false");});t.classList.add("active");t.setAttribute("aria-selected","true");state.tab=t.dataset.invTab;state.page=1;card.querySelectorAll("[data-inv-panel]").forEach(function(p){p.hidden=p.dataset.invPanel!==state.tab;});render();});});var q=card.querySelector(".inv-cal-q");if(q)q.addEventListener("input",function(){state.q=this.value;state.page=1;render();});var pp=card.querySelector(".inv-cal-perpage");if(pp)pp.addEventListener("change",function(){state.per=+this.value;state.page=1;render();});card.querySelector(".inv-cal-prev").addEventListener("click",function(){if(state.page>1){state.page--;render();}});card.querySelector(".inv-cal-next").addEventListener("click",function(){state.page++;render();});card.querySelectorAll("[data-inv-panel=\"dividends\"] .inv-cal-divstatus").forEach(function(el){var bc=el.getAttribute("data-bc")||"";if(el.getAttribute("data-closed")==="1"){el.innerHTML="<span class=\"inv-pill inv-pill-closed\">Closed</span>";return;}var today="";try{today=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Kathmandu",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());}catch(e){var kd=new Date(Date.now()+20700000);today=kd.getUTCFullYear()+"-"+("0"+(kd.getUTCMonth()+1)).slice(-2)+"-"+("0"+kd.getUTCDate()).slice(-2);}if(/^\d{4}-\d{2}-\d{2}$/.test(bc)){var closed=bc<today;el.innerHTML="<span class=\"inv-pill "+(closed?"inv-pill-closed":"inv-pill-open")+"\">"+(closed?"Closed":"Open")+"</span>";return;}var ann=el.getAttribute("data-ann")||"";if(/^\d{4}-\d{2}-\d{2}$/.test(ann)){var ad=new Date(ann+"T00:00:00"),td=new Date(today+"T00:00:00");var daysOld=Math.floor((td-ad)/86400000);if(daysOld>=0&&daysOld<=365){el.innerHTML="<span class=\"inv-pill inv-pill-open\">Open</span>";return;}}el.textContent="\u2013";});render();});})();</script></main>
-<style>
-.sf{border-top:1px solid var(--hairline,#E7DFCE);margin-top:64px;background:var(--paper,#FAF8F2);color:var(--ink-soft,#4A463C);font-family:var(--sans,Inter,system-ui,-apple-system,"Segoe UI",sans-serif)}
-.sf-inner{max-width:1200px;margin:0 auto;padding:56px 24px 30px}
-.sf-top{display:flex;gap:18px;align-items:flex-start;margin-bottom:42px}
-.sf-mark{width:46px;height:46px;border-radius:12px;flex:none;box-shadow:0 2px 10px rgba(11,61,46,.12)}
-.sf-name{font-weight:700;font-size:1.06rem;color:var(--ink,#1C1A15);margin:2px 0 8px;letter-spacing:.01em}
-.sf-mission{margin:0;max-width:62ch;line-height:1.75;font-size:.92rem;color:var(--ink-soft,#4A463C)}
-.sf-cols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:36px 28px;margin-bottom:42px}
-.sf-col h3{font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted,#8A8474);margin:0 0 16px;font-weight:700}
-.sf-col ul{list-style:none;margin:0;padding:0;display:grid;gap:11px}
-.sf-col a{color:var(--ink-soft,#4A463C);text-decoration:none;font-size:.92rem;line-height:1.5}
-.sf-col a:hover{color:var(--green-900,#0B3D2E);text-decoration:underline}
-.sf-note{border-top:1px solid var(--hairline,#E7DFCE);padding-top:26px;font-size:.85rem;line-height:1.75;color:var(--muted,#8A8474);max-width:88ch;margin:0}
-.sf-note strong{color:var(--ink-soft,#4A463C)}
-.sf-bottom{display:flex;flex-wrap:wrap;gap:10px 20px;justify-content:space-between;align-items:center;margin-top:26px;padding-top:22px;border-top:1px solid var(--hairline,#E7DFCE);font-size:.85rem;color:var(--muted,#8A8474)}
-.sf-bottom a{color:var(--ink-soft,#4A463C);text-decoration:none;font-weight:600}
-.sf-bottom a:hover{color:var(--green-900,#0B3D2E);text-decoration:underline}
-.sf-social{display:flex;gap:16px;align-items:center}
-@media(max-width:820px){.sf-cols{grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 20px}}
-@media(max-width:520px){.sf-inner{padding:44px 20px 26px}.sf-top{margin-bottom:34px}.sf-cols{margin-bottom:34px}}
-</style>
-<footer class="sf" aria-label="Nepse Decode site footer">
-  <div class="sf-inner">
-    <div class="sf-top">
-      <svg class="sf-mark" viewBox="0 0 64 64" role="img" aria-label="Nepse Decode iceberg mark"><rect width="64" height="64" rx="14" fill="#013E2E"/><polygon points="32,9 21,25 43,25" fill="#FFFFFF"/><polygon points="32,9 37,25 27,25" fill="#EEF2EF"/><polygon points="13,27.5 51,27.5 45,42 32,57 21,45 15,37" fill="#FFFFFF"/><polygon points="13,27.5 27,27.5 21,45 15,37" fill="#D6DDD9"/><polygon points="51,27.5 45,42 38,27.5" fill="#C6CECA"/><polygon points="32,57 45,42 36,40 28,49" fill="#E4E9E6"/><polygon points="21,45 32,57 28,49 24,44" fill="#D6DDD9"/><rect x="4" y="25" width="56" height="2.6" rx="1.3" fill="#0B3D2E" opacity=".55"/></svg>
-      <div>
-        <p class="sf-name">Nepse Decode</p>
-        <p class="sf-mission">Free, honest NEPSE intelligence for every Nepali investor — live market data, screeners, signals and research, rebuilt every trading day. No login, no paywall, no buy calls.</p>
-      </div>
-    </div>
-    <nav class="sf-cols" aria-label="Footer sections">
-      <div class="sf-col">
-        <h3>Tools</h3>
-        <ul>
-          <li><a href="/nepse-screener/">Stock Screener</a></li>
-          <li><a href="/nepse-chart/">Chart</a></li>
-          <li><a href="/nepse-trending/">Trending Stocks</a></li>
-          <li><a href="/nepse-value/">Value Investing</a></li>
-          <li><a href="/nepse-signals/momentum/">Trading Signals</a></li>
-          <li><a href="/nepse-watchlist/">Watchlist</a></li>
-        </ul>
-      </div>
-      <div class="sf-col">
-        <h3>Market data</h3>
-        <ul>
-          <li><a href="/nepse-decode/">Dashboard</a></li>
-          <li><a href="/nepse-brokers/">Broker Analytics</a></li>
-          <li><a href="/nepse-sectors/">Sectors</a></li>
-          <li><a href="/nepse-news/">Market News</a></li>
-          <li><a href="/nepse-actions/">Corp. Actions</a></li>
-          <li><a href="/stocks/">All Stocks</a></li>
-        </ul>
-      </div>
-      <div class="sf-col">
-        <h3>Research</h3>
-        <ul>
-          <li><a href="/blog/">Daily Blog</a></li>
-          <li><a href="/nepse-decode/">Market Dashboard</a></li>
-        </ul>
-      </div>
-      <div class="sf-col">
-        <h3>Company</h3>
-        <ul>
-          <li><a href="/about.html">About</a></li>
-          <li><a href="/contact.html">Contact</a></li>
-          <li><a href="/privacy.html">Privacy</a></li>
-          <li><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Facebook Page</a></li>
-        </ul>
-      </div>
-    </nav>
-    <p class="sf-note"><strong>Educational use only.</strong> Nothing on this site is investment advice. Prices and figures are compiled from public sources and refreshed every trading day — always verify with your broker before trading.</p>
-    <div class="sf-bottom">
-      <span>© 2026 Nepse Decode · Built by <a href="/">Shirjan Khadka</a> in Kathmandu, Nepal</span>
-      <span class="sf-social"><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Facebook</a><a href="/blog/">Blog</a><a href="/contact.html">Contact</a></span>
-    </div>
-  </div>
-</footer>
+<div id="nd-footer"></div>
+<script src="/js/nd-chrome.js?v=20261006c" defer></script>
+<script src="/js/theme-toggle.js?v=20261006c" defer></script>
 <script src="/js/stock-live.js?v=20260930a" defer></script>
 <script src="/js/val-lab.js?v=20261003a" defer></script>
-<script src="/js/theme-toggle.js?v=20261001a" defer></script>
 </body>
 </html>
