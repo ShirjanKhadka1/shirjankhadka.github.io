@@ -386,7 +386,8 @@ function renderStock(d){
   if(!s) return '<div class="cover">No trades for '+sym+' in this period.</div>';
   function bt(obj, title){
     // buyers/sellers entries are [qty, value]; tolerate legacy value-only schema
-    var rows = Object.keys(obj).map(function(c){
+    // and missing objects entirely (1D periods carry netflow only)
+    var rows = Object.keys(obj||{}).map(function(c){
       var v = obj[c];
       return [c, Array.isArray(v) ? v : [0, v]];
     }).sort(function(a,b){return b[1][1]-a[1][1]})
@@ -398,13 +399,25 @@ function renderStock(d){
   var activeN = (s.netflow && Object.keys(s.netflow).length)
     ? Object.keys(s.netflow).length
     : Object.keys(union(s.buyers,s.sellers)).length;
+  // 1D (Capital Max-sourced) periods carry netflow only — derive the top
+  // buyer/seller lists from it so this tab works instead of throwing.
+  // netflow entries: [net_qty, net_value, buy_qty, buy_value, sell_qty, sell_value]
+  var buyers = s.buyers, sellers = s.sellers;
+  if ((!buyers || !Object.keys(buyers).length) && (!sellers || !Object.keys(sellers).length) && s.netflow){
+    buyers = {}; sellers = {};
+    Object.keys(s.netflow).forEach(function(c){
+      var v = s.netflow[c] || [];
+      if ((v[3]||0) > 0) buyers[c] = [v[2]||0, v[3]||0];
+      if ((v[5]||0) > 0) sellers[c] = [v[4]||0, v[5]||0];
+    });
+  }
   return '<h2 class="bk-h">'+sym+' — trade pattern, '+label()+'</h2>'+
     '<div class="stat-row">'+
     '<div class="stat"><div class="l">Total quantity</div><div class="v">'+fmtN(s.qty,0)+'</div></div>'+
     '<div class="stat"><div class="l">Total value</div><div class="v">'+fmtV(s.value)+'</div></div>'+
     '<div class="stat"><div class="l">Average rate</div><div class="v">Rs '+fmtN(s.avg_rate)+'</div></div>'+
     '<div class="stat"><div class="l">Brokers active</div><div class="v">'+activeN+'</div></div></div>'+
-    '<div class="two">'+bt(s.buyers,'Top buyers')+bt(s.sellers,'Top sellers')+'</div>';
+    '<div class="two">'+bt(buyers,'Top buyers')+bt(sellers,'Top sellers')+'</div>';
 }
 
 function renderHoldings(d){
