@@ -102,7 +102,11 @@
       '.freshness-badge .fb-dot{width:8px;height:8px;border-radius:50%;flex:none}' +
       '.freshness-badge.fb-live .fb-dot{animation:fb-pulse 1.6s infinite}' +
       '@keyframes fb-pulse{0%,100%{opacity:1}50%{opacity:.35}}' +
-      '.freshness-badge.fb-stale{background:#fffbeb;border-color:#fcd34d;color:#92400e}';
+      '.freshness-badge.fb-stale{background:#fffbeb;border-color:#fcd34d;color:#92400e}' +
+      '[data-theme="dark"] .freshness-badge{background:rgba(20,22,28,.85);' +
+      'border-color:#2a2e38;color:#d1d5db}' +
+      '[data-theme="dark"] .freshness-badge.fb-stale{background:#3a2f12;' +
+      'border-color:#a16207;color:#fcd34d}';
     document.head.appendChild(s);
   }
 
