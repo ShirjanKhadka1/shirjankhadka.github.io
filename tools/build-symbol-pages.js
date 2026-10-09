@@ -121,7 +121,7 @@ function pill(tfLabel, vobj) {
 
 function head(sym, name, slug) {
   const title = sym + ' Share Price, Signals and News | Nepse Decode';
-  const desc = name + ' (' + sym + '): latest NEPSE price, Verdict Engine v2 warning radar, 52-week range and headlines. Free, educational.';
+  const desc = name + ' (' + sym + '): latest NEPSE price, Alpha Lab signals, 52-week range and headlines. Free, educational.';
   const url = SITE + '/stocks/' + slug + '/';
   const ld = {
     '@context': 'https://schema.org',
@@ -150,7 +150,7 @@ function head(sym, name, slug) {
     '<meta name="author" content="Nepse Decode">\n' +
     '<link rel="canonical" href="' + url + '">\n' +
     '<meta name="robots" content="index, follow, max-image-preview:large">\n' +
-    '<meta name="theme-color" content="#0A0C10">\n' +
+    '<meta name="theme-color" content="#FAF8F2">\n' +
     '<meta property="og:type" content="website">\n' +
     '<meta property="og:site_name" content="Nepse Decode">\n' +
     '<meta property="og:title" content="' + esc(name + ' (' + sym + ') | Nepse Decode') + '">\n' +
@@ -167,28 +167,137 @@ function head(sym, name, slug) {
     '<link rel="preconnect" href="https://fonts.googleapis.com">\n' +
     '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n' +
     '<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">\n' +
-    '<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">\n' +
     '<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930c">\n' +
     '<link rel="stylesheet" href="/css/nepse-wave7.css?v=20261002c">\n' +
     '<link rel="stylesheet" href="/css/nepse-brand.css?v=20261003a">\n' +
     '<link rel="stylesheet" href="/css/nepse-wave8.css?v=20261003a">\n' +    '<link rel="stylesheet" href="/css/theme.css?v=20261001a">\n' +
     '<link rel="stylesheet" href="/css/nepse-d2.css?v=20261001a">\n' +
-    '<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">\n' +
-    '<link rel="stylesheet" href="/css/verdict-v2-banner.css?v=20261005a">\n' +
-    '<link rel="stylesheet" href="/css/nd-chrome.css?v=20261004a">\n' +
 
     '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>\n' +
     '</head>\n';
 }
 
 const RAIL = '<body>\n<a class="skip" href="#main">Skip to content</a>\n\n' +
-  '<div id="nd-header"></div>\n\n';
+  '<aside class="suite-rail" aria-label="Nepse Decode suite">\n' +
+  '  <a class="rail-word" href="/nepse-decode/"><img class="wm-mark" src="/assets/brand/nepse-decode-mark.svg" alt="" width="26" height="26">Nepse Decode</a>\n' +
+  '  <p class="rail-k">Suite</p>\n' +
+  '  <nav class="rail-links">\n' +
+  '    <a href="/nepse-decode/">Overview</a>\n' +
+  '    <a href="/nepse-chart/">Chart &amp; signals</a>\n' +
+  '    <span class="nav-sub">\n' +
+  '      <a href="/nepse-signals/momentum/">Momentum</a>\n' +
+  '      <a href="/nepse-signals/trend-relay/">Trend Relay</a>\n' +
+  '      <a href="/nepse-signals/reversal/">Reversal</a>\n' +
+  '    </span>\n' +
+  '    <a href="/nepse-screener/">Screener</a>\n' +
+  '    <a href="/nepse-brokers/">Broker Analytics</a>\n' +
+  '    <a href="/nepse-sectors/">Sectors</a>\n' +
+  '    <a href="/nepse-news/">Market news</a>\n' +
+  '    <a href="/nepse-watchlist/">Watchlist</a>\n' +
+  '    <a href="/nepse-dashboard/">Dashboard</a>\n' +
+  '    <a href="/nepse-portfolio/">Portfolio</a>\n' +
+  '    <a href="/nepse-simulator/">Simulator</a>\n' +
+  '    <a href="/nepse-reports/">Reports</a>\n' +
+  '    <a href="/nepse-actions/">Corp. actions</a>\n' +
+  '    <a href="/nepse-chart/data-check.html">Data check</a>\n' +
+  '  </nav>\n' +
+  '  <p class="rail-foot">Free forever · no login</p>\n' +
+  '</aside>\n\n' +
+  '<header class="topbar">\n' +
+  '  <div class="wrap topbar-in">\n' +
+  '    <a class="wordmark" href="/nepse-decode/"><img class="wm-mark" src="/assets/brand/nepse-decode-mark.svg" alt="" width="30" height="30">Nepse Decode</a>\n' +
+  '    <nav class="suite-links" aria-label="Nepse Decode suite">\n' +
+  '      <a href="/nepse-chart/">The Lab</a>\n' +
+  '      <a href="/nepse-screener/">Screener</a>\n' +
+  '      <a href="/nepse-sectors/">Sectors</a>\n' +
+  '      <a href="/nepse-news/">News</a>\n' +
+  '      <a href="/nepse-watchlist/">Watchlist</a>\n' +
+  '      <a href="/nepse-actions/">Corp. actions</a>\n' +
+  '    </nav>\n' +
+  '    <div class="spacer"></div>\n' +
+  '    <a class="btn small" href="/nepse-chart/">Open the Lab →</a>\n' +
+  '  </div>\n' +
+  '</header>\n\n';
 
   const FOOT =
-  '<div id="nd-footer"></div>\n' +
-  '<script src="/js/nd-chrome.js?v=20261003a" defer></script>\n' +
+  '<style>\n' +
+  '.sf{border-top:1px solid var(--hairline,#E7DFCE);margin-top:64px;background:var(--paper,#FAF8F2);color:var(--ink-soft,#4A463C);font-family:var(--sans,Inter,system-ui,-apple-system,"Segoe UI",sans-serif)}\n' +
+  '.sf-inner{max-width:1200px;margin:0 auto;padding:56px 24px 30px}\n' +
+  '.sf-top{display:flex;gap:18px;align-items:flex-start;margin-bottom:42px}\n' +
+  '.sf-mark{width:46px;height:46px;border-radius:12px;flex:none;box-shadow:0 2px 10px rgba(11,61,46,.12)}\n' +
+  '.sf-name{font-weight:700;font-size:1.06rem;color:var(--ink,#1C1A15);margin:2px 0 8px;letter-spacing:.01em}\n' +
+  '.sf-mission{margin:0;max-width:62ch;line-height:1.75;font-size:.92rem;color:var(--ink-soft,#4A463C)}\n' +
+  '.sf-cols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:36px 28px;margin-bottom:42px}\n' +
+  '.sf-col h3{font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted,#8A8474);margin:0 0 16px;font-weight:700}\n' +
+  '.sf-col ul{list-style:none;margin:0;padding:0;display:grid;gap:11px}\n' +
+  '.sf-col a{color:var(--ink-soft,#4A463C);text-decoration:none;font-size:.92rem;line-height:1.5}\n' +
+  '.sf-col a:hover{color:var(--green-900,#0B3D2E);text-decoration:underline}\n' +
+  '.sf-note{border-top:1px solid var(--hairline,#E7DFCE);padding-top:26px;font-size:.85rem;line-height:1.75;color:var(--muted,#8A8474);max-width:88ch;margin:0}\n' +
+  '.sf-note strong{color:var(--ink-soft,#4A463C)}\n' +
+  '.sf-bottom{display:flex;flex-wrap:wrap;gap:10px 20px;justify-content:space-between;align-items:center;margin-top:26px;padding-top:22px;border-top:1px solid var(--hairline,#E7DFCE);font-size:.85rem;color:var(--muted,#8A8474)}\n' +
+  '.sf-bottom a{color:var(--ink-soft,#4A463C);text-decoration:none;font-weight:600}\n' +
+  '.sf-bottom a:hover{color:var(--green-900,#0B3D2E);text-decoration:underline}\n' +
+  '.sf-social{display:flex;gap:16px;align-items:center}\n' +
+  '@media(max-width:820px){.sf-cols{grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 20px}}\n' +
+  '@media(max-width:520px){.sf-inner{padding:44px 20px 26px}.sf-top{margin-bottom:34px}.sf-cols{margin-bottom:34px}}\n' +
+  '</style>\n' +
+  '<footer class="sf" aria-label="Nepse Decode site footer">\n' +
+  '  <div class="sf-inner">\n' +
+  '    <div class="sf-top">\n' +
+  '      <svg class="sf-mark" viewBox="0 0 64 64" role="img" aria-label="Nepse Decode iceberg mark"><rect width="64" height="64" rx="14" fill="#013E2E"/><polygon points="32,9 21,25 43,25" fill="#FFFFFF"/><polygon points="32,9 37,25 27,25" fill="#EEF2EF"/><polygon points="13,27.5 51,27.5 45,42 32,57 21,45 15,37" fill="#FFFFFF"/><polygon points="13,27.5 27,27.5 21,45 15,37" fill="#D6DDD9"/><polygon points="51,27.5 45,42 38,27.5" fill="#C6CECA"/><polygon points="32,57 45,42 36,40 28,49" fill="#E4E9E6"/><polygon points="21,45 32,57 28,49 24,44" fill="#D6DDD9"/><rect x="4" y="25" width="56" height="2.6" rx="1.3" fill="#0B3D2E" opacity=".55"/></svg>\n' +
+  '      <div>\n' +
+  '        <p class="sf-name">Nepse Decode</p>\n' +
+  '        <p class="sf-mission">Free, honest NEPSE intelligence for every Nepali investor — live market data, screeners, signals and research, rebuilt every trading day. No login, no paywall, no buy calls.</p>\n' +
+  '      </div>\n' +
+  '    </div>\n' +
+  '    <nav class="sf-cols" aria-label="Footer sections">\n' +
+  '      <div class="sf-col">\n' +
+  '        <h3>Tools</h3>\n' +
+  '        <ul>\n' +
+  '          <li><a href="/nepse-screener/">Stock Screener</a></li>\n' +
+  '          <li><a href="/nepse-chart/">Chart</a></li>\n' +
+  '          <li><a href="/nepse-trending/">Trending Stocks</a></li>\n' +
+  '          <li><a href="/nepse-value/">Value Investing</a></li>\n' +
+  '          <li><a href="/nepse-signals/momentum/">Trading Signals</a></li>\n' +
+  '          <li><a href="/nepse-watchlist/">Watchlist</a></li>\n' +
+  '        </ul>\n' +
+  '      </div>\n' +
+  '      <div class="sf-col">\n' +
+  '        <h3>Market data</h3>\n' +
+  '        <ul>\n' +
+  '          <li><a href="/nepse-decode/">Dashboard</a></li>\n' +
+  '          <li><a href="/nepse-brokers/">Broker Analytics</a></li>\n' +
+  '          <li><a href="/nepse-sectors/">Sectors</a></li>\n' +
+  '          <li><a href="/nepse-news/">Market News</a></li>\n' +
+  '          <li><a href="/nepse-actions/">Corp. Actions</a></li>\n' +
+  '          <li><a href="/stocks/">All Stocks</a></li>\n' +
+  '        </ul>\n' +
+  '      </div>\n' +
+  '      <div class="sf-col">\n' +
+  '        <h3>Research</h3>\n' +
+  '        <ul>\n' +
+  '          <li><a href="/blog/">Daily Blog</a></li>\n' +
+  '          <li><a href="/nepse-decode/">Market Dashboard</a></li>\n' +
+  '        </ul>\n' +
+  '      </div>\n' +
+  '      <div class="sf-col">\n' +
+  '        <h3>Company</h3>\n' +
+  '        <ul>\n' +
+  '          <li><a href="/about.html">About</a></li>\n' +
+  '          <li><a href="/contact.html">Contact</a></li>\n' +
+  '          <li><a href="/privacy.html">Privacy</a></li>\n' +
+  '          <li><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Facebook Page</a></li>\n' +
+  '        </ul>\n' +
+  '      </div>\n' +
+  '    </nav>\n' +
+  '    <p class="sf-note"><strong>Educational use only.</strong> Nothing on this site is investment advice. Prices and figures are compiled from public sources and refreshed every trading day — always verify with your broker before trading.</p>\n' +
+  '    <div class="sf-bottom">\n' +
+  '      <span>© 2026 Nepse Decode · Built by <a href="/">Shirjan Khadka</a> in Kathmandu, Nepal</span>\n' +
+  '      <span class="sf-social"><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Facebook</a><a href="/blog/">Blog</a><a href="/contact.html">Contact</a></span>\n' +
+  '    </div>\n' +
+  '  </div>\n' +
+  '</footer>\n' +
   '<script src="/js/stock-live.js?v=20260930a" defer></script>\n' +  '<script src="/js/val-lab.js?v=20261003a" defer></script>\n' +  '<script src="/js/theme-toggle.js?v=20261001a" defer></script>\n' +
-  '<script src="/js/verdict-v2-banner.js?v=20261005a" defer></script>\n' +
 
   '</body>\n</html>\n';
 
@@ -695,12 +804,15 @@ function investmentCalendarCard(sym, name, hist) {
       const bcDisp = bcRaw.replace(/\s*\[closed\]/i, '').trim();
       const bcIso = ((/^(\d{4}-\d{2}-\d{2})/.exec(bcDisp) || [])[1]) || '';
       const fy = String(d.year || d.fiscal_year || '');
+      const annRaw = stripTags(d.announcement_date || d.announced || '');
+      const annIso = ((/^(\d{4}-\d{2}-\d{2})/.exec(annRaw) || [])[1]) || '';
       h += '<tr><td>' + esc(bonus === '–' ? '–' : bonus + ' %') + '</td>' +
         '<td>' + esc(cash === '–' ? '–' : cash + ' %') + '</td>' +
         '<td>' + esc(total === '–' ? '–' : total + ' %') + '</td>' +
         '<td>' + esc(bcDisp || '–') + '</td>' +
         '<td>' + esc(fy || '–') + '</td>' +
         '<td><span class="inv-cal-divstatus" data-bc="' + esc(bcIso) + '"' +
+        (annIso ? ' data-ann="' + esc(annIso) + '"' : '') +
         (bcMarkedClosed ? ' data-closed="1"' : '') + '></span></td></tr>\n';
     }
     h += '</tbody></table></div>\n';
@@ -811,10 +923,6 @@ function symbolPage(u, v, newsItems, fund, liveQ, liveDate, sector, sectorPeers,
   h += '<h1>' + esc(name) + ' (' + esc(sym) + ')</h1>\n';
   h += '<p class="asof">Data as of ' + esc(asofD) + ' · refreshed daily after market close</p></section>\n';
 
-  // Verdict Engine v2 warning banner — hydrated client-side from
-  // /data/verdicts-v2-summary.json (async, no first-paint cost).
-  h += '<div data-verdict-v2-banner data-sym="' + esc(sym) + '"></div>\n';
-
   // Price snapshot — hydrated live in the browser by /js/stock-live.js
   // (data-live-symbol), so the page stays fresh without rebuilds.
   h += '<section class="sp-snap" aria-label="Price snapshot" data-live-symbol="' + esc(sym) + '"><div class="sp-price-card">\n';
@@ -850,10 +958,9 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
   h += '<li><a href="/nepse-screener/">Ranked screener <span aria-hidden="true">→</span></a></li>';
   h += '</ul></div>';
   h += '<div class="sp-tabpanel" data-panel="signals" role="tabpanel" hidden>';
-  h += '<h2>Verdict Engine v2</h2>';
-  h += '<p class="sp-note">The warning radar checks this stock for danger signs — prices that shot up too fast, big sellers hiding behind excitement — and shows the proof. A warning tool, not buy/sell advice. Educational only.</p>';
-  h += '<div data-verdict-v2-banner data-sym="' + esc(sym) + '"></div>';
-  h += '<p class="sp-note"><a href="/nepse-verdicts-v2/">Open the full warning radar →</a></p>';
+  h += '<h2>Alpha Lab engine signals</h2>';
+  h += '<p class="sp-note">Transparent rule-based readings, one per timeframe. A daily Buy can be weak while the weekly read is stronger; each pill names its own timeframe and data date.</p>';
+  h += pill('Daily', v) + pill('Weekly', v && v.w) + pill('Monthly', v && v.m);
   h += '</div>';
   h += '<div class="sp-tabpanel" id="fundamentals" data-panel="fundamentals" role="tabpanel" hidden>';
   h += valLab(sym, name, sector, sectorPeers, quarterly, fund, { p: pNum, ch: cNum }, asofD);
@@ -943,11 +1050,15 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
   h += 'card.querySelectorAll("[data-inv-panel=\\"dividends\\"] .inv-cal-divstatus").forEach(function(el){';
   h += 'var bc=el.getAttribute("data-bc")||"";';
   h += 'if(el.getAttribute("data-closed")==="1"){el.innerHTML="<span class=\\"inv-pill inv-pill-closed\\">Closed</span>";return;}';
-  h += 'if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(bc)){el.textContent="\\u2013";return;}';
   h += 'var today="";try{today=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Kathmandu",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());}';
   h += 'catch(e){var kd=new Date(Date.now()+20700000);today=kd.getUTCFullYear()+"-"+("0"+(kd.getUTCMonth()+1)).slice(-2)+"-"+("0"+kd.getUTCDate()).slice(-2);}';
-  h += 'var closed=bc<today;';
-  h += 'el.innerHTML="<span class=\\"inv-pill "+(closed?"inv-pill-closed":"inv-pill-open")+"\\">"+(closed?"Closed":"Open")+"</span>";});';
+  h += 'if(/^\\d{4}-\\d{2}-\\d{2}$/.test(bc)){var closed=bc<today;';
+  h += 'el.innerHTML="<span class=\\"inv-pill "+(closed?"inv-pill-closed":"inv-pill-open")+"\\">"+(closed?"Closed":"Open")+"</span>";return;}';
+  h += 'var ann=el.getAttribute("data-ann")||"";';
+  h += 'if(/^\\d{4}-\\d{2}-\\d{2}$/.test(ann)){var ad=new Date(ann+"T00:00:00"),td=new Date(today+"T00:00:00");';
+  h += 'var daysOld=Math.floor((td-ad)/86400000);';
+  h += 'if(daysOld>=0&&daysOld<=365){el.innerHTML="<span class=\\"inv-pill inv-pill-open\\">Open</span>";return;}}';
+  h += 'el.textContent="\\u2013";});';
   h += 'render();});';
   h += '})();</scr' + 'ipt>';
   h += '</main>\n' + FOOT;
@@ -974,20 +1085,13 @@ function indexPage(symbols, asof) {
     '<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/nepse-decode-og.jpg">\n' +
     '<meta property="og:image:width" content="1200">\n' +
     '<meta property="og:image:height" content="630">\n' +
-    '<meta name="twitter:card" content="summary_large_image">\n' +
-    '<meta name="twitter:title" content="' + esc(title) + '">\n' +
-    '<meta name="twitter:description" content="' + esc(desc) + '">\n' +
-    '<meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">\n' +
     '<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">\n' +
     '<link rel="preconnect" href="https://fonts.googleapis.com">\n' +
     '<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">\n' +
-    '<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">\n' +
     '<link rel="stylesheet" href="/css/nepse-luxury.css?v=20260930c">\n' +
     '<link rel="stylesheet" href="/css/nepse-wave7.css?v=20261002c">\n' +
     '<link rel="stylesheet" href="/css/nepse-brand.css?v=20261003a">\n' +
     '<link rel="stylesheet" href="/css/nepse-wave8.css?v=20261003a">\n' +
-    '<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">\n' +
-    '<link rel="stylesheet" href="/css/nd-chrome.css?v=20261004a">\n' +
     '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>\n</head>\n' +
     RAIL + '<main id="main" class="wrap">\n' +
     '<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> / <span>Stocks</span></nav>\n' +
@@ -1078,32 +1182,16 @@ function main() {
   let liveDate = '';
   if (live && Array.isArray(live.quotes)) {
     for (const q of live.quotes) { if (q && q.symbol) liveMap[q.symbol] = q; }
-    liveDate = String(live.session_date || live.asof || '').slice(0, 10);
+    liveDate = String(live.asof || '').slice(0, 10);
   }
   const pageAsof = (liveDate && liveDate >= String((ver && ver.asof) || '')) ? liveDate : ((ver && ver.asof) || '');
   if (!universe || !universe.symbols || !ver || !ver.verdicts) {
     console.error('build-symbol-pages: missing universe/verdicts data');
     process.exit(1);
   }
-  // Sector peers are ALWAYS classified from the full universe, even in
-  // --symbol mode: filtering first left single-symbol rebuilds with an empty
-  // peer set and silently stripped the "Sector peer comparison" section
-  // (2026-10-08: KBSH/NMB pages degraded by --symbol rebuilds).
-  const allSymbols = universe.symbols.filter((u) => {
-    // Merger lifecycle exclusion: never generate pages for absorbed symbols
-    try {
-      const mtPath = path.join(__dirname, 'verdict-engine-v2', 'manual', 'merger-tracker.json');
-      if (fs.existsSync(mtPath)) {
-        const mt = JSON.parse(fs.readFileSync(mtPath, 'utf8'));
-        const absorbed = new Set((mt.completed_mergers || []).map((m) => m.absorbed));
-        if (absorbed.has(u.s)) return false;
-      }
-    } catch (e) { /* merger-tracker read failed, allow symbol */ }
-    return true;
-  });
   const symbols = onlySym
-    ? allSymbols.filter((u) => String(u.s).toUpperCase() === onlySym)
-    : allSymbols;
+    ? universe.symbols.filter((u) => String(u.s).toUpperCase() === onlySym)
+    : universe.symbols;
   const verdicts = ver.verdicts;
   const newsBySym = {};
   if (news && news.items) {
@@ -1117,7 +1205,7 @@ function main() {
   const scoreOf = (s) => { const e = verdicts[s]; const sc = e && e.s; return (sc === null || sc === undefined) ? -Infinity : Number(sc); };
   const sectorOf = {};
   const bySector = {};
-  for (const u of allSymbols) {
+  for (const u of symbols) {
     const sec = classifySymbol(u.s, u.n, u.t);
     sectorOf[u.s] = sec;
     if (sec) (bySector[sec] = bySector[sec] || []).push(u);
