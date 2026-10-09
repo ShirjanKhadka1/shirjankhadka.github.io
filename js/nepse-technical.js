@@ -50,7 +50,7 @@
     intraDir: '/nepse-chart/data/intraday/',
     intraIndex: '/nepse-chart/data/intraday-index.json'
   };
-  var UNIVERSE_V = '20261002b'; // bump when universe.json is rebuilt
+  var UNIVERSE_V = '20261008a'; // bump when universe.json is rebuilt
   var FUND_URL = '/nepse-chart/data/fundamentals.json';
   var TECHFUND_URL = '/nepse-chart/data/tech-fundamentals.json';
   var DIV_URL = '/nepse-chart/data/div-live.json';
@@ -345,11 +345,21 @@
       y1 == null ? '' : (y1 > 0 ? 'up' : (y1 < 0 ? 'down' : '')));
 
     // Fundamentals (quarterly archive) — honest "—" when the symbol is absent.
+    // P/E and P/BV are computed LIVE from the latest chart close so the ratios
+    // never go stale between quarterly refreshes; the stored file values are
+    // kept as fallback when EPS/book value is missing or non-positive.
     var f = !isIndex && fundCache ? fundCache[sym] : null;
-    setFund('nt-f-eps', f && isFinite(+f.eps_ttm) ? fmtNum(+f.eps_ttm) : '—');
-    setFund('nt-f-pe', f && isFinite(+f.pe_ttm) ? fmtNum(+f.pe_ttm) : '—');
-    setFund('nt-f-bv', t && isFinite(+t.book_value) ? fmtNum(+t.book_value) : '—');
-    setFund('nt-f-pbv', t && isFinite(+t.pbv) ? fmtNum(+t.pbv) : '—');
+    var px = last && isFinite(last[4]) && last[4] > 0 ? last[4] : null;
+    var eps = f && isFinite(+f.eps_ttm) ? +f.eps_ttm : null;
+    var peLive = (px != null && eps != null && eps > 0) ? px / eps : null;
+    var peStored = f && isFinite(+f.pe_ttm) ? +f.pe_ttm : null;
+    var bv = t && isFinite(+t.book_value) ? +t.book_value : null;
+    var pbvLive = (px != null && bv != null && bv > 0) ? px / bv : null;
+    var pbvStored = t && isFinite(+t.pbv) ? +t.pbv : null;
+    setFund('nt-f-eps', eps != null ? fmtNum(eps) : '—');
+    setFund('nt-f-pe', peLive != null ? fmtNum(peLive) : (peStored != null ? fmtNum(peStored) : '—'));
+    setFund('nt-f-bv', bv != null ? fmtNum(bv) : '—');
+    setFund('nt-f-pbv', pbvLive != null ? fmtNum(pbvLive) : (pbvStored != null ? fmtNum(pbvStored) : '—'));
     // Dividend history — latest declared dividend per symbol, with fiscal year.
     var dv = !isIndex && divCache && divCache[sym] ? divCache[sym] : null;
     var latest = null;
