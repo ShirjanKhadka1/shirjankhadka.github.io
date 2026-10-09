@@ -389,7 +389,7 @@ document.addEventListener('DOMContentLoaded', function(){
     var state=(st&&st.state)||'unknown';
     var sEl=$('d2State'); if(sEl) sEl.textContent=STATE_LABEL[state]||'—';
     var tEl=$('d2TopState'); if(tEl) tEl.textContent=STATE_LABEL[state]||'';
-    if(ix.value!=null) $('d2IdxVal').textContent=px(ix.value);
+    var vEl=$('d2IdxVal'); if(ix.value!=null&&vEl) vEl.textContent=px(ix.value);
     var chEl=$('d2IdxChg');
     if(ix.change!=null&&ix.pct!=null){
       var c=+ix.change, p=+ix.pct, cls=c>=0?'up':'down';
