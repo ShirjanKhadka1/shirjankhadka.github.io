@@ -34,6 +34,12 @@
 <link rel="stylesheet" href="/css/nd-chrome.css?v=20261006c">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">
 <style>
+/* Nav-consistency: hide legacy sidebar/topbar chrome. The standard
+   dark top nav is rendered into #nd-header by nd-chrome.js. */
+.nd-topbar, .nd-mobilenav, .nd-side { display: none !important; }
+.nd-shell { display: block !important; }
+</style>
+<style>
 .bk-tabs{display:flex;gap:4px;border-bottom:2px solid var(--hairline);margin:0 0 16px;flex-wrap:wrap;overflow-x:auto}
 .bk-tabs button{background:none;border:none;padding:10px 14px;color:var(--ink-soft);font-weight:600;font-size:.92rem;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;font-family:var(--sans)}
 .bk-tabs button.active{color:var(--green-900);border-bottom-color:var(--green-900)}
@@ -319,7 +325,6 @@ h2.bk-h{font-family:var(--serif);font-size:1.25rem;margin:20px 0 8px}
 <script src="../js/nepse-format.js?v=20261002c"></script>
 <script src="../js/nepse-data.js?v=20261003a"></script>
 <script src="../js/nepse-live.js?v=20261002c" defer></script>
-<script src="../js/nepse-suite.js?v=1075e635" defer></script>
 <script src="/js/company-logos.js" defer></script>
   <script src="/js/nepse-logos.js" defer></script>
 <script>
