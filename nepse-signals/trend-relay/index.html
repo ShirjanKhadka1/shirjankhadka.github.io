@@ -46,9 +46,17 @@
 <div class="sig-grid"><div class="sig-card up"><div class="sig-card-l">Annual return</div><div class="sig-card-v">3.19%</div></div><div class="sig-card "><div class="sig-card-l">Rs 1 Cr became</div><div class="sig-card-v">Rs 2.57 Cr</div></div><div class="sig-card "><div class="sig-card-l">Win rate</div><div class="sig-card-v">34.60%</div></div><div class="sig-card down"><div class="sig-card-l">Deepest fall</div><div class="sig-card-v">19.44%</div></div><div class="sig-card "><div class="sig-card-l">Profit factor</div><div class="sig-card-v">2.03</div></div><div class="sig-card "><div class="sig-card-l">Avg holding</div><div class="sig-card-v">33 days</div></div><div class="sig-card "><div class="sig-card-l">Charges paid</div><div class="sig-card-v">Rs 28.18 L</div></div><div class="sig-card down"><div class="sig-card-l">Alpha vs NEPSE</div><div class="sig-card-v">-8.32%</div></div></div>
 
 <section id="track-record" hidden>
-<h2>Live track record — real alerts, real outcomes</h2>
-<p class="sig-sub">Every alert this system has fired since live tracking began, scored against what actually happened. Windows roll forward daily; the backtest win rate above is history, this is the live ledger.</p>
+<h2>Live forward record — what the signals have actually produced</h2>
+<p class="sig-sub" id="track-sub">Every live Entry alert becomes a Rs 10 lakh paper trade at the signal close, scored against real forward OHLC. Loading…</p>
 <div class="sig-grid" id="track-grid"></div>
+<h3>Open paper positions</h3>
+<div class="scrollx"><table class="sig-table" id="track-open"><thead><tr>
+<th>Date</th><th>Symbol</th><th class="num">Entry</th><th class="num">Stop loss</th><th class="num">Trail stop</th><th class="num">Target 1</th><th class="num">Target 2</th><th class="num">Current</th><th class="num">Unrealized</th><th class="num">Sessions</th>
+</tr></thead><tbody><tr><td colspan="10">Loading…</td></tr></tbody></table></div>
+<h3>Closed paper trades — newest first</h3>
+<div class="scrollx"><table class="sig-table" id="track-closed"><thead><tr>
+<th>Symbol</th><th class="num">Entry date</th><th class="num">Exit date</th><th class="num">Entry</th><th class="num">Exit</th><th>Exit reason</th><th class="num">P&amp;L %</th><th class="num">Sessions</th>
+</tr></thead><tbody><tr><td colspan="8">Loading…</td></tr></tbody></table></div>
 </section>
 <div class="note"><strong>What the backtest says.</strong> This patient re-entry system compounded at 3.19% a year with the shallowest worst fall of the three (19.44%). It trades rarely (367 trades in 30.08 years) and wins 34.60% of them — a system for waiting, not for action.</div>
 
@@ -62,7 +70,8 @@
 <th>Date</th><th>Symbol</th><th>Alert</th><th>Entry</th><th>Stop loss</th><th>Trail stop</th><th>Target 1</th><th>Target 2</th><th>Current</th><th>Unrealized</th><th>Progress</th>
 </tr></thead><tbody><tr><td colspan="11">Loading…</td></tr></tbody></table></div>
 
-<h2>Trade profile</h2>
+<h2>Trade profile — backtest (historical simulation)</h2>
+<p class="sig-sub">Hypothetical replay of these exact rules on historical data — not trades anyone took. Real outcomes are in the Live forward record above.</p>
 <div class="scrollx"><table class="sig-table">
 <tr><th>Metric</th><th>Value</th><th>Metric</th><th>Value</th></tr>
 <tr><td>Total return</td><td><strong>156.98%</strong></td><td>Capital multiple</td><td><strong>&times;2.57</strong></td></tr>
@@ -81,8 +90,8 @@
 <h2>The rules (exactly as coded)</h2>
 <div class="rules"><ol><li>Setup: price below 50-day SMA for at least 20 of the last 30 sessions (was weak)</li><li>Trigger: 20-day SMA crosses above 50-day SMA with volume over 1.5 × 20-day average</li><li>Filter: 20-day avg turnover above Rs 10 lakh</li><li>Stop: 2 × ATR(14) below entry. Trail: 20-day SMA cross back below 50-day SMA, or 3 closes under the 50-day SMA</li><li>Targets: T1 = entry + 1.5 × risk, T2 = entry + 3 × risk (reference levels — not traded; see methodology)</li></ol></div>
 
-<h2>Closed history — finished trades</h2>
-<p class="sig-sub">Every finished trade this system took in the backtest, newest first. P&amp;L is after the same trading charges the backtest applies.</p>
+<h2>Closed history — backtest trades</h2>
+<p class="sig-sub">Every finished trade from the mechanical backtest replay, newest first — hypothetical, not live trades. The Live forward record above shows what the signals have produced since tracking began. P&amp;L is after the same trading charges the backtest applies.</p>
 <div class="scrollx"><table class="sig-table" id="closed"><thead><tr>
 <th>Symbol</th><th class="num">Entry date</th><th class="num">Exit date</th><th class="num">Entry price</th><th class="num">Exit price</th><th>Exit reason</th><th class="num">P&amp;L %</th><th class="num">Hold days</th>
 </tr></thead><tbody id="closed-body"><tr><td colspan="8">Loading trade history…</td></tr></tbody></table></div>
@@ -216,24 +225,49 @@
       ft.textContent=parts.length?parts.join(' · '):'Signal data';
       fr.hidden=false;
     }
-    /* live track record (hidden until the rebuild ships it) */
-    var tr=d.track_record;
-    if(tr){
-      var order=['m3','m6','m12','all'],html='';
-      order.forEach(function(k){
-        var w=tr[k];if(!w)return;
-        var wr=(w.win_rate_pct!=null&&isFinite(+w.win_rate_pct))?(+w.win_rate_pct).toFixed(1)+'%':'—';
-        var cls=(w.win_rate_pct!=null&&+w.win_rate_pct>=50)?'up':((w.win_rate_pct!=null)?'down':'');
-        var pnl=(w.total_pnl_rs!=null&&isFinite(+w.total_pnl_rs))?(' · P&L Rs '+Math.round(+w.total_pnl_rs).toLocaleString('en-US')):'';
-        html+='<div class="sig-card '+cls+'"><div class="sig-card-l">'+esc(w.label||k)+'</div>'+
-          '<div class="sig-card-v">'+wr+'</div>'+
-          '<div class="sig-card-s">'+esc(w.trades)+' trades · '+esc(w.wins)+' wins'+pnl+'</div></div>';
-      });
-      if(html){
-        document.getElementById('track-grid').innerHTML=html;
-        document.getElementById('track-record').hidden=false;
-      }
-    }
+    /* live forward record — paper trades from real signals (daily JSON, no rebuild needed) */
+    (function(){
+      var lr=d.live_track_record;
+      if(!lr||!lr.stats)return;
+      var s2=lr.stats,sec=document.getElementById('track-record');
+      var sub=document.getElementById('track-sub');
+      if(sub)sub.textContent='Forward-tracked since '+lr.tracking_started+' \u00b7 data through '+(s2.data_through||'\u2013')+'. Every live Entry alert becomes a Rs 10 lakh paper trade at the signal close; exits fire on real forward OHLC \u2014 Target 1, stop loss, a ratcheting trailing stop, or a 20-session time exit. P&L is net of 0.5% round-trip charges.';
+      function card(l,v,cls){return '<div class="sig-card '+cls+'"><div class="sig-card-l">'+l+'</div><div class="sig-card-v">'+v+'</div></div>';}
+      var bw=(s2.best_trade?s2.best_trade.symbol+' '+(s2.best_trade.pnl_pct>=0?'+':'')+s2.best_trade.pnl_pct+'%':'\u2013')+' / '+(s2.worst_trade?s2.worst_trade.symbol+' '+(s2.worst_trade.pnl_pct>=0?'+':'')+s2.worst_trade.pnl_pct+'%':'\u2013');
+      document.getElementById('track-grid').innerHTML=
+        card('Win rate',s2.win_rate_pct+'%',s2.win_rate_pct>=50?'up':'')+
+        card('Failure rate',s2.failure_rate_pct+'%',s2.failure_rate_pct>=50?'down':'')+
+        card('Closed trades',s2.closed_trades,'')+
+        card('Open now',s2.open_positions,'')+
+        card('Avg win','+'+s2.avg_win_pct+'%','up')+
+        card('Avg loss',s2.avg_loss_pct+'%','down')+
+        card('Profit factor',s2.profit_factor,'')+
+        card('Best / worst',esc(bw),'');
+      var otb=document.querySelector('#track-open tbody');
+      var opens=lr.open_positions||[];
+      otb.innerHTML=opens.length?opens.map(function(t){
+        var u=t.unrealized_pct>=0?'+'+t.unrealized_pct+'%':t.unrealized_pct+'%';
+        return '<tr><td>'+esc(t.entry_date)+'</td><td><strong>'+esc(t.symbol)+'</strong></td>'+
+        '<td class="num">'+fmtN(t.entry_price)+'</td><td class="num">'+fmtN(t.stop_loss)+'</td>'+
+        '<td class="num">'+fmtN(t.trail_stop)+'</td><td class="num">'+fmtN(t.target_1)+'</td>'+
+        '<td class="num">'+fmtN(t.target_2)+'</td><td class="num">'+fmtN(t.current_price)+'</td>'+
+        '<td class="num" style="color:var(--nd-'+(t.unrealized_pct>=0?'up':'down')+')">'+esc(u)+'</td>'+
+        '<td class="num">'+t.sessions_held+'</td></tr>';
+      }).join(''):'<tr><td colspan="10">No open paper positions right now.</td></tr>';
+      var ctb=document.querySelector('#track-closed tbody');
+      var closed=lr.recent_closed||[];
+      ctb.innerHTML=closed.length?closed.map(function(t){
+        var win=t.pnl_pct>=0,er=String(t.exit_reason||'');
+        var rp=win?'rp-win':(er.toLowerCase().indexOf('trail')>=0?'rp-trail':'rp-loss');
+        return '<tr><td><strong>'+esc(t.symbol)+'</strong></td>'+
+        '<td class="num">'+esc(t.entry_date)+'</td><td class="num">'+esc(t.exit_date)+'</td>'+
+        '<td class="num">'+fmtN(t.entry_price)+'</td><td class="num">'+fmtN(t.exit_price)+'</td>'+
+        '<td><span class="rpill '+rp+'">'+esc(er)+'</span></td>'+
+        '<td class="num" style="color:var(--nd-'+(win?'up':'down')+')"><strong>'+(win?'+':'')+t.pnl_pct.toFixed(2)+'%</strong></td>'+
+        '<td class="num">'+t.hold_sessions+'</td></tr>';
+      }).join(''):'<tr><td colspan="8">No closed paper trades yet \u2014 the ledger fills as real sessions elapse.</td></tr>';
+      sec.hidden=false;
+    })();
     /* alerts */
     var tb=document.querySelector('#alerts tbody');
     if(!d.alerts||!d.alerts.length){tb.innerHTML='<tr><td colspan="11">No open positions right now — the system is flat.</td></tr>';}
