@@ -13,6 +13,11 @@
  *   new_session=true|false   — is the newest data session >= expected?
  *   data_session=YYYY-MM-DD  — newest session actually present in the data
  *   expected=YYYY-MM-DD      — expected session per the trading calendar
+ *   source_session=YYYY-MM-DD|unknown — latest session per a direct probe of
+ *     the official NEPSE API (only probed when new_session=false)
+ *   source_reachable=true|false|unknown — did the probe reach NEPSE?
+ *   source_has_session=true|false — source published >= expected session.
+ *     true while new_session=false means BUILD/DATA FAILURE, not a holiday.
  */
 'use strict';
 const fs = require('fs');
@@ -38,7 +43,7 @@ function out(kv) {
   console.log(kv);
 }
 
-function main() {
+async function main() {
   const argSession = (process.argv.find(a => a.startsWith('--session=')) || '').split('=')[1];
   const expected = argSession || td.expectedSessionDate(new Date());
   const live = readData('live.json');
@@ -50,12 +55,50 @@ function main() {
   out('expected=' + expected);
   out('data_session=' + dataSession);
   out('new_session=' + newSession);
+  // 2026-10-09 hardening: on 2026-10-08 the pipeline recorded a quiet
+  // "market closed" notice for a REAL trading day. Root cause: the
+  // auto-rollback had reverted the built files to the previous session, so
+  // the file-based check above saw "no new session" even though NEPSE had
+  // published one. Before callers conclude "market closed", probe the
+  // official NEPSE API directly: if the SOURCE has the expected session but
+  // our build does not, that is a build/data failure, not a holiday.
+  let sourceSession = 'unknown';
+  let sourceReachable = 'unknown';
   if (!newSession) {
-    console.log('NOTE: no new session at the source — likely a market closure ' +
-      '(e.g. an unlisted holiday missing from tools/nepse-holidays.json). ' +
-      'This is NOT a data failure; callers should treat the day as market closed.');
+    try {
+      const api = require('./nepse-api');
+      const rows = await api.apiFetch('GET', '/api/nots/nepse-index');
+      sourceReachable = 'true';
+      let latest = '';
+      for (const r of Array.isArray(rows) ? rows : []) {
+        const g = String((r && (r.generatedTime || r.generated_time)) || '').slice(0, 10);
+        if (/^\d{4}-\d{2}-\d{2}$/.test(g) && g > latest) latest = g;
+      }
+      if (latest) sourceSession = latest;
+      console.log(`source probe: reachable, latest source session=${sourceSession}`);
+    } catch (e) {
+      // Best-effort only: network/DNS failure here must NOT change the
+      // outcome — callers keep the previous quiet-notice behavior.
+      sourceReachable = 'false';
+      console.log('source probe failed (' + (e && e.message) + ') — keeping file-based verdict');
+    }
+  }
+  const sourceHasSession = sourceSession !== 'unknown' && sourceSession >= expected;
+  out('source_session=' + sourceSession);
+  out('source_reachable=' + sourceReachable);
+  out('source_has_session=' + sourceHasSession);
+  if (!newSession) {
+    if (sourceHasSession) {
+      console.log('ALERT: the source published session ' + sourceSession +
+        ' but the build captured nothing newer than ' + dataSession +
+        ' — this is a BUILD/DATA failure, not a market closure.');
+    } else {
+      console.log('NOTE: no new session at the source — likely a market closure ' +
+        '(e.g. an unlisted holiday missing from tools/nepse-holidays.json). ' +
+        'This is NOT a data failure; callers should treat the day as market closed.');
+    }
   }
 }
 
-if (require.main === module) main();
+if (require.main === module) main().catch((e) => { console.error(e); process.exit(1); });
 module.exports = {};
