@@ -218,6 +218,7 @@ h2.bk-h{font-size:1.35rem;margin:34px 0 8px;color:var(--nd-text,#fff);letter-spa
 
 <div class="ctl" id="viewControls" style="display:none">
 <select id="brokerSel"><option value="">Select broker…</option></select>
+<input id="brokerSymSearch" placeholder="Search symbol…" aria-label="Search symbols in this broker's list" style="display:none">
 <select id="symbolSel" style="display:none"><option value="">Select stock…</option></select>
 <input id="symbolSearch" placeholder="Search symbol…" style="display:none">
 </div>
@@ -233,7 +234,7 @@ h2.bk-h{font-size:1.35rem;margin:34px 0 8px;color:var(--nd-text,#fff);letter-spa
 (function(){
 "use strict";
 var BASE = '/nepse-brokers/data/';
-var state = { view: 'top', period: 'latest', data: null, brokers: {}, meta: null, asof: null, symbol: null, broker: null, topPage: 0, holdPage: 0 };
+var state = { view: 'top', period: 'latest', data: null, brokers: {}, meta: null, asof: null, symbol: null, broker: null, topPage: 0, holdPage: 0, brkPage: 0, brkQuery: '' };
 var $ = function(id){ return document.getElementById(id); };
 
 /* ---------- URL-backed state (replaceState; no history spam) ---------- */
@@ -355,13 +356,24 @@ function renderTop(d){
 function renderBroker(d){
   var code = $('brokerSel').value;
   if(!code) return '<div class="cover">Pick a broker above to see what it traded.</div>';
-  var syms = (d.broker_symbols && d.broker_symbols[code]) || [];
+  var allSyms = (d.broker_symbols && d.broker_symbols[code]) || [];
+  var q = (state.brkQuery||'').trim().toUpperCase();
+  var syms = q ? allSyms.filter(function(s){ return s.symbol.toUpperCase().indexOf(q) >= 0; }) : allSyms;
   var t = d.brokers.filter(function(b){return b.code===code})[0] || {};
-  var rows = syms.map(function(s){
+  var PER_PAGE = 10;
+  var totalPages = Math.max(1, Math.ceil(syms.length / PER_PAGE));
+  if (state.brkPage >= totalPages) state.brkPage = totalPages - 1;
+  if (state.brkPage < 0) state.brkPage = 0;
+  var start = state.brkPage * PER_PAGE;
+  var rows = syms.slice(start, start + PER_PAGE).map(function(s){
     var net = s.buy_value - s.sell_value;
     return '<tr><td><strong>'+s.symbol+'</strong></td><td>'+fmtQ(s.buy_qty,s.buy_value)+'</td><td>'+fmtV(s.buy_value)+'</td>'+
       '<td>'+fmtQ(s.sell_qty,s.sell_value)+'</td><td>'+fmtV(s.sell_value)+'</td><td class="'+cls(net)+'">'+fmtV(net)+'</td></tr>';
   }).join('');
+  var pager = '<div class="bk-pager" style="display:flex;gap:8px;align-items:center;justify-content:center;margin:12px 0;">'+
+    '<button id="brPrev" '+(state.brkPage===0?'disabled':'')+' style="padding:6px 14px;border-radius:8px;cursor:pointer;">← Prev</button>'+
+    '<span style="font-size:.85rem;">Page '+(state.brkPage+1)+' of '+totalPages+' ('+syms.length+(q?' of '+allSyms.length:'')+' stocks)</span>'+
+    '<button id="brNext" '+(state.brkPage>=totalPages-1?'disabled':'')+' style="padding:6px 14px;border-radius:8px;cursor:pointer;">Next →</button></div>';
   return '<h2 class="bk-h">'+bname(code)+' — trade pattern, '+label()+'</h2>'+
     '<div class="stat-row">'+
     '<div class="stat"><div class="l">Buy volume</div><div class="v">'+fmtQ(t.buy_qty,t.buy_value)+'</div></div>'+
@@ -370,8 +382,8 @@ function renderBroker(d){
     '<div class="stat"><div class="l">Sell value</div><div class="v">'+fmtV(t.sell_value||0)+'</div></div>'+
     '<div class="stat"><div class="l">Net volume</div><div class="v '+cls((t.buy_qty||0)-(t.sell_qty||0))+'">'+fmtQ((t.buy_qty||0)-(t.sell_qty||0),Math.abs((t.buy_value||0)-(t.sell_value||0)))+'</div></div>'+
     '<div class="stat"><div class="l">Net value</div><div class="v '+cls((t.buy_value||0)-(t.sell_value||0))+'">'+fmtV((t.buy_value||0)-(t.sell_value||0))+'</div></div>'+
-    '<div class="stat"><div class="l">Stocks traded</div><div class="v">'+syms.length+'</div></div></div>'+
-    '<div class="scrollx" tabindex="0" role="region" aria-label="Broker stock detail table"><table class="bk-table"><thead><tr><th>Symbol</th><th>Buy qty</th><th>Buy value</th><th>Sell qty</th><th>Sell value</th><th>Net value</th></tr></thead><tbody>'+(rows||'<tr><td colspan="6">No trades in this period.</td></tr>')+'</tbody></table></div>';
+    '<div class="stat"><div class="l">Stocks traded</div><div class="v">'+allSyms.length+'</div></div></div>'+
+    '<div class="scrollx" tabindex="0" role="region" aria-label="Broker stock detail table"><table class="bk-table"><thead><tr><th>Symbol</th><th>Buy qty</th><th>Buy value</th><th>Sell qty</th><th>Sell value</th><th>Net value</th></tr></thead><tbody>'+(rows||'<tr><td colspan="6">'+(q?'No symbols match "'+q+'".':'No trades in this period.')+'</td></tr>')+'</tbody></table></div>'+pager;
 }
 
 function symbolOptions(d){
@@ -528,6 +540,14 @@ function render(){
   var hp = $('hdPrev'), hn = $('hdNext');
   if (hp) hp.addEventListener('click', function(){ if(state.holdPage>0){ state.holdPage--; render(); } });
   if (hn) hn.addEventListener('click', function(){ state.holdPage++; render(); });
+  var rp = $('brPrev'), rn = $('brNext');
+  if (rp) rp.addEventListener('click', function(){ if(state.brkPage>0){ state.brkPage--; render(); } });
+  if (rn) rn.addEventListener('click', function(){ state.brkPage++; render(); });
+  var bsq = $('brokerSymSearch');
+  if (bsq){
+    if (bsq.value !== (state.brkQuery||'')) bsq.value = state.brkQuery||'';
+    bsq.oninput = function(){ state.brkQuery = this.value; state.brkPage = 0; render(); };
+  }
   syncURL();
 }
 
@@ -535,6 +555,7 @@ function syncControls(){
   var v = state.view;
   $('viewControls').style.display = (v==='top'||v==='accdist') ? 'none' : 'flex';
   $('brokerSel').style.display = v==='broker' ? '' : 'none';
+  $('brokerSymSearch').style.display = v==='broker' ? '' : 'none';
   var showSym = (v==='stock'||v==='holdings');
   $('symbolSel').style.display = showSym ? '' : 'none';
 }
@@ -547,7 +568,7 @@ $('viewTabs').addEventListener('click', function(e){
 $('periodBar').addEventListener('click', function(e){
   var b = e.target.closest('button'); if(!b) return;
   document.querySelectorAll('#periodBar button').forEach(function(x){x.classList.remove('active')});
-  b.classList.add('active'); state.period = b.dataset.p; state.asof = null; state.holdPage = 0; $('asofDate').value='';
+  b.classList.add('active'); state.period = b.dataset.p; state.asof = null; state.holdPage = 0; state.brkPage = 0; state.brkQuery = ''; $('asofDate').value='';
   // Selections live in state and are restored by render() — never wipe them here.
   syncURL();
   loadPeriod();
@@ -560,7 +581,7 @@ $('asofDate').addEventListener('change', function(e){
   syncURL();
   loadPeriod();
 });
-$('brokerSel').addEventListener('change', function(){ state.broker = this.value || null; syncURL(); render(); });
+$('brokerSel').addEventListener('change', function(){ state.broker = this.value || null; state.brkPage = 0; state.brkQuery = ''; syncURL(); render(); });
 $('symbolSel').addEventListener('change', function(){ state.symbol = this.value || null; state.holdPage = 0; syncURL(); render(); });
 
 initFromURL();
