@@ -391,11 +391,11 @@ document.addEventListener('DOMContentLoaded', function(){
     var tEl=$('d2TopState'); if(tEl) tEl.textContent=STATE_LABEL[state]||'';
     var vEl=$('d2IdxVal'); if(ix.value!=null&&vEl) vEl.textContent=px(ix.value);
     var chEl=$('d2IdxChg');
-    if(ix.change!=null&&ix.pct!=null){
+    if(chEl&&ix.change!=null&&ix.pct!=null){
       var c=+ix.change, p=+ix.pct, cls=c>=0?'up':'down';
       chEl.innerHTML='<span class="'+cls+'">'+sPx(c)+' ('+pc(p)+')</span>';
       chEl.className='d2-hero-badge '+cls;
-    } else { chEl.textContent='—'; }
+    } else if(chEl){ chEl.textContent='—'; }
     var f2=function(v){return v==null||!isFinite(+v)||+v<=0?'—':px(+v);}; // 0 never a valid level
     if($('d2DayO'))$('d2DayO').textContent=f2(ix.open);
     if($('d2DayH'))$('d2DayH').textContent=f2(ix.high);
