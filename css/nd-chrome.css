@@ -265,6 +265,15 @@ body:has(> #nd-header) .theme-toggle.fixed{ display: none !important; }
   display: block; padding: 7px 0; color: var(--nd-muted);
   font: 400 var(--nd-text-footer-link) var(--nd-font-sans);
 }
+#nd-footer .nd-fb{
+  display: flex; align-items: center; gap: 8px; padding: 7px 0;
+  color: var(--nd-muted); text-decoration: none;
+  font: 400 var(--nd-text-footer-link) var(--nd-font-sans);
+  transform: translateX(0);
+  transition: color var(--nd-t-fast) var(--nd-ease), transform var(--nd-t-fast) var(--nd-ease);
+}
+#nd-footer .nd-fb svg{ width: 16px; height: 16px; fill: currentColor; flex: none; }
+#nd-footer .nd-fb:hover{ color: var(--nd-lime); transform: translateX(4px); }
 #nd-footer .nd-made{ padding-top: var(--nd-s6); color: var(--nd-muted); font-size: 0.8125rem; line-height: 1.7; }
 #nd-footer .nd-made .np{ color: var(--nd-dim); }
 #nd-footer .nd-legal{

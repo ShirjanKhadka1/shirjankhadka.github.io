@@ -69,6 +69,9 @@
 
   var LOGO_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Nepse Decode iceberg mark"><rect width="64" height="64" rx="14" fill="#013E2E"/><polygon points="32,9 21,25 43,25" fill="#FFFFFF"/><polygon points="32,9 37,25 27,25" fill="#EEF2EF"/><polygon points="13,27.5 51,27.5 45,42 32,57 21,45 15,37" fill="#FFFFFF"/><polygon points="13,27.5 27,27.5 21,45 15,37" fill="#D6DDD9"/><polygon points="51,27.5 45,42 38,27.5" fill="#C6CECA"/><polygon points="32,57 45,42 36,40 28,49" fill="#E4E9E6"/><polygon points="21,45 32,57 28,49 24,44" fill="#D6DDD9"/><rect x="4" y="25" width="56" height="2.5" fill="#013E2E"/></svg>';
 
+  var FB_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Facebook"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>';
+  var FB_URL = 'https://www.facebook.com/nepsedecode.np';
+
   /* ---------------- utils ---------------- */
 
   function esc(s) {
@@ -253,13 +256,14 @@
     ['NEWS', [['Market News', '/nepse-news/'], ['Market Wrap', '/blog/'], ['Corporate Actions', '/nepse-actions/']]],
     ['TRADE', [['Practice Trading', '/nepse-simulator/'], ['Trading Journal', '/nepse-portfolio/'], ['Watchlist', '/nepse-watchlist/']]],
     ['RESEARCH', [['Money Flow', '/nepse-money-flow/'], ['Market regime', '/nepse-regime/'], ['Seasonality', '/nepse-seasonality/']]],
-    ['COMPANY', [['Nepse Decode', '/nepse-decode/'], ['info@shirjankhadka.com.np', 'mailto:info@shirjankhadka.com.np'], ['Kathmandu, Nepal', null]]]
+    ['COMPANY', [['Nepse Decode', '/nepse-decode/'], ['__FB__', null], ['info@shirjankhadka.com.np', 'mailto:info@shirjankhadka.com.np'], ['Kathmandu, Nepal', null]]]
   ];
 
   function footerHTML() {
     var cols = FOOT.map(function (c) {
       return '<div class="nd-footcol"><h3>' + esc(c[0]) + '</h3>' +
         c[1].map(function (l) {
+          if (l[0] === '__FB__') return '<a class="nd-fb" href="' + FB_URL + '" target="_blank" rel="noopener" title="Follow Nepse Decode on Facebook">' + FB_SVG + '<span>Nepse Decode</span></a>';
           if (!l[1]) return '<span class="nd-footplain">' + esc(l[0]) + '</span>';
           return '<a href="' + esc(l[1]) + '">' + esc(l[0]) + '</a>';
         }).join('') +
