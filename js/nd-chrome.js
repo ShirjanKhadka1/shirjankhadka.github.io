@@ -277,16 +277,16 @@
       '<span class="nd-footchip" id="nd-footsyms">LISTED SECURITIES</span>' +
       '</div>' +
       '<div class="nd-footgrid">' + cols + '</div>' +
-      '<div class="nd-made">Made with \u2665 in Nepal for NEPSE investors.<br>' +
-      '<span class="np">नेप्से चार्ट, नेप्से इन्डेक्स आज, र शेयर बजारको दैनिक सारांश एकै ठाउँमा।</span></div>' +
+      '<div class="nd-made">' +
+      '<span>Made with \u2665 in Nepal for NEPSE investors.<br>' +
+      '<span class="np">नेप्से चार्ट, नेप्से इन्डेक्स आज, र शेयर बजारको दैनिक सारांश एकै ठाउँमा।</span></span>' +
+      '<a class="nd-fb" href="' + FB_URL + '" target="_blank" rel="noopener" title="Follow Nepse Decode on Facebook">' + FB_SVG + '<span>Nepse Decode</span></a>' +
+      '</div>' +
       '<div class="nd-legal">' +
       '<span>© 2026 Nepse Decode \u00B7 Shirjan Khadka \u00B7 info@shirjankhadka.com.np</span>' +
       '<span>For education only. Not investment advice.</span>' +
       '<span>Not affiliated with Nepal Stock Exchange Ltd.</span>' +
-      '<span class="nd-legal-right">' +
-      '<a class="nd-fb" href="' + FB_URL + '" target="_blank" rel="noopener" title="Follow Nepse Decode on Facebook">' + FB_SVG + '<span>Nepse Decode</span></a>' +
       '<button class="nd-totop nd-focusable" id="nd-totop">Back to top \u2191</button>' +
-      '</span>' +
       '</div>' +
       '</footer>';
   }

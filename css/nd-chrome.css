@@ -274,10 +274,11 @@ body:has(> #nd-header) .theme-toggle.fixed{ display: none !important; }
 }
 #nd-footer .nd-fb svg{ width: 16px; height: 16px; fill: currentColor; flex: none; }
 #nd-footer .nd-fb:hover{ color: var(--nd-lime); transform: translateX(4px); }
-#nd-footer .nd-legal-right{ display: inline-flex; align-items: center; gap: 16px; margin-left: auto; }
-#nd-footer .nd-legal .nd-fb{ padding: 4px 0; font-size: 0.8rem; }
-#nd-footer .nd-legal .nd-fb:hover{ transform: none; }
-#nd-footer .nd-made{ padding-top: var(--nd-s6); color: var(--nd-muted); font-size: 0.8125rem; line-height: 1.7; }
+#nd-footer .nd-made{
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--nd-s2) var(--nd-s6); padding-top: var(--nd-s6);
+  color: var(--nd-muted); font-size: 0.8125rem; line-height: 1.7;
+}
 #nd-footer .nd-made .np{ color: var(--nd-dim); }
 #nd-footer .nd-legal{
   display: flex; flex-wrap: wrap; gap: var(--nd-s2) var(--nd-s6);
