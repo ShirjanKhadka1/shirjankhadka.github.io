@@ -35,7 +35,7 @@
        uppercase letterspaced items, dot separators, hairline rules, infinite
        marquee. Rendered by /js/nepse-ticker.js from the validated NepseData
        snapshot; the wrap stays hidden until real data arrives. */
-    .index-ticker-wrap { margin: 8px 0 0; }
+    .index-ticker-wrap { margin: 8px 0 0; min-width: 0; overflow: hidden; grid-column: 1 / -1; }
     .index-ticker-wrap[hidden] { display: none; }
     .index-ticker {
       overflow: hidden; background: var(--white);
