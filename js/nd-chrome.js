@@ -256,14 +256,13 @@
     ['NEWS', [['Market News', '/nepse-news/'], ['Market Wrap', '/blog/'], ['Corporate Actions', '/nepse-actions/']]],
     ['TRADE', [['Practice Trading', '/nepse-simulator/'], ['Trading Journal', '/nepse-portfolio/'], ['Watchlist', '/nepse-watchlist/']]],
     ['RESEARCH', [['Money Flow', '/nepse-money-flow/'], ['Market regime', '/nepse-regime/'], ['Seasonality', '/nepse-seasonality/']]],
-    ['COMPANY', [['Nepse Decode', '/nepse-decode/'], ['__FB__', null], ['info@shirjankhadka.com.np', 'mailto:info@shirjankhadka.com.np'], ['Kathmandu, Nepal', null]]]
+    ['COMPANY', [['Nepse Decode', '/nepse-decode/'], ['info@shirjankhadka.com.np', 'mailto:info@shirjankhadka.com.np'], ['Kathmandu, Nepal', null]]]
   ];
 
   function footerHTML() {
     var cols = FOOT.map(function (c) {
       return '<div class="nd-footcol"><h3>' + esc(c[0]) + '</h3>' +
         c[1].map(function (l) {
-          if (l[0] === '__FB__') return '<a class="nd-fb" href="' + FB_URL + '" target="_blank" rel="noopener" title="Follow Nepse Decode on Facebook">' + FB_SVG + '<span>Nepse Decode</span></a>';
           if (!l[1]) return '<span class="nd-footplain">' + esc(l[0]) + '</span>';
           return '<a href="' + esc(l[1]) + '">' + esc(l[0]) + '</a>';
         }).join('') +
@@ -284,7 +283,10 @@
       '<span>© 2026 Nepse Decode \u00B7 Shirjan Khadka \u00B7 info@shirjankhadka.com.np</span>' +
       '<span>For education only. Not investment advice.</span>' +
       '<span>Not affiliated with Nepal Stock Exchange Ltd.</span>' +
+      '<span class="nd-legal-right">' +
+      '<a class="nd-fb" href="' + FB_URL + '" target="_blank" rel="noopener" title="Follow Nepse Decode on Facebook">' + FB_SVG + '<span>Nepse Decode</span></a>' +
       '<button class="nd-totop nd-focusable" id="nd-totop">Back to top \u2191</button>' +
+      '</span>' +
       '</div>' +
       '</footer>';
   }
