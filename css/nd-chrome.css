@@ -158,6 +158,17 @@ html, body{ overflow-x: clip; }
   #nd-header .nd-iconbtn{ width: 34px; height: 34px; }
   #nd-header .nd-lang button{ height: 32px; padding: 0 9px; }
   #nd-header .nd-pill{ height: 32px; padding: 0 10px; }
+  /* MOBILE SEARCH FIT (2026-10-10): let the search box shrink instead of forcing
+     min-width:180px (which caused 33px horizontal overflow). The results
+     dropdown goes full-width under the header so options are unmissable and
+     never cut off-screen. */
+  #nd-header .nd-search{ flex: 1 1 auto; min-width: 0; max-width: none; }
+  #nd-header .nd-search input{ height: 34px; padding: 0 12px 0 34px; }
+  #nd-header .nd-results{
+    position: fixed; top: calc(var(--nd-header-h, 60px) + 6px);
+    left: 16px; right: 16px;
+    min-width: 0; width: auto; max-width: none;
+  }
 }
 #nd-scrim{
   position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 39;

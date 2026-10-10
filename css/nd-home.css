@@ -208,6 +208,11 @@ body.d2 input:focus-visible {
 .nd-moves-grid{ display: grid; grid-template-columns: 1fr 1fr; gap: var(--nd-s5); }
 @media (max-width: 900px){ .nd-moves-grid{ grid-template-columns: 1fr; } }
 .nd-movecard{ background: var(--nd-panel); border: 1px solid var(--nd-border); border-radius: var(--nd-r-lg); overflow: hidden; }
+/* MOVERS SCROLL (2026-10-10): long symbols (e.g. NIFRAUR85/86) squeezed the
+   turnover column out of view. Let the card scroll horizontally when the table
+   needs more room; min-width keeps every column readable. */
+.nd-movecard{ overflow-x: auto; }
+.nd-movecard table{ min-width: 440px; }
 .nd-movecard-head{ display: flex; justify-content: space-between; align-items: center; padding: var(--nd-s5) var(--nd-s6); border-bottom: 1px solid var(--nd-border); }
 .nd-movecard-head h3{ font-family: var(--nd-font-display); font-weight: 600; font-size: 1.25rem; color: var(--nd-text); margin: 0; }
 .nd-movecard-head .date{ font: 400 0.8125rem var(--nd-font-mono); color: var(--nd-dim); }
