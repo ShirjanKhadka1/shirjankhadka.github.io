@@ -1202,13 +1202,23 @@ body.loaded .hero-title {
 .mag-row h4 { font-family: "Spectral", Georgia, serif; font-weight: 600; font-size: 18px; line-height: 1.35; margin-bottom: 6px; }
 .mag-row:hover h4 { color: var(--accent); }
 .mag-row .mag-meta { font-size: 12px; }
-.mag-topics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; align-items: start; }
+.mag-topics { display: block; }
+.mag-topic { margin-bottom: 36px; }
+.mag-topic-carousel { display: flex; gap: 24px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 12px; scrollbar-width: thin; }
+.mag-topic-carousel .mag-card { flex: 0 0 calc(33.333% - 16px); min-width: 280px; scroll-snap-align: start; }
+.mag-topic-carousel .mag-row { display: flex; flex-direction: column; flex: 0 0 calc(33.333% - 16px); min-width: 280px; scroll-snap-align: start; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; text-decoration: none; color: inherit; }
+.mag-topic-carousel .mag-row img { width: 100%; height: 180px; object-fit: cover; flex: none; }
+.mag-topic-carousel .mag-row > div { padding: 16px; }
+.mag-topic-carousel .mag-row h4 { font-family: "Spectral", Georgia, serif; font-weight: 600; font-size: 18px; line-height: 1.35; margin-bottom: 8px; color: var(--text); }
+.mag-topic-carousel::after { content: "→"; flex: 0 0 auto; align-self: center; font-size: 24px; color: var(--secondary); padding: 0 8px; }
 .mag-topic > h3 { font-family: "Spectral", Georgia, serif; font-weight: 600; font-size: 22px; padding-bottom: 10px; border-bottom: 2px solid var(--text); margin-bottom: 6px; }
 .mag-topic .mag-row { grid-template-columns: 96px 1fr; padding: 14px 0; }
 .mag-topic .mag-row img { width: 96px; height: 72px; }
 .mag-topic .mag-row h4 { font-size: 16px; }
 /* Company analysis section: dedicated band for stock breakdowns */
-.mag-analysis-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; align-items: start; }
+.mag-analysis-grid { display: flex; gap: 28px; align-items: stretch; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 12px; scrollbar-width: thin; }
+.mag-analysis-grid .mag-card { flex: 0 0 calc(33.333% - 19px); min-width: 280px; scroll-snap-align: start; }
+.mag-analysis-grid::after { content: "→"; flex: 0 0 auto; align-self: center; font-size: 24px; color: var(--secondary); padding: 0 8px; }
 .mag-card { display: block; text-decoration: none; color: inherit; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; transition: transform .3s var(--ease), box-shadow .3s var(--ease); }
 .mag-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
 .mag-card .mag-fimg { border-radius: 0; aspect-ratio: 16/10; }
@@ -1227,8 +1237,8 @@ body.loaded .hero-title {
 .mag-start-item p { color: var(--secondary); font-size: 15px; }
 @media (max-width: 960px) {
   .mag-lead { grid-template-columns: 1fr; }
-  .mag-topics { grid-template-columns: 1fr; gap: 28px; }
-  .mag-analysis-grid { grid-template-columns: 1fr; }
+  .mag-analysis-grid .mag-card { flex: 0 0 85%; min-width: 0; }
+  .mag-topic-carousel .mag-row { flex: 0 0 85%; min-width: 0; }
   .mag-start { grid-template-columns: 1fr; gap: 24px; }
   .mag-featured h3 { font-size: 28px; }
 }
