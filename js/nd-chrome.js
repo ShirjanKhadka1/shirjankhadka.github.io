@@ -265,7 +265,7 @@
         }).join('') +
         '</div>';
     }).join('');
-    return '<div class="nd-footwrap">' +
+    return '<footer class="nd-footwrap">' +
       '<div class="nd-footbrand">' + LOGO_SVG + '<span class="t">Nepse Decode</span></div>' +
       '<p class="nd-footstate">NEPSE charts, the index today, and a daily market summary — in English and नेपाली, built for Nepal\u2019s investors at home and abroad.</p>' +
       '<div class="nd-footchips">' +
@@ -282,7 +282,7 @@
       '<span>Not affiliated with Nepal Stock Exchange Ltd.</span>' +
       '<button class="nd-totop nd-focusable" id="nd-totop">Back to top \u2191</button>' +
       '</div>' +
-      '</div>';
+      '</footer>';
   }
 
   /* ---------------- search ---------------- */
