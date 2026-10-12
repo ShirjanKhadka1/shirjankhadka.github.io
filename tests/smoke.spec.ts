@@ -149,13 +149,19 @@ test('SSR session dates match the manifest session date', async ({ request, brow
   for (const p of PAGES) {
     await page.goto(p, { waitUntil: 'domcontentloaded', timeout: 60000 });
     const html = await page.content();
-    // strip client-rendered badge output: only the raw SSR HTML counts
+    // strip client-rendered badge output: only the raw SSR HTML counts.
+    // The freshness badge div can carry extra attributes/classes in any
+    // order (e.g. <div class="sig-fresh" data-freshness-badge> on
+    // /nepse-brokers/), so match the attribute anywhere inside the tag —
+    // a first-attribute-only pattern leaves the badge un-stripped and the
+    // gate flaps whenever live.session_date != manifest.session_date
+    // (every trading day during market hours; fixed 2026-10-12).
     // (#coverage is filled by page JS from the page's own data file — an
     // honest data-vintage label like "Data as of 2026-10-02", tracked by the
     // freshness system — not an SSR session marker; without this strip the
     // gate flaps depending on whether the data fetch beat domcontentloaded)
     const ssr = html
-      .replace(/<div data-freshness-badge[\s\S]*?<\/div>/g, '')
+      .replace(/<div[^>]*\sdata-freshness-badge[^>]*>[\s\S]*?<\/div>/g, '')
       .replace(/<div[^>]*\sid="coverage"[\s\S]*?<\/div>/g, '');
     let found: string | null = null;
     for (const re of patterns) {
