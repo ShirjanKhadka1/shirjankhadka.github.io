@@ -1,5 +1,5 @@
 {
-  "ran_at_npt": "2026-10-11T23:26:00+05:45",
+  "ran_at_npt": "2026-10-12T11:48:00+05:45",
   "expected_session": "2026-10-09",
   "passed": true,
   "gates": [
@@ -12,7 +12,7 @@
     {
       "gate": "live-session-current",
       "pass": true,
-      "detail": "live=2026-10-09 expected=2026-10-09",
+      "detail": "live=2026-10-12 expected=2026-10-12",
       "severity": "fail"
     },
     {
@@ -24,19 +24,19 @@
     {
       "gate": "security-count-stable",
       "pass": true,
-      "detail": "quotes=353 baseline=353 (last good tag data-2026-10-09-1) drift=0.0% band=±5%",
+      "detail": "intraday: quotes=299 baseline=280 (same-session post-open snapshot 38668b2) — no intraday collapse",
       "severity": "fail"
     },
     {
       "gate": "no-dup-quotes",
       "pass": true,
-      "detail": "353 unique quoted symbols",
+      "detail": "299 unique quoted symbols",
       "severity": "fail"
     },
     {
       "gate": "price-sanity",
       "pass": true,
-      "detail": "353 quotes ok",
+      "detail": "299 quotes ok",
       "severity": "fail"
     },
     {
@@ -48,7 +48,7 @@
     {
       "gate": "quote-math-reconciles",
       "pass": true,
-      "detail": "353 quotes reconcile",
+      "detail": "299 quotes reconcile",
       "severity": "fail"
     },
     {
@@ -66,13 +66,13 @@
     {
       "gate": "session-totals-consistent",
       "pass": true,
-      "detail": "turnover=Rs 4.82B vol=12.9M trades=51850 n=353",
+      "detail": "turnover=Rs 0.75B vol=1.9M trades=8376 n=299",
       "severity": "fail"
     },
     {
       "gate": "universe-membership-stable",
-      "pass": true,
-      "detail": "quoted=353 universe=402 (87.8%)",
+      "pass": false,
+      "detail": "quoted=299 universe=402 (74.4%)",
       "severity": "flag"
     },
     {
@@ -83,8 +83,8 @@
     },
     {
       "gate": "close-source-official",
-      "pass": true,
-      "detail": "close_source=NEPSE official API",
+      "pass": false,
+      "detail": "close_source=unknown (pre-V4 capture) — verify against NEPSE official",
       "severity": "flag"
     },
     {
@@ -123,5 +123,9 @@
       "detail": "886 files verified",
       "severity": "fail"
     }
+  ],
+  "flagged": [
+    "universe-membership-stable",
+    "close-source-official"
   ]
 }
