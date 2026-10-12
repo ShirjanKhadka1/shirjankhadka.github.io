@@ -37,7 +37,9 @@ const FEEDS = [
   { src: 'BizMandu', url: 'https://bizmandu.com/feed' },
   { src: 'OnlineKhabar', url: 'https://www.onlinekhabar.com/feed' },
   { src: 'OnlineKhabar EN', url: 'https://english.onlinekhabar.com/feed' },
-  { src: 'MeroLagani', url: 'https://merolagani.com/feed' },
+  // 2026-10-12: MeroLagani REMOVED — merolagani.com/feed now returns an ASP.NET 404
+  // HTML page (RSS feed discontinued in their site rebuild). MeroLagani stories still
+  // reach the site via the realtime bridge + portal sweeps; re-add when a feed exists.
 ];
 
 // English + Nepali market keywords that qualify a bare ticker mention.
