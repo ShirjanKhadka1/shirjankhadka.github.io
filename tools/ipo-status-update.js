@@ -47,11 +47,14 @@ function main() {
       let changed = false;
 
       // Status transitions based on dates.
+      // '-open' variants (e.g. 'foreign-open') are open-like and must get the
+      // close transition too (HPHL bug 2026-10-12: stuck 'foreign-open' forever).
       const open = it.opening_date, close = it.closing_date;
+      const openLike = it.status === 'Open' || /-open$/i.test(String(it.status || ''));
       if (it.status === 'upcoming' && open && open <= today && (!close || close >= today)) {
         it.status = 'Open';
         changed = true;
-      } else if ((it.status === 'Open' || it.status === 'upcoming') && close && close < today) {
+      } else if ((openLike || it.status === 'upcoming') && close && close < today) {
         it.status = 'Closed';
         changed = true;
       }

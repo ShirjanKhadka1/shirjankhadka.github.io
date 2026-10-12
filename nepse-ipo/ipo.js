@@ -45,10 +45,15 @@
   }
   function normStatus(v, row) {
     var s = String(v || '').toLowerCase().trim();
-    if (s === 'open' && row && row.closing_date && state.data && state.data.updated) {
-      if (String(row.closing_date) < String(state.data.updated)) return 'closed';
+    var upd = state.data && state.data.updated ? String(state.data.updated) : '';
+    // '-open' variants (e.g. 'foreign-open') are open-like; a bare === 'open'
+    // check used to fall through to 'closed' (HPHL bug 2026-10-12).
+    var openLike = s === 'open' || /-open$/.test(s);
+    if (openLike && row) {
+      if (row.closing_date && upd && String(row.closing_date) < upd) return 'closed';
+      if (row.opening_date && upd && String(row.opening_date) > upd) return 'upcoming';
     }
-    if (s === 'open') return 'open';
+    if (openLike) return 'open';
     if (s.indexOf('upcoming') !== -1 || s.indexOf('up coming') !== -1 || s === 'announced') return 'upcoming';
     return 'closed';
   }
