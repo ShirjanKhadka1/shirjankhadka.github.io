@@ -32,7 +32,8 @@ const STALE_DAYS = 60;            // dates older than this in informational copy
 const EXT_TIMEOUT_MS = 8000;
 
 const INFO_PAGES = [
-  'about.html',
+  // NOTE (2026-10-10): about.html + contact.html were deliberately removed
+  // with the portfolio (his order) — do NOT re-add them to this list.
   'nepse-signals/index.html',
   'nepse-signals/momentum/index.html',
   'nepse-signals/trend-relay/index.html',
@@ -47,7 +48,6 @@ const INFO_PAGES = [
   'nepse-radar/index.html',
   'data-terms.html',
   'privacy.html',
-  'contact.html',
   'ne/editorial-standards/index.html',
 ];
 
@@ -92,19 +92,33 @@ function checkSignals() {
     }
     if (!lr.tracking_started) flag('WARN', `nepse-chart/data/signals/${s.sys}.json`, 'live_track_record has no tracking_started');
   }
-  // backtest window sanity: backtest_to should be within ~4 days of today (weekend gap)
+  // backtest window sanity: the 15:05 signals rebuild reads js/nepse-daily.js
+  // BEFORE the market-close workflow appends that day's session, so the
+  // window legitimately lags one session. Expect backtest_to to be the last
+  // or second-to-last date in the index file; anything older = stalled.
   const mom = sigs[0].d, st = mom.stats || {};
   if (st.backtest_to) {
-    const ageDays = (Date.now() - Date.parse(st.backtest_to + 'T00:00:00Z')) / 864e5;
-    if (ageDays > 4) flag('STALE', 'nepse-chart/data/signals/momentum.json',
-      `backtest_to=${st.backtest_to} is ${ageDays.toFixed(1)} days old — the 15:05 signals rebuild may have stalled`);
+    const daily = read('js/nepse-daily.js') || '';
+    const dm = daily.match(/window\.NEPSE_DAILY=\[([\s\S]*?)\];\s*$/);
+    let recent = [];
+    if (dm) {
+      recent = dm[1].split('],[').map(s => s.replace(/[\[\]]/g, '').split(',')[0])
+        .map(d => `${d.slice(0,4)}-${d.slice(4,6)}-${d.slice(6,8)}`);
+    }
+    const tail = recent.slice(-2);
+    if (tail.length && !tail.includes(st.backtest_to)) {
+      flag('STALE', 'nepse-chart/data/signals/momentum.json',
+        `backtest_to=${st.backtest_to} is older than the last two index sessions (${tail.join(', ')}) — the 15:05 signals rebuild may have stalled`);
+    }
   }
   if (st.backtest_from !== '2024-09-01') {
     flag('WARN', page, `backtest window start changed to ${st.backtest_from} — methodology fallback copy assumes 2024-09-01`);
   }
   // builder template must not reference the removed st.backtest_years field
+  // for rendering — a reference guarded by a window-date derivation
+  // (function backtestYears, added 2026-10-09) is fine and verified live.
   const tpl = read('tools/build-signal-pages.js');
-  if (tpl && /st\.backtest_years/.test(tpl)) {
+  if (tpl && /st\.backtest_years/.test(tpl) && !/function backtestYears/.test(tpl)) {
     flag('STALE', 'tools/build-signal-pages.js', 'still references st.backtest_years (removed field) — pages render "undefined years"');
   }
 }
