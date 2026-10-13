@@ -1,10 +1,10 @@
-NEPSE universe build — 2026-10-12T19:20:02.016Z
-duration: 193s
-data asof: 2026-10-12
+NEPSE universe build — 2026-10-13T12:27:08.910Z
+duration: 190s
+data asof: 2026-10-13
 
 universe symbols (currently listed): 406
   monthly-only historical symbols excluded: 200
-  new listings vs last build: FMDBLP, NBLD85, NIMBD90, NMBD2085, PBD84, SRBLD83
+  new listings vs last build: none
   with scraper OHLC : 363
   LTP-only fallback : 43 (files in data/ltp: 59)
   no data at all    : 0
@@ -16,11 +16,11 @@ by instrument type:
   Promoter share: 4
 
 by verdict:
-  Strong Buy: 26
-  Buy: 34
-  Hold: 106
-  Exit / Reduce: 156
-  Strong Exit: 71
+  Strong Buy: 31
+  Buy: 33
+  Hold: 108
+  Exit / Reduce: 145
+  Strong Exit: 76
   Insufficient history: 13
 
 screener fields:
@@ -31,38 +31,38 @@ screener fields:
   symbols with monthly verdict (>=36 months): 286
 
 buy-call track record (win = +4xATR before -2xATR within 20 sessions):
-  EVAL (most recent 250 sessions): 271 securities, 9321 decided calls
-    mean hit rate: 12.3% | median: 4.4%
+  EVAL (most recent 250 sessions): 271 securities, 9284 decided calls
+    mean hit rate: 12.3% | median: 4.5%
     60.0%  (20 calls)  Symmetrical Triangle
     50.0%  (24 calls)  Bullish divergence (MACD, hidden)
     48.4%  (64 calls)  Bullish divergence (MACD, regular)
     44.8%  (29 calls)  Bearish divergence (RSI, regular)
     40.5%  (42 calls)  Bearish divergence (MACD, hidden)
-    36.7%  (90 calls)  Bullish divergence (RSI, hidden)
+    36.3%  (91 calls)  Bullish divergence (RSI, hidden)
     20.0%  (40 calls)  Bullish divergence (RSI, regular)
     18.9%  (90 calls)  Bearish divergence (RSI, hidden)
-    17.0%  (828 calls)  Inverse Head & Shoulders
-    16.7%  (4562 calls)  Double Bottom
-    15.4%  (2640 calls)  Double Top
-    15.4%  (675 calls)  Head & Shoulders
+    17.1%  (824 calls)  Inverse Head & Shoulders
+    16.9%  (4534 calls)  Double Bottom
+    15.4%  (2638 calls)  Double Top
+    15.3%  (672 calls)  Head & Shoulders
     7.1%  (14 calls)  Rising Wedge
     0.0%  (32 calls)  Descending Triangle
-  TUNE (250 sessions before eval): 229 securities, 15500 decided calls
-    mean hit rate: 23.3% | median: 20.7%
+  TUNE (250 sessions before eval): 229 securities, 15404 decided calls
+    mean hit rate: 23.0% | median: 20.0%
     63.0%  (27 calls)  Ascending Triangle
-    47.4%  (19 calls)  Bearish divergence (RSI, hidden)
+    50.0%  (18 calls)  Bearish divergence (RSI, hidden)
     40.5%  (37 calls)  Bullish divergence (RSI, regular)
     33.3%  (51 calls)  Bullish divergence (RSI, hidden)
-    30.0%  (4557 calls)  Double Top
-    26.5%  (9395 calls)  Double Bottom
-    26.5%  (2754 calls)  Inverse Head & Shoulders
-    26.4%  (1783 calls)  Head & Shoulders
+    29.8%  (4502 calls)  Double Top
+    26.4%  (1766 calls)  Head & Shoulders
+    26.3%  (9353 calls)  Double Bottom
+    26.3%  (2746 calls)  Inverse Head & Shoulders
     22.7%  (22 calls)  Descending Triangle
     20.0%  (15 calls)  Symmetrical Triangle
     0.0%  (10 calls)  Bullish divergence (MACD, hidden)
     0.0%  (10 calls)  Bearish divergence (RSI, regular)
 
-file sizes: universe.json 27.2KB, verdicts.json 170.0KB
+file sizes: universe.json 27.2KB, verdicts.json 169.9KB
 
 LTP-only symbols (43):
   APHL (84)
