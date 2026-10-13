@@ -1,5 +1,5 @@
 {
-  "ran_at_npt": "2026-10-13T03:00:00+05:45",
+  "ran_at_npt": "2026-10-13T12:35:00+05:45",
   "expected_session": "2026-10-12",
   "passed": true,
   "gates": [
@@ -12,7 +12,7 @@
     {
       "gate": "live-session-current",
       "pass": true,
-      "detail": "live=2026-10-12 expected=2026-10-12",
+      "detail": "live=2026-10-13 expected=2026-10-13",
       "severity": "fail"
     },
     {
@@ -24,19 +24,19 @@
     {
       "gate": "security-count-stable",
       "pass": true,
-      "detail": "quotes=354 baseline=354 (last good tag data-2026-10-12-2) drift=0.0% band=±5%",
+      "detail": "intraday: quotes=325 baseline=311 (same-session post-open snapshot c1411c0) — no intraday collapse",
       "severity": "fail"
     },
     {
       "gate": "no-dup-quotes",
       "pass": true,
-      "detail": "354 unique quoted symbols",
+      "detail": "325 unique quoted symbols",
       "severity": "fail"
     },
     {
       "gate": "price-sanity",
       "pass": true,
-      "detail": "354 quotes ok",
+      "detail": "325 quotes ok",
       "severity": "fail"
     },
     {
@@ -48,13 +48,13 @@
     {
       "gate": "quote-math-reconciles",
       "pass": true,
-      "detail": "354 quotes reconcile",
+      "detail": "325 quotes reconcile",
       "severity": "fail"
     },
     {
       "gate": "circuit-limits",
       "pass": false,
-      "detail": "DLBS: 15.0% — review for corporate actions",
+      "detail": "DLBS: 11.4%; SNORL: 13.4% — review for corporate actions",
       "severity": "flag"
     },
     {
@@ -66,13 +66,13 @@
     {
       "gate": "session-totals-consistent",
       "pass": true,
-      "detail": "turnover=Rs 4.46B vol=12.7M trades=49799 n=354",
+      "detail": "turnover=Rs 1.65B vol=4.5M trades=15918 n=325",
       "severity": "fail"
     },
     {
       "gate": "universe-membership-stable",
       "pass": true,
-      "detail": "quoted=354 universe=406 (87.2%)",
+      "detail": "quoted=325 universe=406 (80.0%)",
       "severity": "flag"
     },
     {
@@ -83,8 +83,8 @@
     },
     {
       "gate": "close-source-official",
-      "pass": true,
-      "detail": "close_source=NEPSE official API",
+      "pass": false,
+      "detail": "close_source=unknown (pre-V4 capture) — verify against NEPSE official",
       "severity": "flag"
     },
     {
@@ -125,6 +125,7 @@
     }
   ],
   "flagged": [
-    "circuit-limits"
+    "circuit-limits",
+    "close-source-official"
   ]
 }
