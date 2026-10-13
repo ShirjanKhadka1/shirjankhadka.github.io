@@ -178,9 +178,11 @@ def main():
                          "name": it.get('title') or '', "url": it.get('link') or ''})
     ld = {"@context": "https://schema.org", "@type": "ItemList",
           "itemListElement": ld_items}
-    p = re.sub(r'(<script type="application/ld\+json">\n)(\{"@context":"https://schema\.org","@type":"ItemList".*?\n)(\</script>)',
+    p, n_sub = re.subn(r'(<script type="application/ld\+json">\n)(\{"@context":\s*"https://schema\.org",\s*"@type":\s*"ItemList".*?\n)(\</script>)',
                lambda m: m.group(1) + json.dumps(ld, ensure_ascii=False) + '\n' + m.group(3),
                p, count=1, flags=re.S)
+    if n_sub != 1:
+        raise SystemExit('ERROR: ItemList JSON-LD block not found in page (regex mismatch)')
 
     with open(PAGE, 'w', encoding='utf-8') as f:
         f.write(p)
