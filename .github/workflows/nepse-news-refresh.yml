@@ -68,7 +68,17 @@ jobs:
           else
             git add nepse-chart/data/news.json
             git commit -m "news: refresh $(date -u +%Y-%m-%dT%H:%M) ($(node -e "console.log(require('./nepse-chart/data/news.json').items.length)") items)"
-            git push origin main
+            pushed=false
+            for i in 1 2 3; do
+              if git push origin main; then pushed=true; break; fi
+              echo "Push attempt $i failed, retrying after pull..."
+              git pull --rebase origin main
+              sleep 5
+            done
+            if [ "$pushed" != "true" ]; then
+              echo "::error::git push failed after 3 attempts"
+              exit 1
+            fi
             echo "news deployed"
           fi
 
