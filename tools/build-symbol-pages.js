@@ -1197,6 +1197,9 @@ function indexPage(symbols, asof) {
     '<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/nepse-decode-og.jpg">\n' +
     '<meta property="og:image:width" content="1200">\n' +
     '<meta property="og:image:height" content="630">\n' +
+    '<meta name="twitter:card" content="summary">\n' +
+    '<meta name="twitter:title" content="' + esc(title) + '">\n' +
+    '<meta name="twitter:description" content="' + esc(desc) + '">\n' +
     '<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">\n' +
     '<link rel="stylesheet" href="/css/fonts.css">\n' +
     '<link rel="stylesheet" href="/css/nd-chrome.css?v=20261009d">\n' +
