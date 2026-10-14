@@ -722,7 +722,7 @@ def render_page(story, lang):
         comments_block(story, lang),
         "</main>",
         '<div id="nd-footer"></div>',
-        '<script src="/js/nd-chrome.js?v=20261003a" defer></script>',
+        '<script src="/js/nd-chrome.js?v=20261014a" defer></script>',
         """<script>
 document.addEventListener('click', function (e) {
   var a = e.target.closest('a[data-copy-link]');

@@ -463,7 +463,7 @@ function main() {
     '<script src="/js/nepse-market-config.js?v=20261002c"></script>\n' +
     '<script src="/js/freshness-badge.js?v=20261002c" defer></script>\n' +
     '<script src="/js/nepse-sidebar.js?v=20261002c" defer></script>\n' +
-    '<script src="/js/nd-chrome.js?v=20261003a" defer></script>\n' +
+    '<script src="/js/nd-chrome.js?v=20261014a" defer></script>\n' +
     '</body>\n</html>\n';
 
   fs.mkdirSync(OUT_DIR, { recursive: true });

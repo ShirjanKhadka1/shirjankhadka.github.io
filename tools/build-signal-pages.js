@@ -460,7 +460,7 @@ ${profileRows}</table></div>
 })();
 </script>
 <div id="nd-footer"></div>
-<script src="/js/nd-chrome.js?v=20261006c" defer></script>
+<script src="/js/nd-chrome.js?v=20261014a" defer></script>
 <script src="/js/theme-toggle.js?v=20261006c" defer></script>
 </body>
 </html>`;

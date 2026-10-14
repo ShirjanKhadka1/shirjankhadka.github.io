@@ -378,6 +378,11 @@
   function initDropdowns() {
     var items = $all('.nd-navitem[data-i]');
     var timer = null;
+    /* TOUCH-TAP GUARD (2026-10-14): a touch tap fires mouseenter -> click ->
+       mouseleave in that order. Without this guard the click opens the menu
+       and the mouseleave 160ms timer closes it again, so the tap looks dead.
+       lastToggle marks an explicit tap; the hover timers defer to it briefly. */
+    var lastToggle = 0;
     function closeAll(except) {
       items.forEach(function (it) {
         if (it === except) return;
@@ -389,15 +394,21 @@
       var btn = $('.nd-navbtn', it);
       it.addEventListener('mouseenter', function () {
         clearTimeout(timer);
+        if (Date.now() - lastToggle < 300) return; /* a tap just toggled; don't fight it */
         timer = setTimeout(function () {
           closeAll(it); it.classList.add('open'); btn.setAttribute('aria-expanded', 'true');
         }, 120);
       });
       it.addEventListener('mouseleave', function () {
         clearTimeout(timer);
-        timer = setTimeout(function () { closeAll(); }, 160);
+        timer = setTimeout(function () {
+          if (Date.now() - lastToggle < 300) return; /* a tap just toggled; don't undo it */
+          closeAll();
+        }, 160);
       });
       btn.addEventListener('click', function () {
+        clearTimeout(timer); /* a tap is explicit; cancel any pending hover open/close */
+        lastToggle = Date.now();
         var open = it.classList.contains('open');
         closeAll(); if (!open) { it.classList.add('open'); btn.setAttribute('aria-expanded', 'true'); }
       });

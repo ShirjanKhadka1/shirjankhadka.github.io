@@ -358,7 +358,7 @@ function renderPage(entries, pageNum, totalPages) {
     '</div></main>\n' +
     '<div id="nd-footer"></div>\n' +
     '<script>try{var t=localStorage.getItem(\'sk-theme\');if(!t)t=\'dark\';document.documentElement.setAttribute(\'data-theme\',t);if(t===\'light\')document.documentElement.setAttribute(\'data-nd-ed\',\'light\')}catch(e){}</script>\n' +
-    '<script src="/js/nd-chrome.js?v=20261006c" defer></script>\n' +
+    '<script src="/js/nd-chrome.js?v=20261014a" defer></script>\n' +
     '</body>\n</html>\n';
 }
 
