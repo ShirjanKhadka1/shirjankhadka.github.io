@@ -124,13 +124,21 @@ def main():
     annItems = sorted(ann.get('items', []), key=lambda x: str(x.get('date') or ''), reverse=True)
     hlItems = sorted(news.get('items', []), key=lambda x: str(x.get('date') or ''), reverse=True)
     today = fmtDate(ann.get('updated') or '2026-10-06')
+    # Headlines refresh on the intraday cron while announcements.json does
+    # not — stamp each section from its own freshest date (ISO strings
+    # compare chronologically). (2026-10-15 repair: the old single stamp
+    # printed "14 Oct 2026" while headlines were already Oct 15.)
+    hl_raw = str(hlItems[0].get('date') or '') if hlItems else ''
+    hl_today = fmtDate(hl_raw) if re.match(r'^\d{4}-\d{2}-\d{2}', hl_raw) else today
+    fresh_raw = max(str(ann.get('updated') or '2026-10-06'), hl_raw or '2026-10-06')
+    fresh = fmtDate(fresh_raw)
 
     with open(PAGE, encoding='utf-8') as f:
         p = f.read()
 
     # 1. Freshness badge stamp (matches the page's current <span id="nnFresh">)
     p = re.sub(r'<span id="nnFresh">.*?</span>',
-               '<span id="nnFresh">Updated %s</span>' % today,
+               '<span id="nnFresh">Updated %s</span>' % fresh,
                p, count=1, flags=re.S)
 
     # 2. Announcements section stamp. Honest copy: the symbol is a plain
@@ -154,7 +162,7 @@ def main():
 
     # 4. Headlines section stamp
     p = re.sub(r'<p class="nn-updated" id="hlUpdated">.*?</p>',
-               '<p class="nn-updated" id="hlUpdated">Headlines, editorially reviewed · updated %s.</p>' % today,
+               '<p class="nn-updated" id="hlUpdated">Headlines, editorially reviewed · updated %s.</p>' % hl_today,
                p, count=1, flags=re.S)
 
     # 5. Headlines feed snapshot: featured hero + 9 rows (matches the live
@@ -190,7 +198,9 @@ def main():
     print('Snapshot regenerated:')
     print('  announcements: %d items, featured=%s (%s)' % (len(annItems), annItems[0].get('sym'), annItems[0].get('date')))
     print('  headlines: %d items, featured=%s (%s)' % (len(hlItems), hlItems[0].get('sym'), hlItems[0].get('date')))
-    print('  stamp:', today)
+    print('  stamp (announcements):', today)
+    print('  stamp (headlines):', hl_today)
+    print('  stamp (freshness badge):', fresh)
 
 if __name__ == '__main__':
     main()
