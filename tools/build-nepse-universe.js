@@ -98,7 +98,7 @@ function classify(sym, name, assetType) {
   if (assetType === 'open_ended_mutual_fund') return 'Mutual fund';
   if (/debenture/i.test(nm)) return 'Debenture';
   if (/preference/i.test(nm)) return 'Preference share';
-  if (/mutual fund|mutual|yojana|scheme/i.test(nm)) return 'Mutual fund';
+  if (/mutual fund|mutual|yojana|scheme|\bfund\b|\bkosh\b/i.test(nm)) return 'Mutual fund';
   if (/promoter/i.test(nm)) return 'Promoter share';
   return 'Equity';
 }
