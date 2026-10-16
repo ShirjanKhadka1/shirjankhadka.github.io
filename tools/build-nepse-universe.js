@@ -20,6 +20,7 @@
 'use strict';
 const https = require('https');
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
@@ -92,6 +93,32 @@ async function pool(items, n, fn) {
 function ymdNum(dstr) { return +String(dstr).replace(/-/g, ''); }
 function fmtD(ymd) { const s = String(ymd); return s.slice(0, 4) + '-' + s.slice(4, 6) + '-' + s.slice(6, 8); }
 function r2(x) { return x == null || !isFinite(x) ? null : Math.round(x * 100) / 100; }
+
+// Name fallback from our OWN NEPSE archive (2026-10-16): the community live
+// feed sometimes carries no name at all for a symbol (e.g. LVF2 was absent,
+// so its name fell back to the bare symbol and the classifier could not tag
+// it). Our eod snapshots carry the official securityName per symbol — use the
+// newest files first, first name seen wins. Fail-soft to {}.
+function loadOwnSecurityNames() {
+  const map = {};
+  try {
+    const dir = path.join(os.homedir(), 'workspace', 'nepse-data-archive', 'eod');
+    const files = fs.readdirSync(dir)
+      .filter((f) => /^eod-\d{4}-\d{2}-\d{2}\.json$/.test(f))
+      .sort().reverse().slice(0, 10);
+    const walk = (o) => {
+      if (!o) return;
+      if (Array.isArray(o)) { o.forEach(walk); return; }
+      if (typeof o === 'object') {
+        if (typeof o.symbol === 'string' && typeof o.securityName === 'string'
+            && o.securityName && !(o.symbol in map)) map[o.symbol] = o.securityName;
+        Object.values(o).forEach(walk);
+      }
+    };
+    files.forEach((f) => { try { walk(JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'))); } catch (e) {} });
+  } catch (e) {}
+  return map;
+}
 
 function classify(sym, name, assetType) {
   const nm = ((name || '') + ' ' + sym);
@@ -411,9 +438,13 @@ async function main() {
   };
 
   let done = 0;
+  const ownNames = loadOwnSecurityNames();
+  console.log('  own-archive securityNames:', Object.keys(ownNames).length);
   for (const sym of symbols) {
     const q = liveMap[sym];
-    const name = (q && q.name) || sym;
+    // Community name wins when present; otherwise fall back to our own NEPSE
+    // archive's securityName (never the bare symbol — it defeats classify()).
+    const name = (q && q.name && q.name !== sym) ? q.name : (ownNames[sym] || sym);
     const type = classify(sym, name, q && q.asset_type);
     const rows = ohlcRows.get(sym) || null;
     let series = rows, ltpOnly = false;
