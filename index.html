@@ -124,7 +124,8 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:200;op
 .sk-nav{position:sticky;top:0;z-index:100;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
   background:var(--nav-bg);border-bottom:1px solid var(--line);transition:background .35s,box-shadow .35s}
 .sk-nav.scrolled{box-shadow:0 8px 30px rgba(0,0,0,.35)}
-.sk-nav-inner{max-width:1180px;margin:0 auto;padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.sk-nav-inner{max-width:1180px;margin:0 auto;padding:0 28px;height:64px}
+.sk-nav-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;height:100%}
 .sk-logo{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-weight:700;color:var(--ink)}
 .sk-logo-mark{width:32px;height:32px;border-radius:9px;background:var(--lime);color:#0b0e13;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;letter-spacing:.02em;flex:none}
 .sk-logo-text{font-size:16px;letter-spacing:-.01em}
@@ -307,18 +308,19 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;
 <body>
 <div class="ambient" aria-hidden="true"><i></i><i></i><i></i></div>
 
-<header class="sk-nav" id="skNav">
+<div class="sk-nav" id="skNav">
   <div class="sk-nav-inner">
+   <nav class="sk-nav-bar" aria-label="Primary">
     <a href="/" class="sk-logo" aria-label="Shirjan Khadka, home">
       <span class="sk-logo-mark">SK</span>
       <span class="sk-logo-text">Shirjan Khadka</span>
     </a>
-    <nav class="sk-nav-links" id="skNavLinks" aria-label="Primary">
+    <div class="sk-nav-links" id="skNavLinks">
       <a href="/#work">Work</a>
       <a href="/#experience">Experience</a>
       <a href="/blog/">Blog</a>
       <a href="/contact.html">Contact</a>
-    </nav>
+    </div>
     <div class="sk-nav-right">
       <a class="sk-avail" href="mailto:shirjan.2.khadka@gmail.com"><span class="sk-avail-dot" aria-hidden="true"></span>Available for opportunities</a>
       <a href="/contact.html" class="sk-cta">Let's Talk</a>
@@ -326,8 +328,9 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;
         <span></span><span></span><span></span>
       </button>
     </div>
+   </nav>
   </div>
-</header>
+</div>
 
 <header class="hero"><div class="hero-grid-bg" aria-hidden="true"></div>
   <div class="wrap hero-inner">
