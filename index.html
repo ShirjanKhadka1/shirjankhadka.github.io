@@ -120,6 +120,44 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:200;op
 .theme-toggle .ic-sun{display:none}
 [data-theme="light"] .theme-toggle .ic-sun{display:block}
 [data-theme="light"] .theme-toggle .ic-moon{display:none}
+/* ---- Standalone portfolio nav (replaces Decode chrome) ---- */
+.sk-nav{position:sticky;top:0;z-index:100;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  background:var(--nav-bg);border-bottom:1px solid var(--line);transition:background .35s,box-shadow .35s}
+.sk-nav.scrolled{box-shadow:0 8px 30px rgba(0,0,0,.35)}
+.sk-nav-inner{max-width:1180px;margin:0 auto;padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.sk-logo{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-weight:700;color:var(--ink)}
+.sk-logo-mark{width:32px;height:32px;border-radius:9px;background:var(--lime);color:#0b0e13;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;letter-spacing:.02em;flex:none}
+.sk-logo-text{font-size:16px;letter-spacing:-.01em}
+.sk-nav-links{display:flex;align-items:center;gap:30px}
+.sk-nav-links a{position:relative;text-decoration:none;font-size:14px;font-weight:500;color:var(--mut);white-space:nowrap;transition:color .2s}
+.sk-nav-links a::after{content:"";position:absolute;left:0;bottom:-5px;height:2px;width:100%;background:var(--lime);border-radius:2px;transform:scaleX(0);transform-origin:right;transition:transform .35s var(--ease)}
+.sk-nav-links a:hover{color:var(--ink)}
+.sk-nav-links a:hover::after{transform:scaleX(1);transform-origin:left}
+.sk-nav-right{display:flex;align-items:center;gap:12px}
+.sk-avail{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--mut);
+  border:1px solid var(--line);background:var(--chip-bg);padding:7px 15px;border-radius:980px;white-space:nowrap;text-decoration:none}
+.sk-avail-dot{width:8px;height:8px;border-radius:50%;background:var(--lime);flex:none;animation:skpulse 2.4s infinite}
+@keyframes skpulse{0%,100%{box-shadow:0 0 0 0 rgba(184,230,46,.35)}50%{box-shadow:0 0 0 6px rgba(184,230,46,0)}}
+.sk-cta{display:inline-block;font-size:13px;font-weight:700;color:#0b0e13;background:var(--lime);padding:9px 20px;border-radius:980px;text-decoration:none;transition:transform .25s var(--ease)}
+.sk-cta:hover{transform:translateY(-1px)}
+.sk-toggle{display:none;flex-direction:column;gap:5px;background:none;border:0;cursor:pointer;padding:10px}
+.sk-toggle span{width:22px;height:2px;background:var(--ink);border-radius:2px;transition:transform .3s var(--ease),opacity .2s}
+.sk-toggle.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.sk-toggle.open span:nth-child(2){opacity:0}
+.sk-toggle.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+@media(max-width:1100px){
+  .sk-avail{display:none}
+  .sk-nav-links{position:absolute;top:calc(100% + 10px);right:22px;width:min(300px,calc(100vw - 44px));
+    background:var(--panel);flex-direction:column;align-items:stretch;padding:8px;gap:2px;
+    border:1px solid var(--line);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.5);
+    transform:translateY(-10px) scale(.98);transform-origin:top right;opacity:0;visibility:hidden;pointer-events:none;
+    transition:opacity .22s var(--ease),transform .22s var(--ease),visibility .22s;z-index:110}
+  .sk-nav-links.open{transform:none;opacity:1;visibility:visible;pointer-events:auto}
+  .sk-nav-links a{font-size:15px;font-weight:600;padding:11px 14px;border-radius:10px;color:var(--ink)}
+  .sk-nav-links a::after{display:none}
+  .sk-nav-links a:hover{background:rgba(255,255,255,.06)}
+  .sk-toggle{display:flex}
+}
 /* ============ HERO ============ */
 .hero{position:relative;z-index:1;min-height:100svh;display:flex;align-items:center;padding:120px 0 60px;perspective:1600px;overflow-x:clip}/* clip: contains .portrait-ring 34px overhang, fixes mobile h-overflow (CI smoke) */
 .hero-grid-bg{position:absolute;inset:0;pointer-events:none;opacity:.5;
@@ -265,12 +303,31 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;
 }
 </style>
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261009b">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=20261009f">
 </head>
 <body>
 <div class="ambient" aria-hidden="true"><i></i><i></i><i></i></div>
 
-<div id="nd-header"></div>
+<header class="sk-nav" id="skNav">
+  <div class="sk-nav-inner">
+    <a href="/" class="sk-logo" aria-label="Shirjan Khadka, home">
+      <span class="sk-logo-mark">SK</span>
+      <span class="sk-logo-text">Shirjan Khadka</span>
+    </a>
+    <nav class="sk-nav-links" id="skNavLinks" aria-label="Primary">
+      <a href="/#work">Work</a>
+      <a href="/#experience">Experience</a>
+      <a href="/blog/">Blog</a>
+      <a href="/contact.html">Contact</a>
+    </nav>
+    <div class="sk-nav-right">
+      <a class="sk-avail" href="mailto:shirjan.2.khadka@gmail.com"><span class="sk-avail-dot" aria-hidden="true"></span>Available for opportunities</a>
+      <a href="/contact.html" class="sk-cta">Let's Talk</a>
+      <button class="sk-toggle" id="skNavToggle" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
 
 <header class="hero"><div class="hero-grid-bg" aria-hidden="true"></div>
   <div class="wrap hero-inner">
@@ -532,6 +589,18 @@ if(fine && !reduced){
 }
 })();
 </script>
-<script src="/js/nd-chrome.js?v=20261006a" defer></script>
+<script>
+(function(){
+  var nav=document.getElementById('skNav'),tgl=document.getElementById('skNavToggle'),links=document.getElementById('skNavLinks');
+  function onScroll(){ if(nav) nav.classList.toggle('scrolled', window.scrollY>24); }
+  window.addEventListener('scroll',onScroll,{passive:true}); onScroll();
+  if(tgl&&links){
+    function setMenu(open){ links.classList.toggle('open',open); tgl.classList.toggle('open',open); tgl.setAttribute('aria-expanded',open?'true':'false'); tgl.setAttribute('aria-label',open?'Close menu':'Open menu'); }
+    tgl.addEventListener('click',function(e){ e.stopPropagation(); setMenu(!links.classList.contains('open')); });
+    links.querySelectorAll('a').forEach(function(a){ a.addEventListener('click',function(){ setMenu(false); }); });
+    document.addEventListener('click',function(e){ if(!links.contains(e.target)&&!tgl.contains(e.target)) setMenu(false); });
+  }
+})();
+</script>
 </body>
 </html>
