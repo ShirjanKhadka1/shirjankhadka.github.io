@@ -27,6 +27,12 @@ const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, 'nepse-chart', 'data');
 const LTP_DIR = path.join(OUT, 'ltp');
 const ENGINE = require(path.join(ROOT, 'js', 'nepse-lab.js'));
+// --screener-only (EOD gates, 2026-10-18): run the full data assembly + verdict
+// computation (verdicts.json stays fresh) but write ONLY universe.json,
+// verdicts.json and the nepse-screener/index.html snapshot. Skips per-symbol
+// ltp/*.json, audit.json, track-record.json, version.json and the report.txt.
+const SCREENER_ONLY = process.argv.includes('--screener-only');
+if (SCREENER_ONLY) console.log('  !! --screener-only: writing universe.json, verdicts.json, screener snapshot only');
 // Sector lookup for the screener page (281 symbols; fail-soft to {}).
 let SECTORS = {};
 try {
@@ -318,6 +324,21 @@ async function main() {
   const union = new Set();
   companies.forEach((s) => union.add(s));
   Object.keys(liveMap).forEach((s) => union.add(s));
+  // EOD Gate 4 (2026-10-18): union our own validated close into the symbol set.
+  // Feed-lagged scrips (2026-10-16: BENH vanished from the community feeds for a
+  // day) must never drop out of the universe again. Gated on a CLOSED session so
+  // a stale or partial intraday file can't inject symbols. The completed-merger
+  // absorbed filter runs AFTER this union, as before. Honest boundary: symbols
+  // absent from ALL sources (PCBLP/PROFLP/SAND2085/SBD89, 2026-10-17) are NOT
+  // restored by this — they wait on official-listing verification, never invented.
+  try {
+    const ownLive = JSON.parse(fs.readFileSync(path.join(ROOT, 'nepse-chart', 'data', 'live.json'), 'utf8'));
+    if (ownLive.market === 'CLOSED' && Array.isArray(ownLive.quotes)) {
+      let gate4Added = 0;
+      ownLive.quotes.forEach((q) => { if (q && q.symbol && !union.has(q.symbol)) { union.add(q.symbol); gate4Added++; } });
+      if (gate4Added) console.log('  Gate 4: +' + gate4Added + ' symbols from own validated close (live.json)');
+    }
+  } catch (e) { console.log('  Gate 4: own live.json unavailable:', e.message); }
   const monthlyOnly = [];
   monthlySeries.forEach((_, s) => { if (!union.has(s)) monthlyOnly.push(s); });
   const unionSymbols = Array.from(union).sort();
@@ -459,7 +480,7 @@ async function main() {
         // persist compact LTP history for the client fallback
         const compact = Array.from(m.entries()).sort((a, b) => a[0] - b[0])
           .map(([ymd, pt]) => [ymd, pt[0], pt[1], pt[2], pt[3]]);
-        fs.writeFileSync(path.join(LTP_DIR, sym.replace('/', '-') + '.json'),
+        if (!SCREENER_ONLY) fs.writeFileSync(path.join(LTP_DIR, sym.replace('/', '-') + '.json'),
           JSON.stringify({ s: sym, ltpOnly: true, rows: compact }));
       }
     }
@@ -597,8 +618,8 @@ async function main() {
   // Per-stock data-check audit: one row per listed security (source, history
   // depth, live-quote presence, verdict, new-listing flag). Consumed by
   // nepse-chart/data-check.html. Deterministic (no timestamps) so scheduled
-  // runs only commit on real data changes.
-  fs.writeFileSync(path.join(OUT, 'audit.json'), JSON.stringify({
+  // runs only commit on real data changes. Skipped in --screener-only mode.
+  if (!SCREENER_ONLY) fs.writeFileSync(path.join(OUT, 'audit.json'), JSON.stringify({
     asof: universe.asof, count: symbols.length,
     newListings: newListings, rows: audit
   }));
@@ -627,7 +648,8 @@ async function main() {
   const evalWs = [], evalNs = [];
   Object.keys(verdicts).forEach((sym) => { const t = verdicts[sym].tr; if (t) { evalWs.push(t.w); evalNs.push(t.n); } });
   const evalRows = setupRowsOf(setupStats), tuneRows = setupRowsOf(tuneSetupStats);
-  fs.writeFileSync(path.join(OUT, 'track-record.json'), JSON.stringify({
+  // Skipped in --screener-only mode (tuning dataset, not a site dependency).
+  if (!SCREENER_ONLY) fs.writeFileSync(path.join(OUT, 'track-record.json'), JSON.stringify({
     asof: universe.asof,
     method: 'Buy/Strong Buy replayed per signal session; win = +4xATR target before -2xATR stop within 20 sessions (daily high/low); undecided excluded; min 10 decided calls per setup.',
     eval: Object.assign({ window: 'most recent 250 sessions' }, winSummary(evalWs, evalNs) || {}, { setups: evalRows }),
@@ -682,12 +704,13 @@ async function main() {
   })();
   // Deterministic build id: only changes when the underlying data changes,
   // so scheduled runs commit (and trigger a Pages rebuild) only on real updates.
+  // Skipped in --screener-only mode.
   const crypto = require('crypto');
   const sig = crypto.createHash('sha1')
     .update(fs.readFileSync(path.join(OUT, 'universe.json')))
     .update(fs.readFileSync(path.join(OUT, 'verdicts.json')))
     .digest('hex').slice(0, 12);
-  fs.writeFileSync(path.join(OUT, 'version.json'), JSON.stringify({ v: universe.asof + '-' + sig, asof: universe.asof }));
+  if (!SCREENER_ONLY) fs.writeFileSync(path.join(OUT, 'version.json'), JSON.stringify({ v: universe.asof + '-' + sig, asof: universe.asof }));
 
   const uBytes = fs.statSync(path.join(OUT, 'universe.json')).size;
   const vBytes = fs.statSync(path.join(OUT, 'verdicts.json')).size;
@@ -742,7 +765,7 @@ async function main() {
   lines.push('Fetch failures — no OHLC and no monthly data (' + report.failures.length + '):');
   report.failures.forEach((s) => lines.push('  ' + s));
   const text = lines.join('\n');
-  fs.writeFileSync(path.join(__dirname, 'nepse-universe-report.txt'), text);
+  if (!SCREENER_ONLY) fs.writeFileSync(path.join(__dirname, 'nepse-universe-report.txt'), text);
   console.log('\n' + text);
 }
 
