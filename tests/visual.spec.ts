@@ -88,6 +88,15 @@ const DYNAMIC_SELECTORS = [
   // runs, loaded image on others). Mask it so the baseline is
   // deterministic. Matches nothing on other pages.
   '.mag-fimg img',
+  // BLOG CONTENT (2026-10-18): /blog/ is statically generated with the
+  // latest article baked in, so EVERY daily article publish changes the
+  // featured card text and shifts the "More recent" rail — a 3% drift
+  // that fails the 2% gate daily (hit 2026-10-17 and 2026-10-18). This
+  // is intended content churn, not a regression. Mask the two
+  // content-driven regions; the masthead, section headers, topic
+  // carousel, nav and footer stay covered. Matches nothing on other pages.
+  '.mag-featured',
+  '.mag-rail',
 ];
 
 // RETRY (2026-10-09): /blog/ intermittently crashes the CI renderer's
