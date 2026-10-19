@@ -147,6 +147,16 @@ def main():
         return 2
     log(f"live session_date={session} market={live.get('market')}")
 
+    # holiday guard (2026-10-19 fix): never append bars for a holiday session.
+    try:
+        hol = load_json(os.path.join(WORKTREE, "tools", "nepse-holidays.json"))
+        hdays = {h.get("date") if isinstance(h, dict) else h for h in hol.get("holidays", [])}
+        if session in hdays:
+            log(f"holiday session {session}; skipping OHLC append and rebuild")
+            return 0
+    except Exception as e:
+        log(f"holiday check unreadable ({e}); proceeding")
+
     # freshness gate
     summ_path = os.path.join(WORKTREE, "data", "verdicts-v2-summary.json")
     if os.path.exists(summ_path) and not args.force:
