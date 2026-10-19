@@ -171,6 +171,14 @@ function mapRow(item) {
 
 async function main() {
   try {
+    // Holiday gate (2026-10-19 fix): never write live.json on NEPSE holidays.
+    try {
+      const hol = JSON.parse(require('fs').readFileSync(require('path').join(__dirname, 'nepse-holidays.json'), 'utf8'));
+      const npt = new Date(Date.now() + (5 * 60 + 45) * 60000);
+      const today = npt.toISOString().slice(0, 10);
+      const hdays = new Set((hol.holidays || []).map(h => h.date || h));
+      if (hdays.has(today)) { console.log('[fetch-nepse-live] NEPSE holiday (' + today + '); leaving live.json untouched'); process.exit(0); }
+    } catch (e) { /* holiday file unreadable, proceed */ }
     // 1. Market status.
     const mo = await apiFetch('GET', '/api/nots/nepse-data/market-open');
     const marketOpen = !!(mo && mo.isOpen === 'OPEN');
