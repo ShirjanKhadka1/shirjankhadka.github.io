@@ -135,6 +135,12 @@ async function main() {
     const hdates = new Set(hol.split('\n').map(l => l.split(':')[0].trim()).filter(dd => /^\d{4}-\d{2}-\d{2}$/.test(dd)));
     if (hdates.has(today)) { log('holiday (' + today + '), nothing to capture'); return; }
   } catch (e) { log('holiday file unreadable, proceeding'); }
+  // Holiday gate (2026-10-19 fix): never capture on NEPSE holidays.
+  try {
+    const hol = fs.readFileSync(path.join(__dirname, '..', '..', '..', 'nepse-data-archive', 'nepse-holidays.txt'), 'utf8');
+    const hdates = new Set(hol.split('\n').map(l => l.split(':')[0].trim()).filter(dd => /^\d{4}-\d{2}-\d{2}$/.test(dd)));
+    if (hdates.has(today)) { log('holiday (' + today + '), nothing to capture'); return; }
+  } catch (e) { log('holiday file unreadable, proceeding'); }
   const mins = now.getUTCHours() * 60 + now.getUTCMinutes();
   if (mins < 15 * 60 + 5) { log('before 15:05 NPT; session not over yet'); return; }
 
