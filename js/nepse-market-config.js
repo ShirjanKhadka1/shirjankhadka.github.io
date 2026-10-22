@@ -44,11 +44,11 @@
       '2026-09-06', // Haritalika Teej
       '2026-09-19', // Constitution Day
       '2026-09-26', // Indra Jatra
+      '2026-10-19', // Dashain (Maha Nawami)
+      '2026-10-20', // Dashain (Vijaya Dashami)
       '2026-10-21', // Dashain
       '2026-10-22', // Dashain
       '2026-10-23', // Dashain
-      '2026-10-26', // Dashain
-      '2026-10-27', // Dashain
       '2026-10-28', // Chhath
       '2026-11-08', // Tihar
       '2026-11-09', // Tihar

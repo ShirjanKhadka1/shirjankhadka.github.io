@@ -39,12 +39,21 @@ jobs:
 
           now_utc=$(date -u +%s)
 
-          # NPT wall-clock: hour, minute, weekday (1=Mon..7=Sun)
-          npt=$(TZ=Asia/Kathmandu date +%H:%M:%u)
+          # NPT wall-clock: hour, minute, weekday (1=Mon..7=Sun), date
+          npt=$(TZ=Asia/Kathmandu date +%H:%M:%u:%F)
           npt_hm=$(echo "$npt" | cut -d: -f1,2)
-          npt_dow=$(echo "$npt" | awk -F: '{print $3}')
+          npt_dow=$(echo "$npt" | cut -d: -f3)
+          npt_date=$(echo "$npt" | cut -d: -f4)
           # NEPSE trades Mon-Fri (1-5); Sat/Sun are holidays.
-          if [ "$npt_dow" -ge 1 ] && [ "$npt_dow" -le 5 ]; then trading_day=1; else trading_day=0; fi
+          # Dashain 2026 closure: Oct 19-23 (Maha Nawami through Kojagrat Purnima).
+          # Listed NEPSE holidays — keep in sync with tools/nepse-holidays.json.
+          case "$npt_date" in
+            2026-10-19|2026-10-20|2026-10-21|2026-10-22|2026-10-23|\
+            2026-10-28|2026-11-08|2026-11-09|2026-11-10|2026-11-11|\
+            2026-11-21|2026-12-25) is_holiday=1 ;;
+            *) is_holiday=0 ;;
+          esac
+          if [ "$npt_dow" -ge 1 ] && [ "$npt_dow" -le 5 ] && [ "$is_holiday" = "0" ]; then trading_day=1; else trading_day=0; fi
           # Market hours 11:00-15:00 NPT
           if [ "$npt_hm" \> "10:59" ] && [ "$npt_hm" \< "15:01" ] && [ "$trading_day" = "1" ]; then
             market_open=1
