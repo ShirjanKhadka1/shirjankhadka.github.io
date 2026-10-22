@@ -136,6 +136,33 @@ function classify(sym, name, assetType) {
   return 'Equity';
 }
 
+// Verified name/type overrides (EOD Gate 5, 2026-10-22 — Shirjan's call:
+// "go with the corroborated map"). Some genuinely listed, actively traded
+// instruments are absent from EVERY community feed (companies list, live
+// feed, our EOD archive — root cause confirmed 2026-10-20), so their names
+// can never reach classify() and a bare ticker would mistag them Equity.
+// Each entry below is corroborated by two independent sources and proven to
+// trade by our own broker floorsheets (see Gate 5 in main()). The map is
+// authoritative wherever it exists: it also wins over a wrong feed name.
+//   PCBLP    — ShareSansar "Prime Commercial Bank Limited Promoter (PCBLP)";
+//              Nepalytix lists PCBLP among promoter lines. Floorsheets:
+//              504,676 qty / Rs 5.54 crore in the 30 sessions to 2026-10-16.
+//   PROFLP   — ShareSansar "Progressive Finance Limited Promoter Share";
+//              ShareHub PROFL page (Progressive Finance Ltd). Floorsheets:
+//              49,638 qty / Rs 1.01 crore in the same window.
+//   SAND2085 — ShareHub symbol page: 10% Sanima Bank Limited Debenture,
+//              listed 2019-06-03, 20,00,000 units. Floorsheets: 2,178 qty.
+//   SBD89    — ShareHub: 10.25% Sanima Debenture 2089, listed 2022-08-30;
+//              ShareSansar 2079 issue coverage. NOT SBLD89 (Siddhartha
+//              Bank's 10.75% debenture — a different instrument, already in
+//              the universe). Floorsheets: 100 qty (thin, but real trades).
+const VERIFIED_OVERRIDES = {
+  PCBLP:    { name: 'Prime Commercial Bank Limited Promoter',    type: 'Promoter share' },
+  PROFLP:   { name: 'Progressive Finance Limited Promoter',      type: 'Promoter share' },
+  SAND2085: { name: '10% Sanima Bank Limited Debenture 2085',    type: 'Debenture' },
+  SBD89:    { name: '10.25% Sanima Debenture 2089',               type: 'Debenture' },
+};
+
 // ---- buy-call track record (no-lookahead backtest) ----
 // For each EQUITY security with >= 80 OHLC sessions: replay the engine over the
 // last TR_LOOKBACK sessions, using only data available at each session
@@ -329,8 +356,9 @@ async function main() {
   // day) must never drop out of the universe again. Gated on a CLOSED session so
   // a stale or partial intraday file can't inject symbols. The completed-merger
   // absorbed filter runs AFTER this union, as before. Honest boundary: symbols
-  // absent from ALL sources (PCBLP/PROFLP/SAND2085/SBD89, 2026-10-17) are NOT
-  // restored by this — they wait on official-listing verification, never invented.
+  // absent from ALL sources are NOT restored by this gate — the four such
+  // scrips verified in Oct 2026 (PCBLP/PROFLP/SAND2085/SBD89) are restored by
+  // Gate 5 below under their own stricter rule, never by invention here.
   try {
     const ownLive = JSON.parse(fs.readFileSync(path.join(ROOT, 'nepse-chart', 'data', 'live.json'), 'utf8'));
     if (ownLive.market === 'CLOSED' && Array.isArray(ownLive.quotes)) {
@@ -339,6 +367,25 @@ async function main() {
       if (gate4Added) console.log('  Gate 4: +' + gate4Added + ' symbols from own validated close (live.json)');
     }
   } catch (e) { console.log('  Gate 4: own live.json unavailable:', e.message); }
+  // EOD Gate 5 (2026-10-22): floorsheet-proven scrips with verified names.
+  // A symbol from VERIFIED_OVERRIDES joins the union ONLY when our own
+  // broker floorsheet aggregates (nepse-brokers/data/periods/1M.json —
+  // trailing 30 sessions, built from Chukul raw floorsheets) prove it
+  // actually traded in that window. Both conditions are required: the map
+  // alone never admits an untraded ticker, and floorsheet presence alone
+  // never admits an unverified name (the 1M file carries ~38 further
+  // promoter/debenture lines still awaiting the same verification — they
+  // stay out until their map entries are approved). The completed-merger
+  // absorbed filter still runs after this union.
+  try {
+    const p1m = JSON.parse(fs.readFileSync(path.join(ROOT, 'nepse-brokers', 'data', 'periods', '1M.json'), 'utf8'));
+    const traded = (p1m && p1m.symbols) ? new Set(Object.keys(p1m.symbols)) : new Set();
+    let gate5Added = 0;
+    Object.keys(VERIFIED_OVERRIDES).forEach((s) => {
+      if (traded.has(s) && !union.has(s)) { union.add(s); gate5Added++; console.log('  Gate 5: +' + s + ' (floorsheet-proven, verified override)'); }
+    });
+    if (gate5Added) console.log('  Gate 5: +' + gate5Added + ' symbols from broker floorsheets + verified override map');
+  } catch (e) { console.log('  Gate 5: broker 1M periods unavailable:', e.message); }
   const monthlyOnly = [];
   monthlySeries.forEach((_, s) => { if (!union.has(s)) monthlyOnly.push(s); });
   const unionSymbols = Array.from(union).sort();
@@ -463,10 +510,12 @@ async function main() {
   console.log('  own-archive securityNames:', Object.keys(ownNames).length);
   for (const sym of symbols) {
     const q = liveMap[sym];
-    // Community name wins when present; otherwise fall back to our own NEPSE
-    // archive's securityName (never the bare symbol — it defeats classify()).
-    const name = (q && q.name && q.name !== sym) ? q.name : (ownNames[sym] || sym);
-    const type = classify(sym, name, q && q.asset_type);
+    // Verified override (Gate 5) wins outright; else community name when
+    // present; otherwise fall back to our own NEPSE archive's securityName
+    // (never the bare symbol — it defeats classify()).
+    const ovr = VERIFIED_OVERRIDES[sym];
+    const name = ovr ? ovr.name : ((q && q.name && q.name !== sym) ? q.name : (ownNames[sym] || sym));
+    const type = ovr ? ovr.type : classify(sym, name, q && q.asset_type);
     const rows = ohlcRows.get(sym) || null;
     let series = rows, ltpOnly = false;
 
