@@ -76,4 +76,10 @@ body{ font-family: var(--nd-font-sans); }
 
 #winTabs{ margin-top: var(--nd-s2); }
 
+/* the kit's rank rows assume short symbol labels; long sector names
+   ("Manufacturing And Processing") would push the value off a 390px
+   screen — let the label cell shrink and wrap inside this list only */
+#rsList .cx-rank-row{ grid-template-columns: 26px minmax(0, 1fr) auto; }
+#rsList .cx-rank-sym{ white-space: normal; overflow-wrap: anywhere; min-width: 0; }
+
 @media (max-width: 760px){ .st-tablewrap .cx-table{ min-width: 880px; } }
