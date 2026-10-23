@@ -128,6 +128,12 @@ table.trades tr:last-child td{border-bottom:none}
 .data-credit a{color:var(--nd-lime)}
 @media(max-width:860px){.sim-grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.sizing3{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.strat-opt{transition:none}}
+/* cinema harmonization (2026-10-23): category marker on panel heads + rim-lit cards */
+.sim-card h2, h2.sec{display:flex;align-items:center;gap:10px}
+.sim-card h2::before, h2.sec::before{content:'';width:9px;height:9px;border-radius:2px;background:var(--nd-lime,#B8E62E);flex:none}
+[data-theme="light"] .sim-card h2::before, [data-theme="light"] h2.sec::before{background:#65A30D}
+.sim-card{box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 10px 26px rgba(0,0,0,.22)}
+[data-theme="light"] .sim-card{box-shadow:inset 0 1px 0 #fff,0 10px 24px rgba(30,40,60,.08)}
 </style>
 <link rel="stylesheet" href="/css/theme.css?v=20261023d">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023d">

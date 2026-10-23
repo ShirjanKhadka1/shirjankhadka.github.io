@@ -183,3 +183,8 @@ button.on[data-sort] {
   text-shadow: 0 0 16px rgba(220,38,38,.25);
   font-weight: 700;
 }
+
+/* cinema harmonization (2026-10-23): section heads take the category marker */
+main h2{ display:flex; align-items:center; gap:10px; }
+main h2::before{ content:''; width:9px; height:9px; border-radius:2px; background:var(--nd-lime,#B8E62E); flex:none; }
+[data-theme="light"] main h2::before{ background:#65A30D; }
