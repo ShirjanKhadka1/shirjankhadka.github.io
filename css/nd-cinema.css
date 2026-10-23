@@ -225,3 +225,41 @@
 }
 .ds-ov-card:hover{transform:translateY(-2px);box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 14px 30px rgba(0,0,0,.32)}
 .ds-ov-card .v{font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* =====================================================================
+   R2 UNIVERSAL INTEGRATION — the cinema treatment mapped onto every
+   suite family's own shells (sig / v2 / d2 / bk / design-system .card).
+   Depth, borders, radius, hover and figure discipline only — layout and
+   family colors stay owned by the family stylesheet + tokens, so both
+   themes remain correct. (2026-10-23)
+   ===================================================================== */
+.sig-card, .v2-card, .d2-card{
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05), 0 1px 2px rgba(0,0,0,.30), 0 10px 28px rgba(0,0,0,.24);
+  transition:transform .25s cubic-bezier(.22,1,.36,1), box-shadow .25s cubic-bezier(.22,1,.36,1), border-color .25s;
+}
+.sig-card:hover, .v2-card:hover, .d2-card:hover{
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 4px 10px rgba(0,0,0,.36), 0 20px 44px rgba(0,0,0,.34), 0 0 0 1px rgba(184,230,46,.08);
+}
+[data-nd-ed="light"] .sig-card, [data-theme="light"] .sig-card,
+[data-nd-ed="light"] .v2-card, [data-theme="light"] .v2-card,
+[data-nd-ed="light"] .d2-card, [data-theme="light"] .d2-card{
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7), 0 1px 2px rgba(16,24,40,.05), 0 10px 26px rgba(16,24,40,.07);
+}
+/* family tables: header rule, row hover, tabular nowrap numerics */
+.sig-table th, .v2-table th{border-bottom:1px solid var(--nd-border-strong,#2A3140)}
+.sig-table tbody tr, .v2-table tbody tr, .bk-scroll table tbody tr{transition:background .15s}
+.sig-table tbody tr:hover, .v2-table tbody tr:hover, .bk-scroll table tbody tr:hover{background:var(--nd-lime-faint,rgba(184,230,46,.06))}
+.sig-table .num, .v2-table .num, .bk-scroll table .num{font-variant-numeric:tabular-nums;white-space:nowrap}
+/* family buttons: cinema states */
+.d2-btn, .d2-btn-ghost, .btn--primary, .btn--ghost{transition:transform .18s cubic-bezier(.22,1,.36,1), box-shadow .18s, background .18s, color .18s, border-color .18s}
+.d2-btn:hover, .btn--primary:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(184,230,46,.22)}
+.d2-btn:active, .btn--primary:active{transform:translateY(0)}
+.d2-btn:focus-visible, .btn:focus-visible, .sig-tabs button:focus-visible{outline:2px solid var(--nd-lime,#B8E62E);outline-offset:2px}
+/* kickers/eyebrows across families get the lime-square voice */
+.v2-eyebrow, .bk-eyebrow, .sig-kicker{letter-spacing:.13em}
+/* stat numerals never wrap mid-figure, anywhere in the suite */
+.v2-n, .sig-card-v, .d2-card .num, .ds-ov-card .v{font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion:reduce){
+  .sig-card, .v2-card, .d2-card, .d2-btn, .btn--primary{transition:none !important}
+  .sig-card:hover, .v2-card:hover, .d2-card:hover, .d2-btn:hover, .btn--primary:hover{transform:none}
+}
