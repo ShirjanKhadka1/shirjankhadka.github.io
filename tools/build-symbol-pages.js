@@ -91,6 +91,21 @@ function sectorGroup(sec) {
   return 'corp';
 }
 
+/* Company block styles (Wave E SEO): the static per-company profile +
+ * key-stats list emitted by companyBlock(). Kept as a separate const so
+ * tools/apply-stock-seo.js can inject the identical rules into legacy
+ * baked pages that predate the inline SP_STYLES block. */
+const SP_ABOUT_CSS =
+'/* company block: static profile + key stats */\n' +
+'.sp-about{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 45%),var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);border-radius:var(--nd-r-lg);padding:var(--nd-s4) var(--nd-s5);margin:var(--nd-s5) 0;box-shadow:var(--nd-rim),var(--nd-e1)}\n' +
+'.sp-about h2{margin-top:0}\n' +
+'.sp-about p{color:var(--nd-muted,#B8C0CE);line-height:1.7;font-size:.95rem}\n' +
+'.sp-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--nd-s3);margin:var(--nd-s4) 0 0}\n' +
+'@media(min-width:700px){.sp-stats{grid-template-columns:repeat(3,1fr)}}\n' +
+'.sp-stats div{background:rgba(255,255,255,.02);border:1px solid var(--nd-border,#1E2430);border-radius:var(--nd-r-md);padding:var(--nd-s3)}\n' +
+'.sp-stats dt{font-size:.72rem;color:var(--nd-dim,#8E98A8);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}\n' +
+'.sp-stats dd{margin:0;font-size:.98rem;font-weight:700;color:var(--nd-text,#fff);font-variant-numeric:tabular-nums}\n';
+
 /* Stock pages: new design system (sig-pro) component styles.
  * Maps the template's existing class names to the dark/lime 3D design.
  * All element IDs and JS hooks are unchanged. */
@@ -239,9 +254,10 @@ const SP_STYLES =
 '.d2-val-chart canvas{width:100%;height:280px;display:block}\n' +
 '.d2-fresh{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px;font-size:.8rem;color:var(--nd-dim,#8E98A8)}\n' +
 '.d2-fresh b{color:var(--nd-muted,#B8C0CE)}\n' +
+SP_ABOUT_CSS +
 '/* light theme: token-driven components (tabs, tables) flip with the\n' +
 '   tokens; only the deep-card light recipe remains explicit here */\n' +
-'[data-theme=\"light\"] .sp-price-card,[data-theme=\"light\"] .vpill,[data-theme=\"light\"] .sp-fund,[data-theme=\"light\"] .inv-cal,[data-theme=\"light\"] .d2-val-lab{background:linear-gradient(180deg,#FFFFFF 0%,#F4F7FA 100%);border-color:#CBD4DE;box-shadow:inset 0 2px 0 #FFFFFF,0 1px 2px rgba(10,12,16,.1),0 8px 24px rgba(10,12,16,.1)}\n' +
+'[data-theme=\"light\"] .sp-price-card,[data-theme=\"light\"] .vpill,[data-theme=\"light\"] .sp-about,[data-theme=\"light\"] .sp-fund,[data-theme=\"light\"] .inv-cal,[data-theme=\"light\"] .d2-val-lab{background:linear-gradient(180deg,#FFFFFF 0%,#F4F7FA 100%);border-color:#CBD4DE;box-shadow:inset 0 2px 0 #FFFFFF,0 1px 2px rgba(10,12,16,.1),0 8px 24px rgba(10,12,16,.1)}\n' +
 '[data-theme=\"light\"] .sp-price,[data-theme=\"light\"] .sp-stat-v,[data-theme=\"light\"] .sp-fund-v,[data-theme=\"light\"] .d2-val-co-sym,[data-theme=\"light\"] .inv-cal-head h2{color:#0A0C10}\n' +
 '[data-theme=\"light\"] .sp-note{background:linear-gradient(180deg,#FFFFFF 0%,#F4F7FA 100%);border-color:#CBD4DE;border-left-color:#4D7C0F;color:#3F4753}\n' +
 '[data-theme=\"light\"] .sp-note strong{color:#0A0C10}\n' +
@@ -300,6 +316,9 @@ function head(sym, name, slug) {
           { '@type': 'ListItem', position: 3, name: sym, item: url },
         ],
       },
+      /* The listed company itself (Wave E schema depth): only fields
+       * the batch data carries — name, ticker, canonical page URL. */
+      { '@type': 'Corporation', name, tickerSymbol: sym, url },
     ],
   };
   return '<!DOCTYPE html>\n<html lang="en">\n<head>\n' +
@@ -317,19 +336,20 @@ function head(sym, name, slug) {
     '<meta property="og:title" content="' + esc(name + ' (' + sym + ') | Nepse Decode') + '">\n' +
     '<meta property="og:description" content="' + esc(desc) + '">\n' +
     '<meta property="og:url" content="' + url + '">\n' +
-    '<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/nepse-decode-og.jpg">\n' +
+    '<meta property="og:image" content="' + OG_STOCKS + '">\n' +
     '<meta property="og:image:width" content="1200">\n' +
     '<meta property="og:image:height" content="630">\n' +
     '<meta name="twitter:card" content="summary">\n' +
     '<meta name="twitter:title" content="' + esc(name + ' (' + sym + ') | Nepse Decode') + '">\n' +
     '<meta name="twitter:description" content="' + esc(desc) + '">\n' +
+    '<meta name="twitter:image" content="' + OG_STOCKS + '">\n' +
     '<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">\n' +
     '<link rel="apple-touch-icon" href="/apple-touch-icon.png">\n' +
     '<link rel="stylesheet" href="/css/fonts.css">\n' +
-    '<link rel="stylesheet" href="/css/nd-tokens.css?v=20261023a">\n' +
-    '<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023a">\n' +
-    '<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023a">\n' +
-    '<link rel="stylesheet" href="/css/sig-pro.css?v=20261023a">\n' +
+    '<link rel="stylesheet" href="/css/nd-tokens.css?v=20261023c">\n' +
+    '<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023c">\n' +
+    '<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023c">\n' +
+    '<link rel="stylesheet" href="/css/sig-pro.css?v=20261023c">\n' +
     SP_STYLES +
 
     '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>\n' +
@@ -342,10 +362,10 @@ const RAIL = '<body class="nd">\n' +
 
   const FOOT =
   '<div id="nd-footer"></div>\n' +
-  '<script src="/js/nd-chrome.js?v=20261023a" defer></script>\n' +
-  '<script src="/js/theme-toggle.js?v=20261023a" defer></script>\n' +
-  '<script src="/js/stock-live.js?v=20260930a" defer></script>\n' +
-  '<script src="/js/val-lab.js?v=20261003a" defer></script>\n' +
+  '<script src="/js/nd-chrome.js?v=20261023c" defer></script>\n' +
+  '<script src="/js/theme-toggle.js?v=20261023c" defer></script>\n' +
+  '<script src="/js/stock-live.js?v=20261023c" defer></script>\n' +
+  '<script src="/js/val-lab.js?v=20261023c" defer></script>\n' +
   '</body>\n</html>\n';
 
 function fmtNum(x) {
@@ -414,6 +434,95 @@ function fundBlock(sym, fund, sector) {
   }
   h += '</div></div>\n</section>\n';
   return h;
+}
+
+/* Stocks-family social card (Wave E): one proper 1200x630 stocks image
+ * for every stock page + the /stocks/ index, rendered from the official
+ * brand mark by tools/build-og-stocks.py. Replaces the generic site card. */
+const OG_STOCKS = SITE + '/assets/images/og/stocks.png';
+
+/* Static company block (Wave E SEO). DATA HONESTY: every value below is
+ * composed ONLY from fields the batch data already carries (universe,
+ * verdicts, fundamentals, live tape) — a missing field omits its clause
+ * and its stats row; nothing is estimated or invented. blockFacts()
+ * formats; companyBlock() renders prose + a key-stats definition list.
+ * snap mirrors symbolPage's own snapshot selection: { pNum, cNum, asofD,
+ * volFmt, tnoFmt } where volFmt/tnoFmt are fmtNum() outputs (string|null). */
+const isNum = (x) => x !== null && x !== undefined && x !== '' && Number.isFinite(Number(x));
+
+function blockFacts(u, v, fund, sector, snap) {
+  const f = { sym: u.s, name: u.n, type: u.t || null, sector: sector || null,
+    asof: snap.asofD || null, price: null, chg: null, h52: null, l52: null,
+    vol: snap.volFmt || null, turnover: snap.tnoFmt || null,
+    period: null, paidup: null, netprofit: null, eps: null, pe: null,
+    verdict: null, verdictAsof: null };
+  if (snap.pNum != null) f.price = fmtNum(snap.pNum);
+  if (snap.cNum != null) f.chg = (snap.cNum > 0 ? '+' : '') + snap.cNum + '%';
+  if (v) {
+    if (isNum(v.h52)) f.h52 = fmtNum(v.h52);
+    if (isNum(v.l52)) f.l52 = fmtNum(v.l52);
+    if (v.v) { f.verdict = v.v; f.verdictAsof = v.asof || null; }
+  }
+  const c = fund && fund.companies ? fund.companies[u.s] : null;
+  if (c) {
+    f.period = c.period || fund.period || null;
+    if (c.paidup_b != null && isFinite(Number(c.paidup_b))) f.paidup = 'Rs ' + Number(c.paidup_b).toLocaleString('en-US') + 'b';
+    if (c.netprofit_b != null && isFinite(Number(c.netprofit_b))) {
+      const nb = Number(c.netprofit_b);
+      f.netprofit = nb < 1 && nb > -1 ? 'Rs ' + (nb * 1000).toFixed(1) + 'm' : 'Rs ' + nb.toLocaleString('en-US') + 'b';
+    }
+    if (c.eps_ttm != null && isFinite(Number(c.eps_ttm))) f.eps = 'Rs ' + Number(c.eps_ttm);
+    if (c.pe_ttm != null && isFinite(Number(c.pe_ttm)) && Number(c.pe_ttm) !== 0) f.pe = Number(c.pe_ttm) + 'x';
+  }
+  return f;
+}
+
+function companyBlock(f) {
+  const s = [];
+  s.push(f.name + ' (' + f.sym + ') is listed on the Nepal Stock Exchange (NEPSE)' +
+    (f.sector ? ', in the ' + f.sector + ' sector' : '') + '.');
+  if (f.type && f.type !== 'Equity') s.push('The security is a ' + f.type.toLowerCase() + '.');
+  if (f.price) {
+    let m = 'As of ' + f.asof + ', ' + f.sym + ' last traded at Rs ' + f.price;
+    if (f.chg) m += ' (' + f.chg + ' on the session)';
+    if (f.h52 || f.l52) m += ', within a 52-week range of Rs ' + (f.l52 || '–') + ' – Rs ' + (f.h52 || '–');
+    if (f.vol) m += ', on volume of ' + f.vol + ' shares';
+    s.push(m + '.');
+  } else if (f.asof) {
+    s.push('The ' + f.asof + ' data batch carries no recent traded price for ' + f.sym + '.');
+  }
+  const fp = [];
+  if (f.paidup) fp.push('paid-up capital of ' + f.paidup);
+  if (f.netprofit) fp.push('net profit of ' + f.netprofit);
+  if (f.eps) fp.push('earnings per share (TTM) of ' + f.eps);
+  if (f.pe) fp.push('a price-to-earnings ratio (TTM) of ' + f.pe);
+  if (fp.length) s.push('Latest published fundamentals' + (f.period ? ' (' + f.period + ')' : '') +
+    ' show ' + fp.join(', ') + '.');
+  if (f.verdict) s.push('The Alpha Lab daily engine reading for ' + f.sym + ' is ' + f.verdict +
+    (f.verdictAsof ? ' (as of ' + f.verdictAsof + ')' : '') + '.');
+  const rows = [];
+  const row = (dt, dd) => { if (dd != null && dd !== '') rows.push('<div><dt>' + esc(dt) + '</dt><dd>' + esc(dd) + '</dd></div>'); };
+  row('Symbol', f.sym);
+  row('Company', f.name);
+  row('Sector', f.sector);
+  row('Instrument type', f.type);
+  row('Last traded price', f.price ? 'Rs ' + f.price : null);
+  row('Session change', f.chg);
+  row('52-week high', f.h52 ? 'Rs ' + f.h52 : null);
+  row('52-week low', f.l52 ? 'Rs ' + f.l52 : null);
+  row('Volume (shares)', f.vol);
+  row('Turnover', f.turnover ? 'Rs ' + f.turnover : null);
+  row('Paid-up capital', f.paidup);
+  row('Net profit (latest quarter)', f.netprofit);
+  row('EPS (TTM)', f.eps);
+  row('P/E (TTM)', f.pe);
+  row('Fundamentals period', f.period);
+  row('Price data as of', f.asof);
+  let h = '<section class="sp-about" data-seo-block="company" aria-label="About ' + esc(f.name) + '">\n';
+  h += '<h2>About ' + esc(f.name) + '</h2>\n';
+  h += '<p>' + esc(s.join(' ')) + '</p>\n';
+  if (rows.length) h += '<dl class="sp-stats">\n' + rows.join('\n') + '\n</dl>\n';
+  return h + '</section>\n';
 }
 
 /* Quarterly trend table. quarterly.json holds published quarterly figures
@@ -1046,6 +1155,7 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
   h += '</div>';
   h += '<div class="sp-tabpanel active" data-panel="overview" role="tabpanel">';
   h += '<p class="sp-note">Price snapshot above. Switch tabs for engine signals, published fundamentals, latest headlines and corporate actions.</p>';
+  h += companyBlock(blockFacts(u, v, fund, sector, { pNum, cNum, asofD, volFmt: vol, tnoFmt: tno }));
   h += '<ul class="sp-links">';
   h += '<li><a href="/nepse-chart/?s=' + esc(sym) + '">Full chart, patterns and divergences <span aria-hidden="true">→</span></a></li>';
   h += '<li><a href="/nepse-screener/">Ranked screener <span aria-hidden="true">→</span></a></li>';
@@ -1187,18 +1297,19 @@ function indexPage(symbols, asof) {
     '<meta property="og:title" content="' + esc(title) + '">\n' +
     '<meta property="og:description" content="' + esc(desc) + '">\n' +
     '<meta property="og:url" content="' + SITE + '/stocks/">\n' +
-    '<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/nepse-decode-og.jpg">\n' +
+    '<meta property="og:image" content="' + OG_STOCKS + '">\n' +
     '<meta property="og:image:width" content="1200">\n' +
     '<meta property="og:image:height" content="630">\n' +
     '<meta name="twitter:card" content="summary">\n' +
     '<meta name="twitter:title" content="' + esc(title) + '">\n' +
     '<meta name="twitter:description" content="' + esc(desc) + '">\n' +
+    '<meta name="twitter:image" content="' + OG_STOCKS + '">\n' +
     '<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">\n' +
     '<link rel="stylesheet" href="/css/fonts.css">\n' +
-    '<link rel="stylesheet" href="/css/nd-tokens.css?v=20261023a">\n' +
-    '<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023a">\n' +
-    '<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023a">\n' +
-    '<link rel="stylesheet" href="/css/sig-pro.css?v=20261023a">\n' +
+    '<link rel="stylesheet" href="/css/nd-tokens.css?v=20261023c">\n' +
+    '<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023c">\n' +
+    '<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023c">\n' +
+    '<link rel="stylesheet" href="/css/sig-pro.css?v=20261023c">\n' +
     SP_STYLES +
     '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>\n</head>\n' +
     RAIL + '<main id="main" class="sig-wrap">\n' +
@@ -1336,8 +1447,40 @@ function main() {
     fs.writeFileSync(path.join(dir, 'index.html'), symbolPage(u, v, newsBySym[sym] || [], fund, liveMap[sym], liveDate, sector, sectorPeers, verdicts, quarterly, corpHist[sym], related));
     made++;
   }
-  if (!onlySym) fs.writeFileSync(path.join(OUT, 'index.html'), indexPage(symbols, pageAsof));
+  if (!onlySym) {
+    /* Wave E: the /stocks/ directory also lists baked pages whose symbols
+     * are no longer in universe.json (delisted / renamed instruments whose
+     * pages remain live). Without them those pages are orphans — nothing
+     * links to them. Their name/type are read back from each page's own
+     * baked <h1> and sector kicker; no data is invented. */
+    const extras = scanBakedExtras(new Set(symbols.map((u) => slugOf(u.s))));
+    fs.writeFileSync(path.join(OUT, 'index.html'), indexPage(symbols.concat(extras), pageAsof));
+  }
   console.log(JSON.stringify({ pages: made, dir: 'stocks/', symbol: onlySym || undefined }));
 }
 
-main();
+/* Baked stock pages on disk that universe.json no longer carries.
+ * Returns [{ s, n, t }] parsed from each page itself (h1 "Name (SYM)",
+ * kicker "Type · NEPSE"); pages without a parseable h1 are skipped. */
+function scanBakedExtras(knownSlugs) {
+  const out = [];
+  let dirs = [];
+  try { dirs = fs.readdirSync(OUT, { withFileTypes: true }); } catch { return out; }
+  for (const d of dirs) {
+    if (!d.isDirectory() || knownSlugs.has(d.name)) continue;
+    let html;
+    try { html = fs.readFileSync(path.join(OUT, d.name, 'index.html'), 'utf8'); } catch { continue; }
+    const h1 = html.match(/<h1>([\s\S]*?)\(([^()]*)\)<\/h1>/);
+    if (!h1) continue;
+    const kick = html.match(/sig-kicker">([\s\S]*?) · NEPSE</);
+    out.push({ s: h1[2].trim(), n: h1[1].trim(), t: kick ? kick[1].trim() : '' });
+  }
+  return out;
+}
+
+if (require.main === module) main();
+
+/* Exported for tools/apply-stock-seo.js, which brings the already-baked
+ * pages to the identical end state without a full regeneration. */
+module.exports = { classifySymbol, sectorGroup, slugOf, fmtNum, esc,
+  blockFacts, companyBlock, SP_ABOUT_CSS, OG_STOCKS, scanBakedExtras };

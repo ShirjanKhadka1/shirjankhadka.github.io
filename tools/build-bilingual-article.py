@@ -9,7 +9,7 @@ Input: a story-definition JSON (see schema in README section below).
 Outputs (under the repo root):
     blog/<slug>/index.html        English page,  <html lang="en">
     ne/blog/<slug>/index.html     Nepali page,   <html lang="ne">
-    blog/sitemap-news.xml         extended with both URLs (+ <lastmod>)
+    blog/sitemap-blog.xml         extended with both URLs (+ <lastmod>)
 
 Spec: research_notes/newsroom-competitive-study-2026-09-29/spec.md sections 2 (bilingual)
 and 5 (SEO checklist). Component order follows the article template at
@@ -461,8 +461,8 @@ def head_block(story, lang, self_url, other_url):
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=20261004a">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023c">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023c">
 <script type="application/ld+json">
 {ld_json}
 </script>
@@ -717,7 +717,7 @@ def render_page(story, lang):
         comments_block(story, lang),
         "</main>",
         '<div id="nd-footer"></div>',
-        '<script src="/js/nd-chrome.js?v=20261014a" defer></script>',
+        '<script src="/js/nd-chrome.js?v=20261023c" defer></script>',
         """<script>
 document.addEventListener('click', function (e) {
   var a = e.target.closest('a[data-copy-link]');
@@ -830,10 +830,12 @@ def validate_story(story):
 
 
 # ----------------------------------------------------------------------------
-# Sitemap (blog/sitemap-news.xml) — upsert both language URLs with <lastmod>
+# Sitemap (blog/sitemap-blog.xml) — upsert both language URLs with <lastmod>
+# (Renamed from sitemap-news.xml in Wave E: the file is a plain blog
+# urlset maintained on publish, not a Google News <news:news> sitemap.)
 # ----------------------------------------------------------------------------
 def update_sitemap(story):
-    sm_path = os.path.join(REPO, "blog", "sitemap-news.xml")
+    sm_path = os.path.join(REPO, "blog", "sitemap-blog.xml")
     en_url, ne_url = page_urls(story["slug"])
     lastmod = story["published_iso"][:10]
     entries = {}

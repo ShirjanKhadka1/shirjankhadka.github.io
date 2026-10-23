@@ -224,11 +224,11 @@ const COMMON_HEAD = (title, desc, canonical) => `<!DOCTYPE html>
 <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="stylesheet" href="/css/fonts.css">
-<link rel="stylesheet" href="/css/nepse-design-system.css?v=20261023a">
-<link rel="stylesheet" href="/css/theme.css?v=20261002d">
-<link rel="stylesheet" href="/css/nd-tokens.css?v=20261023a">
-<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023a">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023a">
+<link rel="stylesheet" href="/css/nepse-design-system.css?v=20261023c">
+<link rel="stylesheet" href="/css/theme.css?v=20261023c">
+<link rel="stylesheet" href="/css/nd-tokens.css?v=20261023c">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023c">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023c">
 <style>
 .wrap-arc{max-width:860px;margin:0 auto;padding:var(--nd-s8) var(--nd-s5) var(--nd-s16)}
 .wrap-arc .kicker{font:600 .72rem/1.4 var(--nd-font-mono,ui-monospace,monospace);letter-spacing:.14em;text-transform:uppercase;color:var(--nd-lime,#B8E62E);margin-bottom:var(--nd-s3)}
@@ -368,7 +368,7 @@ function renderPage(entries, pageNum, totalPages) {
     '</div></main>\n' +
     '<div id="nd-footer"></div>\n' +
     '<script>try{var t=localStorage.getItem(\'sk-theme\');if(!t)t=\'dark\';document.documentElement.setAttribute(\'data-theme\',t);if(t===\'light\')document.documentElement.setAttribute(\'data-nd-ed\',\'light\')}catch(e){}</script>\n' +
-    '<script src="/js/nd-chrome.js?v=20261023a" defer></script>\n' +
+    '<script src="/js/nd-chrome.js?v=20261023c" defer></script>\n' +
     '</body>\n</html>\n';
 }
 

@@ -9,6 +9,9 @@
  *   3. /blog/ "Company analysis" card grid (between RESEARCH-SYNC:BLOG-GRID markers)
  *   4. sitemap.xml upsert for any article URL not yet present
  *   5. SEO index queue append for newly listed articles
+ *   6. /blog/ Archive grid (between RESEARCH-SYNC:ARCHIVE markers): a card
+ *      for every published article not linked anywhere else on /blog/, so
+ *      no post is ever an orphan (Wave E).
  *
  * Idempotent: re-running with no new articles produces byte-identical files.
  * Run after the daily blog pipeline lands a new article.
@@ -31,24 +34,27 @@ const GENERIC_TAGS = new Set(['NEPSE', 'Company Analysis', 'Equity Research', 'V
 
 const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const escAttr = s => esc(s).replace(/"/g, '&quot;');
+/* Article titles/alts are stored in the pages as HTML text, so entities
+ * like &#x27; must be decoded on extraction — otherwise esc() would
+ * double-encode them (&amp;#x27;) when a card is rendered from them. */
+const decode = s => s.replace(/&#x27;|&#39;|&apos;/gi, "'").replace(/&quot;/gi, '"')
+  .replace(/&lt;/gi, '<').replace(/&gt;/gi, '>').replace(/&amp;/gi, '&');
 
 function meta(html, prop) {
   const m = html.match(new RegExp('<meta[^>]+property="' + prop + '"[^>]+content="([^"]*)"', 'i'));
   return m ? m[1] : null;
 }
 
-function scanArticles() {
-  const blogDir = path.join(ROOT, 'blog');
-  const out = [];
-  for (const slug of fs.readdirSync(blogDir)) {
-    const idx = path.join(blogDir, slug, 'index.html');
-    if (!fs.existsSync(idx)) continue;
-    const html = fs.readFileSync(idx, 'utf8');
+/* Parse one article page into the fields the cards need. Returns null
+ * when the page carries no article:section (not a standard article).
+ * Shared by the company-analysis scan and the all-articles archive scan
+ * so both surfaces describe an article identically. */
+function parseArticle(slug, html) {
     const section = meta(html, 'article:section');
-    if (!section || section.toLowerCase() !== 'company analysis') continue;
+    if (!section) return null;
 
     const h1 = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
-    const title = h1 ? h1[1].replace(/<[^>]+>/g, '').trim() : slug;
+    const title = h1 ? decode(h1[1].replace(/<[^>]+>/g, '').trim()) : slug;
     const kicker = html.match(/<span class="article-kicker">([\s\S]*?)<\/span>/i);
     const kickerText = kicker ? kicker[1].replace(/<[^>]+>/g, '').trim() : '';
     const symM = kickerText.match(/NEPSE:\s*([A-Z0-9\/]+)/i);
@@ -69,10 +75,10 @@ function scanArticles() {
       const fig = html.match(/<figure class="article-hero">([\s\S]*?)<\/figure>/i);
       if (fig) {
         const a = fig[1].match(/<img[^>]+alt="([^"]*)"/i);
-        if (a) return a[1];
+        if (a) return decode(a[1]);
       }
       const a = html.match(/<img[^>]+alt="([^"]*)"[^>]*fetchpriority="high"/i);
-      return a ? a[1] : title;
+      return a ? decode(a[1]) : title;
     })();
 
     let sector = tags.find(t => !GENERIC_TAGS.has(t) && t.toUpperCase() !== sym) || sym || 'Markets';
@@ -80,13 +86,32 @@ function scanArticles() {
     const hasER = tags.some(t => t.toLowerCase() === 'equity research');
     const cardKicker = `${sector} · NEPSE: ${sym || ''}` + (hasER ? ' · Equity Research' : '');
 
-    out.push({
+    return {
       slug, url: `${SITE}/blog/${slug}/`, path: `/blog/${slug}/`,
-      title, cardKicker, dateLabel, pubDate, readTime, imgPath, alt,
-    });
+      title, section, cardKicker, dateLabel, pubDate, readTime, imgPath, alt,
+    };
+}
+
+function scanDir() {
+  const blogDir = path.join(ROOT, 'blog');
+  const out = [];
+  for (const slug of fs.readdirSync(blogDir)) {
+    const idx = path.join(blogDir, slug, 'index.html');
+    if (!fs.existsSync(idx)) continue;
+    const a = parseArticle(slug, fs.readFileSync(idx, 'utf8'));
+    if (a) out.push(a);
   }
   out.sort((a, b) => (b.pubDate || '').localeCompare(a.pubDate || '') || a.slug.localeCompare(b.slug));
   return out;
+}
+
+function scanArticles() {
+  return scanDir().filter(a => a.section.toLowerCase() === 'company analysis');
+}
+
+/* Every standard article, any section — the /blog/ archive's source. */
+function scanAllArticles() {
+  return scanDir();
 }
 
 function fimg(a) {
@@ -204,6 +229,33 @@ function main() {
   blogHtml = replaceBetween(BLOG, '<!-- RESEARCH-SYNC:BLOG-GRID-START -->', '<!-- RESEARCH-SYNC:BLOG-GRID-END -->',
     '        <div class="mag-analysis-grid">\n' + blogGrid + '\n        </div>');
   fs.writeFileSync(BLOG, blogHtml);
+
+  // 6. Blog archive (Wave E): card every article that nothing else on
+  // /blog/ links to, so no post is an orphan. The linked set is computed
+  // with the archive region itself removed — otherwise the archive would
+  // count as its own inbound link and empty itself on the next run.
+  const all = scanAllArticles();
+  const blogNow = fs.readFileSync(BLOG, 'utf8');
+  const aS = blogNow.indexOf('<!-- RESEARCH-SYNC:ARCHIVE-START -->');
+  const aE = blogNow.indexOf('<!-- RESEARCH-SYNC:ARCHIVE-END -->');
+  if (aS === -1 || aE === -1 || aE < aS) throw new Error('archive markers missing in blog index');
+  const outside = blogNow.slice(0, aS) + blogNow.slice(aE);
+  const linked = new Set([...outside.matchAll(/href="\/blog\/([^"]+)\/"/g)].map(m => m[1]));
+  const missing = all.filter(a => !linked.has(a.slug));
+  const archiveInner = missing.length ? [
+    '      <section class="mag-section" aria-label="Archive">',
+    '        <div class="mag-head">',
+    '          <h2>Archive</h2>',
+    '          <p>Every remaining article, newest first</p>',
+    '        </div>',
+    '        <div class="mag-analysis-grid">',
+    missing.map(a => card({ ...a, cardKicker: a.section }, '          ')).join('\n'),
+    '        </div>',
+    '      </section>',
+  ].join('\n') : '';
+  const blogSynced = replaceBetween(BLOG, '<!-- RESEARCH-SYNC:ARCHIVE-START -->', '<!-- RESEARCH-SYNC:ARCHIVE-END -->', archiveInner);
+  fs.writeFileSync(BLOG, blogSynced);
+  console.log(`archive: ${missing.length} article(s) carded${missing.length ? ': ' + missing.map(a => a.slug).join(', ') : ''}`);
 
   // 4+5. Sitemap + SEO queue for newly listed articles.
   const newly = articles.filter(a => !prevSlugs.has(a.slug));

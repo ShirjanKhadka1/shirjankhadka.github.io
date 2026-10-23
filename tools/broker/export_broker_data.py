@@ -242,8 +242,17 @@ def export_period(con, period, days, end_iso):
     real_flows = [f for f in flows
                   if (f["buy_value"] + f["sell_value"]) >= MIN_FLOW_VALUE]
     flows_sorted = sorted(real_flows, key=lambda x: -x["net_value"])
-    accumulation = [f for f in flows_sorted if f["net_value"] > 0][:200]
-    distribution = [f for f in sorted(real_flows, key=lambda x: x["net_value"])
+    # Emit only the documented acc/dist schema ({symbol, broker, net_qty,
+    # net_value} — see module docstring). The buy/sell components are never
+    # read by any renderer (verified 2026-10-23: nepse-brokers pages and
+    # js/nd-moneyflow.js read symbol/broker/net_qty/net_value only), and
+    # dropping them shrinks every periods/*.json. Values are the same
+    # r2-rounded net figures the flows already carry — nothing recomputed.
+    def flow_out(f):
+        return {"symbol": f["symbol"], "broker": f["broker"],
+                "net_qty": r2(f["net_qty"]), "net_value": r2(f["net_value"])}
+    accumulation = [flow_out(f) for f in flows_sorted if f["net_value"] > 0][:200]
+    distribution = [flow_out(f) for f in sorted(real_flows, key=lambda x: x["net_value"])
                     if f["net_value"] < 0][:200]
 
     return {"period": period, "from": dates[0], "to": dates[-1],
