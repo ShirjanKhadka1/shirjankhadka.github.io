@@ -109,7 +109,7 @@ function page(sys, data) {
     '<tr><td>Charges paid</td><td>' + money(st.charges_paid) + '</td><td>Backtest window</td><td>' + st.backtest_from + ' &rarr; ' + st.backtest_to + '</td></tr>\n';
 
   const rulesHtml = data.rules.map(r => '<li>' + r + '</li>').join('');
-  const aboutHtml = title + ' is one of Nepse Decode\'s transparent signal systems, run by the Alpha Lab engine. Every rule above is public — there is no hidden model and no "AI prediction". Signals are generated mechanically from daily OHLCV data (corporate-action adjusted); a stock appears here only if it passes every filter, including a Rs 10 lakh average-turnover liquidity bar. This page is educational and is not investment advice.';
+  const aboutHtml = title + ' is one of Nepse Decode\'s transparent signal systems. Every rule above is public — there is no hidden model and no "AI prediction". Signals are generated mechanically from daily OHLCV data (corporate-action adjusted); a stock appears here only if it passes every filter, including a Rs 10 lakh average-turnover liquidity bar. This page is educational and is not investment advice.';
 
   /* honesty: the on-page ledger is capped at the newest 500 rows, so say so */
   const tc = data.trade_counts || {};

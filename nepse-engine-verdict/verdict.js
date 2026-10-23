@@ -40,9 +40,23 @@
           };
         });
         var asof = $('evAsof');
-        if (asof) asof.textContent = state.asof
-          ? 'Scores from the ' + state.asof + ' session · rebuilt daily after close'
-          : 'Session date unavailable';
+        var scored = state.rows.length;
+        var paintAsof = function (listed) {
+          if (!asof) return;
+          asof.textContent = state.asof
+            ? 'Scores from the ' + state.asof + ' session · ' + scored +
+              (listed ? ' of ' + listed + ' listed securities scored' : ' securities scored') +
+              ' · rebuilt daily after close'
+            : 'Session date unavailable';
+        };
+        paintAsof(0);
+        // Coverage denominator from the listed universe itself — never a
+        // hardcoded count. If it cannot be loaded, the line simply reports
+        // how many securities were scored.
+        fetch('/nepse-chart/data/universe.json', {credentials:'same-origin'})
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (u) { paintAsof(u && u.symbols ? u.symbols.length : 0); })
+          .catch(function () { /* keep the scored-only line */ });
         renderStats(); renderFilters(); renderTable();
       })
       .catch(function () {

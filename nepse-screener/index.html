@@ -28,7 +28,7 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="stylesheet" href="/css/fonts.css">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"Nepse Decode Screener","url":"https://shirjankhadka.com.np/nepse-screener/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Daily ranked NEPSE stock screener: every listed security scored by a transparent rule-based engine (Strong Buy to Strong Sell) with ATR-based stop-loss and target levels, sector, signal, RSI, price and volume filters, RSI extremes and biggest-movers tables, and search. Educational use only, not investment advice.","author":{"@type":"Organization","name":"Nepse Decode"}}
+{"@context":"https://schema.org","@type":"WebApplication","name":"Nepse Decode Screener","url":"https://shirjankhadka.com.np/nepse-screener/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Daily ranked NEPSE stock screener: every listed security scored by a transparent rule-based engine (Strong Buy to Strong Exit) with ATR-based stop-loss and target levels, sector, signal, RSI, price and volume filters, RSI extremes and biggest-movers tables, and search. Educational use only, not investment advice.","author":{"@type":"Organization","name":"Nepse Decode"}}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
@@ -43,8 +43,8 @@
 {"@type":"Question","name":"Is this investment advice?","acceptedAnswer":{"@type":"Answer","text":"No. This is a mechanical, rule-based illustration for education. Markets are uncertain and past patterns do not guarantee future results. Do your own research before any investment decision."}},
 {"@type":"Question","name":"What is the Hit rate column?","acceptedAnswer":{"@type":"Answer","text":"For each security with enough history, the engine's past Buy and Strong Buy calls on equity securities over the last 250 sessions are replayed using only data available at the time. A call counts as a hit when the session's own target (+4x ATR) was reached before its stop-loss (-2x ATR) within the next 20 sessions. The hit rate is hits divided by decided calls; calls where neither level was touched are excluded. Fewer than 5 decided calls shows as a dash. Hit rates are regime-dependent: 31.0% across the older 250-session window (NEPSE +31.0%) versus 11.4% across the most recent 250 sessions (NEPSE -6.2%)."}}]}
 </script>
-<link rel="stylesheet" href="/css/nd-chrome.css?v=79a19171">
-<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=9fae27fd">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023a">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023a">
 <link rel="stylesheet" href="/css/sig-pro.css?v=fdd6a175">
 <link rel="stylesheet" href="/css/nepse-logos.css">
 <style>
@@ -175,8 +175,8 @@
       <option value="Strong Buy">Strong Buy</option>
       <option value="Buy">Buy</option>
       <option value="Hold">Hold</option>
-      <option value="Exit / Reduce">Sell</option>
-      <option value="Strong Exit">Strong Sell</option>
+      <option value="Exit / Reduce">Exit</option>
+      <option value="Strong Exit">Strong Exit</option>
       <option value="Insufficient history">No signal</option>
     </select>
     <select id="sc-rsi" class="sc-select" aria-label="Filter by RSI zone">
@@ -226,7 +226,7 @@
   </section>
 
   <div class="note" aria-label="Methodology note">
-    <p><strong>How to read this table.</strong> Signals come from a rule-based engine (trend, RSI, MACD, turnover, 52-week position, divergences, chart patterns, market backdrop, support/resistance), the same Alpha Lab engine behind Nepse Decode. Buy signals are gated: no Buy is issued while the price sits below its 200-day average, entries only fire in long-term stock uptrends. The Sector column groups each security honestly: Debentures, Mutual Funds and Promoter Shares are instrument types (from the universe instrument-type field, debenture symbol suffixes, and bond/rinpatra/fund/kosh in the official name), while Banking, Hydropower and the rest are NEPSE sub-indexes inferred from explicit business words in the official company name. Every listed security sits in exactly one group; anything outside the named sub-indexes falls into Others. Hit rates are regime-dependent, and both regimes are published: across the older 250-session window (NEPSE +31.0%) the engine’s buy calls hit 31.0%; across the most recent 250 sessions (NEPSE −6.2%) they hit 11.4%. Stop-loss = last close − 2 × ATR(14); target = last close + 4 × ATR(14), a 1:2 risk-reward frame. “Setup” names the most recent chart pattern or divergence detected. <strong>Hit rate</strong> replays the engine’s past Buy/Strong Buy calls on equity securities over the last 250 sessions: a call is a hit when its own target was touched before its stop within the next 20 sessions. Calls touching neither level are excluded; under 5 decided calls shows “–”.</p>
+    <p><strong>How to read this table.</strong> Signals come from the Engine Verdict — Nepse Decode's rule-based engine (trend, RSI, MACD, turnover, 52-week position, divergences, chart patterns, market backdrop, support/resistance). Buy signals are gated: no Buy is issued while the price sits below its 200-day average, entries only fire in long-term stock uptrends. The Sector column groups each security honestly: Debentures, Mutual Funds and Promoter Shares are instrument types (from the universe instrument-type field, debenture symbol suffixes, and bond/rinpatra/fund/kosh in the official name), while Banking, Hydropower and the rest are NEPSE sub-indexes inferred from explicit business words in the official company name. Every listed security sits in exactly one group; anything outside the named sub-indexes falls into Others. Hit rates are regime-dependent, and both regimes are published: across the older 250-session window (NEPSE +31.0%) the engine’s buy calls hit 31.0%; across the most recent 250 sessions (NEPSE −6.2%) they hit 11.4%. Stop-loss = last close − 2 × ATR(14); target = last close + 4 × ATR(14), a 1:2 risk-reward frame. “Setup” names the most recent chart pattern or divergence detected. <strong>Hit rate</strong> replays the engine’s past Buy/Strong Buy calls on equity securities over the last 250 sessions: a call is a hit when its own target was touched before its stop within the next 20 sessions. Calls touching neither level are excluded; under 5 decided calls shows “–”.</p>
     <p style="margin-bottom:0">Rule-based screening for education only, not investment advice. Signals computed from the last close (<span id="sc-asof2">—</span>). Securities with under 60 sessions of history get no signal.</p>
   </div>
   <p class="sig-sub">Live quotes via our own 15-minute market snapshot; figures may be delayed — <a href="/data-terms.html">see our data terms</a>.</p>
@@ -276,10 +276,10 @@
 <script src="../js/nepse-suite.js?v=8096b208" defer></script>
 <script src="/js/company-logos.js?v=d8c620a6" defer></script>
 <script src="/js/nepse-logos.js" defer></script>
-<script src="../js/nepse-screener.js?v=4c3bbf5a" defer></script>
-<script src="../js/nd-screener-verdict.js?v=2fb2e359" defer></script>
-<script src="/js/theme-toggle.js?v=8f323a39" defer></script>
-<script src="/js/freshness-badge.js?v=bb5bd11a" defer></script>
-<script src="/js/nd-chrome.js?v=20261014a" defer></script>
+<script src="../js/nepse-screener.js?v=20261023a" defer></script>
+<script src="../js/nd-screener-verdict.js?v=20261023a" defer></script>
+<script src="/js/theme-toggle.js?v=20261023a" defer></script>
+<script src="/js/freshness-badge.js?v=20261023a" defer></script>
+<script src="/js/nd-chrome.js?v=20261023a" defer></script>
 </body>
 </html>

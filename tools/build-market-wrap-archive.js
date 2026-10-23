@@ -103,6 +103,7 @@ function entryFromLive(live) {
     const pc = Number(q.percent_change);
     if (pc > 0) adv++; else if (pc < 0) dec++;
   });
+  const total = (live.quotes || []).length;
 
   const leadNames = leaders.map((l) => l.name).join(' and ');
   const lagNames = laggards.map((l) => l.name).join(' and ');
@@ -114,21 +115,32 @@ function entryFromLive(live) {
 
   const breadthTxt = adv > dec ? 'advancers outnumbered decliners'
     : dec > adv ? 'decliners outnumbered advancers' : 'advancers and decliners were evenly split';
+  // Breadth always prints its universe: advancers vs decliners OF the
+  // scrips that traded (the quotes carried by the session snapshot).
+  const breadthCounts = '(' + adv + ' vs ' + dec + ' of ' + total + ' traded scrips)';
+  const breadthDir = adv > dec ? 1 : dec > adv ? -1 : 0;
 
   let body1 = 'The NEPSE index closed at ' + fmt(ix.value) + ' (' +
     (chg > 0 ? '+' : '') + fmt(chg) + ' points, ' + (pct > 0 ? '+' : '') + pct.toFixed(2) + '%). ';
   if (chg > 0) {
-    body1 += 'Bulls were in control as ' + breadthTxt + ' (' + adv + ' vs ' + dec + '). ';
+    // Breadth drives the sentence when it disagrees with the index: an up
+    // day on negative breadth is a narrow, heavyweight-led rise — never
+    // "Bulls were in control as decliners outnumbered advancers".
+    if (breadthDir < 0) body1 += 'The index rose on narrow breadth — ' + breadthTxt + ' ' + breadthCounts + '. ';
+    else if (breadthDir > 0) body1 += 'Bulls were in control as ' + breadthTxt + ' ' + breadthCounts + '. ';
+    else body1 += 'The index rose with ' + breadthTxt + ' ' + breadthCounts + '. ';
     if (leadNames) body1 += 'Strength came from ' + leaders.map((l) => l.name).join(' and ') +
       ' shares' + (leaders[0].pct ? ' (up ' + leaders[0].pct.toFixed(2) + '%)' : '') + '. ';
   } else if (chg < 0) {
-    body1 += 'Bears dominated as ' + breadthTxt + ' (' + dec + ' vs ' + adv + '). ';
+    if (breadthDir > 0) body1 += 'The index fell despite positive breadth — ' + breadthTxt + ' ' + breadthCounts + '. ';
+    else if (breadthDir < 0) body1 += 'Bears dominated as ' + breadthTxt + ' ' + breadthCounts + '. ';
+    else body1 += 'The index fell with ' + breadthTxt + ' ' + breadthCounts + '. ';
     if (lagNames) body1 += 'Weakness was concentrated in ' + lagNames +
       (laggards[laggards.length - 1].pct ? ' (down ' + Math.abs(laggards[laggards.length - 1].pct).toFixed(2) + '%)' : '') + '. ';
     if (leaders.length && leaders[0].pct > 0)
       body1 += leaders[0].name + ' declined the least (+' + leaders[0].pct.toFixed(2) + '%). ';
   } else {
-    body1 += 'The market ended flat as ' + breadthTxt + '. ';
+    body1 += 'The market ended flat as ' + breadthTxt + ' ' + breadthCounts + '. ';
   }
   body1 += 'Day range: ' + fmt(ix.low) + ' – ' + fmt(ix.high) + '.';
 
@@ -144,7 +156,7 @@ function entryFromLive(live) {
       high: ix.high == null ? null : Number(ix.high),
       low: ix.low == null ? null : Number(ix.low),
     },
-    breadth: { adv, dec },
+    breadth: { adv, dec, total },
     sectors: { leaders, laggards },
     headline, body: [body1, body2],
     source: 'live-close',
@@ -259,7 +271,8 @@ function entryCard(e) {
   meta.push('NEPSE ' + fmt(e.index.value));
   if (e.index.open != null) meta.push('open ' + fmt(e.index.open));
   meta.push((chg > 0 ? '+' : '') + fmt(chg) + ' (' + (e.index.pct > 0 ? '+' : '') + Number(e.index.pct).toFixed(2) + '%)');
-  if (e.breadth && e.breadth.adv != null) meta.push(e.breadth.adv + ' adv / ' + e.breadth.dec + ' dec');
+  if (e.breadth && e.breadth.adv != null) meta.push(e.breadth.adv + ' adv / ' + e.breadth.dec + ' dec' +
+    (e.breadth.total != null ? ' of ' + e.breadth.total + ' traded' : ''));
   return `<article class="wa-entry" itemscope itemtype="https://schema.org/NewsArticle">
   <div class="wa-date">${esc(sessLabel(e.session_date))} · ${esc(weekdayLong(e.session_date))}</div>
   <h2 itemprop="headline">${headlineHtml(e)}</h2>

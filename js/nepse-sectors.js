@@ -1,4 +1,4 @@
-/* NEPSE Alpha Lab: sector dashboard.
+/* Nepse Decode sector dashboard.
    Loads /nepse-chart/data/verdicts.json (via version.json cache-bust) and
    aggregates it into a size-weighted heatmap, per-sector breadth cards, and
    a sortable comparison table. Everything is computed client-side from the
@@ -109,6 +109,7 @@
   }
   var sectorMap = null;
   var nameMap = null;
+  var universeSyms = [];
   function nameOf(sym) {
     return (nameMap && nameMap[sym]) || String(sym || '');
   }
@@ -138,6 +139,7 @@
           if (it.s) sectorMap[it.s] = classifySymbol(it.s, it.n, it.t);
           if (it.s && it.n) nameMap[it.s] = it.n;
         });
+        universeSyms = Object.keys(sectorMap);
         return res[0];
       })
       .then(function (vj) {
@@ -204,27 +206,43 @@
     list.sort(function (a, b) {
       return b.count - a.count;
     });
-    return { sectors: list, asof: vj.asof || '', total: Object.keys(v).length };
+    return { sectors: list, asof: vj.asof || '', total: Object.keys(v).length, listed: universeSyms.length || Object.keys(v).length };
   }
 
-  /* Live-tape aggregation: recomputes the sector picture from the 15-minute
+  /* Live-tape aggregation: recomputes the sector picture from the live
    * quote tape instead of the daily batch. Same output shape as aggregate()
    * so the renderers work unchanged. Only used when the tape is from
-   * today's session (checked by the caller). RSI needs multi-session
-   * history, so avgRsi reuses the latest daily batch values (batchRsi),
-   * which the loader caches from verdicts.json. */
+   * today's session (checked by the caller). Built over the FULL listed
+   * universe: securities with no quote on the tape yet render as no-data
+   * tiles and are counted in noData — never silently dropped. RSI needs
+   * multi-session history, so avgRsi reuses the latest daily batch values
+   * (batchRsi), which the loader caches from verdicts.json. */
   function aggregateLiveTape(live, todayStr) {
     var q = (live && live.quotes) || {};
-    var sectors = {}, totalTurn = 0, count = 0;
+    var sectors = {}, totalTurn = 0;
+    // Full listed universe first (captured by load() from universe.json);
+    // any tape symbol outside it is appended, never dropped either way.
+    var syms = universeSyms.slice();
     Object.keys(q).forEach(function (sym) {
-      var e = q[sym] || {};
+      if (syms.indexOf(sym) < 0) syms.push(sym);
+    });
+    var traded = 0;
+    syms.forEach(function (sym) {
+      var e = q[sym] || null;
       var sec = sectorOf(null, sym);
       if (!sectors[sec]) sectors[sec] = {
         name: sec, count: 0, chs: [], adv: 0, dec: 0, flat: 0,
         turn: 0, rsis: [], rows: [], tiles: []
       };
       var g = sectors[sec];
-      g.count++; count++;
+      g.count++;
+      if (!e) {
+        // Listed but not yet traded on this tape: no-data tile, and no
+        // breadth/average contribution — present, never silently absent.
+        g.tiles.push({ sym: sym, name: nameOf(sym), p: null, ch: null, turn: 0, vol: null });
+        return;
+      }
+      traded++;
       var ch = (e.pct == null || isNaN(e.pct)) ? null : Number(e.pct);
       var p = (e.ltp == null || isNaN(Number(e.ltp))) ? null : Number(e.ltp);
       var t = Number(e.turnover);
@@ -256,7 +274,7 @@
     list.sort(function (a, b) {
       return b.count - a.count;
     });
-    return { sectors: list, asof: todayStr, total: count };
+    return { sectors: list, asof: todayStr, total: syms.length, listed: syms.length, traded: traded, noData: syms.length - traded, tapeAsof: (live && live.asof) || 0 };
   }
 
   var MONTHS_L = ['January','February','March','April','May','June','July',
@@ -264,6 +282,19 @@
   function fmtLiveDay(iso) {
     var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || ''));
     return m ? (+m[3]) + ' ' + MONTHS_L[+m[2] - 1] + ' ' + m[1] : String(iso || '');
+  }
+
+  function pad2(n) { return ('0' + n).slice(-2); }
+  // " · last update 14:32 NPT · 6 min old", from the tape's own asof
+  // (epoch ms) — measured, never a hardcoded refresh claim. Empty string
+  // when the tape carries no timestamp.
+  function tapeAgeBit(asofMs) {
+    var t = Number(asofMs);
+    if (!t || !isFinite(t)) return '';
+    var npt = new Date(t + 5.75 * 3600 * 1000);
+    var hhmm = pad2(npt.getUTCHours()) + ':' + pad2(npt.getUTCMinutes());
+    var mins = Math.max(0, Math.round((Date.now() - t) / 60000));
+    return ' · last update ' + hhmm + ' NPT · ' + (mins < 1 ? 'under 1 min old' : mins + ' min old');
   }
 
   function heatClass(avgCh) {
@@ -672,11 +703,13 @@
       if (isLive) {
         var liveNow = (marketState === 'live' || marketState === 'delayed');
         sxAsof.textContent = (liveNow ? 'Live session of ' : 'Session of ') + fmtLiveDay(agg.asof) + ' · ' +
-          agg.total + ' securities' + (liveNow ? ' · updating every 15 min' : '');
+          agg.total + ' of ' + (agg.listed || agg.total) + ' listed securities · ' +
+          (agg.traded != null ? agg.traded : agg.total) + ' traded · ' +
+          (agg.noData != null ? agg.noData : 0) + ' not yet traded' + tapeAgeBit(agg.tapeAsof);
       } else {
         sxAsof.textContent = agg.asof
-          ? 'Aggregated from the batch as of ' + agg.asof + ' · ' + agg.total + ' securities'
-          : agg.total + ' securities aggregated';
+          ? 'Aggregated from the batch as of ' + agg.asof + ' · ' + agg.total + ' of ' + (agg.listed || agg.total) + ' listed securities'
+          : agg.total + ' of ' + (agg.listed || agg.total) + ' listed securities aggregated';
       }
       if (window.NepseFresh && agg.asof && !sxAsof.querySelector('.fresh'))
         sxAsof.insertAdjacentHTML('beforeend', ' · ' + window.NepseFresh.badge(agg.asof));

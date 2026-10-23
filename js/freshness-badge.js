@@ -4,11 +4,15 @@
  * Reads /nepse-chart/data/live.json FIRST (the same file the quotes come
  * from), so the badge can never say "session closed" while the page's own
  * figures are from a live session:
- *   "Data as of 2026-10-02 · Session open · delayed ~15 min · updated 4 min ago"
- *   "Data as of 2026-10-02 · Pre-open · delayed ~15 min · updated 14 h ago"
+ *   "Data as of 2026-10-02 · Session open · delayed 12 min (measured) · updated 4 min ago"
+ *   "Data as of 2026-10-02 · Pre-open · delay unverified · updated 14 h ago"
  *   "Data as of 2026-10-02 · Session closed"
+ * The delay is MEASURED from the feed's own timestamps (live.asof minus
+ * live.data_asof) — never a hardcoded figure. When the data carries no
+ * timestamp of its own, the badge says "delay unverified" instead.
  * Falls back to /data/manifest.json (overnight batch) when the live feed is
- * unreachable. Sessions more than one trading day old render amber.
+ * unreachable; the manifest carries no data timestamp, so that path always
+ * reports "delay unverified". Sessions more than one trading day old render amber.
  *
  * Session state comes from the canonical NepseMarketConfig (Mon–Fri trading
  * days, pre-open 10:45:00–10:59:59 NPT, open 11:00–15:00 NPT).
@@ -55,6 +59,26 @@
     if (m < 60) return Math.floor(m) + ' min ago';
     if (m < 60 * 24) return Math.floor(m / 60) + ' h ago';
     return Math.floor(m / 1440) + ' d ago';
+  }
+
+  // Measured feed delay: the snapshot instant (live.asof, tz-aware) minus
+  // the data's own timestamp (live.data_asof, naive NPT). Returns minutes,
+  // or null when either timestamp is missing/unparseable — the badge then
+  // says "delay unverified" rather than inventing a number.
+  function measuredDelayMin(live) {
+    if (!live || !live.asof || !live.data_asof) return null;
+    var a = new Date(live.asof).getTime();
+    var raw = String(live.data_asof);
+    var d = new Date(/[zZ]|[+-]\d{2}:?\d{2}$/.test(raw) ? raw : raw + '+05:45').getTime();
+    if (!isFinite(a) || !isFinite(d)) return null;
+    var m = (a - d) / 60000;
+    return m < 0 ? 0 : m;
+  }
+  function delayBit(live) {
+    var m = measuredDelayMin(live);
+    if (m == null) return ' · delay unverified';
+    if (m < 1) return ' · delay under 1 min (measured)';
+    return ' · delayed ' + Math.round(m) + ' min (measured)';
   }
 
   // Trading days strictly between fromYMD and toYMD (canonical calendar —
@@ -140,9 +164,9 @@
     var age = ageText(asof);
     var ageBit = age ? ' · updated ' + age : '';
     if (st === 'OPEN') {
-      render('Data as of ' + sessDate + ' · Session open · delayed ~15 min' + ageBit, 'fb-live');
+      render('Data as of ' + sessDate + ' · Session open' + delayBit(live) + ageBit, 'fb-live');
     } else if (st === 'PRE-OPEN') {
-      render('Data as of ' + sessDate + ' · Pre-open · delayed ~15 min' + ageBit, 'fb-live');
+      render('Data as of ' + sessDate + ' · Pre-open' + delayBit(live) + ageBit, 'fb-live');
     } else {
       render('Data as of ' + sessDate + ' · Session closed', 'fb-ok');
     }
@@ -161,9 +185,9 @@
     if (stale > 1) {
       render('Data as of ' + sessDate + ' · ' + stale + ' sessions old — refresh delayed', 'fb-stale');
     } else if (st === 'OPEN') {
-      render('Data as of ' + sessDate + ' · Session open · delayed ~15 min', 'fb-live');
+      render('Data as of ' + sessDate + ' · Session open · delay unverified', 'fb-live');
     } else if (st === 'PRE-OPEN') {
-      render('Data as of ' + sessDate + ' · Pre-open · delayed ~15 min', 'fb-live');
+      render('Data as of ' + sessDate + ' · Pre-open · delay unverified', 'fb-live');
     } else {
       render('Data as of ' + sessDate + ' · Session closed', 'fb-ok');
     }

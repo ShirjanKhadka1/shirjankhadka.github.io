@@ -5,32 +5,32 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0A0C10">
-<title>NEPSE Warning Radar — Verdict Engine v2 | Nepse Decode</title>
-<meta name="description" content="Verdict Engine v2 scans every NEPSE stock for pump-and-distribution footprints — circuit clustering, markup asymmetry, volume tells. A warning instrument, not a trading system.">
+<title>NEPSE Warning Radar | Nepse Decode</title>
+<meta name="description" content="The Warning Radar scans listed NEPSE stocks for pump-and-distribution footprints — circuit clustering, markup asymmetry, volume tells — and names any stock it could not score. A warning instrument, not a trading system.">
 <meta name="author" content="Shirjan Khadka">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-verdicts-v2/">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Nepse Decode">
-<meta property="og:title" content="NEPSE Warning Radar — Verdict Engine v2">
-<meta property="og:description" content="Every NEPSE stock scanned for pump-and-distribution footprints, with the evidence shown. 89.4% of past pump episodes flagged before the peak. Free, no login.">
+<meta property="og:title" content="NEPSE Warning Radar">
+<meta property="og:description" content="Listed NEPSE stocks scanned for pump-and-distribution footprints, with the evidence shown — and any stock that could not be scored is listed, not hidden. 89.4% of past pump episodes flagged before the peak. Free, no login.">
 <meta property="og:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="NEPSE Warning Radar — Verdict Engine v2">
-<meta name="twitter:description" content="Every NEPSE stock scanned for pump-and-distribution footprints, with the evidence shown. Free, no login.">
+<meta name="twitter:title" content="NEPSE Warning Radar">
+<meta name="twitter:description" content="Listed NEPSE stocks scanned for pump-and-distribution footprints, with the evidence shown — unscored stocks are listed, not hidden. Free, no login.">
 <meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
 <meta property="og:url" content="https://shirjankhadka.com.np/nepse-verdicts-v2/">
 <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="stylesheet" href="/css/fonts.css">
-<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=9fae27fd">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=79a19171">
-<link rel="stylesheet" href="verdicts-v2.css?v=5c33b2bd">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023a">
+<link rel="stylesheet" href="verdicts-v2.css?v=20261023a">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebPage","name":"NEPSE Warning Radar — Verdict Engine v2","url":"https://shirjankhadka.com.np/nepse-verdicts-v2/","description":"Verdict Engine v2 scans every NEPSE stock for pump-and-distribution footprints with full evidence. A warning instrument, not a trading system.","author":{"@type":"Organization","name":"Nepse Decode"}}
+{"@context":"https://schema.org","@type":"WebPage","name":"NEPSE Warning Radar","url":"https://shirjankhadka.com.np/nepse-verdicts-v2/","description":"The Warning Radar scans listed NEPSE stocks for pump-and-distribution footprints with full evidence, and names any stock it could not score. A warning instrument, not a trading system.","author":{"@type":"Organization","name":"Nepse Decode"}}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
@@ -45,9 +45,9 @@
 
 <main id="main" class="v2-shell">
 <div data-freshness-badge style="margin:12px 0"></div>
-  <p class="v2-eyebrow">Verdict Engine v2 · Warning Radar</p>
-  <h1 class="v2-title">Every NEPSE stock, scanned for traps</h1>
-  <p class="v2-lede">This page checks every NEPSE stock for danger signs — prices that shot up too fast, big players quietly selling while small buyers rush in — and shows you the proof behind each flag. It is a <strong>warning tool, not a trading system</strong>: it tells you which stocks look risky and why, in plain words. No black box, no login, free forever. For education only, not investment advice.</p>
+  <p class="v2-eyebrow">Warning Radar</p>
+  <h1 class="v2-title">NEPSE stocks, scanned for traps</h1>
+  <p class="v2-lede">This page checks listed NEPSE stocks for danger signs — prices that shot up too fast, big players quietly selling while small buyers rush in — and shows you the proof behind each flag; any stock it could not score is named under the table instead of being silently skipped. It is a <strong>warning tool, not a trading system</strong>: it tells you which stocks look risky and why, in plain words. No black box, no login, free forever. For education only, not investment advice.</p>
   <p class="v2-regime" id="v2Regime">Loading market regime…</p>
   <p class="v2-asof" id="v2Asof">Loading…</p>
 
@@ -63,6 +63,7 @@
     <div class="v2-empty">Loading warning radar…</div>
   </div>
   <nav class="v2-pager" id="v2Pager" aria-label="Table pages"></nav>
+  <div class="v2-failures" id="v2Failures" aria-label="Securities awaiting data"></div>
 
   <section class="v2-guide" aria-label="How to read the warning radar">
     <p class="v2-eyebrow">Reading guide</p>
@@ -86,9 +87,9 @@
 </main>
 
 <div id="nd-footer"></div>
-<script src="/js/nd-chrome.js?v=20261014a" defer></script>
+<script src="/js/nd-chrome.js?v=20261023a" defer></script>
 <script src="/js/nepse-market-config.js" defer></script>
 <script src="/js/freshness-badge.js" defer></script>
-<script src="verdicts-v2.js?v=6f0dd11f" defer></script>
+<script src="verdicts-v2.js?v=20261023a" defer></script>
 </body>
 </html>

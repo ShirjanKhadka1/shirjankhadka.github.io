@@ -130,8 +130,8 @@
   }
   </script>
 <link rel="stylesheet" href="/css/theme.css?v=c4570b45">
-<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=9fae27fd">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=79a19171">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023a">
 </head>
 <body>
 
@@ -306,8 +306,8 @@
 
 
   <script src="../js/main.js?v=8a821d36" defer></script>
-<script src="/js/theme-toggle.js?v=8f323a39" defer></script>
-<script src="/js/nd-chrome.js?v=20261014a" defer></script>
+<script src="/js/theme-toggle.js?v=20261023a" defer></script>
+<script src="/js/nd-chrome.js?v=20261023a" defer></script>
 
 <script>
 // Live price badges for analysis cards — fetches current LTP so cards don't show stale prices as current
@@ -320,6 +320,18 @@
       .then(function(live) {
         var quotes = {};
         (live.quotes || []).forEach(function(q) { if (q.symbol) quotes[q.symbol] = q; });
+        // Measured delay: snapshot instant (asof) minus the data's own
+        // timestamp (data_asof, naive NPT). No data timestamp -> say so.
+        var delayTxt = 'delay unverified';
+        if (live.asof && live.data_asof) {
+          var aMs = new Date(live.asof).getTime();
+          var dRaw = String(live.data_asof);
+          var dMs = new Date(/[zZ]|[+-]\d{2}:?\d{2}$/.test(dRaw) ? dRaw : dRaw + '+05:45').getTime();
+          if (isFinite(aMs) && isFinite(dMs)) {
+            var dMin = Math.max(0, (aMs - dMs) / 60000);
+            delayTxt = dMin < 1 ? 'delay under 1 min (measured)' : 'delayed ' + Math.round(dMin) + ' min (measured)';
+          }
+        }
         document.querySelectorAll('.mag-card').forEach(function(card) {
           var kicker = card.querySelector('.mag-kicker');
           if (!kicker) return;
@@ -331,7 +343,7 @@
           if (card.querySelector('.mag-live-price')) return;
           var badge = document.createElement('p');
           badge.className = 'mag-live-price';
-          badge.innerHTML = 'Latest: <strong>' + fmt(q.ltp) + '</strong> <span class="mag-live-asof">(' + (live.session_date || 'latest') + ' · ~15 min delayed)</span>';
+          badge.innerHTML = 'Latest: <strong>' + fmt(q.ltp) + '</strong> <span class="mag-live-asof">(' + (live.session_date || 'latest') + ' · ' + delayTxt + ')</span>';
           var body = card.querySelector('.mag-card-body');
           if (body) body.appendChild(badge);
         });

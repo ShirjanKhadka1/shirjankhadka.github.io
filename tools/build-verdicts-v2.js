@@ -298,6 +298,14 @@ async function main() {
     regime: regime.regime,
     regime_note: regime.note,
     engine: 'verdict-v2',
+    // Coverage accounting: every attempted symbol lands in exactly one of
+    // verdicts / failures, so scored + failures == listed by construction.
+    // The page prints this verbatim — counts are never hardcoded there.
+    coverage: {
+      scored: Object.keys(verdicts).length,
+      failures: failures.length,
+      listed: symbols.length,
+    },
     verdicts,
     failures,
   };
@@ -308,6 +316,11 @@ async function main() {
     regime_note: regime.note,
     engine: 'verdict-v2',
     count: Object.keys(summary).length,
+    coverage: full.coverage,
+    // The failures list is small (symbol + reason) and ships in the summary
+    // so the page can name the unscored securities without fetching the
+    // full evidence file.
+    failures,
     verdicts: summary,
   };
   if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });

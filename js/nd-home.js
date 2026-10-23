@@ -131,6 +131,9 @@
       if (pc > 0) adv++; else if (pc < 0) dec++;
     });
     var breadthTxt = adv > dec ? 'advancers outnumbered decliners' : dec > adv ? 'decliners outnumbered advancers' : 'advancers and decliners were evenly split';
+    // Breadth always prints its universe (the quotes in the snapshot).
+    var breadthTotal = quotes.length;
+    var breadthDir = adv > dec ? 1 : dec > adv ? -1 : 0;
 
     // Dynamic headline based on actual close — direction word gets color-coded span (not escaped)
     var dirCls = chg > 0 ? 'dir-up' : chg < 0 ? 'dir-dn' : '';
@@ -149,14 +152,19 @@
       (chg > 0 ? '+' : '') + esc(fmtNum(chg)) + ' points, ' +
       (pct > 0 ? '+' : '') + pct.toFixed(2) + '%). ';
     if (chg > 0) {
-      body1 += (isLive ? 'Bulls are in control as ' : 'Bulls were in control as ') + esc(breadthTxt) + ' (<strong>' + adv + '</strong> vs ' + dec + '). ';
+      // Breadth drives the sentence when it disagrees with the index.
+      if (breadthDir < 0) body1 += (isLive ? 'The index is rising on narrow breadth as ' : 'The index rose on narrow breadth as ') + esc(breadthTxt) + ' (<strong>' + adv + '</strong> vs ' + dec + ' of ' + breadthTotal + ' traded scrips). ';
+      else if (breadthDir > 0) body1 += (isLive ? 'Bulls are in control as ' : 'Bulls were in control as ') + esc(breadthTxt) + ' (<strong>' + adv + '</strong> vs ' + dec + ' of ' + breadthTotal + ' traded scrips). ';
+      else body1 += (isLive ? 'The index is up with ' : 'The index rose with ') + esc(breadthTxt) + ' (<strong>' + adv + '</strong> vs ' + dec + ' of ' + breadthTotal + ' traded scrips). ';
       if (leaders) body1 += (isLive ? 'Strength is coming from <strong>' : 'Strength came from <strong>') + esc(leaders) + '</strong> shares' + (leadPct ? ' (up ' + leadPct.toFixed(2) + '%)' : '') + '. ';
     } else if (chg < 0) {
-      body1 += (isLive ? 'Bears are dominating as ' : 'Bears dominated as ') + esc(breadthTxt) + ' (<strong>' + dec + '</strong> vs ' + adv + '). ';
+      if (breadthDir > 0) body1 += (isLive ? 'The index is falling despite positive breadth as ' : 'The index fell despite positive breadth as ') + esc(breadthTxt) + ' (<strong>' + adv + '</strong> vs ' + dec + ' of ' + breadthTotal + ' traded scrips). ';
+      else if (breadthDir < 0) body1 += (isLive ? 'Bears are dominating as ' : 'Bears dominated as ') + esc(breadthTxt) + ' (<strong>' + dec + '</strong> vs ' + adv + ' of ' + breadthTotal + ' traded scrips). ';
+      else body1 += (isLive ? 'The index is down with ' : 'The index fell with ') + esc(breadthTxt) + ' (<strong>' + adv + '</strong> vs ' + dec + ' of ' + breadthTotal + ' traded scrips). ';
       if (laggards) body1 += (isLive ? 'Weakness is concentrated in <strong>' : 'Weakness was concentrated in <strong>') + esc(laggards) + '</strong>' + (lagPct ? ' (down ' + Math.abs(lagPct).toFixed(2) + '%)' : '') + '. ';
       if (leaders && leadPct > 0) body1 += esc(leaders) + (isLive ? ' have declined the least' : ' declined the least') + ' (+' + leadPct.toFixed(2) + '%). ';
     } else {
-      body1 += (isLive ? 'The market is flat as ' : 'The market ended flat as ') + esc(breadthTxt) + '. ';
+      body1 += (isLive ? 'The market is flat as ' : 'The market ended flat as ') + esc(breadthTxt) + ' (<strong>' + adv + '</strong> vs ' + dec + ' of ' + breadthTotal + ' traded scrips). ';
     }
     body1 += (isLive ? 'Day range so far: <strong>' : 'Day range: <strong>') + esc(fmtNum(ix.low)) + ' – ' + esc(fmtNum(ix.high)) + '</strong>.';
 
@@ -173,6 +181,7 @@
       '<div class="nd-wrap-chips" aria-label="Market breadth">' +
         '<span class="nd-wchip up">' + adv + ' advancers</span>' +
         '<span class="nd-wchip dn">' + dec + ' decliners</span>' +
+        '<span class="nd-wchip">' + breadthTotal + ' traded scrips</span>' +
         '<span class="nd-wchip">' + esc(fmtNum(ix.value)) + '</span>' +
       '</div>' +
       '<div class="nd-wrapbody"><p>' + body1 + '</p>' +
@@ -417,15 +426,35 @@
     // Scope to the Most Active card (there are multiple .nd-seemore links on the page)
     var activeTitle = document.getElementById('ndActiveTitle');
     var seemore = activeTitle ? activeTitle.parentElement.querySelector('.nd-seemore') : null;
-    tabs.forEach(function (btn) {
+    tabs.forEach(function (btn, i) {
       btn.onclick = function () {
-        tabs.forEach(function (b) { b.classList.remove('on'); });
+        tabs.forEach(function (b) {
+          b.classList.remove('on');
+          b.setAttribute('aria-selected', 'false');
+          b.setAttribute('tabindex', '-1');
+        });
         btn.classList.add('on');
+        btn.setAttribute('aria-selected', 'true');
+        btn.setAttribute('tabindex', '0');
         activeMetric = btn.getAttribute('data-metric');
         if (seemore && metricToSort[activeMetric]) {
           seemore.setAttribute('href', '/nepse-daily/?sort=' + metricToSort[activeMetric] + '#all-stocks');
         }
         renderActive();
+      };
+      // ARIA tabs pattern (Wave A): Arrow keys move + activate,
+      // Home/End jump to the ends; roving tabindex stays in sync
+      // via the click handler above.
+      btn.onkeydown = function (ev) {
+        var n = tabs.length, j = null;
+        if (ev.key === 'ArrowRight') j = (i + 1) % n;
+        else if (ev.key === 'ArrowLeft') j = (i - 1 + n) % n;
+        else if (ev.key === 'Home') j = 0;
+        else if (ev.key === 'End') j = n - 1;
+        if (j === null) return;
+        ev.preventDefault();
+        tabs[j].focus();
+        tabs[j].click();
       };
     });
   }

@@ -157,8 +157,8 @@ h2.bk-h{font-size:1.35rem;margin:34px 0 8px;color:var(--nd-text,#fff);letter-spa
 [data-theme="light"] .sig-lede strong{color:#0A0C10}
 </style>
 <link rel="stylesheet" href="/css/fonts.css">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=79a19171">
-<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=9fae27fd">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023a">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023a">
 <link rel="stylesheet" href="/css/sig-pro.css?v=fdd6a175">
 </head>
 <body class="nd">
@@ -235,6 +235,7 @@ h2.bk-h{font-size:1.35rem;margin:34px 0 8px;color:var(--nd-text,#fff);letter-spa
 </main>
 
     <div id="nd-footer"></div>
+<script src="/js/nepse-market-config.js"></script>
 <script>
 (function(){
 "use strict";
@@ -331,6 +332,50 @@ function loadMeta(){
       });
     });
   });
+}
+
+// Trading days strictly between fromYMD and toYMD, via the canonical
+// NepseMarketConfig calendar (same rule as js/freshness-badge.js).
+// Returns -1 when the calendar is unavailable — never guesses a count.
+function tradingDaysBetween(fromYMD, toYMD){
+  var CFG = window.NepseMarketConfig;
+  if (!CFG || typeof CFG.isTradingDay !== 'function') return -1;
+  var from = new Date(fromYMD + 'T00:00:00Z'), to = new Date(toYMD + 'T00:00:00Z');
+  var n = 0, d = new Date(from);
+  d.setUTCDate(d.getUTCDate() + 1);
+  while (d <= to) {
+    if (CFG.isTradingDay(d.toISOString().slice(0, 10))) n++;
+    d.setUTCDate(d.getUTCDate() + 1);
+  }
+  return n;
+}
+
+// The baked snapshot (SNAP-START..SNAP-END) is only as fresh as its last
+// bake. Label it at runtime against the market's own latest session
+// (live.json session_date): when it is behind, the heading says so
+// explicitly instead of letting the word "Latest" overclaim.
+function labelSnapshot(){
+  var span = document.querySelector('.snap-asof');
+  var h2 = span ? span.closest('h2') : null;
+  if (!span || !h2 || !state.meta) return;
+  var m = /(\d{4}-\d{2}-\d{2})/.exec(span.textContent || '');
+  if (!m) return;
+  var snapDate = m[1];
+  fetch('/nepse-chart/data/live.json', { cache: 'no-store' }).then(function(r){
+    if (!r.ok) throw 0; return r.json();
+  }).then(function(live){
+    var mkt = live && live.session_date;
+    if (!mkt || snapDate >= mkt) return; // snapshot is current — label stands
+    var behind = tradingDaysBetween(snapDate, mkt);
+    var lead = h2.childNodes[0];
+    if (lead && lead.nodeType === 3) lead.textContent = 'Latest available session broker flow ';
+    span.textContent = '· session ' + snapDate +
+      (behind > 0
+        ? ' · ' + behind + ' sessions behind the latest market session (' + mkt + ')'
+        : ' · behind the latest market session (' + mkt + ')') +
+      ' — latest available snapshot · interactive views below carry broker data to ' + state.meta.latest;
+    span.style.color = '#d97706';
+  }).catch(function(){ /* leave the baked label untouched */ });
 }
 
 function loadPeriod(silent){
@@ -761,6 +806,7 @@ loadMeta().then(function(){
     if(ok) bsel.value = state.broker; else state.broker = null;
   }
   syncControls();
+  labelSnapshot();
   return loadPeriod();
 });
 /* Auto-refresh: re-fetch the current view every 60s (skipped while the tab is
@@ -773,8 +819,8 @@ setInterval(function(){
 }, 60000);
 })();
 </script>
-<script src="/js/theme-toggle.js?v=8f323a39" defer></script>
-<script src="/js/freshness-badge.js?v=bb5bd11a" defer></script>
-<script src="/js/nd-chrome.js?v=20261014a" defer></script>
+<script src="/js/theme-toggle.js?v=20261023a" defer></script>
+<script src="/js/freshness-badge.js?v=20261023a" defer></script>
+<script src="/js/nd-chrome.js?v=20261023a" defer></script>
 </body>
 </html>

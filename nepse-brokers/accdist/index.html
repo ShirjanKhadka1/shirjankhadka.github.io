@@ -22,10 +22,10 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebPage","name":"Accumulation / Distribution — Nepse Decode","url":"https://shirjankhadka.com.np/nepse-brokers/accdist/"}
 </script>
-<link rel="stylesheet" href="/css/nepse-design-system.css?v=7ff8b549">
+<link rel="stylesheet" href="/css/nepse-design-system.css?v=20261023a">
 <link rel="stylesheet" href="/css/theme.css?v=c4570b45">
-<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=9fae27fd">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=79a19171">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023a">
 <link rel="stylesheet" href="/css/broker-pages.css?v=f28b8c63">
 <style>
 /* AccDist: side-by-side on desktop, stacked on mobile */
@@ -118,8 +118,25 @@ function load(){
     BC.makeSortable($('accTable'), function(){ return state.acc.filter(matchesQ); }, function(rs){ renderOne('accBody', rs, true); });
     BC.makeSortable($('distTable'), function(){ return state.dist.filter(matchesQ); }, function(rs){ renderOne('distBody', rs, false); });
   }).catch(function(){
-    $('accBody').innerHTML = '<tr><td colspan="4"><div class="bk-empty">Data not available for this period yet.</div></td></tr>';
-    $('distBody').innerHTML = '<tr><td colspan="4"><div class="bk-empty">Data not available for this period yet.</div></td></tr>';
+    var empty = '<tr><td colspan="4"><div class="bk-empty">Data not available for this period yet. ' +
+      'Broker history is still building — try the latest session instead. This page also retries automatically every minute.<br>' +
+      '<button type="button" class="bk-goto" data-goto="1D" style="margin-top:8px;padding:6px 14px;border-radius:8px;cursor:pointer;">See the latest session (1D)</button> ' +
+      '<button type="button" class="bk-goto" data-goto="retry" style="margin-top:8px;padding:6px 14px;border-radius:8px;cursor:pointer;">Retry</button>' +
+      '</div></td></tr>';
+    $('accBody').innerHTML = empty;
+    $('distBody').innerHTML = empty;
+    document.querySelectorAll('.bk-goto').forEach(function(b){
+      b.addEventListener('click', function(){
+        var go = b.getAttribute('data-goto');
+        if (go && go !== 'retry') {
+          state.period = go;
+          document.querySelectorAll('#bkPeriods button').forEach(function(x){
+            x.classList.toggle('active', x.dataset.p === go);
+          });
+        }
+        load();
+      });
+    });
   });
 }
 $('bkPeriods').addEventListener('click', function(e){
@@ -135,6 +152,6 @@ Promise.all([BC.loadMeta(), BC.loadBrokers()]).then(function(res){
 setInterval(function(){ if(!document.hidden) load(); }, 60000);
 })();
 </script>
-<script src="/js/nd-chrome.js?v=20261014a" defer></script>
+<script src="/js/nd-chrome.js?v=20261023a" defer></script>
 </body>
 </html>

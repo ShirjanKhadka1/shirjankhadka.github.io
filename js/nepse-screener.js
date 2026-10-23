@@ -10,7 +10,7 @@
 
   var RANK = { 'Strong Buy': 0, 'Buy': 1, 'Hold': 2, 'Exit / Reduce': 3, 'Strong Exit': 4, 'Insufficient history': 5 };
   var CLS = { 'Strong Buy': 'sbuy', 'Buy': 'buy', 'Hold': 'hold', 'Exit / Reduce': 'exit', 'Strong Exit': 'sexit', 'Insufficient history': 'insufficient' };
-  var DISP = { 'Strong Buy': 'Strong Buy', 'Buy': 'Buy', 'Hold': 'Hold', 'Exit / Reduce': 'Sell', 'Strong Exit': 'Strong Sell', 'Insufficient history': 'No signal' };
+  var DISP = { 'Strong Buy': 'Strong Buy', 'Buy': 'Buy', 'Hold': 'Hold', 'Exit / Reduce': 'Exit', 'Strong Exit': 'Strong Exit', 'Insufficient history': 'No signal' };
 
   /* Honest sector/instrument grouping.
    * The repo ships no per-symbol sector field (tools/sector-map.json is

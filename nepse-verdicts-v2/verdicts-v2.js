@@ -12,7 +12,7 @@
 
   var state = { rows: [], asof: '', session: '', regime: '', regimeNote: '',
     q: '', verdict: 'all', sortKey: 'confidence', sortDir: -1, page: 1,
-    expanded: null, pmeta: null };
+    expanded: null, pmeta: null, coverage: null, failures: [] };
   var fullCache = null, fullLoading = false;
 
   function esc(s) {
@@ -72,6 +72,14 @@
         state.regimeNote = json.regime_note || '';
         state.coverage = json.coverage || null;
         state.pmeta = json.persistence_meta || null;
+        state.failures = json.failures || [];
+        if (!state.coverage && json.failures) {
+          // Summary without a coverage block: derive it from the scored
+          // verdicts + failures the file itself carries — never hardcoded.
+          var nScored = Object.keys(json.verdicts || {}).length;
+          state.coverage = { scored: nScored, failures: json.failures.length,
+            listed: nScored + json.failures.length };
+        }
         var v = json.verdicts || {};
         state.rows = Object.keys(v).map(function (sym) {
           var r = v[sym] || {};
@@ -86,7 +94,7 @@
             pers: r.persistence || null
           };
         });
-        renderHead(); renderStats(); renderFilters(); renderTable();
+        renderHead(); renderStats(); renderFilters(); renderTable(); renderFailures();
       })
       .catch(function () {
         $('v2TableWrap').innerHTML = '<div class="v2-empty">Could not load the warning radar. Please reload.</div>';
@@ -142,7 +150,7 @@
       '<button type="button" class="v2-stat" data-v="NEUTRAL" aria-pressed="'+(state.verdict==='NEUTRAL')+'"><div class="num">'+neu+'</div><div class="lbl">Neutral</div></button>'+
       '<button type="button" class="v2-stat opp" data-v="opps" aria-pressed="'+(state.verdict==='opps')+'"><div class="num">'+opp+'</div><div class="lbl">Opportunity flags</div></button>'+
       '<button type="button" class="v2-stat" data-v="all" aria-pressed="'+(state.verdict==='all')+'"><div class="num">'+state.rows.length+'</div><div class="lbl">Securities scanned</div></button>'+
-      (state.coverage ? '<p class="v2-coverage">'+state.coverage.with_today_quote+' current · '+state.coverage.without_today_quote+' on older session · '+state.coverage.failures+' no data</p>' : '')+
+      (state.coverage ? '<p class="v2-coverage">'+state.coverage.scored+' of '+state.coverage.listed+' listed securities scored · '+state.coverage.failures+' awaiting data</p>' : '')+
       (state.pmeta && state.pmeta.prev_session ? '<p class="v2-coverage">Latest session: '+state.pmeta.changed+' verdict'+(state.pmeta.changed===1?'':'s')+' changed · '+state.pmeta.new_flags+' new flag'+(state.pmeta.new_flags===1?'':'s')+' · '+state.pmeta.cleared+' cleared</p>' : '')+
       '<p class="v2-take">The radar is a warning instrument: it flags names that look dangerous and shows why. ' +
       '<a href="/nepse-verdicts-v2/methodology/">How it is validated →</a></p>';
@@ -152,6 +160,20 @@
         renderStats(); renderFilters(); renderTable();
       });
     });
+  }
+
+  /* The unscored securities stay visible: symbol + the generator's own
+   * reason, straight from the summary file. Never silently skipped. */
+  function renderFailures() {
+    var host = $('v2Failures');
+    if (!host) return;
+    var f = state.failures || [];
+    if (!f.length) { host.innerHTML = ''; return; }
+    host.innerHTML = '<h2 class="v2-h2">Awaiting data (' + f.length + ')</h2>' +
+      '<p class="v2-lede">These listed securities got no verdict in the latest run — the radar names them instead of silently skipping them:</p>' +
+      '<ul class="v2-fail-list">' + f.map(function (x) {
+        return '<li><strong>' + esc(x.symbol) + '</strong> — ' + esc(x.reason || 'no data') + '</li>';
+      }).join('') + '</ul>';
   }
 
   var FILTERS = [['all','All'],['warnings','Warnings'],['DISTRIBUTION_WARNING','Distribution'],['ELEVATED_RISK','Elevated'],['NEUTRAL','Neutral'],['opps','Opportunity'],['UNRELIABLE','Unreliable']];
