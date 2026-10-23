@@ -122,6 +122,17 @@ body.d2 input:focus-visible {
 }
 @media (max-width: 900px){ .nd-wrapgrid{ grid-template-columns: 1fr; } }
 .nd-wrapgrid > *{ min-width: 0; }
+
+/* Wave A (2026-10-23): the index card moved into the hero band,
+   so the wrap grid is single-column now; the hero numeral steps
+   up to --step-5 and the card takes the e2 depth treatment.
+   Flagship tables adopt the .nd-table system (nd-chrome.css) —
+   tighten the movecard padding to the system's density. */
+.nd-wrapgrid.solo{ grid-template-columns: 1fr; }
+.nd-hero .nd-ixcard{ box-shadow: var(--nd-rim), var(--nd-e2); }
+.nd-hero .nd-ixcard .big{ font-size: var(--step-5); }
+.nd-movecard table.nd-table th{ padding: 10px var(--nd-s6); }
+.nd-movecard table.nd-table td{ padding: 9px var(--nd-s6); }
 .nd-badges{ display: flex; gap: var(--nd-s2); flex-wrap: wrap; margin-bottom: var(--nd-s4); }
 .nd-badge{
   font: 600 0.6875rem var(--nd-font-mono); letter-spacing: 0.08em; text-transform: uppercase;
@@ -195,7 +206,7 @@ body.d2 input:focus-visible {
 .nd-ixcard .tabs button{
   font: 600 0.75rem var(--nd-font-sans); padding: 8px 14px; border-radius: 8px;
   background: var(--nd-inset); border: 1px solid var(--nd-border); color: var(--nd-muted); cursor: pointer;
-  transition: all var(--nd-t-fast) var(--nd-ease);
+  transition: background var(--nd-t-fast) var(--nd-ease), color var(--nd-t-fast) var(--nd-ease), border-color var(--nd-t-fast) var(--nd-ease);
 }
 .nd-ixcard .tabs button:hover{ border-color: var(--nd-lime); color: var(--nd-text); }
 .nd-ixcard .tabs button.on{ background: var(--nd-lime); color: #0a0c10; border-color: var(--nd-lime); }
@@ -295,7 +306,7 @@ body.d2 input:focus-visible {
   padding: 8px 18px; border: 1px solid var(--nd-border); border-radius: 20px;
   background: var(--nd-panel); color: var(--nd-dim);
   font: 500 0.875rem var(--nd-font-sans); cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 .nd-active-tabs button:hover{ border-color: var(--nd-lime); color: var(--nd-text); }
 .nd-active-tabs button.on{

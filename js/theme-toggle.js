@@ -8,8 +8,13 @@
 (function () {
   'use strict';
   var KEY = 'sk-theme';
-  var DARK_BG = '#12110e';
-  var LIGHT_BG = '#FAF7F0';
+  /* Single theme-color strategy (Wave A, 2026-10-23): these are
+     the ONLY theme-color values site-wide and they mirror
+     --nd-bg in css/nd-tokens.css (dark #0A0C10 / light #F6F7F9).
+     Static <meta name="theme-color"> tags in page heads carry
+     the dark value; this script re-syncs on toggle/init. */
+  var DARK_BG = '#0A0C10';
+  var LIGHT_BG = '#F6F7F9';
 
   function current() {
     return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';

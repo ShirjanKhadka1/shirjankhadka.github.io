@@ -26,7 +26,7 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="stylesheet" href="/css/fonts.css">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"Nepse Decode","url":"https://shirjankhadka.com.np/nepse-decode/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Free NEPSE analysis suite: live quotes for any listed stock, candlestick charts with SMA and RSI, automatic chart-pattern and divergence detection, verdicts by the Alpha Lab engine, a transparent rule-based buy/hold/exit signal system, a full-market screener and attributed market news. Educational use only.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
+{"@context":"https://schema.org","@type":"WebApplication","name":"Nepse Decode","url":"https://shirjankhadka.com.np/nepse-decode/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Free NEPSE analysis suite: live quotes for any listed stock, candlestick charts with SMA and RSI, automatic chart-pattern and divergence detection, verdicts by the Engine Verdict engine, a transparent rule-based buy/hold/exit signal system, a full-market screener and attributed market news. Educational use only.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the market doing today?","acceptedAnswer":{"@type":"Answer","text":"The Nepse Decode homepage shows the NEPSE index with day change, market breadth, turnover, transactions, top gainers and losers, and the most active stocks — rebuilt from the latest session data."}},{"@type":"Question","name":"Is the market data real-time?","acceptedAnswer":{"@type":"Answer","text":"During market hours the page polls fresh quote files every 60 seconds; NEPSE publishes no free official real-time API, so quotes can be delayed up to 15 minutes. Every figure carries its session date."}},{"@type":"Question","name":"Where can I read past NEPSE market wraps?","acceptedAnswer":{"@type":"Answer","text":"The market wrap archive at https://shirjankhadka.com.np/nepse-decode/wrap/ keeps one entry per trading session — index close, change, sector leaders and market breadth — recorded automatically after each market close."}},{"@type":"Question","name":"How does the signal engine work?","acceptedAnswer":{"@type":"Answer","text":"Ten transparent factors are scored on the daily chart and summed into a verdict from Strong Buy to Strong Exit, with every factor's contribution listed. It is a mechanical illustration for education, not investment advice."}}]}
@@ -34,11 +34,13 @@
 <link rel="stylesheet" href="/css/sig-pro.css?v=fdd6a175">
 <link rel="stylesheet" href="/css/nepse-index-candles.css?v=9af344c6">
 <link rel="stylesheet" href="/css/nepse-logos.css">
-<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=9fae27fd">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=79a19171">
-<link rel="stylesheet" href="/css/nd-home.css?v=7992e703">
+<link rel="stylesheet" href="/css/nd-tokens.css">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023a">
+<link rel="stylesheet" href="/css/nd-home.css?v=20261023a">
 <link rel="stylesheet" href="/css/nd-3d.css">
 <link rel="stylesheet" href="/css/nd-market-3d.css">
+<link rel="stylesheet" href="/css/nd-cinema.css">
 <style>
 /* overview: sig-pro design language. JS class names/IDs kept intact (zero JS changes);
    d2-* vars aliased to nd-* so any stray reference still resolves. */
@@ -187,7 +189,18 @@ gap:2px;padding:8px 6px;border-radius:10px;border:1px solid var(--hairline,#e5e7
 
 <main class="sig-main" id="main">
   <div class="sig-wrap">
-    <h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap">Nepse Decode — free NEPSE market dashboard</h1>
+    <!-- Wave A hero band: visible H1 (was screen-reader-only) + the
+         NEPSE index card as the hero numeral. #ndIxCard is painted by
+         js/nd-home.js by ID, so moving the node changes no wiring. -->
+    <section class="nd-hero" aria-label="Nepse Decode — market overview">
+      <div class="nd-hero-copy">
+        <span class="nd-eyebrow">Nepse Decode · Market Dashboard</span>
+        <h1>Nepal's stock market, beneath the surface.</h1>
+        <p class="nd-standfirst">The NEPSE index, quotes, charts and Engine Verdict signals for every listed company — free, no login, and every figure stamped with its session date.</p>
+        <p class="nd-standfirst-ne" lang="ne">नेपालको शेयर बजारको सूचकाङ्क, कारोबार र कम्पनी विश्लेषण — सबै निःशुल्क।</p>
+      </div>
+      <div class="nd-ixcard" id="ndIxCard" aria-label="NEPSE index"></div>
+    </section>
 
     <div class="d2-fresh-mount"><div data-freshness-badge></div></div>
 
@@ -203,9 +216,8 @@ gap:2px;padding:8px 6px;border-radius:10px;border:1px solid var(--hairline,#e5e7
         <button class="nd-istrip-nav next" id="ndStripNext" aria-label="Scroll indices right">&gt;</button>
       </div>
 
-      <div class="nd-wrapgrid">
+      <div class="nd-wrapgrid solo">
         <div id="ndWrap" aria-label="Market wrap"></div>
-        <div class="nd-ixcard" id="ndIxCard" aria-label="NEPSE index"></div>
       </div>
 
       <section class="nd-moves" aria-label="Biggest moves">
@@ -214,13 +226,13 @@ gap:2px;padding:8px 6px;border-radius:10px;border:1px solid var(--hairline,#e5e7
           <span class="sub" id="ndMovesSub">Ranked by % change · last session</span>
         </div>
         <div class="nd-moves-grid">
-          <div class="nd-movecard">
+          <div class="nd-movecard" data-cinema-lift>
             <div class="nd-movecard-head"><h3>Top gainers</h3><span class="date" id="ndGainersDate"></span><a class="nd-seemore" href="/nepse-daily/?sort=gainers">See more →</a></div>
-            <table aria-label="Top gainers"><thead><tr><th>SYMBOL</th><th class="num">LTP (RS)</th><th class="num">CHANGE</th><th class="num">TURNOVER</th></tr></thead><tbody id="ndGainersBody"></tbody></table>
+            <table class="nd-table" aria-label="Top gainers"><thead><tr><th>SYMBOL</th><th class="num">LTP (RS)</th><th class="num">CHANGE</th><th class="num">TURNOVER</th></tr></thead><tbody id="ndGainersBody"></tbody></table>
           </div>
-          <div class="nd-movecard">
+          <div class="nd-movecard" data-cinema-lift>
             <div class="nd-movecard-head"><h3>Top losers</h3><span class="date" id="ndLosersDate"></span><a class="nd-seemore" href="/nepse-daily/?sort=losers">See more →</a></div>
-            <table aria-label="Top losers"><thead><tr><th>SYMBOL</th><th class="num">LTP (RS)</th><th class="num">CHANGE</th><th class="num">TURNOVER</th></tr></thead><tbody id="ndLosersBody"></tbody></table>
+            <table class="nd-table" aria-label="Top losers"><thead><tr><th>SYMBOL</th><th class="num">LTP (RS)</th><th class="num">CHANGE</th><th class="num">TURNOVER</th></tr></thead><tbody id="ndLosersBody"></tbody></table>
           </div>
         </div>
       </section>
@@ -230,20 +242,20 @@ gap:2px;padding:8px 6px;border-radius:10px;border:1px solid var(--hairline,#e5e7
           <h2>Most active</h2>
           <span class="sub" id="ndActiveSub">Ranked by trading activity · last session</span>
         </div>
-        <div class="nd-active-tabs" role="tablist" aria-label="Activity metric">
-          <button class="on" data-metric="turnover" role="tab">Turnover</button>
-          <button data-metric="volume" role="tab">Traded shares</button>
-          <button data-metric="transactions" role="tab">Transactions</button>
+        <div class="nd-active-tabs nd-tabs nd-tabs--pill" role="tablist" aria-label="Activity metric">
+          <button class="on" data-metric="turnover" role="tab" aria-selected="true" tabindex="0">Turnover</button>
+          <button data-metric="volume" role="tab" aria-selected="false" tabindex="-1">Traded shares</button>
+          <button data-metric="transactions" role="tab" aria-selected="false" tabindex="-1">Transactions</button>
         </div>
-        <div class="nd-movecard">
+        <div class="nd-movecard" data-cinema-lift>
           <div class="nd-movecard-head"><h3 id="ndActiveTitle">By turnover</h3><a class="nd-seemore" href="/nepse-daily/#all-stocks">See more →</a></div>
-          <table aria-label="Most active stocks"><thead><tr><th>SYMBOL</th><th class="num" id="ndActiveColHead">TURNOVER</th><th class="num">CH %</th><th class="num">LTP (RS)</th></tr></thead><tbody id="ndActiveBody"></tbody></table>
+          <table class="nd-table" aria-label="Most active stocks"><thead><tr><th>SYMBOL</th><th class="num" id="ndActiveColHead">TURNOVER</th><th class="num">CH %</th><th class="num">LTP (RS)</th></tr></thead><tbody id="ndActiveBody"></tbody></table>
         </div>
       </section>
 
       <section class="nd-pulse-engine" aria-label="Market pulse and engine verdicts">
         <div class="nd-pe-grid">
-          <div class="nd-pe-card">
+          <div class="nd-pe-card" data-cinema-lift>
             <div class="nd-pe-head">
               <div><span class="nd-eyebrow">Market Pulse</span><h2>Trending now</h2></div>
               <a class="nd-seemore" href="/nepse-trending/">See more →</a>
@@ -251,7 +263,7 @@ gap:2px;padding:8px 6px;border-radius:10px;border:1px solid var(--hairline,#e5e7
             <p class="nd-pe-sub" id="ndPulseSub">Ranked by live turnover</p>
             <div id="ndPulseList" class="nd-pulse-list"></div>
           </div>
-          <div class="nd-pe-card">
+          <div class="nd-pe-card" data-cinema-lift>
             <div class="nd-pe-head">
               <div><span class="nd-eyebrow">The Engine</span><h2>Latest verdicts</h2></div>
               <a class="nd-seemore" href="/nepse-screener/">See more →</a>
@@ -294,8 +306,9 @@ window.addEventListener('error', function (e) {
 <script src="/js/nepse-flash.js?v=bc2fe59d" defer></script>
 <script src="/js/company-logos.js?v=d8c620a6" defer></script>
 <script src="/js/nepse-logos.js" defer></script>
-<script src="/js/nd-home.js?v=0333e1b2" defer></script>
-<script src="/js/nd-chrome.js?v=20261014a" defer></script>
+<script src="/js/nd-home.js?v=20261023a" defer></script>
+<script src="/js/nd-cinema.js" defer></script>
+<script src="/js/nd-chrome.js?v=20261023a" defer></script>
 <script>
 document.addEventListener('DOMContentLoaded', function(){
   'use strict';
@@ -758,8 +771,8 @@ document.addEventListener('DOMContentLoaded', function(){
   });
 });
 </script>
-<script src="/js/theme-toggle.js?v=8f323a39" defer></script>
-<script src="/js/freshness-badge.js?v=bb5bd11a" defer></script>
+<script src="/js/theme-toggle.js?v=20261023a" defer></script>
+<script src="/js/freshness-badge.js?v=20261023a" defer></script>
 <script src="/js/nepse-index-candles.js?v=cd619a5e" defer></script>
 </body>
 </html>

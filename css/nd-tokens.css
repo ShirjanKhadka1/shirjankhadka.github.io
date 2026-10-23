@@ -1,0 +1,171 @@
+/* ============================================================
+   NEPSE DECODE — Design Tokens (Wave A, 2026-10-23)
+   THE single source of design tokens for the whole suite.
+
+   Every --nd-* token is defined HERE and nowhere else.
+   css/nd-editorial-theme.css @imports this file and keeps only
+   component helpers; css/nd-chrome.css and page CSS consume the
+   tokens. Legacy families (nepse-d2.css, theme.css, style.css,
+   nepse-luxury.css, nepse-design-system.css) carry their own
+   prefixed namespaces during migration and are being retired —
+   do NOT copy values out of them; alias to these tokens instead.
+
+   Owner law (non-negotiable):
+     canvas #0A0C10 · ONE brand lime #B8E62E · text/links white
+     at rest, lime only on hover/active · dark terminal default,
+     light is an explicit opt-in (data-nd-ed="light").
+
+   Theme-color pairing (js/theme-toggle.js is the one place that
+   writes <meta name="theme-color">): dark #0A0C10 (= --nd-bg),
+   light #F6F7F9 (= light --nd-bg below). Keep them in sync.
+   ============================================================ */
+
+:root {
+  color-scheme: dark;
+
+  /* ---- Surfaces (dark terminal default) ---- */
+  --nd-bg: #0A0C10;            /* app canvas */
+  --nd-panel: #12141A;         /* cards */
+  --nd-panel-2: #161A23;       /* raised / inset panels */
+  --nd-inset: #0D0F14;         /* wells, code, chart beds */
+  --nd-border: #1E2430;        /* hairlines */
+  --nd-border-strong: #2A3140; /* emphasis borders */
+
+  /* ---- Brand ---- */
+  --nd-lime: #B8E62E;          /* THE lime: CTAs, active, focus */
+  --nd-lime-soft: rgba(184, 230, 46, 0.12);
+  --nd-lime-faint: rgba(184, 230, 46, 0.06);
+  --nd-on-lime: #0A0C10;       /* text on lime fills */
+  --nd-amber: #F5B301;         /* CLOSED badges ONLY */
+
+  /* ---- Text ---- */
+  --nd-text: #FFFFFF;          /* headings / strong */
+  --nd-muted: #B8C0CE;         /* secondary (AA on panel) */
+  --nd-dim: #8E98A8;           /* tertiary (AA-large / meta) */
+
+  /* ---- Data semantics ---- */
+  --nd-up: #4ADE80;
+  --nd-up-soft: rgba(74, 222, 128, 0.12);
+  --nd-down: #F87171;
+  --nd-down-soft: rgba(248, 113, 113, 0.12);
+  --nd-flat: #9AA3B2;
+  --nd-info: #3080FF;
+  --nd-verified: #1D9BF0;
+
+  /* ---- Honesty chips (V2 framework) ---- */
+  --nd-chip-live-bg: rgba(74, 222, 128, 0.14);
+  --nd-chip-live-fg: #4ADE80;
+  --nd-chip-delayed-bg: rgba(184, 230, 46, 0.12);
+  --nd-chip-delayed-fg: #B8E62E;
+  --nd-chip-closed-bg: rgba(245, 179, 1, 0.12);
+  --nd-chip-closed-fg: #F5B301;
+  --nd-chip-stale-bg: rgba(248, 113, 113, 0.12);
+  --nd-chip-stale-fg: #F87171;
+  --nd-chip-unverified-bg: rgba(154, 163, 178, 0.14);
+  --nd-chip-unverified-fg: #9AA3B2;
+
+  /* ---- Typography ---- */
+  --nd-font-display: "Spectral", Georgia, serif;
+  --nd-font-sans: "Inter", "Noto Sans Devanagari", system-ui, -apple-system, sans-serif;
+  --nd-font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Modular type scale — if a size is not here, it does not ship.
+     h1 -> step-4 · h2 -> step-3 · h3 -> step-2 (aliases below). */
+  --step-0: 0.8125rem;                                   /* 13px micro */
+  --step-1: 0.875rem;                                    /* 14px body */
+  --step-2: 1.0625rem;                                   /* 17px h3 */
+  --step-3: 1.25rem;                                     /* 20px h2 */
+  --step-4: clamp(1.65rem, 1.4rem + 1.2vw, 2.2rem);      /* h1 display */
+  --step-5: clamp(2.75rem, 2rem + 3.6vw, 4.5rem);        /* hero numeral */
+
+  --nd-text-h1: var(--step-4); /* display 600 */
+  --nd-text-h2: var(--step-3); /* card/section headings, display 600 */
+  --nd-text-h3: var(--step-2); /* display 600 */
+  --nd-text-body: var(--step-1);
+  --nd-text-body-sm: var(--step-0);
+  --nd-text-nav: 0.875rem;     /* 14px/500 */
+  --nd-text-meta: 0.6875rem;   /* 11px card meta */
+  --nd-text-eyebrow: 0.6875rem;/* 11px uppercase, ls 0.22em */
+  --nd-text-footer-link: 0.875rem;
+  --nd-text-footer-head: 0.6875rem; /* uppercase, wide tracking */
+
+  /* ---- Shape (one radius scale) ---- */
+  --nd-r-sm: 8px;
+  --nd-r-md: 12px;             /* buttons */
+  --nd-r-card: 18px;           /* cards (16–20 range → 18) */
+  --nd-r-lg: 16px;             /* legacy alias used by nd-home.css cards */
+  --nd-r-pill: 999px;
+  --nd-r-logo: 12px;
+
+  /* ---- Spacing (4px base) ---- */
+  --nd-s1: 4px;  --nd-s2: 8px;  --nd-s3: 12px; --nd-s4: 16px;
+  --nd-s5: 20px; --nd-s6: 24px; --nd-s8: 32px; --nd-s12: 48px;
+  --nd-s16: 64px;
+
+  /* ---- Layout ---- */
+  --nd-header-h: 60px;         /* single-row nav, never taller */
+  --nd-page-max: 1360px;
+  --nd-gutter: 24px;
+
+  /* ---- Motion ---- */
+  --nd-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --nd-t-fast: 150ms;          /* color transitions */
+  --nd-t-med: 180ms;           /* micro-interactions */
+  --nd-t-enter: 350ms;         /* section entrances */
+  --nd-t-max: 600ms;           /* nothing exceeds this except ambient loops */
+
+  /* ---- Depth (restrained, cinematic) ---- */
+  --nd-shadow: 0 8px 28px rgba(0, 0, 0, 0.42);
+  --nd-shadow-hover: 0 14px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(184, 230, 46, 0.35);
+  --nd-e1: 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.35);
+  --nd-e2: 0 2px 6px rgba(0,0,0,.4), 0 14px 34px rgba(0,0,0,.4);
+  --nd-e3: 0 6px 14px rgba(0,0,0,.45), 0 30px 70px rgba(0,0,0,.5);
+  --nd-rim: inset 0 1px 0 rgba(255,255,255,.07);
+  --nd-rim-strong: inset 0 1px 0 rgba(255,255,255,.1), inset 0 -1px 0 rgba(0,0,0,.2);
+  --nd-press: inset 0 2px 5px rgba(0,0,0,.35);
+
+  /* ---- Focus ---- */
+  --nd-focus-ring: 0 0 0 2px var(--nd-bg), 0 0 0 4px var(--nd-lime);
+}
+
+/* ============ LIGHT THEME (opt-in via data-nd-ed="light") ============ */
+[data-nd-ed="light"], [data-theme="light"] {
+  color-scheme: light;
+
+  --nd-bg: #F6F7F9;
+  --nd-panel: #FFFFFF;
+  --nd-panel-2: #EFF1F5;
+  --nd-inset: #EDEFF3;
+  --nd-border: #E2E6EC;
+  --nd-border-strong: #CBD2DC;
+
+  --nd-lime: #4D7C0F;          /* darkened for AA on light */
+  --nd-lime-soft: rgba(77, 124, 15, 0.1);
+  --nd-lime-faint: rgba(77, 124, 15, 0.05);
+  --nd-on-lime: #FFFFFF;
+  --nd-amber: #B45309;
+
+  --nd-text: #0A0C10;
+  --nd-muted: #4B5563;
+  --nd-dim: #8A94A3;
+
+  --nd-up: #15803D;
+  --nd-up-soft: rgba(21, 128, 61, 0.1);
+  --nd-down: #DC2626;
+  --nd-down-soft: rgba(220, 38, 38, 0.08);
+
+  --nd-chip-delayed-bg: rgba(77, 124, 15, 0.12);
+  --nd-chip-delayed-fg: #4D7C0F;
+  --nd-chip-closed-bg: rgba(180, 83, 9, 0.12);
+  --nd-chip-closed-fg: #B45309;
+
+  --nd-shadow: 0 8px 28px rgba(10, 12, 16, 0.08);
+  --nd-shadow-hover: 0 14px 40px rgba(10, 12, 16, 0.12), 0 0 0 1px rgba(77, 124, 15, 0.4);
+  --nd-focus-ring: 0 0 0 2px var(--nd-bg), 0 0 0 4px var(--nd-lime);
+
+  --nd-e1: 0 1px 2px rgba(40,55,25,.07), 0 4px 14px rgba(40,55,25,.07);
+  --nd-e2: 0 2px 6px rgba(40,55,25,.08), 0 14px 34px rgba(40,55,25,.1);
+  --nd-e3: 0 6px 14px rgba(40,55,25,.1), 0 30px 70px rgba(40,55,25,.12);
+  --nd-rim: inset 0 1px 0 rgba(255,255,255,.9);
+  --nd-press: inset 0 2px 5px rgba(40,55,25,.12);
+}

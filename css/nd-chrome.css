@@ -10,6 +10,14 @@
      <link rel="stylesheet" href="/css/nd-chrome.css">
      <div id="nd-header"></div>  ...  <div id="nd-footer"></div>
      <script src="/js/nd-chrome.js" defer></script>
+
+   Wave A (2026-10-23): tokens live in css/nd-tokens.css
+   (imported by nd-editorial-theme.css). This file also carries
+   the BASE RULES + unified COMPONENT SYSTEM at the end
+   (.nd-btn, .nd-pill, .nd-card, .nd-hero-numeral, .nd-ticker,
+   .nd-table, .nd-tabs) — the one component language for the
+   suite. Depth tokens (--nd-e1/e2/e3, --nd-rim, --nd-press)
+   are defined in nd-tokens.css; keep those names stable.
    ============================================================ */
 
 /* Guard against off-canvas elements (e.g. the closed mobile drawer, which is
@@ -105,7 +113,7 @@ html, body{ overflow-x: clip; }
   color: var(--nd-muted); text-decoration: none;
   font: 500 0.8125rem var(--nd-font-sans);
   border-left: 2px solid transparent;
-  transition: all var(--nd-t-fast) var(--nd-ease);
+  transition: color var(--nd-t-fast) var(--nd-ease), background var(--nd-t-fast) var(--nd-ease), border-left-color var(--nd-t-fast) var(--nd-ease), transform var(--nd-t-fast) var(--nd-ease);
 }
 #nd-header .nd-drop a:hover{ color: var(--nd-text); background: var(--nd-lime-faint); border-left-color: var(--nd-lime); }
 #nd-header .nd-drop a.active{ color: var(--nd-lime); font-weight: 600; }
@@ -120,7 +128,7 @@ html, body{ overflow-x: clip; }
 #nd-header .nd-pill .dot{ width: 8px; height: 8px; border-radius: 50%; background: var(--nd-amber); flex: none; }
 #nd-header .nd-pill.live .dot{ background: var(--nd-lime); animation: nd-chrome-pulse 1.6s var(--nd-ease) infinite; }
 #nd-header .nd-iconbtn{
-  width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center;
   background: var(--nd-panel); border: 1px solid var(--nd-border-strong);
   border-radius: var(--nd-r-md); color: var(--nd-text); cursor: pointer;
   font: 600 0.8125rem var(--nd-font-sans);
@@ -130,7 +138,7 @@ html, body{ overflow-x: clip; }
 #nd-header .nd-iconbtn:active{ transform: scale(0.95); }
 #nd-header .nd-lang{ display: flex; border: 1px solid var(--nd-border-strong); border-radius: var(--nd-r-md); overflow: hidden; }
 #nd-header .nd-lang button{
-  height: 36px; padding: 0 12px; background: transparent; border: 0; cursor: pointer;
+  height: 44px; padding: 0 12px; background: transparent; border: 0; cursor: pointer;
   font: 600 0.75rem var(--nd-font-sans); color: var(--nd-muted);
 }
 #nd-header .nd-lang button[aria-pressed="true"]{ background: var(--nd-lime); color: var(--nd-on-lime); }
@@ -155,8 +163,8 @@ html, body{ overflow-x: clip; }
   #nd-header .nd-brand-name{ display: none; }
   #nd-header .nd-bar{ gap: var(--nd-s2); padding: 0 var(--nd-s4); }
   #nd-header .nd-cluster{ gap: 6px; }
-  #nd-header .nd-iconbtn{ width: 34px; height: 34px; }
-  #nd-header .nd-lang button{ height: 32px; padding: 0 9px; }
+  #nd-header .nd-iconbtn{ width: 44px; height: 44px; }
+  #nd-header .nd-lang button{ height: 44px; padding: 0 9px; }
   #nd-header .nd-pill{ height: 32px; padding: 0 10px; }
   /* MOBILE SEARCH FIT (2026-10-10): let the search box shrink instead of forcing
      min-width:180px (which caused 33px horizontal overflow). The results
@@ -390,7 +398,7 @@ body:has(> #nd-header) .theme-toggle.fixed{ display: none !important; }
   box-shadow: inset 0 2px 5px rgba(0,0,0,.25), 0 1px 0 rgba(255,255,255,.05);
 }
 #nd-header .nd-lang button[aria-pressed="true"]{
-  background: linear-gradient(180deg, #c8f04a, #a8d62a);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--nd-lime) 84%, white), var(--nd-lime));
   box-shadow: inset 0 1px 0 rgba(255,255,255,.35), inset 0 -1px 0 rgba(0,0,0,.12);
 }
 
@@ -433,7 +441,7 @@ body:has(> #nd-header) .theme-toggle.fixed{ display: none !important; }
   background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,0) 50%), transparent;
   border: 1px solid transparent;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
-  transition: all .15s ease;
+  transition: color .15s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease, transform .15s ease;
 }
 #nd-header .nd-navbtn:hover, #nd-header .nd-navitem.open .nd-navbtn{
   color: var(--nd-text);
@@ -444,8 +452,8 @@ body:has(> #nd-header) .theme-toggle.fixed{ display: none !important; }
 }
 #nd-header .nd-navbtn.active{
   color: var(--nd-on-lime, #0A0C10);
-  background: linear-gradient(180deg, #D4F34A 0%, var(--nd-lime, #B8E62E) 55%, #9BCB24 100%);
-  border-color: #D4F34A;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--nd-lime) 80%, white) 0%, var(--nd-lime, #B8E62E) 55%, color-mix(in srgb, var(--nd-lime) 86%, black) 100%);
+  border-color: color-mix(in srgb, var(--nd-lime) 80%, white);
   box-shadow: inset 0 2px 0 rgba(255,255,255,.5), inset 0 -3px 6px rgba(0,0,0,.18), 0 2px 6px rgba(0,0,0,.4), 0 4px 14px rgba(184,230,46,.3);
 }
 #nd-header .nd-navbtn.active::after{ display: none; }
@@ -474,3 +482,318 @@ body:has(> #nd-header) .theme-toggle.fixed{ display: none !important; }
 #nd-header .nd-search input::-webkit-search-cancel-button,
 #nd-header .nd-search input::-webkit-search-decoration{display:none;-webkit-appearance:none}
 #nd-header .nd-search input::-ms-clear{display:none}
+
+/* ============================================================
+   BASE RULES (Wave A, 2026-10-23) — suite-wide defaults on
+   pages that adopt the chrome. Element-level on purpose:
+   page/component rules with any class specificity win.
+   ============================================================ */
+table{ font-variant-numeric: tabular-nums; }
+h1, h2, h3{ text-wrap: balance; }
+p{ text-wrap: pretty; }
+:focus-visible{ outline: 2px solid var(--nd-lime); outline-offset: 2px; }
+/* Dark-styled form controls: explicit colours so native
+   widgets never render light-on-dark. `color-scheme` itself
+   is set per theme in nd-tokens.css (:root dark / light). */
+select, textarea,
+input[type="text"], input[type="search"], input[type="number"],
+input[type="date"], input[type="email"], input[type="tel"]{
+  background: var(--nd-panel); color: var(--nd-text);
+  border: 1px solid var(--nd-border-strong); border-radius: var(--nd-r-md);
+  font: 500 var(--nd-text-body) var(--nd-font-sans);
+}
+select option{ background: var(--nd-panel); color: var(--nd-text); }
+
+/* ============================================================
+   COMPONENT SYSTEM (Wave A, 2026-10-23) — the one component
+   language for the suite. Rules drawn from the skills.sh pack:
+   Vercel web-design-guidelines (ARIA tabs pattern, focus
+   states, ≥44px targets), ui-ux-pro-max (tabular data
+   density, tokenised surfaces), impeccable (one accent,
+   rest-at-rest colour discipline).
+
+   DEPTH LANGUAGE (formalised here; Wave F builds the 3D data
+   visualisation on these exact tokens — names are STABLE):
+     --nd-e1  resting card elevation      --nd-rim   luminous
+     --nd-e2  hover/lift elevation        top hairline (inset)
+     --nd-e3  overlay/floating elevation --nd-press active inset
+   Surfaces layer --nd-bg < --nd-panel < --nd-panel-2 <
+   overlay. Motion is transform/opacity only, --nd-t-*
+   durations, and ambient loops pause when offscreen (page JS
+   toggles .nd-paused via IntersectionObserver) and stop
+   under prefers-reduced-motion.
+   ============================================================ */
+
+/* ---- Buttons ---- */
+.nd-btn{
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 44px; padding: 0 20px;
+  font: 600 0.875rem var(--nd-font-sans);
+  border-radius: var(--nd-r-md); border: 1px solid transparent;
+  cursor: pointer; text-decoration: none; white-space: nowrap;
+  transition: background var(--nd-t-fast) var(--nd-ease), color var(--nd-t-fast) var(--nd-ease),
+    border-color var(--nd-t-fast) var(--nd-ease), transform var(--nd-t-fast) var(--nd-ease),
+    box-shadow var(--nd-t-fast) var(--nd-ease);
+}
+.nd-btn--primary{
+  background: linear-gradient(180deg, color-mix(in srgb, var(--nd-lime) 88%, white), var(--nd-lime));
+  color: var(--nd-on-lime); box-shadow: var(--nd-rim), var(--nd-e1);
+}
+.nd-btn--primary:hover{ background: var(--nd-lime); transform: translateY(-1px); box-shadow: var(--nd-rim), var(--nd-e2); }
+.nd-btn--primary:active{ transform: translateY(0); box-shadow: var(--nd-press); }
+.nd-btn--ghost{
+  background: var(--nd-panel); color: var(--nd-text); border-color: var(--nd-border-strong);
+  box-shadow: var(--nd-rim), var(--nd-e1);
+}
+.nd-btn--ghost:hover{ border-color: var(--nd-lime); color: var(--nd-lime); }
+.nd-btn--ghost:active{ box-shadow: var(--nd-press); }
+.nd-btn--danger{
+  background: transparent; color: var(--nd-down);
+  border-color: color-mix(in srgb, var(--nd-down) 55%, transparent);
+}
+.nd-btn--danger:hover{ background: var(--nd-down-soft); border-color: var(--nd-down); }
+.nd-btn--danger:active{ box-shadow: var(--nd-press); }
+.nd-btn:focus-visible{ outline: none; box-shadow: var(--nd-focus-ring); }
+.nd-btn:disabled, .nd-btn[aria-disabled="true"]{
+  opacity: .45; cursor: not-allowed; transform: none; pointer-events: none;
+}
+/* Dense mouse-first toolbars only; touch surfaces keep 44px. */
+.nd-btn--sm{ min-height: 36px; padding: 0 14px; font-size: 0.8125rem; }
+
+/* ---- Pill (standalone status/label pill; the header's
+   market-status pill is #nd-header .nd-pill above) ---- */
+.nd-pill{
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 32px; padding: 4px 14px;
+  border: 1px solid var(--nd-border-strong); border-radius: var(--nd-r-pill);
+  background: var(--nd-panel); color: var(--nd-text);
+  font: 600 0.6875rem var(--nd-font-mono); letter-spacing: 0.08em; text-transform: uppercase;
+}
+.nd-pill .dot{ width: 8px; height: 8px; border-radius: 50%; background: var(--nd-amber); flex: none; }
+.nd-pill--live .dot{ background: var(--nd-lime); }
+.nd-pill--lime{
+  color: var(--nd-lime); background: var(--nd-lime-faint);
+  border-color: color-mix(in srgb, var(--nd-lime) 55%, transparent);
+}
+
+/* ---- Card ---- */
+.nd-card{
+  background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,0) 42%), var(--nd-panel);
+  border: 1px solid var(--nd-border); border-radius: var(--nd-r-card);
+  box-shadow: var(--nd-rim), var(--nd-e1);
+  padding: var(--nd-s6);
+}
+.nd-card--lift{
+  transition: transform var(--nd-t-med) var(--nd-ease), box-shadow var(--nd-t-med) var(--nd-ease);
+}
+.nd-card--lift:hover{ transform: translateY(-3px); box-shadow: var(--nd-rim), var(--nd-e2); }
+
+/* ---- Hero band + hero numeral ---- */
+.nd-hero{
+  display: grid; grid-template-columns: 1.15fr .85fr; gap: var(--nd-s8);
+  align-items: center; padding: var(--nd-s12) 0 var(--nd-s8);
+}
+@media (max-width: 900px){
+  .nd-hero{ grid-template-columns: 1fr; padding-top: var(--nd-s8); }
+}
+.nd-hero h1{
+  font-family: var(--nd-font-display); font-weight: 600;
+  font-size: var(--step-4); line-height: 1.08; letter-spacing: -0.01em;
+  color: var(--nd-text); margin: var(--nd-s3) 0 var(--nd-s4);
+}
+.nd-hero .nd-standfirst{
+  font: 400 var(--step-2)/1.6 var(--nd-font-sans);
+  color: var(--nd-muted); max-width: 36ch; margin: 0 0 var(--nd-s4);
+}
+.nd-hero .nd-standfirst-ne{
+  font: 400 var(--nd-text-body)/1.7 var(--nd-font-sans);
+  color: var(--nd-dim); margin: 0;
+}
+.nd-hero-numeral{
+  font: 600 var(--step-5)/1 var(--nd-font-sans);
+  font-variant-numeric: tabular-nums; letter-spacing: -0.03em;
+  color: var(--nd-text);
+}
+
+/* ---- Ticker ----
+   Track content is duplicated once by the page; the -50%
+   loop is seamless. Symbols are ink/white at rest (owner
+   law) — colour lives only in the change values. */
+.nd-ticker{
+  overflow: hidden; border-block: 1px solid var(--nd-border); background: var(--nd-inset);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+}
+.nd-ticker-track{
+  display: flex; gap: var(--nd-s8); width: max-content; padding: var(--nd-s2) 0;
+  animation: nd-tickmove 60s linear infinite;
+}
+.nd-ticker:hover .nd-ticker-track,
+.nd-ticker-track.nd-paused,
+[data-nd-paused="true"] .nd-ticker-track{ animation-play-state: paused; }
+@keyframes nd-tickmove{ from{ transform: translateX(0); } to{ transform: translateX(-50%); } }
+.nd-ticker .sym{ font: 600 0.8125rem var(--nd-font-mono); color: var(--nd-text); }
+.nd-ticker .px{ font: 500 0.8125rem var(--nd-font-mono); color: var(--nd-muted); }
+.nd-ticker .up{ color: var(--nd-up); }
+.nd-ticker .dn{ color: var(--nd-down); }
+
+/* ============================================================
+   TABLE SYSTEM (Wave A) — Bloomberg-tight data tables.
+   Contract:
+     <div class="nd-tablewrap">            (scroll + sticky)
+       <table class="nd-table">            (+ .nd-table--dense)
+         <thead><tr><th>… <th class="num">… (numeric = .num,
+         right-aligned + tabular)          sortable headers
+         carry aria-sort on the <th> and class="nd-sortable"
+         when sortable-but-unsorted.
+         <tbody> rows; symbol cell class="sym".
+     First column + header row stay pinned inside the wrap.
+     Zebra is a surface shift only — never a coloured stripe.
+     Row "lift" is a surface glow (transforms on <tr> are
+     unreliable across engines).
+     .nd-table--cards opts into the <640px card fallback:
+     every <td> carries data-th="Column label".
+   ============================================================ */
+.nd-tablewrap{
+  overflow: auto; background: var(--nd-panel);
+  border: 1px solid var(--nd-border); border-radius: var(--nd-r-card);
+  box-shadow: var(--nd-rim), var(--nd-e1);
+}
+.nd-table{
+  width: 100%; border-collapse: separate; border-spacing: 0;
+  font: 400 var(--nd-text-body) var(--nd-font-sans); color: var(--nd-text);
+}
+.nd-table caption{
+  text-align: left; padding: var(--nd-s4) var(--nd-s5);
+  font: 600 var(--step-2) var(--nd-font-display); color: var(--nd-text);
+}
+.nd-table th{
+  position: sticky; top: 0; z-index: 2;
+  font: 600 0.6875rem var(--nd-font-mono); letter-spacing: 0.09em; text-transform: uppercase;
+  color: var(--nd-dim); text-align: left; white-space: nowrap;
+  padding: 10px 14px; background: var(--nd-panel);
+  border-bottom: 1px solid var(--nd-border-strong);
+}
+.nd-table td{
+  padding: 9px 14px; background: var(--nd-panel);
+  border-bottom: 1px solid var(--nd-border);
+  font-variant-numeric: tabular-nums;
+}
+.nd-table tbody tr:nth-child(even) td{
+  background: color-mix(in srgb, var(--nd-panel-2) 55%, var(--nd-panel));
+}
+.nd-table tbody tr{ transition: background var(--nd-t-fast) var(--nd-ease); }
+.nd-table tbody tr:hover td{ background: var(--nd-lime-faint); }
+.nd-table tbody tr:last-child td{ border-bottom: 0; }
+.nd-table .num, .nd-table th.num{ text-align: right; }
+.nd-table .sym{ font-weight: 600; white-space: nowrap; }
+.nd-table .sym a{ color: var(--nd-text); text-decoration: none; }
+.nd-table .sym a:hover{ color: var(--nd-lime); text-decoration: underline; }
+.nd-table .up{ color: var(--nd-up); }
+.nd-table .dn{ color: var(--nd-down); }
+/* Sticky first column (symbol) */
+.nd-table th:first-child, .nd-table td:first-child{
+  position: sticky; left: 0; z-index: 1;
+}
+.nd-table th:first-child{ z-index: 3; }
+/* Sort indicators — visible, state-driven (aria-sort) */
+.nd-table th.nd-sortable{ cursor: pointer; }
+.nd-table th.nd-sortable::after,
+.nd-table th[aria-sort="ascending"]::after,
+.nd-table th[aria-sort="descending"]::after{
+  content: ""; display: inline-block; margin-left: 7px; vertical-align: middle;
+  border-inline: 4px solid transparent; opacity: .35;
+}
+.nd-table th.nd-sortable::after{ border-bottom: 5px solid currentColor; }
+.nd-table th[aria-sort="ascending"]::after{
+  border-bottom: 5px solid var(--nd-lime); opacity: 1;
+}
+.nd-table th[aria-sort="descending"]::after{
+  border-top: 5px solid var(--nd-lime); border-bottom: 0; opacity: 1;
+}
+.nd-table--dense th{ padding: 8px 12px; }
+.nd-table--dense td{ padding: 6px 12px; }
+/* <640px card fallback (opt-in via .nd-table--cards) */
+@media (max-width: 640px){
+  .nd-table--cards thead{
+    position: absolute; width: 1px; height: 1px; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  .nd-table--cards, .nd-table--cards tbody,
+  .nd-table--cards tr, .nd-table--cards td{ display: block; width: 100%; }
+  .nd-table--cards tr{
+    padding: var(--nd-s3) var(--nd-s4);
+    border-bottom: 1px solid var(--nd-border-strong);
+  }
+  .nd-table--cards tbody tr:last-child{ border-bottom: 0; }
+  .nd-table--cards td{
+    display: flex; justify-content: space-between; align-items: baseline;
+    gap: var(--nd-s4); padding: 5px 0; border-bottom: 0; background: transparent;
+  }
+  .nd-table--cards tbody tr:nth-child(even) td,
+  .nd-table--cards tbody tr:hover td{ background: transparent; }
+  .nd-table--cards td::before{
+    content: attr(data-th);
+    font: 600 0.6875rem var(--nd-font-mono); letter-spacing: 0.09em;
+    text-transform: uppercase; color: var(--nd-dim);
+  }
+  .nd-table--cards th:first-child, .nd-table--cards td:first-child{ position: static; }
+}
+
+/* ============================================================
+   TAB SYSTEM (Wave A) — one tabs component, ARIA tabs
+   pattern (Vercel web-design-guidelines / APG):
+     <div class="nd-tabs nd-tabs--pill" role="tablist">
+       <button role="tab" aria-selected="true"
+               aria-controls="panel-id" id="tab-id">…
+     <div role="tabpanel" id="panel-id" aria-labelledby="tab-id"
+          tabindex="0">…
+   Behaviour contract for page JS: roving tabindex (selected
+   tab tabindex="0", others "-1"), ArrowLeft/ArrowRight move,
+   Home/End jump, activation on focus (automatic) or Enter/
+   Space (manual). The selected state is [aria-selected] —
+   unmistakable, never hover-only; `.on` is honoured as a
+   legacy alias so existing toggles keep painting. Where a
+   page already carries state in the URL, page JS syncs the
+   selected tab from/to the query param (e.g. ?metric=).
+   ============================================================ */
+.nd-tabs{ display: flex; gap: var(--nd-s2); flex-wrap: wrap; }
+.nd-tabs [role="tab"]{
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 40px; padding: 0 16px;
+  font: 600 0.8125rem var(--nd-font-sans); color: var(--nd-muted);
+  background: transparent; border: 1px solid transparent; border-radius: var(--nd-r-md);
+  cursor: pointer;
+  transition: color var(--nd-t-fast) var(--nd-ease), background var(--nd-t-fast) var(--nd-ease),
+    border-color var(--nd-t-fast) var(--nd-ease), box-shadow var(--nd-t-fast) var(--nd-ease);
+}
+.nd-tabs [role="tab"]:hover{ color: var(--nd-text); }
+.nd-tabs [role="tab"]:focus-visible{ outline: none; box-shadow: var(--nd-focus-ring); }
+.nd-tabs [role="tab"]:disabled{ opacity: .45; cursor: not-allowed; }
+/* Pill variant — segmented control (flagship metric tabs) */
+.nd-tabs--pill [role="tab"]{
+  border-color: var(--nd-border-strong); background: var(--nd-panel);
+  border-radius: var(--nd-r-pill); box-shadow: var(--nd-rim), var(--nd-e1);
+}
+.nd-tabs--pill [role="tab"][aria-selected="true"],
+.nd-tabs--pill [role="tab"].on{
+  background: linear-gradient(180deg, color-mix(in srgb, var(--nd-lime) 88%, white), var(--nd-lime));
+  color: var(--nd-on-lime); border-color: transparent;
+}
+/* Underline variant — editorial section tabs */
+.nd-tabs--underline{ gap: var(--nd-s5); border-bottom: 1px solid var(--nd-border); }
+.nd-tabs--underline [role="tab"]{
+  min-height: 44px; padding: 0 2px; border-radius: 0;
+  box-shadow: inset 0 -2px 0 transparent;
+}
+.nd-tabs--underline [role="tab"][aria-selected="true"],
+.nd-tabs--underline [role="tab"].on{
+  color: var(--nd-text); box-shadow: inset 0 -2px 0 var(--nd-lime);
+}
+.nd-tabpanel:focus-visible{ outline: none; box-shadow: var(--nd-focus-ring); }
+
+@media (prefers-reduced-motion: reduce){
+  .nd-btn, .nd-card--lift, .nd-tabs [role="tab"]{ transition-duration: 150ms; }
+  .nd-btn--primary:hover, .nd-card--lift:hover{ transform: none; }
+  .nd-ticker-track{ animation: none; }
+}

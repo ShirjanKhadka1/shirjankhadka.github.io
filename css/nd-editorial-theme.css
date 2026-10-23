@@ -1,157 +1,28 @@
 /* ============================================================
    NEPSE DECODE — Editorial Design Theme (D1)
    Approved concept: "Concept 03 Editorial Markets" (terminal theme).
-   Source of truth for the redesign. All tokens are `--nd-` prefixed
-   so this layer coexists with the legacy families (style.css,
-   nepse-luxury.css, nepse-design-system.css) during migration —
-   including this file changes ZERO pixels on live pages until
-   components opt in by using these tokens.
 
-   Migration plan:
-     D1 (this file)  tokens only, no visual change.
-     D2              new header/nav + footer components consume tokens.
-     D3+             page templates migrate section by section.
-     Final           legacy families retired; dark stays the default.
+   Wave A (2026-10-23): ALL --nd-* tokens moved to
+   css/nd-tokens.css — the single source, imported below.
+   This file now carries only component helper classes and the
+   blog-card treatments that consume the tokens. Do not define
+   tokens here; add them to nd-tokens.css.
 
    THEME MODEL
-   Dark terminal is the default: `:root` carries dark values.
-   Light theme: set `data-nd-ed="light"` on <html>.
-   The D2 header switch toggles that attribute (persisted in
-   localStorage "nd-ed-theme") and mirrors the legacy `data-theme`
-   attribute so existing chart observers keep working.
+   Dark terminal is the default: `:root` in nd-tokens.css
+   carries dark values. Light theme: set `data-nd-ed="light"`
+   on <html>. The D2 header switch toggles that attribute
+   (persisted in localStorage "nd-ed-theme") and mirrors the
+   legacy `data-theme` attribute so existing chart observers
+   keep working.
 
-   FONTS (load in <head>, D2 header does this):
-   https://fonts.googleapis.com/css2?family=Spectral:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap
+   FONTS: self-hosted via css/fonts.css (Inter + Noto Sans
+   Devanagari + Spectral + Noto Serif Devanagari, genuine
+   weights). Mono stack: "IBM Plex Mono" first (token), with
+   system mono fallbacks.
    ============================================================ */
 
-:root {
-  color-scheme: dark;
-
-  /* ---- Surfaces (dark terminal default) ---- */
-  --nd-bg: #0A0C10;            /* app canvas */
-  --nd-panel: #12141A;         /* cards */
-  --nd-panel-2: #161A23;       /* raised / inset panels */
-  --nd-inset: #0D0F14;         /* wells, code, chart beds */
-  --nd-border: #1E2430;        /* hairlines */
-  --nd-border-strong: #2A3140; /* emphasis borders */
-
-  /* ---- Brand ---- */
-  --nd-lime: #B8E62E;          /* primary accent: CTAs, active, focus */
-  --nd-lime-soft: rgba(184, 230, 46, 0.12);
-  --nd-lime-faint: rgba(184, 230, 46, 0.06);
-  --nd-on-lime: #0A0C10;       /* text on lime fills */
-  --nd-amber: #F5B301;         /* CLOSED badges ONLY */
-
-  /* ---- Text ---- */
-  --nd-text: #FFFFFF;          /* headings / strong */
-  --nd-muted: #B8C0CE;         /* secondary (AA on panel) */
-  --nd-dim: #8E98A8;           /* tertiary (AA-large / meta) */
-
-  /* ---- Data semantics ---- */
-  --nd-up: #4ADE80;
-  --nd-up-soft: rgba(74, 222, 128, 0.12);
-  --nd-down: #F87171;
-  --nd-down-soft: rgba(248, 113, 113, 0.12);
-  --nd-flat: #9AA3B2;
-  --nd-info: #3080FF;
-  --nd-verified: #1D9BF0;
-
-  /* ---- Honesty chips (V2 framework; component in D2) ---- */
-  --nd-chip-live-bg: rgba(74, 222, 128, 0.14);
-  --nd-chip-live-fg: #4ADE80;
-  --nd-chip-delayed-bg: rgba(184, 230, 46, 0.12);
-  --nd-chip-delayed-fg: #B8E62E;
-  --nd-chip-closed-bg: rgba(245, 179, 1, 0.12);
-  --nd-chip-closed-fg: #F5B301;
-  --nd-chip-stale-bg: rgba(248, 113, 113, 0.12);
-  --nd-chip-stale-fg: #F87171;
-  --nd-chip-unverified-bg: rgba(154, 163, 178, 0.14);
-  --nd-chip-unverified-fg: #9AA3B2;
-
-  /* ---- Typography ---- */
-  --nd-font-display: "Spectral", Georgia, serif;
-  --nd-font-sans: "Inter", "Noto Sans Devanagari", system-ui, -apple-system, sans-serif;
-  --nd-font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
-
-  /* Strict type scale — if a size is not here, it does not ship */
-  --nd-text-h1: clamp(17px, 1.65rem + 0.5vw, 1.85rem); /* display 600 */
-  --nd-text-h2: 1.25rem;       /* card/section headings, display 600 */
-  --nd-text-h3: 1.0625rem;     /* display 600 */
-  --nd-text-body: 0.875rem;    /* 14px body */
-  --nd-text-body-sm: 0.8125rem;/* 13px */
-  --nd-text-nav: 0.875rem;     /* 14px/500 */
-  --nd-text-meta: 0.6875rem;   /* 11px card meta */
-  --nd-text-eyebrow: 0.6875rem;/* 11px uppercase, ls 0.22em */
-  --nd-text-footer-link: 0.875rem;
-  --nd-text-footer-head: 0.6875rem; /* uppercase, wide tracking */
-
-  /* ---- Shape (one radius scale) ---- */
-  --nd-r-sm: 8px;
-  --nd-r-md: 12px;             /* buttons */
-  --nd-r-card: 18px;           /* cards (16–20 range → 18) */
-  --nd-r-pill: 999px;
-  --nd-r-logo: 12px;
-
-  /* ---- Spacing (4px base) ---- */
-  --nd-s1: 4px;  --nd-s2: 8px;  --nd-s3: 12px; --nd-s4: 16px;
-  --nd-s5: 20px; --nd-s6: 24px; --nd-s8: 32px; --nd-s12: 48px;
-  --nd-s16: 64px;
-
-  /* ---- Layout ---- */
-  --nd-header-h: 60px;         /* single-row nav, never taller */
-  --nd-page-max: 1360px;
-  --nd-gutter: 24px;
-
-  /* ---- Motion ---- */
-  --nd-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --nd-t-fast: 150ms;          /* color transitions */
-  --nd-t-med: 180ms;           /* micro-interactions */
-  --nd-t-enter: 350ms;         /* section entrances */
-  --nd-t-max: 600ms;           /* nothing exceeds this except ambient loops */
-
-  /* ---- Depth (restrained) ---- */
-  --nd-shadow: 0 8px 28px rgba(0, 0, 0, 0.42);
-  --nd-shadow-hover: 0 14px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(184, 230, 46, 0.35);
-
-  /* ---- Focus ---- */
-  --nd-focus-ring: 0 0 0 2px var(--nd-bg), 0 0 0 4px var(--nd-lime);
-}
-
-/* ============ LIGHT THEME (opt-in via data-nd-ed="light") ============ */
-[data-nd-ed="light"], [data-theme="light"] {
-  color-scheme: light;
-
-  --nd-bg: #F6F7F9;
-  --nd-panel: #FFFFFF;
-  --nd-panel-2: #EFF1F5;
-  --nd-inset: #EDEFF3;
-  --nd-border: #E2E6EC;
-  --nd-border-strong: #CBD2DC;
-
-  --nd-lime: #4D7C0F;          /* darkened for AA on light */
-  --nd-lime-soft: rgba(77, 124, 15, 0.1);
-  --nd-lime-faint: rgba(77, 124, 15, 0.05);
-  --nd-on-lime: #FFFFFF;
-  --nd-amber: #B45309;
-
-  --nd-text: #0A0C10;
-  --nd-muted: #4B5563;
-  --nd-dim: #8A94A3;
-
-  --nd-up: #15803D;
-  --nd-up-soft: rgba(21, 128, 61, 0.1);
-  --nd-down: #DC2626;
-  --nd-down-soft: rgba(220, 38, 38, 0.08);
-
-  --nd-chip-delayed-bg: rgba(77, 124, 15, 0.12);
-  --nd-chip-delayed-fg: #4D7C0F;
-  --nd-chip-closed-bg: rgba(180, 83, 9, 0.12);
-  --nd-chip-closed-fg: #B45309;
-
-  --nd-shadow: 0 8px 28px rgba(10, 12, 16, 0.08);
-  --nd-shadow-hover: 0 14px 40px rgba(10, 12, 16, 0.12), 0 0 0 1px rgba(77, 124, 15, 0.4);
-  --nd-focus-ring: 0 0 0 2px var(--nd-bg), 0 0 0 4px var(--nd-lime);
-}
+@import url("/css/nd-tokens.css");
 
 /* ============ Base helpers (opt-in scope) ============ */
 
@@ -198,24 +69,9 @@
   }
 }
 
-/* ============================================================
- * 3D elevation tokens — shared depth scale for all nd pages
- * ============================================================ */
-:root{
-  --nd-e1: 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.35);
-  --nd-e2: 0 2px 6px rgba(0,0,0,.4), 0 14px 34px rgba(0,0,0,.4);
-  --nd-e3: 0 6px 14px rgba(0,0,0,.45), 0 30px 70px rgba(0,0,0,.5);
-  --nd-rim: inset 0 1px 0 rgba(255,255,255,.07);
-  --nd-rim-strong: inset 0 1px 0 rgba(255,255,255,.1), inset 0 -1px 0 rgba(0,0,0,.2);
-  --nd-press: inset 0 2px 5px rgba(0,0,0,.35);
-}
-[data-nd-ed="light"], [data-theme="light"]{
-  --nd-e1: 0 1px 2px rgba(40,55,25,.07), 0 4px 14px rgba(40,55,25,.07);
-  --nd-e2: 0 2px 6px rgba(40,55,25,.08), 0 14px 34px rgba(40,55,25,.1);
-  --nd-e3: 0 6px 14px rgba(40,55,25,.1), 0 30px 70px rgba(40,55,25,.12);
-  --nd-rim: inset 0 1px 0 rgba(255,255,255,.9);
-  --nd-press: inset 0 2px 5px rgba(40,55,25,.12);
-}
+/* 3D elevation tokens (--nd-e1/e2/e3, --nd-rim, --nd-rim-strong,
+ * --nd-press) live in css/nd-tokens.css since Wave A (2026-10-23),
+ * imported at the top of this file. Do not redefine them here. */
 
 /* ============================================================
  * Blog cards: Pro 3D treatment (overrides style.css flat cards)

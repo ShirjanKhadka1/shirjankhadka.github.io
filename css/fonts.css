@@ -1,7 +1,18 @@
-/* P1.2: Self-hosted fonts — replaces Google Fonts CDN.
- * Two families: Inter (sans) + Spectral (serif), each with Devanagari counterpart.
+/* Self-hosted fonts — replaces Google Fonts CDN.
+ * Families: Inter (sans) + Noto Sans Devanagari (sans, Nepali),
+ * Spectral (serif/display) + Noto Serif Devanagari (serif, Nepali).
  * unicode-range ensures browsers download only the subsets they need.
  * font-display: swap prevents invisible text during load.
+ *
+ * Wave A (2026-10-23): the Inter / Noto Sans Devanagari /
+ * Noto Serif Devanagari binaries are GENUINE weights, instanced
+ * with fontTools from the variable fonts in google/fonts
+ * (Inter[opsz,wght] pinned opsz=14; Noto*[wdth,wght] pinned
+ * wdth=100) and subset to the unicode ranges below. Every file's
+ * OS/2 usWeightClass matches its filename — verified 2026-10-23.
+ * (The previous build shipped the Regular font under the
+ * 500/600/700 filenames — audit finding C7.) Spectral was
+ * already genuine and is unchanged.
  */
 
 /* Inter — Latin */
