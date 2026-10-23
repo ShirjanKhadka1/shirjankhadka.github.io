@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0A0C10">
+<title>Sector Rotation (RRG): NEPSE Sectors vs the Index | Nepse Decode</title>
+<link rel="stylesheet" href="/css/nd-tokens.css">
+<link rel="stylesheet" href="/css/nepse-design-system.css?v=20261023d">
+<meta name="description" content="NEPSE sector rotation map: every sector plotted on a relative rotation graph (RS-Ratio vs RS-Momentum) against the NEPSE index — who is leading, improving, weakening or lagging, with 12-week trails, consistency and turnover flow. Computed from Nepse Decode's own data archive, free. Educational use only.">
+<meta name="author" content="Shirjan Khadka">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-sector-rotation/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:title" content="Sector Rotation (RRG): NEPSE Sectors vs the Index">
+<meta property="og:description" content="Which NEPSE sectors are leading the index — and which are rotating up? The relative rotation graph for all 11 sectors, with trails, consistency and turnover flow. Free.">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Sector Rotation (RRG): NEPSE Sectors vs the Index">
+<meta name="twitter:description" content="Leading, improving, weakening, lagging — every NEPSE sector on one rotation map, updated after every close.">
+<meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-sector-rotation/">
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
+<link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/fonts.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode Sector Rotation (RRG)","url":"https://shirjankhadka.com.np/nepse-sector-rotation/","description":"Relative rotation graph of NEPSE sectors versus the NEPSE index, computed from Nepse Decode's derived sector-index archive. Educational use only, not investment advice.","author":{"@type":"Organization","name":"Nepse Decode"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
+{"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
+{"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-decode/"},
+{"@type":"ListItem","position":3,"name":"Sector Rotation","item":"https://shirjankhadka.com.np/nepse-sector-rotation/"}]}
+</script>
+<link rel="stylesheet" href="/css/theme.css?v=20261023d">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023d">
+<link rel="stylesheet" href="/css/nd-cinema.css?v=20261023m">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023e">
+<link rel="stylesheet" href="/css/nd-rotation.css?v=20261023j">
+<link rel="stylesheet" href="/css/nd-3d.css">
+<link rel="stylesheet" href="/css/nd-research-3d.css">
+</head>
+<body class="nd" data-page="sector-rotation">
+
+  <a class="skip-link" href="#main">Skip to content</a>
+<div id="nd-header"></div>
+<div class="fb-wrap" style="display:flex;justify-content:center;padding:10px 16px 0"><div data-freshness-badge></div></div>
+
+<div class="nd-shell">
+  <div class="nd-content">
+    <div class="nd-wrap">
+<main id="main">
+
+  <div class="rr-masthead">
+    <p class="nd-kicker">Research</p>
+    <h1 class="rr-title">Sector Rotation</h1>
+    <p class="rr-lede">Where is strength rotating? Every NEPSE sector is plotted on a <strong>relative rotation graph</strong> — its relative-strength trend (RS-Ratio) against that trend's momentum (RS-Momentum), benchmarked to the NEPSE index. Sectors move clockwise: improving, leading, weakening, lagging. Trails show the last 12 weeks of travel. Computed from Nepse Decode's own derived sector indices. Free, always.</p>
+    <p class="rr-meta"><span id="rrSession">Loading…</span></p>
+  </div>
+
+  <section class="rr-stats" id="rrStats" aria-label="Rotation summary"></section>
+
+  <section class="rr-chartwrap" aria-label="Relative rotation graph">
+    <div id="rrChart" class="rr-chart"></div>
+    <div id="rrLegend" class="rr-legend" aria-label="Sector legend"></div>
+  </section>
+
+  <div class="rr-tablewrap">
+    <table class="rr-table" id="rrTable">
+      <thead>
+        <tr>
+          <th data-key="sector" class="rr-sortable">Sector</th>
+          <th data-key="quadrant" class="rr-sortable">Quadrant</th>
+          <th data-key="rs_ratio" class="rr-sortable rr-num">RS-Ratio</th>
+          <th data-key="rs_momentum" class="rr-sortable rr-num">RS-Mom</th>
+          <th data-key="quadrant_days" class="rr-sortable rr-num">Days in Quad</th>
+          <th data-key="consistency" class="rr-sortable rr-num rr-hide-m">Consistency %</th>
+          <th data-key="turnover_share_pct" class="rr-sortable rr-num">Turnover %</th>
+          <th data-key="flow_shift_pp" class="rr-sortable rr-num rr-hide-m">Flow Shift pp</th>
+          <th data-key="rank_change_1w" class="rr-sortable rr-num rr-hide-s">Rank Δ 1W</th>
+        </tr>
+      </thead>
+      <tbody id="rrBody"><tr><td colspan="9" class="rr-loading">Loading the rotation map…</td></tr></tbody>
+    </table>
+  </div>
+
+  <section class="rr-section" aria-label="Methodology">
+    <h2>How this map is built</h2>
+    <div class="rr-method">
+      <p><strong>The benchmark and the sectors.</strong> Each sector is a derived index built by Nepse Decode: the equal-weighted chained daily returns of the sector's listed companies, computed from our own OHLC archive (the same series behind the Seasonality and Market Regime pages). The benchmark is the official NEPSE index. Sector membership is today's map applied historically, so delisted names are absent — a survivorship caveat we state rather than hide.</p>
+      <p><strong>RS-Ratio.</strong> RS = sector index ÷ NEPSE index, session by session. RS-Ratio = 100 × RS ÷ its own 50-session exponential moving average. Above 100, the sector's relative line is in an uptrend against the index; below 100, a downtrend. <strong>RS-Momentum</strong> = 100 × RS-Ratio ÷ its own 10-session average: above 100 the ratio itself is rising. This is the classic relative-rotation construction (the JdK RS-Ratio / RS-Momentum pair), computed here in the daily form stated above — every input is our own data and the formula is published, not borrowed as a black box.</p>
+      <p><strong>Quadrants.</strong> Leading (ratio ≥ 100, momentum ≥ 100): strong and still strengthening. Weakening (≥ 100, &lt; 100): strong but losing steam. Lagging (both &lt; 100): weak and still weakening. Improving (&lt; 100, ≥ 100): weak but turning up — tomorrow's leaders often enter here. <strong>Days in Quad</strong> counts consecutive sessions in the current quadrant; <strong>Consistency</strong> is the share of the last 30 sessions spent in the sector's most frequent quadrant. <strong>Rotation rank</strong> orders sectors by RS-Ratio + RS-Momentum − 100, their summed distance from the 100 / 100 centre.</p>
+      <p><strong>Turnover and flow shift.</strong> Turnover % is the sector's share of total turnover across sector-mapped companies in the latest session (exchange-reported turnover from our archive). Flow Shift compares that share with its trailing 120-session average, in percentage points: positive means money is rotating toward the sector relative to its recent norm, negative means it is rotating away.</p>
+      <p><strong>Reading it honestly.</strong> Rotation is relative: a sector can sit in Leading while falling, if it falls less than the index, and a Lagging sector can rise if it rises less. The map shows where relative strength and money are moving — it is a map, not a signal, and it says nothing about whether any sector is cheap or dear.</p>
+    </div>
+  </section>
+
+  <p class="rr-fine">Mechanical relative-strength statistics for education, not investment advice. Data: Nepse Decode derived sector indices + official NEPSE index history, rebuilt after each close. Sector history begins when each derived index has enough sessions (Banking 2011, Hydropower 2009, Investment 2020).</p>
+
+</main>
+    </div>
+  </div>
+</div>
+
+<div id="nd-footer"></div>
+<script src="/js/nd-chrome.js?v=20261023j"></script>
+<script src="/js/nd-rotation.js?v=20261023j"></script>
+</body>
+</html>
