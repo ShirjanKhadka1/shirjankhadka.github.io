@@ -87,6 +87,17 @@
       '<button type="button" class="ev-stat" data-v="Hold" aria-pressed="'+(state.verdict==='Hold')+'"><div class="num">'+c.h+'</div><div class="lbl">Hold</div></button>'+
       '<button type="button" class="ev-stat exit" data-v="exit-side" aria-pressed="'+(state.verdict==='exit-side')+'"><div class="num">'+exitSide+'</div><div class="lbl">Exit-side</div></button>'+
       '<button type="button" class="ev-stat" data-v="all" aria-pressed="'+(state.verdict==='all')+'"><div class="num">'+state.rows.length+'</div><div class="lbl">Securities scored</div></button>' +
+      (function () {
+        var tot = state.rows.length || 1;
+        var seg = [['dsb','Strong Buy',c.sb],['db','Buy',c.b],['dh','Hold',c.h],['de','Exit',c.e],['dse','Strong Exit',c.se]];
+        var track = '', legend = '';
+        seg.forEach(function (s) {
+          if (!s[2]) return;
+          track += '<i class="' + s[0] + '" style="width:' + (s[2] / tot * 100).toFixed(2) + '%"></i>';
+          legend += '<span><b class="' + s[0] + '"></b>' + s[1] + ' ' + s[2] + '</span>';
+        });
+        return '<div class="ev-dist" role="img" aria-label="Verdict balance across ' + state.rows.length + ' scored securities"><div class="ev-dist-track">' + track + '</div><div class="ev-dist-legend">' + legend + '</div></div>';
+      })() +
       take;
     host.querySelectorAll('.ev-stat').forEach(function (b) {
       b.addEventListener('click', function () {

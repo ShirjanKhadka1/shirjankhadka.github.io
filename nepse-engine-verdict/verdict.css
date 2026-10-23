@@ -232,3 +232,27 @@ a.skip-link:focus,a.skip-link:active{ top:12px!important; }
   .ev-stat, .ev-f, .ev-table tbody tr{ transition: none; }
   .ev-stat:hover, .ev-f:hover, .ev-table tbody tr:hover{ transform: none; }
 }
+
+/* ============================================================
+ * CINEMA harmonization (2026-10-23) — Spectral type + verdict
+ * balance bar drawn from the same five class counts.
+ * ============================================================ */
+.ev-title, .ev-h2{ font-family:'Spectral',Georgia,serif; }
+.ev-stat .num{ font-family:'Spectral',Georgia,serif; font-weight:600; letter-spacing:-.01em; }
+.ev-dist{ grid-column:1/-1; margin:2px 0 0; }
+.ev-dist-track{ display:flex; height:12px; border-radius:999px; overflow:hidden; background:var(--nd-border,#1E2430); }
+.ev-dist-track i{ display:block; height:100%; }
+.ev-dist-track .dsb{ background:#B8E62E; } .ev-dist-track .db{ background:rgba(184,230,46,.5); }
+.ev-dist-track .dh{ background:#8A94A6; }
+.ev-dist-track .de{ background:rgba(248,113,113,.55); } .ev-dist-track .dse{ background:#F87171; }
+.ev-dist-legend{ display:flex; flex-wrap:wrap; gap:6px 18px; margin-top:8px; font-size:.75rem; color:var(--nd-muted,#B8C0CE); font-variant-numeric:tabular-nums; }
+.ev-dist-legend b{ display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:6px; }
+.ev-dist-legend .dsb{ background:#B8E62E; } .ev-dist-legend .db{ background:rgba(184,230,46,.5); }
+.ev-dist-legend .dh{ background:#8A94A6; }
+.ev-dist-legend .de{ background:rgba(248,113,113,.55); } .ev-dist-legend .dse{ background:#F87171; }
+[data-theme="light"] .ev-dist-track{ background:#E5E7EB; }
+[data-theme="light"] .ev-dist-track .dsb, [data-theme="light"] .ev-dist-legend .dsb{ background:#65A30D; }
+[data-theme="light"] .ev-dist-track .db, [data-theme="light"] .ev-dist-legend .db{ background:rgba(101,163,15,.5); }
+[data-theme="light"] .ev-dist-track .dh, [data-theme="light"] .ev-dist-legend .dh{ background:#9CA3AF; }
+[data-theme="light"] .ev-dist-track .de, [data-theme="light"] .ev-dist-legend .de{ background:rgba(220,38,38,.5); }
+[data-theme="light"] .ev-dist-track .dse, [data-theme="light"] .ev-dist-legend .dse{ background:#DC2626; }
