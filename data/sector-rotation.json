@@ -1176,6 +1176,85 @@
    ]
   }
  ],
+ "quadrant_chart": {
+  "title": "Sector Rotation Quadrant",
+  "spec": "20-day relative strength, 5-day smoothed",
+  "asof": "2026-10-16",
+  "sectors": [
+   {
+    "sector": "Banking",
+    "x": 2.43,
+    "y": 1.09,
+    "quadrant": "Leading"
+   },
+   {
+    "sector": "Life Insurance",
+    "x": 2.22,
+    "y": 0.9,
+    "quadrant": "Leading"
+   },
+   {
+    "sector": "Hydropower",
+    "x": -1.51,
+    "y": -1.09,
+    "quadrant": "Lagging"
+   },
+   {
+    "sector": "Manufacturing And Processing",
+    "x": -1.74,
+    "y": -2.72,
+    "quadrant": "Lagging"
+   },
+   {
+    "sector": "Non Life Insurance",
+    "x": -2.49,
+    "y": 2.08,
+    "quadrant": "Improving"
+   },
+   {
+    "sector": "Microfinance",
+    "x": -3.45,
+    "y": -0.92,
+    "quadrant": "Lagging"
+   },
+   {
+    "sector": "Finance",
+    "x": -4.02,
+    "y": 0.15,
+    "quadrant": "Improving"
+   },
+   {
+    "sector": "Investment",
+    "x": -4.26,
+    "y": -2.21,
+    "quadrant": "Lagging"
+   },
+   {
+    "sector": "Development Bank",
+    "x": -4.77,
+    "y": 1.39,
+    "quadrant": "Improving"
+   },
+   {
+    "sector": "Others",
+    "x": -6.71,
+    "y": -2.6,
+    "quadrant": "Lagging"
+   },
+   {
+    "sector": "Hotels And Tourism",
+    "x": -7.33,
+    "y": -1.87,
+    "quadrant": "Lagging"
+   }
+  ],
+  "method": {
+   "x": "20-day relative strength: the sector's relative-strength line (derived sector index / NEPSE index) changed over the last 20 sessions, in percent, smoothed with a 5-session EMA. Sessions are counted on the grid of sessions present in both the sector series and the official index history.",
+   "y": "The 5-session change of that smoothed relative-strength series, in percentage points: above 0 the sector's 20-day relative strength is still improving, below 0 it is fading.",
+   "quadrants": "Leading = x >= 0, y >= 0; Weakening = x >= 0, y < 0; Lagging = both < 0; Improving = x < 0, y >= 0. Dots are coloured by quadrant.",
+   "framing": "The frame always includes every sector's dot. (The reference chart clips dots outside a fixed frame; we consider a missing sector worse than a wider frame.)"
+  }
+ },
  "method": {
   "rs": "Weekly bars: each sector's sessions are grouped by ISO week and the last session of the week is the weekly close. RS = derived sector index / NEPSE index at each weekly close. Sector indices are equal-weight constituent composites (data/sector-indices.json keystone, extended in-memory from the OHLC archive between the keystone's weekly appends); the NEPSE benchmark is the official index (data/index-history.json), last close on or before the sector's weekly close.",
   "rs_ratio": "RS-Ratio = 100 x (RS / SMA13w(RS) - 1), in percent: the sector's relative line against its own trailing 13-week average. Above 0 the sector is outperforming its own recent relative trend; below 0 it is underperforming it.",
@@ -1185,12 +1264,14 @@
   "consistency": "Share of the last 30 quadrant weeks spent in the sector's most frequent (modal) quadrant, in percent.",
   "rotation_score": "RS-Ratio + RS-Momentum: summed distance from the 0/0 centre. rotation_rank orders sectors by it; rank_change_1w is last week's rank minus today's (positive = climbed).",
   "turnover_share": "Sector turnover (archive-reported; volume x close where a bar lacks a turnover figure) as a share of total turnover across sector-mapped equities, latest session. flow_shift_pp = latest share minus the trailing 120-session mean share, in percentage points.",
-  "trail": "The last 12 weekly points of (RS-Ratio, RS-Momentum), one per week from the same weekly series as the head \u2014 the path the sector traced across the quadrants."
+  "trail": "The last 12 weekly points of (RS-Ratio, RS-Momentum), one per week from the same weekly series as the head \u2014 the path the sector traced across the quadrants.",
+  "quadrant_chart": "The chart at the top of the page is a separate, daily mechanism (see the board's quadrant_chart block): x = EMA5 of the RS line's 20-session change in %, y = the 5-session change of x. It answers 'where does each sector sit right now on a 20-day view'; the table's weekly posture answers the slower 13-week question. The two can disagree on a sector whose very recent sessions diverge from its weekly trend \u2014 that disagreement is information, not an error."
  },
  "notes": [
   "Sector rows are derived equal-weight composites of constituent stocks, not official NEPSE sub-indices; sector membership is today's map applied historically (survivorship caveat).",
   "Our taxonomy has 11 sectors: Trading companies are folded into Others. The reference board's 12th row is Trading on its own.",
   "Rotation is a relative-strength map, not a buy or sell signal: a sector can lead while falling, if it falls less than the index.",
-  "Construction changed 2026-10-23: the board previously used a daily JdK-style equivalent (100-centred, EMA50/SMA10 on sessions); it now uses the weekly mechanism described above, which tracks the reference board's published values (ratio sign agreement 11/11, quadrant agreement 10/11 on 2026-10-16 \u2014 Finance's momentum sits within a third of a point of zero on both boards)."
+  "Construction changed 2026-10-23: the board previously used a daily JdK-style equivalent (100-centred, EMA50/SMA10 on sessions); it now uses the weekly mechanism described above, which tracks the reference board's published values (ratio sign agreement 11/11, quadrant agreement 10/11 on 2026-10-16 \u2014 Finance's momentum sits within a third of a point of zero on both boards).",
+  "The quadrant chart (top of the page) is a separate daily mechanism decoded from the reference chart's own published spec \u2014 '20-day relative strength, 5-day smoothed' \u2014 and fitted against its 2026-10-16 dots: relative-strength sign agreement 7/7 on the readable sectors, quadrant agreement 5/7 (Non Life Insurance and Life Insurance land one quadrant apart, because the final sessions moved our equal-weight baskets differently from the reference's cap-weighted sub-indices). The table below it is the weekly posture; the two are labelled separately and are not expected to agree sector-for-sector."
  ]
 }
