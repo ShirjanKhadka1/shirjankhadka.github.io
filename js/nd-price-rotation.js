@@ -1,6 +1,8 @@
 /* Sector Price Rotation page — renders /data/sector-price-rotation.json
    (built by tools/build-sector-price-rotation.py from Nepse Decode's own
-   archive). Timeframe tabs switch one payload client-side; no other fetch. */
+   archive). Components from the design kit (css/nd-cinema.css): cx-seg
+   timeframe tabs, cx-rank bars, cx-table board, cx-breadth breadth,
+   cx-stat persistence cards. One fetch; tabs switch client-side. */
 (function () {
   "use strict";
   var TF_LABEL = { 7: "7-day", 30: "30-day", 90: "90-day", 180: "180-day", 365: "365-day" };
@@ -14,9 +16,8 @@
   function renderTabs() {
     var el = document.getElementById("prTabs");
     el.innerHTML = state.board.timeframes.map(function (tf) {
-      var on = tf === state.tf;
-      return '<button type="button" role="tab" aria-selected="' + on + '" data-tf="' + tf +
-        '" class="pr-tab' + (on ? " pr-tab-on" : "") + '">' + tf + "D</button>";
+      return '<button type="button" role="tab" data-tf="' + tf +
+        '" aria-pressed="' + (tf === state.tf) + '">' + tf + "D</button>";
     }).join("");
     Array.prototype.forEach.call(el.querySelectorAll("button"), function (b) {
       b.addEventListener("click", function () {
@@ -27,37 +28,19 @@
   }
 
   function renderChart(rows) {
-    var W = 780, LH = 158, RH = 34, TOP = 10, BOT = 26;
-    var H = TOP + RH * rows.length + BOT;
-    var vals = rows.map(function (r) { return r.sector_return_pct; });
-    var lo = Math.min(0, Math.min.apply(null, vals));
-    var hi = Math.max(0, Math.max.apply(null, vals));
-    var pad = Math.max((hi - lo) * 0.14, 0.5);
-    lo -= pad; hi += pad;
-    var plotW = W - LH - 66;
-    function X(v) { return LH + (v - lo) / (hi - lo) * plotW; }
-    var x0 = X(0);
-    var ticks = [];
-    for (var i = 0; i <= 4; i++) ticks.push(lo + (hi - lo) * i / 4);
-    var s = '<svg class="pr-svg" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Sector returns bar chart">';
-    ticks.forEach(function (t) {
-      s += '<line class="pr-grid" x1="' + X(t) + '" y1="' + TOP + '" x2="' + X(t) + '" y2="' + (H - BOT) + '"/>' +
-        '<text class="pr-tick" x="' + X(t) + '" y="' + (H - BOT + 16) + '" text-anchor="middle">' + t.toFixed(1) + "%</text>";
-    });
-    rows.forEach(function (r, i) {
-      var y = TOP + i * RH;
+    var maxAbs = Math.max.apply(null, rows.map(function (r) {
+      return Math.abs(r.sector_return_pct);
+    }).concat([0.01]));
+    document.getElementById("prChart").innerHTML = rows.map(function (r, i) {
       var v = r.sector_return_pct;
-      var bx = Math.min(x0, X(v)), bw = Math.max(Math.abs(X(v) - x0), 1.5);
-      var cls = v >= 0 ? "pr-bar-pos" : "pr-bar-neg";
-      s += '<text class="pr-barlab" x="' + (LH - 10) + '" y="' + (y + RH / 2 + 4) + '" text-anchor="end">' + esc(r.short) + "</text>";
-      s += '<rect class="' + cls + '" x="' + bx + '" y="' + (y + 7) + '" width="' + bw + '" height="' + (RH - 14) + '" rx="3"/>';
-      var vx = v >= 0 ? X(v) + 7 : X(v) - 7;
-      s += '<text class="pr-barval ' + (v >= 0 ? "pr-pos-t" : "pr-neg-t") + '" x="' + vx + '" y="' + (y + RH / 2 + 4) +
-        '" text-anchor="' + (v >= 0 ? "start" : "end") + '">' + fmtPct(v) + "</text>";
-    });
-    s += '<line class="pr-zero" x1="' + x0 + '" y1="' + TOP + '" x2="' + x0 + '" y2="' + (H - BOT) + '"/>';
-    s += "</svg>";
-    document.getElementById("prChart").innerHTML = s;
+      var w = Math.max(Math.abs(v) / maxAbs * 100, Math.abs(v) > 0 ? 1.5 : 0);
+      return '<div class="cx-rank-row">' +
+        '<span class="cx-rank-n">' + (i + 1) + "</span>" +
+        '<span class="cx-rank-sym">' + esc(r.short) + "</span>" +
+        '<span class="cx-rank-val ' + (v >= 0 ? "pr-up" : "pr-down") + '">' + fmtPct(v) + "</span>" +
+        '<span class="cx-rank-track"><i class="cx-rank-fill ' + (v >= 0 ? "up" : "down") +
+        '" style="--w:' + w.toFixed(1) + '%"></i></span></div>';
+    }).join("");
   }
 
   function movers(list) {
@@ -67,44 +50,56 @@
     }).join(", ");
   }
 
+  function breadth(r) {
+    var priced = r.priced_count;
+    var flat = priced - r.positive_stock_count - r.negative_stock_count;
+    var segs = "";
+    function seg(n, cls) {
+      if (!n || !priced) return "";
+      return '<i class="' + cls + '" style="width:' + (100 * n / priced) + '%"></i>';
+    }
+    segs = seg(r.positive_stock_count, "b-up") + seg(flat, "b-flat") +
+           seg(r.negative_stock_count, "b-down");
+    return '<span class="pr-bnums"><span class="pr-up">▲ ' + r.positive_stock_count +
+      '</span> <span class="pr-down">▼ ' + r.negative_stock_count + "</span></span>" +
+      '<span class="cx-breadth pr-breadth" role="img" aria-label="' +
+      r.positive_stock_count + " up, " + flat + " unchanged, " +
+      r.negative_stock_count + ' down of ' + priced + ' priced">' + segs + "</span>";
+  }
+
   function renderBoard() {
     var b = state.board.boards[String(state.tf)];
     document.getElementById("prTfLabel").textContent = TF_LABEL[state.tf];
     document.getElementById("prWindow").textContent =
       b.window_from + " → " + b.window_to + " · session " + b.latest_date;
     renderChart(b.data);
-    var body = document.getElementById("prBody");
-    body.innerHTML = b.data.map(function (r) {
+    document.getElementById("prBody").innerHTML = b.data.map(function (r) {
       var d = r.rank_change_1w;
       var dHtml = d === null ? '<span class="pr-none">—</span>'
-        : d > 0 ? '<span class="pr-pos-t">▲ ' + d + "</span>"
-        : d < 0 ? '<span class="pr-neg-t">▼ ' + (-d) + "</span>"
+        : d > 0 ? '<span class="pr-up">▲ ' + d + "</span>"
+        : d < 0 ? '<span class="pr-down">▼ ' + (-d) + "</span>"
         : '<span class="pr-none">·</span>';
-      var tot = r.priced_count || 1;
-      var share = Math.round(100 * r.positive_stock_count / tot);
       return "<tr>" +
-        '<td class="pr-num">' + r.sector_rank + "</td>" +
-        "<td><strong>" + esc(r.sector) + "</strong></td>" +
-        '<td class="pr-num ' + (r.sector_return_pct >= 0 ? "pr-pos-t" : "pr-neg-t") + '"><strong>' + fmtPct(r.sector_return_pct) + "</strong></td>" +
-        '<td class="pr-num pr-hide-s">' + dHtml + "</td>" +
-        '<td><span class="pr-bnums"><span class="pr-pos-t">▲ ' + r.positive_stock_count + '</span> <span class="pr-neg-t">▼ ' + r.negative_stock_count + "</span></span>" +
-        '<span class="pr-breadth"><span class="pr-breadth-in" style="width:' + share + '%"></span></span></td>' +
+        '<td class="num">' + r.sector_rank + "</td>" +
+        '<td class="sym">' + esc(r.sector) + "</td>" +
+        '<td class="num ' + (r.sector_return_pct >= 0 ? "pr-up" : "pr-down") + '">' + fmtPct(r.sector_return_pct) + "</td>" +
+        '<td class="num pr-hide-s">' + dHtml + "</td>" +
+        "<td>" + breadth(r) + "</td>" +
         '<td class="pr-hide-m">' + movers(r.top_positive_contributors) + "</td>" +
         '<td class="pr-hide-m">' + movers(r.top_negative_contributors) + "</td>" +
-        '<td class="pr-num pr-hide-s">' + r.priced_count + "/" + r.constituent_count + "</td>" +
+        '<td class="num pr-hide-s">' + r.priced_count + "/" + r.constituent_count + "</td>" +
         "</tr>";
     }).join("");
   }
 
   function renderPersist() {
     var p = state.board.persistence;
-    var el = document.getElementById("prPersist");
-    el.innerHTML = state.board.timeframes.map(function (tf) {
+    document.getElementById("prPersist").innerHTML = state.board.timeframes.map(function (tf) {
       var s = p.by_timeframe[String(tf)];
       if (!s) return "";
-      return '<div class="pr-stat"><div class="sk">' + tf + '-day leader</div>' +
-        '<div class="sv">' + s.leader_still_top3_after_4w_pct.toFixed(1) + "%</div>" +
-        '<div class="ss">still top-3 four weeks later · rank correlation ' +
+      return '<div class="cx-stat"><div class="cx-stat-l">' + tf + '-day leader</div>' +
+        '<div class="cx-stat-v">' + s.leader_still_top3_after_4w_pct.toFixed(1) + "%</div>" +
+        '<div class="cx-stat-s pr-stat-s">still top-3 four weeks later · rank correlation ' +
         (s.mean_rank_correlation_4w >= 0 ? "+" : "") + s.mean_rank_correlation_4w.toFixed(3) +
         " · " + s.observations + " weekly boards, trailing " + p.window_years + " years</div></div>";
     }).join("");
@@ -121,7 +116,7 @@
     .then(function (board) {
       state.board = board;
       document.getElementById("prSession").textContent =
-        "Session " + board.asof + " · rebuilt after every close · " + board.generated_from;
+        "Session " + board.asof + " · end-of-day board, rebuilt after every close · source: " + board.generated_from;
       renderTabs(); renderBoard(); renderPersist();
     })
     .catch(function () { fail("The board could not be loaded — please refresh."); });

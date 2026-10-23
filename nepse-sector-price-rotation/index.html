@@ -6,8 +6,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0A0C10">
 <title>Sector Price Rotation: NEPSE Sectors Ranked by Return | Nepse Decode</title>
-<link rel="stylesheet" href="/css/nd-tokens.css">
-<link rel="stylesheet" href="/css/nepse-design-system.css?v=20261023d">
 <meta name="description" content="NEPSE sector price rotation: all 11 sectors ranked by price return over 7, 30, 90, 180 and 365 days, with breadth and the top gaining and losing stocks inside each sector. Computed from Nepse Decode's own data archive, free. Educational use only.">
 <meta name="author" content="Shirjan Khadka">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-sector-price-rotation/">
@@ -28,7 +26,6 @@
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
 <link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="stylesheet" href="/css/fonts.css">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode Sector Price Rotation","url":"https://shirjankhadka.com.np/nepse-sector-price-rotation/","description":"NEPSE sectors ranked by price return over 7, 30, 90, 180 and 365 days, computed from Nepse Decode's derived sector-index archive. Educational use only, not investment advice.","author":{"@type":"Organization","name":"Nepse Decode"}}
 </script>
@@ -38,13 +35,12 @@
 {"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-decode/"},
 {"@type":"ListItem","position":3,"name":"Sector Price Rotation","item":"https://shirjankhadka.com.np/nepse-sector-price-rotation/"}]}
 </script>
-<link rel="stylesheet" href="/css/theme.css?v=20261023d">
+<link rel="stylesheet" href="/css/nd-tokens.css">
+<link rel="stylesheet" href="/css/fonts.css">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=20261023m">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=20261023e">
-<link rel="stylesheet" href="/css/nd-price-rotation.css?v=20261023a">
-<link rel="stylesheet" href="/css/nd-3d.css">
-<link rel="stylesheet" href="/css/nd-research-3d.css">
+<link rel="stylesheet" href="/css/nd-price-rotation.css?v=20261023b">
 </head>
 <body class="nd" data-page="sector-price-rotation">
 
@@ -58,48 +54,54 @@
 <main id="main">
 
   <div class="pr-masthead">
-    <p class="nd-kicker">Research</p>
+    <p class="cx-kicker">Research</p>
     <h1 class="pr-title">Sector Price Rotation</h1>
     <p class="pr-lede">Where have prices actually moved? Every NEPSE sector ranked by its <strong>price return</strong> over five windows — the last <strong>7, 30, 90, 180 and 365 days</strong> — with the breadth inside each sector and the stocks that drove it. Short windows reshuffle constantly; long windows barely move. Both facts are measured on this page, from Nepse Decode's own derived sector indices. Free, always.</p>
     <p class="pr-meta"><span id="prSession">Loading…</span></p>
   </div>
 
-  <div class="pr-tabs" id="prTabs" role="tablist" aria-label="Timeframe"></div>
+  <div class="cx-seg" id="prTabs" role="tablist" aria-label="Timeframe"></div>
 
-  <section class="pr-chartwrap" aria-label="Sector returns chart">
-    <h2 class="pr-h2">Sector returns</h2>
-    <p class="pr-chartsub"><span id="prTfLabel">30-day</span> window · <span id="prWindow">window</span> · derived sector index return over the window, ranked best to worst</p>
-    <div id="prChart" class="pr-chart"></div>
-    <p class="pr-chartnote">Bars are each sector index's own return over the selected window — absolute price movement, not relative strength (for the relative map, see <a href="/nepse-sector-rotation/">Sector Rotation</a>). A sector can top a window while falling, if everything else fell further.</p>
+  <section class="cx-card pr-chartcard" aria-label="Sector returns chart">
+    <div class="cx-card-head">
+      <h2 class="pr-h2">Sector returns</h2>
+      <p class="cx-meta" id="prWindow">window</p>
+    </div>
+    <div class="cx-rank" id="prChart"></div>
+    <p class="cx-cap">Bars are each sector index's own return over the <b id="prTfLabel">30-day</b> window — absolute price movement, not relative strength (for the relative map, see <a href="/nepse-sector-rotation/">Sector Rotation</a>). A sector can top a window while falling, if everything else fell further.</p>
   </section>
 
-  <h2 class="pr-h2 pr-h2-table">The board</h2>
-  <p class="pr-chartsub">Breadth counts the sector's own stocks up / down over the same window; movers are the three largest gains and falls inside the sector, by the stocks' own returns</p>
-  <div class="pr-tablewrap">
-    <table class="pr-table" id="prTable">
-      <thead>
-        <tr>
-          <th class="pr-num">#</th>
-          <th>Sector</th>
-          <th class="pr-num">Return %</th>
-          <th class="pr-num pr-hide-s">Rank Δ 1W</th>
-          <th>Breadth</th>
-          <th class="pr-hide-m">Top gainers</th>
-          <th class="pr-hide-m">Top losers</th>
-          <th class="pr-num pr-hide-s">Priced</th>
-        </tr>
-      </thead>
-      <tbody id="prBody"><tr><td colspan="8" class="pr-loading">Loading the board…</td></tr></tbody>
-    </table>
-  </div>
+  <section class="pr-catsec" aria-label="The board">
+    <h2 class="pr-h2 pr-h2-sec">The board</h2>
+    <p class="pr-chartsub">Breadth counts the sector's own stocks up / down over the same window; movers are the three largest gains and falls inside the sector, by the stocks' own returns</p>
+    <div class="cx-scroll pr-tablewrap">
+      <table class="cx-table" id="prTable">
+        <thead>
+          <tr>
+            <th class="num">#</th>
+            <th>Sector</th>
+            <th class="num">Return %</th>
+            <th class="num pr-hide-s">Rank Δ 1W</th>
+            <th>Breadth</th>
+            <th class="pr-hide-m">Top gainers</th>
+            <th class="pr-hide-m">Top losers</th>
+            <th class="num pr-hide-s">Priced</th>
+          </tr>
+        </thead>
+        <tbody id="prBody"><tr><td colspan="8" class="pr-loading">Loading the board…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
 
-  <h2 class="pr-h2 pr-h2-table">Does leadership stick?</h2>
-  <p class="pr-chartsub">Measured on weekly snapshots of the trailing 3 years of these same derived indices — how often the sector ranked #1 on a window was still in the top 3 four weeks later, and how similar boards four weeks apart typically are (rank correlation, −1 to +1)</p>
-  <section class="pr-stats" id="prPersist" aria-label="Leadership persistence"></section>
-  <p class="pr-chartnote">The pattern is the point: at 7 and 30 days, leadership is close to a coin flip a month later — short-window “rotation” is mostly noise. At 180 and 365 days, the leader almost always stays near the top. These are descriptions of the past three years, not forecasts.</p>
+  <section class="pr-catsec" aria-label="Leadership persistence">
+    <h2 class="pr-h2 pr-h2-sec">Does leadership stick?</h2>
+    <p class="pr-chartsub">Measured on weekly snapshots of the trailing 3 years of these same derived indices — how often the sector ranked #1 on a window was still in the top 3 four weeks later, and how similar boards four weeks apart typically are (rank correlation, −1 to +1)</p>
+    <div class="cx-stats pr-stats" id="prPersist"></div>
+    <p class="cx-cap">The pattern is the point: at 7 and 30 days, leadership is close to a coin flip a month later — short-window “rotation” is mostly noise. At 180 and 365 days, the leader almost always stays near the top. These are descriptions of the past three years, not forecasts.</p>
+  </section>
 
-  <section class="pr-section" aria-label="Methodology">
-    <h2>How this board is built</h2>
+  <section class="pr-catsec" aria-label="Methodology">
+    <h2 class="pr-h2 pr-h2-sec">How this board is built</h2>
     <div class="pr-method">
       <p><strong>The sectors.</strong> Each sector is a derived index built by Nepse Decode: the equal-weighted chained daily returns of the sector's listed companies, computed from our own OHLC archive (the same series behind the Seasonality, Market Regime and Sector Rotation pages). Sector membership is today's map applied historically, so delisted names are absent — a survivorship caveat we state rather than hide. Our taxonomy has 11 sectors: Trading companies are folded into Others, and mutual funds are an instrument type rather than a sector index.</p>
       <p><strong>The window.</strong> Timeframes are calendar days. For a window of N days, the base is the last close on or before the date N days before the latest session, and the end is the latest session's close. The sector's return is its derived index's change between those two points; ranks order the sectors by that return. <strong>Rank Δ 1W</strong> compares today's rank with the same window's board computed one week earlier.</p>
@@ -118,6 +120,7 @@
 
 <div id="nd-footer"></div>
 <script src="/js/nd-chrome.js?v=20261023k"></script>
-<script src="/js/nd-price-rotation.js?v=20261023a"></script>
+<script src="/js/freshness-badge.js?v=20261023d" defer></script>
+<script src="/js/nd-price-rotation.js?v=20261023b"></script>
 </body>
 </html>
