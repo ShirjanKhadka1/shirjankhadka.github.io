@@ -1,4 +1,4 @@
-/* NEPSE Alpha Lab, chart + pattern/divergence scanner + rules-based verdict engine.
+/* Nepse Decode, chart + pattern/divergence scanner + rules-based verdict engine.
    Index data: window.NEPSE_DAILY = [YYYYMMDD, o, h, l, c, turnoverNPR], daily sessions.
    Stock data: per-symbol OHLC JSON from the open Nepse-All-Scraper archive
    plus our own live snapshot (via js/nepse-data.js, the only live.json consumer). All analysis is
@@ -1288,7 +1288,7 @@
     if (shPage < 0) shPage = 0;
     var lo = shPage * per, hi = Math.min(lo + per, shHist.length);
     var html = '<h2>Signal history</h2>' +
-      '<p class="nl-sh-sub">What the signal engine said at the close of each of the last ' + shHist.length +
+      '<p class="nl-sh-sub">What the Engine Verdict said at the close of each of the last ' + shHist.length +
       ' sessions, same rules, only the data available that day. Educational, not advice.</p>' +
       '<div class="nl-sh-wrap"><table class="nl-sh-table nd-table"><thead><tr>' +
       '<th>Trade date</th><th class="num">Close price</th><th class="num">Volume</th><th>Signal trigger</th>' +

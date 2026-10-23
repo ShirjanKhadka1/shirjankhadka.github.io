@@ -1,4 +1,4 @@
-/* js/verdict-v2-banner.js — Verdict Engine v2 banner for per-stock pages.
+/* js/verdict-v2-banner.js — Warning Radar banner for per-stock pages.
  * Mount: <div data-verdict-v2-banner data-sym="SYM"></div>.
  * Fetches /data/verdicts-v2-summary.json once (cached), renders the compact
  * warning banner with a link to the full evidence on the radar page.
@@ -42,8 +42,8 @@
     if (!r) { mount.style.display = 'none'; return; }
     var cls = vClass(r.label);
     var conf = typeof r.confidence === 'number' ? Math.round(r.confidence * 100) + '%' : '—';
-    var h = '<section class="v2b v2b-' + cls + '" aria-label="Verdict Engine v2">' +
-      '<div class="v2b-kicker">Verdict Engine v2</div>' +
+    var h = '<section class="v2b v2b-' + cls + '" aria-label="Warning Radar">' +
+      '<div class="v2b-kicker">Warning Radar</div>' +
       '<div class="v2b-headline"><span class="v2b-pill">' + esc(vLabel(r.label)) + '</span></div>' +
       '<p class="v2b-plain">' + esc(vPlain(r.label)) + '</p>' +
       '<span class="v2b-meta">' + esc(conf) + ' confidence' +

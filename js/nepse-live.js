@@ -1,4 +1,4 @@
-/* NEPSE Alpha Lab  -  shared live-data layer (Wave 7, Phase 1: NepseData).
+/* Nepse Decode  -  shared live-data layer (Wave 7, Phase 1: NepseData).
  *
  * One data path for the suite's live figures. The canonical validated
  * snapshot is owned by js/nepse-data.js (the ONLY module that fetches

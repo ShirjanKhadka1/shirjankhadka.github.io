@@ -1,4 +1,4 @@
-/* NEPSE Alpha Lab — Wave 1 market-intelligence renderer.
+/* Nepse Decode — Wave 1 market-intelligence renderer.
  *
  * Loads nepse-chart/data/wave1.json (built by tools/build-nepse-wave1.js)
  * and renders:

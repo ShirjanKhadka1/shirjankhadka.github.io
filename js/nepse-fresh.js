@@ -1,4 +1,4 @@
-/* NEPSE Alpha Lab: relative-time freshness labels.
+/* Nepse Decode: relative-time freshness labels.
    NepseFresh.label('2026-09-28') -> 'updated yesterday'
    NepseFresh.badge(iso) -> '<span class="fresh">updated 3h ago</span>' (or '')
    Date-only asof values are read as the START of that day in NPT, so the

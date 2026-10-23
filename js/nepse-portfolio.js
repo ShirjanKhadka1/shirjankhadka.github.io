@@ -1,4 +1,4 @@
-/* NEPSE Alpha Lab: browser-local portfolio tracker.
+/* Nepse Decode: browser-local portfolio tracker.
  *
  * Unlimited named portfolios, holdings with weighted-average cost, and
  * realized P&L on recorded sells. Everything lives in this browser only,

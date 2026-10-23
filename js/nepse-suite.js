@@ -1,4 +1,4 @@
-/* NEPSE Alpha Lab  -  shared presentation layer (Wave 7).
+/* Nepse Decode  -  shared presentation layer (Wave 7).
  *
  * NepseMotion: count-up figures, inline SVG sparklines (real data only),
  *              subtle reveal-on-scroll. All respect prefers-reduced-motion.
