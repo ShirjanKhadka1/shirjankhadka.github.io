@@ -159,9 +159,9 @@ h2.bk-h{font-size:1.35rem;margin:34px 0 8px;color:var(--nd-text,#fff);letter-spa
 </style>
 <link rel="stylesheet" href="/css/nd-tokens.css">
 <link rel="stylesheet" href="/css/fonts.css">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023b">
-<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023a">
-<link rel="stylesheet" href="/css/sig-pro.css?v=20261023b">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023c">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023c">
+<link rel="stylesheet" href="/css/sig-pro.css?v=20261023c">
 </head>
 <body class="nd">
 <a class="skip-link" href="#main">Skip to content</a>
@@ -380,6 +380,20 @@ function labelSnapshot(){
   }).catch(function(){ /* leave the baked label untouched */ });
 }
 
+/* Period aggregates and per-day archives are immutable once published:
+   fetch once per session and reuse across period switches, with normal
+   HTTP cache semantics (no 'no-store'). The intraday 'latest' feed is
+   not cached in memory — the 60s auto-refresh below must keep seeing
+   rebuilds during market hours. Failures are evicted so retries work. */
+var periodCache = {};
+function fetchPeriodCached(url){
+  if (!periodCache[url]) {
+    var pr = fetch(url).then(function(r){ if(!r.ok) throw 0; return r.json(); });
+    periodCache[url] = pr;
+    pr.catch(function(){ delete periodCache[url]; });
+  }
+  return periodCache[url];
+}
 function loadPeriod(silent){
   var p = state.period;
   var url;
@@ -387,17 +401,18 @@ function loadPeriod(silent){
   else if (p === 'asof') url = BASE+'daily/'+state.asof+'.json';
   else url = BASE+'periods/'+p+'.json';
   if (!silent) $('view').innerHTML = '<p style="color:var(--nd-muted,#B8C0CE)">Loading…</p>';
-  return fetch(url, { cache: 'no-store' }).then(function(r){
+  var req;
+  if (p !== 'latest') req = fetchPeriodCached(url);
+  else req = fetch(url).then(function(r){
     if(!r.ok){
       // intraday.json only exists while a market-hours poller writes it —
       // fall back to the last session (1D), same as the standalone pages.
-      if (p === 'latest') return fetch(BASE+'periods/1D.json', { cache: 'no-store' })
-        .then(function(r2){ if(!r2.ok) throw 0; return r2.json(); })
-        .then(function(d){ d._fallback = true; return d; });
-      throw 0;
+      return fetchPeriodCached(BASE+'periods/1D.json')
+        .then(function(d){ return Object.assign({}, d, { _fallback: true }); });
     }
     return r.json();
-  })
+  });
+  return req
     .then(function(d){ state.data = d; render(); })
     .catch(function(){
       if (silent) return; /* background refresh failed: keep last good render */
@@ -821,8 +836,8 @@ setInterval(function(){
 }, 60000);
 })();
 </script>
-<script src="/js/theme-toggle.js?v=20261023a" defer></script>
-<script src="/js/freshness-badge.js?v=20261023a" defer></script>
-<script src="/js/nd-chrome.js?v=20261023b" defer></script>
+<script src="/js/theme-toggle.js?v=20261023c" defer></script>
+<script src="/js/freshness-badge.js?v=20261023c" defer></script>
+<script src="/js/nd-chrome.js?v=20261023c" defer></script>
 </body>
 </html>

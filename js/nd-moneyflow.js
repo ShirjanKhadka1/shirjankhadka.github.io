@@ -23,10 +23,21 @@
     return Number(v).toLocaleString('en-IN', { maximumFractionDigits: 0 });
   }
   function fetchJSON(url) {
-    return fetch(url, { cache: 'no-store' }).then(function (r) {
+    return fetch(url).then(function (r) {
       if (!r.ok) throw new Error('no-data');
       return r.json();
     });
+  }
+  /* The 1D period aggregate is immutable once published: fetch it once
+     and reuse the parsed copy instead of re-downloading ~388 KB (gz) on
+     every widget init. Failures are evicted so a later init can retry. */
+  var period1DPromise = null;
+  function fetchPeriod1D() {
+    if (!period1DPromise) {
+      period1DPromise = fetchJSON(BASE + 'periods/1D.json');
+      period1DPromise.catch(function () { period1DPromise = null; });
+    }
+    return period1DPromise;
   }
 
   var brokerNames = {};
@@ -146,7 +157,7 @@
     });
     // Load broker names + latest flow
     fetchJSON(BASE + 'brokers.json').then(function (bn) { brokerNames = bn || {}; }).catch(function () {})
-      .then(function () { return fetchJSON(BASE + 'periods/1D.json'); })
+      .then(function () { return fetchPeriod1D(); })
       .then(function (fd) {
         flowData = fd;
         var sess = $('mfSession');

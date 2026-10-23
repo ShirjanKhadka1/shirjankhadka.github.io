@@ -189,8 +189,19 @@
     var dm = fmtDayMon(todayStr);
     setTapeText('mkt-sessd', dm.day);
     setTapeText('mkt-sessm', dm.my);
-    setTapeText('mkt-sessn', 'Live session · updating every 15 min.');
-    setTapeText('mkt-asof', 'Live session of ' + fmtLong(todayStr) + ' · updating every 15 min.');
+    // No hardcoded cadence/delay figure: label the tape with its own
+    // measured timestamp (lv.asof, epoch ms) in NPT wall time, and fall
+    // back to "delay unverified" if it is unusable — the same rule as
+    // js/freshness-badge.js.
+    var tapeMs = (typeof lv.asof === 'number') ? lv.asof : Date.parse(lv.asof);
+    var tapeBit = ' · delay unverified';
+    if (isFinite(tapeMs)) {
+      var td = new Date(tapeMs + 5.75 * 3600 * 1000);
+      tapeBit = ' · tape as of ' + ('0' + td.getUTCHours()).slice(-2) +
+        ':' + ('0' + td.getUTCMinutes()).slice(-2) + ' NPT';
+    }
+    setTapeText('mkt-sessn', 'Live session' + tapeBit + '.');
+    setTapeText('mkt-asof', 'Live session of ' + fmtLong(todayStr) + tapeBit + '.');
     setTapeText('mkt-traded', String(tot));
     var cols = $('mktCols');
     if (cols) {

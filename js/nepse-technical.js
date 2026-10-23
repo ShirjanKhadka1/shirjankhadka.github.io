@@ -882,9 +882,13 @@
     set('nt-sma50', na ? '—' : fmtNum(s50[s50.length - 1]));
     set('nt-sma200', na ? '—' : fmtNum(s200[s200.length - 1]));
     var sd = state.sessionDate || (rows.length ? isoOf(rows[rows.length - 1][0]) : null);
+    // Delay label follows the freshness-badge rule (js/freshness-badge.js):
+    // a figure is printed only when measured from the feed's own
+    // timestamps. The chart data in scope here carries none, so the label
+    // says "delay unverified" — never a hardcoded number.
     set('nt-session', intra
-      ? 'Intraday 15m · our 15-min snapshots · delayed ~15 min'
-      : 'Session ' + fmtDate(sd) + ' · data delayed ~15 min');
+      ? 'Intraday 15m · our 15-min snapshots · delay unverified'
+      : 'Session ' + fmtDate(sd) + ' · delay unverified');
   }
 
   /* ---------- symbol loading ---------- */

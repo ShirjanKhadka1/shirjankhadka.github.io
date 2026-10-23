@@ -22,19 +22,40 @@ function loadMeta(){
 function loadBrokers(){
   return fetch(BASE+'brokers.json').then(function(r){return r.json()});
 }
+/* Period aggregates (periods/*.json) and per-day archives (daily/*.json)
+   are immutable once published, so they are fetched once per session and
+   reused from memory across period switches; normal HTTP cache semantics
+   apply (no 'no-store'). The intraday 'latest' feed is deliberately NOT
+   cached in memory — the pages re-poll it every 60s during market hours
+   and must keep seeing rebuilds. Failed loads are evicted so the next
+   switch retries. */
+var periodCache = {};
+function fetchPeriodJSON(url){
+  return fetch(url).then(function(r){
+    if(!r.ok) throw new Error('no-data');
+    return r.json();
+  });
+}
+function fetchPeriodCached(url){
+  if (!periodCache[url]) {
+    var pr = fetchPeriodJSON(url);
+    periodCache[url] = pr;
+    pr.catch(function(){ delete periodCache[url]; });
+  }
+  return periodCache[url];
+}
 function loadPeriod(p, asof){
   var url;
   if (p === 'latest') url = BASE+'intraday.json';
   else if (p === 'asof') url = BASE+'daily/'+asof+'.json';
   else url = BASE+'periods/'+p+'.json';
-  return fetch(url, { cache: 'no-store' }).then(function(r){
+  if (p !== 'latest') return fetchPeriodCached(url);
+  return fetch(url).then(function(r){
     if(!r.ok) {
       // FALLBACK: intraday.json only exists during market hours.
       // Fall back to 1D period data when it's missing (weekends/holidays).
-      if (p === 'latest') return fetch(BASE+'periods/1D.json', { cache: 'no-store' })
-        .then(function(r2){ if(!r2.ok) throw new Error('no-data'); return r2.json(); })
-        .then(function(d){ d._fallback = true; return d; });
-      throw new Error('no-data');
+      return fetchPeriodCached(BASE+'periods/1D.json')
+        .then(function(d){ return Object.assign({}, d, { _fallback: true }); });
     }
     return r.json();
   });

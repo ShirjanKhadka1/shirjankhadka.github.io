@@ -1,6 +1,9 @@
 /* nepse-verdicts-v2/verdicts-v2.js — Warning Radar table + evidence accordion.
- * Loads /data/verdicts-v2-summary.json (compact) after first paint; fetches
- * /data/verdicts-v2.json lazily on first row expansion and caches it.
+ * Loads /data/verdicts-v2-summary.json (compact) after first paint; on first
+ * row expansion fetches only that symbol's per-letter detail shard
+ * (/data/verdicts-v2.d/<L>.json, built by tools/build-verdict-shards.js)
+ * and caches it per letter. Falls back to the full /data/verdicts-v2.json
+ * when a shard is missing or carries an older session than the summary.
  * All output escaped. Honesty rules: proxy lock-in never shows a precise
  * date; pending sections render as visible dated gaps; every signal shows
  * its backtest stat. */
@@ -14,6 +17,8 @@
     q: '', verdict: 'all', sortKey: 'confidence', sortDir: -1, page: 1,
     expanded: null, pmeta: null, coverage: null, failures: [] };
   var fullCache = null, fullLoading = false;
+  var SHARD_BASE = '/data/verdicts-v2.d/';
+  var shardCache = {}, shardLoading = {};
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
@@ -315,6 +320,40 @@
   /* ---------------- evidence accordion ---------------- */
 
   function loadDetail(sym) {
+    var host = $('v3Detail-'+sym);
+    if (!host) return;
+    if (fullCache) { host.innerHTML = renderEvidence(fullCache.verdicts[sym]); return; }
+    var letter = sym.charAt(0).toUpperCase();
+    if (shardCache[letter]) { host.innerHTML = renderEvidence((shardCache[letter].verdicts || {})[sym]); return; }
+    if (shardLoading[letter]) return;
+    shardLoading[letter] = true;
+    fetch(SHARD_BASE + letter + '.json', {credentials:'same-origin'})
+      .then(function (r) { if (!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+      .then(function (json) {
+        shardLoading[letter] = false;
+        // A shard whose session differs from the summary on screen is
+        // stale (the pipeline has not re-run the shard build yet) —
+        // fall back to the full file rather than show old evidence.
+        if (!json || !json.verdicts ||
+            (state.session && json.session_date && json.session_date !== state.session)) {
+          loadFullDetail(sym); return;
+        }
+        shardCache[letter] = json;
+        var cur = state.expanded;
+        if (cur && cur.charAt(0).toUpperCase() === letter) {
+          var h = $('v3Detail-'+cur);
+          if (h) h.innerHTML = renderEvidence((json.verdicts || {})[cur]);
+        }
+      })
+      .catch(function () {
+        shardLoading[letter] = false;
+        loadFullDetail(sym);
+      });
+  }
+
+  /* Fallback: the original behaviour — fetch the whole detail file once
+   * and serve every expansion from it. */
+  function loadFullDetail(sym) {
     var host = $('v3Detail-'+sym);
     if (!host) return;
     if (fullCache) { host.innerHTML = renderEvidence(fullCache.verdicts[sym]); return; }
