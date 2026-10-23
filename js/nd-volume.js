@@ -71,12 +71,14 @@
         '<td class="vp-num">' + fmt(r.ltp) + '</td>' +
         '<td class="vp-num ' + (pc > 0 ? 'vp-pos' : pc < 0 ? 'vp-neg' : '') + '">' + (pc > 0 ? '+' : '') + fmt(pc) + '%</td>' +
         '<td class="vp-num vp-hide-m">' + fmtVol(r.volume) + '</td>' +
+        '<td class="vp-num vp-hide-m">' + fmtVol(r.volume_yesterday) + '</td>' +
         '<td class="vp-num"><strong>' + fmt(r.rvol_7) + '</strong></td>' +
         '<td class="vp-num vp-hide-m">' + fmt(r.rvol_15) + '</td>' +
         '<td class="vp-num vp-hide-m">' + fmt(r.rvol_20) + '</td>' +
         '<td class="vp-num vp-hide-s">' + fmt(r.rvol_30) + '</td>' +
         '<td class="vp-num vp-hide-s">' + fmt(r.rvol_60) + '</td>' +
         '<td class="vp-num vp-hide-s">' + fmt(r.rvol_90) + '</td>' +
+        '<td class="vp-num vp-hide-s">' + fmt(r.rolling_high_20) + '</td>' +
         '<td class="vp-num ' + (r.pvcs > 0 ? 'vp-pos' : r.pvcs < 0 ? 'vp-neg' : '') + '">' + fmt(r.pvcs) + '</td>' +
         '<td class="vp-num ' + (r.vpd > 0 ? 'vp-pos' : r.vpd < 0 ? 'vp-neg' : '') + '">' + fmt(r.vpd) + '</td>' +
         '<td class="vp-num vp-hide-m">' + fmt(r.volume_shock_ratio) + '×</td>' +
@@ -85,7 +87,7 @@
         '<td><span class="vp-tag ' + esc(r.signal_tag) + '">' + esc(TAG_LABEL[r.signal_tag] || r.signal_tag) + '</span></td>' +
         '</tr>';
     });
-    $('vpBody').innerHTML = h || '<tr><td colspan="17" class="vp-loading">No symbols match the current filters.</td></tr>';
+    $('vpBody').innerHTML = h || '<tr><td colspan="19" class="vp-loading">No symbols match the current filters.</td></tr>';
     $('vpCount').textContent = rows.length + ' of ' + state.rows.length + ' symbols';
   }
 
@@ -97,7 +99,24 @@
     state.rows = data.data || [];
     var sum = data.summary || {};
     var tc = sum.tag_counts || {};
-    $('vpSession').textContent = 'Session ' + data.asof + ' · ' + data.count + ' equities · rebuilt after every close · Source: Nepse Decode OHLCV archive';
+    if (data.intraday) {
+      var qt = '';
+      try {
+        qt = new Date(data.quotes_asof).toLocaleTimeString('en-GB', {
+          hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kathmandu'
+        });
+      } catch (e) { qt = ''; }
+      $('vpSession').textContent = 'Session ' + data.asof + ' · in progress · ' + data.count +
+        ' equities traded so far · averages from prior sessions through ' + (data.based_on_session || '') +
+        ' · Source: Nepse Decode live quotes + OHLCV archive';
+      var pv = $('vpProvisional');
+      pv.hidden = false;
+      pv.innerHTML = '<span class="vp-live-dot" aria-hidden="true"></span><strong>LIVE — intraday provisional board.</strong> ' +
+        'Volumes are cumulative shares traded so far today' + (qt ? ' (quotes as of ' + qt + ' NPT)' : '') +
+        '; RVOL, scores and flags are provisional and the final board replaces this after the close.';
+    } else {
+      $('vpSession').textContent = 'Session ' + data.asof + ' · ' + data.count + ' equities · rebuilt after every close · Source: Nepse Decode OHLCV archive';
+    }
     $('vpStats').innerHTML =
       statCard('Equities scanned', String(data.count), 'ordinary shares with 91+ sessions of history') +
       statCard('Median RVOL-7', fmt(sum.median_rvol_7), 'half the market traded above this pace') +
@@ -141,7 +160,7 @@
   }
 
   fetchJSON('/data/vpi.json').then(init).catch(function () {
-    $('vpBody').innerHTML = '<tr><td colspan="17" class="vp-loading">The volume board is being rebuilt — please check back after the next market close.</td></tr>';
+    $('vpBody').innerHTML = '<tr><td colspan="19" class="vp-loading">The volume board is being rebuilt — please check back after the next market close.</td></tr>';
     $('vpSession').textContent = 'Board temporarily unavailable';
   });
 })();

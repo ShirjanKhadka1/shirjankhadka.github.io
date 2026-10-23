@@ -42,7 +42,7 @@
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=20261023m">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=20261023e">
-<link rel="stylesheet" href="/css/nd-volume.css?v=20261023g">
+<link rel="stylesheet" href="/css/nd-volume.css?v=20261023h">
 <link rel="stylesheet" href="/css/nd-3d.css">
 <link rel="stylesheet" href="/css/nd-research-3d.css">
 </head>
@@ -62,6 +62,7 @@
     <h1 class="vp-title">Volume Analysis</h1>
     <p class="vp-lede">Where did the volume actually go today? Every listed equity scored on a <strong>relative-volume ladder</strong> — today's traded volume against its own 7, 15, 20, 30, 60 and 90-session averages — plus volume shock, price-volume scores and regime flags. Computed from Nepse Decode's own data archive. Free, always.</p>
     <p class="vp-meta"><span id="vpSession">Loading…</span></p>
+    <p class="vp-provisional" id="vpProvisional" hidden></p>
   </div>
 
   <section class="vp-stats" id="vpStats" aria-label="Market volume summary"></section>
@@ -94,12 +95,14 @@
           <th data-key="ltp" class="vp-sortable vp-num">LTP</th>
           <th data-key="percentage_change" class="vp-sortable vp-num">% Chg</th>
           <th data-key="volume" class="vp-sortable vp-num vp-hide-m">Volume</th>
+          <th data-key="volume_yesterday" class="vp-sortable vp-num vp-hide-m">Vol Yesterday</th>
           <th data-key="rvol_7" class="vp-sortable vp-num">RVOL 7</th>
           <th data-key="rvol_15" class="vp-sortable vp-num vp-hide-m">15</th>
           <th data-key="rvol_20" class="vp-sortable vp-num vp-hide-m">20</th>
           <th data-key="rvol_30" class="vp-sortable vp-num vp-hide-s">30</th>
           <th data-key="rvol_60" class="vp-sortable vp-num vp-hide-s">60</th>
           <th data-key="rvol_90" class="vp-sortable vp-num vp-hide-s">90</th>
+          <th data-key="rolling_high_20" class="vp-sortable vp-num vp-hide-s">Rolling High 20D</th>
           <th data-key="pvcs" class="vp-sortable vp-num">PVCS</th>
           <th data-key="vpd" class="vp-sortable vp-num">VPD</th>
           <th data-key="volume_shock_ratio" class="vp-sortable vp-num vp-hide-m">Shock</th>
@@ -108,7 +111,7 @@
           <th data-key="signal_tag" class="vp-sortable">Tag</th>
         </tr>
       </thead>
-      <tbody id="vpBody"><tr><td colspan="17" class="vp-loading">Loading the board…</td></tr></tbody>
+      <tbody id="vpBody"><tr><td colspan="19" class="vp-loading">Loading the board…</td></tr></tbody>
     </table>
   </div>
 
@@ -120,6 +123,7 @@
       <p><strong>VPD</strong> (volume pressure, 10 sessions) is Nepse Decode's own measure: 10 × (up-volume − down-volume) ÷ total volume over the last 10 sessions, where a session's volume counts as up or down by its close versus the previous close. It ranges from −10 (every session down on volume) to +10. Published volume-pressure formulas vary by provider and no canonical one exists, so we publish ours exactly as defined here rather than borrowing a black box.</p>
       <p><strong>Volume shock</strong> = today's volume ÷ yesterday's volume. <strong>Flags:</strong> Shock — shock ratio ≥ 3.0 or RVOL-20 ≥ 2.0. Expansion — 7-session average volume above the 30-session average with RVOL-7 ≥ 1.0. Compression — daily range ≤ 2.5% with RVOL-20 ≤ 0.7 (quiet, tight, waiting). Quiet accumulation — |daily change| ≤ 0.5% (price flat while the tape stays active). <strong>Signal tags</strong> read off RVOL-7: ≥ 3.5 high volume spike, ≥ 1.8 elevated, ≤ 0.5 volume dry-up, otherwise normal.</p>
       <p><strong>Coverage.</strong> Ordinary equities with at least 91 sessions of archived history that traded in the latest session. Mutual funds, debentures and promoter shares are excluded — their volume means something different. A small number of equities whose archived history is still being backfilled join the board automatically once their history is complete.</p>
+      <p><strong>During market hours</strong> the board refreshes intraday from live quotes and is marked <strong>provisional</strong>: Volume is the cumulative shares traded so far today (shown next to yesterday's full-session volume), the RVOL denominators stay the prior-session averages, and PVCS uses the live price change. A stock joins the intraday board once it has traded. The final board — full-session volume, closing prices — replaces the provisional board after the close. <strong>Rolling High 20D</strong> is the highest traded price of the last 20 sessions including today.</p>
     </div>
   </section>
 
@@ -132,6 +136,6 @@
 
 <div id="nd-footer"></div>
 <script src="/js/nd-chrome.js?v=20261023g"></script>
-<script src="/js/nd-volume.js?v=20261023g"></script>
+<script src="/js/nd-volume.js?v=20261023h"></script>
 </body>
 </html>
