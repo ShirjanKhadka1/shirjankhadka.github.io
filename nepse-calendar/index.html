@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#FAF7F0">
+<title>NEPSE Calendar: Holidays, Book Closes, Lock-in Expiries &amp; Issue Dates | Nepse Decode</title>
+<link rel="stylesheet" href="/css/nd-tokens.css">
+<link rel="stylesheet" href="/css/nepse-design-system.css?v=20261023d">
+<meta name="description" content="Free NEPSE market calendar in Bikram Sambat: exchange holidays, IPO and rights issue open/close dates, dividend announcements, book closes, AGMs and promoter lock-in expiries — from official notices and Nepse Decode's recorded archive.">
+<meta name="author" content="Shirjan Khadka">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-calendar/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:title" content="NEPSE Calendar: Holidays, Book Closes &amp; Lock-in Expiries">
+<meta property="og:description" content="Every dated NEPSE event in one BS calendar: holidays, issue windows, book closes, AGMs, dividend announcements and promoter lock-in expiries.">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-calendar/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="NEPSE Calendar | Nepse Decode">
+<meta name="twitter:description" content="NEPSE holidays, IPO windows, book closes, AGMs and promoter lock-in expiries in a Bikram Sambat calendar.">
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
+<link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/theme.css?v=20261023d">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023e">
+<link rel="stylesheet" href="calendar.css?v=20261023a">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"NEPSE Calendar","url":"https://shirjankhadka.com.np/nepse-calendar/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Bikram Sambat calendar of NEPSE market events: exchange holidays, IPO/rights issue open and close dates, dividend announcements, book closes, AGMs and promoter lock-in expiries, compiled from official notices and recorded disclosures. Educational use only, not investment advice.","author":{"@type":"Organization","name":"Nepse Decode"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},{"@type":"ListItem","position":2,"name":"NEPSE Calendar","item":"https://shirjankhadka.com.np/nepse-calendar/"}]}
+</script>
+</head>
+<body class="nd" data-page="calendar">
+<div id="nd-header"></div>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="nd-shell">
+  <div class="nd-content">
+    <div class="nd-wrap">
+<main id="main">
+  <div class="nd-masthead">
+    <div>
+      <p class="nd-kicker">Market Calendar</p>
+      <h1 style="font-family:var(--serif);font-weight:600;font-size:clamp(1.6rem,4vw,2.3rem);letter-spacing:-0.015em">NEPSE Calendar</h1>
+      <p class="nd-lede" style="margin:10px 0 0;max-width:72ch;color:var(--ink-soft,#4A463C)">Every dated event that matters to a NEPSE investor, in Bikram Sambat: exchange holidays, IPO and rights-issue windows, dividend announcements, book closes, AGMs and promoter lock-in expiries. Compiled from official notices and Nepse Decode&rsquo;s recorded archive &mdash; each event names its source. Educational use only; not investment advice.</p>
+      <p class="nd-caption" style="margin-top:8px"><span id="ncal-meta">Loading calendar data&hellip;</span></p>
+    </div>
+  </div>
+
+  <div class="ncal-stats" id="ncal-stats" aria-label="This month at a glance">
+    <div class="ncal-stat"><span class="ncal-stat-num" id="ncal-stat-events">&ndash;</span><span class="ncal-stat-label">Events this month</span></div>
+    <div class="ncal-stat"><span class="ncal-stat-num" id="ncal-stat-holidays">&ndash;</span><span class="ncal-stat-label">Public holidays</span></div>
+    <div class="ncal-stat"><span class="ncal-stat-num" id="ncal-stat-closures">&ndash;</span><span class="ncal-stat-label">NEPSE-only closures</span></div>
+  </div>
+
+  <section class="ncal-upcoming" aria-label="Upcoming closures in the next 30 days">
+    <h2 class="ncal-upcoming-title">Upcoming closures &middot; next 30 days</h2>
+    <div class="ncal-upcoming-list" id="ncal-upcoming"><p class="ncal-muted">Loading&hellip;</p></div>
+  </section>
+
+  <div class="ncal-toolbar">
+    <div class="ncal-nav" role="group" aria-label="Month navigation">
+      <button type="button" class="ncal-btn" id="ncal-prev" aria-label="Previous month">&larr; Prev</button>
+      <button type="button" class="ncal-btn" id="ncal-today">Today</button>
+      <button type="button" class="ncal-btn" id="ncal-next" aria-label="Next month">Next &rarr;</button>
+    </div>
+    <div class="ncal-month-title">
+      <span class="ncal-month-bs" id="ncal-month-bs">&hellip;</span>
+      <span class="ncal-month-ad" id="ncal-month-ad"></span>
+    </div>
+  </div>
+
+  <div class="ncal-legend" id="ncal-legend" aria-label="Event type legend"></div>
+
+  <div class="ncal-gridwrap">
+    <div class="ncal-weekdays" aria-hidden="true">
+      <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+    </div>
+    <div class="ncal-grid" id="ncal-grid" role="grid" aria-label="Calendar month grid"></div>
+  </div>
+
+  <section class="ncal-detail" id="ncal-detail" aria-label="Selected day detail" aria-live="polite">
+    <h2 class="ncal-detail-title" id="ncal-detail-title">Select a day</h2>
+    <div id="ncal-detail-body"><p class="ncal-muted">Click any day to see its events, sources and links.</p></div>
+  </section>
+
+  <details style="margin-top:24px"><summary>How is this calendar built?</summary>
+  <p>Holidays follow the Government of Nepal gazette lists and NEPSE&rsquo;s own closure confirmations; entries not yet confirmed by a NEPSE notice are marked <em>Unverified</em>. Issue windows come from SEBON approvals and issue-manager notices. Dividend announcements, book closes and AGMs are recorded from official company disclosures the day they are announced. Promoter lock-in expiries are derived from each IPO&rsquo;s allotment date plus the three-year SEBON lock-in, and are labelled <em>Derived</em> unless an official notice verifies them. Lock-in expiries for mutual-fund and institutional tranches are not published here &mdash; our records do not hold verified dates for them.</p>
+  </details>
+</main>
+    </div>
+  </div>
+</div>
+
+<section class="nd-seo-copy" aria-label="About the NEPSE calendar">
+<h2>About the NEPSE calendar</h2>
+<p>NEPSE runs on the Bikram Sambat calendar, and the dates that decide an investor&rsquo;s week &mdash; a book close that cuts off dividend eligibility, an issue window that opens and shuts, a promoter lock-in that releases a large block of shares &mdash; are scattered across dozens of company notices. This calendar gathers them into one place, dated in BS with the AD date alongside, and states where each entry came from.</p>
+<p>Promoter lock-in expiries deserve a careful read. When a lock-in ends, shares that could not be traded for three years become tradable; that is a supply event worth knowing about in advance, not a signal in either direction. Dates marked derived are computed from allotment records and the standard three-year rule &mdash; an official release notice, when one is published, is listed separately and takes precedence.</p>
+<p>The calendar is an educational reference. Dates announced by companies can change; always confirm a deadline against the official notice before acting on it.</p>
+</section>
+
+<div id="nd-footer"></div>
+<script src="/js/bs-calendar.js" defer></script>
+<script src="/js/theme-toggle.js?v=20261023d" defer></script>
+<script src="/js/nd-chrome.js?v=20261023d" defer></script>
+<script src="calendar.js?v=20261023a" defer></script>
+</body>
+</html>

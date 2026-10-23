@@ -1,0 +1,90 @@
+/* Nepse Decode — NEPSE Calendar (page-local, namespaced .ncal-).
+   Presentation strictly inherits the site design system (nd-tokens /
+   nepse-design-system); only calendar layout + category colors live here. */
+
+.ncal-muted { color: var(--nd-dim, #8A94A3); }
+
+/* stat cards */
+.ncal-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 20px 0 4px; }
+.ncal-stat { background: var(--nd-panel, #FFFFFF); border: 1px solid var(--nd-border, #E7DFCE); border-radius: var(--nd-r-card, 14px); padding: 14px 16px; display: flex; flex-direction: column; gap: 2px; }
+.ncal-stat-num { font-size: 1.55rem; font-weight: 700; line-height: 1.1; color: var(--ink, #1C1A15); }
+.ncal-stat-label { font-size: .8rem; color: var(--nd-dim, #8A94A3); text-transform: uppercase; letter-spacing: .05em; }
+
+/* upcoming closures strip */
+.ncal-upcoming { margin: 18px 0 6px; }
+.ncal-upcoming-title { font-size: .8rem; text-transform: uppercase; letter-spacing: .07em; color: var(--nd-dim, #8A94A3); margin: 0 0 8px; font-weight: 700; }
+.ncal-upcoming-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.ncal-up-chip { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--nd-border, #E7DFCE); background: var(--nd-panel, #FFFFFF); border-radius: var(--nd-r-pill, 999px); padding: 6px 12px; font-size: .85rem; color: var(--ink, #1C1A15); cursor: pointer; font: inherit; }
+.ncal-up-chip:hover { border-color: var(--nd-border-strong, #C9CFDA); }
+.ncal-up-chip .ncal-up-date { color: var(--nd-dim, #8A94A3); font-size: .78rem; white-space: nowrap; }
+
+/* toolbar */
+.ncal-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin: 18px 0 10px; }
+.ncal-nav { display: flex; gap: 8px; }
+.ncal-btn { font: inherit; font-size: .88rem; padding: 7px 14px; border-radius: var(--nd-r-pill, 999px); border: 1px solid var(--nd-border, #E7DFCE); background: var(--nd-panel, #FFFFFF); color: var(--ink, #1C1A15); cursor: pointer; }
+.ncal-btn:hover { border-color: var(--nd-border-strong, #C9CFDA); }
+.ncal-btn:focus-visible, .ncal-up-chip:focus-visible, .ncal-cell:focus-visible { outline: 2px solid var(--nd-lime, #4D7C0F); outline-offset: 2px; }
+.ncal-month-title { text-align: right; }
+.ncal-month-bs { font-family: var(--serif, Georgia, serif); font-size: 1.35rem; font-weight: 600; color: var(--ink, #1C1A15); }
+.ncal-month-ad { display: block; font-size: .8rem; color: var(--nd-dim, #8A94A3); }
+
+/* legend */
+.ncal-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 4px 0 12px; font-size: .8rem; color: var(--ink-soft, #4A463C); }
+.ncal-legend-item { display: inline-flex; align-items: center; gap: 6px; }
+.ncal-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+
+/* grid */
+.ncal-gridwrap { border: 1px solid var(--nd-border, #E7DFCE); border-radius: var(--nd-r-card, 14px); overflow: hidden; background: var(--nd-panel, #FFFFFF); }
+.ncal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); background: var(--nd-panel-2, #F3EFE4); }
+.ncal-weekdays span { padding: 8px 6px; text-align: center; font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--nd-dim, #8A94A3); }
+.ncal-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+.ncal-cell { min-height: 96px; padding: 6px; border-top: 1px solid var(--nd-border, #E7DFCE); border-left: 1px solid var(--nd-border, #E7DFCE); background: transparent; text-align: left; font: inherit; cursor: pointer; display: flex; flex-direction: column; gap: 3px; color: var(--ink, #1C1A15); }
+.ncal-cell:nth-child(7n+1) { border-left: none; }
+.ncal-cell:hover { background: var(--nd-panel-2, #F7F4EC); }
+.ncal-cell.is-pad { cursor: default; background: var(--nd-panel-2, #FAF8F2); }
+.ncal-cell.is-pad:hover { background: var(--nd-panel-2, #FAF8F2); }
+.ncal-cell.is-weekend .ncal-bs { color: var(--nd-dim, #8A94A3); }
+.ncal-cell.is-today { box-shadow: inset 0 0 0 2px var(--nd-lime, #4D7C0F); }
+.ncal-cell.is-selected { background: var(--nd-lime-soft, #EEF4E0); }
+.ncal-dayline { display: flex; align-items: baseline; gap: 5px; }
+.ncal-bs { font-size: 1.05rem; font-weight: 700; line-height: 1; }
+.ncal-ad { font-size: .68rem; color: var(--nd-dim, #8A94A3); }
+.ncal-chips { display: flex; flex-direction: column; gap: 2px; }
+.ncal-chip { font-size: .66rem; line-height: 1.25; padding: 1px 5px; border-radius: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-left: 3px solid; background: var(--nd-panel-2, #F3EFE4); color: var(--ink, #1C1A15); }
+.ncal-more { font-size: .66rem; color: var(--nd-dim, #8A94A3); }
+
+/* category colors (dots + chip borders; badge uses the same hue) */
+.ncal-cat-public_holiday { --ncal-c: #C0392B; }
+.ncal-cat-nepse_closed { --ncal-c: #2456A6; }
+.ncal-cat-issue_opens { --ncal-c: #1E7B34; }
+.ncal-cat-issue_closes { --ncal-c: #B7791F; }
+.ncal-cat-lock_in_expiry { --ncal-c: #6D4AC8; }
+.ncal-cat-book_close { --ncal-c: #0E7C86; }
+.ncal-cat-agm { --ncal-c: #4757B8; }
+.ncal-cat-dividend { --ncal-c: #96700A; }
+.ncal-cat-other_event { --ncal-c: #6B7280; }
+.ncal-dot { background: var(--ncal-c, #6B7280); }
+.ncal-chip { border-left-color: var(--ncal-c, #6B7280); }
+
+/* detail panel */
+.ncal-detail { margin-top: 18px; border: 1px solid var(--nd-border, #E7DFCE); border-radius: var(--nd-r-card, 14px); background: var(--nd-panel, #FFFFFF); padding: 16px 18px; }
+.ncal-detail-title { margin: 0 0 10px; font-size: 1.05rem; font-weight: 700; color: var(--ink, #1C1A15); }
+.ncal-event { padding: 10px 0; border-top: 1px solid var(--nd-border, #E7DFCE); }
+.ncal-event:first-of-type { border-top: none; }
+.ncal-event-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.ncal-badge { font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #FFFFFF; background: var(--ncal-c, #6B7280); border-radius: var(--nd-r-pill, 999px); padding: 2px 8px; }
+.ncal-event-title { font-weight: 600; color: var(--ink, #1C1A15); }
+.ncal-event-title a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.ncal-flag { font-size: .7rem; font-weight: 700; letter-spacing: .03em; border: 1px solid var(--nd-border-strong, #C9CFDA); color: var(--nd-dim, #8A94A3); border-radius: var(--nd-r-pill, 999px); padding: 1px 7px; }
+.ncal-event-detail { margin: 6px 0 0; font-size: .9rem; line-height: 1.55; color: var(--ink-soft, #4A463C); }
+.ncal-event-meta { margin: 4px 0 0; font-size: .78rem; color: var(--nd-dim, #8A94A3); }
+
+@media (max-width: 720px) {
+  .ncal-cell { min-height: 74px; padding: 4px; }
+  .ncal-bs { font-size: .92rem; }
+  .ncal-chip { font-size: .6rem; }
+  .ncal-stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .ncal-stat { padding: 10px 12px; }
+  .ncal-stat-num { font-size: 1.2rem; }
+  .ncal-month-title { text-align: left; }
+}
