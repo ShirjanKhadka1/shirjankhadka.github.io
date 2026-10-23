@@ -295,3 +295,69 @@
   border:1px solid var(--nd-border,#1E2430);border-radius:16px;padding:20px 22px;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.05), 0 8px 24px rgba(0,0,0,.22);line-height:1.65}
 @media (prefers-reduced-motion:reduce){ .scorebar i{animation:none !important} .trend-card:hover{transform:none} }
+
+/* ---- SIGNALS deep layer (R2 Deep, 2026-10-23): the sig- family rebuilt
+   on the cinema surface system. Scoped under .sig-wrap so it wins over
+   sig-pro.css regardless of stylesheet order. Token-driven, both themes. */
+.sig-wrap h2{font-family:Spectral,Georgia,serif;font-weight:600;letter-spacing:-.01em;
+  display:flex;align-items:center;gap:11px}
+.sig-wrap h2::before{content:'';width:9px;height:9px;flex:none;border-radius:2px;
+  background:var(--nd-lime,#B8E62E);box-shadow:0 0 10px rgba(184,230,46,.35)}
+.sig-wrap .sig-card{
+  background:linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,0) 42%), var(--nd-panel,#12141A);
+  border:1px solid var(--nd-border,#1E2430);border-radius:16px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 1px 2px rgba(0,0,0,.35), 0 10px 30px rgba(0,0,0,.28);
+  transition:transform .25s cubic-bezier(.22,1,.36,1), box-shadow .25s cubic-bezier(.22,1,.36,1), border-color .25s}
+[data-nd-ed="light"] .sig-wrap .sig-card, [data-theme="light"] .sig-wrap .sig-card{
+  background:var(--nd-panel,#FFFFFF);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7), 0 1px 2px rgba(16,24,40,.05), 0 12px 28px rgba(16,24,40,.08)}
+.sig-wrap a.sig-card:hover{transform:translateY(-3px);border-color:rgba(184,230,46,.35)}
+.sig-wrap .sig-card-v{font-family:Spectral,Georgia,serif;font-weight:600;letter-spacing:-.01em}
+.sig-wrap .sig-tabs{display:inline-flex;gap:4px;flex-wrap:wrap;padding:4px;border-radius:999px;
+  background:var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430)}
+.sig-wrap .sig-tabs a{padding:7px 16px;border-radius:999px;border:0;margin:0;background-image:none;
+  color:var(--nd-muted,#B8C0CE);font-weight:600;text-decoration:none;transition:color .18s, background .18s}
+.sig-wrap .sig-tabs a:hover{color:var(--nd-lime,#B8E62E);background:transparent}
+.sig-wrap .sig-tabs a.active{background:var(--nd-lime,#B8E62E);color:#0A0C10}
+[data-theme="light"] .sig-wrap .sig-tabs a, [data-nd-ed="light"] .sig-wrap .sig-tabs a{
+  background:transparent;background-image:none;border:0;color:var(--nd-muted,#4B5563)}
+[data-theme="light"] .sig-wrap .sig-tabs a.active, [data-nd-ed="light"] .sig-wrap .sig-tabs a.active{
+  background:var(--nd-lime,#4D7C0F);background-image:none;color:#FFFFFF}
+.sig-wrap .sig-table{border-collapse:separate;border-spacing:0;width:100%}
+.sig-wrap .sig-table th{font:600 11px Inter,system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--nd-muted,#B8C0CE);text-align:left;padding:10px 12px;border-bottom:1px solid var(--nd-border,#1E2430)}
+.sig-wrap .sig-table td{padding:9px 12px;border-bottom:1px solid var(--nd-border,#1E2430)}
+.sig-wrap .sig-table tbody tr{transition:background .15s}
+.sig-wrap .sig-table tbody tr:hover{background:rgba(184,230,46,.045)}
+.sig-wrap .sig-table .num{font-variant-numeric:tabular-nums}
+.sig-wrap .prog{height:6px;min-width:64px;border-radius:99px;background:var(--nd-inset,#0D0F14);overflow:hidden}
+.sig-wrap .prog i{display:block;height:100%;border-radius:99px;
+  background:linear-gradient(90deg, var(--nd-lime,#B8E62E), rgba(184,230,46,.55))}
+.sig-wrap .rpill{display:inline-flex;align-items:center;padding:2px 9px;border-radius:999px;
+  font-size:.78rem;font-weight:600;border:1px solid var(--nd-border,#1E2430);white-space:nowrap}
+.sig-wrap .rpill.rp-win{color:var(--nd-up,#4ADE80);border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.08)}
+.sig-wrap .rpill.rp-loss{color:var(--nd-down,#F87171);border-color:rgba(248,113,113,.4);background:rgba(248,113,113,.08)}
+.sig-wrap .rpill.rp-trail{color:var(--nd-lime,#B8E62E);border-color:rgba(184,230,46,.4);background:rgba(184,230,46,.08)}
+.sig-wrap .tag.entry{display:inline-flex;padding:2px 9px;border-radius:999px;font-size:.78rem;font-weight:700;
+  color:var(--nd-lime,#B8E62E);border:1px solid rgba(184,230,46,.45);background:rgba(184,230,46,.08)}
+.sig-wrap .note{background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,0) 40%), var(--nd-panel,#12141A);
+  border:1px solid var(--nd-border,#1E2430);border-left:3px solid var(--nd-lime,#B8E62E);
+  border-radius:14px;padding:16px 18px;line-height:1.65}
+[data-nd-ed="light"] .sig-wrap .note, [data-theme="light"] .sig-wrap .note{background:var(--nd-panel,#FFFFFF)}
+.sig-wrap .rules{background:var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);
+  border-radius:16px;padding:18px 20px;line-height:1.65;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05), 0 8px 24px rgba(0,0,0,.22)}
+[data-nd-ed="light"] .sig-wrap .rules, [data-theme="light"] .sig-wrap .rules{background:var(--nd-panel,#FFFFFF);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7), 0 8px 22px rgba(16,24,40,.07)}
+.sig-wrap .sig-fresh{display:inline-flex;align-items:center;gap:8px;padding:5px 13px;border-radius:999px;
+  border:1px solid var(--nd-border,#1E2430);background:var(--nd-panel,#12141A);
+  color:var(--nd-muted,#B8C0CE);font-size:.82rem;font-weight:600}
+.sig-wrap #eqchart{display:block;width:100%;background:var(--nd-panel,#12141A);
+  border:1px solid var(--nd-border,#1E2430);border-radius:16px}
+.sig-wrap .sig-pager button, .sig-wrap .sig-pager select{background:var(--nd-panel,#12141A);
+  color:var(--nd-text,#E8ECF1);border:1px solid var(--nd-border,#1E2430);border-radius:10px;
+  padding:7px 13px;font:600 .85rem Inter,system-ui,sans-serif;cursor:pointer}
+.sig-wrap .sig-pager button:hover{border-color:var(--nd-lime,#B8E62E);color:var(--nd-lime,#B8E62E)}
+.sig-wrap .gloss dt{font-family:Spectral,Georgia,serif;font-weight:600}
+.sig-wrap .gloss dd{color:var(--nd-muted,#B8C0CE);line-height:1.6}
+@media (prefers-reduced-motion:reduce){ .sig-wrap .sig-card, .sig-wrap a.sig-card:hover{transition:none;transform:none} }

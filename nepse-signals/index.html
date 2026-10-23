@@ -32,7 +32,7 @@
 <link rel="stylesheet" href="/css/fonts.css">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=20261023e">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023d">
-<link rel="stylesheet" href="/css/nd-cinema.css?v=20261023l">
+<link rel="stylesheet" href="/css/nd-cinema.css?v=20261023m">
 <link rel="stylesheet" href="/css/sig-pro.css?v=20261023d">
 <style>
 a.sys-link{text-decoration:none;color:inherit;display:flex;flex-direction:column}
@@ -62,7 +62,7 @@ a.sys-link:hover .sys-open{color:var(--nd-lime,#B8E62E)}
 <p class="sys-desc">Built for uptrending markets. Rides established trends with a trailing exit — buys 50-session breakouts, lets winners run.</p>
 <div class="sys-stats">
 <div><div class="sig-card-l">Annual return</div><div class="sig-card-v" data-f="annual_return_pct" style="color:var(--nd-up,#4ADE80)">110.82%</div></div>
-<div><div class="sig-card-l">Win rate</div><div class="sig-card-v" data-f="win_rate_pct">33.38%</div></div>
+<div><div class="sig-card-l">Win rate</div><div class="sig-card-v" data-f="win_rate_pct">33.38%</div><div class="cx-prop" style="margin-top:7px"><div class="cx-prop-track"><span class="cx-prop-fill" data-bar="win" style="--w:33.38%"></span></div></div></div>
 <div><div class="sig-card-l">Deepest fall</div><div class="sig-card-v" data-f="max_drawdown_pct" style="color:var(--nd-down,#F87171)">15.69%</div></div>
 <div><div class="sig-card-l">Trades</div><div class="sig-card-v" data-f="total_trades">767</div></div>
 </div>
@@ -73,7 +73,7 @@ a.sys-link:hover .sys-open{color:var(--nd-lime,#B8E62E)}
 <p class="sys-desc">Hands the baton between trend phases. A slower, steadier system that stays invested through multi-month moves.</p>
 <div class="sys-stats">
 <div><div class="sig-card-l">Annual return</div><div class="sig-card-v" data-f="annual_return_pct" style="color:var(--nd-up,#4ADE80)">55.40%</div></div>
-<div><div class="sig-card-l">Win rate</div><div class="sig-card-v" data-f="win_rate_pct">31.70%</div></div>
+<div><div class="sig-card-l">Win rate</div><div class="sig-card-v" data-f="win_rate_pct">31.70%</div><div class="cx-prop" style="margin-top:7px"><div class="cx-prop-track"><span class="cx-prop-fill" data-bar="win" style="--w:31.70%"></span></div></div></div>
 <div><div class="sig-card-l">Backtest</div><div class="sig-card-v" data-f="backtest_years">2.1 yrs</div></div>
 <div><div class="sig-card-l">Style</div><div class="sig-card-v">Steady</div></div>
 </div>
@@ -84,7 +84,7 @@ a.sys-link:hover .sys-open{color:var(--nd-lime,#B8E62E)}
 <p class="sys-desc">Bets on the snap-back. Buys beaten-down names — and the backtest is honest that this one lost money over <span class="sigwin" data-form="years">2.1 years</span>.</p>
 <div class="sys-stats">
 <div><div class="sig-card-l">Annual return</div><div class="sig-card-v" data-f="annual_return_pct" style="color:var(--nd-down,#F87171)">-9.69%</div></div>
-<div><div class="sig-card-l">Win rate</div><div class="sig-card-v" data-f="win_rate_pct">46.43%</div></div>
+<div><div class="sig-card-l">Win rate</div><div class="sig-card-v" data-f="win_rate_pct">46.43%</div><div class="cx-prop" style="margin-top:7px"><div class="cx-prop-track"><span class="cx-prop-fill" data-bar="win" style="--w:46.43%"></span></div></div></div>
 <div><div class="sig-card-l">Backtest</div><div class="sig-card-v" data-f="backtest_years">2.1 yrs</div></div>
 <div><div class="sig-card-l">Lesson</div><div class="sig-card-v" data-f="lesson" style="font-size:1rem">Mean-reversion fails on NEPSE</div></div>
 </div>
@@ -128,6 +128,7 @@ a.sys-link:hover .sys-open{color:var(--nd-lime,#B8E62E)}
       var anv=card.querySelector('[data-f="annual_return_pct"]');
       if(anv)isFinite(an)&&(anv.style.color=an>=0?'var(--nd-up,#4ADE80)':'var(--nd-down,#F87171)');
       set('win_rate_pct',f2(st.win_rate_pct)+'%');
+      var wb=card.querySelector('[data-bar="win"]');if(wb&&isFinite(+st.win_rate_pct))wb.style.setProperty('--w',(+st.win_rate_pct)+'%');
       set('max_drawdown_pct',f2(st.max_drawdown_pct)+'%');
       set('total_trades',st.total_trades);
       if(y)set('backtest_years',y+' yrs');
@@ -160,7 +161,7 @@ a.sys-link:hover .sys-open{color:var(--nd-lime,#B8E62E)}
 </script>
 </main>
 <div id="nd-footer"></div>
-<script src="/js/nd-chrome.js?v=20261023d" defer></script>
+<script src="/js/nd-chrome.js?v=20261023e" defer></script>
 <script src="/js/theme-toggle.js?v=20261023d" defer></script>
 </body>
 </html>
