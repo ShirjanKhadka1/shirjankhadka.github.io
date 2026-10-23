@@ -34,7 +34,7 @@
 </script>
 <link rel="stylesheet" href="/css/nd-chrome.css?v=20261023d">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023d">
-<link rel="stylesheet" href="/css/nd-cinema.css?v=20261023i">
+<link rel="stylesheet" href="/css/nd-cinema.css?v=20261023k">
 <link rel="stylesheet" href="/css/sig-pro.css?v=20261023d">
 <style>
 /* Trending: tone pills, hero cards, research panels — new design tokens */
@@ -169,7 +169,7 @@ canvas.spark{display:block}
 </div>
 
 <div class="scrollx">
-<table class="sig-table nd-table" id="trendTable">
+<table class="sig-table nd-table cx-table" id="trendTable">
 <thead><tr>
 <th class="num">#</th>
 <th>Stock</th>
@@ -250,7 +250,7 @@ function renderHero(rows){
     var chgTxt = (chg > 0 ? '+' : '') + fmt(chg) + '%';
     var why = (s.reasons||[]).slice(0,2).join(' · ');
     var tl = TONE_LABEL[s.tone] || TONE_LABEL.watch;
-    return '<a class="trend-card" href="/nepse-chart/?s='+esc(s.symbol)+'">'
+    return '<a class="trend-card cx-card" href="/nepse-chart/?s='+esc(s.symbol)+'">'
       + '<span class="t-rank">'+(i+1)+'</span>'
       + '<div class="t-sym">'+medals[i]+' '+esc(s.symbol)+'</div>'
       + '<div class="t-name">'+esc(s.name)+' · '+esc(s.sector)+'</div>'
@@ -276,7 +276,7 @@ function render(){
       + '<td class="num">'+(i+1)+'</td>'
       + '<td><a class="symlink" href="/nepse-chart/?s='+esc(s.symbol)+'">'+esc(s.symbol)+'</a><span class="sname">'+esc(s.name)+' · '+esc(s.sector)+'</span></td>'
       + '<td class="num">'+fmt(s.ltp)+'</td>'
-      + '<td class="num '+cls(s.ret_5d_pct)+'">'+(s.ret_5d_pct>0?'+':'')+fmt(s.ret_5d_pct)+'%</td>'
+      + '<td class="num"><span class="cx-chip '+(s.ret_5d_pct>0?'up':s.ret_5d_pct<0?'down':'flat')+'">'+(s.ret_5d_pct>0?'+':'')+fmt(s.ret_5d_pct)+'%</span></td>'
       + '<td class="num">Rs '+fmt(s.turnover_rs_m,1)+' M<br><span style="color:var(--nd-dim,#6B7280);font-size:.75rem">'+fmt(s.turnover_ratio,1)+'× avg</span></td>'
       + '<td><span class="tone '+tl[0]+'">'+tl[1]+'</span></td>'
       + '<td class="num"><span class="scorebar"><i style="width:'+Math.round(s.score)+'%"></i></span> '+fmt(s.score,1)+'</td>'
