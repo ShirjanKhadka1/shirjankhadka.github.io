@@ -29,7 +29,7 @@
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=20261023m">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=20261023e">
-<link rel="stylesheet" href="/css/nd-news.css?v=20261023d">
+<link rel="stylesheet" href="/css/nd-news.css?v=20261023e">
 <link rel="stylesheet" href="/css/nepse-logos.css?v=20261023d">
 <link rel="stylesheet" href="/css/nd-3d.css">
 <link rel="stylesheet" href="/css/nd-market-3d.css">
@@ -88,6 +88,7 @@
         <input id="hlFilter" class="nn-search" type="search" placeholder="Filter by symbol, e.g. NABIL, NIFRA, HIDCL…" aria-label="Filter headlines by symbol" autocomplete="off">
         <span class="nn-count" id="hlCount"></span>
       </div>
+      <div class="nn-mix" id="hlMix" hidden><div class="nn-mix-track" id="hlMixTrack"></div><div class="nn-mix-legend" id="hlMixLegend"></div></div>
       <p class="nn-updated" id="hlUpdated">Headlines, editorially reviewed · updated 22 Oct 2026.</p>
       <div id="hlFeed" aria-live="polite">
         <a class="nn-featured" href="/nepse-news/story/?src=news&amp;i=0"><div class="nn-featured-art"><span style="font-size:28px;line-height:1;flex:none">📰</span></div><div class="nn-featured-body"><p class="nn-cat markets">Markets · OnlineKhabar</p><h2>आज एकादशीको दिन पनि दशैंको टीका लगाइँदै</h2><div class="nn-meta"><span>22 Oct 2026</span><span>Attributed to publisher</span></div></div></a>
@@ -277,8 +278,27 @@
         var upd = document.getElementById('hlUpdated');
         var asof = d.asof || d.updated;
         if (upd && asof) upd.textContent = 'Headlines, editorially reviewed · updated ' + fmtDate(asof) + '.';
-        renderHl(); updateCounts();
+        renderHl(); updateCounts(); renderMix();
       });
+  }
+  function renderMix(){
+    var host = document.getElementById('hlMix'); if (!host || !hlItems.length) return;
+    var counts = { mk: 0, co: 0, ec: 0 };
+    hlItems.forEach(function(it){
+      var c = newsCategory(it.title, it.sym);
+      if (c === 'Markets') counts.mk++; else if (c === 'Companies') counts.co++; else counts.ec++;
+    });
+    var tot = hlItems.length;
+    var seg = [['mk','Markets',counts.mk],['co','Companies',counts.co],['ec','Economy & Policy',counts.ec]];
+    var track = '', legend = '';
+    seg.forEach(function(s){
+      if (!s[2]) return;
+      track += '<i class="' + s[0] + '" style="width:' + (s[2] / tot * 100).toFixed(2) + '%"></i>';
+      legend += '<span><b class="' + s[0] + '"></b>' + s[1] + ' ' + s[2] + '</span>';
+    });
+    document.getElementById('hlMixTrack').innerHTML = track;
+    document.getElementById('hlMixLegend').innerHTML = legend;
+    host.hidden = false;
   }
   function updateCounts(){
     var c = document.getElementById('nnCounts');

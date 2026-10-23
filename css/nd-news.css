@@ -284,3 +284,18 @@
 [data-nd-ed="light"] .nn-meta { color: #5B6472; }
 [data-theme="light"] .nn-search::placeholder,
 [data-nd-ed="light"] .nn-search::placeholder { color: #5B6472; }
+
+/* ============================================================
+ * CINEMA harmonization (2026-10-23) — rim-lit cards + headline
+ * category mix bar in the newsroom's own category colours.
+ * ============================================================ */
+.nn-card{ box-shadow:inset 0 1px 0 rgba(255,255,255,.05), 0 10px 26px rgba(0,0,0,.22); }
+[data-theme="light"] .nn-card{ box-shadow:inset 0 1px 0 #fff, 0 10px 24px rgba(30,40,60,.08); }
+.nn-mix{ margin:14px 0 4px; }
+.nn-mix-track{ display:flex; height:12px; border-radius:999px; overflow:hidden; background:var(--nd-border,#1E2430); }
+.nn-mix-track i{ display:block; height:100%; }
+.nn-mix-track .mk{ background:var(--nd-lime,#B8E62E); } .nn-mix-track .co{ background:var(--nd-info,#3080FF); } .nn-mix-track .ec{ background:var(--nd-amber,#F5B301); }
+.nn-mix-legend{ display:flex; flex-wrap:wrap; gap:6px 18px; margin-top:8px; font-size:.75rem; color:var(--nd-muted,#B8C0CE); font-variant-numeric:tabular-nums; }
+.nn-mix-legend b{ display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:6px; }
+.nn-mix-legend .mk{ background:var(--nd-lime,#B8E62E); } .nn-mix-legend .co{ background:var(--nd-info,#3080FF); } .nn-mix-legend .ec{ background:var(--nd-amber,#F5B301); }
+[data-theme="light"] .nn-mix-track{ background:#E5E7EB; }
