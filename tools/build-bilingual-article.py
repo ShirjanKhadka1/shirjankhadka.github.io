@@ -22,7 +22,7 @@ per language, separate NewsArticle JSON-LD with inLanguage per page.
 Story JSON schema (all *_en / *_ne pairs required unless marked optional):
 {
   "slug": "citizens-bank-dividend-4-percent",
-  "section_en": "Dividends", "section_ne": "labhansh",            # breadcrumb label
+  "section_en": "Dividends", "section_ne": "labhansh",            # section label
   "kicker_en": "News", "kicker_ne": "samachar",
   "headline_en": "...", "headline_ne": "...",
   "dek_en": "...", "dek_ne": "...",
@@ -229,9 +229,6 @@ a:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:6
 .wordmark .g{color:var(--gold)}
 .iceberg{width:26px;height:26px;flex:none}
 .article{max-width:760px;margin:0 auto;padding:28px 20px 64px}
-.crumb{font-size:12.5px;color:var(--muted);margin-bottom:18px}
-.crumb a{color:var(--muted);text-decoration:none}
-.crumb a:hover{color:var(--emerald)}
 .kicker{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.18em;
   color:var(--emerald-deep);border:1px solid var(--emerald);border-radius:999px;
   padding:5px 14px;margin-bottom:16px;background:#fff}
@@ -699,8 +696,6 @@ def render_page(story, lang):
         "<body>",
         '<div id="nd-header"></div>',
         '<main class="article">',
-        (f'  <nav class="crumb" aria-label="Breadcrumb"><a href="/">{esc(S(story, lang, "home"))}</a> / '
-         f'<a href="/nepse-news/">{esc(S(story, lang, "news"))}</a> / {esc(story[f"section_{lang}"])}</nav>'),
         f'  <p class="kicker">{esc(L(story, lang, "kicker"))}</p>',
         f'  <h1 class="headline">{esc(L(story, lang, "headline"))}</h1>',
         f'  <p class="dek">{esc(L(story, lang, "dek"))}</p>',

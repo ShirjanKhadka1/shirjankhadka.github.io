@@ -90,14 +90,17 @@ function scanArticles() {
 }
 
 function fimg(a) {
-  // Use the responsive <picture> markup only when all three webp variants exist.
-  const base = a.imgPath.replace(/\.(jpe?g|png)$/i, '');
-  const variants = ['-480.webp', '-768.webp', '-1200.webp'].map(v => base + v);
-  const allExist = variants.every(v => fs.existsSync(path.join(ROOT, v.replace(/^\//, ''))));
+  // Card image: 480/768w WebP variants (see tools/build-images.py + the image
+  // pipeline) with a card-sized srcset; never serve the full-size hero as a
+  // card thumbnail. Falls back to the original image only when no variant
+  // exists yet.
+  let base = a.imgPath.replace(/\.(jpe?g|png|webp)$/i, '');
+  base = base.replace(/-(480|768|1200)$/, '');
+  const widths = [480, 768].filter(w => fs.existsSync(path.join(ROOT, `${base}-${w}.webp`.replace(/^\//, ''))));
   const alt = escAttr(a.alt);
-  if (allExist) {
-    const srcset = variants.map((v, i) => `${v} ${[480, 768, 1200][i]}w`).join(', ');
-    return `<picture><source srcset="${srcset}" sizes="(max-width: 600px) 480px, (max-width: 1000px) 768px, 1200px" type="image/webp"><img width="1200" height="630" src="${variants[1]}" alt="${alt}" loading="lazy"></picture>`;
+  if (widths.length) {
+    const srcset = widths.map(w => `${base}-${w}.webp ${w}w`).join(', ');
+    return `<img width="1200" height="630" src="${base}-${widths[0]}.webp" srcset="${srcset}" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="${alt}" loading="lazy">`;
   }
   return `<img width="1200" height="630" src="${escAttr(a.imgPath)}" alt="${alt}" loading="lazy">`;
 }
