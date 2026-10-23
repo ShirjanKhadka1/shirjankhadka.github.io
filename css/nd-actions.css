@@ -188,3 +188,18 @@ span.na-sym--nolink:hover { color: var(--nd-text); }
 .na-fig.na-fig-total { border-color: var(--nd-lime); }
 .na-fig.na-fig-total b { color: var(--nd-lime); }
 @media (prefers-reduced-motion: reduce){ .na-card{ transition: none; } .na-card:hover{ transform: none; } }
+
+/* ============================================================
+ * CINEMA harmonization (2026-10-23) — rim-lit card material to
+ * match the suite's cards, Spectral hero figures.
+ * ============================================================ */
+.na-card {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 10px 26px rgba(0,0,0,.22);
+}
+.na-fig b {
+  font-family: var(--nd-font-display, "Spectral", Georgia, serif);
+  font-weight: 600; letter-spacing: 0;
+}
+[data-theme="light"] .na-card {
+  box-shadow: inset 0 1px 0 #fff, 0 10px 24px rgba(30,40,60,.08);
+}
