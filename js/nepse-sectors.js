@@ -615,6 +615,13 @@
     var cv = $('sxMap');
     if (!cv) return;
     var tip = $('sxMapTip');
+    /* The tip is position:fixed, but it lives inside a .d2-card whose :hover
+       lift (transform) turns the card into the containing block for fixed
+       descendants — the tip then renders offset by the card's distance from
+       the viewport origin (verified 2026-10-23: +205/+316 px locally; the
+       owner's right-edge tiles pushed it off-screen). Reparent to <body> so
+       fixed means the viewport (same repair as the mobile nav drawer). */
+    if (tip && tip.parentNode !== document.body) document.body.appendChild(tip);
     cv.addEventListener('mousemove', function (ev) {
       var r = cv.getBoundingClientRect();
       var hit = mapHit(ev.clientX - r.left, ev.clientY - r.top);

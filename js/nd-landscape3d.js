@@ -237,6 +237,10 @@
     var tip = opts.tipEl || null, statusEl = opts.statusEl || null,
         listEl = opts.listEl || null, labelsEl = opts.labelsEl || null,
         noteEl = opts.noteEl || null;
+    /* Same fixed-in-a-lifting-card trap as #sxMapTip: the 3D tip renders
+       displaced by its card's viewport offset while position:fixed. Move it
+       to <body> so its coordinates are true viewport coordinates. */
+    if (tip && tip.parentNode !== document.body) document.body.appendChild(tip);
     var destroyed = false, gl = null, prog = null, buf = null, lineBuf = null;
     var data = null, layout = null, vertCount = 0;
     var cam = { az: -0.65, pol: 1.0, dist: 60, tx: 0, ty: 0, tz: 0 };
@@ -461,7 +465,13 @@
       if (i < 0) { tip.style.display = 'none'; return; }
       tip.innerHTML = tipHTML(layout.blocks[i]);
       tip.style.display = 'block';
-      if (x != null) { tip.style.left = Math.min(window.innerWidth - 280, x + 14) + 'px'; tip.style.top = (y + 14) + 'px'; }
+      if (x != null) {
+        var tw = tip.offsetWidth, th = tip.offsetHeight;
+        var lx = x + 14, ly = y + 14;
+        if (lx + tw > window.innerWidth - 8) lx = Math.max(8, x - tw - 14);
+        if (ly + th > window.innerHeight - 8) ly = Math.max(8, y - th - 14);
+        tip.style.left = lx + 'px'; tip.style.top = ly + 'px';
+      }
     }
     function paintStatus() {
       if (!statusEl || !data) return;
