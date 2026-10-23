@@ -27,7 +27,7 @@
 <link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="stylesheet" href="/css/fonts.css">
-<link rel="stylesheet" href="/css/nepse-d2.css?v=934ac0ed">
+<link rel="stylesheet" href="/css/nepse-d2.css?v=20261023a">
 <link rel="stylesheet" href="sectors.css?v=72636a23">
 <style>
 /* D2 dark-first remap of the sectors component palette.
@@ -92,10 +92,11 @@
 </script>
 <link rel="stylesheet" href="/css/theme.css?v=c4570b45">
 <link rel="stylesheet" href="/css/nepse-logos.css">
-<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=9fae27fd">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=79a19171">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023a">
 <link rel="stylesheet" href="/css/nd-3d.css">
 <link rel="stylesheet" href="/css/nd-market-3d.css">
+<link rel="stylesheet" href="/css/nd-landscape3d.css">
 </head>
 <body class="d2">
 <a class="skip-link" href="#main">Skip to content</a>
@@ -146,6 +147,82 @@
           <span class="d2-chip"><span class="d2-dot"></span><span id="sxMapState">BATCH</span></span>
           <span id="sxMapSrc">Top 60 by turnover · tile color follows the fixed day-change bands below</span>
         </div>
+
+        <!-- 3D Market Landscape (Wave F): alternate view of the SAME full
+             universe. The 2D map above stays the default + accessible
+             primary. WebGL loads lazily on first open — zero cost until then. -->
+        <div class="sx-viewbar">
+          <div class="sx-viewtoggle" role="group" aria-label="Market map view">
+            <button type="button" id="sxView2d" class="on" aria-pressed="true">2D map</button>
+            <button type="button" id="sxView3d" aria-pressed="false">3D landscape</button>
+          </div>
+          <span class="d2-caption">3D shows every listed security — hatched blocks had no trades, they are never hidden.</span>
+        </div>
+        <div id="sx3dWrap" hidden>
+          <div id="sx3dStage">
+            <canvas id="sx3dCanvas" tabindex="0" role="application"
+              aria-label="3D market landscape. Drag to orbit, scroll to zoom. Keyboard: arrow keys orbit, plus and minus zoom, bracket keys step through securities, Enter opens the focused security."></canvas>
+            <div class="nd3d-labels" id="sx3dLabels" aria-hidden="true"></div>
+            <div id="sx3dTip" role="status"></div>
+            <div class="nd3d-controls">
+              <button type="button" class="nd3d-rot-l" aria-label="Rotate view left">⟲</button>
+              <button type="button" class="nd3d-rot-r" aria-label="Rotate view right">⟳</button>
+              <button type="button" class="nd3d-zin" aria-label="Zoom in">+</button>
+              <button type="button" class="nd3d-zout" aria-label="Zoom out">−</button>
+              <button type="button" class="nd3d-reset" aria-label="Reset view">⌂</button>
+            </div>
+            <p class="nd3d-note" id="sx3dNote" hidden></p>
+          </div>
+          <div class="nd3d-legend" aria-label="3D landscape legend">
+            <span><span class="sw" style="background:#ff5d5d"></span>−1.5% or worse</span>
+            <span><span class="sw" style="background:#c2544c"></span>−1.5%…−0.25%</span>
+            <span><span class="sw" style="background:#2b3648"></span>flat</span>
+            <span><span class="sw" style="background:#2f8f57"></span>+0.25%…+1.5%</span>
+            <span><span class="sw" style="background:#3ddc84"></span>+1.5% or more</span>
+            <span><span class="sw" style="background:#1a2230"></span>no trades (hatched)</span>
+          </div>
+          <p class="d2-caption" id="sx3dStatus" style="margin-top:8px">3D landscape not loaded yet.</p>
+          <p class="nd3d-hint">Drag to orbit · scroll or pinch to zoom · hover or use [ ] keys to inspect a block · click / Enter opens its stock page.</p>
+          <details id="sx3dListBox">
+            <summary>Every security in the landscape — text list with the same values</summary>
+            <ul id="sx3dList"></ul>
+          </details>
+        </div>
+        <script>
+        (function () {
+          var b2 = document.getElementById('sxView2d'), b3 = document.getElementById('sxView3d');
+          var wrap = document.getElementById('sx3dWrap'), started = false;
+          if (!b2 || !b3 || !wrap) return;
+          function setView(three) {
+            b2.classList.toggle('on', !three); b2.setAttribute('aria-pressed', String(!three));
+            b3.classList.toggle('on', three); b3.setAttribute('aria-pressed', String(three));
+            wrap.hidden = !three;
+            if (three && !started) {
+              started = true;
+              var st = document.getElementById('sx3dStatus');
+              if (st) st.textContent = 'Loading 3D landscape…';
+              var s = document.createElement('script');
+              s.src = '/js/nd-landscape3d.js';
+              s.onload = function () {
+                window.NDLandscape3D && window.NDLandscape3D.mount(document.getElementById('sx3dCanvas'), {
+                  liveUrl: '/nepse-chart/data/live.json',
+                  universeUrl: '/nepse-chart/data/universe.json',
+                  verdictsUrl: '/nepse-chart/data/verdicts.json',
+                  tipEl: document.getElementById('sx3dTip'),
+                  statusEl: document.getElementById('sx3dStatus'),
+                  listEl: document.getElementById('sx3dList'),
+                  labelsEl: document.getElementById('sx3dLabels'),
+                  noteEl: document.getElementById('sx3dNote')
+                });
+              };
+              s.onerror = function () { if (st) st.textContent = '3D view failed to load — the 2D map and the lists on this page carry the same data.'; };
+              document.head.appendChild(s);
+            }
+          }
+          b2.addEventListener('click', function () { setView(false); });
+          b3.addEventListener('click', function () { setView(true); });
+        })();
+        </script>
       </section>
 
       <section class="sx-sec" aria-labelledby="sx-heat-h">
@@ -217,7 +294,7 @@
       </section>
 
       <section class="sx-note" aria-label="About these figures">
-        <p><strong>How this page is built.</strong> Every figure on this page is a mechanical aggregation of the latest daily batch: tile color comes from each security's day change, breadth counts securities that closed higher or lower, leaders and laggards rank by day change, and turnover share divides each sector's session turnover by total turnover. Securities with no day change are left out of breadth, leaders and laggards, and average change. The grouping is honest about its limits: <strong>Debentures</strong>, <strong>Mutual Funds</strong> and <strong>Promoter Shares</strong> are instrument types, not NEPSE sectors (taken from the universe instrument-type field, NEPSE debenture symbol suffixes, and bond/rinpatra/fund/kosh in the official company name). <strong>Banking</strong>, <strong>Hydropower</strong> and the other named groups are NEPSE sub-indexes, mapped per symbol from explicit business words in the official company name plus verified overrides for symbols whose names do not reveal the business (for example BNL and UNL in manufacturing, SCBD and SHINED as debentures, Chandragiri Hills and Kalinchowk Darshan in hotels and tourism). <strong>Others</strong> is NEPSE's own Others sub-index bucket (for example NTC, NRM, Nepal Warehousing). Every listed security sits in exactly one group. This is for education only, not investment advice.</p>
+        <p><strong>How this page is built.</strong> The line above the heatmap always says which of the page's two modes you are looking at. In batch mode (after the close) every figure is a mechanical aggregation of the latest daily batch. In live mode (while a session is running, and from the frozen tape after it ends) the same figures are rebuilt from the live quote tape across the full listed universe: securities that have not traded yet stay on the map as flat no-data tiles and are counted in the "not yet traded" figure — they are never silently dropped. In both modes, tile color comes from each security's day change, breadth counts securities that closed (or last traded) higher or lower, leaders and laggards rank by day change, and turnover share divides each sector's session turnover by total turnover. Securities with no day change are left out of breadth, leaders and laggards, and average change. The grouping is honest about its limits: <strong>Debentures</strong>, <strong>Mutual Funds</strong> and <strong>Promoter Shares</strong> are instrument types, not NEPSE sectors (taken from the universe instrument-type field, NEPSE debenture symbol suffixes, and bond/rinpatra/fund/kosh in the official company name). <strong>Banking</strong>, <strong>Hydropower</strong> and the other named groups are NEPSE sub-indexes, mapped per symbol from explicit business words in the official company name plus verified overrides for symbols whose names do not reveal the business (for example BNL and UNL in manufacturing, SCBD and SHINED as debentures, Chandragiri Hills and Kalinchowk Darshan in hotels and tourism). <strong>Others</strong> is NEPSE's own Others sub-index bucket (for example NTC, NRM, Nepal Warehousing). Every listed security sits in exactly one group. This is for education only, not investment advice.</p>
       </section>
     </main>
 <div id="nd-footer"></div>
@@ -233,10 +310,10 @@
 <script src="/js/nepse-suite.js?v=8096b208"></script>
 <script src="/js/company-logos.js?v=d8c620a6" defer></script>
 <script src="/js/nepse-logos.js" defer></script>
-<script src="/js/nepse-sectors.js?v=5123c45a" defer></script>
-<script src="/js/theme-toggle.js?v=8f323a39" defer></script>
-<script src="/js/freshness-badge.js?v=bb5bd11a" defer></script>
+<script src="/js/nepse-sectors.js?v=20261023a" defer></script>
+<script src="/js/theme-toggle.js?v=20261023a" defer></script>
+<script src="/js/freshness-badge.js?v=20261023a" defer></script>
 <script src="/js/nepse-sidebar.js?v=4253c371" defer></script>
-<script src="/js/nd-chrome.js?v=20261014a" defer></script>
+<script src="/js/nd-chrome.js?v=20261023a" defer></script>
 </body>
 </html>

@@ -1,0 +1,40 @@
+/* Nepse Decode — cinematic data components (Wave F, 2026-10-23)
+   Documented classes/attributes for Wave A to adopt suite-wide:
+     [data-cinema-lift]  depth-lift card (JS nd-cinema.js drives --cin-rx/ry)
+     .nd-cinema-ticker-toggle  ticker pause/resume button (JS-injected)
+     .nd-ticker-paused   state class: ticker animation held
+   Transform/opacity only. Everything here switches OFF under
+   prefers-reduced-motion and on coarse pointers. */
+
+[data-cinema-lift]{
+  transform:perspective(950px) rotateX(var(--cin-rx,0deg)) rotateY(var(--cin-ry,0deg)) translateY(var(--cin-ty,0px));
+  transition:transform .18s ease-out, box-shadow .18s ease-out;
+  box-shadow:0 2px 8px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.05);
+}
+[data-cinema-lift]:hover{
+  box-shadow:0 14px 30px rgba(0,0,0,.42), 0 0 0 1px rgba(184,230,46,.14), inset 0 1px 0 rgba(255,255,255,.08);
+}
+@media (pointer:coarse){
+  [data-cinema-lift]{transform:none}
+}
+@media (prefers-reduced-motion:reduce){
+  [data-cinema-lift]{transform:none;transition:none}
+  .nd-ticker-paused .d2-ticker-track{animation:none}
+}
+
+/* ticker pause treatment — hover pause already exists in nd-home styles;
+   this adds an explicit, keyboard-reachable control + focus pause. */
+.d2-ticker{position:relative}
+.nd-ticker-paused .d2-ticker-track{animation-play-state:paused}
+.d2-ticker:focus-within .d2-ticker-track{animation-play-state:paused}
+.nd-cinema-ticker-toggle{
+  position:absolute;top:6px;right:8px;z-index:3;appearance:none;cursor:pointer;
+  width:32px;height:32px;border-radius:999px;border:1px solid var(--nd-border,#1E2430);
+  background:rgba(18,20,26,.88);color:var(--nd-muted,#B8C0CE);font-size:.72rem;line-height:1;
+  display:flex;align-items:center;justify-content:center;
+}
+.nd-cinema-ticker-toggle:hover{color:var(--nd-lime,#B8E62E);border-color:var(--nd-lime,#B8E62E)}
+.nd-cinema-ticker-toggle:focus-visible{outline:2px solid var(--nd-lime,#B8E62E);outline-offset:2px}
+
+/* count-up target: digits must not jitter while counting */
+.nd-countup{font-variant-numeric:tabular-nums}
