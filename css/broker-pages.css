@@ -205,3 +205,24 @@
   .bk-tile{ transition: none; }
   .bk-tile:hover{ transform: none; }
 }
+
+/* ============================================================
+ * CINEMA harmonization (2026-10-23) — the light theme catches up
+ * with the dark: lime replaces the old editorial green on period
+ * pills, sort states and controls; tables get the panel frame.
+ * ============================================================ */
+.bk-periods button{ background:var(--nd-panel-2,#161A23); border-color:var(--nd-border,#1E2430); color:var(--nd-muted,#B8C0CE); box-shadow:none; }
+.bk-periods button:hover{ border-color:var(--nd-lime,#B8E62E); color:var(--nd-lime,#B8E62E); background:var(--nd-panel-2,#161A23); box-shadow:none; }
+.bk-periods button.active{ background:var(--nd-lime,#B8E62E); border-color:var(--nd-lime,#B8E62E); color:#0A0C10; box-shadow:none; }
+.bk-table th[data-sort]:hover{ color:var(--nd-lime,#B8E62E); }
+.bk-table th.sorted-asc, .bk-table th.sorted-desc{ color:var(--nd-lime,#B8E62E); }
+.bk-ctl select, .bk-ctl input{ background:var(--nd-inset,#0D0F14); border-color:var(--nd-border,#1E2430); color:var(--nd-text,#fff); }
+.bk-ctl select:focus, .bk-ctl input:focus{ outline:none; border-color:var(--nd-lime,#B8E62E); }
+.bk-scroll{ border:1px solid var(--nd-border,#1E2430); border-radius:14px; background:var(--nd-panel,#12141A); }
+[data-theme="light"] .bk-periods button{ background:#fff; border-color:#E5E7EB; color:#4B5563; }
+[data-theme="light"] .bk-periods button:hover{ border-color:#65A30D; color:#4D7C0F; background:#fff; }
+[data-theme="light"] .bk-periods button.active{ background:#4D7C0F; border-color:#4D7C0F; color:#fff; }
+[data-theme="light"] .bk-table th[data-sort]:hover{ color:#4D7C0F; }
+[data-theme="light"] .bk-table th.sorted-asc, [data-theme="light"] .bk-table th.sorted-desc{ color:#4D7C0F; }
+[data-theme="light"] .bk-ctl select, [data-theme="light"] .bk-ctl input{ background:#fff; color:#0A0C10; }
+[data-theme="light"] .bk-scroll{ background:#fff; }
