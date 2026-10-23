@@ -10,9 +10,9 @@
    theme-aware: #0A0C10 dark / #F6F7F9 light.) */
 body.nd{background:var(--nd-bg,#0A0C10)}
 .sig-wrap{max-width:1080px;margin:0 auto;padding:28px 20px 72px}
-/* Contrast fix: --nd-dim (#6B7280) is 3.81:1 on dark panels — below AA for
-   small text. Scope a brighter dim to signal pages only. */
-.sig-wrap{--nd-dim:#7D8590}
+/* (Wave G2) Scoped --nd-dim override retired: css/nd-tokens.css now
+   defines --nd-dim as #8E98A8 (brighter than the #6B7280 this once
+   patched), so signal pages inherit the token like every other family. */
 .sig-kicker{color:var(--nd-dim,#6B7280);font-size:.85rem;margin:0 0 6px;letter-spacing:.14em;text-transform:uppercase;font-weight:600}
 .sig-wrap h1{font-family:var(--nd-font-display,Georgia,serif);font-size:2.1rem;margin:0 0 8px;color:var(--nd-text,#fff);letter-spacing:-.01em}
 .sig-lede{color:var(--nd-muted,#9AA3B2);max-width:660px;margin:0 0 6px;line-height:1.6}
@@ -36,8 +36,9 @@ body.nd{background:var(--nd-bg,#0A0C10)}
   transition:border-color .15s,color .15s,transform .15s}
 .sig-tabs a:hover:not(.active){border-color:var(--nd-lime,#B8E62E);color:var(--nd-text,#fff);transform:translateY(-1px)}
 .sig-tabs a.active{color:var(--nd-on-lime,#0A0C10);
-  background:linear-gradient(180deg,#D4F34A 0%,var(--nd-lime,#B8E62E) 55%,#9BCB24 100%);
-  border-color:#D4F34A;
+  /* G1: gradient derived from the one brand lime (was off-brand #D4F34A/#9BCB24) */
+  background:linear-gradient(180deg,color-mix(in srgb,var(--nd-lime,#B8E62E) 88%,white) 0%,var(--nd-lime,#B8E62E) 55%,color-mix(in srgb,var(--nd-lime,#B8E62E) 82%,black) 100%);
+  border-color:color-mix(in srgb,var(--nd-lime,#B8E62E) 88%,white);
   box-shadow:inset 0 2px 0 rgba(255,255,255,.5),inset 0 -3px 6px rgba(0,0,0,.18),0 2px 6px rgba(0,0,0,.5),0 6px 18px rgba(184,230,46,.35),0 0 24px rgba(184,230,46,.3)}
 
 /* stat cards: strong 3D */
@@ -49,6 +50,26 @@ body.nd{background:var(--nd-bg,#0A0C10)}
   transition:transform .2s ease,box-shadow .2s ease}
 .sig-card:hover{transform:translateY(-2px);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.1),inset 0 -2px 6px rgba(0,0,0,.15),0 5px 12px rgba(0,0,0,.5),0 24px 54px rgba(0,0,0,.45)}
+
+/* tab BUTTONS as pills (G1 migration: was duplicated inline in
+   nepse-screener + nepse-trending; one copy here. Selected hook
+   is [aria-selected="true"] or .active, whichever the page's
+   painter uses; gradient derives from the one brand lime.) */
+.sig-tabs button{padding:10px 20px;color:var(--nd-muted,#9AA3B2);font-weight:600;font-size:.9rem;font-family:inherit;cursor:pointer;
+  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 50%),var(--nd-panel,#12141A);
+  border:1px solid var(--nd-border,#1E2430);border-radius:999px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 2px 5px rgba(0,0,0,.35);
+  transition:border-color .15s,color .15s,transform .15s}
+.sig-tabs button:hover{border-color:var(--nd-lime,#B8E62E);color:var(--nd-text,#fff);transform:translateY(-1px)}
+.sig-tabs button[aria-selected="true"],.sig-tabs button.active{color:var(--nd-on-lime,#0A0C10);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--nd-lime,#B8E62E) 88%,white) 0%,var(--nd-lime,#B8E62E) 55%,color-mix(in srgb,var(--nd-lime,#B8E62E) 82%,black) 100%);
+  border-color:color-mix(in srgb,var(--nd-lime,#B8E62E) 88%,white);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.5),inset 0 -3px 6px rgba(0,0,0,.18),0 2px 6px rgba(0,0,0,.5),0 6px 18px rgba(184,230,46,.35),0 0 24px rgba(184,230,46,.3)}
+[data-theme="light"] .sig-tabs button{background:linear-gradient(180deg,#FFFFFF 0%,#EDF1F5 100%);border:1px solid #CBD4DE;border-top-color:#E8EEF3;color:#3F4753;
+  box-shadow:inset 0 2px 0 #FFFFFF,0 1px 2px rgba(10,12,16,.1),0 4px 12px rgba(10,12,16,.08)}
+[data-theme="light"] .sig-tabs button[aria-selected="true"],[data-theme="light"] .sig-tabs button.active{background:linear-gradient(180deg,color-mix(in srgb,var(--nd-lime) 76%,white) 0%,var(--nd-lime) 60%,color-mix(in srgb,var(--nd-lime) 84%,black) 100%);border-color:#3E650C;border-top-color:color-mix(in srgb,var(--nd-lime) 70%,white);color:#fff;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.4),inset 0 -3px 6px rgba(0,0,0,.18),0 2px 4px rgba(77,124,15,.4),0 8px 20px rgba(77,124,15,.3)}
+
 .sig-card-l{font-size:.78rem;color:var(--nd-dim,#6B7280);margin-bottom:6px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
 .sig-card-v{font-family:var(--nd-font-display,Georgia,serif);font-size:1.5rem;font-weight:700;color:var(--nd-text,#fff);text-shadow:0 2px 4px rgba(0,0,0,.3)}
 .sig-card-s{font-size:.78rem;color:var(--nd-dim,#6B7280);margin-top:6px}
@@ -160,7 +181,7 @@ body.nd{background:var(--nd-bg,#0A0C10)}
   box-shadow:inset 0 2px 0 #FFFFFF,0 1px 2px rgba(10,12,16,.1),0 4px 12px rgba(10,12,16,.08)}
 [data-theme="light"] .sig-tabs a:hover:not(.active){border-color:#4D7C0F;color:#0A0C10;transform:translateY(-2px);
   box-shadow:inset 0 2px 0 #FFFFFF,0 2px 4px rgba(10,12,16,.12),0 8px 20px rgba(10,12,16,.12)}
-[data-theme="light"] .sig-tabs a.active{background:linear-gradient(180deg,#6BAE16 0%,#4D7C0F 60%,#3E650C 100%);border-color:#3E650C;border-top-color:#8FD41F;color:#fff;
+[data-theme="light"] .sig-tabs a.active{background:linear-gradient(180deg,color-mix(in srgb,var(--nd-lime) 76%,white) 0%,var(--nd-lime) 60%,color-mix(in srgb,var(--nd-lime) 84%,black) 100%);border-color:#3E650C;border-top-color:color-mix(in srgb,var(--nd-lime) 70%,white);color:#fff;
   box-shadow:inset 0 2px 0 rgba(255,255,255,.4),inset 0 -3px 6px rgba(0,0,0,.18),0 2px 4px rgba(77,124,15,.4),0 8px 20px rgba(77,124,15,.3)}
 [data-theme="light"] .scrollx{border:1px solid #CBD4DE;border-radius:22px;
   box-shadow:inset 0 2px 0 #FFFFFF,0 1px 2px rgba(10,12,16,.1),0 8px 24px rgba(10,12,16,.1),0 20px 48px rgba(10,12,16,.08)}

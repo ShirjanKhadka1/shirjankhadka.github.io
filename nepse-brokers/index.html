@@ -4,6 +4,7 @@
 <script>try{var t=localStorage.getItem('sk-theme');if(!t)t='dark';document.documentElement.setAttribute('data-theme',t);if(t==='light')document.documentElement.setAttribute('data-nd-ed','light')}catch(e){}</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0A0C10">
 <title>Broker Analytics — Nepse Decode</title>
 <meta name="description" content="NEPSE broker analytics: top brokers, trade patterns and accumulation/distribution from public floorsheet transaction flow. Free, no login.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-brokers/">
@@ -128,7 +129,7 @@ h2.bk-h{font-size:1.35rem;margin:34px 0 8px;color:var(--nd-text,#fff);letter-spa
   box-shadow:inset 0 2px 0 #FFFFFF,0 1px 2px rgba(10,12,16,.1),0 4px 12px rgba(10,12,16,.08)}
 [data-theme="light"] .bk-tabs button:hover:not(.active),[data-theme="light"] .periods button:hover:not(.active){border-color:#4D7C0F;color:#0A0C10}
 [data-theme="light"] .bk-tabs button.active,[data-theme="light"] .periods button.active{
-  background:linear-gradient(180deg,#6BAE16 0%,#4D7C0F 60%,#3E650C 100%);border-color:#3E650C;border-top-color:#8FD41F;color:#fff;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--nd-lime) 76%,white) 0%,var(--nd-lime) 60%,color-mix(in srgb,var(--nd-lime) 84%,black) 100%);border-color:#3E650C;border-top-color:color-mix(in srgb,var(--nd-lime) 70%,white);color:#fff;
   box-shadow:inset 0 2px 0 rgba(255,255,255,.4),inset 0 -3px 6px rgba(0,0,0,.18),0 2px 4px rgba(77,124,15,.4),0 8px 20px rgba(77,124,15,.3)}
 [data-theme="light"] .bk-table{background:#fff;color:#0A0C10}
 [data-theme="light"] .bk-table th{background:linear-gradient(180deg,#FFFFFF,#F2F5F8);color:#0A0C10;text-shadow:none}
@@ -156,10 +157,11 @@ h2.bk-h{font-size:1.35rem;margin:34px 0 8px;color:var(--nd-text,#fff);letter-spa
 [data-theme="light"] .ctl select,[data-theme="light"] .ctl input,[data-theme="light"] .periods input[type="date"]{background:#fff;border-color:#CBD4DE;color:#0A0C10}
 [data-theme="light"] .sig-lede strong{color:#0A0C10}
 </style>
+<link rel="stylesheet" href="/css/nd-tokens.css">
 <link rel="stylesheet" href="/css/fonts.css">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023b">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023a">
-<link rel="stylesheet" href="/css/sig-pro.css?v=fdd6a175">
+<link rel="stylesheet" href="/css/sig-pro.css?v=20261023b">
 </head>
 <body class="nd">
 <a class="skip-link" href="#main">Skip to content</a>
@@ -182,7 +184,7 @@ h2.bk-h{font-size:1.35rem;margin:34px 0 8px;color:var(--nd-text,#fff);letter-spa
 <!-- SNAP-START -->
 <section class="snap" aria-label="Broker coverage snapshot">
   <h2>Latest session broker flow <span class="snap-asof">· 2026-10-08 · 57 trading days on record (2026-07-15 → 2026-10-08)</span></h2>
-  <div class="scrollx" tabindex="0" role="region" aria-label="Latest session broker flow table"><table class="bk-table">
+  <div class="scrollx" tabindex="0" role="region" aria-label="Latest session broker flow table"><table class="bk-table nd-table">
     <thead><tr><th>#</th><th>Broker</th><th>Bought</th><th>Sold</th><th>Net flow</th></tr></thead>
     <tbody>
       <tr><td>1</td><td>Naasa Securities Co. Ltd.</td><td>Rs 34.9 Cr</td><td>Rs 40.3 Cr</td><td>-5.4 Cr</td></tr>
@@ -198,34 +200,34 @@ h2.bk-h{font-size:1.35rem;margin:34px 0 8px;color:var(--nd-text,#fff);letter-spa
 
 <div class="cover" id="coverage">Loading data…</div>
 
-<div class="bk-tabs" role="group" aria-label="Broker views" id="viewTabs">
-<button data-view="top" class="active">Top Brokers</button>
-<button data-view="broker">Broker Trade Pattern</button>
-<button data-view="stock">Stock Trade Pattern</button>
-<button data-view="holdings">Stockwise Holdings</button>
-<button data-view="accdist">Accumulation / Distribution</button>
+<div class="bk-tabs nd-tabs nd-tabs--pill" role="tablist" aria-label="Broker views" id="viewTabs">
+<button data-view="top" role="tab" aria-selected="true" class="active">Top Brokers</button>
+<button data-view="broker" role="tab" aria-selected="false">Broker Trade Pattern</button>
+<button data-view="stock" role="tab" aria-selected="false">Stock Trade Pattern</button>
+<button data-view="holdings" role="tab" aria-selected="false">Stockwise Holdings</button>
+<button data-view="accdist" role="tab" aria-selected="false">Accumulation / Distribution</button>
 </div>
 
-<div class="periods" id="periodBar">
+<div class="periods nd-tabs nd-tabs--pill" role="tablist" aria-label="Period" id="periodBar">
 <span class="p-label">Period:</span>
-<button data-p="latest" class="active">Latest</button>
-<button data-p="1D">1D</button>
-<button data-p="1W">1W</button>
-<button data-p="2W">2W</button>
-<button data-p="1M">1M</button>
-<button data-p="3M">3M</button>
-<button data-p="6M">6M</button>
-<button data-p="1Y">1Y</button>
-<button data-p="2Y">2Y</button>
-<button data-p="3Y">3Y</button>
+<button data-p="latest" role="tab" aria-selected="true" class="active">Latest</button>
+<button data-p="1D" role="tab" aria-selected="false">1D</button>
+<button data-p="1W" role="tab" aria-selected="false">1W</button>
+<button data-p="2W" role="tab" aria-selected="false">2W</button>
+<button data-p="1M" role="tab" aria-selected="false">1M</button>
+<button data-p="3M" role="tab" aria-selected="false">3M</button>
+<button data-p="6M" role="tab" aria-selected="false">6M</button>
+<button data-p="1Y" role="tab" aria-selected="false">1Y</button>
+<button data-p="2Y" role="tab" aria-selected="false">2Y</button>
+<button data-p="3Y" role="tab" aria-selected="false">3Y</button>
 <input type="date" id="asofDate" title="As of date" aria-label="As of date">
 </div>
 
 <div class="ctl" id="viewControls" style="display:none">
-<select id="brokerSel"><option value="">Select broker…</option></select>
+<select id="brokerSel" aria-label="Select broker"><option value="">Select broker…</option></select>
 <input id="brokerSymSearch" placeholder="Search symbol…" aria-label="Search symbols in this broker's list" style="display:none">
-<select id="symbolSel" style="display:none"><option value="">Select stock…</option></select>
-<input id="symbolSearch" placeholder="Search symbol…" style="display:none">
+<select id="symbolSel" style="display:none" aria-label="Select stock"><option value="">Select stock…</option></select>
+<input id="symbolSearch" placeholder="Search symbol…" style="display:none" aria-label="Search symbol">
 </div>
 
 <section id="view"></section>
@@ -438,7 +440,7 @@ function renderTop(d){
     '<span style="font-size:.85rem;">Page '+(state.topPage+1)+' of '+totalPages+' ('+all.length+' brokers)</span>'+
     '<button id="bkNext" '+(state.topPage>=totalPages-1?'disabled':'')+' style="padding:6px 14px;border-radius:8px;cursor:pointer;">Next →</button></div>';
   return '<h2 class="bk-h">Top brokers by turnover — '+label()+'</h2>'+
-    '<div class="scrollx" tabindex="0" role="region" aria-label="Top brokers by turnover table"><table class="bk-table"><thead><tr><th>#</th>'+
+    '<div class="scrollx" tabindex="0" role="region" aria-label="Top brokers by turnover table"><table class="bk-table nd-table"><thead><tr><th>#</th>'+
     thS('top','broker','Broker','bk-name')+thS('top','buy_qty','Buy vol')+thS('top','buy_value','Buy value')+
     thS('top','sell_qty','Sell vol')+thS('top','sell_value','Sell value')+thS('top','total_qty','Total vol')+
     thS('top','total_value','Total value')+thS('top','net_qty','Net vol')+thS('top','net_value','Net value')+
@@ -482,7 +484,7 @@ function renderBroker(d){
     '<div class="stat"><div class="l">Net volume</div><div class="v '+cls((t.buy_qty||0)-(t.sell_qty||0))+'">'+fmtQ((t.buy_qty||0)-(t.sell_qty||0),Math.abs((t.buy_value||0)-(t.sell_value||0)))+'</div></div>'+
     '<div class="stat"><div class="l">Net value</div><div class="v '+cls((t.buy_value||0)-(t.sell_value||0))+'">'+fmtV((t.buy_value||0)-(t.sell_value||0))+'</div></div>'+
     '<div class="stat"><div class="l">Stocks traded</div><div class="v">'+allSyms.length+'</div></div></div>'+
-    '<div class="scrollx" tabindex="0" role="region" aria-label="Broker stock detail table"><table class="bk-table"><thead><tr>'+
+    '<div class="scrollx" tabindex="0" role="region" aria-label="Broker stock detail table"><table class="bk-table nd-table"><thead><tr>'+
     thS('broker','symbol','Symbol')+thS('broker','buy_qty','Buy qty')+thS('broker','buy_value','Buy value')+
     thS('broker','sell_qty','Sell qty')+thS('broker','sell_value','Sell value')+thS('broker','net_value','Net value')+
     '</tr></thead><tbody>'+(rows||'<tr><td colspan="6">'+(q?'No symbols match "'+q+'".':'No trades in this period.')+'</td></tr>')+'</tbody></table></div>'+pager;
@@ -519,7 +521,7 @@ function renderStock(d){
       .slice(0,10).map(function(x,i){
         return '<tr><td>'+(i+1)+'</td><td class="bk-name">'+bname(x[0])+'</td><td>'+fmtQ(x[1][0],x[1][1])+'</td><td>'+fmtV(x[1][1])+'</td></tr>';
       }).join('');
-    return '<div><h2 class="bk-h">'+title+'</h2><div class="scrollx" tabindex="0" role="region" aria-label="'+title+' table"><table class="bk-table"><thead><tr><th>#</th><th class="bk-name">Broker</th><th>Qty (shares)</th><th>Value</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+    return '<div><h2 class="bk-h">'+title+'</h2><div class="scrollx" tabindex="0" role="region" aria-label="'+title+' table"><table class="bk-table nd-table"><thead><tr><th>#</th><th class="bk-name">Broker</th><th>Qty (shares)</th><th>Value</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
   }
   var activeN = (s.netflow && Object.keys(s.netflow).length)
     ? Object.keys(s.netflow).length
@@ -604,7 +606,7 @@ function renderHoldings(d){
     '<button id="hdNext" '+(state.holdPage>=totalPages-1?'disabled':'')+' style="padding:6px 14px;border-radius:8px;cursor:pointer;">Next →</button></div>';
   return '<h2 class="bk-h">'+sym+' — stockwise broker flow, '+label()+'</h2>'+
     '<p style="font-size:.85rem;color:var(--nd-muted,#B8C0CE)">Every broker that traded this stock, netted over the period. Net bought = accumulating · net sold = distributing (by transaction value). This is transaction flow, not verified shareholding.</p>'+
-    '<div class="scrollx" tabindex="0" role="region" aria-label="'+sym+' stockwise broker flow table"><table class="bk-table"><thead><tr>'+
+    '<div class="scrollx" tabindex="0" role="region" aria-label="'+sym+' stockwise broker flow table"><table class="bk-table nd-table"><thead><tr>'+
     thS('holdings','broker','Broker','bk-name')+thS('holdings','code','Code')+thS('holdings','buy_qty','Buy qty')+thS('holdings','buy_value','Buy value')+
     thS('holdings','sell_qty','Sell qty')+thS('holdings','sell_value','Sell value')+thS('holdings','net_qty','Net qty')+thS('holdings','net_value','Net value')+
     '<th>Flow</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+pager;
@@ -641,11 +643,11 @@ function renderAccDist(d){
       '<button class="accPrev" data-k="'+pageKey+'" '+(pg===0?'disabled':'')+'>← Prev</button>'+
       '<span style="font-size:.8rem;">Page '+(pg+1)+' of '+totalPages+'</span>'+
       '<button class="accNext" data-k="'+pageKey+'" '+(pg>=totalPages-1?'disabled':'')+'>Next →</button></div>';
-    return '<div><h2 class="bk-h">'+title+'</h2><div class="scrollx" tabindex="0" role="region" aria-label="'+title+' table"><table class="bk-table"><thead><tr><th>#</th>'+
+    return '<div><h2 class="bk-h">'+title+'</h2><div class="scrollx" tabindex="0" role="region" aria-label="'+title+' table"><table class="bk-table nd-table"><thead><tr><th>#</th>'+
       thS(view,'stock','Stock')+thS(view,'broker','Broker','bk-name')+thS(view,'net_qty','Net qty')+thS(view,'net_value','Net value')+
       '</tr></thead><tbody>'+rows+'</tbody></table></div>'+pager+'</div>';
   }
-  var searchBox = '<div style="margin:0 0 12px;"><input id="accSearch" type="text" placeholder="Search symbol (e.g. NABIL)…" value="'+(state.accSearch||'')+'" style="padding:8px 12px;border-radius:8px;width:250px;"></div>';
+  var searchBox = '<div style="margin:0 0 12px;"><input id="accSearch" type="text" aria-label="Search symbol" placeholder="Search symbol (e.g. NABIL)…" value="'+(state.accSearch||'')+'" style="padding:8px 12px;border-radius:8px;width:250px;"></div>';
   return searchBox+'<div class="two">'+tbl(d.accumulation||[],'Accumulating — top net bought',true,'accPage')+tbl(d.distribution||[],'Distributing — top net sold',false,'distPage')+'</div>';
 }
 
@@ -821,6 +823,6 @@ setInterval(function(){
 </script>
 <script src="/js/theme-toggle.js?v=20261023a" defer></script>
 <script src="/js/freshness-badge.js?v=20261023a" defer></script>
-<script src="/js/nd-chrome.js?v=20261023a" defer></script>
+<script src="/js/nd-chrome.js?v=20261023b" defer></script>
 </body>
 </html>

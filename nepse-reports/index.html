@@ -4,7 +4,9 @@
 <script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0A0C10">
 <title>Nepse Decode Reports: Free Printable NEPSE Portfolio, Watchlist and Market Reports</title>
+<link rel="stylesheet" href="/css/nd-tokens.css">
 <link rel="stylesheet" href="/css/nepse-design-system.css?v=20261023a">
 <meta name="description" content="Nepse Decode: build a clean printable NEPSE report from your portfolio, watchlist, screener leaders, market snapshot and sector breadth. Toggle sections, print, free, no login.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-reports/">
@@ -93,7 +95,7 @@
   body{padding:0;background:#fff;color:#000}
   .wrap{max-width:none;padding:0 12mm}
   .rp-printhead{display:block;border-bottom:2px solid #0C1F16;padding-bottom:10px;margin-bottom:18px}
-  .rp-printhead-title{font-family:Fraunces,Georgia,serif;font-size:24px;margin:0}
+  .rp-printhead-title{font-family:Spectral,Georgia,serif;font-size:24px;margin:0}
   .rp-printhead p{font-size:12px;color:#555;margin:4px 0 0}
   #rp-result{margin:0}
   .rp-doc{background:none;border:none;border-radius:0;box-shadow:none;padding:0}
@@ -106,7 +108,7 @@
 </style>
 <link rel="stylesheet" href="/css/theme.css?v=c4570b45">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023a">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023b">
 </head>
 <body class="nd">
 <div id="nd-header"></div>
@@ -149,8 +151,8 @@
         </fieldset>
       </div>
       <div class="rp-actions">
-        <button class="btn" id="rp-build" disabled>Rebuild report</button>
-        <button class="btn ghost" id="rp-print">Print</button>
+        <button class="btn nd-btn nd-btn--primary" id="rp-build" disabled>Rebuild report</button>
+        <button class="btn ghost nd-btn nd-btn--ghost" id="rp-print">Print</button>
         <span class="rp-status" id="rp-status" role="status">Loading the daily batch…</span>
       </div>
     </section>
@@ -211,10 +213,10 @@
 <script src="/js/nepse-data.js?v=3ff7ecb3"></script>
 <script src="/js/nepse-live.js?v=89b947aa"></script>
 <script src="/js/nepse-suite.js?v=8096b208"></script>
-<script src="/js/nepse-reports.js?v=42f969af"></script>
+<script src="/js/nepse-reports.js?v=20261023b"></script>
 <script src="/js/theme-toggle.js?v=20261023a" defer></script>
 <script src="/js/freshness-badge.js?v=20261023a" defer></script>
 <script src="/js/nepse-sidebar.js?v=4253c371" defer></script>
-<script src="/js/nd-chrome.js?v=20261023a" defer></script>
+<script src="/js/nd-chrome.js?v=20261023b" defer></script>
 </body>
 </html>

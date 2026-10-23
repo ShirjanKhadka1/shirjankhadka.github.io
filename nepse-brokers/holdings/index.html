@@ -4,6 +4,7 @@
 <script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0A0C10">
 <title>Stockwise Holdings — Nepse Decode</title>
 <meta name="description" content="Per-broker net positions for any NEPSE stock — who is accumulating and who is distributing, from public floorsheet flow. Free, no login.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-brokers/holdings/">
@@ -22,10 +23,11 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebPage","name":"Stockwise Holdings — Nepse Decode","url":"https://shirjankhadka.com.np/nepse-brokers/holdings/"}
 </script>
+<link rel="stylesheet" href="/css/nd-tokens.css">
 <link rel="stylesheet" href="/css/nepse-design-system.css?v=20261023a">
 <link rel="stylesheet" href="/css/theme.css?v=c4570b45">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023a">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023b">
 <link rel="stylesheet" href="/css/broker-pages.css?v=f28b8c63">
 <link rel="stylesheet" href="/css/fonts.css">
 </head>
@@ -101,7 +103,7 @@ function render(){
   });
   var html = '<h2 style="font-family:var(--serif);font-size:1.2rem;margin:18px 0 4px">'+BC.esc(sym)+' — broker net positions</h2>'+
     '<p class="bk-meta">'+BC.esc(BC.label(state.period,d))+' · '+rows.length+' brokers</p>'+
-    '<div class="bk-scroll"><table class="bk-table" id="bkTable"><thead><tr>'+
+    '<div class="bk-scroll"><table class="bk-table nd-table" id="bkTable"><thead><tr>'+
     '<th data-sort="name">Broker</th><th data-sort="bv">Buy value</th><th data-sort="sv">Sell value</th>'+
     '<th data-sort="nv">Net value</th><th data-sort="nq">Net qty</th><th data-sort="flow">Flow</th>'+
     '</tr></thead><tbody id="bkBody"></tbody></table></div>';
@@ -146,6 +148,6 @@ Promise.all([BC.loadMeta(), BC.loadBrokers()]).then(function(res){
 });
 })();
 </script>
-<script src="/js/nd-chrome.js?v=20261023a" defer></script>
+<script src="/js/nd-chrome.js?v=20261023b" defer></script>
 </body>
 </html>

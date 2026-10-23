@@ -10,6 +10,7 @@
 <script>try{var t=localStorage.getItem('sk-theme');if(!t)t='dark';document.documentElement.setAttribute('data-theme',t);if(t==='light')document.documentElement.setAttribute('data-nd-ed','light')}catch(e){}</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0A0C10">
 <title>Signal Systems Methodology — Nepse Decode Signals</title>
 <meta name="description" content="Every rule, formula and assumption behind Nepse Decode's transparent NEPSE signal systems: entries, exits, stops, costs and corporate-action handling.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-signals/methodology/">
@@ -27,16 +28,17 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebPage","name":"Signal Systems Methodology — Nepse Decode Signals","url":"https://shirjankhadka.com.np/nepse-signals/methodology/","description":"Every rule, formula and assumption behind Nepse Decode's transparent NEPSE signal systems: entries, exits, stops, costs and corporate-action handling.","isPartOf":{"@type":"WebSite","name":"Nepse Decode","url":"https://shirjankhadka.com.np/"},"author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
 </script>
+<link rel="stylesheet" href="/css/nd-tokens.css">
 <link rel="stylesheet" href="/css/fonts.css">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023b">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023a">
-<link rel="stylesheet" href="/css/sig-pro.css?v=fdd6a175">
+<link rel="stylesheet" href="/css/sig-pro.css?v=20261023b">
 </head>
 <body class="nd">
 <a class="skip-link" href="#main">Skip to content</a>
 <div id="nd-header"></div>
 <main id="main" class="sig-wrap">
-<nav class="sig-tabs" aria-label="Signal systems"><a href="/nepse-signals/momentum/">Momentum</a><a href="/nepse-signals/trend-relay/">Trend Relay</a><a href="/nepse-signals/reversal/">Reversal</a><a href="/nepse-signals/methodology/" aria-current="page" class="active">Methodology</a></nav>
+<nav class="sig-tabs nd-navpills" aria-label="Signal systems"><a href="/nepse-signals/momentum/">Momentum</a><a href="/nepse-signals/trend-relay/">Trend Relay</a><a href="/nepse-signals/reversal/">Reversal</a><a href="/nepse-signals/methodology/" aria-current="page" class="active">Methodology</a></nav>
 
 <p class="sig-kicker">Nepse Decode &middot; Chart &amp; signals &middot; rule-based, no black boxes</p>
 <h1>Signal Systems Methodology</h1>
@@ -96,7 +98,7 @@
 
 <h2>8. How each statistic is calculated</h2>
 <p>Let <code>V0 = Rs 1 Cr</code>, <code>Vf</code> = final portfolio value (<strong>cash + open positions at last close − exit costs</strong>), <code>T</code> = <span id="m-T">2.12</span> years (the published backtest window, filled from the live data below).</p>
-<table>
+<div class="nd-tablewrap"><table class="nd-table">
 <tr><th>Figure</th><th>Formula</th></tr>
 <tr><td>Total return %</td><td><code>(Vf − V0) / V0 × 100</code></td></tr>
 <tr><td>CAGR %</td><td><code>(Vf / V0)^(1/T) − 1</code>, ×100</td></tr>
@@ -109,7 +111,7 @@
 <tr><td>Sharpe / Sortino</td><td>mean / downside-deviation of weekly portfolio returns × √52</td></tr>
 <tr><td>Benchmark CAGR</td><td>NEPSE index buy &amp; hold over the same window</td></tr>
 <tr><td>Alpha %/yr</td><td>system CAGR − benchmark CAGR</td></tr>
-</table>
+</table></div>
 <p>The <strong>equity curve</strong> marks the full portfolio to market weekly (cash + open positions − exit costs). <strong>Alerts</strong> are positions still open at the dataset's last date. The <strong>ledger</strong> lists every closed trade with entry/exit prices, stop, targets, exit reason, Rs and % P&amp;L, and holding days (most recent 500 in the download).</p>
 
 <h2>9. Known limitations</h2>
@@ -169,7 +171,7 @@
   }).catch(function(){if(el)el.textContent='recently rebuilt';});
 })();
 </script>
-<script src="/js/nd-chrome.js?v=20261023a" defer></script>
+<script src="/js/nd-chrome.js?v=20261023b" defer></script>
 <script src="/js/theme-toggle.js?v=20261023a" defer></script>
 </body>
 </html>

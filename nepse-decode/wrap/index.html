@@ -24,29 +24,30 @@
 <meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
 <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/nd-tokens.css">
 <link rel="stylesheet" href="/css/fonts.css">
 <link rel="stylesheet" href="/css/nepse-design-system.css?v=20261023a">
 <link rel="stylesheet" href="/css/theme.css?v=20261002d">
+<link rel="stylesheet" href="/css/nd-tokens.css?v=20261023a">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023a">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023b">
 <style>
-.wrap-arc{max-width:860px;margin:0 auto;padding:28px 20px 64px}
-.wrap-arc .kicker{font:600 .72rem/1.4 var(--nd-font-mono,ui-monospace,monospace);letter-spacing:.14em;text-transform:uppercase;color:var(--nd-lime,#B8E62E);margin-bottom:10px}
-.wrap-arc h1{font-family:var(--nd-font-display,Georgia,serif);font-weight:700;font-size:clamp(1.9rem,3.6vw,2.9rem);line-height:1.12;letter-spacing:-.02em;color:var(--nd-text,#fff);margin:0 0 10px}
-.wrap-arc .lede{color:var(--nd-muted,#B8C0CE);font-size:1.02rem;line-height:1.7;margin:0 0 30px;max-width:64ch}
-.wa-entry{border:1px solid var(--nd-border,#1E2430);border-radius:16px;background:var(--nd-panel,#12141A);padding:22px 22px 18px;margin:0 0 20px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
-.wa-entry .wa-date{font:600 .7rem/1.4 var(--nd-font-mono,ui-monospace,monospace);letter-spacing:.12em;text-transform:uppercase;color:var(--nd-muted,#B8C0CE);margin-bottom:8px}
-.wa-entry h2{font-family:var(--nd-font-display,Georgia,serif);font-weight:700;font-size:clamp(1.25rem,2.4vw,1.7rem);line-height:1.2;letter-spacing:-.01em;margin:0 0 10px;color:var(--nd-text,#fff)}
-.wa-entry h2 .dir-up{color:#4ade80}.wa-entry h2 .dir-dn{color:#f87171}
-[data-theme="light"] .wa-entry h2 .dir-up{color:#16a34a}[data-theme="light"] .wa-entry h2 .dir-dn{color:#dc2626}
-.wa-entry p{color:var(--nd-muted,#B8C0CE);line-height:1.75;margin:0 0 10px}
+.wrap-arc{max-width:860px;margin:0 auto;padding:var(--nd-s8) var(--nd-s5) var(--nd-s16)}
+.wrap-arc .kicker{font:600 .72rem/1.4 var(--nd-font-mono,ui-monospace,monospace);letter-spacing:.14em;text-transform:uppercase;color:var(--nd-lime,#B8E62E);margin-bottom:var(--nd-s3)}
+.wrap-arc h1{font-family:var(--nd-font-display,Georgia,serif);font-weight:700;font-size:var(--nd-text-h1);line-height:1.12;letter-spacing:-.02em;color:var(--nd-text,#fff);margin:0 0 var(--nd-s3)}
+.wrap-arc .lede{color:var(--nd-muted,#B8C0CE);font-size:1.02rem;line-height:1.7;margin:0 0 var(--nd-s8);max-width:64ch}
+.wa-entry{border:1px solid var(--nd-border,#1E2430);border-radius:var(--nd-r-card);background:var(--nd-panel,#12141A);padding:var(--nd-s5) var(--nd-s5) var(--nd-s4);margin:0 0 var(--nd-s5);box-shadow:var(--nd-rim),var(--nd-e1)}
+.wa-entry .wa-date{font:600 .7rem/1.4 var(--nd-font-mono,ui-monospace,monospace);letter-spacing:.12em;text-transform:uppercase;color:var(--nd-muted,#B8C0CE);margin-bottom:var(--nd-s2)}
+.wa-entry h2{font-family:var(--nd-font-display,Georgia,serif);font-weight:700;font-size:var(--nd-text-h2);line-height:1.2;letter-spacing:-.01em;margin:0 0 var(--nd-s3);color:var(--nd-text,#fff)}
+.wa-entry h2 .dir-up{color:var(--nd-up,#4ADE80)}.wa-entry h2 .dir-dn{color:var(--nd-down,#F87171)}
+.wa-entry p{color:var(--nd-muted,#B8C0CE);line-height:1.75;margin:0 0 var(--nd-s3)}
 .wa-entry p strong{color:var(--nd-text,#fff);font-weight:600}
-.wa-entry .wa-meta{font-size:.8rem;color:var(--nd-dim,#8E98A8);margin-top:12px;padding-top:12px;border-top:1px solid var(--nd-border,#1E2430)}
+.wa-entry .wa-meta{font-size:.8rem;color:var(--nd-dim,#8E98A8);margin-top:var(--nd-s3);padding-top:var(--nd-s3);border-top:1px solid var(--nd-border,#1E2430)}
 .wa-entry .wa-meta strong{color:var(--nd-text,#fff)}
-.wa-pager{display:flex;gap:10px;align-items:center;justify-content:center;margin:34px 0 0;flex-wrap:wrap}
-.wa-pager a,.wa-pager span.cur{display:inline-flex;align-items:center;justify-content:center;min-width:40px;height:40px;padding:0 14px;border-radius:10px;border:1px solid var(--nd-border,#1E2430);color:var(--nd-text,#fff);text-decoration:none;font-weight:600;font-size:.9rem;background:var(--nd-panel,#12141A)}
+.wa-pager{display:flex;gap:var(--nd-s3);align-items:center;justify-content:center;margin:var(--nd-s8) 0 0;flex-wrap:wrap}
+.wa-pager a,.wa-pager span.cur{display:inline-flex;align-items:center;justify-content:center;min-width:40px;min-height:40px;padding:0 var(--nd-s4);border-radius:var(--nd-r-pill);border:1px solid var(--nd-border,#1E2430);color:var(--nd-text,#fff);text-decoration:none;font-weight:600;font-size:.9rem;background:var(--nd-panel,#12141A);box-shadow:var(--nd-rim),var(--nd-e1)}
 .wa-pager a:hover{border-color:var(--nd-lime,#B8E62E)}
-.wa-pager span.cur{background:var(--nd-lime,#B8E62E);color:#0A0C10;border-color:var(--nd-lime,#B8E62E)}
+.wa-pager span.cur{background:var(--nd-lime,#B8E62E);color:var(--nd-on-lime,#0A0C10);border-color:var(--nd-lime,#B8E62E)}
 .wa-crumb{font-size:.82rem;color:var(--nd-dim,#8E98A8);margin-bottom:16px}
 .wa-crumb a{color:var(--nd-lime,#B8E62E);text-decoration:none}
 </style>
@@ -281,7 +282,6 @@
 <a class="skip-link" href="#main">Skip to content</a>
 <div id="nd-header"></div>
 <main id="main"><div class="wrap-arc">
-<div class="wa-crumb"><a href="/">Home</a> · <a href="/nepse-decode/">Nepse Decode</a> · Market Wrap Archive</div>
 <div class="kicker">NEPSE · Daily record</div>
 <h1>NEPSE Market Wrap Archive</h1>
 <p class="lede">One wrap for every trading session — the index close, how far it moved, which sectors led and lagged, and how breadth split between advancers and decliners. Entries are generated automatically from the official session data right after market close; nothing here is written by hand. Newest first.</p>
@@ -403,6 +403,6 @@
 </div></main>
 <div id="nd-footer"></div>
 <script>try{var t=localStorage.getItem('sk-theme');if(!t)t='dark';document.documentElement.setAttribute('data-theme',t);if(t==='light')document.documentElement.setAttribute('data-nd-ed','light')}catch(e){}</script>
-<script src="/js/nd-chrome.js?v=20261023a" defer></script>
+<script src="/js/nd-chrome.js?v=20261023b" defer></script>
 </body>
 </html>

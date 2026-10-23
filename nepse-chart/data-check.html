@@ -4,6 +4,7 @@
 <script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0A0C10">
 <title>Nepse Decode Data Coverage Check | Shirjan Khadka</title>
 <meta name="description" content="Live verification of every listed NEPSE security in Nepse Decode: data source, history depth, last price, live-quote presence and verdict status for all listed symbols.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-chart/data-check.html">
@@ -22,6 +23,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
 <link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/nd-tokens.css">
 <link rel="stylesheet" href="chart.css?v=d0ec563c">
 <link rel="stylesheet" href="/css/nepse-brand.css?v=1e832eed">
 <style>
@@ -148,7 +150,7 @@ th.num{text-align:right}
   <h2>All listed securities</h2>
   <p class="dc-count" id="dcCount"></p>
   <div class="dc-tablewrap">
-    <table class="dc">
+    <table class="dc nd-table">
       <thead><tr>
         <th>Symbol</th><th>Company</th><th>Type</th><th>Data</th><th class="num">Sessions</th><th class="num">Last price</th><th>Last session</th><th>Live quote</th><th>Verdict</th>
       </tr></thead>

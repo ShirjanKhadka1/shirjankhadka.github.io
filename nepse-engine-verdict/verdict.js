@@ -175,7 +175,7 @@
     var body = page.length
       ? page.map(function (r) { return '<tr>'+COLS.map(function (c){return cell(r,c.k);}).join('')+'</tr>'; }).join('')
       : '<tr><td colspan="'+COLS.length+'"><div class="ev-empty">No securities match your filters.</div></td></tr>';
-    host.innerHTML = '<table class="ev-table"><caption>Ranked by engine score '+
+    host.innerHTML = '<table class="ev-table nd-table"><caption>Ranked by engine score '+
       (state.sortDir===1?'ascending':'descending')+' · '+esc(state.asof||'date unavailable')+
       '</caption><thead><tr>'+th+'</tr></thead><tbody>'+body+'</tbody></table>';
     host.querySelectorAll('th.sortable').forEach(function (h) {

@@ -120,7 +120,7 @@
       stat('Unrealized P&L', 'Rs ' + num(t.unrealized, 2), t.unrealized >= 0 ? 'up' : 'down') +
       stat('Return', t.ret == null ? '—' : num(t.ret, 2) + '%', t.ret >= 0 ? 'up' : 'down') +
       '</div>';
-    html += '<div class="rp-table-wrap"><table class="rp-table"><thead><tr><th>Symbol</th><th>Qty</th><th>Avg cost</th><th>Price</th><th>Value</th><th>P&L</th></tr></thead><tbody>' +
+    html += '<div class="rp-table-wrap"><table class="rp-table nd-table"><thead><tr><th>Symbol</th><th>Qty</th><th>Avg cost</th><th>Price</th><th>Value</th><th>P&L</th></tr></thead><tbody>' +
       holdings.map(function (h) {
         var p = prices[h.s];
         var val = p == null ? null : h.qty * p;
@@ -144,7 +144,7 @@
     if (!syms.length) {
       return html + '<p class="rp-empty">Your watchlist is empty in this browser. <a href="/nepse-watchlist/">Add symbols on the watchlist page</a>, then rebuild this report.</p>';
     }
-    html += '<div class="rp-table-wrap"><table class="rp-table"><thead><tr><th>Symbol</th><th>Price</th><th>Day change</th><th>Signal</th><th>RSI</th></tr></thead><tbody>' +
+    html += '<div class="rp-table-wrap"><table class="rp-table nd-table"><thead><tr><th>Symbol</th><th>Price</th><th>Day change</th><th>Signal</th><th>RSI</th></tr></thead><tbody>' +
       syms.map(function (s) {
         var v = ver.verdicts[s];
         if (!v) return '<tr><td><b>' + esc(s) + '</b></td><td colspan="4">Not in the latest batch.</td></tr>';
@@ -163,7 +163,7 @@
     }).filter(function (r) { return typeof r.score === 'number' && isFinite(r.score); });
     rows.sort(function (a, b) { return b.score - a.score; });
     function tbl(list, title) {
-      return '<h3>' + title + '</h3><div class="rp-table-wrap"><table class="rp-table"><thead><tr><th>#</th><th>Symbol</th><th>Signal</th><th>Score</th><th>Price</th><th>Day change</th></tr></thead><tbody>' +
+      return '<h3>' + title + '</h3><div class="rp-table-wrap"><table class="rp-table nd-table"><thead><tr><th>#</th><th>Symbol</th><th>Signal</th><th>Score</th><th>Price</th><th>Day change</th></tr></thead><tbody>' +
         list.map(function (r, i) {
           var chCls = r.ch == null ? '' : (r.ch >= 0 ? 'up' : 'down');
           return '<tr><td>' + (i + 1) + '</td><td><b>' + esc(r.s) + '</b></td><td>' + esc(r.v || '—') + '</td>' +
@@ -201,7 +201,7 @@
     var secs = Object.keys(b).sort();
     var html = '<h2>Sector breadth</h2>' +
       '<p class="rp-sub">Advancers vs decliners by sector, latest batch (' + esc(ver.asof) + ').</p>' +
-      '<div class="rp-table-wrap"><table class="rp-table"><thead><tr><th>Sector</th><th>Up</th><th>Down</th><th>Flat</th></tr></thead><tbody>' +
+      '<div class="rp-table-wrap"><table class="rp-table nd-table"><thead><tr><th>Sector</th><th>Up</th><th>Down</th><th>Flat</th></tr></thead><tbody>' +
       secs.map(function (s) {
         return '<tr><td>' + esc(s) + '</td><td class="up">' + b[s].up + '</td><td class="down">' + b[s].down + '</td><td>' + b[s].flat + '</td></tr>';
       }).join('') + '</tbody></table></div>';

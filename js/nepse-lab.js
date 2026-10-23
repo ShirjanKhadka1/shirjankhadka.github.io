@@ -1290,7 +1290,7 @@
     var html = '<h2>Signal history</h2>' +
       '<p class="nl-sh-sub">What the signal engine said at the close of each of the last ' + shHist.length +
       ' sessions, same rules, only the data available that day. Educational, not advice.</p>' +
-      '<div class="nl-sh-wrap"><table class="nl-sh-table"><thead><tr>' +
+      '<div class="nl-sh-wrap"><table class="nl-sh-table nd-table"><thead><tr>' +
       '<th>Trade date</th><th class="num">Close price</th><th class="num">Volume</th><th>Signal trigger</th>' +
       '</tr></thead><tbody>' + shHist.slice(lo, hi).map(shRowHtml).join('') + '</tbody></table></div>' +
       '<div class="nl-sh-pages">' +

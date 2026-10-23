@@ -4,6 +4,7 @@
 <script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0A0C10">
 <title>Stock Trade Pattern — Nepse Decode</title>
 <meta name="description" content="See which brokers bought and sold any NEPSE stock — top buyers and sellers from public floorsheet records. Free, no login.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-brokers/stock-pattern/">
@@ -22,10 +23,11 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebPage","name":"Stock Trade Pattern — Nepse Decode","url":"https://shirjankhadka.com.np/nepse-brokers/stock-pattern/"}
 </script>
+<link rel="stylesheet" href="/css/nd-tokens.css">
 <link rel="stylesheet" href="/css/nepse-design-system.css?v=20261023a">
 <link rel="stylesheet" href="/css/theme.css?v=c4570b45">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023a">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023b">
 <link rel="stylesheet" href="/css/broker-pages.css?v=f28b8c63">
 <link rel="stylesheet" href="/css/fonts.css">
 </head>
@@ -82,7 +84,7 @@ function sideTable(obj, title){
     return { broker: bname(c), qty: v[0]||0, val: v[1]||0 };
   }).sort(function(a,b){return b.val-a.val}).slice(0,10);
   return '<div><h2 style="font-family:var(--serif);font-size:1.1rem;margin:0 0 8px">'+title+'</h2>'+
-    '<div class="bk-scroll"><table class="bk-table"><thead><tr><th>Broker</th><th>Qty</th><th>Value</th></tr></thead><tbody>'+
+    '<div class="bk-scroll"><table class="bk-table nd-table"><thead><tr><th>Broker</th><th>Qty</th><th>Value</th></tr></thead><tbody>'+
     rows.map(function(r,i){return '<tr><td>'+(i+1)+'. '+BC.esc(r.broker)+'</td><td>'+BC.fmtQ(r.qty,r.val)+'</td><td>'+BC.fmtV(r.val)+'</td></tr>'}).join('')+
     '</tbody></table></div></div>';
 }
@@ -151,6 +153,6 @@ Promise.all([BC.loadMeta(), BC.loadBrokers()]).then(function(res){
 });
 })();
 </script>
-<script src="/js/nd-chrome.js?v=20261023a" defer></script>
+<script src="/js/nd-chrome.js?v=20261023b" defer></script>
 </body>
 </html>

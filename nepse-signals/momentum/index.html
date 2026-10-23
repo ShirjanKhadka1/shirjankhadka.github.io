@@ -10,6 +10,7 @@
 <script>try{var t=localStorage.getItem('sk-theme');if(!t)t='dark';document.documentElement.setAttribute('data-theme',t);if(t==='light')document.documentElement.setAttribute('data-nd-ed','light')}catch(e){}</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0A0C10">
 <title>Momentum Signal — Nepse Decode Signals</title>
 <meta name="description" content="Momentum Signal: transparent rule-based NEPSE trading system. Backtested over 2.1 years — 107.76% annual return, 33.20% win rate. Educational only.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-signals/momentum/">
@@ -27,16 +28,17 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebPage","name":"Momentum Signal — Nepse Decode Signals","url":"https://shirjankhadka.com.np/nepse-signals/momentum/","description":"Momentum Signal: transparent rule-based NEPSE trading system. Backtested over 2.1 years — 107.76% annual return, 33.20% win rate. Educational only.","isPartOf":{"@type":"WebSite","name":"Nepse Decode","url":"https://shirjankhadka.com.np/"},"author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
 </script>
+<link rel="stylesheet" href="/css/nd-tokens.css">
 <link rel="stylesheet" href="/css/fonts.css">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023b">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023a">
-<link rel="stylesheet" href="/css/sig-pro.css?v=20261006a">
+<link rel="stylesheet" href="/css/sig-pro.css?v=20261023b">
 </head>
 <body class="nd">
 <a class="skip-link" href="#main">Skip to content</a>
 <div id="nd-header"></div>
 <main id="main" class="sig-wrap">
-<nav class="sig-tabs" aria-label="Signal systems"><a href="/nepse-signals/momentum/" aria-current="page" class="active">Momentum</a><a href="/nepse-signals/trend-relay/">Trend Relay</a><a href="/nepse-signals/reversal/">Reversal</a></nav>
+<nav class="sig-tabs nd-navpills" aria-label="Signal systems"><a href="/nepse-signals/momentum/" aria-current="page" class="active">Momentum</a><a href="/nepse-signals/trend-relay/">Trend Relay</a><a href="/nepse-signals/reversal/">Reversal</a></nav>
 
 <p class="sig-kicker">Nepse Decode &middot; Chart &amp; signals &middot; rule-based, no black boxes</p>
 <h1>Momentum Signal</h1>
@@ -51,11 +53,11 @@
 <p class="sig-sub" id="track-sub">Every live Entry alert becomes a Rs 10 lakh paper trade at the signal close, scored against real forward OHLC. Loading…</p>
 <div class="sig-grid" id="track-grid"></div>
 <h3>Open paper positions</h3>
-<div class="scrollx"><table class="sig-table" id="track-open"><thead><tr>
+<div class="scrollx"><table class="sig-table nd-table" id="track-open"><thead><tr>
 <th>Date</th><th>Symbol</th><th class="num">Entry</th><th class="num">Stop loss</th><th class="num">Trail stop</th><th class="num">Target 1</th><th class="num">Target 2</th><th class="num">Current</th><th class="num">Unrealized</th><th class="num">Sessions</th>
 </tr></thead><tbody><tr><td colspan="10">Loading…</td></tr></tbody></table></div>
 <h3>Closed paper trades — newest first</h3>
-<div class="scrollx"><table class="sig-table" id="track-closed"><thead><tr>
+<div class="scrollx"><table class="sig-table nd-table" id="track-closed"><thead><tr>
 <th>Symbol</th><th class="num">Entry date</th><th class="num">Exit date</th><th class="num">Entry</th><th class="num">Exit</th><th>Exit reason</th><th class="num">P&amp;L %</th><th class="num">Sessions</th>
 </tr></thead><tbody><tr><td colspan="8">Loading…</td></tr></tbody></table></div>
 </section>
@@ -67,7 +69,7 @@
 
 <h2>Trade profile — backtest (historical simulation)</h2>
 <p class="sig-sub">Hypothetical replay of these exact rules on historical data — not trades anyone took. Real outcomes are in the Live forward record above.</p>
-<div class="scrollx"><table class="sig-table">
+<div class="scrollx"><table class="sig-table nd-table">
 <tr><th>Metric</th><th>Value</th><th>Metric</th><th>Value</th></tr>
 <tr><td>Total return</td><td><strong>371.86%</strong></td><td>Capital multiple</td><td><strong>&times;4.72</strong></td></tr>
 <tr><td>Benchmark (NEPSE buy &amp; hold)</td><td>-1.13% / yr</td><td>Alpha</td><td>108.89% / yr</td></tr>
@@ -87,13 +89,13 @@
 
 <h2>Backtest — positions still open when the replay ended (hypothetical)</h2>
 <p class="sig-sub">Positions the historical replay still held when it ended on 2026-10-16 — hypothetical, and <strong>not</strong> the system's live positions (live positions are the Open paper positions in the Live forward record above). A replay position exits only on its stop loss or a trail break, while the live forward record also exits at Target 1 or after 20 sessions — so the same signal can be closed in the live record yet still open here. Entry is taken at the signal day's close in the replay; "Current" shows the latest traded price for scale only. Progress shows how far price has moved toward Target 2.</p>
-<div class="scrollx"><table class="sig-table" id="alerts"><thead><tr>
+<div class="scrollx"><table class="sig-table nd-table" id="alerts"><thead><tr>
 <th>Date</th><th>Symbol</th><th>Alert</th><th>Entry</th><th>Stop loss</th><th>Trail stop</th><th>Target 1</th><th>Target 2</th><th>Current</th><th>Unrealized</th><th>Progress</th>
 </tr></thead><tbody><tr><td colspan="11">Loading…</td></tr></tbody></table></div>
 
 <h2>Closed history — backtest trades</h2>
 <p class="sig-sub">Finished trades from the mechanical backtest replay, newest first — hypothetical, not live trades (ledger holds the newest 500 of 768 finished trades). The Live forward record above shows what the signals have produced since tracking began. P&amp;L is after the same trading charges the backtest applies.</p>
-<div class="scrollx"><table class="sig-table" id="closed"><thead><tr>
+<div class="scrollx"><table class="sig-table nd-table" id="closed"><thead><tr>
 <th>Symbol</th><th class="num">Entry date</th><th class="num">Exit date</th><th class="num">Entry price</th><th class="num">Exit price</th><th>Exit reason</th><th class="num">P&amp;L %</th><th class="num">Hold days</th>
 </tr></thead><tbody id="closed-body"><tr><td colspan="8">Loading trade history…</td></tr></tbody></table></div>
 <div class="sig-pager">
@@ -348,7 +350,7 @@
 })();
 </script>
 <div id="nd-footer"></div>
-<script src="/js/nd-chrome.js?v=20261023a" defer></script>
+<script src="/js/nd-chrome.js?v=20261023b" defer></script>
 <script src="/js/theme-toggle.js?v=20261023a" defer></script>
 </body>
 </html>

@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0A0C10">
 <title>Money Flow: NEPSE Broker Buy/Sell Flow | Nepse Decode</title>
+<link rel="stylesheet" href="/css/nd-tokens.css">
 <link rel="stylesheet" href="/css/nepse-design-system.css?v=20261023a">
 <meta name="description" content="Where the brokers' money moved: NEPSE buy/sell flow by broker and by stock, from public floorsheet records. Educational use only, not investment advice.">
 <meta name="author" content="Shirjan Khadka">
@@ -42,7 +43,7 @@
 </script>
 <link rel="stylesheet" href="/css/theme.css?v=c4570b45">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023a">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023b">
 <link rel="stylesheet" href="/css/nd-moneyflow.css?v=fb86ca6a">
 <link rel="stylesheet" href="/css/nd-3d.css">
 <link rel="stylesheet" href="/css/nd-research-3d.css">
@@ -74,15 +75,15 @@
       <h2>Latest session broker flow</h2>
       <span class="mf-secnote" id="mfTableNote"></span>
     </div>
-    <div class="mf-tabs" role="tablist" aria-label="Sort broker flow">
-      <button class="on" data-sort="net-desc" role="tab">Top net buyers</button>
-      <button data-sort="net-asc" role="tab">Top net sellers</button>
-      <button data-sort="buy-desc" role="tab">Biggest buyers</button>
-      <button data-sort="sell-desc" role="tab">Biggest sellers</button>
+    <div class="mf-tabs nd-tabs nd-tabs--pill" role="tablist" aria-label="Sort broker flow">
+      <button class="on" data-sort="net-desc" role="tab" aria-selected="true">Top net buyers</button>
+      <button data-sort="net-asc" role="tab" aria-selected="false">Top net sellers</button>
+      <button data-sort="buy-desc" role="tab" aria-selected="false">Biggest buyers</button>
+      <button data-sort="sell-desc" role="tab" aria-selected="false">Biggest sellers</button>
     </div>
     <div class="mf-tablewrap">
       <div id="mfPager" style="display:flex;gap:12px;align-items:center;justify-content:center;margin:8px 0;"></div>
-      <table class="mf-table" id="mfTable">
+      <table class="mf-table nd-table" id="mfTable">
         <thead><tr>
           <th class="l">Broker</th>
           <th class="r">Bought</th>
@@ -115,7 +116,7 @@
 </div>
 
 <div id="nd-footer"></div>
-<script src="/js/nd-chrome.js?v=20261023a"></script>
+<script src="/js/nd-chrome.js?v=20261023b"></script>
 <script src="/js/nd-moneyflow.js?v=811c93cb"></script>
 </body>
 </html>

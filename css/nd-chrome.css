@@ -475,7 +475,7 @@ body:has(> #nd-header) .theme-toggle.fixed{ display: none !important; }
   box-shadow: inset 0 2px 0 #FFFFFF, 0 2px 6px rgba(10,12,16,.1);
 }
 [data-theme="light"] #nd-header .nd-navbtn.active{
-  background: linear-gradient(180deg, #6BAE16 0%, #4D7C0F 60%, #3E650C 100%);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--nd-lime) 76%, white) 0%, var(--nd-lime) 60%, color-mix(in srgb, var(--nd-lime) 84%, black) 100%);
   border-color: #3E650C; color: #fff;
   box-shadow: inset 0 2px 0 rgba(255,255,255,.4), 0 2px 6px rgba(77,124,15,.3);
 }
@@ -796,4 +796,154 @@ select option{ background: var(--nd-panel); color: var(--nd-text); }
   .nd-btn, .nd-card--lift, .nd-tabs [role="tab"]{ transition-duration: 150ms; }
   .nd-btn--primary:hover, .nd-card--lift:hover{ transform: none; }
   .nd-ticker-track{ animation: none; }
+}
+
+/* ============================================================
+   WAVE G1 ROLLOUT (2026-10-23) — site-wide premium layer.
+   Page rhythm, scroll affordances, tab-state bridges and the
+   nav-pill link group. Everything consumes nd-tokens; page
+   CSS with class specificity still wins where it defines
+   its own treatment.
+   ============================================================ */
+
+/* ---- Page rhythm: one container + title band + section beat.
+   .nd-wrap centres content on the token grid; .nd-pageband is
+   the standard title block that sits directly under the shared
+   nav (title first — no breadcrumbs, owner law); .nd-section
+   is the vertical beat between major page sections. ---- */
+.nd-wrap{
+  max-width: var(--nd-page-max); margin-inline: auto;
+  padding-inline: var(--nd-gutter);
+}
+.nd-pageband{ padding: var(--nd-s8) 0 var(--nd-s6); }
+.nd-pageband .nd-eyebrow{ margin-bottom: var(--nd-s3); }
+.nd-pageband h1{
+  font-family: var(--nd-font-display); font-weight: 600;
+  font-size: var(--step-4); line-height: 1.1; letter-spacing: -0.01em;
+  color: var(--nd-text); margin: 0 0 var(--nd-s3);
+}
+.nd-pageband .nd-lede{
+  font: 400 var(--step-2)/1.6 var(--nd-font-sans);
+  color: var(--nd-muted); max-width: 68ch; margin: 0;
+}
+.nd-section{ padding-block: var(--nd-s8); }
+.nd-section + .nd-section{ padding-top: 0; }
+
+/* ---- Scroll affordance for table scroll regions: styled thin
+   scrollbar + fixed inset edge shadow so a wide table always
+   reads as scrollable (never page-level horizontal overflow). ---- */
+.nd-tablewrap{
+  scrollbar-width: thin;
+  scrollbar-color: var(--nd-border-strong) transparent;
+  overscroll-behavior-x: contain;
+  box-shadow: var(--nd-rim), var(--nd-e1),
+    inset -18px 0 18px -18px rgba(0, 0, 0, 0.55);
+}
+.nd-tablewrap::-webkit-scrollbar{ height: 8px; width: 8px; }
+.nd-tablewrap::-webkit-scrollbar-thumb{
+  background: var(--nd-border-strong); border-radius: 999px;
+}
+.nd-tablewrap::-webkit-scrollbar-track{ background: transparent; }
+/* Family scroll wrappers that adopt .nd-tablewrap in markup get
+   the same scrollbar treatment even when their own class sets
+   the panel treatment. */
+.ds-table-scroll, .sx-table-wrap, .table-scroll, .table-wrap,
+.dc-tablewrap, .ev-tablewrap, .v2-tablewrap, .mf-tablewrap,
+.sn-tablewrap, .ipo-tablewrap, .scrollx, .bk-scroll, .trades-wrap,
+.rp-table-wrap, .nl-sh-wrap{
+  scrollbar-width: thin;
+  scrollbar-color: var(--nd-border-strong) transparent;
+  overscroll-behavior-x: contain;
+}
+.ds-table-scroll::-webkit-scrollbar, .sx-table-wrap::-webkit-scrollbar,
+.table-scroll::-webkit-scrollbar, .table-wrap::-webkit-scrollbar,
+.dc-tablewrap::-webkit-scrollbar, .ev-tablewrap::-webkit-scrollbar,
+.v2-tablewrap::-webkit-scrollbar, .mf-tablewrap::-webkit-scrollbar,
+.sn-tablewrap::-webkit-scrollbar, .ipo-tablewrap::-webkit-scrollbar,
+.scrollx::-webkit-scrollbar, .bk-scroll::-webkit-scrollbar,
+.trades-wrap::-webkit-scrollbar, .rp-table-wrap::-webkit-scrollbar,
+.nl-sh-wrap::-webkit-scrollbar{
+  height: 8px; width: 8px;
+}
+.ds-table-scroll::-webkit-scrollbar-thumb, .sx-table-wrap::-webkit-scrollbar-thumb,
+.table-scroll::-webkit-scrollbar-thumb, .table-wrap::-webkit-scrollbar-thumb,
+.dc-tablewrap::-webkit-scrollbar-thumb, .ev-tablewrap::-webkit-scrollbar-thumb,
+.v2-tablewrap::-webkit-scrollbar-thumb, .mf-tablewrap::-webkit-scrollbar-thumb,
+.sn-tablewrap::-webkit-scrollbar-thumb, .ipo-tablewrap::-webkit-scrollbar-thumb,
+.scrollx::-webkit-scrollbar-thumb, .bk-scroll::-webkit-scrollbar-thumb,
+.trades-wrap::-webkit-scrollbar-thumb, .rp-table-wrap::-webkit-scrollbar-thumb,
+.nl-sh-wrap::-webkit-scrollbar-thumb{
+  background: var(--nd-border-strong); border-radius: 999px;
+}
+
+/* ---- Tab-state bridges: legacy painters mark the selected
+   tab with .active / .is-active instead of (or alongside)
+   aria-selected. Inside an adopted .nd-tabs list those classes
+   paint the same selected state, so old wiring looks native. ---- */
+.nd-tabs--pill [role="tab"].active,
+.nd-tabs--pill [role="tab"].is-active{
+  background: linear-gradient(180deg, color-mix(in srgb, var(--nd-lime) 88%, white), var(--nd-lime));
+  color: var(--nd-on-lime); border-color: transparent;
+}
+.nd-tabs--underline [role="tab"].active,
+.nd-tabs--underline [role="tab"].is-active{
+  color: var(--nd-text); box-shadow: inset 0 -2px 0 var(--nd-lime);
+}
+/* Non-button tabs (links/spans a painter emits) still get the
+   base tab geometry when a family class carries the role. */
+.nd-tabs [role="tab"]{ user-select: none; }
+
+/* ---- Nav pills: the link-group sibling of .nd-tabs for tab-
+   LOOKING navigation whose items are separate pages (signals
+   strategy switcher etc.). Links, not tabs: no role=tab, the
+   current page is aria-current="page". Same pill paint as
+   .nd-tabs--pill so the suite reads as one language. ---- */
+.nd-navpills{ display: flex; gap: var(--nd-s2); flex-wrap: wrap; }
+.nd-navpills a{
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 40px; padding: 0 16px;
+  font: 600 0.8125rem var(--nd-font-sans); color: var(--nd-muted);
+  background: var(--nd-panel); border: 1px solid var(--nd-border-strong);
+  border-radius: var(--nd-r-pill); box-shadow: var(--nd-rim), var(--nd-e1);
+  text-decoration: none;
+  transition: color var(--nd-t-fast) var(--nd-ease), border-color var(--nd-t-fast) var(--nd-ease),
+    background var(--nd-t-fast) var(--nd-ease);
+}
+.nd-navpills a:hover{ color: var(--nd-text); border-color: var(--nd-lime); }
+.nd-navpills a:focus-visible{ outline: none; box-shadow: var(--nd-focus-ring); }
+.nd-navpills a[aria-current="page"]{
+  background: linear-gradient(180deg, color-mix(in srgb, var(--nd-lime) 88%, white), var(--nd-lime));
+  color: var(--nd-on-lime); border-color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce){
+  .nd-navpills a{ transition-duration: 150ms; }
+}
+
+/* ---- Filter pills: single-select toggle chips (aria-pressed
+   groups: verdict filters, view toggles). Token-driven in both
+   themes; selected = lime fill, never a hard-coded ink block. ---- */
+.nd-filterpill{
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 40px; padding: 0 18px;
+  font: 600 0.8125rem var(--nd-font-sans); color: var(--nd-muted);
+  background: var(--nd-panel); border: 1px solid var(--nd-border-strong);
+  border-radius: var(--nd-r-pill); box-shadow: var(--nd-rim), var(--nd-e1);
+  cursor: pointer;
+  transition: color var(--nd-t-fast) var(--nd-ease), border-color var(--nd-t-fast) var(--nd-ease),
+    background var(--nd-t-fast) var(--nd-ease);
+}
+.nd-filterpill:hover{ color: var(--nd-text); border-color: var(--nd-lime); }
+.nd-filterpill:focus-visible{ outline: none; box-shadow: var(--nd-focus-ring); }
+.nd-filterpill[aria-pressed="true"], .nd-filterpill.active{
+  background: linear-gradient(180deg, color-mix(in srgb, var(--nd-lime) 88%, white), var(--nd-lime));
+  color: var(--nd-on-lime); border-color: transparent;
+}
+
+/* ---- Page title for pages whose H1 stands without a masthead
+   wrapper: same display type + rhythm as .nd-pageband h1. ---- */
+.nd-pagetitle{
+  font-family: var(--nd-font-display); font-weight: 600;
+  font-size: var(--step-4); line-height: 1.1; letter-spacing: -0.01em;
+  color: var(--nd-text); margin: var(--nd-s8) 0 var(--nd-s3);
 }

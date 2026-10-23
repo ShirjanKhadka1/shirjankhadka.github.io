@@ -191,7 +191,7 @@
     var body = pageRows.length ? pageRows.map(function (r) {
       return '<tr>' + d.cols.map(function (c) { return cellHtml(c, r); }).join('') + '</tr>';
     }).join('') : '<tr><td colspan="' + d.cols.length + '"><div class="ipo-empty">No ' + esc(d.label) + ' records match your filters.</div></td></tr>';
-    host.innerHTML = '<table class="ipo-table"><caption>' + esc(d.label) + ' — sorted by ' +
+    host.innerHTML = '<table class="ipo-table nd-table"><caption>' + esc(d.label) + ' — sorted by ' +
       esc(COL_LABELS[state.sortKey] || state.sortKey) + ' ' + (state.sortDir === 1 ? 'ascending' : 'descending') +
       '</caption><thead><tr>' + th + '</tr></thead><tbody>' + body + '</tbody></table>';
     host.querySelectorAll('th.sortable').forEach(function (h) {

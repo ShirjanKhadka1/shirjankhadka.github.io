@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0A0C10">
 <title>NEPSE Daily Summary: Full Market Table, Sortable | Nepse Decode</title>
+<link rel="stylesheet" href="/css/nd-tokens.css">
 <link rel="stylesheet" href="/css/nepse-design-system.css?v=20261023a">
 <meta name="description" content="NEPSE daily summary: every listed security in one sortable table — price, change, day range, volume, transactions and turnover. Updated daily after market close. Free, no login.">
 <meta name="author" content="Shirjan Khadka">
@@ -43,10 +44,11 @@
 <link rel="stylesheet" href="/css/theme.css?v=c4570b45">
 <link rel="stylesheet" href="/css/nepse-logos.css">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023a">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023b">
 <link rel="stylesheet" href="/css/nd-daily.css?v=448f5431">
 <link rel="stylesheet" href="/css/nd-3d.css">
 <link rel="stylesheet" href="/css/nd-market-3d.css">
+<link rel="stylesheet" href="/css/nd-cinema.css">
 </head>
 <body class="nd" data-page="daily">
 
@@ -80,7 +82,7 @@
         <svg id="dsChartSvg" viewBox="0 0 600 220" preserveAspectRatio="none" aria-label="NEPSE recent trend"></svg>
         <div class="ds-ov-chart-note" id="dsChartNote"></div>
       </div>
-      <div class="ds-ov-summary">
+      <div class="ds-ov-summary" data-cinema-lift>
         <div class="ds-ov-grid" id="dsOvGrid"></div>
         <div class="ds-ov-ranges" id="dsOvRanges"></div>
       </div>
@@ -91,7 +93,7 @@
   <section class="ds-indices" aria-label="Index and sub-index summary" id="dsIndices" hidden>
     <h2 class="ds-sec-title">Index / Sub-Index summary</h2>
     <div class="ds-table-scroll">
-      <table class="ds-table ds-idx-table" id="dsIdxTable">
+      <table class="ds-table ds-idx-table nd-table" id="dsIdxTable">
         <caption class="visually-hidden">Summary of NEPSE index and sub-indices</caption>
         <thead>
           <tr>
@@ -134,7 +136,7 @@
 
   <section aria-label="Daily market summary table">
     <div class="ds-table-scroll">
-      <table class="ds-table" id="dsTable">
+      <table class="ds-table nd-table" id="dsTable">
         <caption class="visually-hidden">Daily summary of all NEPSE-listed securities</caption>
         <thead>
           <tr>
@@ -190,6 +192,7 @@
 <script src="/js/theme-toggle.js?v=20261023a" defer></script>
 <script src="/js/freshness-badge.js?v=20261023a" defer></script>
 <script src="/js/nepse-sidebar.js?v=4253c371" defer></script>
-<script src="/js/nd-chrome.js?v=20261023a" defer></script>
+<script src="/js/nd-cinema.js" defer></script>
+<script src="/js/nd-chrome.js?v=20261023b" defer></script>
 </body>
 </html>

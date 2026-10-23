@@ -502,3 +502,66 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
 })();
+
+/* ============================================================
+   Wave G1 (2026-10-23) — APG tabs behaviour for adopted
+   .nd-tabs tablists that do NOT self-manage their keyboard
+   model (self-managed lists carry data-nd-tabs-self, or their
+   own keydown handler calls preventDefault() first — both are
+   honoured). Delegated listeners, so JS-painted tabs are
+   covered. Activation reuses each page's own click handlers;
+   this layer only moves focus/selection chrome and keeps
+   aria-selected + roving tabindex truthful. No data logic.
+   ============================================================ */
+(function () {
+  'use strict';
+  function tabsOf(list) {
+    return Array.prototype.slice.call(list.querySelectorAll('[role="tab"]'));
+  }
+  function sync(list, active) {
+    tabsOf(list).forEach(function (t) {
+      var on = t === active;
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      t.tabIndex = on ? 0 : -1;
+    });
+  }
+  function wire(list) {
+    if (list.hasAttribute('data-nd-tabs-self')) return;
+    /* Initial roving tabindex: follow the tab the page itself
+       marked selected (.on/.active/.is-active/aria-selected). */
+    var tabs = tabsOf(list);
+    if (tabs.length) {
+      var sel = tabs.filter(function (t) {
+        return t.getAttribute('aria-selected') === 'true' ||
+          t.classList.contains('on') || t.classList.contains('active') ||
+          t.classList.contains('is-active');
+      })[0] || tabs[0];
+      tabs.forEach(function (t) { t.tabIndex = t === sel ? 0 : -1; });
+    }
+    list.addEventListener('click', function (e) {
+      var tab = e.target.closest ? e.target.closest('[role="tab"]') : null;
+      if (tab && list.contains(tab)) sync(list, tab);
+    });
+    list.addEventListener('keydown', function (e) {
+      if (e.defaultPrevented) return; /* page self-manages */
+      var tab = e.target.closest ? e.target.closest('[role="tab"]') : null;
+      if (!tab || !list.contains(tab)) return;
+      var tabs = tabsOf(list);
+      var i = tabs.indexOf(tab);
+      var j = null;
+      if (e.key === 'ArrowRight') j = (i + 1) % tabs.length;
+      else if (e.key === 'ArrowLeft') j = (i - 1 + tabs.length) % tabs.length;
+      else if (e.key === 'Home') j = 0;
+      else if (e.key === 'End') j = tabs.length - 1;
+      if (j == null) return;
+      e.preventDefault();
+      tabs[j].focus();
+      tabs[j].click(); /* page handler activates; click sync above keeps aria truthful */
+    });
+  }
+  function boot() {
+    document.querySelectorAll('.nd-tabs[role="tablist"]').forEach(wire);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();

@@ -4,6 +4,7 @@
 <script>try{var t=localStorage.getItem('sk-theme');if(!t)t='dark';document.documentElement.setAttribute('data-theme',t);if(t==='light')document.documentElement.setAttribute('data-nd-ed','light')}catch(e){}</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0A0C10">
 <title>Value Investing — Nepse Decode</title>
 <meta name="description" content="NEPSE value screen: companies ranked within their sectors on earnings yield and price-to-book, from published filings. No price targets, no buy/sell calls.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-value/">
@@ -23,6 +24,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
 <link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/nd-tokens.css">
 <link rel="stylesheet" href="/css/fonts.css">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebPage","name":"Value Investing — Nepse Decode","url":"https://shirjankhadka.com.np/nepse-value/","description":"A sector-aware value screen for NEPSE equities: earnings yield, price-to-book, ROE and P/E computed from published Q4 FY 2082/83 filings, ranked within each sector.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"},"isPartOf":{"@type":"WebSite","name":"Nepse Decode","url":"https://shirjankhadka.com.np/nepse-decode/"}}
@@ -30,9 +32,9 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-decode/"},{"@type":"ListItem","position":2,"name":"Value Investing","item":"https://shirjankhadka.com.np/nepse-value/"}]}
 </script>
-<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023b">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023a">
-<link rel="stylesheet" href="/css/sig-pro.css?v=fdd6a175">
+<link rel="stylesheet" href="/css/sig-pro.css?v=20261023b">
 <style>
 /* Value page: score bars, symbol links, controls — new design tokens */
 .scorebar{width:80px;height:8px;background:var(--nd-inset,#0D0F14);border-radius:999px;overflow:hidden;display:inline-block;vertical-align:middle;
@@ -81,7 +83,7 @@ button#valuePrev:disabled,button#valueNext:disabled{opacity:.45;cursor:default}
 <main id="main" class="sig-wrap">
 
 <p class="sig-kicker">Factor research</p>
-<h1>Value Investing</h1>
+<h1 class="nd-pagetitle">Value Investing</h1>
 <p class="sig-lede">A sector-aware value screen for NEPSE equities, built on published Q4 FY 2082/83 filings. Every company is scored <strong style="color:var(--nd-text,#fff)">within its own sector only</strong> — a bank is never measured against a hydropower company. A starting point for your own research, not a verdict.</p>
 <p lang="ne" class="ne-sum">संक्षेप: यो स्क्रिनरले आफ्नै सेक्टरभित्र सस्ता देखिने कम्पनीहरू छान्छ — कम मूल्य–आम्दानी अनुपात र बलियो इक्विटी प्रतिफलका आधारमा। यो तपाईंको अनुसन्धानको सुरुवात हो, लगानी सल्लाह होइन।</p>
 
@@ -94,7 +96,7 @@ button#valuePrev:disabled,button#valueNext:disabled{opacity:.45;cursor:default}
 <!-- SNAP-START -->
 <section class="snap" aria-label="Value snapshot">
   <h2>Top value-ranked companies <span class="snap-asof">· snapshot 2026-10-16</span></h2>
-  <div class="scrollx"><table class="sig-table">
+  <div class="scrollx"><table class="sig-table nd-table">
     <thead><tr><th>Score</th><th>Stock</th><th>Sector</th><th class="num">LTP</th><th class="num">P/E (TTM)</th><th class="num">P/BV</th><th class="num">Earn. yield</th><th class="num">ROE (TTM)</th></tr></thead>
     <tbody>
       <tr><td><span class="scorebar"><i style="width:96%"></i></span> 96.0</td><td><a class="symlink" href="/stocks/NBL/">NBL</a><span class="sname">Nepal Bank Limited</span></td><td>Banking</td><td class="num">306.80</td><td class="num">9.54<span class="submed">sector 20.6</span></td><td class="num">1.07<span class="submed">sector 2.13</span></td><td class="num">10.5%</td><td class="num">10.7%</td></tr>
@@ -140,7 +142,7 @@ button#valuePrev:disabled,button#valueNext:disabled{opacity:.45;cursor:default}
 </div>
 
 <div class="scrollx">
-<table class="sig-table" id="valueTable">
+<table class="sig-table nd-table" id="valueTable">
 <thead><tr>
 <th class="sortable" data-k="value_score">Score</th>
 <th>Stock</th>
@@ -298,6 +300,6 @@ setInterval(function(){ if(!document.hidden) load(true); }, 15*60*1000);
 <script src="/js/theme-toggle.js?v=20261023a" defer></script>
 <script src="/js/nepse-market-config.js?v=4e6270bd"></script>
 <script src="/js/freshness-badge.js?v=20261023a" defer></script>
-<script src="/js/nd-chrome.js?v=20261023a" defer></script>
+<script src="/js/nd-chrome.js?v=20261023b" defer></script>
 </body>
 </html>

@@ -4,7 +4,9 @@
 <script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0A0C10">
 <title>Practice Trading: Free NEPSE Paper Trading and Strategy Backtests | Nepse Decode</title>
+<link rel="stylesheet" href="/css/nd-tokens.css">
 <link rel="stylesheet" href="/css/nepse-design-system.css?v=20261023a">
 <meta name="description" content="Paper-trade NEPSE stocks on historical data: SMA crossover, RSI swing and buy-and-hold strategies with equity curves and a trade journal. Free, no login.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-simulator/">
@@ -129,7 +131,7 @@ table.trades tr:last-child td{border-bottom:none}
 </style>
 <link rel="stylesheet" href="/css/theme.css?v=c4570b45">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023a">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023b">
 </head>
 <body class="nd">
 <div id="nd-header"></div>
@@ -225,7 +227,7 @@ table.trades tr:last-child td{border-bottom:none}
             Costs: broker commission (0.36% down to 0.243% by tier), SEBON 0.015%, DP Rs 25 per sell, Rs 5 name transfer per buy. Buy-side costs enter your cost basis; CGT applies only to positive gains. The equity curve is net of everything.
           </div>
         </details>
-        <div class="sim-runrow"><button id="sim-run" class="btn" disabled>Run backtest</button></div>
+        <div class="sim-runrow"><button id="sim-run" class="btn nd-btn nd-btn--primary" disabled>Run backtest</button></div>
         <p class="sim-status" id="sim-status" role="status" hidden></p>
       </section>
     </div>
@@ -242,7 +244,7 @@ table.trades tr:last-child td{border-bottom:none}
       <h3 class="res-h">Trade log</h3>
       <p class="res-sub">Every fill, with costs broken out per trade.</p>
       <div class="trades-wrap">
-        <table class="trades">
+        <table class="trades nd-table">
           <thead><tr><th>#</th><th>Entry</th><th>Price</th><th>Exit</th><th>Price</th><th>Qty</th><th>Gross P&amp;L</th><th>Commission</th><th>Other fees</th><th>CGT</th><th>Net P&amp;L</th><th>Reason</th><th>Journal</th></tr></thead>
           <tbody id="sim-trades-body"></tbody>
         </table>
@@ -252,7 +254,7 @@ table.trades tr:last-child td{border-bottom:none}
           <label for="sim-run-note">Run note (saved to your journal)</label>
           <textarea id="sim-run-note" rows="2" placeholder="What did this run teach you?"></textarea>
         </div>
-        <button id="sim-save-run-note" class="btn small">Save run note</button>
+        <button id="sim-save-run-note" class="btn small nd-btn nd-btn--ghost nd-btn--sm">Save run note</button>
       </div>
     </section>
 
@@ -284,6 +286,6 @@ table.trades tr:last-child td{border-bottom:none}
 <script src="/js/nepse-market-config.js?v=4e6270bd" defer></script>
 <script src="/js/freshness-badge.js?v=20261023a" defer></script>
 <script src="/js/nepse-sidebar.js?v=4253c371" defer></script>
-<script src="/js/nd-chrome.js?v=20261023a" defer></script>
+<script src="/js/nd-chrome.js?v=20261023b" defer></script>
 </body>
 </html>

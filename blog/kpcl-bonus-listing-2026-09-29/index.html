@@ -10,6 +10,7 @@
 <script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#FAF8F4">
 <title>KPCL 7% bonus shares listed on NEPSE: 653,765 units tradable | Nepse Decode</title>
 <meta name="description" content="KPCL listed 653,764.65 bonus shares on NEPSE Sept 29, 2026. 7% bonus + 0.3684% cash from 18th AGM. Per-shareholder math, official notice.">
 <meta name="keywords" content="KPCL bonus shares listed NEPSE, Kalika Power bonus share listing, KPCL 7% bonus 2082, NEPSE bonus share listing 2026">
@@ -67,7 +68,7 @@
   --muted:#66705F; --faint:#9AA096;
   --radius:16px;
   --shadow:0 12px 40px rgba(12,31,22,.08);
-  --serif:'Fraunces',Georgia,'Times New Roman',serif;
+  --serif:'Spectral','Noto Serif Devanagari',Georgia,serif;
   --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
   --dev:'Mukta','Noto Sans Devanagari','Nirmala UI','Mangal',sans-serif;
 }
@@ -248,9 +249,11 @@ html[lang="ne"] .disclaimer{font-family:var(--dev)}
   .checked dl{grid-template-columns:170px 1fr}
 }
 </style>
+<link rel="stylesheet" href="/css/nd-tokens.css">
+<link rel="stylesheet" href="/css/fonts.css">
 <link rel="stylesheet" href="/css/theme.css?v=c4570b45">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023a">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023b">
 </head>
 <body>
   <div id="nd-header"></div>
@@ -343,11 +346,11 @@ html[lang="ne"] .disclaimer{font-family:var(--dev)}
 <p>The listing adds no new capital to the company; it converts reserves into paid-up capital. What changes for investors is liquidity: the bonus units are now freely tradable, which can add near-term selling pressure as recipients book gains.</p>
 <div class="math" aria-label="What 100 shares get you">
       <h3>What 100 shares get you</h3>
-      <table>
+      <div class="nd-tablewrap"><table class="nd-table">
         <tr><th>Holding</th><th>Result</th></tr>
       <tr class="res"><td>100 shares at book close</td><td>7 bonus shares</td></tr>
       <tr><td>Cash before 5% tax</td><td>Rs 36.84</td></tr>
-      </table>
+      </table></div>
       <p class="note">Bonus shares carry Rs 100 face value each; market value moves with the KPCL price.</p>
     </div>
   </div>
@@ -501,6 +504,6 @@ document.addEventListener('click', function (e) {
 });
 </script>
 <script src="/js/theme-toggle.js?v=20261023a" defer></script>
-<script src="/js/nd-chrome.js?v=20261023a" defer></script>
+<script src="/js/nd-chrome.js?v=20261023b" defer></script>
 </body>
 </html>

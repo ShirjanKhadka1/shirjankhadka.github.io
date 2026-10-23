@@ -4,6 +4,7 @@
 <script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0A0C10">
 <title>Accumulation / Distribution — Nepse Decode</title>
 <meta name="description" content="Which stocks brokers are accumulating and distributing — top net bought and net sold from public NEPSE floorsheet flow. Free, no login.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-brokers/accdist/">
@@ -22,10 +23,11 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebPage","name":"Accumulation / Distribution — Nepse Decode","url":"https://shirjankhadka.com.np/nepse-brokers/accdist/"}
 </script>
+<link rel="stylesheet" href="/css/nd-tokens.css">
 <link rel="stylesheet" href="/css/nepse-design-system.css?v=20261023a">
 <link rel="stylesheet" href="/css/theme.css?v=c4570b45">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023a">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023b">
 <link rel="stylesheet" href="/css/broker-pages.css?v=f28b8c63">
 <style>
 /* AccDist: side-by-side on desktop, stacked on mobile */
@@ -64,13 +66,13 @@
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px" id="bkGrid" class="bk-grid-2col">
 <div>
 <h2 style="font-family:var(--serif);font-size:1.2rem;margin:0 0 8px;color:var(--up)">Accumulating <span style="font-size:.8rem;color:var(--muted);font-family:var(--sans)">— top net bought</span></h2>
-<div class="bk-scroll"><table class="bk-table" id="accTable"><thead><tr>
+<div class="bk-scroll"><table class="bk-table nd-table" id="accTable"><thead><tr>
 <th data-sort="symbol">Stock</th><th data-sort="broker">Broker</th><th data-sort="netQty">Net qty</th><th data-sort="netVal">Net value</th>
 </tr></thead><tbody id="accBody"><tr><td colspan="4" class="bk-loading">Loading…</td></tr></tbody></table></div>
 </div>
 <div>
 <h2 style="font-family:var(--serif);font-size:1.2rem;margin:0 0 8px;color:var(--down)">Distributing <span style="font-size:.8rem;color:var(--muted);font-family:var(--sans)">— top net sold</span></h2>
-<div class="bk-scroll"><table class="bk-table" id="distTable"><thead><tr>
+<div class="bk-scroll"><table class="bk-table nd-table" id="distTable"><thead><tr>
 <th data-sort="symbol">Stock</th><th data-sort="broker">Broker</th><th data-sort="netQty">Net qty</th><th data-sort="netVal">Net value</th>
 </tr></thead><tbody id="distBody"><tr><td colspan="4" class="bk-loading">Loading…</td></tr></tbody></table></div>
 </div>
@@ -152,6 +154,6 @@ Promise.all([BC.loadMeta(), BC.loadBrokers()]).then(function(res){
 setInterval(function(){ if(!document.hidden) load(); }, 60000);
 })();
 </script>
-<script src="/js/nd-chrome.js?v=20261023a" defer></script>
+<script src="/js/nd-chrome.js?v=20261023b" defer></script>
 </body>
 </html>

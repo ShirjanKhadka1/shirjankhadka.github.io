@@ -39,10 +39,9 @@
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=Noto+Sans+Devanagari:wght@400;500;600&family=Noto+Serif+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../css/style.css?v=bd7aeedd">
+<link rel="stylesheet" href="/css/nd-tokens.css">
+  <link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="../../css/style.css?v=bd7aeedd">
 
     <script type="application/ld+json">
 {
@@ -81,7 +80,7 @@
 
 <link rel="stylesheet" href="/css/theme.css?v=c4570b45">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023a">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023b">
 <style>
 .td-table{width:100%;border-collapse:collapse;margin:24px 0;font-size:.94rem;line-height:1.6}
 .td-table caption{text-align:left;font-weight:700;color:#1C1A15;margin-bottom:10px}
@@ -154,18 +153,18 @@
           Here is the week in one table, all figures for fiscal year 2082/83:
         </p>
 
-        <table class="td-table">
+        <div class="nd-tablewrap"><table class="td-table nd-table">
           <caption>The week&#x27;s dividend declarations, FY 2082/83</caption>
           <thead>
-            <tr><th scope="col">Company</th><th scope="col">Bonus</th><th scope="col">Cash</th><th scope="col">Total</th><th scope="col">Status</th></tr>
+            <tr><th scope="col">Company</th><th scope="col" class="num">Bonus</th><th scope="col" class="num">Cash</th><th scope="col" class="num">Total</th><th scope="col">Status</th></tr>
           </thead>
           <tbody>
-            <tr><td>Nabil Bank</td><td>5.00%</td><td>10.80%</td><td>15.80%</td><td>Approved at 42nd AGM, Oct 8</td></tr>
-            <tr><td>NMB Bank</td><td>0%</td><td>7.00%</td><td>7.00%</td><td>Proposed Oct 7; needs NRB nod + AGM</td></tr>
-            <tr><td>Manjushree Finance</td><td>5.00%</td><td>15.00%</td><td>20.00%</td><td>Proposed Oct 8; needs approvals</td></tr>
-            <tr><td>Kutheli Bukhari Small Hydro</td><td>18.00%</td><td>0.95%</td><td>18.95%</td><td>Proposed Oct 8; needs ERC nod + AGM</td></tr>
+            <tr><td>Nabil Bank</td><td class="num">5.00%</td><td class="num">10.80%</td><td class="num">15.80%</td><td>Approved at 42nd AGM, Oct 8</td></tr>
+            <tr><td>NMB Bank</td><td class="num">0%</td><td class="num">7.00%</td><td class="num">7.00%</td><td>Proposed Oct 7; needs NRB nod + AGM</td></tr>
+            <tr><td>Manjushree Finance</td><td class="num">5.00%</td><td class="num">15.00%</td><td class="num">20.00%</td><td>Proposed Oct 8; needs approvals</td></tr>
+            <tr><td>Kutheli Bukhari Small Hydro</td><td class="num">18.00%</td><td class="num">0.95%</td><td class="num">18.95%</td><td>Proposed Oct 8; needs ERC nod + AGM</td></tr>
           </tbody>
-        </table>
+        </table></div>
 
         <p>
           The biggest name moved first, and it is the only one of the four whose dividend is final.
@@ -359,6 +358,6 @@
 
   <script src="../../js/main.js?v=8a821d36" defer></script>
 <script src="/js/theme-toggle.js?v=20261023a" defer></script>
-<script src="/js/nd-chrome.js?v=20261023a" defer></script>
+<script src="/js/nd-chrome.js?v=20261023b" defer></script>
 </body>
 </html>

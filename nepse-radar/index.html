@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#FAF7F0">
 <title>Warning Radar: NEPSE Distribution & Risk Alerts | Nepse Decode</title>
+<link rel="stylesheet" href="/css/nd-tokens.css">
 <link rel="stylesheet" href="/css/nepse-design-system.css?v=20261023a">
 <meta name="description" content="Free NEPSE warning radar: distribution warnings, elevated risk flags, and bounce setups from a transparent rule-based verdict engine. Updated daily.">
 <meta name="author" content="Shirjan Khadka">
@@ -27,9 +28,6 @@
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
 <link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Serif+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css?v=bd7aeedd">
 <link rel="stylesheet" href="../nepse-chart/chart.css?v=d0ec563c">
 <script type="application/ld+json">
@@ -51,7 +49,7 @@
 <link rel="stylesheet" href="/css/theme.css?v=c4570b45">
 <link rel="stylesheet" href="/css/nepse-logos.css">
 <link rel="stylesheet" href="/css/fonts.css">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023b">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023a">
 </head>
 <body class="nd" data-page="radar">
@@ -74,16 +72,16 @@
     </div>
   </div>
 
-  <div class="filter-tabs" id="radar-filters" style="display:flex;gap:8px;flex-wrap:wrap;margin:16px 0">
-    <button data-filter="warnings" class="active" aria-pressed="true" style="padding:8px 18px;border-radius:999px;border:1px solid #1C1A15;background:#1C1A15;color:#FAF7F0;font-size:.85rem;cursor:pointer">Warnings</button>
-    <button data-filter="all" aria-pressed="false" style="padding:8px 18px;border-radius:999px;border:1px solid #d6cfbd;background:#fff;font-size:.85rem;cursor:pointer">All verdicts</button>
-    <button data-filter="DISTRIBUTION_WARNING" aria-pressed="false" style="padding:8px 18px;border-radius:999px;border:1px solid #d6cfbd;background:#fff;font-size:.85rem;cursor:pointer">Distribution</button>
-    <button data-filter="ELEVATED_RISK" aria-pressed="false" style="padding:8px 18px;border-radius:999px;border:1px solid #d6cfbd;background:#fff;font-size:.85rem;cursor:pointer">Elevated Risk</button>
-    <button data-filter="BOUNCE_SETUP" aria-pressed="false" style="padding:8px 18px;border-radius:999px;border:1px solid #d6cfbd;background:#fff;font-size:.85rem;cursor:pointer">Bounce Setups</button>
+  <div class="filter-tabs" id="radar-filters" role="group" aria-label="Filter verdicts" style="display:flex;gap:8px;flex-wrap:wrap;margin:16px 0">
+    <button data-filter="warnings" class="nd-filterpill active" aria-pressed="true">Warnings</button>
+    <button data-filter="all" class="nd-filterpill" aria-pressed="false">All verdicts</button>
+    <button data-filter="DISTRIBUTION_WARNING" class="nd-filterpill" aria-pressed="false">Distribution</button>
+    <button data-filter="ELEVATED_RISK" class="nd-filterpill" aria-pressed="false">Elevated Risk</button>
+    <button data-filter="BOUNCE_SETUP" class="nd-filterpill" aria-pressed="false">Bounce Setups</button>
   </div>
 
   <div style="overflow-x:auto">
-  <table class="radar-table" id="radar-table" style="width:100%;border-collapse:collapse;font-size:.9rem">
+  <div class="nd-tablewrap"><table class="radar-table nd-table" id="radar-table" style="width:100%;border-collapse:collapse;font-size:.9rem">
     <thead><tr>
       <th style="background:#1C1A15;color:#FAF7F0;padding:10px 12px;text-align:left;font-size:.75rem;letter-spacing:.05em;text-transform:uppercase">Symbol</th>
       <th style="background:#1C1A15;color:#FAF7F0;padding:10px 12px;text-align:left;font-size:.75rem;letter-spacing:.05em;text-transform:uppercase">Verdict</th>
@@ -92,7 +90,7 @@
       <th style="background:#1C1A15;color:#FAF7F0;padding:10px 12px;text-align:left;font-size:.75rem;letter-spacing:.05em;text-transform:uppercase">Detail</th>
     </tr></thead>
     <tbody id="radar-body"><tr><td colspan="5" style="padding:20px;text-align:center">Loading&hellip;</td></tr></tbody>
-  </table>
+  </table></div>
   </div>
 
   <details style="margin-top:24px"><summary>How does the Warning Radar work?</summary>
@@ -286,10 +284,8 @@
     currentFilter = btn.getAttribute('data-filter');
     this.querySelectorAll('button').forEach(function(b){
       b.classList.remove('active'); b.setAttribute('aria-pressed','false');
-      b.style.background='#fff'; b.style.color='inherit'; b.style.borderColor='#d6cfbd';
     });
     btn.classList.add('active'); btn.setAttribute('aria-pressed','true');
-    btn.style.background='#1C1A15'; btn.style.color='#FAF7F0'; btn.style.borderColor='#1C1A15';
     render();
   });
   fetch('/data/verdicts-v2-summary.json', {cache: 'no-store'})
@@ -315,6 +311,6 @@
 </script>
 <script src="/js/theme-toggle.js?v=20261023a" defer></script>
 <script src="/js/freshness-badge.js?v=20261023a" defer></script>
-<script src="/js/nd-chrome.js?v=20261023a" defer></script>
+<script src="/js/nd-chrome.js?v=20261023b" defer></script>
 </body>
 </html>

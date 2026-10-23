@@ -25,9 +25,10 @@
 <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/nd-tokens.css">
 <link rel="stylesheet" href="/css/fonts.css">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023a">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023a">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023b">
 <link rel="stylesheet" href="../verdicts-v2.css?v=20261023a">
 <style>
 .v2-method{max-width:76ch}
@@ -93,21 +94,21 @@
 
 <h2>3. The scored flags</h2>
 <h3>Bearish — pump_score weights (sum to 1.0)</h3>
-<table>
-<tr><th>Flag</th><th>Weight</th><th>What it measures</th></tr>
-<tr><td>EXHAUSTION</td><td>0.20</td><td>Circuit clustering in older listings (age ≥ 15) — repeated limit-ups read as operator exhaustion, not strength.</td></tr>
-<tr><td>PARABOLIC (markup_asym)</td><td>0.13</td><td>Markup asymmetry — upside runs far exceeding downside pullbacks.</td></tr>
-<tr><td>DIST_VOLUME (vol_surge)</td><td>0.22</td><td>Distribution-volume footprint — heavy turnover into highs. Upweighted: stronger per-symbol evidence than cross-sectionally.</td></tr>
-<tr><td>CLIMAX (turnover_spike)</td><td>0.10</td><td>Single-session turnover climax — climax volume predicts 5–10 session weakness. (The T+2-lag variant was rejected.)</td></tr>
-<tr><td>WINNER_FADE (mom20, inverted)</td><td>0.25</td><td>20-session momentum exhaustion — strong past-month winners fading. Upweighted: 80% of symbols negative per-symbol.</td></tr>
-<tr><td>LATE_CIRCUIT_FADE</td><td>0.10</td><td>Rule 7: a limit-up within the last 5 sessions while the 20-day return is below −15% — distribution into weakness.</td></tr>
-</table>
+<div class="nd-tablewrap"><table class="nd-table">
+<tr><th>Flag</th><th class="num">Weight</th><th>What it measures</th></tr>
+<tr><td>EXHAUSTION</td><td class="num">0.20</td><td>Circuit clustering in older listings (age ≥ 15) — repeated limit-ups read as operator exhaustion, not strength.</td></tr>
+<tr><td>PARABOLIC (markup_asym)</td><td class="num">0.13</td><td>Markup asymmetry — upside runs far exceeding downside pullbacks.</td></tr>
+<tr><td>DIST_VOLUME (vol_surge)</td><td class="num">0.22</td><td>Distribution-volume footprint — heavy turnover into highs. Upweighted: stronger per-symbol evidence than cross-sectionally.</td></tr>
+<tr><td>CLIMAX (turnover_spike)</td><td class="num">0.10</td><td>Single-session turnover climax — climax volume predicts 5–10 session weakness. (The T+2-lag variant was rejected.)</td></tr>
+<tr><td>WINNER_FADE (mom20, inverted)</td><td class="num">0.25</td><td>20-session momentum exhaustion — strong past-month winners fading. Upweighted: 80% of symbols negative per-symbol.</td></tr>
+<tr><td>LATE_CIRCUIT_FADE</td><td class="num">0.10</td><td>Rule 7: a limit-up within the last 5 sessions while the 20-day return is below −15% — distribution into weakness.</td></tr>
+</table></div>
 <h3>Bullish — opportunity_score weights (sum to 1.0)</h3>
-<table>
-<tr><th>Flag</th><th>Weight</th><th>What it measures</th></tr>
-<tr><td>IGNITION</td><td>0.60</td><td>Young listing (age ≤ 10) with a tick-aware circuit run — the ignition-continuation pattern (fine-bin ρ +0.287, p&lt;0.0001).</td></tr>
-<tr><td>BOUNCE_SETUP</td><td>0.40</td><td>Trough (≥30% drawdown) + first close above the 5-session high + volume ≥1.5× baseline. Shown with the 45% failure rate, never projected past the median +12% snap.</td></tr>
-</table>
+<div class="nd-tablewrap"><table class="nd-table">
+<tr><th>Flag</th><th class="num">Weight</th><th>What it measures</th></tr>
+<tr><td>IGNITION</td><td class="num">0.60</td><td>Young listing (age ≤ 10) with a tick-aware circuit run — the ignition-continuation pattern (fine-bin ρ +0.287, p&lt;0.0001).</td></tr>
+<tr><td>BOUNCE_SETUP</td><td class="num">0.40</td><td>Trough (≥30% drawdown) + first close above the 5-session high + volume ≥1.5× baseline. Shown with the 45% failure rate, never projected past the median +12% snap.</td></tr>
+</table></div>
 
 <h2>4. Circuit detection and the age gates</h2>
 <ul>
@@ -139,17 +140,17 @@
 
 <h2>8. Calibration</h2>
 <p>"Elevated" readings are calibrated to the pooled top quintile (p80) over the universe, measured 2026-10-05 across 274 equity symbols (debentures, mutual funds, promoter-share lines excluded):</p>
-<table>
+<div class="nd-tablewrap"><table class="nd-table">
 <tr><th>Factor</th><th>Elevated at</th><th>Pooled sample</th></tr>
 <tr><td>markup_asym</td><td>≥ 1.119</td><td>n = 169,967</td></tr>
 <tr><td>mom20 (raw 20d return)</td><td>≥ 0.070</td><td>n = 180,653</td></tr>
 <tr><td>vol_surge</td><td>≥ 0.524</td><td>n = 148,137</td></tr>
 <tr><td>turnover_spike</td><td>≥ 0.815</td><td>n = 169,693</td></tr>
-</table>
+</table></div>
 
 <h2>9. Validation — measured research results</h2>
 <p>Each flag carries its backtest statistics. These are <em>measured research results</em>, not claims about the future:</p>
-<table>
+<div class="nd-tablewrap"><table class="nd-table">
 <tr><th>Flag</th><th>Result</th></tr>
 <tr><td>IGNITION</td><td>age 0–10 ρ +0.287 (p&lt;0.0001) — ignition continuation; crossover N≈13–15 (n=57 listings — needs out-of-sample confirmation)</td></tr>
 <tr><td>EXHAUSTION</td><td>IC −0.076 cross-sectional; 16/16 episodes, 5.4× lift; age-gated — inactive at age ≤14</td></tr>
@@ -163,7 +164,7 @@
 <tr><td>WITHHELD_FLOAT</td><td>3/3 2026 new-listing ignitions opened on sub-1,000-share days — precondition note, not a scored flag</td></tr>
 <tr><td>CORNERED_FLOAT</td><td>single snapshot 2026-10-05 — unbacktested, evidence only</td></tr>
 <tr><td>HYDRO_CLIFF</td><td>tops break from absent bids, not selling pressure — info-level note</td></tr>
-</table>
+</table></div>
 
 <h2>10. Known limitations</h2>
 <ul>
@@ -179,7 +180,7 @@
 <p class="v2-methodlink"><a href="/nepse-verdicts-v2/">← Back to the Warning Radar</a></p>
 
 <div id="nd-footer"></div>
-<script src="/js/nd-chrome.js?v=20261023a" defer></script>
+<script src="/js/nd-chrome.js?v=20261023b" defer></script>
 <script src="/js/freshness-badge.js" defer></script>
 </main>
 </body>
