@@ -214,9 +214,10 @@ function main() {
     '<link rel="preconnect" href="https://fonts.googleapis.com">\n' +
     '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n' +
     '<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">\n' +
-    '<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261003a">\n' +
-    '<link rel="stylesheet" href="/css/nd-chrome.css?v=20261004a">\n' +
-    '<link rel="stylesheet" href="/css/nd-actions.css?v=20261009a">\n' +
+    '<link rel="stylesheet" href="/css/nd-tokens.css?v=20261023a">\n' +
+    '<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023a">\n' +
+    '<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023a">\n' +
+    '<link rel="stylesheet" href="/css/nd-actions.css?v=20261023a">\n' +
     '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>\n' +
     '</head>\n<body class="nd" data-page="actions">\n' +
     '<a class="skip-link" href="#main">Skip to content</a>\n' +
@@ -463,7 +464,7 @@ function main() {
     '<script src="/js/nepse-market-config.js?v=20261002c"></script>\n' +
     '<script src="/js/freshness-badge.js?v=20261002c" defer></script>\n' +
     '<script src="/js/nepse-sidebar.js?v=20261002c" defer></script>\n' +
-    '<script src="/js/nd-chrome.js?v=20261014a" defer></script>\n' +
+    '<script src="/js/nd-chrome.js?v=20261023a" defer></script>\n' +
     '</body>\n</html>\n';
 
   fs.mkdirSync(OUT_DIR, { recursive: true });
