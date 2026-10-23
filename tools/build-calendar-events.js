@@ -239,8 +239,13 @@ events.sort((a, b) => a.date_ad < b.date_ad ? -1 : a.date_ad > b.date_ad ? 1 : (
 const counts = {};
 for (const e of events) counts[e.type] = (counts[e.type] || 0) + 1;
 const closures = events.filter(e => e.type === 'public_holiday' || e.type === 'nepse_closed');
+/* Keep generated_at stable when the dataset itself is unchanged, so the
+ * scheduled rebuilds produce a diff only when an event actually changed. */
+let generatedAt = new Date().toISOString();
+const prevDoc = load(path.join(ROOT, 'data', 'calendar-events.json'), null);
+if (prevDoc && JSON.stringify(prevDoc.events) === JSON.stringify(events)) generatedAt = prevDoc.generated_at;
 const out = {
-  generated_at: new Date().toISOString(),
+  generated_at: generatedAt,
   generator: 'tools/build-calendar-events.js',
   note: 'Nepse Decode market calendar. Sources: Nepal Gazette holiday lists and NEPSE closure confirmations (holidays), SEBON issue tracker (issues), official company disclosures recorded by Nepse Decode (dividends, book closes, AGMs), promoter lock-in expiries derived from IPO allotment dates + the 3-year SEBON lock-in. Unverified entries are labelled as such and confirmed against official notices as they appear.',
   counts,
