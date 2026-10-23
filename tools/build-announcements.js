@@ -39,9 +39,25 @@ function fetch(url) {
   });
 }
 
+/* Decode HTML entities to plain characters. ShareSansar titles arrive
+ * entity-encoded (e.g. "it&#039;s"); storing them raw made pages show the
+ * literal "&#039;" (and double-encoded "&amp;#039;" in the SSR snapshot).
+ * Numeric/hex entities first, named entities next, &amp; LAST so an
+ * already-escaped sequence like &amp;#039; decodes once, to the literal
+ * text "&#039;", never twice. */
+function decodeEntities(s) {
+  const named = { quot: '"', apos: "'", lt: '<', gt: '>', nbsp: ' ',
+    rsquo: '\u2019', lsquo: '\u2018', rdquo: '\u201D', ldquo: '\u201C',
+    hellip: '\u2026', mdash: '\u2014', ndash: '\u2013' };
+  return String(s)
+    .replace(/&#(\d+);/g, (m, n) => String.fromCodePoint(parseInt(n, 10)))
+    .replace(/&#[xX]([0-9a-fA-F]+);/g, (m, n) => String.fromCodePoint(parseInt(n, 16)))
+    .replace(/&([a-zA-Z]+);/g, (m, name) => (name in named ? named[name] : m))
+    .replace(/&amp;/g, '&');
+}
+
 function stripTags(s) {
-  return s.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/&nbsp;/g, ' ')
-    .replace(/\s+/g, ' ').trim();
+  return decodeEntities(s.replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
 }
 
 // Company-name core: lowercase, strip suffixes and punctuation.
@@ -127,6 +143,17 @@ async function main() {
   // Merge with the existing archive (dedup by URL), keep 90 days.
   let archive = [];
   try { archive = JSON.parse(fs.readFileSync(OUT, 'utf8')).items || []; } catch (e) {}
+  // Self-heal: titles archived before entity decoding was fixed still carry
+  // raw entities ("it&#039;s"); decode them on load so the whole archive is
+  // republished clean, not just newly fetched items.
+  let healed = 0;
+  for (const it of archive) {
+    if (it && typeof it.title === 'string') {
+      const clean = decodeEntities(it.title);
+      if (clean !== it.title) { it.title = clean; healed++; }
+    }
+  }
+  if (healed) console.log(`announcements: decoded entities in ${healed} archived titles`);
   const have = new Set(archive.map((i) => i.url));
   for (const it of items) if (!have.has(it.url)) { archive.push(it); have.add(it.url); }
   const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 90);

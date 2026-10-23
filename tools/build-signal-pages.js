@@ -164,6 +164,7 @@ function page(sys, data) {
 <p class="sig-lede">${tagline}</p>
 
 <div class="sig-fresh" id="sig-fresh" hidden><span class="dot"></span><span id="sig-fresh-text">Loading…</span></div>
+<p class="sig-sub">The headline numbers below are the <strong>backtest</strong> — a historical simulation (${st.backtest_from} &rarr; ${st.backtest_to}), not live results. What these same rules have produced on real sessions is in the <strong>Live forward record</strong> directly underneath.</p>
 <div class="sig-grid">${cards}</div>
 
 <section id="track-record" hidden>
@@ -185,12 +186,6 @@ function page(sys, data) {
 
 <div class="note">${howtoNoteHtml}</div>
 
-<h2>Open alerts — positions the system holds right now</h2>
-<p class="sig-sub">Entry is taken at the signal day's close. Stops and targets are fixed at entry; the trail updates with price. Progress shows how far the trade has moved toward Target 2.</p>
-<div class="scrollx"><table class="sig-table" id="alerts"><thead><tr>
-<th>Date</th><th>Symbol</th><th>Alert</th><th>Entry</th><th>Stop loss</th><th>Trail stop</th><th>Target 1</th><th>Target 2</th><th>Current</th><th>Unrealized</th><th>Progress</th>
-</tr></thead><tbody><tr><td colspan="11">Loading…</td></tr></tbody></table></div>
-
 <h2>Trade profile — backtest (historical simulation)</h2>
 <p class="sig-sub">Hypothetical replay of these exact rules on historical data — not trades anyone took. Real outcomes are in the Live forward record above.</p>
 <div class="scrollx"><table class="sig-table">
@@ -202,6 +197,12 @@ ${profileRows}</table></div>
 
 <h2>The rules (exactly as coded)</h2>
 <div class="rules"><ol>${rulesHtml}</ol></div>
+
+<h2>Backtest — positions still open when the replay ended (hypothetical)</h2>
+<p class="sig-sub">Positions the historical replay still held when it ended on ${st.backtest_to} — hypothetical, and <strong>not</strong> the system's live positions (live positions are the Open paper positions in the Live forward record above). A replay position exits only on its stop loss or a trail break, while the live forward record also exits at Target 1 or after 20 sessions — so the same signal can be closed in the live record yet still open here. Entry is taken at the signal day's close in the replay; "Current" shows the latest traded price for scale only. Progress shows how far price has moved toward Target 2.</p>
+<div class="scrollx"><table class="sig-table" id="alerts"><thead><tr>
+<th>Date</th><th>Symbol</th><th>Alert</th><th>Entry</th><th>Stop loss</th><th>Trail stop</th><th>Target 1</th><th>Target 2</th><th>Current</th><th>Unrealized</th><th>Progress</th>
+</tr></thead><tbody><tr><td colspan="11">Loading…</td></tr></tbody></table></div>
 
 <h2>Closed history — backtest trades</h2>
 <p class="sig-sub">Finished trades from the mechanical backtest replay, newest first — hypothetical, not live trades (${covNote}). The Live forward record above shows what the signals have produced since tracking began. P&amp;L is after the same trading charges the backtest applies.</p>
@@ -402,7 +403,7 @@ ${profileRows}</table></div>
     })();
     /* alerts */
     var tb=document.querySelector('#alerts tbody');
-    if(!d.alerts||!d.alerts.length){tb.innerHTML='<tr><td colspan="11">No open positions right now — the system is flat.</td></tr>';}
+    if(!d.alerts||!d.alerts.length){tb.innerHTML='<tr><td colspan="11">No positions were still open when the replay ended.</td></tr>';}
     else tb.innerHTML=d.alerts.map(function(a){
       // Override stale 'current' with live LTP; recalc unrealized % and progress
       var cur=ltpMap[a.symbol]||+a.current||0;

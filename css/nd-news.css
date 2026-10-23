@@ -81,10 +81,17 @@
   margin-bottom: 20px; text-decoration: none; color: inherit;
 }
 .nn-featured:hover { border-color: var(--nd-lime); }
+/* Announcements carry no photo — the art area is a compact side band for
+   the company mark, not a full-width hero slab (a lone 72px logo in a
+   180px-tall empty gradient read as a broken image). */
 .nn-featured-art {
-  min-height: 180px; display: flex; align-items: center; justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   background: linear-gradient(135deg, var(--nd-panel-2), var(--nd-inset));
-  border-bottom: 1px solid var(--nd-border); padding: 32px;
+  border-bottom: 1px solid var(--nd-border); padding: 20px;
+}
+@media (min-width: 720px) {
+  .nn-featured { grid-template-columns: 200px 1fr; }
+  .nn-featured-art { border-bottom: none; border-right: 1px solid var(--nd-border); padding: 24px; }
 }
 .nn-featured-art .nn-mono-lg {
   width: 96px; height: 96px; border-radius: 22px;
@@ -266,3 +273,14 @@
   background: linear-gradient(180deg, #ffffff 0%, #fafbfc 100%);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 1px 3px rgba(0,0,0,.08);
 }
+/* Light mode: --nd-dim (#8A94A3) is only ~3:1 on white — too faint for the
+   small meta/count/updated text and search placeholder (reads as washed
+   out). Darken just those elements on the news page in light mode. */
+[data-theme="light"] .nn-count,
+[data-theme="light"] .nn-updated,
+[data-theme="light"] .nn-meta,
+[data-nd-ed="light"] .nn-count,
+[data-nd-ed="light"] .nn-updated,
+[data-nd-ed="light"] .nn-meta { color: #5B6472; }
+[data-theme="light"] .nn-search::placeholder,
+[data-nd-ed="light"] .nn-search::placeholder { color: #5B6472; }

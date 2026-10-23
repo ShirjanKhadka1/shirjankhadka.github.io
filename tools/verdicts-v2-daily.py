@@ -38,6 +38,7 @@ REPO_SLUG = "ShirjanKhadka1/shirjankhadka.github.io"
 DATA_FILES = [
     "data/verdicts-v2.json",
     "data/verdicts-v2-summary.json",
+    "data/verdicts-v2-history.json",
     "data/warning-ledger.json",
     "data/verdicts-v2-track-record.json",
     "data/health.json",
@@ -176,6 +177,9 @@ def main():
 
     log("running track-warning-radar.py ...")
     run(["python3", "tools/track-warning-radar.py", "--repo", WORKTREE], timeout=600)
+
+    log("running track-verdict-persistence.py ...")
+    run(["python3", "tools/track-verdict-persistence.py", "--repo", WORKTREE], timeout=300)
 
     # stage only our files
     existing = [p for p in DATA_FILES if os.path.exists(os.path.join(WORKTREE, p))]

@@ -68,6 +68,14 @@
 (function(){
   'use strict';
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  // Decode HTML entities in source titles (&#039; etc.) before escaping, so
+  // titles render "it's", not the literal entity text. &amp; decodes last.
+  function dec(s){return String(s==null?'':s)
+    .replace(/&#(\d+);/g,function(m,n){return String.fromCodePoint(parseInt(n,10));})
+    .replace(/&#[xX]([0-9a-fA-F]+);/g,function(m,n){return String.fromCodePoint(parseInt(n,16));})
+    .replace(/&quot;/g,'"').replace(/&apos;/g,"'").replace(/&lt;/g,'<').replace(/&gt;/g,'>')
+    .replace(/&amp;/g,'&');}
+  function escT(s){return esc(dec(s));}
   function $(id){return document.getElementById(id);}
   function q(name){var m=new RegExp('[?&]'+name+'=([^&]*)').exec(location.search);return m?decodeURIComponent(m[1]):null;}
   function fmtDate(iso){var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso||''));if(!m)return iso||'';var M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return (+m[3])+' '+M[+m[2]-1]+' '+m[1];}
@@ -86,12 +94,12 @@
     var symLink=sym?'<a class="story-sym" href="/stocks/'+esc(sym.replace(/\//g,'-'))+'/">'+esc(sym)+'</a>':'';
     var kind=src==='news'?'Market headline':'Official disclosure';
 
-    document.title=it.title+' — Nepse Decode';
+    document.title=dec(it.title)+' — Nepse Decode';
 
     var h='<p class="story-kicker">'+esc(kind)+'</p>';
-    h+='<h1 class="story-title">'+esc(it.title)+'</h1>';
+    h+='<h1 class="story-title">'+escT(it.title)+'</h1>';
     h+='<div class="story-meta">'+symLink+'<span>'+fmtDate(it.date)+'</span><span>Source: '+esc(it.src||'NEPSE')+'</span></div>';
-    h+='<div class="story-body"><p>'+esc(it.title)+'</p>';
+    h+='<div class="story-body"><p>'+escT(it.title)+'</p>';
     if(it.company) h+='<p><strong>'+esc(it.company)+'</strong></p>';
     h+='<p class="nd-caption">This is a '+(src==='news'?'media headline':'company disclosure')+' collected from '+(src==='news'?'Nepali business media':'the official NEPSE disclosure feed')+'. Nepse Decode does not rewrite these items; the authoritative record is the original source linked below.</p></div>';
     h+='<div class="story-actions">';
@@ -106,7 +114,7 @@
       h+='<div class="story-related"><h2>Related stories</h2>';
       rel.forEach(function(x){
         var ri=items.indexOf(x);
-        h+='<a href="/nepse-news/story/?src='+src+'&i='+ri+'">'+esc(x.title)+'<span>'+fmtDate(x.date)+' · '+esc(x.src||'')+'</span></a>';
+        h+='<a href="/nepse-news/story/?src='+src+'&i='+ri+'">'+escT(x.title)+'<span>'+fmtDate(x.date)+' · '+esc(x.src||'')+'</span></a>';
       });
       h+='</div>';
     }

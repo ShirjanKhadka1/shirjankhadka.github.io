@@ -220,6 +220,30 @@
   var allVerdicts = {};
   function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
   function fmtNum(n){ if(n==null||n==='')return ''; var f=parseFloat(n); if(isNaN(f))return esc(n); return f.toFixed(2); }
+  var FLAGGED = ['EXHAUSTION_RISK','DISTRIBUTION_WARNING','ELEVATED_RISK','IGNITION','BOUNCE_SETUP'];
+  function isFlag(l){ return FLAGGED.indexOf(l) >= 0; }
+  /* Verdict persistence (from tools/track-verdict-persistence.py): how long
+     the current verdict has held, and whether it changed in the latest
+     session. since is null when unknown — then nothing is shown. */
+  function fmtSince(p){
+    if (!p || !p.since) return '';
+    var dt = new Date(p.since + 'T00:00:00');
+    var ds = isNaN(dt.getTime()) ? p.since : dt.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'});
+    var s = 'since ' + ds;
+    if (p.since_sessions != null) s += ' &middot; ' + p.since_sessions + (p.since_sessions === 1 ? ' session' : ' sessions');
+    return s;
+  }
+  function changeChip(label, p){
+    if (!p || !p.changed_latest) return '';
+    var chip = 'display:inline-block;padding:2px 8px;border-radius:999px;font-size:.68rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-left:6px;vertical-align:middle;';
+    if (isFlag(label) && !isFlag(p.prev_label)) return '<span style="'+chip+'background:#fef2f2;color:#dc2626;border:1px solid #fecaca">New</span>';
+    if (!isFlag(label) && isFlag(p.prev_label)) return '<span style="'+chip+'background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0">Cleared</span>';
+    return '';
+  }
+  function sinceLine(p){
+    var s = fmtSince(p);
+    return s ? '<span style="display:block;font-size:.72rem;color:#7a7466;margin-top:4px">'+s+'</span>' : '';
+  }
   function render(){
     var body = document.getElementById('radar-body');
     var rows = [];
@@ -250,7 +274,7 @@
       return '<tr style="border-bottom:1px solid #e5e0d5">'+
         '<td style="padding:10px 12px"><strong>'+esc(r.sym)+'</strong></td>'+
         '<td style="padding:10px 12px"><span style="display:inline-block;padding:3px 10px;border-radius:999px;font-size:.75rem;font-weight:600;'+
-          (r.label==='DISTRIBUTION_WARNING'?'background:#fef2f2;color:#dc2626;border:1px solid #fecaca':r.label==='ELEVATED_RISK'?'background:#fffbeb;color:#d97706;border:1px solid #fde68a':r.label==='BOUNCE_SETUP'?'background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0':'background:#f9fafb;color:#6b7280;border:1px solid #e5e7eb')+'">'+esc(LABELS[r.label]||r.label)+'</span></td>'+
+          (r.label==='DISTRIBUTION_WARNING'?'background:#fef2f2;color:#dc2626;border:1px solid #fecaca':r.label==='ELEVATED_RISK'?'background:#fffbeb;color:#d97706;border:1px solid #fde68a':r.label==='BOUNCE_SETUP'?'background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0':'background:#f9fafb;color:#6b7280;border:1px solid #e5e7eb')+'">'+esc(LABELS[r.label]||r.label)+'</span>'+changeChip(r.label, v.persistence)+sinceLine(v.persistence)+'</td>'+
         '<td style="padding:10px 12px">'+conf+'</td>'+
         '<td style="padding:10px 12px">'+esc(v.sector||'&mdash;')+'</td>'+
         '<td style="padding:10px 12px">'+(detail||'&mdash;')+'</td></tr>';

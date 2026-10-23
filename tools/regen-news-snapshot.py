@@ -15,9 +15,10 @@ MON3 = {'01':'Jan','02':'Feb','03':'Mar','04':'Apr','05':'May','06':'Jun',
 MONO_COLORS = ['#1d4d3b','#8a6d2f','#334155','#7c2d3e','#2f5d62','#5b4a8a']
 
 def dec(s):
-    s = str(s or '')
-    return (s.replace('&quot;', '"').replace('&#39;', "'").replace('&lt;', '<')
-             .replace('&gt;', '>').replace('&amp;', '&'))
+    # Full entity decode (named + decimal + hex, e.g. &#039; -> '), matching
+    # the ingest fix in tools/build-announcements.js; esc() then escapes once.
+    import html as _html
+    return _html.unescape(str(s or ''))
 def esc(s):
     return html.escape(str(s or ''), quote=True)
 def escT(s):

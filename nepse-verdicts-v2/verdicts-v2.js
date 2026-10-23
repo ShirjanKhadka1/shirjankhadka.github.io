@@ -12,7 +12,7 @@
 
   var state = { rows: [], asof: '', session: '', regime: '', regimeNote: '',
     q: '', verdict: 'all', sortKey: 'confidence', sortDir: -1, page: 1,
-    expanded: null };
+    expanded: null, pmeta: null };
   var fullCache = null, fullLoading = false;
 
   function esc(s) {
@@ -71,6 +71,7 @@
         state.regime = json.regime || '';
         state.regimeNote = json.regime_note || '';
         state.coverage = json.coverage || null;
+        state.pmeta = json.persistence_meta || null;
         var v = json.verdicts || {};
         state.rows = Object.keys(v).map(function (sym) {
           var r = v[sym] || {};
@@ -81,7 +82,8 @@
             opp: (typeof r.opportunity_score === 'number' ? r.opportunity_score : null),
             age: r.age_sessions, sec: r.sector || '—',
             early: !!r.early_lifecycle,
-            flags: r.flags || [], lockin: r.lockin || null
+            flags: r.flags || [], lockin: r.lockin || null,
+            pers: r.persistence || null
           };
         });
         renderHead(); renderStats(); renderFilters(); renderTable();
@@ -102,6 +104,29 @@
   }
 
   var WARN = ['EXHAUSTION_RISK','DISTRIBUTION_WARNING','ELEVATED_RISK'];
+  var FLAGGED = ['EXHAUSTION_RISK','DISTRIBUTION_WARNING','ELEVATED_RISK','IGNITION','BOUNCE_SETUP'];
+  function isFlag(l) { return FLAGGED.indexOf(l) >= 0; }
+  /* Verdict persistence (from tools/track-verdict-persistence.py): how long
+     the current verdict has held, and whether it changed in the latest
+     session. since is null when unknown — then nothing is shown. */
+  function fmtSince(p) {
+    if (!p || !p.since) return '';
+    var dt = new Date(p.since + 'T00:00:00');
+    var ds = isNaN(dt.getTime()) ? p.since
+      : dt.toLocaleDateString('en-GB', {day: 'numeric', month: 'short', year: 'numeric'});
+    var s = 'since ' + ds;
+    if (p.since_sessions != null) {
+      s += ' · ' + p.since_sessions + (p.since_sessions === 1 ? ' session' : ' sessions');
+    }
+    return s;
+  }
+  function changeChip(r) {
+    var p = r.pers;
+    if (!p || !p.changed_latest) return '';
+    if (isFlag(r.label) && !isFlag(p.prev_label)) return ' <span class="v2-new">New</span>';
+    if (!isFlag(r.label) && isFlag(p.prev_label)) return ' <span class="v2-cleared">Cleared</span>';
+    return '';
+  }
   function renderStats() {
     var host = $('v2Stats');
     if (!host) return;
@@ -118,6 +143,7 @@
       '<button type="button" class="v2-stat opp" data-v="opps" aria-pressed="'+(state.verdict==='opps')+'"><div class="num">'+opp+'</div><div class="lbl">Opportunity flags</div></button>'+
       '<button type="button" class="v2-stat" data-v="all" aria-pressed="'+(state.verdict==='all')+'"><div class="num">'+state.rows.length+'</div><div class="lbl">Securities scanned</div></button>'+
       (state.coverage ? '<p class="v2-coverage">'+state.coverage.with_today_quote+' current · '+state.coverage.without_today_quote+' on older session · '+state.coverage.failures+' no data</p>' : '')+
+      (state.pmeta && state.pmeta.prev_session ? '<p class="v2-coverage">Latest session: '+state.pmeta.changed+' verdict'+(state.pmeta.changed===1?'':'s')+' changed · '+state.pmeta.new_flags+' new flag'+(state.pmeta.new_flags===1?'':'s')+' · '+state.pmeta.cleared+' cleared</p>' : '')+
       '<p class="v2-take">The radar is a warning instrument: it flags names that look dangerous and shows why. ' +
       '<a href="/nepse-verdicts-v2/methodology/">How it is validated →</a></p>';
     host.querySelectorAll('.v2-stat').forEach(function (b) {
@@ -196,7 +222,8 @@
       var cls = vClass(r.label);
       var h = '<div class="v3-card ' + cls + (open ? ' open' : '') + '" data-sym="'+esc(r.sym)+'" role="button" tabindex="0" aria-expanded="'+open+'">' +
         '<div class="v3-c sym"><span class="v3-sym">'+esc(r.sym)+'</span>'+(r.early?' <span class="v2-early">Early</span>':'')+'</div>' +
-        '<div class="v3-c verdict"><span class="v2-v '+cls+'">'+esc(vLabel(r.label))+'</span></div>' +
+        '<div class="v3-c verdict"><span class="v2-v '+cls+'">'+esc(vLabel(r.label))+'</span>'+changeChip(r)+
+          (fmtSince(r.pers) ? '<span class="v3-since">'+esc(fmtSince(r.pers))+'</span>' : '')+'</div>' +
         '<div class="v3-statrow">' +
           statCell(r,'confidence','Confidence') + statCell(r,'pump','Pump score') +
           statCell(r,'age','Age') + statCell(r,'sec','Sector') + statCell(r,'lockin','Lock-in') +
