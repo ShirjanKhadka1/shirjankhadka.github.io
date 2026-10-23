@@ -342,17 +342,21 @@
     var valid = quotes.filter(function (q) { return q.percent_change != null && isFinite(Number(q.percent_change)); });
     var gainers = valid.slice().sort(function (a, b) { return b.percent_change - a.percent_change; }).slice(0, 5);
     var losers = valid.slice().sort(function (a, b) { return a.percent_change - b.percent_change; }).slice(0, 5);
-    function row(q, isUp) {
+    function row(q, isUp, i, maxAbs) {
       var pct = Number(q.percent_change);
       var arrow = isUp ? '▲' : '▼';
-      var cls = isUp ? 'up' : 'dn';
-      return '<tr><td class="sym"><a href="/stocks/' + esc(q.symbol) + '/">' + esc(q.symbol) + '</a></td>' +
-        '<td class="num">' + fmtNum(q.ltp) + '</td>' +
-        '<td class="num ' + cls + '">' + arrow + ' ' + (pct > 0 ? '+' : '') + pct.toFixed(2) + '%</td>' +
-        '<td class="num">' + fmtCrore(q.turnover) + '</td></tr>';
+      var w = maxAbs > 0 ? Math.max(4, Math.round(Math.abs(pct) / maxAbs * 100)) : 0;
+      return '<a class="cx-rank-row" href="/stocks/' + esc(q.symbol) + '/">' +
+        '<span class="cx-rank-n">' + (i + 1) + '</span>' +
+        '<span class="cx-rank-sym">' + esc(q.symbol) +
+        '<span class="cx-rank-sub">Rs ' + fmtNum(q.ltp) + ' · ' + fmtCrore(q.turnover) + '</span></span>' +
+        '<span class="cx-chip ' + (isUp ? 'up' : 'down') + '">' + arrow + ' ' + (pct > 0 ? '+' : '') + pct.toFixed(2) + '%</span>' +
+        '<span class="cx-rank-track"><span class="cx-rank-fill ' + (isUp ? 'up' : 'down') + '" style="--w:' + w + '%"></span></span></a>';
     }
-    gb.innerHTML = gainers.map(function (q) { return row(q, true); }).join('');
-    lb.innerHTML = losers.map(function (q) { return row(q, false); }).join('');
+    var gMax = gainers.length ? Math.abs(Number(gainers[0].percent_change)) : 0;
+    var lMax = losers.length ? Math.abs(Number(losers[0].percent_change)) : 0;
+    gb.innerHTML = gainers.map(function (q, i) { return row(q, true, i, gMax); }).join('');
+    lb.innerHTML = losers.map(function (q, i) { return row(q, false, i, lMax); }).join('');
     var ds = $('ndGainersDate'), dl = $('ndLosersDate'), ms = $('ndMovesSub');
     if (ds) ds.textContent = sessDate || '';
     if (dl) dl.textContent = sessDate || '';
@@ -374,16 +378,16 @@
     host.innerHTML = Object.keys(cats).map(function (cat) {
       var list = cats[cat].slice(0, 4);
       if (!list.length) return '';
-      return '<div class="nd-newscard"><div class="cat"><span class="dot"></span>' + esc(cat) + '</div>' +
+      return '<div class="nd-newscard cx-cat"><div class="cx-cat-head">' + esc(cat) + '</div>' +
         list.map(function (n) {
           var href = n.url || n.link || '/nepse-news/';
           var time = n.published || n.date || '';
           var tag = (n.tags && n.tags[0]) || (n.symbol || '');
-          return '<div class="nd-newsitem"><a href="' + esc(href) + '">' +
-            '<div class="t">' + esc(n.title || 'Untitled') + '</div>' +
-            '<div class="m"><span>' + esc(time) + '</span>' +
-            (tag ? '<span class="tag">' + esc(String(tag).toUpperCase()) + '</span>' : '') +
-            '</div></a></div>';
+          return '<a class="cx-cat-item" href="' + esc(href) + '">' +
+            '<span class="cx-ci-t">' + esc(n.title || 'Untitled') + '</span>' +
+            '<span class="cx-ci-d">' + esc(time) +
+            (tag ? ' · ' + esc(String(tag).toUpperCase()) : '') +
+            '</span></a>';
         }).join('') + '</div>';
     }).join('');
   }
@@ -413,10 +417,13 @@
       var v = metric === 'turnover' ? q.turnover : metric === 'volume' ? q.volume : q.trades;
       var vTxt = metric === 'turnover' ? fmtCrore(v) : Number(v).toLocaleString('en-IN');
       var pct = Number(q.percent_change) || 0;
-      var cls = pct > 0 ? 'up' : pct < 0 ? 'dn' : '';
+      var cls = pct > 0 ? 'up' : pct < 0 ? 'down' : 'flat';
+      var topV = Number(top[0] ? (metric === 'turnover' ? top[0].turnover : metric === 'volume' ? top[0].volume : top[0].trades) : 0);
+      var share = topV > 0 ? Math.max(3, Math.round(Number(v) / topV * 100)) : 0;
       return '<tr><td class="sym"><a href="/stocks/' + esc(q.symbol) + '/">' + esc(q.symbol) + '</a></td>' +
         '<td class="num">' + vTxt + '</td>' +
-        '<td class="num ' + cls + '">' + (pct > 0 ? '+' : '') + pct.toFixed(2) + '%</td>' +
+        '<td><span class="cx-prop"><span class="cx-prop-track"><span class="cx-prop-fill" style="--w:' + share + '%"></span></span></span></td>' +
+        '<td class="num"><span class="cx-chip ' + cls + '">' + (pct > 0 ? '+' : '') + pct.toFixed(2) + '%</span></td>' +
         '<td class="num">' + fmtNum(q.ltp) + '</td></tr>';
     }).join('');
     // Tab switching
@@ -470,14 +477,17 @@
         .filter(function (q) { return q.turnover && Number(q.turnover) > 0; })
         .sort(function (a, b) { return Number(b.turnover) - Number(a.turnover); })
         .slice(0, 6);
+      var pulseTop = byTurnover.length ? Number(byTurnover[0].turnover) : 0;
       pulseHost.innerHTML = byTurnover.map(function (q, i) {
         var pct = Number(q.percent_change) || 0;
         var cls = pct > 0 ? 'up' : pct < 0 ? 'dn' : '';
-        return '<a class="nd-pulse-item" href="/stocks/' + esc(q.symbol) + '/">' +
+        var share = pulseTop > 0 ? Math.max(3, Math.round(Number(q.turnover) / pulseTop * 100)) : 0;
+        return '<a class="nd-pulse-item cx-pulse-item" href="/stocks/' + esc(q.symbol) + '/">' +
           '<span class="rank">' + (i + 1) + '</span>' +
           '<div class="info"><div class="sym">' + esc(q.symbol) + '</div>' +
           '<div class="meta">Rs ' + fmtNum(q.ltp) + ' · <span class="' + cls + '">' +
-          (pct > 0 ? '+' : '') + pct.toFixed(2) + '%</span> · ' + fmtCrore(q.turnover) + '</div></div></a>';
+          (pct > 0 ? '+' : '') + pct.toFixed(2) + '%</span> · ' + fmtCrore(q.turnover) + '</div></div>' +
+          '<span class="cx-prop"><span class="cx-prop-track"><span class="cx-prop-fill" style="--w:' + share + '%"></span></span></span></a>';
       }).join('');
       var ps = $('ndPulseSub');
       if (ps && sessDate) ps.textContent = 'Ranked by live turnover · session of ' + sessDate;
@@ -502,21 +512,21 @@
         var exits = verdicts.filter(function (x) { return /exit|sell/i.test(x.verdict || ''); })
           .sort(function (a, b) { return (a.score || 0) - (b.score || 0); }).slice(0, 4);
         var html = '';
+        function engineRow(x) {
+          var sc = Number(x.score);
+          var pos = isFinite(sc) ? Math.max(0, Math.min(100, sc)) : 50;
+          return '<div class="nd-engine-item"><span class="sym">' + esc(x.symbol) + '</span>' +
+            '<span class="cx-gauge" role="img" aria-label="Score ' + esc(String(x.score)) + ' of 100"><span class="cx-gauge-mark" style="--pos:' + pos + '%"></span></span>' +
+            '<span class="score">score ' + esc(String(x.score)) + '</span>' +
+            '<span class="nd-verdict ' + (/buy/i.test(x.verdict || '') ? 'buy' : 'exit') + '">' + esc(x.verdict) + '</span></div>';
+        }
         if (buys.length) {
           html += '<div class="nd-eyebrow" style="margin-bottom:8px">Strongest buys</div>';
-          html += buys.map(function (x) {
-            return '<div class="nd-engine-item"><span class="sym">' + esc(x.symbol) + '</span>' +
-              '<span class="score">score ' + esc(String(x.score)) + '</span>' +
-              '<span class="nd-verdict buy">' + esc(x.verdict) + '</span></div>';
-          }).join('');
+          html += buys.map(engineRow).join('');
         }
         if (exits.length) {
           html += '<div class="nd-eyebrow" style="margin:12px 0 8px">Strongest exits</div>';
-          html += exits.map(function (x) {
-            return '<div class="nd-engine-item"><span class="sym">' + esc(x.symbol) + '</span>' +
-              '<span class="score">score ' + esc(String(x.score)) + '</span>' +
-              '<span class="nd-verdict exit">' + esc(x.verdict) + '</span></div>';
-          }).join('');
+          html += exits.map(engineRow).join('');
         }
         engineHost.innerHTML = html || '<p class="nd-pe-sub">No verdicts available.</p>';
         var es = $('ndEngineSub');

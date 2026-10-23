@@ -101,7 +101,37 @@
     ticker.appendChild(btn);
   }
 
-  function init() { armCountUp(); armLift(); armTicker(); }
+  /* ---------- 4. cx- reveal driver (full-suite cinema layer, 2026-10-23) ----------
+     Adds .cx-in once when a cx component nears the viewport: drives the
+     reveal rise, ranked/proportion bar growth and breadth-bar sweep.
+     Re-arms on DOM mutations (pages render sections via JS after load).
+     Reduced-motion / no-IO: everything is switched in immediately. */
+  var CX_SEL = '.cx-reveal, .cx-rank, .cx-prop, .cx-breadth';
+  function cxIn(el) { el.classList.add('cx-in'); }
+  function armCx() {
+    var els = document.querySelectorAll(CX_SEL + ':not(.cx-in)');
+    if (!els.length) return;
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || !('IntersectionObserver' in window)) { els.forEach(cxIn); return; }
+    if (!armCx.io) {
+      armCx.io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) { if (e.isIntersecting) { cxIn(e.target); armCx.io.unobserve(e.target); } });
+      }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
+    }
+    els.forEach(function (el) { armCx.io.observe(el); });
+  }
+  function armCxWatch() {
+    armCx();
+    if (!('MutationObserver' in window) || armCxWatch.done) return;
+    armCxWatch.done = true;
+    var pending = false;
+    new MutationObserver(function () {
+      if (pending) return; pending = true;
+      requestAnimationFrame(function () { pending = false; armCx(); });
+    }).observe(document.body, { childList: true, subtree: true });
+  }
+
+  function init() { armCountUp(); armLift(); armTicker(); armCxWatch(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 })();

@@ -40,7 +40,7 @@
 <link rel="stylesheet" href="/css/nd-home.css?v=20261023d">
 <link rel="stylesheet" href="/css/nd-3d.css">
 <link rel="stylesheet" href="/css/nd-market-3d.css">
-<link rel="stylesheet" href="/css/nd-cinema.css">
+<link rel="stylesheet" href="/css/nd-cinema.css?v=20261023g">
 <style>
 /* overview: sig-pro design language. JS class names/IDs kept intact (zero JS changes);
    d2-* vars aliased to nd-* so any stray reference still resolves. */
@@ -191,7 +191,7 @@ gap:2px;padding:8px 6px;border-radius:10px;border:1px solid var(--hairline,#e5e7
   <div class="sig-wrap">
     <!-- Wave A hero band: visible H1 (was screen-reader-only) + the
          NEPSE index card as the hero numeral. #ndIxCard is painted by
-         js/nd-home.js by ID, so moving the node changes no wiring. -->
+         js/nd-home.js?v=20261023g by ID, so moving the node changes no wiring. -->
     <section class="nd-hero" aria-label="Nepse Decode — market overview">
       <div class="nd-hero-copy">
         <span class="nd-eyebrow">Nepse Decode · Market Dashboard</span>
@@ -226,13 +226,13 @@ gap:2px;padding:8px 6px;border-radius:10px;border:1px solid var(--hairline,#e5e7
           <span class="sub" id="ndMovesSub">Ranked by % change · last session</span>
         </div>
         <div class="nd-moves-grid">
-          <div class="nd-movecard" data-cinema-lift>
+          <div class="nd-movecard cx-card" data-cinema-lift>
             <div class="nd-movecard-head"><h3>Top gainers</h3><span class="date" id="ndGainersDate"></span><a class="nd-seemore" href="/nepse-daily/?sort=gainers">See more →</a></div>
-            <table class="nd-table" aria-label="Top gainers"><thead><tr><th>SYMBOL</th><th class="num">LTP (RS)</th><th class="num">CHANGE</th><th class="num">TURNOVER</th></tr></thead><tbody id="ndGainersBody"></tbody></table>
+            <div class="cx-rank" id="ndGainersBody" role="list" aria-label="Top gainers"></div>
           </div>
-          <div class="nd-movecard" data-cinema-lift>
+          <div class="nd-movecard cx-card" data-cinema-lift>
             <div class="nd-movecard-head"><h3>Top losers</h3><span class="date" id="ndLosersDate"></span><a class="nd-seemore" href="/nepse-daily/?sort=losers">See more →</a></div>
-            <table class="nd-table" aria-label="Top losers"><thead><tr><th>SYMBOL</th><th class="num">LTP (RS)</th><th class="num">CHANGE</th><th class="num">TURNOVER</th></tr></thead><tbody id="ndLosersBody"></tbody></table>
+            <div class="cx-rank" id="ndLosersBody" role="list" aria-label="Top losers"></div>
           </div>
         </div>
       </section>
@@ -247,15 +247,15 @@ gap:2px;padding:8px 6px;border-radius:10px;border:1px solid var(--hairline,#e5e7
           <button data-metric="volume" role="tab" aria-selected="false" tabindex="-1">Traded shares</button>
           <button data-metric="transactions" role="tab" aria-selected="false" tabindex="-1">Transactions</button>
         </div>
-        <div class="nd-movecard" data-cinema-lift>
+        <div class="nd-movecard cx-card" data-cinema-lift>
           <div class="nd-movecard-head"><h3 id="ndActiveTitle">By turnover</h3><a class="nd-seemore" href="/nepse-daily/#all-stocks">See more →</a></div>
-          <table class="nd-table" aria-label="Most active stocks"><thead><tr><th>SYMBOL</th><th class="num" id="ndActiveColHead">TURNOVER</th><th class="num">CH %</th><th class="num">LTP (RS)</th></tr></thead><tbody id="ndActiveBody"></tbody></table>
+          <table class="nd-table cx-table" aria-label="Most active stocks"><thead><tr><th>SYMBOL</th><th class="num" id="ndActiveColHead">TURNOVER</th><th>SHARE OF TOP</th><th class="num">CH %</th><th class="num">LTP (RS)</th></tr></thead><tbody id="ndActiveBody"></tbody></table>
         </div>
       </section>
 
       <section class="nd-pulse-engine" aria-label="Market pulse and engine verdicts">
         <div class="nd-pe-grid">
-          <div class="nd-pe-card" data-cinema-lift>
+          <div class="nd-pe-card cx-card" data-cinema-lift>
             <div class="nd-pe-head">
               <div><span class="nd-eyebrow">Market Pulse</span><h2>Trending now</h2></div>
               <a class="nd-seemore" href="/nepse-trending/">See more →</a>
@@ -263,7 +263,7 @@ gap:2px;padding:8px 6px;border-radius:10px;border:1px solid var(--hairline,#e5e7
             <p class="nd-pe-sub" id="ndPulseSub">Ranked by live turnover</p>
             <div id="ndPulseList" class="nd-pulse-list"></div>
           </div>
-          <div class="nd-pe-card" data-cinema-lift>
+          <div class="nd-pe-card cx-card" data-cinema-lift>
             <div class="nd-pe-head">
               <div><span class="nd-eyebrow">The Engine</span><h2>Latest verdicts</h2></div>
               <a class="nd-seemore" href="/nepse-screener/">See more →</a>
@@ -306,8 +306,8 @@ window.addEventListener('error', function (e) {
 <script src="/js/nepse-flash.js?v=20261023d" defer></script>
 <script src="/js/company-logos.js?v=20261023d" defer></script>
 <script src="/js/nepse-logos.js" defer></script>
-<script src="/js/nd-home.js?v=20261023d" defer></script>
-<script src="/js/nd-cinema.js" defer></script>
+<script src="/js/nd-home.js?v=20261023g" defer></script>
+<script src="/js/nd-cinema.js?v=20261023g" defer></script>
 <script src="/js/nd-chrome.js?v=20261023d" defer></script>
 <script>
 document.addEventListener('DOMContentLoaded', function(){
