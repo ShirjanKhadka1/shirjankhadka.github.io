@@ -125,7 +125,7 @@
 .cx-rank-row:hover .cx-rank-sym{color:var(--nd-lime,#B8E62E)}
 .cx-rank-val{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--nd-text,#FFF)}
 .cx-rank-track{grid-column:2 / 4;height:6px;border-radius:99px;background:var(--nd-inset,#0D0F14);overflow:hidden}
-.cx-rank-fill{height:100%;border-radius:99px;background:linear-gradient(90deg, var(--nd-lime,#B8E62E), rgba(184,230,46,.55));
+.cx-rank-fill{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg, var(--nd-lime,#B8E62E), rgba(184,230,46,.55));
   width:var(--w,50%);animation:cxGrow .9s cubic-bezier(.22,1,.36,1) both}
 .cx-rank-fill.up{background:linear-gradient(90deg, var(--nd-up,#4ADE80), rgba(74,222,128,.5))}
 .cx-rank-fill.down{background:linear-gradient(90deg, var(--nd-down,#F87171), rgba(248,113,113,.5))}
@@ -134,7 +134,7 @@
 /* ---- proportion bar (share-of-whole inside tables/cells) ---- */
 .cx-prop{display:flex;align-items:center;gap:10px;min-width:130px}
 .cx-prop-track{flex:1;height:6px;border-radius:99px;background:var(--nd-inset,#0D0F14);overflow:hidden}
-.cx-prop-fill{height:100%;border-radius:99px;background:var(--nd-lime,#B8E62E);width:var(--w,50%);animation:cxGrow .9s cubic-bezier(.22,1,.36,1) both}
+.cx-prop-fill{display:block;height:100%;border-radius:99px;background:var(--nd-lime,#B8E62E);width:var(--w,50%);animation:cxGrow .9s cubic-bezier(.22,1,.36,1) both}
 
 /* ---- bullet gauge (verdict score against its scale) ---- */
 .cx-gauge{position:relative;height:12px;border-radius:99px;
