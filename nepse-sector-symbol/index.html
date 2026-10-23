@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0A0C10">
+<title>Sector–Symbol Relation: Every Stock vs Its Own Sector | Nepse Decode</title>
+<meta name="description" content="NEPSE sector–symbol relation: for every listed stock, its return, its sector's return, and the relative return between them over 3 to 30 calendar days — relative = stock − sector on every row. With measured stability of those relations over three years. Computed from Nepse Decode's own data archive, free. Educational use only.">
+<meta name="author" content="Shirjan Khadka">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-sector-symbol/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:title" content="Sector–Symbol Relation: Every Stock vs Its Own Sector">
+<meta property="og:description" content="Every stock measured against its own sector: stock return, sector return and the relative return between them, over 3–30 day windows. Free.">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Sector–Symbol Relation: Every Stock vs Its Own Sector">
+<meta name="twitter:description" content="Every stock's return minus its own sector's return, over 3–30 day windows, with measured relation stability. Updated after every close.">
+<meta property="twitter:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-sector-symbol/">
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
+<link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode Sector–Symbol Relation","url":"https://shirjankhadka.com.np/nepse-sector-symbol/","description":"Per-stock relative-return board: every listed stock's return minus its own sector's return, over 3 to 30 calendar days, with measured relation stability. Educational use only, not investment advice.","author":{"@type":"Organization","name":"Nepse Decode"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
+{"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
+{"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-decode/"},
+{"@type":"ListItem","position":3,"name":"Sector–Symbol Relation","item":"https://shirjankhadka.com.np/nepse-sector-symbol/"}]}
+</script>
+<link rel="stylesheet" href="/css/nd-tokens.css">
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
+<link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
+<link rel="stylesheet" href="/css/nd-sector-symbol.css?v=5484a8ea">
+</head>
+<body class="nd" data-page="sector-symbol">
+
+  <a class="skip-link" href="#main">Skip to content</a>
+<div id="nd-header"></div>
+<div class="fb-wrap" style="display:flex;justify-content:center;padding:10px 16px 0"><div data-freshness-badge></div></div>
+
+<div class="nd-shell">
+  <div class="nd-content">
+    <div class="nd-wrap">
+<main id="main">
+
+  <div class="ss-masthead">
+    <p class="cx-kicker">Research</p>
+    <h1 class="ss-title">Sector–Symbol Relation</h1>
+    <p class="ss-lede">Every stock, measured against its own sector. For each window, a stock's
+      <strong>return</strong>, its <strong>sector's return</strong>, and the difference between
+      them — the <strong>relative return</strong>, in percentage points. One identity holds on
+      every row of this page: <strong>relative = stock − sector</strong>. Check any row by
+      subtraction. Windows run from 3 to 30 calendar days; the 30-day board is the one-month view.</p>
+    <p class="ss-meta"><span id="ssSession">Loading…</span></p>
+  </div>
+
+  <div class="cx-seg" id="winTabs" role="tablist" aria-label="Window"></div>
+
+  <div class="cx-stats ss-stats" id="statStrip" aria-label="Board summary"></div>
+
+  <section class="ss-catsec" aria-label="The relation board" id="board">
+    <h2 class="ss-h2 ss-h2-sec">The relation board</h2>
+    <p class="ss-chartsub">Every scored stock on the selected window. Filter by sector or search
+      a symbol; the sort options mirror the board's ordering choices. The strip under the
+      controls splits the board into five relative-return bands — counts printed, as always.</p>
+    <div class="ss-controls">
+      <label class="ss-lab">Sector
+        <select class="ss-select" id="sectorSel" aria-label="Sector filter"></select>
+      </label>
+      <label class="ss-lab">Sort
+        <select class="ss-select" id="sortSel" aria-label="Sort order">
+          <option value="rel">Relative return · high first</option>
+          <option value="ret">Stock return · high first</option>
+          <option value="secrel">Sector return · high first</option>
+          <option value="sym">Symbol · A to Z</option>
+        </select>
+      </label>
+      <label class="ss-lab ss-grow">Search
+        <input class="ss-search" id="q" type="search" placeholder="Symbol — e.g. ADBL" aria-label="Search symbol">
+      </label>
+    </div>
+    <div class="ss-dist" id="distBox" aria-label="Relative-return distribution"></div>
+    <p class="ss-count" id="rowCount"></p>
+    <div class="cx-scroll ss-tablewrap">
+      <table class="cx-table" id="boardTable">
+        <thead><tr>
+          <th>Symbol</th><th>Sector</th>
+          <th class="num">Stock return</th><th class="num">Sector return</th>
+          <th class="num">Relative return</th><th class="num">In sector</th>
+        </tr></thead>
+        <tbody id="boardBody"><tr><td colspan="6" class="ss-loading">Loading the board…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="ss-catsec" aria-label="Strongest and weakest relations">
+    <h2 class="ss-h2 ss-h2-sec">Strongest and weakest relations</h2>
+    <p class="ss-chartsub">The ten stocks furthest ahead of their sector, and the ten furthest
+      behind, on the selected window. Bars and printed values are the relative return in
+      percentage points.</p>
+    <div class="ss-two">
+      <div>
+        <h3 class="ss-h3">Furthest ahead of sector</h3>
+        <ol class="cx-rank" id="topList"></ol>
+      </div>
+      <div>
+        <h3 class="ss-h3">Furthest behind sector</h3>
+        <ol class="cx-rank" id="botList"></ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="ss-catsec" aria-label="The sector picture">
+    <h2 class="ss-h2 ss-h2-sec">The sector picture</h2>
+    <p class="ss-chartsub">Each sector's own return on the selected window, how many of its
+      stocks are beating it, the median relative return inside it, and its current leader
+      and laggard.</p>
+    <div class="cx-scroll ss-tablewrap">
+      <table class="cx-table" id="sectorTable">
+        <thead><tr>
+          <th>Sector</th><th class="num">Sector return</th><th class="num">Scored</th>
+          <th>Ahead of sector</th><th class="num">Median relative</th>
+          <th>Leader</th><th>Laggard</th>
+        </tr></thead>
+        <tbody id="sectorBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="ss-catsec" aria-label="Relation stability">
+    <h2 class="ss-h2 ss-h2-sec">How stable are these relations?</h2>
+    <p class="ss-chartsub">Measured, not asserted: weekly snapshots over the trailing three
+      years, each board recomputed 28 calendar days later. Sign persistence is the share of
+      stocks whose relative return kept the same sign; the last column is the share of a
+      snapshot's top-decile leaders still ahead of their sector four weeks on.</p>
+    <div class="cx-scroll ss-tablewrap">
+      <table class="cx-table" id="stabTable">
+        <thead><tr>
+          <th>Window</th><th class="num">Snapshots</th>
+          <th class="num">Sign persistence · 4 weeks later</th>
+          <th class="num">Top-decile leaders still ahead</th>
+        </tr></thead>
+        <tbody id="stabBody"></tbody>
+      </table>
+    </div>
+    <p class="cx-cap">At short windows both measures sit close to a coin flip — relative
+      leadership reshuffles fast, and this page says so rather than dressing the board up as
+      a signal. These are descriptions of the past three years, not forecasts.</p>
+  </section>
+
+  <section class="ss-catsec" aria-label="Methodology">
+    <h2 class="ss-h2 ss-h2-sec">How this board is built</h2>
+    <div class="ss-method">
+      <p><strong>The construction.</strong> Windows are calendar days. For a window of N days,
+        the base is the last close on or before the date N days before the latest session. A
+        stock's return is its close-to-close return across the window; its sector return is
+        the return of its sector's derived index over the identical window; the relative
+        return is the difference, in percentage points. The sector returns printed here are
+        the same figures the <a href="/nepse-sector-price-rotation/">Sector Price Rotation</a>
+        board publishes for the shared windows — one sector series feeds both pages.</p>
+      <p><strong>The sectors.</strong> Each sector is a derived index built by Nepse Decode:
+        the equal-weighted chained daily returns of the sector's listed companies, computed
+        from our own OHLC archive (the same series behind the
+        <a href="/nepse-seasonality/">Seasonality</a>,
+        <a href="/nepse-regime/">Market Regime</a> and
+        <a href="/nepse-sector-rotation/">Sector Rotation</a> pages) — not the official
+        cap-weighted NEPSE sub-indices, so levels differ from cap-weighted sources by
+        design. Sector membership is today's map applied historically, so delisted names
+        are absent — a survivorship caveat we state rather than hide. Our taxonomy has 11
+        sectors: Trading companies are folded into Others, and mutual funds are an
+        instrument type rather than a sector index.</p>
+      <p><strong>Coverage.</strong> <span id="covText">—</span> Stocks without a close on both
+        sides of a window are listed as unscored for that window rather than dropped
+        silently: <span id="unscoredText">—</span></p>
+      <p><strong>Stability.</strong> The stability table replays this exact board on weekly
+        snapshots across the trailing three years of our archive and derived indices,
+        comparing each board with the same board 28 calendar days later. It is measured
+        history, published so the board is read with the scepticism its own record earns.</p>
+      <p><strong>Reading it honestly.</strong> A relative return says a stock moved more or
+        less than its sector over a past window — nothing more. It is not a quality grade,
+        not a valuation, and not a promise about the next window; the stability numbers
+        above show how often the relation simply flips.</p>
+    </div>
+  </section>
+
+  <p class="ss-fine">Mechanical relative-price statistics for education, not investment
+    advice. Data: Nepse Decode OHLC archive + derived sector indices, rebuilt after each
+    close. No live feed is claimed: during market hours this page still shows the last
+    close's board.</p>
+
+</main>
+    </div>
+  </div>
+</div>
+
+<div id="nd-footer"></div>
+<script src="/js/nd-chrome.js?v=45455899"></script>
+<script src="/js/freshness-badge.js?v=9b77cf10" defer></script>
+<script src="/js/sector-symbol.js?v=07f5058b"></script>
+</body>
+</html>
