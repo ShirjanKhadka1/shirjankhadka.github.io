@@ -45,6 +45,7 @@
           (r.pending_flip ? ' <span class="rgb-pend">flip pending</span>' : '') + '</td>' +
         '<td class="rgb-num">' + r.days_in_regime + (r.days_in_regime === 1 ? ' session' : ' sessions') + '<br><span class="rgb-sub">since ' + esc(r.regime_started_date) + '</span></td>' +
         '<td class="rgb-num">' + spct(r.gap_vs_sma200_pct) + '</td>' +
+        '<td class="rgb-num">' + spct(r.sma200_slope_20d_pct) + '</td>' +
         '<td class="rgb-num">' + (r.breadth_above_sma50 == null ? '—' : (r.breadth_above_sma50 * 100).toFixed(1) + '%') + '</td>' +
         '<td>' + (r.confidence_tier ? '<span class="rgb-tier ' + r.confidence_tier.toLowerCase() + '">' + r.confidence_tier + '</span>' : '<span class="rgb-sub">thin index</span>') + '</td>' +
         '<td class="rgb-num">' + (r.turn_risk == null ? '—' : (r.turn_risk * 100).toFixed(1) + '%') +
