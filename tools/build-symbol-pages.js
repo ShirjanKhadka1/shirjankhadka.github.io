@@ -266,6 +266,7 @@ SP_ABOUT_CSS +
 '[data-theme=\"light\"] .d2-metric-row{background:linear-gradient(180deg,#FFFFFF,#F4F7FA);border-color:#CBD4DE;color:#0A0C10}\n' +
 '[data-theme=\"light\"] .d2-bank-chips button{background:#EFF2F6;border-color:#D5DCE4;color:#3F4753}\n' +
 '[data-theme=\"light\"] .d2-bank-chips button[aria-pressed=\"true\"]{background:#4D7C0F;border-color:#4D7C0F;color:#fff}\n' +
+'body{font-family:var(--nd-font-sans,Inter,system-ui,-apple-system,Segoe UI,sans-serif)}\n' +
 '</style>\n';
 
 function vClass(v) {
