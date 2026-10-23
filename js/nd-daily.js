@@ -222,8 +222,9 @@
     var arrow = c > 0 ? '▲ ' : c < 0 ? '▼ ' : '';
     var cs = (c > 0 ? '+' : '') + fmtNum(c);
     var ps = (p > 0 ? '+' : '') + p.toFixed(2) + '%';
+    var chipCls = cls === 'dn' ? 'down' : cls;
     return '<td class="num ' + cls + '">' + arrow + cs + '</td>' +
-           '<td class="num ' + cls + '">' + arrow + ps + '</td>';
+           '<td class="num"><span class="cx-chip ' + chipCls + '">' + arrow + ps + '</span></td>';
   }
 
   function renderTable() {
@@ -242,9 +243,17 @@
     } else {
       body.innerHTML = slice.map(function (q) {
         var sym = esc(q.symbol || '');
-        var dayRange = (q.low != null && q.high != null && isFinite(Number(q.low)) && isFinite(Number(q.high)))
-          ? fmtNum(q.low) + ' – ' + fmtNum(q.high)
-          : '<span class="unavail">Unavailable</span>';
+        var lo = Number(q.low), hi = Number(q.high), ltp = Number(q.ltp);
+        var dayRange;
+        if (isFinite(lo) && isFinite(hi) && hi > lo && isFinite(ltp)) {
+          var pos = Math.max(0, Math.min(100, ((ltp - lo) / (hi - lo)) * 100));
+          dayRange = '<span class="cx-range-cell"><span class="cx-range cx-range-sm"><span class="cx-range-mark" style="--pos:' + pos.toFixed(1) + '%"></span></span>' +
+            '<span class="cx-range-nums">' + fmtNum(lo) + ' – ' + fmtNum(hi) + '</span></span>';
+        } else if (isFinite(lo) && isFinite(hi)) {
+          dayRange = fmtNum(lo) + ' – ' + fmtNum(hi);
+        } else {
+          dayRange = '<span class="unavail">Unavailable</span>';
+        }
         var logo = (window.NepseLogo ? window.NepseLogo.html(q.symbol, sectorOfRow(q), 28) : '');
         return '<tr>' +
           '<td><span class="sym">' + logo + '<a href="/stocks/' + sym + '/">' + sym + '</a></span>' +
@@ -377,6 +386,25 @@
                  '<div class="ds-range-marker" style="left:' + pos.toFixed(1) + '%"></div></div>' +
                  '<div class="ds-range-lbl"><span>Low</span><span>High</span></div></div>';
       }
+      // Market breadth — advancers / unchanged / decliners from the same quotes
+      var adv = 0, flat = 0, dec = 0, noTrade = 0;
+      quotes.forEach(function (q) {
+        var p = Number(q.percent_change);
+        if (!isFinite(p)) { noTrade++; return; }
+        if (p > 0) adv++; else if (p < 0) dec++; else flat++;
+      });
+      var traded = adv + flat + dec;
+      if (traded > 0) {
+        var pc = function (n) { return (n / traded * 100).toFixed(2); };
+        dayBar += '<div class="ds-range-block"><div class="ds-range-head"><span>Market Breadth</span>' +
+          '<span>' + traded + ' traded' + (noTrade ? ' · ' + noTrade + ' not traded' : '') + '</span></div>' +
+          '<div class="cx-breadth" role="img" aria-label="' + adv + ' advancers, ' + flat + ' unchanged, ' + dec + ' decliners">' +
+          '<i class="b-up" style="width:' + pc(adv) + '%"></i>' +
+          '<i class="b-flat" style="width:' + pc(flat) + '%"></i>' +
+          '<i class="b-down" style="width:' + pc(dec) + '%"></i></div>' +
+          '<div class="cx-breadth-legend"><span>Advancers <b>' + adv + '</b></span>' +
+          '<span>Unchanged <b>' + flat + '</b></span><span>Decliners <b>' + dec + '</b></span></div></div>';
+      }
       ranges.innerHTML = dayBar;
     }
 
@@ -448,11 +476,12 @@
       var arrow = c > 0 ? '▲ ' : c < 0 ? '▼ ' : '';
       var cs = isFinite(c) ? (c > 0 ? '+' : '') + fmtNum(c) : '—';
       var ps = isFinite(p) ? (p > 0 ? '+' : '') + p.toFixed(2) + '%' : '—';
+      var chipCls = cls === 'dn' ? 'down' : cls;
       return '<tr>' +
         '<td><span class="sym">' + esc(ix.name || '') + '</span></td>' +
         '<td class="num">' + fmtNum(ix.value) + '</td>' +
         '<td class="num ' + cls + '">' + arrow + cs + '</td>' +
-        '<td class="num ' + cls + '">' + arrow + ps + '</td>' +
+        '<td class="num"><span class="cx-chip ' + chipCls + '">' + arrow + ps + '</span></td>' +
       '</tr>';
     }).join('');
     sec.hidden = false;
