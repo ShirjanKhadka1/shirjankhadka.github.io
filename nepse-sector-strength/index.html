@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0A0C10">
+<title>Sector Strength: Every NEPSE Sector Scored 0–100 | Nepse Decode</title>
+<meta name="description" content="NEPSE sector strength: all 11 sectors scored 0–100 over 7, 21, 45 and 90-day windows — relative strength vs the NEPSE index, a volatility-based risk score, an overall score (0.7 × strength + 0.3 × risk) and a Leading / Improving / Weakening / Lagging phase for every sector. Computed from Nepse Decode's own data archive, free. Educational use only.">
+<meta name="author" content="Shirjan Khadka">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-sector-strength/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:title" content="Sector Strength: Every NEPSE Sector Scored 0–100">
+<meta property="og:description" content="Relative strength vs NEPSE, risk and an overall score for all 11 sectors over 7–90 day windows, with measured persistence of the ranking. Free.">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Sector Strength: Every NEPSE Sector Scored 0–100">
+<meta name="twitter:description" content="Every sector's strength score, relative strength vs NEPSE, risk score and phase over 7–90 day windows. Updated after every close.">
+<meta property="twitter:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-sector-strength/">
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
+<link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode Sector Strength","url":"https://shirjankhadka.com.np/nepse-sector-strength/","description":"Sector strength board: all 11 NEPSE sectors scored 0-100 over 7/21/45/90-day windows — relative strength vs the index, volatility risk score, overall score and trend phase, with measured ranking persistence. Educational use only, not investment advice.","author":{"@type":"Organization","name":"Nepse Decode"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
+{"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
+{"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-decode/"},
+{"@type":"ListItem","position":3,"name":"Sector Strength","item":"https://shirjankhadka.com.np/nepse-sector-strength/"}]}
+</script>
+<link rel="stylesheet" href="/css/nd-tokens.css">
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
+<link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
+<link rel="stylesheet" href="/css/nd-sector-strength.css?v=42bdb468">
+</head>
+<body class="nd" data-page="sector-strength">
+
+  <a class="skip-link" href="#main">Skip to content</a>
+<div id="nd-header"></div>
+<div class="fb-wrap" style="display:flex;justify-content:center;padding:10px 16px 0"><div data-freshness-badge></div></div>
+
+<div class="nd-shell">
+  <div class="nd-content">
+    <div class="nd-wrap">
+<main id="main">
+
+  <div class="st-masthead">
+    <p class="cx-kicker">Research</p>
+    <h1 class="st-title">Sector Strength</h1>
+    <p class="st-lede">Every sector, scored. For each of four windows — 7, 21, 45 and 90
+      calendar days — a sector earns a <strong>strength score</strong> from how far its
+      return sits above or below the NEPSE index, stretched across the board so the
+      strongest sector reads 100 and the weakest 0. A <strong>risk score</strong> rewards
+      calm: 100 × (1 − the sector's volatility ÷ the board's highest). One identity
+      holds on every row: <strong>overall = 0.7 × mean strength + 0.3 × risk</strong>.
+      Check any row with the printed numbers.</p>
+    <p class="st-meta"><span id="stSession">Loading…</span></p>
+  </div>
+
+  <div class="cx-stats st-stats" id="statStrip" aria-label="Board summary"></div>
+
+  <section class="st-catsec" aria-label="The strength board" id="board">
+    <h2 class="st-h2 st-h2-sec">The strength board</h2>
+    <p class="st-chartsub">All 11 sectors, ranked by overall score. Pick a window to change
+      the window columns — strength, relative strength, the sector's own return and its
+      momentum label follow the window; volatility, risk, phase and overall are
+      window-independent. The phase is the quadrant of the 90-day relative strength's
+      sign and the 7-day strength score (at or above 50 = the short end is strong).</p>
+    <div class="cx-seg" id="winTabs" role="tablist" aria-label="Window"></div>
+    <div class="cx-scroll st-tablewrap">
+      <table class="cx-table" id="boardTable">
+        <thead><tr>
+          <th>Sector</th><th>Phase</th>
+          <th class="num">Overall</th><th class="num">Rank Δ 1w</th>
+          <th class="num" id="thStrength">Strength</th>
+          <th class="num" id="thRs">Rel. strength</th>
+          <th class="num" id="thRet">Return</th>
+          <th id="thLabel">Momentum</th>
+          <th class="num">Volatility</th><th class="num">Risk</th>
+        </tr></thead>
+        <tbody id="boardBody"><tr><td colspan="10" class="st-loading">Loading the board…</td></tr></tbody>
+      </table>
+    </div>
+    <div class="st-dist" id="phaseBox" aria-label="Phase mix"></div>
+  </section>
+
+  <section class="st-catsec" aria-label="Relative strength by window">
+    <h2 class="st-h2 st-h2-sec">Relative strength, window by window</h2>
+    <p class="st-chartsub">How far each sector's return sits from the NEPSE index's return
+      on the selected window, in percentage points. Positive bars beat the index;
+      negative bars trail it. The index's own returns are printed in the methodology so
+      every bar can be re-derived by subtraction.</p>
+    <ol class="cx-rank" id="rsList"></ol>
+  </section>
+
+  <section class="st-catsec" aria-label="Strength persistence">
+    <h2 class="st-h2 st-h2-sec">Does strength stick?</h2>
+    <p class="st-chartsub">Measured, not asserted: this exact board replayed on weekly
+      snapshots over the trailing three years, each snapshot compared with the same
+      board 28 calendar days later.</p>
+    <div class="cx-stats st-stats" id="persistStrip" aria-label="Persistence measures"></div>
+    <p class="cx-cap">A rank correlation near +1 would mean next month's board is this
+      month's board; near 0 means the ranking reshuffles. These are descriptions of the
+      past three years, not forecasts — read the board as a snapshot of where strength
+      sits today, not where it will sit next month.</p>
+  </section>
+
+  <section class="st-catsec" aria-label="Sector readings">
+    <h2 class="st-h2 st-h2-sec">Sector readings</h2>
+    <p class="st-chartsub">One generated reading per sector, written from the same printed
+      numbers — phase, the 7-day relative strength, all four window returns, and the
+      risk banding.</p>
+    <div id="readings"></div>
+  </section>
+
+  <section class="st-catsec" aria-label="Methodology">
+    <h2 class="st-h2 st-h2-sec">How this board is built</h2>
+    <div class="st-method">
+      <p><strong>The construction.</strong> Windows are calendar days: for a window of N
+        days, the base is the last close on or before the date N days before the latest
+        session. A sector's return is its derived index's close-to-close return across
+        the window; relative strength is that return minus the NEPSE composite's return
+        over the identical window. The benchmark's own returns on this board:
+        <span id="nepseLine">—</span>. The strength score min-max normalises the relative
+        strength across the 11 sectors, per window — the strongest sector is 100, the
+        weakest 0, by construction, on every window.</p>
+      <p><strong>Risk.</strong> Volatility is the population standard deviation of the
+        sector index's daily percentage returns over the trailing 60 sessions. The risk
+        score is 100 × (1 − volatility ÷ the board's maximum volatility), so the
+        board's most volatile sector scores 0 and calmer sectors score higher. The
+        level bands the volatility itself: Low below 1.5, Moderate below 2.5, High
+        above — our banding, stated here rather than hidden.</p>
+      <p><strong>Overall and phase.</strong> Overall = 0.7 × the mean of the four
+        strength scores + 0.3 × the risk score; sectors rank by overall. The phase is
+        the quadrant of two signs: the 90-day relative strength (long end) and the
+        7-day strength score at or above 50 (short end) — Leading (both strong),
+        Improving (long weak, short strong), Weakening (long strong, short weak),
+        Lagging (both weak).</p>
+      <p><strong>Momentum labels.</strong> Each window's label bands that window's own
+        sector return: +5% or more Strong Bullish, +1% or more Mild Bullish, between
+        −1% and +1% Flat, −1% or lower Mild Bearish, −5% or lower Strong Bearish.</p>
+      <p><strong>The sectors.</strong> Each sector is a derived index built by Nepse
+        Decode: the equal-weighted chained daily returns of the sector's listed
+        companies, computed from our own OHLC archive (the same series behind the
+        <a href="/nepse-seasonality/">Seasonality</a>,
+        <a href="/nepse-regime/">Market Regime</a>,
+        <a href="/nepse-sector-rotation/">Sector Rotation</a> and
+        <a href="/nepse-sector-symbol/">Sector–Symbol Relation</a> pages) — not the
+        official cap-weighted NEPSE sub-indices, so levels differ from cap-weighted
+        sources by design. Sector membership is today's map applied historically, so
+        delisted names are absent — a survivorship caveat we state rather than hide.
+        Our taxonomy has 11 sectors: Trading companies are folded into Others, and
+        Hotels And Tourism is its own sector.</p>
+      <p><strong>Checked against the market.</strong> This construction reproduces the
+        shape of the reference sector-strength board computed from the official
+        sub-indices: on the shared 2026-10-16 session the two boards' relative
+        strengths rank-agree at 0.99 (7-day) to 0.84 (90-day), the overall scores at
+        0.86, and 9 of the 10 sectors present on both boards land in the same phase.
+        The gaps are the equal-weight basis above — membership and weighting —
+        quantified here, not smoothed over.</p>
+      <p><strong>Reading it honestly.</strong> A strength score is a relative,
+        backward-looking statistic: someone is always 100 and someone always 0, even
+        in a week when every sector fell. It is not a quality grade, not a valuation,
+        and not a promise about the next window; the persistence numbers above show
+        how much of today's ranking survives a month.</p>
+    </div>
+  </section>
+
+  <p class="st-fine">Mechanical relative-strength statistics for education, not
+    investment advice. Data: Nepse Decode OHLC archive + derived sector indices,
+    rebuilt after each close. No live feed is claimed: during market hours this page
+    still shows the last close's board.</p>
+
+</main>
+    </div>
+  </div>
+</div>
+
+<div id="nd-footer"></div>
+<script src="/js/nd-chrome.js?v=c852040f"></script>
+<script src="/js/freshness-badge.js?v=9b77cf10" defer></script>
+<script src="/js/sector-strength.js?v=c490e9be"></script>
+</body>
+</html>
