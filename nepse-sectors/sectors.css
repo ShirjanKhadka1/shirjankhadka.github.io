@@ -270,3 +270,12 @@ span.sx-swatch.sx-dn1,span.sx-swatch.sx-dn2,span.sx-swatch.sx-none{padding:0}
   .sx-tm-tile{ transition: none; }
   .sx-tm-tile:hover, .sx-tm-tile:active{ transform: none; }
 }
+
+/* ============================================================
+ * CINEMA harmonization (2026-10-23) — section heads take the
+ * suite's category pattern: Spectral with the lime square.
+ * ============================================================ */
+.d2-card-head h2, .sec-head h2, .sx-sec > h2{ font-family:'Spectral','Noto Serif Devanagari',Georgia,serif; }
+.d2-card-head h2, .sec-head h2, .sx-sec > h2{ display:flex; align-items:center; gap:10px; }
+.d2-card-head h2::before, .sec-head h2::before, .sx-sec > h2::before{ content:''; width:9px; height:9px; border-radius:2px; background:var(--nd-lime,#B8E62E); flex:none; }
+[data-theme="light"] .d2-card-head h2::before, [data-theme="light"] .sec-head h2::before, [data-theme="light"] .sx-sec > h2::before{ background:#65A30D; }
