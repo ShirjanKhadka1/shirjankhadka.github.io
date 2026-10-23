@@ -48,6 +48,7 @@
     ]},
     { label: 'Trade', links: [
       ['Practice Trading', '/nepse-simulator/'],
+      ['Calculators', '/nepse-calculators/'],
       ['Trading Journal', '/nepse-portfolio/'],
       ['Watchlist', '/nepse-watchlist/']
     ]},
@@ -262,7 +263,7 @@
     ['TECHNICAL', [['Technical Chart', '/nepse-technical/'], ['Trading Signals', '/nepse-signals/'], ['Momentum Signal', '/nepse-signals/momentum/'], ['Trend Relay', '/nepse-signals/trend-relay/'], ['Reversal Signal', '/nepse-signals/reversal/']]],
     ['BROKER', [['Top Brokers', '/nepse-brokers/'], ['Broker Trade Pattern', '/nepse-brokers/trade-pattern/'], ['Stock Trade Pattern', '/nepse-brokers/stock-pattern/'], ['Stockwise Holdings', '/nepse-brokers/holdings/'], ['Accumulation / Distribution', '/nepse-brokers/accdist/']]],
     ['NEWS', [['Market News', '/nepse-news/'], ['Market Wrap', '/blog/'], ['Corporate Actions', '/nepse-actions/']]],
-    ['TRADE', [['Practice Trading', '/nepse-simulator/'], ['Trading Journal', '/nepse-portfolio/'], ['Watchlist', '/nepse-watchlist/']]],
+    ['TRADE', [['Practice Trading', '/nepse-simulator/'], ['Calculators', '/nepse-calculators/'], ['Trading Journal', '/nepse-portfolio/'], ['Watchlist', '/nepse-watchlist/']]],
     ['RESEARCH', [['Money Flow', '/nepse-money-flow/'], ['Market regime', '/nepse-regime/'], ['Seasonality', '/nepse-seasonality/'], ['Reports', '/nepse-reports/']]],
     ['COMPANY', [['Nepse Decode', '/nepse-decode/'], ['Ask Decode', '/ask/'], ['info@shirjankhadka.com.np', 'mailto:info@shirjankhadka.com.np'], ['Kathmandu, Nepal', null]]]
   ];

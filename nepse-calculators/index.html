@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t='dark';document.documentElement.setAttribute('data-theme',t);if(t==='light')document.documentElement.setAttribute('data-nd-ed','light')}catch(e){}</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0A0C10">
+<title>NEPSE Calculators — Share Cost, CGT, WACC, SIP &amp; Price Adjustment | Nepse Decode</title>
+<meta name="description" content="Free NEPSE calculators with the current verified rates: share buying & selling cost with capital gains tax (5% / 3.75% since 16 Sep 2026), weighted average cost, SIP projection, and bonus / right share price adjustment.">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-calculators/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:title" content="NEPSE Calculators — Nepse Decode">
+<meta property="og:description" content="Share cost & capital gains, WACC, SIP and price-adjustment calculators using the current verified NEPSE fee schedule and the reduced CGT rates (5% / 3.75%).">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-calculators/">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/nepse-decode-og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="NEPSE Calculators — Nepse Decode">
+<meta name="twitter:description" content="Share cost & capital gains, WACC, SIP and price-adjustment calculators using the current verified NEPSE fee schedule and the reduced CGT rates (5% / 3.75%).">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"NEPSE Calculators","url":"https://shirjankhadka.com.np/nepse-calculators/","description":"Share cost and capital gains, WACC, SIP and bonus/right price-adjustment calculators for NEPSE using the current verified fee schedule.","isPartOf":{"@type":"WebSite","name":"Nepse Decode","url":"https://shirjankhadka.com.np/"},"author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
+</script>
+<link rel="stylesheet" href="/css/nd-tokens.css">
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023e">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023d">
+<link rel="stylesheet" href="/css/nd-cinema.css?v=20261023m">
+<style>
+.calc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin:6px 0 16px}
+.fld label{display:block;font:600 .72rem Inter,system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--nd-muted);margin-bottom:6px}
+.fld input,.fld select{width:100%;box-sizing:border-box;background:var(--nd-inset,#0D0F14);border:1px solid var(--nd-border,#1E2430);border-radius:10px;color:var(--nd-text);padding:10px 12px;font:600 .95rem Inter,system-ui,sans-serif}
+.fld input:focus,.fld select:focus{outline:2px solid var(--nd-lime);outline-offset:1px;border-color:transparent}
+[data-theme="light"] .fld input,[data-theme="light"] .fld select{background:#F1F4F7}
+.calc-seg{display:inline-flex;gap:4px;padding:4px;border-radius:999px;background:var(--nd-panel);border:1px solid var(--nd-border,#1E2430);margin:2px 0 14px}
+.calc-seg button{appearance:none;border:0;background:transparent;color:var(--nd-muted);font:600 .85rem Inter,system-ui,sans-serif;padding:7px 15px;border-radius:999px;cursor:pointer}
+.calc-seg button[aria-pressed="true"]{background:var(--nd-lime);color:#0A0C10}
+[data-theme="light"] .calc-seg button[aria-pressed="true"]{color:#fff}
+.lot-row{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;margin-bottom:10px;align-items:end}
+.calc-note{color:var(--nd-muted);font-size:.88rem;line-height:1.6}
+.rate-tbl td:first-child{font-weight:600}
+</style>
+</head>
+<body class="nd">
+<a class="skip-link" href="#main">Skip to content</a>
+<div id="nd-header"></div>
+<main id="main" class="wrap" style="max-width:1180px;margin:0 auto;padding:24px 20px 40px">
+<p class="sig-kicker" style="color:var(--nd-lime);font:700 .75rem Inter;letter-spacing:.14em;text-transform:uppercase">Nepse Decode · Tools</p>
+<h1 class="nd-pagetitle">NEPSE Calculators</h1>
+<p style="color:var(--nd-muted);max-width:70ch;line-height:1.65">Share buying and selling costs with capital gains tax, weighted average cost, SIP projections, and bonus / right share price adjustments — all running on the <strong>current</strong> verified fee schedule, shown in full below. No sign-up, nothing leaves your browser.</p>
+
+<section class="cx-cat cx-reveal">
+  <div class="cx-cat-head"><span class="cx-cat-sq"></span><h2 class="cx-cat-title">The rates these calculators use</h2></div>
+  <div style="overflow-x:auto"><table class="cx-table rate-tbl">
+    <tr><th>Charge</th><th>Rate</th><th>Applies</th></tr>
+    <tr><td>Broker commission — up to Rs 50,000</td><td>0.36% (min Rs 10)</td><td>Buy &amp; sell</td></tr>
+    <tr><td>Broker commission — Rs 50,001 to 5 lakh</td><td>0.33%</td><td>Buy &amp; sell</td></tr>
+    <tr><td>Broker commission — Rs 5 lakh to 20 lakh</td><td>0.31%</td><td>Buy &amp; sell</td></tr>
+    <tr><td>Broker commission — Rs 20 lakh to 1 crore</td><td>0.27%</td><td>Buy &amp; sell</td></tr>
+    <tr><td>Broker commission — above Rs 1 crore</td><td>0.24%</td><td>Buy &amp; sell</td></tr>
+    <tr><td>SEBON transaction fee</td><td>0.015%</td><td>Buy &amp; sell</td></tr>
+    <tr><td>DP charge (CDSC)</td><td>Rs 25 per scrip</td><td>Buy &amp; sell</td></tr>
+    <tr><td>Capital gains tax — held 365 days or less</td><td>5% of the net gain</td><td>Sell only</td></tr>
+    <tr><td>Capital gains tax — held more than 365 days</td><td>3.75% of the net gain</td><td>Sell only</td></tr>
+  </table></div>
+  <p class="calc-note">CGT was halved by a Ministry of Finance notice in the Nepal Gazette (vol. 76, Additional 40, Part 5, dated 31 Bhadra 2083 — 16 September 2026), replacing the Finance Act 2083 rates of 10% / 7.5%. The gain is taxed after fees: sell proceeds after charges, minus the fee-inclusive cost of buying. Rates above are for resident individuals on listed shares; dividends are taxed separately at a flat 5%. If any rate changes, this table and the calculators change together — the date of the schedule is part of the page.</p>
+</section>
+
+<section class="cx-cat cx-reveal">
+  <div class="cx-cat-head"><span class="cx-cat-sq"></span><h2 class="cx-cat-title">Share calculator — cost, gain &amp; CGT</h2></div>
+  <div class="calc-grid">
+    <div class="fld"><label for="scQty">Quantity (shares)</label><input id="scQty" type="number" min="0" step="1" value="100"></div>
+    <div class="fld"><label for="scBuy">Buy price per share (Rs)</label><input id="scBuy" type="number" min="0" step="0.01" value="500"></div>
+    <div class="fld"><label for="scSell">Sell price per share (Rs)</label><input id="scSell" type="number" min="0" step="0.01" value="600"></div>
+  </div>
+  <div class="fld"><label>Holding period (sets the CGT rate)</label></div>
+  <div class="calc-seg" role="group" aria-label="Holding period">
+    <button type="button" id="holdShort" aria-pressed="true">365 days or less · CGT 5%</button>
+    <button type="button" id="holdLong" aria-pressed="false">More than 365 days · CGT 3.75%</button>
+  </div>
+  <div class="cx-stats" id="scStats"></div>
+  <div style="overflow-x:auto;margin-top:14px"><table class="cx-table" id="scTable"></table></div>
+  <p class="calc-note" id="scNote"></p>
+</section>
+
+<section class="cx-cat cx-reveal">
+  <div class="cx-cat-head"><span class="cx-cat-sq"></span><h2 class="cx-cat-title">Weighted average cost (WACC)</h2></div>
+  <p class="calc-note">Add each buy as its own lot — every lot carries its own broker commission, SEBON fee and DP charge, exactly as separate transactions would.</p>
+  <div id="waccLots" style="margin-top:12px"></div>
+  <button type="button" class="cx-btn" id="waccAdd">+ Add a buy lot</button>
+  <div class="cx-stats" id="waccStats" style="margin-top:16px"></div>
+</section>
+
+<section class="cx-cat cx-reveal">
+  <div class="cx-cat-head"><span class="cx-cat-sq"></span><h2 class="cx-cat-title">SIP calculator</h2></div>
+  <div class="calc-grid">
+    <div class="fld"><label for="sipAmt">Monthly investment (Rs)</label><input id="sipAmt" type="number" min="0" step="100" value="10000"></div>
+    <div class="fld"><label for="sipYrs">Duration (years)</label><input id="sipYrs" type="number" min="1" max="40" step="1" value="10"></div>
+    <div class="fld"><label for="sipRet">Assumed return (% per year)</label><input id="sipRet" type="number" min="0" max="30" step="0.1" value="12"></div>
+  </div>
+  <div class="cx-stats" id="sipStats"></div>
+  <div style="overflow-x:auto;margin-top:14px"><table class="cx-table" id="sipTable"></table></div>
+  <p class="calc-note">An illustration with a constant assumed return, compounded monthly — markets do not move in straight lines, so treat the projection as arithmetic, not a forecast.</p>
+</section>
+
+<section class="cx-cat cx-reveal">
+  <div class="cx-cat-head"><span class="cx-cat-sq"></span><h2 class="cx-cat-title">Price adjustment — bonus &amp; right shares</h2></div>
+  <div class="calc-grid">
+    <div class="fld"><label for="adjPrice">Price before book closure (Rs)</label><input id="adjPrice" type="number" min="0" step="0.01" value="1000"></div>
+    <div class="fld"><label for="adjBonus">Bonus share (%)</label><input id="adjBonus" type="number" min="0" step="0.01" value="20"></div>
+    <div class="fld"><label for="adjRight">Right share (%)</label><input id="adjRight" type="number" min="0" step="0.01" value="100"></div>
+    <div class="fld"><label for="adjFace">Face value for rights (Rs)</label><input id="adjFace" type="number" min="0" step="1" value="100"></div>
+  </div>
+  <div class="cx-stats" id="adjStats"></div>
+  <p class="calc-note">Bonus adjustment: price ÷ (1 + bonus%). Right adjustment: (price + face value × right%) ÷ (1 + right%). These are the standard NEPSE reference-price formulas applied after book closure.</p>
+</section>
+
+<p class="sig-foot" style="color:var(--nd-muted);font-size:.85rem">For education only. Not investment advice. Fee schedule verified 2026-10-23 against the Nepal Gazette notice of 31 Bhadra 2083 and current broker/SEBON schedules.</p>
+</main>
+<div id="nd-footer"></div>
+<script src="/js/nd-chrome.js?v=20261023f" defer></script>
+<script src="/js/theme-toggle.js?v=20261023d" defer></script>
+<script src="/js/nd-cinema.js?v=20261023g" defer></script>
+<script src="/js/nd-calcs.js?v=20261023a" defer></script>
+</body>
+</html>

@@ -1,113 +1,152 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t='dark';document.documentElement.setAttribute('data-theme',t);if(t==='light')document.documentElement.setAttribute('data-nd-ed','light')}catch(e){}</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#FAF7F0">
-<title>NEPSE Calendar: Holidays, Book Closes, Lock-in Expiries &amp; Issue Dates | Nepse Decode</title>
-<link rel="stylesheet" href="/css/nd-tokens.css">
-<link rel="stylesheet" href="/css/nepse-design-system.css?v=20261023d">
-<meta name="description" content="Free NEPSE market calendar in Bikram Sambat: exchange holidays, IPO and rights issue open/close dates, dividend announcements, book closes, AGMs and promoter lock-in expiries — from official notices and Nepse Decode's recorded archive.">
-<meta name="author" content="Shirjan Khadka">
+<title>Market Calendar — Nepse Decode</title>
+<meta name="description" content="The NEPSE market calendar: market holidays, promoter share lock-in unlock dates, IPO and FPO opening and closing dates, right-share book closures — every date from the site's own verified data files, with sources shown.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-calendar/">
-<meta name="robots" content="index, follow, max-image-preview:large">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Nepse Decode">
-<meta property="og:title" content="NEPSE Calendar: Holidays, Book Closes &amp; Lock-in Expiries">
-<meta property="og:description" content="Every dated NEPSE event in one BS calendar: holidays, issue windows, book closes, AGMs, dividend announcements and promoter lock-in expiries.">
+<meta property="og:title" content="Market Calendar — Nepse Decode">
+<meta property="og:description" content="NEPSE holidays, promoter lock-in unlocks, IPO opening/closing dates and book closures in one calendar. Every date sourced, nothing guessed.">
 <meta property="og:url" content="https://shirjankhadka.com.np/nepse-calendar/">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="NEPSE Calendar | Nepse Decode">
-<meta name="twitter:description" content="NEPSE holidays, IPO windows, book closes, AGMs and promoter lock-in expiries in a Bikram Sambat calendar.">
+<meta name="twitter:title" content="Market Calendar — Nepse Decode">
+<meta name="twitter:description" content="NEPSE holidays, promoter lock-in unlocks and IPO dates in one calendar, from verified data.">
 <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
 <link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="stylesheet" href="/css/theme.css?v=20261023d">
+<link rel="stylesheet" href="/css/nd-tokens.css">
+<link rel="stylesheet" href="/css/fonts.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Market Calendar — Nepse Decode","url":"https://shirjankhadka.com.np/nepse-calendar/","description":"NEPSE market calendar with holidays, promoter lock-in unlock dates, IPO opening and closing dates and book closures, compiled from the site's verified data files.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"},"isPartOf":{"@type":"WebSite","name":"Nepse Decode","url":"https://shirjankhadka.com.np/nepse-decode/"}}
+</script>
 <link rel="stylesheet" href="/css/nd-chrome.css?v=20261023e">
-<link rel="stylesheet" href="calendar.css?v=20261023a">
-<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"NEPSE Calendar","url":"https://shirjankhadka.com.np/nepse-calendar/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Bikram Sambat calendar of NEPSE market events: exchange holidays, IPO/rights issue open and close dates, dividend announcements, book closes, AGMs and promoter lock-in expiries, compiled from official notices and recorded disclosures. Educational use only, not investment advice.","author":{"@type":"Organization","name":"Nepse Decode"}}
-</script>
-<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},{"@type":"ListItem","position":2,"name":"NEPSE Calendar","item":"https://shirjankhadka.com.np/nepse-calendar/"}]}
-</script>
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023d">
+<link rel="stylesheet" href="/css/nd-cinema.css?v=20261023l">
+<link rel="stylesheet" href="/css/sig-pro.css?v=20261023d">
+<style>
+.cal-controls{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;justify-content:space-between;margin:18px 0 12px}
+.cal-nav{display:flex;align-items:center;gap:10px}
+.cal-nav h2{margin:0;font-size:1.25rem;min-width:170px}
+.cal-filters{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.cal-fchip{cursor:pointer;opacity:.45;border:1px solid var(--nd-border,#1E2430);background:var(--nd-panel,#12141A)}
+.cal-fchip.on{opacity:1;border-color:var(--nd-border-strong,#2A3040)}
+.cal-fcount{opacity:.75;font-size:.72rem}
+.cal-dot{display:inline-block;width:8px;height:8px;border-radius:99px;flex:none}
+.cal-stats{margin:0 0 16px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal-wd{font-size:.72rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--nd-dim,#8E98A8);text-align:center;padding:6px 0}
+.cal-wd.we{color:var(--nd-down,#F87171)}
+.cal-cell{appearance:none;text-align:left;background:var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);border-radius:12px;min-height:96px;padding:8px;display:flex;flex-direction:column;gap:4px;cursor:pointer;color:var(--nd-text,#FFF);font:inherit;width:100%}
+.cal-cell:hover{border-color:var(--nd-lime,#B8E62E)}
+.cal-cell.out{background:transparent;border-style:dashed;opacity:.35;cursor:default}
+.cal-cell.we{background:var(--nd-panel-2,#161A23)}
+.cal-cell.hol{border-color:#D97706}
+.cal-cell.today{outline:2px solid var(--nd-lime,#B8E62E);outline-offset:-2px}
+.cal-cell.sel{border-color:var(--nd-lime,#B8E62E);box-shadow:0 0 0 1px var(--nd-lime,#B8E62E)}
+.cal-drow{display:flex;justify-content:space-between;align-items:baseline;width:100%}
+.cal-bsd{font-size:.68rem;color:var(--nd-dim,#8E98A8);font-family:"IBM Plex Mono",monospace}
+.cal-d{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:.9rem}
+.cal-cell.we .cal-d{color:var(--nd-dim,#8E98A8)}
+.cal-ev{display:block;font-size:.66rem;font-weight:600;line-height:1.25;padding:2px 6px;border-radius:6px;background:var(--nd-inset,#0D0F14);border-left:3px solid var(--c,#888);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal-more{font-size:.64rem;color:var(--nd-dim,#8E98A8)}
+.cal-cols{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;margin-top:18px;align-items:start}
+.cal-card{margin:0 0 12px;padding:16px 18px}
+.cal-card h3{margin:8px 0 10px;font-size:1.02rem}
+.cal-card h3 a{color:var(--nd-lime,#B8E62E);text-decoration:none}
+.cal-card-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.cal-card-top .cx-chip{border-left:3px solid var(--c,#888)}
+.cal-when{font-size:.75rem;color:var(--nd-dim,#8E98A8);font-family:"IBM Plex Mono",monospace}
+.cal-kv{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-top:1px solid var(--nd-border,#1E2430);font-size:.85rem}
+.cal-kv span{color:var(--nd-dim,#8E98A8)}
+.cal-kv strong{font-weight:600;text-align:right}
+.cal-detail{color:var(--nd-muted);font-size:.9rem;line-height:1.6;margin:2px 0 8px}
+.cal-src{font-size:.72rem;color:var(--nd-dim,#8E98A8);margin:10px 0 0}
+.cal-none{color:var(--nd-muted,#B8C0CE);font-size:.9rem;margin:6px 0 14px}
+.cal-ag-row{display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:none;border-top:1px solid var(--nd-border,#1E2430);padding:9px 2px;cursor:pointer;color:var(--nd-text,#FFF);font:inherit}
+.cal-ag-row:hover .cal-ag-t{color:var(--nd-lime,#B8E62E)}
+.cal-ag-d{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--nd-dim,#8E98A8);min-width:86px}
+.cal-ag-t{font-size:.88rem;font-weight:600}
+.cal-up-row{display:flex;gap:10px;align-items:baseline;padding:8px 0;border-top:1px solid var(--nd-border,#1E2430)}
+.cal-up-t{flex:1;font-size:.88rem;font-weight:600}
+.cal-up-d{font-family:"IBM Plex Mono",monospace;font-size:.75rem;color:var(--nd-dim,#8E98A8);white-space:nowrap}
+.cal-jump{background:none;border:none;padding:0;color:var(--nd-lime,#B8E62E);font:inherit;font-weight:600;cursor:pointer;text-decoration:underline}
+.cal-bs{color:var(--nd-dim,#8E98A8);font-size:.8rem}
+.cal-seg{display:inline-flex;border:1px solid var(--nd-border,#1E2430);border-radius:99px;overflow:hidden}
+.cal-seg button{appearance:none;background:var(--nd-panel,#12141A);color:var(--nd-muted,#B8C0CE);border:none;padding:7px 16px;font:600 .8rem inherit;cursor:pointer}
+.cal-seg button.on{background:var(--nd-lime,#B8E62E);color:#0A0C10}
+@media (max-width:900px){.cal-cols{grid-template-columns:1fr}}
+@media (max-width:640px){
+  .cal-cell{min-height:54px;padding:5px;border-radius:9px}
+  .cal-ev{font-size:0;height:7px;width:16px;padding:0;border-left:none;background:var(--c,#888)}
+  .cal-more{display:none}
+  .cal-nav h2{min-width:0;font-size:1.05rem}
+}
+</style>
 </head>
-<body class="nd" data-page="calendar">
-<div id="nd-header"></div>
-
+<body class="nd">
 <a class="skip-link" href="#main">Skip to content</a>
+<div id="nd-header"></div>
+<div class="fb-wrap" style="display:flex;justify-content:center;padding:10px 16px 0"><div data-freshness-badge></div></div>
+<main id="main" class="sig-wrap">
 
-<div class="nd-shell">
-  <div class="nd-content">
-    <div class="nd-wrap">
-<main id="main">
-  <div class="nd-masthead">
-    <div>
-      <p class="nd-kicker">Market Calendar</p>
-      <h1 style="font-family:var(--serif);font-weight:600;font-size:clamp(1.6rem,4vw,2.3rem);letter-spacing:-0.015em">NEPSE Calendar</h1>
-      <p class="nd-lede" style="margin:10px 0 0;max-width:72ch;color:var(--ink-soft,#4A463C)">Every dated event that matters to a NEPSE investor, in Bikram Sambat: exchange holidays, IPO and rights-issue windows, dividend announcements, book closes, AGMs and promoter lock-in expiries. Compiled from official notices and Nepse Decode&rsquo;s recorded archive &mdash; each event names its source. Educational use only; not investment advice.</p>
-      <p class="nd-caption" style="margin-top:8px"><span id="ncal-meta">Loading calendar data&hellip;</span></p>
-    </div>
+<p class="sig-kicker">Markets · Calendar</p>
+<h1>NEPSE Calendar</h1>
+<p class="sig-lede">Every date that moves the NEPSE calendar in one place: market holidays, promoter share lock-in unlocks, IPO and FPO opening and closing dates, and book closures. The calendar is drawn live from this site's own data files — the same files behind the IPO tracker and the lock-in dataset — and every event shows its source. A date we cannot source is not shown; it is never guessed.</p>
+<p lang="ne" class="ne-sum">संक्षेप: यस पात्रोमा नेप्से बिदा, प्रमोटर सेयर लक-इन खुल्ने मिति, IPO खुल्ने र बन्द हुने मिति तथा बुक क्लोजर देखाइएको छ। सबै मिति यसै साइटका प्रमाणित डाटा फाइलबाट आएका हुन्। यो शैक्षिक जानकारी हो, लगानी सल्लाह होइन।</p>
+<p class="sig-sub" id="calAsof">Loading the calendar data…</p>
+
+<div class="cal-controls">
+  <div class="cal-nav">
+    <button type="button" class="cx-btn" id="calPrev" aria-label="Previous month">‹ Prev</button>
+    <h2 id="calMonthTitle">—</h2>
+    <button type="button" class="cx-btn" id="calNext" aria-label="Next month">Next ›</button>
+    <button type="button" class="cx-btn" id="calToday">Today</button>
   </div>
-
-  <div class="ncal-stats" id="ncal-stats" aria-label="This month at a glance">
-    <div class="ncal-stat"><span class="ncal-stat-num" id="ncal-stat-events">&ndash;</span><span class="ncal-stat-label">Events this month</span></div>
-    <div class="ncal-stat"><span class="ncal-stat-num" id="ncal-stat-holidays">&ndash;</span><span class="ncal-stat-label">Public holidays</span></div>
-    <div class="ncal-stat"><span class="ncal-stat-num" id="ncal-stat-closures">&ndash;</span><span class="ncal-stat-label">NEPSE-only closures</span></div>
-  </div>
-
-  <section class="ncal-upcoming" aria-label="Upcoming closures in the next 30 days">
-    <h2 class="ncal-upcoming-title">Upcoming closures &middot; next 30 days</h2>
-    <div class="ncal-upcoming-list" id="ncal-upcoming"><p class="ncal-muted">Loading&hellip;</p></div>
-  </section>
-
-  <div class="ncal-toolbar">
-    <div class="ncal-nav" role="group" aria-label="Month navigation">
-      <button type="button" class="ncal-btn" id="ncal-prev" aria-label="Previous month">&larr; Prev</button>
-      <button type="button" class="ncal-btn" id="ncal-today">Today</button>
-      <button type="button" class="ncal-btn" id="ncal-next" aria-label="Next month">Next &rarr;</button>
-    </div>
-    <div class="ncal-month-title">
-      <span class="ncal-month-bs" id="ncal-month-bs">&hellip;</span>
-      <span class="ncal-month-ad" id="ncal-month-ad"></span>
-    </div>
-  </div>
-
-  <div class="ncal-legend" id="ncal-legend" aria-label="Event type legend"></div>
-
-  <div class="ncal-gridwrap">
-    <div class="ncal-weekdays" aria-hidden="true">
-      <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
-    </div>
-    <div class="ncal-grid" id="ncal-grid" role="grid" aria-label="Calendar month grid"></div>
-  </div>
-
-  <section class="ncal-detail" id="ncal-detail" aria-label="Selected day detail" aria-live="polite">
-    <h2 class="ncal-detail-title" id="ncal-detail-title">Select a day</h2>
-    <div id="ncal-detail-body"><p class="ncal-muted">Click any day to see its events, sources and links.</p></div>
-  </section>
-
-  <details style="margin-top:24px"><summary>How is this calendar built?</summary>
-  <p>Holidays follow the Government of Nepal gazette lists and NEPSE&rsquo;s own closure confirmations; entries not yet confirmed by a NEPSE notice are marked <em>Unverified</em>. Issue windows come from SEBON approvals and issue-manager notices. Dividend announcements, book closes and AGMs are recorded from official company disclosures the day they are announced. Promoter lock-in expiries are derived from each IPO&rsquo;s allotment date plus the three-year SEBON lock-in, and are labelled <em>Derived</em> unless an official notice verifies them. Lock-in expiries for mutual-fund and institutional tranches are not published here &mdash; our records do not hold verified dates for them.</p>
-  </details>
-</main>
-    </div>
+  <div class="cal-seg" id="calViewSeg" role="group" aria-label="Calendar view">
+    <button type="button" data-view="grid" class="on">Grid</button>
+    <button type="button" data-view="list">Agenda</button>
   </div>
 </div>
 
-<section class="nd-seo-copy" aria-label="About the NEPSE calendar">
-<h2>About the NEPSE calendar</h2>
-<p>NEPSE runs on the Bikram Sambat calendar, and the dates that decide an investor&rsquo;s week &mdash; a book close that cuts off dividend eligibility, an issue window that opens and shuts, a promoter lock-in that releases a large block of shares &mdash; are scattered across dozens of company notices. This calendar gathers them into one place, dated in BS with the AD date alongside, and states where each entry came from.</p>
-<p>Promoter lock-in expiries deserve a careful read. When a lock-in ends, shares that could not be traded for three years become tradable; that is a supply event worth knowing about in advance, not a signal in either direction. Dates marked derived are computed from allotment records and the standard three-year rule &mdash; an official release notice, when one is published, is listed separately and takes precedence.</p>
-<p>The calendar is an educational reference. Dates announced by companies can change; always confirm a deadline against the official notice before acting on it.</p>
+<div class="cal-filters" id="calFilters" aria-label="Event category filters"></div>
+
+<div class="cx-stats cal-stats" id="calStats"></div>
+
+<div id="calGridWrap"><div class="cal-grid" id="calGrid"></div></div>
+<section id="calList" class="cx-cat" style="display:none;margin-top:16px" aria-label="Month agenda"></section>
+
+<div class="cal-cols">
+  <section class="cx-cat" id="calAgenda" aria-label="Selected day"></section>
+  <section class="cx-cat" id="calUpcoming" aria-label="Coming up"></section>
+</div>
+
+<section style="margin-top:26px">
+  <div class="cx-cat-head">Promoter lock-in schedule — all tracked companies</div>
+  <p class="cal-none" id="calLockinNote"></p>
+  <div class="bk-scroll" style="overflow-x:auto">
+    <table class="cx-table" style="width:100%">
+      <thead><tr><th>Symbol</th><th>Allotted (AD)</th><th>Lock-in ends</th><th class="num">Promoter shares</th><th>Status</th></tr></thead>
+      <tbody id="calLockinBody"></tbody>
+    </table>
+  </div>
 </section>
 
+<section style="margin-top:26px">
+  <div class="cx-cat-head">How this calendar is built</div>
+  <p class="cal-none">One events database feeds this page, merged in your browser with two supplements — there is no second copy to drift out of date. The <strong>calendar events database</strong> (Nepse Decode's builder-maintained file, 200+ events from 2025 to 2029) carries market holidays, promoter lock-in expiries, IPO and FPO openings and closings, right-share book closures, dividends and AGMs — every event with its own source and a verified or unverified status, both shown in the day view. The <strong>MF &amp; QII lock-in supplement</strong> (the reserved IPO quota held by mutual funds and qualified institutional investors) comes from the Nepse Alpha lock-in tracker, retrieved 2026-10-23 — 32 upcoming unlocks that the main database does not carry. Cross-checks against ShareSansar differ by one day on some symbols (a lock-in-end vs first-tradable-day convention); dates are exactly as the named source publishes them. Project-affected <strong>local shares</strong> in hydropower and manufacturing issues carry the same three-year lock as promoter shares (ShareSansar's stated rule), so for those companies the promoter date is also the local unlock date. The <strong>promoter lock-in table</strong> above comes from the lock-in dataset (Capital Max IPO Lock-in Period, transcribed 2026-10-05): 100 companies, including those whose end date the source has not published — they are listed as “not published in source”, never guessed. Saturdays and Sundays are shaded as market-closed (NEPSE trades Monday–Friday), and each day cell shows its Bikram Sambat date from this site's own converter table (2083 verified against the official calendar).</p>
+</section>
+
+</main>
 <div id="nd-footer"></div>
-<script src="/js/bs-calendar.js" defer></script>
 <script src="/js/theme-toggle.js?v=20261023d" defer></script>
-<script src="/js/nd-chrome.js?v=20261023e" defer></script>
-<script src="calendar.js?v=20261023a" defer></script>
+<script src="/js/nd-chrome.js?v=20261023f" defer></script>
+<script src="/js/nd-cinema.js?v=20261023g" defer></script>
+<script src="/js/bs-calendar.js?v=20261023d" defer></script>
+<script src="/js/nd-calendar.js?v=20261023b" defer></script>
 </body>
 </html>
