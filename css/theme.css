@@ -395,3 +395,56 @@
   .theme-toggle, .nd-faq{ transition: none; }
   .theme-toggle:hover, .nd-faq:hover{ transform: none; }
 }
+
+/* ============================================================
+   Blog footer (.sf) + baked article components (.td-*) — token
+   remediation (2026-10-23). The .sf footer markup is baked into
+   59 blog articles: 52 carry the old light-palette .sf styles
+   inline, 7 carry none at all (their footer logo SVG rendered
+   at default size = full width). These rules are anchored at
+   higher specificity than the baked copies and map every colour
+   to the --nd-* tokens, so the footer and the baked .td-table /
+   .td-incta / .td-toolsbox components follow the site theme
+   (dark default, light under [data-nd-ed="light"]) everywhere.
+   ============================================================ */
+.sf.sf{
+  border-top:1px solid var(--nd-border); margin-top:64px;
+  background:var(--nd-panel); color:var(--nd-muted);
+  font-family:var(--nd-font-sans);
+}
+.sf .sf-inner{max-width:1200px;margin:0 auto;padding:56px 24px 30px}
+.sf .sf-top{display:flex;gap:18px;align-items:flex-start;margin-bottom:42px}
+.sf .sf-mark{width:46px;height:46px;border-radius:12px;flex:none;box-shadow:var(--nd-e1)}
+.sf .sf-name{font-weight:700;font-size:1.06rem;color:var(--nd-text);margin:2px 0 8px;letter-spacing:.01em}
+.sf .sf-mission{margin:0;max-width:62ch;line-height:1.75;font-size:.92rem;color:var(--nd-muted)}
+.sf .sf-cols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:36px 28px;margin-bottom:42px}
+.sf .sf-col h3{font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;color:var(--nd-dim);margin:0 0 16px;font-weight:700}
+.sf .sf-col ul{list-style:none;margin:0;padding:0;display:grid;gap:11px}
+.sf .sf-col a{color:var(--nd-muted);text-decoration:none;font-size:.92rem;line-height:1.5}
+.sf .sf-col a:hover{color:var(--nd-lime);text-decoration:underline}
+.sf .sf-note{border-top:1px solid var(--nd-border);padding-top:26px;font-size:.85rem;line-height:1.75;color:var(--nd-dim);max-width:88ch;margin:0}
+.sf .sf-note strong{color:var(--nd-muted)}
+.sf .sf-bottom{display:flex;flex-wrap:wrap;gap:10px 20px;justify-content:space-between;align-items:center;margin-top:26px;padding-top:22px;border-top:1px solid var(--nd-border);font-size:.85rem;color:var(--nd-dim)}
+.sf .sf-bottom a{color:var(--nd-muted);text-decoration:none;font-weight:600}
+.sf .sf-bottom a:hover{color:var(--nd-lime);text-decoration:underline}
+.sf .sf-social{display:flex;gap:16px;align-items:center}
+.sf .sf-social svg{width:20px;height:20px;flex:none}
+@media(max-width:820px){.sf .sf-cols{grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 20px}}
+@media(max-width:520px){.sf .sf-inner{padding:44px 20px 26px}.sf .sf-top{margin-bottom:34px}.sf .sf-cols{margin-bottom:34px}}
+
+/* Baked .td-* components (4 articles): remap the fixed light
+   palette to tokens. Compound selectors outrank the baked
+   per-article <style> copies. */
+.td-table.nd-table caption{color:var(--nd-text)}
+.td-table.nd-table th{background:var(--nd-panel);color:var(--nd-dim);border-bottom:1px solid var(--nd-border-strong)}
+.td-table.nd-table td{border-bottom:1px solid var(--nd-border)}
+.td-table.nd-table td:first-child{color:var(--nd-muted)}
+.td-table.nd-table .pos{color:var(--nd-up)}
+.td-table.nd-table .neg{color:var(--nd-down)}
+.td-incta.td-incta{background:var(--nd-panel);border-color:var(--nd-border);border-left-color:var(--nd-lime);color:var(--nd-text)}
+.td-incta.td-incta a{color:var(--nd-lime)}
+.td-toolsbox.td-toolsbox{background:var(--nd-panel);border-color:var(--nd-border);color:var(--nd-text)}
+.td-toolsbox .td-toolsbox-kicker{color:var(--nd-dim)}
+.td-toolsbox .td-toolsbox-head{color:var(--nd-text)}
+.td-toolsbox.td-toolsbox a{color:var(--nd-text)}
+.td-toolsbox.td-toolsbox a:hover{color:var(--nd-lime)}

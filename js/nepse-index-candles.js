@@ -27,7 +27,7 @@
   var MOUNT_ID = 'nicChart';
   var FALLBACK_ID = 'nicFallback';
   var VENDOR_SRC = '/js/vendor/lightweight-charts.standalone.production.js';
-  var DAILY_SRC = '/js/nepse-daily.js?v=20261023c';
+  var DAILY_SRC = '/js/nepse-daily.js?v=20261023d';
   var HIST_SRC = '/data/index-history.json';
   var SPARK_SRC = '/nepse-chart/data/index-spark.json';
 
