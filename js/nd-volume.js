@@ -72,11 +72,17 @@
         '<td class="vp-num ' + (pc > 0 ? 'vp-pos' : pc < 0 ? 'vp-neg' : '') + '">' + (pc > 0 ? '+' : '') + fmt(pc) + '%</td>' +
         '<td class="vp-num vp-hide-m">' + fmtVol(r.volume) + '</td>' +
         '<td class="vp-num vp-hide-m">' + fmtVol(r.volume_yesterday) + '</td>' +
+        '<td class="vp-num vp-hide-m">' + fmtVol(r.avg_7) + '</td>' +
         '<td class="vp-num"><strong>' + fmt(r.rvol_7) + '</strong></td>' +
+        '<td class="vp-num vp-hide-m">' + fmtVol(r.avg_15) + '</td>' +
         '<td class="vp-num vp-hide-m">' + fmt(r.rvol_15) + '</td>' +
+        '<td class="vp-num vp-hide-m">' + fmtVol(r.avg_20) + '</td>' +
         '<td class="vp-num vp-hide-m">' + fmt(r.rvol_20) + '</td>' +
+        '<td class="vp-num vp-hide-s">' + fmtVol(r.avg_30) + '</td>' +
         '<td class="vp-num vp-hide-s">' + fmt(r.rvol_30) + '</td>' +
+        '<td class="vp-num vp-hide-s">' + fmtVol(r.avg_60) + '</td>' +
         '<td class="vp-num vp-hide-s">' + fmt(r.rvol_60) + '</td>' +
+        '<td class="vp-num vp-hide-s">' + fmtVol(r.avg_90) + '</td>' +
         '<td class="vp-num vp-hide-s">' + fmt(r.rvol_90) + '</td>' +
         '<td class="vp-num vp-hide-s">' + fmt(r.rolling_high_20) + '</td>' +
         '<td class="vp-num ' + (r.pvcs > 0 ? 'vp-pos' : r.pvcs < 0 ? 'vp-neg' : '') + '">' + fmt(r.pvcs) + '</td>' +
@@ -87,7 +93,7 @@
         '<td><span class="vp-tag ' + esc(r.signal_tag) + '">' + esc(TAG_LABEL[r.signal_tag] || r.signal_tag) + '</span></td>' +
         '</tr>';
     });
-    $('vpBody').innerHTML = h || '<tr><td colspan="19" class="vp-loading">No symbols match the current filters.</td></tr>';
+    $('vpBody').innerHTML = h || '<tr><td colspan="25" class="vp-loading">No symbols match the current filters.</td></tr>';
     $('vpCount').textContent = rows.length + ' of ' + state.rows.length + ' symbols';
   }
 
@@ -160,7 +166,7 @@
   }
 
   fetchJSON('/data/vpi.json').then(init).catch(function () {
-    $('vpBody').innerHTML = '<tr><td colspan="19" class="vp-loading">The volume board is being rebuilt — please check back after the next market close.</td></tr>';
+    $('vpBody').innerHTML = '<tr><td colspan="25" class="vp-loading">The volume board is being rebuilt — please check back after the next market close.</td></tr>';
     $('vpSession').textContent = 'Board temporarily unavailable';
   });
 })();

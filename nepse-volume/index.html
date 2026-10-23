@@ -96,11 +96,17 @@
           <th data-key="percentage_change" class="vp-sortable vp-num">% Chg</th>
           <th data-key="volume" class="vp-sortable vp-num vp-hide-m">Volume</th>
           <th data-key="volume_yesterday" class="vp-sortable vp-num vp-hide-m">Vol Yesterday</th>
+          <th data-key="avg_7" class="vp-sortable vp-num vp-hide-m">AVG 7</th>
           <th data-key="rvol_7" class="vp-sortable vp-num">RVOL 7</th>
+          <th data-key="avg_15" class="vp-sortable vp-num vp-hide-m">AVG 15</th>
           <th data-key="rvol_15" class="vp-sortable vp-num vp-hide-m">15</th>
+          <th data-key="avg_20" class="vp-sortable vp-num vp-hide-m">AVG 20</th>
           <th data-key="rvol_20" class="vp-sortable vp-num vp-hide-m">20</th>
+          <th data-key="avg_30" class="vp-sortable vp-num vp-hide-s">AVG 30</th>
           <th data-key="rvol_30" class="vp-sortable vp-num vp-hide-s">30</th>
+          <th data-key="avg_60" class="vp-sortable vp-num vp-hide-s">AVG 60</th>
           <th data-key="rvol_60" class="vp-sortable vp-num vp-hide-s">60</th>
+          <th data-key="avg_90" class="vp-sortable vp-num vp-hide-s">AVG 90</th>
           <th data-key="rvol_90" class="vp-sortable vp-num vp-hide-s">90</th>
           <th data-key="rolling_high_20" class="vp-sortable vp-num vp-hide-s">Rolling High 20D</th>
           <th data-key="pvcs" class="vp-sortable vp-num">PVCS</th>
@@ -111,14 +117,14 @@
           <th data-key="signal_tag" class="vp-sortable">Tag</th>
         </tr>
       </thead>
-      <tbody id="vpBody"><tr><td colspan="19" class="vp-loading">Loading the board…</td></tr></tbody>
+      <tbody id="vpBody"><tr><td colspan="25" class="vp-loading">Loading the board…</td></tr></tbody>
     </table>
   </div>
 
   <section class="vp-section" aria-label="Methodology">
     <h2>How this board is built</h2>
     <div class="vp-method">
-      <p><strong>RVOL ladder.</strong> For each rung N in 7 / 15 / 20 / 30 / 60 / 90 sessions, RVOL-N = today's volume ÷ the average volume of the prior N sessions (today excluded). RVOL-7 of 2.0 means the stock traded twice its last-week pace. Averages, shock ratios and the 20-session rolling high are computed from Nepse Decode's own OHLCV archive — the same archive behind the rest of this site — and the board is rebuilt after every market close.</p>
+      <p><strong>RVOL ladder.</strong> For each rung N in 7 / 15 / 20 / 30 / 60 / 90 sessions, RVOL-N = today's volume ÷ the average volume of the prior N sessions (today excluded). RVOL-7 of 2.0 means the stock traded twice its last-week pace. The AVG column beside each rung is that prior-N-session average volume itself. Averages, shock ratios and the 20-session rolling high are computed from Nepse Decode's own OHLCV archive — the same archive behind the rest of this site — and the board is rebuilt after every market close.</p>
       <p><strong>PVCS</strong> (price–volume confirmation score) = percentage change × RVOL-7. It rewards moves that arrive on heavy volume and discounts moves on thin volume: a +5% day at RVOL 0.4 scores lower than a +2% day at RVOL 3.</p>
       <p><strong>VPD</strong> (volume pressure, 10 sessions) is Nepse Decode's own measure: 10 × (up-volume − down-volume) ÷ total volume over the last 10 sessions, where a session's volume counts as up or down by its close versus the previous close. It ranges from −10 (every session down on volume) to +10. Published volume-pressure formulas vary by provider and no canonical one exists, so we publish ours exactly as defined here rather than borrowing a black box.</p>
       <p><strong>Volume shock</strong> = today's volume ÷ yesterday's volume. <strong>Flags:</strong> Shock — shock ratio ≥ 3.0 or RVOL-20 ≥ 2.0. Expansion — 7-session average volume above the 30-session average with RVOL-7 ≥ 1.0. Compression — daily range ≤ 2.5% with RVOL-20 ≤ 0.7 (quiet, tight, waiting). Quiet accumulation — |daily change| ≤ 0.5% (price flat while the tape stays active). <strong>Signal tags</strong> read off RVOL-7: ≥ 3.5 high volume spike, ≥ 1.8 elevated, ≤ 0.5 volume dry-up, otherwise normal.</p>
@@ -136,6 +142,6 @@
 
 <div id="nd-footer"></div>
 <script src="/js/nd-chrome.js?v=20261023j"></script>
-<script src="/js/nd-volume.js?v=20261023h"></script>
+<script src="/js/nd-volume.js?v=20261023k"></script>
 </body>
 </html>
