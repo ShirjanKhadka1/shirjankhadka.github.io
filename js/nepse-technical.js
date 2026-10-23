@@ -881,6 +881,26 @@
     set('nt-sma20', na ? '—' : fmtNum(s20[s20.length - 1]));
     set('nt-sma50', na ? '—' : fmtNum(s50[s50.length - 1]));
     set('nt-sma200', na ? '—' : fmtNum(s200[s200.length - 1]));
+    (function () {
+      var host = $('nt-pos'), track = $('nt-pos-track'), legend = $('nt-pos-legend');
+      if (!host || !track || !legend) return;
+      var close = cl[cl.length - 1];
+      var pts = [['close', 'Close', close], ['s20', 'SMA 20', s20[s20.length - 1]], ['s50', 'SMA 50', s50[s50.length - 1]], ['s200', 'SMA 200', s200[s200.length - 1]]]
+        .filter(function (pt) { return typeof pt[2] === 'number' && isFinite(pt[2]); });
+      if (na || pts.length < 2) { host.hidden = true; return; }
+      var vals = pts.map(function (pt) { return pt[2]; });
+      var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
+      var pad = (hi - lo) * 0.08 || Math.abs(hi) * 0.01 || 1;
+      lo -= pad; hi += pad;
+      track.innerHTML = pts.map(function (pt) {
+        var pct = (pt[2] - lo) / (hi - lo) * 100;
+        return '<span class="nt-pos-mk ' + pt[0] + '" style="left:' + pct.toFixed(2) + '%"></span>';
+      }).join('');
+      legend.innerHTML = pts.map(function (pt) {
+        return '<span><b class="' + pt[0] + '"></b>' + pt[1] + ' ' + fmtNum(pt[2]) + '</span>';
+      }).join('');
+      host.hidden = false;
+    })();
     var sd = state.sessionDate || (rows.length ? isoOf(rows[rows.length - 1][0]) : null);
     // Delay label follows the freshness-badge rule (js/freshness-badge.js):
     // a figure is printed only when measured from the feed's own

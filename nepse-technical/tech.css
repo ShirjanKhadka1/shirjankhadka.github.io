@@ -427,3 +427,26 @@ body {
 /* Skip link: visually hidden until keyboard-focused (a11y best practice) */
 .skip-link{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;z-index:9999;background:var(--nd-lime,#B8E62E);color:#0A0C10;padding:10px 18px;border-radius:8px;font-weight:700;text-decoration:none}
 .skip-link:focus,.skip-link:active{left:12px;top:12px;width:auto;height:auto;overflow:visible}
+
+/* ============================================================
+ * CINEMA harmonization (2026-10-23) — Spectral stat numerals +
+ * price-position strip: last close vs SMA 20/50/200 on one axis,
+ * markers in the chart's own overlay colours.
+ * ============================================================ */
+.nt-stat .v{ font-family:var(--nd-font-display,"Spectral",Georgia,serif); font-weight:600; letter-spacing:-.01em; }
+.nt-pos{ margin:-12px 0 var(--nd-s8,32px); background:var(--nd-panel,#12141A); border:1px solid var(--nd-border,#1E2430); border-radius:var(--nd-r-card,18px); padding:16px 18px 12px; }
+.nt-pos[hidden]{ display:none; }
+.nt-pos-track{ position:relative; height:26px; border-radius:999px; background:var(--nd-inset,#0D0F14); border:1px solid var(--nd-border,#1E2430); }
+.nt-pos-mk{ position:absolute; top:50%; width:11px; height:11px; border-radius:50%; transform:translate(-50%,-50%); border:2px solid #0A0C10; }
+.nt-pos-mk.s20{ background:#4C9AFF; } .nt-pos-mk.s50{ background:#FFAB00; } .nt-pos-mk.s200{ background:#C377E0; }
+.nt-pos-mk.close{ background:#B8E62E; border-radius:3px; transform:translate(-50%,-50%) rotate(45deg); width:12px; height:12px; z-index:2; }
+.nt-pos-legend{ display:flex; flex-wrap:wrap; gap:6px 18px; margin-top:10px; font-size:.75rem; color:var(--nd-muted,#B8C0CE); font-variant-numeric:tabular-nums; }
+.nt-pos-legend b{ display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; }
+.nt-pos-legend .s20{ background:#4C9AFF; } .nt-pos-legend .s50{ background:#FFAB00; } .nt-pos-legend .s200{ background:#C377E0; }
+.nt-pos-legend .close{ background:#B8E62E; border-radius:2px; }
+[data-theme="light"] .nt-pos-mk{ border-color:#fff; }
+[data-theme="light"] .nt-pos-mk.s20, [data-theme="light"] .nt-pos-legend .s20{ background:#1D6FD1; }
+[data-theme="light"] .nt-pos-mk.s50, [data-theme="light"] .nt-pos-legend .s50{ background:#C77E00; }
+[data-theme="light"] .nt-pos-mk.s200, [data-theme="light"] .nt-pos-legend .s200{ background:#8E44AD; }
+[data-theme="light"] .nt-pos-mk.close, [data-theme="light"] .nt-pos-legend .close{ background:#65A30D; }
+[data-theme="light"] .nt-pos-track{ background:#F3F4F6; }
