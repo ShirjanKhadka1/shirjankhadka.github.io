@@ -38,20 +38,19 @@
     return '<div class="rr-stat"><div class="sk">' + esc(k) + '</div><div class="sv">' + esc(v) + '</div><div class="ss">' + esc(s) + '</div></div>';
   }
 
-  /* ---------------- RRG chart (inline SVG) ---------------- */
+  /* ------------- Sector Rotation Quadrant (inline SVG) -------------
+     Dots only — no trails. Rows arrive pre-mapped from the board's
+     quadrant_chart block: rs_ratio carries x (20-day relative
+     strength, 5-day smoothed, %) and rs_momentum carries y (the
+     5-session change of x, pts). Dots are coloured by quadrant. */
 
-  function buildChart(rows) {
+  function buildQuadrantChart(rows) {
     var W = 680, H = 560, ML = 48, MR = 16, MT = 16, MB = 42;
     var pw = W - ML - MR, ph = H - MT - MB;
-    /* Domain (fixed 2026-10-23): anchored on the 0/0 crosshair (the
-       board's values are 0-centred percents since the weekly-mechanism
-       rebuild) and driven by the HEAD (latest) points only, so the
-       frame zooms to the current sector cluster the way a standard RRG
-       is read. Every head is always inside the frame; older trail
-       points may leave it and are clipped at the frame edge (see the
-       note under the chart). The previous version scaled the axes to
-       every trail point, so one excursion stretched the plot and
-       crushed the live cluster into the centre. */
+    /* Domain: anchored on the 0/0 crosshair and driven by the dots
+       themselves, padded so every sector is always inside the frame —
+       a deliberate difference from the reference chart, which clips
+       dots outside a fixed frame. */
     var hx = [0], hy = [0];
     rows.forEach(function (r) { hx.push(r.rs_ratio); hy.push(r.rs_momentum); });
     function headExtent(v, minSpan) {
@@ -61,12 +60,12 @@
       if (hi - lo < minSpan) { var c = (lo + hi) / 2; lo = c - minSpan / 2; hi = c + minSpan / 2; }
       return [Math.floor(lo * 2) / 2, Math.ceil(hi * 2) / 2];
     }
-    var xe = headExtent(hx, 8), ye = headExtent(hy, 5.5);
+    var xe = headExtent(hx, 8), ye = headExtent(hy, 4);
     function X(v) { return ML + (v - xe[0]) / (xe[1] - xe[0]) * pw; }
     function Y(v) { return MT + ph - (v - ye[0]) / (ye[1] - ye[0]) * ph; }
     var x0 = X(0), y0 = Y(0);
     var s = '';
-    s += '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Relative rotation graph: NEPSE sectors by RS-Ratio and RS-Momentum" class="rr-svg">';
+    s += '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Sector Rotation Quadrant: NEPSE sectors by 20-day relative strength, 5-day smoothed, and its 5-day change" class="rr-svg">';
     s += '<defs><clipPath id="rrClip"><rect x="' + ML + '" y="' + MT + '" width="' + pw + '" height="' + ph + '"/></clipPath></defs>';
     /* quadrant zones */
     s += '<rect x="' + ML + '" y="' + MT + '" width="' + (x0 - ML) + '" height="' + (y0 - MT) + '" class="rr-zone improving"/>';
@@ -94,30 +93,11 @@
     s += '<text x="' + (ML + pw - 8) + '" y="' + (MT + ph - 8) + '" class="rr-qlabel q-weakening" text-anchor="end">WEAKENING</text>';
     s += '<text x="' + (ML + 8) + '" y="' + (MT + ph - 8) + '" class="rr-qlabel q-lagging">LAGGING</text>';
     /* axis titles */
-    s += '<text x="' + (ML + pw / 2) + '" y="' + (H - 4) + '" class="rr-axtitle" text-anchor="middle">RS-Ratio →</text>';
-    s += '<text x="14" y="' + (MT + ph / 2) + '" class="rr-axtitle" text-anchor="middle" transform="rotate(-90 14 ' + (MT + ph / 2) + ')">RS-Momentum →</text>';
-    /* trails: clipped at the frame; segments and dots fade with age so
-       the eye lands on the head, oldest points smallest and faintest */
-    s += '<g clip-path="url(#rrClip)">';
-    rows.forEach(function (r) {
-      var c = COLORS[r.sector] || '#94a3b8';
-      var tr = r.trail || [];
-      for (var i = 1; i < tr.length; i++) {
-        var t = i / (tr.length - 1);
-        s += '<line x1="' + X(tr[i - 1].rs_ratio).toFixed(1) + '" y1="' + Y(tr[i - 1].rs_momentum).toFixed(1) +
-          '" x2="' + X(tr[i].rs_ratio).toFixed(1) + '" y2="' + Y(tr[i].rs_momentum).toFixed(1) +
-          '" stroke="' + c + '" stroke-width="' + (1.1 + 0.9 * t).toFixed(2) + '" opacity="' + (0.10 + 0.38 * t).toFixed(2) + '"/>';
-      }
-      tr.forEach(function (p, i) {
-        if (i === tr.length - 1) return; /* last trail point is the head, drawn below */
-        var u = tr.length > 2 ? i / (tr.length - 2) : 1;
-        s += '<circle cx="' + X(p.rs_ratio) + '" cy="' + Y(p.rs_momentum) + '" r="' + (1.3 + 1.3 * u).toFixed(2) + '" fill="' + c + '" opacity="' + (0.22 + 0.43 * u).toFixed(2) + '"/>';
-      });
-    });
-    s += '</g>';
-    /* heads + labels: label boxes are placed by a greedy collision pass
-       (crowded heads placed first) so all 11 names stay readable; a thin
-       leader line links a label that had to move away from its dot */
+    s += '<text x="' + (ML + pw / 2) + '" y="' + (H - 4) + '" class="rr-axtitle" text-anchor="middle">Relative strength, 20-day (%) →</text>';
+    s += '<text x="14" y="' + (MT + ph / 2) + '" class="rr-axtitle" text-anchor="middle" transform="rotate(-90 14 ' + (MT + ph / 2) + ')">5-day change (pts) →</text>';
+    /* dots only — no trails. Labels are placed by a greedy collision
+       pass (crowded dots placed first) so all 11 names stay readable;
+       a thin leader line links a label that had to move from its dot */
     var placed = [];
     var items = rows.map(function (r) {
       var ex = X(r.rs_ratio), ey = Y(r.rs_momentum);
@@ -164,11 +144,11 @@
       var r = it.r, c = COLORS[r.sector] || '#94a3b8';
       var bcx = it.box.x + it.box.w / 2, bcy = it.box.y + it.box.h / 2;
       var dx = bcx - it.ex, dy = bcy - it.ey;
-      s += '<g><title>' + esc(r.sector) + ' — ' + esc(r.quadrant) + ' · RS-Ratio ' + fmt(r.rs_ratio) + '% · RS-Momentum ' + fmt(r.rs_momentum) + ' pts · ' + r.quadrant_weeks + ' weeks in quadrant</title>';
+      s += '<g><title>' + esc(r.sector) + ' — ' + esc(r.quadrant) + ' · 20-day relative strength ' + fmt(r.rs_ratio) + '% (5-day smoothed) · 5-day change ' + fmt(r.rs_momentum) + ' pts</title>';
       if (Math.sqrt(dx * dx + dy * dy) > 17) {
         s += '<line x1="' + it.ex + '" y1="' + it.ey + '" x2="' + bcx + '" y2="' + bcy + '" class="rr-leader"/>';
       }
-      s += '<circle cx="' + it.ex + '" cy="' + it.ey + '" r="6" fill="' + c + '" class="rr-endpoint"/>' +
+      s += '<circle cx="' + it.ex + '" cy="' + it.ey + '" r="7" class="rr-endpoint rr-qdot ' + esc(r.quadrant) + '"/>' +
         '<text x="' + bcx + '" y="' + (bcy + 4) + '" class="rr-ptlabel" text-anchor="middle">' + esc(it.label) + '</text></g>';
     });
     s += '</svg>';
@@ -226,10 +206,15 @@
       statCard('Improving', String(counts.Improving || 0), names('Improving')) +
       statCard('Turnover leader', tLeader ? tLeader.sector : '—', tLeader ? fmt(tLeader.turnover_share_pct) + '% of market turnover in the latest session' : '') +
       flowCard;
-    $('rrChart').innerHTML = buildChart(state.rows);
-    $('rrLegend').innerHTML = state.rows.map(function (r) {
-      return '<span class="rr-leg"><span class="rr-dot" style="background:' + (COLORS[r.sector] || '#94a3b8') + '"></span>' +
-        esc(r.sector) + ' <em>' + esc(r.quadrant) + '</em></span>';
+    var qc = data.quadrant_chart || { sectors: [] };
+    if ($('rrChartSession')) $('rrChartSession').textContent = 'session ' + (qc.asof || data.asof);
+    $('rrChart').innerHTML = buildQuadrantChart((qc.sectors || []).map(function (r) {
+      return { sector: r.sector, rs_ratio: r.x, rs_momentum: r.y, quadrant: r.quadrant };
+    }));
+    var qCounts = {};
+    (qc.sectors || []).forEach(function (r) { qCounts[r.quadrant] = (qCounts[r.quadrant] || 0) + 1; });
+    $('rrLegend').innerHTML = ['Leading', 'Improving', 'Lagging', 'Weakening'].map(function (q) {
+      return '<span class="rr-leg"><span class="rr-dot rr-qdot ' + q + '"></span>' + q + ' <em>' + (qCounts[q] || 0) + ' sectors</em></span>';
     }).join('');
     document.querySelectorAll('#rrTable th.rr-sortable').forEach(function (th) {
       th.addEventListener('click', function () {

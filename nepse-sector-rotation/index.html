@@ -8,14 +8,14 @@
 <title>Sector Rotation (RRG): NEPSE Sectors vs the Index | Nepse Decode</title>
 <link rel="stylesheet" href="/css/nd-tokens.css">
 <link rel="stylesheet" href="/css/nepse-design-system.css?v=20261023d">
-<meta name="description" content="NEPSE sector rotation map: every sector plotted on a relative rotation graph (RS-Ratio vs RS-Momentum) against the NEPSE index — who is leading, improving, weakening or lagging, with 12-week trails, consistency and turnover flow. Computed from Nepse Decode's own data archive, free. Educational use only.">
+<meta name="description" content="NEPSE sector rotation: the Sector Rotation Quadrant — 20-day relative strength, 5-day smoothed — plus a weekly posture table (RS-Ratio vs RS-Momentum, consistency, turnover flow) for all 11 sectors against the NEPSE index. Computed from Nepse Decode's own data archive, free. Educational use only.">
 <meta name="author" content="Shirjan Khadka">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-sector-rotation/">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Nepse Decode">
 <meta property="og:title" content="Sector Rotation (RRG): NEPSE Sectors vs the Index">
-<meta property="og:description" content="Which NEPSE sectors are leading the index — and which are rotating up? The relative rotation graph for all 11 sectors, with trails, consistency and turnover flow. Free.">
+<meta property="og:description" content="Which NEPSE sectors are leading the index — and which are rotating up? The Sector Rotation Quadrant (20-day relative strength, 5-day smoothed) and the weekly posture table for all 11 sectors. Free.">
 <meta property="og:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -42,7 +42,7 @@
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=20261023m">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=20261023e">
-<link rel="stylesheet" href="/css/nd-rotation.css?v=20261023k">
+<link rel="stylesheet" href="/css/nd-rotation.css?v=20261023p">
 <link rel="stylesheet" href="/css/nd-3d.css">
 <link rel="stylesheet" href="/css/nd-research-3d.css">
 </head>
@@ -60,17 +60,21 @@
   <div class="rr-masthead">
     <p class="nd-kicker">Research</p>
     <h1 class="rr-title">Sector Rotation</h1>
-    <p class="rr-lede">Where is strength rotating? Every NEPSE sector is plotted on a <strong>relative rotation graph</strong> — its relative-strength trend (RS-Ratio) against that trend's momentum (RS-Momentum), benchmarked to the NEPSE index. Sectors move clockwise: improving, leading, weakening, lagging. Trails show the last 12 weeks of travel. Computed from Nepse Decode's own derived sector indices. Free, always.</p>
+    <p class="rr-lede">Where is strength rotating? The <strong>Sector Rotation Quadrant</strong> below plots every NEPSE sector by its <strong>20-day relative strength, 5-day smoothed</strong>, against the 5-day change of that strength — one dot per sector, coloured by quadrant: leading, improving, weakening, lagging. A slower <strong>weekly posture table</strong> follows underneath. Both are computed from Nepse Decode's own derived sector indices. Free, always.</p>
     <p class="rr-meta"><span id="rrSession">Loading…</span></p>
   </div>
 
-  <section class="rr-stats" id="rrStats" aria-label="Rotation summary"></section>
-
-  <section class="rr-chartwrap" aria-label="Relative rotation graph">
+  <section class="rr-chartwrap" aria-label="Sector Rotation Quadrant">
+    <h2 class="rr-h2">Sector Rotation Quadrant</h2>
+    <p class="rr-chartsub">20-day relative strength, 5-day smoothed · <span id="rrChartSession">latest session</span></p>
     <div id="rrChart" class="rr-chart"></div>
-    <p class="rr-chartnote">The map is zoomed to the current sector cluster around the 0 / 0 crosshair, as a rotation map is normally read: every sector's latest point (the large dot) is always in frame, trails fade from oldest to newest, and an older trail point that travels outside the frame is clipped at the edge — never hidden from the table below, which carries the exact values.</p>
-    <div id="rrLegend" class="rr-legend" aria-label="Sector legend"></div>
+    <p class="rr-chartnote">One dot per sector, coloured by its quadrant. Right of the vertical line, the sector's 20-day relative strength is positive — it has beaten the index over the last 20 sessions; above the horizontal line, that strength is still improving over the last 5 sessions. Every sector is always in frame: the axes widen to fit the most extreme dot rather than clipping it away.</p>
+    <div id="rrLegend" class="rr-legend" aria-label="Quadrant legend"></div>
   </section>
+
+  <h2 class="rr-h2 rr-h2-table">Weekly posture</h2>
+  <p class="rr-chartsub">13-week RS ratio · 4-week momentum · weekly closes — the slower view of the same rotation</p>
+  <section class="rr-stats" id="rrStats" aria-label="Weekly posture summary"></section>
 
   <div class="rr-tablewrap">
     <table class="rr-table" id="rrTable">
@@ -95,7 +99,8 @@
     <h2>How this map is built</h2>
     <div class="rr-method">
       <p><strong>The benchmark and the sectors.</strong> Each sector is a derived index built by Nepse Decode: the equal-weighted chained daily returns of the sector's listed companies, computed from our own OHLC archive (the same series behind the Seasonality and Market Regime pages). The benchmark is the official NEPSE index. Sector membership is today's map applied historically, so delisted names are absent — a survivorship caveat we state rather than hide.</p>
-      <p><strong>RS-Ratio.</strong> The board is built on <strong>weekly closes</strong> — the last session of each week. RS = sector index ÷ NEPSE index at each weekly close. RS-Ratio = 100 × (RS ÷ its own trailing 13-week average − 1), in percent. Above 0, the sector's relative line is running above its own 13-week trend — it has been beating the index by more than its recent norm; below 0, it is running below that trend. <strong>RS-Momentum</strong> = RS-Ratio minus its own trailing 4-week average: above 0, the ratio has been rising over the last four weeks. Weekly bars are deliberate: measured weekly, relative strength rotates smoothly from quadrant to quadrant; measured daily, the same maths whipsaws around every sharp move. Every input is our own data and the formulas are published, not borrowed as a black box.</p>
+      <p><strong>The quadrant chart.</strong> The chart at the top is a <strong>daily</strong> mechanism with the construction stated on it: <strong>20-day relative strength, 5-day smoothed</strong>. For each sector, the relative-strength line (sector index ÷ NEPSE index) is measured over the last 20 sessions: x = that 20-session change in percent, smoothed with a 5-session exponential average; y = how much the smoothed value itself moved over the last 5 sessions, in percentage points. Quadrants follow the signs of x and y. Sessions are counted on the grid of sessions present in both the sector series and the official index history. Two honest differences from the best-known version of this chart: our frame always includes every sector (theirs clips dots outside a fixed frame — on 2026-10-16 their Banking and Hotels dots sit outside it), and our sectors are equal-weighted composites rather than cap-weighted sub-indices, so our weak-sector dots sit further left. Checked against that chart's published 2026-10-16 dots, our relative-strength signs agree on all 7 readable sectors and our quadrants on 5 of 7 — Non Life Insurance and Life Insurance land one quadrant apart because the final sessions moved our equal-weighted baskets differently. Their twelfth dot, Trading, is folded into our Others group and has no separate dot here.</p>
+      <p><strong>RS-Ratio (the table).</strong> The weekly posture table is built on <strong>weekly closes</strong> — the last session of each week. RS = sector index ÷ NEPSE index at each weekly close. RS-Ratio = 100 × (RS ÷ its own trailing 13-week average − 1), in percent. Above 0, the sector's relative line is running above its own 13-week trend — it has been beating the index by more than its recent norm; below 0, it is running below that trend. <strong>RS-Momentum</strong> = RS-Ratio minus its own trailing 4-week average: above 0, the ratio has been rising over the last four weeks. Weekly bars are deliberate: measured weekly, relative strength rotates smoothly from quadrant to quadrant; measured daily, the same maths whipsaws around every sharp move. Every input is our own data and the formulas are published, not borrowed as a black box.</p>
       <p><strong>Quadrants.</strong> Leading (ratio ≥ 0, momentum ≥ 0): strong and still strengthening. Weakening (≥ 0, &lt; 0): strong but losing steam. Lagging (both &lt; 0): weak and still weakening. Improving (&lt; 0, ≥ 0): weak but turning up — tomorrow's leaders often enter here. <strong>Weeks in Quad</strong> counts consecutive weeks in the current quadrant; <strong>Consistency</strong> is the share of the last 30 weeks spent in the sector's most frequent quadrant. <strong>Rotation rank</strong> orders sectors by RS-Ratio + RS-Momentum, their summed distance from the 0 / 0 centre.</p>
       <p><strong>Turnover and flow shift.</strong> Turnover % is the sector's share of total turnover across sector-mapped companies in the latest session (exchange-reported turnover from our archive). Flow Shift compares that share with its trailing 120-session average, in percentage points: positive means money is rotating toward the sector relative to its recent norm, negative means it is rotating away.</p>
       <p><strong>Reading it honestly.</strong> Rotation is relative: a sector can sit in Leading while falling, if it falls less than the index, and a Lagging sector can rise if it rises less. The map shows where relative strength and money are moving — it is a map, not a signal, and it says nothing about whether any sector is cheap or dear.</p>
@@ -111,6 +116,6 @@
 
 <div id="nd-footer"></div>
 <script src="/js/nd-chrome.js?v=20261023j"></script>
-<script src="/js/nd-rotation.js?v=20261023l"></script>
+<script src="/js/nd-rotation.js?v=20261023p"></script>
 </body>
 </html>

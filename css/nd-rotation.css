@@ -23,6 +23,16 @@
 .rr-stat .ss{ font: 400 .8125rem var(--nd-font-sans, sans-serif); color: var(--nd-dim); margin-top: 2px; line-height: 1.45; }
 
 /* ---- chart ---- */
+.rr-h2{
+  font-family: var(--nd-font-display, "Spectral", serif);
+  font-weight: 700; font-size: 1.5rem; color: var(--nd-text);
+  margin: 2px 2px 2px; line-height: 1.2;
+}
+.rr-h2-table{ margin: 30px 2px 2px; }
+.rr-chartsub{
+  font: 400 .875rem var(--nd-font-sans, sans-serif); color: var(--nd-dim);
+  margin: 0 2px 10px;
+}
 .rr-chartwrap{
   border: 1px solid var(--nd-border); border-radius: var(--nd-r-lg, 14px);
   background: var(--nd-panel); padding: 14px 14px 6px; margin-bottom: 14px;
@@ -47,6 +57,19 @@
 [data-theme="dark"] .rr-qlabel.q-weakening{ fill: #fbbf24; }
 [data-theme="dark"] .rr-qlabel.q-lagging{ fill: #f87171; }
 .rr-endpoint{ stroke: var(--nd-panel); stroke-width: 1.6; }
+/* quadrant dots (chart) — quadrant semantics in our design shades */
+circle.rr-qdot.Leading{ fill: #16a34a; }
+circle.rr-qdot.Improving{ fill: #2563eb; }
+circle.rr-qdot.Weakening{ fill: #d97706; }
+circle.rr-qdot.Lagging{ fill: #dc2626; }
+[data-theme="dark"] circle.rr-qdot.Leading{ fill: #4ade80; }
+[data-theme="dark"] circle.rr-qdot.Improving{ fill: #60a5fa; }
+[data-theme="dark"] circle.rr-qdot.Weakening{ fill: #fbbf24; }
+[data-theme="dark"] circle.rr-qdot.Lagging{ fill: #f87171; }
+.rr-dot.rr-qdot.Leading{ background: #16a34a; }
+.rr-dot.rr-qdot.Improving{ background: #2563eb; }
+.rr-dot.rr-qdot.Weakening{ background: #d97706; }
+.rr-dot.rr-qdot.Lagging{ background: #dc2626; }
 .rr-leader{ stroke: var(--nd-dim); stroke-width: 1; opacity: .55; }
 .rr-chartnote{
   font: 400 .8125rem var(--nd-font-sans, sans-serif); color: var(--nd-dim);
