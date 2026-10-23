@@ -126,9 +126,13 @@
       }
       scoreEl.textContent = v.score;
       titleEl.textContent = v.title;
+      var mark = $('scVerdictMark');
+      if (mark) mark.style.setProperty('--pos', Math.max(0, Math.min(100, v.score)) + '%');
       var fHtml = v.factors.map(function (f) {
-        return '<span class="sc-fchip" title="' + esc(f.name) + ' (' + f.w + '% weight)">' +
-          esc(f.name) + ' ' + f.v + '</span>';
+        var fv = Math.max(0, Math.min(100, Number(f.v) || 0));
+        return '<span class="cx-factor"><span class="cx-factor-top"><span>' + esc(f.name) + '</span>' +
+          '<span class="cx-factor-v">' + f.v + ' · ' + f.w + '% weight</span></span>' +
+          '<span class="cx-prop"><span class="cx-prop-track"><span class="cx-prop-fill" style="--w:' + fv + '%"></span></span></span></span>';
       }).join('');
       whyEl.innerHTML = esc(v.why) + '<br><span class="sc-factors">' + fHtml + '</span>' +
         '<br><span class="sc-vsrc">Batch of ' + esc(v.asof) + ' · ' + v.total +

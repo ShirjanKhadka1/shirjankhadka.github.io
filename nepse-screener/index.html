@@ -46,7 +46,7 @@
 </script>
 <link rel="stylesheet" href="/css/nd-chrome.css?v=20261023d">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023d">
-<link rel="stylesheet" href="/css/nd-cinema.css?v=20261023i">
+<link rel="stylesheet" href="/css/nd-cinema.css?v=20261023j">
 <link rel="stylesheet" href="/css/sig-pro.css?v=20261023d">
 <link rel="stylesheet" href="/css/nepse-logos.css">
 <style>
@@ -115,6 +115,23 @@
   <p class="sig-lede"><strong style="color:var(--nd-text,#fff)">Every stock, ranked.</strong><br>This free NEPSE screener ranks every listed security daily with a transparent, rule-based buy/hold/exit engine &mdash; no black box, no login. Each row shows RSI(14), an ATR-based stop-loss and target, and the ten scored factors behind the verdict, so you can audit every signal yourself. Educational use only; nothing here is investment advice.</p>
   <p class="sig-sub"><span id="sc-live"></span></p>
   <div class="sig-fresh" id="sc-asof-wrap"><span class="dot"></span><span id="sc-asof">Loading…</span></div>
+
+  <section class="cx-card sc-verdict" aria-label="Market verdict">
+    <div class="cx-card-head">
+      <div><p class="cx-kicker">Market Verdict</p><h2 class="cx-title" id="scVerdictTitle">Loading…</h2></div>
+      <div class="sc-verdict-score"><span id="scVerdictScore">—</span><span class="sc-verdict-of">/ 100</span></div>
+    </div>
+    <div class="cx-gauge" role="img" aria-label="Market verdict gauge, 0 is strong exit pressure, 100 is strong buy pressure"><span class="cx-gauge-mark" id="scVerdictMark" style="--pos:50%"></span></div>
+    <div class="cx-gauge-scale"><span>Exit pressure</span><span>Neutral</span><span>Buy pressure</span></div>
+    <p class="sc-verdict-why" id="scVerdictWhy"></p>
+    <div class="cx-seg sc-pillrow" id="scPillRow" role="group" aria-label="Quick screens">
+      <button type="button" data-scr="all" class="active">All</button>
+      <button type="button" data-scr="momentum">Momentum</button>
+      <button type="button" data-scr="value">Value</button>
+      <button type="button" data-scr="liquid">Most liquid</button>
+      <button type="button" data-scr="weak">Weak</button>
+    </div>
+  </section>
 
   <h2>RSI extremes &amp; biggest movers</h2>
   <p class="sig-sub">Daily batch <span id="w1-asof">—</span> &middot; auto-refreshes every 5 min during market hours</p>
@@ -264,8 +281,8 @@
 <script src="../js/nepse-suite.js?v=20261023d" defer></script>
 <script src="/js/company-logos.js?v=20261023d" defer></script>
 <script src="/js/nepse-logos.js" defer></script>
-<script src="../js/nepse-screener.js?v=20261023d" defer></script>
-<script src="../js/nd-screener-verdict.js?v=20261023d" defer></script>
+<script src="../js/nepse-screener.js?v=20261023j" defer></script>
+<script src="../js/nd-screener-verdict.js?v=20261023j" defer></script>
 <script src="/js/theme-toggle.js?v=20261023d" defer></script>
 <script src="/js/freshness-badge.js?v=20261023d" defer></script>
 <script src="/js/nd-chrome.js?v=20261023d" defer></script>

@@ -120,20 +120,23 @@
   function hitCell(r) {
     if (!r.tr || r.tr.n == null || r.tr.w == null) return '<span class="sc-dash">—</span>';
     var w = Math.round(r.tr.w * 100);
-    return '<b class="sc-hit">' + w + '%</b> <span class="sc-sub">' + r.tr.n + ' calls</span>';
+    return '<span class="cx-hit"><b class="sc-hit">' + w + '%</b> <span class="sc-sub">' + r.tr.n + ' calls</span>' +
+      '<span class="cx-prop"><span class="cx-prop-track"><span class="cx-prop-fill" style="--w:' + Math.max(0, Math.min(100, w)) + '%"></span></span></span></span>';
   }
 
   function rsiCell(r) {
     if (r.rsi == null) return '<span class="sc-dash">—</span>';
     var cls = r.rsi < 30 ? ' sc-rsi-os' : (r.rsi > 70 ? ' sc-rsi-ob' : '');
-    return '<b class="sc-rsi' + cls + '">' + r.rsi.toFixed(1) + '</b>';
+    var pos = Math.max(0, Math.min(100, Number(r.rsi)));
+    return '<span class="cx-rsi"><b class="sc-rsi' + cls + '">' + r.rsi.toFixed(1) + '</b>' +
+      '<span class="cx-rsi-bar"><span class="cx-rsi-mark" style="--pos:' + pos + '%"></span></span></span>';
   }
 
   function chCell(r) {
     var ch = Number(r.ch);
     if (r.ch == null || !isFinite(ch)) return '<span class="sc-dash">—</span>';
-    var cls = ch > 0 ? 'sc-chg-up' : (ch < 0 ? 'sc-chg-dn' : 'sc-chg-flat');
-    return '<b class="' + cls + '">' + (ch > 0 ? '+' : '') + ch.toFixed(2) + '%</b>';
+    var cls = ch > 0 ? 'up' : (ch < 0 ? 'down' : 'flat');
+    return '<span class="cx-chip ' + cls + '">' + (ch > 0 ? '+' : '') + ch.toFixed(2) + '%</span>';
   }
 
   function badge(v) {
@@ -416,7 +419,7 @@
       h += '<div class="sc-cr-list">' + rows.map(function (r) {
         var ch = Number(r.ch);
         var chHtml = isFinite(ch)
-          ? '<span class="sc-dist ' + (ch > 0 ? 'up' : ch < 0 ? 'dn' : '') + '">' +
+          ? '<span class="cx-chip ' + (ch > 0 ? 'up' : ch < 0 ? 'down' : 'flat') + '">' +
             (ch > 0 ? '+' : '') + ch.toFixed(2) + '%</span>'
           : '<span class="sc-dash">—</span>';
         return '<div class="sc-cr-row">' +
