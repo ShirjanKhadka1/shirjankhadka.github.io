@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* NEPSE Alpha Lab — Wave 1 market-intelligence builder.
+/* Nepse Decode — Wave 1 market-intelligence builder.
  *
  * Computes the market summary, RSI extremes and "moves the most" lists
  * from the existing data files and the open OHLC history, and writes one

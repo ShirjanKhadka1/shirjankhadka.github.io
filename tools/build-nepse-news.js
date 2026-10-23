@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* NEPSE Alpha Lab — market news collector.
+/* Nepse Decode — market news collector.
  *
  * Fetches Nepali business-news RSS feeds, matches headlines to listed
  * symbols (ticker or company name), and writes a rolling 7-day file:

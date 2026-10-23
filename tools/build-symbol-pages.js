@@ -8,7 +8,7 @@
  *
  * Everything on the page comes from the batch data. No invented figures,
  * no valuations, no price targets, no buy/sell calls. Verdict pills are
- * the transparent rule-based Alpha Lab engine readings with their asof
+ * the transparent rule-based Engine Verdict readings with their asof
  * dates; timeframes without enough history say so honestly.
  *
  * Node 18+, no npm dependencies.
@@ -298,7 +298,7 @@ function pill(tfLabel, vobj) {
 
 function head(sym, name, slug) {
   const title = sym + ' Share Price, Signals and News | Nepse Decode';
-  const desc = name + ' (' + sym + '): latest NEPSE price, Alpha Lab signals, 52-week range and headlines. Free, educational.';
+  const desc = name + ' (' + sym + '): latest NEPSE price, Engine Verdict signals, 52-week range and headlines. Free, educational.';
   const url = SITE + '/stocks/' + slug + '/';
   const ld = {
     '@context': 'https://schema.org',
@@ -498,7 +498,7 @@ function companyBlock(f) {
   if (f.pe) fp.push('a price-to-earnings ratio (TTM) of ' + f.pe);
   if (fp.length) s.push('Latest published fundamentals' + (f.period ? ' (' + f.period + ')' : '') +
     ' show ' + fp.join(', ') + '.');
-  if (f.verdict) s.push('The Alpha Lab daily engine reading for ' + f.sym + ' is ' + f.verdict +
+  if (f.verdict) s.push('The Engine Verdict daily reading for ' + f.sym + ' is ' + f.verdict +
     (f.verdictAsof ? ' (as of ' + f.verdictAsof + ')' : '') + '.');
   const rows = [];
   const row = (dt, dd) => { if (dd != null && dd !== '') rows.push('<div><dt>' + esc(dt) + '</dt><dd>' + esc(dd) + '</dd></div>'); };
@@ -1161,7 +1161,7 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
   h += '<li><a href="/nepse-screener/">Ranked screener <span aria-hidden="true">→</span></a></li>';
   h += '</ul></div>';
   h += '<div class="sp-tabpanel" data-panel="signals" role="tabpanel" hidden>';
-  h += '<h2>Alpha Lab engine signals</h2>';
+  h += '<h2>Engine Verdict signals</h2>';
   h += '<p class="sp-note">Transparent rule-based readings, one per timeframe. A daily Buy can be weak while the weekly read is stronger; each pill names its own timeframe and data date.</p>';
   h += pill('Daily', v) + pill('Weekly', v && v.w) + pill('Monthly', v && v.m);
   h += '</div>';

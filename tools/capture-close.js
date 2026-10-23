@@ -149,7 +149,7 @@ async function main() {
   const liveDate = String(live.asof || '').slice(0, 10);
   // 2026-10-09 FIX: only the validated close:true marker proves the official
   // close was captured. market:'CLOSED' alone is NOT proof — the intraday
-  // poll and the Alpha Lab snapshot both write CLOSED with the last tick
+  // poll and the Engine Verdict snapshot both write CLOSED with the last tick
   // (2026-10-09: CLOSED at 2587.83, the 15:00 tick, while the official close
   // was 2591.8). Exiting on CLOSED alone skips the capture and leaves the
   // session without its validated close.

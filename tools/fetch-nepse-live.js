@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* NEPSE Alpha Lab — official-API live quote fetcher.
+/* Nepse Decode — official-API live quote fetcher.
  *
  * Runs on a schedule (GitHub Actions, every ~15 min during NEPSE trading
  * hours) and writes a compact same-origin snapshot the static site can poll:
