@@ -24,7 +24,7 @@ print(f'audit: asof={a["asof"]} rows={len(a["rows"])}')
 
 # Inline the shared stylesheet.
 html = html.replace(
-    '<link rel="stylesheet" href="chart.css?v=20261023c">',
+    '<link rel="stylesheet" href="chart.css?v=20261023d">',
     '<style>\n' + css + '\n</style>',
     1,
 )

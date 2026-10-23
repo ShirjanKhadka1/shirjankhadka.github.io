@@ -346,10 +346,10 @@ function head(sym, name, slug) {
     '<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">\n' +
     '<link rel="apple-touch-icon" href="/apple-touch-icon.png">\n' +
     '<link rel="stylesheet" href="/css/fonts.css">\n' +
-    '<link rel="stylesheet" href="/css/nd-tokens.css?v=20261023c">\n' +
-    '<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023c">\n' +
-    '<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023c">\n' +
-    '<link rel="stylesheet" href="/css/sig-pro.css?v=20261023c">\n' +
+    '<link rel="stylesheet" href="/css/nd-tokens.css?v=20261023d">\n' +
+    '<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023d">\n' +
+    '<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023d">\n' +
+    '<link rel="stylesheet" href="/css/sig-pro.css?v=20261023d">\n' +
     SP_STYLES +
 
     '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>\n' +
@@ -362,10 +362,10 @@ const RAIL = '<body class="nd">\n' +
 
   const FOOT =
   '<div id="nd-footer"></div>\n' +
-  '<script src="/js/nd-chrome.js?v=20261023c" defer></script>\n' +
-  '<script src="/js/theme-toggle.js?v=20261023c" defer></script>\n' +
-  '<script src="/js/stock-live.js?v=20261023c" defer></script>\n' +
-  '<script src="/js/val-lab.js?v=20261023c" defer></script>\n' +
+  '<script src="/js/nd-chrome.js?v=20261023d" defer></script>\n' +
+  '<script src="/js/theme-toggle.js?v=20261023d" defer></script>\n' +
+  '<script src="/js/stock-live.js?v=20261023d" defer></script>\n' +
+  '<script src="/js/val-lab.js?v=20261023d" defer></script>\n' +
   '</body>\n</html>\n';
 
 function fmtNum(x) {
@@ -1306,10 +1306,10 @@ function indexPage(symbols, asof) {
     '<meta name="twitter:image" content="' + OG_STOCKS + '">\n' +
     '<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">\n' +
     '<link rel="stylesheet" href="/css/fonts.css">\n' +
-    '<link rel="stylesheet" href="/css/nd-tokens.css?v=20261023c">\n' +
-    '<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023c">\n' +
-    '<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023c">\n' +
-    '<link rel="stylesheet" href="/css/sig-pro.css?v=20261023c">\n' +
+    '<link rel="stylesheet" href="/css/nd-tokens.css?v=20261023d">\n' +
+    '<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023d">\n' +
+    '<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023d">\n' +
+    '<link rel="stylesheet" href="/css/sig-pro.css?v=20261023d">\n' +
     SP_STYLES +
     '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>\n</head>\n' +
     RAIL + '<main id="main" class="sig-wrap">\n' +

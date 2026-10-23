@@ -9,7 +9,7 @@ Rewrites the ?v= value on every same-site .css/.js reference to ONE token
   * *.html files      — src=/href= attribute values (third-party URLs,
                         i.e. http://, https:// and protocol-relative //,
                         are NEVER touched; non-css/js URLs are untouched)
-  * *.js files        — string literals like '/js/nepse-daily.js?v=20261023c'
+  * *.js files        — string literals like '/js/nepse-daily.js?v=20261023d'
   * tools/*.js, *.py  — the page generators emit asset references with
                         hardcoded versions; rewriting them too means the
                         next regeneration comes out unified instead of

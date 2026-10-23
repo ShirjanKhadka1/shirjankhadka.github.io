@@ -461,8 +461,8 @@ def head_block(story, lang, self_url, other_url):
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023c">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023c">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023d">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023d">
 <script type="application/ld+json">
 {ld_json}
 </script>
@@ -717,7 +717,7 @@ def render_page(story, lang):
         comments_block(story, lang),
         "</main>",
         '<div id="nd-footer"></div>',
-        '<script src="/js/nd-chrome.js?v=20261023c" defer></script>',
+        '<script src="/js/nd-chrome.js?v=20261023d" defer></script>',
         """<script>
 document.addEventListener('click', function (e) {
   var a = e.target.closest('a[data-copy-link]');

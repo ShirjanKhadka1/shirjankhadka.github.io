@@ -149,9 +149,9 @@ function page(sys, data) {
 {"@context":"https://schema.org","@type":"WebPage","name":"${title} — Nepse Decode Signals","url":"${pageUrl}","description":"${metaDesc}","isPartOf":{"@type":"WebSite","name":"Nepse Decode","url":"https://shirjankhadka.com.np/"},"author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
 </script>
 <link rel="stylesheet" href="/css/fonts.css">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023c">
-<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023c">
-<link rel="stylesheet" href="/css/sig-pro.css?v=20261023c">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023d">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023d">
+<link rel="stylesheet" href="/css/sig-pro.css?v=20261023d">
 </head>
 <body class="nd">
 <a class="skip-link" href="#main">Skip to content</a>
@@ -461,8 +461,8 @@ ${profileRows}</table></div>
 })();
 </script>
 <div id="nd-footer"></div>
-<script src="/js/nd-chrome.js?v=20261023c" defer></script>
-<script src="/js/theme-toggle.js?v=20261023c" defer></script>
+<script src="/js/nd-chrome.js?v=20261023d" defer></script>
+<script src="/js/theme-toggle.js?v=20261023d" defer></script>
 </body>
 </html>`;
 }
