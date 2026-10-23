@@ -95,6 +95,72 @@
 
 .sn-fine{ font-size: .8125rem; line-height: 1.6; color: var(--nd-dim); max-width: 80ch; margin: 8px 0 0; }
 
+/* ---- sector seasonality (teardown Link 2) ---- */
+.ss-controls{ display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 4px 0 10px; }
+.ss-lab{ font: 600 .6875rem var(--nd-font-mono, monospace); letter-spacing: .12em; text-transform: uppercase; color: var(--nd-dim); }
+.ss-select{
+  font: 600 .9375rem var(--nd-font-sans, sans-serif); color: var(--nd-text);
+  background: var(--nd-panel); border: 1px solid var(--nd-border);
+  border-radius: var(--nd-r-md, 10px); padding: 9px 12px; max-width: 100%;
+}
+.ss-toggle{ display: inline-flex; border: 1px solid var(--nd-border); border-radius: 999px; overflow: hidden; background: var(--nd-panel); }
+.ss-tbtn{
+  font: 600 .8125rem var(--nd-font-sans, sans-serif); color: var(--nd-dim);
+  background: transparent; border: 0; padding: 9px 16px; cursor: pointer;
+}
+.ss-tbtn.is-on{ background: var(--nd-text); color: var(--nd-panel); }
+.ss-cov{ font: 400 .8125rem var(--nd-font-mono, monospace); color: var(--nd-dim); margin: 0 0 20px; }
+.ss-verdicts{ margin-bottom: 8px; }
+.ss-sub{
+  font-family: var(--nd-font-display, "Spectral", serif); font-weight: 700;
+  font-size: 1.125rem; color: var(--nd-text); margin: 26px 0 6px;
+}
+.ss-looknote{ font-size: .875rem; color: var(--nd-dim); margin: 0 0 14px; max-width: 78ch; line-height: 1.6; }
+.ss-looknote strong{ color: var(--nd-text); }
+
+.ss-fwd{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 26px; }
+@media (max-width: 700px){ .ss-fwd{ grid-template-columns: 1fr; } }
+.ss-fwd-card{
+  background: var(--nd-panel); border: 1px solid var(--nd-border);
+  border-radius: var(--nd-r-md, 10px); padding: 18px;
+}
+.ss-fwd-lab{ font: 600 .6875rem var(--nd-font-mono, monospace); letter-spacing: .1em; text-transform: uppercase; color: var(--nd-dim); }
+.ss-fwd-big{ font: 700 1.75rem var(--nd-font-sans, sans-serif); font-variant-numeric: tabular-nums; margin: 6px 0 4px; }
+.ss-fwd-big.pos{ color: #16a34a; }
+.ss-fwd-big.neg{ color: #dc2626; }
+[data-theme="dark"] .ss-fwd-big.pos{ color: #4ade80; }
+[data-theme="dark"] .ss-fwd-big.neg{ color: #f87171; }
+.ss-fwd-detail{ font-size: .875rem; color: var(--nd-dim); line-height: 1.6; }
+.ss-fwd-detail strong{ color: var(--nd-text); }
+
+.ss-heatwrap{ margin-bottom: 8px; }
+.ss-heat{ width: 100%; min-width: 880px; border-collapse: collapse; }
+.ss-heat th{
+  font: 600 .625rem var(--nd-font-mono, monospace); letter-spacing: .06em; text-transform: uppercase;
+  color: var(--nd-dim); padding: 10px 6px; border-bottom: 1px solid var(--nd-border);
+  background: var(--nd-panel-2, transparent); text-align: center;
+}
+.ss-heat td{
+  font: 500 .75rem var(--nd-font-mono, monospace); font-variant-numeric: tabular-nums;
+  color: var(--nd-text); padding: 7px 4px; text-align: center;
+  border-bottom: 1px solid var(--nd-border);
+}
+.ss-heat tr:last-child td{ border-bottom: 0; }
+.ss-heat td.ss-yr, .ss-heat th.ss-yr{ text-align: left; padding-left: 14px; font-weight: 700; }
+.ss-heat td.ss-yrt, .ss-heat th.ss-yrt{ border-left: 1px solid var(--nd-border); font-weight: 700; }
+.ss-heat td.ss-pos{ background: rgba(22,163,74,var(--ss-a, .2)); }
+.ss-heat td.ss-neg{ background: rgba(220,38,38,var(--ss-a, .2)); }
+[data-theme="dark"] .ss-heat td.ss-pos{ background: rgba(74,222,128,var(--ss-a, .2)); }
+[data-theme="dark"] .ss-heat td.ss-neg{ background: rgba(248,113,113,var(--ss-a, .2)); }
+.ss-heat td.ss-null{ color: var(--nd-dim); }
+.ss-heat td.ss-ypos{ color: #16a34a; }
+.ss-heat td.ss-yneg{ color: #dc2626; }
+[data-theme="dark"] .ss-heat td.ss-ypos{ color: #4ade80; }
+[data-theme="dark"] .ss-heat td.ss-yneg{ color: #f87171; }
+.ss-legend{ font-size: .8125rem; color: var(--nd-dim); line-height: 1.6; margin: 0 0 4px; max-width: 80ch; }
+.ss-loading{ color: var(--nd-dim); }
+.ss-monthtable{ min-width: 480px; }
+
 /* ---- premium 3D layer ---- */
 .qs-card, .sz-card{
   background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,0) 40%), var(--nd-panel, #12141A);
