@@ -57,6 +57,7 @@
       ['Market regime', '/nepse-regime/'],
       ['Seasonality', '/nepse-seasonality/'],
       ['Sector Rotation', '/nepse-sector-rotation/'],
+      ['Sector Price Rotation', '/nepse-sector-price-rotation/'],
       ['Volume Analysis', '/nepse-volume/'],
       ['Reports', '/nepse-reports/']
     ]}
