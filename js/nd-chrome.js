@@ -60,6 +60,7 @@
       ['Sector Price Rotation', '/nepse-sector-price-rotation/'],
       ['Sector–Symbol Relation', '/nepse-sector-symbol/'],
       ['Sector Strength', '/nepse-sector-strength/'],
+      ['NEPSE Contributors', '/nepse-contributors/'],
       ['Volume Analysis', '/nepse-volume/'],
       ['Reports', '/nepse-reports/']
     ]}
