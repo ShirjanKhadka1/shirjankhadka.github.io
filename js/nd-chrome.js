@@ -56,6 +56,7 @@
       ['Money Flow', '/nepse-money-flow/'],
       ['Market regime', '/nepse-regime/'],
       ['Seasonality', '/nepse-seasonality/'],
+      ['Volume Analysis', '/nepse-volume/'],
       ['Reports', '/nepse-reports/']
     ]}
   ];

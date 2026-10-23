@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0A0C10">
+<title>Volume Analysis (VPI): NEPSE Relative Volume Board | Nepse Decode</title>
+<link rel="stylesheet" href="/css/nd-tokens.css">
+<link rel="stylesheet" href="/css/nepse-design-system.css?v=20261023d">
+<meta name="description" content="NEPSE volume analysis board: relative volume (RVOL) ladder, volume shock, PVCS and volume-pressure scores and regime flags for every listed equity — computed from Nepse Decode's own data archive, updated after every close, free. Educational use only.">
+<meta name="author" content="Shirjan Khadka">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-volume/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:title" content="Volume Analysis (VPI): NEPSE Relative Volume Board">
+<meta property="og:description" content="Which NEPSE stocks traded on unusual volume today? RVOL ladder, volume shock, PVCS and pressure scores for every equity — free, from our own archive.">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Volume Analysis (VPI): NEPSE Relative Volume Board">
+<meta name="twitter:description" content="Relative volume, volume shock and pressure scores for every NEPSE equity — free, updated after every close.">
+<meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-volume/">
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
+<link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/fonts.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode Volume Analysis (VPI)","url":"https://shirjankhadka.com.np/nepse-volume/","description":"NEPSE relative-volume board computed from Nepse Decode's own OHLCV archive. Educational use only, not investment advice.","author":{"@type":"Organization","name":"Nepse Decode"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
+{"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
+{"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-decode/"},
+{"@type":"ListItem","position":3,"name":"Volume Analysis","item":"https://shirjankhadka.com.np/nepse-volume/"}]}
+</script>
+<link rel="stylesheet" href="/css/theme.css?v=20261023d">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023d">
+<link rel="stylesheet" href="/css/nd-cinema.css?v=20261023m">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023e">
+<link rel="stylesheet" href="/css/nd-volume.css?v=20261023g">
+<link rel="stylesheet" href="/css/nd-3d.css">
+<link rel="stylesheet" href="/css/nd-research-3d.css">
+</head>
+<body class="nd" data-page="volume">
+
+  <a class="skip-link" href="#main">Skip to content</a>
+<div id="nd-header"></div>
+<div class="fb-wrap" style="display:flex;justify-content:center;padding:10px 16px 0"><div data-freshness-badge></div></div>
+
+<div class="nd-shell">
+  <div class="nd-content">
+    <div class="nd-wrap">
+<main id="main">
+
+  <div class="vp-masthead">
+    <p class="nd-kicker">Research</p>
+    <h1 class="vp-title">Volume Analysis</h1>
+    <p class="vp-lede">Where did the volume actually go today? Every listed equity scored on a <strong>relative-volume ladder</strong> — today's traded volume against its own 7, 15, 20, 30, 60 and 90-session averages — plus volume shock, price-volume scores and regime flags. Computed from Nepse Decode's own data archive. Free, always.</p>
+    <p class="vp-meta"><span id="vpSession">Loading…</span></p>
+  </div>
+
+  <section class="vp-stats" id="vpStats" aria-label="Market volume summary"></section>
+
+  <section class="vp-controls" aria-label="Board controls">
+    <input type="search" id="vpSearch" class="vp-search" placeholder="Search symbol…" aria-label="Search symbol">
+    <select id="vpSector" class="vp-select" aria-label="Filter by sector"><option value="">All sectors</option></select>
+    <select id="vpTag" class="vp-select" aria-label="Filter by signal tag">
+      <option value="">All signal tags</option>
+      <option value="HIGH_VOLUME_SPIKE">High volume spike</option>
+      <option value="ELEVATED_VOLUME">Elevated volume</option>
+      <option value="NORMAL">Normal</option>
+      <option value="VOLUME_DRYUP">Volume dry-up</option>
+    </select>
+    <div class="vp-flagfilters" role="group" aria-label="Filter by flag">
+      <button type="button" class="vp-fbtn" data-flag="flag_volume_shock">Shock</button>
+      <button type="button" class="vp-fbtn" data-flag="flag_volume_expansion">Expansion</button>
+      <button type="button" class="vp-fbtn" data-flag="flag_compression">Compression</button>
+      <button type="button" class="vp-fbtn" data-flag="flag_quiet_accumulation">Quiet accumulation</button>
+    </div>
+    <span class="vp-count" id="vpCount"></span>
+  </section>
+
+  <div class="vp-tablewrap">
+    <table class="vp-table" id="vpTable">
+      <thead>
+        <tr>
+          <th data-key="symbol" class="vp-sortable">Symbol</th>
+          <th data-key="sector" class="vp-sortable vp-hide-m">Sector</th>
+          <th data-key="ltp" class="vp-sortable vp-num">LTP</th>
+          <th data-key="percentage_change" class="vp-sortable vp-num">% Chg</th>
+          <th data-key="volume" class="vp-sortable vp-num vp-hide-m">Volume</th>
+          <th data-key="rvol_7" class="vp-sortable vp-num">RVOL 7</th>
+          <th data-key="rvol_15" class="vp-sortable vp-num vp-hide-m">15</th>
+          <th data-key="rvol_20" class="vp-sortable vp-num vp-hide-m">20</th>
+          <th data-key="rvol_30" class="vp-sortable vp-num vp-hide-s">30</th>
+          <th data-key="rvol_60" class="vp-sortable vp-num vp-hide-s">60</th>
+          <th data-key="rvol_90" class="vp-sortable vp-num vp-hide-s">90</th>
+          <th data-key="pvcs" class="vp-sortable vp-num">PVCS</th>
+          <th data-key="vpd" class="vp-sortable vp-num">VPD</th>
+          <th data-key="volume_shock_ratio" class="vp-sortable vp-num vp-hide-m">Shock</th>
+          <th data-key="daily_range_pct" class="vp-sortable vp-num vp-hide-s">Range %</th>
+          <th>Flags</th>
+          <th data-key="signal_tag" class="vp-sortable">Tag</th>
+        </tr>
+      </thead>
+      <tbody id="vpBody"><tr><td colspan="17" class="vp-loading">Loading the board…</td></tr></tbody>
+    </table>
+  </div>
+
+  <section class="vp-section" aria-label="Methodology">
+    <h2>How this board is built</h2>
+    <div class="vp-method">
+      <p><strong>RVOL ladder.</strong> For each rung N in 7 / 15 / 20 / 30 / 60 / 90 sessions, RVOL-N = today's volume ÷ the average volume of the prior N sessions (today excluded). RVOL-7 of 2.0 means the stock traded twice its last-week pace. Averages, shock ratios and the 20-session rolling high are computed from Nepse Decode's own OHLCV archive — the same archive behind the rest of this site — and the board is rebuilt after every market close.</p>
+      <p><strong>PVCS</strong> (price–volume confirmation score) = percentage change × RVOL-7. It rewards moves that arrive on heavy volume and discounts moves on thin volume: a +5% day at RVOL 0.4 scores lower than a +2% day at RVOL 3.</p>
+      <p><strong>VPD</strong> (volume pressure, 10 sessions) is Nepse Decode's own measure: 10 × (up-volume − down-volume) ÷ total volume over the last 10 sessions, where a session's volume counts as up or down by its close versus the previous close. It ranges from −10 (every session down on volume) to +10. Published volume-pressure formulas vary by provider and no canonical one exists, so we publish ours exactly as defined here rather than borrowing a black box.</p>
+      <p><strong>Volume shock</strong> = today's volume ÷ yesterday's volume. <strong>Flags:</strong> Shock — shock ratio ≥ 3.0 or RVOL-20 ≥ 2.0. Expansion — 7-session average volume above the 30-session average with RVOL-7 ≥ 1.0. Compression — daily range ≤ 2.5% with RVOL-20 ≤ 0.7 (quiet, tight, waiting). Quiet accumulation — |daily change| ≤ 0.5% (price flat while the tape stays active). <strong>Signal tags</strong> read off RVOL-7: ≥ 3.5 high volume spike, ≥ 1.8 elevated, ≤ 0.5 volume dry-up, otherwise normal.</p>
+      <p><strong>Coverage.</strong> Ordinary equities with at least 91 sessions of archived history that traded in the latest session. Mutual funds, debentures and promoter shares are excluded — their volume means something different. A small number of equities whose archived history is still being backfilled join the board automatically once their history is complete.</p>
+    </div>
+  </section>
+
+  <p class="vp-fine">Mechanical volume statistics for education, not investment advice. Unusual volume shows where attention went; it does not say whether the next move is up or down. Data: Nepse Decode OHLCV archive, rebuilt after each close.</p>
+
+</main>
+    </div>
+  </div>
+</div>
+
+<div id="nd-footer"></div>
+<script src="/js/nd-chrome.js?v=20261023g"></script>
+<script src="/js/nd-volume.js?v=20261023g"></script>
+</body>
+</html>
