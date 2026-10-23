@@ -1,0 +1,1133 @@
+{
+ "asof": "2026-10-16",
+ "generated_from": "Nepse Decode archive (index-history + derived sector-indices keystone + ohlc-db breadth)",
+ "horizons": [
+  1,
+  5,
+  10,
+  20
+ ],
+ "counts": {
+  "BULL": 1,
+  "BEAR": 12,
+  "RANGE": 0,
+  "pending_flip": 0,
+  "early_warning": 1
+ },
+ "indexes": [
+  {
+   "index_name": "NEPSE",
+   "index_type": "index",
+   "latest_date": "2026-10-16",
+   "level": 2634.16,
+   "n_constituents": null,
+   "regime": "BEAR",
+   "raw_state": "BEAR",
+   "pending_flip": false,
+   "days_in_regime": 31,
+   "regime_started_date": "2026-08-24",
+   "gap_vs_sma200_pct": -2.03,
+   "sma200_slope_20d_pct": 0.01,
+   "breadth_above_sma50": 0.4387,
+   "breadth_n": 269,
+   "confidence_tier": "HIGH",
+   "forecast_confidence": {
+    "1": 0.9888,
+    "5": 0.9438,
+    "10": 0.8979,
+    "20": 0.8366
+   },
+   "n_hist": 20,
+   "reliability": {
+    "state": "BEAR",
+    "n_sessions": 1783,
+    "horizons": {
+     "1": {
+      "persistence": 0.9888,
+      "mean_fwd_ret_pct": 0.005,
+      "median_fwd_ret_pct": -0.108,
+      "pct_positive": 0.4383,
+      "n": 1782
+     },
+     "5": {
+      "persistence": 0.9438,
+      "mean_fwd_ret_pct": 0.061,
+      "median_fwd_ret_pct": -0.405,
+      "pct_positive": 0.4359,
+      "n": 1778
+     },
+     "10": {
+      "persistence": 0.8979,
+      "mean_fwd_ret_pct": 0.189,
+      "median_fwd_ret_pct": -0.687,
+      "pct_positive": 0.4326,
+      "n": 1773
+     },
+     "20": {
+      "persistence": 0.8366,
+      "mean_fwd_ret_pct": 0.42,
+      "median_fwd_ret_pct": -0.753,
+      "pct_positive": 0.4453,
+      "n": 1763
+     }
+    },
+    "n_hist": 20,
+    "median_episode_sessions": 28
+   },
+   "turn_risk": 0.4777,
+   "turn_risk_pctl": 88.9,
+   "early_warning": false,
+   "turn_risk_base_rate": 0.1025,
+   "turn_risk_model": "conditional-bins",
+   "turn_risk_level_used": 2,
+   "turn_features": {
+    "state": "BEAR",
+    "age": 31,
+    "age_pctl": 60.0,
+    "age_b": 1,
+    "dist_b": 0,
+    "trend_b": 2,
+    "band_distance_pp": 0.03
+   },
+   "history_sessions": 5347,
+   "history_from": "2003-07-17"
+  },
+  {
+   "index_name": "Banking",
+   "index_type": "sector",
+   "latest_date": "2026-10-16",
+   "level": 10024.23,
+   "n_constituents": 27,
+   "regime": "BULL",
+   "raw_state": "BULL",
+   "pending_flip": false,
+   "days_in_regime": 1,
+   "regime_started_date": "2026-10-16",
+   "gap_vs_sma200_pct": 4.95,
+   "sma200_slope_20d_pct": 1.09,
+   "breadth_above_sma50": 0.7778,
+   "breadth_n": 27,
+   "confidence_tier": "HIGH",
+   "forecast_confidence": {
+    "1": 0.992,
+    "5": 0.9602,
+    "10": 0.9246,
+    "20": 0.8683
+   },
+   "n_hist": 15,
+   "reliability": {
+    "state": "BULL",
+    "n_sessions": 1885,
+    "horizons": {
+     "1": {
+      "persistence": 0.992,
+      "mean_fwd_ret_pct": 0.108,
+      "median_fwd_ret_pct": -0.048,
+      "pct_positive": 0.4809,
+      "n": 1884
+     },
+     "5": {
+      "persistence": 0.9602,
+      "mean_fwd_ret_pct": 0.557,
+      "median_fwd_ret_pct": 0.113,
+      "pct_positive": 0.5133,
+      "n": 1884
+     },
+     "10": {
+      "persistence": 0.9246,
+      "mean_fwd_ret_pct": 1.1,
+      "median_fwd_ret_pct": 0.296,
+      "pct_positive": 0.5239,
+      "n": 1884
+     },
+     "20": {
+      "persistence": 0.8683,
+      "mean_fwd_ret_pct": 2.117,
+      "median_fwd_ret_pct": 0.836,
+      "pct_positive": 0.5325,
+      "n": 1876
+     }
+    },
+    "n_hist": 15,
+    "median_episode_sessions": 69
+   },
+   "turn_risk": 0.2476,
+   "turn_risk_pctl": 78.7,
+   "early_warning": false,
+   "turn_risk_base_rate": 0.0758,
+   "turn_risk_model": "conditional-bins",
+   "turn_risk_level_used": 2,
+   "turn_features": {
+    "state": "BULL",
+    "age": 1,
+    "age_pctl": 6.7,
+    "age_b": 0,
+    "dist_b": 1,
+    "trend_b": 0,
+    "band_distance_pp": 2.95
+   },
+   "history_sessions": 3563,
+   "history_from": "2011-03-20"
+  },
+  {
+   "index_name": "Development Bank",
+   "index_type": "sector",
+   "latest_date": "2026-10-16",
+   "level": 64609.69,
+   "n_constituents": 9,
+   "regime": "BEAR",
+   "raw_state": "BEAR",
+   "pending_flip": false,
+   "days_in_regime": 109,
+   "regime_started_date": "2026-05-08",
+   "gap_vs_sma200_pct": -15.92,
+   "sma200_slope_20d_pct": -1.63,
+   "breadth_above_sma50": 0.4444,
+   "breadth_n": 9,
+   "confidence_tier": null,
+   "forecast_confidence": {
+    "1": 0.9886,
+    "5": 0.9426,
+    "10": 0.9089,
+    "20": 0.8427
+   },
+   "n_hist": 9,
+   "reliability": {
+    "state": "BEAR",
+    "n_sessions": 789,
+    "horizons": {
+     "1": {
+      "persistence": 0.9886,
+      "mean_fwd_ret_pct": 0.012,
+      "median_fwd_ret_pct": -0.173,
+      "pct_positive": 0.4492,
+      "n": 788
+     },
+     "5": {
+      "persistence": 0.9426,
+      "mean_fwd_ret_pct": 0.008,
+      "median_fwd_ret_pct": -0.522,
+      "pct_positive": 0.4311,
+      "n": 784
+     },
+     "10": {
+      "persistence": 0.9089,
+      "mean_fwd_ret_pct": 0.055,
+      "median_fwd_ret_pct": -0.7,
+      "pct_positive": 0.4416,
+      "n": 779
+     },
+     "20": {
+      "persistence": 0.8427,
+      "mean_fwd_ret_pct": 0.621,
+      "median_fwd_ret_pct": -0.595,
+      "pct_positive": 0.459,
+      "n": 769
+     }
+    },
+    "n_hist": 9,
+    "median_episode_sessions": 48
+   },
+   "turn_risk": 0.0638,
+   "turn_risk_pctl": 83.9,
+   "early_warning": false,
+   "turn_risk_base_rate": 0.0922,
+   "turn_risk_model": "conditional-bins",
+   "turn_risk_level_used": 3,
+   "turn_features": {
+    "state": "BEAR",
+    "age": 109,
+    "age_pctl": 77.8,
+    "age_b": 1,
+    "dist_b": 2,
+    "trend_b": 2,
+    "band_distance_pp": 13.92
+   },
+   "history_sessions": 3155,
+   "history_from": "2011-04-04"
+  },
+  {
+   "index_name": "Finance",
+   "index_type": "sector",
+   "latest_date": "2026-10-16",
+   "level": 21871.29,
+   "n_constituents": 13,
+   "regime": "BEAR",
+   "raw_state": "BEAR",
+   "pending_flip": false,
+   "days_in_regime": 36,
+   "regime_started_date": "2026-08-21",
+   "gap_vs_sma200_pct": -9.03,
+   "sma200_slope_20d_pct": -0.39,
+   "breadth_above_sma50": 0.1538,
+   "breadth_n": 13,
+   "confidence_tier": "HIGH",
+   "forecast_confidence": {
+    "1": 0.9895,
+    "5": 0.9473,
+    "10": 0.9024,
+    "20": 0.8189
+   },
+   "n_hist": 10,
+   "reliability": {
+    "state": "BEAR",
+    "n_sessions": 953,
+    "horizons": {
+     "1": {
+      "persistence": 0.9895,
+      "mean_fwd_ret_pct": 0.038,
+      "median_fwd_ret_pct": -0.24,
+      "pct_positive": 0.438,
+      "n": 952
+     },
+     "5": {
+      "persistence": 0.9473,
+      "mean_fwd_ret_pct": 0.183,
+      "median_fwd_ret_pct": -0.356,
+      "pct_positive": 0.4525,
+      "n": 948
+     },
+     "10": {
+      "persistence": 0.9024,
+      "mean_fwd_ret_pct": 0.349,
+      "median_fwd_ret_pct": -0.639,
+      "pct_positive": 0.456,
+      "n": 943
+     },
+     "20": {
+      "persistence": 0.8189,
+      "mean_fwd_ret_pct": 0.608,
+      "median_fwd_ret_pct": -0.675,
+      "pct_positive": 0.4652,
+      "n": 933
+     }
+    },
+    "n_hist": 10,
+    "median_episode_sessions": 29
+   },
+   "turn_risk": 0.0722,
+   "turn_risk_pctl": 81.0,
+   "early_warning": false,
+   "turn_risk_base_rate": 0.0984,
+   "turn_risk_model": "conditional-bins",
+   "turn_risk_level_used": 3,
+   "turn_features": {
+    "state": "BEAR",
+    "age": 36,
+    "age_pctl": 60.0,
+    "age_b": 1,
+    "dist_b": 2,
+    "trend_b": 2,
+    "band_distance_pp": 7.03
+   },
+   "history_sessions": 3030,
+   "history_from": "2011-04-05"
+  },
+  {
+   "index_name": "Hotels And Tourism",
+   "index_type": "sector",
+   "latest_date": "2026-10-16",
+   "level": 37342.61,
+   "n_constituents": 8,
+   "regime": "BEAR",
+   "raw_state": "BEAR",
+   "pending_flip": false,
+   "days_in_regime": 11,
+   "regime_started_date": "2026-10-02",
+   "gap_vs_sma200_pct": -8.45,
+   "sma200_slope_20d_pct": 0.99,
+   "breadth_above_sma50": 0.375,
+   "breadth_n": 8,
+   "confidence_tier": null,
+   "forecast_confidence": {
+    "1": 0.9854,
+    "5": 0.9269,
+    "10": 0.8527,
+    "20": 0.7064
+   },
+   "n_hist": 11,
+   "reliability": {
+    "state": "BEAR",
+    "n_sessions": 757,
+    "horizons": {
+     "1": {
+      "persistence": 0.9854,
+      "mean_fwd_ret_pct": 0.126,
+      "median_fwd_ret_pct": -0.094,
+      "pct_positive": 0.4802,
+      "n": 756
+     },
+     "5": {
+      "persistence": 0.9269,
+      "mean_fwd_ret_pct": 0.676,
+      "median_fwd_ret_pct": 0.076,
+      "pct_positive": 0.5146,
+      "n": 752
+     },
+     "10": {
+      "persistence": 0.8527,
+      "mean_fwd_ret_pct": 1.569,
+      "median_fwd_ret_pct": 0.77,
+      "pct_positive": 0.5609,
+      "n": 747
+     },
+     "20": {
+      "persistence": 0.7064,
+      "mean_fwd_ret_pct": 3.432,
+      "median_fwd_ret_pct": 2.304,
+      "pct_positive": 0.6327,
+      "n": 746
+     }
+    },
+    "n_hist": 11,
+    "median_episode_sessions": 45
+   },
+   "turn_risk": 0.0291,
+   "turn_risk_pctl": 48.8,
+   "early_warning": false,
+   "turn_risk_base_rate": 0.1482,
+   "turn_risk_model": "conditional-bins",
+   "turn_risk_level_used": 2,
+   "turn_features": {
+    "state": "BEAR",
+    "age": 11,
+    "age_pctl": 0.0,
+    "age_b": 0,
+    "dist_b": 2,
+    "trend_b": 2,
+    "band_distance_pp": 6.45
+   },
+   "history_sessions": 2676,
+   "history_from": "2011-03-28"
+  },
+  {
+   "index_name": "Hydropower",
+   "index_type": "sector",
+   "latest_date": "2026-10-16",
+   "level": 11399.72,
+   "n_constituents": 105,
+   "regime": "BEAR",
+   "raw_state": "BEAR",
+   "pending_flip": false,
+   "days_in_regime": 74,
+   "regime_started_date": "2026-06-30",
+   "gap_vs_sma200_pct": -9.56,
+   "sma200_slope_20d_pct": -0.69,
+   "breadth_above_sma50": 0.419,
+   "breadth_n": 105,
+   "confidence_tier": "HIGH",
+   "forecast_confidence": {
+    "1": 0.9936,
+    "5": 0.9678,
+    "10": 0.9353,
+    "20": 0.8841
+   },
+   "n_hist": 9,
+   "reliability": {
+    "state": "BEAR",
+    "n_sessions": 1401,
+    "horizons": {
+     "1": {
+      "persistence": 0.9936,
+      "mean_fwd_ret_pct": -0.019,
+      "median_fwd_ret_pct": -0.252,
+      "pct_positive": 0.4186,
+      "n": 1400
+     },
+     "5": {
+      "persistence": 0.9678,
+      "mean_fwd_ret_pct": -0.044,
+      "median_fwd_ret_pct": -0.667,
+      "pct_positive": 0.4054,
+      "n": 1396
+     },
+     "10": {
+      "persistence": 0.9353,
+      "mean_fwd_ret_pct": -0.061,
+      "median_fwd_ret_pct": -1.33,
+      "pct_positive": 0.3983,
+      "n": 1391
+     },
+     "20": {
+      "persistence": 0.8841,
+      "mean_fwd_ret_pct": 0.006,
+      "median_fwd_ret_pct": -1.898,
+      "pct_positive": 0.3997,
+      "n": 1381
+     }
+    },
+    "n_hist": 9,
+    "median_episode_sessions": 74
+   },
+   "turn_risk": 0.1323,
+   "turn_risk_pctl": 89.0,
+   "early_warning": false,
+   "turn_risk_base_rate": 0.0653,
+   "turn_risk_model": "conditional-bins",
+   "turn_risk_level_used": 3,
+   "turn_features": {
+    "state": "BEAR",
+    "age": 74,
+    "age_pctl": 55.6,
+    "age_b": 1,
+    "dist_b": 2,
+    "trend_b": 2,
+    "band_distance_pp": 7.56
+   },
+   "history_sessions": 3523,
+   "history_from": "2009-12-06"
+  },
+  {
+   "index_name": "Investment",
+   "index_type": "sector",
+   "latest_date": "2026-10-16",
+   "level": 5024.49,
+   "n_constituents": 8,
+   "regime": "BEAR",
+   "raw_state": "BEAR",
+   "pending_flip": false,
+   "days_in_regime": 130,
+   "regime_started_date": "2026-04-07",
+   "gap_vs_sma200_pct": -8.49,
+   "sma200_slope_20d_pct": -1.13,
+   "breadth_above_sma50": 0.625,
+   "breadth_n": 8,
+   "confidence_tier": null,
+   "forecast_confidence": {
+    "1": 0.989,
+    "5": 0.9443,
+    "10": 0.8896,
+    "20": 0.8111
+   },
+   "n_hist": 5,
+   "reliability": {
+    "state": "BEAR",
+    "n_sessions": 454,
+    "horizons": {
+     "1": {
+      "persistence": 0.989,
+      "mean_fwd_ret_pct": 0.083,
+      "median_fwd_ret_pct": -0.16,
+      "pct_positive": 0.4415,
+      "n": 453
+     },
+     "5": {
+      "persistence": 0.9443,
+      "mean_fwd_ret_pct": 0.383,
+      "median_fwd_ret_pct": -0.626,
+      "pct_positive": 0.4454,
+      "n": 449
+     },
+     "10": {
+      "persistence": 0.8896,
+      "mean_fwd_ret_pct": 0.876,
+      "median_fwd_ret_pct": -0.689,
+      "pct_positive": 0.455,
+      "n": 444
+     },
+     "20": {
+      "persistence": 0.8111,
+      "mean_fwd_ret_pct": 1.469,
+      "median_fwd_ret_pct": -0.547,
+      "pct_positive": 0.4747,
+      "n": 434
+     }
+    },
+    "n_hist": 5,
+    "median_episode_sessions": 91
+   },
+   "turn_risk": 0.1121,
+   "turn_risk_pctl": 76.6,
+   "early_warning": false,
+   "turn_risk_base_rate": 0.1121,
+   "turn_risk_model": "conditional-bins",
+   "turn_risk_level_used": 0,
+   "turn_features": {
+    "state": "BEAR",
+    "age": 130,
+    "age_pctl": 80.0,
+    "age_b": 2,
+    "dist_b": 2,
+    "trend_b": 2,
+    "band_distance_pp": 6.49
+   },
+   "history_sessions": 1436,
+   "history_from": "2020-08-26"
+  },
+  {
+   "index_name": "Life Insurance",
+   "index_type": "sector",
+   "latest_date": "2026-10-16",
+   "level": 38425.76,
+   "n_constituents": 14,
+   "regime": "BEAR",
+   "raw_state": "BEAR",
+   "pending_flip": false,
+   "days_in_regime": 130,
+   "regime_started_date": "2026-04-07",
+   "gap_vs_sma200_pct": -7.15,
+   "sma200_slope_20d_pct": -1.62,
+   "breadth_above_sma50": 0.7857,
+   "breadth_n": 14,
+   "confidence_tier": "HIGH",
+   "forecast_confidence": {
+    "1": 0.9866,
+    "5": 0.9326,
+    "10": 0.8683,
+    "20": 0.7977
+   },
+   "n_hist": 14,
+   "reliability": {
+    "state": "BEAR",
+    "n_sessions": 1043,
+    "horizons": {
+     "1": {
+      "persistence": 0.9866,
+      "mean_fwd_ret_pct": 0.002,
+      "median_fwd_ret_pct": -0.207,
+      "pct_positive": 0.429,
+      "n": 1042
+     },
+     "5": {
+      "persistence": 0.9326,
+      "mean_fwd_ret_pct": 0.143,
+      "median_fwd_ret_pct": -0.583,
+      "pct_positive": 0.4268,
+      "n": 1038
+     },
+     "10": {
+      "persistence": 0.8683,
+      "mean_fwd_ret_pct": 0.375,
+      "median_fwd_ret_pct": -1.089,
+      "pct_positive": 0.423,
+      "n": 1033
+     },
+     "20": {
+      "persistence": 0.7977,
+      "mean_fwd_ret_pct": 1.067,
+      "median_fwd_ret_pct": -1.28,
+      "pct_positive": 0.4321,
+      "n": 1023
+     }
+    },
+    "n_hist": 14,
+    "median_episode_sessions": 17
+   },
+   "turn_risk": 0.1324,
+   "turn_risk_pctl": null,
+   "early_warning": false,
+   "turn_risk_base_rate": 0.1324,
+   "turn_risk_model": "base-rate",
+   "turn_risk_level_used": 0,
+   "turn_features": {
+    "state": "BEAR",
+    "age": 130,
+    "age_pctl": 85.7,
+    "age_b": 2,
+    "dist_b": 2,
+    "trend_b": 2,
+    "band_distance_pp": 5.15
+   },
+   "history_sessions": 3334,
+   "history_from": "2011-03-25"
+  },
+  {
+   "index_name": "Manufacturing And Processing",
+   "index_type": "sector",
+   "latest_date": "2026-10-16",
+   "level": 17139.29,
+   "n_constituents": 14,
+   "regime": "BEAR",
+   "raw_state": "BEAR",
+   "pending_flip": false,
+   "days_in_regime": 6,
+   "regime_started_date": "2026-10-09",
+   "gap_vs_sma200_pct": -3.25,
+   "sma200_slope_20d_pct": 3.14,
+   "breadth_above_sma50": 0.5714,
+   "breadth_n": 14,
+   "confidence_tier": "HIGH",
+   "forecast_confidence": {
+    "1": 0.9831,
+    "5": 0.9144,
+    "10": 0.8694,
+    "20": 0.8247
+   },
+   "n_hist": 5,
+   "reliability": {
+    "state": "BEAR",
+    "n_sessions": 297,
+    "horizons": {
+     "1": {
+      "persistence": 0.9831,
+      "mean_fwd_ret_pct": 0.081,
+      "median_fwd_ret_pct": -0.071,
+      "pct_positive": 0.4764,
+      "n": 296
+     },
+     "5": {
+      "persistence": 0.9144,
+      "mean_fwd_ret_pct": 0.526,
+      "median_fwd_ret_pct": -0.233,
+      "pct_positive": 0.4795,
+      "n": 292
+     },
+     "10": {
+      "persistence": 0.8694,
+      "mean_fwd_ret_pct": 1.038,
+      "median_fwd_ret_pct": 0.115,
+      "pct_positive": 0.5189,
+      "n": 291
+     },
+     "20": {
+      "persistence": 0.8247,
+      "mean_fwd_ret_pct": 2.227,
+      "median_fwd_ret_pct": -0.111,
+      "pct_positive": 0.4948,
+      "n": 291
+     }
+    },
+    "n_hist": 5,
+    "median_episode_sessions": 7
+   },
+   "turn_risk": 0.1989,
+   "turn_risk_pctl": 93.1,
+   "early_warning": true,
+   "turn_risk_base_rate": 0.1331,
+   "turn_risk_model": "conditional-bins",
+   "turn_risk_level_used": 1,
+   "turn_features": {
+    "state": "BEAR",
+    "age": 6,
+    "age_pctl": 40.0,
+    "age_b": 0,
+    "dist_b": 1,
+    "trend_b": 1,
+    "band_distance_pp": 1.25
+   },
+   "history_sessions": 1726,
+   "history_from": "2011-07-05"
+  },
+  {
+   "index_name": "Microfinance",
+   "index_type": "sector",
+   "latest_date": "2026-10-16",
+   "level": 980747.79,
+   "n_constituents": 49,
+   "regime": "BEAR",
+   "raw_state": "BEAR",
+   "pending_flip": false,
+   "days_in_regime": 117,
+   "regime_started_date": "2026-04-27",
+   "gap_vs_sma200_pct": -11.39,
+   "sma200_slope_20d_pct": -1.57,
+   "breadth_above_sma50": 0.3265,
+   "breadth_n": 49,
+   "confidence_tier": "HIGH",
+   "forecast_confidence": {
+    "1": 0.985,
+    "5": 0.9246,
+    "10": 0.8613,
+    "20": 0.7448
+   },
+   "n_hist": 14,
+   "reliability": {
+    "state": "BEAR",
+    "n_sessions": 933,
+    "horizons": {
+     "1": {
+      "persistence": 0.985,
+      "mean_fwd_ret_pct": 0.119,
+      "median_fwd_ret_pct": -0.125,
+      "pct_positive": 0.4496,
+      "n": 932
+     },
+     "5": {
+      "persistence": 0.9246,
+      "mean_fwd_ret_pct": 0.626,
+      "median_fwd_ret_pct": -0.252,
+      "pct_positive": 0.4688,
+      "n": 928
+     },
+     "10": {
+      "persistence": 0.8613,
+      "mean_fwd_ret_pct": 1.363,
+      "median_fwd_ret_pct": -0.295,
+      "pct_positive": 0.4865,
+      "n": 923
+     },
+     "20": {
+      "persistence": 0.7448,
+      "mean_fwd_ret_pct": 3.258,
+      "median_fwd_ret_pct": 0.358,
+      "pct_positive": 0.5235,
+      "n": 913
+     }
+    },
+    "n_hist": 14,
+    "median_episode_sessions": 50
+   },
+   "turn_risk": 0.0772,
+   "turn_risk_pctl": 71.7,
+   "early_warning": false,
+   "turn_risk_base_rate": 0.1395,
+   "turn_risk_model": "conditional-bins",
+   "turn_risk_level_used": 2,
+   "turn_features": {
+    "state": "BEAR",
+    "age": 117,
+    "age_pctl": 92.9,
+    "age_b": 2,
+    "dist_b": 2,
+    "trend_b": 1,
+    "band_distance_pp": 9.39
+   },
+   "history_sessions": 3163,
+   "history_from": "2011-04-06"
+  },
+  {
+   "index_name": "Non Life Insurance",
+   "index_type": "sector",
+   "latest_date": "2026-10-16",
+   "level": 56510.61,
+   "n_constituents": 15,
+   "regime": "BEAR",
+   "raw_state": "BEAR",
+   "pending_flip": false,
+   "days_in_regime": 133,
+   "regime_started_date": "2026-04-02",
+   "gap_vs_sma200_pct": -15.05,
+   "sma200_slope_20d_pct": -1.97,
+   "breadth_above_sma50": 0.1333,
+   "breadth_n": 15,
+   "confidence_tier": "HIGH",
+   "forecast_confidence": {
+    "1": 0.9942,
+    "5": 0.971,
+    "10": 0.9456,
+    "20": 0.8979
+   },
+   "n_hist": 6,
+   "reliability": {
+    "state": "BEAR",
+    "n_sessions": 1039,
+    "horizons": {
+     "1": {
+      "persistence": 0.9942,
+      "mean_fwd_ret_pct": -0.012,
+      "median_fwd_ret_pct": -0.22,
+      "pct_positive": 0.4249,
+      "n": 1038
+     },
+     "5": {
+      "persistence": 0.971,
+      "mean_fwd_ret_pct": 0.054,
+      "median_fwd_ret_pct": -0.73,
+      "pct_positive": 0.4246,
+      "n": 1034
+     },
+     "10": {
+      "persistence": 0.9456,
+      "mean_fwd_ret_pct": 0.282,
+      "median_fwd_ret_pct": -1.002,
+      "pct_positive": 0.4208,
+      "n": 1029
+     },
+     "20": {
+      "persistence": 0.8979,
+      "mean_fwd_ret_pct": 0.849,
+      "median_fwd_ret_pct": -0.922,
+      "pct_positive": 0.4475,
+      "n": 1019
+     }
+    },
+    "n_hist": 6,
+    "median_episode_sessions": 133
+   },
+   "turn_risk": 0.0553,
+   "turn_risk_pctl": null,
+   "early_warning": false,
+   "turn_risk_base_rate": 0.0553,
+   "turn_risk_model": "base-rate",
+   "turn_risk_level_used": 0,
+   "turn_features": {
+    "state": "BEAR",
+    "age": 133,
+    "age_pctl": 50.0,
+    "age_b": 1,
+    "dist_b": 2,
+    "trend_b": 2,
+    "band_distance_pp": 13.05
+   },
+   "history_sessions": 2906,
+   "history_from": "2012-09-09"
+  },
+  {
+   "index_name": "Others",
+   "index_type": "sector",
+   "latest_date": "2026-10-16",
+   "level": 7497.68,
+   "n_constituents": 7,
+   "regime": "BEAR",
+   "raw_state": "BEAR",
+   "pending_flip": false,
+   "days_in_regime": 91,
+   "regime_started_date": "2026-06-05",
+   "gap_vs_sma200_pct": -17.96,
+   "sma200_slope_20d_pct": -1.85,
+   "breadth_above_sma50": 0.2857,
+   "breadth_n": 7,
+   "confidence_tier": null,
+   "forecast_confidence": {
+    "1": 0.9903,
+    "5": 0.9509,
+    "10": 0.9005,
+    "20": 0.7959
+   },
+   "n_hist": 4,
+   "reliability": {
+    "state": "BEAR",
+    "n_sessions": 412,
+    "horizons": {
+     "1": {
+      "persistence": 0.9903,
+      "mean_fwd_ret_pct": 0.013,
+      "median_fwd_ret_pct": -0.191,
+      "pct_positive": 0.4258,
+      "n": 411
+     },
+     "5": {
+      "persistence": 0.9509,
+      "mean_fwd_ret_pct": 0.147,
+      "median_fwd_ret_pct": -0.731,
+      "pct_positive": 0.4128,
+      "n": 407
+     },
+     "10": {
+      "persistence": 0.9005,
+      "mean_fwd_ret_pct": 0.38,
+      "median_fwd_ret_pct": -1.432,
+      "pct_positive": 0.4428,
+      "n": 402
+     },
+     "20": {
+      "persistence": 0.7959,
+      "mean_fwd_ret_pct": 1.061,
+      "median_fwd_ret_pct": -0.216,
+      "pct_positive": 0.4872,
+      "n": 392
+     }
+    },
+    "n_hist": 4,
+    "median_episode_sessions": 53
+   },
+   "turn_risk": 0.1015,
+   "turn_risk_pctl": null,
+   "early_warning": false,
+   "turn_risk_base_rate": 0.1015,
+   "turn_risk_model": "base-rate",
+   "turn_risk_level_used": 0,
+   "turn_features": {
+    "state": "BEAR",
+    "age": 91,
+    "age_pctl": 75.0,
+    "age_b": 1,
+    "dist_b": 2,
+    "trend_b": 1,
+    "band_distance_pp": 15.96
+   },
+   "history_sessions": 1477,
+   "history_from": "2013-06-23"
+  },
+  {
+   "index_name": "All-Share Composite",
+   "index_type": "composite",
+   "latest_date": "2026-10-16",
+   "level": 64740.03,
+   "n_constituents": 269,
+   "regime": "BEAR",
+   "raw_state": "BEAR",
+   "pending_flip": false,
+   "days_in_regime": 74,
+   "regime_started_date": "2026-06-30",
+   "gap_vs_sma200_pct": -8.63,
+   "sma200_slope_20d_pct": -0.59,
+   "breadth_above_sma50": 0.4387,
+   "breadth_n": 269,
+   "confidence_tier": "HIGH",
+   "forecast_confidence": {
+    "1": 0.9903,
+    "5": 0.951,
+    "10": 0.9064,
+    "20": 0.8192
+   },
+   "n_hist": 8,
+   "reliability": {
+    "state": "BEAR",
+    "n_sessions": 822,
+    "horizons": {
+     "1": {
+      "persistence": 0.9903,
+      "mean_fwd_ret_pct": 0.04,
+      "median_fwd_ret_pct": -0.137,
+      "pct_positive": 0.4507,
+      "n": 821
+     },
+     "5": {
+      "persistence": 0.951,
+      "mean_fwd_ret_pct": 0.24,
+      "median_fwd_ret_pct": -0.446,
+      "pct_positive": 0.4431,
+      "n": 817
+     },
+     "10": {
+      "persistence": 0.9064,
+      "mean_fwd_ret_pct": 0.565,
+      "median_fwd_ret_pct": -0.465,
+      "pct_positive": 0.4495,
+      "n": 812
+     },
+     "20": {
+      "persistence": 0.8192,
+      "mean_fwd_ret_pct": 1.363,
+      "median_fwd_ret_pct": -0.185,
+      "pct_positive": 0.4875,
+      "n": 802
+     }
+    },
+    "n_hist": 8,
+    "median_episode_sessions": 60
+   },
+   "turn_risk": 0.0926,
+   "turn_risk_pctl": 82.1,
+   "early_warning": false,
+   "turn_risk_base_rate": 0.0946,
+   "turn_risk_model": "conditional-bins",
+   "turn_risk_level_used": 3,
+   "turn_features": {
+    "state": "BEAR",
+    "age": 74,
+    "age_pctl": 75.0,
+    "age_b": 1,
+    "dist_b": 2,
+    "trend_b": 2,
+    "band_distance_pp": 6.63
+   },
+   "history_sessions": 3059,
+   "history_from": "2012-04-19"
+  }
+ ],
+ "validation": {
+  "turn_risk_heldout": {
+   "brier_conditional": 0.1171,
+   "brier_base_rate": 0.1196,
+   "n_test": 14276,
+   "per_index": [
+    {
+     "brier_conditional": 0.1296,
+     "brier_base_rate": 0.1362,
+     "n_test": 2056,
+     "conditional_wins": true,
+     "index": "NEPSE"
+    },
+    {
+     "brier_conditional": 0.1359,
+     "brier_base_rate": 0.1441,
+     "n_test": 1342,
+     "conditional_wins": true,
+     "index": "Banking"
+    },
+    {
+     "brier_conditional": 0.1044,
+     "brier_base_rate": 0.1064,
+     "n_test": 1179,
+     "conditional_wins": true,
+     "index": "Development Bank"
+    },
+    {
+     "brier_conditional": 0.1334,
+     "brier_base_rate": 0.1341,
+     "n_test": 1129,
+     "conditional_wins": true,
+     "index": "Finance"
+    },
+    {
+     "brier_conditional": 0.1032,
+     "brier_base_rate": 0.1045,
+     "n_test": 987,
+     "conditional_wins": true,
+     "index": "Hotels And Tourism"
+    },
+    {
+     "brier_conditional": 0.08,
+     "brier_base_rate": 0.0823,
+     "n_test": 1326,
+     "conditional_wins": true,
+     "index": "Hydropower"
+    },
+    {
+     "brier_conditional": 0.0642,
+     "brier_base_rate": 0.069,
+     "n_test": 491,
+     "conditional_wins": true,
+     "index": "Investment"
+    },
+    {
+     "brier_conditional": 0.1269,
+     "brier_base_rate": 0.1238,
+     "n_test": 1250,
+     "conditional_wins": false,
+     "index": "Life Insurance"
+    },
+    {
+     "brier_conditional": 0.1317,
+     "brier_base_rate": 0.1331,
+     "n_test": 607,
+     "conditional_wins": true,
+     "index": "Manufacturing And Processing"
+    },
+    {
+     "brier_conditional": 0.1568,
+     "brier_base_rate": 0.1608,
+     "n_test": 1182,
+     "conditional_wins": true,
+     "index": "Microfinance"
+    },
+    {
+     "brier_conditional": 0.0713,
+     "brier_base_rate": 0.0712,
+     "n_test": 1079,
+     "conditional_wins": false,
+     "index": "Non Life Insurance"
+    },
+    {
+     "brier_conditional": 0.1342,
+     "brier_base_rate": 0.1261,
+     "n_test": 508,
+     "conditional_wins": false,
+     "index": "Others"
+    },
+    {
+     "brier_conditional": 0.1234,
+     "brier_base_rate": 0.1266,
+     "n_test": 1140,
+     "conditional_wins": true,
+     "index": "All-Share Composite"
+    }
+   ],
+   "note": "Temporal split per index: bins fit on the first 60% of scored sessions, Brier-scored on the last 40%. Indexes whose conditional model does not beat their base rate publish base-rate turn-risk (see turn_risk_model per row)."
+  }
+ },
+ "method": {
+  "regime_rule": "gap = close/SMA200 - 1; raw BULL >= +2%, BEAR <= -2%, else RANGE; a differing raw state must hold 5 consecutive sessions to confirm a flip, stamped on the confirmation session.",
+  "breadth": "Share of constituents whose own last close is above their own 50-session SMA (>=50 own bars, bar within 12 calendar days). Today's sector map applied historically (survivorship caveat).",
+  "forecast_confidence": "Measured persistence from replaying the rule over full history: of all past sessions in the index's current state, the share still in that state h sessions later. Measured history, not a model prediction.",
+  "turn_risk": "P(confirmed regime no longer holds 10 sessions later), empirical binned frequencies (age percentile x band distance x adverse breadth trend) with backoff + smoothing toward the state base rate; base-rate fallback where the conditional model fails held-out validation.",
+  "confidence_tier": "Banded from measured 10-session persistence of the current state: HIGH >= 0.80, MEDIUM 0.65-0.80, LOW < 0.65; withheld for thin indexes (< 10 constituents).",
+  "derived_indexes": "Sector rows are derived equal-weight composites of constituent stocks (data/sector-indices.json), not official NEPSE sub-indices; the All-Share Composite is contributor-weighted across sectors. The NEPSE row is the official index."
+ },
+ "notes": [
+  "data/index-history.json is missing 4 sessions present in the symbol archive (2026-09-22, 23, 24, 28); NEPSE session counts (incl. days_in_regime) use the recorded sessions.",
+  "Sector membership is today's map applied historically; delisted names are absent (survivorship)."
+ ]
+}
