@@ -45,7 +45,7 @@
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=20261023m">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=20261023e">
-<link rel="stylesheet" href="/css/nd-regime.css?v=20261023d">
+<link rel="stylesheet" href="/css/nd-regime.css?v=20261023i">
 <link rel="stylesheet" href="/css/nd-3d.css">
 <link rel="stylesheet" href="/css/nd-research-3d.css">
 </head>
@@ -97,6 +97,44 @@
     </div>
   </section>
 
+  <section class="rg-section" aria-label="Regime board for all indexes">
+    <h2>Regime board — all 13 indexes</h2>
+    <p class="rg-note" id="rgbNote">Loading…</p>
+    <div class="rgb-table-wrap">
+      <table class="rgb-table" id="rgbTable">
+        <thead><tr>
+          <th>Index</th><th>Regime</th><th>Age</th><th>vs SMA200</th><th>Breadth &gt; SMA50</th><th>Trust</th><th>Turn-risk (10 sessions)</th><th>Risk percentile</th>
+        </tr></thead>
+        <tbody id="rgbTableBody"></tbody>
+      </table>
+    </div>
+    <p class="rg-note">Breadth = share of the index's own stocks trading above their own 50-day average. Trust is banded from the measured 10-session persistence of the current regime (HIGH ≥ 80%, MEDIUM 65–80%, LOW &lt; 65%) and is withheld for thin indexes with fewer than 10 stocks. Turn-risk is explained below.</p>
+  </section>
+
+  <section class="rg-section" aria-label="Forecast reliability and turn-risk warnings">
+    <h2>Forecast reliability &amp; turn-risk warnings</h2>
+    <p class="rg-note" id="rgbWarnLine">Loading…</p>
+    <div class="rgb-table-wrap">
+      <table class="rgb-table" id="rgbRelTable">
+        <thead><tr>
+          <th>Index</th><th>Current regime</th><th>Persists 1 session</th><th>Persists 5</th><th>Persists 10</th><th>Persists 20</th><th>Past episodes</th><th>Sessions measured</th>
+        </tr></thead>
+        <tbody id="rgbRelTableBody"></tbody>
+      </table>
+    </div>
+    <p class="rg-note">A “forecast” here is simply the call that today's confirmed regime persists. Each percentage is that call's <strong>measured historical accuracy</strong>: the rule was replayed over the index's full history, and for every past session in the same regime we checked whether the regime was still in place 1, 5, 10 and 20 sessions later. It is measured history, not a model's prediction — past persistence does not guarantee the current regime will persist.</p>
+  </section>
+
+  <section class="rg-section" aria-label="How this board is built">
+    <h2>How this board is built</h2>
+    <div class="rg-method">
+      <p><strong>Regime rule.</strong> For each index: gap = close ÷ 200-day average − 1. The raw state is BULL when the gap is at least +2%, BEAR when at most −2%, and RANGE in between. A different raw state must hold for <strong>5 consecutive sessions</strong> before the confirmed regime flips; the flip is stamped on that confirmation session, which becomes day 1 of the new regime (a “flip pending” tag shows while a change is being confirmed). The hero gauge and timeline above keep the older NEPSE-only labels (Bull / Bear / Correction / Recovery from the 50-day vs 200-day relationship): Correction is a pullback above the 200-day average (this board: BULL or RANGE), Recovery a bounce below it (RANGE or BEAR).</p>
+      <p><strong>Whose indexes?</strong> The NEPSE row is the official index (daily history from 2003). The 11 sector rows and the All-Share Composite are <strong>derived</strong>: equal-weight composites chained from the daily returns of their listed stocks, because official sub-index history is not published in a form we can archive. Sector membership is today's map applied historically, so delisted names are missing (survivorship) — the composites track the official sub-indices closely but are not identical to them. One known data gap: our index file is missing four sessions in September 2026 that the stock archive has (22, 23, 24, 28 Sep), so NEPSE session counts use the recorded sessions.</p>
+      <p><strong>Turn-risk.</strong> For each index we measure, from the same replay, how often a regime stopped holding 10 sessions later — broken down by how old the regime is for its kind (age percentile), how close the index sits to the ±2% band edge, and whether breadth is moving against the regime. Cells with little history fall back to coarser groupings and finally to the regime's base rate. The model is validated on a held-out era (fit on the first 60% of sessions, scored on the last 40%): any index whose conditional model fails to beat its own base rate out-of-sample publishes the base rate instead, and its row says so. The risk percentile ranks today's estimate among the estimates the same model assigns to that index's own past sessions; at or above the 90th percentile the index is flagged early-warning.</p>
+      <p><strong>Daily ledger.</strong> Every session's calls are appended to a permanent record (data/regime-calls.json) so the forward accuracy of these calls accumulates for real, alongside the replayed history above.</p>
+    </div>
+  </section>
+
   <p class="rg-fine">Mechanical classification for education, not a prediction and not investment advice. Rules: price vs 50-day and 200-day simple moving averages on the NEPSE index. Data: NEPSE daily index history (see coverage note). Past regimes do not guarantee future ones.</p>
 
 </main>
@@ -107,5 +145,6 @@
 <div id="nd-footer"></div>
 <script src="/js/nd-chrome.js?v=20261023g"></script>
 <script src="/js/nd-regime.js?v=20261023d"></script>
+<script src="/js/nd-regime-board.js?v=20261023i"></script>
 </body>
 </html>
