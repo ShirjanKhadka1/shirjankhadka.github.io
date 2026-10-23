@@ -155,6 +155,18 @@
       '<button type="button" class="v2-stat" data-v="NEUTRAL" aria-pressed="'+(state.verdict==='NEUTRAL')+'"><div class="num">'+neu+'</div><div class="lbl">Neutral</div></button>'+
       '<button type="button" class="v2-stat opp" data-v="opps" aria-pressed="'+(state.verdict==='opps')+'"><div class="num">'+opp+'</div><div class="lbl">Opportunity flags</div></button>'+
       '<button type="button" class="v2-stat" data-v="all" aria-pressed="'+(state.verdict==='all')+'"><div class="num">'+state.rows.length+'</div><div class="lbl">Securities scanned</div></button>'+
+      (function () {
+        var tot = state.rows.length || 1;
+        var seg = [['dw','Warnings',warn],['dn','Neutral',neu],['do','Opportunity flags',opp],['dx','Unreliable / unscored',other]];
+        var track = '', legend = '';
+        seg.forEach(function (s) {
+          if (!s[2]) return;
+          var pct = (s[2] / tot * 100);
+          track += '<i class="' + s[0] + '" style="width:' + pct.toFixed(2) + '%"></i>';
+          legend += '<span><b class="' + s[0] + '"></b>' + s[1] + ' ' + s[2] + '</span>';
+        });
+        return '<div class="v2-dist" role="img" aria-label="Verdict distribution across ' + state.rows.length + ' scanned securities"><div class="v2-dist-track">' + track + '</div><div class="v2-dist-legend">' + legend + '</div></div>';
+      })() +
       (state.coverage ? '<p class="v2-coverage">'+state.coverage.scored+' of '+state.coverage.listed+' listed securities scored · '+state.coverage.failures+' awaiting data</p>' : '')+
       (state.pmeta && state.pmeta.prev_session ? '<p class="v2-coverage">Latest session: '+state.pmeta.changed+' verdict'+(state.pmeta.changed===1?'':'s')+' changed · '+state.pmeta.new_flags+' new flag'+(state.pmeta.new_flags===1?'':'s')+' · '+state.pmeta.cleared+' cleared</p>' : '')+
       '<p class="v2-take">The radar is a warning instrument: it flags names that look dangerous and shows why. ' +

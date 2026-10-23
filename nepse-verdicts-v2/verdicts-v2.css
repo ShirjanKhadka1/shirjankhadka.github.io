@@ -551,3 +551,45 @@ a.skip-link:focus,a.skip-link:active{ top:12px!important; }
 [data-theme="light"] .v2-cleared{ background:rgba(22,163,74,.1); color:#15803D; }
 [data-theme="light"] .v3-since{ color:#5b6472; }
 [data-theme="light"] .v2-lock.exp{ color:#B91C1C; }
+
+/* ============================================================
+ * CINEMA harmonization (2026-10-23) — Spectral type, lime accent
+ * (was gold), flat token materials, verdict distribution bar.
+ * ============================================================ */
+.v2-title, .v2-h2{ font-family:'Spectral',Georgia,serif; }
+.v2-stat .num{ font-family:'Spectral',Georgia,serif; font-weight:600; letter-spacing:-.01em; }
+.v2-card .v2-n{ border-radius:9px; }
+.v3-thead{ background:var(--nd-panel-2,#161A23); border-color:var(--nd-border,#1E2430); }
+.v3-card{ background:var(--nd-panel,#12141A); border-color:var(--nd-border,#1E2430); }
+.v3-card:hover{ border-color:rgba(184,230,46,.5); box-shadow:inset 0 1px 0 rgba(255,255,255,.1), inset 0 -2px 5px rgba(0,0,0,.3), 0 16px 32px rgba(0,0,0,.5), 0 4px 10px rgba(0,0,0,.45), 0 0 0 1px rgba(184,230,46,.18); }
+.v3-card.open{ border-color:rgba(184,230,46,.55); }
+.v3-card:focus-visible{ outline-color:var(--nd-lime,#B8E62E); }
+.v3-th.sortable:hover{ color:var(--nd-lime,#B8E62E); }
+.v3-th.sortable:focus-visible{ outline-color:var(--nd-lime,#B8E62E); }
+.v3-th .arr{ color:var(--nd-lime,#B8E62E); }
+.v3-chev{ color:var(--nd-lime,#B8E62E); text-shadow:0 0 8px rgba(184,230,46,.35); }
+.v3-detail{ background:var(--nd-inset,#0D0F14); }
+.v2-f[aria-pressed="true"], .v2-stat[aria-pressed="true"]{ border-color:var(--nd-lime,#B8E62E); }
+
+/* verdict distribution bar — segments are the same counts as the stat buttons */
+.v2-dist{ grid-column:1/-1; margin:2px 0 0; }
+.v2-dist-track{ display:flex; height:12px; border-radius:999px; overflow:hidden; background:var(--nd-border,#1E2430); }
+.v2-dist-track i{ display:block; height:100%; }
+.v2-dist-track .dw{ background:#F87171; } .v2-dist-track .dn{ background:#8A94A6; }
+.v2-dist-track .do{ background:#60A5FA; } .v2-dist-track .dx{ background:#3F4756; }
+.v2-dist-legend{ display:flex; flex-wrap:wrap; gap:6px 18px; margin-top:8px; font-size:.75rem; color:var(--nd-muted,#B8C0CE); font-variant-numeric:tabular-nums; }
+.v2-dist-legend b{ display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:6px; }
+.v2-dist-legend .dw{ background:#F87171; } .v2-dist-legend .dn{ background:#8A94A6; }
+.v2-dist-legend .do{ background:#60A5FA; } .v2-dist-legend .dx{ background:#3F4756; }
+
+[data-theme="light"] .v3-thead{ background:#fff; }
+[data-theme="light"] .v3-card{ background:#fff; }
+[data-theme="light"] .v3-card:hover{ border-color:rgba(101,163,15,.55); box-shadow:inset 0 1px 0 #fff, 0 14px 28px rgba(30,40,60,.18), 0 0 0 1px rgba(101,163,15,.2); }
+[data-theme="light"] .v3-card.open{ border-color:rgba(101,163,15,.55); }
+[data-theme="light"] .v3-chev{ color:#4D7C0F; text-shadow:none; }
+[data-theme="light"] .v3-th.sortable:hover, [data-theme="light"] .v3-th .arr{ color:#4D7C0F; }
+[data-theme="light"] .v2-dist-track{ background:#E5E7EB; }
+[data-theme="light"] .v2-dist-track .dw, [data-theme="light"] .v2-dist-legend .dw{ background:#DC2626; }
+[data-theme="light"] .v2-dist-track .dn, [data-theme="light"] .v2-dist-legend .dn{ background:#9CA3AF; }
+[data-theme="light"] .v2-dist-track .do, [data-theme="light"] .v2-dist-legend .do{ background:#2563EB; }
+[data-theme="light"] .v2-dist-track .dx, [data-theme="light"] .v2-dist-legend .dx{ background:#CBD5E1; }
