@@ -213,7 +213,17 @@
     'rp-market': secMarket, 'rp-sectors': secSectors
   };
 
+  function syncSel() {
+    var fill = $('rp-selbar-fill'), txt = $('rp-selbar-txt');
+    if (!fill) return;
+    var n = 0;
+    SECTIONS.forEach(function (id) { var cb = $('cb-' + id); if (cb && cb.checked) n++; });
+    fill.style.width = (SECTIONS.length ? (n / SECTIONS.length * 100) : 0) + '%';
+    if (txt) txt.textContent = n + ' of ' + SECTIONS.length + ' sections in the report';
+  }
+
   function build() {
+    syncSel();
     var out = '';
     SECTIONS.forEach(function (id) {
       var cb = $('cb-' + id);
@@ -260,5 +270,6 @@
       var cb = $('cb-' + id);
       if (cb) cb.addEventListener('change', build);
     });
+    syncSel();
   });
 })();

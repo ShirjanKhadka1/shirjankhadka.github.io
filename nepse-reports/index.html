@@ -105,6 +105,24 @@
   .up{color:#0a6b3a}.down{color:#a11f1f}
 }
 .rp-printfoot{display:none}
+/* cinema harmonization (2026-10-23): lime accent replaces gold on builder touchpoints; selection bar */
+.rp-builder{background:var(--nd-panel,#12141A);border-color:var(--nd-border,#1E2430);box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 14px 34px rgba(0,0,0,.28)}
+.rp-group{background:var(--nd-inset,#0D0F14);border-color:var(--nd-border,#1E2430)}
+.rp-check{background:var(--nd-panel-2,#161A23);border-color:var(--nd-border,#1E2430)}
+.rp-check:hover{border-color:rgba(184,230,46,.55)}
+.rp-check input{accent-color:var(--nd-lime,#B8E62E)}
+.rp-doc-title small{color:var(--nd-lime,#B8E62E)}
+.rp-empty a{color:var(--nd-lime,#B8E62E)}
+.rp-selbar{display:flex;align-items:center;gap:14px;margin:0 0 20px}
+.rp-selbar-track{flex:1;height:10px;border-radius:999px;background:var(--nd-border,#1E2430);overflow:hidden}
+.rp-selbar-track i{display:block;height:100%;width:100%;background:var(--nd-lime,#B8E62E);border-radius:999px;transition:width .3s ease}
+.rp-selbar-txt{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+[data-theme="light"] .rp-builder{box-shadow:inset 0 1px 0 #fff,0 14px 30px rgba(30,40,60,.12)}
+[data-theme="light"] .rp-check:hover{border-color:rgba(101,163,15,.55)}
+[data-theme="light"] .rp-check input{accent-color:#65A30D}
+[data-theme="light"] .rp-doc-title small,[data-theme="light"] .rp-empty a{color:#4D7C0F}
+[data-theme="light"] .rp-selbar-track{background:#E5E7EB}
+[data-theme="light"] .rp-selbar-track i{background:#65A30D}
 </style>
 <link rel="stylesheet" href="/css/theme.css?v=20261023d">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023d">
@@ -151,6 +169,7 @@
           </div>
         </fieldset>
       </div>
+      <div class="rp-selbar" aria-hidden="true"><div class="rp-selbar-track"><i id="rp-selbar-fill"></i></div><span class="rp-selbar-txt" id="rp-selbar-txt"></span></div>
       <div class="rp-actions">
         <button class="btn nd-btn nd-btn--primary" id="rp-build" disabled>Rebuild report</button>
         <button class="btn ghost nd-btn nd-btn--ghost" id="rp-print">Print</button>
@@ -214,7 +233,7 @@
 <script src="/js/nepse-data.js?v=20261023d"></script>
 <script src="/js/nepse-live.js?v=20261023d"></script>
 <script src="/js/nepse-suite.js?v=20261023d"></script>
-<script src="/js/nepse-reports.js?v=20261023d"></script>
+<script src="/js/nepse-reports.js?v=20261023e"></script>
 <script src="/js/theme-toggle.js?v=20261023d" defer></script>
 <script src="/js/freshness-badge.js?v=20261023d" defer></script>
 <script src="/js/nepse-sidebar.js?v=20261023d" defer></script>
