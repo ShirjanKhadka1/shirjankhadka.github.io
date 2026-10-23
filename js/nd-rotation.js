@@ -43,15 +43,16 @@
   function buildChart(rows) {
     var W = 680, H = 560, ML = 48, MR = 16, MT = 16, MB = 42;
     var pw = W - ML - MR, ph = H - MT - MB;
-    /* Domain (fixed 2026-10-23): anchored on the 100/100 crosshair and
-       driven by the HEAD (latest) points only, so the frame zooms to the
-       current sector cluster the way a standard RRG is read. Every head
-       is always inside the frame; older trail points may leave it and
-       are clipped at the frame edge (see the note under the chart).
-       The previous version scaled the axes to every trail point, so one
-       excursion (Non-Life's Aug-2026 crash trail, Manufacturing's spike)
-       stretched the plot and crushed the live cluster into the centre. */
-    var hx = [100], hy = [100];
+    /* Domain (fixed 2026-10-23): anchored on the 0/0 crosshair (the
+       board's values are 0-centred percents since the weekly-mechanism
+       rebuild) and driven by the HEAD (latest) points only, so the
+       frame zooms to the current sector cluster the way a standard RRG
+       is read. Every head is always inside the frame; older trail
+       points may leave it and are clipped at the frame edge (see the
+       note under the chart). The previous version scaled the axes to
+       every trail point, so one excursion stretched the plot and
+       crushed the live cluster into the centre. */
+    var hx = [0], hy = [0];
     rows.forEach(function (r) { hx.push(r.rs_ratio); hy.push(r.rs_momentum); });
     function headExtent(v, minSpan) {
       var lo = Math.min.apply(null, v), hi = Math.max.apply(null, v);
@@ -63,15 +64,15 @@
     var xe = headExtent(hx, 8), ye = headExtent(hy, 5.5);
     function X(v) { return ML + (v - xe[0]) / (xe[1] - xe[0]) * pw; }
     function Y(v) { return MT + ph - (v - ye[0]) / (ye[1] - ye[0]) * ph; }
-    var x100 = X(100), y100 = Y(100);
+    var x0 = X(0), y0 = Y(0);
     var s = '';
     s += '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Relative rotation graph: NEPSE sectors by RS-Ratio and RS-Momentum" class="rr-svg">';
     s += '<defs><clipPath id="rrClip"><rect x="' + ML + '" y="' + MT + '" width="' + pw + '" height="' + ph + '"/></clipPath></defs>';
     /* quadrant zones */
-    s += '<rect x="' + ML + '" y="' + MT + '" width="' + (x100 - ML) + '" height="' + (y100 - MT) + '" class="rr-zone improving"/>';
-    s += '<rect x="' + x100 + '" y="' + MT + '" width="' + (ML + pw - x100) + '" height="' + (y100 - MT) + '" class="rr-zone leading"/>';
-    s += '<rect x="' + ML + '" y="' + y100 + '" width="' + (x100 - ML) + '" height="' + (MT + ph - y100) + '" class="rr-zone lagging"/>';
-    s += '<rect x="' + x100 + '" y="' + y100 + '" width="' + (ML + pw - x100) + '" height="' + (MT + ph - y100) + '" class="rr-zone weakening"/>';
+    s += '<rect x="' + ML + '" y="' + MT + '" width="' + (x0 - ML) + '" height="' + (y0 - MT) + '" class="rr-zone improving"/>';
+    s += '<rect x="' + x0 + '" y="' + MT + '" width="' + (ML + pw - x0) + '" height="' + (y0 - MT) + '" class="rr-zone leading"/>';
+    s += '<rect x="' + ML + '" y="' + y0 + '" width="' + (x0 - ML) + '" height="' + (MT + ph - y0) + '" class="rr-zone lagging"/>';
+    s += '<rect x="' + x0 + '" y="' + y0 + '" width="' + (ML + pw - x0) + '" height="' + (MT + ph - y0) + '" class="rr-zone weakening"/>';
     /* gridlines + ticks */
     function ticks(e, isX) {
       var span = e[1] - e[0];
@@ -85,8 +86,8 @@
     }
     s += ticks(xe, true) + ticks(ye, false);
     /* centre crosshair */
-    s += '<line x1="' + x100 + '" y1="' + MT + '" x2="' + x100 + '" y2="' + (MT + ph) + '" class="rr-axis100"/>';
-    s += '<line x1="' + ML + '" y1="' + y100 + '" x2="' + (ML + pw) + '" y2="' + y100 + '" class="rr-axis100"/>';
+    s += '<line x1="' + x0 + '" y1="' + MT + '" x2="' + x0 + '" y2="' + (MT + ph) + '" class="rr-axis100"/>';
+    s += '<line x1="' + ML + '" y1="' + y0 + '" x2="' + (ML + pw) + '" y2="' + y0 + '" class="rr-axis100"/>';
     /* quadrant labels */
     s += '<text x="' + (ML + pw - 8) + '" y="' + (MT + 18) + '" class="rr-qlabel q-leading" text-anchor="end">LEADING</text>';
     s += '<text x="' + (ML + 8) + '" y="' + (MT + 18) + '" class="rr-qlabel q-improving">IMPROVING</text>';
@@ -163,7 +164,7 @@
       var r = it.r, c = COLORS[r.sector] || '#94a3b8';
       var bcx = it.box.x + it.box.w / 2, bcy = it.box.y + it.box.h / 2;
       var dx = bcx - it.ex, dy = bcy - it.ey;
-      s += '<g><title>' + esc(r.sector) + ' — ' + esc(r.quadrant) + ' · RS-Ratio ' + fmt(r.rs_ratio) + ' · RS-Momentum ' + fmt(r.rs_momentum) + ' · ' + r.quadrant_days + ' sessions in quadrant</title>';
+      s += '<g><title>' + esc(r.sector) + ' — ' + esc(r.quadrant) + ' · RS-Ratio ' + fmt(r.rs_ratio) + '% · RS-Momentum ' + fmt(r.rs_momentum) + ' pts · ' + r.quadrant_weeks + ' weeks in quadrant</title>';
       if (Math.sqrt(dx * dx + dy * dy) > 17) {
         s += '<line x1="' + it.ex + '" y1="' + it.ey + '" x2="' + bcx + '" y2="' + bcy + '" class="rr-leader"/>';
       }
@@ -195,7 +196,7 @@
         '<td><span class="rr-chip ' + esc(r.quadrant) + '">' + esc(r.quadrant) + '</span></td>' +
         '<td class="rr-num"><strong>' + fmt(r.rs_ratio) + '</strong></td>' +
         '<td class="rr-num">' + fmt(r.rs_momentum) + '</td>' +
-        '<td class="rr-num">' + r.quadrant_days + '</td>' +
+        '<td class="rr-num">' + r.quadrant_weeks + '</td>' +
         '<td class="rr-num rr-hide-m">' + fmt(r.consistency, 1) + '</td>' +
         '<td class="rr-num">' + fmt(r.turnover_share_pct) + '%</td>' +
         '<td class="rr-num rr-hide-m ' + (fs > 0 ? 'rr-pos' : fs < 0 ? 'rr-neg' : '') + '">' + (fs == null ? '—' : (fs > 0 ? '+' : '') + fmt(fs)) + '</td>' +
