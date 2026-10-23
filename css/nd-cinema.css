@@ -126,16 +126,15 @@
 .cx-rank-val{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--nd-text,#FFF)}
 .cx-rank-track{grid-column:2 / 4;height:6px;border-radius:99px;background:var(--nd-inset,#0D0F14);overflow:hidden}
 .cx-rank-fill{height:100%;border-radius:99px;background:linear-gradient(90deg, var(--nd-lime,#B8E62E), rgba(184,230,46,.55));
-  width:0;transition:width .9s cubic-bezier(.22,1,.36,1)}
+  width:var(--w,50%);animation:cxGrow .9s cubic-bezier(.22,1,.36,1) both}
 .cx-rank-fill.up{background:linear-gradient(90deg, var(--nd-up,#4ADE80), rgba(74,222,128,.5))}
 .cx-rank-fill.down{background:linear-gradient(90deg, var(--nd-down,#F87171), rgba(248,113,113,.5))}
-.cx-in .cx-rank-fill{width:var(--w,50%)}
+@keyframes cxGrow{from{width:0}}
 
 /* ---- proportion bar (share-of-whole inside tables/cells) ---- */
 .cx-prop{display:flex;align-items:center;gap:10px;min-width:130px}
 .cx-prop-track{flex:1;height:6px;border-radius:99px;background:var(--nd-inset,#0D0F14);overflow:hidden}
-.cx-prop-fill{height:100%;border-radius:99px;background:var(--nd-lime,#B8E62E);width:0;transition:width .9s cubic-bezier(.22,1,.36,1)}
-.cx-in .cx-prop-fill{width:var(--w,50%)}
+.cx-prop-fill{height:100%;border-radius:99px;background:var(--nd-lime,#B8E62E);width:var(--w,50%);animation:cxGrow .9s cubic-bezier(.22,1,.36,1) both}
 
 /* ---- bullet gauge (verdict score against its scale) ---- */
 .cx-gauge{position:relative;height:12px;border-radius:99px;
@@ -148,11 +147,11 @@
 
 /* ---- breadth bar (advancers / flat / decliners) ---- */
 .cx-breadth{display:flex;height:16px;border-radius:99px;overflow:hidden;background:var(--nd-inset,#0D0F14)}
-.cx-breadth i{display:block;height:100%;transform-origin:left;transform:scaleX(0);transition:transform 1s cubic-bezier(.22,1,.36,1)}
+.cx-breadth i{display:block;height:100%;transform-origin:left;transform:scaleX(1);animation:cxSweep 1s cubic-bezier(.22,1,.36,1) both}
 .cx-breadth .b-up{background:var(--nd-up,#4ADE80)}
 .cx-breadth .b-flat{background:var(--nd-dim,#8E98A8)}
 .cx-breadth .b-down{background:var(--nd-down,#F87171)}
-.cx-in .cx-breadth i{transform:scaleX(1)}
+@keyframes cxSweep{from{transform:scaleX(0)}}
 .cx-breadth-legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:9px;font-size:.8rem;color:var(--nd-muted,#B8C0CE)}
 .cx-breadth-legend b{font-family:"IBM Plex Mono",monospace;color:var(--nd-text,#FFF)}
 
@@ -198,6 +197,7 @@
   .cx-card, .cx-btn, .cx-rank-fill, .cx-prop-fill, .cx-breadth i, .cx-reveal{transition:none !important}
   .cx-card:hover, .cx-btn:hover{transform:none}
   .cx-reveal{opacity:1;transform:none}
+  .cx-rank-fill, .cx-prop-fill, .cx-breadth i{animation:none !important}
   .cx-rank-fill{width:var(--w,50%)}
   .cx-prop-fill{width:var(--w,50%)}
   .cx-breadth i{transform:scaleX(1)}
