@@ -346,3 +346,20 @@
   .ipo-stat{ transition: none; }
   .ipo-stat:hover{ transform: none; }
 }
+
+/* ============================================================
+ * CINEMA harmonization (2026-10-23) — Spectral stat numerals +
+ * issue-status proportion bar from the same rendered counts.
+ * ============================================================ */
+.ipo-stat .num{ font-family:var(--nd-font-display,"Spectral",Georgia,serif); font-weight:600; letter-spacing:-.01em; }
+.ipo-dist{ grid-column:1/-1; margin:2px 0 0; }
+.ipo-dist-track{ display:flex; height:12px; border-radius:999px; overflow:hidden; background:var(--nd-border,#1E2430); }
+.ipo-dist-track i{ display:block; height:100%; }
+.ipo-dist-track .dopen{ background:#B8E62E; } .ipo-dist-track .dup{ background:#60A5FA; } .ipo-dist-track .drest{ background:#3F4756; }
+.ipo-dist-legend{ display:flex; flex-wrap:wrap; gap:6px 18px; margin-top:8px; font-size:.75rem; color:var(--nd-muted,#B8C0CE); font-variant-numeric:tabular-nums; }
+.ipo-dist-legend b{ display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:6px; }
+.ipo-dist-legend .dopen{ background:#B8E62E; } .ipo-dist-legend .dup{ background:#60A5FA; } .ipo-dist-legend .drest{ background:#3F4756; }
+[data-nd-ed="light"] .ipo-dist-track{ background:#E5E7EB; }
+[data-nd-ed="light"] .ipo-dist-track .dopen, [data-nd-ed="light"] .ipo-dist-legend .dopen{ background:#65A30D; }
+[data-nd-ed="light"] .ipo-dist-track .dup, [data-nd-ed="light"] .ipo-dist-legend .dup{ background:#2563EB; }
+[data-nd-ed="light"] .ipo-dist-track .drest, [data-nd-ed="light"] .ipo-dist-legend .drest{ background:#CBD5E1; }

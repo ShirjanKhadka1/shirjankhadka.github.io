@@ -133,7 +133,18 @@
       '<div class="ipo-stat"><div class="num">' + total + '</div><div class="lbl">Total issues</div></div>' +
       '<div class="ipo-stat open"><div class="num">' + open + '</div><div class="lbl">Open now</div></div>' +
       '<div class="ipo-stat"><div class="num">' + upcoming + '</div><div class="lbl">Upcoming</div></div>' +
-      '<div class="ipo-stat"><div class="num">' + Object.keys(cats).length + '</div><div class="lbl">Categories</div></div>';
+      '<div class="ipo-stat"><div class="num">' + Object.keys(cats).length + '</div><div class="lbl">Categories</div></div>' +
+      (function () {
+        var rest = total - open - upcoming;
+        var seg = [['dopen','Open now',open],['dup','Upcoming',upcoming],['drest','Closed / other',rest]];
+        var track = '', legend = '';
+        seg.forEach(function (s) {
+          if (!s[2] || !total) return;
+          track += '<i class="' + s[0] + '" style="width:' + (s[2] / total * 100).toFixed(2) + '%"></i>';
+          legend += '<span><b class="' + s[0] + '"></b>' + s[1] + ' ' + s[2] + '</span>';
+        });
+        return '<div class="ipo-dist" role="img" aria-label="Issue status mix across ' + total + ' tracked issues"><div class="ipo-dist-track">' + track + '</div><div class="ipo-dist-legend">' + legend + '</div></div>';
+      })();
   }
 
   function renderTabs() {
