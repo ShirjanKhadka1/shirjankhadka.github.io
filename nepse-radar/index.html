@@ -52,6 +52,43 @@
 <link rel="stylesheet" href="/css/nd-chrome.css?v=20261023e">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=20261023m">
+<style>
+/* cinema harmonization (2026-10-23): token-driven radar table, pills, confidence bars, verdict mix bar */
+.radar-table thead th{ background:var(--nd-panel-2,#161A23); color:var(--nd-dim,#6B7280); padding:10px 12px; text-align:left; font-size:.75rem; letter-spacing:.05em; text-transform:uppercase; }
+.radar-table tbody tr{ border-bottom:1px solid var(--nd-border,#1E2430); }
+.radar-table td{ padding:10px 12px; }
+.rd-pill{ display:inline-block; padding:3px 10px; border-radius:999px; font-size:.75rem; font-weight:600; border:1px solid; }
+.rd-pill.warn{ background:rgba(248,113,113,.12); color:#F87171; border-color:rgba(248,113,113,.45); }
+.rd-pill.elev{ background:rgba(251,191,36,.1); color:#FBBF24; border-color:rgba(251,191,36,.4); }
+.rd-pill.opp{ background:rgba(74,222,128,.1); color:#4ADE80; border-color:rgba(74,222,128,.4); }
+.rd-pill.neu{ background:var(--nd-panel-2,#161A23); color:var(--nd-dim,#6B7280); border-color:var(--nd-border,#1E2430); }
+.rd-pill.unr{ background:transparent; color:var(--nd-dim,#6B7280); border-color:var(--nd-border,#1E2430); border-style:dashed; }
+.rd-chip{ display:inline-block; padding:2px 8px; border-radius:999px; font-size:.68rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; margin-left:6px; vertical-align:middle; border:1px solid; }
+.rd-chip.new{ background:rgba(248,113,113,.12); color:#F87171; border-color:rgba(248,113,113,.45); }
+.rd-chip.cleared{ background:rgba(74,222,128,.12); color:#4ADE80; border-color:rgba(74,222,128,.45); }
+.rd-since{ display:block; font-size:.72rem; color:var(--nd-dim,#6B7280); margin-top:4px; }
+.rd-conf{ display:inline-block; width:54px; height:6px; border-radius:999px; background:var(--nd-border,#1E2430); overflow:hidden; vertical-align:middle; margin-right:8px; }
+.rd-conf i{ display:block; height:100%; background:var(--nd-lime,#B8E62E); border-radius:999px; }
+.rd-dist{ margin:18px 0 6px; }
+.rd-dist-track{ display:flex; height:12px; border-radius:999px; overflow:hidden; background:var(--nd-border,#1E2430); }
+.rd-dist-track i{ display:block; height:100%; }
+.rd-dist-track .dw{ background:#F87171; } .rd-dist-track .de{ background:#FBBF24; } .rd-dist-track .do{ background:#4ADE80; } .rd-dist-track .dn{ background:#8A94A6; } .rd-dist-track .dx{ background:#3F4756; }
+.rd-dist-legend{ display:flex; flex-wrap:wrap; gap:6px 18px; margin-top:8px; font-size:.75rem; color:var(--nd-muted,#B8C0CE); font-variant-numeric:tabular-nums; }
+.rd-dist-legend b{ display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:6px; }
+.rd-dist-legend .dw{ background:#F87171; } .rd-dist-legend .de{ background:#FBBF24; } .rd-dist-legend .do{ background:#4ADE80; } .rd-dist-legend .dn{ background:#8A94A6; } .rd-dist-legend .dx{ background:#3F4756; }
+[data-theme="light"] .rd-pill.warn{ background:rgba(220,38,38,.07); color:#B91C1C; border-color:rgba(220,38,38,.35); }
+[data-theme="light"] .rd-pill.elev{ background:rgba(180,83,9,.07); color:#B45309; border-color:rgba(180,83,9,.35); }
+[data-theme="light"] .rd-pill.opp{ background:rgba(22,163,74,.08); color:#15803D; border-color:rgba(22,163,74,.35); }
+[data-theme="light"] .rd-chip.new{ background:rgba(220,38,38,.08); color:#B91C1C; border-color:rgba(220,38,38,.35); }
+[data-theme="light"] .rd-chip.cleared{ background:rgba(22,163,74,.1); color:#15803D; border-color:rgba(22,163,74,.35); }
+[data-theme="light"] .rd-conf i{ background:#65A30D; }
+[data-theme="light"] .rd-dist-track{ background:#E5E7EB; }
+[data-theme="light"] .rd-dist-track .dw, [data-theme="light"] .rd-dist-legend .dw{ background:#DC2626; }
+[data-theme="light"] .rd-dist-track .de, [data-theme="light"] .rd-dist-legend .de{ background:#D97706; }
+[data-theme="light"] .rd-dist-track .do, [data-theme="light"] .rd-dist-legend .do{ background:#16A34A; }
+[data-theme="light"] .rd-dist-track .dn, [data-theme="light"] .rd-dist-legend .dn{ background:#9CA3AF; }
+[data-theme="light"] .rd-dist-track .dx, [data-theme="light"] .rd-dist-legend .dx{ background:#CBD5E1; }
+</style>
 </head>
 <body class="nd" data-page="radar">
 <div id="nd-header"></div>
@@ -82,13 +119,14 @@
   </div>
 
   <div style="overflow-x:auto">
+  <div class="rd-dist" id="radar-dist" hidden><div class="rd-dist-track" id="radar-dist-track"></div><div class="rd-dist-legend" id="radar-dist-legend"></div></div>
   <div class="nd-tablewrap"><table class="radar-table nd-table" id="radar-table" style="width:100%;border-collapse:collapse;font-size:.9rem">
     <thead><tr>
-      <th style="background:#1C1A15;color:#FAF7F0;padding:10px 12px;text-align:left;font-size:.75rem;letter-spacing:.05em;text-transform:uppercase">Symbol</th>
-      <th style="background:#1C1A15;color:#FAF7F0;padding:10px 12px;text-align:left;font-size:.75rem;letter-spacing:.05em;text-transform:uppercase">Verdict</th>
-      <th style="background:#1C1A15;color:#FAF7F0;padding:10px 12px;text-align:left;font-size:.75rem;letter-spacing:.05em;text-transform:uppercase">Confidence</th>
-      <th style="background:#1C1A15;color:#FAF7F0;padding:10px 12px;text-align:left;font-size:.75rem;letter-spacing:.05em;text-transform:uppercase">Sector</th>
-      <th style="background:#1C1A15;color:#FAF7F0;padding:10px 12px;text-align:left;font-size:.75rem;letter-spacing:.05em;text-transform:uppercase">Detail</th>
+      <th>Symbol</th>
+      <th>Verdict</th>
+      <th>Confidence</th>
+      <th>Sector</th>
+      <th>Detail</th>
     </tr></thead>
     <tbody id="radar-body"><tr><td colspan="5" style="padding:20px;text-align:center">Loading&hellip;</td></tr></tbody>
   </table></div>
@@ -234,14 +272,13 @@
   }
   function changeChip(label, p){
     if (!p || !p.changed_latest) return '';
-    var chip = 'display:inline-block;padding:2px 8px;border-radius:999px;font-size:.68rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-left:6px;vertical-align:middle;';
-    if (isFlag(label) && !isFlag(p.prev_label)) return '<span style="'+chip+'background:#fef2f2;color:#dc2626;border:1px solid #fecaca">New</span>';
-    if (!isFlag(label) && isFlag(p.prev_label)) return '<span style="'+chip+'background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0">Cleared</span>';
+    if (isFlag(label) && !isFlag(p.prev_label)) return '<span class="rd-chip new">New</span>';
+    if (!isFlag(label) && isFlag(p.prev_label)) return '<span class="rd-chip cleared">Cleared</span>';
     return '';
   }
   function sinceLine(p){
     var s = fmtSince(p);
-    return s ? '<span style="display:block;font-size:.72rem;color:#7a7466;margin-top:4px">'+s+'</span>' : '';
+    return s ? '<span class="rd-since">'+s+'</span>' : '';
   }
   function render(){
     var body = document.getElementById('radar-body');
@@ -270,13 +307,14 @@
         if (s.opportunity_score) parts.push('opp ' + fmtNum(s.opportunity_score));
         if (parts.length) detail = parts.join(' &middot; ');
       }
-      return '<tr style="border-bottom:1px solid #e5e0d5">'+
-        '<td style="padding:10px 12px"><strong>'+esc(r.sym)+'</strong></td>'+
-        '<td style="padding:10px 12px"><span style="display:inline-block;padding:3px 10px;border-radius:999px;font-size:.75rem;font-weight:600;'+
-          (r.label==='DISTRIBUTION_WARNING'?'background:#fef2f2;color:#dc2626;border:1px solid #fecaca':r.label==='ELEVATED_RISK'?'background:#fffbeb;color:#d97706;border:1px solid #fde68a':r.label==='BOUNCE_SETUP'?'background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0':'background:#f9fafb;color:#6b7280;border:1px solid #e5e7eb')+'">'+esc(LABELS[r.label]||r.label)+'</span>'+changeChip(r.label, v.persistence)+sinceLine(v.persistence)+'</td>'+
-        '<td style="padding:10px 12px">'+conf+'</td>'+
-        '<td style="padding:10px 12px">'+esc(v.sector||'&mdash;')+'</td>'+
-        '<td style="padding:10px 12px">'+(detail||'&mdash;')+'</td></tr>';
+      var pillCls = r.label==='DISTRIBUTION_WARNING' ? 'warn' : r.label==='ELEVATED_RISK' ? 'elev' : r.label==='BOUNCE_SETUP' ? 'opp' : r.label==='NEUTRAL' ? 'neu' : 'unr';
+      var confCell = v.confidence != null ? '<span class="rd-conf"><i style="width:' + Math.round(v.confidence*100) + '%"></i></span>' + conf : conf;
+      return '<tr>'+
+        '<td><strong>'+esc(r.sym)+'</strong></td>'+
+        '<td><span class="rd-pill ' + pillCls + '">'+esc(LABELS[r.label]||r.label)+'</span>'+changeChip(r.label, v.persistence)+sinceLine(v.persistence)+'</td>'+
+        '<td>'+confCell+'</td>'+
+        '<td>'+esc(v.sector||'&mdash;')+'</td>'+
+        '<td>'+(detail||'&mdash;')+'</td></tr>';
     }).join('');
   }
   document.getElementById('radar-filters').addEventListener('click', function(e){
@@ -298,6 +336,30 @@
       var warnCount = Object.keys(allVerdicts).filter(function(k){
         return ['DISTRIBUTION_WARNING','ELEVATED_RISK','BOUNCE_SETUP'].indexOf(allVerdicts[k].label) >= 0;
       }).length;
+      (function () {
+        var host = document.getElementById('radar-dist');
+        if (!host) return;
+        var buckets = { dw: 0, de: 0, do: 0, dn: 0, dx: 0 };
+        Object.keys(allVerdicts).forEach(function (k) {
+          var l = allVerdicts[k].label || 'NEUTRAL';
+          if (l === 'DISTRIBUTION_WARNING') buckets.dw++;
+          else if (l === 'ELEVATED_RISK') buckets.de++;
+          else if (l === 'BOUNCE_SETUP' || l === 'IGNITION') buckets.do++;
+          else if (l === 'NEUTRAL') buckets.dn++;
+          else buckets.dx++;
+        });
+        var tot = count || 1;
+        var seg = [['dw','Distribution Warning',buckets.dw],['de','Elevated Risk',buckets.de],['do','Bounce / Ignition',buckets.do],['dn','Neutral',buckets.dn],['dx','Unreliable / other',buckets.dx]];
+        var track = '', legend = '';
+        seg.forEach(function (s) {
+          if (!s[2]) return;
+          track += '<i class="' + s[0] + '" style="width:' + (s[2] / tot * 100).toFixed(2) + '%"></i>';
+          legend += '<span><b class="' + s[0] + '"></b>' + s[1] + ' ' + s[2] + '</span>';
+        });
+        document.getElementById('radar-dist-track').innerHTML = track;
+        document.getElementById('radar-dist-legend').innerHTML = legend;
+        host.hidden = false;
+      })();
       document.getElementById('radar-meta').innerHTML =
         'Verdicts as of ' + esc(asof) + ' &middot; ' + count + ' securities analysed &middot; ' +
         '<strong>' + warnCount + ' warnings</strong> ' +
