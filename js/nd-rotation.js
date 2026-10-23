@@ -43,22 +43,30 @@
   function buildChart(rows) {
     var W = 680, H = 560, ML = 48, MR = 16, MT = 16, MB = 42;
     var pw = W - ML - MR, ph = H - MT - MB;
-    var xs = [100], ys = [100];
-    rows.forEach(function (r) {
-      (r.trail || []).forEach(function (p) { xs.push(p.rs_ratio); ys.push(p.rs_momentum); });
-      xs.push(r.rs_ratio); ys.push(r.rs_momentum);
-    });
-    function extent(v) {
+    /* Domain (fixed 2026-10-23): anchored on the 100/100 crosshair and
+       driven by the HEAD (latest) points only, so the frame zooms to the
+       current sector cluster the way a standard RRG is read. Every head
+       is always inside the frame; older trail points may leave it and
+       are clipped at the frame edge (see the note under the chart).
+       The previous version scaled the axes to every trail point, so one
+       excursion (Non-Life's Aug-2026 crash trail, Manufacturing's spike)
+       stretched the plot and crushed the live cluster into the centre. */
+    var hx = [100], hy = [100];
+    rows.forEach(function (r) { hx.push(r.rs_ratio); hy.push(r.rs_momentum); });
+    function headExtent(v, minSpan) {
       var lo = Math.min.apply(null, v), hi = Math.max.apply(null, v);
-      var pad = Math.max((hi - lo) * 0.14, 0.9);
-      return [Math.floor((lo - pad) * 2) / 2, Math.ceil((hi + pad) * 2) / 2];
+      var pad = Math.max((hi - lo) * 0.22, 1.1);
+      lo -= pad; hi += pad;
+      if (hi - lo < minSpan) { var c = (lo + hi) / 2; lo = c - minSpan / 2; hi = c + minSpan / 2; }
+      return [Math.floor(lo * 2) / 2, Math.ceil(hi * 2) / 2];
     }
-    var xe = extent(xs), ye = extent(ys);
+    var xe = headExtent(hx, 8), ye = headExtent(hy, 5.5);
     function X(v) { return ML + (v - xe[0]) / (xe[1] - xe[0]) * pw; }
     function Y(v) { return MT + ph - (v - ye[0]) / (ye[1] - ye[0]) * ph; }
     var x100 = X(100), y100 = Y(100);
     var s = '';
     s += '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Relative rotation graph: NEPSE sectors by RS-Ratio and RS-Momentum" class="rr-svg">';
+    s += '<defs><clipPath id="rrClip"><rect x="' + ML + '" y="' + MT + '" width="' + pw + '" height="' + ph + '"/></clipPath></defs>';
     /* quadrant zones */
     s += '<rect x="' + ML + '" y="' + MT + '" width="' + (x100 - ML) + '" height="' + (y100 - MT) + '" class="rr-zone improving"/>';
     s += '<rect x="' + x100 + '" y="' + MT + '" width="' + (ML + pw - x100) + '" height="' + (y100 - MT) + '" class="rr-zone leading"/>';
@@ -66,7 +74,8 @@
     s += '<rect x="' + x100 + '" y="' + y100 + '" width="' + (ML + pw - x100) + '" height="' + (MT + ph - y100) + '" class="rr-zone weakening"/>';
     /* gridlines + ticks */
     function ticks(e, isX) {
-      var step = (e[1] - e[0]) > 14 ? 4 : 2;
+      var span = e[1] - e[0];
+      var step = span > 16 ? 4 : span > 8 ? 2 : 1;
       var out = '';
       for (var v = Math.ceil(e[0] / step) * step; v <= e[1]; v += step) {
         if (isX) out += '<line x1="' + X(v) + '" y1="' + MT + '" x2="' + X(v) + '" y2="' + (MT + ph) + '" class="rr-grid"/><text x="' + X(v) + '" y="' + (MT + ph + 16) + '" class="rr-tick" text-anchor="middle">' + v + '</text>';
@@ -86,20 +95,80 @@
     /* axis titles */
     s += '<text x="' + (ML + pw / 2) + '" y="' + (H - 4) + '" class="rr-axtitle" text-anchor="middle">RS-Ratio →</text>';
     s += '<text x="14" y="' + (MT + ph / 2) + '" class="rr-axtitle" text-anchor="middle" transform="rotate(-90 14 ' + (MT + ph / 2) + ')">RS-Momentum →</text>';
-    /* trails + endpoints */
+    /* trails: clipped at the frame; segments and dots fade with age so
+       the eye lands on the head, oldest points smallest and faintest */
+    s += '<g clip-path="url(#rrClip)">';
     rows.forEach(function (r) {
       var c = COLORS[r.sector] || '#94a3b8';
-      var pts = (r.trail || []).map(function (p) { return X(p.rs_ratio).toFixed(1) + ',' + Y(p.rs_momentum).toFixed(1); });
-      if (pts.length > 1) s += '<polyline points="' + pts.join(' ') + '" fill="none" stroke="' + c + '" stroke-width="1.6" opacity="0.55"/>';
-      (r.trail || []).forEach(function (p, i) {
-        if (i === r.trail.length - 1) return;
-        s += '<circle cx="' + X(p.rs_ratio) + '" cy="' + Y(p.rs_momentum) + '" r="2.1" fill="' + c + '" opacity="0.65"/>';
+      var tr = r.trail || [];
+      for (var i = 1; i < tr.length; i++) {
+        var t = i / (tr.length - 1);
+        s += '<line x1="' + X(tr[i - 1].rs_ratio).toFixed(1) + '" y1="' + Y(tr[i - 1].rs_momentum).toFixed(1) +
+          '" x2="' + X(tr[i].rs_ratio).toFixed(1) + '" y2="' + Y(tr[i].rs_momentum).toFixed(1) +
+          '" stroke="' + c + '" stroke-width="' + (1.1 + 0.9 * t).toFixed(2) + '" opacity="' + (0.10 + 0.38 * t).toFixed(2) + '"/>';
+      }
+      tr.forEach(function (p, i) {
+        if (i === tr.length - 1) return; /* last trail point is the head, drawn below */
+        var u = tr.length > 2 ? i / (tr.length - 2) : 1;
+        s += '<circle cx="' + X(p.rs_ratio) + '" cy="' + Y(p.rs_momentum) + '" r="' + (1.3 + 1.3 * u).toFixed(2) + '" fill="' + c + '" opacity="' + (0.22 + 0.43 * u).toFixed(2) + '"/>';
       });
+    });
+    s += '</g>';
+    /* heads + labels: label boxes are placed by a greedy collision pass
+       (crowded heads placed first) so all 11 names stay readable; a thin
+       leader line links a label that had to move away from its dot */
+    var placed = [];
+    var items = rows.map(function (r) {
       var ex = X(r.rs_ratio), ey = Y(r.rs_momentum);
-      var anchorEnd = ex > ML + pw * 0.78;
-      s += '<g><title>' + esc(r.sector) + ' — ' + esc(r.quadrant) + ' · RS-Ratio ' + fmt(r.rs_ratio) + ' · RS-Momentum ' + fmt(r.rs_momentum) + ' · ' + r.quadrant_days + ' sessions in quadrant</title>' +
-        '<circle cx="' + ex + '" cy="' + ey + '" r="5.5" fill="' + c + '" class="rr-endpoint"/>' +
-        '<text x="' + (anchorEnd ? ex - 9 : ex + 9) + '" y="' + (ey + 4) + '" class="rr-ptlabel" text-anchor="' + (anchorEnd ? 'end' : 'start') + '">' + esc(SHORT[r.sector] || r.sector) + '</text></g>';
+      var label = SHORT[r.sector] || r.sector;
+      var near = 0;
+      rows.forEach(function (o) {
+        if (o === r) return;
+        var dx = X(o.rs_ratio) - ex, dy = Y(o.rs_momentum) - ey;
+        if (dx * dx + dy * dy < 55 * 55) near++;
+      });
+      return { r: r, ex: ex, ey: ey, label: label, w: label.length * 6.9 + 8, h: 15, near: near };
+    });
+    items.sort(function (a, b) { return b.near - a.near; });
+    function overlap(a, b) {
+      var ox = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
+      var oy = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
+      return (ox > 0 && oy > 0) ? ox * oy : 0;
+    }
+    items.forEach(function (it) {
+      var cands = [
+        { x: it.ex + 10, y: it.ey - it.h / 2 },
+        { x: it.ex - 10 - it.w, y: it.ey - it.h / 2 },
+        { x: it.ex + 7, y: it.ey - 13 - it.h },
+        { x: it.ex + 7, y: it.ey + 13 },
+        { x: it.ex - 7 - it.w, y: it.ey - 13 - it.h },
+        { x: it.ex - 7 - it.w, y: it.ey + 13 },
+        { x: it.ex - it.w / 2, y: it.ey - 14 - it.h },
+        { x: it.ex - it.w / 2, y: it.ey + 14 }
+      ];
+      var best = null, bestScore = Infinity;
+      cands.forEach(function (cd, ci) {
+        var box = { x: cd.x, y: cd.y, w: it.w, h: it.h };
+        var score = ci * 0.01;
+        placed.forEach(function (pb) { score += overlap(box, pb) * 10; });
+        if (box.x < ML + 2 || box.x + box.w > ML + pw - 2 || box.y < MT + 2 || box.y + box.h > MT + ph - 2) score += 5000;
+        var dcx = box.x + box.w / 2 - it.ex, dcy = box.y + box.h / 2 - it.ey;
+        score += Math.sqrt(dcx * dcx + dcy * dcy) * 0.02;
+        if (score < bestScore) { bestScore = score; best = box; }
+      });
+      it.box = best;
+      placed.push(best);
+    });
+    items.forEach(function (it) {
+      var r = it.r, c = COLORS[r.sector] || '#94a3b8';
+      var bcx = it.box.x + it.box.w / 2, bcy = it.box.y + it.box.h / 2;
+      var dx = bcx - it.ex, dy = bcy - it.ey;
+      s += '<g><title>' + esc(r.sector) + ' — ' + esc(r.quadrant) + ' · RS-Ratio ' + fmt(r.rs_ratio) + ' · RS-Momentum ' + fmt(r.rs_momentum) + ' · ' + r.quadrant_days + ' sessions in quadrant</title>';
+      if (Math.sqrt(dx * dx + dy * dy) > 17) {
+        s += '<line x1="' + it.ex + '" y1="' + it.ey + '" x2="' + bcx + '" y2="' + bcy + '" class="rr-leader"/>';
+      }
+      s += '<circle cx="' + it.ex + '" cy="' + it.ey + '" r="6" fill="' + c + '" class="rr-endpoint"/>' +
+        '<text x="' + bcx + '" y="' + (bcy + 4) + '" class="rr-ptlabel" text-anchor="middle">' + esc(it.label) + '</text></g>';
     });
     s += '</svg>';
     return s;
