@@ -173,7 +173,8 @@
       var rc = r.rank_change_1w;
       h += '<tr>' +
         '<td><span class="rr-dot" style="background:' + (COLORS[r.sector] || '#94a3b8') + '"></span><strong>' + esc(r.sector) + '</strong></td>' +
-        '<td><span class="rr-chip ' + esc(r.quadrant) + '">' + esc(r.quadrant) + '</span></td>' +
+        '<td><span class="rr-chip ' + esc(r.quadrant) + '">' + esc(r.quadrant) + '</span>' +
+          (r.quadrant_changed ? ' <span class="rr-moved" title="Quadrant changed from the previous week">moved</span>' : '') + '</td>' +
         '<td class="rr-num"><strong>' + fmt(r.rs_ratio) + '</strong></td>' +
         '<td class="rr-num">' + fmt(r.rs_momentum) + '</td>' +
         '<td class="rr-num">' + r.quadrant_weeks + '</td>' +
