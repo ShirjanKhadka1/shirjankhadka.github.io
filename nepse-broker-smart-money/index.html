@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0A0C10">
+<title>Broker Smart Money: The Brokers Whose Buying Actually Beat the Market | Nepse Decode</title>
+<meta name="description" content="Smart money, measured — not asserted. Every NEPSE broker is scored on its matured accumulation events: the stocks it net-bought over trailing 30-day windows, and what those stocks did over the next 10 sessions against the average stock. The board then follows the top-decile cohort of skilled brokers — where their money is accumulating now, with a broker-quality gauge per stock and the full broker leaderboard — plus a split-half check of whether the skill ranking persisted. Computed from Nepse Decode's own floorsheet archive, free. Educational use only.">
+<meta name="author" content="Shirjan Khadka">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-broker-smart-money/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:title" content="Broker Smart Money: The Brokers Whose Buying Actually Beat the Market">
+<meta property="og:description" content="Brokers ranked by measured skill — whether their net accumulation beat the market — and the stocks the top-decile cohort is accumulating now. The full leaderboard and board, free.">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Broker Smart Money: The Brokers Whose Buying Actually Beat the Market">
+<meta name="twitter:description" content="Skill scored on matured accumulation events since July 2026; the conviction board follows the top-decile brokers. Persistence measured and published. Updated after every close.">
+<meta property="twitter:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-broker-smart-money/">
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
+<link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode Broker Smart Money","url":"https://shirjankhadka.com.np/nepse-broker-smart-money/","description":"Per-broker skill scores measured on matured accumulation events from a complete NEPSE floorsheet archive, a top-decile skilled-broker cohort, and a per-stock conviction board with broker-quality gauges and a published persistence check. Educational use only, not investment advice.","author":{"@type":"Organization","name":"Nepse Decode"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
+{"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
+{"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-decode/"},
+{"@type":"ListItem","position":3,"name":"Broker Smart Money","item":"https://shirjankhadka.com.np/nepse-broker-smart-money/"}]}
+</script>
+<link rel="stylesheet" href="/css/nd-tokens.css">
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
+<link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
+<link rel="stylesheet" href="/css/nd-smart-money.css?v=d4105a80">
+</head>
+<body class="nd" data-page="broker-smart-money">
+
+  <a class="skip-link" href="#main">Skip to content</a>
+<div id="nd-header"></div>
+<div class="fb-wrap" style="display:flex;justify-content:center;padding:10px 16px 0"><div data-freshness-badge></div></div>
+
+<div class="nd-shell">
+  <div class="nd-content">
+    <div class="nd-wrap">
+<main id="main">
+
+  <div class="sm-masthead">
+    <p class="cx-kicker">Broker</p>
+    <h1 class="sm-title">Broker Smart Money</h1>
+    <p class="sm-lede">"Smart money" is usually a label asserted about the
+      biggest brokers. Here it is <strong>measured</strong>: every broker is
+      scored on its <strong>matured accumulation events</strong> — the stocks
+      it net-bought over trailing 30-day windows, and what those stocks did
+      over the next 10 sessions against the average stock. The brokers whose
+      buying actually beat the market form a <strong>top-decile skilled
+      cohort</strong>, chosen only on evidence from before the current window
+      opened — and this board follows where that cohort's money is
+      accumulating now. The full leaderboard is published, not teased, and so
+      is the uncomfortable part: a split-half check of whether the skill
+      ranking persisted inside its own era (below — it largely did not).</p>
+    <p class="sm-meta"><span id="smSession">Loading…</span></p>
+  </div>
+
+  <div class="cx-stats sm-stats" id="statStrip" aria-label="Board summary"></div>
+  <div class="sm-dist" id="tierDist" aria-label="Conviction tier distribution"></div>
+  <p class="sm-note" id="coverageNote"></p>
+
+  <section class="sm-catsec" aria-label="Conviction board" id="board">
+    <h2 class="sm-h2 sm-h2-sec">The conviction board — where skilled money is accumulating</h2>
+    <p class="sm-chartsub">Every stock-like name the skilled cohort touched
+      in the window, ranked by conviction: the blend of how much skilled
+      money is in the name and how skilled the brokers behind it are.
+      Select any row to open its skilled-broker breakdown below.</p>
+    <div class="sm-controls">
+      <label class="sm-selwrap">Sector
+        <select id="sectorSel" class="sm-sel"></select>
+      </label>
+      <label class="sm-selwrap">Sort
+        <select id="sortSel" class="sm-sel">
+          <option value="score">Conviction score</option>
+          <option value="net">Skilled net flow</option>
+          <option value="quality">Broker quality</option>
+          <option value="momentum">20-day momentum</option>
+          <option value="sym">Symbol</option>
+        </select>
+      </label>
+      <label class="sm-selwrap">Find
+        <input type="search" id="symSearch" class="sm-search" placeholder="e.g. NABIL" autocomplete="off">
+      </label>
+    </div>
+    <div class="cx-scroll sm-tablewrap">
+      <table class="cx-table" id="boardTable">
+        <thead><tr>
+          <th class="num">#</th><th>Symbol</th><th>Sector</th><th>Tier</th>
+          <th class="num">Conviction</th><th class="num">Skilled net</th>
+          <th class="num">Intensity</th><th class="num">Quality</th>
+          <th class="num">Skilled brokers</th><th class="num">20d momentum</th>
+          <th>Reading</th>
+        </tr></thead>
+        <tbody id="boardBody"><tr><td colspan="11" class="sm-loading">Loading the board…</td></tr></tbody>
+      </table>
+    </div>
+    <p class="cx-cap" id="boardCount"></p>
+  </section>
+
+  <section class="sm-catsec" aria-label="Stock detail" id="detail">
+    <h2 class="sm-h2 sm-h2-sec">One stock — the brokers behind the reading</h2>
+    <p class="sm-chartsub">Pick a stock. Its accumulators and distributors
+      are listed with each broker's measured skill beside their money —
+      the quality gauge is the net-amount-weighted skill of the rated
+      brokers accumulating it.</p>
+    <div class="sm-controls">
+      <label class="sm-selwrap">Stock
+        <select id="symSel" class="sm-sel"></select>
+      </label>
+    </div>
+    <div class="sm-detail-head" id="detailHead"></div>
+    <div class="cx-stats sm-stats" id="detailStats" aria-label="Stock summary"></div>
+    <p class="sm-note" id="readingLine"></p>
+
+    <h3 class="sm-h3">Skilled net flow by timeframe</h3>
+    <p class="sm-chartsub">The cohort's net in this stock at three windows,
+      and in the 30 days before this window — a reading can be new, or a
+      continuation.</p>
+    <ul class="sm-ladder" id="ladderList"></ul>
+
+    <div class="sm-two">
+      <div>
+        <h3 class="sm-h3">Accumulators (net bought)</h3>
+        <div class="cx-scroll sm-tablewrap">
+          <table class="cx-table" id="accumTable">
+            <thead><tr><th>Broker</th><th class="num">Net qty</th><th class="num">Net Rs</th><th class="num">Skill</th><th>Cohort</th></tr></thead>
+            <tbody id="accumBody"><tr><td colspan="5" class="sm-loading">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <div>
+        <h3 class="sm-h3">Distributors (net sold)</h3>
+        <div class="cx-scroll sm-tablewrap">
+          <table class="cx-table" id="distTable">
+            <thead><tr><th>Broker</th><th class="num">Net qty</th><th class="num">Net Rs</th><th class="num">Skill</th><th>Cohort</th></tr></thead>
+            <tbody id="distBody"><tr><td colspan="5" class="sm-loading">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sm-catsec" aria-label="Skilled distribution" id="distribution">
+    <h2 class="sm-h2 sm-h2-sec">Where skilled money is leaving</h2>
+    <p class="sm-chartsub">The mirror image: the names with the largest net
+      selling by the same top-decile cohort over the window. Skilled money
+      leaving a name is a fact about flow, not a verdict on the company.</p>
+    <div class="cx-scroll sm-tablewrap">
+      <table class="cx-table" id="distBoardTable">
+        <thead><tr>
+          <th class="num">#</th><th>Symbol</th><th>Sector</th>
+          <th class="num">Skilled net</th><th class="num">Intensity</th>
+          <th class="num">Quality of accumulators</th>
+          <th class="num">Skilled sellers</th><th class="num">20d momentum</th>
+        </tr></thead>
+        <tbody id="distBoardBody"><tr><td colspan="8" class="sm-loading">Loading…</td></tr></tbody>
+      </table>
+    </div>
+    <p class="cx-cap" id="distBoardCount"></p>
+  </section>
+
+  <section class="sm-catsec" aria-label="Broker skill leaderboard" id="leaderboard">
+    <h2 class="sm-h2 sm-h2-sec">The broker skill leaderboard — the whole table</h2>
+    <p class="sm-chartsub" id="leaderSub">Loading the leaderboard…</p>
+    <div class="cx-scroll sm-tablewrap">
+      <table class="cx-table" id="leaderTable">
+        <thead><tr>
+          <th class="num">Rank</th><th>Broker</th>
+          <th class="num">Skill (full era)</th><th class="num">Beat the average stock</th>
+          <th class="num">Events scored</th><th class="num">Snapshots</th>
+          <th class="num">Skill (pre-window)</th><th>Cohort</th>
+          <th class="num">Net flow, this window</th>
+        </tr></thead>
+        <tbody id="leaderBody"><tr><td colspan="9" class="sm-loading">Loading…</td></tr></tbody>
+      </table>
+    </div>
+    <p class="sm-note" id="leaderNote"></p>
+  </section>
+
+  <section class="sm-catsec" aria-label="Measured record" id="record">
+    <h2 class="sm-h2 sm-h2-sec">Does the ranking persist? The measured record</h2>
+    <p class="sm-chartsub" id="recordSub">Loading the measured record…</p>
+    <div class="cx-scroll sm-tablewrap">
+      <table class="cx-table" id="recordTable">
+        <thead><tr>
+          <th>Check</th><th>Cohort</th>
+          <th class="num">Events</th>
+          <th class="num">Mean outcome vs the average stock</th>
+        </tr></thead>
+        <tbody id="recordBody"><tr><td colspan="4" class="sm-loading">Loading…</td></tr></tbody>
+      </table>
+    </div>
+    <p class="sm-note" id="recordNote"></p>
+  </section>
+
+  <section class="sm-catsec" aria-label="Recent sessions" id="history">
+    <h2 class="sm-h2 sm-h2-sec">Recent sessions</h2>
+    <p class="sm-chartsub">The board's session ledger — one row per
+      published session, never edited after the fact. The ledger starts
+      with the 2026-10-16 session.</p>
+    <div class="cx-scroll sm-tablewrap">
+      <table class="cx-table" id="historyTable">
+        <thead><tr>
+          <th>Session</th><th class="num">Board names</th>
+          <th class="num">Rated brokers</th><th>Cohort</th>
+          <th>Highest conviction</th><th>Top skill</th>
+        </tr></thead>
+        <tbody id="historyBody"><tr><td colspan="6" class="sm-loading">Loading recent sessions…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="sm-catsec" aria-label="Methodology">
+    <h2 class="sm-h2 sm-h2-sec">How this board is built</h2>
+    <div class="sm-method">
+      <p><strong>The definition.</strong> "Smart money" on this page means
+        brokers whose past net accumulation measurably beat the market —
+        not the biggest brokers, and not a label anyone asserts. The
+        equivalent commercial board sells the same idea with its rows
+        locked and its parameters undisclosed; every parameter below is
+        ours, published, and every row here is free.</p>
+      <p><strong>Skill.</strong> At weekly snapshots (every 5 sessions), an
+        <em>accumulation event</em> is a broker that net-bought a stock over
+        the trailing 30 calendar days. The event's outcome is that stock's
+        return over the next 10 sessions (final, corporate-action-adjusted
+        closes) minus the equal-weight mean return of every measurable
+        stock over the same span — "the market" here is the average stock,
+        because the official index history has gaps on archive sessions.
+        Events whose forward move exceeds ±15% are dropped (corporate-action
+        resets the adjusted series does not carry) and counted in the
+        payload. A broker's <em>skill</em> is the net-amount-weighted mean
+        outcome of its events, in percentage points; its hit rate is the
+        share of events that beat the average stock. Brokers are
+        <em>rated</em> at 5+ events and <em>decile-eligible</em> at 30+
+        events scored in at least half the snapshots; the cohort is the
+        top tenth of the eligible brokers.</p>
+      <p><strong>No lookahead.</strong> The board's cohort and quality
+        gauges use only snapshots whose 10-session outcome window ended
+        before the board's 30-day window opened. The leaderboard's
+        full-era skill uses every matured snapshot — including outcomes
+        inside the board window — and is published as a record, never as
+        an input to the board.</p>
+      <p><strong>The board.</strong> For each stock-like name (debentures
+        and mutual funds stay on the Zero-Sum board), the cohort's signed
+        net flow over the window is the skilled net; <em>intensity</em> is
+        that flow as a share of the stock's turnover. <em>Broker
+        quality</em> is the net-amount-weighted skill of the rated brokers
+        accumulating the stock. <em>Conviction</em> is the mean of the two
+        board-wide percentile ranks (skilled net, quality), tiered Very
+        High ≥ 80, High ≥ 60, Moderate ≥ 40, Low below — names the cohort
+        is net selling or not touching sit at Watch / None and are listed
+        on the distribution side instead. <em>Newly started</em> means the
+        cohort's net was not positive in the previous 30 days;
+        <em>price-confirmed</em> means the stock's 20-session momentum is
+        positive alongside the accumulation.</p>
+      <p><strong>The honest limits.</strong> The floorsheet archive starts
+        2026-07-15, so the whole skill era is about three months, in one
+        market regime, from overlapping windows — event counts look large
+        because the same positions recur across snapshots. The split-half
+        check above is the number that disciplines this page: picked on
+        the era's first half, the cohort's edge in the second half was
+        close to zero. Read the board as a map of where measured-skilled
+        flow currently sits — description, not prediction. Broker data is
+        transaction flow — what moved through each broker — never a
+        record of what any investor holds. The 2026-10-07 session is held
+        as broker totals only (no per-stock rows), so windows spanning it
+        rest on the sessions the archive holds.</p>
+    </div>
+  </section>
+
+  <p class="sm-fine">A descriptive map of measured broker skill and flow,
+    for education, not investment advice. Data: Nepse Decode's own
+    floorsheet archive, rebuilt after each close. No live feed is claimed:
+    during market hours this page still shows the last close's board.</p>
+
+</main>
+    </div>
+  </div>
+</div>
+
+<div id="nd-footer"></div>
+<script src="/js/nd-chrome.js?v=017c5a74"></script>
+<script src="/js/freshness-badge.js?v=9b77cf10" defer></script>
+<script src="/js/smart-money.js?v=41dd4edc"></script>
+</body>
+</html>
