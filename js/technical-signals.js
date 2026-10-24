@@ -78,8 +78,13 @@
     var legend = RATINGS.map(function (r) {
       return '<span><i class="ts-dot ' + segCls[r] + '"></i>' + esc(r) + ' <b>' + (s.rating_counts[r] || 0) + '</b></span>';
     }).join('');
+    var cc = s.classification_counts || {};
+    var classLine = '<div class="ts-dist-legend">By overall classification: ' +
+      ['Bull', 'Bullish', 'Bearish', 'Bear'].map(function (k) {
+        return '<span>' + k + ' <b>' + (cc[k] || 0) + '</b></span>';
+      }).join('') + '</div>';
     document.getElementById('ratingDist').innerHTML =
-      '<div class="ts-dist-bar">' + bar + '</div><div class="ts-dist-legend">' + legend + '</div>';
+      '<div class="ts-dist-bar">' + bar + '</div><div class="ts-dist-legend">' + legend + '</div>' + classLine;
   }
 
   function kv(label, value) {
@@ -87,6 +92,10 @@
   }
   function detailHtml(r) {
     var v = r.values;
+    var head = '<p class="ts-note" style="margin:0 2px var(--nd-s3)"><strong>' + esc(r.name || r.symbol) +
+      '</strong> · ' + esc(r.type || '') + ' · ' + esc(r.sector) +
+      ' · Overall score <strong>' + r.score + '</strong> — ' + esc(r.classification) +
+      ' · Previous close ' + fmt(r.prev_close, 2) + '</p>';
     var chips = SIG_ORDER.map(function (k) {
       return '<span class="ts-siglab">' + esc(SIG_NAMES[k]) + '</span>' +
         '<span class="ts-sig ' + sigClass(r.signals[k]) + '">' + esc(r.signals[k]) + '</span>';
@@ -127,7 +136,7 @@
       kv('Bollinger upper / lower', fmt(v.bb_upper, 1) + ' / ' + fmt(v.bb_lower, 1)) +
       kv('Keltner position', fmt(v.kc_percent, 2) + ' of channel') +
       kv('Bollinger state', v.bb_state || '—');
-    return '<div class="ts-sigs">' + chips + '</div>' + caution +
+    return head + '<div class="ts-sigs">' + chips + '</div>' + caution +
       '<div class="ts-groups">' +
       '<div class="ts-group"><h3>Trend</h3>' + trend + '</div>' +
       '<div class="ts-group"><h3>Momentum</h3>' + momentum + '</div>' +
