@@ -1,0 +1,54 @@
+{
+ "schema": "nd-broker-smart-money-history/v1",
+ "note": "Append-only session ledger for the Broker Smart Money board: one entry per published session with the board size, the rated-broker count, the top-decile cohort and the five highest-conviction names. Entries are never edited after the fact; a rebuilt session replaces only its own entry when the board content actually changed.",
+ "entries": [
+  {
+   "asof": "2026-10-16",
+   "built_at": "2026-10-24T11:21:27+05:45",
+   "board_symbols": 287,
+   "rated_brokers": 91,
+   "cohort": [
+    "101",
+    "94",
+    "76",
+    "69",
+    "77",
+    "44",
+    "91",
+    "50",
+    "92"
+   ],
+   "top_conviction": [
+    {
+     "symbol": "TAMOR",
+     "score": 97.89,
+     "skilled_net_amt": 240107485.4
+    },
+    {
+     "symbol": "MBL",
+     "score": 96.83,
+     "skilled_net_amt": 126369463.9
+    },
+    {
+     "symbol": "LSL",
+     "score": 96.48,
+     "skilled_net_amt": 144680697.9
+    },
+    {
+     "symbol": "SHIVM",
+     "score": 96.13,
+     "skilled_net_amt": 205471923.1
+    },
+    {
+     "symbol": "ADBL",
+     "score": 95.42,
+     "skilled_net_amt": 44123690.6
+    }
+   ],
+   "top_skill_broker": {
+    "broker": "33",
+    "skill_full": 2.584
+   }
+  }
+ ]
+}
