@@ -2,7 +2,7 @@
    Static file, no framework; all numbers printed beside every visual. */
 (function () {
   'use strict';
-  var DATA_URL = '/data/contributors.json?v=20261024a';
+  var DATA_URL = '/data/contributors.json?v=20261024c';
   var PAYLOAD = null;
   var state = { sector: 'All', q: '' };
 
@@ -33,30 +33,70 @@
     return 'Rs ' + intFmt(x);
   }
   function rows() { return PAYLOAD.rows; }
+  function isLive() { return !!(PAYLOAD && PAYLOAD.provisional); }
+  function nptTime(iso) {
+    if (!iso) return '';
+    try {
+      return new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Asia/Kathmandu', hour: '2-digit', minute: '2-digit',
+        hour12: false
+      }).format(new Date(iso)) + ' NPT';
+    } catch (e) { return iso; }
+  }
+
+  function renderLiveBar() {
+    var el = document.getElementById('ctLiveBar');
+    if (!el) return;
+    if (isLive()) {
+      el.innerHTML =
+        '<p class="ct-livebar"><span class="ct-livechip">● LIVE</span> ' +
+        'Provisional board — the session is in progress. Last-traded ' +
+        'prices stand in for closes; volume and turnover are cumulative ' +
+        'for the session so far. Quotes as of <b>' +
+        esc(nptTime(PAYLOAD.quotes_asof)) + '</b>. The final board, ' +
+        'priced on final revised closes, replaces this one after the ' +
+        'close.</p>';
+    } else {
+      el.innerHTML =
+        '<p class="ct-finalbar"><span class="ct-finalchip">FINAL</span> ' +
+        'Final board for the session of ' + esc(PAYLOAD.asof) +
+        ' — priced on final revised closes. During the next session ' +
+        '(11:00–15:00, trading days) this page carries the live ' +
+        'provisional board instead.</p>';
+    }
+  }
 
   function renderSession() {
     var cov = PAYLOAD.coverage;
     document.getElementById('ctSession').textContent =
-      'Session ' + PAYLOAD.asof + ' · previous session ' + PAYLOAD.prev_session +
+      (isLive() ? 'Session in progress ' : 'Session ') + PAYLOAD.asof +
+      ' · previous session ' + PAYLOAD.prev_session +
       ' · ' + cov.scored_symbols + ' of ' + cov.universe_symbols +
       ' listed symbols scored · official divisor Rs ' +
       Number(PAYLOAD.reconciliation.divisor_rs_per_point).toLocaleString('en-IN') +
-      ' per index point';
+      ' per index point' +
+      (isLive() ? ' (carried from the previous session)' : '');
   }
 
   function renderStats() {
     var idx = PAYLOAD.index, rec = PAYLOAD.reconciliation, cov = PAYLOAD.coverage;
+    var live = isLive();
     var stats = [
-      { k: 'NEPSE · official', v: num(idx.close) + ' (' + pts(idx.change) + ')',
-        s: 'the official close and published change for the session' },
+      { k: live ? 'NEPSE · live' : 'NEPSE · official',
+        v: num(idx.close) + ' (' + pts(idx.change) + ')',
+        s: live ? 'the live index level and its published change so far ' +
+                  '(quotes as of ' + nptTime(PAYLOAD.quotes_asof) + ')'
+                : 'the official close and published change for the session' },
       { k: 'Explained by this board', v: pts(rec.explained) + ' pts',
-        s: rec.explained_pct + '% of the official move, from the ' +
+        s: rec.explained_pct + '% of the official move' +
+           (live ? ' so far' : '') + ', from the ' +
            cov.scored_symbols + ' scored rows below' },
       { k: 'The residual', v: pts(rec.residual) + ' pts',
         s: 'official minus explained — carried as its own row in the sector ' +
            'table, with its causes, never netted away' },
       { k: 'Coverage', v: cov.scored_symbols + ' of ' + cov.universe_symbols + ' stocks',
-        s: cov.cap_coverage_pct + '% of the official total market capitalisation' }
+        s: cov.cap_coverage_pct + '% of the official total market capitalisation' +
+           (live ? ' at the previous close' : '') }
     ];
     document.getElementById('statStrip').innerHTML = stats.map(function (x) {
       return '<div class="cx-stat"><p class="cx-stat-k">' + esc(x.k) +
@@ -171,8 +211,13 @@
   function renderRecon() {
     var idx = PAYLOAD.index, rec = PAYLOAD.reconciliation, cov = PAYLOAD.coverage;
     var rowsHtml = [
-      ['Official NEPSE change', idx.change, 'NEPSE\'s published move for the session (' +
-        num(idx.prev_close) + ' → ' + num(idx.close) + ')'],
+      [isLive() ? 'Official NEPSE change so far' : 'Official NEPSE change',
+       idx.change, isLive()
+        ? 'the live feed\'s published move so far (' +
+          num(idx.prev_close) + ' → ' + num(idx.close) + ' at ' +
+          nptTime(PAYLOAD.quotes_asof) + ')'
+        : 'NEPSE\'s published move for the session (' +
+          num(idx.prev_close) + ' → ' + num(idx.close) + ')'],
       ['Explained by this board', rec.explained, 'the sum of the ' +
         cov.scored_symbols + ' scored rows on this page'],
       ['The residual', rec.residual, 'official minus explained — the net move ' +
@@ -192,7 +237,9 @@
       ' listed symbols — Rs ' + (cov.cap_scored_rs / 1e12).toFixed(2) +
       ' trillion of the official Rs ' +
       (cov.official_total_cap_rs / 1e12).toFixed(2) +
-      ' trillion total market capitalisation (' + cov.cap_coverage_pct +
+      ' trillion total market capitalisation' +
+      (isLive() ? ' at the previous close' : '') +
+      ' (' + cov.cap_coverage_pct +
       '%). Inside the official index but outside this board: ' + eqNoShares +
       ' ordinary shares with no share count in the filings compilation or the ' +
       'ownership archive (small caps and recent listings among them), ' +
@@ -309,7 +356,7 @@
   }
 
   function renderAll() {
-    renderSession(); renderStats(); renderTopTables(); renderSectorBars();
+    renderSession(); renderLiveBar(); renderStats(); renderTopTables(); renderSectorBars();
     renderSectorTable(); renderGross(); renderRecon(); renderTabs();
     renderBoard(); renderUnscored();
     document.getElementById('symSearch').addEventListener('input', function (e) {

@@ -40,7 +40,7 @@
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
-<link rel="stylesheet" href="/css/nd-contributors.css?v=e8e8961d">
+<link rel="stylesheet" href="/css/nd-contributors.css?v=339f81ce">
 </head>
 <body class="nd" data-page="contributors">
 
@@ -66,6 +66,7 @@
       cannot explain stays in that residual, with its causes — never netted away,
       never hidden.</p>
     <p class="ct-meta"><span id="ctSession">Loading…</span></p>
+    <div id="ctLiveBar"></div>
   </div>
 
   <div class="cx-stats ct-stats" id="statStrip" aria-label="Session summary"></div>
@@ -232,6 +233,19 @@
         and mutual funds are not constituents of the NEPSE equity index and
         are excluded from this board entirely. The residual is part of the
         board, not an error term to be tuned away.</p>
+      <p><strong>The live board.</strong> Between 11:00 and 15:00 on trading
+        days this page shows the session in progress, rebuilt every five
+        minutes from the live quote feed: each stock's last-traded price
+        stands in for its close, the divisor and the weightages are carried
+        from the previous session's official state (the divisor is a
+        within-day constant), and volume and turnover are cumulative for the
+        session so far. A live board is marked LIVE and provisional, with
+        the quotes' as-of time beside the badge — last-traded prices are
+        revised at the close on some names, so a live board's figures can
+        differ slightly from the final ones. After the close, the final
+        board — priced on final revised closes — replaces it on this same
+        page, and the final board is the one that enters the record below.
+        Outside market hours the page shows the last final board.</p>
       <p><strong>The stop rule.</strong> If the residual ever exceeds ±2.5
         index points, or the scored board's coverage of the official total
         market capitalisation falls under 85%, the daily build fails instead
@@ -249,9 +263,11 @@
   </section>
 
   <p class="ct-fine">Mechanical index arithmetic for education, not investment
-    advice. Data: Nepse Decode OHLC archive + published quarterly filings and
-    the ownership archive, rebuilt after each close. No live feed is claimed:
-    during market hours this page still shows the last close's board.</p>
+    advice. Data: during market hours (11:00–15:00, trading days) the live
+    NEPSE quote feed — last-traded prices and cumulative volume and turnover —
+    rebuilt every five minutes and marked provisional; after the close, Nepse
+    Decode's OHLC archive + published quarterly filings and the ownership
+    archive, rebuilt after each close into the final board.</p>
 
 </main>
     </div>
@@ -261,6 +277,6 @@
 <div id="nd-footer"></div>
 <script src="/js/nd-chrome.js?v=b248520c"></script>
 <script src="/js/freshness-badge.js?v=9b77cf10" defer></script>
-<script src="/js/contributors.js?v=71b2864f"></script>
+<script src="/js/contributors.js?v=5edea6de"></script>
 </body>
 </html>

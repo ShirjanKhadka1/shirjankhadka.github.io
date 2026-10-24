@@ -22,6 +22,26 @@ body{ font-family: var(--nd-font-sans); }
 .ct-lede{ font-size: var(--step-2); line-height: 1.65; color: var(--nd-text); max-width: 72ch; margin: 0 0 var(--nd-s2); }
 .ct-meta{ font: 400 var(--step-0) var(--nd-font-mono); color: var(--nd-dim); margin: var(--nd-s3) 0 0; }
 
+/* live / final board banner (design-master honesty chips: live green,
+   final neutral — amber is reserved for CLOSED badges) */
+.ct-livebar, .ct-finalbar{
+  margin: var(--nd-s3) 0 0; max-width: 78ch;
+  font-size: var(--step-1); line-height: 1.55; color: var(--nd-text);
+}
+.ct-livechip{
+  display: inline-block; padding: 2px 10px; border-radius: 999px;
+  background: rgba(74, 222, 128, .14); color: #4ADE80;
+  font: 700 var(--step-0) var(--nd-font-mono); letter-spacing: .06em;
+  vertical-align: 1px;
+}
+.ct-finalchip{
+  display: inline-block; padding: 2px 10px; border-radius: 999px;
+  background: var(--nd-inset); color: var(--nd-dim);
+  border: 1px solid var(--nd-border);
+  font: 700 var(--step-0) var(--nd-font-mono); letter-spacing: .06em;
+  vertical-align: 1px;
+}
+
 .ct-h2{
   font-family: var(--nd-font-display);
   font-weight: 600; font-size: var(--nd-text-h2); color: var(--nd-text);
