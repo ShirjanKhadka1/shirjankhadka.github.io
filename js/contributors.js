@@ -78,7 +78,7 @@
   }
 
   function renderTopTables() {
-    [['topGainers', 'topGainersBody'], ['topLosers', 'topLosersBody']]
+    [['top_gainers', 'topGainersBody'], ['top_losers', 'topLosersBody']]
       .forEach(function (pair) {
         var block = PAYLOAD[pair[0]];
         var html = block.rows.map(topRow).join('');
