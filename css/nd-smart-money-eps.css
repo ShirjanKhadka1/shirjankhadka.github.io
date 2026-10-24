@@ -1,0 +1,63 @@
+/* nd-smart-money-eps.css — Smart-Money EPS page (family of nd-price-push.css).
+   Tokens from css/nd-tokens.css only; no hardcoded palette. */
+
+/* ---- masthead ---- */
+.sme-masthead{margin:18px 0 20px}
+.sme-title{font-family:var(--nd-font-display, Spectral, serif);font-size:44px;line-height:1.06;margin:6px 0 14px;letter-spacing:-.01em}
+.sme-lede{font-size:17px;line-height:1.6;color:var(--nd-text-soft);max-width:76ch}
+.sme-meta{font-family:var(--nd-font-mono, "IBM Plex Mono", monospace);font-size:13px;color:var(--nd-text-soft);margin-top:10px}
+.sme-fine{font-size:13px;line-height:1.55;color:var(--nd-text-soft);margin:26px 0 4px;border-top:1px solid var(--nd-border);padding-top:14px}
+.sme-note{font-size:14px;line-height:1.55;color:var(--nd-text-soft);margin:12px 0}
+.sme-chartsub{font-size:14px;line-height:1.55;color:var(--nd-text-soft);margin:8px 0 14px;max-width:78ch}
+
+/* ---- section headings: lime square + Spectral head (kit pattern) ---- */
+.sme-catsec{margin:34px 0}
+.sme-h2{font-family:var(--nd-font-display, Spectral, serif);font-size:26px;line-height:1.2;margin:0 0 6px}
+.sme-h2-sec::before{content:"";display:inline-block;width:11px;height:11px;background:var(--nd-lime);margin-right:10px}
+.sme-h3{font-family:var(--nd-font-display, Spectral, serif);font-size:20px;margin:26px 0 4px}
+
+/* ---- stat strip ---- */
+.sme-stats{margin:16px 0}
+.cx-stat .num{font-size:28px;line-height:1.15}
+.cx-stat .lbl{font-size:12px;letter-spacing:.02em}
+
+/* ---- controls ---- */
+.sme-controls{display:flex;flex-wrap:wrap;gap:12px;margin:0 0 14px}
+/* Story seg + selects wrap; the seg scrolls internally on narrow
+   viewports instead of pushing the last chip off-screen. */
+#storySeg{overflow-x:auto;scrollbar-width:none}
+#storySeg::-webkit-scrollbar{display:none}
+#storySeg button{flex-shrink:0}
+.sme-selwrap{font-family:var(--nd-font-mono, "IBM Plex Mono", monospace);font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--nd-text-soft);display:flex;flex-direction:column;gap:4px}
+.sme-sel,.sme-search{background:var(--nd-surface);color:var(--nd-text);border:1px solid var(--nd-border);border-radius:8px;padding:8px 10px;font-size:14px;font-family:inherit;min-width:150px}
+.sme-search{min-width:220px}
+.sme-selwrap input{text-transform:none;letter-spacing:0}
+
+/* ---- tables ---- */
+.sme-tablewrap{overflow-x:auto;border:1px solid var(--nd-border);border-radius:12px}
+.sme-tablewrap table{margin:0;border:0;border-radius:0}
+.cx-table tbody tr.sme-rowclick{cursor:pointer}
+.cx-table tbody tr.sme-rowclick:hover td{background:var(--nd-surface-2)}
+.cx-table tbody tr.sme-active td{background:var(--nd-surface-2);box-shadow:inset 3px 0 0 var(--nd-lime)}
+.sme-num{font-family:var(--nd-font-mono, "IBM Plex Mono", monospace);font-variant-numeric:tabular-nums;white-space:nowrap}
+.sme-loading{color:var(--nd-text-soft);font-style:italic}
+
+/* story + cohort chips */
+.sme-chip{display:inline-block;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:600;white-space:nowrap}
+.sme-chip-rising{background:var(--nd-lime);color:#07130c}
+.sme-chip-falling{background:#f59e0b;color:#1a1000}
+.sme-chip-loss{background:#ef4444;color:#fff}
+.sme-chip-flat,.sme-chip-new,.sme-chip-none{background:var(--nd-surface-2);color:var(--nd-text)}
+.sme-cohort{display:inline-block;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:600;white-space:nowrap;background:var(--nd-lime);color:#07130c}
+
+/* ---- detail ---- */
+.sme-detail-head{font-family:var(--nd-font-display, Spectral, serif);font-size:24px;margin:18px 0 4px}
+.sme-method{font-size:15px;line-height:1.65;color:var(--nd-text-soft);max-width:82ch}
+.sme-method strong{color:var(--nd-text)}
+
+@media (max-width:900px){
+  .sme-title{font-size:34px}
+}
+@media (max-width:560px){
+  .sme-title{font-size:30px}
+}

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0A0C10">
+<title>Smart-Money EPS: Skilled-Broker Accumulation Against Earnings | Nepse Decode</title>
+<meta name="description" content="Link 12's skilled-broker accumulation joined to each stock's quarterly EPS series: which skilled buying is backed by rising earnings, and which is going against the earnings trend. Built from Nepse Decode's own floorsheet archive and quarterly filings, free. Educational use only.">
+<meta name="author" content="Shirjan Khadka">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-smart-money-eps/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:title" content="Smart-Money EPS: Skilled-Broker Accumulation Against Earnings">
+<meta property="og:description" content="Skilled buying, read against the quarterly EPS series — backed by rising earnings, or going against the trend? Free, from our own floorsheet archive and filings.">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Smart-Money EPS: Skilled-Broker Accumulation Against Earnings">
+<meta name="twitter:description" content="Skilled-broker accumulation joined to quarterly EPS — rising, falling, or loss-making earnings behind the money. Updated after every close.">
+<meta property="twitter:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-smart-money-eps/">
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
+<link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode Smart-Money EPS","url":"https://shirjankhadka.com.np/nepse-smart-money-eps/","description":"The Broker Smart Money board joined to each stock's quarterly EPS series: skilled accumulation read against rising, falling or loss-making earnings, with a walk-forward replay of skilled events by EPS story. Educational use only, not investment advice.","author":{"@type":"Organization","name":"Nepse Decode"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
+{"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
+{"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-decode/"},
+{"@type":"ListItem","position":3,"name":"Smart-Money EPS","item":"https://shirjankhadka.com.np/nepse-smart-money-eps/"}]}
+</script>
+<link rel="stylesheet" href="/css/nd-tokens.css">
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
+<link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
+<link rel="stylesheet" href="/css/nd-smart-money-eps.css?v=e86a355f">
+</head>
+<body class="nd" data-page="smart-money-eps">
+
+  <a class="skip-link" href="#main">Skip to content</a>
+<div id="nd-header"></div>
+<div class="fb-wrap" style="display:flex;justify-content:center;padding:10px 16px 0"><div data-freshness-badge></div></div>
+
+<div class="nd-shell">
+  <div class="nd-content">
+    <div class="nd-wrap">
+<main id="main">
+
+  <div class="sme-masthead">
+    <p class="cx-kicker">Broker</p>
+    <h1 class="sme-title">Smart-Money EPS</h1>
+    <p class="sme-lede">Skilled brokers' money, read against earnings.
+      This board takes the Broker Smart Money board — the brokers whose
+      past accumulation measurably beat the market — and joins every
+      stock to its <strong>quarterly EPS series</strong>: is the
+      skilled buying backed by <strong>rising earnings</strong>, or is
+      it going <strong>against the earnings trend</strong>? The
+      divergence names — the biggest skilled buying into falling or
+      loss-making earnings — are the ones worth a second look. Nothing
+      here is a call: skilled money beside an earnings trend is a
+      description, not a prediction.</p>
+    <p class="sme-meta"><span id="smeSession">Loading…</span></p>
+  </div>
+
+  <div class="cx-stats sme-stats" id="statStrip" aria-label="Board summary"></div>
+  <p class="sme-note" id="coverageNote"></p>
+
+  <section class="sme-catsec" aria-label="EPS stories" id="stories">
+    <h2 class="sme-h2 sme-h2-sec">Where the skilled money sits, by earnings story</h2>
+    <p class="sme-chartsub">Every board stock carries one EPS story:
+      latest-quarter TTM EPS against the same quarter a year earlier.
+      The money column counts only positive skilled net — the buying
+      side of the skilled split.</p>
+    <div class="cx-scroll sme-tablewrap">
+      <table class="cx-table" id="storyTable">
+        <thead><tr>
+          <th>Earnings story</th><th class="num">Stocks</th>
+          <th class="num">Positive skilled net</th><th class="num">Share of skilled money</th>
+          <th class="num">Mean 20-session momentum</th>
+        </tr></thead>
+        <tbody id="storyBody"><tr><td colspan="5" class="sme-loading">Loading the stories…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="sme-catsec" aria-label="Board" id="board">
+    <h2 class="sme-h2 sme-h2-sec">The board — skilled accumulation against EPS</h2>
+    <p class="sme-chartsub">One row per stock on the Broker Smart Money
+      board, same session, same conviction ranking. Filter by earnings
+      story, or sort by EPS change, P/E or skilled net. Select any row
+      to open the stock's EPS series and its skilled backers below.</p>
+    <div class="sme-controls">
+      <div class="cx-seg" id="storySeg" role="tablist" aria-label="Earnings story"></div>
+      <label class="sme-selwrap">Sector
+        <select id="sectorSel" class="sme-sel"></select>
+      </label>
+      <label class="sme-selwrap">Sort
+        <select id="sortSel" class="sme-sel">
+          <option value="conviction">Conviction</option>
+          <option value="skilled">Skilled net</option>
+          <option value="epschg">EPS change, year on year</option>
+          <option value="eps">EPS (TTM)</option>
+          <option value="pe">P/E (TTM, low first)</option>
+          <option value="sym">Symbol</option>
+        </select>
+      </label>
+      <label class="sme-selwrap">Find
+        <input type="search" id="symSearch" class="sme-search" placeholder="e.g. NABIL" autocomplete="off">
+      </label>
+    </div>
+    <div class="cx-scroll sme-tablewrap">
+      <table class="cx-table" id="boardTable">
+        <thead><tr>
+          <th class="num">#</th><th>Symbol</th><th>Sector</th>
+          <th class="num">Conviction</th><th>Tier</th>
+          <th class="num">Skilled net</th><th class="num">Broker quality</th>
+          <th class="num">EPS (TTM)</th><th class="num">EPS Δ YoY</th>
+          <th class="num">P/E</th><th>Story</th>
+        </tr></thead>
+        <tbody id="boardBody"><tr><td colspan="12" class="sme-loading">Loading the board…</td></tr></tbody>
+      </table>
+    </div>
+    <p class="cx-cap" id="boardCount"></p>
+  </section>
+
+  <section class="sme-catsec" aria-label="Stock detail" id="detail">
+    <h2 class="sme-h2 sme-h2-sec">One stock — its EPS series and its skilled backers</h2>
+    <p class="sme-chartsub">The quarterly TTM EPS series beside the
+      brokers that net-bought the stock over the trailing 30 days, with
+      each backer's board skill and cohort flag. The EPS series comes
+      from published quarterly filings; the backers come from the
+      Broker Smart Money board's published detail.</p>
+    <div class="sme-controls">
+      <label class="sme-selwrap">Stock
+        <select id="symSel" class="sme-sel"></select>
+      </label>
+    </div>
+    <div class="sme-detail-head" id="detailHead"></div>
+    <div class="cx-stats sme-stats" id="detailStats" aria-label="Stock summary"></div>
+
+    <h3 class="sme-h3">Quarterly EPS series (TTM)</h3>
+    <div class="cx-scroll sme-tablewrap">
+      <table class="cx-table" id="epsTable">
+        <thead><tr><th>Quarter</th><th class="num">EPS (TTM)</th><th class="num">EPS (annualised)</th><th class="num">P/E (TTM)</th><th class="num">Net profit</th></tr></thead>
+        <tbody id="epsBody"><tr><td colspan="5" class="sme-loading">Loading…</td></tr></tbody>
+      </table>
+    </div>
+
+    <h3 class="sme-h3">Top skilled backers (trailing 30 days)</h3>
+    <div class="cx-scroll sme-tablewrap">
+      <table class="cx-table" id="accTable">
+        <thead><tr><th>Broker</th><th class="num">Net qty</th><th class="num">Net Rs</th><th class="num">Board skill</th><th>Skilled cohort</th></tr></thead>
+        <tbody id="accBody"><tr><td colspan="5" class="sme-loading">Loading…</td></tr></tbody>
+      </table>
+    </div>
+    <p class="sme-note" id="detailNote"></p>
+  </section>
+
+  <section class="sme-catsec" aria-label="Divergence" id="divergence">
+    <h2 class="sme-h2 sme-h2-sec">Against the trend — skilled buying into falling or loss-making earnings</h2>
+    <p class="sme-chartsub">The twelve largest skilled-net positions
+      where earnings are falling or negative. These are not warnings
+      and not opportunities — they are the names where the skilled
+      money and the earnings trend point in opposite directions, which
+      is exactly where a second look is cheapest.</p>
+    <div class="cx-scroll sme-tablewrap">
+      <table class="cx-table" id="divTable">
+        <thead><tr>
+          <th>Symbol</th><th>Sector</th><th>Story</th>
+          <th class="num">EPS (TTM)</th><th class="num">Year ago</th><th class="num">EPS Δ</th>
+          <th class="num">Skilled net</th><th class="num">Conviction</th><th>Lead pusher</th>
+        </tr></thead>
+        <tbody id="divBody"><tr><td colspan="9" class="sme-loading">Loading the divergence names…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="sme-catsec" aria-label="Measured record" id="forward">
+    <h2 class="sme-h2 sme-h2-sec">What skilled events by EPS story were followed by — the measured replay</h2>
+    <p class="sme-chartsub" id="forwardSub">Loading the replay…</p>
+    <div class="cx-scroll sme-tablewrap">
+      <table class="cx-table" id="forwardTable">
+        <thead><tr>
+          <th>EPS story at the snapshot</th>
+          <th class="num">Skilled events</th>
+          <th class="num">Mean excess, 10 sessions</th>
+          <th class="num">Median</th>
+          <th class="num">Finished ahead</th>
+        </tr></thead>
+        <tbody id="forwardBody"><tr><td colspan="5" class="sme-loading">Loading the replay…</td></tr></tbody>
+      </table>
+    </div>
+    <p class="sme-note" id="forwardNote"></p>
+  </section>
+
+  <section class="sme-catsec" aria-label="Recent sessions" id="history">
+    <h2 class="sme-h2 sme-h2-sec">Recent sessions</h2>
+    <p class="sme-chartsub">The board's session ledger — one row per
+      published session, never edited after the fact. The ledger starts
+      with the 2026-10-16 session.</p>
+    <div class="cx-scroll sme-tablewrap">
+      <table class="cx-table" id="historyTable">
+        <thead><tr>
+          <th>Session</th><th class="num">Board stocks</th>
+          <th class="num">With EPS series</th><th class="num">Rising</th>
+          <th class="num">Falling</th><th>Top conviction</th>
+          <th class="num">Rising − falling, 10 sessions</th>
+        </tr></thead>
+        <tbody id="historyBody"><tr><td colspan="7" class="sme-loading">Loading recent sessions…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="sme-catsec" aria-label="Methodology">
+    <h2 class="sme-h2 sme-h2-sec">How this board is built</h2>
+    <div class="sme-method" id="methodBox"></div>
+    <p class="sme-note" id="unscoredText"></p>
+    <p class="sme-note" id="notOnBoardText"></p>
+  </section>
+
+  <p class="sme-fine">A descriptive reading of skilled broker flow
+    beside earnings, for education, not investment advice. Data: Nepse
+    Decode's own floorsheet archive and published quarterly filings,
+    rebuilt after each close. No live feed is claimed: during market
+    hours this page still shows the last close's board.</p>
+
+</main>
+    </div>
+  </div>
+</div>
+
+<div id="nd-footer"></div>
+<script src="/js/nd-chrome.js?v=74c1c8b7"></script>
+<script src="/js/freshness-badge.js?v=9b77cf10" defer></script>
+<script src="/js/smart-money-eps.js?v=55c77d0e"></script>
