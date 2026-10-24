@@ -134,13 +134,17 @@
       return '<tr><td class="num">' + r.rank + '</td>' +
         '<td class="sn-sym"><a href="/stocks/' + esc(r.symbol) + '/">' + esc(r.symbol) + '</a>' +
         (r.name ? '<span class="sn-name">' + esc(r.name) + '</span>' : '') + '</td>' +
-        '<td class="sn-sector">' + esc(r.sector) + '</td>' +
+        '<td class="sn-sector">' + esc(r.sector) +
+        '<span class="sn-sub">sector rank #' + r.sector_rank + '</span></td>' +
         '<td class="num"><span class="sn-score"><span class="sn-gauge" aria-hidden="true">' +
         '<i style="--pos:' + r.score + '%"></i></span><b>' + num(r.score, 1) + '</b></span></td>' +
         '<td><span class="sn-state ' + stateCls(r.state) + '">' + esc(r.state) + '</span></td>' +
-        '<td class="num ' + cls(r.rel_mom_pp) + '">' + pp(r.rel_mom_pp) + '</td>' +
-        '<td class="num ' + cls(r.up_edge_pp) + '">' + pp(r.up_edge_pp) + '</td>' +
-        '<td class="num ' + cls(r.flow_edge) + '">' + num(r.flow_edge, 3) + '</td>' +
+        '<td class="num ' + cls(r.rel_mom_pp) + '">' + pp(r.rel_mom_pp) +
+        '<span class="sn-sub">stock ' + pct(r.stock_ret_pct) + ' · sector ' + pct(r.sector_ret_pct) + '</span></td>' +
+        '<td class="num ' + cls(r.up_edge_pp) + '">' + pp(r.up_edge_pp) +
+        '<span class="sn-sub">stock ' + num(r.up_share_pct, 1) + '% · sector ' + num(r.sector_up_share_pct, 1) + '%</span></td>' +
+        '<td class="num ' + cls(r.flow_edge) + '">' + num(r.flow_edge, 3) +
+        '<span class="sn-sub">stock ' + num(r.flow_pressure, 3) + ' · sector ' + num(r.sector_flow_pressure, 3) + '</span></td>' +
         '<td class="num">' + num(r.close, 2) + '</td>' +
         '<td class="num ' + cls(r.change_pct) + '">' + pct(r.change_pct) + '</td></tr>';
     }).join('') || '<tr><td colspan="10" class="sn-loading">No stocks match.</td></tr>';
@@ -179,13 +183,15 @@
   function renderSectors() {
     document.getElementById('sectorBody').innerHTML =
       board().sectors.map(function (s) {
-        return '<tr><td class="sn-sector" style="color:var(--nd-text);font-weight:700">' + esc(s.sector) + '</td>' +
+        return '<tr><td class="sn-sector" style="color:var(--nd-text);font-weight:700">' +
+          '<span class="sn-sub" style="display:inline;margin-right:6px">#' + s.rank + '</span>' + esc(s.sector) + '</td>' +
           '<td class="num">' + num(s.mean_score, 1) +
           '<span class="sn-meanbar" aria-hidden="true"><i style="width:' + s.mean_score + '%"></i></span></td>' +
           '<td class="num">' + num(s.median_score, 1) + '</td>' +
-          '<td class="num">' + num(s.breadth_pos_pct, 1) + '% (' + s.scored + ' scored)</td>' +
+          '<td class="num">' + num(s.breadth_pos_pct, 1) + '% · ' + s.scored + ' of ' + s.constituents + ' scored</td>' +
           '<td class="num">' + num(s.pct_ahead_pct, 1) + '%</td>' +
-          '<td class="num ' + cls(s.sector_ret_pct) + '">' + pct(s.sector_ret_pct) + '</td>' +
+          '<td class="num ' + cls(s.sector_ret_pct) + '">' + pct(s.sector_ret_pct) +
+          '<span class="sn-sub">flow pressure ' + num(s.sector_flow_pressure, 3) + '</span></td>' +
           '<td>' + (s.leader ? '<a href="/stocks/' + esc(s.leader.symbol) + '/">' +
             esc(s.leader.symbol) + '</a> · ' + num(s.leader.score, 1) : '—') + '</td>' +
           '<td>' + (s.laggard ? '<a href="/stocks/' + esc(s.laggard.symbol) + '/">' +
