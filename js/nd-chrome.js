@@ -32,7 +32,8 @@
     ]},
     { label: 'Technical Analysis', links: [
       ['Technical Chart', '/nepse-technical/'],
-      ['Trading Signals', '/nepse-signals/']
+      ['Trading Signals', '/nepse-signals/'],
+      ['Technical Signals', '/nepse-technical-signals/']
     ]},
     { label: 'Broker', links: [
       ['Top Brokers', '/nepse-brokers/'],

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0A0C10">
+<title>Technical Signals: 11 Indicator Grades for Every NEPSE Stock | Nepse Decode</title>
+<meta name="description" content="Every NEPSE stock graded by eleven standard technical indicators — MACD, RSI, moving averages, Bollinger, Supertrend, Ichimoku, Keltner, ADX, Parabolic SAR — into one 0–100 score, with the full indicator values published and a measured replay of what the grades were worth since 2021. Computed from Nepse Decode's own archive, free. Educational use only.">
+<meta name="author" content="Shirjan Khadka">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-technical-signals/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:title" content="Technical Signals: 11 Indicator Grades for Every NEPSE Stock">
+<meta property="og:description" content="Eleven indicator grades and one overall score per stock — full values published, historical hit-rates measured and shown. Free.">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Technical Signals: 11 Indicator Grades for Every NEPSE Stock">
+<meta name="twitter:description" content="The full indicator suite per NEPSE stock, an overall 0–100 score, and the measured replay of what the grades were worth. Updated after every close.">
+<meta property="twitter:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-technical-signals/">
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
+<link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode Technical Signals","url":"https://shirjankhadka.com.np/nepse-technical-signals/","description":"Per-stock technical indicator grades (eleven signals plus an overall 0-100 score) for the latest NEPSE session, with full indicator values and a measured historical replay of the grades. Educational use only, not investment advice.","author":{"@type":"Organization","name":"Nepse Decode"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
+{"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
+{"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-decode/"},
+{"@type":"ListItem","position":3,"name":"Technical Signals","item":"https://shirjankhadka.com.np/nepse-technical-signals/"}]}
+</script>
+<link rel="stylesheet" href="/css/nd-tokens.css">
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
+<link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
+<link rel="stylesheet" href="/css/nd-technical-signals.css?v=a4f8847a">
+</head>
+<body class="nd" data-page="technical-signals">
+
+  <a class="skip-link" href="#main">Skip to content</a>
+<div id="nd-header"></div>
+<div class="fb-wrap" style="display:flex;justify-content:center;padding:10px 16px 0"><div data-freshness-badge></div></div>
+
+<div class="nd-shell">
+  <div class="nd-content">
+    <div class="nd-wrap">
+<main id="main">
+
+  <div class="ts-masthead">
+    <p class="cx-kicker">Technical Analysis</p>
+    <h1 class="ts-title">Technical Signals</h1>
+    <p class="ts-lede">Eleven standard indicators grade every stock on this board —
+      MACD, RSI, the moving-average ladders, Bollinger Bands, Bull/Bear Power,
+      Supertrend, Ichimoku, Keltner, ADX and Parabolic SAR — each one Strong Buy,
+      Buy, Neutral, Sell or Strong Sell, and the votes combine into a single
+      <strong>0–100 score</strong>. Nothing here is a black box: open any stock to
+      see every indicator value behind its grades, and read the
+      <strong>measured replay</strong> further down before reading anything into
+      a Strong Buy — it shows, session by session since 2021, what these grades
+      were actually worth.</p>
+    <p class="ts-meta"><span id="tsSession">Loading…</span></p>
+  </div>
+
+  <div class="cx-stats ts-stats" id="statStrip" aria-label="Board summary"></div>
+  <div class="ts-dist" id="ratingDist" aria-label="Rating distribution"></div>
+
+  <section class="ts-catsec" aria-label="The board" id="board">
+    <h2 class="ts-h2 ts-h2-sec">The board</h2>
+    <p class="ts-chartsub">Every scored stock for the session, ranked by overall
+      score. The vote count is bullish / neutral / bearish across the signals
+      that enter the score. Select a row to open the full indicator suite —
+      trend, momentum, and volatility &amp; strength — behind its grades.</p>
+    <div class="ts-controls">
+      <div class="cx-seg" id="ratingTabs" role="tablist" aria-label="Rating filter"></div>
+      <div class="cx-seg" id="sectorTabs" role="tablist" aria-label="Sector filter"></div>
+      <label class="ts-searchwrap">Symbol
+        <input type="search" id="symSearch" class="ts-search" placeholder="e.g. NABIL" autocomplete="off">
+      </label>
+    </div>
+    <div class="cx-scroll ts-tablewrap">
+      <table class="cx-table" id="boardTable">
+        <thead><tr>
+          <th class="num">#</th><th>Symbol</th><th>Sector</th>
+          <th class="num">Close</th><th class="num">Change</th>
+          <th class="num">Score</th><th>Rating</th><th class="num">Votes B/N/S</th>
+        </tr></thead>
+        <tbody id="boardBody"><tr><td colspan="8" class="ts-loading">Loading the board…</td></tr></tbody>
+      </table>
+    </div>
+    <p class="cx-cap" id="boardCount"></p>
+    <p class="ts-note" id="coverageNote"></p>
+  </section>
+
+  <section class="ts-catsec" aria-label="Sector medians" id="sectors">
+    <h2 class="ts-h2 ts-h2-sec">Sectors by median score</h2>
+    <p class="ts-chartsub">The same board rolled up by sector: the median
+      stock's score, and how many of the sector's stocks carry a bullish
+      (Buy or Strong Buy) or bearish (Sell or Strong Sell) rating.</p>
+    <div class="cx-scroll ts-tablewrap">
+      <table class="cx-table" id="sectorTable">
+        <thead><tr>
+          <th>Sector</th><th class="num">Stocks</th><th class="num">Median score</th>
+          <th class="num">Bullish-rated</th><th class="num">Bearish-rated</th>
+        </tr></thead>
+        <tbody id="sectorBody"><tr><td colspan="5" class="ts-loading">Loading the sector roll-up…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="ts-catsec" aria-label="Measured replay" id="replay">
+    <h2 class="ts-h2 ts-h2-sec">What the grades were worth — the measured replay</h2>
+    <p class="ts-chartsub" id="replaySub">Loading the replay…</p>
+    <div class="ts-controls">
+      <div class="cx-seg" id="horizonTabs" role="tablist" aria-label="Replay horizon"></div>
+    </div>
+    <div class="cx-scroll ts-tablewrap">
+      <table class="cx-table" id="replayTable">
+        <thead><tr>
+          <th>Signal family</th>
+          <th class="num">Bullish labels</th><th class="num">Followed by a rise</th><th class="num">Mean forward return</th>
+          <th class="num">Bearish labels</th><th class="num">Followed by a fall</th><th class="num">Mean forward return</th>
+        </tr></thead>
+        <tbody id="replayBody"><tr><td colspan="7" class="ts-loading">Loading the replay…</td></tr></tbody>
+      </table>
+    </div>
+    <p class="ts-note">Read the bullish columns soberly: on this market the grades'
+      bullish labels were followed by a rise less than half the time, yet their
+      mean forward return is positive — many small losses, fewer large gains.
+      That asymmetry, not a headline accuracy percentage, is the honest summary
+      of what a mechanical grade can and cannot do.</p>
+  </section>
+
+  <section class="ts-catsec" aria-label="Recent sessions" id="history">
+    <h2 class="ts-h2 ts-h2-sec">Recent sessions</h2>
+    <p class="ts-chartsub">The board's recent history from its session ledger —
+      one row per published session, never edited after the fact.</p>
+    <div class="cx-scroll ts-tablewrap">
+      <table class="cx-table" id="historyTable">
+        <thead><tr>
+          <th>Session</th><th class="num">Stocks</th><th class="num">Median score</th>
+          <th class="num">Strong Buy</th><th class="num">Buy</th><th class="num">Neutral</th>
+          <th class="num">Sell</th><th class="num">Strong Sell</th>
+        </tr></thead>
+        <tbody id="historyBody"><tr><td colspan="8" class="ts-loading">Loading recent sessions…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="ts-catsec" aria-label="Methodology">
+    <h2 class="ts-h2 ts-h2-sec">How this board is built</h2>
+    <div class="ts-method" id="methodBox"></div>
+  </section>
+
+  <p class="ts-fine">Mechanical indicator grades on past prices, for education,
+    not investment advice. Data: Nepse Decode's own OHLC archive, rebuilt after
+    each close. No live feed is claimed: during market hours this page still
+    shows the last close's board.</p>
+
+</main>
+    </div>
+  </div>
+</div>
+
+<div id="nd-footer"></div>
+<script src="/js/nd-chrome.js?v=02a46b4d"></script>
+<script src="/js/freshness-badge.js?v=9b77cf10" defer></script>
+<script src="/js/technical-signals.js?v=c5c9aab8"></script>
+</body>
+</html>
