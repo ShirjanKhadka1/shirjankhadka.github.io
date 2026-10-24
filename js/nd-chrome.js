@@ -41,7 +41,8 @@
       ['Broker Trade Pattern', '/nepse-brokers/trade-pattern/'],
       ['Stock Trade Pattern', '/nepse-brokers/stock-pattern/'],
       ['Stockwise Holdings', '/nepse-brokers/holdings/'],
-      ['Accumulation / Distribution', '/nepse-brokers/accdist/']
+      ['Accumulation / Distribution', '/nepse-brokers/accdist/'],
+      ['Zero-Sum Analysis', '/nepse-broker-zero-sum/']
     ]},
     { label: 'News', links: [
       ['Market News', '/nepse-news/'],
@@ -269,7 +270,7 @@
     ['MARKETS', [['Overview', '/nepse-decode/'], ['Daily summary', '/nepse-daily/'], ['Heat Map', '/nepse-sectors/'], ['IPO / FPO', '/nepse-ipo/'], ['Calendar', '/nepse-calendar/']]],
     ['STOCKS', [['Warning Radar', '/nepse-verdicts-v2/'], ['Engine Verdict', '/nepse-engine-verdict/'], ['Distribution Radar', '/nepse-radar/'], ['Stock Screener', '/nepse-screener/'], ['Fair Value', '/nepse-value/'], ['Trending Stocks', '/nepse-trending/']]],
     ['TECHNICAL', [['Technical Chart', '/nepse-technical/'], ['Trading Signals', '/nepse-signals/'], ['Momentum Signal', '/nepse-signals/momentum/'], ['Trend Relay', '/nepse-signals/trend-relay/'], ['Reversal Signal', '/nepse-signals/reversal/']]],
-    ['BROKER', [['Top Brokers', '/nepse-brokers/'], ['Broker Trade Pattern', '/nepse-brokers/trade-pattern/'], ['Stock Trade Pattern', '/nepse-brokers/stock-pattern/'], ['Stockwise Holdings', '/nepse-brokers/holdings/'], ['Accumulation / Distribution', '/nepse-brokers/accdist/']]],
+    ['BROKER', [['Top Brokers', '/nepse-brokers/'], ['Broker Trade Pattern', '/nepse-brokers/trade-pattern/'], ['Stock Trade Pattern', '/nepse-brokers/stock-pattern/'], ['Stockwise Holdings', '/nepse-brokers/holdings/'], ['Accumulation / Distribution', '/nepse-brokers/accdist/'], ['Zero-Sum Analysis', '/nepse-broker-zero-sum/']]],
     ['NEWS', [['Market News', '/nepse-news/'], ['Market Wrap', '/blog/'], ['Corporate Actions', '/nepse-actions/']]],
     ['TRADE', [['Practice Trading', '/nepse-simulator/'], ['Calculators', '/nepse-calculators/'], ['Trading Journal', '/nepse-portfolio/'], ['Watchlist', '/nepse-watchlist/']]],
     ['RESEARCH', [['Money Flow', '/nepse-money-flow/'], ['Market regime', '/nepse-regime/'], ['Seasonality', '/nepse-seasonality/'], ['Reports', '/nepse-reports/']]],

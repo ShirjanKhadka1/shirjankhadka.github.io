@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0A0C10">
+<title>Broker Zero-Sum Analysis: Who Absorbed and Who Supplied Each NEPSE Stock | Nepse Decode</title>
+<meta name="description" content="For every NEPSE stock and window, the brokers whose clients net-bought it and the brokers whose clients net-sold it — every share bought through one broker was sold through another, so the nets cancel to zero and what remains is the transfer map: accumulator and distributor cohorts, gross flows, average rates, the full per-broker net table, and a measured record of what the readings were followed by. Computed from Nepse Decode's own floorsheet archive, free. Educational use only.">
+<meta name="author" content="Shirjan Khadka">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-broker-zero-sum/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:title" content="Broker Zero-Sum Analysis: Who Absorbed and Who Supplied Each NEPSE Stock">
+<meta property="og:description" content="Per stock, per window: the accumulator and distributor broker cohorts, their gross flows and average rates, and the full net table — the zero-sum transfer map of the NEPSE floorsheet. Free.">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Broker Zero-Sum Analysis: Who Absorbed and Who Supplied Each NEPSE Stock">
+<meta name="twitter:description" content="Broker nets cancel to zero in every stock — this board shows who absorbed and who supplied, by window, with the measured record of what followed. Updated after every close.">
+<meta property="twitter:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-broker-zero-sum/">
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
+<link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode Broker Zero-Sum Analysis","url":"https://shirjankhadka.com.np/nepse-broker-zero-sum/","description":"Per-stock broker zero-sum analysis for NEPSE: accumulator and distributor broker cohorts, gross buy/sell flows, average rates, full per-broker net tables and net flow by timeframe, computed from a complete floorsheet archive whose broker nets cancel to zero in every stock. Educational use only, not investment advice.","author":{"@type":"Organization","name":"Nepse Decode"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
+{"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
+{"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-decode/"},
+{"@type":"ListItem","position":3,"name":"Broker Zero-Sum Analysis","item":"https://shirjankhadka.com.np/nepse-broker-zero-sum/"}]}
+</script>
+<link rel="stylesheet" href="/css/nd-tokens.css">
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
+<link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
+<link rel="stylesheet" href="/css/nd-zero-sum.css?v=c88dcbb6">
+</head>
+<body class="nd" data-page="broker-zero-sum">
+
+  <a class="skip-link" href="#main">Skip to content</a>
+<div id="nd-header"></div>
+<div class="fb-wrap" style="display:flex;justify-content:center;padding:10px 16px 0"><div data-freshness-badge></div></div>
+
+<div class="nd-shell">
+  <div class="nd-content">
+    <div class="nd-wrap">
+<main id="main">
+
+  <div class="zs-masthead">
+    <p class="cx-kicker">Broker</p>
+    <h1 class="zs-title">Broker Zero-Sum Analysis</h1>
+    <p class="zs-lede">Every share bought through one broker was sold through
+      another. Add up every broker's net position in a stock and the total is
+      <strong>exactly zero</strong> — the market is a closed transfer. What
+      that leaves visible is the interesting part: <strong>which brokers
+      absorbed the stock and which brokers supplied it</strong>. This board
+      maps that transfer for every traded stock — the accumulator and
+      distributor cohorts, their gross flows and average rates, the net flow
+      at seven windows, and the complete per-broker net table — computed from
+      our own floorsheet archive, in which the zero-sum identity is verified
+      for every stock before anything is published.</p>
+    <p class="zs-meta"><span id="zsSession">Loading…</span></p>
+  </div>
+
+  <div class="cx-stats zs-stats" id="statStrip" aria-label="Window summary"></div>
+  <div class="zs-dist" id="stanceDist" aria-label="Stance distribution"></div>
+  <p class="zs-note" id="coverageNote"></p>
+
+  <section class="zs-catsec" aria-label="Stock detail" id="detail">
+    <h2 class="zs-h2 zs-h2-sec">One stock, both sides</h2>
+    <p class="zs-chartsub">Pick a window and a stock. The two cohorts face
+      each other across the net flow they created; below them, the largest
+      buyers and sellers, and then every broker's net — the full table,
+      nothing held back.</p>
+    <div class="zs-controls">
+      <div class="cx-seg" id="winTabs" role="tablist" aria-label="Window"></div>
+      <label class="zs-selwrap">Stock
+        <select id="symSel" class="zs-sel"></select>
+      </label>
+      <label class="zs-selwrap">Find
+        <input type="search" id="symSearch" class="zs-search" placeholder="e.g. NABIL" autocomplete="off">
+      </label>
+    </div>
+
+    <div class="zs-detail-head" id="detailHead"></div>
+    <div class="cx-stats zs-stats" id="detailStats" aria-label="Stock summary"></div>
+
+    <div class="zs-face" id="cohortFace"></div>
+
+    <h3 class="zs-h3">Net flow by timeframe</h3>
+    <p class="zs-chartsub">The same cohort net, recomputed at every window —
+      a stock can be absorbed on the month and supplied on the year.</p>
+    <ul class="zs-ladder" id="ladderList"></ul>
+
+    <div class="zs-two">
+      <div>
+        <h3 class="zs-h3">Largest buyers</h3>
+        <div class="cx-scroll zs-tablewrap">
+          <table class="cx-table" id="buyersTable">
+            <thead><tr><th>Broker</th><th class="num">Bought</th><th class="num">Avg rate</th><th class="num">Net</th><th class="num">Share</th></tr></thead>
+            <tbody id="buyersBody"><tr><td colspan="5" class="zs-loading">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <div>
+        <h3 class="zs-h3">Largest sellers</h3>
+        <div class="cx-scroll zs-tablewrap">
+          <table class="cx-table" id="sellersTable">
+            <thead><tr><th>Broker</th><th class="num">Sold</th><th class="num">Avg rate</th><th class="num">Net</th><th class="num">Share</th></tr></thead>
+            <tbody id="sellersBody"><tr><td colspan="5" class="zs-loading">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="zs-h3">Every broker's net — holders and distributors</h3>
+    <p class="zs-chartsub">The complete net table for this stock and window:
+      every broker that traded it, what they bought, what they sold, and the
+      net they were left holding (or supplying). The two sides sum to the
+      same total with opposite signs — that is the zero sum.</p>
+    <div class="zs-two">
+      <div>
+        <h4 class="zs-h4">Holders (net bought)</h4>
+        <div class="cx-scroll zs-tablewrap">
+          <table class="cx-table" id="holdersTable">
+            <thead><tr><th>Broker</th><th class="num">Bought</th><th class="num">Sold</th><th class="num">Net qty</th><th class="num">Net Rs</th></tr></thead>
+            <tbody id="holdersBody"><tr><td colspan="5" class="zs-loading">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <div>
+        <h4 class="zs-h4">Distributors (net sold)</h4>
+        <div class="cx-scroll zs-tablewrap">
+          <table class="cx-table" id="distributorsTable">
+            <thead><tr><th>Broker</th><th class="num">Bought</th><th class="num">Sold</th><th class="num">Net qty</th><th class="num">Net Rs</th></tr></thead>
+            <tbody id="distributorsBody"><tr><td colspan="5" class="zs-loading">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="zs-catsec" aria-label="Market board" id="board">
+    <h2 class="zs-h2 zs-h2-sec">The whole market, ranked by net flow</h2>
+    <p class="zs-chartsub">Every stock that traded in the window, ranked by
+      the size of its cohort net flow in rupees. Select any row to open it
+      above.</p>
+    <div class="cx-scroll zs-tablewrap">
+      <table class="cx-table" id="boardTable">
+        <thead><tr>
+          <th class="num">#</th><th>Symbol</th><th>Sector</th><th>Stance</th>
+          <th class="num">Net qty</th><th class="num">Net flow</th>
+          <th class="num">Traded qty</th><th class="num">Turnover</th>
+        </tr></thead>
+        <tbody id="boardBody"><tr><td colspan="8" class="zs-loading">Loading the board…</td></tr></tbody>
+      </table>
+    </div>
+    <p class="cx-cap" id="boardCount"></p>
+  </section>
+
+  <section class="zs-catsec" aria-label="Measured forward behaviour" id="forward">
+    <h2 class="zs-h2 zs-h2-sec">What the readings were followed by</h2>
+    <p class="zs-chartsub" id="forwardSub">Loading the measured record…</p>
+    <div class="cx-scroll zs-tablewrap">
+      <table class="cx-table" id="forwardTable">
+        <thead><tr>
+          <th>30-day stance at the reading</th>
+          <th class="num">Readings</th>
+          <th class="num">Mean return, next 10 sessions</th>
+          <th class="num">Median</th>
+          <th class="num">Finished up</th>
+        </tr></thead>
+        <tbody id="forwardBody"><tr><td colspan="5" class="zs-loading">Loading…</td></tr></tbody>
+      </table>
+    </div>
+    <p class="zs-note" id="forwardNote"></p>
+  </section>
+
+  <section class="zs-catsec" aria-label="Recent sessions" id="history">
+    <h2 class="zs-h2 zs-h2-sec">Recent sessions</h2>
+    <p class="zs-chartsub">The board's session ledger (30-day window) — one
+      row per published session, never edited after the fact. The ledger
+      starts with the 2026-10-16 session.</p>
+    <div class="cx-scroll zs-tablewrap">
+      <table class="cx-table" id="historyTable">
+        <thead><tr>
+          <th>Session</th><th class="num">Turnover</th>
+          <th class="num">Stocks traded</th><th class="num">Brokers active</th>
+          <th class="num">Accumulating</th><th class="num">Distributing</th>
+          <th>Largest net flow</th>
+        </tr></thead>
+        <tbody id="historyBody"><tr><td colspan="7" class="zs-loading">Loading recent sessions…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="zs-catsec" aria-label="Methodology">
+    <h2 class="zs-h2 zs-h2-sec">How this board is built</h2>
+    <div class="zs-method">
+      <p><strong>The tape.</strong> Every figure comes from Nepse Decode's own
+        floorsheet archive — the complete NEPSE floorsheet (every trade, with
+        its buyer broker and seller broker), collected daily after the close
+        once the day's tape is final. Broker data is transaction flow — what
+        moved through each broker — never a record of what any investor
+        holds.</p>
+      <p><strong>The zero sum.</strong> For a stock and a window, each
+        broker's net is their bought quantity minus their sold quantity.
+        Because every trade has one broker on each side, the nets across all
+        brokers cancel to exactly zero, and total buys equal total sells in
+        both shares and rupees. The builder verifies that identity for every
+        stock at every window before publishing; a day that fails it does
+        not ship. (Not every published floorsheet elsewhere passes this
+        test — the complete tape does.)</p>
+      <p><strong>The cohorts.</strong> The accumulator cohort is the top
+        decile of net-buying brokers by net size (a tenth of the side,
+        rounded up, at least one); the distributor cohort is the same on the
+        net-selling side. This is Nepse Decode's published rule — the
+        equivalent commercial board does not disclose its membership rule;
+        ours was fitted against its published cohorts (agreement recorded in
+        our teardown notes) and is stated here so anyone can recompute it.
+        A cohort's flow is its members' <em>gross</em> side flow — everything
+        the accumulators bought, everything the distributors sold — and the
+        <em>net flow</em> is accumulators' gross buys minus distributors'
+        gross sells. A positive net flow reads ACCUMULATING, a negative one
+        DISTRIBUTING. The sector rank is the stock's position inside its
+        sector by that side's cohort flow.</p>
+      <p><strong>Windows</strong> are calendar days ending at the latest
+        session: 1, 7, 15, 30, 90, 180 and 365 days. <strong>Coverage:</strong>
+        the floorsheet archive starts 2026-07-15, so the 180- and 365-day
+        windows cover the archive only and are labelled partial; the
+        symbol-level rows for 2026-10-07 were not retained (broker totals
+        only), so windows reaching that date rest on the sessions the
+        archive holds — the session count is printed with every window.</p>
+      <p><strong>The forward record</strong> replays the 30-day stance at
+        weekly snapshots across the archive and measures each stock's return
+        over the next 10 sessions from final, corporate-action-adjusted
+        closes — no lookahead. It is a short, single-era sample and is
+        published as description, not prediction.</p>
+    </div>
+  </section>
+
+  <p class="zs-fine">A descriptive map of broker transaction flow, for
+    education, not investment advice. Data: Nepse Decode's own floorsheet
+    archive, rebuilt after each close. No live feed is claimed: during
+    market hours this page still shows the last close's board.</p>
+
+</main>
+    </div>
+  </div>
+</div>
+
+<div id="nd-footer"></div>
+<script src="/js/nd-chrome.js?v=37c2126b"></script>
+<script src="/js/freshness-badge.js?v=9b77cf10" defer></script>
+<script src="/js/zero-sum.js?v=33e3def9"></script>
+</body>
+</html>
