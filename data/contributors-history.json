@@ -1,70 +1,72 @@
 {
  "schema": "nd-contributors-history/v1",
- "note": "Append-only daily snapshots of the NEPSE contributors board: the official index change, the points this board explains, the published gap, and the session's top contributors and detractors. Entries are never edited; a same-day rebuild replaces only that day's entry.",
+ "note": "Append-only daily snapshots of the NEPSE contributors board: the official index change, the points this board explains, the published residual, and the session's top contributors and detractors. Entries are never edited; a same-day rebuild replaces only that day's entry. 2026-10-24: the model changed (v2 \u2014 official divisor, extended share-count coverage, final-revised price basis; see TEARDOWN-08 FIX section). The 2026-10-16 entry was republished under v2 in the same-day rebuild: explained +11.82 -> +8.14, residual -3.59 -> +0.09. Entries from the first live session under v2 carry model: \"v2\".",
  "entries": [
   {
    "asof": "2026-10-16",
-   "built_at": "2026-10-23T20:58:27+05:45",
+   "built_at": "2026-10-24T07:10:06+05:45",
+   "model": "v2",
    "official_change": 8.23,
-   "explained": 11.82,
-   "gap": -3.59,
-   "scored_symbols": 271,
+   "explained": 8.14,
+   "gap": 0.09,
+   "residual": 0.09,
+   "scored_symbols": 275,
    "top_contributors": [
     {
      "symbol": "NIMB",
-     "points": 1.513
+     "points": 1.328
     },
     {
      "symbol": "NTC",
-     "points": 1.14
-    },
-    {
-     "symbol": "ADBL",
-     "points": 0.75
+     "points": 1.046
     },
     {
      "symbol": "NMB",
-     "points": 0.72
+     "points": 0.66
+    },
+    {
+     "symbol": "ADBL",
+     "points": 0.631
     },
     {
      "symbol": "EBL",
-     "points": 0.608
+     "points": 0.558
     }
    ],
    "top_detractors": [
     {
+     "symbol": "NRIC",
+     "points": -1.949
+    },
+    {
+     "symbol": "BBC",
+     "points": -0.629
+    },
+    {
      "symbol": "SOHL",
-     "points": -0.443
+     "points": -0.407
     },
     {
      "symbol": "HEI",
-     "points": -0.364
+     "points": -0.334
     },
     {
      "symbol": "NIFRA",
-     "points": -0.342
-    },
-    {
-     "symbol": "NLICL",
-     "points": -0.325
-    },
-    {
-     "symbol": "SPIL",
-     "points": -0.24
+     "points": -0.314
     }
    ],
    "sector_points": {
-    "Banking": 6.037,
-    "Hydropower": 2.228,
-    "Others": 1.147,
+    "Banking": 5.281,
+    "Hydropower": 2.114,
     "Microfinance": 1.059,
-    "Development Bank": 0.885,
-    "Life Insurance": 0.205,
-    "Manufacturing And Processing": 0.198,
-    "Non Life Insurance": 0.178,
-    "Hotels And Tourism": 0.081,
-    "Finance": -0.046,
-    "Investment": -0.15
+    "Development Bank": 0.757,
+    "Others": 0.422,
+    "Manufacturing And Processing": 0.341,
+    "Life Insurance": 0.143,
+    "Hotels And Tourism": 0.058,
+    "Finance": -0.11,
+    "Investment": -0.137,
+    "Non Life Insurance": -1.786
    }
   }
  ]
