@@ -6,14 +6,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0A0C10">
 <title>NEPSE Contributors: Which Stocks Moved the Index, in Points | Nepse Decode</title>
-<meta name="description" content="Every NEPSE stock ranked by the index points it added or removed in the latest session, a sector breakdown with each sector's top contributor and detractor, and the board reconciled to the official NEPSE move — explained points, and the gap, both printed. Computed from Nepse Decode's own archive and published filings, free. Educational use only.">
+<meta name="description" content="Every NEPSE stock ranked by the index points it added or removed in the latest session — top 10 profit makers and loss makers with weightage, volume and turnover, a sector table that sums to the official move, and the residual printed, not hidden. Computed from Nepse Decode's own archive and published filings, free. Educational use only.">
 <meta name="author" content="Shirjan Khadka">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-contributors/">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Nepse Decode">
 <meta property="og:title" content="NEPSE Contributors: Which Stocks Moved the Index">
-<meta property="og:description" content="Stocks ranked by index points added and removed, sector by sector — reconciled to the official NEPSE move with the gap shown, not hidden. Free.">
+<meta property="og:description" content="Stocks ranked by index points added and removed, sector by sector — reconciled to the official NEPSE move with the residual shown, not hidden. Free.">
 <meta property="og:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -27,7 +27,7 @@
 <link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode NEPSE Contributors","url":"https://shirjankhadka.com.np/nepse-contributors/","description":"Per-stock index-point contributions for the latest NEPSE session, rolled up by sector and reconciled to the official index move with the explained-vs-official gap shown. Educational use only, not investment advice.","author":{"@type":"Organization","name":"Nepse Decode"}}
+{"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode NEPSE Contributors","url":"https://shirjankhadka.com.np/nepse-contributors/","description":"Per-stock index-point contributions for the latest NEPSE session, rolled up by sector and reconciled to the official index move with the explained-vs-official residual shown. Educational use only, not investment advice.","author":{"@type":"Organization","name":"Nepse Decode"}}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
@@ -40,7 +40,7 @@
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
-<link rel="stylesheet" href="/css/nd-contributors.css?v=9bbdb8ef">
+<link rel="stylesheet" href="/css/nd-contributors.css?v=e8e8961d">
 </head>
 <body class="nd" data-page="contributors">
 
@@ -59,46 +59,74 @@
     <p class="ct-lede">An index moves because market caps move. This board prices that
       arithmetic for the latest session: every scored stock's
       <strong>index points</strong> — its shares × its price change, divided by the
-      board's divisor — ranked from the biggest push to the biggest drag, and rolled
-      up by sector. Then it does the part most boards skip: it adds its own rows up
-      and prints the result next to the <strong>official NEPSE move</strong>. Whatever
-      this board cannot explain is printed as <strong>the gap</strong>, with its
-      causes — never netted away, never hidden.</p>
+      <strong>official index divisor</strong> — ranked from the biggest push to the
+      biggest drag, with its weightage, volume and turnover beside it. The sector
+      table's contributions, plus one printed <strong>residual</strong> row, sum
+      exactly to the <strong>official NEPSE move</strong>. Whatever this board
+      cannot explain stays in that residual, with its causes — never netted away,
+      never hidden.</p>
     <p class="ct-meta"><span id="ctSession">Loading…</span></p>
   </div>
 
   <div class="cx-stats ct-stats" id="statStrip" aria-label="Session summary"></div>
 
-  <section class="ct-catsec" aria-label="Top contributors and detractors">
-    <h2 class="ct-h2 ct-h2-sec">Who moved it</h2>
+  <section class="ct-catsec" aria-label="Top 10 profit makers and loss makers">
+    <h2 class="ct-h2 ct-h2-sec">Top 10 profit makers · Top 10 loss makers</h2>
     <p class="ct-chartsub">The ten stocks that added the most index points this
-      session, and the ten that removed the most. Bar length is points; the number
-      beside every bar is the value itself.</p>
+      session, and the ten that removed the most. Weightage is the stock's share
+      of the official total market capitalisation at the previous close — a
+      stock's points are that weight, times its price move, times the index.
+      Volume and turnover are the session's own, from the same trades that
+      priced the row.</p>
     <div class="ct-duo">
       <div>
-        <h3 class="ct-subh">Top contributors</h3>
-        <ol class="cx-rank" id="topUp"></ol>
+        <h3 class="ct-subh">Top 10 profit makers</h3>
+        <div class="cx-scroll ct-tablewrap">
+          <table class="cx-table" id="topGainersTable">
+            <thead><tr>
+              <th class="num">#</th><th>Script</th><th class="num">NEPSE pt</th>
+              <th class="num">LTP</th><th class="num">%Change</th>
+              <th class="num">Weightage</th><th class="num">Volume</th>
+              <th class="num">Turnover</th>
+            </tr></thead>
+            <tbody id="topGainersBody"><tr><td colspan="8" class="ct-loading">Loading the profit makers…</td></tr></tbody>
+          </table>
+        </div>
       </div>
       <div>
-        <h3 class="ct-subh">Top detractors</h3>
-        <ol class="cx-rank" id="topDown"></ol>
+        <h3 class="ct-subh">Top 10 loss makers</h3>
+        <div class="cx-scroll ct-tablewrap">
+          <table class="cx-table" id="topLosersTable">
+            <thead><tr>
+              <th class="num">#</th><th>Script</th><th class="num">NEPSE pt</th>
+              <th class="num">LTP</th><th class="num">%Change</th>
+              <th class="num">Weightage</th><th class="num">Volume</th>
+              <th class="num">Turnover</th>
+            </tr></thead>
+            <tbody id="topLosersBody"><tr><td colspan="8" class="ct-loading">Loading the loss makers…</td></tr></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </section>
 
   <section class="ct-catsec" aria-label="Sector breakdown" id="sectors">
     <h2 class="ct-h2 ct-h2-sec">Sector breakdown</h2>
-    <p class="ct-chartsub">Each sector's points are the sum of its scored stocks'
-      points. Every sector names its own top contributor and top detractor for the
-      session — the stock that pushed the sector hardest in each direction.</p>
+    <p class="ct-chartsub">Each sector's contribution is the sum of its scored
+      stocks' points, and the contributions below — plus the residual row — sum
+      exactly to the official move. Change % is the capitalisation-weighted move
+      of the sector's scored stocks, the move behind its contribution; Index is
+      Nepse Decode's derived sector index (equal-weight, base 1000). Every
+      sector also names its own top contributor and top detractor.</p>
     <ol class="cx-rank" id="sectorBars"></ol>
     <div class="cx-scroll ct-tablewrap">
       <table class="cx-table" id="sectorTable">
         <thead><tr>
-          <th>Sector</th><th class="num">Points</th><th class="num">Stocks</th>
-          <th class="num">Adv / Dec</th><th>Top contributor</th><th>Top detractor</th>
+          <th>Sector</th><th class="num">Index</th><th class="num">Change %</th>
+          <th class="num">Contribution</th><th class="num">Weightage</th>
+          <th class="num">Turnover</th><th>Top contributor</th><th>Top detractor</th>
         </tr></thead>
-        <tbody id="sectorBody"><tr><td colspan="6" class="ct-loading">Loading the sector breakdown…</td></tr></tbody>
+        <tbody id="sectorBody"><tr><td colspan="8" class="ct-loading">Loading the sector breakdown…</td></tr></tbody>
       </table>
     </div>
   </section>
@@ -116,16 +144,17 @@
         <tbody id="reconBody"><tr><td colspan="3" class="ct-loading">Loading the reconciliation…</td></tr></tbody>
       </table>
     </div>
-    <p class="ct-note" id="gapNote"></p>
+    <p class="ct-note" id="residNote"></p>
     <div id="historyBox"></div>
   </section>
 
   <section class="ct-catsec" aria-label="The full board" id="board">
     <h2 class="ct-h2 ct-h2-sec">The full board</h2>
     <p class="ct-chartsub">Every scored stock for the session, ranked by points.
-      Weight is the stock's share of the scored universe's market cap at the
-      previous close — the weight its price move carried into the index. A stock
-      that did not trade carries its previous close and contributes exactly zero.</p>
+      Weightage is the stock's share of the official total market capitalisation
+      at the previous close — the weight its price move carried into the index.
+      A stock that did not trade carries its previous close and contributes
+      exactly zero.</p>
     <div class="ct-controls">
       <div class="cx-seg" id="sectorTabs" role="tablist" aria-label="Sector filter"></div>
       <label class="ct-searchwrap">Symbol
@@ -136,11 +165,12 @@
       <table class="cx-table" id="boardTable">
         <thead><tr>
           <th class="num">#</th><th>Symbol</th><th>Sector</th>
-          <th class="num">Close</th><th class="num">Prev</th>
-          <th class="num">Change</th><th class="num">Weight</th>
+          <th class="num">LTP</th><th class="num">Prev</th>
+          <th class="num">Change</th><th class="num">Weightage</th>
+          <th class="num">Volume</th><th class="num">Turnover</th>
           <th class="num">Points</th>
         </tr></thead>
-        <tbody id="boardBody"><tr><td colspan="8" class="ct-loading">Loading the board…</td></tr></tbody>
+        <tbody id="boardBody"><tr><td colspan="10" class="ct-loading">Loading the board…</td></tr></tbody>
       </table>
     </div>
     <p class="cx-cap" id="boardCount"></p>
@@ -149,8 +179,10 @@
   <section class="ct-catsec" aria-label="Not scored">
     <h2 class="ct-h2 ct-h2-sec">Not scored — named, not dropped</h2>
     <p class="ct-chartsub">A stock enters this board only with both a share count
-      and a current price. The names below fail one of the two tests today; they
-      are listed so the board's coverage can be checked, not taken on trust.</p>
+      and a current price. Share counts come from the published filings
+      compilation first, then the ownership archive this site maintains. The
+      names below fail one of the two tests today; they are listed so the
+      board's coverage can be checked, not taken on trust.</p>
     <div id="unscoredBox"></div>
   </section>
 
@@ -160,33 +192,55 @@
       <p><strong>The construction.</strong> A capitalisation-weighted index moves
         when market caps move. Each scored stock's contribution is
         shares × (close − previous close) ÷ divisor, where the divisor is the
-        scored universe's total market cap at the previous close divided by the
-        official index's previous close. Sector points are the sum of their
-        stocks' points, and the board's rows sum to the move it explains — every
-        figure on this page can be re-derived from the printed shares, closes and
-        divisor.</p>
-      <p><strong>Share counts.</strong> Shares are paid-up capital from the latest
-        published quarterly filings compilation, divided by the Rs 100 par — the
-        same share counts the filings' own EPS figures divide into. Counts
-        refresh at quarterly compilations, so a bonus or right issue allotted
-        mid-quarter enters this board's weights at the next compilation.</p>
-      <p><strong>Prices.</strong> Raw traded closes from Nepse Decode's own OHLC
-        archive — the basis the official index itself uses. On a stock's ex-date
-        for a bonus or right issue, the official divisor absorbs the mechanical
-        price drop on the day; this board's filings-based share count absorbs it
-        only at the next compilation, so an ex-date can leave a one-day mark in
-        the gap.</p>
-      <p><strong>The gap.</strong> The official index also counts listed symbols
-        this board cannot score — companies whose paid-up figures are not in the
-        filings compilation (mostly small caps), promoter shares and preference
-        shares — and NEPSE adjusts its own divisor for new listings and corporate
-        actions. Their net move, plus those adjustments, is the gap printed
-        above. It is part of the board, not an error term to be tuned away.</p>
-      <p><strong>The stop rule.</strong> If the gap ever exceeds ±7.5 index
-        points, or the scored board's coverage of the official total market
-        capitalisation falls under 85%, the daily build fails instead of
-        publishing a board we cannot stand behind — the same tolerance stated in
-        the builder that produces this page.</p>
+        <strong>official</strong> one: NEPSE's total market capitalisation
+        divided by the index level — a near-constant Rs 1.72 billion per point
+        that the archived official snapshots pin down session by session (it
+        steps only when listings or corporate actions change the market's
+        capital base). Sector contributions are the sum of their stocks'
+        points; sector contributions plus the printed residual sum exactly to
+        the official move. An earlier version of this board divided by its own
+        covered universe instead — with only ~92% of the market scored, that
+        inflated every contribution by the missing share and left a −3.59
+        point gap on 16 October 2026. The model was rebuilt on 24 October
+        2026; the same session now reconciles to +0.09.</p>
+      <p><strong>Share counts.</strong> Shares come from three sources, in
+        order: paid-up capital in the latest published quarterly filings
+        compilation, divided by the Rs 100 par; the same identity paid-up
+        carried per stock in this site's ownership archive; and, for the few
+        ordinary shares both compilations miss (Nepal Reinsurance and Bishal
+        Bazar among them), the total implied by that archive's measured float
+        — float shares ÷ (1 − promoter %), ownership as of 19 July 2024. The
+        filings counts were cross-checked against the archive: no scored
+        name's count disagrees beyond rounding. Counts refresh at quarterly
+        compilations, so a bonus or right issue allotted mid-quarter enters
+        this board's weights at the next compilation.</p>
+      <p><strong>Prices.</strong> Final revised closes from Nepse Decode's own
+        archive — the adjusted series where it covers a stock (it also absorbs
+        the mechanical ex-date price drop the way the official divisor does),
+        the raw traded closes otherwise. The distinction matters: the raw
+        archive's 14 October 2026 bars turned out to be a preliminary vintage —
+        over half differ from the final closes — and pricing a board off them
+        made the next session's moves run about half a percent hot
+        market-wide.</p>
+      <p><strong>The residual.</strong> The official index also counts listed
+        names this board cannot score — ordinary shares with no share count in
+        either source, newly listed names not yet in any compilation (BENH,
+        listed 15 October 2026, is the current example) and the promoter-share
+        listings outside the ordinary-share basis — and NEPSE adjusts its own
+        divisor for listings and corporate actions. Their net move, plus those
+        adjustments, is the residual printed in the sector table. Debentures
+        and mutual funds are not constituents of the NEPSE equity index and
+        are excluded from this board entirely. The residual is part of the
+        board, not an error term to be tuned away.</p>
+      <p><strong>The stop rule.</strong> If the residual ever exceeds ±2.5
+        index points, or the scored board's coverage of the official total
+        market capitalisation falls under 85%, the daily build fails instead
+        of publishing a board we cannot stand behind. The ±2.5 tolerance is
+        set from the rebuilt model's validation across the five sessions
+        before this fix — residuals +0.72, −0.08, −0.57, −0.37 and +0.09,
+        against +0.60, +0.09, −2.61, −4.67 and −3.59 under the old model —
+        roughly three and a half times the worst residual the rebuilt model
+        has produced.</p>
       <p><strong>Reading it honestly.</strong> Points measure weight, not merit:
         the biggest contributor is usually simply a heavy stock that rose, and
         the biggest detractor a heavy stock that fell. One session's board is a
@@ -195,9 +249,9 @@
   </section>
 
   <p class="ct-fine">Mechanical index arithmetic for education, not investment
-    advice. Data: Nepse Decode OHLC archive + published quarterly filings,
-    rebuilt after each close. No live feed is claimed: during market hours this
-    page still shows the last close's board.</p>
+    advice. Data: Nepse Decode OHLC archive + published quarterly filings and
+    the ownership archive, rebuilt after each close. No live feed is claimed:
+    during market hours this page still shows the last close's board.</p>
 
 </main>
     </div>
@@ -207,6 +261,6 @@
 <div id="nd-footer"></div>
 <script src="/js/nd-chrome.js?v=b248520c"></script>
 <script src="/js/freshness-badge.js?v=9b77cf10" defer></script>
-<script src="/js/contributors.js?v=88d57857"></script>
+<script src="/js/contributors.js?v=d5cad37c"></script>
 </body>
 </html>

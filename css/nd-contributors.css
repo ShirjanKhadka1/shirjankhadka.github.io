@@ -44,6 +44,10 @@ body{ font-family: var(--nd-font-sans); }
 .ct-sym{ font-family: var(--nd-font-mono); font-weight: 600; color: var(--nd-text); white-space: nowrap; }
 .ct-notrade{ color: var(--nd-dim); font-size: var(--step-0); }
 
+/* total + residual rows in the accounting tables */
+.ct-total td{ font-weight: 700; border-top: 2px solid var(--nd-border); background: var(--nd-inset); }
+.ct-resid td{ font-style: italic; border-top: 1px dashed var(--nd-border); }
+
 .ct-duo{ display: grid; grid-template-columns: 1fr 1fr; gap: var(--nd-s5); }
 @media (max-width: 760px){ .ct-duo{ grid-template-columns: 1fr; } }
 
@@ -85,4 +89,4 @@ body{ font-family: var(--nd-font-sans); }
 .ct-method p{ font-size: var(--step-1); line-height: 1.65; color: var(--nd-text); margin: 0 0 var(--nd-s3); }
 .ct-fine{ font: 400 var(--step-0) var(--nd-font-sans); color: var(--nd-dim); margin: var(--nd-s6) 2px var(--nd-s2); line-height: 1.55; max-width: 78ch; }
 
-@media (max-width: 760px){ .ct-tablewrap .cx-table{ min-width: 720px; } }
+@media (max-width: 760px){ .ct-tablewrap .cx-table{ min-width: 900px; } }

@@ -1,8 +1,8 @@
-/* NEPSE Contributors — renders data/contributors.json (nd-contributors/v1).
+/* NEPSE Contributors — renders data/contributors.json (nd-contributors/v2).
    Static file, no framework; all numbers printed beside every visual. */
 (function () {
   'use strict';
-  var DATA_URL = '/data/contributors.json?v=20261023a';
+  var DATA_URL = '/data/contributors.json?v=20261024a';
   var PAYLOAD = null;
   var state = { sector: 'All', q: '' };
 
@@ -24,6 +24,14 @@
     return Number(x).toFixed(2);
   }
   function cls(x) { return x > 0 ? 'ct-pos' : (x < 0 ? 'ct-neg' : ''); }
+  function intFmt(x) {
+    if (x == null || isNaN(x)) return '—';
+    return Math.round(Number(x)).toLocaleString('en-IN');
+  }
+  function rsFmt(x) {
+    if (x == null || isNaN(x)) return '—';
+    return 'Rs ' + intFmt(x);
+  }
   function rows() { return PAYLOAD.rows; }
 
   function renderSession() {
@@ -31,7 +39,7 @@
     document.getElementById('ctSession').textContent =
       'Session ' + PAYLOAD.asof + ' · previous session ' + PAYLOAD.prev_session +
       ' · ' + cov.scored_symbols + ' of ' + cov.universe_symbols +
-      ' listed symbols scored · divisor Rs ' +
+      ' listed symbols scored · official divisor Rs ' +
       Number(PAYLOAD.reconciliation.divisor_rs_per_point).toLocaleString('en-IN') +
       ' per index point';
   }
@@ -44,8 +52,9 @@
       { k: 'Explained by this board', v: pts(rec.explained) + ' pts',
         s: rec.explained_pct + '% of the official move, from the ' +
            cov.scored_symbols + ' scored rows below' },
-      { k: 'The gap', v: pts(rec.gap) + ' pts',
-        s: 'official minus explained — printed, with its causes, never netted away' },
+      { k: 'The residual', v: pts(rec.residual) + ' pts',
+        s: 'official minus explained — carried as its own row in the sector ' +
+           'table, with its causes, never netted away' },
       { k: 'Coverage', v: cov.scored_symbols + ' of ' + cov.universe_symbols + ' stocks',
         s: cov.cap_coverage_pct + '% of the official total market capitalisation' }
     ];
@@ -56,30 +65,32 @@
     }).join('');
   }
 
-  function rankRow(x, i, max) {
-    var v = x.points;
-    return '<li class="cx-rank-row"><span class="cx-rank-n">' + (i + 1) +
-      '</span><span class="cx-rank-sym"><span class="ct-sym">' + esc(x.symbol) +
-      '</span> <span class="ct-notrade">' + esc(x.sector) + '</span></span>' +
-      '<span class="cx-rank-val ' + cls(v) + '">' + pts(v, 3) + '</span>' +
-      '<span class="cx-rank-track"><span class="cx-rank-fill' +
-      (v < 0 ? ' down' : ' up') + '" style="width:' +
-      Math.max(2, Math.round(100 * Math.abs(v) / max)) + '%"></span></span></li>';
+  function topRow(x, i) {
+    return '<tr><td class="num">' + (i + 1) + '</td>' +
+      '<td class="ct-sym">' + esc(x.symbol) +
+      (x.traded ? '' : ' <span class="ct-notrade">no trade</span>') + '</td>' +
+      '<td class="num ' + cls(x.points) + '">' + pts(x.points, 3) + '</td>' +
+      '<td class="num">' + num(x.close) + '</td>' +
+      '<td class="num ' + cls(x.pct_change) + '">' + pct(x.pct_change) + '</td>' +
+      '<td class="num">' + Number(x.weight_pct).toFixed(2) + '%</td>' +
+      '<td class="num">' + intFmt(x.volume) + '</td>' +
+      '<td class="num">' + rsFmt(x.turnover_rs) + '</td></tr>';
   }
 
-  function renderTop() {
-    var rs = rows();
-    var up = rs.filter(function (x) { return x.points > 0; }).slice(0, 10);
-    var down = rs.filter(function (x) { return x.points < 0; })
-      .slice(-10).reverse();
-    var maxUp = Math.max.apply(null, up.map(function (x) { return x.points; }).concat([0.01]));
-    var maxDown = Math.max.apply(null, down.map(function (x) { return Math.abs(x.points); }).concat([0.01]));
-    document.getElementById('topUp').innerHTML = up.map(function (x, i) {
-      return rankRow(x, i, maxUp);
-    }).join('');
-    document.getElementById('topDown').innerHTML = down.map(function (x, i) {
-      return rankRow(x, i, maxDown);
-    }).join('');
+  function renderTopTables() {
+    [['topGainers', 'topGainersBody'], ['topLosers', 'topLosersBody']]
+      .forEach(function (pair) {
+        var block = PAYLOAD[pair[0]];
+        var html = block.rows.map(topRow).join('');
+        html += '<tr class="ct-total"><td></td><td>Total</td>' +
+          '<td class="num ' + cls(block.total_points) + '">' +
+          pts(block.total_points, 3) + '</td><td></td><td></td>' +
+          '<td class="num">' + Number(block.total_weight_pct).toFixed(2) +
+          '%</td><td class="num">' + intFmt(block.total_volume) + '</td>' +
+          '<td class="num">' + rsFmt(block.total_turnover_rs) +
+          '</td></tr>';
+        document.getElementById(pair[1]).innerHTML = html;
+      });
   }
 
   function renderSectorBars() {
@@ -99,21 +110,33 @@
   }
 
   function renderSectorTable() {
-    document.getElementById('sectorBody').innerHTML =
-      PAYLOAD.sectors.map(function (s) {
-        var adv = s.advancers + ' / ' + s.decliners +
-          (s.unchanged ? ' · ' + s.unchanged + ' flat' : '');
-        return '<tr><td class="ct-sector">' + esc(s.sector) + '</td>' +
-          '<td class="num ' + cls(s.points) + '">' + pts(s.points, 3) + '</td>' +
-          '<td class="num">' + s.symbols + '</td>' +
-          '<td class="num">' + adv + '</td>' +
-          '<td><span class="ct-sym">' + esc(s.top_contributor.symbol) +
-          '</span> <span class="' + cls(s.top_contributor.points) + '">' +
-          pts(s.top_contributor.points, 3) + '</span></td>' +
-          '<td><span class="ct-sym">' + esc(s.top_detractor.symbol) +
-          '</span> <span class="' + cls(s.top_detractor.points) + '">' +
-          pts(s.top_detractor.points, 3) + '</span></td></tr>';
-      }).join('');
+    var html = PAYLOAD.sectors.map(function (s) {
+      return '<tr><td class="ct-sector">' + esc(s.sector) + '</td>' +
+        '<td class="num">' + num(s.index_level) + '</td>' +
+        '<td class="num ' + cls(s.change_pct) + '">' + pct(s.change_pct) + '</td>' +
+        '<td class="num ' + cls(s.points) + '">' + pts(s.points, 3) + '</td>' +
+        '<td class="num">' + pts(s.weight_pct) + '%</td>' +
+        '<td class="num">' + rsFmt(s.turnover_rs) + '</td>' +
+        '<td><span class="ct-sym">' + esc(s.top_contributor.symbol) +
+        '</span> <span class="' + cls(s.top_contributor.points) + '">' +
+        pts(s.top_contributor.points, 3) + '</span></td>' +
+        '<td><span class="ct-sym">' + esc(s.top_detractor.symbol) +
+        '</span> <span class="' + cls(s.top_detractor.points) + '">' +
+        pts(s.top_detractor.points, 3) + '</span></td></tr>';
+    }).join('');
+    var rr = PAYLOAD.residual_row, idx = PAYLOAD.index;
+    html += '<tr class="ct-resid"><td>' + esc(rr.label) + '</td>' +
+      '<td></td><td></td>' +
+      '<td class="num ' + cls(rr.points) + '">' + pts(rr.points, 3) + '</td>' +
+      '<td class="num">' + pts(rr.weight_pct) + '%</td>' +
+      '<td></td><td colspan="2" class="ct-notrade">' + esc(rr.note) + '</td></tr>';
+    html += '<tr class="ct-total"><td>Total — official NEPSE move</td>' +
+      '<td class="num">' + num(idx.close) + '</td>' +
+      '<td class="num ' + cls(idx.pct_change) + '">' + pct(idx.pct_change) +
+      '</td><td class="num ' + cls(idx.change) + '">' + pts(idx.change, 3) +
+      '</td><td class="num">' + (idx.change ? pts(idx.change < 0 ? -100 : 100) + '%' : '—') + '</td>' +
+      '<td></td><td colspan="2"></td></tr>';
+    document.getElementById('sectorBody').innerHTML = html;
   }
 
   function renderGross() {
@@ -152,8 +175,9 @@
         num(idx.prev_close) + ' → ' + num(idx.close) + ')'],
       ['Explained by this board', rec.explained, 'the sum of the ' +
         cov.scored_symbols + ' scored rows on this page'],
-      ['The gap', rec.gap, 'official minus explained — the unscored tail and ' +
-        'NEPSE\'s own divisor adjustments, itemised below']
+      ['The residual', rec.residual, 'official minus explained — the net move ' +
+        'of everything the index counts that this board cannot score, carried ' +
+        'as the last row of the sector table']
     ].map(function (r) {
       return '<tr><td>' + esc(r[0]) + '</td><td class="num ' + cls(r[1]) + '">' +
         pts(r[1]) + '</td><td>' + esc(r[2]) + '</td></tr>';
@@ -163,28 +187,28 @@
     var eqNoShares = un.no_share_count.filter(function (x) {
       return x.type === 'Equity';
     }).length;
-    document.getElementById('gapNote').textContent =
+    document.getElementById('residNote').textContent =
       'This board scored ' + cov.scored_symbols + ' of ' + cov.universe_symbols +
       ' listed symbols — Rs ' + (cov.cap_scored_rs / 1e12).toFixed(2) +
       ' trillion of the official Rs ' +
       (cov.official_total_cap_rs / 1e12).toFixed(2) +
       ' trillion total market capitalisation (' + cov.cap_coverage_pct +
       '%). Inside the official index but outside this board: ' + eqNoShares +
-      ' ordinary shares whose paid-up figures are not in the filings ' +
-      'compilation (mostly small caps), promoter shares and preference ' +
-      'shares, and any name whose share count changed after the ' +
-      'compilation. Their net move on the session, together with NEPSE\'s ' +
-      'own divisor adjustments for listings and corporate actions, is the ' +
-      pts(rec.gap) + ' gap. On this session the scored heavyweights rose ' +
-      'more than the index as a whole, so the board explains more than ' +
-      '100% of the move and the gap runs the other way.';
+      ' ordinary shares with no share count in the filings compilation or the ' +
+      'ownership archive (small caps and recent listings among them), ' +
+      'and the promoter-share ' +
+      'listings outside the ordinary-share basis. Their net move on the ' +
+      'session, together with NEPSE\'s own divisor adjustments for listings ' +
+      'and corporate actions, is the ' + pts(rec.residual) + ' residual. It ' +
+      'is measured and printed — the sector table above carries it as a row, ' +
+      'so the table sums exactly to the official move.';
     var hist = PAYLOAD.history_recent || [];
     if (hist.length > 1) {
       document.getElementById('historyBox').innerHTML =
         '<div class="ct-hist"><h3 class="ct-subh">Recent sessions</h3>' +
         '<div class="cx-scroll ct-tablewrap"><table class="cx-table">' +
         '<thead><tr><th>Session</th><th class="num">Official</th>' +
-        '<th class="num">Explained</th><th class="num">Gap</th></tr></thead>' +
+        '<th class="num">Explained</th><th class="num">Residual</th></tr></thead>' +
         '<tbody>' + hist.map(function (h) {
           return '<tr><td>' + esc(h.asof) + '</td><td class="num">' +
             pts(h.official_change) + '</td><td class="num">' +
@@ -232,8 +256,10 @@
         '<td class="num">' + num(x.prev_close) + '</td>' +
         '<td class="num ' + cls(x.pct_change) + '">' + pct(x.pct_change) + '</td>' +
         '<td class="num">' + Number(x.weight_pct).toFixed(2) + '%</td>' +
+        '<td class="num">' + intFmt(x.volume) + '</td>' +
+        '<td class="num">' + rsFmt(x.turnover_rs) + '</td>' +
         '<td class="num ' + cls(x.points) + '">' + pts(x.points, 3) + '</td></tr>';
-    }).join('') || '<tr><td colspan="8" class="ct-loading">No scored stock matches.</td></tr>';
+    }).join('') || '<tr><td colspan="10" class="ct-loading">No scored stock matches.</td></tr>';
     document.getElementById('boardCount').textContent =
       'Showing ' + list.length + ' of ' + rows().length + ' scored stocks.';
   }
@@ -247,19 +273,21 @@
     var html = '';
     if (un.no_price.length) {
       html += '<div class="ct-unscored"><h3>Share count held, no current price (' +
-        un.no_price.length + ')</h3><p>These companies are in the filings ' +
-        'compilation but have no trade price since before the previous ' +
-        'session — suspended, merged or stale in the archive — so no honest ' +
-        'contribution can be computed.</p><p class="ct-names">' +
+        un.no_price.length + ')</h3><p>These companies have a share count in ' +
+        'the filings compilation or the ownership archive but no trade price ' +
+        'since before the previous session — suspended, merged or stale in ' +
+        'the archive — so no honest contribution can be computed.</p>' +
+        '<p class="ct-names">' +
         namesList(un.no_price) + '</p></div>';
     }
     var eq = un.no_share_count.filter(function (x) { return x.type === 'Equity'; });
     if (eq.length) {
       html += '<div class="ct-unscored"><h3>No compiled share count — ordinary ' +
         'shares (' + eq.length + ')</h3><p>Listed companies whose paid-up ' +
-        'figures are not in the latest filings compilation (mostly small ' +
-        'caps and recent listings). They join the board when a compilation ' +
-        'carries them.</p><p class="ct-names">' + namesList(eq) + '</p></div>';
+        'figures are in neither the latest filings compilation nor the ' +
+        'ownership archive (mostly small caps and recent listings). They ' +
+        'join the board when a compilation carries them.</p>' +
+        '<p class="ct-names">' + namesList(eq) + '</p></div>';
     }
     var other = un.no_share_count.filter(function (x) { return x.type !== 'Equity'; });
     if (other.length) {
@@ -269,8 +297,9 @@
       });
       html += '<div class="ct-unscored"><h3>Outside the ordinary-share basis (' +
         other.length + ')</h3><p>Mutual fund units, debentures and promoter ' +
-        'shares are not ordinary shares with a filings paid-up figure, so ' +
-        'this board\'s share-count basis does not cover them.</p>' +
+        'shares are not ordinary shares, so this board does not score them. ' +
+        'Debentures and mutual funds are not constituents of the NEPSE ' +
+        'equity index at all.</p>' +
         Object.keys(byType).sort().map(function (t) {
           return '<p>' + esc(t) + ' (' + byType[t].length + '): ' +
             '<span class="ct-names">' + namesList(byType[t]) + '</span></p>';
@@ -280,7 +309,7 @@
   }
 
   function renderAll() {
-    renderSession(); renderStats(); renderTop(); renderSectorBars();
+    renderSession(); renderStats(); renderTopTables(); renderSectorBars();
     renderSectorTable(); renderGross(); renderRecon(); renderTabs();
     renderBoard(); renderUnscored();
     document.getElementById('symSearch').addEventListener('input', function (e) {
@@ -293,7 +322,7 @@
     .then(function (p) { PAYLOAD = p; renderAll(); })
     .catch(function (e) {
       document.getElementById('boardBody').innerHTML =
-        '<tr><td colspan="8" class="ct-loading">The board could not be loaded (' +
+        '<tr><td colspan="10" class="ct-loading">The board could not be loaded (' +
         esc(e.message) + ').</td></tr>';
     });
 })();
