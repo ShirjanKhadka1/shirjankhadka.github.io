@@ -1,0 +1,43 @@
+{
+ "schema": "nd-broker-zero-sum-history/v1",
+ "note": "Append-only session ledger for the Broker Zero-Sum board: one entry per published session with the market turnover, symbols traded, broker counts and the five largest 30-day cohort net flows. Entries are never edited after the fact; a rebuilt session replaces only its own entry when the board content actually changed.",
+ "entries": [
+  {
+   "asof": "2026-10-16",
+   "built_at": "2026-10-24T10:57:19+05:45",
+   "window": 30,
+   "total_turnover": 93376486949.71,
+   "symbols_traded": 423,
+   "brokers_active": 91,
+   "accumulating": 176,
+   "distributing": 212,
+   "top_net_flow": [
+    {
+     "symbol": "GHL",
+     "stance": "ACCUMULATING",
+     "net_amt": 605076213.73
+    },
+    {
+     "symbol": "RSML",
+     "stance": "DISTRIBUTING",
+     "net_amt": -486932109.1
+    },
+    {
+     "symbol": "LEC",
+     "stance": "DISTRIBUTING",
+     "net_amt": -283649490.3
+    },
+    {
+     "symbol": "NHPC",
+     "stance": "ACCUMULATING",
+     "net_amt": 207303419.9
+    },
+    {
+     "symbol": "PCBL",
+     "stance": "ACCUMULATING",
+     "net_amt": 196251537.7
+    }
+   ]
+  }
+ ]
+}
