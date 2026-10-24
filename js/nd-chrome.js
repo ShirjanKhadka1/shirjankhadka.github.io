@@ -33,7 +33,8 @@
     { label: 'Technical Analysis', links: [
       ['Technical Chart', '/nepse-technical/'],
       ['Trading Signals', '/nepse-signals/'],
-      ['Technical Signals', '/nepse-technical-signals/']
+      ['Technical Signals', '/nepse-technical-signals/'],
+      ['Stock–Sector Sentiment', '/nepse-sentiment/']
     ]},
     { label: 'Broker', links: [
       ['Top Brokers', '/nepse-brokers/'],

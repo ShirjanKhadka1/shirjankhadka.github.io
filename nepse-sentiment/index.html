@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0A0C10">
+<title>Stock–Sector Sentiment: Every NEPSE Stock Read Against Its Sector | Nepse Decode</title>
+<meta name="description" content="A 0–100 sentiment score for every NEPSE stock, built from how it has behaved against its own sector — relative momentum, up-day share and signed-volume pressure — with the sector board, the extreme names, and a measured replay since 2021 of what high and low readings were actually followed by. Nepse Decode's own published construction, computed from its own archive, free. Educational use only.">
+<meta name="author" content="Shirjan Khadka">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-sentiment/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:title" content="Stock–Sector Sentiment: Every NEPSE Stock Read Against Its Sector">
+<meta property="og:description" content="A 0–100 sentiment score per stock, read against its sector — components published, forward behaviour measured since 2021. Free.">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Stock–Sector Sentiment: Every NEPSE Stock Read Against Its Sector">
+<meta name="twitter:description" content="Per-stock sentiment vs its sector: relative momentum, up-day edge and flow pressure in one score, with the measured replay of what the readings were worth. Updated after every close.">
+<meta property="twitter:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-sentiment/">
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
+<link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode Stock–Sector Sentiment","url":"https://shirjankhadka.com.np/nepse-sentiment/","description":"Per-stock sentiment scores (0-100) built from sector-relative momentum, up-day share and signed-volume pressure for the latest NEPSE session, with a sector board and a measured forward-behaviour replay since 2021. Educational use only, not investment advice.","author":{"@type":"Organization","name":"Nepse Decode"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
+{"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
+{"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-decode/"},
+{"@type":"ListItem","position":3,"name":"Stock–Sector Sentiment","item":"https://shirjankhadka.com.np/nepse-sentiment/"}]}
+</script>
+<link rel="stylesheet" href="/css/nd-tokens.css">
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
+<link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
+<link rel="stylesheet" href="/css/nd-sentiment.css?v=77eac211">
+</head>
+<body class="nd" data-page="stock-sector-sentiment">
+
+  <a class="skip-link" href="#main">Skip to content</a>
+<div id="nd-header"></div>
+<div class="fb-wrap" style="display:flex;justify-content:center;padding:10px 16px 0"><div data-freshness-badge></div></div>
+
+<div class="nd-shell">
+  <div class="nd-content">
+    <div class="nd-wrap">
+<main id="main">
+
+  <div class="sn-masthead">
+    <p class="cx-kicker">Technical Analysis</p>
+    <h1 class="sn-title">Stock–Sector Sentiment</h1>
+    <p class="sn-lede">How has each stock been behaving <strong>against its own
+      sector</strong>? This board answers with a single 0–100 sentiment score
+      built from three published components — <strong>relative momentum</strong>
+      (the stock's return minus its sector's), <strong>up-day edge</strong>
+      (how much more often it closes up than its sector does) and
+      <strong>flow-pressure edge</strong> (whether its volume has been arriving
+      on up days, again versus its sector). The construction is Nepse Decode's
+      own, written out in full below — and the <strong>measured replay</strong>
+      further down shows what high and low readings have actually been followed
+      by since 2021, before you read anything into one.</p>
+    <p class="sn-meta"><span id="snSession">Loading…</span></p>
+  </div>
+
+  <div class="cx-stats sn-stats" id="statStrip" aria-label="Board summary"></div>
+  <div class="sn-dist" id="bandDist" aria-label="Sentiment band distribution"></div>
+
+  <section class="sn-catsec" aria-label="The board" id="board">
+    <h2 class="sn-h2 sn-h2-sec">The board</h2>
+    <p class="sn-chartsub">Every scored stock for the session, ranked by
+      sentiment score on the selected window. All three components are printed
+      per row — the score is their percentile blend, never a black box.</p>
+    <div class="sn-controls">
+      <div class="cx-seg" id="winTabs" role="tablist" aria-label="Window"></div>
+      <label class="sn-selwrap">Sector
+        <select id="sectorSel" class="sn-sel"></select>
+      </label>
+      <label class="sn-selwrap">Sort
+        <select id="sortSel" class="sn-sel">
+          <option value="score">Sentiment score</option>
+          <option value="rel">Relative momentum</option>
+          <option value="up">Up-day edge</option>
+          <option value="flow">Flow-pressure edge</option>
+          <option value="sym">Symbol</option>
+        </select>
+      </label>
+      <label class="sn-selwrap">Symbol
+        <input type="search" id="symSearch" class="sn-search" placeholder="e.g. NABIL" autocomplete="off">
+      </label>
+    </div>
+    <div class="cx-scroll sn-tablewrap">
+      <table class="cx-table" id="boardTable">
+        <thead><tr>
+          <th class="num">#</th><th>Symbol</th><th>Sector</th>
+          <th class="num">Score</th><th>Sentiment</th>
+          <th class="num">Rel. momentum</th><th class="num">Up-day edge</th>
+          <th class="num">Flow edge</th>
+          <th class="num">Close</th><th class="num">Change</th>
+        </tr></thead>
+        <tbody id="boardBody"><tr><td colspan="10" class="sn-loading">Loading the board…</td></tr></tbody>
+      </table>
+    </div>
+    <p class="cx-cap" id="boardCount"></p>
+    <p class="sn-note" id="coverageNote"></p>
+  </section>
+
+  <section class="sn-catsec" aria-label="Extreme sentiment" id="extremes">
+    <h2 class="sn-h2 sn-h2-sec">Strongest and weakest readings</h2>
+    <p class="sn-chartsub">The ten highest and ten lowest sentiment scores on
+      the selected window, with the relative momentum behind each.</p>
+    <div class="sn-extremes">
+      <div>
+        <h3 class="sn-h3">Highest sentiment</h3>
+        <ul class="cx-rank" id="topList"></ul>
+      </div>
+      <div>
+        <h3 class="sn-h3">Lowest sentiment</h3>
+        <ul class="cx-rank" id="botList"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="sn-catsec" aria-label="Sector sentiment" id="sectors">
+    <h2 class="sn-h2 sn-h2-sec">Sectors by sentiment</h2>
+    <p class="sn-chartsub">The same board rolled up by sector: the mean and
+      median constituent score, the breadth (share of the sector's stocks
+      scoring 50 or more), and how many constituents are ahead of the sector
+      itself on the window.</p>
+    <div class="cx-scroll sn-tablewrap">
+      <table class="cx-table" id="sectorTable">
+        <thead><tr>
+          <th>Sector</th><th class="num">Mean score</th><th class="num">Median</th>
+          <th class="num">Breadth ≥ 50</th><th class="num">Ahead of sector</th>
+          <th class="num">Sector return</th><th>Leader</th><th>Laggard</th>
+        </tr></thead>
+        <tbody id="sectorBody"><tr><td colspan="8" class="sn-loading">Loading the sector roll-up…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="sn-catsec" aria-label="Measured forward behaviour" id="forward">
+    <h2 class="sn-h2 sn-h2-sec">What the readings were followed by — the measured replay</h2>
+    <p class="sn-chartsub" id="forwardSub">Loading the replay…</p>
+    <div class="sn-controls">
+      <div class="cx-seg" id="horizonTabs" role="tablist" aria-label="Forward horizon"></div>
+    </div>
+    <div class="cx-scroll sn-tablewrap">
+      <table class="cx-table" id="forwardTable">
+        <thead><tr>
+          <th>Score quintile at the reading</th>
+          <th class="num">Readings</th>
+          <th class="num">Mean forward return vs sector</th>
+          <th class="num">Finished ahead of sector</th>
+        </tr></thead>
+        <tbody id="forwardBody"><tr><td colspan="4" class="sn-loading">Loading the replay…</td></tr></tbody>
+      </table>
+    </div>
+    <p class="sn-note" id="forwardNote"></p>
+  </section>
+
+  <section class="sn-catsec" aria-label="Recent sessions" id="history">
+    <h2 class="sn-h2 sn-h2-sec">Recent sessions</h2>
+    <p class="sn-chartsub">The board's recent history from its session ledger
+      (20-session window) — one row per published session, never edited after
+      the fact. The ledger starts with the 2026-10-16 session; the long
+      history lives in the measured replay above.</p>
+    <div class="cx-scroll sn-tablewrap">
+      <table class="cx-table" id="historyTable">
+        <thead><tr>
+          <th>Session</th><th class="num">Stocks</th>
+          <th class="num">Mean score</th><th class="num">Median</th>
+          <th class="num">Strong Bullish</th><th class="num">Bullish</th>
+          <th class="num">Neutral</th><th class="num">Bearish</th>
+          <th class="num">Strong Bearish</th>
+        </tr></thead>
+        <tbody id="historyBody"><tr><td colspan="9" class="sn-loading">Loading recent sessions…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="sn-catsec" aria-label="Methodology">
+    <h2 class="sn-h2 sn-h2-sec">How this board is built</h2>
+    <div class="sn-method" id="methodBox"></div>
+    <p class="sn-note" id="unscoredText"></p>
+  </section>
+
+  <p class="sn-fine">A descriptive reading of recent price and volume
+    behaviour against each stock's sector, for education, not investment
+    advice. Data: Nepse Decode's own OHLC archive, rebuilt after each close.
+    No live feed is claimed: during market hours this page still shows the
+    last close's board.</p>
+
+</main>
+    </div>
+  </div>
+</div>
+
+<div id="nd-footer"></div>
+<script src="/js/nd-chrome.js?v=71285c84"></script>
+<script src="/js/freshness-badge.js?v=9b77cf10" defer></script>
+<script src="/js/sentiment.js?v=60b24887"></script>
+</body>
+</html>
