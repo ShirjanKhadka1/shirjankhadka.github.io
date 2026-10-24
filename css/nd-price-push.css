@@ -1,0 +1,70 @@
+/* nd-price-push.css — Price Push page (family of nd-smart-money.css).
+   Tokens from css/nd-tokens.css only; no hardcoded palette. */
+
+/* ---- masthead ---- */
+.pp-masthead{margin:18px 0 20px}
+.pp-title{font-family:var(--nd-font-display, Spectral, serif);font-size:44px;line-height:1.06;margin:6px 0 14px;letter-spacing:-.01em}
+.pp-lede{font-size:17px;line-height:1.6;color:var(--nd-text-soft);max-width:76ch}
+.pp-meta{font-family:var(--nd-font-mono, "IBM Plex Mono", monospace);font-size:13px;color:var(--nd-text-soft);margin-top:10px}
+.pp-fine{font-size:13px;line-height:1.55;color:var(--nd-text-soft);margin:26px 0 4px;border-top:1px solid var(--nd-border);padding-top:14px}
+.pp-note{font-size:14px;line-height:1.55;color:var(--nd-text-soft);margin:12px 0}
+.pp-chartsub{font-size:14px;line-height:1.55;color:var(--nd-text-soft);margin:8px 0 14px;max-width:78ch}
+
+/* ---- section headings: lime square + Spectral head (kit pattern) ---- */
+.pp-catsec{margin:34px 0}
+.pp-h2{font-family:var(--nd-font-display, Spectral, serif);font-size:26px;line-height:1.2;margin:0 0 6px}
+.pp-h2-sec::before{content:"";display:inline-block;width:11px;height:11px;background:var(--nd-lime);margin-right:10px}
+.pp-h3{font-family:var(--nd-font-display, Spectral, serif);font-size:20px;margin:26px 0 4px}
+
+/* ---- stat strip ---- */
+.pp-stats{margin:16px 0}
+.cx-stat .num{font-size:28px;line-height:1.15}
+.cx-stat .lbl{font-size:12px;letter-spacing:.02em}
+
+/* ---- controls ---- */
+.pp-controls{display:flex;flex-wrap:wrap;gap:12px;margin:0 0 14px}
+/* 7 window tabs exceed a 390px viewport: the strip scrolls internally
+   instead of pushing the last tab off-screen (overflow-x:auto also
+   drops the flex automatic minimum size so the strip can shrink). */
+#winTabs{overflow-x:auto;scrollbar-width:none}
+#winTabs::-webkit-scrollbar{display:none}
+#winTabs button{flex-shrink:0}
+.pp-selwrap{font-family:var(--nd-font-mono, "IBM Plex Mono", monospace);font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--nd-text-soft);display:flex;flex-direction:column;gap:4px}
+.pp-sel,.pp-search{background:var(--nd-surface);color:var(--nd-text);border:1px solid var(--nd-border);border-radius:8px;padding:8px 10px;font-size:14px;font-family:inherit;min-width:150px}
+.pp-search{min-width:220px}
+.pp-selwrap input{text-transform:none;letter-spacing:0}
+
+/* ---- tables ---- */
+.pp-tablewrap{overflow-x:auto;border:1px solid var(--nd-border);border-radius:12px}
+.pp-tablewrap table{margin:0;border:0;border-radius:0}
+.cx-table tbody tr.pp-rowclick{cursor:pointer}
+.cx-table tbody tr.pp-rowclick:hover td{background:var(--nd-surface-2)}
+.cx-table tbody tr.pp-active td{background:var(--nd-surface-2);box-shadow:inset 3px 0 0 var(--nd-lime)}
+.pp-num{font-family:var(--nd-font-mono, "IBM Plex Mono", monospace);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pp-loading{color:var(--nd-text-soft);font-style:italic}
+
+/* push-share bar inside a cell */
+.pp-share{display:inline-flex;align-items:center;gap:8px}
+.pp-sharebar{display:inline-block;width:56px;height:8px;background:var(--nd-surface-2);border-radius:99px;overflow:hidden;vertical-align:middle}
+.pp-sharebar i{display:block;height:100%;background:var(--nd-lime)}
+
+/* skilled flag chip */
+.pp-skilled{display:inline-block;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:600;white-space:nowrap;background:var(--nd-lime);color:#07130c}
+
+/* ---- detail ---- */
+.pp-detail-head{font-family:var(--nd-font-display, Spectral, serif);font-size:24px;margin:18px 0 4px}
+.pp-ladder{list-style:none;padding:0;margin:8px 0;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.pp-ladder li{background:var(--nd-surface);border:1px solid var(--nd-border);border-radius:10px;padding:12px 14px}
+.pp-ladder .lbl{display:block;font-family:var(--nd-font-mono, "IBM Plex Mono", monospace);font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--nd-text-soft);margin-bottom:4px}
+.pp-ladder .val{font-family:var(--nd-font-mono, "IBM Plex Mono", monospace);font-size:16px}
+.pp-method{font-size:15px;line-height:1.65;color:var(--nd-text-soft);max-width:82ch}
+.pp-method strong{color:var(--nd-text)}
+
+@media (max-width:900px){
+  .pp-ladder{grid-template-columns:repeat(2,1fr)}
+  .pp-title{font-size:34px}
+}
+@media (max-width:560px){
+  .pp-ladder{grid-template-columns:1fr}
+  .pp-title{font-size:30px}
+}

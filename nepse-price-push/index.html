@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0A0C10">
+<title>Price Push: Who Is Driving Each Rising NEPSE Stock | Nepse Decode</title>
+<meta name="description" content="For every rising NEPSE stock, the brokers whose net buying is pushing it up — ranked, with the lead pusher, their share of the net buying, and the price impact per crore of net flow. Built from Nepse Decode's own floorsheet archive, free. Educational use only.">
+<meta name="author" content="Shirjan Khadka">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-price-push/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:title" content="Price Push: Who Is Driving Each Rising NEPSE Stock">
+<meta property="og:description" content="The brokers pushing each rising stock, ranked — lead pusher, push share, and impact per crore of net buying. Free, from our own floorsheet archive.">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Price Push: Who Is Driving Each Rising NEPSE Stock">
+<meta name="twitter:description" content="Which brokers are driving each rising stock — lead pusher, push share, impact per crore. Updated after every close.">
+<meta property="twitter:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-price-push/">
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
+<link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode Price Push","url":"https://shirjankhadka.com.np/nepse-price-push/","description":"Per-stock broker attribution of upward price moves: ranked pushers, lead pusher, push share and price impact per crore of net buying, from Nepse Decode's own floorsheet archive. Educational use only, not investment advice.","author":{"@type":"Organization","name":"Nepse Decode"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
+{"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
+{"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-decode/"},
+{"@type":"ListItem","position":3,"name":"Price Push","item":"https://shirjankhadka.com.np/nepse-price-push/"}]}
+</script>
+<link rel="stylesheet" href="/css/nd-tokens.css">
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
+<link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
+<link rel="stylesheet" href="/css/nd-price-push.css?v=55a8a6b3">
+</head>
+<body class="nd" data-page="price-push">
+
+  <a class="skip-link" href="#main">Skip to content</a>
+<div id="nd-header"></div>
+<div class="fb-wrap" style="display:flex;justify-content:center;padding:10px 16px 0"><div data-freshness-badge></div></div>
+
+<div class="nd-shell">
+  <div class="nd-content">
+    <div class="nd-wrap">
+<main id="main">
+
+  <div class="pp-masthead">
+    <p class="cx-kicker">Broker</p>
+    <h1 class="pp-title">Price Push</h1>
+    <p class="pp-lede">When a stock rises, <strong>whose money pushed
+      it?</strong> This board answers per stock: the brokers that net-bought
+      it over the window, ranked by net amount, with the
+      <strong>lead pusher</strong> first and each pusher's share of the
+      net buying printed beside their money. A second number — the
+      <strong>price impact per crore of net buying</strong> — says how
+      many percentage points the price moved for each crore that went
+      in. Both are descriptions of what happened, not claims about what
+      caused it: every buy has a seller, and flow beside a rise is not
+      proof the flow made the rise.</p>
+    <p class="pp-meta"><span id="ppSession">Loading…</span></p>
+  </div>
+
+  <div class="cx-stats pp-stats" id="statStrip" aria-label="Board summary"></div>
+  <p class="pp-note" id="coverageNote"></p>
+
+  <section class="pp-catsec" aria-label="Pushed stocks" id="board">
+    <h2 class="pp-h2 pp-h2-sec">Stocks being pushed up</h2>
+    <p class="pp-chartsub">Every stock whose adjusted close rose over the
+      window, ranked by return. The lead pusher is the broker that
+      net-bought the most of it; the push share is that broker's share
+      of all the net buying in the name. Select any row to open the full
+      ranked pusher list below.</p>
+    <div class="pp-controls">
+      <div class="cx-seg" id="winTabs" role="tablist" aria-label="Window"></div>
+      <label class="pp-selwrap">Sector
+        <select id="sectorSel" class="pp-sel"></select>
+      </label>
+      <label class="pp-selwrap">Sort
+        <select id="sortSel" class="pp-sel">
+          <option value="return">Price return</option>
+          <option value="share">Lead pusher share</option>
+          <option value="net">Net buying</option>
+          <option value="turnover">Turnover</option>
+          <option value="impact">Impact per crore</option>
+          <option value="sym">Symbol</option>
+        </select>
+      </label>
+      <label class="pp-selwrap">Find
+        <input type="search" id="symSearch" class="pp-search" placeholder="e.g. NABIL" autocomplete="off">
+      </label>
+    </div>
+    <div class="cx-scroll pp-tablewrap">
+      <table class="cx-table" id="boardTable">
+        <thead><tr>
+          <th class="num">#</th><th>Symbol</th><th>Sector</th>
+          <th class="num">Return</th><th class="num">Close</th>
+          <th>Lead pusher</th><th class="num">Lead share</th>
+          <th class="num">Top-3 share</th><th class="num">Net buying</th>
+          <th class="num">Turnover</th><th class="num">Impact / crore</th>
+        </tr></thead>
+        <tbody id="boardBody"><tr><td colspan="11" class="pp-loading">Loading the board…</td></tr></tbody>
+      </table>
+    </div>
+    <p class="cx-cap" id="boardCount"></p>
+  </section>
+
+  <section class="pp-catsec" aria-label="Stock detail" id="detail">
+    <h2 class="pp-h2 pp-h2-sec">One stock — the full ranked pusher list</h2>
+    <p class="pp-chartsub">Every broker that net-bought the stock over the
+      window, ranked by net amount. The skilled flag marks brokers that
+      sit in the Broker Smart Money board's skilled cohort; it is a
+      join to that board's published ranking, not a new judgement.</p>
+    <div class="pp-controls">
+      <label class="pp-selwrap">Stock
+        <select id="symSel" class="pp-sel"></select>
+      </label>
+    </div>
+    <div class="pp-detail-head" id="detailHead"></div>
+    <div class="cx-stats pp-stats" id="detailStats" aria-label="Stock summary"></div>
+
+    <h3 class="pp-h3">Lead pusher by timeframe</h3>
+    <p class="pp-chartsub">Who led the push at each window — a push can be
+      new, or the same broker leading across windows.</p>
+    <ul class="pp-ladder" id="ladderList"></ul>
+
+    <h3 class="pp-h3">Pushers (net bought)</h3>
+    <div class="cx-scroll pp-tablewrap">
+      <table class="cx-table" id="pushTable">
+        <thead><tr><th>Broker</th><th class="num">Net qty</th><th class="num">Net Rs</th><th class="num">Share of net buying</th><th class="num">Avg buy</th><th>Skilled</th></tr></thead>
+        <tbody id="pushBody"><tr><td colspan="6" class="pp-loading">Loading…</td></tr></tbody>
+      </table>
+    </div>
+    <p class="pp-note" id="sellerNote"></p>
+  </section>
+
+  <section class="pp-catsec" aria-label="Measured record" id="forward">
+    <h2 class="pp-h2 pp-h2-sec">What dominant pushes were followed by — the measured replay</h2>
+    <p class="pp-chartsub" id="forwardSub">Loading the replay…</p>
+    <div class="cx-scroll pp-tablewrap">
+      <table class="cx-table" id="forwardTable">
+        <thead><tr>
+          <th>Reading at the snapshot (30-day window)</th>
+          <th class="num">Readings</th>
+          <th class="num">Mean forward return, 10 sessions</th>
+          <th class="num">Median</th>
+          <th class="num">Finished up</th>
+        </tr></thead>
+        <tbody id="forwardBody"><tr><td colspan="5" class="pp-loading">Loading the replay…</td></tr></tbody>
+      </table>
+    </div>
+    <p class="pp-note" id="forwardNote"></p>
+  </section>
+
+  <section class="pp-catsec" aria-label="Recent sessions" id="history">
+    <h2 class="pp-h2 pp-h2-sec">Recent sessions</h2>
+    <p class="pp-chartsub">The board's session ledger — one row per
+      published session, never edited after the fact. The ledger starts
+      with the 2026-10-16 session.</p>
+    <div class="cx-scroll pp-tablewrap">
+      <table class="cx-table" id="historyTable">
+        <thead><tr>
+          <th>Session</th><th class="num">Risers</th>
+          <th class="num">Pushed turnover</th><th class="num">Net buying</th>
+          <th>Top riser</th><th class="num">Median lead share</th>
+        </tr></thead>
+        <tbody id="historyBody"><tr><td colspan="6" class="pp-loading">Loading recent sessions…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="pp-catsec" aria-label="Methodology">
+    <h2 class="pp-h2 pp-h2-sec">How this board is built</h2>
+    <div class="pp-method" id="methodBox"></div>
+    <p class="pp-note" id="unscoredText"></p>
+  </section>
+
+  <p class="pp-fine">A descriptive reading of broker flow beside price
+    moves, for education, not investment advice. Data: Nepse Decode's
+    own floorsheet archive, rebuilt after each close. No live feed is
+    claimed: during market hours this page still shows the last close's
+    board.</p>
+
+</main>
+    </div>
+  </div>
+</div>
+
+<div id="nd-footer"></div>
+<script src="/js/nd-chrome.js?v=221ed934"></script>
+<script src="/js/freshness-badge.js?v=9b77cf10" defer></script>
+<script src="/js/price-push.js?v=0c4bc92b"></script>
+</body>
+</html>

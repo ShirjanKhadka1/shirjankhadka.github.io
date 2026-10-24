@@ -43,7 +43,8 @@
       ['Stockwise Holdings', '/nepse-brokers/holdings/'],
       ['Accumulation / Distribution', '/nepse-brokers/accdist/'],
       ['Zero-Sum Analysis', '/nepse-broker-zero-sum/'],
-      ['Broker Smart Money', '/nepse-broker-smart-money/']
+      ['Broker Smart Money', '/nepse-broker-smart-money/'], ['Price Push', '/nepse-price-push/'],
+      ['Price Push', '/nepse-price-push/']
     ]},
     { label: 'News', links: [
       ['Market News', '/nepse-news/'],
