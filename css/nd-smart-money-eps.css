@@ -28,8 +28,11 @@
 #storySeg{overflow-x:auto;scrollbar-width:none}
 #storySeg::-webkit-scrollbar{display:none}
 #storySeg button{flex-shrink:0}
-.sme-selwrap{font-family:var(--nd-font-mono, "IBM Plex Mono", monospace);font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--nd-text-soft);display:flex;flex-direction:column;gap:4px}
-.sme-sel,.sme-search{background:var(--nd-surface);color:var(--nd-text);border:1px solid var(--nd-border);border-radius:8px;padding:8px 10px;font-size:14px;font-family:inherit;min-width:150px}
+.sme-selwrap{font-family:var(--nd-font-mono, "IBM Plex Mono", monospace);font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--nd-text-soft);display:flex;flex-direction:column;gap:4px;max-width:100%}
+.sme-sel,.sme-search{background:var(--nd-surface);color:var(--nd-text);border:1px solid var(--nd-border);border-radius:8px;padding:8px 10px;font-size:14px;font-family:inherit;min-width:150px;max-width:100%;box-sizing:border-box}
+/* The stock select's longest option ("TAMOR — Sanima Middle Tamor
+   Hydropower Limited") otherwise forces the control past a 390px
+   viewport; max-width keeps it inside the wrap. */
 .sme-search{min-width:220px}
 .sme-selwrap input{text-transform:none;letter-spacing:0}
 
