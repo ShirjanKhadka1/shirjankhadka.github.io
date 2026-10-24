@@ -104,7 +104,8 @@
     if (r.ex_break && r.ex_break.recent) {
       caution = '<p class="ts-caution">Corporate-action break inside the window: this stock ' +
         'fell ' + fmt(Math.abs(r.ex_break.pct), 1) + '% in one session on ' + esc(r.ex_break.date) +
-        ' — the signature of a book-closure ex-date. Our archive is as-traded, so the mechanical ' +
+        ' — in NEPSE a single-session fall of this size is usually the mechanical step of a ' +
+        'book-closure (ex-date). Our archive is as-traded, so the mechanical ' +
         'step sits inside the smoothing windows and depresses the momentum readings (RSI, MACD, ADX) ' +
         'for some weeks. It is flagged, not adjusted away.</p>';
     }
