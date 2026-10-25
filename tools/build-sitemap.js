@@ -64,6 +64,8 @@ function main() {
   diskOnly = diskOnly.filter((d) => !preserved.has(`${SITE}/stocks/${d}/`));
   lines.push(GEN_CLOSE);
 
+  // Normalize any relative <loc> (hand-added entries) to absolute URLs.
+  xml = xml.replace(/<loc>\//g, '<loc>' + SITE + '/');
   xml = xml.replace(/<\/urlset>/, lines.join('\n') + '\n</urlset>');
   fs.writeFileSync(SM, xml);
   console.log(JSON.stringify({ stockUrls: sorted.length, diskOnly, lastmod: asof }));
