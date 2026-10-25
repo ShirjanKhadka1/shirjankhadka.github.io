@@ -148,7 +148,7 @@
     if (!host || !payload) return;
     var t = payload.tracking || {};
     var built = payload.built_at ? payload.built_at.replace('T', ' ').slice(0, 16) : '—';
-    var next = 'next trading day after close (~17:05 NPT, once broker data finalizes)';
+    var next = 'next trading day after close (~17:40 NPT, once broker data finalizes)';
     function fact(k, val) {
       return '<div class="mf-fact"><div class="k">' + k + '</div><div class="v">' + val + '</div></div>';
     }
