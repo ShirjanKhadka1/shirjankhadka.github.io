@@ -1,5 +1,11 @@
 /* ---- full-page cinematic rebuild (2026-10-25) ---- */
 /* every section is a designed panel now, not just the hero */
+/* Canvas: the shared design system paints body.nd cream (--paper #FAF7F0)
+   in light theme, overriding the design master's light canvas (--nd-bg
+   #F6F7F9). Pin this page's canvas to the master token so light theme
+   matches the rest of the site (soft gray + white cards). Dark untouched. */
+[data-theme="light"] body.nd{ background: var(--nd-bg); }
+
 .vp-hero{
   background: var(--nd-panel); border: 1px solid var(--nd-border);
   border-radius: var(--nd-r-card); padding: var(--nd-s5) var(--nd-s6);
