@@ -220,6 +220,68 @@
     return n;
   }
 
+  function trackPct(x) { return x == null ? '—' : (x * 100).toFixed(1) + '%'; }
+  function trackRet(x) { return x == null ? '—' : (x >= 0 ? '+' : '') + (x * 100).toFixed(2) + '%'; }
+  function renderTracking() {
+    try {
+      var chEl = $('sc-changes-line'), chBody = $('sc-changes-body');
+      if (chEl && chBody) {
+        var c = state.changes;
+        if (!c || !c.prev_session) {
+          chEl.textContent = 'No previous session to compare with yet — changes appear from the next daily build.';
+          chBody.innerHTML = '<p class="sig-sub">This is the verdict archive\'s first session, so there is no previous session to compare it with.</p>';
+        } else {
+          chEl.textContent = 'vs ' + c.prev_session + ': ' + c.upgraded + ' upgraded · ' + c.downgraded + ' downgraded · ' + c.held + ' held · ' + c.new + ' new · ' + c.flips.length + ' full Buy↔Exit flip' + (c.flips.length === 1 ? '' : 's');
+          chBody.innerHTML = c.flips.length ? '<div class="scrollx"><table class="sig-table nd-table"><thead><tr><th>Symbol</th><th>From</th><th>To</th></tr></thead><tbody>' +
+            c.flips.map(function (f) { return '<tr><td><a href="/stocks/' + esc(f.symbol) + '/">' + esc(f.symbol) + '</a></td><td>' + esc(f.from) + '</td><td>' + esc(f.to) + '</td></tr>'; }).join('') + '</tbody></table></div>'
+            : '<p class="sig-sub">No security crossed from Buy to Exit (or back) in one step this session.</p>';
+        }
+      }
+      var cb = $('sc-calls-body');
+      if (!cb) return;
+      var d = state.callsDoc;
+      if (!d || !d.summary) {
+        cb.innerHTML = '<p class="sig-sub">The live call ledger starts with the next daily build.</p>';
+        return;
+      }
+      var s = d.summary;
+      var open = (d.calls || []).filter(function (x) { return x.status === 'open'; });
+      var closed = (d.calls || []).filter(function (x) { return x.status === 'closed'; }).sort(function (a, b) { return (b.exit_date || '') < (a.exit_date || '') ? -1 : 1; }).slice(0, 20);
+      var persRows = ['flash', 'mid', 'persistent'].map(function (k) {
+        var p = s.by_persistence[k];
+        return '<tr><td>' + k + '</td><td class="num">' + p.decided + '</td><td class="num">' + p.wins + '</td><td class="num">' + (p.decided ? trackPct(p.wins / p.decided) : '—') + '</td></tr>';
+      }).join('');
+      var setupRows = (s.by_setup || []).map(function (r) {
+        return '<tr><td>' + esc(r.setup) + '</td><td class="num">' + r.decided + '</td><td class="num">' + r.wins + '</td><td class="num">' + (r.win_rate == null ? '—' : trackPct(r.win_rate)) + '</td></tr>';
+      }).join('');
+      var tr = state.trackRecord;
+      var replayRows = '';
+      if (tr && tr.eval && tr.eval.setups) {
+        replayRows = '<h3>Setup track record — replay, most recent 250 sessions</h3>' +
+          '<p class="sig-sub">The same win rule (target before stop, 20 sessions) replayed over history. ' +
+          'This is the backtest the live ledger will either confirm or correct as real calls resolve.</p>' +
+          '<div class="scrollx"><table class="sig-table nd-table"><thead><tr><th>Setup</th><th class="num">Decided calls</th><th class="num">Win rate</th></tr></thead><tbody>' +
+          tr.eval.setups.map(function (r) {
+            return '<tr><td>' + esc(r.label) + '</td><td class="num">' + r.n + '</td><td class="num">' + trackPct(r.w) + '</td></tr>';
+          }).join('') + '</tbody></table></div>';
+      }
+      cb.innerHTML =
+        '<p class="sig-sub">' + s.open + ' open · ' + s.decided + ' decided (target ' + s.closed_tp + ' · stop ' + s.closed_sl + ' · expired ' + s.closed_expired + ') · win rate ' + (s.win_rate == null ? '—' : trackPct(s.win_rate)) + ' on decided calls.</p>' +
+        '<div class="scrollx"><table class="sig-table nd-table"><thead><tr><th>Persistence at entry</th><th class="num">Decided</th><th class="num">Wins</th><th class="num">Win rate</th></tr></thead><tbody>' + persRows + '</tbody></table></div>' +
+        (setupRows ? '<div class="scrollx"><table class="sig-table nd-table"><thead><tr><th>Setup</th><th class="num">Decided</th><th class="num">Wins</th><th class="num">Win rate</th></tr></thead><tbody>' + setupRows + '</tbody></table></div>' : '') +
+        replayRows +
+        '<h3>Open calls</h3>' + (open.length ? '<div class="scrollx"><table class="sig-table nd-table"><thead><tr><th>Symbol</th><th>Entry</th><th class="num">Price</th><th class="num">Stop</th><th class="num">Target</th><th>Setup</th><th class="num">Streak</th><th class="num">Sessions</th><th class="num">Return now</th></tr></thead><tbody>' +
+        open.map(function (x) { return '<tr><td><a href="/stocks/' + esc(x.sym) + '/">' + esc(x.sym) + '</a></td><td>' + esc(x.date) + '</td><td class="num">' + x.entry.toFixed(2) + '</td><td class="num">' + x.sl.toFixed(2) + '</td><td class="num">' + x.tp.toFixed(2) + '</td><td>' + esc(x.setup || '—') + '</td><td class="num">' + x.streak + '</td><td class="num">' + x.sessions_elapsed + '</td><td class="num">' + trackRet(x.last_return) + '</td></tr>'; }).join('') + '</tbody></table></div>'
+        : '<p class="sig-sub">No open calls.</p>') +
+        '<h3>Recently closed</h3>' + (closed.length ? '<div class="scrollx"><table class="sig-table nd-table"><thead><tr><th>Symbol</th><th>Entry</th><th>Exit</th><th>Outcome</th><th class="num">Return</th><th class="num">Sessions held</th></tr></thead><tbody>' +
+        closed.map(function (x) { return '<tr><td><a href="/stocks/' + esc(x.sym) + '/">' + esc(x.sym) + '</a></td><td>' + esc(x.date) + '</td><td>' + esc(x.exit_date) + '</td><td>' + esc(x.exit) + '</td><td class="num">' + trackRet(x.exit_return) + '</td><td class="num">' + x.sessions_held + '</td></tr>'; }).join('') + '</tbody></table></div>'
+        : '<p class="sig-sub">No closed calls yet — the first calls resolve as their targets, stops or 20 sessions arrive.</p>');
+    } catch (e) {
+      var cb2 = $('sc-calls-body');
+      if (cb2) cb2.innerHTML = '<p class="sig-sub">The call ledger could not be rendered.</p>';
+    }
+  }
+
   function render() {
     var rows = filtered();
     var perPage = state.perPage;
@@ -241,7 +303,8 @@
         '<td class="num" data-label="Change">' + chCell(r) + '</td>' +
         '<td class="num" data-label="Volume">' + fmtVol(r.vol) + rvolBadge(r) + '</td>' +
         '<td class="num" data-label="RSI">' + rsiCell(r) + '</td>' +
-        '<td data-label="Signal &amp; setup">' + badge(r.v) + (r.setup ? ' <span class="sc-setup-chip">' + esc(r.setup) + '</span>' : '') + '</td>' +
+        '<td data-label="Signal &amp; setup">' + badge(r.v) + (r.setup ? ' <span class="sc-setup-chip">' + esc(r.setup) + '</span>' : '') +
+        (r.vc ? '<br><span class="sc-prev">' + (r.vc === 'new' ? 'new signal' : (r.pv ? 'was ' + esc(r.pv) + (r.ps != null ? ' ' + r.ps : '') : '')) + (r.st ? ' · Buy streak ' + r.st : '') + (r.flip ? ' · <b>FLIP</b>' : '') + '</span>' : '') + '</td>' +
         '<td class="num" data-label="Hit rate">' + hitCell(r) + '</td>' +
         '<td class="num" data-label="Stop loss">' + slCell(r) + '</td>' +
         '<td class="num" data-label="Target">' + tpCell(r) + '</td>' +
@@ -487,7 +550,9 @@
     }
     return Promise.all([
       get('../nepse-chart/data/verdicts.json'),
-      get('../nepse-chart/data/universe.json').catch(function () { return null; })
+      get('../nepse-chart/data/universe.json').catch(function () { return null; }),
+      get('../nepse-chart/data/screener-calls.json').catch(function () { return null; }),
+      get('../nepse-chart/data/track-record.json').catch(function () { return null; })
     ]);
   }
 
@@ -506,6 +571,9 @@
         }
       });
       var v = vj.verdicts || {};
+      state.changes = vj.changes || null;
+      state.callsDoc = res[2] || null;
+      state.trackRecord = res[3] || null;
       state.rows = Object.keys(v).map(function (sym) {
         var e = v[sym];
         // Authoritative verdicts.json sec (written by the universe builder
@@ -516,6 +584,8 @@
           sym: sym, name: names[sym] || sym, v: e.v, s: e.s, p: e.p, ch: e.ch,
           vol: e.vol, volAvg: e.volAvg || null, sec: sec, sl: e.sl, tp: e.tp,
           setup: e.setup || null, l: e.l || 0, tr: e.tr || null, rsi: e.rsi,
+          pv: e.pv || null, ps: (e.ps == null ? null : e.ps),
+          st: e.st || 0, vc: e.vc || null, flip: !!e.flip,
           raw: e
         };
       });
@@ -554,6 +624,7 @@
         }
       } catch (e) {}
       render();
+      renderTracking();
       startLiveOverlay();
   }
 

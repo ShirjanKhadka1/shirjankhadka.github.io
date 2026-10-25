@@ -27,6 +27,7 @@ const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, 'nepse-chart', 'data');
 const LTP_DIR = path.join(OUT, 'ltp');
 const ENGINE = require(path.join(ROOT, 'js', 'nepse-lab.js'));
+const { updateScreenerTracking } = require('./screener-tracking.js');
 // --screener-only (EOD gates, 2026-10-18): run the full data assembly + verdict
 // computation (verdicts.json stays fresh) but write ONLY universe.json,
 // verdicts.json and the nepse-screener/index.html snapshot. Skips per-symbol
@@ -662,8 +663,21 @@ async function main() {
     console.log('  !! verdicts without universe entry (investigate): ' + strayVerdicts.join(', '));
   }
 
+  // Screener tracking (2026-10-25): verdict archive + live call ledger.
+  // Runs on the final verdicts (after purge + asof correction) so the
+  // per-verdict tracking fields land in verdicts.json below. Additive
+  // and non-fatal: any failure logs loudly and the universe build
+  // continues without tracking — never fail the universe over this.
+  let screenerChanges = null;
+  try {
+    screenerChanges = updateScreenerTracking({
+      fs, path, OUT, verdicts, symbols, universe, ohlcRows });
+  } catch (e) {
+    console.log('  !! screener tracking skipped: ' + (e && e.message));
+  }
+
   fs.writeFileSync(path.join(OUT, 'universe.json'), JSON.stringify(universe));
-  fs.writeFileSync(path.join(OUT, 'verdicts.json'), JSON.stringify({ asof: universe.asof, count: symbols.length, verdicts }));
+  fs.writeFileSync(path.join(OUT, 'verdicts.json'), JSON.stringify({ asof: universe.asof, count: symbols.length, verdicts, changes: screenerChanges }));
   // Per-stock data-check audit: one row per listed security (source, history
   // depth, live-quote presence, verdict, new-listing flag). Consumed by
   // nepse-chart/data-check.html. Deterministic (no timestamps) so scheduled

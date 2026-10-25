@@ -97,7 +97,12 @@
     var head = '<p class="ts-note" style="margin:0 2px var(--nd-s3)"><strong>' + esc(r.name || r.symbol) +
       '</strong> · ' + esc(r.type || '') + ' · ' + esc(r.sector) +
       ' · Overall score <strong>' + r.score + '</strong> — ' + esc(r.classification) +
-      ' · Previous close ' + fmt(r.prev_close, 2) + '</p>';
+      ' · Previous close ' + fmt(r.prev_close, 2) +
+      (r.change === 'new' || r.prev_score == null ? ' · first tracked session at this rating'
+        : ' · vs ' + esc(DATA.changes.prev_session) + ': ' + esc(r.prev_rating) + ' ' + r.prev_score +
+          ' → ' + esc(r.rating) + ' ' + r.score + ' · ' + ordinal(r.streak) +
+          ' consecutive session' + (r.streak === 1 ? '' : 's') + ' at this rating' +
+          (r.flip ? ' · <b>FLIP</b>: crossed sides in one step — treat a one-day flip as noise, not a call' : '')) + '</p>';
     var chips = SIG_ORDER.map(function (k) {
       return '<span class="ts-siglab">' + esc(SIG_NAMES[k]) + '</span>' +
         '<span class="ts-sig ' + sigClass(r.signals[k]) + '">' + esc(r.signals[k]) + '</span>';
@@ -189,6 +194,19 @@
     });
   }
 
+  function ordinal(n) {
+    var s = ['th', 'st', 'nd', 'rd'], v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  }
+  function changeSub(r) {
+    if (r.change === 'new' || r.prev_score == null) return '<span class="ts-prev">new to the board</span>';
+    var arrow = r.change === 'up' ? '▲' : r.change === 'down' ? '▼' : '·';
+    var cls = r.change === 'up' ? 'ts-pos' : r.change === 'down' ? 'ts-neg' : '';
+    var txt = arrow + ' ' + r.prev_score + ' · ' + ordinal(r.streak) + ' session' +
+      (r.flip ? ' · <b>FLIP</b> from ' + esc(r.prev_rating) : '');
+    return '<span class="ts-prev ' + cls + '">' + txt + '</span>';
+  }
+
   function renderBoard() {
     var rows = filteredRows();
     var pages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
@@ -204,7 +222,7 @@
         '<td class="num">' + fmt(r.close, 2) + '</td>' +
         '<td class="num ' + (chg > 0 ? 'ts-pos' : chg < 0 ? 'ts-neg' : '') + '">' + pct(chg) + '</td>' +
         '<td class="num"><span class="ts-score"><b>' + r.score + '</b>' +
-        '<span class="ts-gauge"><i style="--pos:' + r.score + '%"></i></span></span></td>' +
+        '<span class="ts-gauge"><i style="--pos:' + r.score + '%"></i></span>' + changeSub(r) + '</span></td>' +
         '<td>' + ratingChip(r.rating) + '</td>' +
         '<td class="num">' + r.counts.bullish + ' / ' + r.counts.neutral + ' / ' + r.counts.bearish + '</td></tr>';
       if (state.open === r.symbol) {
@@ -292,6 +310,87 @@
     }).join('');
   }
 
+  function renderChanges() {
+    var c = DATA.changes;
+    var line = document.getElementById('changesLine');
+    var body = document.getElementById('changesBody');
+    if (!line || !body) return;
+    if (!c || !c.prev_session) {
+      line.textContent = 'Rating-change tracking starts with the next published board.';
+      body.innerHTML = '<p class="ts-note">This board predates the archive, so there is no previous session to compare it with.</p>';
+      return;
+    }
+    line.textContent = 'vs ' + c.prev_session + ': ' + c.upgraded + ' upgraded · ' +
+      c.downgraded + ' downgraded · ' + c.held + ' held · ' + c.new + ' new · ' +
+      c.flips.length + ' full Buy↔Sell flip' + (c.flips.length === 1 ? '' : 's');
+    if (!c.flips.length) {
+      body.innerHTML = '<p class="ts-note">No stock crossed from the Buy side to the Sell side (or back) in one step this session.</p>';
+      return;
+    }
+    body.innerHTML = '<div class="cx-scroll ts-tablewrap"><table class="cx-table"><thead><tr>' +
+      '<th>Symbol</th><th>From</th><th>To</th><th class="num">Score</th></tr></thead><tbody>' +
+      c.flips.map(function (f) {
+        return '<tr><td class="ts-sym">' + esc(f.symbol) + '</td><td>' + esc(f.from) +
+          '</td><td>' + esc(f.to) + '</td><td class="num">' + f.prev_score + ' → ' + f.score + '</td></tr>';
+      }).join('') + '</tbody></table></div>';
+  }
+
+  function fmtRet(x) {
+    if (x == null || isNaN(x)) return '—';
+    return pct(x * 100);
+  }
+
+  function renderCohorts() {
+    var co = DATA.cohorts;
+    var el = document.getElementById('cohortBody');
+    if (!el) return;
+    if (!co || !co.latest) {
+      el.innerHTML = '<p class="ts-note">No cohort is tracked yet — the first tracked session has no forward window behind it.</p>';
+      return;
+    }
+    var lat = co.latest;
+    var latHtml = '<p class="ts-note">Latest tracked session ' + esc(lat.asof) + ': ';
+    ['Strong Buy', 'Strong Sell'].forEach(function (rating) {
+      var cc = lat.cohorts[rating];
+      latHtml += esc(rating) + ' ' + cc.splits.all + ' stocks (flash ' + cc.splits.flash +
+        ', 2nd session ' + (cc.splits.all - cc.splits.flash - cc.splits.persistent) +
+        ', persistent ' + cc.splits.persistent + '). ';
+      [5, 10].forEach(function (h) {
+        var o = cc.outcomes.all[h];
+        latHtml += '+' + h + ': ' + (o.status === 'resolved'
+          ? 'mean ' + fmtRet(o.mean) + ', spread ' + fmtRet(o.spread) + ' over ' + o.n + ' names'
+          : 'pending — ' + o.sessions_to_go + ' more session' + (o.sessions_to_go === 1 ? '' : 's')) + '. ';
+      });
+    });
+    latHtml += '</p>';
+    var agg = co.aggregate || {};
+    var rows = '';
+    ['Strong Buy', 'Strong Sell'].forEach(function (rating) {
+      ['all', 'flash', 'persistent'].forEach(function (split) {
+        [5, 10].forEach(function (h) {
+          var a = agg[rating] && agg[rating][split] && agg[rating][split][h];
+          rows += '<tr><td>' + esc(rating) + '</td><td>' + split + '</td><td class="num">' + h +
+            '</td><td class="num">' + (a ? a.sessions : 0) + '</td><td class="num">' + (a ? a.members : 0) +
+            '</td><td class="num">' + fmtRet(a ? a.mean_return : null) +
+            '</td><td class="num">' + fmtRet(a ? a.mean_benchmark : null) +
+            '</td><td class="num ' + ((a && a.mean_spread > 0) ? 'ts-pos' : (a && a.mean_spread < 0) ? 'ts-neg' : '') + '">' +
+            fmtRet(a ? a.mean_spread : null) + '</td></tr>';
+        });
+      });
+    });
+    el.innerHTML = latHtml +
+      '<div class="cx-scroll ts-tablewrap"><table class="cx-table"><thead><tr>' +
+      '<th>Cohort</th><th>Split</th><th class="num">Horizon</th><th class="num">Sessions</th>' +
+      '<th class="num">Members</th><th class="num">Mean return</th><th class="num">Board mean</th>' +
+      '<th class="num">Spread</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+      '<p class="ts-note">Read flash vs persistent, not just Strong Buy vs Strong Sell. A rating that ' +
+      'appears for one session and flips the next is noise: the flash column measures exactly those ' +
+      'one-day ratings, the persistent column measures ratings held 3+ sessions. Spreads are the ' +
+      'cohort\'s mean return minus the whole board\'s equal-weight mean over the same window, averaged ' +
+      'across resolved sessions. Nothing here is a recommendation — it is the measured record of what ' +
+      'the ratings were worth, and the record is what any future change to the ratings must beat.</p>';
+  }
+
   function renderHistory() {
     var rows = DATA.history_recent || [];
     if (!rows.length) {
@@ -316,8 +415,9 @@
       ['The cross-check', m.crosscheck],
       ['Prices', m.prices],
       ['The replay method', m.replay_method],
+      ['Rating changes & cohorts', m.tracking],
       ['Reading it honestly', m.honesty]
-    ];
+    ].filter(function (b) { return !!b[1]; });
     document.getElementById('methodBox').innerHTML = blocks.map(function (b) {
       return '<h3>' + esc(b[0]) + '</h3><p>' + esc(b[1]) + '</p>';
     }).join('') + '<p><strong>Data source.</strong> ' + esc(DATA.source) + '.</p>';
@@ -382,8 +482,10 @@
     });
     renderBoard();
     renderHist();
+    renderChanges();
     renderSectors();
     renderReplay();
+    renderCohorts();
     renderHistory();
     renderMethod();
   }

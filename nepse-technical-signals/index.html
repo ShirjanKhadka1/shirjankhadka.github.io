@@ -40,7 +40,7 @@
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
-<link rel="stylesheet" href="/css/nd-technical-signals.css?v=fa312008">
+<link rel="stylesheet" href="/css/nd-technical-signals.css?v=46e81ce8">
 </head>
 <body class="nd" data-page="technical-signals">
 
@@ -118,6 +118,13 @@
     <p class="ts-note" id="coverageNote"></p>
   </section>
 
+  <section class="ts-catsec" aria-label="Rating changes" id="changes">
+    <h2 class="ts-h2 ts-h2-sec">What moved since the last session</h2>
+    <p class="ts-chartsub" id="changesLine">Loading rating changes…</p>
+    <div id="changesBody"></div>
+    <p class="ts-note">A rating that flips sides in one step is flagged, not celebrated: a Strong Buy that becomes a Strong Sell overnight was noise, and the board says so. Streaks count consecutive sessions at the current rating — the cohort section below tests whether persistent ratings beat one-day flashes.</p>
+  </section>
+
   <section class="ts-catsec" aria-label="Measured replay" id="replay">
     <h2 class="ts-h2 ts-h2-sec">What the grades were worth — the measured replay</h2>
     <p class="ts-chartsub" id="replaySub">Loading the replay…</p>
@@ -139,6 +146,12 @@
       mean forward return is positive — many small losses, fewer large gains.
       That asymmetry, not a headline accuracy percentage, is the honest summary
       of what a mechanical grade can and cannot do.</p>
+  </section>
+
+  <section class="ts-catsec" aria-label="Forward cohorts" id="cohorts">
+    <h2 class="ts-h2 ts-h2-sec">Did the ratings work? — forward cohorts</h2>
+    <p class="ts-chartsub">Each session's Strong Buy and Strong Sell cohorts, tracked to their closes 5 and 10 sessions later. Flash = first session at the rating; persistent = 3+ consecutive sessions at it.</p>
+    <div id="cohortBody"></div>
   </section>
 
   <section class="ts-catsec" aria-label="Sector medians" id="sectors">
@@ -193,6 +206,6 @@
 <div id="nd-footer"></div>
 <script src="/js/nd-chrome.js?v=74c1c8b7"></script>
 <script src="/js/freshness-badge.js?v=9b77cf10" defer></script>
-<script src="/js/technical-signals.js?v=d4e3a945"></script>
+<script src="/js/technical-signals.js?v=31c9faae"></script>
 </body>
 </html>
