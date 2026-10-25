@@ -42,7 +42,7 @@
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
-<link rel="stylesheet" href="/css/nd-volume.css?v=1539d6af">
+<link rel="stylesheet" href="/css/nd-volume.css?v=00ec25ec">
 <link rel="stylesheet" href="/css/nd-3d.css">
 <link rel="stylesheet" href="/css/nd-research-3d.css">
 </head>
@@ -57,79 +57,132 @@
     <div class="nd-wrap">
 <main id="main">
 
-  <div class="vp-masthead">
-    <p class="nd-kicker">Research</p>
+  <div class="vp-hero">
+    <p class="cx-kicker">Volume Analysis · VPI</p>
     <h1 class="vp-title">Volume Analysis</h1>
     <p class="vp-lede">Where did the volume actually go today? Every listed equity scored on a <strong>relative-volume ladder</strong> — today's traded volume against its own 7, 15, 20, 30, 60 and 90-session averages — plus volume shock, price-volume scores and regime flags. Computed from Nepse Decode's own data archive. Free, always.</p>
     <p class="vp-meta"><span id="vpSession">Loading…</span></p>
     <p class="vp-provisional" id="vpProvisional" hidden></p>
+    <section class="vp-stats" id="vpStats" aria-label="Market volume summary"></section>
+    <div class="vp-dist" id="vpDist" aria-label="Signal tag distribution"></div>
   </div>
 
-  <section class="vp-stats" id="vpStats" aria-label="Market volume summary"></section>
-
-  <section class="vp-controls" aria-label="Board controls">
-    <input type="search" id="vpSearch" class="vp-search" placeholder="Search symbol…" aria-label="Search symbol">
-    <select id="vpSector" class="vp-select" aria-label="Filter by sector"><option value="">All sectors</option></select>
-    <select id="vpTag" class="vp-select" aria-label="Filter by signal tag">
-      <option value="">All signal tags</option>
-      <option value="HIGH_VOLUME_SPIKE">High volume spike</option>
-      <option value="ELEVATED_VOLUME">Elevated volume</option>
-      <option value="NORMAL">Normal</option>
-      <option value="VOLUME_DRYUP">Volume dry-up</option>
-    </select>
-    <div class="vp-flagfilters" role="group" aria-label="Filter by flag">
-      <button type="button" class="vp-fbtn" data-flag="flag_volume_shock">Shock</button>
-      <button type="button" class="vp-fbtn" data-flag="flag_volume_expansion">Expansion</button>
-      <button type="button" class="vp-fbtn" data-flag="flag_compression">Compression</button>
-      <button type="button" class="vp-fbtn" data-flag="flag_quiet_accumulation">Quiet accumulation</button>
+  <section class="vp-panel" id="autoupdate" aria-label="Auto-update status">
+    <p class="cx-kicker">Auto-updating · every trading session</p>
+    <h2>Fresh after every close — nothing here is hand-edited</h2>
+    <p class="vp-auto-sub" id="vpAutoSub"></p>
+    <div class="vp-steps">
+      <div class="vp-step"><span class="vp-step-no">01</span><h3>Rebuild</h3><p>After the close, the board is recomputed from the own OHLCV archive — today's volume against each stock's prior 7–90 session averages.</p></div>
+      <div class="vp-step"><span class="vp-step-no">02</span><h3>Categorise</h3><p>Every equity gets its signal tag (spike, elevated, normal, dry-up), its PVCS and VPD scores, and its four regime flags.</p></div>
+      <div class="vp-step"><span class="vp-step-no">03</span><h3>Archive</h3><p>The day's board is appended to the board archive, so every session stays on record and nothing is ever recomputed from scratch.</p></div>
+      <div class="vp-step"><span class="vp-step-no">04</span><h3>Resolve</h3><p>As sessions trade out, each past signal's 5, 10 and 20-session forward outcome is measured against the average stock — and published below.</p></div>
     </div>
-    <span class="vp-count" id="vpCount"></span>
+    <p class="vp-track-note" id="vpTrackNote"></p>
   </section>
 
-  <div class="vp-tablewrap">
-    <table class="vp-table" id="vpTable">
-      <thead>
-        <tr>
-          <th data-key="symbol" class="vp-sortable">Symbol</th>
-          <th data-key="sector" class="vp-sortable vp-hide-m">Sector</th>
-          <th data-key="ltp" class="vp-sortable vp-num">LTP</th>
-          <th data-key="percentage_change" class="vp-sortable vp-num">% Chg</th>
-          <th data-key="volume" class="vp-sortable vp-num vp-hide-m">Volume</th>
-          <th data-key="volume_yesterday" class="vp-sortable vp-num vp-hide-m">Vol Yesterday</th>
-          <th data-key="avg_7" class="vp-sortable vp-num vp-hide-m">AVG 7</th>
-          <th data-key="rvol_7" class="vp-sortable vp-num">RVOL 7</th>
-          <th data-key="avg_15" class="vp-sortable vp-num vp-hide-m">AVG 15</th>
-          <th data-key="rvol_15" class="vp-sortable vp-num vp-hide-m">15</th>
-          <th data-key="avg_20" class="vp-sortable vp-num vp-hide-m">AVG 20</th>
-          <th data-key="rvol_20" class="vp-sortable vp-num vp-hide-m">20</th>
-          <th data-key="avg_30" class="vp-sortable vp-num vp-hide-s">AVG 30</th>
-          <th data-key="rvol_30" class="vp-sortable vp-num vp-hide-s">30</th>
-          <th data-key="avg_60" class="vp-sortable vp-num vp-hide-s">AVG 60</th>
-          <th data-key="rvol_60" class="vp-sortable vp-num vp-hide-s">60</th>
-          <th data-key="avg_90" class="vp-sortable vp-num vp-hide-s">AVG 90</th>
-          <th data-key="rvol_90" class="vp-sortable vp-num vp-hide-s">90</th>
-          <th data-key="rolling_high_20" class="vp-sortable vp-num vp-hide-s">Rolling High 20D</th>
-          <th data-key="pvcs" class="vp-sortable vp-num">PVCS</th>
-          <th data-key="vpd" class="vp-sortable vp-num">VPD</th>
-          <th data-key="volume_shock_ratio" class="vp-sortable vp-num vp-hide-m">Shock</th>
-          <th data-key="daily_range_pct" class="vp-sortable vp-num vp-hide-s">Range %</th>
-          <th>Flags</th>
-          <th data-key="signal_tag" class="vp-sortable">Tag</th>
-        </tr>
-      </thead>
-      <tbody id="vpBody"><tr><td colspan="25" class="vp-loading">Loading the board…</td></tr></tbody>
-    </table>
-  </div>
+  <section class="vp-panel" id="sectors" aria-label="Sectors">
+    <p class="cx-kicker">By sector · tap a card to filter the board</p>
+    <h2>Where the volume sits, sector by sector</h2>
+    <p class="vp-sec-desc">Mean RVOL-7 across the sector's stocks, how many spiked, and the sector's strongest price-volume confirmation. Tap any card to see only that sector's stocks in the board.</p>
+    <div class="vp-chart" id="sectorChart"></div>
+    <div class="vp-cards" id="sectorCards"></div>
+  </section>
 
-  <section class="vp-section" aria-label="Methodology">
+  <section class="vp-panel" id="boardsec" aria-label="Volume board">
+    <p class="cx-kicker">The board · every listed equity</p>
+    <h2>Relative-volume ladder</h2>
+    <section class="vp-controls" aria-label="Board controls">
+      <input type="search" id="vpSearch" class="vp-search" placeholder="Search symbol…" aria-label="Search symbol">
+      <select id="vpSector" class="vp-select" aria-label="Filter by sector"><option value="">All sectors</option></select>
+      <select id="vpTag" class="vp-select" aria-label="Filter by signal tag">
+        <option value="">All signal tags</option>
+        <option value="HIGH_VOLUME_SPIKE">High volume spike</option>
+        <option value="ELEVATED_VOLUME">Elevated volume</option>
+        <option value="NORMAL">Normal</option>
+        <option value="VOLUME_DRYUP">Volume dry-up</option>
+      </select>
+      <div class="vp-flagfilters" role="group" aria-label="Filter by flag">
+        <button type="button" class="vp-fbtn" data-flag="flag_volume_shock">Shock</button>
+        <button type="button" class="vp-fbtn" data-flag="flag_volume_expansion">Expansion</button>
+        <button type="button" class="vp-fbtn" data-flag="flag_compression">Compression</button>
+        <button type="button" class="vp-fbtn" data-flag="flag_quiet_accumulation">Quiet accumulation</button>
+      </div>
+      <span class="vp-count" id="vpCount"></span>
+    </section>
+
+    <div class="vp-tablewrap">
+      <table class="vp-table" id="vpTable">
+        <thead>
+          <tr>
+            <th data-key="symbol" class="vp-sortable">Symbol</th>
+            <th data-key="sector" class="vp-sortable vp-hide-m">Sector</th>
+            <th data-key="ltp" class="vp-sortable vp-num">LTP</th>
+            <th data-key="percentage_change" class="vp-sortable vp-num">% Chg</th>
+            <th data-key="volume" class="vp-sortable vp-num vp-hide-m">Volume</th>
+            <th data-key="volume_yesterday" class="vp-sortable vp-num vp-hide-m">Vol Yesterday</th>
+            <th data-key="avg_7" class="vp-sortable vp-num vp-hide-m">AVG 7</th>
+            <th data-key="rvol_7" class="vp-sortable vp-num">RVOL 7</th>
+            <th data-key="avg_15" class="vp-sortable vp-num vp-hide-m">AVG 15</th>
+            <th data-key="rvol_15" class="vp-sortable vp-num vp-hide-m">15</th>
+            <th data-key="avg_20" class="vp-sortable vp-num vp-hide-m">AVG 20</th>
+            <th data-key="rvol_20" class="vp-sortable vp-num vp-hide-m">20</th>
+            <th data-key="avg_30" class="vp-sortable vp-num vp-hide-s">AVG 30</th>
+            <th data-key="rvol_30" class="vp-sortable vp-num vp-hide-s">30</th>
+            <th data-key="avg_60" class="vp-sortable vp-num vp-hide-s">AVG 60</th>
+            <th data-key="rvol_60" class="vp-sortable vp-num vp-hide-s">60</th>
+            <th data-key="avg_90" class="vp-sortable vp-num vp-hide-s">AVG 90</th>
+            <th data-key="rvol_90" class="vp-sortable vp-num vp-hide-s">90</th>
+            <th data-key="rolling_high_20" class="vp-sortable vp-num vp-hide-s">Rolling High 20D</th>
+            <th data-key="pvcs" class="vp-sortable vp-num">PVCS</th>
+            <th data-key="vpd" class="vp-sortable vp-num">VPD</th>
+            <th data-key="volume_shock_ratio" class="vp-sortable vp-num vp-hide-m">Shock</th>
+            <th data-key="daily_range_pct" class="vp-sortable vp-num vp-hide-s">Range %</th>
+            <th>Flags</th>
+            <th data-key="signal_tag" class="vp-sortable">Tag</th>
+          </tr>
+        </thead>
+        <tbody id="vpBody"><tr><td colspan="25" class="vp-loading">Loading the board…</td></tr></tbody>
+      </table>
+    </div>
+    <div class="vp-pager">
+      <button type="button" class="vp-pagebtn" id="vpPrev">← Prev</button>
+      <span class="vp-pagenum" id="vpPageNum"></span>
+      <button type="button" class="vp-pagebtn" id="vpNext">Next →</button>
+    </div>
+    <p class="vp-scrollhint">Scroll sideways for the full ladder — the symbol column stays pinned.</p>
+  </section>
+
+  <section class="vp-panel" id="tracking" aria-label="Forward tracking">
+    <p class="cx-kicker">Measured, not promised · 5 / 10 / 20 sessions forward</p>
+    <h2>Does unusual volume predict anything?</h2>
+    <p class="vp-verdict" id="vpVerdict"></p>
+    <div class="vp-seg" role="group" aria-label="Forward horizon">
+      <button type="button" class="vp-segbtn" data-h="h5">5 sessions</button>
+      <button type="button" class="vp-segbtn" data-h="h10">10 sessions</button>
+      <button type="button" class="vp-segbtn" data-h="h20">20 sessions</button>
+    </div>
+    <div class="vp-chart" id="trackChart"></div>
+    <div class="vp-tablewrap">
+    <table class="vp-track-table">
+      <thead><tr><th>Group</th><th class="vp-num">Mean excess</th><th class="vp-num">Beat rate</th><th class="vp-num">Sessions</th></tr></thead>
+      <tbody id="vpTrackBody"></tbody>
+    </table>
+    </div>
+    <p class="vp-track-pending" id="vpTrackPending"></p>
+    <p class="vp-track-method">How it is measured: every session, each stock is put in its groups (signal tag, top/bottom PVCS decile, VPD ≥ +5 / ≤ −5, quiet accumulation, shock). Forward return = close h sessions later on that stock's own traded bars, minus the equal-weight average board stock that session — so a group at 0.00pp merely matched the market. Windows containing a single-session move over 15% are dropped as corporate-action noise. Each session's group mean counts once in the aggregate (mean of session means), never pooled by headcount. A stock can sit in several groups at once; groups are lenses, not partitions. Nothing here changes the board's formula — tracking only measures it.</p>
+  </section>
+
+  <section class="vp-panel" id="method" aria-label="Methodology">
+    <p class="cx-kicker">Methodology</p>
     <h2>How this board is built</h2>
     <div class="vp-method">
-      <p><strong>RVOL ladder.</strong> For each rung N in 7 / 15 / 20 / 30 / 60 / 90 sessions, RVOL-N = today's volume ÷ the average volume of the prior N sessions (today excluded). RVOL-7 of 2.0 means the stock traded twice its last-week pace. The AVG column beside each rung is that prior-N-session average volume itself. Averages, shock ratios and the 20-session rolling high are computed from Nepse Decode's own OHLCV archive — the same archive behind the rest of this site — and the board is rebuilt after every market close.</p>
-      <p><strong>PVCS</strong> (price–volume confirmation score) = percentage change × RVOL-7. It rewards moves that arrive on heavy volume and discounts moves on thin volume: a +5% day at RVOL 0.4 scores lower than a +2% day at RVOL 3.</p>
-      <p><strong>VPD</strong> (volume pressure, 10 sessions) is Nepse Decode's own measure: 10 × (up-volume − down-volume) ÷ total volume over the last 10 sessions, where a session's volume counts as up or down by its close versus the previous close. It ranges from −10 (every session down on volume) to +10. Published volume-pressure formulas vary by provider and no canonical one exists, so we publish ours exactly as defined here rather than borrowing a black box.</p>
-      <p><strong>Volume shock</strong> = today's volume ÷ yesterday's volume. <strong>Flags:</strong> Shock — shock ratio ≥ 3.0 or RVOL-20 ≥ 2.0. Expansion — 7-session average volume above the 30-session average with RVOL-7 ≥ 1.0. Compression — daily range ≤ 2.5% with RVOL-20 ≤ 0.7 (quiet, tight, waiting). Quiet accumulation — |daily change| ≤ 0.5% (price flat while the tape stays active). <strong>Signal tags</strong> read off RVOL-7: ≥ 3.5 high volume spike, ≥ 1.8 elevated, ≤ 0.5 volume dry-up, otherwise normal.</p>
-      <p><strong>Coverage.</strong> Ordinary equities with at least 91 sessions of archived history that traded in the latest session. Mutual funds, debentures and promoter shares are excluded — their volume means something different. A small number of equities whose archived history is still being backfilled join the board automatically once their history is complete.</p>
-      <p><strong>During market hours</strong> the board refreshes intraday from live quotes and is marked <strong>provisional</strong>: Volume is the cumulative shares traded so far today (shown next to yesterday's full-session volume), the RVOL denominators stay the prior-session averages, and PVCS uses the live price change. A stock joins the intraday board once it has traded. The final board — full-session volume, closing prices — replaces the provisional board after the close. <strong>Rolling High 20D</strong> is the highest traded price of the last 20 sessions including today.</p>
+      <div class="vp-method-card"><h3>RVOL ladder</h3><p>For each rung N in 7 / 15 / 20 / 30 / 60 / 90 sessions, RVOL-N = today's volume ÷ the average volume of the prior N sessions (today excluded). RVOL-7 of 2.0 means the stock traded twice its last-week pace. The AVG column beside each rung is that prior-N-session average volume itself. Averages, shock ratios and the 20-session rolling high are computed from Nepse Decode's own OHLCV archive — the same archive behind the rest of this site — and the board is rebuilt after every market close.</p></div>
+      <div class="vp-method-card"><h3>PVCS</h3><p>Price–volume confirmation score = percentage change × RVOL-7. It rewards moves that arrive on heavy volume and discounts moves on thin volume: a +5% day at RVOL 0.4 scores lower than a +2% day at RVOL 3.</p></div>
+      <div class="vp-method-card"><h3>VPD</h3><p>Volume pressure, 10 sessions, is Nepse Decode's own measure: 10 × (up-volume − down-volume) ÷ total volume over the last 10 sessions, where a session's volume counts as up or down by its close versus the previous close. It ranges from −10 (every session down on volume) to +10. Published volume-pressure formulas vary by provider and no canonical one exists, so we publish ours exactly as defined here rather than borrowing a black box.</p></div>
+      <div class="vp-method-card"><h3>Volume shock &amp; flags</h3><p>Volume shock = today's volume ÷ yesterday's volume. Flags: Shock — shock ratio ≥ 3.0 or RVOL-20 ≥ 2.0. Expansion — 7-session average volume above the 30-session average with RVOL-7 ≥ 1.0. Compression — daily range ≤ 2.5% with RVOL-20 ≤ 0.7 (quiet, tight, waiting). Quiet accumulation — |daily change| ≤ 0.5% (price flat while the tape stays active). Signal tags read off RVOL-7: ≥ 3.5 high volume spike, ≥ 1.8 elevated, ≤ 0.5 volume dry-up, otherwise normal.</p></div>
+      <div class="vp-method-card"><h3>Coverage</h3><p>Ordinary equities with at least 91 sessions of archived history that traded in the latest session. Mutual funds, debentures and promoter shares are excluded — their volume means something different. A small number of equities whose archived history is still being backfilled join the board automatically once their history is complete.</p></div>
+      <div class="vp-method-card"><h3>During market hours</h3><p>The board refreshes intraday from live quotes and is marked provisional: Volume is the cumulative shares traded so far today (shown next to yesterday's full-session volume), the RVOL denominators stay the prior-session averages, and PVCS uses the live price change. A stock joins the intraday board once it has traded. The final board — full-session volume, closing prices — replaces the provisional board after the close. Rolling High 20D is the highest traded price of the last 20 sessions including today.</p></div>
+      <div class="vp-method-card vp-method-foot"><h3>Source</h3><p>Nepse Decode OHLCV archive (own data).</p></div>
     </div>
   </section>
 
@@ -142,6 +195,6 @@
 
 <div id="nd-footer"></div>
 <script src="/js/nd-chrome.js?v=74c1c8b7"></script>
-<script src="/js/nd-volume.js?v=5fb5e80d"></script>
+<script src="/js/nd-volume.js?v=2a1c97e6"></script>
 </body>
 </html>
