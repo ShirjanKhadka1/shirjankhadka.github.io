@@ -24,9 +24,6 @@
 <meta name="twitter:description" content="Buy/sell flow by broker and by stock, from public floorsheet records. Educational use only.">
 <meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
 <meta property="og:url" content="https://shirjankhadka.com.np/nepse-money-flow/">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Money Flow: NEPSE Broker Buy/Sell Flow">
-<meta name="twitter:description" content="Buy/sell flow by broker and by stock, from public floorsheet records.">
 <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
 <link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
@@ -45,7 +42,7 @@
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
-<link rel="stylesheet" href="/css/nd-moneyflow.css?v=fb86ca6a">
+<link rel="stylesheet" href="/css/nd-moneyflow.css?v=49dfd743">
 <link rel="stylesheet" href="/css/nd-3d.css">
 <link rel="stylesheet" href="/css/nd-research-3d.css">
 </head>
@@ -60,30 +57,61 @@
     <div class="nd-wrap">
 <main id="main">
 
-  <div class="mf-masthead">
-    <div>
-      <p class="nd-kicker">Research</p>
-      <h1 class="mf-title">Money Flow</h1>
-      <p class="mf-lede">Where the brokers' money moved — <strong>buy/sell flow by broker and by stock</strong>, from public floorsheet records. <strong>Net bought / net sold is transaction flow, not verified shareholding.</strong></p>
-      <p class="mf-meta"><span id="mfSession">Loading…</span></p>
+  <section class="mf-hero" aria-label="Money flow summary">
+    <p class="nd-kicker">Research · Broker Flow</p>
+    <h1 class="mf-title">Money Flow</h1>
+    <p class="mf-lede">Where the brokers' money moved — <strong>buy/sell flow by broker and by stock</strong>, from public floorsheet records. <strong>Net bought / net sold is transaction flow, not verified shareholding.</strong> A broker can top the buy table while selling just as much elsewhere; the table shows both sides.</p>
+    <p class="mf-meta"><span id="mfSession">Loading…</span></p>
+    <div class="mf-tiles" id="mfTiles" aria-label="Flow summary"></div>
+  </section>
+
+  <section class="mf-panel mf-auto" aria-label="How this page updates">
+    <div class="mf-sechead"><h2>Auto-updating</h2><span class="mf-secnote">This page refreshes itself; new data lands here after the close, no reload needed.</span></div>
+    <div class="mf-autogrid" id="mfAuto"><p class="mf-loading">Loading update status…</p></div>
+    <ol class="mf-steps">
+      <li><span class="mf-stepdone">✓</span> <strong>Collect</strong> — every trade of the session from the public floorsheet feed, after the post-close finality check.</li>
+      <li><span class="mf-stepdone">✓</span> <strong>Aggregate</strong> — per-broker totals and per-stock accumulation / distribution pairs.</li>
+      <li><span class="mf-stepdone">✓</span> <strong>Archive</strong> — the session is appended to the permanent flow archive (never rewritten).</li>
+      <li><span class="mf-stepdone">✓</span> <strong>Resolve tracking</strong> — past accumulated / distributed stocks are walked forward 5 / 10 / 20 sessions against the market average.</li>
+    </ol>
+    <p class="mf-fine">During market hours this page shows the last <strong>final</strong> session. Provisional intraday broker totals are a separate feed and are never mixed into these final figures. One gap on record: <strong>2026-10-07</strong> published broker totals only, with no stock-level detail, so it is excluded from the archive and the tracking.</p>
+  </section>
+
+  <section class="mf-panel" aria-label="Window">
+    <div class="mf-sechead"><h2>Flow window</h2><span class="mf-secnote" id="mfWindowNote"></span></div>
+    <div class="mf-seg" id="mfWindow" role="tablist" aria-label="Flow window">
+      <button data-window="1D" role="tab" aria-selected="true">1 day</button>
+      <button data-window="1W" role="tab" aria-selected="false">1 week</button>
+      <button data-window="2W" role="tab" aria-selected="false">2 weeks</button>
+      <button data-window="1M" role="tab" aria-selected="false">1 month</button>
+      <button data-window="3M" role="tab" aria-selected="false">3 months</button>
+      <button data-window="6M" role="tab" aria-selected="false">6 months</button>
+      <button data-window="1Y" role="tab" aria-selected="false">1 year</button>
     </div>
-  </div>
+    <p class="mf-fine">Windows come from the broker pipeline's published period aggregates. The archive and the tracking below are built on <strong>single sessions</strong> (the 1-day view); longer windows show where flow concentrated over the period, not a tracked signal.</p>
+  </section>
 
-  <div class="mf-tiles" id="mfTiles" aria-label="Flow summary"></div>
+  <section class="mf-panel" aria-label="Flow by sector">
+    <div class="mf-sechead"><h2>Flow by sector</h2><span class="mf-secnote">Tap a sector to see only its stocks in the lists below.</span></div>
+    <div class="mf-sectorgrid" id="mfSectors"><p class="mf-loading">Loading sectors…</p></div>
+    <p class="mf-fine" id="mfSectorNote">Sector nets cover the day's 400 largest stock-broker pairs only (top 200 accumulation + top 200 distribution). Full-market sector nets are zero by construction — every trade's buy is another broker's sell — so the concentration among the largest pairs is the honest sector signal.</p>
+  </section>
 
-  <section class="mf-section" aria-label="Broker flow table">
+  <section class="mf-panel" aria-label="Broker flow table">
     <div class="mf-sechead">
-      <h2>Latest session broker flow</h2>
+      <h2>Broker flow</h2>
       <span class="mf-secnote" id="mfTableNote"></span>
     </div>
-    <div class="mf-tabs nd-tabs nd-tabs--pill" role="tablist" aria-label="Sort broker flow">
-      <button class="on" data-sort="net-desc" role="tab" aria-selected="true">Top net buyers</button>
-      <button data-sort="net-asc" role="tab" aria-selected="false">Top net sellers</button>
-      <button data-sort="buy-desc" role="tab" aria-selected="false">Biggest buyers</button>
-      <button data-sort="sell-desc" role="tab" aria-selected="false">Biggest sellers</button>
+    <div class="mf-toolbar">
+      <input id="mfBrokerSearch" type="search" placeholder="Search broker name or code…" aria-label="Search brokers" autocomplete="off">
+      <div class="mf-seg mf-tabs" role="tablist" aria-label="Sort broker flow">
+        <button class="on" data-sort="net-desc" role="tab" aria-selected="true">Top net buyers</button>
+        <button data-sort="net-asc" role="tab" aria-selected="false">Top net sellers</button>
+        <button data-sort="buy-desc" role="tab" aria-selected="false">Biggest buyers</button>
+        <button data-sort="sell-desc" role="tab" aria-selected="false">Biggest sellers</button>
+      </div>
     </div>
     <div class="mf-tablewrap">
-      <div id="mfPager" style="display:flex;gap:12px;align-items:center;justify-content:center;margin:8px 0;"></div>
       <table class="mf-table nd-table" id="mfTable">
         <thead><tr>
           <th class="l">Broker</th>
@@ -94,22 +122,47 @@
         </tr></thead>
         <tbody id="mfBody"><tr><td colspan="5" class="mf-loading">Loading broker flow…</td></tr></tbody>
       </table>
-      <div id="mfPagerBottom" style="display:flex;gap:12px;align-items:center;justify-content:center;margin:8px 0;"></div>
     </div>
+    <div class="mf-pager" id="mfPager"></div>
+    <p class="mf-showing" id="mfShowing"></p>
   </section>
 
   <div class="mf-cols">
-    <section class="mf-section" aria-label="Top accumulation">
-      <div class="mf-sechead"><h2>Accumulating</h2></div>
+    <section class="mf-panel" aria-label="Top accumulation">
+      <div class="mf-sechead"><h2>Accumulating</h2><span class="mf-secnote" id="mfAccumNote"></span></div>
       <div id="mfAccum" class="mf-flowlist"><p class="mf-loading">Loading…</p></div>
     </section>
-    <section class="mf-section" aria-label="Top distribution">
-      <div class="mf-sechead"><h2>Distributing</h2></div>
+    <section class="mf-panel" aria-label="Top distribution">
+      <div class="mf-sechead"><h2>Distributing</h2><span class="mf-secnote" id="mfDistNote"></span></div>
       <div id="mfDist" class="mf-flowlist"><p class="mf-loading">Loading…</p></div>
     </section>
   </div>
 
-  <p class="mf-fine">Static snapshot of the latest session on record. Net bought/sold is transaction flow derived from public floorsheet records, not verified shareholding. Figures update when the next session's broker data is published. For education only — not investment advice.</p>
+  <section class="mf-panel" aria-label="Does following the flow beat the market?">
+    <div class="mf-sechead"><h2>Does following the flow beat the market?</h2><span class="mf-secnote">Forward tracking, honest numbers.</span></div>
+    <div class="mf-seg" id="mfTrackTabs" role="tablist" aria-label="Tracking horizon">
+      <button data-h="5" role="tab" aria-selected="false">5 sessions</button>
+      <button data-h="10" role="tab" aria-selected="true">10 sessions</button>
+      <button data-h="20" role="tab" aria-selected="false">20 sessions</button>
+    </div>
+    <div class="mf-trackgrid" id="mfTrack"><p class="mf-loading">Loading tracking…</p></div>
+    <p class="mf-fine" id="mfTrackVerdict"></p>
+    <p class="mf-fine">Method: each session's accumulated stocks (top-20 pairs, deduplicated) and distributed stocks are walked forward 5 / 10 / 20 of their own trading sessions. Excess return is measured against the equal-weight average stock that session; any window containing a single-session move over 15% is dropped as corporate-action noise. The headline is the mean of session means — never pooled across sessions of different sizes. <strong>Nothing here is a buy or sell call.</strong></p>
+  </section>
+
+  <section class="mf-panel" aria-label="Methodology">
+    <div class="mf-sechead"><h2>How to read this page</h2></div>
+    <div class="mf-methodgrid">
+      <div class="mf-method"><h3>Source</h3><p>Public NEPSE floorsheet records, pulled server-side after the post-close finality check (stable totals, no preliminary snapshot). Served from Nepse Decode's own archive — never proxied.</p></div>
+      <div class="mf-method"><h3>What net flow is</h3><p>Buy value minus sell value for a broker, or for one stock through one broker. It is transaction flow in the session — not a holding, not a position, and not evidence of intent.</p></div>
+      <div class="mf-method"><h3>What it is not</h3><p>Broker rankings are not skill rankings. A top net buyer one session is usually not the top buyer the next — across 62 tracked sessions only about 3 of the top 10 repeat.</p></div>
+      <div class="mf-method"><h3>Archive</h3><p>One snapshot per session, 2026-07-15 onward, append-only. A session's snapshot is never rewritten when later sessions arrive — the tracking proof is that old cells stay byte-identical.</p></div>
+      <div class="mf-method"><h3>Tracking honesty</h3><p>Groups are lenses, not partitions: a stock can appear in both lists. Pending horizons are shown as pending, never estimated. The formula never changes to flatter the result.</p></div>
+      <div class="mf-method"><h3>Limits</h3><p>Broker flow covers only trades that printed on the floorsheet. Off-market transfers, promoter pledges and holdings are outside this data and outside these claims.</p></div>
+    </div>
+  </section>
+
+  <p class="mf-fine">For education only. Not investment advice. Not affiliated with Nepal Stock Exchange Ltd.</p>
 
 </main>
     </div>
@@ -118,6 +171,6 @@
 
 <div id="nd-footer"></div>
 <script src="/js/nd-chrome.js?v=74c1c8b7"></script>
-<script src="/js/nd-moneyflow.js?v=ab6abd06"></script>
+<script src="/js/nd-moneyflow.js?v=918667f1"></script>
 </body>
 </html>
