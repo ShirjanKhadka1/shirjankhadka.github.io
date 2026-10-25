@@ -79,8 +79,28 @@
 .cal-seg{display:inline-flex;border:1px solid var(--nd-border,#1E2430);border-radius:99px;overflow:hidden}
 .cal-seg button{appearance:none;background:var(--nd-panel,#12141A);color:var(--nd-muted,#B8C0CE);border:none;padding:7px 16px;font:600 .8rem inherit;cursor:pointer}
 .cal-seg button.on{background:var(--nd-lime,#B8E62E);color:#0A0C10}
+.cal-lockin-controls{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:end;margin:0 0 14px}
+.cal-ctl{display:flex;flex-direction:column;gap:4px}
+.cal-ctl label{font-size:.68rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--nd-dim,#8E98A8)}
+.cal-ctl select,.cal-ctl input{appearance:none;background:var(--nd-panel,#12141A);color:var(--nd-text,#FFF);border:1px solid var(--nd-border,#1E2430);border-radius:10px;padding:8px 12px;font:600 .85rem inherit;min-width:0}
+.cal-ctl select{padding-right:28px;cursor:pointer}
+.cal-ctl input{min-width:190px}
+.cal-ctl select:focus,.cal-ctl input:focus{outline:2px solid var(--nd-lime,#B8E62E);outline-offset:-2px}
+.cal-pager{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin:12px 0 4px}
+.cal-pager-info{font-size:.8rem;color:var(--nd-dim,#8E98A8);font-family:"IBM Plex Mono",monospace}
+.cal-pager-btns{display:flex;gap:8px}
+.cal-pager button:disabled{opacity:.35;cursor:default}
+.cal-viz{margin:0 0 16px}
+.cal-viz-row{display:grid;grid-template-columns:74px 1fr 34px;gap:10px;align-items:center;padding:3px 0;font-size:.8rem}
+.cal-viz-mon{font-family:"IBM Plex Mono",monospace;color:var(--nd-dim,#8E98A8);white-space:nowrap}
+.cal-viz-track{height:10px;background:var(--nd-inset,#0D0F14);border-radius:99px;overflow:hidden}
+.cal-viz-fill{display:block;height:100%;background:var(--nd-lime,#B8E62E);border-radius:99px}
+.cal-viz-n{font-family:"IBM Plex Mono",monospace;font-weight:700;text-align:right}
+.cal-viz-note{font-size:.78rem;color:var(--nd-dim,#8E98A8);margin:6px 0 0}
 @media (max-width:900px){.cal-cols{grid-template-columns:1fr}}
 @media (max-width:640px){
+  .cal-viz-row{grid-template-columns:64px 1fr 28px}
+  .cal-ctl input{min-width:140px}
   .cal-cell{min-height:54px;padding:5px;border-radius:9px}
   .cal-ev{font-size:0;height:7px;width:16px;padding:0;border-left:none;background:var(--c,#888)}
   .cal-more{display:none}
@@ -100,6 +120,8 @@
 <p lang="ne" class="ne-sum">संक्षेप: यस पात्रोमा नेप्से बिदा, प्रमोटर सेयर लक-इन खुल्ने मिति, IPO खुल्ने र बन्द हुने मिति तथा बुक क्लोजर देखाइएको छ। सबै मिति यसै साइटका प्रमाणित डाटा फाइलबाट आएका हुन्। यो शैक्षिक जानकारी हो, लगानी सल्लाह होइन।</p>
 <p class="sig-sub" id="calAsof">Loading the calendar data…</p>
 
+<div class="cx-stats cal-stats" id="calStats"></div>
+
 <div class="cal-controls">
   <div class="cal-nav">
     <button type="button" class="cx-btn" id="calPrev" aria-label="Previous month">‹ Prev</button>
@@ -115,8 +137,6 @@
 
 <div class="cal-filters" id="calFilters" aria-label="Event category filters"></div>
 
-<div class="cx-stats cal-stats" id="calStats"></div>
-
 <div id="calGridWrap"><div class="cal-grid" id="calGrid"></div></div>
 <section id="calList" class="cx-cat" style="display:none;margin-top:16px" aria-label="Month agenda"></section>
 
@@ -128,17 +148,29 @@
 <section style="margin-top:26px">
   <div class="cx-cat-head">Promoter lock-in schedule — all tracked companies</div>
   <p class="cal-none" id="calLockinNote"></p>
+  <div class="cal-lockin-controls" role="search" aria-label="Lock-in table controls">
+    <div class="cal-ctl"><label for="calLockinSector">Sector</label><select id="calLockinSector"><option value="">All sectors</option></select></div>
+    <div class="cal-ctl"><label for="calLockinSort">Sort</label><select id="calLockinSort">
+      <option value="end-asc">Lock-in ends · soonest first</option>
+      <option value="end-desc">Lock-in ends · latest first</option>
+      <option value="sym-asc">Symbol · A–Z</option>
+      <option value="allot-desc">Allotted · newest first</option>
+    </select></div>
+    <div class="cal-ctl"><label for="calLockinSearch">Search</label><input id="calLockinSearch" type="search" placeholder="Symbol — e.g. ADBL" autocomplete="off" spellcheck="false"></div>
+  </div>
+  <div class="cal-viz" id="calLockinViz" aria-label="Lock-in unlocks by month"></div>
   <div class="bk-scroll" style="overflow-x:auto">
     <table class="cx-table" style="width:100%">
-      <thead><tr><th>Symbol</th><th>Allotted (AD)</th><th>Lock-in ends</th><th class="num">Promoter shares</th><th>Status</th></tr></thead>
+      <thead><tr><th>Symbol</th><th>Sector</th><th>Allotted (AD)</th><th>Lock-in ends</th><th>Status</th></tr></thead>
       <tbody id="calLockinBody"></tbody>
     </table>
   </div>
+  <div class="cal-pager" id="calLockinPager"></div>
 </section>
 
 <section style="margin-top:26px">
   <div class="cx-cat-head">How this calendar is built</div>
-  <p class="cal-none">One events database feeds this page, merged in your browser with two supplements — there is no second copy to drift out of date. The <strong>calendar events database</strong> (Nepse Decode's builder-maintained file, 200+ events from 2025 to 2029) carries market holidays, promoter lock-in expiries, IPO and FPO openings and closings, right-share book closures, dividends and AGMs — every event with its own source and a verified or unverified status, both shown in the day view. The <strong>MF &amp; QII lock-in supplement</strong> (the reserved IPO quota held by mutual funds and qualified institutional investors) comes from the Nepse Alpha lock-in tracker, retrieved 2026-10-23 — 32 upcoming unlocks that the main database does not carry. Cross-checks against ShareSansar differ by one day on some symbols (a lock-in-end vs first-tradable-day convention); dates are exactly as the named source publishes them. Project-affected <strong>local shares</strong> in hydropower and manufacturing issues carry the same three-year lock as promoter shares (ShareSansar's stated rule), so for those companies the promoter date is also the local unlock date. The <strong>promoter lock-in table</strong> above comes from the lock-in dataset (Capital Max IPO Lock-in Period, transcribed 2026-10-05): 100 companies, including those whose end date the source has not published — they are listed as “not published in source”, never guessed. Saturdays and Sundays are shaded as market-closed (NEPSE trades Monday–Friday), and each day cell shows its Bikram Sambat date from this site's own converter table (2083 verified against the official calendar).</p>
+  <p class="cal-none">One events database feeds this page, merged in your browser with two supplements — there is no second copy to drift out of date. The <strong>calendar events database</strong> (Nepse Decode's builder-maintained file, 200+ events from 2025 to 2029) carries market holidays, promoter lock-in expiries, IPO and FPO openings and closings, right-share book closures, dividends and AGMs — every event with its own source and a verified, gazette, or unverified status, shown in the day view. Holidays taken from the Nepal Gazette list show as <strong>Gazette</strong> — officially published, but not yet confirmed by a NEPSE notice — never as Verified. The <strong>MF &amp; QII lock-in supplement</strong> (the reserved IPO quota held by mutual funds and qualified institutional investors) comes from the Nepse Alpha lock-in tracker, retrieved 2026-10-23 — 32 upcoming unlocks that the main database does not carry. These are unverified third-party dates and every one is labelled Unverified in the day view; cross-checks against ShareSansar differ by one day on some symbols (a lock-in-end vs first-tradable-day convention, e.g. TPKHL: 2026-11-22 here vs 2026-11-21 on ShareSansar); dates are exactly as the named source publishes them. Project-affected <strong>local shares</strong> in hydropower and manufacturing issues carry the same three-year lock as promoter shares (ShareSansar's stated rule), so for those companies the promoter date is also the local unlock date. The <strong>promoter lock-in table</strong> above comes from the lock-in dataset (Capital Max IPO Lock-in Period, transcribed 2026-10-05): 100 companies, including those whose end date the source has not published — they are listed as “not published in source”, never guessed. Sector tags come from Nepse Decode's own verdicts sector map, derived when the calendar database is built; companies the map does not carry sit under Unclassified. Statuses are computed when the page loads from the end date, so a date that has passed reads Open even though the October transcription still said Locked; and where the database holds a user-verified date it wins over the transcription (HATHY: 29 Sep 2026, not the transcription's 18 Sep 2026). Promoter share counts are deliberately not published: the transcribed counts are pending republication clearance. Saturdays and Sundays are shaded as market-closed (NEPSE trades Monday–Friday), and each day cell shows its Bikram Sambat date from this site's own converter table (2083 verified against the official calendar).</p>
 </section>
 
 </main>
@@ -147,6 +179,6 @@
 <script src="/js/nd-chrome.js?v=74c1c8b7" defer></script>
 <script src="/js/nd-cinema.js?v=90f78cc3" defer></script>
 <script src="/js/bs-calendar.js?v=7a163aae" defer></script>
-<script src="/js/nd-calendar.js?v=72e32374" defer></script>
+<script src="/js/nd-calendar.js?v=51c70f4c" defer></script>
 </body>
 </html>

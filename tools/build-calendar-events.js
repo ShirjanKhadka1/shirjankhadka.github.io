@@ -64,6 +64,11 @@ for (const c of seed.closures) {
     title: c.name,
     source: c.source,
     verified: c.status === 'verified',
+    /* Seed grade, kept separate from `verified` on purpose: a gazette
+     * holiday is officially published but not yet NEPSE-confirmed, so the
+     * page shows it as "Gazette" rather than "Unverified". The machine
+     * holiday files keep their own stricter verified rule untouched. */
+    grade: c.status,
   });
 }
 
@@ -234,6 +239,15 @@ for (const [sym, entries] of Object.entries(divLive.companies || {})) {
   }
 }
 
+/* Sector tags for the lock-in table, derived at build time from our own
+ * verdicts sector map (never fetched at page-view time). Symbols the
+ * verdicts summary does not carry get null — the page buckets them as
+ * "Unclassified", never guessed. */
+const sectorMap = {};
+for (const sym of Object.keys(lockin.rows || {}).sort()) {
+  sectorMap[sym] = (verdicts[sym] && verdicts[sym].sector) || null;
+}
+
 /* ---------- assemble + validate ---------- */
 events.sort((a, b) => a.date_ad < b.date_ad ? -1 : a.date_ad > b.date_ad ? 1 : (a.type < b.type ? -1 : 1));
 const counts = {};
@@ -251,6 +265,8 @@ const out = {
   counts,
   date_range: events.length ? [events[0].date_ad, events[events.length - 1].date_ad] : [],
   events,
+  /* symbol -> sector for the lock-in table (null = Unclassified). */
+  sectors: sectorMap,
 };
 
 /* Holiday machine files share the closure set (weekend dates are the
