@@ -162,6 +162,18 @@ const VERIFIED_OVERRIDES = {
   PROFLP:   { name: 'Progressive Finance Limited Promoter',      type: 'Promoter share' },
   SAND2085: { name: '10% Sanima Bank Limited Debenture 2085',    type: 'Debenture' },
   SBD89:    { name: '10.25% Sanima Debenture 2089',               type: 'Debenture' },
+  // 2026-10-26 (Shirjan's call): promoter lines mistagged Equity in the
+  // universe. TYPE verified by verdicts-v2 identity sector "Promoter
+  // Shares" + the VPI sector-gate failures on every session they traded
+  // (243/295 backfill sessions). NAMES are NOT verified in any available
+  // source (NEPSE EOD securityNames, live feed, broker 1M, v2 identity,
+  // community companies list all carry these as bare symbols) — so the
+  // bare symbol is kept deliberately, never an invented company name.
+  // Update the names when a verified source exists; the type fix stands.
+  JBLBP:    { name: 'JBLBP', type: 'Promoter share' },
+  KBLPO:    { name: 'KBLPO', type: 'Promoter share' },
+  MLBLPO:   { name: 'MLBLPO', type: 'Promoter share' },
+  RBCLPO:   { name: 'RBCLPO', type: 'Promoter share' },
 };
 
 // ---- buy-call track record (no-lookahead backtest) ----
