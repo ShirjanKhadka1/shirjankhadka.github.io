@@ -3,9 +3,33 @@
    printed beside every visual. */
 (function () {
   'use strict';
-  var DATA_URL = '/data/stock-sector-sentiment.json?v=20261024a';
-  var state = { win: '20', sector: 'ALL', sort: 'score', q: '', horizon: '10' };
+  var DATA_URL = '/data/stock-sector-sentiment.json?v=9a14e547';
+  var PAGE_SIZE = 25;
+  var state = { win: '20', sector: 'ALL', sort: 'score', q: '', horizon: '10', page: 1 };
   var PAYLOAD = null;
+
+  function readUrlState() {
+    try {
+      var p = new URLSearchParams(window.location.search);
+      if (p.get('win')) state.win = p.get('win');
+      if (p.get('sector')) state.sector = p.get('sector');
+      if (p.get('sort')) state.sort = p.get('sort');
+      if (p.get('q')) state.q = p.get('q');
+      if (p.get('page')) state.page = Math.max(1, parseInt(p.get('page'), 10) || 1);
+    } catch (e) { /* share links stay optional */ }
+  }
+  function syncUrlState() {
+    try {
+      var p = new URLSearchParams();
+      if (state.win !== '20') p.set('win', state.win);
+      if (state.sector !== 'ALL') p.set('sector', state.sector);
+      if (state.sort !== 'score') p.set('sort', state.sort);
+      if (state.q) p.set('q', state.q);
+      if (state.page > 1) p.set('page', String(state.page));
+      var qs = p.toString();
+      history.replaceState(null, '', qs ? ('?' + qs) : window.location.pathname);
+    } catch (e) { /* non-fatal */ }
+  }
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -29,6 +53,21 @@
   function stateCls(s) {
     return s === 'Strong Bullish' ? 'up' : s === 'Bullish' ? 'mild-up' :
       s === 'Neutral' ? 'flat' : s === 'Bearish' ? 'mild-down' : 'down';
+  }
+
+  function renderHero() {
+    var b = board(), s = b.summary;
+    var mean = s.mean_score;
+    var band = mean >= 80 ? 'Strong Bullish' : mean >= 60 ? 'Bullish' :
+      mean >= 40 ? 'Neutral' : mean >= 20 ? 'Bearish' : 'Strong Bearish';
+    document.getElementById('snHeroWin').textContent = state.win + ' sessions';
+    document.getElementById('snHeroNum').textContent = num(mean, 1);
+    var bandEl = document.getElementById('snHeroBand');
+    bandEl.textContent = band;
+    bandEl.className = 'sn-state ' + stateCls(band);
+    document.getElementById('snHeroSub').textContent =
+      'median stock ' + num(s.median_score, 1) + ' · strongest sector ' +
+      (s.top_sector || '—') + ' · weakest ' + (s.bottom_sector || '—');
   }
 
   function renderStats() {
@@ -83,7 +122,8 @@
     Array.prototype.forEach.call(
       document.querySelectorAll('#winTabs button'), function (btn) {
         btn.addEventListener('click', function () {
-          state.win = btn.getAttribute('data-win'); renderAll();
+          state.win = btn.getAttribute('data-win'); state.page = 1;
+          renderAll(); syncUrlState();
         });
       });
     var hz = document.getElementById('horizonTabs');
@@ -127,12 +167,19 @@
 
   function renderTable() {
     var rows = visibleRows();
+    var total = rows.length;
+    var pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    if (state.page > pages) state.page = pages;
+    var from = (state.page - 1) * PAGE_SIZE;
+    var pageRows = rows.slice(from, from + PAGE_SIZE);
     document.getElementById('boardCount').textContent =
-      'Showing ' + rows.length + ' of ' + board().summary.scored +
-      ' scored stocks · ' + state.win + '-session window · session ' + PAYLOAD.asof;
-    document.getElementById('boardBody').innerHTML = rows.map(function (r) {
-      return '<tr><td class="num">' + r.rank + '</td>' +
-        '<td class="sn-sym"><a href="/stocks/' + esc(r.symbol) + '/">' + esc(r.symbol) + '</a>' +
+      'Showing ' + (total ? (from + 1) : 0) + '–' + (from + pageRows.length) +
+      ' of ' + total + ' stocks' +
+      (state.sector !== 'ALL' ? ' in ' + state.sector : '') +
+      ' · ' + state.win + '-session window · session ' + PAYLOAD.asof;
+    document.getElementById('boardBody').innerHTML = pageRows.map(function (r) {
+      return '<tr><td class="num sn-stick-first">' + r.rank + '</td>' +
+        '<td class="sn-sym sn-stick"><a href="/stocks/' + esc(r.symbol) + '/">' + esc(r.symbol) + '</a>' +
         (r.name ? '<span class="sn-name">' + esc(r.name) + '</span>' : '') + '</td>' +
         '<td class="sn-sector">' + esc(r.sector) +
         '<span class="sn-sub">sector rank #' + r.sector_rank + '</span></td>' +
@@ -148,6 +195,23 @@
         '<td class="num">' + num(r.close, 2) + '</td>' +
         '<td class="num ' + cls(r.change_pct) + '">' + pct(r.change_pct) + '</td></tr>';
     }).join('') || '<tr><td colspan="10" class="sn-loading">No stocks match.</td></tr>';
+    var pager = document.getElementById('boardPager');
+    pager.innerHTML = '<button type="button" class="sn-pagebtn" data-pg="prev" aria-label="Previous page"' +
+      (state.page <= 1 ? ' disabled' : '') + '>‹ Prev</button>' +
+      '<span class="sn-pagenum">Page ' + state.page + ' of ' + pages + '</span>' +
+      '<button type="button" class="sn-pagebtn" data-pg="next" aria-label="Next page"' +
+      (state.page >= pages ? ' disabled' : '') + '>Next ›</button>';
+    Array.prototype.forEach.call(pager.querySelectorAll('button'), function (btn) {
+      btn.addEventListener('click', function () {
+        if (btn.getAttribute('data-pg') === 'prev' && state.page > 1) state.page -= 1;
+        if (btn.getAttribute('data-pg') === 'next' && state.page < pages) state.page += 1;
+        syncUrlState(); renderTable();
+        document.getElementById('board').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+    var wrap = document.querySelector('#board .sn-tablewrap');
+    var hint = document.getElementById('scrollHint');
+    if (wrap && hint) hint.hidden = wrap.scrollWidth <= wrap.clientWidth + 1;
     var b = board();
     document.getElementById('coverageNote').textContent =
       'The board scores ' + b.summary.scored + ' of ' + PAYLOAD.universe.constituents +
@@ -155,6 +219,38 @@
       PAYLOAD.windows.map(function (w) {
         return w + ' sessions ' + PAYLOAD.boards[String(w)].summary.scored;
       }).join(' · ') + '). Unscored names are listed under Methodology.';
+  }
+
+  function renderCards() {
+    var b = board();
+    var rows = b.rows;
+    document.getElementById('sectorCardsBody').innerHTML =
+      b.sectors.map(function (s) {
+        var top = rows.filter(function (r) { return r.sector === s.sector; }).slice(0, 5);
+        var active = state.sector === s.sector;
+        return '<button type="button" class="sn-card' + (active ? ' active' : '') +
+          '" data-sector="' + esc(s.sector) + '" aria-pressed="' + active + '">' +
+          '<span class="sn-card-head"><span class="sn-card-name">' + esc(s.sector) + '</span>' +
+          '<span class="sn-card-mean">' + num(s.mean_score, 1) + '</span></span>' +
+          '<span class="sn-meanbar sn-card-bar" aria-hidden="true"><i style="width:' + s.mean_score + '%"></i></span>' +
+          '<span class="sn-card-meta">breadth ≥ 50: ' + num(s.breadth_pos_pct, 1) + '% · ' +
+          s.scored + ' of ' + s.constituents + ' scored</span>' +
+          '<span class="sn-card-meta">leader ' + esc(s.leader.symbol) + ' · ' + num(s.leader.score, 1) +
+          ' · laggard ' + esc(s.laggard.symbol) + ' · ' + num(s.laggard.score, 1) + '</span>' +
+          '<span class="sn-card-stocks">' + top.map(function (r) {
+            return '<span class="sn-card-row"><span class="sn-card-sym">' + esc(r.symbol) + '</span>' +
+              '<span class="sn-card-score">' + num(r.score, 1) + '</span></span>';
+          }).join('') + '</span>' +
+          '<span class="sn-card-cta">' + (active ? 'Showing in the board ↓' : 'Show in the board ↓') + '</span></button>';
+      }).join('');
+    Array.prototype.forEach.call(
+      document.querySelectorAll('#sectorCardsBody .sn-card'), function (btn) {
+        btn.addEventListener('click', function () {
+          state.sector = btn.getAttribute('data-sector'); state.page = 1;
+          renderAll(); syncUrlState();
+          document.getElementById('board').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
   }
 
   function rankList(el, rows, inverted) {
@@ -197,6 +293,56 @@
           '<td>' + (s.laggard ? '<a href="/stocks/' + esc(s.laggard.symbol) + '/">' +
             esc(s.laggard.symbol) + '</a> · ' + num(s.laggard.score, 1) : '—') + '</td></tr>';
       }).join('');
+  }
+
+  function renderTracking() {
+    var t = PAYLOAD.tracking;
+    if (!t || !t.latest) {
+      document.getElementById('trackingSub').textContent =
+        'Live cohort tracking starts with the next daily build: each published board\'s score quintiles are followed to their closes 5, 10 and 20 sessions later, measured against each stock\'s own sector.';
+      document.getElementById('trackingBody').innerHTML =
+        '<tr><td colspan="6" class="sn-loading">No live cohorts recorded yet.</td></tr>';
+      document.getElementById('trackingNote').textContent = '';
+      document.getElementById('trackingLatest').innerHTML = '';
+      return;
+    }
+    var latest = t.latest;
+    document.getElementById('trackingSub').textContent =
+      'Every published board since tracking began, split into score quintiles at the reading and followed to its closes 5, 10 and 20 sessions later, against each stock\'s own sector. ' +
+      t.sessions_tracked + ' sessions tracked · ' + t.resolved_outcomes + ' resolved quintile-horizon cells.';
+    var qLabel = ['Q1 · lowest scores', 'Q2', 'Q3', 'Q4', 'Q5 · highest scores'];
+    var cell = function (c) {
+      return c ? pp(c.mean_rel_fwd_pct) + '<span class="sn-sub">' + num(c.pct_positive, 1) + '% beat their sector</span>'
+        : 'pending<span class="sn-sub">horizon not reached</span>';
+    };
+    document.getElementById('trackingLatest').innerHTML =
+      '<p class="sn-note">Latest tracked session ' + esc(latest.asof) + ' (' + latest.scored + ' stocks): ' +
+      qLabel.map(function (label, qi) {
+        var q = String(qi + 1);
+        var outs = latest.outcomes;
+        return label + ' — 5 sessions: ' + (outs['5'][q] ? pp(outs['5'][q].mean_rel_fwd_pct) : 'pending') +
+          ', 10 sessions: ' + (outs['10'][q] ? pp(outs['10'][q].mean_rel_fwd_pct) : 'pending') +
+          ', 20 sessions: ' + (outs['20'][q] ? pp(outs['20'][q].mean_rel_fwd_pct) : 'pending');
+      }).join(' · ') + '.</p>';
+    document.getElementById('trackingBody').innerHTML =
+      qLabel.map(function (label, qi) {
+        var q = String(qi + 1);
+        var a = t.aggregate;
+        var sess = a['5'][q] ? a['5'][q].sessions : 0;
+        var mem = a['5'][q] ? a['5'][q].total_n : 0;
+        return '<tr><td>' + label + '</td>' +
+          '<td class="num">' + sess + '</td><td class="num">' + mem.toLocaleString('en-IN') + '</td>' +
+          '<td class="num ' + cls(a['5'][q] ? a['5'][q].mean_rel_fwd_pct : 0) + '">' + cell(a['5'][q]) + '</td>' +
+          '<td class="num ' + cls(a['10'][q] ? a['10'][q].mean_rel_fwd_pct : 0) + '">' + cell(a['10'][q]) + '</td>' +
+          '<td class="num ' + cls(a['20'][q] ? a['20'][q].mean_rel_fwd_pct : 0) + '">' + cell(a['20'][q]) + '</td></tr>';
+      }).join('');
+    var h10 = t.aggregate['10'];
+    var spread = (h10['5'] && h10['1']) ?
+      pp(h10['5'].mean_rel_fwd_pct - h10['1'].mean_rel_fwd_pct) : '—';
+    document.getElementById('trackingNote').textContent =
+      'Aggregate cells are the mean of session means (each session counts once). ' +
+      'Top-minus-bottom spread at 10 sessions: ' + spread + '. ' +
+      'A cohort never closes because a later board flipped a stock\'s score — only the horizon close resolves it, exactly like the weekly replay above it in method but on the published daily boards.';
   }
 
   function renderForward() {
@@ -250,7 +396,8 @@
       ['The bands', m.bands],
       ['Sector basis', m.sector_basis],
       ['The forward panel', m.forward],
-      ['Coverage', m.coverage]
+      ['Coverage', m.coverage],
+      ['The live cohorts', 'Starting with the 2025-07-01 backfill, every daily 20-session board is archived as a lean snapshot (score, band, score quintile, sector per stock). Each archived session\'s quintiles are followed to their closes 5, 10 and 20 sessions later, measured against each stock\'s own sector index — the same bar-step convention and the same over-15%-single-session corporate-action guard as the weekly replay, but on the published daily boards. A horizon with no resolvable observation yet reads "pending", never zero. Aggregate cells are the mean of session means, so a session with many members cannot dominate the average. The archive and the cohort ledger are published alongside the board; the page reads only the small tracking summary.']
     ];
     document.getElementById('methodBox').innerHTML = blocks.map(function (b) {
       return '<h3>' + esc(b[0]) + '</h3><p>' + esc(b[1]) + '</p>';
@@ -264,8 +411,8 @@
   }
 
   function renderAll() {
-    renderTabs(); renderSectorOptions(); renderStats(); renderDist();
-    renderTable(); renderExtremes(); renderSectors(); renderForward();
+    renderTabs(); renderSectorOptions(); renderHero(); renderStats(); renderDist();
+    renderTable(); renderCards(); renderExtremes(); renderSectors(); renderTracking(); renderForward();
     renderHistory(); renderMethod();
   }
 
@@ -277,13 +424,13 @@
   }
 
   document.getElementById('sectorSel').addEventListener('change', function (e) {
-    state.sector = e.target.value; renderAll();
+    state.sector = e.target.value; state.page = 1; renderAll(); syncUrlState();
   });
   document.getElementById('sortSel').addEventListener('change', function (e) {
-    state.sort = e.target.value; renderTable();
+    state.sort = e.target.value; state.page = 1; renderTable(); syncUrlState();
   });
   document.getElementById('symSearch').addEventListener('input', function (e) {
-    state.q = e.target.value; renderTable();
+    state.q = e.target.value; state.page = 1; renderTable(); syncUrlState();
   });
 
   fetch(DATA_URL, { cache: 'no-store' })
@@ -291,7 +438,13 @@
     .then(function (p) {
       PAYLOAD = p; state.win = String(p.default_window);
       state.horizon = p.forward.horizons['10'] ? '10' : Object.keys(p.forward.horizons)[0];
-      renderAll(); initSession();
+      readUrlState();
+      if (PAYLOAD.boards[state.win] === undefined) state.win = String(p.default_window);
+      if (state.sector !== 'ALL' &&
+        PAYLOAD.boards[state.win].sectors.every(function (s) { return s.sector !== state.sector; }))
+        state.sector = 'ALL';
+      document.getElementById('symSearch').value = state.q;
+      renderAll(); initSession(); syncUrlState();
     })
     .catch(function (e) {
       document.getElementById('boardBody').innerHTML =

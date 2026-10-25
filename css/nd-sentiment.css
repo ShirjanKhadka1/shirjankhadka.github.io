@@ -114,3 +114,91 @@ body{ font-family: var(--nd-font-sans); }
   .sn-extremes .sn-ranksec{ display: block; margin-left: 0; }
   .sn-extremes .cx-rank-val{ white-space: normal; text-align: right; }
 }
+
+/* ---- sweep rebuild (2026-10-25): hero, sector cards, pager, sticky cols ---- */
+.sn-title, .sn-h2{ text-wrap: balance; }
+
+/* hero panel: the market's sector-relative mood as one cinematic block */
+.sn-hero{
+  display: grid; grid-template-columns: 1fr 1.5fr; gap: var(--nd-s6);
+  background: var(--nd-panel); border: 1px solid var(--nd-border);
+  border-radius: var(--nd-r-card); padding: var(--nd-s5) var(--nd-s6);
+  margin-top: var(--nd-s5); box-shadow: var(--nd-rim), var(--nd-e2);
+}
+.sn-hero-num{ display: flex; flex-direction: column; gap: 6px; justify-content: center; }
+.sn-hero-val{
+  font-family: var(--nd-font-display); font-weight: 600;
+  font-size: var(--step-5); line-height: 1; color: var(--nd-text);
+  font-variant-numeric: tabular-nums; margin: 0;
+}
+.sn-hero-sub{ font: 400 var(--step-0) var(--nd-font-mono); color: var(--nd-dim); margin-left: 8px; }
+.sn-hero-dist{ display: flex; flex-direction: column; gap: 8px; justify-content: center; }
+.sn-hero-dist .sn-dist{ margin-top: 0; }
+@media (max-width: 760px){ .sn-hero{ grid-template-columns: 1fr; } }
+
+/* master text says numerals are Spectral; the kit's stat values are mono —
+   family-layer override, kit untouched */
+.sn-stats .cx-stat-v{ font-family: var(--nd-font-display); font-weight: 600; }
+
+/* sector cards: one button per sector, opening its stocks in the board */
+.sn-cards{
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: var(--nd-s3); margin-top: var(--nd-s3);
+}
+.sn-card{
+  display: flex; flex-direction: column; gap: 8px; text-align: left;
+  background: var(--nd-panel); border: 1px solid var(--nd-border);
+  border-radius: var(--nd-r-card); padding: 16px 18px; cursor: pointer;
+  color: var(--nd-text); font: inherit; touch-action: manipulation;
+  transition: border-color var(--nd-t-fast), transform var(--nd-t-fast), box-shadow var(--nd-t-fast);
+}
+@media (hover:hover){
+  .sn-card:hover{ transform: translateY(-2px); border-color: var(--nd-lime); box-shadow: var(--nd-shadow-hover); }
+}
+.sn-card:focus-visible{ outline: none; box-shadow: var(--nd-focus-ring); }
+.sn-card.active{ border-color: var(--nd-lime); background: var(--nd-lime-soft); }
+@media (prefers-reduced-motion: reduce){ .sn-card{ transition: none; } }
+.sn-card-head{ display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.sn-card-name{ font: 600 var(--step-2) var(--nd-font-display); text-wrap: balance; }
+.sn-card-mean{
+  font: 600 var(--step-3) var(--nd-font-display);
+  font-variant-numeric: tabular-nums; flex: none;
+}
+.sn-card-bar{ width: 100%; margin-left: 0; }
+.sn-card-meta{ font-size: var(--step-0); color: var(--nd-dim); }
+.sn-card-stocks{
+  display: flex; flex-direction: column; gap: 4px; margin-top: 4px;
+  border-top: 1px solid var(--nd-border); padding-top: 8px;
+}
+.sn-card-row{ display: flex; justify-content: space-between; font-family: var(--nd-font-mono); font-size: var(--step-1); }
+.sn-card-sym{ font-weight: 600; }
+.sn-card-cta{
+  font: 600 var(--step-0) var(--nd-font-mono); color: var(--nd-lime);
+  text-transform: uppercase; letter-spacing: .08em; margin-top: 6px;
+}
+
+/* pager + scroll hint */
+.sn-pager{ display: flex; align-items: center; gap: 12px; margin-top: var(--nd-s3); }
+.sn-pagebtn{
+  background: var(--nd-panel); border: 1px solid var(--nd-border);
+  border-radius: var(--nd-r-md); color: var(--nd-text);
+  font: 600 var(--step-1) var(--nd-font-mono); padding: 8px 14px;
+  cursor: pointer; touch-action: manipulation;
+}
+.sn-pagebtn:hover:not(:disabled){ border-color: var(--nd-lime); }
+.sn-pagebtn:disabled{ opacity: .45; cursor: default; }
+.sn-pagebtn:focus-visible{ outline: none; box-shadow: var(--nd-focus-ring); }
+.sn-pagenum{ font-family: var(--nd-font-mono); font-size: var(--step-1); color: var(--nd-dim); }
+.sn-scrollhint{ font: 400 var(--step-0) var(--nd-font-mono); color: var(--nd-dim); margin: var(--nd-s2) 2px 0; }
+
+/* sticky identity columns: rank + symbol never scroll away sideways */
+#boardTable th.sn-stick-first, #boardTable td.sn-stick-first{
+  position: sticky; left: 0; z-index: 3; background: var(--nd-panel);
+  width: 52px; min-width: 52px; max-width: 52px;
+  box-shadow: 1px 0 0 var(--nd-border);
+}
+#boardTable th.sn-stick, #boardTable td.sn-stick{
+  position: sticky; left: 52px; z-index: 3; background: var(--nd-panel);
+  box-shadow: 1px 0 0 var(--nd-border);
+}
+#boardTable td.num, #trackingTable td.num{ font-variant-numeric: tabular-nums; }

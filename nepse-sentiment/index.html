@@ -40,7 +40,7 @@
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
-<link rel="stylesheet" href="/css/nd-sentiment.css?v=786f8a29">
+<link rel="stylesheet" href="/css/nd-sentiment.css?v=233ffe75">
 </head>
 <body class="nd" data-page="stock-sector-sentiment">
 
@@ -70,7 +70,19 @@
   </div>
 
   <div class="cx-stats sn-stats" id="statStrip" aria-label="Board summary"></div>
-  <div class="sn-dist" id="bandDist" aria-label="Sentiment band distribution"></div>
+
+  <section class="sn-hero" aria-label="Market sentiment now">
+    <div class="sn-hero-num">
+      <p class="cx-kicker">Market sentiment · <span id="snHeroWin">20 sessions</span></p>
+      <p class="sn-hero-val"><span id="snHeroNum">—</span></p>
+      <p><span class="sn-state flat" id="snHeroBand">—</span>
+        <span class="sn-hero-sub" id="snHeroSub"></span></p>
+    </div>
+    <div class="sn-hero-dist">
+      <p class="cx-kicker">How the board splits</p>
+      <div class="sn-dist" id="bandDist" aria-label="Sentiment band distribution"></div>
+    </div>
+  </section>
 
   <section class="sn-catsec" aria-label="The board" id="board">
     <h2 class="sn-h2 sn-h2-sec">The board</h2>
@@ -92,13 +104,13 @@
         </select>
       </label>
       <label class="sn-selwrap">Symbol
-        <input type="search" id="symSearch" class="sn-search" placeholder="e.g. NABIL" autocomplete="off">
+        <input type="search" id="symSearch" class="sn-search" placeholder="e.g. NABIL…" autocomplete="off">
       </label>
     </div>
     <div class="cx-scroll sn-tablewrap">
       <table class="cx-table" id="boardTable">
         <thead><tr>
-          <th class="num">#</th><th>Symbol</th><th>Sector</th>
+          <th class="num sn-stick-first">#</th><th class="sn-stick">Symbol</th><th>Sector</th>
           <th class="num">Score</th><th>Sentiment</th>
           <th class="num">Rel. momentum</th><th class="num">Up-day edge</th>
           <th class="num">Flow edge</th>
@@ -107,8 +119,19 @@
         <tbody id="boardBody"><tr><td colspan="10" class="sn-loading">Loading the board…</td></tr></tbody>
       </table>
     </div>
-    <p class="cx-cap" id="boardCount"></p>
+    <p class="sn-scrollhint" id="scrollHint" hidden>Table scrolls sideways — symbol stays pinned on the left.</p>
+    <div class="sn-pager" id="boardPager"></div>
+    <p class="cx-cap" id="boardCount" aria-live="polite"></p>
     <p class="sn-note" id="coverageNote"></p>
+  </section>
+
+  <section class="sn-catsec" aria-label="Sectors and their stocks" id="sectorCards">
+    <h2 class="sn-h2 sn-h2-sec">Sectors, opened</h2>
+    <p class="sn-chartsub">Every sector as a card: its mean score, breadth
+      (share of its stocks scoring 50 or more), leader and laggard, and
+      its five highest-sentiment stocks. Tap a card to filter the board
+      to that sector.</p>
+    <div class="sn-cards" id="sectorCardsBody"></div>
   </section>
 
   <section class="sn-catsec" aria-label="Extreme sentiment" id="extremes">
@@ -143,6 +166,25 @@
         <tbody id="sectorBody"><tr><td colspan="8" class="sn-loading">Loading the sector roll-up…</td></tr></tbody>
       </table>
     </div>
+  </section>
+
+  <section class="sn-catsec" aria-label="Did the readings work" id="tracking">
+    <h2 class="sn-h2 sn-h2-sec">Did the readings work? — live cohorts</h2>
+    <p class="sn-chartsub" id="trackingSub">Loading the live cohorts…</p>
+    <div id="trackingLatest"></div>
+    <div class="cx-scroll sn-tablewrap">
+      <table class="cx-table" id="trackingTable">
+        <thead><tr>
+          <th>Score quintile at the reading</th>
+          <th class="num">Sessions</th><th class="num">Members</th>
+          <th class="num">Mean forward return vs sector · 5 sessions</th>
+          <th class="num">Mean forward return vs sector · 10 sessions</th>
+          <th class="num">Mean forward return vs sector · 20 sessions</th>
+        </tr></thead>
+        <tbody id="trackingBody"><tr><td colspan="6" class="sn-loading">Loading the live cohorts…</td></tr></tbody>
+      </table>
+    </div>
+    <p class="sn-note" id="trackingNote"></p>
   </section>
 
   <section class="sn-catsec" aria-label="Measured forward behaviour" id="forward">
@@ -205,6 +247,6 @@
 <div id="nd-footer"></div>
 <script src="/js/nd-chrome.js?v=74c1c8b7"></script>
 <script src="/js/freshness-badge.js?v=9b77cf10" defer></script>
-<script src="/js/sentiment.js?v=8e6e0e9a"></script>
+<script src="/js/sentiment.js?v=8b7aa7d5"></script>
 </body>
 </html>
