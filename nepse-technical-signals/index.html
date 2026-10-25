@@ -40,7 +40,7 @@
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
-<link rel="stylesheet" href="/css/nd-technical-signals.css?v=ce2d1f1b">
+<link rel="stylesheet" href="/css/nd-technical-signals.css?v=fa312008">
 </head>
 <body class="nd" data-page="technical-signals">
 
@@ -70,6 +70,14 @@
 
   <div class="cx-stats ts-stats" id="statStrip" aria-label="Board summary"></div>
   <div class="ts-dist" id="ratingDist" aria-label="Rating distribution"></div>
+  <section class="ts-catsec ts-histsec" aria-label="Score distribution" id="distribution">
+    <h2 class="ts-h2 ts-h2-sec">Where the scores sit</h2>
+    <p class="ts-chartsub">The same board as a histogram: how many stocks fall in each
+      ten-point score band. The bulk of the board sits in the middle bands —
+      strong readings are the minority, which is what a 0–100 vote average
+      should look like on a mixed session.</p>
+    <div class="ts-hist" id="scoreHist" aria-label="Score histogram"></div>
+  </section>
 
   <section class="ts-catsec" aria-label="The board" id="board">
     <h2 class="ts-h2 ts-h2-sec">The board</h2>
@@ -79,7 +87,18 @@
       trend, momentum, and volatility &amp; strength — behind its grades.</p>
     <div class="ts-controls">
       <div class="cx-seg" id="ratingTabs" role="tablist" aria-label="Rating filter"></div>
-      <div class="cx-seg" id="sectorTabs" role="tablist" aria-label="Sector filter"></div>
+      <label class="ts-searchwrap">Sector
+        <select id="sectorSel" class="ts-select" aria-label="Sector filter"></select>
+      </label>
+      <label class="ts-searchwrap">Sort
+        <select id="sortSel" class="ts-select" aria-label="Board sort order">
+          <option value="score_desc">Score · high first</option>
+          <option value="score_asc">Score · low first</option>
+          <option value="symbol">Symbol · A–Z</option>
+          <option value="chg_desc">Change % · high first</option>
+          <option value="chg_asc">Change % · low first</option>
+        </select>
+      </label>
       <label class="ts-searchwrap">Symbol
         <input type="search" id="symSearch" class="ts-search" placeholder="e.g. NABIL" autocomplete="off">
       </label>
@@ -94,24 +113,9 @@
         <tbody id="boardBody"><tr><td colspan="8" class="ts-loading">Loading the board…</td></tr></tbody>
       </table>
     </div>
+    <div class="ts-pager" id="boardPager"></div>
     <p class="cx-cap" id="boardCount"></p>
     <p class="ts-note" id="coverageNote"></p>
-  </section>
-
-  <section class="ts-catsec" aria-label="Sector medians" id="sectors">
-    <h2 class="ts-h2 ts-h2-sec">Sectors by median score</h2>
-    <p class="ts-chartsub">The same board rolled up by sector: the median
-      stock's score, and how many of the sector's stocks carry a bullish
-      (Buy or Strong Buy) or bearish (Sell or Strong Sell) rating.</p>
-    <div class="cx-scroll ts-tablewrap">
-      <table class="cx-table" id="sectorTable">
-        <thead><tr>
-          <th>Sector</th><th class="num">Stocks</th><th class="num">Median score</th>
-          <th class="num">Bullish-rated</th><th class="num">Bearish-rated</th>
-        </tr></thead>
-        <tbody id="sectorBody"><tr><td colspan="5" class="ts-loading">Loading the sector roll-up…</td></tr></tbody>
-      </table>
-    </div>
   </section>
 
   <section class="ts-catsec" aria-label="Measured replay" id="replay">
@@ -137,6 +141,23 @@
       of what a mechanical grade can and cannot do.</p>
   </section>
 
+  <section class="ts-catsec" aria-label="Sector medians" id="sectors">
+    <h2 class="ts-h2 ts-h2-sec">Sectors by median score</h2>
+    <p class="ts-chartsub">The same board rolled up by sector: the median
+      stock's score, and how many of the sector's stocks carry a bullish
+      (Buy or Strong Buy) or bearish (Sell or Strong Sell) rating. The bar
+      beside each median is that median on the 0–100 scale.</p>
+    <div class="cx-scroll ts-tablewrap">
+      <table class="cx-table" id="sectorTable">
+        <thead><tr>
+          <th>Sector</th><th class="num">Stocks</th><th class="num">Median score</th>
+          <th class="num">Bullish-rated</th><th class="num">Bearish-rated</th>
+        </tr></thead>
+        <tbody id="sectorBody"><tr><td colspan="5" class="ts-loading">Loading the sector roll-up…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
   <section class="ts-catsec" aria-label="Recent sessions" id="history">
     <h2 class="ts-h2 ts-h2-sec">Recent sessions</h2>
     <p class="ts-chartsub">The board's recent history from its session ledger —
@@ -159,9 +180,10 @@
   </section>
 
   <p class="ts-fine">Mechanical indicator grades on past prices, for education,
-    not investment advice. Data: Nepse Decode's own OHLC archive, rebuilt after
-    each close. No live feed is claimed: during market hours this page still
-    shows the last close's board.</p>
+    not investment advice. Data: Nepse Decode's own OHLC archive, rebuilt each
+    trading day after the close (Mon–Fri 16:38 NPT). No live feed is claimed:
+    during market hours this page still shows the last close's board, and a
+    board older than the last trading session is stale, never live-looking.</p>
 
 </main>
     </div>
@@ -171,6 +193,6 @@
 <div id="nd-footer"></div>
 <script src="/js/nd-chrome.js?v=74c1c8b7"></script>
 <script src="/js/freshness-badge.js?v=9b77cf10" defer></script>
-<script src="/js/technical-signals.js?v=e9876d10"></script>
+<script src="/js/technical-signals.js?v=d4e3a945"></script>
 </body>
 </html>

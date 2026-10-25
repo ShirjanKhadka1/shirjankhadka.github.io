@@ -14,7 +14,9 @@
   var FAM_NAMES = { overall: 'Overall rating' };
   SIG_ORDER.forEach(function (k) { FAM_NAMES[k] = SIG_NAMES[k]; });
   var RATINGS = ['Strong Buy', 'Buy', 'Neutral', 'Sell', 'Strong Sell'];
-  var state = { rating: 'All', sector: 'All', q: '', horizon: '10', open: null };
+  var PAGE_SIZE = 25;
+  var state = { rating: 'All', sector: 'All', q: '', sort: 'score_desc',
+    horizon: '10', page: 1, open: null };
   var DATA = null;
 
   function esc(s) {
@@ -145,7 +147,7 @@
       '</div>';
   }
 
-  function renderBoard() {
+  function filteredRows() {
     var rows = DATA.board.filter(function (r) {
       if (state.rating !== 'All' && r.rating !== state.rating) return false;
       if (state.sector !== 'All' && r.sector !== state.sector) return false;
@@ -153,10 +155,50 @@
           (r.name || '').toUpperCase().indexOf(state.q) < 0) return false;
       return true;
     });
+    var cmp = {
+      score_desc: function (a, b) { return (b.score - a.score) || (a.symbol < b.symbol ? -1 : 1); },
+      score_asc: function (a, b) { return (a.score - b.score) || (a.symbol < b.symbol ? -1 : 1); },
+      symbol: function (a, b) { return a.symbol < b.symbol ? -1 : 1; },
+      chg_desc: function (a, b) { return ((b.change_pct == null ? -1e9 : b.change_pct) - (a.change_pct == null ? -1e9 : a.change_pct)) || (a.symbol < b.symbol ? -1 : 1); },
+      chg_asc: function (a, b) { return ((a.change_pct == null ? 1e9 : a.change_pct) - (b.change_pct == null ? 1e9 : b.change_pct)) || (a.symbol < b.symbol ? -1 : 1); }
+    }[state.sort] || function () { return 0; };
+    return rows.slice().sort(cmp);
+  }
+
+  function renderPager(total) {
+    var pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    if (state.page > pages) state.page = pages;
+    var el = document.getElementById('boardPager');
+    if (!total) { el.innerHTML = ''; return; }
+    function btn(label, to, disabled, aria) {
+      return '<button type="button" class="ts-pgbtn"' +
+        (disabled ? ' disabled' : '') + ' aria-label="' + aria + '" data-page="' + to + '">' +
+        esc(label) + '</button>';
+    }
+    el.innerHTML = '<span class="ts-pginfo">Page ' + state.page + ' of ' + pages + '</span>' +
+      '<span class="ts-pgbtns">' +
+      btn('‹ Prev', state.page - 1, state.page <= 1, 'Previous page') +
+      btn('Next ›', state.page + 1, state.page >= pages, 'Next page') + '</span>';
+    var btns = el.querySelectorAll('button[data-page]');
+    Array.prototype.forEach.call(btns, function (b) {
+      b.addEventListener('click', function () {
+        state.page = parseInt(b.getAttribute('data-page'), 10);
+        state.open = null;
+        renderBoard();
+      });
+    });
+  }
+
+  function renderBoard() {
+    var rows = filteredRows();
+    var pages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+    if (state.page > pages) state.page = pages;
+    var start = (state.page - 1) * PAGE_SIZE;
+    var page = rows.slice(start, start + PAGE_SIZE);
     var html = '';
-    rows.forEach(function (r, i) {
+    page.forEach(function (r, i) {
       var chg = r.change_pct;
-      html += '<tr class="ts-row" data-sym="' + esc(r.symbol) + '"><td class="num">' + (i + 1) + '</td>' +
+      html += '<tr class="ts-row" data-sym="' + esc(r.symbol) + '"><td class="num">' + (start + i + 1) + '</td>' +
         '<td class="ts-sym">' + esc(r.symbol) + '</td>' +
         '<td class="ts-sector">' + esc(r.sector) + '</td>' +
         '<td class="num">' + fmt(r.close, 2) + '</td>' +
@@ -173,8 +215,17 @@
       html = '<tr><td colspan="8" class="ts-loading">No stocks match this filter.</td></tr>';
     }
     document.getElementById('boardBody').innerHTML = html;
-    document.getElementById('boardCount').textContent =
-      'Showing ' + rows.length + ' of ' + DATA.board.length + ' scored stocks · session ' + DATA.asof;
+    if (rows.length) {
+      var end = Math.min(start + page.length, rows.length);
+      document.getElementById('boardCount').textContent =
+        'Showing ' + (start + 1) + '–' + end + ' of ' + rows.length +
+        (rows.length === DATA.board.length ? ' scored stocks' : ' matching stocks') +
+        ' · session ' + DATA.asof;
+    } else {
+      document.getElementById('boardCount').textContent =
+        'No stocks match this filter · ' + DATA.board.length + ' scored stocks · session ' + DATA.asof;
+    }
+    renderPager(rows.length);
     var trs = document.querySelectorAll('#boardTable tr.ts-row');
     Array.prototype.forEach.call(trs, function (tr) {
       tr.addEventListener('click', function () {
@@ -192,8 +243,27 @@
     }).sort(function (a, b) { return b.med - a.med; });
     document.getElementById('sectorBody').innerHTML = entries.map(function (e) {
       return '<tr><td class="ts-sector">' + esc(e.sector) + '</td><td class="num">' + e.n +
-        '</td><td class="num">' + fmt(e.med, 0) + '</td><td class="num ts-pos">' + e.bull +
+        '</td><td class="num"><span class="ts-medbar"><i style="width:' + e.med + '%"></i></span> ' + fmt(e.med, 0) +
+        '</td><td class="num ts-pos">' + e.bull +
         '</td><td class="num ts-neg">' + e.bear + '</td></tr>';
+    }).join('');
+  }
+
+  function renderHist() {
+    var buckets = [];
+    var i;
+    for (i = 0; i < 10; i++) buckets.push(0);
+    DATA.board.forEach(function (r) {
+      var b = Math.min(9, Math.max(0, Math.floor(r.score / 10)));
+      buckets[b]++;
+    });
+    var max = Math.max.apply(null, buckets);
+    document.getElementById('scoreHist').innerHTML = buckets.map(function (n, b) {
+      var lo = b * 10, hi = b === 9 ? 100 : lo + 9;
+      return '<div class="ts-histcol"><div class="ts-histbar" style="height:' +
+        (max ? Math.round(100 * n / max) : 0) + '%" title="' + lo + '–' + hi + ': ' + n +
+        ' stocks"></div><span class="ts-histn">' + n + '</span><span class="ts-histlab">' +
+        lo + '–' + hi + '</span></div>';
     }).join('');
   }
 
@@ -259,35 +329,59 @@
       'mutual funds (' + (c.excluded_non_equity || 0) + ') are outside this board\'s equity scope.';
   }
 
+  function builtDate(iso) {
+    if (!iso) return null;
+    var d = iso.slice(0, 10).split('-');
+    if (d.length !== 3) return null;
+    var mon = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return parseInt(d[2], 10) + ' ' + (mon[parseInt(d[1], 10) - 1] || '') + ' ' + d[0];
+  }
+
   function init(p) {
     DATA = p;
+    var built = builtDate(p.built_at);
     document.getElementById('tsSession').textContent =
       'Session ' + p.asof + ' · ' + p.summary.symbols_scored +
-      ' stocks scored · rebuilt after the close';
+      ' stocks scored · rebuilt after the close' +
+      (built ? ' · board built ' + built : '');
     renderStats(p);
-    var sectors = ['All'].concat(Object.keys(p.summary.by_sector).sort());
     var ratingOpts = ['All'].concat(RATINGS);
     function drawRatingSeg() {
       seg(document.getElementById('ratingTabs'), ratingOpts, state.rating, function (v) {
         state.rating = v;
+        state.page = 1;
         drawRatingSeg();
         renderBoard();
       });
     }
-    function drawSectorSeg() {
-      seg(document.getElementById('sectorTabs'), sectors, state.sector, function (v) {
-        state.sector = v;
-        drawSectorSeg();
-        renderBoard();
-      });
-    }
     drawRatingSeg();
-    drawSectorSeg();
+    var sel = document.getElementById('sectorSel');
+    var fromRows = {};
+    p.board.forEach(function (r) { fromRows[r.sector] = true; });
+    Object.keys(p.summary.by_sector).forEach(function (k) { fromRows[k] = true; });
+    var sectors = Object.keys(fromRows).sort();
+    sel.innerHTML = '<option value="All">All sectors</option>' +
+      sectors.map(function (s) {
+        return '<option value="' + esc(s) + '">' + esc(s) + '</option>';
+      }).join('');
+    sel.addEventListener('change', function () {
+      state.sector = sel.value;
+      state.page = 1;
+      state.open = null;
+      renderBoard();
+    });
+    document.getElementById('sortSel').addEventListener('change', function (e) {
+      state.sort = e.target.value;
+      state.page = 1;
+      renderBoard();
+    });
     document.getElementById('symSearch').addEventListener('input', function (e) {
       state.q = e.target.value.trim().toUpperCase();
+      state.page = 1;
       renderBoard();
     });
     renderBoard();
+    renderHist();
     renderSectors();
     renderReplay();
     renderHistory();

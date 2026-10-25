@@ -94,8 +94,6 @@ body{ font-family: var(--nd-font-sans); }
   padding: 10px 14px; font-size: var(--step-1); line-height: 1.55; color: var(--nd-text); margin: 0 0 var(--nd-s4); max-width: 78ch; }
 
 .ts-controls{ display: flex; flex-wrap: wrap; gap: var(--nd-s3); align-items: end; margin-top: var(--nd-s2); }
-/* the 13-sector seg is wider than a phone viewport; let the kit's
-   segmented rows wrap instead of running off the right edge */
 .ts-controls .cx-seg{ flex-wrap: wrap; max-width: 100%; }
 .ts-searchwrap{ font: 600 var(--step-0) var(--nd-font-mono); color: var(--nd-dim);
   display: flex; flex-direction: column; gap: 6px; text-transform: uppercase; letter-spacing: .08em; }
@@ -105,6 +103,48 @@ body{ font-family: var(--nd-font-sans); }
   font: 500 var(--step-1) var(--nd-font-mono); padding: 8px 12px; min-width: 180px;
 }
 .ts-search:focus{ outline: none; box-shadow: var(--nd-focus-ring); }
+/* sector + sort dropdowns share the search input's look */
+.ts-select{
+  background: var(--nd-inset); border: 1px solid var(--nd-border);
+  border-radius: var(--nd-r-md); color: var(--nd-text);
+  font: 500 var(--step-1) var(--nd-font-mono); padding: 8px 10px; min-width: 200px; max-width: 100%;
+}
+.ts-select:focus{ outline: none; box-shadow: var(--nd-focus-ring); }
+
+/* board pager: Next/Prev + page position, never a full-list dump */
+.ts-pager{ display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin: 12px 2px 0; }
+.ts-pginfo{ font: 500 var(--step-0) var(--nd-font-mono); color: var(--nd-dim); }
+.ts-pgbtns{ display: flex; gap: 8px; }
+.ts-pgbtn{
+  appearance: none; border: 1px solid var(--nd-border); background: var(--nd-inset);
+  color: var(--nd-text); border-radius: var(--nd-r-md); cursor: pointer;
+  font: 600 var(--step-0) var(--nd-font-sans); padding: 7px 14px;
+}
+.ts-pgbtn:hover:not(:disabled){ border-color: var(--nd-lime); }
+.ts-pgbtn:disabled{ opacity: .35; cursor: default; }
+
+/* score histogram: ten bands, heights scaled to the fullest band */
+.ts-histsec{ margin-top: var(--nd-s8); }
+.ts-hist{ display: flex; align-items: end; gap: 8px; height: 150px;
+  border: 1px solid var(--nd-border); border-radius: var(--nd-r-card);
+  background: var(--nd-panel); padding: 16px 16px 10px; margin-top: var(--nd-s3); }
+.ts-histcol{ flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: end; height: 100%; min-width: 0; }
+.ts-histbar{ width: 100%; max-width: 44px; border-radius: 4px 4px 0 0; background: var(--nd-lime); opacity: .85; }
+.ts-histn{ font: 600 var(--step-0) var(--nd-font-mono); color: var(--nd-text); margin-top: 6px; }
+.ts-histlab{ font: 400 var(--step-0) var(--nd-font-mono); color: var(--nd-dim); white-space: nowrap; }
+
+/* median bar inside the sector roll-up */
+.ts-medbar{ display: inline-block; width: 56px; height: 7px; border-radius: 99px;
+  background: var(--nd-inset); border: 1px solid var(--nd-border); vertical-align: middle; overflow: hidden; }
+.ts-medbar i{ display: block; height: 100%; background: var(--nd-lime); }
+
+/* one orchestrated first-paint reveal, CSS only, motion-safe */
+@keyframes ts-rise{ from{ opacity: 0; transform: translateY(10px); } to{ opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: no-preference){
+  .ts-masthead{ animation: ts-rise .5s ease both; }
+  .ts-stats{ animation: ts-rise .5s .08s ease both; }
+  .ts-dist, .ts-histsec{ animation: ts-rise .5s .16s ease both; }
+}
 
 .ts-method{ max-width: 78ch; }
 .ts-method p{ font-size: var(--step-1); line-height: 1.65; color: var(--nd-text); margin: 0 0 var(--nd-s3); }
@@ -112,3 +152,12 @@ body{ font-family: var(--nd-font-sans); }
 .ts-fine{ font: 400 var(--step-0) var(--nd-font-sans); color: var(--nd-dim); margin: var(--nd-s6) 2px var(--nd-s2); line-height: 1.55; max-width: 78ch; }
 
 @media (max-width: 760px){ .ts-tablewrap .cx-table{ min-width: 880px; } }
+/* phone: two stat cards per row instead of one long stack */
+@media (max-width: 640px){
+  .ts-stats{ grid-template-columns: repeat(2, 1fr); }
+  .ts-stats .cx-stat{ padding: 14px; }
+  .ts-select{ min-width: 0; width: 100%; }
+  .ts-searchwrap{ flex: 1 1 100%; }
+  .ts-search{ width: 100%; }
+  .ts-histlab{ font-size: 10px; }
+}
