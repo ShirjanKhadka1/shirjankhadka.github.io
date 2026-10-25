@@ -165,6 +165,37 @@
     return rows;
   }
 
+  function bandDotCls(s) {
+    return s === 'Strong Bullish' ? 'wd-up' : s === 'Bullish' ? 'wd-mild' :
+      s === 'Neutral' ? 'wd-flat' : 'wd-down';
+  }
+
+  function renderAuto() {
+    var t = PAYLOAD.tracking;
+    var built = PAYLOAD.built_at ?
+      PAYLOAD.built_at.replace('T', ' ').slice(0, 16) + ' NPT' : 'after the last close';
+    document.getElementById('autoSub').textContent =
+      'Session ' + PAYLOAD.asof + ' · board built ' + built +
+      ' · next board after the next session\'s close, around 16:38 NPT. ' +
+      'During market hours this page still shows the last close\'s board.';
+    var steps = [
+      ['01 · Rebuild', 'After every close the Python builder recomputes all three windows from the OHLC archive.'],
+      ['02 · Categorise', 'Every stock is scored 0–100, banded from Strong Bullish to Strong Bearish, and placed in a score quintile.'],
+      ['03 · Archive', 'The day\'s board is appended to the board archive, never edited after the fact.'],
+      ['04 · Resolve', 'As sessions close, each archived reading\'s 5, 10 and 20-session horizons resolve against its own sector.']
+    ];
+    document.getElementById('autoSteps').innerHTML = steps.map(function (s) {
+      return '<div class="sn-auto-step"><b>' + esc(s[0]) + '</b><span>' + esc(s[1]) + '</span></div>';
+    }).join('');
+    document.getElementById('autoNote').textContent = t && t.latest ?
+      'Tracking so far: ' + t.sessions_tracked + ' sessions archived · ' +
+      t.resolved_outcomes.toLocaleString('en-IN') + ' resolved quintile-horizon cells. ' +
+      'Latest session ' + t.latest.asof + ' (' + t.latest.scored + ' stocks): all three ' +
+      'horizons pending — each resolves when that many sessions have closed after it. ' +
+      'Nothing here is typed in by hand: the daily run is a deterministic script, and the page reads only the published files.'
+      : 'Tracking starts with the next daily build: the archive and the cohort ledger grow one session at a time, by script, never by hand.';
+  }
+
   function renderTable() {
     var rows = visibleRows();
     var total = rows.length;
@@ -172,6 +203,23 @@
     if (state.page > pages) state.page = pages;
     var from = (state.page - 1) * PAGE_SIZE;
     var pageRows = rows.slice(from, from + PAGE_SIZE);
+    var byWin = {};
+    ['5', '20', '60'].forEach(function (w) {
+      var m = {};
+      ((PAYLOAD.boards[w] || {}).rows || []).forEach(function (r) { m[r.symbol] = r.state; });
+      byWin[w] = m;
+    });
+    var dots = function (r) {
+      var parts = ['5', '20', '60'].map(function (w) {
+        var st = byWin[w][r.symbol];
+        return '<i class="sn-windot ' + bandDotCls(st || 'Neutral') + '" title="' +
+          w + ' sessions: ' + esc(st || 'unscored') + '"></i>';
+      }).join('');
+      var label = ['5', '20', '60'].map(function (w) {
+        return w + ' sessions: ' + (byWin[w][r.symbol] || 'unscored');
+      }).join('; ');
+      return '<span class="sn-windots" aria-label="' + esc(label) + '">' + parts + '</span>';
+    };
     document.getElementById('boardCount').textContent =
       'Showing ' + (total ? (from + 1) : 0) + '–' + (from + pageRows.length) +
       ' of ' + total + ' stocks' +
@@ -186,6 +234,7 @@
         '<td class="num"><span class="sn-score"><span class="sn-gauge" aria-hidden="true">' +
         '<i style="--pos:' + r.score + '%"></i></span><b>' + num(r.score, 1) + '</b></span></td>' +
         '<td><span class="sn-state ' + stateCls(r.state) + '">' + esc(r.state) + '</span></td>' +
+        '<td>' + dots(r) + '</td>' +
         '<td class="num ' + cls(r.rel_mom_pp) + '">' + pp(r.rel_mom_pp) +
         '<span class="sn-sub">stock ' + pct(r.stock_ret_pct) + ' · sector ' + pct(r.sector_ret_pct) + '</span></td>' +
         '<td class="num ' + cls(r.up_edge_pp) + '">' + pp(r.up_edge_pp) +
@@ -194,7 +243,7 @@
         '<span class="sn-sub">stock ' + num(r.flow_pressure, 3) + ' · sector ' + num(r.sector_flow_pressure, 3) + '</span></td>' +
         '<td class="num">' + num(r.close, 2) + '</td>' +
         '<td class="num ' + cls(r.change_pct) + '">' + pct(r.change_pct) + '</td></tr>';
-    }).join('') || '<tr><td colspan="10" class="sn-loading">No stocks match.</td></tr>';
+    }).join('') || '<tr><td colspan="11" class="sn-loading">No stocks match.</td></tr>';
     var pager = document.getElementById('boardPager');
     pager.innerHTML = '<button type="button" class="sn-pagebtn" data-pg="prev" aria-label="Previous page"' +
       (state.page <= 1 ? ' disabled' : '') + '>‹ Prev</button>' +
@@ -277,6 +326,12 @@
   }
 
   function renderSectors() {
+    document.getElementById('sectorChart').innerHTML =
+      board().sectors.map(function (s) {
+        return '<div class="sn-srow"><span class="sn-srow-label">#' + s.rank + ' ' + esc(s.sector) + '</span>' +
+          '<span class="sn-strack" aria-hidden="true"><i class="sn-sbar" style="width:' + s.mean_score + '%"></i></span>' +
+          '<span class="sn-sval"><b>' + num(s.mean_score, 1) + '</b><span>breadth ' + num(s.breadth_pos_pct, 1) + '%</span></span></div>';
+      }).join('');
     document.getElementById('sectorBody').innerHTML =
       board().sectors.map(function (s) {
         return '<tr><td class="sn-sector" style="color:var(--nd-text);font-weight:700">' +
@@ -304,6 +359,7 @@
         '<tr><td colspan="6" class="sn-loading">No live cohorts recorded yet.</td></tr>';
       document.getElementById('trackingNote').textContent = '';
       document.getElementById('trackingLatest').innerHTML = '';
+      document.getElementById('cohortChart').innerHTML = '';
       return;
     }
     var latest = t.latest;
@@ -316,14 +372,39 @@
         : 'pending<span class="sn-sub">horizon not reached</span>';
     };
     document.getElementById('trackingLatest').innerHTML =
-      '<p class="sn-note">Latest tracked session ' + esc(latest.asof) + ' (' + latest.scored + ' stocks): ' +
-      qLabel.map(function (label, qi) {
+      '<p class="sn-note" style="margin-top:0">Latest tracked session ' + esc(latest.asof) +
+      ' (' + latest.scored + ' stocks) — every horizon still pending:</p>' +
+      '<div class="sn-pending">' + qLabel.map(function (label, qi) {
         var q = String(qi + 1);
         var outs = latest.outcomes;
-        return label + ' — 5 sessions: ' + (outs['5'][q] ? pp(outs['5'][q].mean_rel_fwd_pct) : 'pending') +
-          ', 10 sessions: ' + (outs['10'][q] ? pp(outs['10'][q].mean_rel_fwd_pct) : 'pending') +
-          ', 20 sessions: ' + (outs['20'][q] ? pp(outs['20'][q].mean_rel_fwd_pct) : 'pending');
-      }).join(' · ') + '.</p>';
+        return '<span class="sn-pend"><b>' + label + '</b> · 5: ' +
+          (outs['5'][q] ? pp(outs['5'][q].mean_rel_fwd_pct) : 'pending') + ' · 10: ' +
+          (outs['10'][q] ? pp(outs['10'][q].mean_rel_fwd_pct) : 'pending') + ' · 20: ' +
+          (outs['20'][q] ? pp(outs['20'][q].mean_rel_fwd_pct) : 'pending') + '</span>';
+      }).join('') + '</div>';
+    var maxAbs = 0.01;
+    ['5', '10', '20'].forEach(function (h) {
+      qLabel.forEach(function (_, qi) {
+        var c = t.aggregate[h][String(qi + 1)];
+        if (c) maxAbs = Math.max(maxAbs, Math.abs(c.mean_rel_fwd_pct));
+      });
+    });
+    var gline = function (h, c) {
+      if (!c) return '<span class="sn-gtag">' + h + '</span><span class="sn-gtrack"></span><span class="sn-gval">pending</span>';
+      var w = Math.max(2, Math.round(100 * Math.abs(c.mean_rel_fwd_pct) / maxAbs));
+      return '<span class="sn-gtag">' + h + '</span><span class="sn-gtrack" aria-hidden="true">' +
+        '<i class="sn-gbar ' + (c.mean_rel_fwd_pct < 0 ? 'neg' : 'pos') + '" style="width:' + w + '%"></i></span>' +
+        '<span class="sn-gval">' + pp(c.mean_rel_fwd_pct) + '</span>';
+    };
+    document.getElementById('cohortChart').innerHTML =
+      qLabel.map(function (label, qi) {
+        var q = String(qi + 1);
+        return '<div class="sn-grow"><span class="sn-grow-label">' + label + '</span><span class="sn-glines">' +
+          '<span class="sn-gline">' + gline('5', t.aggregate['5'][q]) + '</span>' +
+          '<span class="sn-gline">' + gline('10', t.aggregate['10'][q]) + '</span>' +
+          '<span class="sn-gline">' + gline('20', t.aggregate['20'][q]) + '</span></span></div>';
+      }).join('') +
+      '<p class="sn-glegend">Bars are mean forward return vs sector; longer = further from the sector. Pending = that horizon has not closed yet.</p>';
     document.getElementById('trackingBody').innerHTML =
       qLabel.map(function (label, qi) {
         var q = String(qi + 1);
@@ -352,6 +433,16 @@
       ' weekly snapshots, ' + f.era_start + ' to ' + f.era_end +
       ', each reading\'s forward return measured against the stock\'s own ' +
       'sector. ' + f.basis;
+    var maxAbs = 0.01;
+    h.quintiles.forEach(function (q) { maxAbs = Math.max(maxAbs, Math.abs(q.mean_rel_fwd_pct)); });
+    document.getElementById('forwardChart').innerHTML = h.quintiles.map(function (q) {
+      var label = ['Q1 · lowest scores', 'Q2', 'Q3', 'Q4', 'Q5 · highest scores'][q.quintile - 1];
+      var w = Math.max(2, Math.round(100 * Math.abs(q.mean_rel_fwd_pct) / maxAbs));
+      return '<div class="sn-hrow"><span class="sn-hrow-label">' + label + '</span>' +
+        '<span class="sn-htrack" aria-hidden="true"><i class="sn-hbar ' +
+        (q.mean_rel_fwd_pct < 0 ? 'neg' : 'pos') + '" style="width:' + w + '%"></i></span>' +
+        '<span class="sn-hval">' + pp(q.mean_rel_fwd_pct) + '</span></div>';
+    }).join('');
     document.getElementById('forwardBody').innerHTML = h.quintiles.map(function (q) {
       var label = ['Q1 · lowest scores', 'Q2', 'Q3', 'Q4', 'Q5 · highest scores'][q.quintile - 1];
       return '<tr><td>' + label + '</td>' +
@@ -400,8 +491,10 @@
       ['The live cohorts', 'Starting with the 2025-07-01 backfill, every daily 20-session board is archived as a lean snapshot (score, band, score quintile, sector per stock). Each archived session\'s quintiles are followed to their closes 5, 10 and 20 sessions later, measured against each stock\'s own sector index — the same bar-step convention and the same over-15%-single-session corporate-action guard as the weekly replay, but on the published daily boards. A horizon with no resolvable observation yet reads "pending", never zero. Aggregate cells are the mean of session means, so a session with many members cannot dominate the average. The archive and the cohort ledger are published alongside the board; the page reads only the small tracking summary.']
     ];
     document.getElementById('methodBox').innerHTML = blocks.map(function (b) {
-      return '<h3>' + esc(b[0]) + '</h3><p>' + esc(b[1]) + '</p>';
-    }).join('') + '<p>Source: ' + esc(PAYLOAD.source) + '.</p>';
+      var wide = b[0] === 'The live cohorts' ? ' sn-method-wide' : '';
+      return '<div class="sn-method-card' + wide + '"><h3>' + esc(b[0]) + '</h3><p>' + esc(b[1]) + '</p></div>';
+    }).join('') + '<div class="sn-method-card sn-method-foot"><h3>Source</h3><p>' +
+      esc(PAYLOAD.source) + '.</p></div>';
     var un = PAYLOAD.windows.map(function (w) {
       var u = PAYLOAD.boards[String(w)].unscored;
       return w + ' sessions: ' + (u.length ? u.join(', ') : 'none');
@@ -412,6 +505,7 @@
 
   function renderAll() {
     renderTabs(); renderSectorOptions(); renderHero(); renderStats(); renderDist();
+    renderAuto();
     renderTable(); renderCards(); renderExtremes(); renderSectors(); renderTracking(); renderForward();
     renderHistory(); renderMethod();
   }
@@ -448,7 +542,7 @@
     })
     .catch(function (e) {
       document.getElementById('boardBody').innerHTML =
-        '<tr><td colspan="10" class="sn-loading">The sentiment board could not be loaded (' +
+        '<tr><td colspan="11" class="sn-loading">The sentiment board could not be loaded (' +
         esc(e.message) + ').</td></tr>';
     });
 })();

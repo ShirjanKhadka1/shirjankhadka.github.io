@@ -40,7 +40,7 @@
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
-<link rel="stylesheet" href="/css/nd-sentiment.css?v=233ffe75">
+<link rel="stylesheet" href="/css/nd-sentiment.css?v=795f498b">
 </head>
 <body class="nd" data-page="stock-sector-sentiment">
 
@@ -84,11 +84,22 @@
     </div>
   </section>
 
+  <section class="sn-auto" aria-label="How this page stays current" id="autoupdate">
+    <p class="cx-kicker">Auto-updating · every trading session</p>
+    <h2 class="sn-h2 sn-h2-sec">Fresh after every close — nothing here is hand-edited</h2>
+    <p class="sn-chartsub" id="autoSub">Loading the update status…</p>
+    <div class="sn-auto-steps" id="autoSteps"></div>
+    <p class="sn-note" id="autoNote"></p>
+  </section>
+
   <section class="sn-catsec" aria-label="The board" id="board">
+    <p class="cx-kicker">The board</p>
     <h2 class="sn-h2 sn-h2-sec">The board</h2>
     <p class="sn-chartsub">Every scored stock for the session, ranked by
       sentiment score on the selected window. All three components are printed
-      per row — the score is their percentile blend, never a black box.</p>
+      per row — the score is their percentile blend, never a black box.
+      The <strong>5 · 20 · 60</strong> dots show the stock's band in each
+      window, left to right: green bullish zone, grey neutral, red bearish zone.</p>
     <div class="sn-controls">
       <div class="cx-seg" id="winTabs" role="tablist" aria-label="Window"></div>
       <label class="sn-selwrap">Sector
@@ -111,12 +122,12 @@
       <table class="cx-table" id="boardTable">
         <thead><tr>
           <th class="num sn-stick-first">#</th><th class="sn-stick">Symbol</th><th>Sector</th>
-          <th class="num">Score</th><th>Sentiment</th>
+          <th class="num">Score</th><th>Sentiment</th><th class="sn-wincol">5 · 20 · 60</th>
           <th class="num">Rel. momentum</th><th class="num">Up-day edge</th>
           <th class="num">Flow edge</th>
           <th class="num">Close</th><th class="num">Change</th>
         </tr></thead>
-        <tbody id="boardBody"><tr><td colspan="10" class="sn-loading">Loading the board…</td></tr></tbody>
+        <tbody id="boardBody"><tr><td colspan="11" class="sn-loading">Loading the board…</td></tr></tbody>
       </table>
     </div>
     <p class="sn-scrollhint" id="scrollHint" hidden>Table scrolls sideways — symbol stays pinned on the left.</p>
@@ -126,6 +137,7 @@
   </section>
 
   <section class="sn-catsec" aria-label="Sectors and their stocks" id="sectorCards">
+    <p class="cx-kicker">Sectors, opened</p>
     <h2 class="sn-h2 sn-h2-sec">Sectors, opened</h2>
     <p class="sn-chartsub">Every sector as a card: its mean score, breadth
       (share of its stocks scoring 50 or more), leader and laggard, and
@@ -135,6 +147,7 @@
   </section>
 
   <section class="sn-catsec" aria-label="Extreme sentiment" id="extremes">
+    <p class="cx-kicker">Extremes</p>
     <h2 class="sn-h2 sn-h2-sec">Strongest and weakest readings</h2>
     <p class="sn-chartsub">The ten highest and ten lowest sentiment scores on
       the selected window, with the relative momentum behind each.</p>
@@ -151,11 +164,13 @@
   </section>
 
   <section class="sn-catsec" aria-label="Sector sentiment" id="sectors">
+    <p class="cx-kicker">Roll-up</p>
     <h2 class="sn-h2 sn-h2-sec">Sectors by sentiment</h2>
     <p class="sn-chartsub">The same board rolled up by sector: the mean and
       median constituent score, the breadth (share of the sector's stocks
       scoring 50 or more), and how many constituents are ahead of the sector
       itself on the window.</p>
+    <div class="sn-sectorchart" id="sectorChart" aria-label="Sector mean scores, ranked"></div>
     <div class="cx-scroll sn-tablewrap">
       <table class="cx-table" id="sectorTable">
         <thead><tr>
@@ -169,9 +184,11 @@
   </section>
 
   <section class="sn-catsec" aria-label="Did the readings work" id="tracking">
+    <p class="cx-kicker">Live cohorts</p>
     <h2 class="sn-h2 sn-h2-sec">Did the readings work? — live cohorts</h2>
     <p class="sn-chartsub" id="trackingSub">Loading the live cohorts…</p>
     <div id="trackingLatest"></div>
+    <div class="sn-gchart" id="cohortChart" aria-label="Live cohort mean forward returns by quintile and horizon"></div>
     <div class="cx-scroll sn-tablewrap">
       <table class="cx-table" id="trackingTable">
         <thead><tr>
@@ -188,11 +205,13 @@
   </section>
 
   <section class="sn-catsec" aria-label="Measured forward behaviour" id="forward">
+    <p class="cx-kicker">Measured replay</p>
     <h2 class="sn-h2 sn-h2-sec">What the readings were followed by — the measured replay</h2>
     <p class="sn-chartsub" id="forwardSub">Loading the replay…</p>
     <div class="sn-controls">
       <div class="cx-seg" id="horizonTabs" role="tablist" aria-label="Forward horizon"></div>
     </div>
+    <div class="sn-hchart" id="forwardChart" aria-label="Mean forward return by score quintile"></div>
     <div class="cx-scroll sn-tablewrap">
       <table class="cx-table" id="forwardTable">
         <thead><tr>
@@ -208,6 +227,7 @@
   </section>
 
   <section class="sn-catsec" aria-label="Recent sessions" id="history">
+    <p class="cx-kicker">Ledger</p>
     <h2 class="sn-h2 sn-h2-sec">Recent sessions</h2>
     <p class="sn-chartsub">The board's recent history from its session ledger
       (20-session window) — one row per published session, never edited after
@@ -228,6 +248,7 @@
   </section>
 
   <section class="sn-catsec" aria-label="Methodology">
+    <p class="cx-kicker">Methodology</p>
     <h2 class="sn-h2 sn-h2-sec">How this board is built</h2>
     <div class="sn-method" id="methodBox"></div>
     <p class="sn-note" id="unscoredText"></p>
@@ -247,6 +268,6 @@
 <div id="nd-footer"></div>
 <script src="/js/nd-chrome.js?v=74c1c8b7"></script>
 <script src="/js/freshness-badge.js?v=9b77cf10" defer></script>
-<script src="/js/sentiment.js?v=8b7aa7d5"></script>
+<script src="/js/sentiment.js?v=154ecfd4"></script>
 </body>
 </html>
