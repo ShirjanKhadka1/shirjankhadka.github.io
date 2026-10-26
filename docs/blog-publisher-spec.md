@@ -125,8 +125,8 @@ get the live-price row on the article.
 
 ## 6. What the design side owns (do not touch)
 
-The landing page (`blog/index.html` structure, filters, pager, sector
-block, market strip), `css/nd-blog.css`, `js/nd-blog.js`,
+The landing page (`blog/index.html` structure, filters, pager,
+market strip), `css/nd-blog.css`, `js/nd-blog.js`,
 `data/blog-index.json`, `tools/build-blog-index.py`,
 `tools/verify-blog.py`, `tools/build-blog-landing.py`,
 `tools/chain-swap-blog.py` and the index-rebuild runner. Article text,

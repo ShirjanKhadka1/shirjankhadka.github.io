@@ -3,7 +3,7 @@
 
 Serves the worktree on localhost and checks, against the live DOM:
   landing dark/light/390px: canvas rgb, overflow, counts, market strip,
-  sector block, pager, featured/rail titles vs the index;
+  pager, featured/rail titles vs the index; sector block ABSENT;
   articles: injected at-a-glance / figures / related-symbol blocks,
   progress bar on scroll, footer cream override (sf background rgb);
   refresh gate: mutated index -> new items + "N new" notice;
@@ -41,8 +41,6 @@ def main():
     newest, second = arts[0], arts[1]
     soybean = next(a for a in arts if a["slug"] == "nepal-soybean-oil-reexport-trade")
     api = next(a for a in arts if a["slug"] == "api-equity-research")
-    verdicts = json.loads((ROOT / "nepse-chart/data/verdicts.json").read_text())
-    sectors = sorted({(v.get("sec") or "Others") for v in verdicts["verdicts"].values()})
 
     with sync_playwright() as p:
         browser = p.chromium.launch()
@@ -68,11 +66,8 @@ def main():
         check("landing countline total", str(len(arts)) in countline, countline)
         mkt = page.text_content(".bl-market .bl-mkt-value") or ""
         check("landing market strip value", "2629.83" in mkt, mkt)
-        sec_opts = page.evaluate("document.querySelectorAll('#blSecSelect option').length")
-        check("landing sector options = sectors+1", sec_opts == len(sectors) + 1,
-              f"options={sec_opts} sectors={len(sectors)}")
-        sec_sum = page.text_content("#blSecSum") or ""
-        check("landing sector sum 412", "412 stocks" in sec_sum, sec_sum)
+        sec_absent = page.evaluate("!document.querySelector('#blSecSelect') && !document.querySelector('.bl-sec')")
+        check("landing sector block absent", sec_absent, "sector mount present" if not sec_absent else "gone")
         page.screenshot(path=str(QA / "landing-dark-1280.png"))
 
         # pager: Next -> page 2 shows different cards
@@ -88,15 +83,6 @@ def main():
         check("landing pager Showing 13-24", "Showing 13–24 of" in showing, showing)
         page.click("#blPrev")
         page.wait_for_timeout(300)
-
-        # sector filter: Hydropower
-        if "Hydropower" in sectors:
-            page.select_option("#blSecSelect", "Hydropower")
-            page.wait_for_timeout(300)
-            ssum = page.text_content("#blSecSum") or ""
-            check("sector filter Hydropower count", "113 stocks" in ssum, ssum)
-            first_sym = page.text_content("#blSecBody tr:first-child td:first-child a") or ""
-            check("sector row links to /stocks/", first_sym != "", first_sym)
 
         # ---------- landing, light (fresh context: the dark init script
         # would otherwise re-apply 'dark' on every navigation) ----------

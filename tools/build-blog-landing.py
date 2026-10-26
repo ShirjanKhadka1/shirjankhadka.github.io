@@ -5,7 +5,7 @@ One-time rebuild tool (not a cron piece): the live landing re-renders
 from the index JSON client-side, so new articles appear without a
 landing rebuild. This script only produces the no-JS snapshot:
 featured (newest) + rail (next 4) + ALL grid cards (no-JS full archive;
-the JS pager shows 12/page) + sector table (first 25, All sectors)
+the JS pager shows 12/page)
 from the verdicts batch.
 
 Usage: python3 tools/build-blog-landing.py  (run from the worktree root)
@@ -113,28 +113,6 @@ def main():
         start_html += (f'<a class="mag-start-item reveal" href="/blog/{esc(s)}/">'
                        f'<span class="mag-num">{i}</span><div><h4>{esc(a["title"])}</h4>'
                        f'<p>{esc(a.get("dek") or "")}</p></div></a>')
-
-    # Sector block: baked from the verdicts batch (JS re-renders on load).
-    rows = []
-    for k in sorted(vd):
-        r = vd[k]
-        rows.append({"s": k, "n": r.get("n") or k, "p": r.get("p"),
-                     "ch": r.get("ch"), "sec": r.get("sec") or "Others",
-                     "asof": r.get("asof") or ""})
-    counts = {}
-    for r in rows:
-        counts[r["sec"]] = counts.get(r["sec"], 0) + 1
-    sec_options = [f'<option value="All">All sectors ({len(rows)})</option>']
-    for s in sorted(counts):
-        sec_options.append(f'<option value="{esc(s)}">{esc(s)} ({counts[s]})</option>')
-    sec_trs = ""
-    for r in rows[:25]:
-        ch = "—" if r["ch"] is None else f'{r["ch"]:+.2f}%'
-        cls = "" if r["ch"] is None else ("up" if r["ch"] > 0 else ("down" if r["ch"] < 0 else ""))
-        sec_trs += (f'<tr><td><a href="/stocks/{esc(r["s"])}/">{esc(r["s"])}</a></td>'
-                    f'<td>{esc(r["n"])}</td><td class="num">{money(r["p"])}</td>'
-                    f'<td class="num {cls}">{ch}</td><td class="num">{esc(r["asof"])}</td></tr>')
-    sec_showing = f"Showing 1–{min(25, len(rows))} of {len(rows)}"
 
     m = wave1["market"]
     ix = m["index"]
@@ -293,31 +271,7 @@ def main():
         </div>
       </section>
 
-      <!-- Sector block: same pattern as news / portfolio / watchlist -->
-      <section class="mag-section bl-sec" aria-label="Stocks by sector">
-        <div class="mag-head">
-          <h2>Stocks by sector</h2>
-          <p>Live prices from the verdict batch</p>
-        </div>
-        <select id="blSecSelect" aria-label="Filter by sector">
-          {''.join(sec_options)}
-        </select>
-        <p class="bl-sec-sum" id="blSecSum">{len(rows)} stocks · batch {esc(batch)}</p>
-        <div class="tbl-scroll">
-          <table>
-            <thead><tr><th>Symbol</th><th>Name</th><th class="num">Price</th><th class="num">Change</th><th class="num">As of</th></tr></thead>
-            <tbody id="blSecBody">
-              {sec_trs}
-            </tbody>
-          </table>
-        </div>
-        <div class="bl-pager">
-          <button type="button" id="blSecPrev" disabled>Prev</button>
-          <span class="bl-showing" id="blSecShowing">{esc(sec_showing)}</span>
-          <button type="button" class="bl-next" id="blSecNext">Next</button>
-        </div>
-        <p class="bl-sec-note">Sector counts come from the Engine Verdict batch (verdicts sec field); universe entries carry no sector field, so counts are stated from the batch, never the universe. Prices are the batch's latest closes, not a live quote.</p>
-      </section>
+
     </div>
   </main>
 
@@ -337,7 +291,7 @@ def main():
     print(f"wrote blog/index.html ({len(doc)} bytes)")
     print(f"stamps: editorial={editorial_stamp} cinema={cinema_stamp} chrome={chrome_stamp} "
           f"blog-css={blog_css_stamp} blog-js={blog_js_stamp}")
-    print(f"featured={feat['slug']} rail={[a['slug'] for a in rail]} grid={len(grid)} sector_rows={len(rows)}")
+    print(f"featured={feat['slug']} rail={[a['slug'] for a in rail]} grid={len(grid)}")
 
 
 if __name__ == "__main__":

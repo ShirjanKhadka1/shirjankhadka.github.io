@@ -1,7 +1,7 @@
 /* ============================================================
    NEPSE DECODE — Blog family script (nd-blog.js)
    Landing (/blog/): renders article grid from data/blog-index.json,
-   filters/search/sort/pager, sector block, market strip, 60s
+   filters/search/sort/pager, market strip, 60s
    change-gated refresh (unchanged payload moves ONLY the freshness
    line — never rebuilds cards, the fading fix from the news page).
    Articles: reading progress bar, at-a-glance + cited-figures +
@@ -58,58 +58,6 @@
       });
     }, { threshold: 0.15 });
     els.forEach(function (el) { io.observe(el); });
-  }
-
-  /* ---------- shared: sector block ---------- */
-  function initSector() {
-    var sel = document.getElementById("blSecSelect");
-    if (!sel) return;
-    var sum = document.getElementById("blSecSum");
-    var body = document.getElementById("blSecBody");
-    var prev = document.getElementById("blSecPrev");
-    var next = document.getElementById("blSecNext");
-    var show = document.getElementById("blSecShowing");
-    var rows = [], filter = "All", page = 1, PER = 25;
-    function render() {
-      var list = filter === "All" ? rows : rows.filter(function (r) { return r.sec === filter; });
-      var pages = Math.max(1, Math.ceil(list.length / PER));
-      if (page > pages) page = pages;
-      var slice = list.slice((page - 1) * PER, page * PER);
-      body.innerHTML = slice.map(function (r) {
-        var ch = r.ch == null ? "—" : pct(r.ch, true);
-        var cls = r.ch == null ? "" : (r.ch > 0 ? "up" : (r.ch < 0 ? "down" : ""));
-        return "<tr><td><a href=\"/stocks/" + esc(r.s) + "/\">" + esc(r.s) + "</a></td>"
-          + "<td>" + esc(r.n || r.s) + "</td>"
-          + "<td class=\"num\">" + money(r.p) + "</td>"
-          + "<td class=\"num " + cls + "\">" + ch + "</td>"
-          + "<td class=\"num\">" + esc(r.asof || "") + "</td></tr>";
-      }).join("");
-      if (sum) sum.textContent = list.length + " stocks · batch " + (window.__blBatch || "");
-      if (show) show.textContent = list.length
-        ? "Showing " + ((page - 1) * PER + 1) + "–" + Math.min(page * PER, list.length) + " of " + list.length
-        : "No stocks in this sector";
-      if (prev) prev.disabled = page <= 1;
-      if (next) next.disabled = page >= pages;
-    }
-    sel.addEventListener("change", function () { filter = sel.value; page = 1; render(); });
-    if (prev) prev.addEventListener("click", function () { if (page > 1) { page--; render(); } });
-    if (next) next.addEventListener("click", function () { page++; render(); });
-    getJSON("/nepse-chart/data/verdicts.json").then(function (v) {
-      var vd = v.verdicts || {};
-      window.__blBatch = v.asof || "";
-      rows = Object.keys(vd).sort().map(function (k) {
-        var r = vd[k];
-        return { s: k, n: r.n, p: r.p, ch: r.ch, sec: r.sec || "Others", asof: r.asof };
-      });
-      var counts = {};
-      rows.forEach(function (r) { counts[r.sec] = (counts[r.sec] || 0) + 1; });
-      var opts = ["<option value=\"All\">All sectors (" + rows.length + ")</option>"];
-      Object.keys(counts).sort().forEach(function (sec) {
-        opts.push("<option value=\"" + esc(sec) + "\">" + esc(sec) + " (" + counts[sec] + ")</option>");
-      });
-      sel.innerHTML = opts.join("");
-      render();
-    }).catch(function () { /* sector block stays empty; never errors */ });
   }
 
   /* ---------- shared: market strip ---------- */
@@ -388,7 +336,6 @@
 
   try {
     initReveal();
-    initSector();
     initMarket();
     /* Mode by markup, not body attributes: articles carry a bare <body>
        and the chain-swap adds no attributes. */

@@ -453,30 +453,6 @@ html:not(.js) .reveal { opacity: 1; transform: none; }
 .bl-mkt-strip .down { color: var(--nd-down); font-weight: 700; }
 .bl-mkt-strip .bl-mkt-note { font-size: 12.5px; color: var(--nd-dim); margin-left: auto; }
 
-/* ---- §9. New: sector block (same pattern as news/portfolio/watchlist) ---- */
-.bl-sec { margin-top: 8px; }
-.bl-sec select {
-  width: 100%; background: var(--nd-inset); color: var(--nd-text);
-  border: 1px solid var(--nd-border); border-radius: 12px;
-  padding: 12px 14px; font-size: 15px; font-family: var(--nd-font-sans); margin-bottom: 4px;
-}
-.bl-sec select:focus { outline: none; box-shadow: var(--nd-focus-ring); }
-.bl-sec-sum { font-family: var(--nd-font-mono); font-size: 13px; color: var(--nd-dim); margin: 10px 0 14px; }
-.bl-sec-note { font-size: 13px; color: var(--nd-dim); margin-top: 14px; line-height: 1.6; }
-.bl-sec table { width: 100%; border-collapse: collapse; font-size: 15px; }
-.bl-sec thead th {
-  text-align: left; padding: 12px 14px; background: var(--nd-panel-2);
-  font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--nd-dim);
-  border-bottom: 1px solid var(--nd-border);
-}
-.bl-sec tbody td { padding: 12px 14px; border-bottom: 1px solid var(--nd-border); }
-.bl-sec tbody td.num, .bl-sec thead th.num { text-align: right; font-variant-numeric: tabular-nums; }
-.bl-sec tbody td a { font-family: var(--nd-font-mono); font-weight: 700; }
-.bl-sec tbody tr:hover td { background: var(--nd-panel-2); }
-.bl-sec .up { color: var(--nd-up); }
-.bl-sec .down { color: var(--nd-down); }
-.bl-sec .tbl-scroll { overflow-x: auto; }
-
 /* ---- §10. Theme-scoped overrides: beat article inline <style> blocks ----
    Inline rules are single-class (0,1,x) but load AFTER stylesheets.
    These html[data-theme]/html[data-nd-ed] selectors (0,2,x) win on
