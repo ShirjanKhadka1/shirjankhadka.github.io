@@ -181,11 +181,16 @@
   var countEl = document.getElementById('wl-count');
   var updatedEl = document.getElementById('wl-updated');
   var addHint = document.getElementById('wl-add-hint');
+  var freshLine = document.getElementById('wl-fresh-line');
+  var distEl = document.getElementById('wl-dist');
 
   var universe = []; // [{s, n}]
   var verdicts = {}; // sym -> {v,p,ch,rsi,sec,asof}
   var dataAsof = '';
   var dataReady = false;
+  var sessionsData = null; // {sessions: [[date, close]]} from watchlist-sessions.json
+  var forwardData = {}; // sym -> {close, h5, h10, h20} from watchlist-forward.json
+  var SNAP_KEY = 'nd_wl_snapshots_v1'; // browser-local session snapshots
   var suggestIdx = -1;
   var currentMatches = [];
 
@@ -218,11 +223,15 @@
   function loadData() {
     return Promise.all([
       fetch('/nepse-chart/data/universe.json').then(function (r) { return r.ok ? r.json() : null; }),
-      fetch('/nepse-chart/data/verdicts.json').then(function (r) { return r.ok ? r.json() : null; })
+      fetch('/nepse-chart/data/verdicts.json').then(function (r) { return r.ok ? r.json() : null; }),
+      fetch('/data/watchlist-sessions.json').then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
+      fetch('/data/watchlist-forward.json').then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
     ]).then(function (res) {
       var u = res[0], v = res[1];
       if (u && Array.isArray(u.symbols)) universe = u.symbols;
       if (v && v.verdicts) { verdicts = v.verdicts; dataAsof = v.asof || ''; }
+      if (res[2] && Array.isArray(res[2].sessions)) sessionsData = res[2];
+      if (res[3] && res[3].symbols) forwardData = res[3].symbols;
       dataReady = true;
       if (dataAsof && updatedEl) {
         updatedEl.innerHTML = 'Prices and signals as of ' + esc(dataAsof) + '. ' +
@@ -231,6 +240,11 @@
       renderTabs();
       renderList();
       renderEngine();
+      renderSector();
+      maybeSnapshot();
+      renderSessions();
+      renderOutcomes();
+      setFreshLine('fresh', 'Batch ' + (dataAsof || '—') + ' loaded');
       var NL = window.NepseLive || null;
       if (NL && document.getElementById('wl-live')) {
         NL.start({
@@ -263,7 +277,20 @@
       renderTabs();
       renderList();
       renderEngine();
+      renderSector();
+      renderSessions();
+      renderOutcomes();
+      setFreshLine('failed', 'Could not load market data — your saved symbols are safe in this browser.');
     });
+  }
+
+  /* Forward-outcome line on engine rows (from watchlist-forward.json).
+     Absent file or absent symbol => no line, never a placeholder. */
+  function fwdHtml(sym) {
+    var f = forwardData[sym];
+    if (!f || !f.h10) return '';
+    return '<span class="d2-ewl-fwd">10-session beat ' + (f.h10.beat * 100).toFixed(0) +
+      '% (n=' + f.h10.n + ') · mean ' + (f.h10.mean > 0 ? '+' : '') + f.h10.mean.toFixed(2) + 'pp vs NEPSE</span>';
   }
 
   function renderTabs() {
@@ -301,6 +328,7 @@
       '<div class="d2-wl-meta">' +
         '<span class="d2-wl-px d2-num">Rs ' + fmtNum(vd.p, 2) + '</span>' +
         '<span class="d2-wl-chg ' + chgCls + '">' + chgTxt + '</span>' +
+        '<span class="wl-chgbar ' + (chg > 0 ? 'up' : chg < 0 ? 'dn' : 'flat') + '" role="img" aria-label="Day change ' + (isFinite(chg) ? chg.toFixed(2) : '0') + '%"><i style="--w:' + (isFinite(chg) ? Math.min(Math.abs(chg), 10) / 10 * 100 : 0).toFixed(1) + '%"></i></span>' +
         '<span class="d2-verdict ' + verdictClass(vd.v) + '">' + esc(vd.v || '—') + '</span>' +
         '<span class="d2-wl-rsi">' + esc(rsiTxt) + '</span>' +
       '</div>' +
@@ -320,15 +348,19 @@
     if (!dataReady) {
       listEl.innerHTML = '<div class="d2-wl-empty">Could not load market data. Your saved symbols are safe in this browser; please try again later.</div>';
       if (emptyEl) emptyEl.hidden = true;
+      renderDist();
       return;
     }
     if (!n) {
       listEl.innerHTML = '';
       if (emptyEl) emptyEl.hidden = false;
+      renderDist();
       return;
     }
     if (emptyEl) emptyEl.hidden = true;
     listEl.innerHTML = list.syms.map(rowHtml).join('');
+    renderDist();
+    renderSessions();
   }
 
   function focusRow(sym, dir) {
@@ -533,7 +565,7 @@
             '<span class="d2-verdict ' + (x.v === 'Strong Buy' ? 'buy' : 'buy') + '">' + esc(x.v) +
             (tf === 'd' ? '' : ' · ' + TF_LABEL[tf]) + '</span></a>' +
           '<span class="d2-ewl-num d2-num">Rs ' + fmtNum(e.p, 2) + ' · ' + chHtml + '</span>' +
-          '<span class="d2-ewl-setup">' + esc(x.setup || '—') + '</span>' +
+          '<span class="d2-ewl-setup">' + esc(x.setup || '—') + fwdHtml(sym) + '</span>' +
           '<span class="d2-ewl-sl d2-num">' + esc(sltp) + '</span>' +
         '</div>';
       }).join('');
@@ -600,18 +632,350 @@
     }
   }
 
+  /* -------- verdict distribution strip (active list, house pattern) -------- */
+  var DIST_BUCKETS = [
+    {k: 'sb', label: 'Strong Buy', match: 'Strong Buy'},
+    {k: 'b', label: 'Buy', match: 'Buy'},
+    {k: 'h', label: 'Hold', match: 'Hold'},
+    {k: 'er', label: 'Exit / Reduce', match: 'Exit / Reduce'},
+    {k: 'se', label: 'Strong Exit', match: 'Strong Exit'},
+    {k: 'ih', label: 'Insufficient history', match: 'Insufficient history'}
+  ];
+  function renderDist() {
+    if (!distEl) return;
+    if (!dataReady) { distEl.innerHTML = ''; return; }
+    var list = store.lists[store.active];
+    var counts = {};
+    var total = 0;
+    var unscored = [];
+    list.syms.forEach(function (sym) {
+      var v = (verdicts[sym] || {}).v;
+      if (!v) { unscored.push(sym); return; }
+      counts[v] = (counts[v] || 0) + 1;
+      total++;
+    });
+    if (!total) {
+      distEl.innerHTML = '<p class="wl-dist-note">No verdicts on this list yet — add a symbol to see its mix.</p>';
+      return;
+    }
+    var segs = '', legend = '';
+    DIST_BUCKETS.forEach(function (b) {
+      var c = counts[b.match] || 0;
+      if (!c) return; // zero-count buckets render nothing
+      segs += '<i data-b="' + b.k + '" style="width:' + (c / total * 100).toFixed(1) + '%"></i>';
+      legend += '<li><i data-b="' + b.k + '"></i>' + esc(b.label) + ' ' + c + '</li>';
+    });
+    distEl.innerHTML = '<div class="wl-dist-track" role="img" aria-label="Verdict mix: ' +
+      DIST_BUCKETS.filter(function (b) { return counts[b.match]; }).map(function (b) { return b.label + ' ' + counts[b.match]; }).join(', ') +
+      '">' + segs + '</div><ul class="wl-dist-legend">' + legend + '</ul>' +
+      '<p class="wl-dist-note">' + total + ' of ' + list.syms.length + ' symbols scored' +
+      (unscored.length ? ' · no verdict: ' + esc(unscored.join(', ')) : '') + '.</p>';
+  }
+
+  /* -------- snapshots (browser-local, one per session) -------- */
+  function loadSnapshots() {
+    try {
+      var j = JSON.parse(localStorage.getItem(SNAP_KEY) || '[]');
+      return Array.isArray(j) ? j : [];
+    } catch (e) { return []; }
+  }
+  function maybeSnapshot() {
+    if (!dataReady || !dataAsof) return;
+    var snaps = loadSnapshots();
+    for (var i = 0; i < snaps.length; i++) if (snaps[i].asof === dataAsof) return;
+    var lists = store.lists.map(function (l) {
+      return {name: l.name, syms: l.syms.map(function (sym) {
+        var vd = verdicts[sym] || {};
+        return {s: sym, p: vd.p != null ? vd.p : null, ch: vd.ch != null ? vd.ch : null, v: vd.v || null};
+      })};
+    });
+    snaps.push({asof: dataAsof, lists: lists});
+    if (snaps.length > 90) snaps = snaps.slice(snaps.length - 90);
+    try { localStorage.setItem(SNAP_KEY, JSON.stringify(snaps)); } catch (e) {}
+  }
+
+  /* -------- sector stocks block -------- */
+  var secPage = 1, secFilter = '__all';
+  function sectorOf(sym) { return (verdicts[sym] || {}).sec || ''; }
+  function sectorCounts() {
+    var counts = {}, total = 0;
+    Object.keys(verdicts).forEach(function (sym) {
+      var sec = sectorOf(sym);
+      if (!sec) return;
+      counts[sec] = (counts[sec] || 0) + 1;
+      total++;
+    });
+    return {counts: counts, total: total};
+  }
+  function renderSector() {
+    var sel = document.getElementById('wl-sec-select');
+    var tbody = document.getElementById('wl-sec-tbody');
+    var empty = document.getElementById('wl-sec-empty');
+    var info = document.getElementById('wl-sec-pager-info');
+    var prev = document.getElementById('wl-sec-prev');
+    var next = document.getElementById('wl-sec-next');
+    if (!sel || !tbody) return;
+    if (!dataReady) {
+      if (empty) { empty.hidden = false; empty.textContent = 'Market data unavailable — sector stocks will appear once the batch loads.'; }
+      tbody.innerHTML = '';
+      if (info) info.textContent = '';
+      if (prev) prev.disabled = true;
+      if (next) next.disabled = true;
+      return;
+    }
+    var cc = sectorCounts();
+    var secs = Object.keys(cc.counts).sort();
+    sel.innerHTML = '<option value="__all">All sectors (' + cc.total + ')</option>' + secs.map(function (sec) {
+      return '<option value="' + esc(sec) + '"' + (sec === secFilter ? ' selected' : '') + '>' + esc(sec) + ' (' + cc.counts[sec] + ')</option>';
+    }).join('');
+    var rows = Object.keys(verdicts).filter(function (sym) {
+      return secFilter === '__all' || sectorOf(sym) === secFilter;
+    }).sort();
+    var pageSize = 25;
+    var pages = Math.max(1, Math.ceil(rows.length / pageSize));
+    if (secPage > pages) secPage = pages;
+    var page = rows.slice((secPage - 1) * pageSize, secPage * pageSize);
+    if (empty) empty.hidden = page.length > 0;
+    tbody.innerHTML = page.map(function (sym) {
+      var vd = verdicts[sym] || {};
+      var meta = metaFor(sym);
+      var ch = vd.ch;
+      return '<tr><td><a href="' + esc(stockUrl(sym)) + '">' + esc(sym) + '</a></td>' +
+        '<td>' + esc(meta ? meta.n : '') + '</td>' +
+        '<td class="num">Rs ' + fmtNum(vd.p, 2) + '</td>' +
+        '<td class="num ' + (ch > 0 ? 'up' : ch < 0 ? 'dn' : '') + '">' + fmtChange(rsOfPct(ch, vd.p), ch) + '</td>' +
+        '<td><span class="d2-verdict ' + verdictClass(vd.v) + '">' + esc(vd.v || '—') + '</span></td>' +
+        '<td class="num">' + (vd.rsi == null ? '—' : fmtNum(vd.rsi, 1)) + '</td>' +
+        '<td><button type="button" class="wl-sec-add" data-sym="' + esc(sym) + '">Add</button></td></tr>';
+    }).join('');
+    if (info) info.textContent = rows.length ? ('Showing ' + ((secPage - 1) * pageSize + 1) + '–' + Math.min(secPage * pageSize, rows.length) + ' of ' + rows.length) : 'No stocks in this sector';
+    if (prev) prev.disabled = secPage <= 1;
+    if (next) next.disabled = secPage >= pages;
+  }
+  (function bindSector() {
+    var sel = document.getElementById('wl-sec-select');
+    if (sel) sel.addEventListener('change', function () { secFilter = sel.value; secPage = 1; renderSector(); });
+    var prev = document.getElementById('wl-sec-prev');
+    if (prev) prev.addEventListener('click', function () { if (secPage > 1) { secPage--; renderSector(); } });
+    var next = document.getElementById('wl-sec-next');
+    if (next) next.addEventListener('click', function () { secPage++; renderSector(); });
+    var tbody = document.getElementById('wl-sec-tbody');
+    if (tbody) tbody.addEventListener('click', function (e) {
+      var b = e.target.closest('.wl-sec-add');
+      if (!b) return;
+      // Stop here: the document click handler closes the suggest box,
+      // which would instantly hide the prefilled suggestions.
+      e.stopPropagation();
+      prefillAdd(b.getAttribute('data-sym'));
+    });
+  })();
+  /* Prefill only — the symbol is never added without the user's confirm. */
+  function prefillAdd(sym) {
+    if (!addInput) return;
+    addInput.value = sym || '';
+    suggestIdx = -1;
+    currentMatches = dataReady ? matches(addInput.value) : [];
+    renderSuggest();
+    addInput.focus();
+    addInput.scrollIntoView({block: 'nearest'});
+    showHint(sym + ' ready in the add box — press Enter or Add to confirm. It was not added automatically.');
+  }
+
+  /* -------- tracked sessions: line chart + outcomes -------- */
+  function nepseSeries() {
+    return (sessionsData && sessionsData.sessions) || [];
+  }
+  function nepseChangeOn(date) {
+    var arr = nepseSeries();
+    for (var i = 0; i < arr.length; i++) {
+      if (arr[i][0] === date) {
+        if (i === 0) return null;
+        var prev = arr[i - 1][1], cur = arr[i][1];
+        return prev ? (cur / prev - 1) * 100 : null;
+      }
+    }
+    return null;
+  }
+  function nepseCloseOn(date) {
+    var arr = nepseSeries();
+    for (var i = 0; i < arr.length; i++) if (arr[i][0] === date) return arr[i][1];
+    return null;
+  }
+  function renderSessions() {
+    var canvas = document.getElementById('wl-track-canvas');
+    var cap = document.getElementById('wl-track-cap');
+    var note = document.getElementById('wl-track-note');
+    if (!canvas || !cap) return;
+    var snaps = loadSnapshots();
+    var active = store.lists[store.active];
+    var pts = [];
+    snaps.forEach(function (sn) {
+      var list = null;
+      for (var i = 0; i < sn.lists.length; i++) if (sn.lists[i].name === active.name) list = sn.lists[i];
+      if (!list) return;
+      var chs = list.syms.map(function (r) { return r.ch; }).filter(function (c) { return c != null && isFinite(c); });
+      var mean = chs.length ? chs.reduce(function (a, b) { return a + b; }, 0) / chs.length : null;
+      pts.push({asof: sn.asof, mean: mean, nep: nepseChangeOn(sn.asof)});
+    });
+    var ctx = canvas.getContext('2d');
+    if (pts.length < 2) {
+      if (note) { note.hidden = false; note.textContent = 'Collecting sessions — the line appears after two sessions are saved. Snapshots so far: ' + snaps.length + '.'; }
+      cap.textContent = '';
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      return;
+    }
+    if (note) note.hidden = true;
+    drawTrackChart(canvas, pts);
+    var last = pts[pts.length - 1];
+    cap.innerHTML = 'Latest session ' + esc(last.asof) + ': active list mean <strong>' +
+      (last.mean != null ? (last.mean > 0 ? '+' : '') + last.mean.toFixed(2) + '%' : '—') + '</strong> · NEPSE <strong>' +
+      (last.nep != null ? (last.nep > 0 ? '+' : '') + last.nep.toFixed(2) + '%' : '—') + '</strong> · ' + pts.length + ' sessions tracked.';
+  }
+  function drawTrackChart(canvas, pts) {
+    var dpr = window.devicePixelRatio || 1;
+    var cw = canvas.clientWidth || 800, ch = 220;
+    canvas.width = cw * dpr;
+    canvas.height = ch * dpr;
+    var ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, cw, ch);
+    var vals = [];
+    pts.forEach(function (p) { if (p.mean != null) vals.push(p.mean); if (p.nep != null) vals.push(p.nep); });
+    if (!vals.length) return;
+    var min = Math.min.apply(null, vals.concat([0]));
+    var max = Math.max.apply(null, vals.concat([0]));
+    if (max - min < 0.5) max = min + 0.5;
+    var padL = 8, padR = 8, padT = 12, padB = 12;
+    function X(i) { return padL + (pts.length === 1 ? 0.5 : i / (pts.length - 1)) * (cw - padL - padR); }
+    function Y(v) { return padT + (1 - (v - min) / (max - min)) * (ch - padT - padB); }
+    ctx.strokeStyle = 'rgba(154,163,178,.5)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(padL, Y(0)); ctx.lineTo(cw - padR, Y(0)); ctx.stroke();
+    function line(key, color, width) {
+      ctx.strokeStyle = color; ctx.lineWidth = width; ctx.beginPath();
+      var started = false;
+      pts.forEach(function (p, i) {
+        if (p[key] == null) { started = false; return; }
+        if (!started) { ctx.moveTo(X(i), Y(p[key])); started = true; }
+        else ctx.lineTo(X(i), Y(p[key]));
+      });
+      ctx.stroke();
+    }
+    line('nep', '#9AA3B2', 2);
+    line('mean', '#B8E62E', 3);
+  }
+
+  var outPage = 1;
+  function computeOutcomes() {
+    var snaps = loadSnapshots();
+    var first = {};
+    snaps.forEach(function (sn) {
+      sn.lists.forEach(function (l) {
+        l.syms.forEach(function (r) {
+          if (!first[r.s] && r.p != null) first[r.s] = {asof: sn.asof, p: r.p};
+        });
+      });
+    });
+    var out = [];
+    Object.keys(first).forEach(function (sym) {
+      // No elapsed window yet: first seen in the current batch, so the
+      // "latest price" is that same batch's price and the return would
+      // be a trivial 0.00%. Such symbols are not outcomes — they join
+      // the table once a later batch arrives.
+      if (first[sym].asof === dataAsof) return;
+      var vd = verdicts[sym] || {};
+      var p1 = vd.p != null ? vd.p : (forwardData[sym] || {}).close;
+      if (p1 == null) return;
+      var ret = (p1 / first[sym].p - 1) * 100;
+      var n0 = nepseCloseOn(first[sym].asof);
+      // Same window on both sides: the NEPSE leg ends at the BATCH
+      // asof (the verdicts prices' own session), never at the sessions
+      // file's tail, which can run a session ahead of the batch.
+      var n1 = nepseCloseOn(dataAsof);
+      if (n1 == null && nepseSeries().length) n1 = nepseSeries()[nepseSeries().length - 1][1];
+      var nepRet = (n0 && n1) ? (n1 / n0 - 1) * 100 : null;
+      var spread = nepRet != null ? ret - nepRet : null;
+      out.push({sym: sym, since: first[sym].asof, ret: ret, nep: nepRet, spread: spread});
+    });
+    out.sort(function (a, b) {
+      var x = a.spread == null ? -1e9 : a.spread, y = b.spread == null ? -1e9 : b.spread;
+      return y - x;
+    });
+    return out;
+  }
+  function renderOutcomes() {
+    var tbody = document.getElementById('wl-out-tbody');
+    var empty = document.getElementById('wl-out-empty');
+    var info = document.getElementById('wl-out-pager-info');
+    var prev = document.getElementById('wl-out-prev');
+    var next = document.getElementById('wl-out-next');
+    if (!tbody) return;
+    var rows = computeOutcomes();
+    var pageSize = 25;
+    var pages = Math.max(1, Math.ceil(rows.length / pageSize));
+    if (outPage > pages) outPage = pages;
+    var page = rows.slice((outPage - 1) * pageSize, outPage * pageSize);
+    if (!rows.length) {
+      if (empty) { empty.hidden = false; empty.textContent = 'No tracked outcomes yet — outcomes appear once a symbol has been seen in an earlier session and has a latest price.'; }
+      tbody.innerHTML = '';
+    } else {
+      if (empty) empty.hidden = true;
+      tbody.innerHTML = page.map(function (r) {
+        var cls = r.spread == null ? 'flat' : r.spread > 0 ? 'beat' : r.spread < 0 ? 'trail' : 'flat';
+        var lbl = r.spread == null ? '—' : r.spread > 0 ? 'Beat' : r.spread < 0 ? 'Trailed' : 'Flat';
+        return '<tr><td><a href="' + esc(stockUrl(r.sym)) + '">' + esc(r.sym) + '</a></td>' +
+          '<td>' + esc(r.since) + '</td>' +
+          '<td class="num">' + (r.ret > 0 ? '+' : '') + r.ret.toFixed(2) + '%</td>' +
+          '<td class="num">' + (r.nep != null ? (r.nep > 0 ? '+' : '') + r.nep.toFixed(2) + '%' : '—') + '</td>' +
+          '<td class="num">' + (r.spread != null ? (r.spread > 0 ? '+' : '') + r.spread.toFixed(2) + 'pp' : '—') + '</td>' +
+          '<td><span class="wl-chip ' + cls + '">' + lbl + '</span></td></tr>';
+      }).join('');
+    }
+    if (info) info.textContent = rows.length ? ('Showing ' + ((outPage - 1) * pageSize + 1) + '–' + Math.min(outPage * pageSize, rows.length) + ' of ' + rows.length) : '';
+    if (prev) prev.disabled = outPage <= 1;
+    if (next) next.disabled = outPage >= pages;
+  }
+  (function bindOutcomes() {
+    var prev = document.getElementById('wl-out-prev');
+    if (prev) prev.addEventListener('click', function () { if (outPage > 1) { outPage--; renderOutcomes(); } });
+    var next = document.getElementById('wl-out-next');
+    if (next) next.addEventListener('click', function () { outPage++; renderOutcomes(); });
+  })();
+
   loadData();
 
-  /* ---- Auto-refresh: re-fetch batch data periodically and when the tab
-     becomes visible, so the page picks up new batches without a reload. ---- */
-  var REFRESH_MS = 5 * 60 * 1000;
+  /* ---- Auto-refresh: market-aware cadence, visible freshness line ---- */
+  var refreshTimer = null;
   var lastHidden = 0;
+  function refreshMs() {
+    var ms = 'CLOSED';
+    try {
+      if (window.NepseMarketConfig && window.NepseMarketConfig.marketState) ms = window.NepseMarketConfig.marketState();
+    } catch (e) {}
+    if (ms === 'OPEN' || ms === 'PRE-OPEN') return 15 * 60 * 1000;
+    var day = new Date().getDay();
+    if (day === 0 || day === 6) return 120 * 60 * 1000;
+    return 30 * 60 * 1000;
+  }
+  function setFreshLine(state, msg) {
+    if (!freshLine) return;
+    freshLine.setAttribute('data-state', state);
+    freshLine.textContent = msg;
+  }
+  function fmtClock(d) {
+    return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+  }
+  function scheduleRefresh() {
+    if (refreshTimer) clearTimeout(refreshTimer);
+    refreshTimer = setTimeout(function () { autoRefresh(); }, refreshMs());
+  }
   function autoRefresh() {
-    // cache-bust so we get the fresh batch, not a cached copy
-    var bust = '?t=' + Date.now();
+    if (document.hidden) { scheduleRefresh(); return; } // hidden-tab skip
     Promise.all([
-      fetch('/nepse-chart/data/universe.json' + bust).then(function (r) { return r.ok ? r.json() : null; }),
-      fetch('/nepse-chart/data/verdicts.json' + bust).then(function (r) { return r.ok ? r.json() : null; })
+      fetch('/nepse-chart/data/universe.json', {cache: 'no-store'}).then(function (r) { return r.ok ? r.json() : null; }),
+      fetch('/nepse-chart/data/verdicts.json', {cache: 'no-store'}).then(function (r) { return r.ok ? r.json() : null; }),
+      fetch('/data/watchlist-sessions.json', {cache: 'no-store'}).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
+      fetch('/data/watchlist-forward.json', {cache: 'no-store'}).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
     ]).then(function (res) {
       var u = res[0], v = res[1];
       var changed = false;
@@ -620,18 +984,32 @@
         if (v.asof !== dataAsof) changed = true;
         verdicts = v.verdicts; dataAsof = v.asof || '';
       }
+      if (res[2] && Array.isArray(res[2].sessions)) sessionsData = res[2];
+      if (res[3] && res[3].symbols) forwardData = res[3].symbols;
+      if (dataAsof && updatedEl) {
+        updatedEl.innerHTML = 'Prices and signals as of ' + esc(dataAsof) + '. ' +
+          (window.NepseFresh ? NepseFresh.badge(dataAsof) : '');
+      }
       if (changed && dataReady) {
-        if (dataAsof && updatedEl) {
-          updatedEl.innerHTML = 'Prices and signals as of ' + esc(dataAsof) + '. ' +
-            (window.NepseFresh ? NepseFresh.badge(dataAsof) : '');
-        }
         renderTabs();
         renderList();
         renderEngine();
+        renderSector();
+        maybeSnapshot();
+        renderSessions();
+        renderOutcomes();
+        setFreshLine('fresh', 'Batch ' + dataAsof + ' · refreshed ' + fmtClock(new Date()) + ' NPT');
+      } else {
+        setFreshLine('fresh', 'Checked ' + fmtClock(new Date()) + ' NPT · batch ' + (dataAsof || '—') + ' unchanged');
       }
-    }).catch(function () { /* keep old data on failure */ });
+      scheduleRefresh();
+    }).catch(function () {
+      // Never silent stale data: say the refresh failed and keep old rows.
+      setFreshLine('failed', 'Refresh failed ' + fmtClock(new Date()) + ' NPT — showing batch ' + (dataAsof || '—') + '. Will retry.');
+      scheduleRefresh();
+    });
   }
-  setInterval(autoRefresh, REFRESH_MS);
+  scheduleRefresh();
   document.addEventListener('visibilitychange', function () {
     if (document.hidden) { lastHidden = Date.now(); return; }
     // refetch if the tab was hidden for more than 2 minutes
