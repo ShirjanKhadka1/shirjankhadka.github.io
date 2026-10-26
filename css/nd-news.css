@@ -299,3 +299,55 @@
 .nn-mix-legend b{ display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:6px; }
 .nn-mix-legend .mk{ background:var(--nd-lime,#B8E62E); } .nn-mix-legend .co{ background:var(--nd-info,#3080FF); } .nn-mix-legend .ec{ background:var(--nd-amber,#F5B301); }
 [data-theme="light"] .nn-mix-track{ background:#E5E7EB; }
+
+/* --- News teardown additions: canvas pin + freshness + sessions + kinds + sector --- */
+
+/* Canvas pin: theme-scoped, beats theme.css [data-theme] body.nd (0,2,1)
+   with 0,3,2. Both attributes covered — theme-toggle sets both. */
+html[data-theme] body.nd[data-page="news"],
+html[data-nd-ed] body.nd[data-page="news"] { background: var(--nd-bg); }
+
+/* Freshness line under the masthead meta row */
+.nn-freshline { font: 500 0.82rem var(--nd-font-mono, "IBM Plex Mono", monospace); color: var(--nd-muted); margin: 10px 0 0; }
+.nn-freshline.failed { color: var(--nd-chip-stale-fg); }
+.nn-badge.failed { color: var(--nd-chip-stale-fg); border-color: var(--nd-chip-stale-fg); }
+.nn-badge.failed .dot { background: var(--nd-down); }
+
+/* Session strip: one chip per feed date, filters both feeds */
+.nn-sessions { margin: 18px 0 0; }
+.nn-sess-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.nn-sess { background: var(--nd-panel); border: 1px solid var(--nd-border); color: var(--nd-muted);
+  border-radius: 999px; padding: 7px 14px; cursor: pointer;
+  font: 600 0.82rem var(--nd-font-mono, "IBM Plex Mono", monospace); }
+.nn-sess:hover { border-color: var(--nd-lime); color: var(--nd-text); }
+.nn-sess.active { background: var(--nd-lime); border-color: var(--nd-lime); color: var(--nd-on-lime); }
+.nn-sess:focus-visible, .nn-sec-pager button:focus-visible, .nn-select:focus-visible { outline: 2px solid var(--nd-lime); outline-offset: 2px; }
+
+/* Announcement kinds: ranked bars over all announcements (scaled to max, counts printed) */
+.nn-kind-rows { display: flex; flex-direction: column; gap: 8px; margin: 0 0 20px; }
+.nn-kind-row { display: flex; align-items: center; gap: 12px; }
+.nn-kind-lab { flex: 0 0 110px; font: 600 0.82rem var(--nd-font-mono, "IBM Plex Mono", monospace); color: var(--nd-text); }
+.nn-kind-track { flex: 1; height: 10px; background: var(--nd-panel-2); border-radius: 999px; overflow: hidden; }
+.nn-kind-track i { display: block; height: 100%; background: var(--nd-lime); border-radius: 999px; }
+.nn-kind-n { flex: 0 0 40px; text-align: right; font: 600 0.82rem var(--nd-font-mono, "IBM Plex Mono", monospace); color: var(--nd-muted); }
+
+/* Sector stocks block */
+.nn-sector { margin: 30px 0 0; }
+.nn-select { background: var(--nd-panel); border: 1px solid var(--nd-border); color: var(--nd-text);
+  border-radius: 8px; padding: 10px 14px; font: 500 0.9rem var(--nd-font-sans, Inter, sans-serif); cursor: pointer; }
+.nn-table-wrap { overflow-x: auto; margin-top: 12px; border: 1px solid var(--nd-border); border-radius: 10px; }
+.nn-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.nn-table th { background: var(--nd-panel-2); color: var(--nd-muted); text-align: left; padding: 10px 14px;
+  font: 600 0.78rem var(--nd-font-mono, "IBM Plex Mono", monospace); text-transform: uppercase; letter-spacing: 0.04em; }
+.nn-table td { padding: 10px 14px; border-top: 1px solid var(--nd-border); color: var(--nd-text); }
+.nn-table td.num { text-align: right; font-family: var(--nd-font-mono, "IBM Plex Mono", monospace); white-space: nowrap; }
+.nn-table td.num.up { color: var(--nd-up); }
+.nn-table td.num.dn { color: var(--nd-down); }
+.nn-table .nn-empty-cell { text-align: center; color: var(--nd-muted); padding: 20px; }
+.nn-sec-pager { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
+.nn-sec-pager button { background: var(--nd-panel); border: 1px solid var(--nd-border); color: var(--nd-text);
+  border-radius: 999px; padding: 8px 18px; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
+.nn-sec-pager button:disabled { opacity: 0.45; cursor: default; }
+.nn-sec-pager button.nn-next { background: var(--nd-lime); border-color: var(--nd-lime); color: var(--nd-on-lime); }
+.nn-sec-pager button.nn-next:disabled { background: var(--nd-panel); border-color: var(--nd-border); color: var(--nd-text); }
+.nn-sec-page { font: 500 0.82rem var(--nd-font-mono, "IBM Plex Mono", monospace); color: var(--nd-muted); }
