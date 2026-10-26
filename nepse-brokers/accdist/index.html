@@ -24,23 +24,16 @@
 {"@context":"https://schema.org","@type":"WebPage","name":"Accumulation / Distribution — Nepse Decode","url":"https://shirjankhadka.com.np/nepse-brokers/accdist/"}
 </script>
 <link rel="stylesheet" href="/css/nd-tokens.css">
-<link rel="stylesheet" href="/css/nepse-design-system.css?v=8d179ee9">
-<link rel="stylesheet" href="/css/theme.css?v=f9678c21">
+<link rel="stylesheet" href="/css/fonts.css">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
-<link rel="stylesheet" href="/css/broker-pages.css?v=3806931f">
-<style>
-/* AccDist: side-by-side on desktop, stacked on mobile */
-@media (max-width: 900px){
-  #bkGrid.bk-grid-2col{ grid-template-columns: 1fr !important; }
-}
-</style>
-<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=69b323cf">
+<link rel="stylesheet" href="/css/nd-accdist.css?v=c28d32b2">
 </head>
-<body class="nd">
+<body class="nd" data-page="accdist">
 <div id="nd-header"></div>
-<main class="bk-wrap">
+<a class="ac-skip" href="#main">Skip to content</a>
+<main class="bk-wrap" id="main">
 <p class="bk-eyebrow">Brokers</p>
 <h1 class="bk-title">Accumulation / Distribution</h1>
 <p class="bk-sub">Stocks brokers are net buying (accumulating) and net selling (distributing), ranked by net transaction value over the period.</p>
@@ -52,109 +45,45 @@
 <a href="/nepse-brokers/accdist/" class="active">Accumulation / Distribution</a>
 </nav>
 <div class="bk-periods" id="bkPeriods">
-<span style="font-size:.85rem;color:var(--muted)">Period:</span>
+<span class="bk-period-label">Period:</span>
 <button data-p="latest" class="active">Latest</button>
 <button data-p="1D">1D</button>
 <button data-p="1W">1W</button>
+<button data-p="2W">2W</button>
 <button data-p="1M">1M</button>
 <button data-p="3M">3M</button>
 <button data-p="6M">6M</button>
+<button data-p="1Y">1Y</button>
+<button data-p="2Y">2Y</button>
+<button data-p="3Y">3Y</button>
 </div>
-<div class="bk-meta" id="bkMeta">Loading…</div>
-<div class="bk-searchrow">
-<input type="search" id="bkStockSearch" class="bk-search" placeholder="Filter by stock symbol, e.g. NABIL" aria-label="Filter by stock symbol">
+<p class="ac-fresh" id="acFresh"><span class="ac-dot"></span>Loading…</p>
+<p class="ac-notice" id="acNotice"></p>
+<div id="acBanner"></div>
+<div class="bk-ctl">
+<input type="search" id="bkStockSearch" placeholder="Filter by stock symbol or broker name, e.g. NABIL" aria-label="Filter by stock symbol or broker name">
 </div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px" id="bkGrid" class="bk-grid-2col">
-<div>
-<h2 style="font-family:var(--serif);font-size:1.2rem;margin:0 0 8px;color:var(--up)">Accumulating <span style="font-size:.8rem;color:var(--muted);font-family:var(--sans)">— top net bought</span></h2>
-<div class="bk-scroll"><table class="bk-table nd-table" id="accTable"><thead><tr>
-<th data-sort="symbol">Stock</th><th data-sort="broker">Broker</th><th data-sort="netQty">Net qty</th><th data-sort="netVal">Net value</th>
-</tr></thead><tbody id="accBody"><tr><td colspan="4" class="bk-loading">Loading…</td></tr></tbody></table></div>
+<div id="bkResult"><p class="bk-loading">Loading…</p></div>
+<div class="ac-def">
+<h2>What “accumulating” and “distributing” mean here</h2>
+<p>Each row is one broker–stock pair over the selected period. A pair is <strong>accumulating</strong> when that broker's clients bought more than they sold (positive net transaction value) and <strong>distributing</strong> when they sold more than they bought (negative net value). Net value is measured transaction flow from the period's broker net-flow records — bought minus sold, nothing estimated.</p>
+<p>Each list shows the <strong>top 200 pairs</strong> by net value: accumulating ranked largest net buy first, distributing ranked largest net sell first. Pairs below the cut-off are not shown — on 1D, 4,854 accumulating pairs and 5,641 distributing pairs exist in the full flow, so the lists are the top 200 of each, not the whole market. Zero-net pairs appear in neither list.</p>
+<p><strong>This is not verified shareholding and not beneficial ownership, and nothing here is a forecast or a call — it is a measurement of what already traded.</strong> Broker history starts 2026-07-15, so 3M and longer views all cover the same sessions (2026-07-15 to the latest session) rather than pretending a longer window. Net values are single-counted nets (buy minus sell); they are never halved and never doubled.</p>
 </div>
-<div>
-<h2 style="font-family:var(--serif);font-size:1.2rem;margin:0 0 8px;color:var(--down)">Distributing <span style="font-size:.8rem;color:var(--muted);font-family:var(--sans)">— top net sold</span></h2>
-<div class="bk-scroll"><table class="bk-table nd-table" id="distTable"><thead><tr>
-<th data-sort="symbol">Stock</th><th data-sort="broker">Broker</th><th data-sort="netQty">Net qty</th><th data-sort="netVal">Net value</th>
-</tr></thead><tbody id="distBody"><tr><td colspan="4" class="bk-loading">Loading…</td></tr></tbody></table></div>
+<div class="ac-sec">
+<h2>Stocks by sector</h2>
+<p class="ac-sec-lede">Every listed stock, grouped by sector. A lime mark shows stocks that appear in the accumulating or distributing list for the current period — click a symbol for its stock page.</p>
+<select id="acSecSelect" aria-label="Select sector"><option value="All">All sectors (412)</option></select>
+<p class="ac-sec-sum" id="acSecSum"></p>
+<div class="bk-scroll"><table class="bk-table" id="acSecTable"><thead><tr><th>Symbol</th><th>Company</th><th>Sector</th><th>Flow this period</th></tr></thead><tbody id="acSecBody"></tbody></table></div>
+<div class="ac-pager"><button type="button" id="acSecPrev">Prev</button><span class="ac-showing" id="acSecShowing"></span><button type="button" class="ac-next" id="acSecNext">Next</button></div>
+<p class="ac-sec-note">Sector counts come from the Engine Verdict batch (verdicts sec field); universe entries carry no sector field, so counts are stated from the batch, never the universe. Company names come from the universe.</p>
 </div>
-</div>
-<p class="bk-note">"Accumulation" = net bought, "distribution" = net sold by transaction value — not beneficial ownership. Data: public NEPSE floorsheet records. <strong>For education only. Not investment advice.</strong></p>
+<p class="bk-note">Transaction flow from public NEPSE floorsheet records — not verified shareholding.</p>
 </main>
 <div id="nd-footer"></div>
-<script src="/js/broker-common.js?v=5a3d8ba5"></script>
-<script>
-(function(){
-"use strict";
-var BC = window.BrokerCommon;
-var state = { period: 'latest', brokers: {}, acc: [], dist: [], q: '' };
-var $ = function(id){ return document.getElementById(id); };
-function bname(code){ return state.brokers[code] || ('Broker '+code); }
-
-function norm(list){
-  return (list||[]).slice(0,50).map(function(x){
-    return { symbol: x.symbol||'—', broker: bname(x.broker), brokerCode: x.broker,
-      netQty: x.net_qty||0, netVal: x.net_value||0 };
-  });
-}
-function matchesQ(r){
-  if(!state.q) return true;
-  return r.symbol.toLowerCase().indexOf(state.q) !== -1;
-}
-function renderOne(tbodyId, rows, good){
-  var filtered = rows.filter(matchesQ);
-  $(tbodyId).innerHTML = filtered.map(function(r){
-    return '<tr><td><strong>'+BC.esc(r.symbol)+'</strong></td><td>'+BC.esc(r.broker)+'</td>'+
-      '<td>'+BC.fmtQ(r.netQty,Math.abs(r.netVal))+'</td><td class="'+(good?'pos':'neg')+'">'+BC.fmtV(r.netVal)+'</td></tr>';
-  }).join('') || '<tr><td colspan="4" class="bk-loading">No matches.</td></tr>';
-}
-function renderAll(){
-  renderOne('accBody', state.acc, true);
-  renderOne('distBody', state.dist, false);
-}
-function load(){
-  $('accBody').innerHTML = '<tr><td colspan="4" class="bk-loading">Loading…</td></tr>';
-  $('distBody').innerHTML = '<tr><td colspan="4" class="bk-loading">Loading…</td></tr>';
-  BC.loadPeriod(state.period).then(function(d){
-    state.acc = norm(d.accumulation); state.dist = norm(d.distribution);
-    renderAll();
-    $('bkMeta').textContent = 'Data: ' + BC.label(state.period, d) + ' · Source: NEPSE floorsheets';
-    BC.makeSortable($('accTable'), function(){ return state.acc.filter(matchesQ); }, function(rs){ renderOne('accBody', rs, true); });
-    BC.makeSortable($('distTable'), function(){ return state.dist.filter(matchesQ); }, function(rs){ renderOne('distBody', rs, false); });
-  }).catch(function(){
-    var empty = '<tr><td colspan="4"><div class="bk-empty">Data not available for this period yet. ' +
-      'Broker history is still building — try the latest session instead. This page also retries automatically every minute.<br>' +
-      '<button type="button" class="bk-goto" data-goto="1D" style="margin-top:8px;padding:6px 14px;border-radius:8px;cursor:pointer;">See the latest session (1D)</button> ' +
-      '<button type="button" class="bk-goto" data-goto="retry" style="margin-top:8px;padding:6px 14px;border-radius:8px;cursor:pointer;">Retry</button>' +
-      '</div></td></tr>';
-    $('accBody').innerHTML = empty;
-    $('distBody').innerHTML = empty;
-    document.querySelectorAll('.bk-goto').forEach(function(b){
-      b.addEventListener('click', function(){
-        var go = b.getAttribute('data-goto');
-        if (go && go !== 'retry') {
-          state.period = go;
-          document.querySelectorAll('#bkPeriods button').forEach(function(x){
-            x.classList.toggle('active', x.dataset.p === go);
-          });
-        }
-        load();
-      });
-    });
-  });
-}
-$('bkPeriods').addEventListener('click', function(e){
-  var b = e.target.closest('button'); if(!b) return;
-  document.querySelectorAll('#bkPeriods button').forEach(function(x){x.classList.remove('active')});
-  b.classList.add('active'); state.period = b.dataset.p; load();
-});
-var searchEl = $('bkStockSearch');
-if (searchEl) searchEl.addEventListener('input', function(){ state.q = searchEl.value.trim().toLowerCase(); renderAll(); });
-Promise.all([BC.loadMeta(), BC.loadBrokers()]).then(function(res){
-  state.brokers = res[1]; load();
-});
-setInterval(function(){ if(!document.hidden) load(); }, 60000);
-})();
-</script>
+<script src="/js/broker-common.js?v=1e7a9771"></script>
+<script src="/js/accdist.js?v=462d8735"></script>
 <script src="/js/nd-chrome.js?v=74c1c8b7" defer></script>
 </body>
 </html>

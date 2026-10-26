@@ -1,0 +1,157 @@
+/* nd-accdist.css — Accumulation / Distribution family layer (design master).
+   Tokenized port of the broker subpage kit (broker-pages.css), minus the
+   retired editorial green / cream variables and the legacy var() traps
+   (all legacy variable names replaced with --nd-* tokens).
+   The other broker subpages keep broker-pages.css untouched; this file
+   serves accdist only. Every block on the page is styled here — no
+   component is left on the old kit, and no inline styles remain anywhere
+   on the page (the old inline <style> block and the bk-goto buttons'
+   inline styles are all ported here). */
+
+/* ---- §1. Canvas pin (theme-scoped, beats theme.css body rules) ---- */
+html[data-theme="dark"] body.nd[data-page="accdist"] { background: var(--nd-bg); }
+html[data-theme="light"] body.nd[data-page="accdist"] { background: var(--nd-bg); }
+body.nd[data-page="accdist"] { font-family: var(--nd-font-sans); }
+
+/* ---- §2. Skip link: off-screen until focus ---- */
+.ac-skip { position: absolute; left: -9999px; top: auto; width: 1px; height: 1px; overflow: hidden; }
+.ac-skip:focus { position: static; width: auto; height: auto; overflow: visible; display: inline-block; padding: 8px 14px; background: var(--nd-lime); color: var(--nd-on-lime); font-weight: 700; border-radius: 8px; }
+
+/* ---- §3. Page shell (ported bk-* classes, tokenized) ---- */
+.bk-wrap { max-width: 1160px; margin: 0 auto; padding: 24px 16px; }
+.bk-eyebrow { font-family: var(--nd-font-mono); font-size: 11px; font-weight: 600; letter-spacing: .22em; text-transform: uppercase; color: var(--nd-lime); margin: 0 0 8px; }
+.bk-title { font-family: var(--nd-font-display); font-size: 28px; font-weight: 600; margin: 0 0 6px; color: var(--nd-text); }
+.bk-sub { color: var(--nd-muted); max-width: 680px; font-size: .95rem; line-height: 1.6; margin: 0 0 18px; }
+.bk-h2 { font-family: var(--nd-font-display); font-size: 1.2rem; font-weight: 600; margin: 18px 0 8px; color: var(--nd-text); }
+
+/* ---- §4. Broker sub-nav (family sub-nav, NOT the shared chrome nav) ---- */
+.bk-nav { display: flex; gap: 4px; flex-wrap: wrap; margin: 0 0 24px; background: var(--nd-inset); border: 1px solid var(--nd-border); border-radius: 16px; padding: 6px; width: fit-content; max-width: 100%; box-shadow: var(--nd-e1); }
+.bk-nav a { padding: 10px 20px; border-radius: 12px; border: 1px solid transparent; text-decoration: none; font-size: .85rem; font-weight: 600; color: var(--nd-muted); background: transparent; transition: background .18s, color .18s, box-shadow .18s; white-space: nowrap; }
+.bk-nav a:hover { color: var(--nd-lime); background: var(--nd-lime-soft); border-color: var(--nd-border-strong); }
+.bk-nav a:focus-visible { box-shadow: var(--nd-focus-ring); outline: none; }
+.bk-nav a.active { background: var(--nd-lime); color: var(--nd-on-lime); border-color: var(--nd-lime); box-shadow: var(--nd-e1); }
+
+/* ---- §5. Period pills (kit treatment: active = lime, both themes) ---- */
+.bk-periods { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 0 16px; align-items: center; }
+.bk-periods .bk-period-label { font-size: .85rem; color: var(--nd-dim); }
+.bk-periods button { background: var(--nd-panel-2); border: 1px solid var(--nd-border); border-radius: 999px; padding: 6px 14px; font-size: .85rem; font-family: var(--nd-font-sans); cursor: pointer; color: var(--nd-muted); transition: border-color .15s, color .15s, background .15s; }
+.bk-periods button:hover { border-color: var(--nd-lime); color: var(--nd-lime); }
+.bk-periods button.active { background: var(--nd-lime); border-color: var(--nd-lime); color: var(--nd-on-lime); font-weight: 700; }
+.bk-periods button:focus-visible { box-shadow: var(--nd-focus-ring); outline: none; }
+
+/* ---- §6. Controls: search input ---- */
+.bk-ctl { display: flex; gap: 10px; flex-wrap: wrap; margin: 0 0 16px; align-items: center; }
+.bk-ctl input[type="search"] { border: 1px solid var(--nd-border); border-radius: 10px; padding: 10px 12px; font-size: .9rem; font-family: var(--nd-font-sans); background: var(--nd-inset); color: var(--nd-text); max-width: 100%; width: 320px; }
+.bk-ctl input[type="search"]:focus { outline: none; border-color: var(--nd-lime); box-shadow: var(--nd-focus-ring); }
+
+/* ---- §7. Freshness line + notice + banner ---- */
+.ac-fresh { font-family: var(--nd-font-mono); font-size: 13px; color: var(--nd-dim); margin: 0 0 12px; }
+.ac-fresh .ac-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--nd-lime); margin-right: 6px; }
+.ac-fresh .ac-dot.fail { background: var(--nd-down); }
+.ac-notice { font-size: .85rem; color: var(--nd-lime); margin: 0 0 12px; min-height: 1.2em; }
+.ac-banner { background: var(--nd-lime-soft); border: 1px solid var(--nd-border-strong); border-radius: 12px; padding: 12px 16px; font-size: .9rem; line-height: 1.6; color: var(--nd-text); margin: 0 0 16px; }
+.ac-banner.fail { background: var(--nd-down-soft); }
+.ac-banner.prov { background: var(--nd-lime-faint); }
+
+/* ---- §8. Tiles ---- */
+.bk-tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 12px 0 18px; }
+@media (min-width: 760px) { .bk-tiles { grid-template-columns: repeat(4, 1fr); } }
+.bk-tile { background: var(--nd-panel); border: 1px solid var(--nd-border); border-radius: 12px; padding: 14px 16px; box-shadow: var(--nd-e1); }
+.bk-tile .k { font-size: 11px; color: var(--nd-dim); text-transform: uppercase; letter-spacing: .09em; font-weight: 600; }
+.bk-tile .v { font-family: var(--nd-font-display); font-size: 1.3rem; font-weight: 600; margin-top: 4px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.bk-tile .s { font-size: 12px; color: var(--nd-dim); margin-top: 2px; }
+
+/* ---- §9. Two-column lists grid (ported from the old inline <style> block:
+   side-by-side on desktop, stacked at <=900px, honest at 390px) ---- */
+.bk-grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 900px) { .bk-grid-2col { grid-template-columns: 1fr; } }
+.bk-col-head { font-family: var(--nd-font-display); font-size: 1.2rem; font-weight: 600; margin: 0 0 8px; }
+.bk-col-head.up { color: var(--nd-up); }
+.bk-col-head.down { color: var(--nd-down); }
+.bk-col-head .bk-col-sub { font-size: .8rem; color: var(--nd-dim); font-family: var(--nd-font-sans); font-weight: 400; }
+
+/* ---- §10. Tables ---- */
+.bk-scroll { overflow-x: auto; margin: 12px 0; border: 1px solid var(--nd-border); border-radius: 14px; background: var(--nd-panel); }
+.bk-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: .85rem; background: var(--nd-panel); min-width: 560px; }
+.bk-table th, .bk-table td { padding: 9px 12px; text-align: right; border-bottom: 1px solid var(--nd-border); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.bk-table th:first-child, .bk-table td:first-child { text-align: left; }
+.bk-table th { background: var(--nd-panel-2); font-weight: 600; color: var(--nd-muted); position: sticky; top: 0; user-select: none; }
+.bk-table tbody tr:hover { background: var(--nd-panel-2); }
+.bk-table th[data-sort] { cursor: pointer; }
+.bk-table th[data-sort]:hover { color: var(--nd-lime); }
+.bk-table th.sorted-asc, .bk-table th.sorted-desc { color: var(--nd-lime); }
+.bk-table .sort-ind { font-size: .7em; }
+.bk-table tr:last-child td { border-bottom: none; }
+.pos { color: var(--nd-up); font-weight: 600; }
+.neg { color: var(--nd-down); font-weight: 600; }
+
+/* ---- §11. Pagers + goto buttons (kit: Prev quiet, Next lime primary;
+   goto buttons ported from raw inline styles, functions unchanged) ---- */
+.ac-pager { display: flex; gap: 8px; align-items: center; margin: 12px 0 4px; flex-wrap: wrap; }
+.ac-pager button { border: 1px solid var(--nd-border); border-radius: 999px; padding: 6px 14px; font-size: .85rem; font-family: var(--nd-font-sans); cursor: pointer; background: var(--nd-panel-2); color: var(--nd-muted); }
+.ac-pager button.ac-next { background: var(--nd-lime); border-color: var(--nd-lime); color: var(--nd-on-lime); font-weight: 700; }
+.ac-pager button:disabled { opacity: .45; cursor: default; }
+.ac-pager button:focus-visible { box-shadow: var(--nd-focus-ring); outline: none; }
+.ac-showing { font-family: var(--nd-font-mono); font-size: 13px; color: var(--nd-dim); }
+.bk-goto { margin-top: 8px; padding: 6px 14px; border-radius: 8px; cursor: pointer; border: 1px solid var(--nd-border); background: var(--nd-panel-2); color: var(--nd-text); font-size: .85rem; font-family: var(--nd-font-sans); }
+.bk-goto:hover { border-color: var(--nd-lime); color: var(--nd-lime); }
+.bk-goto:focus-visible { box-shadow: var(--nd-focus-ring); outline: none; }
+.bk-goto.primary { background: var(--nd-lime); border-color: var(--nd-lime); color: var(--nd-on-lime); font-weight: 700; }
+
+/* ---- §12. Viz: ranked net bars + mix card (values always printed) ---- */
+.ac-viz { display: grid; gap: 16px; margin: 4px 0 18px; }
+@media (min-width: 860px) { .ac-viz { grid-template-columns: 1fr 1fr; } }
+.ac-viz-card { background: var(--nd-panel); border: 1px solid var(--nd-border); border-radius: 18px; padding: 16px 18px; box-shadow: var(--nd-e1); }
+.ac-viz-card h3 { font-family: var(--nd-font-display); font-size: 1.05rem; font-weight: 600; margin: 0 0 4px; color: var(--nd-text); }
+.ac-viz-card .ac-cap { font-size: .82rem; color: var(--nd-dim); margin: 0 0 14px; line-height: 1.5; }
+.ac-rank { display: grid; grid-template-columns: 130px 1fr auto; gap: 10px; align-items: center; margin: 7px 0; font-size: .85rem; }
+.ac-rank .lb { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.ac-rank .tr { height: 10px; border-radius: 999px; background: var(--nd-border); overflow: hidden; }
+.ac-rank .tr i { display: block; height: 100%; border-radius: 999px; }
+.ac-rank .tr i[data-dir="up"] { background: var(--nd-up); }
+.ac-rank .tr i[data-dir="down"] { background: var(--nd-down); }
+.ac-rank .vl { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ac-rank .vl[data-dir="up"] { color: var(--nd-up); }
+.ac-rank .vl[data-dir="down"] { color: var(--nd-down); }
+.ac-mix-row { display: flex; justify-content: space-between; gap: 10px; align-items: center; margin: 10px 0; font-size: .9rem; font-variant-numeric: tabular-nums; }
+.ac-mix-row .mk { font-weight: 700; }
+.ac-mix-row .mk.up { color: var(--nd-up); }
+.ac-mix-row .mk.down { color: var(--nd-down); }
+.ac-mix-row .vl { white-space: nowrap; }
+
+/* ---- §13. Definition box (prominent, always visible) ---- */
+.ac-def { background: var(--nd-panel); border: 1px solid var(--nd-border); border-left: 4px solid var(--nd-lime); border-radius: 12px; padding: 16px 18px; margin: 24px 0 0; box-shadow: var(--nd-e1); }
+.ac-def h2 { font-family: var(--nd-font-display); font-size: 1.1rem; font-weight: 600; margin: 0 0 6px; color: var(--nd-text); }
+.ac-def p { font-size: .9rem; color: var(--nd-muted); line-height: 1.7; margin: 0 0 8px; }
+.ac-def p:last-child { margin-bottom: 0; }
+.ac-def strong { color: var(--nd-text); }
+
+/* ---- §14. Sector block ---- */
+.ac-sec { margin-top: 28px; }
+.ac-sec h2 { font-family: var(--nd-font-display); font-size: 1.25rem; font-weight: 600; margin: 0 0 4px; color: var(--nd-text); }
+.ac-sec .ac-sec-lede { font-size: .9rem; color: var(--nd-muted); margin: 0 0 14px; line-height: 1.6; }
+.ac-sec select { width: 100%; background: var(--nd-inset); color: var(--nd-text); border: 1px solid var(--nd-border); border-radius: 12px; padding: 12px 14px; font-size: 15px; font-family: var(--nd-font-sans); margin-bottom: 4px; }
+.ac-sec select:focus { outline: none; box-shadow: var(--nd-focus-ring); }
+.ac-sec-sum { font-family: var(--nd-font-mono); font-size: 13px; color: var(--nd-dim); margin: 10px 0 14px; }
+.ac-sec-note { font-size: 13px; color: var(--nd-dim); margin-top: 14px; line-height: 1.6; }
+.ac-sec .mk { color: var(--nd-lime); font-weight: 700; }
+.ac-sec td.flow-acc { color: var(--nd-up); font-weight: 600; }
+.ac-sec td.flow-dist { color: var(--nd-down); font-weight: 600; }
+.ac-sec td.flow-none { color: var(--nd-dim); }
+
+/* ---- §15. States + notes ---- */
+.bk-note { font-size: .82rem; color: var(--nd-dim); margin: 24px 0 0; line-height: 1.7; }
+.ac-note { font-size: .85rem; color: var(--nd-dim); background: var(--nd-down-soft); border: 1px solid var(--nd-border); border-radius: 12px; padding: 12px 16px; line-height: 1.6; margin: 0 0 16px; }
+.bk-loading { color: var(--nd-dim); padding: 24px 0; }
+.bk-empty { background: var(--nd-panel-2); border: 1px solid var(--nd-border); border-radius: 12px; padding: 14px 18px; font-size: .9rem; color: var(--nd-muted); margin: 12px 0; }
+
+/* ---- §16. Motion + small screens ---- */
+@media (prefers-reduced-motion: reduce) {
+  .bk-nav a, .bk-periods button { transition: none; }
+}
+@media (max-width: 390px) {
+  .bk-wrap { padding: 20px 12px; }
+  .bk-title { font-size: 24px; }
+  .ac-rank { grid-template-columns: 96px 1fr auto; }
+  .bk-ctl input[type="search"] { width: 100%; }
+}
