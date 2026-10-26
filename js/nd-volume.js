@@ -63,7 +63,7 @@
   var PAGE_SIZE = 25;
 
   var state = { rows: [], sortKey: 'rvol_7', sortDir: -1, flag: null,
-    sector: '', tag: '', q: '', page: 1, horizon: 'h10', payload: null };
+    sector: '', tag: '', q: '', page: 1, secPage: 1, horizon: 'h10', payload: null, refreshTimer: null };
 
   function chips(r) {
     var h = '';
@@ -197,9 +197,9 @@
         var sec = c.getAttribute('data-sector');
         state.sector = state.sector === sec ? '' : sec;
         $('vpSector').value = state.sector;
-        state.page = 1;
-        renderSectors(); renderBoard();
-        document.getElementById('boardsec').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        state.page = 1; state.secPage = 1;
+        renderSectors(); renderBoard(); renderSectorBlock();
+        document.getElementById(state.sector ? 'sectorBlock' : 'boardsec').scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
     });
   }
@@ -280,9 +280,8 @@
     });
   }
 
-  function init(data) {
-    state.payload = data;
-    state.rows = data.data || [];
+  function renderHeader() {
+    var data = state.payload;
     var sum = data.summary || {};
     var tc = sum.tag_counts || {};
     if (data.intraday) {
@@ -301,6 +300,7 @@
         'Volumes are cumulative shares traded so far today' + (qt ? ' (quotes as of ' + qt + ' NPT)' : '') +
         '; RVOL, scores and flags are provisional and the final board replaces this after the close.';
     } else {
+      $('vpProvisional').hidden = true;
       $('vpSession').textContent = 'Session ' + data.asof + ' · ' + data.count + ' equities · rebuilt after every close · Source: Nepse Decode OHLCV archive';
     }
     $('vpStats').innerHTML =
@@ -313,8 +313,140 @@
     $('vpDist').innerHTML = '<div class="vp-dist-bar" aria-hidden="true">' + distOrder.map(function (k) {
       return '<i style="width:' + ((tc[k] || 0) / total * 100).toFixed(1) + '%;background:' + TAG_COLOR[k] + '"></i>';
     }).join('') + '</div><div class="vp-dist-legend">' + distOrder.map(function (k) {
-      return '<span><i style="background:' + TAG_COLOR[k] + '"></i>' + esc(TAG_LABEL[k]) + ' ' + (tc[k] || 0) + '</span>';
+      return '<span><i style="background:' + TAG_COLOR[k] + '"></i>' + esc(TAG_LABEL[k]) + ' ' + (tc[k] || 0) + ' (' + ((tc[k] || 0) / total * 100).toFixed(1) + '%)</span>';
     }).join('') + '</div>';
+  }
+
+  function renderSectorBlock() {
+    var body = $('vpSecBody');
+    var title = $('vpSecTitle');
+    if (!state.sector) {
+      title.textContent = 'Stocks in the selected sector';
+      body.innerHTML = '<p class="vp-sec-empty">Select a sector card above, or pick a sector in the board controls, to see that sector\'s stocks here — ranked by RVOL-7, with PVCS, VPD and tag beside them.</p>';
+      return;
+    }
+    var sec = null;
+    sectorAgg().forEach(function (s) { if (s.sector === state.sector) sec = s; });
+    var q = state.q.trim().toUpperCase();
+    var rows = state.rows.filter(function (r) {
+      if (r.sector !== state.sector) return false;
+      if (q && r.symbol.indexOf(q) === -1) return false;
+      return true;
+    }).sort(function (a, b) { return b.rvol_7 - a.rvol_7; });
+    var totalVol = 0, fullSecVol = 0;
+    state.rows.forEach(function (r) {
+      totalVol += r.volume || 0;
+      if (r.sector === state.sector) fullSecVol += r.volume || 0;
+    });
+    var pages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+    if (state.secPage > pages) state.secPage = pages;
+    var start = (state.secPage - 1) * PAGE_SIZE;
+    var slice = rows.slice(start, start + PAGE_SIZE);
+    var maxRvol = rows.length ? Math.max.apply(null, rows.map(function (r) { return r.rvol_7; })) : 1;
+    title.textContent = 'Stocks in ' + state.sector;
+    var h = '<div class="vp-sec-summary">' +
+      statCard('Stocks scored', sec ? String(sec.n) : '—', 'ordinary equities in this sector') +
+      statCard('Mean RVOL-7', sec ? fmt(sec.meanRvol) + '×' : '—', 'average pace across the sector') +
+      statCard('Spikes', sec ? String(sec.spikes) : '—', 'RVOL-7 at or above 3.5×') +
+      statCard('Top PVCS', sec ? esc(sec.topPvcsSym) + ' ' + fmt(sec.topPvcs) : '—', 'strongest price-volume confirmation') +
+      statCard('Volume share', totalVol ? (fullSecVol / totalVol * 100).toFixed(1) + '%' : '—', 'of this session\'s traded volume') +
+      '</div>';
+    h += '<div class="vp-tablewrap"><table class="vp-table"><thead><tr>' +
+      '<th>Symbol</th><th class="vp-num">LTP</th><th class="vp-num">% Chg</th><th class="vp-num">Volume</th>' +
+      '<th class="vp-num">RVOL 7</th><th class="vp-num">PVCS</th><th class="vp-num">VPD</th><th>Tag</th><th>RVOL</th>' +
+      '</tr></thead><tbody>';
+    slice.forEach(function (r) {
+      var pc = r.percentage_change;
+      h += '<tr>' +
+        '<td><a class="vp-sym" href="/stocks/' + esc(r.symbol) + '/">' + esc(r.symbol) + '</a></td>' +
+        '<td class="vp-num">' + fmt(r.ltp) + '</td>' +
+        '<td class="vp-num ' + (pc > 0 ? 'vp-pos' : pc < 0 ? 'vp-neg' : '') + '">' + (pc > 0 ? '+' : '') + fmt(pc) + '%</td>' +
+        '<td class="vp-num">' + fmtVol(r.volume) + '</td>' +
+        '<td class="vp-num"><strong>' + fmt(r.rvol_7) + '</strong></td>' +
+        '<td class="vp-num ' + (r.pvcs > 0 ? 'vp-pos' : r.pvcs < 0 ? 'vp-neg' : '') + '">' + fmt(r.pvcs) + '</td>' +
+        '<td class="vp-num ' + (r.vpd > 0 ? 'vp-pos' : r.vpd < 0 ? 'vp-neg' : '') + '">' + fmt(r.vpd) + '</td>' +
+        '<td><span class="vp-tag ' + esc(r.signal_tag) + '">' + esc(TAG_LABEL[r.signal_tag] || r.signal_tag) + '</span></td>' +
+        '<td><span class="vp-minibar"><i style="width:' + Math.min(100, r.rvol_7 / maxRvol * 100).toFixed(1) + '%"></i></span></td>' +
+        '</tr>';
+    });
+    h += '</tbody></table></div>';
+    var lo = rows.length ? start + 1 : 0;
+    h += '<div class="vp-pager">' +
+      '<button type="button" class="cx-btn quiet" id="vpSecPrevInner">← Prev</button>' +
+      '<span class="vp-pagenum">Showing ' + lo + '–' + Math.min(start + PAGE_SIZE, rows.length) + ' of ' + rows.length + ' · Page ' + state.secPage + ' of ' + pages + '</span>' +
+      '<button type="button" class="cx-btn" id="vpSecNextInner">Next →</button>' +
+      '<button type="button" class="cx-btn quiet" id="vpSecClearInner">Show full board</button>' +
+      '</div>';
+    body.innerHTML = h;
+    $('vpSecPrevInner').disabled = state.secPage <= 1;
+    $('vpSecNextInner').disabled = state.secPage >= pages;
+    $('vpSecPrevInner').addEventListener('click', function () { if (state.secPage > 1) { state.secPage -= 1; renderSectorBlock(); } });
+    $('vpSecNextInner').addEventListener('click', function () { if (state.secPage < pages) { state.secPage += 1; renderSectorBlock(); } });
+    $('vpSecClearInner').addEventListener('click', function () {
+      state.sector = ''; state.secPage = 1;
+      $('vpSector').value = '';
+      renderSectors(); renderBoard(); renderSectorBlock();
+    });
+  }
+
+  function nptClock(d) {
+    try {
+      return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kathmandu' });
+    } catch (e) { return ''; }
+  }
+  function boardKey(p) {
+    return p.asof + '|' + (p.intraday ? 'LIVE:' + (p.quotes_asof || '') : 'FINAL');
+  }
+  function refreshDelayMs() {
+    var parts;
+    try {
+      parts = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kathmandu', weekday: 'short', hour: 'numeric', hour12: false }).formatToParts(new Date());
+    } catch (e) { return 30 * 60 * 1000; }
+    var get = function (t) { var f = parts.filter(function (p) { return p.type === t; }); return f.length ? f[0].value : ''; };
+    var wd = get('weekday'), h = parseInt(get('hour'), 10);
+    if (wd === 'Sat' || wd === 'Sun') return 2 * 60 * 60 * 1000;
+    if (h >= 11 && h < 15) return 15 * 60 * 1000;
+    return 30 * 60 * 1000;
+  }
+  function refreshStatusLine(prefix, failed) {
+    var d = state.payload;
+    var mode = d.intraday
+      ? 'LIVE provisional, quotes as of ' + nptClock(new Date(d.quotes_asof)) + ' NPT'
+      : 'FINAL';
+    $('vpRefresh').textContent = prefix + ' · Board session ' + d.asof + ' · ' + mode +
+      ' · last refresh check ' + nptClock(new Date()) + ' NPT' +
+      (failed ? ' (check failed — showing last loaded board)' : '');
+  }
+  function scheduleRefresh() {
+    if (state.refreshTimer) clearTimeout(state.refreshTimer);
+    state.refreshTimer = setTimeout(checkForUpdate, refreshDelayMs());
+  }
+  function checkForUpdate() {
+    if (!state.payload) { scheduleRefresh(); return; }
+    if (document.hidden) { scheduleRefresh(); return; }
+    fetchJSON('/data/vpi.json').then(function (p) {
+      if (boardKey(p) !== boardKey(state.payload)) {
+        state.payload = p;
+        state.rows = p.data || [];
+        renderHeader(); renderAuto(); renderSectors(); renderSectorBlock(); renderTracking(); renderBoard();
+        refreshStatusLine('Board updated');
+      } else {
+        refreshStatusLine('Board unchanged');
+      }
+      scheduleRefresh();
+    }).catch(function () {
+      refreshStatusLine('Board unchanged', true);
+      scheduleRefresh();
+    });
+  }
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) checkForUpdate();
+  });
+
+  function init(data) {
+    state.payload = data;
+    state.rows = data.data || [];
+    renderHeader();
     var sectors = {};
     state.rows.forEach(function (r) { sectors[r.sector] = true; });
     var sel = $('vpSector');
@@ -328,9 +460,11 @@
     if (p.get('q')) { state.q = p.get('q'); $('vpSearch').value = state.q; }
     if (p.get('page')) { state.page = Math.max(1, parseInt(p.get('page'), 10) || 1); }
     if (p.get('sort')) { state.sortKey = p.get('sort'); state.sortDir = p.get('dir') === '1' ? 1 : -1; }
-    renderAuto(); renderSectors(); renderTracking(); renderBoard();
-    $('vpSearch').addEventListener('input', function () { state.q = $('vpSearch').value; state.page = 1; renderBoard(); });
-    $('vpSector').addEventListener('change', function () { state.sector = $('vpSector').value; state.page = 1; renderSectors(); renderBoard(); });
+    renderAuto(); renderSectors(); renderSectorBlock(); renderTracking(); renderBoard();
+    refreshStatusLine('Board loaded');
+    scheduleRefresh();
+    $('vpSearch').addEventListener('input', function () { state.q = $('vpSearch').value; state.page = 1; renderBoard(); renderSectorBlock(); });
+    $('vpSector').addEventListener('change', function () { state.sector = $('vpSector').value; state.page = 1; state.secPage = 1; renderSectors(); renderBoard(); renderSectorBlock(); });
     $('vpTag').addEventListener('change', function () { state.tag = $('vpTag').value; state.page = 1; renderBoard(); });
     document.querySelectorAll('.vp-fbtn').forEach(function (b) {
       b.setAttribute('aria-pressed', 'false');
