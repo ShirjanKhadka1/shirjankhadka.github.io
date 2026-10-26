@@ -30,6 +30,17 @@
       monthEnd[ym] = { close: closes[i], date: dates[i] };
     }
     var yms = Object.keys(monthEnd).sort();
+    // Exclude the in-progress month (the current calendar month in
+    // NPT): its month-end is not final, so its return would be a
+    // partial-month figure — and a stray row past the last real
+    // session (e.g. a holiday row) cannot leak into the stats.
+    // Mirrors the sector matrices, which exclude the month containing
+    // the latest session.
+    try {
+      var now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kathmandu' }));
+      var curYm = now.getFullYear() + '-' + ('0' + (now.getMonth() + 1)).slice(-2);
+      yms = yms.filter(function (ym) { return ym < curYm; });
+    } catch (e) { /* keep all months */ }
     // monthly returns: need previous month-end
     var monthly = []; // {ym, y, m, ret}
     for (var j = 1; j < yms.length; j++) {
@@ -81,14 +92,16 @@
     var cov = $('snCoverage');
     if (cov) cov.textContent = 'NEPSE index month-end closes · ' + coverage + ' · Source: NEPSE index history';
 
-    // Verdict cards
-    var bn = $('snBestName'), bd = $('snBestDetail');
+    // Verdict cards: giant average first, month name under it
+    var bn = $('snBestName'), bd = $('snBestDetail'), ba = $('snBestAvg');
+    if (ba) ba.textContent = pct(best.avg);
     if (bn) bn.textContent = MONTHS[best.m - 1];
-    if (bd) bd.innerHTML = 'Averages <strong>' + pct(best.avg) + '</strong> across ' + best.n + ' years · positive ' +
+    if (bd) bd.innerHTML = 'Averages across ' + best.n + ' years · positive ' +
       best.hit.toFixed(0) + '% of the time · best ' + MONTHS[best.m - 1] + ' was ' + best.best.y + ' (' + pct(best.best.ret) + ').';
-    var wn = $('snWorstName'), wd = $('snWorstDetail');
+    var wn = $('snWorstName'), wd = $('snWorstDetail'), wa = $('snWorstAvg');
+    if (wa) wa.textContent = pct(worst.avg);
     if (wn) wn.textContent = MONTHS[worst.m - 1];
-    if (wd) wd.innerHTML = 'Averages <strong>' + pct(worst.avg) + '</strong> across ' + worst.n + ' years · positive only ' +
+    if (wd) wd.innerHTML = 'Averages across ' + worst.n + ' years · positive only ' +
       worst.hit.toFixed(0) + '% of the time · worst ' + MONTHS[worst.m - 1] + ' was ' + worst.worst.y + ' (' + pct(worst.worst.ret) + ').';
 
     // Bars

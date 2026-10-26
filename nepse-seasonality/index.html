@@ -7,7 +7,6 @@
 <meta name="theme-color" content="#0A0C10">
 <title>Seasonality: Best & Worst Months for NEPSE | Nepse Decode</title>
 <link rel="stylesheet" href="/css/nd-tokens.css">
-<link rel="stylesheet" href="/css/nepse-design-system.css?v=8d179ee9">
 <meta name="description" content="NEPSE seasonality: which months and quarters has the Nepal stock market historically gained or lost? Average monthly returns from real index history — plus per-sector seasonality on the Nepali (BS) calendar from sector composites rebuilt out of constituent stocks. Educational use only.">
 <meta name="author" content="Shirjan Khadka">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-seasonality/">
@@ -24,9 +23,6 @@
 <meta name="twitter:description" content="Which months does NEPSE historically rise or fall? Average returns from real index history.">
 <meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
 <meta property="og:url" content="https://shirjankhadka.com.np/nepse-seasonality/">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Seasonality: Best & Worst Months for NEPSE">
-<meta name="twitter:description" content="Historical monthly returns of the NEPSE index. Educational use only.">
 <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
 <link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
@@ -41,13 +37,10 @@
 {"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-decode/"},
 {"@type":"ListItem","position":3,"name":"Seasonality","item":"https://shirjankhadka.com.np/nepse-seasonality/"}]}
 </script>
-<link rel="stylesheet" href="/css/theme.css?v=f9678c21">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
-<link rel="stylesheet" href="/css/nd-seasonality.css?v=0ae6decf">
-<link rel="stylesheet" href="/css/nd-3d.css">
-<link rel="stylesheet" href="/css/nd-research-3d.css">
+<link rel="stylesheet" href="/css/nd-seasonality.css?v=7a3401c4">
 </head>
 <body class="nd" data-page="seasonality">
 
@@ -61,7 +54,7 @@
 <main id="main">
 
   <div class="sn-masthead">
-    <p class="nd-kicker">Research</p>
+    <p class="cx-kicker">Research</p>
     <h1 class="sn-title">Seasonality</h1>
     <p class="sn-lede">In which months does NEPSE tend to rise — and in which does it tend to fall? Average monthly and quarterly returns computed from the <strong>full real index history</strong>. History rhymes; it does not repeat. Below the index view, the same lens is applied <strong>per sector</strong> on the Nepali (BS) calendar — because Nepal's market rhythm runs on BS months.</p>
     <p class="sn-meta"><span id="snCoverage">Loading…</span></p>
@@ -70,12 +63,14 @@
   <section class="sn-verdicts" aria-label="Best and worst seasons">
     <div class="sn-verdict best" id="snBest">
       <span class="sn-eyebrow">Best season</span>
-      <div class="sn-big" id="snBestName">—</div>
+      <div class="sn-big" id="snBestAvg">—</div>
+      <div class="sn-name" id="snBestName">—</div>
       <div class="sn-detail" id="snBestDetail"></div>
     </div>
     <div class="sn-verdict worst" id="snWorst">
       <span class="sn-eyebrow">Worst season</span>
-      <div class="sn-big" id="snWorstName">—</div>
+      <div class="sn-big" id="snWorstAvg">—</div>
+      <div class="sn-name" id="snWorstName">—</div>
       <div class="sn-detail" id="snWorstDetail"></div>
     </div>
   </section>
@@ -117,12 +112,14 @@
     <div class="sn-verdicts ss-verdicts">
       <div class="sn-verdict best">
         <span class="sn-eyebrow">Best month</span>
-        <div class="sn-big" id="ssBestName">—</div>
+        <div class="sn-big" id="ssBestAvg">—</div>
+        <div class="sn-name" id="ssBestName">—</div>
         <div class="sn-detail" id="ssBestDetail"></div>
       </div>
       <div class="sn-verdict worst">
         <span class="sn-eyebrow">Worst month</span>
-        <div class="sn-big" id="ssWorstName">—</div>
+        <div class="sn-big" id="ssWorstAvg">—</div>
+        <div class="sn-name" id="ssWorstName">—</div>
         <div class="sn-detail" id="ssWorstDetail"></div>
       </div>
     </div>
@@ -150,7 +147,52 @@
       </table>
     </div>
 
-    <p class="sn-fine ss-fine">Sector method: each composite chains equal-weighted daily returns of the sector's currently listed constituent stocks from our own OHLC archive (base 1000). A day counts only when at least 3 constituents traded; daily moves beyond the ±10% circuit band and returns spanning a suspension gap of more than 20 days are excluded as reference-price resets, not market moves. Monthly return = month-end level vs the previous available month-end level — across the 2020 COVID closure, that return spans the closure. These composites are reconstructions, <strong>not the official NEPSE sub-indices</strong>, and membership is today's applied historically, so early years are thinner — the contributing-stock count is printed per sector so the coverage is never hidden. History is a tendency, not a forecast. For education only — not investment advice.</p>
+    <h3 class="ss-sub">Stocks in this sector</h3>
+    <p class="ss-looknote">Every stock behind the selected composite, with its own best and worst month by average return. A best/worst month needs that month observed at least 3 times — younger stocks show "—" until their history is long enough. Months containing a corporate-action reset or suspension-gap day are excluded from a stock's averages, mirroring the composite's own guards.</p>
+    <div class="ss-stocks-controls">
+      <label class="ss-lab" for="ssStockSort">Sort</label>
+      <select id="ssStockSort" class="ss-select" aria-label="Sort stocks">
+        <option value="symbol">Symbol A–Z</option>
+        <option value="best">Best month return ↓</option>
+        <option value="worst">Worst month return ↑</option>
+      </select>
+      <span class="ss-cov" id="ssStockCount"></span>
+    </div>
+    <div class="sn-tablewrap">
+      <table class="sn-table ss-stocktable">
+        <thead><tr><th class="l">Stock</th><th class="r">Best month</th><th class="r">Worst month</th></tr></thead>
+        <tbody id="ssStockBody"><tr><td colspan="3" class="sn-loading">Loading…</td></tr></tbody>
+      </table>
+    </div>
+    <div class="ss-pager">
+      <button type="button" class="ss-pbtn" id="ssStockPrev">← Prev</button>
+      <span class="ss-pinfo" id="ssStockInfo"></span>
+      <button type="button" class="ss-pbtn" id="ssStockNext">Next →</button>
+    </div>
+    <p class="ss-legend" id="ssStockNote" hidden>Stock lists arrive with the next weekly build.</p>
+
+    <h3 class="ss-sub">Forward calls — did they work?</h3>
+    <p class="ss-looknote">Every "this month" and "next month" prediction on this page is recorded here the first time it appears, then resolved against the month's realized return once it closes. Nothing is backfilled: tracking started 26 Oct 2026, so the first resolutions arrive when October/Kartik close in the data. A prediction with no sign (average exactly 0) can never match or miss.</p>
+    <p class="ss-cov" id="ssLedgerSummary">Loading…</p>
+    <div class="ss-toggle ss-ledger-filter" role="group" aria-label="Filter ledger">
+      <button type="button" class="ss-tbtn is-on" data-ledger="all">All</button>
+      <button type="button" class="ss-tbtn" data-ledger="resolved">Resolved</button>
+      <button type="button" class="ss-tbtn" data-ledger="pending">Pending</button>
+    </div>
+    <div class="sn-tablewrap">
+      <table class="sn-table ss-ledgertable">
+        <thead><tr><th class="l">Sector</th><th>Cal</th><th class="l">Month</th><th class="r">Predicted</th><th class="r">Realized</th><th class="r">Result</th></tr></thead>
+        <tbody id="ssLedgerBody"><tr><td colspan="6" class="sn-loading">Loading…</td></tr></tbody>
+      </table>
+    </div>
+    <div class="ss-pager">
+      <button type="button" class="ss-pbtn" id="ssLedgerPrev">← Prev</button>
+      <span class="ss-pinfo" id="ssLedgerInfo"></span>
+      <button type="button" class="ss-pbtn" id="ssLedgerNext">Next →</button>
+    </div>
+    <p class="ss-legend" id="ssLedgerNote" hidden>Forward tracking arrives with the next weekly build.</p>
+
+    <p class="sn-fine ss-fine">Sector method: each composite chains equal-weighted daily returns of the sector's currently listed constituent stocks from our own OHLC archive (base 1000). A day counts only when at least 3 constituents traded; daily moves beyond the ±10% circuit band and returns spanning a suspension gap of more than 20 days are excluded as reference-price resets, not market moves. Monthly return = month-end level vs the previous available month-end level — across the 2020 COVID closure, that return spans the closure. NEPSE's own monthly series is capped at the archive's latest session, so a stray index-history row past the archive cannot create a phantom month. These composites are reconstructions, <strong>not the official NEPSE sub-indices</strong>, and membership is today's applied historically, so early years are thinner — the contributing-stock count is printed per sector so the coverage is never hidden. History is a tendency, not a forecast. For education only — not investment advice.</p>
   </section>
 
   <p class="sn-fine">Method: month-end to month-end log-free simple returns on the NEPSE index close. Averages are arithmetic means across calendar years with a complete month. Coverage and year counts are shown per row — months with fewer years carry less weight. Seasonality is a historical tendency, not a forecast: regimes, policy and liquidity change the pattern. For education only — not investment advice.</p>
@@ -162,7 +204,8 @@
 
 <div id="nd-footer"></div>
 <script src="/js/nd-chrome.js?v=74c1c8b7"></script>
-<script src="/js/nd-seasonality.js?v=39ba788c"></script>
-<script src="/js/nd-sector-seasonality.js?v=f8e0de02"></script>
+<script src="/js/nd-seasonality.js?v=fb53d37b"></script>
+<script src="/js/nd-sector-seasonality.js?v=2bb2e1bb"></script>
+<script defer src="/js/freshness-badge.js?v=9b77cf10"></script>
 </body>
 </html>
