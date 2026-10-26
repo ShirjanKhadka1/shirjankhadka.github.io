@@ -40,7 +40,7 @@
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
-<link rel="stylesheet" href="/css/nd-sector-symbol.css?v=5484a8ea">
+<link rel="stylesheet" href="/css/nd-sector-symbol.css?v=328a96d6">
 </head>
 <body class="nd" data-page="sector-symbol">
 
@@ -72,11 +72,11 @@
     <h2 class="ss-h2 ss-h2-sec">The relation board</h2>
     <p class="ss-chartsub">Every scored stock on the selected window. Filter by sector or search
       a symbol; the sort options mirror the board's ordering choices. The strip under the
-      controls splits the board into five relative-return bands — counts printed, as always.</p>
+      controls splits the board into five relative-return bands — counts printed, as always.
+      Selecting a band filters the board to it; selecting it again clears the filter.
+      Rows page 25 at a time.</p>
     <div class="ss-controls">
-      <label class="ss-lab">Sector
-        <select class="ss-select" id="sectorSel" aria-label="Sector filter"></select>
-      </label>
+      <div class="ss-pills" id="sectorPills" role="group" aria-label="Sector filter"></div>
       <label class="ss-lab">Sort
         <select class="ss-select" id="sortSel" aria-label="Sort order">
           <option value="rel">Relative return · high first</option>
@@ -101,13 +101,14 @@
         <tbody id="boardBody"><tr><td colspan="6" class="ss-loading">Loading the board…</td></tr></tbody>
       </table>
     </div>
+    <div class="ss-pagerow"><div class="ss-pager" id="boardPager"></div></div>
   </section>
 
   <section class="ss-catsec" aria-label="Strongest and weakest relations">
     <h2 class="ss-h2 ss-h2-sec">Strongest and weakest relations</h2>
     <p class="ss-chartsub">The ten stocks furthest ahead of their sector, and the ten furthest
       behind, on the selected window. Bars and printed values are the relative return in
-      percentage points.</p>
+      percentage points. Each row also shows the stock's own return and its sector's return.</p>
     <div class="ss-two">
       <div>
         <h3 class="ss-h3">Furthest ahead of sector</h3>
@@ -124,7 +125,8 @@
     <h2 class="ss-h2 ss-h2-sec">The sector picture</h2>
     <p class="ss-chartsub">Each sector's own return on the selected window, how many of its
       stocks are beating it, the median relative return inside it, and its current leader
-      and laggard.</p>
+      and laggard. Select a bar, or a sector row, to filter the board to that sector.</p>
+    <div class="ss-secvis" id="secVis" aria-label="Sector returns chart"></div>
     <div class="cx-scroll ss-tablewrap">
       <table class="cx-table" id="sectorTable">
         <thead><tr>
@@ -158,6 +160,27 @@
       a signal. These are descriptions of the past three years, not forecasts.</p>
   </section>
 
+  <section class="ss-catsec" aria-label="Forward tracking">
+    <h2 class="ss-h2 ss-h2-sec">Do these relations hold up?</h2>
+    <p class="ss-chartsub">Every published board's top-decile leaders, checked 28 calendar days
+      later — the same horizon as the stability table, but live: each board is recorded when
+      it first appears and resolved when its window closes. Nothing here is backfilled.</p>
+    <p class="ss-fwsum" id="fwSum"></p>
+    <div class="ss-pills" id="fwPills" role="group" aria-label="Forward filter"></div>
+    <p class="ss-count" id="fwCount"></p>
+    <div class="cx-scroll ss-tablewrap" id="fwTableWrap">
+      <table class="cx-table" id="fwTable">
+        <thead><tr>
+          <th>Board date</th><th class="num">Window</th><th>Leaders</th>
+          <th class="num">Leaders still ahead</th><th class="num">Sign persistence</th><th>Status</th>
+        </tr></thead>
+        <tbody id="fwBody"></tbody>
+      </table>
+    </div>
+    <div class="ss-pagerow" id="fwPagerow"><div class="ss-pager" id="fwPager"></div></div>
+    <div id="fwBox"></div>
+  </section>
+
   <section class="ss-catsec" aria-label="Methodology">
     <h2 class="ss-h2 ss-h2-sec">How this board is built</h2>
     <div class="ss-method">
@@ -186,6 +209,23 @@
         snapshots across the trailing three years of our archive and derived indices,
         comparing each board with the same board 28 calendar days later. It is measured
         history, published so the board is read with the scepticism its own record earns.</p>
+      <p><strong>Forward tracking.</strong> Every published board's top-decile leaders — the
+        stocks furthest ahead of their sector on each window — are recorded the day the board
+        first appears, and resolved 28 calendar days later: the board is recomputed at the
+        last session on or before board+28d, and a leader counts as still ahead if its
+        relative return is still positive. Sign persistence is measured the same way over
+        every stock present on both boards. Boards are never reconstructed backwards:
+        tracking started with the 2026-10-16 board, and earlier boards are not backfilled.</p>
+      <p><strong>Refreshing.</strong> This page re-checks for a new board every five minutes
+        during market hours, every thirty minutes otherwise, and every two hours on weekends;
+        it only re-renders when a new board has actually landed, and your window, sector, sort
+        and band selections survive the refresh. The board itself is rebuilt after every close
+        — during market hours the page honestly shows the last close's board, and the session
+        line above says which session that is. Your current view is shareable: the address
+        carries the window, sector, sort and band.</p>
+      <p><strong>Paging.</strong> The relation board shows 25 stocks at a time with Prev and
+        Next and a "Showing X–Y of Z" line; filtering by sector, band or search, and changing
+        the sort, returns you to the first page.</p>
       <p><strong>Reading it honestly.</strong> A relative return says a stock moved more or
         less than its sector over a past window — nothing more. It is not a quality grade,
         not a valuation, and not a promise about the next window; the stability numbers
@@ -196,7 +236,7 @@
   <p class="ss-fine">Mechanical relative-price statistics for education, not investment
     advice. Data: Nepse Decode OHLC archive + derived sector indices, rebuilt after each
     close. No live feed is claimed: during market hours this page still shows the last
-    close's board.</p>
+    close's board. For education only. Not investment advice. Not affiliated with Nepal Stock Exchange Ltd.</p>
 
 </main>
     </div>
@@ -206,6 +246,6 @@
 <div id="nd-footer"></div>
 <script src="/js/nd-chrome.js?v=74c1c8b7"></script>
 <script src="/js/freshness-badge.js?v=9b77cf10" defer></script>
-<script src="/js/sector-symbol.js?v=07f5058b"></script>
+<script src="/js/sector-symbol.js?v=bbd34929"></script>
 </body>
 </html>
