@@ -5,103 +5,95 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="index, follow, max-image-preview:large">
-  <title>Blog | Shirjan Khadka: Finance & Markets Analysis</title>
-  <meta name="description" content="Finance articles by Shirjan Khadka: NEPSE company analyses, market explainers, and Nepali economy breakdowns, with real data and cited sources.">
+  <title>Market Wrap | Nepse Decode — NEPSE analysis, company research &amp; Nepali economy</title>
+  <meta name="description" content="Nepse Decode&#x27;s market wrap: NEPSE company analyses, market explainers and Nepali economy breakdowns with real data and cited sources, newest first.">
   <link rel="canonical" href="https://shirjankhadka.com.np/blog/">
-  <meta name="theme-color" content="#FAF8F4">
-
+  <meta name="theme-color" content="#0A0C10">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Nepse Decode">
-  <meta property="og:title" content="Blog | Shirjan Khadka: Finance & Markets Analysis">
-  <meta property="og:description" content="Articles on the NEPSE market and the Nepali financial world.">
+  <meta property="og:title" content="Market Wrap | Nepse Decode — NEPSE analysis, company research &amp; Nepali economy">
+  <meta property="og:description" content="Nepse Decode&#x27;s market wrap: NEPSE company analyses, market explainers and Nepali economy breakdowns with real data and cited sources, newest first.">
   <meta property="og:url" content="https://shirjankhadka.com.np/blog/">
-  <meta property="og:image" content="https://shirjankhadka.com.np/assets/images/blog/hlbsl-company-analysis.jpg">
+  <meta property="og:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-trading-cost-explained-broker-sebon-dp-cgt.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Blog | Shirjan Khadka: Finance & Markets Analysis">
-  <meta name="twitter:description" content="Articles on the NEPSE market and the Nepali financial world.">
-
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Market Wrap | Nepse Decode — NEPSE analysis, company research &amp; Nepali economy">
+  <meta name="twitter:description" content="Nepse Decode&#x27;s market wrap: NEPSE company analyses, market explainers and Nepali economy breakdowns with real data and cited sources, newest first.">
+  <meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-trading-cost-explained-broker-sebon-dp-cgt.jpg">
   <link rel="icon" href="/favicon.ico" sizes="any">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="stylesheet" href="/css/nd-tokens.css">
-<link rel="stylesheet" href="/css/fonts.css">
-  <link rel="stylesheet" href="../css/style.css?v=bd7aeedd">
-
-  <style>
-    /* NEPSE ticker — same motion language as the site expertise ticker:
-       uppercase letterspaced items, dot separators, hairline rules, infinite
-       marquee. Rendered by /js/nepse-ticker.js from the validated NepseData
-       snapshot; the wrap stays hidden until real data arrives. */
-    .index-ticker-wrap { margin: 8px 0 0; min-width: 0; overflow: hidden; grid-column: 1 / -1; }
-    /* Scrollable carousels */
-    .mag-analysis-grid { display: flex !important; gap: 28px; align-items: stretch; overflow-x: auto !important; scroll-snap-type: x mandatory; padding-bottom: 12px; }
-    .mag-analysis-grid .mag-card { flex: 0 0 calc(33.333% - 19px) !important; min-width: 280px; scroll-snap-align: start; }
-    .mag-analysis-grid::after { content: "→"; flex: 0 0 auto; align-self: center; font-size: 24px; color: var(--secondary); padding: 0 8px; }
-    .mag-topic-carousel { display: flex !important; gap: 24px; overflow-x: auto !important; scroll-snap-type: x mandatory; padding-bottom: 12px; }
-    .mag-topic-carousel .mag-row { display: flex !important; flex-direction: column; flex: 0 0 calc(33.333% - 16px) !important; min-width: 280px; scroll-snap-align: start; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
-    .mag-topic-carousel .mag-row img { width: 100%; height: 180px; object-fit: cover; flex: none; }
-    .mag-topic-carousel .mag-row > div { padding: 16px; }
-    .mag-topic-carousel::after { content: "→"; flex: 0 0 auto; align-self: center; font-size: 24px; color: var(--secondary); padding: 0 8px; }
-    .index-ticker-wrap[hidden] { display: none; }
-    .index-ticker {
-      overflow: hidden; background: var(--white);
-      border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
-    }
-    .index-ticker .ticker-track {
-      display: flex; width: max-content;
-      animation: index-ticker-scroll 45s linear infinite;
-    }
-    .index-ticker:hover .ticker-track { animation-play-state: paused; }
-    .index-ticker .ticker-group { display: flex; align-items: center; padding: 13px 0; }
-    .index-ticker .tick-item {
-      font-size: 12.5px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
-      color: var(--secondary); padding: 0 24px; white-space: nowrap;
-    }
-    .index-ticker .tick-item strong { color: var(--text); font-weight: 800; }
-    .index-ticker .tick-sep { color: var(--accent); padding: 0 2px; }
-    .index-ticker .tick-up { color: #1a7f4b; font-weight: 800; }
-    .index-ticker .tick-down { color: #c0392b; font-weight: 800; }
-    .index-ticker .tick-flat { color: var(--secondary); font-weight: 800; }
-    .index-ticker-note {
-      font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
-      color: var(--secondary); text-align: right; margin: 8px 0 0;
-    }
-    @keyframes index-ticker-scroll { to { transform: translateX(-50%); } }
-    @media (prefers-reduced-motion: reduce) {
-      .index-ticker .ticker-track { animation: none !important; }
-    }
-  </style>
-
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="stylesheet" href="/css/nd-tokens.css">
+  <link rel="stylesheet" href="/css/fonts.css">
+  <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
+  <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
+  <link rel="stylesheet" href="/css/nd-chrome.css?v=69b323cf">
+  <link rel="stylesheet" href="/css/nd-blog.css?v=03e666eb">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "Blog",
-    "name": "Shirjan Khadka, Finance & Markets Blog",
+    "name": "Nepse Decode Market Wrap",
     "url": "https://shirjankhadka.com.np/blog/",
     "author": { "@type": "Person", "name": "Shirjan Khadka", "url": "https://shirjankhadka.com.np/" },
-    "description": "Articles on the NEPSE market and the Nepali financial world."
+    "description": "Nepse Decode's market wrap: NEPSE company analyses, market explainers and Nepali economy breakdowns with real data and cited sources, newest first."
   }
   </script>
-<link rel="stylesheet" href="/css/theme.css?v=f9678c21">
-<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Latest market wrap articles",
+    "itemListElement": [
+    {"@type": "ListItem", "position": 1, "url": "https://shirjankhadka.com.np/blog/nepse-trading-cost-explained-broker-sebon-dp-cgt/", "headline": "Why selling a Rs 500 share at Rs 600 does not give you Rs 100 profit: NEPSE trading costs, explained"},
+    {"@type": "ListItem", "position": 2, "url": "https://shirjankhadka.com.np/blog/ipo-allotment-lottery-nepal-10-units-myth/", "headline": "Does applying for 10,000 IPO units beat 10 units? Nepal's allotment lottery, explained"},
+    {"@type": "ListItem", "position": 3, "url": "https://shirjankhadka.com.np/blog/bonus-share-tax-nepal-cash-for-tax-explained/", "headline": "Why does a 15% bonus come with 0.78947% cash?"},
+    {"@type": "ListItem", "position": 4, "url": "https://shirjankhadka.com.np/blog/him-parbat-hydropower-ipo-explained/", "headline": "Him Parbat Hydropower's Rs 59.15 crore IPO opens October 28 \u2014 Dolakha locals and Nepalese abroad apply first"},
+    {"@type": "ListItem", "position": 5, "url": "https://shirjankhadka.com.np/blog/nepal-soybean-oil-reexport-trade/", "headline": "Nepal's exports grew 62%. Almost half of them were imported first"},
+    {"@type": "ListItem", "position": 6, "url": "https://shirjankhadka.com.np/blog/nepse-bonus-share-listing-explained/", "headline": "When can you actually sell your bonus shares?"},
+    {"@type": "ListItem", "position": 7, "url": "https://shirjankhadka.com.np/blog/nepse-dividend-yield-explained/", "headline": "A 10% dividend \u2014 but is your return really 10%?"},
+    {"@type": "ListItem", "position": 8, "url": "https://shirjankhadka.com.np/blog/sebon-institutional-investor-policy-2083/", "headline": "Nepal's stock market is dominated by individual traders. SEBON wants the pension funds to change that"},
+    {"@type": "ListItem", "position": 9, "url": "https://shirjankhadka.com.np/blog/nepse-broker-charges-explained/", "headline": "You bought Rs 40,000 of shares \u2014 how much did the broker take?"},
+    {"@type": "ListItem", "position": 10, "url": "https://shirjankhadka.com.np/blog/nrb-act-amendment-autonomy/", "headline": "The bill that was supposed to free Nepal's central bank is being rewritten to leash it"},
+    {"@type": "ListItem", "position": 11, "url": "https://shirjankhadka.com.np/blog/ipo-allotment-to-cash-explained/", "headline": "Your IPO was allotted: how does it become cash?"},
+    {"@type": "ListItem", "position": 12, "url": "https://shirjankhadka.com.np/blog/nepal-sovereign-wealth-fund/", "headline": "Nepal has $25.8 billion sitting in reserves. A new committee wants to put it to work"}
+    ]
+  }
+  </script>
 </head>
-<body>
+<body data-page="blog">
 
   <a class="skip-link" href="#main">Skip to content</a>
 
   <div id="nd-header"></div>
 
   <main id="main">
-    <div class="section-inner">
+    <div class="bl-wrap">
       <div class="mag-masthead">
-        <p class="kicker">Blog</p>
+        <p class="kicker">Market Wrap</p>
         <h1>Notes on markets &amp; finance</h1>
         <p class="lede">Writing on the NEPSE and the Nepali financial world. New articles published regularly.</p>
+        <p class="bl-countline" id="blCountline">63 articles · newest October 26, 2026</p>
+        <p class="bl-fresh" id="blFreshLine">Loading the article index…</p>
+      </div>
+
+      <section class="bl-market" data-bl-market aria-label="NEPSE session">
+        <span class="bl-mkt-label">NEPSE</span>
+        <span class="bl-mkt-value">2629.83</span>
+        <span class="bl-mkt-change down">-4.34 (-0.16%)</span>
+        <span class="bl-mkt-note">NEPSE · Session closed · as of October 26, 2026</span>
+      </section>
+
+      <!-- NEPSE ticker: rendered from the validated NepseData snapshot by
+           /js/nepse-ticker.js. Hidden until real data arrives. -->
+      <div class="index-ticker-wrap" id="indexTickerWrap" hidden>
+        <div class="index-ticker" aria-label="NEPSE symbol prices">
+          <div class="ticker-track" id="indexTickerTrack"></div>
+        </div>
+        <p class="index-ticker-note" id="indexTickerNote"></p>
       </div>
 
       <!-- Latest -->
@@ -111,693 +103,89 @@
           <p>The newest analysis, first</p>
         </div>
         <div class="mag-lead">
-          <a class="mag-featured" href="/blog/nepal-soybean-oil-reexport-trade/">
-            <div class="mag-fimg">
-              <img width="1200" height="630" src="/assets/images/blog/nepal-soybean-oil-reexport-trade-768.webp" srcset="/assets/images/blog/nepal-soybean-oil-reexport-trade-480.webp 480w, /assets/images/blog/nepal-soybean-oil-reexport-trade-768.webp 768w" sizes="(max-width: 1100px) 92vw, 800px" alt="Aerial view of a container port with stacked shipping containers and cargo ships, representative of the sea-and-border trade loop behind Nepal's soybean oil re-exports">
-            </div>
-            <p class="mag-kicker">Macroeconomics &#183; Trade</p>
-            <h3>Nepal&#x27;s exports grew 62%. Almost half of them were imported first.</h3>
-            <p class="mag-dek">The fastest-growing export on Nepal&#x27;s books never really came from Nepal. Crude soybean oil ships in from Argentina and Brazil, gets refined here, and crosses into India duty-free.</p>
-            <p class="mag-meta">October 22, 2026 &#183; 6 min read</p>
-          </a>
+          <div id="blFeatured"><a class="mag-featured" href="/blog/nepse-trading-cost-explained-broker-sebon-dp-cgt/"><div class="mag-fimg"><img width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nepse-trading-cost-explained-broker-sebon-dp-cgt.jpg" alt="Hands holding receipts over a desk with a calculator, laptop and notes (representative photo)"></div><p class="mag-kicker">Market</p><h3>Why selling a Rs 500 share at Rs 600 does not give you Rs 100 profit: NEPSE trading costs, explained</h3><p class="mag-dek">Broker commission, SEBON fee, DP charge and CGT take Rs 922.28 from a Rs 10,000 price gain: buy 100 shares at Rs 500 and sell at Rs 600 and you keep Rs 9,077.72, not Rs 10,000. The full cost stack, with break-even at Rs 504.11.</p><p class="mag-meta">October 26, 2026 · 7 min read</p></a></div>
           <div class="mag-rail">
             <p class="mag-rail-head">More recent</p>
-            <a class="mag-row" href="/blog/sebon-institutional-investor-policy-2083/">
-              <img width="1200" height="630" src="/assets/images/blog/sebon-institutional-investor-policy-2083-480.webp" srcset="/assets/images/blog/sebon-institutional-investor-policy-2083-480.webp 480w, /assets/images/blog/sebon-institutional-investor-policy-2083-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="An electronic stock market price board with share prices and trading volumes in green and red (representative image)" loading="lazy">
-              <div>
-                <h4>Nepal&#x27;s stock market is dominated by individual traders. SEBON wants the pension funds to change that</h4>
-                <p class="mag-meta">October 21, 2026 &#183; Policy</p>
-              </div>
-            </a>
-            <a class="mag-row" href="/blog/nrb-act-amendment-autonomy/">
-              <img width="1200" height="630" src="/assets/images/blog/nrb-act-amendment-autonomy-480.webp" srcset="/assets/images/blog/nrb-act-amendment-autonomy-480.webp 480w, /assets/images/blog/nrb-act-amendment-autonomy-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="The Nepal Rastra Bank head office in Kathmandu's historic Singha Mahal complex, the building whose legal independence is at stake in the proposed NRB Act amendment" loading="lazy">
-              <div>
-                <h4>The bill that was supposed to free Nepal&#x27;s central bank is being rewritten to leash it</h4>
-                <p class="mag-meta">October 20, 2026 &#183; Policy</p>
-              </div>
-            </a>
-            <a class="mag-row" href="/blog/nepal-sovereign-wealth-fund/">
-              <img width="1200" height="630" src="/assets/images/blog/nepal-sovereign-wealth-fund-480.webp" srcset="/assets/images/blog/nepal-sovereign-wealth-fund-480.webp 480w, /assets/images/blog/nepal-sovereign-wealth-fund-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="The historic Singha Mahal building housing Nepal Rastra Bank's central office in Kathmandu, where the committee studying the use of foreign exchange reserves is coordinated" loading="lazy">
-              <div>
-                <h4>Nepal has $25.8 billion sitting in reserves. A new committee wants to put it to work</h4>
-                <p class="mag-meta">October 19, 2026 &#183; Macroeconomics</p>
-              </div>
-            </a>
-            <a class="mag-row" href="/blog/nepse-bonus-share-listing-explained/">
-              <img width="1200" height="630" src="/assets/images/blog/nepse-bonus-share-listing-explained-480.webp" srcset="/assets/images/blog/nepse-bonus-share-listing-explained-480.webp 480w, /assets/images/blog/nepse-bonus-share-listing-explained-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="The Nepal Stock Exchange building in Kathmandu — bonus shares become tradable only after NEPSE lists them" loading="lazy">
-              <div>
-                <h4>When can you actually sell your bonus shares?</h4>
-                <p class="mag-meta">October 22, 2026 &#183; Education</p>
-              </div>
-            </a>
-            <a class="mag-row" href="/blog/sebon-institutional-investor-policy-2083/">
-              <img width="1200" height="630" src="/assets/images/blog/sebon-institutional-investor-policy-2083-480.webp" srcset="/assets/images/blog/sebon-institutional-investor-policy-2083-480.webp 480w, /assets/images/blog/sebon-institutional-investor-policy-2083-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="An electronic stock market price board with share prices and trading volumes in green and red (representative image)" loading="lazy">
-              <div>
-                <h4>Nepal&#x27;s stock market is dominated by individual traders. SEBON wants the pension funds to change that</h4>
-                <p class="mag-meta">October 21, 2026 &#183; Policy</p>
-              </div>
-            </a>
-            <a class="mag-row" href="/blog/nrb-act-amendment-autonomy/">
-              <img width="1200" height="630" src="/assets/images/blog/nrb-act-amendment-autonomy-480.webp" srcset="/assets/images/blog/nrb-act-amendment-autonomy-480.webp 480w, /assets/images/blog/nrb-act-amendment-autonomy-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="The Nepal Rastra Bank head office in Kathmandu's historic Singha Mahal complex, the building whose legal independence is at stake in the proposed NRB Act amendment" loading="lazy">
-              <div>
-                <h4>The bill that was supposed to free Nepal&#x27;s central bank is being rewritten to leash it</h4>
-                <p class="mag-meta">October 20, 2026 &#183; Policy</p>
-              </div>
-            </a>
-
-                        
-            
-                        
-                      </div><!-- NEPSE ticker: rendered from the validated NepseData snapshot by
-           /js/nepse-ticker.js. Hidden until real data arrives. -->
-      <div class="index-ticker-wrap" id="indexTickerWrap" hidden>
-        <div class="index-ticker" aria-label="NEPSE symbol prices">
-          <div class="ticker-track" id="indexTickerTrack"></div>
-        </div>
-        <p class="index-ticker-note" id="indexTickerNote"></p>
-      </div>
-      </div>
-
-      <!-- Company analysis -->
-      <section class="mag-section" aria-label="Company analysis">
-        <div class="mag-head">
-          <h2>Company analysis</h2>
-          <p>Fundamental breakdowns of NEPSE-listed companies, one stock at a time · <a href="/company-analysis/">About this series</a></p>
-        </div>
-        <!-- RESEARCH-SYNC:BLOG-GRID-START -->
-        <div class="mag-analysis-grid">
-          <a class="mag-card reveal" href="/blog/api-equity-research/">
-            <div class="mag-fimg">
-              <img width="1200" height="630" src="/assets/images/blog/api-research-hero-480.webp" srcset="/assets/images/blog/api-research-hero-480.webp 480w, /assets/images/blog/api-research-hero-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="A mountain, village and river landscape of Darchula in the Api Nampa Conservation Area of far-west Nepal, the home district of Api Power's Naugad Gad and Upper Naugad Gad hydropower plants" loading="lazy">
-            </div>
-            <div class="mag-card-body">
-              <p class="mag-kicker">Hydro Power · NEPSE: API · Equity Research</p>
-              <h3>Api Power's record Rs 960.61 million profit is nearly half a paper gain, and every plant is a wasting asset। The market still pays Rs 345।</h3>
-              <p class="mag-meta">October 18, 2026 · 12 min read</p>
-            </div>
-          </a>
-          <a class="mag-card reveal" href="/blog/sypnl-equity-research/">
-            <div class="mag-fimg">
-              <img width="1200" height="630" src="/assets/images/blog/sypnl-research-hero-480.webp" srcset="/assets/images/blog/sypnl-research-hero-480.webp 480w, /assets/images/blog/sypnl-research-hero-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="A detached house clad in insulated sandwich panels, the prefabricated building material that SY Panel Nepal manufactures" loading="lazy">
-            </div>
-            <div class="mag-card-body">
-              <p class="mag-kicker">Manufacturing · NEPSE: SYPNL · Equity Research</p>
-              <h3>SY Panel Nepal promised Rs 108.42 million in profit and delivered Rs 67.52 million. The market prices it at 259 times its earnings anyway.</h3>
-              <p class="mag-meta">October 10, 2026 · 10 min read</p>
-            </div>
-          </a>
-          <a class="mag-card reveal" href="/blog/swbbl-equity-research/">
-            <div class="mag-fimg">
-              <img width="1200" height="630" src="/assets/images/blog/nrb-microfinance-crackdown-480.webp" srcset="/assets/images/blog/nrb-microfinance-crackdown-480.webp 480w, /assets/images/blog/nrb-microfinance-crackdown-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="A busy bazaar in Nepal with grain sacks and shoppers, the small traders who form the core clientele of microfinance lenders" loading="lazy">
-            </div>
-            <div class="mag-card-body">
-              <p class="mag-kicker">Microfinance · NEPSE: SWBBL · Equity Research</p>
-              <h3>Swabalamban Laghubitta earned Rs 619.76 million and trades at Rs 695.00. The bad-loan meter refuses to fall.</h3>
-              <p class="mag-meta">October 5, 2026 · 8 min read</p>
-            </div>
-          </a>
-          <a class="mag-card reveal" href="/blog/nepal-bank-nbl-company-analysis/">
-            <div class="mag-fimg">
-              <img width="1200" height="630" src="/assets/images/blog/nbl-equity-research-480.webp" srcset="/assets/images/blog/nbl-equity-research-480.webp 480w, /assets/images/blog/nbl-equity-research-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="The historic head office building of Nepal Bank Limited in Kathmandu, built in 1937" loading="lazy">
-            </div>
-            <div class="mag-card-body">
-              <p class="mag-kicker">Banking · NEPSE: NBL</p>
-              <h3>Nepal Bank earns Rs 30.63 a share and trades at Rs 294.70. The market still will not pay above book.</h3>
-              <p class="mag-meta">September 30, 2026 · 9 min read</p>
-            </div>
-          </a>
-          <a class="mag-card reveal" href="/blog/himalayan-laghubitta-hlbsl-company-analysis/">
-            <div class="mag-fimg">
-              <img width="1200" height="630" src="/assets/images/blog/hlbsl-company-analysis-480.webp" srcset="/assets/images/blog/hlbsl-company-analysis-480.webp 480w, /assets/images/blog/hlbsl-company-analysis-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="Women vegetable vendors at Asan Bazaar, Kathmandu, the micro-entrepreneurs who form the core borrowers of microfinance institutions like HLBSL" loading="lazy">
-            </div>
-            <div class="mag-card-body">
-              <p class="mag-kicker">Microfinance · NEPSE: HLBSL</p>
-              <h3>Profits came roaring back at Himalayan Laghubitta. The bad-loan meter keeps climbing.</h3>
-              <p class="mag-meta">September 29, 2026 · 10 min read</p>
-            </div>
-          </a>
-          <a class="mag-card reveal" href="/blog/city-hotel-limited-company-analysis/">
-            <div class="mag-fimg">
-              <img width="1200" height="630" src="/assets/images/blog/city-hotel-company-analysis-480.webp" srcset="/assets/images/blog/city-hotel-company-analysis-480.webp 480w, /assets/images/blog/city-hotel-company-analysis-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="Kathmandu cityscape, the market where City Hotel operates its single five-star property" loading="lazy">
-            </div>
-            <div class="mag-card-body">
-              <p class="mag-kicker">Hotels &amp; Tourism · NEPSE: CITY</p>
-              <h3>City Hotel halved its debt with a Rs 1.34 billion rights issue. The profits have not followed.</h3>
-              <p class="mag-meta">September 28, 2026 · 10 min read</p>
-            </div>
-          </a>
-        </div>
-          <!-- RESEARCH-SYNC:BLOG-GRID-END -->
-      </section>
-
-      <!-- Topics -->
-      <section class="mag-section" aria-label="Browse by topic">
-        <div class="mag-head">
-          <h2>Browse by topic</h2>
-          <p>Policy, macro, and market plumbing</p>
-        </div>
-        <div class="mag-topics">
-          <div class="mag-topic">
-            <h3>Policy</h3>
-            <a class="mag-row" href="/blog/sebon-institutional-investor-policy-2083/">
-              <img width="1200" height="630" src="/assets/images/blog/sebon-institutional-investor-policy-2083-480.webp" srcset="/assets/images/blog/sebon-institutional-investor-policy-2083-480.webp 480w, /assets/images/blog/sebon-institutional-investor-policy-2083-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="An electronic stock market price board with share prices and trading volumes in green and red (representative image)" loading="lazy">
-              <div>
-                <h4>Nepal&#x27;s stock market is dominated by individual traders. SEBON wants the pension funds to change that</h4>
-                <p class="mag-meta">October 21, 2026</p>
-              </div>
-            </a>
-            <a class="mag-row" href="/blog/nrb-act-amendment-autonomy/">
-              <img width="1200" height="630" src="/assets/images/blog/nrb-act-amendment-autonomy-480.webp" srcset="/assets/images/blog/nrb-act-amendment-autonomy-480.webp 480w, /assets/images/blog/nrb-act-amendment-autonomy-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="The Nepal Rastra Bank head office in Kathmandu's historic Singha Mahal complex, the building whose legal independence is at stake in the proposed NRB Act amendment" loading="lazy">
-              <div>
-                <h4>The bill that was supposed to free Nepal&#x27;s central bank is being rewritten to leash it</h4>
-                <p class="mag-meta">October 20, 2026</p>
-              </div>
-            </a>
-            <a class="mag-row" href="/blog/nrb-wallet-limit-50-festival-cash/">
-              <img width="1200" height="630" src="/assets/images/blog/nrb-wallet-limit-50-festival-cash-480.webp" srcset="/assets/images/blog/nrb-wallet-limit-50-festival-cash-480.webp 480w, /assets/images/blog/nrb-wallet-limit-50-festival-cash-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="Travellers boarding a packed van in Kathmandu to head home for Dashain, the festival that drives Nepal&#x27;s biggest annual surge in cash spending" loading="lazy">
-              <div>
-                <h4>Nepal&#x27;s central bank raised the wallet cap for the third Dashain running. Festival cash keeps winning anyway.</h4>
-                <p class="mag-meta">October 18, 2026</p>
-              </div>
-            </a>
-            <a class="mag-row" href="/blog/ippan-opposes-sebon-ipo-rules/">
-              <img width="1200" height="630" src="/assets/images/blog/ippan-opposes-sebon-ipo-rules-480.webp" srcset="/assets/images/blog/ippan-opposes-sebon-ipo-rules-480.webp 480w, /assets/images/blog/ippan-opposes-sebon-ipo-rules-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="A dam on the Bhote Koshi River in Sindhupalchok District, Nepal, an example of the hydropower infrastructure at the center of the IPO net-worth debate" loading="lazy">
-              <div>
-                <h4>SEBON wants every IPO company worth Rs 100 a share first. Hydropower says the test measures the wrong thing.</h4>
-                <p class="mag-meta">October 14, 2026</p>
-              </div>
-            </a>
-<a class="mag-row" href="/blog/nrb-foreign-exchange-relaxation-explained/">
-              <img width="1200" height="630" src="/assets/images/blog/nrb-forex-relaxation-explained-480.webp" srcset="/assets/images/blog/nrb-forex-relaxation-explained-480.webp 480w, /assets/images/blog/nrb-forex-relaxation-explained-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="The Nepal Rastra Bank head office building in Kathmandu, part of the historic Singha Mahal complex in the Thapathali Durbar area" loading="lazy">
-              <div>
-                <h4>NRB stopped guarding every dollar. Its record reserves are why.</h4>
-                <p class="mag-meta">October 13, 2026</p>
-              </div>
-            </a>
-            <div class="mag-topic-carousel">
-            <a class="mag-row" href="/blog/sebon-promoter-notice-reversal-explained/">
-              <img width="1200" height="630" src="/assets/images/blog/sebon-promoter-notice-reversal-explained-480.webp" srcset="/assets/images/blog/sebon-promoter-notice-reversal-explained-480.webp 480w, /assets/images/blog/sebon-promoter-notice-reversal-explained-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="A busy street in Kathmandu, the capital where the Securities Board of Nepal writes the market rules it has just rewritten within days" loading="lazy">
-              <div>
-                <h4>SEBON made big sellers announce themselves 15 days early. Then it rewrote the rule in days.</h4>
-                <p class="mag-meta">October 12, 2026</p>
-              </div>
-            </a>
-<a class="mag-row" href="/blog/sebon-15-day-notice-rule-market-overhang/">
-              <img width="1200" height="630" src="/assets/images/blog/sebon-15-day-notice-rule-market-overhang-480.webp" srcset="/assets/images/blog/sebon-15-day-notice-rule-market-overhang-480.webp 480w, /assets/images/blog/sebon-15-day-notice-rule-market-overhang-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="NEPSE market depth screen showing the buy and sell order book, the public window into supply that SEBON's 15-day seller-notice rule extends" loading="lazy">
-              <div>
-                <h4>SEBON made big sellers announce themselves early. The market heard a sell signal</h4>
-                <p class="mag-meta">October 6, 2026</p>
-              </div>
-            </a>
-            
-            <a class="mag-row" href="/blog/sebon-promoter-15-day-notice-concept-paper/">
-              <img width="1200" height="630" src="/assets/images/blog/sebon-promoter-15-day-notice-concept-paper-480.webp" srcset="/assets/images/blog/sebon-promoter-15-day-notice-concept-paper-480.webp 480w, /assets/images/blog/sebon-promoter-15-day-notice-concept-paper-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="Close-up of a candlestick trading chart on a monitor, the kind of screen on which NEPSE price action plays out after promoter-sale notices" loading="lazy">
-              <div>
-                <h4>SEBON is defending the 15-day promoter sale rule. Even its own paper admits the window is long</h4>
-                <p class="mag-meta">October 3, 2026</p>
-              </div>
-            </a>
-            <a class="mag-row" href="/blog/sebon-broker-strengthening-policy-2083/">
-              <img width="1200" height="630" src="/assets/images/blog/sebon-broker-strengthening-policy-2083-480.webp" srcset="/assets/images/blog/sebon-broker-strengthening-policy-2083-480.webp 480w, /assets/images/blog/sebon-broker-strengthening-policy-2083-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="A hand pointing at a candlestick trading chart on a monitor, the screens Nepal's securities brokers trade on" loading="lazy">
-              <div>
-                <h4>SEBON split NEPSE&#x27;s brokers into four grades. The hardest numbers are still missing</h4>
-                <p class="mag-meta">September 30, 2026</p>
-              </div>
-            </a>
-            <a class="mag-row" href="/blog/nepse-finance-committee-capital-market-debate/">
-              <img width="1200" height="630" src="/assets/images/blog/nepse-finance-committee-capital-market-debate-480.webp" srcset="/assets/images/blog/nepse-finance-committee-capital-market-debate-480.webp 480w, /assets/images/blog/nepse-finance-committee-capital-market-debate-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="The Sansad Bhavan, Nepal's Federal Parliament building in Kathmandu, where the House Finance Committee met on September 30, 2026" loading="lazy">
-              <div>
-                <h4>NEPSE on trial: what Parliament&#x27;s Finance Committee heard about the capital market</h4>
-                <p class="mag-meta">September 30, 2026</p>
-              </div>
-            </a>
-            <a class="mag-row" href="/blog/nrb-microfinance-crackdown/">
-              <img width="1200" height="630" src="/assets/images/blog/nrb-microfinance-crackdown-480.webp" srcset="/assets/images/blog/nrb-microfinance-crackdown-480.webp 480w, /assets/images/blog/nrb-microfinance-crackdown-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="A busy bazaar in Nepal with grain sacks and shoppers, the small traders who form the core clientele of microfinance lenders" loading="lazy">
-              <div>
-                <h4>Nepal&#x27;s microfinance lenders made record profits. Their bad loans grew even faster.</h4>
-                <p class="mag-meta">September 29, 2026</p>
-              </div>
-            </a>
-            <a class="mag-row" href="/blog/sebon-intraday-trading-concept-paper-explained/">
-              <img width="1200" height="630" src="/assets/images/blog/sebon-intraday-trading-concept-paper-explained-480.webp" srcset="/assets/images/blog/sebon-intraday-trading-concept-paper-explained-480.webp 480w, /assets/images/blog/sebon-intraday-trading-concept-paper-explained-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="NEPSE market depth screen showing live buy and sell orders for a listed stock" loading="lazy">
-              <div>
-                <h4>SEBON wants day trading on NEPSE. Don&#x27;t expect it next month</h4>
-                <p class="mag-meta">September 28, 2026</p>
-              </div>
-            </a>
-            <a class="mag-row" href="/blog/nepse-capital-gains-tax-cut-explained/">
-              <img width="1200" height="630" src="/assets/images/blog/nepse-capital-gains-tax-cut-explained-480.webp" srcset="/assets/images/blog/nepse-capital-gains-tax-cut-explained-480.webp 480w, /assets/images/blog/nepse-capital-gains-tax-cut-explained-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="The Nepal Rastra Bank head office building in Kathmandu, the historic Singha Mahal complex" loading="lazy">
-              <div>
-                <h4>Nepal raised the share tax, then watched the revenue collapse 54%</h4>
-                <p class="mag-meta">September 28, 2026</p>
-              </div>
-            </a>
-            </div>
-          </div>
-          <div class="mag-topic">
-            <h3>Macroeconomics</h3>
-            <a class="mag-row" href="/blog/nepal-soybean-oil-reexport-trade/">
-              <img width="1200" height="630" src="/assets/images/blog/nepal-soybean-oil-reexport-trade-480.webp" srcset="/assets/images/blog/nepal-soybean-oil-reexport-trade-480.webp 480w, /assets/images/blog/nepal-soybean-oil-reexport-trade-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="Aerial view of a container port with stacked shipping containers and cargo ships, representative of the sea-and-border trade loop behind Nepal's soybean oil re-exports" loading="lazy">
-              <div>
-                <h4>Nepal&#x27;s exports grew 62%. Almost half of them were imported first.</h4>
-                <p class="mag-meta">October 22, 2026</p>
-              </div>
-            </a>
-            <a class="mag-row" href="/blog/nepal-sovereign-wealth-fund/">
-              <img width="1200" height="630" src="/assets/images/blog/nepal-sovereign-wealth-fund-480.webp" srcset="/assets/images/blog/nepal-sovereign-wealth-fund-480.webp 480w, /assets/images/blog/nepal-sovereign-wealth-fund-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="The historic Singha Mahal building housing Nepal Rastra Bank's central office in Kathmandu, where the committee studying the use of foreign exchange reserves is coordinated" loading="lazy">
-              <div>
-                <h4>Nepal has $25.8 billion sitting in reserves. A new committee wants to put it to work</h4>
-                <p class="mag-meta">October 19, 2026</p>
-              </div>
-            </a>
-            <a class="mag-row" href="/blog/nepal-remittance-growth-fewer-workers/">
-              <img width="1200" height="630" src="/assets/images/blog/nepal-remittance-growth-fewer-workers-480.webp" srcset="/assets/images/blog/nepal-remittance-growth-fewer-workers-480.webp 480w, /assets/images/blog/nepal-remittance-growth-fewer-workers-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="Passengers boarding a flight at Kathmandu's Tribhuvan International Airport, the departure point for most of Nepal's migrant workers" loading="lazy">
-              <div>
-                <h4>Rs 436 billion arrived from abroad in two months. Fewer workers sent it</h4>
-                <p class="mag-meta">October 17, 2026</p>
-              </div>
-            </a>
-            <a class="mag-row" href="/blog/nepal-inflation-tripled-explained/">
-              <img width="1200" height="630" src="/assets/images/blog/nepal-inflation-tripled-explained-480.webp" srcset="/assets/images/blog/nepal-inflation-tripled-explained-480.webp 480w, /assets/images/blog/nepal-inflation-tripled-explained-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="Entrance of the Kalimati Fruits and Vegetables Market in Kathmandu, with the market signboard visible above the gate" loading="lazy">
-              <div>
-                <h4>Inflation tripled in a year. Bank deposits pay less than half of it.</h4>
-                <p class="mag-meta">October 16, 2026</p>
-              </div>
-            </a>
-            
-            <div class="mag-topic-carousel">
-            <a class="mag-row" href="/blog/nrb-rate-cut-monetary-review/">
-              <img width="1200" height="630" src="/assets/images/blog/nrb-rate-cut-monetary-review-480.webp" srcset="/assets/images/blog/nrb-rate-cut-monetary-review-480.webp 480w, /assets/images/blog/nrb-rate-cut-monetary-review-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="The Nepal Rastra Bank heritage building in Kathmandu, the central bank that cut its policy rate to 4.25% in the first quarterly review of the monetary policy" loading="lazy">
-              <div>
-                <h4>Nepal&#x27;s banks are drowning in cash. The central bank just cut rates anyway.</h4>
-                <p class="mag-meta">October 11, 2026</p>
-              </div>
-            </a>
-            <a class="mag-row" href="/blog/nepal-record-external-surplus-explained/">
-              <img width="1200" height="630" src="/assets/images/blog/nepal-record-external-surplus-explained-480.webp" srcset="/assets/images/blog/nepal-record-external-surplus-explained-480.webp 480w, /assets/images/blog/nepal-record-external-surplus-explained-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="Passengers waiting in the terminal at Kathmandu's Tribhuvan International Airport, the gateway for the migrant workers whose remittances reached 35.8% of Nepal's GDP" loading="lazy">
-              <div>
-                <h4>Nepal just posted the biggest external surplus in its history. It was paid for by departures.</h4>
-                <p class="mag-meta">October 9, 2026</p>
-              </div>
-            </a>
-            <a class="mag-row" href="/blog/gold-tola-price-kathmandu/">
-              <img width="1200" height="630" src="/assets/images/blog/gold-tola-price-kathmandu-480.webp" srcset="/assets/images/blog/gold-tola-price-kathmandu-480.webp 480w, /assets/images/blog/gold-tola-price-kathmandu-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="Stacked fine gold bars stamped 999.9, illustrating the gold whose tola price in Kathmandu is translated from the international dollar price at the rupee exchange rate" loading="lazy">
-              <div>
-                <h4>Gold is down 23% from its January peak. Kathmandu&#x27;s tola price barely noticed</h4>
-                <p class="mag-meta">October 8, 2026</p>
-              </div>
-            </a>
-            <a class="mag-row" href="/blog/nepal-september-tourist-arrivals-defy-floods/">
-              <img width="1200" height="630" src="/assets/images/blog/nepal-september-tourist-arrivals-defy-floods-480.webp" srcset="/assets/images/blog/nepal-september-tourist-arrivals-defy-floods-480.webp 480w, /assets/images/blog/nepal-september-tourist-arrivals-defy-floods-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="Two trekkers posing at Annapurna Base Camp in Nepal with Himalayan peaks behind them" loading="lazy">
-              <div>
-                <h4>The August floods were supposed to empty Nepal&#x27;s hotels. September brought 12.1% more tourists</h4>
-                <p class="mag-meta">October 4, 2026</p>
-              </div>
-            </a>
-            <a class="mag-row" href="/blog/nrb-excess-liquidity/">
-              <img width="1200" height="630" src="/assets/images/blog/nrb-excess-liquidity-480.webp" srcset="/assets/images/blog/nrb-excess-liquidity-480.webp 480w, /assets/images/blog/nrb-excess-liquidity-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="Prabhu Bank building in Kathmandu, a commercial bank holding deposits it struggles to lend out" loading="lazy">
-              <div>
-                <h4>Nepal&#x27;s banks are drowning in cash. The borrowers never came.</h4>
-                <p class="mag-meta">October 3, 2026</p>
-              </div>
-            </a>
-            <a class="mag-row" href="/blog/fdi-commitments-plunge-66-percent/">
-              <img width="1200" height="630" src="/assets/images/blog/fdi-commitments-plunge-66-percent-480.webp" srcset="/assets/images/blog/fdi-commitments-plunge-66-percent-480.webp 480w, /assets/images/blog/fdi-commitments-plunge-66-percent-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="Elevated daytime view over Kathmandu&#x27;s dense urban landscape, mid-rise buildings and streets stretching to the horizon" loading="lazy">
-              <div>
-                <h4>Nepal approved 328 foreign investments in two months. The cheques shrank 66%</h4>
-                <p class="mag-meta">October 2, 2026</p>
-              </div>
-            </a>
-            <a class="mag-row" href="/blog/nepal-two-speed-economy/">
-              <img width="1200" height="630" src="/assets/images/blog/nepal-two-speed-economy-480.webp" srcset="/assets/images/blog/nepal-two-speed-economy-480.webp 480w, /assets/images/blog/nepal-two-speed-economy-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="Entrance to the Kalimati fruits and vegetables wholesale market in Kathmandu" loading="lazy">
-              <div>
-                <h4>Nepal&#x27;s economy is running at two speeds</h4>
-                <p class="mag-meta">September 27, 2026</p>
-              </div>
-            </a>
-            <a class="mag-row" href="/blog/adb-cuts-nepal-growth-forecast/">
-              <img width="1200" height="630" src="/assets/images/blog/adb-cuts-nepal-growth-forecast-480.webp" srcset="/assets/images/blog/adb-cuts-nepal-growth-forecast-480.webp 480w, /assets/images/blog/adb-cuts-nepal-growth-forecast-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="Satellite before-and-after view of the August 2026 floods in Nepal's hill districts" loading="lazy">
-              <div>
-                <h4>ADB cut Nepal&#x27;s growth forecast to 4.1%. The inflation number matters more</h4>
-                <p class="mag-meta">September 26, 2026</p>
-              </div>
-            </a>
-            </div>
-          </div>
-          <div class="mag-topic">
-            <h3>Market infrastructure</h3>
-            
-            <div class="mag-topic-carousel">
-<a class="mag-row" href="/blog/nepse-book-closure-dividend-eligibility-explained/">
-              <img width="1200" height="630" src="/assets/images/blog/nepse-book-closure-dividend-eligibility-explained-480.webp" srcset="/assets/images/blog/nepse-book-closure-dividend-eligibility-explained-480.webp 480w, /assets/images/blog/nepse-book-closure-dividend-eligibility-explained-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="The Nepal Stock Exchange building in Kathmandu, its rooftop ticker board showing live share prices" loading="lazy">
-              <div>
-                <h4>बुक क्लोजको बेला सेयर किन्दा लाभांश किन पाइँदैन?</h4>
-                <p class="mag-meta">October 8, 2026</p>
-              </div>
-            </a>
-            <a class="mag-row" href="/blog/nepse-new-benchmark-index/">
-              <img width="1200" height="630" src="/assets/images/blog/nepse-new-benchmark-index-480.webp" srcset="/assets/images/blog/nepse-new-benchmark-index-480.webp 480w, /assets/images/blog/nepse-new-benchmark-index-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="An electronic stock ticker board showing share prices and index values (representative image)" loading="lazy">
-              <div>
-                <h4>NEPSE&#x27;s index counts shares the public cannot trade. A second benchmark is planned.</h4>
-                <p class="mag-meta">September 30, 2026</p>
-              </div>
-            </a>
-            <a class="mag-row" href="/blog/nepse-ransomware-shutdown-explained/">
-              <img width="1200" height="630" src="/assets/images/blog/nepse-ransomware-shutdown-480.webp" srcset="/assets/images/blog/nepse-ransomware-shutdown-480.webp 480w, /assets/images/blog/nepse-ransomware-shutdown-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="Rows of server racks inside a data center" loading="lazy">
-              <div>
-                <h4>One building in Thapathali shut down Nepal&#x27;s entire stock market</h4>
-                <p class="mag-meta">September 25, 2026</p>
-              </div>
-            </a>
-            </div>
-          </div>
-          <div class="mag-topic">
-            <h3>Disclosures</h3>
-            <div class="mag-topic-carousel">
-<a class="mag-row" href="/blog/bhdc-trading-suspension-explained/">
-              <img width="1200" height="630" src="/assets/images/blog/bhdc-trading-suspension-explained-480.webp" srcset="/assets/images/blog/bhdc-trading-suspension-explained-480.webp 480w, /assets/images/blog/bhdc-trading-suspension-explained-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="A run-of-river hydropower site in a Himalayan valley in Nepal, with the forebay basin and project buildings in the foreground" loading="lazy">
-              <div>
-                <h4>BHDC filed its dividend notice a day late. NEPSE stopped trading its shares.</h4>
-                <p class="mag-meta">October 15, 2026</p>
-              </div>
-            </a>
-<a class="mag-row" href="/blog/nea-force-majeure-dana-kushma-seven-hydro-projects/">
-              <img width="1200" height="630" src="/assets/images/blog/nea-force-majeure-dana-kushma-seven-hydro-projects-480.webp" srcset="/assets/images/blog/nea-force-majeure-dana-kushma-seven-hydro-projects-480.webp 480w, /assets/images/blog/nea-force-majeure-dana-kushma-seven-hydro-projects-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="High-voltage transmission tower carrying power lines across a green hill slope, representative of the Dana-Kushma 220 kV line whose tower in Myagdi was damaged in the September 27 flood" loading="lazy">
-              <div>
-                <h4>NEA declared force majeure on the Dana-Kushma line. 189.6 MW is silent, and nobody has said who carries the loss.</h4>
-                <p class="mag-meta">October 3, 2026</p>
-              </div>
-            </a>
-            <a class="mag-row" href="/blog/nepse-hydropower-flood-damage-five-companies-disclose/">
-              <img width="1200" height="630" src="/assets/images/blog/nepse-hydropower-flood-damage-five-companies-480.webp" srcset="/assets/images/blog/nepse-hydropower-flood-damage-five-companies-480.webp 480w, /assets/images/blog/nepse-hydropower-flood-damage-five-companies-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="The Kaligandaki river in Nepal; the same river&#x27;s late-September flood damaged NEA transmission towers and forced Ghalemdi Hydro&#x27;s 9 MW plant fully offline" loading="lazy">
-              <div>
-                <h4>39.3 MW of hydropower went silent in the floods. The loan bills did not.</h4>
-                <p class="mag-meta">October 1, 2026</p>
-              </div>
-            </a>
-            </div>
-          </div>
-          <div class="mag-topic">
-            <h3>Markets</h3>
-            
-            <div class="mag-topic-carousel">
-<a class="mag-row" href="/blog/nepse-trading-cost-explained-broker-sebon-dp-cgt/">
-              <img width="1200" height="630" src="/assets/images/blog/nepse-trading-cost-explained-broker-sebon-dp-cgt-480.webp" srcset="/assets/images/blog/nepse-trading-cost-explained-broker-sebon-dp-cgt-480.webp 480w, /assets/images/blog/nepse-trading-cost-explained-broker-sebon-dp-cgt-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="Hands holding receipts over a desk with a calculator, laptop and notes (representative photo)" loading="lazy">
-              <div>
-                <h4>A Rs 500 share sold at Rs 600 is not a Rs 100 profit — here is what a NEPSE trade really costs</h4>
-                <p class="mag-meta">October 26, 2026</p>
-              </div>
-            </a>
-<a class="mag-row" href="/blog/ipo-allotment-lottery-nepal-10-units-myth/">
-              <img width="1200" height="630" src="/assets/images/blog/ipo-allotment-lottery-nepal-10-units-myth-480.webp" srcset="/assets/images/blog/ipo-allotment-lottery-nepal-10-units-myth-480.webp 480w, /assets/images/blog/ipo-allotment-lottery-nepal-10-units-myth-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="A bingo cage with numbered balls, ready for a draw (representative photo)" loading="lazy">
-              <div>
-                <h4>Does applying for 10,000 IPO units beat 10 units? No — in Nepal&#x27;s lottery, every applicant holds one ticket</h4>
-                <p class="mag-meta">October 25, 2026</p>
-              </div>
-            </a>
-<a class="mag-row" href="/blog/bonus-share-tax-nepal-cash-for-tax-explained/">
-              <img width="1200" height="630" src="/assets/images/blog/bonus-share-tax-nepal-cash-for-tax-explained-480.webp" srcset="/assets/images/blog/bonus-share-tax-nepal-cash-for-tax-explained-480.webp 480w, /assets/images/blog/bonus-share-tax-nepal-cash-for-tax-explained-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="Hands holding a fan of Nepalese rupee banknotes of various denominations (representative photo)" loading="lazy">
-              <div>
-                <h4>Why does a 15% bonus come with 0.78947% cash? Nepal&#x27;s bonus-share tax, explained</h4>
-                <p class="mag-meta">October 24, 2026</p>
-              </div>
-            </a>
-<a class="mag-row" href="/blog/him-parbat-hydropower-ipo-explained/">
-              <img width="1200" height="630" src="/assets/images/blog/him-parbat-hydropower-ipo-explained-480.webp" srcset="/assets/images/blog/him-parbat-hydropower-ipo-explained-480.webp 480w, /assets/images/blog/him-parbat-hydropower-ipo-explained-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="A concrete hydropower dam holding back a reservoir against snow-capped mountains (representative photo)" loading="lazy">
-              <div>
-                <h4>Him Parbat Hydropower&#x27;s Rs 59.15 crore IPO opens October 28 — Dolakha locals and Nepalese abroad apply first</h4>
-                <p class="mag-meta">October 23, 2026</p>
-              </div>
-            </a>
-<a class="mag-row" href="/blog/nepse-weekly-recap-2026-10-16/">
-              <img width="1200" height="630" src="/assets/images/blog/nepse-weekly-recap-2026-10-16-480.webp" srcset="/assets/images/blog/nepse-weekly-recap-2026-10-16-480.webp 480w, /assets/images/blog/nepse-weekly-recap-2026-10-16-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="A stock market ticker board flashing red and green price quotes" loading="lazy">
-              <div>
-                <h4>NEPSE closed the week at 2,634.17, up 42.36 points, but the week&#x27;s biggest moves were all hydropower</h4>
-                <p class="mag-meta">October 16, 2026</p>
-              </div>
-            </a>
-<a class="mag-row" href="/blog/first-dividend-declarations-cash-vs-bonus/">
-              <img width="1200" height="630" src="/assets/images/blog/first-dividend-declarations-cash-vs-bonus-480.webp" srcset="/assets/images/blog/first-dividend-declarations-cash-vs-bonus-480.webp 480w, /assets/images/blog/first-dividend-declarations-cash-vs-bonus-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="The gate of the Nepal Rastra Bank central office in Kathmandu, whose approval bank dividends need before they reach shareholders" loading="lazy">
-              <div>
-                <h4>Four companies opened dividend season with 61.75 points of payouts. Nearly half is paper, not cash.</h4>
-                <p class="mag-meta">October 10, 2026</p>
-              </div>
-            </a>
-            <a class="mag-row" href="/blog/nepse-dashain-seasonality-explained/">
-              <img width="1200" height="630" src="/assets/images/blog/nepse-dashain-seasonality-480.webp" srcset="/assets/images/blog/nepse-dashain-seasonality-480.webp 480w, /assets/images/blog/nepse-dashain-seasonality-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="A traditional bamboo linge ping swing and kites at sunset on the outskirts of the Kathmandu valley during Dashain" loading="lazy">
-              <div>
-                <h4>NEPSE really does fall before Dashain. This year it is the exception</h4>
-                <p class="mag-meta">October 5, 2026</p>
-              </div>
-            </a>
-            <a class="mag-row" href="/blog/nepse-falls-11-points-october-2-revival-plan-falls-flat/">
-              <img width="1200" height="630" src="/assets/images/blog/nepse-falls-11-points-october-2-revival-plan-falls-flat-480.webp" srcset="/assets/images/blog/nepse-falls-11-points-october-2-revival-plan-falls-flat-480.webp 480w, /assets/images/blog/nepse-falls-11-points-october-2-revival-plan-falls-flat-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="Trading screens showing candlestick charts, the kind of screens Nepali investors watch through every session" loading="lazy">
-              <div>
-                <h4>The Finance Ministry promised to revive the market. NEPSE closed the week 11.90 points lower.</h4>
-                <p class="mag-meta">October 2, 2026</p>
-              </div>
-            </a>
-            </div>
-          </div>
-          <div class="mag-topic">
-            <h3>Regulation</h3>
-            <div class="mag-topic-carousel">
-<a class="mag-row" href="/blog/nrn-secondary-market-access-truth/">
-              <img width="1200" height="630" src="/assets/images/blog/nrn-secondary-market-access-truth-480.webp" srcset="/assets/images/blog/nrn-secondary-market-access-truth-480.webp 480w, /assets/images/blog/nrn-secondary-market-access-truth-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="International arrival terminal at Tribhuvan International Airport, Kathmandu" loading="lazy">
-              <div>
-                <h4>The government says NRNs will trade on NEPSE. It has made that promise before</h4>
-                <p class="mag-meta">October 8, 2026</p>
-              </div>
-            </a>
-            <a class="mag-row" href="/blog/sebon-8th-amendment-85-percent-ipo/">
-              <img width="1200" height="630" src="/assets/images/blog/sebon-8th-amendment-85-percent-ipo-480.webp" srcset="/assets/images/blog/sebon-8th-amendment-85-percent-ipo-480.webp 480w, /assets/images/blog/sebon-8th-amendment-85-percent-ipo-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="City view of Kathmandu from Singletree" loading="lazy">
-              <div>
-                <h4>SEBON just made an 85% IPO legal. Its own regulation doesn&#x27;t say who it&#x27;s for</h4>
-                <p class="mag-meta">October 7, 2026</p>
-              </div>
-            </a>
-            <a class="mag-row" href="/blog/sebon-flood-directive-nepse-hydropower-disclosure/">
-              <img width="1200" height="630" src="/assets/images/blog/sebon-flood-directive-nepse-480.webp" srcset="/assets/images/blog/sebon-flood-directive-nepse-480.webp 480w, /assets/images/blog/sebon-flood-directive-nepse-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="Satellite view of flood-affected river valleys in Nepal after the 2026 floods, the disaster behind SEBON's October 1 directive to NEPSE" loading="lazy">
-              <div>
-                <h4>SEBON ordered NEPSE to name every flood-hit company. The list does not exist yet.</h4>
-                <p class="mag-meta">October 1, 2026</p>
-              </div>
-            </a>
-            </div>
-          </div>
-          <div class="mag-topic">
-            <h3>Education</h3>
-            <a class="mag-row" href="/blog/nepse-dividend-yield-explained/">
-              <img width="1200" height="630" src="/assets/images/blog/nepse-dividend-yield-explained-480.webp" srcset="/assets/images/blog/nepse-dividend-yield-explained-480.webp 480w, /assets/images/blog/nepse-dividend-yield-explained-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="The gate of the Nepal Rastra Bank central office in Kathmandu — bank dividends need central-bank approval before they reach shareholders" loading="lazy">
-              <div>
-                <h4>A 10% dividend — but is your return really 10%?</h4>
-                <p class="mag-meta">October 21, 2026</p>
-              </div>
-            </a>
-            <a class="mag-row" href="/blog/nepse-broker-charges-explained/">
-              <img width="1200" height="630" src="/assets/images/blog/nepse-broker-charges-explained-480.webp" srcset="/assets/images/blog/nepse-broker-charges-explained-480.webp 480w, /assets/images/blog/nepse-broker-charges-explained-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="A desk calculator — the tool for working out what a NEPSE trade really costs after broker commission, the SEBON fee, and the DP charge" loading="lazy">
-              <div>
-                <h4>You bought Rs 40,000 of shares — how much did the broker take?</h4>
-                <p class="mag-meta">October 20, 2026</p>
-              </div>
-            </a>
-            <div class="mag-topic-carousel">
-<a class="mag-row" href="/blog/ipo-allotment-to-cash-explained/">
-              <img width="1200" height="630" src="/assets/images/blog/ipo-allotment-to-cash-explained-480.webp" srcset="/assets/images/blog/ipo-allotment-to-cash-explained-480.webp 480w, /assets/images/blog/ipo-allotment-to-cash-explained-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="NEPSE’s market-depth screen for Nepal Bank Limited, showing the order book of buy and sell orders where listing-day prices are discovered and sell orders are matched" loading="lazy">
-              <div>
-                <h4>Your IPO was allotted &#8212; how does it become cash?</h4>
-                <p class="mag-meta">October 19, 2026</p>
-              </div>
-            </a>
+            <div id="blRail">
+            <a class="mag-row" href="/blog/ipo-allotment-lottery-nepal-10-units-myth/"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/ipo-allotment-lottery-nepal-10-units-myth.jpg" alt="A bingo cage with numbered balls, ready for a draw (representative photo)"><div><h4>Does applying for 10,000 IPO units beat 10 units? Nepal&#x27;s allotment lottery, explained</h4><p class="mag-meta">October 25, 2026 · Market</p></div></a><a class="mag-row" href="/blog/bonus-share-tax-nepal-cash-for-tax-explained/"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/bonus-share-tax-nepal-cash-for-tax-explained.jpg" alt="Hands holding a fan of Nepalese rupee banknotes of various denominations (representative photo)"><div><h4>Why does a 15% bonus come with 0.78947% cash?</h4><p class="mag-meta">October 24, 2026 · Market</p></div></a><a class="mag-row" href="/blog/him-parbat-hydropower-ipo-explained/"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/him-parbat-hydropower-ipo-explained.jpg" alt="A concrete hydropower dam holding back a reservoir against snow-capped mountains (representative photo)"><div><h4>Him Parbat Hydropower&#x27;s Rs 59.15 crore IPO opens October 28 — Dolakha locals and Nepalese abroad apply first</h4><p class="mag-meta">October 23, 2026 · Market</p></div></a><a class="mag-row" href="/blog/nepal-soybean-oil-reexport-trade/"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nepal-soybean-oil-reexport-trade.jpg" alt="Aerial view of a container port with stacked shipping containers and cargo ships, representative of the sea-and-border trade loop behind Nepal&#x27;s soybean oil re-exports"><div><h4>Nepal&#x27;s exports grew 62%. Almost half of them were imported first</h4><p class="mag-meta">October 22, 2026 · Macroeconomics</p></div></a>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- RESEARCH-SYNC:ARCHIVE-START -->
-      <section class="mag-section" aria-label="Archive">
-        <div class="mag-head">
-          <h2>Archive</h2>
-          <p>Every remaining article, newest first</p>
-        </div>
-        <div class="mag-analysis-grid">
-          <a class="mag-card reveal" href="/blog/nepse-weekly-recap-2026-10-09/">
-            <div class="mag-fimg">
-              <img width="1200" height="630" src="/assets/images/blog/nepse-weekly-recap-2026-10-09.jpg" alt="NEPSE quick-quote and order-book screen on nepalstock.com, showing live buy and sell orders for a listed stock" loading="lazy">
-            </div>
-            <div class="mag-card-body">
-              <p class="mag-kicker">Market</p>
-              <h3>NEPSE closed the week at 2,591.81, a 4.56-point gain that left the market's direction unresolved</h3>
-              <p class="mag-meta">October 9, 2026 · 3 min read</p>
-            </div>
-          </a>
-          <a class="mag-card reveal" href="/blog/nrb-forex-limits-raised-circular-2-2083-84/">
-            <div class="mag-fimg">
-              <img width="1200" height="630" src="/assets/images/blog/nrb-forex-limits-raised-circular-2-2083-84-480.webp" srcset="/assets/images/blog/nrb-forex-limits-raised-circular-2-2083-84-480.webp 480w, /assets/images/blog/nrb-forex-limits-raised-circular-2-2083-84-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="US one-hundred-dollar banknotes fanned out, the currency at the center of NRB's new foreign-exchange caps" loading="lazy">
-            </div>
-            <div class="mag-card-body">
-              <p class="mag-kicker">Markets</p>
-              <h3>NRB raised forex limits two to five times in a single circular. Whether reserves can keep up is the open question</h3>
-              <p class="mag-meta">October 7, 2026 · 5 min read</p>
-            </div>
-          </a>
-          <a class="mag-card reveal" href="/blog/balephi-hydropower-bhl-investment-subsidiary/">
-            <div class="mag-fimg">
-              <img width="1200" height="630" src="/assets/images/blog/balephi-hydropower-bhl-investment-subsidiary-480.webp" srcset="/assets/images/blog/balephi-hydropower-bhl-investment-subsidiary-480.webp 480w, /assets/images/blog/balephi-hydropower-bhl-investment-subsidiary-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="A concrete hydropower dam in Nepal's hills, representing the hydropower business Balephi Hydropower is diversifying beyond with its new investment subsidiary" loading="lazy">
-            </div>
-            <div class="mag-card-body">
-              <p class="mag-kicker">Markets</p>
-              <h3>Balephi is building an investment company with shareholder money. The notice does not say what it will buy</h3>
-              <p class="mag-meta">October 4, 2026 · 4 min read</p>
-            </div>
-          </a>
-          <a class="mag-card reveal" href="/blog/erc-open-access-wheeling-charge-2083/">
-            <div class="mag-fimg">
-              <img width="1200" height="630" src="/assets/images/blog/erc-open-access-wheeling-charge-2083-480.webp" srcset="/assets/images/blog/erc-open-access-wheeling-charge-2083-480.webp 480w, /assets/images/blog/erc-open-access-wheeling-charge-2083-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="High-voltage transmission towers silhouetted at sunset, the kind of national grid infrastructure private power traders can now pay to use under ERC's open-access rules" loading="lazy">
-            </div>
-            <div class="mag-card-body">
-              <p class="mag-kicker">Policy</p>
-              <h3>ERC opened Nepal's grid to private power traders. The Rs 4.13 lakh wheeling charge decides if anyone trades</h3>
-              <p class="mag-meta">October 4, 2026 · 6 min read</p>
-            </div>
-          </a>
-          <a class="mag-card reveal" href="/blog/ksbbl-care-bbb-minus-rating-upgrade/">
-            <div class="mag-fimg">
-              <img width="1200" height="630" src="/assets/images/blog/ksbbl-care-bbb-minus-rating-upgrade-480.webp" srcset="/assets/images/blog/ksbbl-care-bbb-minus-rating-upgrade-480.webp 480w, /assets/images/blog/ksbbl-care-bbb-minus-rating-upgrade-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="Kamana Sewa Bikas Bank's head office in Kathmandu, its rooftop sign reading KSBBL" loading="lazy">
-            </div>
-            <div class="mag-card-body">
-              <p class="mag-kicker">Ratings</p>
-              <h3>CARE moved KSBBL to BBB-. The upgrade was won on cheap deposits, not better lending</h3>
-              <p class="mag-meta">October 4, 2026 · 5 min read</p>
-            </div>
-          </a>
-          <a class="mag-card reveal" href="/blog/nic-asia-apple-pay-google-pay/">
-            <div class="mag-fimg">
-              <img width="1200" height="630" src="/assets/images/blog/nic-asia-apple-pay-google-pay-480.webp" srcset="/assets/images/blog/nic-asia-apple-pay-google-pay-480.webp 480w, /assets/images/blog/nic-asia-apple-pay-google-pay-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="An iPhone held over a card reader paying with Apple Pay through a Visa card, the kind of tap-to-pay checkout NIC Asia Bank now lets its merchants accept" loading="lazy">
-            </div>
-            <div class="mag-card-body">
-              <p class="mag-kicker">Banking</p>
-              <h3>NIC Asia can now take Apple Pay. The open question is whose customers come through.</h3>
-              <p class="mag-meta">October 3, 2026 · 5 min read</p>
-            </div>
-          </a>
-          <a class="mag-card reveal" href="/blog/suryajyoti-life-alpha-plus-fund/">
-            <div class="mag-fimg">
-              <img width="1200" height="630" src="/assets/images/blog/suryajyoti-life-alpha-plus-fund-480.webp" srcset="/assets/images/blog/suryajyoti-life-alpha-plus-fund-480.webp 480w, /assets/images/blog/suryajyoti-life-alpha-plus-fund-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="Head office tower of a life insurance company" loading="lazy">
-            </div>
-            <div class="mag-card-body">
-              <p class="mag-kicker">Insurance</p>
-              <h3>SuryaJyoti Life is now a fund manager too. Where does policyholder money sit now?</h3>
-              <p class="mag-meta">October 3, 2026 · 5 min read</p>
-            </div>
-          </a>
-          <a class="mag-card reveal" href="/blog/nepse-three-day-slide-explained/">
-            <div class="mag-fimg">
-              <img width="1200" height="630" src="/assets/images/blog/nepse-three-day-slide-480.webp" srcset="/assets/images/blog/nepse-three-day-slide-480.webp 480w, /assets/images/blog/nepse-three-day-slide-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="Trading floor of the Frankfurt Stock Exchange (representative image)" loading="lazy">
-            </div>
-            <div class="mag-card-body">
-              <p class="mag-kicker">Markets</p>
-              <h3>NEPSE fell for three straight sessions. Nobody panicked.</h3>
-              <p class="mag-meta">October 1, 2026 · 6 min read</p>
-            </div>
-          </a>
-          <a class="mag-card reveal" href="/blog/nrb-cuts-bank-share-holding-period-45-days/">
-            <div class="mag-fimg">
-              <img width="1200" height="630" src="/assets/images/blog/nrb-cuts-bank-share-holding-period-45-days-480.webp" srcset="/assets/images/blog/nrb-cuts-bank-share-holding-period-45-days-480.webp 480w, /assets/images/blog/nrb-cuts-bank-share-holding-period-45-days-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="Neo-classical bank building facade in Kathmandu, Nepal" loading="lazy">
-            </div>
-            <div class="mag-card-body">
-              <p class="mag-kicker">Markets</p>
-              <h3>NRB cut banks' listed-share holding period to 45 days. Whether the money follows is the open question</h3>
-              <p class="mag-meta">September 30, 2026 · 5 min read</p>
-            </div>
-          </a>
-          <a class="mag-card reveal" href="/blog/kpcl-bonus-listing-2026-09-29/">
-            <div class="mag-fimg">
-              <img width="800" height="420" src="/assets/images/blog/kpcl-bonus-listing-2026-09-29-800.webp" srcset="/assets/images/blog/kpcl-bonus-listing-2026-09-29-800.webp 800w, /assets/images/blog/kpcl-bonus-listing-2026-09-29-1200.webp 1200w, /assets/images/blog/kpcl-bonus-listing-2026-09-29-1600.webp 1600w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="Snow-capped Himalayan peaks above Nepal" loading="lazy">
-            </div>
-            <div class="mag-card-body">
-              <p class="mag-kicker">Market</p>
-              <h3>Kalika Power&#x27;s 7% bonus shares list on NEPSE: 653,765 units now tradable</h3>
-              <p class="mag-meta">September 29, 2026 · 3 min read</p>
-            </div>
-          </a>
-          <a class="mag-card reveal" href="/blog/nepse-technical-analysis-23-years-data/">
-            <div class="mag-fimg">
-              <img width="1200" height="630" src="/assets/images/blog/nepse-23-years-480.webp" srcset="/assets/images/blog/nepse-23-years-480.webp 480w, /assets/images/blog/nepse-23-years-768.webp 768w" sizes="(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 400px" alt="Candlestick chart of the NEPSE index spanning 23 years of market data, 2003 to 2026" loading="lazy">
-            </div>
-            <div class="mag-card-body">
-              <p class="mag-kicker">Markets</p>
-              <h3>19 Trading Systems, 23 Years of NEPSE Data: Trend Beats Buy and Hold, Dip-Buying Loses Money</h3>
-              <p class="mag-meta">September 24, 2026 · 8 min read</p>
-            </div>
-          </a>
-        </div>
-      </section>
-          <!-- RESEARCH-SYNC:ARCHIVE-END -->
-
-      <!-- Start here -->
-      <section class="mag-section" aria-label="Start here" style="padding-bottom: 64px">
+      <!-- Start here: editor's entry path -->
+      <section class="mag-section" aria-label="Start here">
         <div class="mag-head">
           <h2>Start here</h2>
-          <p>Three pieces that show what this blog does</p>
+          <p>Three pieces that explain the market best</p>
         </div>
         <div class="mag-start">
-          <a class="mag-start-item" href="/blog/nepal-two-speed-economy/">
-            <span class="mag-num">1</span>
-            <div>
-              <h4>Nepal&#x27;s economy is running at two speeds</h4>
-              <p>The best single primer on how Nepal&#x27;s economy actually works right now: record reserves, hot inflation, and the split between them.</p>
-            </div>
-          </a>
-          <a class="mag-start-item" href="/blog/nepse-capital-gains-tax-cut-explained/">
-            <span class="mag-num">2</span>
-            <div>
-              <h4>Nepal raised the share tax, then watched the revenue collapse 54%</h4>
-              <p>How policy moves markets: a tax hike, a revenue collapse, and a U-turn within two months.</p>
-            </div>
-          </a>
-          <a class="mag-start-item" href="/blog/nepse-ransomware-shutdown-explained/">
-            <span class="mag-num">3</span>
-            <div>
-              <h4>One building in Thapathali shut down Nepal&#x27;s entire stock market</h4>
-              <p>The week the market went dark, and what it exposed about the plumbing underneath NEPSE.</p>
-            </div>
-          </a>
+          <a class="mag-start-item reveal" href="/blog/nepal-two-speed-economy/"><span class="mag-num">1</span><div><h4>Nepal&#x27;s economy is running at two speeds</h4><p>NRB&#x27;s Shrawan report shows record forex reserves of Rs 3.946 trillion while inflation hit an 18-month high of 5.96%. What the split means.</p></div></a><a class="mag-start-item reveal" href="/blog/nepse-capital-gains-tax-cut-explained/"><span class="mag-num">2</span><div><h4>Nepal raised the share tax, then watched the revenue collapse 54%</h4><p>Nepal&#x27;s FY2083/84 budget raised NEPSE capital gains tax to 7.5%/10%; revenue collapsed 54.42% and the Cabinet cut rates to 3.5%/5%. Full breakdown.</p></div></a><a class="mag-start-item reveal" href="/blog/nepse-ransomware-shutdown-explained/"><span class="mag-num">3</span><div><h4>One building in Thapathali shut down Nepal&#x27;s entire stock market</h4><p>On 21 September 2026, ransomware at Data Hub Pvt Ltd locked 72 of Nepal&#x27;s 90 brokers out and closed NEPSE for a full day. How it happened.</p></div></a>
         </div>
+      </section>
+
+      <!-- All articles: search + filter + sort + pager, rendered from the index -->
+      <section class="mag-section" aria-label="All articles">
+        <div class="mag-head">
+          <h2>All articles</h2>
+          <p id="blCount">63 of 63</p>
+        </div>
+        <div class="bl-controls">
+          <input type="search" id="blSearch" placeholder="Search titles, deks and tags…" aria-label="Search articles">
+          <select id="blSection" aria-label="Filter by section">
+            <option value="All">All sections (63)</option><option value="Banking">Banking (1)</option><option value="Company Analysis">Company Analysis (6)</option><option value="Disclosures">Disclosures (1)</option><option value="Education">Education (4)</option><option value="Insurance">Insurance (1)</option><option value="Macroeconomics">Macroeconomics (12)</option><option value="Market">Market (6)</option><option value="Market infrastructure">Market infrastructure (2)</option><option value="Markets">Markets (17)</option><option value="Policy">Policy (10)</option><option value="Ratings">Ratings (1)</option><option value="Regulation">Regulation (2)</option>
+          </select>
+          <select id="blSort" aria-label="Sort order">
+            <option value="new">Newest first</option>
+            <option value="old">Oldest first</option>
+          </select>
+        </div>
+        <div class="mag-grid" id="blGrid">
+          <a class="mag-card reveal" href="/blog/nepse-trading-cost-explained-broker-sebon-dp-cgt/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nepse-trading-cost-explained-broker-sebon-dp-cgt.jpg" alt="Hands holding receipts over a desk with a calculator, laptop and notes (representative photo)"></div><div class="mag-card-body"><p class="mag-kicker">Market</p><h3>Why selling a Rs 500 share at Rs 600 does not give you Rs 100 profit: NEPSE trading costs, explained</h3><p class="mag-dek">Broker commission, SEBON fee, DP charge and CGT take Rs 922.28 from a Rs 10,000 price gain: buy 100 shares at Rs 500 and sell at Rs 600 and you keep Rs 9,077.72, not Rs 10,000. The full cost stack, with break-even at Rs 504.11.</p><p class="mag-meta">October 26, 2026 · 7 min read</p></div></a><a class="mag-card reveal" href="/blog/ipo-allotment-lottery-nepal-10-units-myth/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/ipo-allotment-lottery-nepal-10-units-myth.jpg" alt="A bingo cage with numbered balls, ready for a draw (representative photo)"></div><div class="mag-card-body"><p class="mag-kicker">Market</p><h3>Does applying for 10,000 IPO units beat 10 units? Nepal&#x27;s allotment lottery, explained</h3><p class="mag-dek">In an oversubscribed fixed-price IPO in Nepal, SEBON&#x27;s rule gives every valid applicant 10 units first — then a lottery. Applying for 10,000 units buys no extra chance; it only blocks Rs 1,000,000 in your bank account instead of Rs 1,000.</p><p class="mag-meta">October 25, 2026 · 5 min read</p></div></a><a class="mag-card reveal" href="/blog/bonus-share-tax-nepal-cash-for-tax-explained/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/bonus-share-tax-nepal-cash-for-tax-explained.jpg" alt="Hands holding a fan of Nepalese rupee banknotes of various denominations (representative photo)"></div><div class="mag-card-body"><p class="mag-kicker">Market</p><h3>Why does a 15% bonus come with 0.78947% cash?</h3><p class="mag-dek">Nepal&#x27;s odd bonus decimals explained: a 5% final withholding tax on bonus face value, grossed up as cash = bonus ÷ 19 — so a 15% bonus needs 0.78947% cash.</p><p class="mag-meta">October 24, 2026 · 5 min read</p></div></a><a class="mag-card reveal" href="/blog/him-parbat-hydropower-ipo-explained/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/him-parbat-hydropower-ipo-explained.jpg" alt="A concrete hydropower dam holding back a reservoir against snow-capped mountains (representative photo)"></div><div class="mag-card-body"><p class="mag-kicker">Market</p><h3>Him Parbat Hydropower&#x27;s Rs 59.15 crore IPO opens October 28 — Dolakha locals and Nepalese abroad apply first</h3><p class="mag-dek">Him Parbat Hydropower&#x27;s Rs 59.15 crore IPO opens October 28: 16.9 lakh shares for Dolakha&#x27;s project-affected locals, 4.225 lakh for Nepalese working abroad, at Rs 100 each. Dates, ward split, rating and the caveats — every figure verified.</p><p class="mag-meta">October 23, 2026 · 6 min read</p></div></a><a class="mag-card reveal" href="/blog/nepal-soybean-oil-reexport-trade/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nepal-soybean-oil-reexport-trade.jpg" alt="Aerial view of a container port with stacked shipping containers and cargo ships, representative of the sea-and-border trade loop behind Nepal&#x27;s soybean oil re-exports"></div><div class="mag-card-body"><p class="mag-kicker">Macroeconomics</p><h3>Nepal&#x27;s exports grew 62%. Almost half of them were imported first</h3><p class="mag-dek">NRB&#x27;s October 15 report shows exports up 61.9% to Rs 76.59 billion, but Rs 36.04 billion of it is re-exported soybean oil. The trade deficit still widened 26%.</p><p class="mag-meta">October 22, 2026 · 6 min read</p></div></a><a class="mag-card reveal" href="/blog/nepse-bonus-share-listing-explained/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nepse-bonus-share-listing-explained.jpg" alt="The Nepal Stock Exchange building in Kathmandu — bonus shares become tradable only after NEPSE lists them"></div><div class="mag-card-body"><p class="mag-kicker">Education</p><h3>When can you actually sell your bonus shares?</h3><p class="mag-dek">A bonus declaration is a promise, not a delivery. New shares become tradable only after NEPSE lists them — a wait that runs from weeks to months.</p><p class="mag-meta">October 22, 2026 · 4 min read</p></div></a><a class="mag-card reveal" href="/blog/nepse-dividend-yield-explained/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nepse-dividend-yield-explained.jpg" alt="The gate of the Nepal Rastra Bank central office in Kathmandu — bank dividends need central-bank approval before they reach shareholders"></div><div class="mag-card-body"><p class="mag-kicker">Education</p><h3>A 10% dividend — but is your return really 10%?</h3><p class="mag-dek">A 10% dividend sounds like a 10% return — it isn&#x27;t. The declared percentage sits on the Rs 100 face value; your real return is the dividend yield: Rs 10 per share divided by the price you paid, minus 5% tax.</p><p class="mag-meta">October 21, 2026 · 3 min read</p></div></a><a class="mag-card reveal" href="/blog/sebon-institutional-investor-policy-2083/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/sebon-institutional-investor-policy-2083.jpg" alt="An electronic stock market price board with share prices and trading volumes in green and red (representative image)"></div><div class="mag-card-body"><p class="mag-kicker">Policy</p><h3>Nepal&#x27;s stock market is dominated by individual traders. SEBON wants the pension funds to change that</h3><p class="mag-dek">SEBON&#x27;s draft Institutional Investor Policy 2083 would steer up to 30% of institutional portfolios into listed securities. What the proposal contains, and what stands in its way.</p><p class="mag-meta">October 21, 2026 · 6 min read</p></div></a><a class="mag-card reveal" href="/blog/nepse-broker-charges-explained/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nepse-broker-charges-explained.jpg" alt="A desk calculator — the tool for working out what a NEPSE trade really costs after broker commission, the SEBON fee, and the DP charge"></div><div class="mag-card-body"><p class="mag-kicker">Education</p><h3>You bought Rs 40,000 of shares — how much did the broker take?</h3><p class="mag-dek">The screen price is not what you pay. Three charges sit on every NEPSE trade — broker commission, the SEBON fee, and the DP charge — and on a Rs 40,000 buy they add Rs 150 before you own a single share.</p><p class="mag-meta">October 20, 2026 · 3 min read</p></div></a><a class="mag-card reveal" href="/blog/nrb-act-amendment-autonomy/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nrb-act-amendment-autonomy.jpg" alt="The Nepal Rastra Bank head office in Kathmandu&#x27;s historic Singha Mahal complex, the building whose legal independence is at stake in the proposed NRB Act amendment"></div><div class="mag-card-body"><p class="mag-kicker">Policy</p><h3>The bill that was supposed to free Nepal&#x27;s central bank is being rewritten to leash it</h3><p class="mag-dek">Parliament&#x27;s Finance Committee approved NRB Act changes keeping government directives, cutting the governor&#x27;s term to 3 years, and elevating policy support to an objective, reversing the bill&#x27;s original purpose.</p><p class="mag-meta">October 20, 2026 · 6 min read</p></div></a><a class="mag-card reveal" href="/blog/ipo-allotment-to-cash-explained/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/ipo-allotment-to-cash-explained.jpg" alt="NEPSE’s market-depth screen for Nepal Bank Limited, showing the order book of buy and sell orders where listing-day prices are discovered and sell orders are matched"></div><div class="mag-card-body"><p class="mag-kicker">Education</p><h3>Your IPO was allotted: how does it become cash?</h3><p class="mag-dek">IPO shares land in your DEMAT account, then nothing happens until you act. The four steps from allotment to cash in your bank: listing, TMS sell, EDIS, and T+2 settlement.</p><p class="mag-meta">October 19, 2026 · 4 min read</p></div></a><a class="mag-card reveal" href="/blog/nepal-sovereign-wealth-fund/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nepal-sovereign-wealth-fund.jpg" alt="The historic Singha Mahal building housing Nepal Rastra Bank&#x27;s central office in Kathmandu, where the committee on using foreign exchange reserves is coordinated"></div><div class="mag-card-body"><p class="mag-kicker">Macroeconomics</p><h3>Nepal has $25.8 billion sitting in reserves. A new committee wants to put it to work</h3><p class="mag-dek">Nepal&#x27;s forex reserves hit Rs 4.07 trillion, enough for 21 months of imports. A committee led by NRB&#x27;s deputy governor is now writing the framework for a sovereign wealth fund.</p><p class="mag-meta">October 19, 2026 · 5 min read</p></div></a><a class="mag-card reveal" href="/blog/api-equity-research/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/api-research-hero.jpg" alt="A mountain, village and river landscape of Darchula in the Api Nampa Conservation Area of far-west Nepal, the home district of Api Power&#x27;s Naugad Gad and Upper Naugad Gad hydropower plants"></div><div class="mag-card-body"><p class="mag-kicker">Company Analysis</p><h3>Api Power&#x27;s record Rs 960.61 million profit is nearly half a paper gain, and every plant is a wasting asset. The market still pays Rs 345.</h3><p class="mag-dek">API at Rs 345 on Oct 16, 2026: 45x core EPS of Rs 7.63 vs hydro-peer median 67.16x. FY 2082/83&#x27;s Rs 960.61M PAT hides a Rs 474.15M paper fair-value gain.</p><p class="mag-meta">October 18, 2026 · 18 min read</p></div></a><a class="mag-card reveal" href="/blog/nrb-wallet-limit-50-festival-cash/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nrb-wallet-limit-50-festival-cash.jpg" alt="Travellers boarding a packed van in Kathmandu to head home for Dashain, the festival that drives Nepal&#x27;s biggest annual surge in cash spending"></div><div class="mag-card-body"><p class="mag-kicker">Policy</p><h3>Nepal&#x27;s central bank raised the wallet cap for the third Dashain running. Festival cash keeps winning anyway</h3><p class="mag-dek">NRB raised daily wallet deposits from 10 to 50 for Dashain and Tihar — the third yearly increase — yet still expects cash in circulation to jump 10 percent.</p><p class="mag-meta">October 18, 2026 · 4 min read</p></div></a><a class="mag-card reveal" href="/blog/nepal-remittance-growth-fewer-workers/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nepal-remittance-growth-fewer-workers.jpg" alt="Passengers boarding a Thai Lion Air Boeing 737-800 at Kathmandu&#x27;s Tribhuvan International Airport, the gateway through which most Nepali migrant workers leave for jobs abroad"></div><div class="mag-card-body"><p class="mag-kicker">Macroeconomics</p><h3>Rs 436 billion arrived from abroad in two months. Fewer workers sent it</h3><p class="mag-dek">NRB&#x27;s October 15 report shows remittances up 23.9% to Rs 436.36 billion in two months, even as new foreign-employment approvals fell 13.2%. Why the split matters.</p><p class="mag-meta">October 17, 2026 · 5 min read</p></div></a><a class="mag-card reveal" href="/blog/nepal-inflation-tripled-explained/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nepal-inflation-tripled-explained.jpg" alt="Entrance of the Kalimati Fruits and Vegetables Market in Kathmandu, with the market signboard visible above the gate"></div><div class="mag-card-body"><p class="mag-kicker">Macroeconomics</p><h3>Inflation tripled in a year. Bank deposits pay less than half of it.</h3><p class="mag-dek">Nepal&#x27;s inflation hit 6.34% in mid-September, more than triple last year&#x27;s rate, while bank deposits pay 3.15%. What NRB&#x27;s two-month report reveals.</p><p class="mag-meta">October 16, 2026 · 5 min read</p></div></a><a class="mag-card reveal" href="/blog/nepse-weekly-recap-2026-10-16/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nepse-weekly-recap-2026-10-16.jpg" alt="A stock market ticker board flashing red and green price quotes"></div><div class="mag-card-body"><p class="mag-kicker">Market</p><h3>NEPSE closed the week at 2,634.17, up 42.36 points, but hydropower dominated the week&#x27;s biggest moves</h3><p class="mag-dek">NEPSE closed the week at 2,634.17, up 42.36 points (+1.63%). Friday turnover was Rs 4.88 billion; CKHL led weekly gainers at +11.30%.</p><p class="mag-meta">October 16, 2026 · 3 min read</p></div></a><a class="mag-card reveal" href="/blog/bhdc-trading-suspension-explained/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/bhdc-trading-suspension-explained.jpg" alt="A run-of-river hydropower site in a Himalayan valley in Nepal, with the forebay basin and project buildings in the foreground"></div><div class="mag-card-body"><p class="mag-kicker">Disclosures</p><h3>BHDC filed its dividend notice a day late. NEPSE stopped trading its shares.</h3><p class="mag-dek">On 14 October 2026 NEPSE suspended trading in Bindhyabasini Hydropower (BHDC) after the company uploaded its dividend and AGM decisions a day late.</p><p class="mag-meta">October 15, 2026 · 5 min read</p></div></a><a class="mag-card reveal" href="/blog/ippan-opposes-sebon-ipo-rules/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/ippan-opposes-sebon-ipo-rules.jpg" alt="A dam on the Bhote Koshi River in Sindhupalchok District, Nepal, an example of the hydropower infrastructure at the center of the IPO net-worth debate"></div><div class="mag-card-body"><p class="mag-kicker">Policy</p><h3>SEBON wants every IPO company worth Rs 100 a share first. Hydropower says the test measures the wrong thing.</h3><p class="mag-dek">SEBON&#x27;s draft IPO rules require net worth per share above Rs 100. IPPAN warns 60% of hydropower projects would be locked out, and the regulator says the number is not final.</p><p class="mag-meta">October 14, 2026 · 6 min read</p></div></a><a class="mag-card reveal" href="/blog/nrb-foreign-exchange-relaxation-explained/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nrb-forex-relaxation-explained.jpg" alt="The Nepal Rastra Bank head office building in Kathmandu, part of the historic Singha Mahal complex in the Thapathali Durbar area"></div><div class="mag-card-body"><p class="mag-kicker">Policy</p><h3>NRB stopped guarding every dollar. Its record reserves are why.</h3><p class="mag-dek">On October 5, 2026, NRB doubled medical forex limits and quintupled aviation caps in its biggest dollar-rule overhaul in years. Record reserves made it possible.</p><p class="mag-meta">October 13, 2026 · 5 min read</p></div></a><a class="mag-card reveal" href="/blog/sebon-promoter-notice-reversal-explained/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/sebon-promoter-notice-reversal-explained.jpg" alt="A busy street in Kathmandu, the capital where the Securities Board of Nepal writes the market rules it has just rewritten within days"></div><div class="mag-card-body"><p class="mag-kicker">Policy</p><h3>SEBON made big sellers announce themselves 15 days early. Then it rewrote the rule in days.</h3><p class="mag-dek">SEBON&#x27;s advance-notice rule lasted about a week before the board rewrote it: five trading days instead of fifteen, only for 15% sales instead of 5%.</p><p class="mag-meta">October 12, 2026 · 5 min read</p></div></a><a class="mag-card reveal" href="/blog/nrb-rate-cut-monetary-review/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nrb-rate-cut-monetary-review.jpg" alt="The Nepal Rastra Bank heritage building in Kathmandu, the central bank that cut its policy rate to 4.25% in the first quarterly review of the monetary policy"></div><div class="mag-card-body"><p class="mag-kicker">Macroeconomics</p><h3>Nepal&#x27;s banks are drowning in cash. The central bank just cut rates anyway.</h3><p class="mag-dek">NRB&#x27;s first quarterly monetary review cuts the policy rate to 4.25% and lifts overdraft and microfinance loan limits. An easing for an economy where credit demand, not supply, is the problem.</p><p class="mag-meta">October 11, 2026 · 5 min read</p></div></a><a class="mag-card reveal" href="/blog/first-dividend-declarations-cash-vs-bonus/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/first-dividend-declarations-cash-vs-bonus.jpg" alt="The gate of the Nepal Rastra Bank central office in Kathmandu, whose approval bank dividends need before they reach shareholders"></div><div class="mag-card-body"><p class="mag-kicker">Markets</p><h3>Four companies opened dividend season with 61.75 points of payouts. Nearly half is paper, not cash.</h3><p class="mag-dek">Nabil, NMB, Manjushree Finance and Kutheli Bukhari declared 61.75 points of dividend in 48 hours. Only 33.75 points will arrive as cash.</p><p class="mag-meta">October 10, 2026 · 5 min read</p></div></a><a class="mag-card reveal" href="/blog/sypnl-equity-research/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/sypnl-research-hero.jpg" alt="A detached house clad in insulated sandwich panels, the prefabricated building material that SY Panel Nepal manufactures"></div><div class="mag-card-body"><p class="mag-kicker">Company Analysis</p><h3>SY Panel Nepal promised Rs 108.42 million in profit and delivered Rs 67.52 million. The market prices it at 259 times its earnings anyway.</h3><p class="mag-dek">SYPNL at Rs 1,334.10: 259x verified EPS (Rs 5.16) vs peer median 38.3x. Prospectus FY 2082/83 profit Rs 108.42M; delivered Rs 67.52M. Base target: Rs 232.</p><p class="mag-meta">October 10, 2026 · 16 min read</p></div></a><a class="mag-card reveal" href="/blog/nepal-record-external-surplus-explained/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nepal-record-external-surplus-explained.jpg" alt="Passengers waiting in the terminal at Kathmandu&#x27;s Tribhuvan International Airport, the gateway for the migrant workers whose remittances reached 35.8% of Nepal&#x27;s GDP"></div><div class="mag-card-body"><p class="mag-kicker">Macroeconomics</p><h3>Nepal just posted the biggest external surplus in its history. It was paid for by departures.</h3><p class="mag-dek">The World Bank&#x27;s October 2026 update shows Nepal&#x27;s current account surplus doubled to a record 14% of GDP on remittances worth 35.8% of GDP. The domestic numbers tell a weaker story.</p><p class="mag-meta">October 9, 2026 · 5 min read</p></div></a><a class="mag-card reveal" href="/blog/nepse-weekly-recap-2026-10-09/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nepse-weekly-recap-2026-10-09.jpg" alt="NEPSE quick-quote and order-book screen on nepalstock.com, showing live buy and sell orders for a listed stock"></div><div class="mag-card-body"><p class="mag-kicker">Market</p><h3>NEPSE closed the week at 2,591.81, a 4.56-point gain that left the market&#x27;s direction unresolved</h3><p class="mag-dek">NEPSE closed the week at 2,591.81, up 4.56 points. Friday turnover hit Rs 4.82 billion, with KBSH leading gainers and RLEL leading losers.</p><p class="mag-meta">October 9, 2026 · 2 min read</p></div></a><a class="mag-card reveal" href="/blog/gold-tola-price-kathmandu/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/gold-tola-price-kathmandu.jpg" alt="Stacked fine gold bars stamped 999.9, illustrating the gold whose tola price in Kathmandu is translated from the international dollar price at the rupee exchange rate"></div><div class="mag-card-body"><p class="mag-kicker">Macroeconomics</p><h3>Gold is down 23% from its January peak. Kathmandu&#x27;s tola price barely noticed</h3><p class="mag-dek">Gold has fallen 23% in dollars since January, but a tola in Kathmandu still costs Rs 294,800. The rupee, the import duty, and the quota explain the gap.</p><p class="mag-meta">October 8, 2026 · 5 min read</p></div></a><a class="mag-card reveal" href="/blog/nepse-book-closure-dividend-eligibility-explained/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nepse-book-closure-dividend-eligibility-explained.jpg" alt="The Nepal Stock Exchange building in Kathmandu, its rooftop ticker board showing live share prices"></div><div class="mag-card-body"><p class="mag-kicker">Market infrastructure</p><h3>बुक क्लोजको बेला सेयर किन्दा लाभांश किन पाइँदैन?</h3><p class="mag-dek">बुक क्लोजको बीचमा सेयर किन्दा लाभांश नपाइने नियम: SADBL को असोज ८–२२ बुक क्लोज, T+2 सेटलमेन्ट, र लाभांश सुरक्षित गर्ने अन्तिम दिन।</p><p class="mag-meta">October 8, 2026 · 2 min read</p></div></a><a class="mag-card reveal" href="/blog/nrn-secondary-market-access-truth/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nrn-secondary-market-access-truth.jpg" alt="International arrival terminal at Tribhuvan International Airport, Kathmandu"></div><div class="mag-card-body"><p class="mag-kicker">Regulation</p><h3>The government says NRNs will trade on NEPSE. It has made that promise before.</h3><p class="mag-dek">Amendments opening NEPSE&#x27;s secondary market to NRNs go to Cabinet by mid-October 2026, per the 21-point reform plan. What is decided, and what is still a promise.</p><p class="mag-meta">October 8, 2026 · 3 min read</p></div></a><a class="mag-card reveal" href="/blog/nrb-forex-limits-raised-circular-2-2083-84/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nrb-forex-limits-raised-circular-2-2083-84.jpg" alt="US one-hundred-dollar banknotes fanned out, the currency at the center of NRB&#x27;s new foreign-exchange caps"></div><div class="mag-card-body"><p class="mag-kicker">Markets</p><h3>NRB raised forex limits two to five times in a single circular. Whether reserves can keep up is the open question</h3><p class="mag-dek">NRB Circular 2/2083-84: the USD 15,000 annual exchange facility doubles to USD 30,000, airline advance payments jump fivefold to USD 500,000, and IT and energy join the foreign-loan guarantee list.</p><p class="mag-meta">October 7, 2026 · 3 min read</p></div></a><a class="mag-card reveal" href="/blog/sebon-8th-amendment-85-percent-ipo/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/sebon-8th-amendment-85-percent-ipo.jpg" alt="City view of Kathmandu from Singletree"></div><div class="mag-card-body"><p class="mag-kicker">Regulation</p><h3>SEBON just made an 85% IPO legal. Its own regulation doesn&#x27;t say who it&#x27;s for</h3><p class="mag-dek">SEBON&#x27;s 8th amendment to the Securities Registration and Issuance Regulation lets qualifying companies float up to 85% of issued capital at face value, with 1,000-share trading lots.</p><p class="mag-meta">October 7, 2026 · 4 min read</p></div></a><a class="mag-card reveal" href="/blog/sebon-15-day-notice-rule-market-overhang/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/sebon-15-day-notice-rule-market-overhang.jpg" alt="NEPSE market depth screen showing the buy and sell order book, the public window into supply that SEBON&#x27;s 15-day seller-notice rule extends"></div><div class="mag-card-body"><p class="mag-kicker">Policy</p><h3>SEBON made big sellers announce themselves early. The market heard a sell signal</h3><p class="mag-dek">SEBON&#x27;s 15-day advance-notice rule for major sellers was meant to protect investors. Monday&#x27;s 20.48-point NEPSE fall shows the market reads the notices as warnings.</p><p class="mag-meta">October 6, 2026 · 5 min read</p></div></a><a class="mag-card reveal" href="/blog/nepse-dashain-seasonality-explained/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nepse-dashain-seasonality.jpg" alt="A traditional bamboo linge ping swing and kites at sunset on the outskirts of the Kathmandu valley during Dashain"></div><div class="mag-card-body"><p class="mag-kicker">Markets</p><h3>NEPSE really does fall before Dashain. This year it is the exception</h3><p class="mag-dek">In 16 of 21 years, NEPSE fell in the 20 sessions before Ghatasthapana. A new data study says the weakness lands weeks before the festival; 2026 is the exception.</p><p class="mag-meta">October 5, 2026 · 5 min read</p></div></a><a class="mag-card reveal" href="/blog/swbbl-equity-research/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nrb-microfinance-crackdown.jpg" alt="A busy bazaar in Nepal with grain sacks and shoppers, the small traders who form the core clientele of microfinance lenders"></div><div class="mag-card-body"><p class="mag-kicker">Company Analysis</p><h3>Swabalamban Laghubitta earned Rs 619.76 million and trades at Rs 695.00. The bad-loan meter refuses to fall.</h3><p class="mag-dek">Swabalamban Laghubitta (NEPSE: SWBBL) closed at Rs 695.00 on October 2, 2026, a 19.6x multiple on trailing EPS of Rs 35.41. Net profit rose from Rs 280.21 million to Rs 619.76</p><p class="mag-meta">October 5, 2026 · 10 min read</p></div></a><a class="mag-card reveal" href="/blog/balephi-hydropower-bhl-investment-subsidiary/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/balephi-hydropower-bhl-investment-subsidiary.jpg" alt="A concrete hydropower dam in Nepal&#x27;s hills, representing the hydropower business Balephi Hydropower is diversifying beyond with its new investment subsidiary"></div><div class="mag-card-body"><p class="mag-kicker">Markets</p><h3>Balephi is building an investment company with shareholder money. The notice does not say what it will buy</h3><p class="mag-dek">Balephi Hydropower registered BHL Investment Limited (Rs 50 crore authorized, Rs 2.5 crore issued) and its board approved paying Rs 1 crore of a Rs 2 crore commitment as share</p><p class="mag-meta">October 4, 2026 · 3 min read</p></div></a><a class="mag-card reveal" href="/blog/erc-open-access-wheeling-charge-2083/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/erc-open-access-wheeling-charge-2083.jpg" alt="High-voltage transmission towers silhouetted at sunset, the kind of national grid infrastructure private power traders can now pay to use under ERC&#x27;s open-access rules"></div><div class="mag-card-body"><p class="mag-kicker">Policy</p><h3>ERC opened Nepal&#x27;s grid to private power traders. The Rs 4.13 lakh wheeling charge decides if anyone trades</h3><p class="mag-dek">ERC&#x27;s open-access amendment lets private traders wheel power over NEA&#x27;s grid: Rs 4.13 lakh/MW/month long-term, 57 paisa/kWh short-term. What it means for hydro investors.</p><p class="mag-meta">October 4, 2026 · 5 min read</p></div></a><a class="mag-card reveal" href="/blog/ksbbl-care-bbb-minus-rating-upgrade/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/ksbbl-care-bbb-minus-rating-upgrade.jpg" alt="Kamana Sewa Bikas Bank&#x27;s head office in Kathmandu, its rooftop sign reading KSBBL"></div><div class="mag-card-body"><p class="mag-kicker">Ratings</p><h3>CARE moved KSBBL to BBB-. The upgrade was won on cheap deposits, not better lending</h3><p class="mag-dek">CARE Ratings Nepal upgraded Kamana Sewa Bikas Bank&#x27;s issuer rating to CARE-NP BBB- from BB+: Tier I up 177 bps to 11.68%, CASA 53.79%, PAT Rs 909 Mn. Why it matters.</p><p class="mag-meta">October 4, 2026 · 5 min read</p></div></a><a class="mag-card reveal" href="/blog/nepal-september-tourist-arrivals-defy-floods/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nepal-september-tourist-arrivals-defy-floods.jpg" alt="Two trekkers posing at Annapurna Base Camp in Nepal with Himalayan peaks behind them"></div><div class="mag-card-body"><p class="mag-kicker">Macroeconomics</p><h3>The August floods were supposed to empty Nepal&#x27;s hotels. September brought 12.1% more tourists</h3><p class="mag-dek">Nepal received 88,248 international tourists in September 2026, up 12.1% from a year earlier, despite late-August floods that triggered mass booking cancellations.</p><p class="mag-meta">October 4, 2026 · 4 min read</p></div></a><a class="mag-card reveal" href="/blog/nea-force-majeure-dana-kushma-seven-hydro-projects/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nea-force-majeure-dana-kushma-seven-hydro-projects.jpg" alt="A high-voltage transmission tower carrying power lines across a green hill slope, representative of the Dana-Kushma 220 kV line whose tower in Myagdi was damaged in the September 27 Kaligandaki flood"></div><div class="mag-card-body"><p class="mag-kicker">Markets</p><h3>NEA declared force majeure on the Dana-Kushma line. 189.6 MW is silent, and nobody has said who carries the loss</h3><p class="mag-dek">NEA&#x27;s letter च.नं. 443 (September 28, 2026) declares force majeure under PPA clause 10.2 after a Kaligandaki flood damaged a Dana-Kushma 220 kV tower in Myagdi.</p><p class="mag-meta">October 3, 2026 · 4 min read</p></div></a><a class="mag-card reveal" href="/blog/nic-asia-apple-pay-google-pay/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nic-asia-apple-pay-google-pay.jpg" alt="An iPhone held over a card reader paying with Apple Pay through a Visa card, the kind of tap-to-pay checkout NIC Asia Bank now lets its merchants accept"></div><div class="mag-card-body"><p class="mag-kicker">Banking</p><h3>NIC Asia can now take Apple Pay. The open question is whose customers come through.</h3><p class="mag-dek">NIC Asia Bank&#x27;s CyberSource merchants can now accept Apple Pay and Google Pay from Visa/Mastercard holders worldwide — a claimed first for Nepal. Whether it matters.</p><p class="mag-meta">October 3, 2026 · 3 min read</p></div></a><a class="mag-card reveal" href="/blog/nrb-excess-liquidity/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nrb-excess-liquidity.jpg" alt="Prabhu Bank building in Kathmandu, a commercial bank holding deposits it struggles to lend out"></div><div class="mag-card-body"><p class="mag-kicker">Macroeconomics</p><h3>Nepal&#x27;s banks are drowning in cash. The borrowers never came.</h3><p class="mag-dek">NRB will vacuum Rs 18 billion out of the banking system in its third deposit-collection operation in 17 days. Banks are flush; borrowers are scarce.</p><p class="mag-meta">October 3, 2026 · 5 min read</p></div></a><a class="mag-card reveal" href="/blog/sebon-promoter-15-day-notice-concept-paper/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/sebon-promoter-15-day-notice-concept-paper.jpg" alt="Close-up of a candlestick trading chart on a monitor, the kind of screen on which NEPSE price action plays out after promoter-sale notices"></div><div class="mag-card-body"><p class="mag-kicker">Policy</p><h3>SEBON is defending the 15-day promoter sale rule. Even its own paper admits the window is long</h3><p class="mag-dek">SEBON&#x27;s September 24, 2026 concept paper on the 15-day advance-notice rule for promoter share sales: how the rule works, why the board says Nepal needs it, and where the world does it in two days.</p><p class="mag-meta">October 3, 2026 · 6 min read</p></div></a><a class="mag-card reveal" href="/blog/suryajyoti-life-alpha-plus-fund/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/suryajyoti-life-alpha-plus-fund.jpg" alt="Head office tower of a life insurance company"></div><div class="mag-card-body"><p class="mag-kicker">Insurance</p><h3>SuryaJyoti Life is now a fund manager too. Where does policyholder money sit now?</h3><p class="mag-dek">SuryaJyoti Life&#x27;s Alpha Plus fund: a Rs 50 crore, SEBON-registered vehicle managed by Alpha Plus Ventures, billed as Nepal&#x27;s first insurer-run fund.</p><p class="mag-meta">October 3, 2026 · 4 min read</p></div></a><a class="mag-card reveal" href="/blog/fdi-commitments-plunge-66-percent/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/fdi-commitments-plunge-66-percent.jpg" alt="Elevated daytime view over Kathmandu&#x27;s dense urban landscape, mid-rise buildings and streets stretching to the horizon"></div><div class="mag-card-body"><p class="mag-kicker">Macroeconomics</p><h3>Nepal approved 328 foreign investments in two months. The cheques shrank 66%.</h3><p class="mag-dek">FDI commitments to Nepal fell 66.4% to Rs 11.12 billion in the first two months of FY 2026/27, while approvals rose to 328 projects. What the numbers show.</p><p class="mag-meta">October 2, 2026 · 5 min read</p></div></a><a class="mag-card reveal" href="/blog/nepse-falls-11-points-october-2-revival-plan-falls-flat/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nepse-falls-11-points-october-2-revival-plan-falls-flat.jpg" alt="Trading screens showing candlestick charts, the kind of screens Nepali investors watch through every session"></div><div class="mag-card-body"><p class="mag-kicker">Markets</p><h3>The Finance Ministry promised to revive the market. NEPSE closed the week 11.90 points lower</h3><p class="mag-dek">NEPSE fell 11.90 points to 2,587.25 on October 2, 2026, its fourth decline in five sessions, as turnover slipped to Rs 4.29 billion.</p><p class="mag-meta">October 2, 2026 · 2 min read</p></div></a><a class="mag-card reveal" href="/blog/nepse-hydropower-flood-damage-five-companies-disclose/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nepse-hydropower-flood-damage-five-companies.jpg" alt="The Kaligandaki river in Nepal; the same river&#x27;s late-September flood damaged NEA transmission towers and forced Ghalemdi Hydro&#x27;s 9 MW plant fully offline"></div><div class="mag-card-body"><p class="mag-kicker">Markets</p><h3>39.3 MW of hydropower went silent in the floods. The loan bills did not</h3><p class="mag-dek">Five hydropower companies filed flood-damage reports with NEPSE on Oct 1, 2026 under SEBON&#x27;s order. Suryakunda: Rs. 75.16 lakh lost income vs Rs. 3.04 crore quarterly interest due.</p><p class="mag-meta">October 1, 2026 · 6 min read</p></div></a><a class="mag-card reveal" href="/blog/nepse-three-day-slide-explained/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nepse-three-day-slide.jpg" alt="Trading hall of a stock exchange (representative image)"></div><div class="mag-card-body"><p class="mag-kicker">Markets</p><h3>NEPSE fell for three straight sessions. Nobody panicked.</h3><p class="mag-dek">NEPSE fell a third straight session on Sept 30, closing at 2,598.89. Each day’s loss was smaller than the last; turnover held near Rs 5 billion.</p><p class="mag-meta">October 1, 2026 · 5 min read</p></div></a><a class="mag-card reveal" href="/blog/sebon-flood-directive-nepse-hydropower-disclosure/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/sebon-flood-directive-nepse.jpg" alt="Satellite view of flood-affected river valleys in Nepal after the 2026 floods, the disaster behind SEBON&#x27;s October 1 directive to NEPSE"></div><div class="mag-card-body"><p class="mag-kicker">Markets</p><h3>SEBON ordered NEPSE to name every flood-hit company. The list does not exist yet</h3><p class="mag-dek">SEBON’s Oct 1, 2026 circular orders NEPSE to identify flood-hit listed companies, publish a 13-point damage report each, and run surveillance.</p><p class="mag-meta">October 1, 2026 · 5 min read</p></div></a><a class="mag-card reveal" href="/blog/nepal-bank-nbl-company-analysis/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nbl-equity-research.jpg" alt="The historic head office building of Nepal Bank Limited in Kathmandu, built in 1937"></div><div class="mag-card-body"><p class="mag-kicker">Company Analysis</p><h3>Nepal Bank earns Rs 30.63 a share and trades at Rs 294.70. The market still will not pay above book.</h3><p class="mag-dek">Nepal Bank (NEPSE: NBL) trades at 9.54x earnings and 1.02x book on Q4 FY 2082/83 filings — roughly half the banking-sector median.</p><p class="mag-meta">September 30, 2026 · 9 min read</p></div></a><a class="mag-card reveal" href="/blog/nepse-finance-committee-capital-market-debate/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nepse-finance-committee-capital-market-debate.jpg" alt="The Sansad Bhavan, Nepal&#x27;s Federal Parliament building in Kathmandu, where the House Finance Committee met on September 30, 2026"></div><div class="mag-card-body"><p class="mag-kicker">Markets</p><h3>Everyone in Parliament agreed NEPSE is broken. Nobody agreed whose fault it is.</h3><p class="mag-dek">House Finance Committee summons Finance Ministry, SEBON, NEPSE and investors over capital-market reform: three blunt diagnoses, 21-point revival plan.</p><p class="mag-meta">September 30, 2026 · 6 min read</p></div></a><a class="mag-card reveal" href="/blog/nepse-new-benchmark-index/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nepse-new-benchmark-index.jpg" alt="An electronic stock ticker board showing share prices and index values (representative image)"></div><div class="mag-card-body"><p class="mag-kicker">Market infrastructure</p><h3>NEPSE&#x27;s index counts shares the public cannot trade. A second benchmark is planned.</h3><p class="mag-dek">Nepal&#x27;s capital market plan proposes a new benchmark index weighing tradable shares, financial health and disclosure. Why the current index misleads.</p><p class="mag-meta">September 30, 2026 · 5 min read</p></div></a><a class="mag-card reveal" href="/blog/nrb-cuts-bank-share-holding-period-45-days/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nrb-cuts-bank-share-holding-period-45-days.jpg" alt="Neo-classical bank building facade in Kathmandu, Nepal"></div><div class="mag-card-body"><p class="mag-kicker">Markets</p><h3>NRB cut banks&#x27; listed-share holding period to 45 days. Whether the money follows is the open question</h3><p class="mag-dek">NRB Circular No. 3 (Ka, Kha, Ga) 2083/84: counter-cyclical buffer at 0% for FY 2083/84, listed-share holding floor cut from 6 months to 45 days.</p><p class="mag-meta">September 30, 2026 · 4 min read</p></div></a><a class="mag-card reveal" href="/blog/sebon-broker-strengthening-policy-2083/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/sebon-broker-strengthening-policy-2083.jpg" alt="A hand pointing at a candlestick trading chart on a monitor, the screens Nepal&#x27;s securities brokers trade on"></div><div class="mag-card-body"><p class="mag-kicker">Markets</p><h3>SEBON split NEPSE&#x27;s brokers into four grades. The hardest numbers are still missing</h3><p class="mag-dek">SEBON’s Securities Broker Strengthening Policy 2083 grades Nepal’s stockbrokers into four classes, with separate approvals for margin and intraday.</p><p class="mag-meta">September 30, 2026 · 6 min read</p></div></a><a class="mag-card reveal" href="/blog/himalayan-laghubitta-hlbsl-company-analysis/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/hlbsl-company-analysis.jpg" alt="Women vegetable vendors at Asan Bazaar, Kathmandu, the micro-entrepreneurs who form the core borrowers of microfinance institutions like HLBSL"></div><div class="mag-card-body"><p class="mag-kicker">Company Analysis</p><h3>Profits came roaring back at Himalayan Laghubitta. The bad-loan meter keeps climbing.</h3><p class="mag-dek">Himalayan Laghubitta (NEPSE: HLBSL) grew FY 2081/82 profit 49% to Rs 106.6 million, paid a 7% dividend, and trades at 5.6x book, while NPL crossed 10%.</p><p class="mag-meta">September 29, 2026 · 11 min read</p></div></a><a class="mag-card reveal" href="/blog/nrb-microfinance-crackdown/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nrb-microfinance-crackdown.jpg" alt="A busy bazaar in Nepal&#x27;s Terai region, with grain sacks and shoppers, the small traders who form the core clientele of microfinance lenders"></div><div class="mag-card-body"><p class="mag-kicker">Policy</p><h3>Nepal&#x27;s microfinance lenders made record profits. Their bad loans grew even faster.</h3><p class="mag-dek">NRB put four microfinance lenders under corrective action for breaching the 8% capital floor, as sector bad loans jumped 64% to Rs 50.82 billion.</p><p class="mag-meta">September 29, 2026 · 6 min read</p></div></a><a class="mag-card reveal" href="/blog/city-hotel-limited-company-analysis/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/city-hotel-company-analysis.jpg" alt="Kathmandu cityscape, the market where City Hotel operates its single five-star property"></div><div class="mag-card-body"><p class="mag-kicker">Company Analysis</p><h3>City Hotel halved its debt with a Rs 1.34 billion rights issue. The profits have not followed.</h3><p class="mag-dek">How City Hotel (NEPSE: CITY) halved its debt with an 80% rights issue, won a CARE-NP BB upgrade, and still lost Rs 173.09 million in FY 2082/83.</p><p class="mag-meta">September 28, 2026 · 14 min read</p></div></a><a class="mag-card reveal" href="/blog/nepse-capital-gains-tax-cut-explained/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nepse-capital-gains-tax-cut-explained.jpg" alt="The Nepal Rastra Bank head office building in Kathmandu, the historic Singha Mahal complex"></div><div class="mag-card-body"><p class="mag-kicker">Markets</p><h3>Nepal raised the share tax, then watched the revenue collapse 54%</h3><p class="mag-dek">Nepal&#x27;s FY2083/84 budget raised NEPSE capital gains tax to 7.5%/10%; revenue collapsed 54.42% and the Cabinet cut rates to 3.5%/5%. Full breakdown.</p><p class="mag-meta">September 28, 2026 · 5 min read</p></div></a><a class="mag-card reveal" href="/blog/sebon-intraday-trading-concept-paper-explained/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/sebon-intraday-trading-concept-paper-explained.jpg" alt="NEPSE market depth screen showing live buy and sell orders for a listed stock"></div><div class="mag-card-body"><p class="mag-kicker">Markets</p><h3>SEBON wants day trading on NEPSE. Don&#x27;t expect it next month</h3><p class="mag-dek">SEBON&#x27;s September 24, 2026 concept paper on intraday trading: buy-first-sell-later to start, short selling on hold, no launch date. What it says.</p><p class="mag-meta">September 28, 2026 · 4 min read</p></div></a><a class="mag-card reveal" href="/blog/nepal-two-speed-economy/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nepal-two-speed-economy.jpg" alt="Split illustration: a vault of stacked coins and a rising chart for Nepal&#x27;s record forex reserves on the left, and a market basket of vegetables, fruits and cooking oil with climbing price tags on the right"></div><div class="mag-card-body"><p class="mag-kicker">Macroeconomics</p><h3>Nepal&#x27;s economy is running at two speeds</h3><p class="mag-dek">NRB&#x27;s Shrawan report shows record forex reserves of Rs 3.946 trillion while inflation hit an 18-month high of 5.96%. What the split means.</p><p class="mag-meta">September 27, 2026 · 4 min read</p></div></a><a class="mag-card reveal" href="/blog/adb-cuts-nepal-growth-forecast/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/adb-cuts-nepal-growth-forecast.jpg" alt="Flat editorial illustration of declining economic growth bars against Himalayan mountains, a hydropower dam, and sweeping flood contour lines"></div><div class="mag-card-body"><p class="mag-kicker">Macroeconomics</p><h3>ADB cut Nepal&#x27;s growth forecast to 4.1%. The inflation number matters more</h3><p class="mag-dek">ADB cut Nepal&#x27;s FY2026/27 growth forecast to 4.1% and raised inflation to 5.3% after devastating floods. Why the current 5.96% inflation matters more.</p><p class="mag-meta">September 26, 2026 · 5 min read</p></div></a><a class="mag-card reveal" href="/blog/nepse-ransomware-shutdown-explained/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nepse-ransomware-shutdown.jpg" alt="Trading hall with candlestick-chart screens and server racks under a cybersecurity lockdown theme, illustrating the NEPSE ransomware shutdown"></div><div class="mag-card-body"><p class="mag-kicker">Markets</p><h3>One building in Thapathali shut down Nepal&#x27;s entire stock market</h3><p class="mag-dek">On 21 September 2026, ransomware at Data Hub Pvt Ltd locked 72 of Nepal&#x27;s 90 brokers out and closed NEPSE for a full day. How it happened.</p><p class="mag-meta">September 25, 2026 · 5 min read</p></div></a><a class="mag-card reveal" href="/blog/nepse-technical-analysis-23-years-data/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/nepse-23-years.jpg" alt="Candlestick chart of the NEPSE index spanning 23 years of market data, 2003 to 2026"></div><div class="mag-card-body"><p class="mag-kicker">Markets</p><h3>19 Trading Systems, 23 Years of NEPSE Data: Trend Beats Buy and Hold, Dip-Buying Loses Money</h3><p class="mag-dek">19 rule-based trading systems backtested on 5,333 NEPSE sessions (2003-2026): trend and momentum beat buy-and-hold; mean-reversion lost money.</p><p class="mag-meta">September 24, 2026 · 6 min read</p></div></a><a class="mag-card reveal" href="/blog/kpcl-bonus-listing-2026-09-29/"><div class="mag-fimg"><img loading="lazy" width="1200" height="630" src="https://shirjankhadka.com.np/assets/images/blog/kpcl-bonus-listing-2026-09-29-og.jpg" alt="Snow-capped Himalayan peaks above Nepal"></div><div class="mag-card-body"><p class="mag-kicker">Markets</p><h3>Kalika Power&#x27;s 7% bonus shares list on NEPSE: 653,765 units now tradable</h3><p class="mag-dek">KPCL listed 653,764.65 bonus shares on NEPSE Sept 29, 2026. 7% bonus + 0.3684% cash from 18th AGM. Per-shareholder math, official notice.</p><p class="mag-meta"></p></div></a>
+        </div>
+        <div class="bl-pager">
+          <button type="button" id="blPrev" disabled>Prev</button>
+          <span class="bl-showing" id="blShowing">Showing 1–12 of 63</span>
+          <button type="button" class="bl-next" id="blNext">Next</button>
+        </div>
+      </section>
+
+      <!-- Sector block: same pattern as news / portfolio / watchlist -->
+      <section class="mag-section bl-sec" aria-label="Stocks by sector">
+        <div class="mag-head">
+          <h2>Stocks by sector</h2>
+          <p>Live prices from the verdict batch</p>
+        </div>
+        <select id="blSecSelect" aria-label="Filter by sector">
+          <option value="All">All sectors (412)</option><option value="Banking">Banking (27)</option><option value="Debentures">Debentures (56)</option><option value="Development Bank">Development Bank (9)</option><option value="Finance">Finance (13)</option><option value="Hotels And Tourism">Hotels And Tourism (8)</option><option value="Hydropower">Hydropower (113)</option><option value="Investment">Investment (8)</option><option value="Life Insurance">Life Insurance (14)</option><option value="Manufacturing And Processing">Manufacturing And Processing (17)</option><option value="Microfinance">Microfinance (49)</option><option value="Mutual Funds">Mutual Funds (61)</option><option value="Non Life Insurance">Non Life Insurance (15)</option><option value="Others">Others (14)</option><option value="Promoter Shares">Promoter Shares (6)</option><option value="Trading">Trading (2)</option>
+        </select>
+        <p class="bl-sec-sum" id="blSecSum">412 stocks · batch 2026-10-26</p>
+        <div class="tbl-scroll">
+          <table>
+            <thead><tr><th>Symbol</th><th>Name</th><th class="num">Price</th><th class="num">Change</th><th class="num">As of</th></tr></thead>
+            <tbody id="blSecBody">
+              <tr><td><a href="/stocks/ACLBSL/">ACLBSL</a></td><td>1385</td><td class="num">Rs 841.10</td><td class="num down">-1.05%</td><td class="num">2026-10-26</td></tr><tr><td><a href="/stocks/ADBL/">ADBL</a></td><td>3679</td><td class="num">Rs 332.10</td><td class="num down">-2.12%</td><td class="num">2026-10-26</td></tr><tr><td><a href="/stocks/ADBLD83/">ADBLD83</a></td><td>606</td><td class="num">Rs 1,040.00</td><td class="num ">+0.00%</td><td class="num">2026-10-14</td></tr><tr><td><a href="/stocks/AHL/">AHL</a></td><td>823</td><td class="num">Rs 361.50</td><td class="num down">-4.34%</td><td class="num">2026-10-26</td></tr><tr><td><a href="/stocks/AHPC/">AHPC</a></td><td>3771</td><td class="num">Rs 260.00</td><td class="num down">-1.37%</td><td class="num">2026-10-26</td></tr><tr><td><a href="/stocks/AKJCL/">AKJCL</a></td><td>1782</td><td class="num">Rs 344.60</td><td class="num down">-0.40%</td><td class="num">2026-10-26</td></tr><tr><td><a href="/stocks/AKPL/">AKPL</a></td><td>2175</td><td class="num">Rs 254.90</td><td class="num up">+0.55%</td><td class="num">2026-10-26</td></tr><tr><td><a href="/stocks/ALBSL/">ALBSL</a></td><td>1732</td><td class="num">Rs 1,180.90</td><td class="num down">-0.18%</td><td class="num">2026-10-26</td></tr><tr><td><a href="/stocks/ALICL/">ALICL</a></td><td>3637</td><td class="num">Rs 433.00</td><td class="num down">-0.67%</td><td class="num">2026-10-26</td></tr><tr><td><a href="/stocks/ANLB/">ANLB</a></td><td>795</td><td class="num">Rs 4,989.60</td><td class="num down">-0.13%</td><td class="num">2026-10-26</td></tr><tr><td><a href="/stocks/APHL/">APHL</a></td><td>89</td><td class="num">Rs 564.00</td><td class="num down">-4.16%</td><td class="num">2026-10-26</td></tr><tr><td><a href="/stocks/API/">API</a></td><td>2507</td><td class="num">Rs 347.00</td><td class="num up">+0.58%</td><td class="num">2026-10-26</td></tr><tr><td><a href="/stocks/AVYAN/">AVYAN</a></td><td>926</td><td class="num">Rs 1,037.00</td><td class="num down">-1.71%</td><td class="num">2026-10-26</td></tr><tr><td><a href="/stocks/BANDIPUR/">BANDIPUR</a></td><td>222</td><td class="num">Rs 565.00</td><td class="num down">-1.22%</td><td class="num">2026-10-26</td></tr><tr><td><a href="/stocks/BARUN/">BARUN</a></td><td>2432</td><td class="num">Rs 332.70</td><td class="num up">+0.06%</td><td class="num">2026-10-26</td></tr><tr><td><a href="/stocks/BBC/">BBC</a></td><td>2388</td><td class="num">Rs 4,029.00</td><td class="num up">+1.41%</td><td class="num">2026-10-26</td></tr><tr><td><a href="/stocks/BEDC/">BEDC</a></td><td>771</td><td class="num">Rs 291.30</td><td class="num down">-0.41%</td><td class="num">2026-10-26</td></tr><tr><td><a href="/stocks/BENH/">BENH</a></td><td>2</td><td class="num">Rs 353.00</td><td class="num up">+12.46%</td><td class="num">2026-10-16</td></tr><tr><td><a href="/stocks/BFC/">BFC</a></td><td>1939</td><td class="num">Rs 443.00</td><td class="num down">-0.23%</td><td class="num">2026-10-26</td></tr><tr><td><a href="/stocks/BGWT/">BGWT</a></td><td>687</td><td class="num">Rs 527.00</td><td class="num up">+1.54%</td><td class="num">2026-10-26</td></tr><tr><td><a href="/stocks/BHCL/">BHCL</a></td><td>262</td><td class="num">Rs 539.50</td><td class="num up">+2.76%</td><td class="num">2026-10-26</td></tr><tr><td><a href="/stocks/BHDC/">BHDC</a></td><td>969</td><td class="num">Rs 438.40</td><td class="num down">-0.81%</td><td class="num">2026-10-26</td></tr><tr><td><a href="/stocks/BHL/">BHL</a></td><td>1021</td><td class="num">Rs 224.60</td><td class="num down">-0.49%</td><td class="num">2026-10-26</td></tr><tr><td><a href="/stocks/BHPL/">BHPL</a></td><td>869</td><td class="num">Rs 420.50</td><td class="num up">+1.57%</td><td class="num">2026-10-26</td></tr><tr><td><a href="/stocks/BJHL/">BJHL</a></td><td>143</td><td class="num">Rs 560.00</td><td class="num down">-0.18%</td><td class="num">2026-10-26</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="bl-pager">
+          <button type="button" id="blSecPrev" disabled>Prev</button>
+          <span class="bl-showing" id="blSecShowing">Showing 1–25 of 412</span>
+          <button type="button" class="bl-next" id="blSecNext">Next</button>
+        </div>
+        <p class="bl-sec-note">Sector counts come from the Engine Verdict batch (verdicts sec field); universe entries carry no sector field, so counts are stated from the batch, never the universe. Prices are the batch's latest closes, not a live quote.</p>
       </section>
     </div>
   </main>
 
-<style>
-.sf{border-top:1px solid var(--hairline,#E7DFCE);margin-top:64px;background:var(--paper,#FAF8F2);color:var(--ink-soft,#4A463C);font-family:var(--sans,Inter,system-ui,-apple-system,"Segoe UI",sans-serif)}
-.sf-inner{max-width:1200px;margin:0 auto;padding:56px 24px 30px}
-.sf-top{display:flex;gap:18px;align-items:flex-start;margin-bottom:42px}
-.sf-mark{width:46px;height:46px;border-radius:12px;flex:none;box-shadow:0 2px 10px rgba(11,61,46,.12)}
-.sf-name{font-weight:700;font-size:1.06rem;color:var(--ink,#1C1A15);margin:2px 0 8px;letter-spacing:.01em}
-.sf-mission{margin:0;max-width:62ch;line-height:1.75;font-size:.92rem;color:var(--ink-soft,#4A463C)}
-.sf-cols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:36px 28px;margin-bottom:42px}
-.sf-col h3{font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted,#8A8474);margin:0 0 16px;font-weight:700}
-.sf-col ul{list-style:none;margin:0;padding:0;display:grid;gap:11px}
-.sf-col a{color:var(--ink-soft,#4A463C);text-decoration:none;font-size:.92rem;line-height:1.5}
-.sf-col a:hover{color:var(--green-900,#0B3D2E);text-decoration:underline}
-.sf-note{border-top:1px solid var(--hairline,#E7DFCE);padding-top:26px;font-size:.85rem;line-height:1.75;color:var(--muted,#8A8474);max-width:88ch;margin:0}
-.sf-note strong{color:var(--ink-soft,#4A463C)}
-.sf-bottom{display:flex;flex-wrap:wrap;gap:10px 20px;justify-content:space-between;align-items:center;margin-top:26px;padding-top:22px;border-top:1px solid var(--hairline,#E7DFCE);font-size:.85rem;color:var(--muted,#8A8474)}
-.sf-bottom a{color:var(--ink-soft,#4A463C);text-decoration:none;font-weight:600}
-.sf-bottom a:hover{color:var(--green-900,#0B3D2E);text-decoration:underline}
-.sf-social{display:flex;gap:16px;align-items:center}
-@media(max-width:820px){.sf-cols{grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 20px}}
-@media(max-width:520px){.sf-inner{padding:44px 20px 26px}.sf-top{margin-bottom:34px}.sf-cols{margin-bottom:34px}}
-</style>
-<div id="nd-footer"></div>
-
-  </script><script src="../js/main.js?v=8a821d36" defer></script>
+  <div id="nd-footer"></div>
 
   <script src="/js/nepse-market-config.js?v=4e6270bd"></script>
-<script src="/js/nepse-format.js?v=a5edf573"></script>
-<script src="/js/nepse-data.js?v=3ff7ecb3"></script>
-<script src="/js/nepse-ticker.js" defer></script>
-<script src="/js/theme-toggle.js?v=6a6a46c6" defer></script>
-<script src="/js/nd-chrome.js?v=74c1c8b7" defer></script>
+  <script src="/js/nepse-format.js?v=a5edf573"></script>
+  <script src="/js/nepse-data.js?v=3ff7ecb3"></script>
+  <script src="/js/nepse-ticker.js" defer></script>
+  <script src="/js/theme-toggle.js?v=6a6a46c6" defer></script>
+  <script src="/js/nd-chrome.js?v=74c1c8b7" defer></script>
+  <script src="/js/nd-blog.js?v=552f1548" defer></script>
 </body>
 </html>
