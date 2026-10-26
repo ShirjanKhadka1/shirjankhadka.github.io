@@ -20,10 +20,10 @@
 <meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/og/stocks.png">
 <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="stylesheet" href="/css/fonts.css">
-<link rel="stylesheet" href="/css/nd-tokens.css?v=c7f80a9f">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
-<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
-<link rel="stylesheet" href="/css/sig-pro.css?v=ed0fe3e9">
+<link rel="stylesheet" href="/css/nd-tokens.css?v=20261023d">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023d">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023d">
+<link rel="stylesheet" href="/css/sig-pro.css?v=20261023d">
 <style>
 /* price snapshot: hero card — nd-card depth language, token spacing scale */
 .sp-snap{margin:var(--nd-s6) 0}
@@ -168,9 +168,18 @@
 .d2-val-chart canvas{width:100%;height:280px;display:block}
 .d2-fresh{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px;font-size:.8rem;color:var(--nd-dim,#8E98A8)}
 .d2-fresh b{color:var(--nd-muted,#B8C0CE)}
+/* company block: static profile + key stats */
+.sp-about{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 45%),var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);border-radius:var(--nd-r-lg);padding:var(--nd-s4) var(--nd-s5);margin:var(--nd-s5) 0;box-shadow:var(--nd-rim),var(--nd-e1)}
+.sp-about h2{margin-top:0}
+.sp-about p{color:var(--nd-muted,#B8C0CE);line-height:1.7;font-size:.95rem}
+.sp-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--nd-s3);margin:var(--nd-s4) 0 0}
+@media(min-width:700px){.sp-stats{grid-template-columns:repeat(3,1fr)}}
+.sp-stats div{background:rgba(255,255,255,.02);border:1px solid var(--nd-border,#1E2430);border-radius:var(--nd-r-md);padding:var(--nd-s3)}
+.sp-stats dt{font-size:.72rem;color:var(--nd-dim,#8E98A8);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.sp-stats dd{margin:0;font-size:.98rem;font-weight:700;color:var(--nd-text,#fff);font-variant-numeric:tabular-nums}
 /* light theme: token-driven components (tabs, tables) flip with the
    tokens; only the deep-card light recipe remains explicit here */
-[data-theme="light"] .sp-price-card,[data-theme="light"] .vpill,[data-theme="light"] .sp-fund,[data-theme="light"] .inv-cal,[data-theme="light"] .d2-val-lab{background:linear-gradient(180deg,#FFFFFF 0%,#F4F7FA 100%);border-color:#CBD4DE;box-shadow:inset 0 2px 0 #FFFFFF,0 1px 2px rgba(10,12,16,.1),0 8px 24px rgba(10,12,16,.1)}
+[data-theme="light"] .sp-price-card,[data-theme="light"] .vpill,[data-theme="light"] .sp-about,[data-theme="light"] .sp-fund,[data-theme="light"] .inv-cal,[data-theme="light"] .d2-val-lab{background:linear-gradient(180deg,#FFFFFF 0%,#F4F7FA 100%);border-color:#CBD4DE;box-shadow:inset 0 2px 0 #FFFFFF,0 1px 2px rgba(10,12,16,.1),0 8px 24px rgba(10,12,16,.1)}
 [data-theme="light"] .sp-price,[data-theme="light"] .sp-stat-v,[data-theme="light"] .sp-fund-v,[data-theme="light"] .d2-val-co-sym,[data-theme="light"] .inv-cal-head h2{color:#0A0C10}
 [data-theme="light"] .sp-note{background:linear-gradient(180deg,#FFFFFF 0%,#F4F7FA 100%);border-color:#CBD4DE;border-left-color:#4D7C0F;color:#3F4753}
 [data-theme="light"] .sp-note strong{color:#0A0C10}
@@ -189,12 +198,12 @@ body{font-family:var(--nd-font-sans,Inter,system-ui,-apple-system,Segoe UI,sans-
 <main id="main" class="sig-wrap">
 <p class="sig-kicker">Directory</p>
 <h1>All NEPSE listed securities</h1>
-<p class="sig-sub">425 instruments · data as of 2026-10-16</p>
+<p class="sig-sub">428 instruments · data as of 2026-10-26</p>
 <section aria-label="Security directory"><ul class="sp-dir">
 <li><a href="/stocks/ACLBSL/">Aarambha Chautari Laghubitta Bittiya Sanstha Limited (ACLBSL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/ADBL/">Agricultural Development Bank Limited (ADBL)</a> <span class="sp-type">Equity</span></li>
-<li><a href="/stocks/ADBLD83/">ADBLD83 (ADBLD83)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/ADBLB86/">Agricultural Bond (8 Year) (ADBLB86)</a> <span class="sp-type">Equity</span></li>
+<li><a href="/stocks/ADBLD83/">ADBLD83 (ADBLD83)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/AHL/">Asian Hydropower Limited (AHL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/AHPC/">Arun Valley Hydropower Development Co. Ltd. (AHPC)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/AKJCL/">Ankhu Khola Jalvidhyut Company Ltd (AKJCL)</a> <span class="sp-type">Equity</span></li>
@@ -224,7 +233,7 @@ body{font-family:var(--nd-font-sans,Inter,system-ui,-apple-system,Segoe UI,sans-
 <li><a href="/stocks/BOKD86KA/">BOKD86KA (BOKD86KA)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/BPCL/">Butwal Power Company Limited (BPCL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/BUNGAL/">Bungal Hydro Limited (BUNGAL)</a> <span class="sp-type">Equity</span></li>
-<li><a href="/stocks/C30MF/">C30MF (C30MF)</a> <span class="sp-type">Equity</span></li>
+<li><a href="/stocks/C30MF/">Citizens Super 30 Mutual Fund (C30MF)</a> <span class="sp-type">Mutual fund</span></li>
 <li><a href="/stocks/CBBL/">Chhimek Laghubitta Bittiya Sanstha Limited (CBBL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/CBLD88/">Civil Bank Debenture 2088 (CBLD88)</a> <span class="sp-type">Debenture</span></li>
 <li><a href="/stocks/CCBD88/">Century Debenture 2088 (CCBD88)</a> <span class="sp-type">Debenture</span></li>
@@ -262,12 +271,12 @@ body{font-family:var(--nd-font-sans,Inter,system-ui,-apple-system,Segoe UI,sans-
 <li><a href="/stocks/ELIS/">NIC ASIA Equity Linked Investment Scheme (ELIS)</a> <span class="sp-type">Mutual fund</span></li>
 <li><a href="/stocks/ENL/">Emerging Nepal Limited (ENL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/FMDBL/">First Micro Finance Laghubitta Bittiya Sanstha Limited (FMDBL)</a> <span class="sp-type">Equity</span></li>
-<li><a href="/stocks/FOWAD/">Forward Microfinance Laghubitta Bittiya Sanstha Limited (FOWAD)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/FMDBLP/">First Micro Finance Laghubitta Bittiya Sanstha Limited Promoter Share (FMDBLP)</a> <span class="sp-type">Promoter share</span></li>
+<li><a href="/stocks/FOWAD/">Forward Microfinance Laghubitta Bittiya Sanstha Limited (FOWAD)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/GBBD85/">Garima Debenture, 2085 (GBBD85)</a> <span class="sp-type">Debenture</span></li>
 <li><a href="/stocks/GBBL/">Garima Bikas Bank Limited (GBBL)</a> <span class="sp-type">Equity</span></li>
-<li><a href="/stocks/GBILD84-85/">Global IME Bank Debenture, 2084/85 (GBILD84/85)</a> <span class="sp-type">Debenture</span></li>
 <li><a href="/stocks/GBBLPO/">Garima Bikas Bank Limited Promoter Share (GBBLPO)</a> <span class="sp-type"></span></li>
+<li><a href="/stocks/GBILD84-85/">Global IME Bank Debenture, 2084/85 (GBILD84/85)</a> <span class="sp-type">Debenture</span></li>
 <li><a href="/stocks/GBILD86-87/">GBILD86/87 (GBILD86/87)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/GBIME/">Global IME Bank Limited (GBIME)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/GBIMESY2/">Global IME Sammunat Yojana -2 (GBIMESY2)</a> <span class="sp-type">Mutual fund</span></li>
@@ -299,8 +308,8 @@ body{font-family:var(--nd-font-sans,Inter,system-ui,-apple-system,Segoe UI,sans-
 <li><a href="/stocks/HEIP/">Himalayan Everest Insurance Limited Promoter (HEIP)</a> <span class="sp-type">Promoter share</span></li>
 <li><a href="/stocks/HFIN/">Hotel Forest Inn Limited (HFIN)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/HHL/">Himalayan Hydropower Limited (HHL)</a> <span class="sp-type">Equity</span></li>
-<li><a href="/stocks/HIDCL/">Hydroelectricity Investment and Development Company Ltd (HIDCL)</a> <span class="sp-type">Equity</span></li>
-<li><a href="/stocks/HIDCLP/">Hydroelectricity Investment and Development Company Limited Promoter (HIDCLP)</a> <span class="sp-type">Promoter share</span></li>
+<li><a href="/stocks/HIDCL/">Hydorelectricity Investment and Development Company Ltd (HIDCL)</a> <span class="sp-type">Equity</span></li>
+<li><a href="/stocks/HIDCLP/">Hydorelectricity Investment and Development Company Limited Promoter (HIDCLP)</a> <span class="sp-type">Promoter share</span></li>
 <li><a href="/stocks/HIMSTAR/">Him Star Urja Company Limited (HIMSTAR)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/HLBSL/">Himalayan Laghubitta Bittiya Sanstha Limited (HLBSL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/HLI/">Himalayan Life Insurance Limited (HLI)</a> <span class="sp-type">Equity</span></li>
@@ -319,7 +328,7 @@ body{font-family:var(--nd-font-sans,Inter,system-ui,-apple-system,Segoe UI,sans-
 <li><a href="/stocks/JBBD87/">JBBD87 (JBBD87)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/JBBL/">Jyoti Bikas Bank Limited (JBBL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/JBLB/">Jeevan Bikas Laghubitta  Bittya Sanstha Ltd (JBLB)</a> <span class="sp-type">Equity</span></li>
-<li><a href="/stocks/JBLBP/">JBLBP (JBLBP)</a> <span class="sp-type">Equity</span></li>
+<li><a href="/stocks/JBLBP/">JBLBP (JBLBP)</a> <span class="sp-type">Promoter share</span></li>
 <li><a href="/stocks/JFL/">Janaki Finance Company Limited (JFL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/JHAPA/">Jhapa Energy Limited (JHAPA)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/JOSHI/">Joshi Hydropower Development Company Ltd (JOSHI)</a> <span class="sp-type">Equity</span></li>
@@ -329,7 +338,7 @@ body{font-family:var(--nd-font-sans,Inter,system-ui,-apple-system,Segoe UI,sans-
 <li><a href="/stocks/KBLD86/">10.25% KBL Debenture 2086 (KBLD86)</a> <span class="sp-type">Debenture</span></li>
 <li><a href="/stocks/KBLD89/">11% KBL Debenture 2089 (KBLD89)</a> <span class="sp-type">Debenture</span></li>
 <li><a href="/stocks/KBLD90/">KBLD90 (KBLD90)</a> <span class="sp-type">Equity</span></li>
-<li><a href="/stocks/KBLPO/">KBLPO (KBLPO)</a> <span class="sp-type">Equity</span></li>
+<li><a href="/stocks/KBLPO/">KBLPO (KBLPO)</a> <span class="sp-type">Promoter share</span></li>
 <li><a href="/stocks/KBSH/">Kutheli Bukhari Small Hydropower Limited (KBSH)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/KDBY/">Kumari Dhanabriddhi Yojana (KDBY)</a> <span class="sp-type">Mutual fund</span></li>
 <li><a href="/stocks/KDL/">Kalinchowk Darshan Limited (KDL)</a> <span class="sp-type">Equity</span></li>
@@ -339,8 +348,8 @@ body{font-family:var(--nd-font-sans,Inter,system-ui,-apple-system,Segoe UI,sans-
 <li><a href="/stocks/KMCDB/">Kalika Laghubitta Bittiya Sanstha Ltd (KMCDB)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/KPCL/">Kalika power Company Ltd (KPCL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/KSBBL/">Kamana Sewa Bikas Bank Limited (KSBBL)</a> <span class="sp-type">Equity</span></li>
-<li><a href="/stocks/KSLY/">Kumari Sunaulo Lagani Yojana (KSLY)</a> <span class="sp-type">Mutual fund</span></li>
 <li><a href="/stocks/KSBBLD87/">9% Kamana Sewa Bikas Bank Limited Debenture 2087 (KSBBLD87)</a> <span class="sp-type">Debenture</span></li>
+<li><a href="/stocks/KSLY/">Kumari Sunaulo Lagani Yojana (KSLY)</a> <span class="sp-type">Mutual fund</span></li>
 <li><a href="/stocks/KSY/">Kumari Sabal Yojana (KSY)</a> <span class="sp-type">Mutual fund</span></li>
 <li><a href="/stocks/LBBL/">Lumbini Bikas Bank Ltd. (LBBL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/LBBLD89/">11% L.B.B.L. Debenture 2089 (LBBLD89)</a> <span class="sp-type">Debenture</span></li>
@@ -351,7 +360,7 @@ body{font-family:var(--nd-font-sans,Inter,system-ui,-apple-system,Segoe UI,sans-
 <li><a href="/stocks/LSH12/">LS Horizon 12 (LSH12)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/LSL/">Laxmi Sunrise Bank Limited (LSL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/LUK/">Laxmi Unnati Kosh (LUK)</a> <span class="sp-type">Mutual fund</span></li>
-<li><a href="/stocks/LVF2/">LVF2 (LVF2)</a> <span class="sp-type">Equity</span></li>
+<li><a href="/stocks/LVF2/">Laxmi Value Fund 2 (LVF2)</a> <span class="sp-type">Mutual fund</span></li>
 <li><a href="/stocks/MABEL/">Mabilung Energy Limited (MABEL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/MAKAR/">Makar Jitumaya Suri Hydropower Limited (MAKAR)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/MANDU/">Mandu Hydropower Limited (MANDU)</a> <span class="sp-type">Equity</span></li>
@@ -368,8 +377,8 @@ body{font-family:var(--nd-font-sans,Inter,system-ui,-apple-system,Segoe UI,sans-
 <li><a href="/stocks/MEPDL/">Mount Everest Power Development Limited (MEPDL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/MERO/">Mero Microfinance Bittiya Sanstha Ltd. (MERO)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/MFIL/">Manjushree Finance Ltd. (MFIL)</a> <span class="sp-type">Equity</span></li>
-<li><a href="/stocks/MHCL/">Molung Hydropower Company Limited (MHCL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/MFLD85/">9.5% Manjushree Finance Limited Debenture 2085 (MFLD85)</a> <span class="sp-type">Debenture</span></li>
+<li><a href="/stocks/MHCL/">Molung Hydropower Company Limited (MHCL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/MHL/">Mandakini Hydropower Limited (MHL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/MHNL/">Mountain Hydro Nepal Limited (MHNL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/MKCL/">Muktinath Krishi Company Limited (MKCL)</a> <span class="sp-type">Equity</span></li>
@@ -379,32 +388,32 @@ body{font-family:var(--nd-font-sans,Inter,system-ui,-apple-system,Segoe UI,sans-
 <li><a href="/stocks/MLBBL/">Mithila LaghuBitta Bittiya Sanstha Limited (MLBBL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/MLBL/">Mahalaxmi Bikas Bank Ltd. (MLBL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/MLBLD89/">11% Mahalaxmi Debenture 2089 (MLBLD89)</a> <span class="sp-type">Debenture</span></li>
-<li><a href="/stocks/MLBLPO/">MLBLPO (MLBLPO)</a> <span class="sp-type">Equity</span></li>
+<li><a href="/stocks/MLBLPO/">MLBLPO (MLBLPO)</a> <span class="sp-type">Promoter share</span></li>
 <li><a href="/stocks/MLBS/">Manushi Laghubitta Bittiya Sanstha Limited (MLBS)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/MLBSL/">Mahila Lagubitta Bittiya Sanstha Limited  (MLBSL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/MMF1/">Mega Mutual Fund -1 (MMF1)</a> <span class="sp-type">Mutual fund</span></li>
 <li><a href="/stocks/MMKJL/">Mathillo Mailun Khola Jalvidhyut Limited (MMKJL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/MNBBL/">Muktinath Bikas Bank Ltd. (MNBBL)</a> <span class="sp-type">Equity</span></li>
-<li><a href="/stocks/MNMF1/">Muktinath Mutual Fund 1 (MNMF1)</a> <span class="sp-type">Mutual fund</span></li>
 <li><a href="/stocks/MND84-85/">Muktinath Debenture 2084/85 (MND84/85)</a> <span class="sp-type"></span></li>
+<li><a href="/stocks/MNMF1/">Muktinath Mutual Fund 1 (MNMF1)</a> <span class="sp-type">Mutual fund</span></li>
 <li><a href="/stocks/MPFL/">Multipurpose Finance Company  Limited (MPFL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/MSHL/">Mid Solu Hydropower Limited (MSHL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/MSIP/">Machhapuchchhre SIP Yojana (MSIP)</a> <span class="sp-type">Mutual fund</span></li>
 <li><a href="/stocks/MSLB/">Mahuli Laghubitta Bittiya Sanstha Limited (MSLB)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/NABBC/">Narayani Development Bank Limited (NABBC)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/NABIL/">Nabil Bank Limited (NABIL)</a> <span class="sp-type">Equity</span></li>
-<li><a href="/stocks/NABILD2089/">NABILD2089 (NABILD2089)</a> <span class="sp-type">Equity</span></li>
+<li><a href="/stocks/NABILD2089/">7% Nabil Debenture 2089 (NABILD2089)</a> <span class="sp-type">Debenture</span></li>
 <li><a href="/stocks/NABILD87/">NABILD87 (NABILD87)</a> <span class="sp-type">Equity</span></li>
-<li><a href="/stocks/NADDF/">NIC Asia Dynamic Debt Fund (NADDF)</a> <span class="sp-type">Mutual fund</span></li>
 <li><a href="/stocks/NABILP/">NABIL Bank Limited Promotor Share (NABILP)</a> <span class="sp-type"></span></li>
+<li><a href="/stocks/NADDF/">NIC Asia Dynamic Debt Fund (NADDF)</a> <span class="sp-type">Mutual fund</span></li>
 <li><a href="/stocks/NADEP/">Nadep Laghubittiya bittya Sanstha Ltd. (NADEP)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/NBBD2085/">NBBD2085 (NBBD2085)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/NBF2/">NABIL BALANCED FUND-2 (NBF2)</a> <span class="sp-type">Mutual fund</span></li>
 <li><a href="/stocks/NBF3/">Nabil Balanced Fund-3 (NBF3)</a> <span class="sp-type">Mutual fund</span></li>
 <li><a href="/stocks/NBL/">Nepal Bank Limited (NBL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/NBLD82/">NBLD82 (NBLD82)</a> <span class="sp-type">Equity</span></li>
-<li><a href="/stocks/NBLD87/">8.5% Nepal Bank Debenture 2087 (NBLD87)</a> <span class="sp-type">Debenture</span></li>
 <li><a href="/stocks/NBLD85/">Nabil Debenture 2085 (NBLD85)</a> <span class="sp-type">Debenture</span></li>
+<li><a href="/stocks/NBLD87/">8.5% Nepal Bank Debenture 2087 (NBLD87)</a> <span class="sp-type">Debenture</span></li>
 <li><a href="/stocks/NCCD86/">9.5% NCC Debenture 2086 (NCCD86)</a> <span class="sp-type">Debenture</span></li>
 <li><a href="/stocks/NESDO/">NESDO Sambridha Laghubitta Bittiya Sanstha Limited (NESDO)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/NFCF/">Nabil Flexi Cap Fund (NFCF)</a> <span class="sp-type">Mutual fund</span></li>
@@ -422,8 +431,8 @@ body{font-family:var(--nd-font-sans,Inter,system-ui,-apple-system,Segoe UI,sans-
 <li><a href="/stocks/NICAD2091/">7% NIC ASIA Debenture 2091 (NICAD2091)</a> <span class="sp-type">Debenture</span></li>
 <li><a href="/stocks/NICAD85-86/">NICAD85/86 (NICAD85/86)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/NICBF/">NIC Asia Balanced Fund (NICBF)</a> <span class="sp-type">Mutual fund</span></li>
-<li><a href="/stocks/NICFC/">NIC Asia Flexi CAP Fund (NICFC)</a> <span class="sp-type">Mutual fund</span></li>
 <li><a href="/stocks/NICD88/">NIC ASIA Rinpatra 2088 (NICD88)</a> <span class="sp-type"></span></li>
+<li><a href="/stocks/NICFC/">NIC Asia Flexi CAP Fund (NICFC)</a> <span class="sp-type">Mutual fund</span></li>
 <li><a href="/stocks/NICGF2/">NIC ASIA Growth Fund-2 (NICGF2)</a> <span class="sp-type">Mutual fund</span></li>
 <li><a href="/stocks/NICL/">Nepal Insurance Co. Ltd. (NICL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/NICLBSL/">NIC ASIA Laghubitta Bittiya Sanstha Limited (NICLBSL)</a> <span class="sp-type">Equity</span></li>
@@ -438,19 +447,19 @@ body{font-family:var(--nd-font-sans,Inter,system-ui,-apple-system,Segoe UI,sans-
 <li><a href="/stocks/NLG/">NLG Insurance Company Ltd. (NLG)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/NLIC/">Nepal Life Insurance Co. Ltd. (NLIC)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/NLICL/">National Life Insurance Co. Ltd. (NLICL)</a> <span class="sp-type">Equity</span></li>
-<li><a href="/stocks/NMB/">NMB Bank Limited (NMB)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/NLO/">Nepal Lube Oil Limited (NLO)</a> <span class="sp-type"></span></li>
+<li><a href="/stocks/NMB/">NMB Bank Limited (NMB)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/NMB50/">NMB50 (NMB50)</a> <span class="sp-type">Equity</span></li>
-<li><a href="/stocks/NMBD87-88/">NMBD87/88 (NMBD87/88)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/NMBD2085/">10 % NMB DEBENTURE 2085 (NMBD2085)</a> <span class="sp-type">Debenture</span></li>
-<li><a href="/stocks/NMBHF2/">NMB Hybrid Fund L- II (NMBHF2)</a> <span class="sp-type">Mutual fund</span></li>
+<li><a href="/stocks/NMBD87-88/">NMBD87/88 (NMBD87/88)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/NMBD89-90/">NMB Debenture 10.75%-2089/90 (NMBD89/90)</a> <span class="sp-type">Debenture</span></li>
+<li><a href="/stocks/NMBHF2/">NMB Hybrid Fund L- II (NMBHF2)</a> <span class="sp-type">Mutual fund</span></li>
 <li><a href="/stocks/NMBMF/">NMBMF (NMBMF)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/NMBSBFE/">NMB Saral Bachat Fund - E (NMBSBFE)</a> <span class="sp-type">Mutual fund</span></li>
-<li><a href="/stocks/NMFBS/">National Laghubitta Bittiya Sanstha Limited (NMFBS)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/NMBUR93-94/">NMB Energy Bond 4% - 2093/94 (NMBUR93/94)</a> <span class="sp-type">Equity</span></li>
-<li><a href="/stocks/NMIC/">Nepal Micro Insurance Company Limited (NMIC)</a> <span class="sp-type">Equity</span></li>
+<li><a href="/stocks/NMFBS/">National Laghubitta Bittiya Sanstha Limited (NMFBS)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/NMFBSP/">National Laghubitta Bittiya Sanstha Limited Promoter (NMFBSP)</a> <span class="sp-type">Promoter share</span></li>
+<li><a href="/stocks/NMIC/">Nepal Micro Insurance Company Limited (NMIC)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/NMLBBL/">Nerude Mirmire Laghubitta Bittiya Sanstha Limited (NMLBBL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/NMLBBLP/">Nerude Mirmire Laghubitta Bittiya Sanstha Limited Promoter (NMLBBLP)</a> <span class="sp-type">Promoter share</span></li>
 <li><a href="/stocks/NRIC/">Nepal Reinsurance Company Limited (NRIC)</a> <span class="sp-type">Equity</span></li>
@@ -464,13 +473,14 @@ body{font-family:var(--nd-font-sans,Inter,system-ui,-apple-system,Segoe UI,sans-
 <li><a href="/stocks/NYADI/">Nyadi Hydropower Limited (NYADI)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/OHL/">Oriental Hotels Limited (OHL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/OMPL/">Om Megashree Pharmaceuticals Limited (OMPL)</a> <span class="sp-type">Equity</span></li>
-<li><a href="/stocks/PBD85/">8.75 % Prime Debenture 2085 (PBD85)</a> <span class="sp-type">Debenture</span></li>
 <li><a href="/stocks/PBD84/">10.15% Prime Debenture 2084 (PBD84)</a> <span class="sp-type">Debenture</span></li>
+<li><a href="/stocks/PBD85/">8.75 % Prime Debenture 2085 (PBD85)</a> <span class="sp-type">Debenture</span></li>
 <li><a href="/stocks/PBD88/">10% Prime Debenture 2088 (PBD88)</a> <span class="sp-type">Debenture</span></li>
 <li><a href="/stocks/PBD93/">6.25% Prime Bank Debenture, 2093 (PBD93)</a> <span class="sp-type">Debenture</span></li>
 <li><a href="/stocks/PBLD84/">PBLD84 (PBLD84)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/PBLD87/">PBLD87 (PBLD87)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/PCBL/">Prime Commercial Bank Ltd. (PCBL)</a> <span class="sp-type">Equity</span></li>
+<li><a href="/stocks/PCBLP/">Prime Commercial Bank Limited Promoter (PCBLP)</a> <span class="sp-type">Promoter share</span></li>
 <li><a href="/stocks/PCIL/">Palpa Cement Industries Limited (PCIL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/PFL/">Pokhara Finance Ltd. (PFL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/PHCL/">Peoples Hydropower Company Limited (PHCL)</a> <span class="sp-type">Equity</span></li>
@@ -480,10 +490,11 @@ body{font-family:var(--nd-font-sans,Inter,system-ui,-apple-system,Segoe UI,sans-
 <li><a href="/stocks/PPL/">People's Power Limited (PPL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/PRIN/">Prabhu Insurance Ltd. (PRIN)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/PROFL/">Progressive Finance Limited (PROFL)</a> <span class="sp-type">Equity</span></li>
+<li><a href="/stocks/PROFLP/">Progressive Finance Limited Promoter (PROFLP)</a> <span class="sp-type">Promoter share</span></li>
 <li><a href="/stocks/PRSF/">Prabhu Smart Fund (PRSF)</a> <span class="sp-type">Mutual fund</span></li>
 <li><a href="/stocks/PRVU/">Prabhu  Bank Limited (PRVU)</a> <span class="sp-type">Equity</span></li>
-<li><a href="/stocks/PSF/">Prabhu Select Fund (PSF)</a> <span class="sp-type">Mutual fund</span></li>
 <li><a href="/stocks/PRVUPO/">Prabhu  Bank Limited Promoter Share (PRVUPO)</a> <span class="sp-type">Promoter share</span></li>
+<li><a href="/stocks/PSF/">Prabhu Select Fund (PSF)</a> <span class="sp-type">Mutual fund</span></li>
 <li><a href="/stocks/PSIS/">Prabhu Systematic Investment Scheme (PSIS)</a> <span class="sp-type">Mutual fund</span></li>
 <li><a href="/stocks/PURE/">Pure Energy Limited (PURE)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/RADHI/">Radhi Bidyut Company Ltd (RADHI)</a> <span class="sp-type">Equity</span></li>
@@ -492,7 +503,7 @@ body{font-family:var(--nd-font-sans,Inter,system-ui,-apple-system,Segoe UI,sans-
 <li><a href="/stocks/RBBD83/">RBBD83 (RBBD83)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/RBBF40/">RBB Focus 40 (RBBF40)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/RBCL/">Rastriya Beema Company Limited (RBCL)</a> <span class="sp-type">Equity</span></li>
-<li><a href="/stocks/RBCLPO/">RBCLPO (RBCLPO)</a> <span class="sp-type">Equity</span></li>
+<li><a href="/stocks/RBCLPO/">RBCLPO (RBCLPO)</a> <span class="sp-type">Promoter share</span></li>
 <li><a href="/stocks/RFPL/">River Falls Power Limited (RFPL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/RHGCL/">Rapti Hydro And General Construction Limited (RHGCL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/RHPL/">RASUWAGADHI HYDROPOWER COMPANY LIMITED (RHPL)</a> <span class="sp-type">Equity</span></li>
@@ -515,13 +526,14 @@ body{font-family:var(--nd-font-sans,Inter,system-ui,-apple-system,Segoe UI,sans-
 <li><a href="/stocks/SAHAS/">Sahas Urja Limited (SAHAS)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/SAIL/">Shreenagar Agritech Industries Limited (SAIL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/SALICO/">Sagarmatha Lumbini Insurance Co. Limited (SALICO)</a> <span class="sp-type">Equity</span></li>
+<li><a href="/stocks/SAND2085/">10% Sanima Bank Limited Debenture 2085 (SAND2085)</a> <span class="sp-type">Debenture</span></li>
 <li><a href="/stocks/SANIMA/">Sanima Bank Limited (SANIMA)</a> <span class="sp-type">Equity</span></li>
-<li><a href="/stocks/SAND2085/">10% Sanima Bank Limited Debenture (SAND2085)</a> <span class="sp-type">Debenture</span></li>
 <li><a href="/stocks/SANVI/">Sanvi Energy Limited (SANVI)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/SAPDBL/">Saptakoshi Development Bank Ltd (SAPDBL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/SAPIL/">Sarvottam Paints Industries Limited (SAPIL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/SARBTM/">Sarbottam Cement Limited (SARBTM)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/SBCF/">Sunrise Bluechip Fund (SBCF)</a> <span class="sp-type">Mutual fund</span></li>
+<li><a href="/stocks/SBD89/">10.25% Sanima Debenture 2089 (SBD89)</a> <span class="sp-type">Debenture</span></li>
 <li><a href="/stocks/SBI/">Nepal SBI Bank Limited (SBI)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/SBIBD86/">SBIBD86 (SBIBD86)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/SBID2090/">7% Nepal SBI Bank Debenture 2090 (SBID2090)</a> <span class="sp-type">Debenture</span></li>
@@ -532,7 +544,7 @@ body{font-family:var(--nd-font-sans,Inter,system-ui,-apple-system,Segoe UI,sans-
 <li><a href="/stocks/SBLD84/">SBLD84 (SBLD84)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/SBLD89/">10.75% SBL Debenture 2089 (SBLD89)</a> <span class="sp-type">Debenture</span></li>
 <li><a href="/stocks/SCB/">Standard Chartered Bank Limited (SCB)</a> <span class="sp-type">Equity</span></li>
-<li><a href="/stocks/SCBD/">SCBD (SCBD)</a> <span class="sp-type">Equity</span></li>
+<li><a href="/stocks/SCBD/">10.30% Standard Chartered Bank Limited Debenture (SCBD)</a> <span class="sp-type">Debenture</span></li>
 <li><a href="/stocks/SDBD87/">Shangri-la Development Bank Debenture 2087 (SDBD87)</a> <span class="sp-type">Debenture</span></li>
 <li><a href="/stocks/SEF/">Siddhartha Equity Fund (SEF)</a> <span class="sp-type">Mutual fund</span></li>
 <li><a href="/stocks/SEF2/">Siddhartha Equity Fund 2 (SEF2)</a> <span class="sp-type">Mutual fund</span></li>
@@ -582,10 +594,10 @@ body{font-family:var(--nd-font-sans,Inter,system-ui,-apple-system,Segoe UI,sans-
 <li><a href="/stocks/SPHL/">Sayapatri Hydropower Limited (SPHL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/SPIL/">Siddhartha Premier Insurance Limited (SPIL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/SPL/">Shuvam Power Limited (SPL)</a> <span class="sp-type">Equity</span></li>
+<li><a href="/stocks/SRBLD83/">SRBLD83 (SRBLD83)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/SRLI/">Sanima Reliance Life Insurance Limited (SRLI)</a> <span class="sp-type">Equity</span></li>
-<li><a href="/stocks/SRBLD83/">10.25% Sunrise Bank Debenture 2083 (SRBLD83)</a> <span class="sp-type">Debenture</span></li>
-<li><a href="/stocks/SSHL/">Shiva Shree Hydropower Ltd (SSHL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/SRLIP/">Sanima Reliance Life Insurance Limited Promoter Share (SRLIP)</a> <span class="sp-type">Promoter share</span></li>
+<li><a href="/stocks/SSHL/">Shiva Shree Hydropower Ltd (SSHL)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/SSIS/">Siddhartha Systematic Investment Scheme (SSIS)</a> <span class="sp-type">Mutual fund</span></li>
 <li><a href="/stocks/STC/">Salt Trading Corporation (STC)</a> <span class="sp-type">Equity</span></li>
 <li><a href="/stocks/SWASTIK/">Swastik Laghubitta Bittiya Sanstha Limited (SWASTIK)</a> <span class="sp-type">Equity</span></li>
@@ -620,9 +632,9 @@ body{font-family:var(--nd-font-sans,Inter,system-ui,-apple-system,Segoe UI,sans-
 <p class="sp-disc">Educational use only, not investment advice.</p>
 </main>
 <div id="nd-footer"></div>
-<script src="/js/nd-chrome.js?v=74c1c8b7" defer></script>
-<script src="/js/theme-toggle.js?v=6a6a46c6" defer></script>
-<script src="/js/stock-live.js?v=6a188f31" defer></script>
-<script src="/js/val-lab.js?v=6d559156" defer></script>
+<script src="/js/nd-chrome.js?v=20261023d" defer></script>
+<script src="/js/theme-toggle.js?v=20261023d" defer></script>
+<script src="/js/stock-live.js?v=20261023d" defer></script>
+<script src="/js/val-lab.js?v=20261023d" defer></script>
 </body>
 </html>
