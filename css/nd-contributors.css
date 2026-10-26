@@ -3,6 +3,11 @@
    components composed from css/nd-cinema.css cx-* kit). */
 body{ font-family: var(--nd-font-sans); }
 
+/* Canvas pin, scoped to this page only (this sheet loads only here):
+   nothing in the shared chain ever paints body with --nd-bg, so the
+   canvas was the browser default. Overview tokens, both themes. */
+body[data-page="contributors"]{ background: var(--nd-bg); }
+
 /* the master head stack carries no skip-link rule (it lives in legacy
    sheets); the standard visually-hidden-until-focus pattern, tokened */
 .skip-link{
@@ -21,6 +26,7 @@ body{ font-family: var(--nd-font-sans); }
 }
 .ct-lede{ font-size: var(--step-2); line-height: 1.65; color: var(--nd-text); max-width: 72ch; margin: 0 0 var(--nd-s2); }
 .ct-meta{ font: 400 var(--step-0) var(--nd-font-mono); color: var(--nd-dim); margin: var(--nd-s3) 0 0; }
+.ct-refresh{ font: 400 var(--step-0) var(--nd-font-mono); color: var(--nd-dim); margin: var(--nd-s2) 0 0; }
 
 /* live / final board banner (design-master honesty chips: live green,
    final neutral — amber is reserved for CLOSED badges) */
@@ -30,7 +36,7 @@ body{ font-family: var(--nd-font-sans); }
 }
 .ct-livechip{
   display: inline-block; padding: 2px 10px; border-radius: 999px;
-  background: rgba(74, 222, 128, .14); color: #4ADE80;
+  background: var(--nd-up-soft); color: var(--nd-up);
   font: 700 var(--step-0) var(--nd-font-mono); letter-spacing: .06em;
   vertical-align: 1px;
 }
@@ -52,8 +58,11 @@ body{ font-family: var(--nd-font-sans); }
   background: var(--nd-lime); flex: none;
 }
 .ct-h2-sec{ margin: 0 2px var(--nd-s2); }
-.ct-catsec{ margin-top: var(--nd-s8); }
-.ct-chartsub{ font: 400 var(--step-1) var(--nd-font-sans); color: var(--nd-dim); margin: 0 2px var(--nd-s3); line-height: 1.55; }
+.ct-catsec{ margin-top: var(--nd-s8); background: var(--nd-panel);
+  border: 1px solid var(--nd-border); border-radius: var(--nd-r-card);
+  padding: var(--nd-s5) var(--nd-s5) var(--nd-s4);
+  box-shadow: var(--nd-rim), var(--nd-e2); }
+.ct-chartsub{ font: 400 var(--step-1) var(--nd-font-sans); color: var(--nd-dim); margin: 0 2px var(--nd-s3); line-height: 1.55; max-width: 78ch; }
 .ct-subh{ font: 600 var(--step-2) var(--nd-font-display); color: var(--nd-text); margin: 0 2px var(--nd-s3); }
 
 .ct-tablewrap{ border: 1px solid var(--nd-border); border-radius: var(--nd-r-card); background: var(--nd-panel); margin-top: var(--nd-s3); }
@@ -76,7 +85,33 @@ body{ font-family: var(--nd-font-sans); }
 #sectorBars .cx-rank-row{ grid-template-columns: 26px minmax(0, 1fr) auto; }
 #sectorBars .cx-rank-sym{ white-space: normal; overflow-wrap: anywhere; min-width: 0; }
 
-.ct-dist{ margin-top: var(--nd-s3); }
+/* centre-zero diverging tracks (sector bars, gross bar): the zero line
+   sits at 50% and fills extend left (down) or right (up) from it */
+.ct-centre-track{ position: relative; }
+.ct-zero{ position: absolute; left: 50%; top: 0; bottom: 0; width: 1px;
+  background: var(--nd-border); }
+#sectorBars .cx-rank-fill{ position: absolute; top: 0; bottom: 0; }
+.ct-gross-fill{ position: absolute; top: 0; bottom: 0; }
+.ct-gross-fill.up{ background: var(--nd-up); }
+.ct-gross-fill.down{ background: var(--nd-down); }
+.ct-dist-ends{ display: flex; justify-content: space-between; margin-top: 6px;
+  font-family: var(--nd-font-mono); font-size: 12.5px; }
+.ct-dist-zero{ color: var(--nd-dim); }
+
+.ct-pagerow{ display: flex; justify-content: center; margin-top: var(--nd-s3); }
+.ct-pager{ display: flex; align-items: center; gap: 12px; }
+.ct-pageinfo{ font-family: var(--nd-font-mono); font-size: 12.5px; color: var(--nd-dim); }
+
+.ct-secsum{ font-size: var(--step-1); line-height: 1.6; color: var(--nd-text); margin: var(--nd-s2) 2px 0; }
+.ct-count{ font-family: var(--nd-font-mono); font-size: 12.5px; color: var(--nd-dim); margin: var(--nd-s2) 2px 0; }
+.ct-secclear{ margin-top: var(--nd-s3); }
+.ct-clickrow{ cursor: pointer; }
+.ct-ptbar-track{ position: relative; display: block; height: 8px; min-width: 110px;
+  border: 1px solid var(--nd-border); border-radius: 4px; overflow: hidden;
+  background: var(--nd-panel-2, var(--nd-panel)); }
+.ct-ptbar-fill{ position: absolute; top: 0; bottom: 0; }
+.ct-ptbar-fill.up{ background: var(--nd-up); }
+.ct-ptbar-fill.down{ background: var(--nd-down); }
 .ct-dist-bar{ display: flex; height: 12px; border-radius: 6px; overflow: hidden;
   border: 1px solid var(--nd-border); }
 .ct-dist-legend{ display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 8px;
@@ -110,3 +145,11 @@ body{ font-family: var(--nd-font-sans); }
 .ct-fine{ font: 400 var(--step-0) var(--nd-font-sans); color: var(--nd-dim); margin: var(--nd-s6) 2px var(--nd-s2); line-height: 1.55; max-width: 78ch; }
 
 @media (max-width: 760px){ .ct-tablewrap .cx-table{ min-width: 900px; } }
+
+/* Sector tab strip: a single .cx-seg pill row. On narrow viewports the strip
+   is wider than the screen while body/html clip horizontal page scroll
+   (shared chrome), which left the rightmost tabs unreachable on phones
+   (measured 390px: strip 1208px, Hydropower button at x=501, page cannot
+   scroll sideways). Make the strip itself the scroll container, scoped to
+   this page only; the shared .cx-seg rules are untouched. */
+#sectorTabs{ max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }

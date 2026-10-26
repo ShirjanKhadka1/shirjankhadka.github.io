@@ -40,7 +40,7 @@
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
-<link rel="stylesheet" href="/css/nd-contributors.css?v=339f81ce">
+<link rel="stylesheet" href="/css/nd-contributors.css?v=b307446e">
 </head>
 <body class="nd" data-page="contributors">
 
@@ -66,6 +66,7 @@
       cannot explain stays in that residual, with its causes — never netted away,
       never hidden.</p>
     <p class="ct-meta"><span id="ctSession">Loading…</span></p>
+    <p class="ct-refresh" id="ctRefresh"></p>
     <div id="ctLiveBar"></div>
   </div>
 
@@ -174,7 +175,37 @@
         <tbody id="boardBody"><tr><td colspan="10" class="ct-loading">Loading the board…</td></tr></tbody>
       </table>
     </div>
+    <div class="ct-pagerow"><div class="ct-pager" id="boardPager"></div></div>
     <p class="cx-cap" id="boardCount"></p>
+  </section>
+
+  <section class="ct-catsec" aria-label="Stocks in the selected sector" id="sectorBlock">
+    <h2 class="ct-h2 ct-h2-sec">Stocks in the selected sector</h2>
+    <p class="ct-chartsub">The full stock list of one sector on the selected
+      board — every row still carries the LTP, the change, the weightage,
+      the volume, the turnover and the index points, so points = shares ×
+      price change ÷ divisor checks row by row. The bars are the points
+      against a centre zero, scaled to the sector's widest move. The block
+      follows the sector tab and the symbol search, and pages 25 stocks at
+      a time.</p>
+    <p class="ct-secsum" id="secSum"></p>
+    <div id="secBlockWrap">
+      <p class="ct-count" id="secBlockCount"></p>
+      <div class="cx-scroll ct-tablewrap">
+        <table class="cx-table" id="secBlockTable">
+          <thead><tr>
+            <th>Symbol</th>
+            <th class="num">LTP</th><th class="num">Change</th>
+            <th class="num">Weightage</th><th class="num">Volume</th>
+            <th class="num">Turnover</th><th class="num">Points</th>
+            <th>Points vs zero</th><th class="num">In sector</th>
+          </tr></thead>
+          <tbody id="secBlockBody"></tbody>
+        </table>
+      </div>
+      <div class="ct-pagerow"><div class="ct-pager" id="secBlockPager"></div></div>
+    </div>
+    <div class="ct-secclear"><button type="button" class="cx-btn quiet" id="secClearBtn">Show full board</button></div>
   </section>
 
   <section class="ct-catsec" aria-label="Not scored">
@@ -246,6 +277,19 @@
         board — priced on final revised closes — replaces it on this same
         page, and the final board is the one that enters the record below.
         Outside market hours the page shows the last final board.</p>
+      <p><strong>Refreshing.</strong> This page re-checks for a new board
+        every five minutes during market hours, every thirty minutes
+        otherwise, and every two hours on weekends; it only re-renders when
+        a board has actually changed — a new session, a newer quotes
+        as-of time, or the live board giving way to the final one — and
+        your sector tab and symbol search survive the refresh. A status
+        line under the session line reports the board session, the mode
+        (LIVE provisional with its quotes as-of time, or FINAL), and the
+        last refresh check, including failed checks.</p>
+      <p><strong>Paging.</strong> The full board shows 25 stocks at a time
+        with Prev and Next and a "Showing X–Y of Z" line; changing the
+        sector tab or the search returns you to the first page. The
+        sector-stocks block pages the same way.</p>
       <p><strong>The stop rule.</strong> If the residual ever exceeds ±2.5
         index points, or the scored board's coverage of the official total
         market capitalisation falls under 85%, the daily build fails instead
@@ -277,6 +321,6 @@
 <div id="nd-footer"></div>
 <script src="/js/nd-chrome.js?v=74c1c8b7"></script>
 <script src="/js/freshness-badge.js?v=9b77cf10" defer></script>
-<script src="/js/contributors.js?v=5edea6de"></script>
+<script src="/js/contributors.js?v=6f50481c"></script>
 </body>
 </html>

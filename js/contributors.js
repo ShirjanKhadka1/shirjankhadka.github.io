@@ -4,7 +4,10 @@
   'use strict';
   var DATA_URL = '/data/contributors.json?v=20261024c';
   var PAYLOAD = null;
-  var state = { sector: 'All', q: '' };
+  var PAGE_SIZE = 25;
+  var state = { sector: 'All', q: '', page: 1, secPage: 1 };
+  var refreshTimer = null;
+  var searchBound = false;
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -99,7 +102,7 @@
            (live ? ' at the previous close' : '') }
     ];
     document.getElementById('statStrip').innerHTML = stats.map(function (x) {
-      return '<div class="cx-stat"><p class="cx-stat-k">' + esc(x.k) +
+      return '<div class="cx-stat"><p class="cx-stat-l">' + esc(x.k) +
         '</p><p class="cx-stat-v">' + esc(x.v) +
         '</p><p class="cx-stat-s">' + esc(x.s) + '</p></div>';
     }).join('');
@@ -139,19 +142,21 @@
       return Math.abs(s.points);
     }).concat([0.01]));
     document.getElementById('sectorBars').innerHTML = secs.map(function (s, i) {
+      var w = 50 * Math.abs(s.points) / max;
+      var left = s.points < 0 ? 50 - w : 50;
       return '<li class="cx-rank-row"><span class="cx-rank-n">' + (i + 1) +
         '</span><span class="cx-rank-sym">' + esc(s.sector) + '</span>' +
         '<span class="cx-rank-val ' + cls(s.points) + '">' + pts(s.points, 3) +
-        '</span><span class="cx-rank-track"><span class="cx-rank-fill' +
-        (s.points < 0 ? ' down' : ' up') + '" style="width:' +
-        Math.max(2, Math.round(100 * Math.abs(s.points) / max)) +
-        '%"></span></span></li>';
+        '</span><span class="cx-rank-track ct-centre-track"><span class="ct-zero">' +
+        '</span><span class="cx-rank-fill' +
+        (s.points < 0 ? ' down' : ' up') + '" style="left:' + left.toFixed(1) +
+        '%;width:' + w.toFixed(1) + '%"></span></span></li>';
     }).join('');
   }
 
   function renderSectorTable() {
     var html = PAYLOAD.sectors.map(function (s) {
-      return '<tr><td class="ct-sector">' + esc(s.sector) + '</td>' +
+      return '<tr class="ct-clickrow" data-sec="' + esc(s.sector) + '"><td class="ct-sector">' + esc(s.sector) + '</td>' +
         '<td class="num">' + num(s.index_level) + '</td>' +
         '<td class="num ' + cls(s.change_pct) + '">' + pct(s.change_pct) + '</td>' +
         '<td class="num ' + cls(s.points) + '">' + pts(s.points, 3) + '</td>' +
@@ -177,6 +182,19 @@
       '</td><td class="num">' + (idx.change ? pts(idx.change < 0 ? -100 : 100) + '%' : '—') + '</td>' +
       '<td></td><td colspan="2"></td></tr>';
     document.getElementById('sectorBody').innerHTML = html;
+    Array.prototype.forEach.call(
+      document.querySelectorAll('#sectorBody tr.ct-clickrow'), function (tr) {
+        tr.addEventListener('click', function () {
+          selectSector(tr.getAttribute('data-sec'));
+        });
+      });
+  }
+
+  function selectSector(name) {
+    state.sector = name; state.page = 1; state.secPage = 1;
+    renderTabs(); renderBoard(); renderSectorBlock();
+    var b = document.getElementById('sectorBlock');
+    if (b && name !== 'All') b.scrollIntoView();
   }
 
   function renderGross() {
@@ -184,16 +202,17 @@
     var rs = rows();
     var gainers = rs.filter(function (x) { return x.points > 0; }).length;
     var losers = rs.filter(function (x) { return x.points < 0; }).length;
-    var gross = rec.gross_up + Math.abs(rec.gross_down);
-    var seg = '';
-    if (rec.gross_up > 0) {
-      seg += '<span style="display:block;width:' + (100 * rec.gross_up / gross) +
-        '%;background:var(--nd-up)"></span>';
-    }
+    var peak = Math.max(Math.abs(rec.gross_up), Math.abs(rec.gross_down), 0.01);
+    var upW = 50 * rec.gross_up / peak;
+    var downW = 50 * Math.abs(rec.gross_down) / peak;
+    var seg = '<span class="ct-zero"></span>';
     if (rec.gross_down < 0) {
-      seg += '<span style="display:block;width:' +
-        (100 * Math.abs(rec.gross_down) / gross) +
-        '%;background:var(--nd-down)"></span>';
+      seg += '<span class="ct-gross-fill down" style="left:' +
+        (50 - downW).toFixed(1) + '%;width:' + downW.toFixed(1) + '%"></span>';
+    }
+    if (rec.gross_up > 0) {
+      seg += '<span class="ct-gross-fill up" style="left:50%;width:' +
+        upW.toFixed(1) + '%"></span>';
     }
     var legend =
       '<span><span class="ct-dot" style="background:var(--nd-up)"></span>' +
@@ -203,9 +222,13 @@
       'Removed by losers <b>' + pts(rec.gross_down) + ' pts · ' + losers +
       ' stocks</b></span>';
     document.getElementById('grossBox').innerHTML =
-      '<div class="ct-dist-bar" role="img" aria-label="Gross movement: gainers added ' +
+      '<div class="ct-dist-bar ct-centre-track" role="img" aria-label="Gross movement: gainers added ' +
       pts(rec.gross_up) + ' points, losers removed ' + pts(rec.gross_down) +
-      ' points">' + seg + '</div><div class="ct-dist-legend">' + legend + '</div>';
+      ' points">' + seg + '</div>' +
+      '<div class="ct-dist-ends"><span class="' + cls(rec.gross_down) + '">' +
+      pts(rec.gross_down) + ' pts</span><span class="ct-dist-zero">0</span>' +
+      '<span class="' + cls(rec.gross_up) + '">' + pts(rec.gross_up) +
+      ' pts</span></div><div class="ct-dist-legend">' + legend + '</div>';
   }
 
   function renderRecon() {
@@ -276,25 +299,55 @@
   function renderTabs() {
     document.getElementById('sectorTabs').innerHTML =
       sectorList().map(function (s) {
+        var on = s === state.sector;
         return '<button type="button" role="tab" data-sec="' + esc(s) + '"' +
-          (s === state.sector ? ' class="on"' : '') + '>' + esc(s) + '</button>';
+          (on ? ' class="active" aria-pressed="true"' : ' aria-pressed="false"') +
+          '>' + esc(s) + '</button>';
       }).join('');
     Array.prototype.forEach.call(
       document.querySelectorAll('#sectorTabs button'), function (btn) {
         btn.addEventListener('click', function () {
-          state.sector = btn.getAttribute('data-sec'); renderTabs(); renderBoard();
+          selectSector(btn.getAttribute('data-sec'));
         });
       });
   }
 
-  function renderBoard() {
+  function pagerHTML(page, pages) {
+    return '<button type="button" class="cx-btn quiet"' +
+      (page <= 1 ? ' disabled' : '') + '>Prev</button>' +
+      '<span class="ct-pageinfo">Page ' + page + ' of ' + pages + '</span>' +
+      '<button type="button" class="cx-btn"' +
+      (page >= pages ? ' disabled' : '') + '>Next</button>';
+  }
+
+  function bindPager(elId, getPage, setPage, render) {
+    var btns = document.querySelectorAll('#' + elId + ' button');
+    if (btns[0]) btns[0].addEventListener('click', function () {
+      setPage(Math.max(1, getPage() - 1)); render();
+    });
+    if (btns[1]) btns[1].addEventListener('click', function () {
+      setPage(getPage() + 1); render();
+    });
+  }
+
+  function filteredRows() {
     var q = state.q.trim().toUpperCase();
-    var list = rows().filter(function (x) {
+    return rows().filter(function (x) {
       if (state.sector !== 'All' && x.sector !== state.sector) return false;
       if (q && x.symbol.indexOf(q) < 0) return false;
       return true;
     });
-    document.getElementById('boardBody').innerHTML = list.map(function (x) {
+  }
+
+  function renderBoard() {
+    var list = filteredRows();
+    var pages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+    if (state.page > pages) state.page = pages;
+    if (state.page < 1) state.page = 1;
+    var from = list.length === 0 ? 0 : (state.page - 1) * PAGE_SIZE + 1;
+    var to = Math.min(list.length, state.page * PAGE_SIZE);
+    var slice = list.slice((state.page - 1) * PAGE_SIZE, state.page * PAGE_SIZE);
+    document.getElementById('boardBody').innerHTML = slice.map(function (x) {
       return '<tr><td class="num">' + x.rank + '</td>' +
         '<td class="ct-sym">' + esc(x.symbol) +
         (x.traded ? '' : ' <span class="ct-notrade">no trade</span>') + '</td>' +
@@ -308,7 +361,80 @@
         '<td class="num ' + cls(x.points) + '">' + pts(x.points, 3) + '</td></tr>';
     }).join('') || '<tr><td colspan="10" class="ct-loading">No scored stock matches.</td></tr>';
     document.getElementById('boardCount').textContent =
-      'Showing ' + list.length + ' of ' + rows().length + ' scored stocks.';
+      'Showing ' + from + '–' + to + ' of ' + list.length + ' scored stocks.';
+    document.getElementById('boardPager').innerHTML =
+      pagerHTML(state.page, pages);
+    bindPager('boardPager', function () { return state.page; },
+      function (p) { state.page = p; }, renderBoard);
+  }
+
+  function renderSectorBlock() {
+    var wrap = document.getElementById('secBlockWrap');
+    var sumEl = document.getElementById('secSum');
+    if (!wrap || !sumEl) return;
+    if (state.sector === 'All') {
+      sumEl.textContent = 'Select a sector to see its stocks — pick a tab ' +
+        'above, or click a row in the sector table.';
+      wrap.style.display = 'none';
+      document.getElementById('secBlockCount').textContent = '';
+      document.getElementById('secBlockBody').innerHTML = '';
+      document.getElementById('secBlockPager').innerHTML = '';
+      return;
+    }
+    wrap.style.display = '';
+    var sec = null;
+    PAYLOAD.sectors.forEach(function (s) {
+      if (s.sector === state.sector) sec = s;
+    });
+    var list = filteredRows();
+    var pages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+    if (state.secPage > pages) state.secPage = pages;
+    if (state.secPage < 1) state.secPage = 1;
+    var from = list.length === 0 ? 0 : (state.secPage - 1) * PAGE_SIZE + 1;
+    var to = Math.min(list.length, state.secPage * PAGE_SIZE);
+    var slice = list.slice((state.secPage - 1) * PAGE_SIZE,
+      state.secPage * PAGE_SIZE);
+    var max = 0.01;
+    list.forEach(function (x) {
+      if (Math.abs(x.points) > max) max = Math.abs(x.points);
+    });
+    sumEl.innerHTML = '<b>' + esc(state.sector) + '</b> · ' +
+      list.length + ' stocks scored · contribution ' +
+      '<b class="' + cls(sec ? sec.points : 0) + '">' +
+      pts(sec ? sec.points : 0) + ' pts</b> · weightage ' +
+      (sec ? pts(sec.weight_pct) + '%' : '—') + ' · turnover ' +
+      (sec ? rsFmt(sec.turnover_rs) : '—') + ' · top contributor ' +
+      (sec ? '<span class="ct-sym">' + esc(sec.top_contributor.symbol) +
+        '</span> ' + pts(sec.top_contributor.points, 3) : '—') +
+      ' · top detractor ' +
+      (sec ? '<span class="ct-sym">' + esc(sec.top_detractor.symbol) +
+        '</span> ' + pts(sec.top_detractor.points, 3) : '—');
+    document.getElementById('secBlockCount').textContent =
+      'Showing ' + from + '–' + to + ' of ' + list.length +
+      ' stocks in ' + state.sector + '.';
+    document.getElementById('secBlockBody').innerHTML = slice.map(function (x, i) {
+      var w = 50 * Math.abs(x.points) / max;
+      var left = x.points < 0 ? 50 - w : 50;
+      return '<tr><td class="ct-sym">' + esc(x.symbol) +
+        (x.traded ? '' : ' <span class="ct-notrade">no trade</span>') + '</td>' +
+        '<td class="num">' + num(x.close) + '</td>' +
+        '<td class="num ' + cls(x.pct_change) + '">' + pct(x.pct_change) + '</td>' +
+        '<td class="num">' + Number(x.weight_pct).toFixed(2) + '%</td>' +
+        '<td class="num">' + intFmt(x.volume) + '</td>' +
+        '<td class="num">' + rsFmt(x.turnover_rs) + '</td>' +
+        '<td class="num ' + cls(x.points) + '">' + pts(x.points, 3) + '</td>' +
+        '<td><span class="ct-ptbar-track"><span class="ct-zero"></span>' +
+        '<span class="ct-ptbar-fill' + (x.points < 0 ? ' down' : ' up') +
+        '" style="left:' + left.toFixed(1) + '%;width:' + w.toFixed(1) +
+        '%"></span></span></td>' +
+        '<td class="num">' + ((state.secPage - 1) * PAGE_SIZE + i + 1) +
+        '</td></tr>';
+    }).join('') || '<tr><td colspan="9" class="ct-loading">No stock in ' +
+      esc(state.sector) + ' matches.</td></tr>';
+    document.getElementById('secBlockPager').innerHTML =
+      pagerHTML(state.secPage, pages);
+    bindPager('secBlockPager', function () { return state.secPage; },
+      function (p) { state.secPage = p; }, renderSectorBlock);
   }
 
   function namesList(items) {
@@ -358,15 +484,108 @@
   function renderAll() {
     renderSession(); renderLiveBar(); renderStats(); renderTopTables(); renderSectorBars();
     renderSectorTable(); renderGross(); renderRecon(); renderTabs();
-    renderBoard(); renderUnscored();
+    renderBoard(); renderSectorBlock(); renderUnscored();
+  }
+
+  /* Market-aware auto-refresh (sector-symbol pattern): re-check every 5 min
+     during market hours (11:00–15:00 Mon–Fri NPT), 30 min otherwise, 2 h on
+     weekends; re-render ONLY when the board actually changed (new asof, new
+     quotes_asof, or a LIVE → FINAL transition); sector tab and search
+     survive every refresh. The status line updates on every completed
+     check, failures included — never a blank. */
+  function nptNowParts() {
+    try {
+      var parts = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Asia/Kathmandu', weekday: 'short',
+        hour: '2-digit', minute: '2-digit', hour12: false
+      }).formatToParts(new Date());
+      var o = {};
+      parts.forEach(function (p) { o[p.type] = p.value; });
+      return o;
+    } catch (e) { return { weekday: 'Mon', hour: '12', minute: '00' }; }
+  }
+
+  function nptClock() {
+    var p = nptNowParts();
+    return p.hour + ':' + p.minute;
+  }
+
+  function refreshDelayMs() {
+    var p = nptNowParts();
+    var mins = parseInt(p.hour, 10) * 60 + parseInt(p.minute, 10);
+    if (p.weekday === 'Sat' || p.weekday === 'Sun') return 2 * 60 * 60 * 1000;
+    if (mins >= 11 * 60 && mins < 15 * 60) return 5 * 60 * 1000;
+    return 30 * 60 * 1000;
+  }
+
+  function boardKey(p) {
+    if (!p) return '';
+    return p.asof + '|' + (p.provisional ? 'LIVE:' + (p.quotes_asof || '') : 'FINAL');
+  }
+
+  function modeText() {
+    if (!PAYLOAD) return '';
+    if (isLive()) {
+      return 'LIVE provisional, quotes as of ' + nptTime(PAYLOAD.quotes_asof);
+    }
+    return 'FINAL';
+  }
+
+  function renderRefreshStatus(note) {
+    var el = document.getElementById('ctRefresh');
+    if (!el || !PAYLOAD) return;
+    el.textContent = note + ' · Board session ' + PAYLOAD.asof + ' · ' +
+      modeText() + ' · last refresh check ' + nptClock() + ' NPT';
+  }
+
+  function scheduleRefresh() {
+    if (refreshTimer) clearTimeout(refreshTimer);
+    refreshTimer = setTimeout(checkForUpdate, refreshDelayMs());
+  }
+
+  function checkForUpdate() {
+    if (document.hidden) { scheduleRefresh(); return; }
+    fetch(DATA_URL, { cache: 'no-cache' })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (p) {
+        if (boardKey(p) !== boardKey(PAYLOAD)) {
+          PAYLOAD = p;
+          renderAll();
+          renderRefreshStatus('Board updated');
+        } else {
+          renderRefreshStatus('Board unchanged');
+        }
+        scheduleRefresh();
+      })
+      .catch(function () {
+        renderRefreshStatus('Refresh check failed — still showing the last good board');
+        scheduleRefresh();
+      });
+  }
+
+  function bindOnce() {
+    if (searchBound) return;
+    searchBound = true;
     document.getElementById('symSearch').addEventListener('input', function (e) {
-      state.q = e.target.value; renderBoard();
+      state.q = e.target.value; state.page = 1; state.secPage = 1;
+      renderBoard(); renderSectorBlock();
+    });
+    document.getElementById('secClearBtn').addEventListener('click', function () {
+      selectSector('All');
+      document.getElementById('board').scrollIntoView();
+    });
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) checkForUpdate();
     });
   }
 
   fetch(DATA_URL, { cache: 'no-cache' })
     .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-    .then(function (p) { PAYLOAD = p; renderAll(); })
+    .then(function (p) {
+      PAYLOAD = p; bindOnce(); renderAll();
+      renderRefreshStatus('Board loaded');
+      scheduleRefresh();
+    })
     .catch(function (e) {
       document.getElementById('boardBody').innerHTML =
         '<tr><td colspan="10" class="ct-loading">The board could not be loaded (' +
