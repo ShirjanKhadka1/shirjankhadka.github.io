@@ -40,7 +40,7 @@
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
-<link rel="stylesheet" href="/css/nd-price-rotation.css?v=4c2a23e5">
+<link rel="stylesheet" href="/css/nd-price-rotation.css?v=85cac282">
 </head>
 <body class="nd" data-page="sector-price-rotation">
 
@@ -62,6 +62,8 @@
 
   <div class="cx-seg" id="prTabs" role="tablist" aria-label="Timeframe"></div>
 
+  <div class="cx-stats pr-stats" id="prStats"></div>
+
   <section class="cx-card pr-chartcard" aria-label="Sector returns chart">
     <div class="cx-card-head">
       <h2 class="pr-h2">Sector returns</h2>
@@ -73,7 +75,7 @@
 
   <section class="pr-catsec" aria-label="The board">
     <h2 class="pr-h2 pr-h2-sec">The board</h2>
-    <p class="pr-chartsub">Breadth counts the sector's own stocks up / down over the same window; movers are the three largest gains and falls inside the sector, by the stocks' own returns</p>
+    <p class="pr-chartsub">Breadth counts the sector's own stocks up / down over the same window; movers are the three largest gains and falls inside the sector, by the stocks' own returns. Select a row to see every stock in that sector below.</p>
     <div class="cx-scroll pr-tablewrap">
       <table class="cx-table" id="prTable">
         <thead>
@@ -93,11 +95,62 @@
     </div>
   </section>
 
+  <section class="pr-catsec" aria-label="Stocks inside the sector">
+    <h2 class="pr-h2 pr-h2-sec">Stocks inside the sector</h2>
+    <p class="pr-chartsub">Every priced constituent of the selected sector, with its own return over the selected window — the same window as the board above. A dash means the stock has no close on or before both window ends. Sort by return or symbol; 25 stocks per page.</p>
+    <div class="cx-seg pr-pills" id="prStockSectors" role="tablist" aria-label="Sector"></div>
+    <div class="pr-stockctl">
+      <label class="pr-ctl-l" for="prStockSort">Sort</label>
+      <select class="pr-select" id="prStockSort">
+        <option value="ret-desc">Return: high to low</option>
+        <option value="ret-asc">Return: low to high</option>
+        <option value="sym">Symbol: A to Z</option>
+      </select>
+    </div>
+    <div class="cx-scroll pr-tablewrap">
+      <table class="cx-table" id="prStockTable">
+        <thead>
+          <tr>
+            <th>Symbol</th>
+            <th>Name</th>
+            <th class="num">Return %</th>
+          </tr>
+        </thead>
+        <tbody id="prStockBody"><tr><td colspan="3" class="pr-loading">Loading the stocks…</td></tr></tbody>
+      </table>
+    </div>
+    <div class="pr-pager" id="prStockPager"></div>
+  </section>
+
   <section class="pr-catsec" aria-label="Leadership persistence">
     <h2 class="pr-h2 pr-h2-sec">Does leadership stick?</h2>
     <p class="pr-chartsub">Measured on weekly snapshots of the trailing 3 years of these same derived indices — how often the sector ranked #1 on a window was still in the top 3 four weeks later, and how similar boards four weeks apart typically are (rank correlation, −1 to +1)</p>
     <div class="cx-stats pr-stats" id="prPersist"></div>
     <p class="cx-cap">The pattern is the point: at 7 and 30 days, leadership is close to a coin flip a month later — short-window “rotation” is mostly noise. At 180 and 365 days, the leader almost always stays near the top. These are descriptions of the past three years, not forecasts.</p>
+  </section>
+
+  <section class="pr-catsec" aria-label="Live forward tracking">
+    <h2 class="pr-h2 pr-h2-sec">Does the leader keep leading? (live)</h2>
+    <p class="pr-chartsub">Every published board's per-window leader is recorded, and 20 sessions later we check whether it is still in the top 3 and what it returned. This is live measurement of this page's own calls — not a forecast, and never backfilled: tracking started 2026-10-26.</p>
+    <p class="cx-meta" id="prFwdSummary">Loading forward tracking…</p>
+    <div class="cx-seg pr-pills" id="prFwdFilter" role="tablist" aria-label="Forward filter"></div>
+    <div class="cx-scroll pr-tablewrap">
+      <table class="cx-table" id="prFwdTable">
+        <thead>
+          <tr>
+            <th>Board</th>
+            <th>Window</th>
+            <th>Leader</th>
+            <th>Top 3</th>
+            <th class="num">20-session forward</th>
+            <th>Still top-3?</th>
+            <th>Resolved</th>
+          </tr>
+        </thead>
+        <tbody id="prFwdBody"><tr><td colspan="7" class="pr-loading">Loading forward tracking…</td></tr></tbody>
+      </table>
+    </div>
+    <div class="pr-pager" id="prFwdPager"></div>
   </section>
 
   <section class="pr-catsec" aria-label="Methodology">
@@ -108,10 +161,14 @@
       <p><strong>Breadth and movers.</strong> Each constituent stock's own close-to-close return is computed over the identical window. Breadth counts how many rose and how many fell (an unchanged stock counts in neither); <strong>Priced</strong> counts the stocks with a close on or before both window ends, out of the sector's membership. The movers are simply the three largest gains and the three largest falls among those stocks — by their own returns, not weighted contributions.</p>
       <p><strong>Persistence.</strong> The “Does leadership stick?” figures replay this exact board on weekly snapshots across the trailing three years of our derived indices: for each timeframe, the share of weeks whose #1 sector was still top-3 four weeks later, and the mean Spearman rank correlation between boards four weeks apart. They are measured history, published so the board's short windows are read with the scepticism their own record earns.</p>
       <p><strong>Reading it honestly.</strong> Price rotation shows where returns have concentrated, in absolute terms. It is a map of the recent past — not a signal, not a valuation, and not a promise about which sector leads next; at short windows the persistence numbers above say leadership usually does <em>not</em> carry over.</p>
+      <p><strong>The stocks panel.</strong> The board shows only the three largest movers per sector; the stocks panel lists every priced constituent of the selected sector with its own return over the selected window, from the same computation. Counts reconcile to the board's Priced column; a dash means the stock has no close on or before both window ends.</p>
+      <p><strong>Forward tracking.</strong> Separately from the 3-year persistence statistics, each published board's per-window leader and top-3 are written to a forward ledger, and 20 sessions later the leader's forward composite return and whether it is still top-3 are resolved from our own series. No entry is ever backfilled; the launch board is the live 2026-10-16 board, and its windows are still open at launch.</p>
+      <p><strong>Session grid and refreshing.</strong> The session grid is capped at our archive's latest session, so a stray index-history row on a holiday (the 2026-10-19 stub) can never become the "one week ago" board or a weekly snapshot; dropped rows are listed in the payload's benchmark_guard. The page re-checks the data on the market-aware schedule — every 5 minutes during market hours, 30 minutes otherwise, 2 hours on weekends — and refreshes silently when a new board lands.</p>
     </div>
   </section>
 
   <p class="pr-fine">Mechanical price statistics for education, not investment advice. Data: Nepse Decode derived sector indices + OHLC archive, rebuilt after each close. Sector history begins when each derived index has enough sessions (Banking 2011, Hydropower 2009, Investment 2020).</p>
+  <p class="pr-fine">For education only. Not investment advice. Not affiliated with Nepal Stock Exchange Ltd.</p>
 
 </main>
     </div>
@@ -121,6 +178,6 @@
 <div id="nd-footer"></div>
 <script src="/js/nd-chrome.js?v=74c1c8b7"></script>
 <script src="/js/freshness-badge.js?v=9b77cf10" defer></script>
-<script src="/js/nd-price-rotation.js?v=7f81eb40"></script>
+<script src="/js/nd-price-rotation.js?v=4629befe"></script>
 </body>
 </html>

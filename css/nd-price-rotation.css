@@ -51,17 +51,47 @@ body{ font-family: var(--nd-font-sans); }
 .pr-bnums{ white-space: nowrap; font-size: var(--step-0); }
 .pr-breadth{ height: 8px; margin-top: 6px; min-width: 74px; }
 
-.pr-stats{ margin-bottom: var(--nd-s2); }
+.pr-stats{ margin-top: var(--nd-s4); margin-bottom: var(--nd-s2); }
 .pr-stat-s{ white-space: normal !important; line-height: 1.45; }
+
+/* clickable rows and bars: the board selects the sector below */
+.pr-click{ cursor: pointer; }
+tr.pr-click:hover td{ background: var(--nd-hover); }
+tr.pr-row-sel td{ background: var(--nd-hover); box-shadow: inset 3px 0 0 var(--nd-lime); }
+.cx-rank-row.pr-click:hover{ background: var(--nd-hover); border-radius: var(--nd-r-md); }
+
+/* sector pills wrap; sort control; pagers — all kit-tokened */
+.pr-pills{ flex-wrap: wrap; margin: var(--nd-s3) 0; }
+.pr-stockctl{ display: flex; align-items: center; gap: 10px; margin: 0 2px var(--nd-s3); }
+.pr-ctl-l{ font: 600 var(--step-0) var(--nd-font-mono); color: var(--nd-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+.pr-select{
+  background: var(--nd-panel); color: var(--nd-text);
+  border: 1px solid var(--nd-border); border-radius: var(--nd-r-md);
+  font: 500 var(--step-0) var(--nd-font-sans); padding: 8px 12px;
+}
+.pr-select:focus{ outline: 2px solid var(--nd-lime); outline-offset: 1px; }
+.pr-pager{ display: flex; align-items: center; gap: 10px; margin-top: var(--nd-s3); }
+.pr-pager-info{ font: 400 var(--step-0) var(--nd-font-mono); color: var(--nd-dim); margin-right: auto; }
+.pr-pager button{
+  background: transparent; color: var(--nd-text);
+  border: 1px solid var(--nd-border); border-radius: var(--nd-r-md);
+  font: 600 var(--step-0) var(--nd-font-sans); padding: 8px 16px; cursor: pointer;
+}
+.pr-pager button:hover:not(:disabled){ border-color: var(--nd-lime); color: var(--nd-lime); }
+.pr-pager button:disabled{ opacity: 0.4; cursor: default; }
 
 .pr-method{ max-width: 78ch; }
 .pr-method p{ font-size: var(--step-1); line-height: 1.65; color: var(--nd-text); margin: 0 0 var(--nd-s3); }
 .pr-fine{ font: 400 var(--step-0) var(--nd-font-sans); color: var(--nd-dim); margin: var(--nd-s6) 2px var(--nd-s2); line-height: 1.55; max-width: 78ch; }
 
 #prTabs{ margin-top: var(--nd-s5); }
+#prFwdSummary{ margin: 0 2px var(--nd-s3); }
 
 @media (max-width: 900px){ .pr-hide-m{ display: none; } }
 @media (max-width: 560px){
   .pr-hide-s{ display: none; }
   .pr-tablewrap .cx-table{ min-width: 480px; }
+}
+@media (prefers-reduced-motion: reduce){
+  .cx-rank-fill{ transition: none !important; }
 }
