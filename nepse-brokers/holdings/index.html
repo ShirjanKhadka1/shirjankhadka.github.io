@@ -6,38 +6,37 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0A0C10">
 <title>Stockwise Holdings — Nepse Decode</title>
-<meta name="description" content="Per-broker net positions for any NEPSE stock — who is accumulating and who is distributing, from public floorsheet flow. Free, no login.">
+<meta name="description" content="See every broker's net position in any NEPSE stock — measured transaction flow from public floorsheet records. Free, no login.">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-brokers/holdings/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Nepse Decode">
 <meta property="og:title" content="Stockwise Holdings — Nepse Decode">
-<meta property="og:description" content="Per-broker net positions for any NEPSE stock — who is accumulating and who is distributing, from public floorsheet flow. Free, no login.">
+<meta property="og:description" content="See every broker's net position in any NEPSE stock — measured transaction flow from public floorsheet records. Free, no login.">
 <meta property="og:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Stockwise Holdings — Nepse Decode">
-<meta name="twitter:description" content="Per-broker net positions for any NEPSE stock — who is accumulating and who is distributing, from public floorsheet flow. Free, no login.">
+<meta name="twitter:description" content="See every broker's net position in any NEPSE stock — measured transaction flow from public floorsheet records. Free, no login.">
 <meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
 <meta property="og:url" content="https://shirjankhadka.com.np/nepse-brokers/holdings/">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebPage","name":"Stockwise Holdings — Nepse Decode","url":"https://shirjankhadka.com.np/nepse-brokers/holdings/"}
 </script>
 <link rel="stylesheet" href="/css/nd-tokens.css">
-<link rel="stylesheet" href="/css/nepse-design-system.css?v=8d179ee9">
-<link rel="stylesheet" href="/css/theme.css?v=f9678c21">
+<link rel="stylesheet" href="/css/fonts.css">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
-<link rel="stylesheet" href="/css/broker-pages.css?v=3806931f">
-<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=69b323cf">
+<link rel="stylesheet" href="/css/nd-holdings.css?v=0ffdfa2d">
 </head>
-<body class="nd">
+<body class="nd" data-page="holdings">
+<a class="hd-skip" href="#main">Skip to content</a>
 <div id="nd-header"></div>
-<main class="bk-wrap">
+<main class="bk-wrap" id="main">
 <p class="bk-eyebrow">Brokers</p>
 <h1 class="bk-title">Stockwise Holdings</h1>
-<p class="bk-sub">Every broker that traded a stock, netted over the period — net bought means accumulating, net sold means distributing. This is transaction flow, not verified shareholding.</p>
+<p class="bk-sub">Pick a stock to see every broker's net position in it — who bought more than they sold, and who sold more than they bought, over the selected period.</p>
 <nav class="bk-nav" aria-label="Broker pages">
 <a href="/nepse-brokers/">Top Brokers</a>
 <a href="/nepse-brokers/trade-pattern/">Broker Trade Pattern</a>
@@ -45,110 +44,56 @@
 <a href="/nepse-brokers/holdings/" class="active">Stockwise Holdings</a>
 <a href="/nepse-brokers/accdist/">Accumulation / Distribution</a>
 </nav>
+<p class="hd-fresh" id="hdFresh"><span class="hd-dot"></span>Loading broker data…</p>
+<p class="hd-notice" id="hdNotice"></p>
+<div class="hd-banner" id="hdBanner" style="display:none"></div>
 <div class="bk-periods" id="bkPeriods">
-<span style="font-size:.85rem;color:var(--muted)">Period:</span>
+<span class="bk-period-label">Period:</span>
 <button data-p="latest" class="active">Latest</button>
 <button data-p="1D">1D</button>
 <button data-p="1W">1W</button>
+<button data-p="2W">2W</button>
 <button data-p="1M">1M</button>
 <button data-p="3M">3M</button>
+<button data-p="6M">6M</button>
+<button data-p="1Y">1Y</button>
+<button data-p="2Y">2Y</button>
+<button data-p="3Y">3Y</button>
 </div>
 <div class="bk-ctl">
-<input id="symSearch" placeholder="Search symbol…" aria-label="Search symbol" style="max-width:220px">
 <select id="symSel" aria-label="Select stock"><option value="">Select stock…</option></select>
+<input id="symSearch" type="search" placeholder="Search symbol or name…" aria-label="Search symbol or name">
 </div>
 <div id="bkResult"><div class="bk-empty">Pick a stock above to see broker net positions.</div></div>
-<p class="bk-note">Net positions derived from public NEPSE floorsheet transaction records. <strong>For education only. Not investment advice.</strong></p>
+<section class="hd-def" aria-label="What holdings means here">
+<h2>What “holdings” means here</h2>
+<p>A broker's <strong>net position</strong> in a stock is measured transaction flow over the selected period: everything that broker's clients bought, minus everything they sold, from the period's broker net-flow records. A positive net means the broker bought more than it sold (accumulating); a negative net means it sold more (distributing); zero means flat.</p>
+<p><strong>This is not verified shareholding and not beneficial ownership.</strong> Clients trade through a broker, so a net position does not mean the broker owns those shares. Nothing here is a forecast or a call — it is a measurement of what already traded, updated as new sessions publish.</p>
+<p>Broker history starts <strong>2026-07-15</strong>, so 3M and longer views all cover the same sessions (2026-07-15 → the latest session) — the page says so rather than pretending a longer window exists. Traded totals are corrected totals: the period files double-count per-symbol value and quantity, so this page shows value ÷ 2 and quantity ÷ 2 (proven against official turnover).</p>
+</section>
+<section class="hd-sec" aria-label="Stocks by sector">
+<h2>Stocks by sector</h2>
+<p class="hd-sec-lede">Every listed stock, grouped by sector. A lime mark highlights the selected stock — click a symbol for its stock page.</p>
+<select id="hdSecSelect" aria-label="Filter by sector">
+<option value="All">All sectors</option>
+</select>
+<p class="hd-sec-sum" id="hdSecSum"></p>
+<div class="bk-scroll"><table class="bk-table">
+<thead><tr><th>Symbol</th><th>Company</th><th>Sector</th></tr></thead>
+<tbody id="hdSecBody"></tbody>
+</table></div>
+<div class="hd-pager">
+<button type="button" id="hdSecPrev">Prev</button>
+<span class="hd-showing" id="hdSecShowing"></span>
+<button type="button" class="hd-next" id="hdSecNext">Next</button>
+</div>
+<p class="hd-sec-note">Sector counts come from the Engine Verdict batch (verdicts sec field); universe entries carry no sector field, so counts are stated from the batch, never the universe. Company names come from the universe.</p>
+</section>
+<p class="bk-note">Transaction flow from public NEPSE floorsheet records — not verified shareholding.</p>
 </main>
 <div id="nd-footer"></div>
-<script src="/js/broker-common.js?v=5a3d8ba5"></script>
-<script>
-(function(){
-"use strict";
-var BC = window.BrokerCommon;
-var state = { period: 'latest', brokers: {}, data: null, symbol: null, allSyms: [] };
-var $ = function(id){ return document.getElementById(id); };
-function bname(code){ return state.brokers[code] || ('Broker '+code); }
-
-function fillSymbols(){
-  var d = state.data, sel = $('symSel');
-  sel.innerHTML = '<option value="">Select stock…</option>';
-  state.allSyms = Object.keys(d.symbols||{}).sort();
-  state.allSyms.forEach(function(s){
-    var o = document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o);
-  });
-  if(state.symbol && state.allSyms.indexOf(state.symbol)>=0) sel.value = state.symbol;
-}
-function pair6(v){
-  if(!Array.isArray(v)) return [0, v||0, 0, 0, 0, 0];
-  return [v[0]||0, v[1]||0, v[2]||0, v[3]||0, v[4]||0, v[5]||0];
-}
-function qv(v){ return Array.isArray(v) ? v : [0, v||0]; }
-function render(){
-  var d = state.data, sym = state.symbol;
-  if(!d || !sym) return;
-  var s = d.symbols[sym];
-  if(!s){ $('bkResult').innerHTML = '<div class="bk-empty">No trades for '+BC.esc(sym)+' in this period.</div>'; return; }
-  var net = {};
-  if(s.netflow && Object.keys(s.netflow).length){
-    Object.keys(s.netflow).forEach(function(c){ net[c] = pair6(s.netflow[c]); });
-  } else {
-    Object.keys(s.buyers||{}).forEach(function(c){ var v=qv(s.buyers[c]);
-      var e = net[c] = net[c] || [0,0,0,0,0,0]; e[2]+=v[0]; e[3]+=v[1]; e[0]+=v[0]; e[1]+=v[1]; });
-    Object.keys(s.sellers||{}).forEach(function(c){ var v=qv(s.sellers[c]);
-      var e = net[c] = net[c] || [0,0,0,0,0,0]; e[4]+=v[0]; e[5]+=v[1]; e[0]-=v[0]; e[1]-=v[1]; });
-  }
-  var rows = Object.keys(net).map(function(c){
-    return { code: c, name: bname(c), bq: net[c][2], bv: net[c][3], sq: net[c][4], sv: net[c][5],
-      nq: net[c][0], nv: net[c][1] };
-  });
-  var html = '<h2 style="font-family:var(--serif);font-size:1.2rem;margin:18px 0 4px">'+BC.esc(sym)+' — broker net positions</h2>'+
-    '<p class="bk-meta">'+BC.esc(BC.label(state.period,d))+' · '+rows.length+' brokers</p>'+
-    '<div class="bk-scroll"><table class="bk-table nd-table" id="bkTable"><thead><tr>'+
-    '<th data-sort="name">Broker</th><th data-sort="bv">Buy value</th><th data-sort="sv">Sell value</th>'+
-    '<th data-sort="nv">Net value</th><th data-sort="nq">Net qty</th><th data-sort="flow">Flow</th>'+
-    '</tr></thead><tbody id="bkBody"></tbody></table></div>';
-  $('bkResult').innerHTML = html;
-  function renderRows(rs){
-    $('bkBody').innerHTML = rs.map(function(r){
-      var tag = r.nv>0 ? '<span class="pos">accumulating</span>' : '<span class="neg">distributing</span>';
-      return '<tr><td><strong>'+BC.esc(r.name)+'</strong> <span style="color:var(--muted)">'+BC.esc(r.code)+'</span></td>'+
-        '<td>'+BC.fmtV(r.bv)+'</td><td>'+BC.fmtV(r.sv)+'</td>'+
-        '<td class="'+BC.cls(r.nv)+'">'+BC.fmtV(r.nv)+'</td>'+
-        '<td>'+BC.fmtQ(r.nq,Math.abs(r.nv))+'</td><td data-flow="'+(r.nv>0?'acc':'dist')+'">'+tag+'</td></tr>';
-    }).join('');
-  }
-  rows.forEach(function(r){ r.flow = r.nv>0 ? 1 : 0; });
-  renderRows(rows);
-  BC.makeSortable($('bkTable'), function(){ return rows; }, renderRows);
-}
-function load(){
-  $('bkResult').innerHTML = '<p class="bk-loading">Loading…</p>';
-  BC.loadPeriod(state.period).then(function(d){
-    state.data = d; fillSymbols(); render();
-    if(!state.symbol) $('bkResult').innerHTML = '<div class="bk-empty">Pick a stock above to see broker net positions.</div>';
-  }).catch(function(){
-    $('bkResult').innerHTML = '<div class="bk-empty">Data not available for this period yet.</div>';
-  });
-}
-$('symSel').addEventListener('change', function(){ state.symbol = this.value || null; render(); });
-$('symSearch').addEventListener('input', function(){
-  var q = this.value.trim().toUpperCase(), sel = $('symSel');
-  sel.innerHTML = '<option value="">Select stock…</option>';
-  state.allSyms.filter(function(s){return s.indexOf(q)>=0}).slice(0,100).forEach(function(s){
-    var o = document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o);
-  });
-});
-$('bkPeriods').addEventListener('click', function(e){
-  var b = e.target.closest('button'); if(!b) return;
-  document.querySelectorAll('#bkPeriods button').forEach(function(x){x.classList.remove('active')});
-  b.classList.add('active'); state.period = b.dataset.p; load();
-});
-Promise.all([BC.loadMeta(), BC.loadBrokers()]).then(function(res){
-  state.brokers = res[1]; load();
-});
-})();
-</script>
-<script src="/js/nd-chrome.js?v=74c1c8b7" defer></script>
+<script src="/js/broker-common.js?v=1e7a9771"></script>
+<script src="/js/holdings.js?v=8ea28991"></script>
+<script src="/js/nd-chrome.js?v=74c1c8b7"></script>
 </body>
 </html>
