@@ -33,138 +33,15 @@
 {"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
 {"@type":"ListItem","position":2,"name":"Broker Analytics","item":"https://shirjankhadka.com.np/nepse-brokers/"}]}
 </script>
-<style>
-/* ---- Broker Analytics components, new design system (sig-pro) ---- */
 
-/* view tabs: dimensional pills, lime active */
-.bk-tabs{display:flex;gap:10px;margin:0 0 28px;flex-wrap:wrap}
-.bk-tabs button{padding:10px 20px;color:var(--nd-muted,#B8C0CE);font:inherit;font-weight:600;font-size:.9rem;cursor:pointer;
-  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 50%),var(--nd-panel,#12141A);
-  border:1px solid var(--nd-border,#1E2430);border-radius:999px;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 2px 5px rgba(0,0,0,.35);
-  transition:border-color .15s,color .15s,transform .15s}
-.bk-tabs button:hover:not(.active){border-color:var(--nd-lime,#B8E62E);color:var(--nd-text,#fff);transform:translateY(-1px)}
-.bk-tabs button.active{color:#0A0C10;font-weight:700;
-  background:linear-gradient(180deg,#D4F34A 0%,var(--nd-lime,#B8E62E) 55%,#9BCB24 100%);
-  border-color:#D4F34A;
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.5),inset 0 -3px 6px rgba(0,0,0,.18),0 2px 6px rgba(0,0,0,.5),0 6px 18px rgba(184,230,46,.35),0 0 24px rgba(184,230,46,.3)}
-
-/* period pills: smaller variant */
-.periods{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 24px;align-items:center}
-.periods button{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 50%),var(--nd-panel,#12141A);
-  color:var(--nd-muted,#B8C0CE);border:1px solid var(--nd-border,#1E2430);border-radius:999px;
-  font:inherit;font-size:.8rem;font-weight:600;padding:7px 14px;cursor:pointer;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 2px 5px rgba(0,0,0,.35);
-  transition:border-color .15s,color .15s,transform .15s}
-.periods button:hover:not(.active){border-color:var(--nd-lime,#B8E62E);color:var(--nd-text,#fff)}
-.periods button.active{color:#0A0C10;font-weight:700;
-  background:linear-gradient(180deg,#D4F34A 0%,var(--nd-lime,#B8E62E) 55%,#9BCB24 100%);border-color:#D4F34A;
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.5),0 2px 6px rgba(0,0,0,.5),0 6px 18px rgba(184,230,46,.35)}
-.periods input[type="date"]{border:1px solid var(--nd-border,#1E2430);border-radius:999px;padding:6px 12px;
-  font:inherit;font-size:.82rem;background:var(--nd-panel,#12141A);color:var(--nd-text,#fff);color-scheme:light dark}
-.periods .p-label{font-size:.85rem;color:var(--nd-dim,#8E98A8)}
-
-/* tables: sig-table look, numerics stay right-aligned */
-.bk-table{width:100%;border-collapse:separate;border-spacing:0;font-size:.85rem;
-  background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,0) 60px),var(--nd-panel,#12141A);
-  border:1px solid var(--nd-border,#1E2430);border-radius:20px;overflow:hidden;color:var(--nd-text,#fff)}
-.bk-table th,.bk-table td{padding:11px 13px;text-align:right;border-bottom:1px solid var(--nd-border,#1E2430);
-  white-space:nowrap;font-variant-numeric:tabular-nums}
-.bk-table th:first-child,.bk-table td:first-child,.bk-table th.bk-name,.bk-table td.bk-name{text-align:left}
-.bk-table th{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0)),var(--nd-panel-2,#161A23);
-  font-weight:700;color:#fff;font-size:.76rem;letter-spacing:.07em;text-transform:uppercase;
-  text-shadow:0 1px 2px rgba(0,0,0,.4);border-bottom:1px solid var(--nd-border-strong,#2A3342)}
-.bk-table tr:last-child td{border-bottom:none}
-.bk-table tbody tr{transition:background .12s}
-.bk-table tbody tr:hover td{background:rgba(255,255,255,.025)}
-.bk-table td strong{color:var(--nd-text,#fff)}
-
-/* stat cards: 3D like sig-card */
-.stat-row{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:24px 0}
-@media(min-width:760px){.stat-row{grid-template-columns:repeat(4,1fr)}}
-.stat{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0) 38%),var(--nd-panel,#12141A);
-  border:1px solid var(--nd-border,#1E2430);border-radius:20px;padding:18px 20px;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 -2px 6px rgba(0,0,0,.15),0 3px 8px rgba(0,0,0,.45),0 18px 44px rgba(0,0,0,.4);
-  transition:transform .2s ease,box-shadow .2s ease}
-.stat:hover{transform:translateY(-2px)}
-.stat .l{font-size:.78rem;color:var(--nd-dim,#8E98A8);margin-bottom:6px;font-weight:600}
-.stat .v{font-size:1.5rem;font-weight:700;color:var(--nd-text,#fff);letter-spacing:-.01em;font-variant-numeric:tabular-nums}
-
-/* info cover: lime-bordered note */
-.cover{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 45%),var(--nd-panel,#12141A);
-  border:1px solid var(--nd-border,#1E2430);border-left:4px solid var(--nd-lime,#B8E62E);border-radius:16px;
-  padding:17px 22px;margin:22px 0;font-size:.92rem;color:var(--nd-muted,#B8C0CE);line-height:1.65;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 3px 8px rgba(0,0,0,.4),0 14px 34px rgba(0,0,0,.3)}
-.cover strong{color:var(--nd-text,#fff)}
-
-/* controls */
-.ctl{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 18px;align-items:center}
-.ctl select,.ctl input{border:1px solid var(--nd-border,#1E2430);border-radius:12px;padding:9px 14px;
-  font:inherit;font-size:.9rem;background:var(--nd-panel,#12141A);color:var(--nd-text,#fff);max-width:100%}
-
-/* static snapshot card */
-.snap{margin-bottom:20px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0) 38%),var(--nd-panel,#12141A);
-  border:1px solid var(--nd-border,#1E2430);border-radius:20px;padding:22px 24px;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 -2px 6px rgba(0,0,0,.15),0 3px 8px rgba(0,0,0,.45),0 18px 44px rgba(0,0,0,.4)}
-.snap h2{font-size:1.15rem;font-weight:700;margin:0 0 4px;color:var(--nd-text,#fff)}
-.snap-asof{font-size:.78rem;font-weight:500;color:var(--nd-dim,#8E98A8)}
-.snap-note{font-size:.82rem;color:var(--nd-muted,#B8C0CE);margin:12px 0 0;line-height:1.6}
-
-/* in-view section headings */
-h2.bk-h{font-size:1.35rem;margin:34px 0 8px;color:var(--nd-text,#fff);letter-spacing:-.01em;font-weight:700}
-.two h2.bk-h{margin-top:4px}
-.two{display:grid;gap:16px}
-@media(min-width:900px){.two{grid-template-columns:1fr 1fr}}
-
-/* pos/neg */
-.pos{color:var(--nd-up,#4ADE80);font-weight:700}
-.neg{color:var(--nd-down,#F87171);font-weight:700}
-
-/* lede strong */
-.sig-lede strong{color:var(--nd-text,#fff)}
-
-/* light mode */
-[data-theme="light"] .bk-tabs button,[data-theme="light"] .periods button{background:linear-gradient(180deg,#FFFFFF 0%,#EDF1F5 100%);
-  border:1px solid #CBD4DE;border-top-color:#E8EEF3;color:#3F4753;
-  box-shadow:inset 0 2px 0 #FFFFFF,0 1px 2px rgba(10,12,16,.1),0 4px 12px rgba(10,12,16,.08)}
-[data-theme="light"] .bk-tabs button:hover:not(.active),[data-theme="light"] .periods button:hover:not(.active){border-color:#4D7C0F;color:#0A0C10}
-[data-theme="light"] .bk-tabs button.active,[data-theme="light"] .periods button.active{
-  background:linear-gradient(180deg,color-mix(in srgb,var(--nd-lime) 76%,white) 0%,var(--nd-lime) 60%,color-mix(in srgb,var(--nd-lime) 84%,black) 100%);border-color:#3E650C;border-top-color:color-mix(in srgb,var(--nd-lime) 70%,white);color:#fff;
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.4),inset 0 -3px 6px rgba(0,0,0,.18),0 2px 4px rgba(77,124,15,.4),0 8px 20px rgba(77,124,15,.3)}
-[data-theme="light"] .bk-table{background:#fff;color:#0A0C10}
-[data-theme="light"] .bk-table th{background:linear-gradient(180deg,#FFFFFF,#F2F5F8);color:#0A0C10;text-shadow:none}
-[data-theme="light"] .bk-table th,[data-theme="light"] .bk-table td{border-bottom-color:#E2E6EC}
-/* sortable headers: pointer + visible active state in both themes, never yellow */
-.bk-table th[data-sort]{cursor:pointer}
-.bk-table th[data-sort]:hover{text-decoration:underline}
-.bk-table th.sorted{color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.4)}
-[data-theme="light"] .bk-table th.sorted{color:#0A0C10;text-shadow:none}
-[data-theme="light"] .bk-table td{color:#3F4753}
-[data-theme="light"] .bk-table td strong{color:#0A0C10}
-[data-theme="light"] .bk-table tbody tr:hover td{background:#F0F5EA}
-[data-theme="light"] .stat{background:linear-gradient(180deg,#FFFFFF 0%,#F2F5F8 100%);border:1px solid #CBD4DE;border-top-color:#E8EEF3;
-  box-shadow:inset 0 2px 0 #FFFFFF,inset 0 -3px 8px rgba(10,12,16,.05),0 1px 2px rgba(10,12,16,.12),0 8px 24px rgba(10,12,16,.12)}
-[data-theme="light"] .stat .l{color:#6B7280}
-[data-theme="light"] .stat .v{color:#0A0C10}
-[data-theme="light"] .cover{background:linear-gradient(180deg,#FFFFFF 0%,#F4F7FA 100%);border:1px solid #CBD4DE;border-left:4px solid #4D7C0F;color:#3F4753;
-  box-shadow:inset 0 2px 0 #FFFFFF,0 1px 2px rgba(10,12,16,.1),0 8px 24px rgba(10,12,16,.1)}
-[data-theme="light"] .cover strong{color:#0A0C10}
-[data-theme="light"] .snap{background:linear-gradient(180deg,#FFFFFF 0%,#F2F5F8 100%);border:1px solid #CBD4DE;border-top-color:#E8EEF3;
-  box-shadow:inset 0 2px 0 #FFFFFF,0 1px 2px rgba(10,12,16,.1),0 8px 24px rgba(10,12,16,.1)}
-[data-theme="light"] .snap h2{color:#0A0C10}
-[data-theme="light"] .snap-asof,[data-theme="light"] .snap-note{color:#6B7280}
-[data-theme="light"] h2.bk-h{color:#0A0C10}
-[data-theme="light"] .ctl select,[data-theme="light"] .ctl input,[data-theme="light"] .periods input[type="date"]{background:#fff;border-color:#CBD4DE;color:#0A0C10}
-[data-theme="light"] .sig-lede strong{color:#0A0C10}
-</style>
 <link rel="stylesheet" href="/css/nd-tokens.css">
 <link rel="stylesheet" href="/css/fonts.css">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
-<link rel="stylesheet" href="/css/sig-pro.css?v=ed0fe3e9">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=69b323cf">
+<link rel="stylesheet" href="/css/nd-brokers.css?v=8a29a038">
 </head>
-<body class="nd">
+<body class="nd" data-page="brokers">
 <a class="skip-link" href="#main">Skip to content</a>
 
 <div id="nd-header"></div>
@@ -184,15 +61,15 @@ h2.bk-h{font-size:1.35rem;margin:34px 0 8px;color:var(--nd-text,#fff);letter-spa
     </div>
 <!-- SNAP-START -->
 <section class="snap" aria-label="Broker coverage snapshot">
-  <h2>Latest session broker flow <span class="snap-asof">· 2026-10-08 · 57 trading days on record (2026-07-15 → 2026-10-08)</span></h2>
+  <h2>Latest session broker flow <span class="snap-asof">· 2026-10-26 · 64 trading days on record (2026-07-15 → 2026-10-26)</span></h2>
   <div class="scrollx" tabindex="0" role="region" aria-label="Latest session broker flow table"><table class="bk-table nd-table">
     <thead><tr><th>#</th><th>Broker</th><th>Bought</th><th>Sold</th><th>Net flow</th></tr></thead>
     <tbody>
-      <tr><td>1</td><td>Naasa Securities Co. Ltd.</td><td>Rs 34.9 Cr</td><td>Rs 40.3 Cr</td><td>-5.4 Cr</td></tr>
-      <tr><td>2</td><td>Sani Securities Co. Ltd.</td><td>Rs 13.4 Cr</td><td>Rs 19.6 Cr</td><td>-6.2 Cr</td></tr>
-      <tr><td>3</td><td>Imperial Securities Co. Pvt. Ltd.</td><td>Rs 16.3 Cr</td><td>Rs 14.2 Cr</td><td>+2.1 Cr</td></tr>
-      <tr><td>4</td><td>Vision Securities Pvt. Ltd.</td><td>Rs 15.3 Cr</td><td>Rs 14.2 Cr</td><td>+1.1 Cr</td></tr>
-      <tr><td>5</td><td>Online Securities Pvt. Ltd.</td><td>Rs 9.1 Cr</td><td>Rs 13.5 Cr</td><td>-4.4 Cr</td></tr>
+      <tr><td>1</td><td>Naasa Securities Co. Ltd.</td><td>Rs 31.6 Cr</td><td>Rs 30.1 Cr</td><td>+1.6 Cr</td></tr>
+      <tr><td>2</td><td>Dynamic Money Managers Securities Pvt. Ltd.</td><td>Rs 22.6 Cr</td><td>Rs 23.3 Cr</td><td>-0.7 Cr</td></tr>
+      <tr><td>3</td><td>Vision Securities Pvt. Ltd.</td><td>Rs 14.9 Cr</td><td>Rs 17.1 Cr</td><td>-2.2 Cr</td></tr>
+      <tr><td>4</td><td>Imperial Securities Co. Pvt. Ltd.</td><td>Rs 15.8 Cr</td><td>Rs 13.9 Cr</td><td>+1.9 Cr</td></tr>
+      <tr><td>5</td><td>Sani Securities Co. Ltd.</td><td>Rs 12.1 Cr</td><td>Rs 15.2 Cr</td><td>-3.1 Cr</td></tr>
     </tbody>
   </table></div>
   <p class="snap-note">Static snapshot · net bought/sold is transaction flow, not verified shareholding. The interactive period selectors below range from 1D to 3Y; views show whatever history is on record (currently from 2026-07-15, growing daily).</p>
@@ -200,6 +77,8 @@ h2.bk-h{font-size:1.35rem;margin:34px 0 8px;color:var(--nd-text,#fff);letter-spa
 <!-- SNAP-END -->
 
 <div class="cover" id="coverage">Loading data…</div>
+
+<div class="bk-fresh" id="bkFresh" aria-live="polite"></div>
 
 <div class="bk-tabs nd-tabs nd-tabs--pill" role="tablist" aria-label="Broker views" id="viewTabs">
 <button data-view="top" role="tab" aria-selected="true" class="active">Top Brokers</button>
@@ -228,615 +107,40 @@ h2.bk-h{font-size:1.35rem;margin:34px 0 8px;color:var(--nd-text,#fff);letter-spa
 <select id="brokerSel" aria-label="Select broker"><option value="">Select broker…</option></select>
 <input id="brokerSymSearch" placeholder="Search symbol…" aria-label="Search symbols in this broker's list" style="display:none">
 <select id="symbolSel" style="display:none" aria-label="Select stock"><option value="">Select stock…</option></select>
-<input id="symbolSearch" placeholder="Search symbol…" style="display:none" aria-label="Search symbol">
 </div>
+
+<div id="bkViz"></div>
 
 <section id="view"></section>
 
-<p class="sig-foot">Figures are aggregated transaction flow (quantity &times; rate per contract). &ldquo;Accumulation&rdquo; = net bought, &ldquo;distribution&rdquo; = net sold over the period — not beneficial ownership. Educational only, not investment advice.</p>
+
+<section class="bk-sec" aria-label="Browse by sector">
+  <h2>Browse by sector</h2>
+  <p class="bk-cap">Every listed stock, grouped by sector. Company names come from the universe; sector counts come from the Engine Verdict batch. Click a symbol for its stock page.</p>
+  <select id="bkSecSelect" aria-label="Filter by sector">
+    <option value="All">All sectors</option>
+  </select>
+  <p class="bk-sec-sum" id="bkSecSum"></p>
+  <div class="scrollx" tabindex="0" role="region" aria-label="Stocks by sector table"><table class="bk-table nd-table">
+    <thead><tr><th>Symbol</th><th class="bk-name">Company</th><th>Sector</th></tr></thead>
+    <tbody id="bkSecBody"></tbody>
+  </table></div>
+  <div class="bk-pager">
+    <button type="button" id="bkSecPrev" disabled>← Prev</button>
+    <span class="bk-showing" id="bkSecShowing"></span>
+    <button type="button" class="bk-next" id="bkSecNext">Next →</button>
+  </div>
+  <p class="bk-sec-note">Sector counts come from the Engine Verdict batch (verdicts sec field); universe entries carry no sector field, so counts are stated from the batch, never the universe.</p>
+</section>
+
+<p class="sig-foot">Figures are aggregated transaction flow (quantity &times; rate per contract). &ldquo;Accumulation&rdquo; = net bought, &ldquo;distribution&rdquo; = net sold over the period — not beneficial ownership.</p>
 
 </main>
 
     <div id="nd-footer"></div>
-<script src="/js/nepse-market-config.js"></script>
-<script>
-(function(){
-"use strict";
-var BASE = '/nepse-brokers/data/';
-var state = { view: 'top', period: 'latest', data: null, brokers: {}, meta: null, asof: null, symbol: null, broker: null, topPage: 0, holdPage: 0, brkPage: 0, brkQuery: '', accPage: 0, distPage: 0, accSearch: '', sorts: {} };
-var $ = function(id){ return document.getElementById(id); };
+<script src="/js/nepse-market-config.js?v=4e6270bd"></script>
+<script src="/js/nepse-brokers.js?v=37e8cdd9" defer></script>
 
-/* ---------- URL-backed state (replaceState; no history spam) ---------- */
-function readURL(){
-  var q = {};
-  var s = location.search.replace(/^\?/,'');
-  if(!s) return q;
-  s.split('&').forEach(function(p){
-    var kv = p.split('=');
-    if(kv[0]) q[decodeURIComponent(kv[0])] = decodeURIComponent(kv[1]||'');
-  });
-  return q;
-}
-function syncURL(){
-  var parts = [];
-  if(state.view!=='top') parts.push('view='+encodeURIComponent(state.view));
-  if(state.period!=='latest') parts.push('period='+encodeURIComponent(state.period));
-  if(state.period==='asof' && state.asof) parts.push('asof='+encodeURIComponent(state.asof));
-  if(state.symbol) parts.push('symbol='+encodeURIComponent(state.symbol));
-  if(state.broker) parts.push('broker='+encodeURIComponent(state.broker));
-  history.replaceState(null, '', location.pathname + (parts.length ? '?'+parts.join('&') : ''));
-}
-function initFromURL(){
-  var q = readURL();
-  var views = {top:1, broker:1, stock:1, holdings:1, accdist:1};
-  if(q.view && views[q.view]) state.view = q.view;
-  var periods = {latest:1,'1D':1,'1W':1,'2W':1,'1M':1,'3M':1,'6M':1,'1Y':1,'2Y':1,'3Y':1,asof:1};
-  if(q.period && periods[q.period]){
-    if(q.period==='asof'){
-      if(/^\d{4}-\d{2}-\d{2}$/.test(q.asof||'')){ state.period='asof'; state.asof=q.asof; }
-    } else {
-      state.period = q.period;
-    }
-  }
-  if(q.symbol) state.symbol = q.symbol.toUpperCase();
-  if(q.broker) state.broker = q.broker;
-}
-function syncStaticControls(){
-  document.querySelectorAll('#viewTabs button').forEach(function(x){
-    x.classList.toggle('active', x.dataset.view===state.view);
-  });
-  document.querySelectorAll('#periodBar button').forEach(function(x){
-    x.classList.toggle('active', x.dataset.p===state.period);
-  });
-  if(state.period==='asof' && state.asof) $('asofDate').value = state.asof;
-}
-
-function fmtN(n, d){ d = d===undefined?2:d; if(n==null||n===''||!isFinite(Number(n))) return '–';
-  return Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}); }
-function fmtV(n){ if(!isFinite(n)) return '–'; var a=Math.abs(n);
-  if(a>=1e7) return 'Rs '+(n/1e7).toFixed(2)+' Cr';
-  if(a>=1e5) return 'Rs '+(n/1e5).toFixed(2)+' L';
-  return 'Rs '+Math.round(n).toLocaleString('en-US'); }
-function bname(code){ return state.brokers[code] || ('Broker '+code); }
-function cls(v){ return v>0?'pos':(v<0?'neg':''); }
-
-/* ---------- generic table sorting (all broker tables) ---------- */
-var sortPageKey = { top:'topPage', broker:'brkPage', holdings:'holdPage', acc:'accPage', dist:'distPage' };
-function sortState(view){ return state.sorts[view] || (state.sorts[view] = {key:null, dir:-1}); }
-function thS(view, key, label, clsName){
-  var s = sortState(view), active = s.key === key;
-  var arrow = active ? (s.dir===1 ? ' ▲' : ' ▼') : '';
-  return '<th data-sort="'+view+':'+key+'" class="'+((clsName||'')+(active?' sorted':''))+'">'+label+arrow+'</th>';
-}
-function applySort(arr, view, get){
-  var s = sortState(view);
-  if(!s.key || !get[s.key]) return arr;
-  var d = s.dir, g = get[s.key];
-  return arr.sort(function(a,b){
-    var va=g(a), vb=g(b);
-    var c=(typeof va==='string') ? (va<vb?-1:va>vb?1:0) : (va-vb);
-    return c*d;
-  });
-}
-function numCode(v){ var n = parseFloat(v); return isNaN(n) ? String(v==null?'':v).toLowerCase() : n; }
-
-function loadMeta(){
-  return fetch(BASE+'meta.json').then(function(r){return r.json()}).then(function(m){
-    state.meta = m;
-    $('coverage').innerHTML = '<strong>Data:</strong> ' + m.earliest + ' → ' + m.latest +
-      ' (' + m.trading_days + ' trading days)' +
-      (m.trading_days < 60 ? ' — <strong>history still building;</strong> longer periods fill in automatically.' : '') +
-      ' <span style="color:var(--nd-muted,#B8C0CE)">Updated ' + m.updated_at.slice(0,10) + '</span>';
-    return fetch(BASE+'brokers.json').then(function(r){return r.json()}).then(function(b){
-      state.brokers = b;
-      var sel = $('brokerSel');
-      Object.keys(b).filter(function(c){return /^\d+$/.test(c)}).sort(function(a,c){return a-c}).forEach(function(c){
-        var o = document.createElement('option'); o.value=c; o.textContent=c+' — '+b[c]; sel.appendChild(o);
-      });
-    });
-  });
-}
-
-// Trading days strictly between fromYMD and toYMD, via the canonical
-// NepseMarketConfig calendar (same rule as js/freshness-badge.js).
-// Returns -1 when the calendar is unavailable — never guesses a count.
-function tradingDaysBetween(fromYMD, toYMD){
-  var CFG = window.NepseMarketConfig;
-  if (!CFG || typeof CFG.isTradingDay !== 'function') return -1;
-  var from = new Date(fromYMD + 'T00:00:00Z'), to = new Date(toYMD + 'T00:00:00Z');
-  var n = 0, d = new Date(from);
-  d.setUTCDate(d.getUTCDate() + 1);
-  while (d <= to) {
-    if (CFG.isTradingDay(d.toISOString().slice(0, 10))) n++;
-    d.setUTCDate(d.getUTCDate() + 1);
-  }
-  return n;
-}
-
-// The baked snapshot (SNAP-START..SNAP-END) is only as fresh as its last
-// bake. Label it at runtime against the market's own latest session
-// (live.json session_date): when it is behind, the heading says so
-// explicitly instead of letting the word "Latest" overclaim.
-function labelSnapshot(){
-  var span = document.querySelector('.snap-asof');
-  var h2 = span ? span.closest('h2') : null;
-  if (!span || !h2 || !state.meta) return;
-  var m = /(\d{4}-\d{2}-\d{2})/.exec(span.textContent || '');
-  if (!m) return;
-  var snapDate = m[1];
-  fetch('/nepse-chart/data/live.json', { cache: 'no-store' }).then(function(r){
-    if (!r.ok) throw 0; return r.json();
-  }).then(function(live){
-    var mkt = live && live.session_date;
-    if (!mkt || snapDate >= mkt) return; // snapshot is current — label stands
-    var behind = tradingDaysBetween(snapDate, mkt);
-    var lead = h2.childNodes[0];
-    if (lead && lead.nodeType === 3) lead.textContent = 'Latest available session broker flow ';
-    span.textContent = '· session ' + snapDate +
-      (behind > 0
-        ? ' · ' + behind + ' sessions behind the latest market session (' + mkt + ')'
-        : ' · behind the latest market session (' + mkt + ')') +
-      ' — latest available snapshot · interactive views below carry broker data to ' + state.meta.latest;
-    span.style.color = '#d97706';
-  }).catch(function(){ /* leave the baked label untouched */ });
-}
-
-/* Period aggregates and per-day archives are immutable once published:
-   fetch once per session and reuse across period switches, with normal
-   HTTP cache semantics (no 'no-store'). The intraday 'latest' feed is
-   not cached in memory — the 60s auto-refresh below must keep seeing
-   rebuilds during market hours. Failures are evicted so retries work. */
-var periodCache = {};
-function fetchPeriodCached(url){
-  if (!periodCache[url]) {
-    var pr = fetch(url).then(function(r){ if(!r.ok) throw 0; return r.json(); });
-    periodCache[url] = pr;
-    pr.catch(function(){ delete periodCache[url]; });
-  }
-  return periodCache[url];
-}
-function loadPeriod(silent){
-  var p = state.period;
-  var url;
-  if (p === 'latest') url = BASE+'intraday.json';
-  else if (p === 'asof') url = BASE+'daily/'+state.asof+'.json';
-  else url = BASE+'periods/'+p+'.json';
-  if (!silent) $('view').innerHTML = '<p style="color:var(--nd-muted,#B8C0CE)">Loading…</p>';
-  var req;
-  if (p !== 'latest') req = fetchPeriodCached(url);
-  else req = fetch(url).then(function(r){
-    if(!r.ok){
-      // intraday.json only exists while a market-hours poller writes it —
-      // fall back to the last session (1D), same as the standalone pages.
-      return fetchPeriodCached(BASE+'periods/1D.json')
-        .then(function(d){ return Object.assign({}, d, { _fallback: true }); });
-    }
-    return r.json();
-  });
-  return req
-    .then(function(d){ state.data = d; render(); })
-    .catch(function(){
-      if (silent) return; /* background refresh failed: keep last good render */
-      var msg = p==='latest'
-        ? 'Live intraday feed not available yet — it goes live with the market-hours poller. Try 1D for the last session.'
-        : p==='asof' ? 'No data for '+state.asof+' (weekend/holiday, or not yet backfilled).'
-        : 'This period is still building — check back as the history backfill progresses.';
-      $('view').innerHTML = '<div class="cover">'+msg+'</div>';
-    });
-}
-
-/* ---------- views ---------- */
-function fmtQ(qty,val){ return (qty===0||qty==='0'||qty==null) && val>0 ? '—' : fmtN(qty||0,0); }
-function renderTop(d){
-  var PER_PAGE = 10;
-  var get = {
-    broker: function(b){ return bname(b.code).toLowerCase(); },
-    code: function(b){ return numCode(b.code); },
-    buy_qty: function(b){ return b.buy_qty||0; }, buy_value: function(b){ return b.buy_value||0; },
-    sell_qty: function(b){ return b.sell_qty||0; }, sell_value: function(b){ return b.sell_value||0; },
-    total_qty: function(b){ return b.total_qty||0; }, total_value: function(b){ return b.total||0; },
-    net_qty: function(b){ return b.net_qty||0; }, net_value: function(b){ return b.net||0; }
-  };
-  var all = applySort((d.brokers || []).slice(), 'top', get);
-  var totalPages = Math.max(1, Math.ceil(all.length / PER_PAGE));
-  if (state.topPage >= totalPages) state.topPage = totalPages - 1;
-  if (state.topPage < 0) state.topPage = 0;
-  var start = state.topPage * PER_PAGE;
-  var page = all.slice(start, start + PER_PAGE);
-  var rows = page.map(function(b,i){
-    var idx = start + i + 1;
-    return '<tr><td>'+idx+'</td><td class="bk-name"><strong>'+bname(b.code)+'</strong><br><span style="color:var(--nd-muted,#B8C0CE)">'+b.code+'</span></td>'+
-      '<td>'+fmtQ(b.buy_qty,b.buy_value)+'</td><td>'+fmtV(b.buy_value)+'</td>'+
-      '<td>'+fmtQ(b.sell_qty,b.sell_value)+'</td><td>'+fmtV(b.sell_value)+'</td>'+
-      '<td><strong>'+fmtQ(b.total_qty,b.total)+'</strong></td><td><strong>'+fmtV(b.total)+'</strong></td>'+
-      '<td class="'+cls(b.net_qty)+'">'+fmtQ(b.net_qty,Math.abs(b.net))+'</td><td class="'+cls(b.net)+'">'+fmtV(b.net)+'</td></tr>';
-  }).join('');
-  var pager = '<div class="bk-pager" style="display:flex;gap:8px;align-items:center;justify-content:center;margin:12px 0;">'+
-    '<button id="bkPrev" '+(state.topPage===0?'disabled':'')+' style="padding:6px 14px;border-radius:8px;cursor:pointer;">← Prev</button>'+
-    '<span style="font-size:.85rem;">Page '+(state.topPage+1)+' of '+totalPages+' ('+all.length+' brokers)</span>'+
-    '<button id="bkNext" '+(state.topPage>=totalPages-1?'disabled':'')+' style="padding:6px 14px;border-radius:8px;cursor:pointer;">Next →</button></div>';
-  return '<h2 class="bk-h">Top brokers by turnover — '+label()+'</h2>'+
-    '<div class="scrollx" tabindex="0" role="region" aria-label="Top brokers by turnover table"><table class="bk-table nd-table"><thead><tr><th>#</th>'+
-    thS('top','broker','Broker','bk-name')+thS('top','buy_qty','Buy vol')+thS('top','buy_value','Buy value')+
-    thS('top','sell_qty','Sell vol')+thS('top','sell_value','Sell value')+thS('top','total_qty','Total vol')+
-    thS('top','total_value','Total value')+thS('top','net_qty','Net vol')+thS('top','net_value','Net value')+
-    '</tr></thead><tbody>'+rows+'</tbody></table></div>'+pager;
-}
-
-function renderBroker(d){
-  var code = $('brokerSel').value;
-  if(!code) return '<div class="cover">Pick a broker above to see what it traded.</div>';
-  var allSyms = (d.broker_symbols && d.broker_symbols[code]) || [];
-  var q = (state.brkQuery||'').trim().toUpperCase();
-  var syms = q ? allSyms.filter(function(s){ return s.symbol.toUpperCase().indexOf(q) >= 0; }) : allSyms;
-  var bget = {
-    symbol: function(s){ return s.symbol; },
-    buy_qty: function(s){ return s.buy_qty||0; }, buy_value: function(s){ return s.buy_value||0; },
-    sell_qty: function(s){ return s.sell_qty||0; }, sell_value: function(s){ return s.sell_value||0; },
-    net_value: function(s){ return (s.buy_value||0)-(s.sell_value||0); }
-  };
-  syms = applySort(syms.slice(), 'broker', bget);
-  var t = d.brokers.filter(function(b){return b.code===code})[0] || {};
-  var PER_PAGE = 10;
-  var totalPages = Math.max(1, Math.ceil(syms.length / PER_PAGE));
-  if (state.brkPage >= totalPages) state.brkPage = totalPages - 1;
-  if (state.brkPage < 0) state.brkPage = 0;
-  var start = state.brkPage * PER_PAGE;
-  var rows = syms.slice(start, start + PER_PAGE).map(function(s){
-    var net = s.buy_value - s.sell_value;
-    return '<tr><td><strong>'+s.symbol+'</strong></td><td>'+fmtQ(s.buy_qty,s.buy_value)+'</td><td>'+fmtV(s.buy_value)+'</td>'+
-      '<td>'+fmtQ(s.sell_qty,s.sell_value)+'</td><td>'+fmtV(s.sell_value)+'</td><td class="'+cls(net)+'">'+fmtV(net)+'</td></tr>';
-  }).join('');
-  var pager = '<div class="bk-pager" style="display:flex;gap:8px;align-items:center;justify-content:center;margin:12px 0;">'+
-    '<button id="brPrev" '+(state.brkPage===0?'disabled':'')+' style="padding:6px 14px;border-radius:8px;cursor:pointer;">← Prev</button>'+
-    '<span style="font-size:.85rem;">Page '+(state.brkPage+1)+' of '+totalPages+' ('+syms.length+(q?' of '+allSyms.length:'')+' stocks)</span>'+
-    '<button id="brNext" '+(state.brkPage>=totalPages-1?'disabled':'')+' style="padding:6px 14px;border-radius:8px;cursor:pointer;">Next →</button></div>';
-  return '<h2 class="bk-h">'+bname(code)+' — trade pattern, '+label()+'</h2>'+
-    '<div class="stat-row">'+
-    '<div class="stat"><div class="l">Buy volume</div><div class="v">'+fmtQ(t.buy_qty,t.buy_value)+'</div></div>'+
-    '<div class="stat"><div class="l">Buy value</div><div class="v">'+fmtV(t.buy_value||0)+'</div></div>'+
-    '<div class="stat"><div class="l">Sell volume</div><div class="v">'+fmtQ(t.sell_qty,t.sell_value)+'</div></div>'+
-    '<div class="stat"><div class="l">Sell value</div><div class="v">'+fmtV(t.sell_value||0)+'</div></div>'+
-    '<div class="stat"><div class="l">Net volume</div><div class="v '+cls((t.buy_qty||0)-(t.sell_qty||0))+'">'+fmtQ((t.buy_qty||0)-(t.sell_qty||0),Math.abs((t.buy_value||0)-(t.sell_value||0)))+'</div></div>'+
-    '<div class="stat"><div class="l">Net value</div><div class="v '+cls((t.buy_value||0)-(t.sell_value||0))+'">'+fmtV((t.buy_value||0)-(t.sell_value||0))+'</div></div>'+
-    '<div class="stat"><div class="l">Stocks traded</div><div class="v">'+allSyms.length+'</div></div></div>'+
-    '<div class="scrollx" tabindex="0" role="region" aria-label="Broker stock detail table"><table class="bk-table nd-table"><thead><tr>'+
-    thS('broker','symbol','Symbol')+thS('broker','buy_qty','Buy qty')+thS('broker','buy_value','Buy value')+
-    thS('broker','sell_qty','Sell qty')+thS('broker','sell_value','Sell value')+thS('broker','net_value','Net value')+
-    '</tr></thead><tbody>'+(rows||'<tr><td colspan="6">'+(q?'No symbols match "'+q+'".':'No trades in this period.')+'</td></tr>')+'</tbody></table></div>'+pager;
-}
-
-function symbolOptions(d){
-  return Object.keys(d.symbols||{}).sort();
-}
-
-function renderStock(d){
-  var sym = $('symbolSel').value;
-  if(!sym) return '<div class="cover">Pick a stock above to see who bought and sold it.</div>';
-  function union(a,b){ var u={}; Object.keys(a||{}).forEach(function(k){u[k]=1}); Object.keys(b||{}).forEach(function(k){u[k]=1}); return u; }
-  var s = d.symbols[sym];
-  if(!s) return '<div class="cover">No trades for '+sym+' in this period.</div>';
-  // 1D netflow-only periods lack top-level qty/value/avg_rate — derive from netflow
-  if (s.netflow && (s.qty == null || s.value == null)){
-    var tq = 0, tv = 0;
-    Object.keys(s.netflow).forEach(function(c){
-      var v = s.netflow[c] || [];
-      tq += (v[2]||0) + (v[4]||0);
-      tv += (v[3]||0) + (v[5]||0);
-    });
-    s.qty = tq / 2; s.value = tv / 2;
-    s.avg_rate = s.qty ? s.value / s.qty : 0;
-  }
-  function bt(obj, title){
-    // buyers/sellers entries are [qty, value]; tolerate legacy value-only schema
-    // and missing objects entirely (1D periods carry netflow only)
-    var rows = Object.keys(obj||{}).map(function(c){
-      var v = obj[c];
-      return [c, Array.isArray(v) ? v : [0, v]];
-    }).sort(function(a,b){return b[1][1]-a[1][1]})
-      .slice(0,10).map(function(x,i){
-        return '<tr><td>'+(i+1)+'</td><td class="bk-name">'+bname(x[0])+'</td><td>'+fmtQ(x[1][0],x[1][1])+'</td><td>'+fmtV(x[1][1])+'</td></tr>';
-      }).join('');
-    return '<div><h2 class="bk-h">'+title+'</h2><div class="scrollx" tabindex="0" role="region" aria-label="'+title+' table"><table class="bk-table nd-table"><thead><tr><th>#</th><th class="bk-name">Broker</th><th>Qty (shares)</th><th>Value</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
-  }
-  var activeN = (s.netflow && Object.keys(s.netflow).length)
-    ? Object.keys(s.netflow).length
-    : Object.keys(union(s.buyers,s.sellers)).length;
-  // 1D (Capital Max-sourced) periods carry netflow only — derive the top
-  // buyer/seller lists from it so this tab works instead of throwing.
-  // netflow entries: [net_qty, net_value, buy_qty, buy_value, sell_qty, sell_value]
-  var buyers = s.buyers, sellers = s.sellers;
-  if ((!buyers || !Object.keys(buyers).length) && (!sellers || !Object.keys(sellers).length) && s.netflow){
-    buyers = {}; sellers = {};
-    Object.keys(s.netflow).forEach(function(c){
-      var v = s.netflow[c] || [];
-      if ((v[3]||0) > 0) buyers[c] = [v[2]||0, v[3]||0];
-      if ((v[5]||0) > 0) sellers[c] = [v[4]||0, v[5]||0];
-    });
-  }
-  return '<h2 class="bk-h">'+sym+' — trade pattern, '+label()+'</h2>'+
-    '<div class="stat-row">'+
-    '<div class="stat"><div class="l">Total quantity</div><div class="v">'+fmtN(s.qty,0)+'</div></div>'+
-    '<div class="stat"><div class="l">Total value</div><div class="v">'+fmtV(s.value)+'</div></div>'+
-    '<div class="stat"><div class="l">Average rate</div><div class="v">Rs '+fmtN(s.avg_rate)+'</div></div>'+
-    '<div class="stat"><div class="l">Brokers active</div><div class="v">'+activeN+'</div></div></div>'+
-    '<div class="two">'+bt(buyers,'Top buyers')+bt(sellers,'Top sellers')+'</div>';
-}
-
-function renderHoldings(d){
-  var sym = $('symbolSel').value;
-  if(!sym) return '<div class="cover">Pick a stock above to see broker net positions (flow-based).</div>';
-  // net per broker: use the full netflow map when present (all brokers);
-  // fall back to deriving from the top-25 buyers/sellers lists
-  var s = d.symbols[sym];
-  if(!s) return '<div class="cover">No trades for '+sym+' in this period.</div>';
-  var net = {};
-  // netflow entries: [net_qty, net_value, buy_qty, buy_value, sell_qty, sell_value];
-  // tolerate legacy [net_qty, net_value] and value-only schemas
-  function pair6(v){
-    if(!Array.isArray(v)) return [0, v||0, 0, 0, 0, 0];
-    return [v[0]||0, v[1]||0, v[2]||0, v[3]||0, v[4]||0, v[5]||0];
-  }
-  function qv(v){ return Array.isArray(v) ? v : [0, v||0]; }
-  if (s.netflow && Object.keys(s.netflow).length){
-    Object.keys(s.netflow).forEach(function(c){ net[c] = pair6(s.netflow[c]); });
-  } else {
-    Object.keys(s.buyers||{}).forEach(function(c){ var v=qv(s.buyers[c]);
-      var e = net[c] = net[c] || [0,0,0,0,0,0]; e[2]+=v[0]; e[3]+=v[1]; e[0]+=v[0]; e[1]+=v[1]; });
-    Object.keys(s.sellers||{}).forEach(function(c){ var v=qv(s.sellers[c]);
-      var e = net[c] = net[c] || [0,0,0,0,0,0]; e[4]+=v[0]; e[5]+=v[1]; e[0]-=v[0]; e[1]-=v[1]; });
-  }
-  var PER_PAGE = 10;
-  var all = Object.keys(net).map(function(c){return [c,net[c]]});
-  // netflow entries: [net_qty, net_value, buy_qty, buy_value, sell_qty, sell_value]
-  var hget = {
-    broker: function(x){ return bname(x[0]).toLowerCase(); },
-    code: function(x){ return numCode(x[0]); },
-    buy_qty: function(x){ return x[1][2]; },
-    buy_value: function(x){ return x[1][3]; },
-    sell_qty: function(x){ return x[1][4]; },
-    sell_value: function(x){ return x[1][5]; },
-    net_qty: function(x){ return x[1][0]; },
-    net_value: function(x){ return x[1][1]; }
-  };
-  // default order: net value descending (same as before sorting existed)
-  var hs = sortState('holdings');
-  if(!hs.key){ hs.key = 'net_value'; hs.dir = -1; }
-  all = applySort(all, 'holdings', hget);
-  var totalPages = Math.max(1, Math.ceil(all.length / PER_PAGE));
-  if (state.holdPage >= totalPages) state.holdPage = totalPages - 1;
-  if (state.holdPage < 0) state.holdPage = 0;
-  var start = state.holdPage * PER_PAGE;
-  var rows = all.slice(start, start + PER_PAGE)
-    .map(function(x){
-      var n = x[1], nq = n[0], nv = n[1];
-      var tag = nv>0?'<span class="pos">accumulating</span>':'<span class="neg">distributing</span>';
-      return '<tr><td class="bk-name">'+bname(x[0])+'</td><td>'+x[0]+'</td>'+
-        '<td>'+fmtQ(n[2],n[3])+'</td><td>'+fmtV(n[3])+'</td>'+
-        '<td>'+fmtQ(n[4],n[5])+'</td><td>'+fmtV(n[5])+'</td>'+
-        '<td>'+fmtQ(nq,Math.abs(nv))+'</td><td class="'+cls(nv)+'">'+fmtV(nv)+'</td><td>'+tag+'</td></tr>';
-    }).join('');
-  var pager = '<div class="bk-pager" style="display:flex;gap:8px;align-items:center;justify-content:center;margin:12px 0;">'+
-    '<button id="hdPrev" '+(state.holdPage===0?'disabled':'')+' style="padding:6px 14px;border-radius:8px;cursor:pointer;">← Prev</button>'+
-    '<span style="font-size:.85rem;">Page '+(state.holdPage+1)+' of '+totalPages+' ('+all.length+' brokers)</span>'+
-    '<button id="hdNext" '+(state.holdPage>=totalPages-1?'disabled':'')+' style="padding:6px 14px;border-radius:8px;cursor:pointer;">Next →</button></div>';
-  return '<h2 class="bk-h">'+sym+' — stockwise broker flow, '+label()+'</h2>'+
-    '<p style="font-size:.85rem;color:var(--nd-muted,#B8C0CE)">Every broker that traded this stock, netted over the period. Net bought = accumulating · net sold = distributing (by transaction value). This is transaction flow, not verified shareholding.</p>'+
-    '<div class="scrollx" tabindex="0" role="region" aria-label="'+sym+' stockwise broker flow table"><table class="bk-table nd-table"><thead><tr>'+
-    thS('holdings','broker','Broker','bk-name')+thS('holdings','code','Code')+thS('holdings','buy_qty','Buy qty')+thS('holdings','buy_value','Buy value')+
-    thS('holdings','sell_qty','Sell qty')+thS('holdings','sell_value','Sell value')+thS('holdings','net_qty','Net qty')+thS('holdings','net_value','Net value')+
-    '<th>Flow</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+pager;
-}
-
-function renderAccDist(d){
-  var PER_PAGE = 10;
-  var search = (state.accSearch || '').toUpperCase();
-  function filterList(list){
-    if(!search) return list;
-    return list.filter(function(x){ return (x.symbol||'').toUpperCase().indexOf(search) >= 0; });
-  }
-  function tbl(list, title, good, pageKey){
-    var view = pageKey === 'accPage' ? 'acc' : 'dist';
-    var aget = {
-      stock: function(x){ return x.symbol; },
-      broker: function(x){ return bname(x.broker).toLowerCase(); },
-      net_qty: function(x){ return x.net_qty||0; },
-      net_value: function(x){ return x.net_value||0; }
-    };
-    var filtered = applySort(filterList(list).slice(), view, aget);
-    var totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
-    var pg = state[pageKey] || 0;
-    if(pg >= totalPages) pg = totalPages - 1;
-    if(pg < 0) pg = 0;
-    state[pageKey] = pg;
-    var start = pg * PER_PAGE;
-    var page = filtered.slice(start, start + PER_PAGE);
-    var rows = page.map(function(x,i){
-      return '<tr><td>'+(start+i+1)+'</td><td><strong>'+x.symbol+'</strong></td><td class="bk-name">'+bname(x.broker)+'</td>'+
-        '<td>'+fmtQ(x.net_qty,Math.abs(x.net_value))+'</td><td class="'+(good?'pos':'neg')+'">'+fmtV(x.net_value)+'</td></tr>';
-    }).join('');
-    var pager = '<div class="bk-pager" style="display:flex;gap:8px;align-items:center;justify-content:center;margin:8px 0;">'+
-      '<button class="accPrev" data-k="'+pageKey+'" '+(pg===0?'disabled':'')+'>← Prev</button>'+
-      '<span style="font-size:.8rem;">Page '+(pg+1)+' of '+totalPages+'</span>'+
-      '<button class="accNext" data-k="'+pageKey+'" '+(pg>=totalPages-1?'disabled':'')+'>Next →</button></div>';
-    return '<div><h2 class="bk-h">'+title+'</h2><div class="scrollx" tabindex="0" role="region" aria-label="'+title+' table"><table class="bk-table nd-table"><thead><tr><th>#</th>'+
-      thS(view,'stock','Stock')+thS(view,'broker','Broker','bk-name')+thS(view,'net_qty','Net qty')+thS(view,'net_value','Net value')+
-      '</tr></thead><tbody>'+rows+'</tbody></table></div>'+pager+'</div>';
-  }
-  var searchBox = '<div style="margin:0 0 12px;"><input id="accSearch" type="text" aria-label="Search symbol" placeholder="Search symbol (e.g. NABIL)…" value="'+(state.accSearch||'')+'" style="padding:8px 12px;border-radius:8px;width:250px;"></div>';
-  return searchBox+'<div class="two">'+tbl(d.accumulation||[],'Accumulating — top net bought',true,'accPage')+tbl(d.distribution||[],'Distributing — top net sold',false,'distPage')+'</div>';
-}
-
-function label(){
-  if(state.period==='latest'){
-    // intraday.json missing (no market-hours poller yet) -> we fell back to
-    // 1D: label it as the last session, never "live today".
-    if (state.data && state.data._fallback){
-      var ds = state.data.asof ? String(state.data.asof).slice(0,10)
-        : (state.data.to ? String(state.data.to).slice(0,10) : 'last session');
-      return 'last session ('+ds+')';
-    }
-    return 'live today'+(state.data&&state.data.asof?' (as of '+state.data.asof.slice(11,16)+' UTC)':'');
-  }
-  if(state.period==='asof') return state.asof;
-  var d = state.data;
-  return d && d.from ? d.from+' → '+d.to+' ('+d.trading_days+' sessions)' : state.period;
-}
-
-var _searchTimer = null;
-// Debounced re-render for search inputs: waits until the user pauses typing,
-// then re-renders and restores focus + caret so typing stays fluid.
-function debounceRender(focusId){
-  if (_searchTimer) clearTimeout(_searchTimer);
-  _searchTimer = setTimeout(function(){
-    _searchTimer = null;
-    render();
-    var el = focusId ? $(focusId) : null;
-    if (el){
-      el.focus();
-      try { el.setSelectionRange(el.value.length, el.value.length); } catch(e){}
-    }
-  }, 250);
-}
-
-function render(){
-  var d = state.data; if(!d) return;
-  // Rebuild the stock dropdown from the current dataset, then restore the
-  // user's pick (kept in state) so period changes never lose the selection.
-  var sel = $('symbolSel');
-  sel.innerHTML = '<option value="">Select stock…</option>';
-  var syms = symbolOptions(d);
-  syms.forEach(function(s){ var o=document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o); });
-  if(state.symbol){
-    // Keep the picked symbol visible even when this period has no trades for
-    // it — the view then shows its honest "No trades … in this period" state.
-    if(syms.indexOf(state.symbol)<0){
-      var o=document.createElement('option'); o.value=state.symbol; o.textContent=state.symbol; sel.appendChild(o);
-    }
-    sel.value = state.symbol;
-  } else {
-    sel.value = '';
-  }
-  // Restore the broker pick (options come from brokers.json, stable across periods);
-  // drop it if the code is no longer listed.
-  var bsel = $('brokerSel');
-  if(state.broker){
-    var ok = false, i;
-    for(i=0;i<bsel.options.length;i++){ if(bsel.options[i].value===state.broker){ ok=true; break; } }
-    if(ok) bsel.value = state.broker;
-    else { bsel.value=''; state.broker=null; }
-  } else {
-    bsel.value = '';
-  }
-  var html = '';
-  if(state.view==='top') html = renderTop(d);
-  else if(state.view==='broker') html = renderBroker(d);
-  else if(state.view==='stock') html = renderStock(d);
-  else if(state.view==='holdings') html = renderHoldings(d);
-  else html = renderAccDist(d);
-  $('view').innerHTML = html;
-  // Pagination handlers for Top Brokers
-  var bp = $('bkPrev'), bn = $('bkNext');
-  if (bp) bp.addEventListener('click', function(){ if(state.topPage>0){ state.topPage--; render(); } });
-  if (bn) bn.addEventListener('click', function(){ state.topPage++; render(); });
-  var hp = $('hdPrev'), hn = $('hdNext');
-  if (hp) hp.addEventListener('click', function(){ if(state.holdPage>0){ state.holdPage--; render(); } });
-  if (hn) hn.addEventListener('click', function(){ state.holdPage++; render(); });
-  var rp = $('brPrev'), rn = $('brNext');
-  if (rp) rp.addEventListener('click', function(){ if(state.brkPage>0){ state.brkPage--; render(); } });
-  if (rn) rn.addEventListener('click', function(){ state.brkPage++; render(); });
-  var bsq = $('brokerSymSearch');
-  if (bsq){
-    if (document.activeElement !== bsq) bsq.value = state.brkQuery||'';
-    bsq.oninput = function(){
-      state.brkQuery = this.value; state.brkPage = 0;
-      debounceRender('brokerSymSearch');
-    };
-  }
-  var asq = $('accSearch');
-  if (asq){
-    if (document.activeElement !== asq) asq.value = state.accSearch||'';
-    asq.oninput = function(){
-      state.accSearch = this.value; state.accPage = 0; state.distPage = 0;
-      debounceRender('accSearch');
-    };
-  }
-  document.querySelectorAll('.accPrev').forEach(function(btn){
-    btn.addEventListener('click', function(){ var k=btn.getAttribute('data-k'); if(state[k]>0){ state[k]--; render(); } });
-  });
-  document.querySelectorAll('.accNext').forEach(function(btn){
-    btn.addEventListener('click', function(){ var k=btn.getAttribute('data-k'); state[k]++; render(); });
-  });
-  document.querySelectorAll('#view th[data-sort]').forEach(function(th){
-    th.addEventListener('click', function(){
-      var parts = th.getAttribute('data-sort').split(':'), v = parts[0], k = parts[1];
-      var s = sortState(v);
-      if (s.key === k) s.dir *= -1;
-      else { s.key = k; s.dir = /^(broker|symbol|stock|code)$/.test(k) ? 1 : -1; }
-      var pk = sortPageKey[v];
-      if (pk) state[pk] = 0;
-      render();
-    });
-  });
-  syncURL();
-}
-
-function syncControls(){
-  var v = state.view;
-  $('viewControls').style.display = (v==='top'||v==='accdist') ? 'none' : 'flex';
-  $('brokerSel').style.display = v==='broker' ? '' : 'none';
-  $('brokerSymSearch').style.display = v==='broker' ? '' : 'none';
-  var showSym = (v==='stock'||v==='holdings');
-  $('symbolSel').style.display = showSym ? '' : 'none';
-}
-
-$('viewTabs').addEventListener('click', function(e){
-  var b = e.target.closest('button'); if(!b) return;
-  document.querySelectorAll('#viewTabs button').forEach(function(x){x.classList.remove('active')});
-  b.classList.add('active'); state.view = b.dataset.view; syncControls(); syncURL(); render();
-});
-$('periodBar').addEventListener('click', function(e){
-  var b = e.target.closest('button'); if(!b) return;
-  document.querySelectorAll('#periodBar button').forEach(function(x){x.classList.remove('active')});
-  b.classList.add('active'); state.period = b.dataset.p; state.asof = null; state.holdPage = 0; state.brkPage = 0; state.brkQuery = ''; $('asofDate').value='';
-  // Selections live in state and are restored by render() — never wipe them here.
-  syncURL();
-  loadPeriod();
-});
-$('asofDate').addEventListener('change', function(e){
-  if(!e.target.value) return;
-  document.querySelectorAll('#periodBar button').forEach(function(x){x.classList.remove('active')});
-  state.period = 'asof'; state.asof = e.target.value;
-  // Selections live in state and are restored by render() — never wipe them here.
-  syncURL();
-  loadPeriod();
-});
-$('brokerSel').addEventListener('change', function(){ state.broker = this.value || null; state.brkPage = 0; state.brkQuery = ''; syncURL(); render(); });
-$('symbolSel').addEventListener('change', function(){ state.symbol = this.value || null; state.holdPage = 0; syncURL(); render(); });
-
-initFromURL();
-syncStaticControls();
-loadMeta().then(function(){
-  // Validate the broker pick once the options exist (from brokers.json).
-  if(state.broker){
-    var bsel = $('brokerSel'), ok = false, i;
-    for(i=0;i<bsel.options.length;i++){ if(bsel.options[i].value===state.broker){ ok=true; break; } }
-    if(ok) bsel.value = state.broker; else state.broker = null;
-  }
-  syncControls();
-  labelSnapshot();
-  return loadPeriod();
-});
-/* Auto-refresh: re-fetch the current view every 60s (skipped while the tab is
-   hidden). Intraday data rebuilds every 5 min during market hours, so a page
-   left open picks up the fresh snapshot without a reload. Silent refresh —
-   no loading flash; errors keep the last good render on screen. */
-setInterval(function(){
-  if (document.hidden) return;
-  loadPeriod(true);
-}, 60000);
-})();
-</script>
 <script src="/js/theme-toggle.js?v=6a6a46c6" defer></script>
 <script src="/js/freshness-badge.js?v=9b77cf10" defer></script>
 <script src="/js/nd-chrome.js?v=74c1c8b7" defer></script>
