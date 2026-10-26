@@ -32,6 +32,11 @@ function money(n) {
 function card(l, v, cls) {
   return '<div class="sig-card ' + cls + '"><div class="sig-card-l">' + l + '</div><div class="sig-card-v">' + v + '</div></div>';
 }
+/* Server-side twin of the client cardBar below (live pages carry proportion
+ * bars on the Win-rate and Deepest-fall cards; kept in sync 2026-10-26). */
+function cardBar(l, v, cls, pctVal, col) {
+  return '<div class="sig-card ' + cls + '"><div class="sig-card-l">' + l + '</div><div class="sig-card-v">' + v + '</div><div class="cx-prop" style="margin-top:9px"><div class="cx-prop-track"><span class="cx-prop-fill" style="--w:' + pctVal + '%' + (col ? ';background:' + col : '') + '"></span></div></div></div>';
+}
 
 // backtest_years is not emitted by build-signals.js; derive it from the window dates.
 // (2026-10-09: pages + meta descriptions rendered "undefined years" otherwise.)
@@ -86,8 +91,8 @@ function page(sys, data) {
   const cards =
     card('Annual return', pct(st.annual_return_pct), st.annual_return_pct >= 0 ? 'up' : 'down') +
     card('Rs 1 Cr became', money(st.final_value), '') +
-    card('Win rate', pct(st.win_rate_pct), '') +
-    card('Deepest fall', pct(st.max_drawdown_pct), 'down') +
+    cardBar('Win rate', pct(st.win_rate_pct), '', fmt(st.win_rate_pct), '') +
+    cardBar('Deepest fall', pct(st.max_drawdown_pct), 'down', fmt(st.max_drawdown_pct), 'var(--nd-down,#F87171)') +
     card('Profit factor', fmt(st.profit_factor), '') +
     card('Avg holding', fmt(st.avg_holding_days, 0) + ' days', '') +
     card('Charges paid', money(st.charges_paid), '') +
@@ -154,18 +159,19 @@ function page(sys, data) {
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebPage","name":"${title} — Nepse Decode Signals","url":"${pageUrl}","description":"${metaDesc}","isPartOf":{"@type":"WebSite","name":"Nepse Decode","url":"https://shirjankhadka.com.np/"},"author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
 </script>
+<link rel="stylesheet" href="/css/nd-tokens.css">
 <link rel="stylesheet" href="/css/fonts.css">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023d">
-<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023d">
-<link rel="stylesheet" href="/css/sig-pro.css?v=20261023d">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
+<link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
+<link rel="stylesheet" href="/css/sig-pro.css?v=ed0fe3e9">
 </head>
 <body class="nd">
 <a class="skip-link" href="#main">Skip to content</a>
 <div id="nd-header"></div>
 <main id="main" class="sig-wrap">
 <nav class="sig-tabs" aria-label="Signal systems">${tabs}</nav>
-${bannerHtml}
-
+${bannerHtml ? bannerHtml + '\n' : ''}
 <p class="sig-kicker">Nepse Decode &middot; Chart &amp; signals &middot; rule-based, no black boxes</p>
 <h1>${title}</h1>
 <p class="sig-lede">${tagline}</p>
@@ -180,8 +186,8 @@ ${bannerHtml}
 <div class="sig-grid" id="track-grid"></div>
 <h3>Open paper positions</h3>
 <div class="scrollx"><table class="sig-table" id="track-open"><thead><tr>
-<th>Date</th><th>Symbol</th><th class="num">Entry</th><th class="num">Stop loss</th><th class="num">Trail stop</th><th class="num">Target 1</th><th class="num">Target 2</th><th class="num">Current</th><th class="num">Unrealized</th><th class="num">Sessions</th>
-</tr></thead><tbody><tr><td colspan="10">Loading…</td></tr></tbody></table></div>
+<th>Date</th><th>Symbol</th><th class="num">Entry</th><th class="num">Stop loss</th><th class="num">Trail stop</th><th class="num">Target 1</th><th class="num">Target 2</th><th class="num">Current</th><th class="num">Unrealized</th><th>Progress to T2</th><th class="num">Sessions</th>
+</tr></thead><tbody><tr><td colspan="11">Loading…</td></tr></tbody></table></div>
 <h3>Closed paper trades — newest first</h3>
 <div class="scrollx"><table class="sig-table" id="track-closed"><thead><tr>
 <th>Symbol</th><th class="num">Entry date</th><th class="num">Exit date</th><th class="num">Entry</th><th class="num">Exit</th><th>Exit reason</th><th class="num">P&amp;L %</th><th class="num">Sessions</th>
@@ -356,6 +362,7 @@ ${profileRows}</table></div>
       var lr=d.live_track_record, sec=document.getElementById('track-record');
       var sub=document.getElementById('track-sub'), grid=document.getElementById('track-grid');
       function card(l,v,cls){return '<div class="sig-card '+cls+'"><div class="sig-card-l">'+l+'</div><div class="sig-card-v">'+v+'</div></div>';}
+      function cardBar(l,v,cls,pct,col){return '<div class="sig-card '+cls+'"><div class="sig-card-l">'+l+'</div><div class="sig-card-v">'+v+'</div><div class="cx-prop" style="margin-top:9px"><div class="cx-prop-track"><span class="cx-prop-fill" style="--w:'+pct+'%;background:'+col+'"></span></div></div></div>';}
       if(!lr||!lr.stats){
         if(sub)sub.textContent='Forward tracking of live alerts begins with the next daily rebuild — no paper trades yet.';
         grid.innerHTML='';
@@ -374,8 +381,8 @@ ${profileRows}</table></div>
         if(sub)sub.textContent='Forward-tracked since '+since+' · data through '+(s2.data_through||'–')+'. Every live Entry alert becomes a Rs 10 lakh paper trade at the signal close; exits fire on real forward OHLC — Target 1, stop loss, a ratcheting trailing stop, or a 20-session time exit. P&L is net of 0.5% round-trip charges.';
         var bw=(s2.best_trade?s2.best_trade.symbol+' '+(s2.best_trade.pnl_pct>=0?'+':'')+s2.best_trade.pnl_pct+'%':'–')+' / '+(s2.worst_trade?s2.worst_trade.symbol+' '+(s2.worst_trade.pnl_pct>=0?'+':'')+s2.worst_trade.pnl_pct+'%':'–');
         grid.innerHTML=
-          card('Win rate',s2.win_rate_pct+'%',s2.win_rate_pct>=50?'up':'')+
-          card('Failure rate',s2.failure_rate_pct+'%',s2.failure_rate_pct>=50?'down':'')+
+          cardBar('Win rate',s2.win_rate_pct+'%',s2.win_rate_pct>=50?'up':'',s2.win_rate_pct,'var(--nd-lime,#B8E62E)')+
+          cardBar('Failure rate',s2.failure_rate_pct+'%',s2.failure_rate_pct>=50?'down':'',s2.failure_rate_pct,'var(--nd-down,#F87171)')+
           card('Closed trades',nClosed,'')+
           card('Open now',s2.open_positions,'')+
           card('Avg win','+'+s2.avg_win_pct+'%','up')+
@@ -392,8 +399,9 @@ ${profileRows}</table></div>
         '<td class="num">'+fmtN(t.trail_stop)+'</td><td class="num">'+fmtN(t.target_1)+'</td>'+
         '<td class="num">'+fmtN(t.target_2)+'</td><td class="num">'+fmtN(t.current_price)+'</td>'+
         '<td class="num" style="color:var(--nd-'+(t.unrealized_pct>=0?'up':'down')+')">'+esc(u)+'</td>'+
+        '<td><div class="prog"><i style="width:'+(t.target_2>t.entry_price?Math.max(0,Math.min(100,(t.current_price-t.entry_price)/(t.target_2-t.entry_price)*100)):0)+'%\\"></i></div></td>'+
         '<td class="num">'+t.sessions_held+'</td></tr>';
-      }).join(''):'<tr><td colspan="10">No open paper positions right now.</td></tr>';
+      }).join(''):'<tr><td colspan="11">No open paper positions right now.</td></tr>';
       var ctb=document.querySelector('#track-closed tbody');
       var closed=lr.recent_closed||[];
       ctb.innerHTML=closed.length?closed.map(function(t){
@@ -468,8 +476,9 @@ ${profileRows}</table></div>
 })();
 </script>
 <div id="nd-footer"></div>
-<script src="/js/nd-chrome.js?v=20261023d" defer></script>
-<script src="/js/theme-toggle.js?v=20261023d" defer></script>
+<script src="/js/nd-chrome.js?v=74c1c8b7" defer></script>
+<script src="/js/nd-cinema.js?v=90f78cc3" defer></script>
+<script src="/js/theme-toggle.js?v=6a6a46c6" defer></script>
 </body>
 </html>`;
 }
