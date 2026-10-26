@@ -1,0 +1,85 @@
+/* Nepse Decode calculators — page layer (tokens only, no shared files touched).
+   Migrated from the page's inline <style> block, including the skip-link
+   rule verbatim in effect (hide until keyboard-focused). */
+
+/* Accessibility: hide skip-link until keyboard-focused */
+.skip-link {
+  position: absolute; top: -48px; left: 12px; z-index: 200;
+  padding: 8px 14px; border-radius: 8px;
+  background: var(--nd-lime, #B8E62E); color: #0A0C10;
+  font-weight: 700; text-decoration: none;
+  transition: top 0.15s ease;
+}
+.skip-link:focus { top: 12px; }
+
+/* Canvas: this page's chain paints no body background (measured transparent
+   in both themes), so pin it plainly to the overview token. No competing
+   body rule exists in this chain (no theme.css, no design-system), so a
+   plain page-scoped pin wins without a specificity fight. */
+body[data-page="calculators"] { background: var(--nd-bg); font-family: var(--nd-font-sans); }
+
+.calc-wrap { max-width: 1180px; margin: 0 auto; padding: 24px 20px 40px; }
+.calc-kicker { color: var(--nd-lime); font: 700 .75rem Inter, system-ui, sans-serif; letter-spacing: .14em; text-transform: uppercase; }
+.calc-intro { color: var(--nd-muted); max-width: 70ch; line-height: 1.65; }
+.calc-foot { color: var(--nd-muted); font-size: .85rem; }
+
+.calc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin: 6px 0 16px; }
+.fld label { display: block; font: 600 .72rem Inter, system-ui, sans-serif; letter-spacing: .09em; text-transform: uppercase; color: var(--nd-muted); margin-bottom: 6px; }
+.fld input, .fld select { width: 100%; box-sizing: border-box; background: var(--nd-inset, #0D0F14); border: 1px solid var(--nd-border, #1E2430); border-radius: 10px; color: var(--nd-text); padding: 10px 12px; font: 600 .95rem Inter, system-ui, sans-serif; }
+.fld input:focus, .fld select:focus { outline: 2px solid var(--nd-lime); outline-offset: 1px; border-color: transparent; }
+[data-theme="light"] .fld input, [data-theme="light"] .fld select { background: #F1F4F7; }
+
+/* Holding-period segmented control uses the kit .cx-seg; only the missing
+   focus-visible treatment is added here (the kit covers .cx-btn, not seg). */
+.cx-seg button:focus-visible { outline: 2px solid var(--nd-lime); outline-offset: 2px; }
+
+.lot-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; margin-bottom: 10px; align-items: end; }
+.calc-note { color: var(--nd-muted); font-size: .88rem; line-height: 1.6; }
+.rate-tbl td:first-child { font-weight: 600; }
+.rate-tbl .cx-prop { min-width: 110px; }
+.rate-tbl .cx-prop-track { background: var(--nd-panel-2); }
+
+/* Check lines: the identity each calculator must satisfy, printed with the
+   run's own numbers. A mismatch would render as a warning, never silently. */
+.calc-check { border-top: 1px solid var(--nd-border); margin-top: 14px; padding-top: 12px; color: var(--nd-muted); font-size: .88rem; line-height: 1.6; }
+.calc-check strong { color: var(--nd-text); }
+.calc-check .ok { color: var(--nd-up); font-weight: 700; }
+.calc-check .bad { color: var(--nd-down); font-weight: 700; }
+
+/* Sector picker */
+.calc-picker-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: end; margin: 6px 0 14px; }
+.calc-picker-row .fld { min-width: 220px; flex: 0 1 280px; }
+.calc-fresh { color: var(--nd-dim); font-size: .85rem; line-height: 1.5; margin: 0; padding-bottom: 10px; }
+.calc-fresh .bad { color: var(--nd-down); }
+.calc-sector-summary { display: flex; flex-wrap: wrap; gap: 8px 22px; color: var(--nd-muted); font-size: .88rem; margin: 0 0 12px; }
+.calc-sector-summary strong { color: var(--nd-text); }
+.calc-scroll { overflow-x: auto; }
+.calc-scroll-gap { margin-top: 14px; }
+#waccLots { margin-top: 12px; }
+#waccStats { margin-top: 16px; }
+.calc-pager { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 14px; }
+.calc-pager .showing { color: var(--nd-muted); font-size: .88rem; }
+.calc-rowbtn { white-space: nowrap; }
+.calc-up { color: var(--nd-up); }
+.calc-down { color: var(--nd-down); }
+.cx-btn:disabled { opacity: .45; cursor: default; transform: none; box-shadow: none; }
+.cx-btn.danger { background: transparent; border-color: var(--nd-down); color: var(--nd-down); }
+.cx-btn.danger:hover { background: var(--nd-down-soft); box-shadow: none; }
+button:focus-visible, select:focus-visible { outline: 2px solid var(--nd-lime); outline-offset: 2px; }
+
+/* History */
+.calc-hist-agg { display: flex; flex-wrap: wrap; gap: 8px 22px; color: var(--nd-muted); font-size: .88rem; margin: 0 0 14px; }
+.calc-hist-agg strong { color: var(--nd-text); }
+.calc-hist-entry { border-top: 1px solid var(--nd-border); padding: 12px 0; display: flex; flex-wrap: wrap; gap: 10px; align-items: start; justify-content: space-between; }
+.calc-hist-entry:first-child { border-top: 0; padding-top: 0; }
+.calc-hist-main { min-width: 240px; flex: 1 1 320px; }
+.calc-hist-title { font-weight: 700; color: var(--nd-text); }
+.calc-hist-meta { color: var(--nd-dim); font-size: .82rem; margin-top: 2px; }
+.calc-hist-detail { color: var(--nd-muted); font-size: .88rem; margin-top: 4px; line-height: 1.55; }
+.calc-hist-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+@media (max-width: 560px) {
+  .lot-row { grid-template-columns: 1fr; }
+  .calc-wrap { padding: 20px 14px 32px; }
+  .rate-tbl .cx-prop { min-width: 70px; }
+}

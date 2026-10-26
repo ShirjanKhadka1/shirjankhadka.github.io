@@ -33,56 +33,54 @@
 <link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
-<style>
-/* Accessibility: hide skip-link until keyboard-focused */
-.skip-link {
-  position: absolute; top: -48px; left: 12px; z-index: 200;
-  padding: 8px 14px; border-radius: 8px;
-  background: var(--nd-lime, #B8E62E); color: #0A0C10;
-  font-weight: 700; text-decoration: none;
-  transition: top 0.15s ease;
-}
-.skip-link:focus { top: 12px; }
-.calc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin:6px 0 16px}
-.fld label{display:block;font:600 .72rem Inter,system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--nd-muted);margin-bottom:6px}
-.fld input,.fld select{width:100%;box-sizing:border-box;background:var(--nd-inset,#0D0F14);border:1px solid var(--nd-border,#1E2430);border-radius:10px;color:var(--nd-text);padding:10px 12px;font:600 .95rem Inter,system-ui,sans-serif}
-.fld input:focus,.fld select:focus{outline:2px solid var(--nd-lime);outline-offset:1px;border-color:transparent}
-[data-theme="light"] .fld input,[data-theme="light"] .fld select{background:#F1F4F7}
-.calc-seg{display:inline-flex;gap:4px;padding:4px;border-radius:999px;background:var(--nd-panel);border:1px solid var(--nd-border,#1E2430);margin:2px 0 14px}
-.calc-seg button{appearance:none;border:0;background:transparent;color:var(--nd-muted);font:600 .85rem Inter,system-ui,sans-serif;padding:7px 15px;border-radius:999px;cursor:pointer}
-.calc-seg button[aria-pressed="true"]{background:var(--nd-lime);color:#0A0C10}
-[data-theme="light"] .calc-seg button[aria-pressed="true"]{color:#fff}
-.lot-row{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;margin-bottom:10px;align-items:end}
-.calc-note{color:var(--nd-muted);font-size:.88rem;line-height:1.6}
-.rate-tbl td:first-child{font-weight:600}
-</style>
+<link rel="stylesheet" href="/css/nd-calculators.css?v=8dc7ec00">
 </head>
-<body class="nd">
+<body class="nd" data-page="calculators">
 <a class="skip-link" href="#main">Skip to content</a>
 <div id="nd-header"></div>
-<main id="main" class="wrap" style="max-width:1180px;margin:0 auto;padding:24px 20px 40px">
-<p class="sig-kicker" style="color:var(--nd-lime);font:700 .75rem Inter;letter-spacing:.14em;text-transform:uppercase">Nepse Decode · Tools</p>
+<main id="main" class="wrap calc-wrap">
+<p class="sig-kicker calc-kicker">Nepse Decode · Tools</p>
 <h1 class="nd-pagetitle">NEPSE Calculators</h1>
-<p style="color:var(--nd-muted);max-width:70ch;line-height:1.65">Share buying and selling costs with capital gains tax, weighted average cost, SIP projections, and bonus / right share price adjustments — all running on the <strong>current</strong> verified fee schedule, shown in full below. No sign-up, nothing leaves your browser.</p>
+<p class="calc-intro">Share buying and selling costs with capital gains tax, weighted average cost, SIP projections, and bonus / right share price adjustments — all running on the <strong>current</strong> verified fee schedule, shown in full below. No sign-up, nothing leaves your browser.</p>
 
 <section class="cx-cat cx-reveal">
   <div class="cx-cat-head"><span class="cx-cat-sq"></span><h2 class="cx-cat-title">The rates these calculators use</h2></div>
-  <div style="overflow-x:auto"><table class="cx-table rate-tbl">
-    <tr><th>Charge</th><th>Rate</th><th>Applies</th></tr>
-    <tr><td>Broker commission — up to Rs 50,000</td><td>0.36% (min Rs 10)</td><td>Buy &amp; sell</td></tr>
-    <tr><td>Broker commission — Rs 50,001 to 5 lakh</td><td>0.33%</td><td>Buy &amp; sell</td></tr>
-    <tr><td>Broker commission — Rs 5 lakh to 20 lakh</td><td>0.31%</td><td>Buy &amp; sell</td></tr>
-    <tr><td>Broker commission — Rs 20 lakh to 1 crore</td><td>0.27%</td><td>Buy &amp; sell</td></tr>
-    <tr><td>Broker commission — above Rs 1 crore</td><td>0.24%</td><td>Buy &amp; sell</td></tr>
-    <tr><td>SEBON transaction fee</td><td>0.015%</td><td>Buy &amp; sell</td></tr>
-    <tr><td>DP charge (CDSC)</td><td>Rs 25 per scrip</td><td>Buy &amp; sell</td></tr>
-    <tr><td>Capital gains tax — held 365 days or less</td><td>5% of the net gain</td><td>Sell only</td></tr>
-    <tr><td>Capital gains tax — held more than 365 days</td><td>3.75% of the net gain</td><td>Sell only</td></tr>
+  <div class="calc-scroll"><table class="cx-table rate-tbl">
+    <tr><th>Charge</th><th>Rate</th><th>Rate vs top slab</th><th>Applies</th></tr>
+    <tr><td>Broker commission — up to Rs 50,000</td><td>0.36% (min Rs 10)</td><td><div class="cx-prop"><div class="cx-prop-track"><div class="cx-prop-fill" style="--w:100%"></div></div></div></td><td>Buy &amp; sell</td></tr>
+    <tr><td>Broker commission — Rs 50,001 to 5 lakh</td><td>0.33%</td><td><div class="cx-prop"><div class="cx-prop-track"><div class="cx-prop-fill" style="--w:92%"></div></div></div></td><td>Buy &amp; sell</td></tr>
+    <tr><td>Broker commission — Rs 5 lakh to 20 lakh</td><td>0.31%</td><td><div class="cx-prop"><div class="cx-prop-track"><div class="cx-prop-fill" style="--w:86%"></div></div></div></td><td>Buy &amp; sell</td></tr>
+    <tr><td>Broker commission — Rs 20 lakh to 1 crore</td><td>0.27%</td><td><div class="cx-prop"><div class="cx-prop-track"><div class="cx-prop-fill" style="--w:75%"></div></div></div></td><td>Buy &amp; sell</td></tr>
+    <tr><td>Broker commission — above Rs 1 crore</td><td>0.24%</td><td><div class="cx-prop"><div class="cx-prop-track"><div class="cx-prop-fill" style="--w:67%"></div></div></div></td><td>Buy &amp; sell</td></tr>
+    <tr><td>SEBON transaction fee</td><td>0.015%</td><td><div class="cx-prop"><div class="cx-prop-track"><div class="cx-prop-fill" style="--w:4%"></div></div></div></td><td>Buy &amp; sell</td></tr>
+    <tr><td>DP charge (CDSC)</td><td>Rs 25 per scrip</td><td>—</td><td>Buy &amp; sell</td></tr>
+    <tr><td>Capital gains tax — held 365 days or less</td><td>5% of the net gain</td><td>—</td><td>Sell only</td></tr>
+    <tr><td>Capital gains tax — held more than 365 days</td><td>3.75% of the net gain</td><td>—</td><td>Sell only</td></tr>
   </table></div>
-  <p class="calc-note">CGT was halved by a Ministry of Finance notice in the Nepal Gazette (vol. 76, Additional 40, Part 5, dated 31 Bhadra 2083 — 16 September 2026), replacing the Finance Act 2083 rates of 10% / 7.5%. The gain is taxed after fees: sell proceeds after charges, minus the fee-inclusive cost of buying. Rates above are for resident individuals on listed shares; dividends are taxed separately at a flat 5%. If any rate changes, this table and the calculators change together — the date of the schedule is part of the page.</p>
+  <p class="calc-note">Bars compare commission and SEBON rates against the top 0.36% slab only — the DP charge is a flat fee and CGT applies to gains, not trade value, so neither sits on this scale. CGT was halved by a Ministry of Finance notice in the Nepal Gazette (vol. 76, Additional 40, Part 5, dated 31 Bhadra 2083 — 16 September 2026), replacing the Finance Act 2083 rates of 10% / 7.5%. The gain is taxed after fees: sell proceeds after charges, minus the fee-inclusive cost of buying. Rates above are for resident individuals on listed shares; dividends are taxed separately at a flat 5%. If any rate changes, this table and the calculators change together — the date of the schedule is part of the page.</p>
 </section>
 
-<section class="cx-cat cx-reveal">
+<section class="cx-cat cx-reveal" id="calc-picker-sec">
+  <div class="cx-cat-head"><span class="cx-cat-sq"></span><h2 class="cx-cat-title">Pick a stock by sector</h2></div>
+  <p class="calc-note">Closing prices from the daily batch, grouped by sector. Picking a stock only prefills a price — you can still type any price into any calculator. Sector membership comes from the batch's own sector tags; closes are the batch's latest closes.</p>
+  <div class="calc-picker-row">
+    <div class="fld"><label for="calcSector">Sector</label><select id="calcSector"><option value="">Choose a sector…</option></select></div>
+    <p class="calc-fresh" id="calcFreshLine">Loading sector data…</p>
+  </div>
+  <div id="calcSectorBlock" hidden>
+    <p class="calc-sector-summary" id="calcSectorSummary"></p>
+    <div class="calc-scroll"><table class="cx-table" id="calcSectorTable"></table></div>
+    <div class="calc-pager" id="calcSectorPager">
+      <button type="button" class="cx-btn quiet" id="calcSecPrev">Prev</button>
+      <span class="showing" id="calcSecShowing"></span>
+      <button type="button" class="cx-btn" id="calcSecNext">Next</button>
+      <button type="button" class="cx-btn quiet" id="calcSecClear">Clear sector</button>
+    </div>
+  </div>
+  <p class="calc-note" id="calcSectorEmpty">Choose a sector above to see its stocks.</p>
+</section>
+
+<section class="cx-cat cx-reveal" data-calc="share">
   <div class="cx-cat-head"><span class="cx-cat-sq"></span><h2 class="cx-cat-title">Share calculator — cost, gain &amp; CGT</h2></div>
   <div class="calc-grid">
     <div class="fld"><label for="scQty">Quantity (shares)</label><input id="scQty" type="number" min="0" step="1" value="100"></div>
@@ -90,24 +88,27 @@
     <div class="fld"><label for="scSell">Sell price per share (Rs)</label><input id="scSell" type="number" min="0" step="0.01" value="600"></div>
   </div>
   <div class="fld"><label>Holding period (sets the CGT rate)</label></div>
-  <div class="calc-seg" role="group" aria-label="Holding period">
+  <div class="cx-seg" role="group" aria-label="Holding period">
     <button type="button" id="holdShort" aria-pressed="true">365 days or less · CGT 5%</button>
     <button type="button" id="holdLong" aria-pressed="false">More than 365 days · CGT 3.75%</button>
   </div>
   <div class="cx-stats" id="scStats"></div>
-  <div style="overflow-x:auto;margin-top:14px"><table class="cx-table" id="scTable"></table></div>
+  <div class="calc-scroll calc-scroll-gap"><table class="cx-table" id="scTable"></table></div>
+  <p class="calc-check" id="scCheck"></p>
   <p class="calc-note" id="scNote"></p>
 </section>
 
-<section class="cx-cat cx-reveal">
+<section class="cx-cat cx-reveal" data-calc="wacc">
   <div class="cx-cat-head"><span class="cx-cat-sq"></span><h2 class="cx-cat-title">Weighted average cost (WACC)</h2></div>
   <p class="calc-note">Add each buy as its own lot — every lot carries its own broker commission, SEBON fee and DP charge, exactly as separate transactions would.</p>
-  <div id="waccLots" style="margin-top:12px"></div>
+  <div id="waccLots"></div>
   <button type="button" class="cx-btn" id="waccAdd">+ Add a buy lot</button>
-  <div class="cx-stats" id="waccStats" style="margin-top:16px"></div>
+  <div class="cx-stats" id="waccStats"></div>
+  <div class="calc-scroll calc-scroll-gap"><table class="cx-table" id="waccTable"></table></div>
+  <p class="calc-check" id="waccCheck"></p>
 </section>
 
-<section class="cx-cat cx-reveal">
+<section class="cx-cat cx-reveal" data-calc="sip">
   <div class="cx-cat-head"><span class="cx-cat-sq"></span><h2 class="cx-cat-title">SIP calculator</h2></div>
   <div class="calc-grid">
     <div class="fld"><label for="sipAmt">Monthly investment (Rs)</label><input id="sipAmt" type="number" min="0" step="100" value="10000"></div>
@@ -115,11 +116,12 @@
     <div class="fld"><label for="sipRet">Assumed return (% per year)</label><input id="sipRet" type="number" min="0" max="30" step="0.1" value="12"></div>
   </div>
   <div class="cx-stats" id="sipStats"></div>
-  <div style="overflow-x:auto;margin-top:14px"><table class="cx-table" id="sipTable"></table></div>
+  <div class="calc-scroll calc-scroll-gap"><table class="cx-table" id="sipTable"></table></div>
+  <p class="calc-check" id="sipCheck"></p>
   <p class="calc-note">An illustration with a constant assumed return, compounded monthly — markets do not move in straight lines, so treat the projection as arithmetic, not a forecast.</p>
 </section>
 
-<section class="cx-cat cx-reveal">
+<section class="cx-cat cx-reveal" data-calc="adj">
   <div class="cx-cat-head"><span class="cx-cat-sq"></span><h2 class="cx-cat-title">Price adjustment — bonus &amp; right shares</h2></div>
   <div class="calc-grid">
     <div class="fld"><label for="adjPrice">Price before book closure (Rs)</label><input id="adjPrice" type="number" min="0" step="0.01" value="1000"></div>
@@ -128,15 +130,25 @@
     <div class="fld"><label for="adjFace">Face value for rights (Rs)</label><input id="adjFace" type="number" min="0" step="1" value="100"></div>
   </div>
   <div class="cx-stats" id="adjStats"></div>
+  <p class="calc-check" id="adjCheck"></p>
   <p class="calc-note">Bonus adjustment: price ÷ (1 + bonus%). Right adjustment: (price + face value × right%) ÷ (1 + right%). These are the standard NEPSE reference-price formulas applied after book closure.</p>
 </section>
 
-<p class="sig-foot" style="color:var(--nd-muted);font-size:.85rem">For education only. Not investment advice. Fee schedule verified 2026-10-23 against the Nepal Gazette notice of 31 Bhadra 2083 and current broker/SEBON schedules.</p>
+<section class="cx-cat cx-reveal" id="calc-history-sec">
+  <div class="cx-cat-head"><span class="cx-cat-sq"></span><h2 class="cx-cat-title">Calculation history</h2></div>
+  <p class="calc-note">Every calculation you run here is saved in this browser only, newest first — recall one to refill its calculator, or delete it. Nothing in this history is ever sent anywhere: nothing leaves your browser.</p>
+  <p class="calc-hist-agg" id="calcHistAgg"></p>
+  <div id="calcHistList"></div>
+  <p class="calc-note" id="calcHistEmpty">No calculations saved yet. Run any calculator above and it appears here.</p>
+  <button type="button" class="cx-btn danger" id="calcHistClear">Clear all history</button>
+</section>
+
+<p class="sig-foot calc-foot">For education only. Not investment advice. Fee schedule verified 2026-10-23 against the Nepal Gazette notice of 31 Bhadra 2083 and current broker/SEBON schedules.</p>
 </main>
 <div id="nd-footer"></div>
 <script src="/js/nd-chrome.js?v=74c1c8b7" defer></script>
 <script src="/js/theme-toggle.js?v=6a6a46c6" defer></script>
 <script src="/js/nd-cinema.js?v=90f78cc3" defer></script>
-<script src="/js/nd-calcs.js?v=8ba214e7" defer></script>
+<script src="/js/nd-calcs.js?v=b65eea1a" defer></script>
 </body>
 </html>
