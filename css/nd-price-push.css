@@ -154,5 +154,13 @@ body.nd{ font-family: var(--nd-font-sans); }
 .pp-hist-d{ font-family: var(--nd-font-mono, monospace); font-size: 11px; color: var(--nd-dim); }
 
 @media (prefers-reduced-motion: reduce){
-  .pp-sector-card, #winTabs .pp-wintab, .pp-pagebtn{ transition: none; }
+  .pp-sector-card, #winTabs .pp-wintab, .pp-pagebtn, body.nd .skip-link{ transition: none; }
 }
+
+/* ---- skip link: the master head stack carries no .skip-link rule (it
+   lives in legacy family files this page never loads), so the link
+   rendered as a plain visible blue link above the nav. Hidden
+   off-screen until keyboard focus, lime pill when focused — the
+   standard bypass-block pattern, kept for keyboard users. ---- */
+body.nd .skip-link{ position: absolute; top: -48px; left: 12px; z-index: 200; padding: 8px 14px; border-radius: 999px; background: var(--nd-lime); color: var(--nd-on-lime); font-weight: 700; text-decoration: none; transition: top .15s ease; }
+body.nd .skip-link:focus{ top: 12px; }
