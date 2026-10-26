@@ -1,475 +1,381 @@
 #!/usr/bin/env node
-/* Nepse Decode - corporate-action archive page.
+/* Nepse Decode — corporate-actions page builder (generator-only page).
  *
- * Reads nepse-chart/data/corporate-actions.json (durable, append-only) and
- * regenerates nepse-actions/index.html on the Concept 03 editorial theme:
- * magazine-style notice cards, kind pills, symbol search, pagination.
- * The official record remains the NEPSE disclosure archive; this page is a
- * convenience index of notices verified at capture time.
+ * Bakes nepse-actions/index.html from the published pipeline files:
+ *   nepse-chart/data/corporate-actions.json (the notice archive)
+ *   nepse-chart/data/div-live.json        (dividend figures + book-closes)
+ *   nepse-chart/data/verdicts.json        (sector for every symbol)
+ *   nepse-chart/data/universe.json        (company names)
+ *   stocks/                                (stock-page set, ground truth
+ *     for symbol chips: 428 pages, incl. debenture/preference lines
+ *     and dash spellings of slash series — NOT the 412-symbol universe)
  *
- * Node 18+, no npm dependencies.
+ * NEVER hand-edit nepse-actions/index.html: this builder is the page's
+ * sole source of truth, and the next rebuild erases hand edits. The live
+ * layer (js/nepse-actions.js) mirrors the renderers below — card HTML,
+ * figure strips, status logic and the sector directory must stay in
+ * sync between this file and that one.
+ *
+ * Stamps are raw-content SHA-1 first-8 of each asset file, recomputed
+ * on every build (design master §9.1). The shared chain carries the
+ * nav fix (nd-chrome.css 69b323cf at build time, recomputed here).
+ *
+ * Status is baked at build time AND recomputed at view time by the
+ * client: Open until the book-close passes, then Closed. The baked
+ * book-close resolves from the item itself first, then from the
+ * matched div-live record (same nearest-announcement matcher as the
+ * figure strips), so dividends whose book-close lives only in div-live
+ * (VLUCL, MEN, BARUN) still flip on their own.
  */
 'use strict';
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 const ROOT = path.join(__dirname, '..');
-const DATA_FILE = path.join(ROOT, 'nepse-chart', 'data', 'corporate-actions.json');
-const OUT_DIR = path.join(ROOT, 'nepse-actions');
-const SITE = 'https://shirjankhadka.com.np';
-
-const loadJson = (f, fb) => { try { return JSON.parse(fs.readFileSync(f, 'utf8')); } catch { return fb; } };
-const esc = (s) => String(s == null ? '' : s)
-  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-  .replace(/"/g, '&quot;');
-
-/* Symbols that have a live /stocks/ page. Announcement titles sometimes name
- * codes with no stock page (e.g. a preference-share code like NMBPNP); those
- * render as plain text instead of a dead link. */
+const CA = path.join(ROOT, 'nepse-chart', 'data', 'corporate-actions.json');
+const DIV = path.join(ROOT, 'nepse-chart', 'data', 'div-live.json');
+const VERDICTS = path.join(ROOT, 'nepse-chart', 'data', 'verdicts.json');
+const UNI = path.join(ROOT, 'nepse-chart', 'data', 'universe.json');
 const STOCKS_DIR = path.join(ROOT, 'stocks');
-let stockPages = new Set();
-try {
-  for (const d of fs.readdirSync(STOCKS_DIR, { withFileTypes: true })) {
-    if (d.isDirectory()) stockPages.add(d.name);
-  }
-} catch { /* no stocks dir — all symbol chips render as plain text */ }
-const symSlug = (s) => String(s == null ? '' : s).replace(/\//g, '-');
-function symChip(sym) {
-  if (!sym) return '';
-  const slug = symSlug(sym);
-  if (stockPages.has(slug)) {
-    return '<a class="na-sym" href="/stocks/' + esc(slug) + '/">' + esc(sym) + '</a>';
-  }
-  return '<span class="na-sym na-sym--nolink">' + esc(sym) + '</span>';
-}
+const OUT = path.join(ROOT, 'nepse-actions', 'index.html');
+
+const TITLE = 'NEPSE Corporate Actions: Dividends, Rights, Promoter Sales | Nepse Decode';
+const DESC = 'Verified NEPSE corporate actions — dividend (incl. bonus), right share, promoter-share sale, lock-in and auction notices — each linked to its official NEPSE disclosure PDF. Free, educational, updated from official NEPSE disclosures.';
+const CANON = 'https://shirjankhadka.com.np/nepse-actions/';
+const PAGE = 6, SECTOR_PAGE = 25;
 
 const KIND_LABEL = {
-  'dividend': 'Dividend',
-  'right-share': 'Right share',
-  'promoter-share': 'Promoter share',
-  'auction': 'Auction',
-  'lock-in': 'Lock-in',
-  'meeting': 'Meeting',
-  'book-close': 'Book close',
+  'dividend': 'Dividend', 'bonus-share': 'Dividend',
+  'right-share': 'Right share', 'promoter-share': 'Promoter share',
+  'auction': 'Auction', 'lock-in': 'Lock-in',
+  'meeting': 'Meeting', 'book-close': 'Book close'
 };
-/* Bonus shares are a form of dividend — remap to the dividend kind so the
- * page only shows Dividend / Right share / Promoter share (+ All). */
-const KIND_REMAP = { 'bonus-share': 'dividend' };
-const normKind = (k) => KIND_REMAP[k] || k;
+const normKind = (k) => (k === 'bonus-share' ? 'dividend' : (k || ''));
+const kindLabel = (k) => KIND_LABEL[k] || (k ? k.replace(/-/g, ' ') : 'Notice');
 
-const MON3 = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-function fmtAnnounced(d) {
-  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(d || '');
-  if (!m) return esc(d || '');
-  return String(+m[3]) + ' ' + MON3[+m[2] - 1] + ' ' + m[1];
+function sha1(file) {
+  return crypto.createHash('sha1').update(fs.readFileSync(file)).digest('hex').slice(0, 8);
 }
-
-/* Render the extracted facts (from the official PDF) as a compact
- * definition list. Facts are only ever extracted from the verified
- * official notice — never invented. */
-function fmtFacts(facts) {
-  if (!facts || typeof facts !== 'object') return '';
-  const rows = [];
-  const label = (k) => k.replace(/([A-Z])/g, ' $1').replace(/^./, (c) => c.toUpperCase());
-  for (const [k, v] of Object.entries(facts)) {
-    if (v === null || v === undefined || v === '') continue;
-    let val = v;
-    if (typeof v === 'number' && v >= 1000) val = v.toLocaleString('en-US');
-    rows.push('<div class="na-fact"><dt>' + esc(label(k)) + '</dt><dd>' + esc(String(val)) + '</dd></div>');
-  }
-  if (!rows.length) return '';
-  return '<dl class="na-facts">\n' + rows.join('\n') + '\n</dl>\n';
+function stamp(rel) {
+  const f = path.join(ROOT, rel);
+  if (!fs.existsSync(f)) throw new Error('missing asset for stamp: ' + rel);
+  return sha1(f);
 }
-
-/* Dividend figures for a notice, sourced from the verified investment-calendar
- * record (nepse-chart/data/div-live.json — written only from official notices).
- * Matches by symbol, preferring a record whose announcement date is within
- * 60 days of the notice date; falls back to the latest record. Returns
- * {bonus, cash, total} percentages or null. Never invented. */
-const DIV_DB = loadJson(path.join(ROOT, 'nepse-chart', 'data', 'div-live.json'), null);
-function divFigures(symbol, announced) {
-  if (!symbol || !DIV_DB || !DIV_DB.companies) return null;
-  const recs = DIV_DB.companies[String(symbol).toUpperCase()];
-  if (!recs || !recs.length) return null;
-  const ad = String(announced || '').slice(0, 10);
-  let best = null, bestScore = Infinity;
-  for (const r of recs) {
-    const rd = String(r.announcement_date || '').slice(0, 10);
-    let score = 365;
-    if (ad && rd && !Number.isNaN(Date.parse(ad)) && !Number.isNaN(Date.parse(rd))) {
-      const dd = Math.abs(Date.parse(ad) - Date.parse(rd)) / 864e5;
-      score = dd <= 60 ? dd : 365 + dd;
-    }
-    if (score < bestScore) { bestScore = score; best = r; }
-  }
-  if (!best) return null;
-  const num = (v) => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
-  const b = num(best.bonus_share), c = num(best.cash_dividend);
-  const t = num(best.total_dividend) || b + c;
-  if (t <= 0) return null;
-  return { bonus: b, cash: c, total: t };
+const esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+function fmtDate(iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || ''));
+  return m ? parseInt(m[3], 10) + ' ' + MONTHS[parseInt(m[2], 10) - 1] + ' ' + m[1] : String(iso || '');
 }
-const trimNum = (v) => {
-  const s = String(v);
-  return s.indexOf('.') >= 0 ? s.replace(/0+$/, '').replace(/\.$/, '') : s;
-};
-/* Hero figure strip on dividend cards: bonus / cash / total chips. Skipped
- * when the card already carries figures (facts block or a % in the headline)
- * so verified numbers never double-render. */
-function figuresHTML(it) {
-  if (normKind(it.kind) !== 'dividend') return '';
-  if (it.facts && Object.keys(it.facts).length) return '';
-  if (/%/.test(it.headline || '')) return '';
-  const f = divFigures(it.symbol, it.announced);
-  if (!f) return '';
-  const chip = (label, v, total) => v > 0
-    ? '<span class="na-fig' + (total ? ' na-fig-total' : '') + '" title="Figures as recorded in the verified investment calendar"><b>' + esc(trimNum(v)) + '%</b>&nbsp;' + label + '</span>'
-    : '';
-  return '<div class="na-figs">' + chip('bonus', f.bonus) + chip('cash', f.cash) + chip('total', f.total, true) + '</div>\n';
+function fmtShort(iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || ''));
+  return m ? parseInt(m[3], 10) + ' ' + MONTHS[parseInt(m[2], 10) - 1] : String(iso || '');
 }
-
-/* Static card markup — mirrored by the client-side renderer below so a
- * live JSON refresh paints identical cards. */
-function statusSpan(it) {
-  /* Open/Closed pill for dividend/bonus/right-share actions, driven by the
-   * book-close date. The pill text is painted in the browser (Asia/Kathmandu
-   * today) so the status flips on its own when the book close passes — no
-   * rebuild needed. Unknown when no book-close date is on record and the
-   * announcement is older than a year: the span stays empty and is hidden. */
-  const k = String(it.kind || '');
-  if (k !== 'dividend' && k !== 'bonus-share' && k !== 'right-share') return '';
-  const bc = (/^(\d{4}-\d{2}-\d{2})/.exec(String(it.bookclose_date || '')) || [])[1] || '';
-  const ann = (/^(\d{4}-\d{2}-\d{2})/.exec(String(it.announced || '')) || [])[1] || '';
-  return '<span class="na-status" data-bc="' + esc(bc) + '" data-ann="' + esc(ann) + '"></span>';
-}
-function cardHTML(it) {
-  const kind = KIND_LABEL[it.kind] || esc(it.kind || 'Notice');
-  const dot = ' <span class="na-dot">·</span> ';
-  return '<article class="na-card" data-kind="' + esc(it.kind) + '" data-sym="' + esc((it.symbol || '').toLowerCase()) + '" data-year="' + esc(String(it.announced || '').slice(0, 4)) + '">\n' +
-    '<div class="na-top"><span class="na-kind k-' + esc(it.kind) + '">' + esc(kind) + '</span>' +
-    symChip(it.symbol) + statusSpan(it) + '</div>\n' +
-    '<h3 class="na-head">' + esc(it.headline) + '</h3>\n' +
-    figuresHTML(it) +
-    fmtFacts(it.facts) +
-    '<p class="na-meta">' + (it.company ? esc(it.company) + dot : '') +
-    (it.announced ? 'Announced ' + fmtAnnounced(it.announced) + dot : '') +
-    (it.officialPdf ? '<a href="' + esc(it.officialPdf) + '" rel="noopener" target="_blank">Official NEPSE PDF ↗</a>' : '') +
-    '</p>\n' +
-    '</article>\n';
+function daysBetween(a, b) {
+  return Math.floor((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 86400000);
 }
 
 function main() {
-  const store = loadJson(DATA_FILE, null);
-  const items = ((store && store.items) || []).map((it) => ({ ...it, kind: normKind(it.kind) }));
-  const updated = (store && store.updated) || '';
-
-  const years = Array.from(new Set(items.map((it) => String(it.announced || '').slice(0, 4)).filter((y) => /^\d{4}$/.test(y)))).sort().reverse();
-  const kinds = Object.keys(KIND_LABEL).filter((k) => items.some((it) => it.kind === k));
-
-  const title = 'NEPSE Corporate Actions: Dividends, Rights, Promoter Sales | Nepse Decode';
-  const desc = 'Verified NEPSE corporate actions — dividend (incl. bonus), right share, promoter-share sale, lock-in and auction notices — each linked to its official NEPSE disclosure PDF. Free, educational.';
-  const url = SITE + '/nepse-actions/';
-
-  const itemList = items.map((it, i) => ({
-    '@type': 'ListItem', position: i + 1,
-    name: it.headline,
-    url: it.officialPdf || url,
+  const ca = JSON.parse(fs.readFileSync(CA, 'utf8'));
+  const div = JSON.parse(fs.readFileSync(DIV, 'utf8'));
+  const verdictsDoc = JSON.parse(fs.readFileSync(VERDICTS, 'utf8'));
+  const uni = JSON.parse(fs.readFileSync(UNI, 'utf8'));
+  const items = (ca.items || []).slice().sort((a, b) => String(b.announced || '').localeCompare(String(a.announced || '')));
+  const verdicts = verdictsDoc.verdicts || verdictsDoc;
+  const names = {};
+  (uni.symbols || []).forEach((u) => { names[u.s] = u.n; });
+  const stockPages = new Set(fs.readdirSync(STOCKS_DIR).filter((d) => {
+    try { return fs.statSync(path.join(STOCKS_DIR, d)).isDirectory(); } catch { return false; }
   }));
-  const ld = {
-    '@context': 'https://schema.org',
-    '@graph': [
-      {
-        '@type': 'CollectionPage', name: title, url, description: desc,
-        author: { '@type': 'Organization', name: 'Nepse Decode', url: SITE + '/nepse-decode/' },
-      },
-      { '@type': 'ItemList', itemListElement: itemList },
-    ],
+
+  /* Dividend-calendar join: nearest announcement_date within 60 days. */
+  function divMatch(it) {
+    if (!div.companies || !it.symbol || !div.companies[it.symbol]) return null;
+    let best = null, bestD = 9999;
+    for (const r of div.companies[it.symbol]) {
+      if (!r.announcement_date || !it.announced) continue;
+      const d = Math.abs(daysBetween(r.announcement_date, it.announced));
+      if (d < bestD) { best = r; bestD = d; }
+    }
+    return bestD <= 60 ? best : null;
+  }
+  function divBookclose(it) {
+    const m = /^(\d{4}-\d{2}-\d{2})/.exec(String(it.bookclose_date || ''));
+    if (m) return m[1];
+    const rec = divMatch(it);
+    if (rec) { const m2 = /^(\d{4}-\d{2}-\d{2})/.exec(String(rec.bookclose_date || '')); if (m2) return m2[1]; }
+    return '';
+  }
+  /* Baked status uses the BUILD date as "today"; the client recomputes
+     at view time, so a stale baked pill self-corrects on first refresh. */
+  const buildToday = new Date().toISOString().slice(0, 10);
+  function statusAt(it, today) {
+    const k = String(it.kind || '');
+    if (k !== 'dividend' && k !== 'bonus-share' && k !== 'right-share') return null;
+    const bc = divBookclose(it);
+    if (/^\d{4}-\d{2}-\d{2}$/.test(bc)) return bc < today ? 'Closed' : 'Open';
+    const ann = /^(\d{4}-\d{2}-\d{2})/.exec(String(it.announced || ''));
+    if (ann) { const days = daysBetween(ann[1], today); if (days >= 0 && days <= 365) return 'Open'; }
+    return null;
+  }
+  function symChip(sym) {
+    if (!sym) return '';
+    return stockPages.has(sym)
+      ? '<a class="na-sym" href="/stocks/' + esc(sym) + '/">' + esc(sym) + '</a>'
+      : '<span class="na-sym na-sym--nolink">' + esc(sym) + '</span>';
+  }
+  /* Hero figure strip, dividend cards only (old builder's kind gate),
+     skipped when the card already carries figures (facts block or a %
+     in the headline) so verified numbers never double-render. Chips
+     render only for values > 0, numbers trimmed, number-first format —
+     exactly the old builder's strip, so baked cards are unchanged. */
+  function trimNum(v) {
+    const s = String(v);
+    return s.indexOf('.') >= 0 ? s.replace(/0+$/, '').replace(/\.$/, '') : s;
+  }
+  function figuresHTML(it) {
+    if (normKind(it.kind) !== 'dividend') return '';
+    if (!div.companies) return '';
+    if (it.facts && typeof it.facts === 'object' && Object.keys(it.facts).length) return '';
+    if (/%/.test(String(it.headline || ''))) return '';
+    const rec = divMatch(it);
+    if (!rec) return '';
+    const chips = [];
+    const chip = (label, val, total) => {
+      const n = Number(val);
+      if (!Number.isFinite(n) || n <= 0) return;
+      chips.push('<span class="na-fig' + (total ? ' na-fig-total' : '') + '" title="Figures as recorded in the verified investment calendar"><b>' + esc(trimNum(val)) + '%</b>&nbsp;' + esc(label) + '</span>');
+    };
+    chip('bonus', rec.bonus_share, false);
+    chip('cash', rec.cash_dividend, false);
+    chip('total', Number(rec.total_dividend) || (Number(rec.bonus_share) || 0) + (Number(rec.cash_dividend) || 0), true);
+    return chips.length ? '<div class="na-figs">' + chips.join('') + '</div>' : '';
+  }
+  function cardHTML(it) {
+    const kk = normKind(it.kind), kind = kindLabel(kk), dot = ' <span class="na-dot">·</span> ';
+    const st = statusAt(it, buildToday);
+    const status = st
+      ? '<span class="na-status ' + (st === 'Open' ? 'is-open' : 'is-closed') +
+        '" data-bc="' + esc(divBookclose(it)) + '" data-ann="' + esc(String(it.announced || '').slice(0, 10)) + '">' + st + '</span>'
+      : '';
+    let facts = '';
+    if (it.facts && typeof it.facts === 'object') {
+      const rows = [];
+      for (const k of Object.keys(it.facts)) {
+        const v = it.facts[k];
+        if (v === null || v === undefined || v === '') continue;
+        const val = (typeof v === 'number' && v >= 1000) ? v.toLocaleString('en-US') : String(v);
+        const label = k.replace(/([A-Z])/g, ' $1').replace(/^./, (c) => c.toUpperCase());
+        rows.push('<div class="na-fact"><dt>' + esc(label) + '</dt><dd>' + esc(val) + '</dd></div>');
+      }
+      if (rows.length) facts = '<dl class="na-facts">' + rows.join('') + '</dl>';
+    }
+    return '<article class="na-card" data-kind="' + esc(kk) + '" data-sym="' + esc(String(it.symbol || '').toLowerCase()) + '" data-year="' + esc(String(it.announced || '').slice(0, 4)) + '">' +
+      '<div class="na-top"><span class="na-kind k-' + esc(kk) + '">' + esc(kind) + '</span>' +
+      symChip(it.symbol) + status + '</div>' +
+      '<h3 class="na-head">' + esc(it.headline) + '</h3>' + figuresHTML(it) + facts +
+      '<p class="na-meta">' + (it.company ? esc(it.company) + dot : '') +
+      (it.announced ? 'Announced ' + fmtDate(it.announced) + dot : '') +
+      (it.officialPdf ? '<a href="' + esc(it.officialPdf) + '" rel="noopener" target="_blank">Official NEPSE PDF ↗</a>' : '') + '</p></article>';
+  }
+
+  /* ---- baked feed (full archive, like the old builder) + pager ----
+     The client paginates to page 1 on load, exactly as before; the
+     full bake keeps the no-JS view and the search index complete. */
+  const pages = Math.max(1, Math.ceil(items.length / PAGE));
+  const pageItems = items.slice(0, PAGE);
+  const years = {};
+  items.forEach((it) => {
+    const y = String(it.announced || '').slice(0, 4) || '';
+    (years[y] = years[y] || []).push(it);
+  });
+  let feedHTML = '';
+  Object.keys(years).sort().reverse().forEach((y) => {
+    if (y) feedHTML += '<h2 class="na-year">' + esc(y) + '</h2>';
+    feedHTML += '<div class="na-feed">' + years[y].map(cardHTML).join('') + '</div>';
+  });
+  const pagerInfo = 'Showing 1–' + pageItems.length + ' of ' + items.length + (pages > 1 ? ' · page 1 of ' + pages : '');
+
+  /* ---- baked session strip ---- */
+  const sessCounts = {};
+  items.forEach((it) => {
+    const d = String(it.announced || '').slice(0, 10);
+    if (d) sessCounts[d] = (sessCounts[d] || 0) + 1;
+  });
+  const sessDates = Object.keys(sessCounts).sort().reverse();
+  const sessionHTML = '<button type="button" class="na-session is-active" data-session="all" aria-pressed="true">All · ' + items.length + '</button>' +
+    sessDates.map((d) => '<button type="button" class="na-session" data-session="' + esc(d) + '" aria-pressed="false">' +
+      fmtShort(d) + ' · ' + sessCounts[d] + '</button>').join('');
+
+  /* ---- baked viz: kind mix, open/closed, upcoming closes ---- */
+  const kc = {};
+  items.forEach((it) => { const k = normKind(it.kind); kc[k] = (kc[k] || 0) + 1; });
+  const kindOrder = ['dividend', 'promoter-share', 'right-share', 'auction', 'lock-in', 'meeting', 'book-close'];
+  const kinds = kindOrder.filter((k) => kc[k]);
+  Object.keys(kc).forEach((k) => { if (!kinds.includes(k)) kinds.push(k); });
+  const mixBar = '<div class="na-mix-bar" role="img" aria-label="Notice mix: ' +
+    kinds.map((k) => kindLabel(k) + ' ' + kc[k]).join(', ') + '">' +
+    kinds.map((k) => '<span class="na-mix-seg k-' + esc(k) + '" style="width:' + (kc[k] / items.length * 100).toFixed(1) + '%"></span>').join('') + '</div>';
+  const mixLegend = '<div class="na-mix-legend">' + kinds.map((k) =>
+    '<span class="na-mix-item"><i class="na-mix-dot k-' + esc(k) + '"></i>' + esc(kindLabel(k)) + ' <b>' + kc[k] + '</b></span>').join('') + '</div>';
+  let open = 0, closed = 0, nostatus = 0;
+  items.forEach((it) => {
+    const st = statusAt(it, buildToday);
+    if (st === 'Open') open++;
+    else if (st === 'Closed') closed++;
+    else nostatus++;
+  });
+  const statusBar = open
+    ? '<div class="na-mix-bar" role="img" aria-label="Open ' + open + ', Closed ' + closed + '">' +
+      '<span class="na-mix-seg k-open" style="width:' + (open / (open + closed || 1) * 100).toFixed(1) + '%"></span></div>' : '';
+  const up = [];
+  items.forEach((it) => {
+    /* Dividend/right items only: a promoter notice must never inherit
+       its symbol's dividend book-close (VLUCL has both kinds). */
+    const k = String(it.kind || '');
+    if (k !== 'dividend' && k !== 'bonus-share' && k !== 'right-share') return;
+    const bc = divBookclose(it);
+    if (bc && bc >= buildToday) up.push({ it, bc });
+  });
+  up.sort((a, b) => (a.bc < b.bc ? -1 : (a.bc > b.bc ? 1 : 0)));
+  const closesHTML = up.length
+    ? '<ul class="na-closes">' + up.map((u) => {
+        const d = daysBetween(buildToday, u.bc);
+        const rel = d === 0 ? 'today' : (d === 1 ? 'tomorrow' : 'in ' + d + ' days');
+        return '<li>' + symChip(u.it.symbol) + '<span class="na-close-kind">' + esc(kindLabel(normKind(u.it.kind))) + '</span>' +
+          '<span class="na-close-date">' + fmtDate(u.bc) + '</span><span class="na-close-rel">' + rel + '</span></li>';
+      }).join('') + '</ul>'
+    : '<p class="na-viz-note">No upcoming book-closes in the archive.</p>';
+  const vizHTML =
+    '<section class="na-viz" aria-label="Archive overview">' +
+    '<div class="na-viz-panel"><h2 class="na-viz-head">Notice mix</h2>' + mixBar + mixLegend + '</div>' +
+    '<div class="na-viz-panel"><h2 class="na-viz-head">Dividend &amp; rights status</h2>' +
+    '<div class="na-statline"><span><b>' + open + '</b> Open</span><span><b>' + closed + '</b> Closed</span></div>' +
+    statusBar + '<p class="na-viz-note">' + nostatus + ' promoter / lock-in notices carry no book-close date and show no status.</p></div>' +
+    '<div class="na-viz-panel"><h2 class="na-viz-head">Upcoming book-closes</h2>' + closesHTML + '</div></section>';
+
+  /* ---- baked sector directory (All sectors, first page) ---- */
+  const secOf = {};
+  Object.keys(verdicts).forEach((s) => { secOf[s] = verdicts[s].sec || 'Others'; });
+  const secCounts = {};
+  Object.keys(secOf).forEach((s) => { secCounts[secOf[s]] = (secCounts[secOf[s]] || 0) + 1; });
+  const sectors = Object.keys(secCounts).sort((a, b) => secCounts[b] - secCounts[a]);
+  const secTotal = Object.keys(secOf).length;
+  const acts = {};
+  items.forEach((it) => { if (it.symbol) acts[it.symbol] = (acts[it.symbol] || 0) + 1; });
+  const allSyms = Object.keys(secOf).sort();
+  const secPages = Math.max(1, Math.ceil(allSyms.length / SECTOR_PAGE));
+  const secRows = allSyms.slice(0, SECTOR_PAGE).map((s) => {
+    const mark = acts[s] ? '<span class="na-sec-mark" title="' + acts[s] + ' archive notice(s)">● ' + acts[s] + '</span>' : '';
+    return '<tr><td><a class="na-sym" href="/stocks/' + esc(s) + '/">' + esc(s) + '</a> ' + mark + '</td>' +
+      '<td>' + esc(names[s] || '') + '</td><td>' + esc(secOf[s]) + '</td></tr>';
+  }).join('');
+  const secInfo = 'Showing 1–' + Math.min(SECTOR_PAGE, allSyms.length) + ' of ' + allSyms.length + (secPages > 1 ? ' · page 1 of ' + secPages : '');
+  const secSelect = '<option value="all">All sectors (' + secTotal + ')</option>' +
+    sectors.map((s) => '<option value="' + esc(s) + '">' + esc(s) + ' (' + secCounts[s] + ')</option>').join('');
+
+  /* ---- stamps (raw-content SHA-1 first-8, recomputed per build) ---- */
+  const st = {
+    editorial: stamp('css/nd-editorial-theme.css'),
+    cinema: stamp('css/nd-cinema.css'),
+    chrome: stamp('css/nd-chrome.css'),
+    actions: stamp('css/nd-actions.css'),
+    actionsJs: stamp('js/nepse-actions.js'),
+    themeToggle: stamp('js/theme-toggle.js'),
+    marketConfig: stamp('js/nepse-market-config.js'),
+    freshness: stamp('js/freshness-badge.js'),
+    sidebar: stamp('js/nepse-sidebar.js'),
+    chromeJs: stamp('js/nd-chrome.js')
   };
 
-  let h = '<!DOCTYPE html>\n<html lang="en">\n<head>\n' +
-    '<script>try{var t=localStorage.getItem(\'sk-theme\');if(!t)t=matchMedia(\'(prefers-color-scheme: dark)\').matches?\'dark\':\'light\';document.documentElement.setAttribute(\'data-theme\',t)}catch(e){}</script>\n' +
-    '<meta charset="UTF-8">\n' +
+  const updated = String(ca.updated || '').slice(0, 10);
+  const html =
+    '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n' +
     '<meta name="viewport" content="width=device-width, initial-scale=1.0">\n' +
-    '<title>' + esc(title) + '</title>\n' +
-    '<meta name="description" content="' + esc(desc) + '">\n' +
+    '<title>' + esc(TITLE) + '</title>\n' +
+    '<meta name="description" content="' + esc(DESC) + '">\n' +
     '<meta name="author" content="Shirjan Khadka">\n' +
-    '<link rel="canonical" href="' + url + '">\n' +
+    '<link rel="canonical" href="' + CANON + '">\n' +
     '<meta name="robots" content="index, follow, max-image-preview:large">\n' +
     '<meta name="theme-color" content="#0A0C10">\n' +
-    '<meta property="og:type" content="website">\n' +
-    '<meta property="og:site_name" content="Nepse Decode">\n' +
-    '<meta property="og:title" content="' + esc(title) + '">\n' +
-    '<meta property="og:description" content="' + esc(desc) + '">\n' +
-    '<meta property="og:url" content="' + url + '">\n' +
-    '<meta property="og:image" content="' + SITE + '/assets/images/og/decode.png">\n' +
-    '<meta property="og:image:width" content="1200">\n' +
-    '<meta property="og:image:height" content="630">\n' +
+    '<meta property="og:type" content="website">\n<meta property="og:site_name" content="Nepse Decode">\n' +
+    '<meta property="og:title" content="' + esc(TITLE) + '">\n' +
+    '<meta property="og:description" content="' + esc(DESC) + '">\n' +
+    '<meta property="og:url" content="' + CANON + '">\n' +
+    '<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">\n' +
+    '<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n' +
     '<meta name="twitter:card" content="summary">\n' +
-    '<meta name="twitter:title" content="' + esc(title) + '">\n' +
-    '<meta name="twitter:description" content="' + esc(desc) + '">\n' +
-    '<meta name="twitter:image" content="' + SITE + '/assets/images/og/decode.png">\n' +
+    '<meta name="twitter:title" content="' + esc(TITLE) + '">\n' +
+    '<meta name="twitter:description" content="' + esc(DESC) + '">\n' +
+    '<meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">\n' +
     '<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">\n' +
     '<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">\n' +
     '<link rel="apple-touch-icon" href="/apple-touch-icon.png">\n' +
-    '<link rel="preconnect" href="https://fonts.googleapis.com">\n' +
-    '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n' +
-    '<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">\n' +
-    '<link rel="stylesheet" href="/css/nd-tokens.css?v=20261023d">\n' +
-    '<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023d">\n' +
-    '<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023d">\n' +
-    '<link rel="stylesheet" href="/css/nd-actions.css?v=20261023d">\n' +
-    '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>\n' +
+    '<script type="application/ld+json">' + JSON.stringify({ '@context': 'https://schema.org', '@graph': [{ '@type': 'CollectionPage', name: TITLE, url: CANON, description: DESC }] }) + '</script>\n' +
+    '<link rel="stylesheet" href="/css/nd-tokens.css">\n' +
+    '<link rel="stylesheet" href="/css/fonts.css">\n' +
+    '<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=' + st.editorial + '">\n' +
+    '<link rel="stylesheet" href="/css/nd-cinema.css?v=' + st.cinema + '">\n' +
+    '<link rel="stylesheet" href="/css/nd-chrome.css?v=' + st.chrome + '">\n' +
+    '<link rel="stylesheet" href="/css/nd-actions.css?v=' + st.actions + '">\n' +
+    '<script>(function(){try{var t=localStorage.getItem("sk-theme");if(!t){t=window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";}document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>\n' +
     '</head>\n<body class="nd" data-page="actions">\n' +
-    '<a class="skip-link" href="#main">Skip to content</a>\n' +
+    '<a class="skip-link" href="#na-feed">Skip to notices</a>\n' +
     '<div id="nd-header"></div>\n' +
-    '<div class="fb-wrap" style="display:flex;justify-content:center;padding:10px 16px 0"><div data-freshness-badge></div></div>\n' +
-    '<div class="nd-shell">\n  <div class="nd-content">\n    <main id="main" class="na-wrap">\n' +
-    '<nav aria-label="Breadcrumb" style="margin:4px 0 16px;font-size:.85rem;color:var(--nd-dim)">\n' +
-    '  <ol style="list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px;align-items:center">\n' +
-    '    <li><a href="/" style="color:inherit">Home</a></li>\n' +
-    '    <li aria-hidden="true">/</li>\n' +
-    '    <li><a href="/nepse-decode/" style="color:inherit">Nepse Decode</a></li>\n' +
-    '    <li aria-hidden="true">/</li>\n' +
-    '    <li><span aria-current="page" style="color:var(--nd-text);font-weight:600">Corporate actions</span></li>\n' +
-    '  </ol>\n</nav>\n' +
-    '<div class="na-masthead">\n' +
-    '<p class="na-kicker">News · Corporate actions</p>\n' +
+    '<main class="na-wrap" id="main">\n' +
+    '<header class="na-masthead">\n' +
+    '<p class="na-kicker">NEPSE CORPORATE ACTIONS</p>\n' +
     '<h1>Corporate actions, verified</h1>\n' +
-    '<p class="na-lede">Dividend (incl. bonus), right share, promoter-share sale, lock-in and auction notices — each linked to its official NEPSE disclosure PDF. The official record is the NEPSE disclosure archive; this page is a convenience index of notices verified at capture time.</p>\n' +
-    '<div class="na-meta-row">\n' +
-    '  <span class="na-badge lime"><span id="naFreshDot"></span><span id="naFresh">' + esc(updated ? 'Archive updated ' + updated.slice(0, 10) : 'Archive') + '</span></span>\n' +
-    '  <span class="na-badge" id="naTotal">' + items.length + ' verified notices</span>\n' +
-    '</div></div>\n' +
-    '<div class="na-pills" id="naPills" role="tablist" aria-label="Filter by action type">\n' +
-    '  <button class="na-pill" role="tab" data-kind="" aria-selected="true">All</button>\n' +
-    kinds.map((k) => '  <button class="na-pill" role="tab" data-kind="' + esc(k) + '" aria-selected="false">' + esc(KIND_LABEL[k]) + '</button>').join('\n') + '\n' +
-    '</div>\n' +
+    '<p class="na-lede">Every dividend (including bonus), right share, promoter-share sale, lock-in and auction notice we have verified against an official NEPSE disclosure — with the figures, the book-close status, and the PDF itself. Statuses flip on their own when a book-close passes; nothing here waits for a rebuild.</p>\n' +
+    '<p class="na-fresh-line" id="na-fresh-line">Archive updated ' + fmtDate(updated) + ' · ' + items.length + ' verified notices</p>\n' +
+    '<p class="na-new-note" id="na-new-note" style="display:none"></p>\n' +
+    '</header>\n' +
+    '<nav class="na-session-strip" id="na-session-strip" aria-label="Filter by announcement session">' + sessionHTML + '</nav>\n' +
+    vizHTML + '\n' +
     '<div class="na-filters">\n' +
-    (years.length > 1
-      ? '<select id="na-year" class="na-select" aria-label="Filter by year"><option value="">All years</option>' +
-        years.map((y) => '<option value="' + y + '">' + y + '</option>').join('') +
-        '</select>\n'
-      : '') +
-    '  <input id="na-q" class="na-search" type="search" placeholder="Search symbol, e.g. NABIL" aria-label="Search by symbol" autocomplete="off">\n' +
-    '  <span class="na-count" id="na-count" aria-live="polite"></span>\n' +
+    '<input class="na-search" id="na-q" type="search" placeholder="Search by symbol" aria-label="Search by symbol">\n' +
+    '<span class="na-count" id="na-count" aria-live="polite">' + items.length + ' of ' + items.length + ' notices</span>\n' +
     '</div>\n' +
-    '<div id="na-feed" aria-live="polite">\n';
-
-  for (const yr of years.length ? years : ['']) {
-    if (yr) h += '<h2 class="na-year">' + yr + '</h2>\n';
-    h += '<div class="na-feed">\n';
-    for (const it of items) {
-      if (yr && String(it.announced || '').slice(0, 4) !== yr) continue;
-      h += cardHTML(it);
-    }
-    h += '</div>\n';
-  }
-  if (!items.length) {
-    h += '<p class="na-empty">No verified notices in the archive yet. New dividend, bonus, right, promoter-share and auction notices are added as they are published and verified.</p>\n';
-  }
-
-  h += '</div>\n' +
-    '<nav class="na-pager" id="na-pager" aria-label="Notices pages">\n' +
-    '  <button type="button" id="na-prev" class="na-page-btn">&larr; Newer</button>\n' +
-    '  <span class="na-page-info" id="na-page-info" aria-live="polite"></span>\n' +
-    '  <button type="button" id="na-next" class="na-page-btn">Older &rarr;</button>\n' +
-    '</nav>\n' +
-    '<p class="na-disc">Educational use only, not investment advice. Notices are captured from official NEPSE disclosures; always confirm dates, ratios and book closures against the official NEPSE disclosure archive before acting.</p>\n' +
-    '    </main>\n    <div id="nd-footer"></div>\n  </div>\n</div>\n' +
-    '<script>\n' +
-    '(function () {\n' +
-    '  "use strict";\n' +
-    '  var esc = function(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); };\n' +
-    '  var MON3 = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];\n' +
-    '  var fmtAnnounced = function(d){ var m = /^(\\d{4})-(\\d{2})-(\\d{2})/.exec(d || ""); if(!m) return esc(d || ""); return String(+m[3]) + " " + MON3[+m[2]-1] + " " + m[1]; };\n' +
-    '  var KIND_LABEL = ' + JSON.stringify(KIND_LABEL) + ';\n' +
-    '  /* bonus-share is a form of dividend — same remap as the server build. */\n' +
-    '  var NORM_KIND = { "bonus-share": "dividend" };\n' +
-    '  var normKind = function(k){ return NORM_KIND[k] || k; };\n' +
-    '  var DIV = null;\n' +
-    '  var trimNum = function(v){ var s = String(v); return s.indexOf(".") >= 0 ? s.replace(/0+$/, "").replace(/\\.$/, "") : s; };\n' +
-    '  var divFigures = function(symbol, announced){\n' +
-    '    if (!symbol || !DIV || !DIV.companies) return null;\n' +
-    '    var recs = DIV.companies[String(symbol).toUpperCase()];\n' +
-    '    if (!recs || !recs.length) return null;\n' +
-    '    var ad = String(announced || "").slice(0,10), best = null, bestScore = Infinity;\n' +
-    '    recs.forEach(function(r){\n' +
-    '      var rd = String(r.announcement_date || "").slice(0,10), score = 365;\n' +
-    '      var ta = Date.parse(ad), tr = Date.parse(rd);\n' +
-    '      if (ad && rd && !isNaN(ta) && !isNaN(tr)) { var dd = Math.abs(ta - tr) / 864e5; score = dd <= 60 ? dd : 365 + dd; }\n' +
-    '      if (score < bestScore) { bestScore = score; best = r; }\n' +
-    '    });\n' +
-    '    if (!best) return null;\n' +
-    '    var num = function(v){ var n = Number(v); return isFinite(n) ? n : 0; };\n' +
-    '    var b = num(best.bonus_share), c = num(best.cash_dividend), t = num(best.total_dividend) || b + c;\n' +
-    '    return t > 0 ? { bonus: b, cash: c, total: t } : null;\n' +
-    '  };\n' +
-    '  var figuresHTML = function(it){\n' +
-    '    if (normKind(it.kind) !== "dividend") return "";\n' +
-    '    if (it.facts && Object.keys(it.facts).length) return "";\n' +
-    '    if (/%/.test(it.headline || "")) return "";\n' +
-    '    var f = divFigures(it.symbol, it.announced);\n' +
-    '    if (!f) return "";\n' +
-    '    var chip = function(label, v, total){\n' +
-    '      return v > 0 ? \'<span class="na-fig\' + (total ? " na-fig-total" : "") + \'" title="Figures as recorded in the verified investment calendar"><b>\' + esc(trimNum(v)) + "%</b>&nbsp;" + label + "</span>" : "";\n' +
-    '    };\n' +
-    '    return \'<div class="na-figs">\' + chip("bonus", f.bonus) + chip("cash", f.cash) + chip("total", f.total, true) + "</div>";\n' +
-    '  };\n' +
-    '  var STOCK_PAGES = ' + JSON.stringify([...stockPages]) + ';\n' +
-    '  function symChip(sym){\n' +
-    '    if(!sym) return "";\n' +
-    '    var slug = String(sym).replace(/\\//g, "-");\n' +
-    '    return STOCK_PAGES.indexOf(slug) !== -1\n' +
-    '      ? \'<a class="na-sym" href="/stocks/\' + esc(slug) + \'/">\' + esc(sym) + "</a>"\n' +
-    '      : \'<span class="na-sym na-sym--nolink">\' + esc(sym) + "</span>";\n' +
-    '  }\n' +
-    '  function statusSpan(it){\n' +
-    '    var k = String(it.kind || "");\n' +
-    '    if (k !== "dividend" && k !== "bonus-share" && k !== "right-share") return "";\n' +
-    '    var bcm = /^(\\d{4}-\\d{2}-\\d{2})/.exec(String(it.bookclose_date || ""));\n' +
-    '    var anm = /^(\\d{4}-\\d{2}-\\d{2})/.exec(String(it.announced || ""));\n' +
-    '    return \'<span class="na-status" data-bc="\' + esc(bcm ? bcm[1] : "") + \'" data-ann="\' + esc(anm ? anm[1] : "") + \'"></span>\';\n' +
-    '  }\n' +
-    '  /* Open/Closed pill, computed in the browser against TODAY IN KATHMANDU\n' +
-    '     (Asia/Kathmandu), so the status flips on its own when the book close\n' +
-    '     passes — no rebuild needed. Falls back to the announcement date (Open\n' +
-    '     while within a year); unknown otherwise, and the span stays hidden. */\n' +
-    '  function nptToday(){\n' +
-    '    try { return new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Kathmandu",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date()); }\n' +
-    '    catch(e){ var kd = new Date(Date.now() + 20700000); return kd.getUTCFullYear() + "-" + ("0"+(kd.getUTCMonth()+1)).slice(-2) + "-" + ("0"+kd.getUTCDate()).slice(-2); }\n' +
-    '  }\n' +
-    '  function paintStatus(){\n' +
-    '    var today = nptToday(), iso = /^\\d{4}-\\d{2}-\\d{2}$/;\n' +
-    '    document.querySelectorAll("#na-feed .na-status").forEach(function(el){\n' +
-    '      var bc = el.getAttribute("data-bc") || "", ann = el.getAttribute("data-ann") || "", label = "", cls = "";\n' +
-    '      if (iso.test(bc)) { var closed = bc < today; label = closed ? "Closed" : "Open"; cls = closed ? "is-closed" : "is-open"; }\n' +
-    '      else if (iso.test(ann)) {\n' +
-    '        var days = Math.floor((new Date(today + "T00:00:00") - new Date(ann + "T00:00:00")) / 86400000);\n' +
-    '        if (days >= 0 && days <= 365) { label = "Open"; cls = "is-open"; }\n' +
-    '      }\n' +
-    '      if (!label) { el.style.display = "none"; return; }\n' +
-    '      el.className = "na-status " + cls;\n' +
-    '      el.textContent = label;\n' +
-    '    });\n' +
-    '  }\n' +
-    '  var feed = document.getElementById("na-feed"),\n' +
-    '      year = document.getElementById("na-year"),\n' +
-    '      q = document.getElementById("na-q"),\n' +
-    '      count = document.getElementById("na-count"),\n' +
-    '      pager = document.getElementById("na-pager"),\n' +
-    '      prev = document.getElementById("na-prev"),\n' +
-    '      next = document.getElementById("na-next"),\n' +
-    '      info = document.getElementById("na-page-info"),\n' +
-    '      pills = document.querySelectorAll("#naPills .na-pill"),\n' +
-    '      PAGE = 6, page = 1, activeKind = "", items = [];\n' +
-    '  function cardHTML(it){\n' +
-    '    var kk = normKind(it.kind);\n' +
-    '    var kind = KIND_LABEL[kk] || esc(kk || "Notice");\n' +
-    '    var dot = \' <span class="na-dot">·</span> \';\n' +
-    '    var facts = "";\n' +
-    '    if (it.facts && typeof it.facts === "object") {\n' +
-    '      var rows = [];\n' +
-    '      Object.keys(it.facts).forEach(function(k){\n' +
-    '        var v = it.facts[k];\n' +
-    '        if (v === null || v === undefined || v === "") return;\n' +
-    '        var val = (typeof v === "number" && v >= 1000) ? v.toLocaleString("en-US") : String(v);\n' +
-    '        var label = k.replace(/([A-Z])/g, " $1").replace(/^./, function(c){ return c.toUpperCase(); });\n' +
-    '        rows.push(\'<div class="na-fact"><dt>\' + esc(label) + "</dt><dd>" + esc(val) + "</dd></div>");\n' +
-    '      });\n' +
-    '      if (rows.length) facts = \'<dl class="na-facts">\' + rows.join("") + "</dl>";\n' +
-    '    }\n' +
-    '    return \'<article class="na-card" data-kind="\' + esc(kk) + \'">\' +\n' +
-    '      \'<div class="na-top"><span class="na-kind k-\' + esc(kk) + \'">\' + esc(kind) + "</span>" +\n' +
-    '      symChip(it.symbol) + statusSpan(it) + "</div>" +\n' +
-    '      \'<h3 class="na-head">\' + esc(it.headline) + "</h3>" + figuresHTML(it) + facts +\n' +
-    '      \'<p class="na-meta">\' + (it.company ? esc(it.company) + dot : "") +\n' +
-    '      (it.announced ? "Announced " + fmtAnnounced(it.announced) + dot : "") +\n' +
-    '      (it.officialPdf ? \'<a href="\' + esc(it.officialPdf) + \'" rel="noopener" target="_blank">Official NEPSE PDF ↗</a>\' : "") + "</p></article>";\n' +
-    '  }\n' +
-    '  function isMatch(it){\n' +
-    '    var y = year ? year.value : "", s = q.value.trim().toLowerCase();\n' +
-    '    return (!y || String(it.announced || "").slice(0,4) === y) &&\n' +
-    '           (!activeKind || normKind(it.kind) === activeKind) &&\n' +
-    '           (!s || String(it.symbol || "").toLowerCase().indexOf(s) !== -1);\n' +
-    '  }\n' +
-    '  function render(){\n' +
-    '    var filtered = items.filter(isMatch);\n' +
-    '    var pages = Math.max(1, Math.ceil(filtered.length / PAGE));\n' +
-    '    if (page > pages) page = pages;\n' +
-    '    var start = (page - 1) * PAGE, end = Math.min(start + PAGE, filtered.length);\n' +
-    '    var years = {};\n' +
-    '    filtered.slice(start, end).forEach(function(it){\n' +
-    '      var y = String(it.announced || "").slice(0,4) || "";\n' +
-    '      (years[y] = years[y] || []).push(it);\n' +
-    '    });\n' +
-    '    var html = "";\n' +
-    '    Object.keys(years).sort().reverse().forEach(function(y){\n' +
-    '      if (y) html += \'<h2 class="na-year">\' + esc(y) + "</h2>";\n' +
-    '      html += \'<div class="na-feed">\' + years[y].map(cardHTML).join("") + "</div>";\n' +
-    '    });\n' +
-    '    feed.innerHTML = html || \'<p class="na-empty">No notices match these filters.</p>\';\n' +
-    '    count.textContent = filtered.length + " of " + items.length + " notices";\n' +
-    '    info.textContent = filtered.length\n' +
-    '      ? "Showing " + (start + 1) + "\\u2013" + end + " of " + filtered.length + (pages > 1 ? " \\u00b7 page " + page + " of " + pages : "")\n' +
-    '      : "No notices match.";\n' +
-    '    prev.disabled = page <= 1;\n' +
-    '    next.disabled = page >= pages;\n' +
-    '    pager.style.display = pages > 1 ? "" : "none";\n' +
-    '    paintStatus();\n' +
-    '  }\n' +
-    '  function reset(){ page = 1; render(); }\n' +
-    '  pills.forEach(function(btn){\n' +
-    '    btn.addEventListener("click", function(){\n' +
-    '      activeKind = btn.getAttribute("data-kind");\n' +
-    '      pills.forEach(function(b){ b.setAttribute("aria-selected", b === btn ? "true" : "false"); });\n' +
-    '      reset();\n' +
-    '    });\n' +
-    '  });\n' +
-    '  if (year) year.addEventListener("change", reset);\n' +
-    '  q.addEventListener("input", reset);\n' +
-    '  prev.addEventListener("click", function(){ if (page > 1) { page--; render(); } });\n' +
-    '  next.addEventListener("click", function(){ if (page < Math.ceil(items.filter(isMatch).length / PAGE)) { page++; render(); } });\n' +
-    '  /* Live refresh: the pipeline regenerates this page at market close, but\n' +
-    '     a fetch here keeps the archive fresh between runs. Failure keeps the\n' +
-    '     baked snapshot on screen. */\n' +
-    '  function load(){\n' +
-    '    return Promise.all([\n' +
-    '      fetch("/nepse-chart/data/corporate-actions.json", { cache: "no-store" })\n' +
-    '        .then(function(r){ if(!r.ok) throw new Error("HTTP " + r.status); return r.json(); }),\n' +
-    '      /* Dividend figures for the hero strips; failure keeps cards figure-less. */\n' +
-    '      fetch("/nepse-chart/data/div-live.json", { cache: "no-store" })\n' +
-    '        .then(function(r){ return r.ok ? r.json() : null; })\n' +
-    '        .catch(function(){ return null; })\n' +
-    '    ])\n' +
-    '      .then(function(pair){\n' +
-    '        var d = pair[0]; DIV = pair[1];\n' +
-    '        var fresh = d.items || [];\n' +
-    '        if (!fresh.length) return;\n' +
-    '        items = fresh.slice().sort(function(a,b){ return String(b.announced||"").localeCompare(String(a.announced||"")); });\n' +
-    '        var total = document.getElementById("naTotal");\n' +
-    '        if (total) total.textContent = items.length + " verified notices";\n' +
-    '        var fr = document.getElementById("naFresh");\n' +
-    '        if (fr && d.updated) fr.textContent = "Archive updated " + String(d.updated).slice(0,10);\n' +
-    '        render();\n' +
-    '      });\n' +
-    '  }\n' +
-    '  try {\n' +
-    '    /* Seed from the baked cards, then refresh from the JSON. */\n' +
-    '    load().catch(function(){ render(); });\n' +
-    '    setInterval(function(){ if (!document.hidden) load().catch(function(){}); }, 300000);\n' +
-    '  } catch(e) { render(); }\n' +
-    '})();\n' +
-    '</script>\n' +
-    '<script src="/js/theme-toggle.js?v=20261023d" defer></script>\n' +
-    '<script src="/js/nepse-market-config.js?v=20261023d"></script>\n' +
-    '<script src="/js/freshness-badge.js?v=20261023d" defer></script>\n' +
-    '<script src="/js/nepse-sidebar.js?v=20261023d" defer></script>\n' +
-    '<script src="/js/nd-chrome.js?v=20261023d" defer></script>\n' +
+    '<div class="na-pills" id="naPills" role="tablist" aria-label="Filter by notice kind">\n' +
+    '<button class="na-pill" data-kind="" aria-selected="true">All</button>\n' +
+    '<button class="na-pill" data-kind="dividend" aria-selected="false">Dividend</button>\n' +
+    '<button class="na-pill" data-kind="right-share" aria-selected="false">Right share</button>\n' +
+    '<button class="na-pill" data-kind="promoter-share" aria-selected="false">Promoter share</button>\n' +
+    '</div>\n' +
+    '<div id="na-feed" aria-live="polite">' + feedHTML + '</div>\n' +
+    '<div class="na-pager" id="na-pager"' + (pages > 1 ? '' : ' style="display:none"') + '>\n' +
+    '<button class="na-page-btn" id="na-prev" type="button">← Newer</button>\n' +
+    '<button class="na-page-btn is-next" id="na-next" type="button">Older →</button>\n' +
+    '<span class="na-page-info" id="na-page-info" aria-live="polite">' + pagerInfo + '</span>\n</div>\n' +
+    '<section class="na-sector" aria-label="Browse stocks by sector">\n' +
+    '<h2 class="na-sector-head">Browse by sector</h2>\n' +
+    '<p class="na-sector-sub">Every listed stock, grouped by sector. A lime mark shows symbols with notices in this archive — click a symbol for its stock page.</p>\n' +
+    '<div class="na-sector-controls"><select class="na-select" id="na-sector-select" aria-label="Choose sector">' + secSelect + '</select>\n' +
+    '<span class="na-sector-note" id="na-sector-note" style="display:none"></span></div>\n' +
+    '<table class="na-sec-table"><thead><tr><th>Symbol</th><th>Company</th><th>Sector</th></tr></thead>' +
+    '<tbody id="na-sector-body">' + secRows + '</tbody></table>\n' +
+    '<div class="na-pager" id="na-sector-pager"' + (secPages > 1 ? '' : ' style="display:none"') + '>\n' +
+    '<button class="na-page-btn" id="na-sector-prev" type="button">← Prev</button>\n' +
+    '<button class="na-page-btn is-next" id="na-sector-next" type="button">Next →</button>\n' +
+    '<span class="na-page-info" id="na-sector-info">' + secInfo + '</span>\n</div>\n</section>\n' +
+    '<p class="na-disc">For education only. Not investment advice. Notices are captured from official NEPSE disclosures; always confirm dates, ratios and book closures against the official NEPSE disclosure archive before acting.</p>\n' +
+    '</main>\n<div id="nd-footer"></div>\n' +
+    '<script src="/js/theme-toggle.js?v=' + st.themeToggle + '" defer></script>\n' +
+    '<script src="/js/nepse-market-config.js?v=' + st.marketConfig + '" defer></script>\n' +
+    '<script src="/js/freshness-badge.js?v=' + st.freshness + '" defer></script>\n' +
+    '<script src="/js/nepse-sidebar.js?v=' + st.sidebar + '" defer></script>\n' +
+    '<script src="/js/nd-chrome.js?v=' + st.chromeJs + '" defer></script>\n' +
+    '<script src="/js/nepse-actions.js?v=' + st.actionsJs + '" defer></script>\n' +
     '</body>\n</html>\n';
 
-  fs.mkdirSync(OUT_DIR, { recursive: true });
-  fs.writeFileSync(path.join(OUT_DIR, 'index.html'), h);
-  console.log(JSON.stringify({ items: items.length, page: 'nepse-actions/index.html' }));
+  fs.writeFileSync(OUT, html);
+  console.log(JSON.stringify({
+    page: 'nepse-actions/index.html', bytes: html.length, items: items.length, pages,
+    sessions: sessDates.length, sectors: sectors.length, sectorTotal: secTotal,
+    open, closed, nostatus, upcomingCloses: up.map((u) => u.it.symbol + ':' + u.bc),
+    stamps: st
+  }, null, 2));
 }
 
 main();

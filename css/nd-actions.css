@@ -203,3 +203,112 @@ span.na-sym--nolink:hover { color: var(--nd-text); }
 [data-theme="light"] .na-card {
   box-shadow: inset 0 1px 0 #fff, 0 10px 24px rgba(30,40,60,.08);
 }
+
+/* ============================================================
+ * TEARDOWN (2026-10-26) — canvas, freshness, sessions, viz,
+ * pager kit, sector directory.
+ * ============================================================ */
+
+/* Canvas: overview tokens, theme-scoped (0,3,1) so the pin beats
+ * theme.css [data-theme="dark"] body.nd (0,2,1). Plain rule first
+ * as the dark default; theme-scoped rules override per theme. */
+body.nd[data-page="actions"] { background: #0A0C10; }
+[data-theme="dark"] body.nd[data-page="actions"] { background: #0A0C10; }
+[data-theme="light"] body.nd[data-page="actions"] { background: #F6F7F9; }
+
+/* ---------- Freshness line + new-notice ---------- */
+.na-fresh-line {
+  font: 600 0.74rem var(--nd-font-mono, "IBM Plex Mono", monospace);
+  letter-spacing: 0.04em; color: var(--nd-muted); margin: 14px 0 0;
+}
+.na-fresh-line.is-failed { color: var(--nd-down); }
+.na-new-note {
+  display: inline-block; margin: 12px 0 0; padding: 6px 12px; border-radius: 999px;
+  background: var(--nd-lime); color: var(--nd-on-lime);
+  font: 700 0.72rem var(--nd-font-sans, Inter, sans-serif);
+}
+
+/* ---------- Session strip ---------- */
+.na-session-strip { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 4px; }
+.na-session {
+  background: var(--nd-panel); border: 1px solid var(--nd-border);
+  color: var(--nd-muted); border-radius: 999px; padding: 7px 14px;
+  font: 600 0.78rem var(--nd-font-sans, Inter, sans-serif); cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.na-session:hover { border-color: var(--nd-lime); color: var(--nd-text); }
+.na-session.is-active { background: var(--nd-lime); border-color: var(--nd-lime); color: var(--nd-on-lime); }
+
+/* ---------- Viz panels ---------- */
+.na-viz { display: grid; grid-template-columns: 1fr; gap: 14px; margin: 18px 0 4px; }
+@media (min-width: 860px) { .na-viz { grid-template-columns: repeat(3, 1fr); } }
+.na-viz-panel {
+  background: var(--nd-panel); border: 1px solid var(--nd-border);
+  border-radius: var(--nd-r-card, 18px); padding: 18px 20px;
+}
+.na-viz-head {
+  font-family: var(--nd-font-display, "Spectral", Georgia, serif);
+  font-weight: 600; font-size: 1.02rem; color: var(--nd-text); margin: 0 0 12px;
+}
+.na-mix-bar {
+  display: flex; height: 10px; border-radius: 999px; overflow: hidden;
+  background: var(--nd-inset); margin: 2px 0 12px;
+}
+.na-mix-seg { display: block; height: 100%; }
+.na-mix-seg.k-dividend, .na-mix-seg.k-open { background: var(--nd-up); }
+.na-mix-seg.k-promoter-share { background: var(--nd-down); }
+.na-mix-seg.k-right-share { background: var(--nd-amber, #F5B301); }
+.na-mix-seg.k-auction, .na-mix-seg.k-lock-in, .na-mix-seg.k-meeting, .na-mix-seg.k-book-close { background: var(--nd-dim); }
+.na-mix-legend { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 0.82rem; color: var(--nd-muted); }
+.na-mix-item { display: inline-flex; align-items: center; gap: 6px; }
+.na-mix-item b { color: var(--nd-text); font-variant-numeric: tabular-nums; }
+.na-mix-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.na-mix-dot.k-dividend, .na-mix-dot.k-open { background: var(--nd-up); }
+.na-mix-dot.k-promoter-share { background: var(--nd-down); }
+.na-mix-dot.k-right-share { background: var(--nd-amber, #F5B301); }
+.na-mix-dot.k-auction, .na-mix-dot.k-lock-in, .na-mix-dot.k-meeting, .na-mix-dot.k-book-close { background: var(--nd-dim); }
+.na-statline {
+  display: flex; gap: 22px; margin: 2px 0 12px;
+  font-size: 0.9rem; color: var(--nd-muted);
+}
+.na-statline b {
+  font-family: var(--nd-font-display, "Spectral", Georgia, serif);
+  font-weight: 600; font-size: 1.5rem; color: var(--nd-text);
+  font-variant-numeric: tabular-nums; margin-right: 4px;
+}
+.na-viz-note { font-size: 0.8rem; color: var(--nd-dim); line-height: 1.6; margin: 10px 0 0; }
+.na-closes { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.na-closes li { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 0.85rem; }
+.na-close-kind { color: var(--nd-dim); }
+.na-close-date { color: var(--nd-text); font-variant-numeric: tabular-nums; margin-left: auto; }
+.na-close-rel { color: var(--nd-lime); font-weight: 700; }
+
+/* ---------- Pager kit: Prev quiet, Next lime primary ---------- */
+.na-page-btn.is-next { background: var(--nd-lime); border-color: var(--nd-lime); color: var(--nd-on-lime); }
+.na-page-btn.is-next:hover:not(:disabled) { border-color: var(--nd-lime); filter: brightness(1.05); }
+
+/* ---------- Sector directory ---------- */
+.na-sector { margin: 30px 0 8px; }
+.na-sector-head {
+  font-family: var(--nd-font-display, "Spectral", Georgia, serif);
+  font-weight: 600; font-size: 1.25rem; color: var(--nd-text); margin: 0 0 4px;
+}
+.na-sector-sub { font-size: 0.85rem; color: var(--nd-dim); margin: 0 0 14px; max-width: 76ch; line-height: 1.6; }
+.na-sector-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 0 0 12px; }
+.na-sector-note { font-size: 0.8rem; color: var(--nd-down); }
+.na-sec-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+.na-sec-table thead th {
+  text-align: left; padding: 10px 12px;
+  font: 600 0.66rem var(--nd-font-mono, monospace); letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--nd-dim); background: var(--nd-panel-2);
+  border-bottom: 1px solid var(--nd-border);
+}
+.na-sec-table tbody td { padding: 10px 12px; border-bottom: 1px solid var(--nd-border); color: var(--nd-text); }
+.na-sec-table tbody td:nth-child(3) { color: var(--nd-muted); }
+.na-sec-mark { color: var(--nd-lime); font: 600 0.72rem var(--nd-font-mono, monospace); white-space: nowrap; }
+
+/* ---------- Keyboard focus ---------- */
+.na-pill:focus-visible, .na-session:focus-visible, .na-page-btn:focus-visible,
+.na-select:focus-visible, .na-search:focus-visible {
+  outline: 2px solid var(--nd-lime); outline-offset: 2px;
+}
