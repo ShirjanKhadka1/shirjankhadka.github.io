@@ -1,20 +1,19 @@
 /* Nepse Decode - printable report builder.
  * Assembles a report from real data only: the browser-local portfolio and
- * watchlist stores plus the daily batch (verdicts.json, wave1.json).
+ * watchlist stores plus the daily batch (verdicts.json).
  * Sections are toggleable; empty stores render honest empty notes, never
  * placeholder numbers. Print via window.print() with a print stylesheet. */
 (function () {
   'use strict';
 
   var VER_URL = '/nepse-chart/data/verdicts.json';
-  var WAVE_URL = '/nepse-chart/data/wave1.json';
   var ARCH_URL = '/data/reports-archive.json';
   var PF_KEY = 'nl_portfolios_v1';
   var WL_KEY = 'nl_watchlist_v1';
   var PAGE_SIZE = 25;
 
   /* ---------- refresh + drill-down state ---------- */
-  var state = { sector: '', secPage: 1, pastPage: 1 };
+  var state = { pastPage: 1 };
   var archive = null, refreshTimer = null, printing = false;
 
   /* ---------- pure helpers (also exported for node tests) ---------- */
@@ -49,29 +48,6 @@
     return { invested: invested, value: value, unrealized: un,
       ret: invested > 0 ? un / invested * 100 : null, missing: missing, n: holdings.length };
   }
-  // sector breadth from verdicts map
-  function sectorBreadth(verdicts) {
-    var out = {};
-    Object.keys(verdicts).forEach(function (k) {
-      var r = verdicts[k];
-      var sec = r.sec || 'Others';
-      if (typeof r.ch !== 'number' || !isFinite(r.ch)) return;
-      out[sec] = out[sec] || { up: 0, down: 0, flat: 0 };
-      if (r.ch > 0) out[sec].up++;
-      else if (r.ch < 0) out[sec].down++;
-      else out[sec].flat++;
-    });
-    return out;
-  }
-  // one sector's rankable rows from the batch (finite score only,
-  // matching the screener section's filter), ranked by score desc
-  function sectorStocks(verdicts, sector) {
-    return Object.keys(verdicts).map(function (k) {
-      var r = verdicts[k];
-      return { s: k, score: r.s, v: r.v, p: r.p, ch: r.ch, rsi: r.rsi, sec: r.sec || 'Others' };
-    }).filter(function (r) { return r.sec === sector && typeof r.score === 'number' && isFinite(r.score); })
-      .sort(function (a, b) { return b.score - a.score; });
-  }
   // one page of a list (1-based page, PAGE_SIZE rows)
   function pageSlice(list, page) {
     var p = Math.max(1, page || 1);
@@ -79,22 +55,15 @@
   }
 
   if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { median: median, num: num, portfolioTotals: portfolioTotals, sectorBreadth: sectorBreadth, sectorStocks: sectorStocks, pageSlice: pageSlice };
+    module.exports = { median: median, num: num, portfolioTotals: portfolioTotals, pageSlice: pageSlice };
     return;
   }
 
   /* ---------- page ---------- */
-  var ver = null, wave = null, snap = null;
+  var ver = null;
 
-  // Wave 7: the shared snapshot data path (daily batch + live overlay).
-  // Falls back to the batch alone when the live feed is unreachable.
-  function loadSnap() {
-    var NL = window.NepseLive || null;
-    if (NL) return NL.loadSnapshot().catch(function () { return null; });
-    return Promise.resolve(null);
-  }
   var $ = function (id) { return document.getElementById(id); };
-  var SECTIONS = ['rp-portfolio', 'rp-watchlist', 'rp-screener', 'rp-market', 'rp-sectors'];
+  var SECTIONS = ['rp-portfolio', 'rp-watchlist'];
 
   function readStore(key) {
     try {
@@ -185,129 +154,8 @@
     return html;
   }
 
-  function secScreener() {
-    var rows = Object.keys(ver.verdicts).map(function (k) {
-      var r = ver.verdicts[k];
-      return { s: k, score: r.s, v: r.v, p: r.p, ch: r.ch };
-    }).filter(function (r) { return typeof r.score === 'number' && isFinite(r.score); });
-    rows.sort(function (a, b) { return b.score - a.score; });
-    var maxAbs = 0;
-    rows.forEach(function (r) { if (Math.abs(r.score) > maxAbs) maxAbs = Math.abs(r.score); });
-    function scoreBar(score) {
-      if (!maxAbs) return '—';
-      var w = (Math.abs(score) / maxAbs * 100).toFixed(1);
-      var col = score < 0 ? ' style="--w:' + w + '%;background:var(--nd-down)"' : ' style="--w:' + w + '%"';
-      return '<span class="cx-prop"><span class="cx-prop-track"><i class="cx-prop-fill"' + col + '></i></span></span>';
-    }
-    function tbl(list, title) {
-      return '<h3>' + title + '</h3><div class="rp-table-wrap"><table class="rp-table nd-table"><thead><tr><th>#</th><th>Symbol</th><th>Signal</th><th>Score</th><th>Score bar</th><th>Price</th><th>Day change</th></tr></thead><tbody>' +
-        list.map(function (r, i) {
-          var chCls = r.ch == null ? '' : (r.ch >= 0 ? 'up' : 'down');
-          return '<tr><td>' + (i + 1) + '</td><td><b>' + esc(r.s) + '</b></td><td>' + esc(r.v || '—') + '</td>' +
-            '<td>' + num(r.score, 1) + '</td><td class="rp-barcell">' + scoreBar(r.score) + '</td><td>' + num(r.p, 2) + '</td>' +
-            '<td class="' + chCls + '">' + (r.ch == null ? '—' : num(r.ch, 2) + '%') + '</td></tr>';
-        }).join('') + '</tbody></table></div>';
-    }
-    return '<h2>Screener: strongest and weakest signals</h2>' +
-      '<p class="rp-sub">Top and bottom 10 by engine score, latest batch (' + esc(ver.asof) + ').</p>' +
-      tbl(rows.slice(0, 10), 'Strongest signals') + tbl(rows.slice(-10).reverse(), 'Weakest signals');
-  }
-
-  function secMarket() {
-    var html = '<h2>Market snapshot</h2>';
-    if (!snap || !snap.batch) return html + '<p class="rp-empty">Market summary data is unavailable right now.</p>';
-    // Wave 7: the shared snapshot component, rendering the same figures the dashboard
-    // shows, placed once here (reports are printable, not live-polled).
-    return html + '<div id="rp-snapmount"></div>';
-  }
-
-  function mountSnap() {
-    var mount = $('rp-snapmount');
-    var Snap = window.NepseSnapshot, NL = window.NepseLive;
-    if (!mount || !Snap || !snap) return;
-    mount.innerHTML = Snap.statsHTML(snap, { spark: true });
-    Snap.fillSpark(mount);
-    var liveEl = mount.querySelector('[data-nlsnap-live]');
-    if (liveEl && NL) liveEl.innerHTML = NL.badgeHTML(NL.statusOf(snap.live));
-    var M = window.NepseMotion;
-    if (M) M.watchCounts(mount);
-  }
-
-  function secSectors() {
-    var b = sectorBreadth(ver.verdicts);
-    var secs = Object.keys(b).sort();
-    var html = '<h2>Sector breadth</h2>' +
-      '<p class="rp-sub">Advancers vs decliners by sector, latest batch (' + esc(ver.asof) + '). ' +
-      'Scope is the full batch: all 15 sectors, including Debentures, Mutual Funds and Promoter Shares — not ordinary equities only. ' +
-      'Tap a sector row to see its stocks below.</p>' +
-      '<div class="rp-table-wrap"><table class="rp-table nd-table"><thead><tr><th>Sector</th><th>Up</th><th>Down</th><th>Flat</th><th>Breadth</th></tr></thead><tbody>' +
-      secs.map(function (s) {
-        var t = b[s].up + b[s].down + b[s].flat;
-        var wUp = t ? (b[s].up / t * 100).toFixed(1) : 0;
-        var wFlat = t ? (b[s].flat / t * 100).toFixed(1) : 0;
-        var wDown = t ? (b[s].down / t * 100).toFixed(1) : 0;
-        var active = state.sector === s ? ' rp-sector-active' : '';
-        return '<tr class="rp-sector-row' + active + '" tabindex="0" role="button" aria-pressed="' + (state.sector === s) + '" data-sector-row="' + esc(s) + '">' +
-          '<td><b>' + esc(s) + '</b></td><td class="up">' + b[s].up + '</td><td class="down">' + b[s].down + '</td><td>' + b[s].flat + '</td>' +
-          '<td class="rp-breadth"><span class="cx-breadth"><i class="b-up" style="width:' + wUp + '%"></i><i class="b-flat" style="width:' + wFlat + '%"></i><i class="b-down" style="width:' + wDown + '%"></i></span> ' +
-          '<span class="rp-breadth-legend">' + b[s].up + '↑ · ' + b[s].down + '↓ · ' + b[s].flat + '—</span></td></tr>';
-      }).join('') + '</tbody></table></div>';
-    return html + renderSectorBlock();
-  }
-
-  function renderSectorBlock() {
-    if (!state.sector) {
-      return '<div class="rp-sector-block"><h3>Stocks in the selected sector</h3>' +
-        '<p class="rp-sub">Tap a sector row above to see that sector\'s stocks here — ranked by engine score, with their signal, price, day change, RSI and score bar. The block follows the batch refresh.</p></div>';
-    }
-    var rows = sectorStocks(ver.verdicts, state.sector);
-    var maxAbs = 0;
-    rows.forEach(function (r) { if (typeof r.score === 'number' && isFinite(r.score) && Math.abs(r.score) > maxAbs) maxAbs = Math.abs(r.score); });
-    var scores = rows.map(function (r) { return r.score; }).filter(function (v) { return typeof v === 'number' && isFinite(v); });
-    var med = median(scores);
-    var b = sectorBreadth(ver.verdicts)[state.sector] || { up: 0, down: 0, flat: 0 };
-    var top = rows.length ? rows[0] : null;
-    var pages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
-    if (state.secPage > pages) state.secPage = pages;
-    var pageRows = pageSlice(rows, state.secPage);
-    var lo = rows.length ? (state.secPage - 1) * PAGE_SIZE + 1 : 0;
-    var hi = (state.secPage - 1) * PAGE_SIZE + pageRows.length;
-    var html = '<div class="rp-sector-block"><h3>Stocks in ' + esc(state.sector) + '</h3>' +
-      '<p class="rp-sub">Scope: the full batch for this sector (see the breadth note above). Ranked by engine score. ' +
-      'The stock list counts every scored row; breadth counts only rows with a day change, so the two totals can differ by a row.</p>' +
-      '<div class="rp-sector-summary">' +
-      stat('Stocks scored', String(rows.length)) +
-      stat('Advancers', String(b.up), 'up') +
-      stat('Decliners', String(b.down), 'down') +
-      stat('Median score', med == null ? '—' : num(med, 1)) +
-      stat('Top signal', top ? esc(top.s) + ' · ' + esc(top.v || '—') : '—') +
-      '</div>';
-    if (!rows.length) {
-      html += '<p class="rp-empty">No stocks in this sector in the latest batch.</p>';
-    } else {
-      html += '<div class="rp-table-wrap"><table class="rp-table nd-table"><thead><tr><th>Symbol</th><th>Price</th><th>Day change</th><th>Signal</th><th>Score</th><th>RSI</th><th>Score bar</th></tr></thead><tbody>' +
-        pageRows.map(function (r) {
-          var chCls = r.ch == null ? '' : (r.ch >= 0 ? 'up' : 'down');
-          var w = maxAbs && typeof r.score === 'number' && isFinite(r.score) ? (Math.abs(r.score) / maxAbs * 100).toFixed(1) : 0;
-          var col = r.score < 0 ? ' style="--w:' + w + '%;background:var(--nd-down)"' : ' style="--w:' + w + '%"';
-          return '<tr><td><b>' + esc(r.s) + '</b></td><td>' + num(r.p, 2) + '</td>' +
-            '<td class="' + chCls + '">' + (r.ch == null ? '—' : num(r.ch, 2) + '%') + '</td>' +
-            '<td>' + esc(r.v || '—') + '</td><td>' + num(r.score, 1) + '</td><td>' + num(r.rsi, 1) + '</td>' +
-            '<td class="rp-barcell"><span class="cx-prop"><span class="cx-prop-track"><i class="cx-prop-fill"' + col + '></i></span></span></td></tr>';
-        }).join('') + '</tbody></table></div>';
-    }
-    html += '<div class="rp-pager">' +
-      '<button type="button" class="cx-btn quiet" data-sec-page="prev"' + (state.secPage <= 1 ? ' disabled' : '') + '>← Prev</button>' +
-      '<span class="rp-pager-txt">Showing ' + lo + '–' + hi + ' of ' + rows.length + ' stocks in ' + esc(state.sector) + ' · Page ' + state.secPage + ' of ' + pages + '</span>' +
-      '<button type="button" class="cx-btn" data-sec-page="next"' + (state.secPage >= pages ? ' disabled' : '') + '>Next →</button>' +
-      '<button type="button" class="cx-btn quiet" data-sec-clear>Show full report</button>' +
-      '</div></div>';
-    return html;
-  }
-
   var BUILDERS = {
-    'rp-portfolio': secPortfolio, 'rp-watchlist': secWatchlist, 'rp-screener': secScreener,
-    'rp-market': secMarket, 'rp-sectors': secSectors
+    'rp-portfolio': secPortfolio, 'rp-watchlist': secWatchlist
   };
 
   function syncSel() {
@@ -328,12 +176,11 @@
     });
     var body = out || '<p class="rp-empty">Tick at least one section above, then rebuild.</p>';
     $('rp-report').innerHTML =
-      '<div class="rp-dochead"><p class="rp-doc-title"><small>Nepse Decode</small>Market report</p>' +
+      '<div class="rp-dochead"><p class="rp-doc-title"><small>Nepse Decode</small>Portfolio and watchlist report</p>' +
       '<p class="rp-doc-date">Prepared ' + esc(todayStr()) + '</p></div>' + body +
       '<p class="rp-docfoot">Educational use only. Figures come from the Engine Verdict\'s daily batch and your browser-local data; nothing here is investment advice or a buy or sell recommendation.</p>';
     $('rp-printhead-date').textContent = todayStr();
     $('rp-result').hidden = false;
-    mountSnap(); // Wave 7: paint the shared snapshot after the report is injected
   }
 
   /* ---------- past reports archive (on-screen only) ---------- */
@@ -415,8 +262,7 @@
     return a.length + '|' + (a.length ? a[a.length - 1].session_date : '');
   }
   function dataKey() {
-    var liveAsof = snap && snap.live && snap.live.asof != null ? String(snap.live.asof) : 'nolive';
-    return [ver && ver.asof, wave && wave.asof, snap && snap.batchAsof, liveAsof, archKey(archive)].join('|');
+    return [ver && ver.asof, archKey(archive)].join('|');
   }
   function setStatusLine(kind) {
     var el = $('rp-status');
@@ -436,21 +282,18 @@
     var before = dataKey();
     Promise.all([
       fetch(VER_URL).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
-      fetch(WAVE_URL).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
-      loadSnap(),
       fetch(ARCH_URL).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
     ]).then(function (res) {
       if (!res[0]) { setStatusLine('failed'); scheduleRefresh(); return; }
-      ver = res[0]; wave = res[1];
-      snap = res[2] || (res[1] ? {
-        batch: res[1].market,
-        batchAsof: res[1].asof || (res[1].market && res[1].market.date) || null,
-        live: null
-      } : snap);
-      var newArch = Array.isArray(res[3]) ? res[3] : archive;
+      ver = res[0];
+      var newArch = Array.isArray(res[1]) ? res[1] : archive;
       var changed = dataKey() !== before || archKey(newArch) !== archKey(archive);
       archive = newArch;
-      if (changed) { build(); renderPast(); setStatusLine('updated'); }
+      if (changed) {
+        build(); renderPast();
+        if (window.NepseFresh) $('rp-asof').innerHTML = window.NepseFresh.badge(ver.asof);
+        setStatusLine('updated');
+      }
       else setStatusLine('unchanged');
       scheduleRefresh();
     }).catch(function () { setStatusLine('failed'); scheduleRefresh(); });
@@ -458,16 +301,9 @@
 
   /* ---------- boot ---------- */
   Promise.all([
-    fetch(VER_URL).then(function (r) { return r.ok ? r.json() : null; }),
-    fetch(WAVE_URL).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
-    loadSnap()
+    fetch(VER_URL).then(function (r) { return r.ok ? r.json() : null; })
   ]).then(function (res) {
-    ver = res[0]; wave = res[1];
-    snap = res[2] || (res[1] ? {
-      batch: res[1].market,
-      batchAsof: res[1].asof || (res[1].market && res[1].market.date) || null,
-      live: null
-    } : null);
+    ver = res[0];
     if (!ver) {
       $('rp-status').textContent = 'Could not load the daily batch. Please reload the page.';
       return;
@@ -490,35 +326,6 @@
       if (cb) cb.addEventListener('change', build);
     });
     syncSel();
-    /* Delegated clicks survive every build() re-render. */
-    $('rp-report').addEventListener('click', function (ev) {
-      var row = ev.target.closest ? ev.target.closest('[data-sector-row]') : null;
-      if (row) {
-        var sec = row.getAttribute('data-sector-row');
-        state.sector = state.sector === sec ? '' : sec;
-        state.secPage = 1;
-        build();
-        return;
-      }
-      var pg = ev.target.closest ? ev.target.closest('[data-sec-page]') : null;
-      if (pg && !pg.disabled) {
-        if (pg.getAttribute('data-sec-page') === 'prev' && state.secPage > 1) state.secPage--;
-        if (pg.getAttribute('data-sec-page') === 'next') state.secPage++;
-        build();
-        return;
-      }
-      var clr = ev.target.closest ? ev.target.closest('[data-sec-clear]') : null;
-      if (clr) { state.sector = ''; state.secPage = 1; build(); }
-    });
-    $('rp-report').addEventListener('keydown', function (ev) {
-      var row = ev.target.closest ? ev.target.closest('[data-sector-row]') : null;
-      if (row && (ev.key === 'Enter' || ev.key === ' ')) {
-        ev.preventDefault();
-        state.sector = state.sector === row.getAttribute('data-sector-row') ? '' : row.getAttribute('data-sector-row');
-        state.secPage = 1;
-        build();
-      }
-    });
     var pastPager = $('rp-past-pager');
     if (pastPager) pastPager.addEventListener('click', function (ev) {
       var pg = ev.target.closest ? ev.target.closest('[data-past-page]') : null;

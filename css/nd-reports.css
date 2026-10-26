@@ -26,7 +26,6 @@
 .rp-builder h2{ font-family: var(--serif); font-size: 21px; font-weight: 600; margin: 0 0 6px; color: var(--nd-text); }
 .rp-builder .sub{ font-size: 13.5px; color: var(--nd-dim); margin: 0 0 18px; max-width: 78ch; }
 .rp-checks{ display: grid; grid-template-columns: 1fr; gap: 10px; }
-.rp-groups{ display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 22px; }
 .rp-group{
   border: 1px solid var(--nd-border); border-radius: 16px; padding: 18px; margin: 0;
   background: var(--nd-inset); min-width: 0;
@@ -138,27 +137,9 @@
   padding: 14px 0 22px; margin: 6px 0 0; max-width: 78ch;
 }
 
-/* data bars inside tables (kit cx-prop / cx-breadth) */
+/* data bars inside tables (kit cx-prop) */
 .rp-barcell{ min-width: 130px; }
 .rp-barval{ font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--nd-dim); white-space: nowrap; }
-.rp-breadth{ min-width: 150px; }
-.rp-breadth .cx-breadth{ height: 10px; }
-.rp-breadth-legend{ font-size: 12px; color: var(--nd-dim); font-variant-numeric: tabular-nums; white-space: nowrap; }
-
-/* ---------- sector drill-down block (inside the document) ---------- */
-.rp-sector-row{ cursor: pointer; }
-.rp-sector-row:hover{ background: var(--nd-lime-faint); }
-.rp-sector-row:focus-visible{ outline: 2px solid var(--nd-lime); outline-offset: -2px; }
-.rp-sector-row.rp-sector-active td{ background: var(--nd-lime-soft); }
-.rp-sector-block{
-  border: 1px solid var(--nd-border); border-radius: 16px; padding: 20px 22px;
-  margin: 18px 0 4px; background: var(--nd-panel-2);
-}
-.rp-sector-block h3{ margin-top: 0 !important; }
-.rp-sector-summary{
-  display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin: 14px 0 18px;
-}
-.rp-sector-summary .rp-stat{ background: var(--nd-panel); }
 .rp-pager{
   display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 14px 0 4px;
 }
@@ -190,14 +171,11 @@
 
 /* ---------- responsive ---------- */
 @media(max-width: 860px){
-  .rp-groups{ grid-template-columns: 1fr; }
   .rp-stats{ grid-template-columns: 1fr 1fr; }
-  .rp-sector-summary{ grid-template-columns: 1fr 1fr; }
   .rp-doc{ padding: 6px 20px 10px; }
   .rp-doc-title{ font-size: 24px; }
 }
 @media(max-width: 560px){
-  .rp-sector-summary{ grid-template-columns: 1fr; }
   .rp-builder{ padding: 20px 16px; }
   .rp-sec, .rp-past{ padding: 20px 16px; }
 }
@@ -220,7 +198,6 @@
     border: none; border-bottom: 1px solid #ccc; border-radius: 0;
     padding: 14px 0; margin: 0 0 16px; box-shadow: none;
   }
-  .rp-sector-block{ border: 1px solid #ccc; background: none; }
   .rp-printfoot{ display: block !important; font-size: 11px; color: #555; border-top: 1px solid #ccc; padding-top: 8px; margin-top: 8px; }
   a{ color: #000; text-decoration: none; }
   .up{ color: #0a6b3a; }
