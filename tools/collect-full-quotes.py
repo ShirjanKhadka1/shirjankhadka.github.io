@@ -62,6 +62,15 @@ def main():
         dest_js = os.path.join(tools_dir, "fetch-nepse-live.js")
         shutil.copyfile(SRC_JS, dest_js)
 
+        # The fetcher requires its sibling modules and holiday data, all
+        # in REPO/tools/. Staging only the fetcher broke every intraday
+        # run (2026-10-26: MODULE_NOT_FOUND for ./trading-days, no
+        # live.json produced) — copy the siblings too.
+        for sibling in ("trading-days.js", "nepse-api.js", "nepse-holidays.json"):
+            src = os.path.join(REPO, "tools", sibling)
+            if os.path.isfile(src):
+                shutil.copyfile(src, os.path.join(tools_dir, sibling))
+
         # Run the JS fetcher verbatim
         try:
             result = subprocess.run(
