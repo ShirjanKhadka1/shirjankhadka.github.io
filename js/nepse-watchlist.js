@@ -232,6 +232,8 @@
       if (v && v.verdicts) { verdicts = v.verdicts; dataAsof = v.asof || ''; }
       if (res[2] && Array.isArray(res[2].sessions)) sessionsData = res[2];
       if (res[3] && res[3].symbols) forwardData = res[3].symbols;
+      /* Seed the tick gate: without this the first tick always rebuilds. */
+      if (u && Array.isArray(u.symbols) && v && v.verdicts) lastWlSig = wlSig(u, v);
       dataReady = true;
       if (dataAsof && updatedEl) {
         updatedEl.innerHTML = 'Prices and signals as of ' + esc(dataAsof) + '. ' +
@@ -600,14 +602,17 @@
       var q = sym && quotes[sym];
       if (!q || q.ltp == null || !isFinite(Number(q.ltp))) continue;
       var ltpEl = rows[i].querySelector('.d2-wl-px');
-      if (ltpEl) ltpEl.textContent = 'Rs ' + fmtNum(q.ltp, 2);
+      var ltpTxt = 'Rs ' + fmtNum(q.ltp, 2);
+      if (ltpEl && ltpEl.textContent !== ltpTxt) ltpEl.textContent = ltpTxt;
       var chgEl = rows[i].querySelector('.d2-wl-chg');
       if (chgEl) {
         // P0-3 contract: full "rs (pct%)" via fmtChange — never percent-only.
         var chRs = (q.change != null && isFinite(Number(q.change))) ? Number(q.change) : null;
         var pct = (q.percent_change != null && isFinite(Number(q.percent_change))) ? Number(q.percent_change) : null;
-        chgEl.textContent = fmtChange(chRs, pct);
-        chgEl.className = 'd2-wl-chg ' + (pct != null ? (pct > 0 ? 'up' : pct < 0 ? 'dn' : '') : '');
+        var chTxt = fmtChange(chRs, pct);
+        var chCls = 'd2-wl-chg ' + (pct != null ? (pct > 0 ? 'up' : pct < 0 ? 'dn' : '') : '');
+        if (chgEl.textContent !== chTxt) chgEl.textContent = chTxt;
+        if (chgEl.className !== chCls) chgEl.className = chCls;
       }
     }
   }
@@ -628,7 +633,8 @@
       var chHtml = '<span class="' + (ch > 0 ? 'up' : ch < 0 ? 'dn' : '') + '">' +
         esc(fmtChange(ch, q.percent_change)) + '</span>';
       var numEl = rows[i].querySelector('.d2-ewl-num');
-      if (numEl) numEl.innerHTML = 'Rs ' + fmtNum(q.ltp, 2) + ' · ' + chHtml;
+      var numHtml = 'Rs ' + fmtNum(q.ltp, 2) + ' · ' + chHtml;
+      if (numEl && numEl.innerHTML !== numHtml) numEl.innerHTML = numHtml;
     }
   }
 
@@ -945,6 +951,16 @@
   loadData();
 
   /* ---- Auto-refresh: market-aware cadence, visible freshness line ---- */
+  /* Tick change-gate (fading fix): the old code set changed=true on ANY
+     successful universe fetch, so every tick rebuilt all rows even when
+     the batch was identical. The signature below covers the full batch
+     content, so an unchanged tick moves only the freshness line. */
+  var lastWlSig = null;
+  function wlSig(u, v){
+    var a = (u && Array.isArray(u.symbols)) ? u.symbols.map(function(s){ return s.s; }).join(',') : '';
+    var b = (v && v.verdicts) ? (v.asof || '') + '|' + JSON.stringify(v.verdicts) : '';
+    return a + '||' + b;
+  }
   var refreshTimer = null;
   var lastHidden = 0;
   function refreshMs() {
@@ -978,19 +994,28 @@
       fetch('/data/watchlist-forward.json', {cache: 'no-store'}).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
     ]).then(function (res) {
       var u = res[0], v = res[1];
-      var changed = false;
-      if (u && Array.isArray(u.symbols)) { universe = u.symbols; changed = true; }
-      if (v && v.verdicts) {
-        if (v.asof !== dataAsof) changed = true;
-        verdicts = v.verdicts; dataAsof = v.asof || '';
-      }
+      /* Full-success ticks compare the whole batch signature. A partial
+         tick (one feed missing) still renders when the verdicts asof
+         advanced, exactly as before. */
+      var prevAsof = dataAsof;
+      if (u && Array.isArray(u.symbols)) universe = u.symbols;
+      if (v && v.verdicts) { verdicts = v.verdicts; dataAsof = v.asof || ''; }
       if (res[2] && Array.isArray(res[2].sessions)) sessionsData = res[2];
       if (res[3] && res[3].symbols) forwardData = res[3].symbols;
-      if (dataAsof && updatedEl) {
-        updatedEl.innerHTML = 'Prices and signals as of ' + esc(dataAsof) + '. ' +
-          (window.NepseFresh ? NepseFresh.badge(dataAsof) : '');
+      var full = !!(u && Array.isArray(u.symbols) && v && v.verdicts);
+      var changed;
+      if (full) {
+        var sig = wlSig(u, v);
+        changed = sig !== lastWlSig;
+        lastWlSig = sig;
+      } else {
+        changed = !!(v && v.verdicts && v.asof !== prevAsof);
       }
       if (changed && dataReady) {
+        if (dataAsof && updatedEl) {
+          updatedEl.innerHTML = 'Prices and signals as of ' + esc(dataAsof) + '. ' +
+            (window.NepseFresh ? NepseFresh.badge(dataAsof) : '');
+        }
         renderTabs();
         renderList();
         renderEngine();

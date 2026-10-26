@@ -63,6 +63,18 @@
   /* ---- Freshness state (visible line, incl. failures) ---- */
   var fresh = { annOk: null, hlOk: null, annUpd: '', hlAsof: '', lastCheck: null, newCount: 0 };
   var prevKeys = null;
+  /* ---- Refresh change-gate (fading fix): the 60s tick must not destroy
+     and rebuild the feeds when the payload is unchanged. Each feed's
+     signature is the exact joined key of every item (title+date+sym+url),
+     so no real change can be missed; an unchanged tick updates only the
+     freshness line's checked time, never the feed DOM. */
+  var lastAnnSig = null, lastHlSig = null;
+  function sigKey(it, src){ return src + '|' + (it.title || '') + '|' + (it.date || '') + '|' + (it.sym || '') + '|' + (it.url || ''); }
+  function feedSig(items, src){
+    var parts = [String(items.length)];
+    for (var i = 0; i < items.length; i++) parts.push(sigKey(items[i], src));
+    return parts.join('\u0001');
+  }
   function nptClock(d){
     try { return d.toLocaleTimeString('en-GB', { timeZone: 'Asia/Kathmandu', hour: '2-digit', minute: '2-digit' }); }
     catch(e) { return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
@@ -201,14 +213,20 @@
     return fetch('/nepse-chart/data/announcements.json', { cache: 'no-store' })
       .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(function(d){
-        annItems = (d.items || []).slice().sort(function(a,b){ return String(b.date||'').localeCompare(String(a.date||'')); });
-        var upd = document.getElementById('annUpdated');
-        if (upd && d.updated) upd.textContent = 'Official company disclosures · updated ' + fmtDate(d.updated) + '. Open a story for details and chart links.';
+        var next = (d.items || []).slice().sort(function(a,b){ return String(b.date||'').localeCompare(String(a.date||'')); });
+        var sig = feedSig(next, 'ann');
+        var changed = sig !== lastAnnSig;
+        annItems = next; lastAnnSig = sig;
         if (d.updated) fresh.annUpd = d.updated;
         fresh.annOk = true;
-        renderAnn(); renderKinds(); updateCounts();
+        if (changed) {
+          var upd = document.getElementById('annUpdated');
+          if (upd && d.updated) upd.textContent = 'Official company disclosures · updated ' + fmtDate(d.updated) + '. Open a story for details and chart links.';
+          renderAnn(); renderKinds(); updateCounts();
+        }
+        return changed;
       })
-      .catch(function(){ fresh.annOk = false; });
+      .catch(function(){ fresh.annOk = false; return false; });
   }
 
   /* Headlines */
@@ -252,15 +270,21 @@
     return fetch('/nepse-chart/data/news.json', { cache: 'no-store' })
       .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(function(d){
-        hlItems = (d.items || []).slice().sort(function(a,b){ return String(b.date||'').localeCompare(String(a.date||'')); });
-        var upd = document.getElementById('hlUpdated');
-        var asof = d.asof || d.updated;
-        if (upd && asof) upd.textContent = 'Headlines, editorially reviewed · updated ' + fmtDate(asof) + '.';
-        if (asof) fresh.hlAsof = asof;
+        var next = (d.items || []).slice().sort(function(a,b){ return String(b.date||'').localeCompare(String(a.date||'')); });
+        var sig = feedSig(next, 'news');
+        var changed = sig !== lastHlSig;
+        hlItems = next; lastHlSig = sig;
+        if (d.asof || d.updated) fresh.hlAsof = d.asof || d.updated;
         fresh.hlOk = true;
-        renderHl(); updateCounts(); renderMix();
+        if (changed) {
+          var upd = document.getElementById('hlUpdated');
+          var asof = d.asof || d.updated;
+          if (upd && asof) upd.textContent = 'Headlines, editorially reviewed · updated ' + fmtDate(asof) + '.';
+          renderHl(); updateCounts(); renderMix();
+        }
+        return changed;
       })
-      .catch(function(){ fresh.hlOk = false; });
+      .catch(function(){ fresh.hlOk = false; return false; });
   }
   function renderMix(){
     var host = document.getElementById('hlMix'); if (!host || !hlItems.length) return;
@@ -369,10 +393,13 @@
     if (pv) pv.addEventListener('click', function(){ if (secPage > 1) { secPage--; renderSector(); } });
     if (nx) nx.addEventListener('click', function(){ secPage++; renderSector(); });
     function loadAll(){
-      return Promise.all([loadAnn(), loadHl()]).then(function(){
+      return Promise.all([loadAnn(), loadHl()]).then(function(changed){
         noteNewItems();
         fresh.lastCheck = new Date();
-        renderSessions(); renderFresh();
+        /* Unchanged tick: feeds, kinds, counts, session chips and mix all
+           stay exactly as rendered; only the freshness line moves. */
+        if (changed[0] || changed[1]) renderSessions();
+        renderFresh();
       });
     }
     loadAll();

@@ -665,6 +665,18 @@
   /* ================= data + market-aware refresh ================= */
   var lastCheckAt = 0, refreshTimer = null, liveStarted = false;
   var benchDB = null, benchFailed = false;
+  /* ---- Tick change-gate (fading fix): loadData used to renderAll() on
+     every tick even when the batch was identical, rebuilding every
+     holdings/allocation/history/bench node. The signature covers the
+     whole batch, so an unchanged tick moves only the freshness line.
+     Boot always renders (firstLoad), preserving the loading/empty
+     states on a failed first fetch. */
+  var lastBatchSig = null, firstLoad = true;
+  function batchSig(u, vd){
+    var a = (u && Array.isArray(u.symbols)) ? u.symbols.map(function(s){ return s.s; }).join(',') : '';
+    var b = (vd && vd.verdicts) ? (vd.asof || '') + '|' + JSON.stringify(vd.verdicts) : '';
+    return a + '||' + b;
+  }
 
   /* NEPSE hours are Mon–Fri 11:00–15:00 NPT. Cadence: 15 min in session,
      30 min outside it on weekdays, 2 h on weekends. Hidden tabs skip the
@@ -770,15 +782,34 @@
       fetch('/nepse-chart/data/verdicts.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; })
     ]).then(function (res) {
       var u = res[0], vd = res[1];
+      var full = !!(u && Array.isArray(u.symbols) && vd && vd.verdicts);
+      var changed;
+      if (firstLoad) {
+        changed = true; firstLoad = false;
+        if (full) lastBatchSig = batchSig(u, vd);
+      }
+      else if (full) {
+        var sig = batchSig(u, vd);
+        changed = sig !== lastBatchSig;
+        lastBatchSig = sig;
+      } else {
+        /* Partial tick: render only if the verdicts asof advanced. */
+        changed = !!(vd && vd.verdicts && vd.asof !== dataAsof);
+      }
       if (u && Array.isArray(u.symbols)) universe = u.symbols;
       if (vd && vd.verdicts) { verdicts = vd.verdicts; dataAsof = vd.asof || ''; }
       dataReady = true;
       lastCheckAt = Date.now();
       freshLine(true);
-      renderAll();
+      if (changed) renderAll();
       if (!liveStarted) { startLiveOverlay(); liveStarted = true; }
       if (benchDB && dataAsof && dataAsof > benchDB.asof) {
-        loadBench(true).then(function () { renderAll(); });
+        var oldBench = JSON.stringify(benchDB);
+        loadBench(true).then(function () {
+          /* A bench refetch on a stale window repaints only when the
+             bench content actually moved, never on an identical file. */
+          if (JSON.stringify(benchDB || '') !== oldBench) renderAll();
+        });
       }
       scheduleRefresh();
     }).catch(function () {
@@ -817,13 +848,16 @@
           var q = sym && quotes[sym];
           if (!q || q.ltp == null || !isFinite(Number(q.ltp))) continue;
           var cells = rows[i].querySelectorAll('td');
-          // Price cell (index 3), day-change cell (index 4).
-          if (cells[3]) cells[3].textContent = fmtRs(q.ltp);
+          // Price cell (index 3), day-change cell (index 4). Write only
+          // on value change: identical pushes must not touch the DOM.
+          var pxTxt = fmtRs(q.ltp);
+          if (cells[3] && cells[3].textContent !== pxTxt) cells[3].textContent = pxTxt;
           if (cells[4]) {
             var pct = (q.pct != null && isFinite(Number(q.pct))) ? Number(q.pct) : null;
             if (pct != null) {
-              cells[4].innerHTML = '<span class="tnum ' + signedCls(pct) + '">' +
+              var chHtml = '<span class="tnum ' + signedCls(pct) + '">' +
                 fmtPct(pct) + '</span>';
+              if (cells[4].innerHTML !== chHtml) cells[4].innerHTML = chHtml;
             }
           }
         }

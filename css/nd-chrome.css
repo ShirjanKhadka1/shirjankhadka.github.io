@@ -157,6 +157,7 @@ html, body{ overflow-x: clip; }
 @media (max-width: 1500px){
   #nd-header .nd-pill .nd-pilltxt{ display: none; }
 }
+
 @media (max-width: 640px) {
   #nd-header .nd-search .nd-skey{ display: none; }
   #nd-header .nd-pill .nd-pilltxt{ display: none; }
@@ -457,6 +458,23 @@ body:has(> #nd-header) .theme-toggle.fixed{ display: none !important; }
   box-shadow: inset 0 2px 0 rgba(255,255,255,.5), inset 0 -3px 6px rgba(0,0,0,.18), 0 2px 6px rgba(0,0,0,.4), 0 4px 14px rgba(184,230,46,.3);
 }
 #nd-header .nd-navbtn.active::after{ display: none; }
+/* DESKTOP HEADER FIT (2026-10-26): at 1101–1360px the desktop nav row
+   (brand + search + nav + cluster) is wider than the bar, pushing the
+   language switcher off-screen (61px clipped at 1280px, worse narrower).
+   Tighten only spacing in this range — no element is resized, hidden, or
+   restyled, and wide screens keep the exact current spacing. NOTE: this
+   block must stay AFTER the 3D navbtn rule above (same specificity, later
+   wins) — the base 8px button padding is already overridden to 14px there,
+   so this 10px value is a 4px/side tightening, not an 8px one. Reclaim is
+   ~88px (bar padding 24→16, bar gap 12→8, nav gap 6→4, navbtn 14→10), so
+   the row fits from ~1273px up; below that a residual overflow remains
+   (see report) — the full-range fix is raising the 1100px nav-collapse
+   breakpoint, deliberately not done here. */
+@media (max-width: 1360px) and (min-width: 1101px) {
+  #nd-header .nd-bar{ gap: var(--nd-s2); padding: 0 var(--nd-s4); }
+  #nd-header .nd-nav{ gap: 4px; }
+  #nd-header .nd-navbtn{ padding: 0 10px; }
+}
 #nd-header .nd-search input{
   background: linear-gradient(180deg, rgba(0,0,0,.2), rgba(0,0,0,0) 60%), var(--nd-panel);
   box-shadow: inset 0 2px 4px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.05), 0 1px 0 rgba(255,255,255,.04);
