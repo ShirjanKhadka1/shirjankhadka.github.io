@@ -40,7 +40,7 @@
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
-<link rel="stylesheet" href="/css/nd-sector-symbol.css?v=328a96d6">
+<link rel="stylesheet" href="/css/nd-sector-symbol.css?v=252c6018">
 </head>
 <body class="nd" data-page="sector-symbol">
 
@@ -62,6 +62,7 @@
       every row of this page: <strong>relative = stock − sector</strong>. Check any row by
       subtraction. Windows run from 3 to 30 calendar days; the 30-day board is the one-month view.</p>
     <p class="ss-meta"><span id="ssSession">Loading…</span></p>
+    <p class="ss-refresh" id="ssRefresh"></p>
   </div>
 
   <div class="cx-seg" id="winTabs" role="tablist" aria-label="Window"></div>
@@ -102,6 +103,32 @@
       </table>
     </div>
     <div class="ss-pagerow"><div class="ss-pager" id="boardPager"></div></div>
+  </section>
+
+  <section class="ss-catsec" aria-label="Stocks in the selected sector" id="sectorStocks">
+    <h2 class="ss-h2 ss-h2-sec">Stocks in the selected sector</h2>
+    <p class="ss-chartsub">The full stock list of one sector on the selected window —
+      every row still carries the stock return, the sector return and the relative
+      return, so relative = stock − sector checks by subtraction here too. The
+      bars are the relative return against a centre zero, scaled to the sector's
+      widest relative move. The block follows the window, sort and search, and
+      pages 25 stocks at a time.</p>
+    <p class="ss-secsum" id="secSum"></p>
+    <div id="secStocksWrap">
+      <p class="ss-count" id="secStocksCount"></p>
+      <div class="cx-scroll ss-tablewrap">
+        <table class="cx-table" id="secStocksTable">
+          <thead><tr>
+            <th>Symbol</th>
+            <th class="num">Stock return</th><th class="num">Sector return</th>
+            <th class="num">Relative return</th><th>Relative vs sector</th><th class="num">In sector</th>
+          </tr></thead>
+          <tbody id="secStocksBody"></tbody>
+        </table>
+      </div>
+      <div class="ss-pagerow"><div class="ss-pager" id="secStocksPager"></div></div>
+    </div>
+    <div class="ss-secclear" id="secClearWrap"><button type="button" class="cx-btn quiet" id="secClearBtn">Show full board</button></div>
   </section>
 
   <section class="ss-catsec" aria-label="Strongest and weakest relations">
@@ -221,11 +248,14 @@
         it only re-renders when a new board has actually landed, and your window, sector, sort
         and band selections survive the refresh. The board itself is rebuilt after every close
         — during market hours the page honestly shows the last close's board, and the session
-        line above says which session that is. Your current view is shareable: the address
+        line above says which session that is. A status line under the session line reports
+        the board session, the stability snapshots tracked, and the last refresh check.
+        Your current view is shareable: the address
         carries the window, sector, sort and band.</p>
       <p><strong>Paging.</strong> The relation board shows 25 stocks at a time with Prev and
         Next and a "Showing X–Y of Z" line; filtering by sector, band or search, and changing
-        the sort, returns you to the first page.</p>
+        the sort, returns you to the first page. The sector-stocks block pages the same way,
+        and returns to page 1 when the sector, window, sort or search changes.</p>
       <p><strong>Reading it honestly.</strong> A relative return says a stock moved more or
         less than its sector over a past window — nothing more. It is not a quality grade,
         not a valuation, and not a promise about the next window; the stability numbers
@@ -246,6 +276,6 @@
 <div id="nd-footer"></div>
 <script src="/js/nd-chrome.js?v=74c1c8b7"></script>
 <script src="/js/freshness-badge.js?v=9b77cf10" defer></script>
-<script src="/js/sector-symbol.js?v=bbd34929"></script>
+<script src="/js/sector-symbol.js?v=52a6a95f"></script>
 </body>
 </html>

@@ -9,7 +9,7 @@
   var DATA_URL = '/data/sector-symbol.json';
   var FWD_URL = '/data/sector-symbol-forward.json';
   var PAGE_SIZE = 25;
-  var state = { days: '30', sector: 'ALL', sort: 'rel', q: '', band: 'all', page: 1, fw: 'all', fwPage: 1 };
+  var state = { days: '30', sector: 'ALL', sort: 'rel', q: '', band: 'all', page: 1, fw: 'all', fwPage: 1, secPage: 1 };
   var PAYLOAD = null, FORWARD = null, firstLoad = true, refreshTimer = null;
 
   function esc(s) {
@@ -75,7 +75,7 @@
     if (st) stats.push({ k: 'Sign persistence · 4 wks', v: st.sign_persistence_pct + '%',
       s: st.snapshots + ' weekly snapshots · trailing 3y · descriptive' });
     document.getElementById('statStrip').innerHTML = stats.map(function (x) {
-      return '<div class="cx-stat"><p class="cx-stat-k">' + esc(x.k) +
+      return '<div class="cx-stat"><p class="cx-stat-l">' + esc(x.k) +
         '</p><p class="cx-stat-v">' + esc(x.v) +
         '</p><p class="cx-stat-s">' + esc(x.s) + '</p></div>';
     }).join('');
@@ -84,12 +84,12 @@
   function renderTabs() {
     document.getElementById('winTabs').innerHTML = PAYLOAD.windows.map(function (d) {
       return '<button type="button" role="tab" aria-selected="' + (String(d) === state.days) + '" data-days="' + d + '"' +
-        (String(d) === state.days ? ' class="on"' : '') + '>' + d + 'D</button>';
+        (String(d) === state.days ? ' class="active"' : '') + '>' + d + 'D</button>';
     }).join('');
     Array.prototype.forEach.call(
       document.querySelectorAll('#winTabs button'), function (btn) {
         btn.addEventListener('click', function () {
-          state.days = btn.getAttribute('data-days'); state.page = 1; writeURL(); renderAll();
+          state.days = btn.getAttribute('data-days'); state.page = 1; state.secPage = 1; writeURL(); renderAll();
         });
       });
   }
@@ -106,8 +106,8 @@
     Array.prototype.forEach.call(
       document.querySelectorAll('#sectorPills button'), function (btn) {
         btn.addEventListener('click', function () {
-          state.sector = btn.getAttribute('data-sector'); state.page = 1; writeURL();
-          renderPills(); renderBoard(); scrollToBoard();
+          state.sector = btn.getAttribute('data-sector'); state.page = 1; state.secPage = 1; writeURL();
+          renderPills(); renderBoard(); renderSectorStocks(); scrollToBoard();
         });
       });
   }
@@ -116,7 +116,7 @@
     if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
   function selectSector(name) {
-    state.sector = name; state.page = 1; writeURL(); renderPills(); renderBoard(); scrollToBoard();
+    state.sector = name; state.page = 1; state.secPage = 1; writeURL(); renderPills(); renderBoard(); renderSectorStocks(); scrollToBoard();
   }
 
   function bandOf(rel) {
@@ -135,6 +135,12 @@
       ['under', 'Behind (−5 to 0 pp)', d.under, 'color-mix(in srgb, var(--nd-down) 55%, var(--nd-surface))'],
       ['strong_under', 'Strong behind (≤ −5 pp)', d.strong_under, 'var(--nd-down)']
     ];
+    /* House standard: a zero-count bucket renders no segment and no legend
+       row. If the currently selected band has emptied on this window, drop
+       the filter rather than strand the board on zero rows. */
+    var active = segs.filter(function (s) { return s[0] === state.band; })[0];
+    if (state.band !== 'all' && active && !active[2]) { state.band = 'all'; writeURL(); }
+    segs = segs.filter(function (s) { return s[2] > 0 || s[0] === state.band; });
     var bar = segs.map(function (s) {
       var w = 100 * s[2] / total;
       return '<button type="button" class="ss-dist-seg' + (state.band === s[0] ? ' on' : '') +
@@ -177,10 +183,10 @@
   }
 
   function pagerHTML(page, pages, prefix) {
-    return '<button type="button" class="ss-pagebtn" data-' + prefix + '-nav="prev"' +
+    return '<button type="button" class="cx-btn quiet" data-' + prefix + '-nav="prev"' +
       (page <= 1 ? ' disabled' : '') + '>Prev</button>' +
       '<span class="ss-pageinfo">Page ' + page + ' of ' + pages + '</span>' +
-      '<button type="button" class="ss-pagebtn" data-' + prefix + '-nav="next"' +
+      '<button type="button" class="cx-btn" data-' + prefix + '-nav="next"' +
       (page >= pages ? ' disabled' : '') + '>Next</button>';
   }
   function bindPager(elId, prefix, getPage, setPage, render) {
@@ -217,6 +223,75 @@
       function (p) { state.page = p; }, renderBoard);
   }
 
+  /* Sector-stocks drill-down: the selected sector's own stock list. Follows
+     the window, the sort and the search (not the band filter — this is the
+     sector's full list, not the board's filtered view). Rows carry the same
+     three returns as the board, so relative = stock − sector still checks
+     by subtraction on every row. */
+  function sectorStocksRows() {
+    var rows = board().rows.filter(function (r) { return r.sector === state.sector; });
+    if (state.q)
+      rows = rows.filter(function (r) {
+        return r.symbol.toLowerCase().indexOf(state.q.toLowerCase()) !== -1;
+      });
+    if (state.sort === 'rel') rows.sort(function (a, b) { return b.rel_return - a.rel_return || (a.symbol < b.symbol ? -1 : 1); });
+    if (state.sort === 'ret') rows.sort(function (a, b) { return b.return_ - a.return_ || (a.symbol < b.symbol ? -1 : 1); });
+    if (state.sort === 'secrel') rows.sort(function (a, b) { return b.sector_return - a.sector_return || (a.symbol < b.symbol ? -1 : 1); });
+    if (state.sort === 'sym') rows.sort(function (a, b) { return a.symbol < b.symbol ? -1 : 1; });
+    return rows;
+  }
+  function renderSectorStocks() {
+    var sumEl = document.getElementById('secSum');
+    var wrap = document.getElementById('secStocksWrap');
+    var clearWrap = document.getElementById('secClearWrap');
+    if (state.sector === 'ALL') {
+      sumEl.textContent = 'Select a sector to see its stocks — use the sector pills above, a sector bar, or a sector-table row.';
+      wrap.style.display = 'none'; clearWrap.style.display = 'none';
+      document.getElementById('secStocksCount').textContent = '';
+      document.getElementById('secStocksBody').innerHTML = '';
+      document.getElementById('secStocksPager').innerHTML = '';
+      return;
+    }
+    wrap.style.display = ''; clearWrap.style.display = '';
+    var sec = board().sectors.filter(function (s) { return s.sector === state.sector; })[0];
+    var allSec = board().rows.filter(function (r) { return r.sector === state.sector; });
+    var maxAbs = Math.max.apply(null, allSec.map(function (r) { return Math.abs(r.rel_return); }).concat([0.01]));
+    var lead = sec && sec.leader ? '<a href="/stocks/' + esc(sec.leader.symbol) + '/">' + esc(sec.leader.symbol) +
+      '</a> <span class="' + cls(sec.leader.rel_return) + '">' + pp(sec.leader.rel_return) + '</span>' : '—';
+    var lag = sec && sec.laggard ? '<a href="/stocks/' + esc(sec.laggard.symbol) + '/">' + esc(sec.laggard.symbol) +
+      '</a> <span class="' + cls(sec.laggard.rel_return) + '">' + pp(sec.laggard.rel_return) + '</span>' : '—';
+    sumEl.innerHTML = '<b>' + esc(state.sector) + '</b> · ' + (sec ? sec.priced : allSec.length) +
+      ' stocks scored · median relative <b>' + pp(sec ? sec.median_rel_return : null) +
+      '</b> · leader ' + lead + ' · laggard ' + lag;
+    var rows = sectorStocksRows(), total = rows.length;
+    var pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    if (state.secPage > pages) state.secPage = pages;
+    if (state.secPage < 1) state.secPage = 1;
+    var from = total === 0 ? 0 : (state.secPage - 1) * PAGE_SIZE + 1;
+    var to = Math.min(total, state.secPage * PAGE_SIZE);
+    document.getElementById('secStocksCount').textContent =
+      'Showing ' + from + '–' + to + ' of ' + total + ' stocks in ' + state.sector +
+      ' · ' + state.days + 'D window · session ' + PAYLOAD.asof;
+    var slice = rows.slice((state.secPage - 1) * PAGE_SIZE, state.secPage * PAGE_SIZE);
+    document.getElementById('secStocksBody').innerHTML = slice.map(function (r) {
+      var w = 50 * Math.abs(r.rel_return) / maxAbs;
+      var fill = r.rel_return >= 0
+        ? 'left:50%;width:' + w + '%;background:var(--nd-up)'
+        : 'left:' + (50 - w) + '%;width:' + w + '%;background:var(--nd-down)';
+      return '<tr><td><a href="/stocks/' + esc(r.symbol) + '/">' + esc(r.symbol) +
+        '</a></td>' +
+        '<td class="num ' + cls(r.return_) + '">' + pct(r.return_) + '</td>' +
+        '<td class="num">' + pct(r.sector_return) + '</td>' +
+        '<td class="num ' + cls(r.rel_return) + '">' + pp(r.rel_return) + '</td>' +
+        '<td><div class="ss-relbar" title="Relative ' + pp(r.rel_return) + '"><span class="ss-relbar-zero"></span>' +
+        '<span class="ss-relbar-fill" style="' + fill + '"></span></div></td>' +
+        '<td class="num">#' + r.sector_rank + '</td></tr>';
+    }).join('') || '<tr><td colspan="6">No stocks in this sector match the current search.</td></tr>';
+    document.getElementById('secStocksPager').innerHTML = pagerHTML(state.secPage, pages, 's');
+    bindPager('secStocksPager', 's', function () { return state.secPage; },
+      function (p) { state.secPage = p; }, renderSectorStocks);
+  }
+
   function rankList(el, rows, inverted) {
     var max = Math.max.apply(null, rows.map(function (r) {
       return Math.abs(r.rel_return);
@@ -251,8 +326,11 @@
       var fill = s.sector_return >= 0
         ? 'left:50%;width:' + w + '%;background:var(--nd-up)'
         : 'left:' + (50 - w) + '%;width:' + w + '%;background:var(--nd-down)';
+      var lead = s.leader ? '▲ ' + s.leader.symbol + ' ' + pp(s.leader.rel_return) : '';
+      var lag = s.laggard ? '▼ ' + s.laggard.symbol + ' ' + pp(s.laggard.rel_return) : '';
       return '<button type="button" class="ss-secbar" data-sector="' + esc(s.sector) + '">' +
-        '<span class="ss-secbar-name">' + esc(s.sector) + '</span>' +
+        '<span class="ss-secbar-name">' + esc(s.sector) +
+        '<span class="ss-secbar-sub">' + esc(lead + (lead && lag ? ' · ' : '') + lag) + '</span></span>' +
         '<span class="ss-secbar-track"><span class="ss-secbar-zero"></span>' +
         '<span class="ss-secbar-fill" style="' + fill + '"></span></span>' +
         '<span class="ss-secbar-val ' + cls(s.sector_return) + '">' + pct(s.sector_return) + '</span></button>';
@@ -388,7 +466,7 @@
 
   function renderAll() {
     renderTabs(); renderPills(); renderStats(); renderDist();
-    renderBoard(); renderExtremes(); renderSectors(); renderStability();
+    renderBoard(); renderSectorStocks(); renderExtremes(); renderSectors(); renderStability();
     renderForward(); renderMethod();
   }
 
@@ -397,6 +475,20 @@
     if (el) el.textContent = 'Session ' + PAYLOAD.asof +
       ' · end-of-day board, rebuilt after every close · source: ' +
       PAYLOAD.source;
+  }
+
+  /* Visible refresh status: board session, stability snapshots tracked,
+     and the wall-clock time of the last refresh check. Updated on every
+     completed check — success or failure — never on render alone. */
+  function refreshStatus(ok) {
+    var el = document.getElementById('ssRefresh');
+    if (!el || !PAYLOAD) return;
+    var t = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    var st = board().stability;
+    var snaps = st ? st.snapshots + ' stability snapshots tracked' : 'stability snapshots n/a';
+    el.textContent = ok
+      ? 'Board session ' + PAYLOAD.asof + ' · ' + snaps + ' · last refresh check ' + t
+      : 'Last refresh check ' + t + ' — board unchanged, showing session ' + PAYLOAD.asof;
   }
 
   function marketDelay() {
@@ -419,20 +511,25 @@
         var changed = !PAYLOAD || p.asof !== PAYLOAD.asof;
         PAYLOAD = p;
         if (changed) { sanitizeURL(); renderAll(); initSession(); }
+        refreshStatus(true);
         return fetch(FWD_URL, { cache: 'no-store' })
           .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
           .then(function (f) { FORWARD = f; renderForward(); })
           .catch(function () { /* forward file may not exist yet; board stands */ });
       })
-      .catch(function () { /* keep showing the last good board */ })
+      .catch(function () { refreshStatus(false); /* keep showing the last good board */ })
       .then(scheduleRefresh);
   }
 
   document.getElementById('sortSel').addEventListener('change', function (e) {
-    state.sort = e.target.value; state.page = 1; writeURL(); renderBoard();
+    state.sort = e.target.value; state.page = 1; state.secPage = 1; writeURL(); renderBoard(); renderSectorStocks();
   });
   document.getElementById('q').addEventListener('input', function (e) {
-    state.q = e.target.value; state.page = 1; renderBoard();
+    state.q = e.target.value; state.page = 1; state.secPage = 1; renderBoard(); renderSectorStocks();
+  });
+  document.getElementById('secClearBtn').addEventListener('click', function () {
+    state.sector = 'ALL'; state.page = 1; state.secPage = 1; writeURL();
+    renderPills(); renderBoard(); renderSectorStocks(); scrollToBoard();
   });
   document.addEventListener('visibilitychange', function () {
     if (!document.hidden) tickRefresh();
@@ -444,7 +541,7 @@
     .then(function (p) {
       PAYLOAD = p;
       if (firstLoad) { sanitizeURL(); firstLoad = false; }
-      renderAll(); initSession(); scheduleRefresh();
+      renderAll(); initSession(); refreshStatus(true); scheduleRefresh();
       return fetch(FWD_URL, { cache: 'no-store' })
         .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(function (f) { FORWARD = f; renderForward(); })

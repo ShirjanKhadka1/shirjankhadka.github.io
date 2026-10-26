@@ -3,6 +3,14 @@
    components composed from css/nd-cinema.css cx-* kit). */
 body{ font-family: var(--nd-font-sans); }
 
+/* Canvas pin: this file loads ONLY on this page, so the rule cannot leak
+   to other pages. No rule in the shared chain paints body with --nd-bg
+   (verified 2026-10-26: nd-chrome paints only the footer, the header
+   search input and the header backdrop from --nd-bg); without this pin
+   the canvas falls back to the browser default instead of the overview
+   tokens (dark --nd-bg, light --nd-bg). */
+body[data-page="sector-symbol"]{ background: var(--nd-bg); }
+
 /* the master head stack carries no skip-link rule (it lives in legacy
    sheets); the standard visually-hidden-until-focus pattern, tokened */
 .skip-link{
@@ -21,6 +29,7 @@ body{ font-family: var(--nd-font-sans); }
 }
 .ss-lede{ font-size: var(--step-2); line-height: 1.65; color: var(--nd-text); max-width: 72ch; margin: 0 0 var(--nd-s2); }
 .ss-meta{ font: 400 var(--step-0) var(--nd-font-mono); color: var(--nd-dim); margin: var(--nd-s3) 0 0; }
+.ss-refresh{ font: 400 var(--step-0) var(--nd-font-mono); color: var(--nd-dim); margin: var(--nd-s1) 0 0; }
 
 .ss-h2{
   font-family: var(--nd-font-display);
@@ -32,15 +41,21 @@ body{ font-family: var(--nd-font-sans); }
   background: var(--nd-lime); flex: none;
 }
 .ss-h2-sec{ margin: 0 2px var(--nd-s2); }
-.ss-catsec{ margin-top: var(--nd-s8); }
-.ss-chartsub{ font: 400 var(--step-1) var(--nd-font-sans); color: var(--nd-dim); margin: 0 2px var(--nd-s3); line-height: 1.55; }
+/* Sections are rim-lit cards (design-master §2.4 recipe): the page's
+   "div boxes" — panel + border + radius + rim + elevation, so every
+   block reads as a deliberate container, not loose text on canvas. */
+.ss-catsec{ margin-top: var(--nd-s8); background: var(--nd-panel);
+  border: 1px solid var(--nd-border); border-radius: var(--nd-r-card);
+  padding: var(--nd-s5) var(--nd-s5) var(--nd-s4);
+  box-shadow: var(--nd-rim), var(--nd-e2); }
+.ss-chartsub{ font: 400 var(--step-1) var(--nd-font-sans); color: var(--nd-dim); margin: 0 2px var(--nd-s3); line-height: 1.55; max-width: 78ch; }
 
 .ss-controls{ display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin: var(--nd-s2) 0 var(--nd-s1); }
 .ss-lab{ display: flex; flex-direction: column; gap: 5px; font: 600 10px var(--nd-font-mono);
   letter-spacing: .12em; text-transform: uppercase; color: var(--nd-dim); }
 .ss-grow{ flex: 1; min-width: 180px; }
 .ss-select,.ss-search{ font: 500 13.5px var(--nd-font-sans); color: var(--nd-text);
-  background: var(--nd-panel); border: 1px solid var(--nd-border); border-radius: 8px;
+  background: var(--nd-inset); border: 1px solid var(--nd-border); border-radius: 8px;
   padding: 8px 10px; }
 .ss-search{ width: 100%; }
 .ss-select:focus-visible,.ss-search:focus-visible{ outline: 2px solid var(--nd-lime); outline-offset: 1px; }
@@ -69,11 +84,8 @@ body{ font-family: var(--nd-font-sans); }
 
 .ss-pagerow{ display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: flex-end; margin: var(--nd-s3) 0 var(--nd-s2); }
 .ss-pager{ display: flex; gap: 8px; align-items: center; }
-.ss-pagebtn{ font: 600 12.5px var(--nd-font-sans); color: var(--nd-text); background: var(--nd-panel);
-  border: 1px solid var(--nd-border); border-radius: 8px; padding: 7px 14px; cursor: pointer; }
-.ss-pagebtn:hover:not(:disabled){ border-color: var(--nd-lime); }
-.ss-pagebtn:disabled{ opacity: .4; cursor: default; }
-.ss-pagebtn:focus-visible{ outline: 2px solid var(--nd-lime); outline-offset: 1px; }
+/* Pagers render cx-btn from the kit (Prev = quiet, Next = lime primary);
+   no page-level button style — the kit owns disabled + focus-visible. */
 .ss-pageinfo{ font: 500 12px var(--nd-font-mono); color: var(--nd-dim); }
 
 .ss-tablewrap{ border: 1px solid var(--nd-border); border-radius: var(--nd-r-card); background: var(--nd-panel); }
@@ -92,6 +104,7 @@ body{ font-family: var(--nd-font-sans); }
   font-size: 12.5px; cursor: pointer; background: none; border: 0; padding: 0; text-align: left; width: 100%; }
 .ss-secbar:focus-visible{ outline: 2px solid var(--nd-lime); outline-offset: 2px; }
 .ss-secbar-name{ font-weight: 600; color: var(--nd-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ss-secbar-sub{ display: block; font: 400 11px var(--nd-font-mono); color: var(--nd-dim); margin-top: 2px; }
 .ss-secbar-track{ position: relative; height: 12px; border: 1px solid var(--nd-border); border-radius: 6px; overflow: hidden; background: var(--nd-panel); }
 .ss-secbar-zero{ position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--nd-border); }
 .ss-secbar-fill{ position: absolute; top: 0; bottom: 0; }
@@ -106,7 +119,17 @@ body{ font-family: var(--nd-font-sans); }
 .ss-clickrow:hover td{ background: var(--nd-panel-2, var(--nd-panel)); }
 
 .ss-stats{ margin-top: var(--nd-s5); margin-bottom: var(--nd-s2); }
+.ss-stats .cx-stat{ box-shadow: var(--nd-rim), var(--nd-e1); }
 .ss-stats .cx-stat-s{ white-space: normal !important; line-height: 1.45; }
+
+/* Sector-stocks drill-down block */
+.ss-secsum{ font: 500 13.5px var(--nd-font-sans); color: var(--nd-text); margin: 0 2px var(--nd-s3); line-height: 1.55; max-width: 78ch; }
+.ss-secsum b{ font-family: var(--nd-font-mono); }
+.ss-relbar{ position: relative; display: block; height: 12px; min-width: 120px;
+  border: 1px solid var(--nd-border); border-radius: 6px; overflow: hidden; background: var(--nd-panel); }
+.ss-relbar-zero{ position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--nd-border); }
+.ss-relbar-fill{ position: absolute; top: 0; bottom: 0; }
+.ss-secclear{ display: flex; justify-content: flex-start; margin: var(--nd-s3) 0 var(--nd-s2); }
 
 .ss-fwsum{ font: 500 13.5px var(--nd-font-sans); color: var(--nd-text); margin: 0 2px var(--nd-s3); line-height: 1.55; }
 .ss-fwsum b{ font-family: var(--nd-font-mono); }
