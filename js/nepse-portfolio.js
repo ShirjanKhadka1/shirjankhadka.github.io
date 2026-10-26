@@ -92,7 +92,23 @@
     });
     return out;
   }
-  function blank() { return { version: 1, active: null, portfolios: [] }; }
+  function blank() { return { version: 1, active: null, portfolios: [], snapshots: [] }; }
+  /* Per-session portfolio snapshots (browser-local only, same key).
+     One entry per (session, portfolio): the active portfolio's valuation
+     from the batch of that session. Old stores without the field load as
+     [] — no migration, nothing stranded. Capped at 1000 (about 4 years). */
+  function cleanSnapshot(x) {
+    if (!x || typeof x !== 'object') return null;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(x.session || '')) return null;
+    if (typeof x.pid !== 'string' || !x.pid) return null;
+    var v = +x.value, inv = +x.invested, un = +x.unrl, re = +x.realized, pr = +x.priced;
+    if (!isFinite(v) || !isFinite(inv) || !isFinite(un) || !isFinite(re) || !isFinite(pr)) return null;
+    if (v < 0 || inv < 0 || pr < 0) return null;
+    return {
+      session: x.session, pid: x.pid, value: round2(v), invested: round2(inv),
+      unrl: round2(un), realized: round2(re), priced: Math.floor(pr)
+    };
+  }
   function load() {
     try {
       var raw = localStorage.getItem(KEY);
@@ -101,13 +117,44 @@
       var st = {
         version: 1,
         active: (d && typeof d.active === 'string') ? d.active : null,
-        portfolios: []
+        portfolios: [],
+        snapshots: []
       };
       (d && Array.isArray(d.portfolios) ? d.portfolios : []).forEach(function (p) {
         var c = cleanPortfolio(p); if (c) st.portfolios.push(c);
       });
+      (d && Array.isArray(d.snapshots) ? d.snapshots : []).forEach(function (x) {
+        var c = cleanSnapshot(x); if (c) st.snapshots.push(c);
+      });
+      if (st.snapshots.length > 1000) st.snapshots = st.snapshots.slice(-1000);
       return st;
     } catch (e) { return blank(); }
+  }
+  /* Upsert the active portfolio's snapshot for the current batch session.
+     Returns true only when the stored entry is new or changed, so the
+     save() -> onChange -> renderAll loop terminates after one pass.
+     Skipped silently when nothing is priced: a value-0 snapshot against
+     invested capital would chart a false cliff. */
+  function upsertSnapshot(st, v, p) {
+    if (!dataReady || !dataAsof || !/^\d{4}-\d{2}-\d{2}$/.test(dataAsof)) return false;
+    if (!v.rows.length || v.pricedCount <= 0) return false;
+    var snap = {
+      session: dataAsof, pid: p.id, value: v.value, invested: v.invested,
+      unrl: v.unrl, realized: v.realized, priced: v.pricedCount
+    };
+    var snaps = st.snapshots || (st.snapshots = []);
+    for (var i = 0; i < snaps.length; i++) {
+      if (snaps[i].session === snap.session && snaps[i].pid === snap.pid) {
+        if (snaps[i].value === snap.value && snaps[i].invested === snap.invested &&
+            snaps[i].unrl === snap.unrl && snaps[i].realized === snap.realized &&
+            snaps[i].priced === snap.priced) return false;
+        snaps[i] = snap;
+        return true;
+      }
+    }
+    snaps.push(snap);
+    if (snaps.length > 1000) st.snapshots = snaps.slice(-1000);
+    return true;
   }
 
   var listeners = [];
@@ -167,7 +214,15 @@
     sellsBody: $('pf-sells-body'), sellsEmpty: $('pf-sells-empty'),
     search: $('pf-search'), suggest: $('pf-suggest'), qty: $('pf-qty'),
     price: $('pf-price'), addBtn: $('pf-add-btn'), hint: $('pf-hint'),
-    barForm: $('pf-bar-form')
+    barForm: $('pf-bar-form'),
+    freshLine: $('pf-fresh-line'),
+    sectorSelect: $('pf-sector-select'), sectorTbody: $('pf-sector-tbody'),
+    sectorEmpty: $('pf-sector-empty'), sectorPagerInfo: $('pf-sector-pager-info'),
+    sectorPrev: $('pf-sector-prev'), sectorNext: $('pf-sector-next'),
+    histChart: $('pf-history-chart'), histNote: $('pf-history-note'),
+    histTbody: $('pf-history-tbody'),
+    bench: $('pf-bench'), benchNote: $('pf-bench-note'),
+    outTbody: $('pf-outcomes-tbody')
   };
 
   function $(id) { return document.getElementById(id); }
@@ -281,6 +336,20 @@
       '</form></td></tr>';
   }
 
+  /* Diverging P&L bar: zero line at the track centre, fill extends right
+     for gains and left for losses, scaled to the largest |P&L| on the
+     page. Width/position are data, so they stay inline (same justification
+     as the simulator's P&L bars). */
+  function divbarHtml(unrl, maxAbs) {
+    if (unrl == null) return '<span class="tnum">—</span>';
+    var w = maxAbs > 0 ? Math.abs(unrl) / maxAbs * 50 : 0;
+    var left = unrl >= 0 ? 50 : 50 - w;
+    var cls = unrl > 0 ? 'up' : unrl < 0 ? 'down' : '';
+    return '<span class="pf-divbar"><span class="pf-divbar-track"><span class="pf-divbar-zero"></span>' +
+      '<span class="pf-divbar-fill ' + cls + '" style="left:' + left.toFixed(1) + '%;width:' + w.toFixed(1) + '%"></span></span>' +
+      '<span class="pf-divbar-val ' + cls + '">' + fmtRs(unrl) + '</span></span>';
+  }
+
   function renderHoldings(v) {
     if (!v.rows.length) {
       el.holdWrap.hidden = true;
@@ -289,6 +358,10 @@
     }
     el.holdWrap.hidden = false;
     el.empty.hidden = true;
+    var maxAbs = 0;
+    v.rows.forEach(function (r) {
+      if (r.unrl != null && Math.abs(r.unrl) > maxAbs) maxAbs = Math.abs(r.unrl);
+    });
     var html = v.rows.map(function (r) {
       var h = r.h, m = metaFor(h.s);
       var dayHtml = r.ch == null
@@ -306,10 +379,11 @@
         '<td>' + dayHtml + '</td>' +
         '<td class="tnum">' + (r.value == null ? '—' : fmtRs(r.value)) + '</td>' +
         '<td>' + unHtml + '</td>' +
+        '<td>' + divbarHtml(r.unrl, maxAbs) + '</td>' +
         '<td class="pf-actcol"><button type="button" class="pf-mini" data-act="sell" data-sym="' + esc(h.s) + '">Sell</button>' +
         '<button type="button" class="pf-mini" data-act="edit" data-sym="' + esc(h.s) + '">Edit</button>' +
         '<button type="button" class="pf-mini danger" data-act="remove" data-sym="' + esc(h.s) + '">Remove</button></td>' +
-        '</tr>' + editorRow(r, 8);
+        '</tr>' + editorRow(r, 9);
     }).join('');
     el.tbody.innerHTML = html;
   }
@@ -332,10 +406,20 @@
     return '<h3>' + esc(title) + '</h3>' + (rows || '<p class="pf-muted">Nothing to allocate yet.</p>');
   }
 
-  var DONUT_COLORS = ['#1E6B4A', '#C6A86B', '#14382A', '#1E7A44', '#B23A2E', '#8A8F7E', '#2E5E4E', '#D9C08F'];
+  /* Donut palette: the kit categorical set, theme-aware so every segment
+     reads on both the dark cinema canvas and the light panel. The old
+     palette's darkest greens vanished on the dark panel. */
+  function donutColors() {
+    var dark = document.documentElement.getAttribute('data-theme') !== 'light';
+    return dark
+      ? ['#B8E62E', '#4ADE80', '#60A5FA', '#F5B301', '#A78BFA', '#2DD4BF', '#F472B6', '#9AA3B2']
+      : ['#4D7C0F', '#15803D', '#2563EB', '#B45309', '#7C3AED', '#0F766E', '#BE185D', '#64748B'];
+  }
 
   function drawDonut(cv, items, total) {
     if (!cv || !cv.getContext) return;
+    var cols = donutColors();
+    var dark = document.documentElement.getAttribute('data-theme') !== 'light';
     var dpr = window.devicePixelRatio || 1, size = 180;
     cv.width = size * dpr; cv.height = size * dpr;
     var ctx = cv.getContext('2d'); ctx.scale(dpr, dpr);
@@ -351,14 +435,15 @@
       ctx.arc(cx, cy, R, a0, a1);
       ctx.arc(cx, cy, r, a1, a0, true);
       ctx.closePath();
-      ctx.fillStyle = DONUT_COLORS[i % DONUT_COLORS.length];
+      ctx.fillStyle = cols[i % cols.length];
       ctx.fill();
       a += frac * Math.PI * 2;
     }
-    ctx.fillStyle = '#66705F'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = dark ? '#9AA3B2' : '#66705F';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.font = '700 10px Inter, sans-serif';
     ctx.fillText('TOTAL VALUE', cx, cy - 13);
-    ctx.fillStyle = '#0C1F16';
+    ctx.fillStyle = dark ? '#F6F7F9' : '#0C1F16';
     ctx.font = '700 15px Inter, sans-serif';
     ctx.fillText('Rs ' + fmtNum(total, 0), cx, cy + 7);
   }
@@ -375,9 +460,10 @@
       el.allocH.innerHTML = '<h3>By holding</h3><p class="pf-muted">Nothing to allocate yet.</p>';
       return;
     }
+    var cols = donutColors();
     var legend = top.map(function (it, i) {
       var pct = Calc.pctOf(it.value, total);
-      return '<li><i style="background:' + DONUT_COLORS[i % DONUT_COLORS.length] + '"></i>' +
+      return '<li><i style="background:' + cols[i % cols.length] + '"></i>' +
         '<span class="pf-dl-sym">' + (window.NepseLogo?window.NepseLogo.html(it.label,'',20):'') + esc(it.label) + '</span>' +
         '<span class="pf-dl-val tnum">' + fmtRs(it.value) + '</span>' +
         '<span class="pf-dl-pct tnum">' + fmtPct(pct).replace('+', '') + '</span></li>';
@@ -472,10 +558,18 @@
       renderAnalytics(v);
       renderSells(p);
       el.summary.innerHTML = '<p class="pf-muted">Your portfolio is empty. Add a holding above to start tracking — everything stays in this browser.</p>';
+      renderSector();
+      renderHistory(p);
+      renderBench(p);
+      renderOutcomes(p);
       return;
     }
     if (!dataReady) {
       el.summary.innerHTML = '<p class="pf-muted">Loading market data…</p>';
+      renderSector();
+      renderHistory(p);
+      renderBench(p);
+      renderOutcomes(p);
       return;
     }
     renderSummary(v, p);
@@ -483,8 +577,17 @@
     renderAlloc(v);
     renderAnalytics(v);
     renderSells(p);
-    // Freshness is shown by the single unified [data-freshness-badge] line in
-    // the masthead — no second "prices as of" signal here.
+    // Snapshot upsert: save() fires onChange -> renderAll once more, but
+    // the second pass finds the entry unchanged and stops. Never loops.
+    if (upsertSnapshot(st, v, p)) save(st);
+    renderSector();
+    renderHistory(p);
+    renderBench(p);
+    renderOutcomes(p);
+    // Freshness: the suite [data-freshness-badge] line in the masthead
+    // stays untouched; the page-level #pf-fresh-line under the summary
+    // (updated on every check, including failures) is the line the
+    // refresh scheduler owns.
     var ph = document.getElementById('pf-print-name');
     if (ph) ph.textContent = p.name;
     var pd = document.getElementById('pf-print-date');
@@ -559,31 +662,146 @@
     activeIdx = -1; currentMatches = [];
   }
 
-  /* ================= data ================= */
-  function loadData() {
+  /* ================= data + market-aware refresh ================= */
+  var lastCheckAt = 0, refreshTimer = null, liveStarted = false;
+  var benchDB = null, benchFailed = false;
+
+  /* NEPSE hours are Mon–Fri 11:00–15:00 NPT. Cadence: 15 min in session,
+     30 min outside it on weekdays, 2 h on weekends. Hidden tabs skip the
+     fetch; visibilitychange re-checks on return. */
+  function nptParts(d) {
+    try {
+      var parts = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Asia/Kathmandu', weekday: 'short',
+        hour: '2-digit', minute: '2-digit', hour12: false
+      }).formatToParts(d);
+      var o = {};
+      parts.forEach(function (x) { o[x.type] = x.value; });
+      return o;
+    } catch (e) {
+      return { weekday: '', hour: '12', minute: '00' };
+    }
+  }
+  function nptDateStr(d) {
+    try {
+      return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kathmandu' }).format(d);
+    } catch (e) { return todayISO(); }
+  }
+  function nptTimeStr(d) {
+    var p = nptParts(d);
+    return p.hour + ':' + p.minute;
+  }
+  function inNPTSession(d) {
+    var p = nptParts(d);
+    var mins = (+p.hour) * 60 + (+p.minute);
+    return p.weekday !== 'Sat' && p.weekday !== 'Sun' && mins >= 11 * 60 && mins < 15 * 60;
+  }
+  function cadenceMs(d) {
+    var p = nptParts(d || new Date());
+    if (p.weekday === 'Sat' || p.weekday === 'Sun') return 2 * 60 * 60 * 1000;
+    var mins = (+p.hour) * 60 + (+p.minute);
+    if (mins >= 11 * 60 && mins < 15 * 60) return 15 * 60 * 1000;
+    return 30 * 60 * 1000;
+  }
+  /* The page-level freshness line: updated on EVERY check, including
+     failures ("Check failed — showing last loaded batch", never silent
+     stale data). The suite [data-freshness-badge] line is separate and
+     untouched. */
+  function freshLine(ok) {
+    if (!el.freshLine) return;
+    var now = new Date();
+    var cadMin = Math.round(cadenceMs(now) / 60000);
+    if (!ok) {
+      el.freshLine.setAttribute('data-state', 'failed');
+      el.freshLine.textContent = 'Check failed — showing last loaded batch' +
+        (dataAsof ? ' (' + dataAsof + ')' : ' (none yet)') +
+        ' · checked ' + nptTimeStr(now) + ' NPT · retry in ' + cadMin + ' min';
+      return;
+    }
+    var today = nptDateStr(now);
+    var state, note;
+    if (dataAsof === today) {
+      state = inNPTSession(now) ? 'live' : 'closed';
+      note = state === 'live' ? 'market open' : 'market closed';
+    } else {
+      state = 'delayed';
+      note = 'batch behind';
+    }
+    el.freshLine.setAttribute('data-state', state);
+    el.freshLine.textContent = 'Prices as of ' + dataAsof +
+      ' · ' + universe.length + ' securities · ' + note +
+      ' · checked ' + nptTimeStr(now) + ' NPT · next check in ' + cadMin + ' min';
+  }
+  function scheduleRefresh() {
+    if (refreshTimer) clearTimeout(refreshTimer);
+    refreshTimer = setTimeout(function () {
+      if (document.hidden) return; // visibilitychange re-checks on return
+      refreshData();
+    }, cadenceMs());
+  }
+  function refreshData() {
+    lastCheckAt = Date.now();
+    loadData(true);
+  }
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden && lastCheckAt && Date.now() - lastCheckAt >= cadenceMs()) refreshData();
+  });
+
+  /* Benchmark database: fetched once per load (it is ~100KB gzipped and
+     changes only when its builder republishes), refetched when a batch
+     moves past it so the strip never scores against a stale window. */
+  function loadBench(force) {
+    if (benchDB && !force) return Promise.resolve(benchDB);
+    return fetch('/data/portfolio-benchmark.json').then(function (r) {
+      return r.ok ? r.json() : null;
+    }).then(function (db) {
+      if (db && db.nepse) { benchDB = db; benchFailed = false; }
+      else benchFailed = true;
+      return benchDB;
+    }).catch(function () {
+      benchFailed = true;
+      return null;
+    });
+  }
+
+  function loadData(isRefresh) {
     Promise.all([
-      fetch('/nepse-chart/data/universe.json').then(function (r) { return r.ok ? r.json() : null; }),
-      fetch('/nepse-chart/data/verdicts.json').then(function (r) { return r.ok ? r.json() : null; })
+      fetch('/nepse-chart/data/universe.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }),
+      fetch('/nepse-chart/data/verdicts.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; })
     ]).then(function (res) {
       var u = res[0], vd = res[1];
       if (u && Array.isArray(u.symbols)) universe = u.symbols;
       if (vd && vd.verdicts) { verdicts = vd.verdicts; dataAsof = vd.asof || ''; }
       dataReady = true;
+      lastCheckAt = Date.now();
+      freshLine(true);
       renderAll();
-      startLiveOverlay();
+      if (!liveStarted) { startLiveOverlay(); liveStarted = true; }
+      if (benchDB && dataAsof && dataAsof > benchDB.asof) {
+        loadBench(true).then(function () { renderAll(); });
+      }
+      scheduleRefresh();
     }).catch(function () {
-      dataReady = false;
-      el.summary.innerHTML = '<p class="pf-muted">Could not load market data. Your saved portfolios are safe in this browser; please try again later.</p>';
+      lastCheckAt = Date.now();
+      if (!isRefresh) {
+        dataReady = false;
+        el.summary.innerHTML = '<p class="pf-muted">Could not load market data. Your saved portfolios are safe in this browser; please try again later.</p>';
+      }
+      // On a refresh failure the last loaded batch keeps rendering — the
+      // line says so, never silent stale data.
+      freshLine(false);
+      scheduleRefresh();
     });
   }
 
-  /* Live overlay: when the 15-minute tape is fresh, repaint holding prices,
-     day changes and unrealized P&L in place. Quantities and costs stay put. */
+  /* Live overlay: when the 15-minute tape is fresh, repaint holding prices
+     and day changes in place. Quantities, costs, values, and P&L bars
+     repaint on the full market-aware refresh. */
   function startLiveOverlay() {
     var NL = window.NepseLive || null;
     if (!NL) return;
-    // Note: no badge element — [data-freshness-badge] is the ONE freshness
-    // line on this page. The live overlay only repaints holding prices.
+    // Note: the suite [data-freshness-badge] line and the page-level
+    // #pf-fresh-line are separate; the overlay only repaints prices.
     NL.start({
       el: null,
       onData: function (d) {
@@ -623,6 +841,308 @@
     return d.getDate() + ' ' + M[d.getMonth()] + ' ' + d.getFullYear();
   }
 
+  /* ================= sector stocks block ================= */
+  var sectorPage = 1, sectorFilter = '__all', sectorSig = '';
+  var SECTOR_PAGE_SIZE = 25;
+
+  function sectorOf(sym) {
+    var vd = verdicts[sym];
+    return (vd && vd.sec) || 'Others';
+  }
+  /* Counts are computed over UNIVERSE symbols (not verdicts keys) so each
+     option's count exactly matches the rows that sector shows. A universe
+     symbol with no verdict falls under Others, same as its rows. */
+  function sectorCounts() {
+    var m = {};
+    var syms = universe.length ? universe.map(function (u) { return u.s; }) : Object.keys(verdicts);
+    syms.forEach(function (s) {
+      var sec = sectorOf(s);
+      m[sec] = (m[sec] || 0) + 1;
+    });
+    return m;
+  }
+  function renderSector() {
+    if (!el.sectorSelect || !el.sectorTbody) return;
+    if (!dataReady) {
+      el.sectorTbody.innerHTML = '';
+      if (el.sectorPagerInfo) el.sectorPagerInfo.textContent = 'Loading market data…';
+      if (el.sectorEmpty) el.sectorEmpty.hidden = true;
+      if (el.sectorPrev) el.sectorPrev.disabled = true;
+      if (el.sectorNext) el.sectorNext.disabled = true;
+      return;
+    }
+    var counts = sectorCounts();
+    var total = 0;
+    Object.keys(counts).forEach(function (k) { total += counts[k]; });
+    var sig = JSON.stringify(counts) + '|' + dataAsof;
+    if (sig !== sectorSig) {
+      sectorSig = sig;
+      var names = Object.keys(counts).sort(function (a, b) {
+        return counts[b] - counts[a] || (a < b ? -1 : a > b ? 1 : 0);
+      });
+      el.sectorSelect.innerHTML =
+        '<option value="__all">All sectors (' + total + ')</option>' +
+        names.map(function (n) {
+          return '<option value="' + esc(n) + '">' + esc(n) + ' (' + counts[n] + ')</option>';
+        }).join('');
+      el.sectorSelect.value = sectorFilter;
+      if (el.sectorSelect.value !== sectorFilter) {
+        sectorFilter = '__all';
+        el.sectorSelect.value = '__all';
+      }
+    }
+    var rows = universe.filter(function (u) {
+      return sectorFilter === '__all' || sectorOf(u.s) === sectorFilter;
+    }).sort(function (a, b) { return a.s < b.s ? -1 : a.s > b.s ? 1 : 0; });
+    var pages = Math.max(1, Math.ceil(rows.length / SECTOR_PAGE_SIZE));
+    if (sectorPage > pages) sectorPage = pages;
+    var from = (sectorPage - 1) * SECTOR_PAGE_SIZE;
+    var page = rows.slice(from, from + SECTOR_PAGE_SIZE);
+    el.sectorTbody.innerHTML = page.map(function (u) {
+      var vd = verdicts[u.s] || {};
+      var p = (vd.p != null && isFinite(vd.p)) ? +vd.p : null;
+      var ch = (vd.ch != null && isFinite(vd.ch)) ? +vd.ch : null;
+      return '<tr>' +
+        '<td><a class="pf-sym" href="/nepse-chart/?s=' + esc(u.s) + '">' + esc(u.s) + '</a></td>' +
+        '<td class="pf-left">' + esc(u.n || '') + '</td>' +
+        '<td class="tnum">' + (p == null ? '—' : fmtRs(p)) + '</td>' +
+        '<td>' + (ch == null ? '<span class="tnum">—</span>' :
+          '<span class="tnum ' + signedCls(ch) + '">' + fmtPct(ch) + '</span>') + '</td>' +
+        '<td class="tnum">' + esc(dataAsof || '—') + '</td>' +
+        '<td class="pf-actcol"><button type="button" class="pf-mini lime" data-prefill="' + esc(u.s) + '" data-price="' + (p == null ? '' : p) + '">Add</button></td>' +
+        '</tr>';
+    }).join('');
+    var to = Math.min(from + page.length, rows.length);
+    if (el.sectorPagerInfo) el.sectorPagerInfo.textContent = rows.length
+      ? 'Showing ' + (from + 1) + '–' + to + ' of ' + rows.length
+      : 'No stocks in this sector.';
+    if (el.sectorEmpty) el.sectorEmpty.hidden = rows.length > 0;
+    if (el.sectorPrev) el.sectorPrev.disabled = sectorPage <= 1;
+    if (el.sectorNext) el.sectorNext.disabled = sectorPage >= pages;
+  }
+  /* Prefill only: fills the add form, never touches holdings, never
+     auto-adds. The user reviews quantity and price, then Add holding. */
+  function prefillAdd(sym, price) {
+    el.search.value = sym;
+    if (price !== '') el.price.value = price;
+    showHint(sym + ' prefilled — review quantity and price, then Add holding.');
+    var form = document.querySelector('.pf-add');
+    if (form) form.scrollIntoView();
+    el.qty.focus();
+  }
+
+  /* ================= snapshots, history chart, benchmark, outcomes ================= */
+  function snapshotsFor(pid) {
+    var st = load();
+    return (st.snapshots || []).filter(function (x) { return x.pid === pid; })
+      .sort(function (a, b) { return a.session < b.session ? -1 : a.session > b.session ? 1 : 0; });
+  }
+  function drawHistoryChart(snaps) {
+    var cv = el.histChart;
+    if (!cv || !cv.getContext) return;
+    var dark = document.documentElement.getAttribute('data-theme') !== 'light';
+    var dpr = window.devicePixelRatio || 1;
+    var w = cv.clientWidth || 600, h = 260;
+    cv.width = w * dpr; cv.height = h * dpr;
+    var ctx = cv.getContext('2d'); ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, w, h);
+    if (snaps.length < 2) return;
+    var padL = 64, padR = 16, padT = 14, padB = 28;
+    var iw = w - padL - padR, ih = h - padT - padB;
+    var vals = snaps.map(function (s) { return s.value; });
+    var min = Math.min.apply(null, vals), max = Math.max.apply(null, vals);
+    if (max === min) max = min + 1;
+    var X = function (i) { return padL + (snaps.length === 1 ? iw / 2 : i / (snaps.length - 1) * iw); };
+    var Y = function (v) { return padT + (1 - (v - min) / (max - min)) * ih; };
+    ctx.strokeStyle = dark ? 'rgba(255,255,255,.12)' : 'rgba(0,0,0,.12)';
+    ctx.fillStyle = dark ? '#9AA3B2' : '#66705F';
+    ctx.font = '11px "IBM Plex Mono", monospace';
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    for (var g = 0; g <= 4; g++) {
+      var gv = min + (max - min) * g / 4, gy = Y(gv);
+      ctx.beginPath(); ctx.moveTo(padL, gy); ctx.lineTo(w - padR, gy); ctx.stroke();
+      ctx.fillText('Rs ' + fmtNum(gv, 0), padL - 8, gy);
+    }
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    [0, Math.floor((snaps.length - 1) / 2), snaps.length - 1].forEach(function (i) {
+      ctx.fillText(snaps[i].session.slice(5), X(i), padT + ih + 8);
+    });
+    ctx.strokeStyle = dark ? '#B8E62E' : '#4D7C0F';
+    ctx.lineWidth = 2; ctx.beginPath();
+    snaps.forEach(function (s, i) {
+      if (i === 0) ctx.moveTo(X(i), Y(s.value));
+      else ctx.lineTo(X(i), Y(s.value));
+    });
+    ctx.stroke();
+    ctx.fillStyle = dark ? '#B8E62E' : '#4D7C0F';
+    snaps.forEach(function (s, i) {
+      ctx.beginPath(); ctx.arc(X(i), Y(s.value), 3, 0, Math.PI * 2); ctx.fill();
+    });
+  }
+  function renderHistory(p) {
+    if (!el.histTbody) return;
+    var snaps = snapshotsFor(p.id);
+    var latest = snaps.slice(-30).reverse();
+    el.histTbody.innerHTML = latest.map(function (s) {
+      return '<tr><td class="tnum">' + esc(s.session) + '</td>' +
+        '<td class="tnum">' + fmtRs(s.value) + '</td>' +
+        '<td class="tnum">' + fmtRs(s.invested) + '</td>' +
+        '<td class="tnum ' + signedCls(s.unrl) + '">' + fmtRs(s.unrl) + '</td>' +
+        '<td class="tnum ' + signedCls(s.realized) + '">' + fmtRs(s.realized) + '</td></tr>';
+    }).join('');
+    if (el.histNote) {
+      if (!snaps.length) {
+        el.histNote.textContent = 'No snapshots yet. The first snapshot appears after the next batch with a priced holding — history builds as sessions land, never before.';
+      } else if (snaps.length === 1) {
+        el.histNote.textContent = 'One session recorded (' + snaps[0].session + '). The chart draws once a second session lands.';
+      } else {
+        el.histNote.textContent = snaps.length + ' sessions, ' + snaps[0].session + ' → ' + snaps[snaps.length - 1].session +
+          (snaps.length > 30 ? ' · table shows the latest 30.' : ' · all sessions shown.');
+      }
+    }
+    if (el.histChart) {
+      el.histChart.setAttribute('aria-label', snaps.length >= 2
+        ? 'Portfolio value from ' + fmtRs(snaps[0].value) + ' on ' + snaps[0].session +
+          ' to ' + fmtRs(snaps[snaps.length - 1].value) + ' on ' + snaps[snaps.length - 1].session +
+          ' across ' + snaps.length + ' sessions'
+        : 'Portfolio value over recorded sessions');
+    }
+    drawHistoryChart(snaps);
+  }
+  function nepseWindowReturn(d0, d1) {
+    if (!benchDB || !benchDB.nepse) return null;
+    var n0 = benchDB.nepse[d0], n1 = benchDB.nepse[d1];
+    if (n0 == null || n1 == null || !(n0 > 0)) return null;
+    return round2((n1 / n0 - 1) * 100);
+  }
+  function renderBench(p) {
+    if (!el.bench) return;
+    var snaps = snapshotsFor(p.id);
+    if (!benchDB) {
+      el.bench.innerHTML = '<p class="pf-muted">' +
+        (benchFailed
+          ? 'Benchmark data unavailable right now — snapshots still record, and the strip returns on the next successful load.'
+          : 'Loading benchmark data…') + '</p>';
+      if (el.benchNote) el.benchNote.textContent = '';
+      return;
+    }
+    if (snaps.length < 2) {
+      el.bench.innerHTML = '<p class="pf-muted">The benchmark strip needs two snapshots to form a window. Keep holding — it appears once a second session lands.</p>';
+      if (el.benchNote) el.benchNote.textContent = 'Benchmark database as of ' + benchDB.asof + '.';
+      return;
+    }
+    var d0 = snaps[0].session, d1 = snaps[snaps.length - 1].session;
+    var pv0 = snaps[0].value, pv1 = snaps[snaps.length - 1].value;
+    var pr = (pv0 > 0) ? round2((pv1 / pv0 - 1) * 100) : null;
+    var nr = nepseWindowReturn(d0, d1);
+    var maxAbs = Math.max(Math.abs(pr || 0), Math.abs(nr || 0));
+    function bar(val, colorCls) {
+      if (val == null) return '<span class="pf-bench-bar"></span>';
+      var w = maxAbs > 0 ? Math.abs(val) / maxAbs * 50 : 0;
+      var left = val >= 0 ? 50 : 50 - w;
+      return '<span class="pf-bench-bar"><span class="pf-bench-fill ' + colorCls + '" style="left:' + left.toFixed(1) + '%;width:' + w.toFixed(1) + '%"></span></span>';
+    }
+    var verdict = '';
+    if (pr != null && nr != null) {
+      var diff = round2(pr - nr);
+      verdict = '<p class="pf-bench-verdict ' + (diff > 0 ? 'beat' : diff < 0 ? 'trail' : '') + '">' +
+        (diff > 0 ? 'Ahead of NEPSE by ' + fmtNum(diff, 2) + ' pp' :
+         diff < 0 ? 'Behind NEPSE by ' + fmtNum(Math.abs(diff), 2) + ' pp' :
+         'In line with NEPSE') + ' over this window.</p>';
+    }
+    el.bench.innerHTML =
+      '<div class="pf-bench-row"><span class="pf-bench-name">Portfolio</span>' + bar(pr, 'portfolio') +
+      '<span class="pf-bench-val ' + signedCls(pr) + '">' + fmtPct(pr) + '</span></div>' +
+      '<div class="pf-bench-row"><span class="pf-bench-name">NEPSE</span>' + bar(nr, 'nepse') +
+      '<span class="pf-bench-val ' + signedCls(nr) + '">' + fmtPct(nr) + '</span></div>' + verdict;
+    if (el.benchNote) el.benchNote.textContent =
+      'Window ' + d0 + ' → ' + d1 + ' · portfolio from snapshots, NEPSE closes from data/portfolio-benchmark.json (asof ' + benchDB.asof + ').' +
+      (nr == null ? ' NEPSE closes missing for this window — showing –.' : '');
+  }
+  /* Holding window return: the holding's price at the first snapshot
+     session comes from the published per-symbol history file (last bar on
+     or before that date); the end price is the page's current batch price,
+     the same basis as every other number on the page. Missing bars → '—',
+     never invented. Fetches only for held symbols, cached in memory. */
+  var histCache = {};
+  function closeFromBars(bars, compact) {
+    var close = null;
+    for (var i = 0; i < bars.length; i++) {
+      var b = bars[i];
+      if (!Array.isArray(b) || b.length < 5) continue;
+      if (String(b[0]) <= compact) close = +b[4];
+      else break;
+    }
+    return (close != null && isFinite(close)) ? close : null;
+  }
+  function histCloseAtOrBefore(sym, isoDate) {
+    var compact = isoDate.replace(/-/g, '');
+    if (histCache[sym]) return Promise.resolve(closeFromBars(histCache[sym], compact));
+    return fetch('/nepse-chart/data/history/' + sym + '.json').then(function (r) {
+      return r.ok ? r.json() : null;
+    }).then(function (j) {
+      var bars = (j && Array.isArray(j.data)) ? j.data : null;
+      if (bars) histCache[sym] = bars;
+      return bars ? closeFromBars(bars, compact) : null;
+    }).catch(function () { return null; });
+  }
+  function renderOutcomes(p) {
+    if (!el.outTbody) return;
+    var v = valuate(p);
+    var snaps = snapshotsFor(p.id);
+    var d0 = snaps.length ? snaps[0].session : null;
+    var d1 = snaps.length ? snaps[snaps.length - 1].session : null;
+    var nr = (d0 && d1) ? nepseWindowReturn(d0, d1) : null;
+    if (!v.rows.length) {
+      el.outTbody.innerHTML = '';
+      return;
+    }
+    el.outTbody.innerHTML = v.rows.map(function (r) {
+      var h = r.h;
+      var costChip = r.ret == null ? '<span class="tnum">—</span>' :
+        '<span class="pf-outcome ' + (r.ret > 0 ? 'win' : r.ret < 0 ? 'loss' : 'flat') + '">' +
+        (r.ret > 0 ? 'Win' : r.ret < 0 ? 'Loss' : 'Flat') + '</span>';
+      return '<tr data-out-sym="' + esc(h.s) + '">' +
+        '<td><a class="pf-sym" href="/nepse-chart/?s=' + esc(h.s) + '">' + esc(h.s) + '</a></td>' +
+        '<td class="tnum ' + signedCls(r.ret) + '">' + fmtPct(r.ret) + '</td>' +
+        '<td class="tnum" data-win-val>…</td>' +
+        '<td class="tnum">' + fmtPct(nr) + '</td>' +
+        '<td>' + costChip + ' <span data-win-chip>…</span></td>' +
+        '</tr>';
+    }).join('');
+    if (!d0 || nr == null) {
+      el.outTbody.querySelectorAll('[data-win-val]').forEach(function (c) { c.textContent = '—'; });
+      el.outTbody.querySelectorAll('[data-win-chip]').forEach(function (c) { c.textContent = '—'; });
+      return;
+    }
+    v.rows.forEach(function (r) {
+      var h = r.h;
+      var row = el.outTbody.querySelector('tr[data-out-sym="' + h.s + '"]');
+      if (!row) return;
+      var valCell = row.querySelector('[data-win-val]');
+      var chipCell = row.querySelector('[data-win-chip]');
+      var endPrice = r.price;
+      if (endPrice == null) {
+        if (valCell) valCell.textContent = '—';
+        if (chipCell) chipCell.textContent = '—';
+        return;
+      }
+      histCloseAtOrBefore(h.s, d0).then(function (startPrice) {
+        if (startPrice == null || !(startPrice > 0)) {
+          if (valCell) valCell.textContent = '—';
+          if (chipCell) chipCell.textContent = '—';
+          return;
+        }
+        var wr = round2((endPrice / startPrice - 1) * 100);
+        if (valCell) { valCell.textContent = fmtPct(wr); valCell.className = 'tnum ' + signedCls(wr); }
+        if (chipCell) {
+          chipCell.innerHTML = '<span class="pf-outcome ' + (wr > nr ? 'beat' : wr < nr ? 'trail' : 'flat') + '">' +
+            (wr > nr ? 'Beat NEPSE' : wr < nr ? 'Trailed NEPSE' : 'In line') + '</span>';
+        }
+      });
+    });
+  }
+
   /* ================= events ================= */
   function on(id, evt, fn) {
     var n = document.getElementById(id);
@@ -630,6 +1150,18 @@
   }
   if (el.select) el.select.addEventListener('change', function () {
     mutate(function (st) { st.active = el.select.value; });
+  });
+
+  /* Sector block controls: picker, pager, prefill (prefill only — never adds). */
+  if (el.sectorSelect) el.sectorSelect.addEventListener('change', function () {
+    sectorFilter = el.sectorSelect.value; sectorPage = 1; renderSector();
+  });
+  on('pf-sector-prev', 'click', function () { if (sectorPage > 1) { sectorPage--; renderSector(); } });
+  on('pf-sector-next', 'click', function () { sectorPage++; renderSector(); });
+  if (el.sectorTbody) el.sectorTbody.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-prefill]');
+    if (!btn) return;
+    prefillAdd(btn.getAttribute('data-prefill'), btn.getAttribute('data-price') || '');
   });
 
   on('pf-new', 'click', function () { barForm('new'); });
@@ -640,6 +1172,7 @@
     if (!window.confirm('Delete the portfolio "' + p.name + '"? Its holdings and sale history will be removed from this browser.')) return;
     mutate(function (st2) {
       st2.portfolios = st2.portfolios.filter(function (x) { return x.id !== p.id; });
+      st2.snapshots = (st2.snapshots || []).filter(function (x) { return x.pid !== p.id; });
       if (!st2.portfolios.length) {
         var np = { id: uid(), name: 'My Portfolio', holdings: [], sells: [] };
         st2.portfolios.push(np); st2.active = np.id;
@@ -771,5 +1304,6 @@
 
   onChange(renderAll);
   renderAll();
-  loadData();
+  loadData(false);
+  loadBench(false).then(function () { renderAll(); });
 })();

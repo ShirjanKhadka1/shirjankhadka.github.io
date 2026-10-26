@@ -37,124 +37,12 @@
 {"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-decode/"},
 {"@type":"ListItem","position":3,"name":"Portfolio","item":"https://shirjankhadka.com.np/nepse-portfolio/"}]}
 </script>
-<style>
-/* portfolio-only */
-.wrap{max-width:1080px}
-.topbar .wrap{max-width:1160px}
-.pf-bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:28px 0 6px}
-.pf-select{font:inherit;font-size:15px;font-weight:600;padding:11px 16px;border:1px solid var(--hairline);border-radius:12px;background:var(--paper);color:var(--ink);max-width:280px}
-.pf-bar .pf-mini{font-size:13.5px}
-.pf-bar-form{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.pf-inline{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--muted)}
-.pf-inline input{font:inherit;padding:10px 14px;border:1px solid var(--hairline);border-radius:10px;background:var(--paper);color:var(--ink);min-width:200px}
-.pf-link{background:none;border:0;color:var(--emerald-deep);font:inherit;font-size:14px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
-.pf-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:20px 0 8px}
-.pf-stat{background:var(--paper);border:1px solid var(--hairline);border-radius:16px;padding:18px 20px;display:flex;flex-direction:column;gap:5px}
-.pf-lab{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
-.pf-big{font-size:21px;font-weight:700;color:var(--ink)}
-.pf-sub{font-size:13px;color:var(--muted)}
-.up{color:var(--up)}.down{color:var(--down)}
-.pf-sec{margin:36px 0 8px}
-.pf-sec > h2{font-family:var(--serif);font-size:24px;font-weight:600;letter-spacing:-.01em;margin-bottom:4px}
-.pf-sec > p.pf-lede{font-size:14.5px;color:var(--muted);margin-bottom:16px;max-width:720px}
-.pf-add{background:var(--paper);border:1px solid var(--hairline);border-radius:20px;padding:26px 28px;box-shadow:0 12px 40px rgba(12,31,22,.08)}
-.pf-kicker{font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin:0 0 16px}
-.pf-add-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px}
-.pf-field{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;color:var(--muted)}
-.pf-field-title{font-size:13px;font-weight:700;color:var(--ink)}
-.pf-field-sub{font-size:12.5px;font-weight:400;color:var(--muted)}
-.pf-field input{font:inherit;font-weight:400;font-size:15px;padding:12px 16px;border:1px solid var(--hairline);border-radius:12px;background:var(--ivory);color:var(--ink);width:100%;box-sizing:border-box}
-.pf-field input:focus{border-color:var(--gold);outline:none;box-shadow:0 0 0 3px rgba(198,168,107,.22)}
-.pf-add-foot{display:flex;gap:18px;align-items:center;margin-top:20px;flex-wrap:wrap}
-.pf-add-foot .btn{padding:14px 30px;font-size:15px}
-.pf-add-foot .pf-hint{margin:0}
-.pf-search-wrap{position:relative}
-.pf-suggest{position:absolute;top:calc(100% + 8px);left:0;right:0;list-style:none;background:var(--paper);border:1px solid var(--hairline);border-radius:14px;box-shadow:var(--shadow-hover);overflow:hidden;z-index:50}
-.pf-suggest[hidden]{display:none}
-.pf-suggest li{display:flex;gap:12px;align-items:baseline;padding:11px 18px;cursor:pointer;font-size:14px}
-.pf-suggest li strong{font-weight:700;color:var(--emerald-deep)}
-.pf-suggest li span{color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pf-suggest li[aria-selected="true"],.pf-suggest li:hover{background:var(--gold-faint)}
-.pf-hint{font-size:13.5px;color:var(--muted);margin:12px 0 0}
-.pf-hint[hidden]{display:none}
-.table-scroll{overflow-x:auto;background:var(--paper);border:1px solid var(--hairline);border-radius:18px}
-.pf-table{width:100%;border-collapse:collapse;font-size:14.5px;min-width:860px}
-.pf-table th{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);text-align:right;padding:14px 16px;border-bottom:1px solid var(--hairline);white-space:nowrap}
-.pf-table th:first-child,.pf-table td:first-child{text-align:left}
-.pf-table td{padding:14px 16px;border-bottom:1px solid var(--hairline-soft);text-align:right;vertical-align:middle}
-.pf-table tr:last-child td{border-bottom:0}
-.pf-table small{color:var(--muted);font-size:12.5px}
-.pf-sym{font-weight:700;color:var(--emerald-deep)}
-.pf-sym:hover{color:var(--emerald)}
-.pf-name{display:block;font-size:12px;color:var(--muted);font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
-.pf-actcol{white-space:nowrap}
-.pf-mini{font:inherit;font-size:13px;font-weight:600;padding:7px 13px;margin:2px;border-radius:999px;border:1px solid var(--hairline);background:var(--ivory);color:var(--emerald-deep);cursor:pointer;transition:all .2s var(--ease)}
-.pf-mini:hover{border-color:var(--gold)}
-.pf-mini.danger{color:var(--down)}
-.pf-mini.danger:hover{background:var(--down);border-color:var(--down);color:#fff}
-.pf-editrow td{background:var(--ivory);text-align:left}
-.pf-edform{display:flex;gap:12px;align-items:end;flex-wrap:wrap;font-size:14px}
-.pf-edform label{display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:600;color:var(--muted)}
-.pf-edform input{font:inherit;font-weight:400;padding:9px 13px;border:1px solid var(--hairline);border-radius:10px;background:var(--paper);color:var(--ink);width:150px}
-.pf-muted{color:var(--muted);font-size:13.5px}
-.pf-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-.pf-card{background:var(--paper);border:1px solid var(--hairline);border-radius:18px;padding:24px 26px}
-.pf-card h3{font-family:var(--serif);font-size:18px;font-weight:600;margin-bottom:14px}
-.pf-alloc-row{display:grid;grid-template-columns:1fr 130px 64px;gap:10px;align-items:center;padding:7px 0;font-size:14px}
-.pf-alloc-lab{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pf-alloc-track{height:10px;border-radius:999px;background:var(--ivory);border:1px solid var(--hairline-soft);overflow:hidden}
-.pf-alloc-fill{display:block;height:100%;border-radius:999px;background:var(--emerald)}
-.pf-alloc-pct{text-align:right;color:var(--muted)}
-.pf-donut-flex{display:flex;gap:24px;align-items:center;margin-top:8px}
-#pf-donut{width:180px;height:180px;flex:none}
-.pf-donut-legend{list-style:none;margin:0;padding:0;flex:1;min-width:0;display:flex;flex-direction:column;gap:10px}
-.pf-donut-legend li{display:grid;grid-template-columns:12px minmax(0,1fr) auto auto;gap:10px;align-items:baseline;font-size:13.5px}
-.pf-donut-legend i{width:12px;height:12px;border-radius:4px;display:inline-block;flex:none}
-.pf-dl-sym{font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pf-dl-val{color:var(--muted);white-space:nowrap}
-.pf-dl-pct{font-weight:700;color:var(--emerald-deep);min-width:54px;text-align:right}
-.pf-analytics{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-.pf-empty{border:1px dashed var(--hairline);border-radius:18px;padding:44px 32px;text-align:center;background:var(--paper)}
-.pf-empty[hidden]{display:none}
-.pf-empty h2{font-family:var(--serif);font-size:23px;font-weight:600;margin-bottom:10px}
-.pf-empty p{color:var(--muted);font-size:15px;max-width:560px;margin:0 auto 8px}
-.pf-total td{font-weight:700;border-top:2px solid var(--hairline)}
-.pf-print-head{display:none}
-.updated{font-size:13px;color:var(--faint);margin-top:16px}
-.promise{background:var(--paper);border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline);margin:56px 0 0}
-.nd-seo-copy{margin:56px 0 0;max-width:72ch}
-.nd-seo-copy h2{font-size:1.35rem;margin:0 0 12px;color:var(--ink,#1C1A15)}
-.nd-seo-copy p{margin:0 0 14px;line-height:1.75;color:var(--ink-soft,#4A463C)}
-.nd-faq{margin:40px 0 8px;max-width:72ch}
-.nd-faq h2{font-size:1.35rem;margin:0 0 12px;color:var(--ink,#1C1A15)}
-.nd-faq details{border:1px solid var(--hairline,#E7DFCE);border-radius:12px;padding:14px 16px;margin:0 0 10px;background:var(--paper,#FAF8F2)}
-.nd-faq summary{font-weight:600;cursor:pointer;color:var(--ink,#1C1A15)}
-.nd-faq details p{margin:10px 0 0;line-height:1.7;color:var(--ink-soft,#4A463C)}
-.promise-in{max-width:1080px;margin:0 auto;padding:44px 24px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-.promise-card h3{font-family:var(--serif);font-size:17px;font-weight:600;margin-bottom:6px;letter-spacing:-.01em}
-.promise-card p{font-size:14px;color:var(--muted)}
-@media(max-width:860px){.pf-summary{grid-template-columns:1fr 1fr}.pf-grid{grid-template-columns:1fr}.pf-add-grid{grid-template-columns:1fr 1fr}.pf-add-grid .pf-search-wrap{grid-column:1/-1}}
-@media(max-width:560px){.pf-summary{grid-template-columns:1fr}.pf-add-grid{grid-template-columns:1fr}.pf-analytics{grid-template-columns:1fr}.promise-in{grid-template-columns:1fr;gap:20px}.pf-donut-flex{flex-direction:column;align-items:flex-start}}
-@media(prefers-reduced-motion:reduce){.pf-mini{transition:none}}
-@media print{
-  .skip,.pf-bar,.pf-add,.pf-editrow,.pf-actcol,.pf-print-btn,.promise,.final,.foot .row,#pf-print{display:none !important}
-  body{background:#fff;color:#111}
-  .wrap{max-width:none;padding:0 8px}
-  .hero{padding:0 0 12px}
-  .pf-print-head{display:block !important;border-bottom:2px solid #111;padding-bottom:10px;margin-bottom:16px}
-  .pf-print-head .pf-print-title{font-size:22px;margin:0;font-weight:700}
-  .pf-print-head p{font-size:12px;color:#444;margin:4px 0 0}
-  .pf-stat,.pf-card,.table-scroll{box-shadow:none;break-inside:avoid;border-color:#ccc}
-  .pf-sec{margin:20px 0 8px}
-  a{color:#111;text-decoration:none}
-  .pf-alloc-fill{background:#999 !important}
-}
-</style>
 <link rel="stylesheet" href="/css/theme.css?v=f9678c21">
 <link rel="stylesheet" href="/css/nepse-logos.css">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
+<link rel="stylesheet" href="/css/nd-portfolio.css?v=db0430c3">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Where is my portfolio data stored?","acceptedAnswer":{"@type":"Answer","text":"Only in your own browser, using local storage. Nothing is uploaded to any server and no account is needed — but clearing your browser data will erase it, so the printable report is there for your records."}},{"@type":"Question","name":"How is average cost calculated?","acceptedAnswer":{"@type":"Answer","text":"Weighted average cost: the total amount paid for a security divided by the total quantity held. Each new buy updates it; each recorded sale computes realized P&L against the average cost at the time of sale."}},{"@type":"Question","name":"Are portfolio prices real-time?","acceptedAnswer":{"@type":"Answer","text":"No. Prices come from the latest daily batch, which can lag during trading hours. NEPSE publishes no free official real-time API, so community mirrors and batch data may be delayed."}},{"@type":"Question","name":"Is this investment advice?","acceptedAnswer":{"@type":"Answer","text":"No. The tracker is arithmetic for education — it never recommends buying or selling. Verify figures with your broker before any decision."}}]}
 </script>
@@ -180,15 +68,32 @@
   <div class="nd-masthead">
     <div>
       <p class="nd-kicker">Portfolio</p>
-      <h1 style="font-family:var(--serif);font-weight:600;font-size:clamp(1.6rem,4vw,2.3rem);letter-spacing:-0.015em">NEPSE Portfolio Tracker: Holdings, P&amp;L &amp; Allocation, Free</h1>
-      <p class="nd-subhead" style="font-family:var(--serif);font-weight:600;font-size:clamp(1.05rem,2.4vw,1.3rem);color:var(--ink-soft,#4A463C);margin:8px 0 0">Your holdings, honestly counted</p>
-      <p class="nd-lede" style="margin:10px 0 0;max-width:72ch;color:var(--ink-soft,#4A463C)">This free NEPSE portfolio tracker keeps your holdings honestly counted: record buys and sells, track average cost, unrealized and realized P&amp;L, allocation across securities and sectors, and print a clean report. Unlimited holdings, no login &mdash; everything stays in your own browser, never on our servers.</p>
-      <div style="margin-top:8px"><div data-freshness-badge></div></div>
+      <h1 class="pf-h1">NEPSE Portfolio Tracker: Holdings, P&amp;L &amp; Allocation, Free</h1>
+      <p class="nd-subhead pf-subhead">Your holdings, honestly counted</p>
+      <p class="nd-lede pf-lede-head">This free NEPSE portfolio tracker keeps your holdings honestly counted: record buys and sells, track average cost, unrealized and realized P&amp;L, allocation across securities and sectors, and print a clean report. Unlimited holdings, no login &mdash; everything stays in your own browser, never on our servers.</p>
+      <div class="pf-badge-wrap"><div data-freshness-badge></div></div>
     </div>
     
   </div>
 
   <div class="wrap">
+    <div class="pf-bar" id="pf-bar">
+      <select id="pf-select" class="pf-select" aria-label="Portfolio"></select>
+      <button type="button" class="pf-mini" id="pf-new">New</button>
+      <button type="button" class="pf-mini" id="pf-rename">Rename</button>
+      <button type="button" class="pf-mini danger" id="pf-delete">Delete</button>
+      <button type="button" class="pf-mini" id="pf-print">Print</button>
+      <div id="pf-bar-form" class="pf-bar-form"></div>
+    </div>
+
+    <section class="pf-sec pf-hero" aria-labelledby="pf-sum-h">
+      <h2 id="pf-sum-h">Portfolio at a glance</h2>
+      <p class="pf-lede">The portfolio's own totals — invested, current value, and profit or loss — priced from the latest batch. This is the hero of the page: your money, honestly counted.</p>
+      <div class="pf-summary" id="pf-summary"></div>
+      <p class="pf-fresh" id="pf-fresh-line" data-state="loading" role="status">Loading market data…</p>
+      <p class="pf-muted">Holdings, sells, and snapshots never leave this browser. Prices refresh on a market-aware cadence (every 15 minutes in session, 30 minutes outside it, 2 hours on weekends) and this line updates on every check, including failures.</p>
+    </section>
+
     <section class="pf-sec" aria-labelledby="pf-add-h">
       <h2 id="pf-add-h">Add a holding</h2>
       <p class="pf-lede">Search any listed security, enter the quantity and the price you paid. Adding more of a security you already hold updates its weighted average cost.</p>
@@ -228,7 +133,7 @@
           <thead><tr>
             <th scope="col">Security</th><th scope="col">Qty</th><th scope="col">Avg cost</th>
             <th scope="col">LTP</th><th scope="col">Day</th><th scope="col">Value</th>
-            <th scope="col">P&amp;L</th><th scope="col" class="pf-actcol"><span class="pf-lab">Actions</span></th>
+            <th scope="col">P&amp;L</th><th scope="col">P&amp;L bar</th><th scope="col" class="pf-actcol"><span class="pf-lab">Actions</span></th>
           </tr></thead>
           <tbody id="pf-tbody"></tbody>
         </table>
@@ -248,10 +153,82 @@
       </div>
     </section>
 
+    <section class="pf-sec" aria-labelledby="pf-sector-h">
+      <h2 id="pf-sector-h">Stocks by sector</h2>
+      <p class="pf-lede">Every stock in the sector you pick, priced from the latest batch. Use Add to prefill the holding form — it never adds anything on its own.</p>
+      <div class="pf-sector-head">
+        <div class="pf-field">
+          <label class="pf-field-title" for="pf-sector-select">Sector</label>
+          <select id="pf-sector-select" aria-label="Filter stocks by sector"></select>
+        </div>
+        <p class="pf-muted">Sector labels come from the verdicts batch — universe entries carry no sector field, so a stock with no verdict sector shows under Others.</p>
+      </div>
+      <div class="table-scroll">
+        <table class="pf-table nd-table">
+          <caption class="visually-hidden">Stocks in the selected sector: symbol, company name, latest close, day change, batch date, and an action to prefill the add form</caption>
+          <thead><tr>
+            <th scope="col">Symbol</th><th scope="col">Name</th><th scope="col">Close</th>
+            <th scope="col">Day</th><th scope="col">Batch</th><th scope="col" class="pf-actcol"><span class="pf-lab">Add</span></th>
+          </tr></thead>
+          <tbody id="pf-sector-tbody"></tbody>
+        </table>
+      </div>
+      <p class="pf-muted" id="pf-sector-empty" hidden>No stocks in this sector in the latest batch.</p>
+      <div class="pf-pager">
+        <span class="pf-pager-info" id="pf-sector-pager-info"></span>
+        <span class="pf-pager-btns">
+          <button type="button" class="btn quiet small" id="pf-sector-prev">Prev</button>
+          <button type="button" class="btn small" id="pf-sector-next">Next</button>
+        </span>
+      </div>
+    </section>
+
     <section class="pf-sec" aria-labelledby="pf-ana-h">
       <h2 id="pf-ana-h">Analytics</h2>
       <p class="pf-lede">A few honest facts about the portfolio, computed from the same ledger above.</p>
       <div class="pf-analytics" id="pf-analytics"></div>
+    </section>
+
+    <section class="pf-sec" aria-labelledby="pf-hist-h">
+      <h2 id="pf-hist-h">Portfolio history</h2>
+      <p class="pf-lede">One snapshot per session of this portfolio's value and P&amp;L, recorded in this browser only. The chart grows as sessions land — nothing is drawn before it exists.</p>
+      <div class="pf-chart-wrap">
+        <canvas id="pf-history-chart" role="img" aria-label="Portfolio value over recorded sessions"></canvas>
+      </div>
+      <p class="pf-chart-note" id="pf-history-note"></p>
+      <div class="table-scroll">
+        <table class="pf-table nd-table">
+          <caption class="visually-hidden">Recorded portfolio snapshots: session, value, invested, unrealized and realized profit and loss</caption>
+          <thead><tr>
+            <th scope="col">Session</th><th scope="col">Value</th><th scope="col">Invested</th>
+            <th scope="col">Unrealized P&amp;L</th><th scope="col">Realized P&amp;L</th>
+          </tr></thead>
+          <tbody id="pf-history-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="pf-sec" aria-labelledby="pf-bench-h">
+      <h2 id="pf-bench-h">Against the market</h2>
+      <p class="pf-lede">Your portfolio's return against NEPSE over the same window — from your first recorded snapshot session to your latest one. Realized outcomes only, never a forecast.</p>
+      <div class="pf-bench" id="pf-bench"></div>
+      <p class="pf-muted" id="pf-bench-note"></p>
+    </section>
+
+    <section class="pf-sec" aria-labelledby="pf-out-h">
+      <h2 id="pf-out-h">Holding outcomes</h2>
+      <p class="pf-lede">Each holding, categorized by what actually happened: win or loss against what you paid, and beat or trailed NEPSE since your first snapshot session. Missing prices show as –, never guessed.</p>
+      <div class="table-scroll">
+        <table class="pf-table nd-table">
+          <caption class="visually-hidden">Holding outcomes: symbol, return since average cost, return since first snapshot session, NEPSE return over the same window, and outcome</caption>
+          <thead><tr>
+            <th scope="col">Symbol</th><th scope="col">Since cost</th><th scope="col">Since first snapshot</th>
+            <th scope="col">NEPSE same window</th><th scope="col">Outcome</th>
+          </tr></thead>
+          <tbody id="pf-outcomes-tbody"></tbody>
+        </table>
+      </div>
+      <p class="pf-muted">Holding prices at the first snapshot session come from the published per-symbol history files; a holding with no bar on or before that date shows – for the window return.</p>
     </section>
 
     <section class="pf-sec" aria-labelledby="pf-sell-h">
@@ -287,7 +264,7 @@
     </section>
   </div>
 </div>
-<p class="data-credit" style="font-size:.8rem;color:var(--muted,#6b7280);margin:1.25rem 0 0;">Live quotes via our own 15-minute market snapshot; figures may be delayed — <a href="/data-terms.html">see our data terms</a>.</p>
+<p class="data-credit pf-data-credit">Live quotes via our own 15-minute market snapshot; figures may be delayed — <a href="/data-terms.html">see our data terms</a>.</p>
 <section class="nd-seo-copy" aria-label="About the NEPSE portfolio tracker">
 <h2>About the NEPSE portfolio tracker</h2>
 <p>The NEPSE portfolio tracker keeps your holdings honestly counted. Add any listed security with the quantity you bought and the price you paid; adding more of a security you already hold updates its weighted average cost. The holdings table shows your average cost, the latest batch price, market value and unrealized P&amp;L per line, so every rupee is accounted for.</p>
@@ -342,7 +319,7 @@
 <script src="/js/nepse-live.js?v=d974e424"></script>
 
 <script src="/js/company-logos.js?v=d8c620a6"></script>
-<script src="/js/nepse-logos.js"></script><script src="/js/nepse-portfolio.js?v=d23e6d4c"></script>
+<script src="/js/nepse-logos.js"></script><script src="/js/nepse-portfolio.js?v=fe847222"></script>
 <script src="/js/freshness-badge.js?v=9b77cf10" defer></script>
 <script src="/js/theme-toggle.js?v=6a6a46c6" defer></script>
 <script src="/js/nepse-sidebar.js?v=4253c371" defer></script>
