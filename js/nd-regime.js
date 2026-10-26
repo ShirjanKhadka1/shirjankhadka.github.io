@@ -1,13 +1,18 @@
-/* Market Regime page (P19) — rule-based regime from real NEPSE index history */
+/* Market Regime page (P19) — rule-based regime from real NEPSE index history.
+   Classic lens (this file): price vs its own 50-day and 200-day simple
+   moving averages, a 2x2 mapping with no holes — every session with
+   enough history classifies exactly once. (2026-10-26 fix: the previous
+   classify() checked SMA50-vs-SMA200 first, which shadowed the
+   correction/recovery branches entirely — they were dead code, and
+   738 correction days + 471 recovery days were mislabelled bull/bear.
+   The confirmed board state in the hero is rendered by
+   nd-regime-board.js from /data/market-regime.json, not here.)
+   This file keeps: the signals column, the rule cards, the classic-lens
+   line, and the monthly timeline (now with year ticks). */
 (function () {
   'use strict';
 
   function $(id) { return document.getElementById(id); }
-  function esc(s) {
-    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
-      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
-    });
-  }
   function fetchJSON(url) {
     return fetch(url, { cache: 'no-store' }).then(function (r) {
       if (!r.ok) throw new Error('no-data');
@@ -36,38 +41,29 @@
     var s = String(yyyymmdd);
     return s.slice(0, 4) + '-' + s.slice(4, 6) + '-' + s.slice(6, 8);
   }
+  // 2x2: price vs SMA200 (long trend) x price vs SMA50 (short trend).
+  // Ties fall to the "above" bucket so every session classifies once.
   function classify(close, s50, s200) {
     if (s50 == null || s200 == null) return 'unknown';
-    if (close > s200 && s50 > s200) return 'bull';
-    if (close < s200 && s50 < s200) return 'bear';
-    if (close < s50 && close > s200) return 'correction';
-    if (close > s50 && close < s200) return 'recovery';
-    return 'unknown';
+    if (close >= s200 && close >= s50) return 'bull';
+    if (close >= s200) return 'correction';
+    if (close >= s50) return 'recovery';
+    return 'bear';
   }
   var REGIME_META = {
-    bull: { name: 'Bull Market', desc: 'Price holds above the 200-day average and the 50-day average sits above the 200-day — the long-term trend is up.', score: 85 },
-    bear: { name: 'Bear Market', desc: 'Price sits below the 200-day average with the 50-day below the 200-day — the long-term trend is down.', score: 15 },
-    correction: { name: 'Correction', desc: 'Price has slipped below the 50-day average but remains above the 200-day — a pullback inside an uptrend.', score: 60 },
-    recovery: { name: 'Recovery', desc: 'Price has climbed back above the 50-day average but is still below the 200-day — a bounce inside a downtrend.', score: 40 },
-    unknown: { name: 'Insufficient data', desc: 'Not enough history to classify the regime.', score: 50 }
+    bull: { name: 'Bull Market', cond: 'close above both averages', desc: 'Price holds above both the 50-day and 200-day averages — the trend is up on both horizons.' },
+    bear: { name: 'Bear Market', cond: 'close below both averages', desc: 'Price sits below both the 50-day and 200-day averages — the trend is down on both horizons.' },
+    correction: { name: 'Correction', cond: 'close below SMA50 but above SMA200', desc: 'Price has slipped below the 50-day average but remains above the 200-day — a pullback inside an uptrend.' },
+    recovery: { name: 'Recovery', cond: 'close above SMA50 but below SMA200', desc: 'Price has climbed back above the 50-day average but is still below the 200-day — a bounce inside a downtrend.' },
+    unknown: { name: 'Insufficient data', cond: 'not enough history', desc: 'Not enough history to classify the regime.' }
   };
 
   function render(r) {
     var meta = REGIME_META[r.regime] || REGIME_META.unknown;
-    // Gauge
-    var arc = $('rgGaugeArc');
-    var label = $('rgGaugeLabel');
-    var total = 267; // dasharray length
-    var target = total - (meta.score / 100) * total;
-    if (arc) {
-      arc.style.stroke = r.regime === 'bull' ? '#16a34a' : r.regime === 'bear' ? '#dc2626' : r.regime === 'correction' ? '#d97706' : '#2563eb';
-      requestAnimationFrame(function () { arc.style.strokeDashoffset = target; });
-    }
-    if (label) label.textContent = r.close.toLocaleString('en-IN', { maximumFractionDigits: 2 });
-    var nm = $('rgRegimeName');
-    if (nm) { nm.textContent = meta.name; nm.className = 'rg-regime-name ' + r.regime; }
-    var ds = $('rgRegimeDesc');
-    if (ds) ds.textContent = meta.desc;
+    // Classic lens line (the hero name/gauge/session are the confirmed
+    // board state, rendered by nd-regime-board.js).
+    var lens = $('rgClassicLens');
+    if (lens) lens.textContent = 'Classic lens: ' + meta.name + ' — ' + meta.cond + '.';
 
     // Signals
     var sig = $('rgSignals');
@@ -93,15 +89,11 @@
     var rules = $('rgRules');
     if (rules) {
       rules.innerHTML =
-        rule('bull', 'Bull Market', 'CLOSE &gt; SMA200 <b>and</b> SMA50 &gt; SMA200', 'Uptrend intact on both short and long horizons.') +
-        rule('bear', 'Bear Market', 'CLOSE &lt; SMA200 <b>and</b> SMA50 &lt; SMA200', 'Downtrend on both horizons.') +
+        rule('bull', 'Bull Market', 'CLOSE &gt; SMA200 <b>and</b> CLOSE &gt; SMA50', 'Uptrend intact on both short and long horizons.') +
+        rule('bear', 'Bear Market', 'CLOSE &lt; SMA200 <b>and</b> CLOSE &lt; SMA50', 'Downtrend on both horizons.') +
         rule('correction', 'Correction', 'CLOSE &lt; SMA50 <b>but</b> CLOSE &gt; SMA200', 'Short-term pullback inside a long-term uptrend.') +
         rule('recovery', 'Recovery', 'CLOSE &gt; SMA50 <b>but</b> CLOSE &lt; SMA200', 'Short-term bounce inside a long-term downtrend.');
     }
-
-    // Session
-    var sess = $('rgSession');
-    if (sess) sess.textContent = 'Index close ' + r.close.toLocaleString('en-IN', { maximumFractionDigits: 2 }) + ' · ' + r.date + ' · ' + r.coverage + ' · Source: NEPSE index history';
   }
   function signal(k, v, sub, bar) {
     return '<div class="rg-signal"><div><div class="sk">' + k + '</div>' +
@@ -124,8 +116,9 @@
   function renderTimeline(dates, closes) {
     var host = $('rgTimeline');
     var note = $('rgHistNote');
+    var ticks = $('rgTimelineTicks');
     if (!host) return;
-    // Monthly sampling
+    // Monthly sampling (last session of each month)
     var buckets = {};
     for (var i = 0; i < dates.length; i++) {
       var m = dates[i].slice(0, 7);
@@ -147,12 +140,29 @@
     host.innerHTML = merged.map(function (g) {
       return '<span class="' + g.r + '" style="flex-grow:' + g.n + '" title="' + g.from + ' · ' + g.r + ' (' + g.n + ' mo)"></span>';
     }).join('');
+    if (ticks) {
+      // Year ticks: first classified sample of every second year + last.
+      var firstYear = parseInt(segs[0].m.slice(0, 4), 10);
+      var lastYear = parseInt(segs[segs.length - 1].m.slice(0, 4), 10);
+      var seen = {};
+      var labels = [];
+      segs.forEach(function (s, i) {
+        var y = parseInt(s.m.slice(0, 4), 10);
+        if (seen[y]) return;
+        seen[y] = true;
+        if ((y - firstYear) % 2 === 0 || y === lastYear) {
+          labels.push('<span class="rg-tick" style="left:' + (i / segs.length * 100).toFixed(2) + '%"><i></i><em>' + y + '</em></span>');
+        }
+      });
+      ticks.innerHTML = labels.join('');
+    }
     if (note) {
       var counts = { bull: 0, bear: 0, correction: 0, recovery: 0 };
       segs.forEach(function (s) { counts[s.r] = (counts[s.r] || 0) + 1; });
       var tot = segs.length || 1;
       var best = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a]; })[0];
-      note.textContent = 'Monthly regime, ' + months[0] + ' → ' + months[months.length - 1] + ' (' + segs.length + ' months). ' +
+      note.textContent = 'Monthly regime, ' + months[0] + ' → ' + months[months.length - 1] + ' (' + segs.length + ' classified months; ' +
+        'first ' + (months.length - segs.length) + ' months excluded — SMA200 needs 200 sessions; 2020-04 had no session, market closed). ' +
         'Bull ' + Math.round(counts.bull / tot * 100) + '% · Bear ' + Math.round(counts.bear / tot * 100) + '% · ' +
         'Correction ' + Math.round(counts.correction / tot * 100) + '% · Recovery ' + Math.round(counts.recovery / tot * 100) + '%. ' +
         'Most common: ' + best + '.';
@@ -160,21 +170,31 @@
   }
 
   function init() {
-    if (!$('rgRegimeName')) return;
+    if (!$('rgSignals')) return;
     Promise.all([
       fetchJSON('/data/index-history.json').catch(function () { return null; }),
-      fetchJSON('/nepse-chart/data/index-spark.json').catch(function () { return null; })
+      fetchJSON('/nepse-chart/data/index-spark.json').catch(function () { return null; }),
+      // Board asof is the verified session cutoff: index-history carries
+      // a spurious 2026-10-19 row (a confirmed market holiday — no broker
+      // data exists for it), so signals + timeline must stop at the
+      // board's session, never at the file's last row.
+      fetchJSON('/data/market-regime.json').catch(function () { return null; })
     ]).then(function (res) {
-      var hist = res[0], spark = res[1];
+      var hist = res[0], spark = res[1], board = res[2];
+      var asof = board && board.asof ? board.asof : null;
+      function onOrBefore(d) { return !asof || d <= asof; }
       var dates = [], closes = [], cov = [];
       if (hist && hist.rows) {
-        hist.rows.forEach(function (r) { dates.push(parseDate(r[0])); closes.push(r[4]); });
+        hist.rows.forEach(function (r) {
+          var d = parseDate(r[0]);
+          if (onOrBefore(d)) { dates.push(d); closes.push(r[4]); }
+        });
         cov.push('2003–' + String(hist.to).slice(0, 4));
       }
       if (spark && spark.closes) {
         spark.closes.forEach(function (c) {
           var d = parseDate(c[0]);
-          if (dates.indexOf(d) === -1) { dates.push(d); closes.push(c[1]); }
+          if (onOrBefore(d) && dates.indexOf(d) === -1) { dates.push(d); closes.push(c[1]); }
         });
         cov.push('2026');
       }
@@ -192,8 +212,8 @@
       render(r);
       renderTimeline(dates, closes);
     }).catch(function () {
-      var nm = $('rgRegimeName');
-      if (nm) nm.textContent = 'Data unavailable';
+      var sig = $('rgSignals');
+      if (sig) sig.innerHTML = '<div class="rg-signal"><div class="sk">Data unavailable</div></div>';
     });
   }
 

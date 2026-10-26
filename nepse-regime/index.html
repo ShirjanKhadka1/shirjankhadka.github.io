@@ -7,7 +7,6 @@
 <meta name="theme-color" content="#0A0C10">
 <title>Market Regime: NEPSE Bull / Bear Dashboard | Nepse Decode</title>
 <link rel="stylesheet" href="/css/nd-tokens.css">
-<link rel="stylesheet" href="/css/nepse-design-system.css?v=8d179ee9">
 <meta name="description" content="NEPSE market regime dashboard: is the market in a bull, bear, correction or recovery phase? Computed from real index history with moving averages, RSI and drawdown. Educational use only.">
 <meta name="author" content="Shirjan Khadka">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-regime/">
@@ -24,9 +23,6 @@
 <meta name="twitter:description" content="Which phase is NEPSE in — bull, bear, correction or recovery? Real index history, transparent rules.">
 <meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
 <meta property="og:url" content="https://shirjankhadka.com.np/nepse-regime/">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Market Regime: NEPSE Bull / Bear Dashboard">
-<meta name="twitter:description" content="Which phase is NEPSE in? Real data, transparent rules.">
 <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
 <link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
@@ -41,13 +37,10 @@
 {"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-decode/"},
 {"@type":"ListItem","position":3,"name":"Market Regime","item":"https://shirjankhadka.com.np/nepse-regime/"}]}
 </script>
-<link rel="stylesheet" href="/css/theme.css?v=f9678c21">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
-<link rel="stylesheet" href="/css/nd-regime.css?v=da777f9c">
-<link rel="stylesheet" href="/css/nd-3d.css">
-<link rel="stylesheet" href="/css/nd-research-3d.css">
+<link rel="stylesheet" href="/css/nd-regime.css?v=94374c75">
 </head>
 <body class="nd" data-page="regime">
 
@@ -61,7 +54,7 @@
 <main id="main">
 
   <div class="rg-masthead">
-    <p class="nd-kicker">Research</p>
+    <p class="cx-kicker">Research</p>
     <h1 class="rg-title">Market Regime</h1>
     <p class="rg-lede">Which phase is NEPSE in — <strong>bull market, bear market, correction, or recovery</strong>? A transparent, rule-based read from real index history: no black boxes, every input shown.</p>
     <p class="rg-meta"><span id="rgSession">Loading…</span></p>
@@ -69,13 +62,20 @@
 
   <section class="rg-hero" aria-label="Current regime">
     <div class="rg-gauge-wrap">
-      <svg class="rg-gauge" viewBox="0 0 200 120" role="img" aria-label="Regime gauge">
+      <svg class="rg-gauge" viewBox="0 0 200 120" role="img" aria-label="NEPSE gap versus 200-day average, from minus 10 percent to plus 10 percent">
         <path d="M 20 105 A 85 85 0 0 1 180 105" fill="none" stroke="var(--nd-border)" stroke-width="14" stroke-linecap="round"/>
-        <path id="rgGaugeArc" d="M 20 105 A 85 85 0 0 1 180 105" fill="none" stroke="var(--nd-lime)" stroke-width="14" stroke-linecap="round" stroke-dasharray="267" stroke-dashoffset="267"/>
+        <line id="rgGaugeTickNeg" class="rg-gauge-tick" x1="0" y1="0" x2="0" y2="0"/>
+        <line id="rgGaugeTickPos" class="rg-gauge-tick" x1="0" y1="0" x2="0" y2="0"/>
+        <circle id="rgGaugeMarker" class="rg-gauge-marker" cx="100" cy="20" r="9"/>
+        <text id="rgGaugeBandNeg" class="rg-gauge-band" x="0" y="0"></text>
+        <text id="rgGaugeBandPos" class="rg-gauge-band" x="0" y="0"></text>
+        <text x="15" y="118" class="rg-gauge-band">−10%</text>
+        <text x="185" y="118" text-anchor="end" class="rg-gauge-band">+10%</text>
         <text id="rgGaugeLabel" x="100" y="88" text-anchor="middle" class="rg-gauge-text">—</text>
       </svg>
       <div class="rg-regime-name" id="rgRegimeName">Loading…</div>
       <div class="rg-regime-desc" id="rgRegimeDesc"></div>
+      <div class="rg-classic-lens" id="rgClassicLens"></div>
     </div>
     <div class="rg-signals" id="rgSignals"></div>
   </section>
@@ -88,7 +88,10 @@
   <section class="rg-section" aria-label="Regime history">
     <h2>Regime history</h2>
     <p class="rg-note" id="rgHistNote"></p>
-    <div class="rg-timeline" id="rgTimeline" aria-label="Regime timeline chart"></div>
+    <div class="rg-timeline-wrap">
+      <div class="rg-timeline" id="rgTimeline" aria-label="Regime timeline chart"></div>
+      <div class="rg-timeline-ticks" id="rgTimelineTicks" aria-hidden="true"></div>
+    </div>
     <div class="rg-legend">
       <span><i class="sw bull"></i>Bull</span>
       <span><i class="sw recovery"></i>Recovery</span>
@@ -103,12 +106,25 @@
     <div class="rgb-table-wrap">
       <table class="rgb-table" id="rgbTable">
         <thead><tr>
-          <th>Index</th><th>Regime</th><th>Age</th><th>vs SMA200</th><th>SMA200 slope (20d)</th><th>Breadth &gt; SMA50</th><th>Trust</th><th>Turn-risk (10 sessions)</th><th>Risk percentile</th>
+          <th>Index</th><th>Level</th><th>Regime</th><th>Age</th><th>vs SMA200</th><th>SMA200 slope (20d)</th><th>Breadth &gt; SMA50</th><th>Trust</th><th>Turn-risk (10 sessions)</th><th>Risk percentile</th>
         </tr></thead>
         <tbody id="rgbTableBody"></tbody>
       </table>
     </div>
     <p class="rg-note">Breadth = share of the index's own stocks trading above their own 50-day average. Trust is banded from the measured 10-session persistence of the current regime (HIGH ≥ 80%, MEDIUM 65–80%, LOW &lt; 65%) and is withheld for thin indexes with fewer than 10 stocks. Turn-risk is explained below.</p>
+  </section>
+
+  <section class="rg-section" id="rgConsSection" aria-label="Stocks in this index">
+    <h2>Stocks in this index</h2>
+    <p class="rg-note" id="rgConsNote">Loading…</p>
+    <div class="rg-pill-row" id="rgConsFilters" role="group" aria-label="Filter stocks by 50-day average"></div>
+    <div class="rg-cons-list" id="rgConsList"></div>
+    <div class="rg-pager">
+      <button type="button" class="rg-pagebtn" id="rgConsPrev">← Prev</button>
+      <span class="rg-pageinfo" id="rgConsPageInfo"></span>
+      <button type="button" class="rg-pagebtn" id="rgConsNext">Next →</button>
+    </div>
+    <p class="rg-note">Above/below is each stock's own last close versus its own 50-session average on the session (a stock counts only with at least 50 bars and a bar within 12 days). Sector membership is today's map applied historically, so delisted names are missing.</p>
   </section>
 
   <section class="rg-section" aria-label="Forecast reliability and turn-risk warnings">
@@ -125,13 +141,27 @@
     <p class="rg-note">A “forecast” here is simply the call that today's confirmed regime persists. Each percentage is that call's <strong>measured historical accuracy</strong>: the rule was replayed over the index's full history, and for every past session in the same regime we checked whether the regime was still in place 1, 5, 10 and 20 sessions later. It is measured history, not a model's prediction — past persistence does not guarantee the current regime will persist.</p>
   </section>
 
+  <section class="rg-section" aria-label="Recent sessions">
+    <h2>Recent sessions — the calls ledger</h2>
+    <p class="rg-note" id="rgLedgerNote">Loading…</p>
+    <div class="rgb-table-wrap">
+      <table class="rgb-table">
+        <thead><tr>
+          <th>Session</th><th>NEPSE state</th><th>Age</th><th>Gap vs SMA200</th><th>Breadth &gt; SMA50</th><th>Early warnings</th>
+        </tr></thead>
+        <tbody id="rgLedgerBody"></tbody>
+      </table>
+    </div>
+  </section>
+
   <section class="rg-section" aria-label="How this board is built">
     <h2>How this board is built</h2>
     <div class="rg-method">
-      <p><strong>Regime rule.</strong> For each index: gap = close ÷ 200-day average − 1. The raw state is BULL when the gap is at least +2%, BEAR when at most −2%, and RANGE in between. A different raw state must hold for <strong>5 consecutive sessions</strong> before the confirmed regime flips; the flip is stamped on that confirmation session, which becomes day 1 of the new regime (a “flip pending” tag shows while a change is being confirmed). The hero gauge and timeline above keep the older NEPSE-only labels (Bull / Bear / Correction / Recovery from the 50-day vs 200-day relationship): Correction is a pullback above the 200-day average (this board: BULL or RANGE), Recovery a bounce below it (RANGE or BEAR).</p>
+      <p><strong>Regime rule.</strong> For each index: gap = close ÷ 200-day average − 1. The raw state is BULL when the gap is at least +2%, BEAR when at most −2%, and RANGE in between. A different raw state must hold for <strong>5 consecutive sessions</strong> before the confirmed regime flips; the flip is stamped on that confirmation session, which becomes day 1 of the new regime (a “flip pending” tag shows while a change is being confirmed). The hero gauge plots the NEPSE row's confirmed gap on a −10% to +10% scale with the ±2% band edges marked. The classic lens line and timeline above keep the older NEPSE-only labels (Bull / Bear / Correction / Recovery from the 50-day vs 200-day relationship): Correction is a pullback above the 200-day average (this board: BULL or RANGE), Recovery a bounce below it (RANGE or BEAR).</p>
       <p><strong>Whose indexes?</strong> The NEPSE row is the official index (daily history from 2003). The 11 sector rows and the All-Share Composite are <strong>derived</strong>: equal-weight composites chained from the daily returns of their listed stocks, because official sub-index history is not published in a form we can archive. Sector membership is today's map applied historically, so delisted names are missing (survivorship) — the composites track the official sub-indices closely but are not identical to them. One known data gap: our index file is missing four sessions in September 2026 that the stock archive has (22, 23, 24, 28 Sep), so NEPSE session counts use the recorded sessions.</p>
       <p><strong>Turn-risk.</strong> For each index we measure, from the same replay, how often a regime stopped holding 10 sessions later — broken down by how old the regime is for its kind (age percentile), how close the index sits to the ±2% band edge, and whether breadth is moving against the regime. Cells with little history fall back to coarser groupings and finally to the regime's base rate. The model is validated on a held-out era (fit on the first 60% of sessions, scored on the last 40%): any index whose conditional model fails to beat its own base rate out-of-sample publishes the base rate instead, and its row says so. The risk percentile ranks today's estimate among the estimates the same model assigns to that index's own past sessions; at or above the 90th percentile the index is flagged early-warning.</p>
       <p><strong>Daily ledger.</strong> Every session's calls are appended to a permanent record (data/regime-calls.json) so the forward accuracy of these calls accumulates for real, alongside the replayed history above.</p>
+      <p class="rg-note" id="rgbValidLine"></p>
     </div>
   </section>
 
@@ -144,7 +174,8 @@
 
 <div id="nd-footer"></div>
 <script src="/js/nd-chrome.js?v=74c1c8b7"></script>
-<script src="/js/nd-regime.js?v=db9e0e4e"></script>
-<script src="/js/nd-regime-board.js?v=011f4878"></script>
+<script defer src="/js/freshness-badge.js?v=9b77cf10"></script>
+<script src="/js/nd-regime.js?v=24e6d0c2"></script>
+<script src="/js/nd-regime-board.js?v=292c5a6d"></script>
 </body>
 </html>
