@@ -40,7 +40,7 @@
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
-<link rel="stylesheet" href="/css/nd-price-push.css?v=55a8a6b3">
+<link rel="stylesheet" href="/css/nd-price-push.css?v=b079341e">
 </head>
 <body class="nd" data-page="price-push">
 
@@ -67,10 +67,33 @@
       caused it: every buy has a seller, and flow beside a rise is not
       proof the flow made the rise.</p>
     <p class="pp-meta"><span id="ppSession">Loading…</span></p>
+    <div class="pp-hero-push" id="heroPush" aria-label="Top push this window"></div>
   </div>
 
   <div class="cx-stats pp-stats" id="statStrip" aria-label="Board summary"></div>
   <p class="pp-note" id="coverageNote"></p>
+
+  <section class="pp-catsec" aria-label="Stocks by sector" id="sectors">
+    <h2 class="pp-h2 pp-h2-sec">Stocks by sector</h2>
+    <p class="pp-chartsub">Pick a sector to see its pushed stocks —
+      every riser in that sector, with its lead pusher and push share.
+      With no sector picked, the list shows each sector's top riser.</p>
+    <div class="pp-sector-grid" id="sectorGrid" role="group" aria-label="Sectors"></div>
+    <div class="pp-sector-head" id="sectorHead"></div>
+    <div class="cx-scroll pp-tablewrap">
+      <table class="cx-table" id="sectorTable">
+        <thead><tr>
+          <th class="num">#</th><th id="sectorCol1">Sector</th><th>Symbol</th>
+          <th class="num">Return</th><th class="num">Close</th>
+          <th>Lead pusher</th><th class="num">Lead share</th>
+          <th class="num">Top-3 share</th><th class="num">Net buying</th>
+          <th class="num">Turnover</th><th class="num">Impact / crore</th>
+        </tr></thead>
+        <tbody id="sectorBody"><tr><td colspan="11" class="pp-loading">Loading sectors…</td></tr></tbody>
+      </table>
+    </div>
+    <p class="cx-cap" id="sectorCount"></p>
+  </section>
 
   <section class="pp-catsec" aria-label="Pushed stocks" id="board">
     <h2 class="pp-h2 pp-h2-sec">Stocks being pushed up</h2>
@@ -111,6 +134,7 @@
       </table>
     </div>
     <p class="cx-cap" id="boardCount"></p>
+    <div class="pp-pager" id="boardPager"></div>
   </section>
 
   <section class="pp-catsec" aria-label="Stock detail" id="detail">
@@ -145,6 +169,7 @@
   <section class="pp-catsec" aria-label="Measured record" id="forward">
     <h2 class="pp-h2 pp-h2-sec">What dominant pushes were followed by — the measured replay</h2>
     <p class="pp-chartsub" id="forwardSub">Loading the replay…</p>
+    <div class="pp-fwd-bars" id="forwardBars" aria-label="Dominant push versus other risers, mean forward return"></div>
     <div class="cx-scroll pp-tablewrap">
       <table class="cx-table" id="forwardTable">
         <thead><tr>
@@ -165,6 +190,7 @@
     <p class="pp-chartsub">The board's session ledger — one row per
       published session, never edited after the fact. The ledger starts
       with the 2026-10-16 session.</p>
+    <div class="pp-hist-bars" id="historyBars" aria-label="Risers per published session"></div>
     <div class="cx-scroll pp-tablewrap">
       <table class="cx-table" id="historyTable">
         <thead><tr>
@@ -197,6 +223,6 @@
 <div id="nd-footer"></div>
 <script src="/js/nd-chrome.js?v=74c1c8b7"></script>
 <script src="/js/freshness-badge.js?v=9b77cf10" defer></script>
-<script src="/js/price-push.js?v=0c4bc92b"></script>
+<script src="/js/price-push.js?v=dded6bca"></script>
 </body>
 </html>

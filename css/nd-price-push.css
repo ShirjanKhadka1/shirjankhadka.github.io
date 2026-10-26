@@ -49,7 +49,7 @@
 .pp-sharebar i{display:block;height:100%;background:var(--nd-lime)}
 
 /* skilled flag chip */
-.pp-skilled{display:inline-block;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:600;white-space:nowrap;background:var(--nd-lime);color:#07130c}
+.pp-skilled{display:inline-block;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:600;white-space:nowrap;background:var(--nd-lime);color:var(--nd-on-lime)}
 
 /* ---- detail ---- */
 .pp-detail-head{font-family:var(--nd-font-display, Spectral, serif);font-size:24px;margin:18px 0 4px}
@@ -67,4 +67,92 @@
 @media (max-width:560px){
   .pp-ladder{grid-template-columns:1fr}
   .pp-title{font-size:30px}
+}
+
+/* ---- canvas: match the Overview page, not the shared cream wash ---- */
+/* Same theme-scoped pin as the money-flow/volume rebuilds: the shared
+   theme.css carries a [data-theme="dark"] body.nd rule that a plain
+   body.nd pin would lose to in dark. Overview values, via the token:
+   light #F6F7F9, dark #0A0C10. (The unpinned page showed the shared
+   cream wash --paper #FAF7F0 in light and an unpainted body in dark.) */
+[data-theme="dark"] body.nd, [data-theme="light"] body.nd{ background: var(--nd-bg); }
+/* Design-master trap: every page sets its base font, never Times. */
+body.nd{ font-family: var(--nd-font-sans); }
+
+/* ---- cinematic hero: the push itself is the hero, not a stat strip ---- */
+.pp-masthead{ background: var(--nd-panel); border: 1px solid var(--nd-border); border-radius: var(--nd-r-card, 18px); padding: 24px 28px; box-shadow: var(--nd-rim, none), var(--nd-e2, none); margin: 8px 0 24px; }
+.pp-title{ font-size: clamp(2rem, 4vw, 3rem); }
+.pp-hero-push{ margin-top: 20px; background: var(--nd-panel-2); border: 1px solid var(--nd-border); border-radius: 14px; padding: 16px 20px; }
+.pp-hero-kick{ font-family: var(--nd-font-mono, monospace); font-size: 11px; text-transform: uppercase; letter-spacing: .14em; color: var(--nd-dim); margin-bottom: 8px; }
+.pp-hero-row{ display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.pp-hero-sym{ font-family: var(--nd-font-mono, monospace); font-size: 20px; font-weight: 700; color: var(--nd-text); }
+.pp-hero-ret{ font-family: var(--nd-font-display, Spectral, serif); font-size: clamp(2rem, 5vw, 3.25rem); font-weight: 700; color: var(--nd-up); line-height: 1; }
+.pp-hero-lead{ font-size: 15px; color: var(--nd-text); margin-top: 8px; }
+.pp-hero-bar{ display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+.pp-hero-track{ display: block; flex: 1; max-width: 420px; height: 12px; background: var(--nd-inset); border-radius: 999px; overflow: hidden; }
+.pp-hero-track i{ display: block; height: 100%; background: var(--nd-lime); border-radius: 999px; }
+.pp-hero-barlbl{ font-family: var(--nd-font-mono, monospace); font-size: 12px; color: var(--nd-dim); white-space: nowrap; }
+.pp-hero-meta{ display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 12px; font-family: var(--nd-font-mono, monospace); font-size: 12px; color: var(--nd-dim); }
+
+/* ---- stat numerals are Spectral (design master) ---- */
+.pp-stats .cx-stat .num{ font-family: var(--nd-font-display, Spectral, serif); font-size: 32px; }
+
+/* ---- window tabs: design-rich segmented pills; .on + aria-selected
+   are set from the same state on every render, so they never disagree ---- */
+#winTabs{ display: flex; gap: 6px; background: var(--nd-inset); border: 1px solid var(--nd-border); border-radius: 999px; padding: 4px; overflow-x: auto; scrollbar-width: none; }
+#winTabs::-webkit-scrollbar{ display: none; }
+#winTabs .pp-wintab{ flex-shrink: 0; appearance: none; border: 0; background: transparent; color: var(--nd-muted); font-weight: 600; font-size: .86rem; padding: 8px 16px; border-radius: 999px; cursor: pointer; min-height: 38px; transition: background .15s ease, color .15s ease, box-shadow .15s ease; }
+#winTabs .pp-wintab:hover{ color: var(--nd-text); }
+#winTabs .pp-wintab:focus-visible{ outline: none; box-shadow: var(--nd-focus-ring); }
+#winTabs .pp-wintab.on{ background: var(--nd-lime); color: var(--nd-on-lime); box-shadow: 0 4px 14px rgba(0,0,0,.18); }
+
+/* ---- sector cards: one button per sector, active = lime rim + wash ---- */
+.pp-sector-grid{ display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; margin: 0 0 16px; }
+.pp-sector-card{ text-align: left; background: var(--nd-panel); border: 1px solid var(--nd-border); border-radius: 16px; padding: 14px 16px; box-shadow: var(--nd-rim, none), var(--nd-e1, none); cursor: pointer; color: var(--nd-text); font-family: inherit; transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
+@media (hover:hover){ .pp-sector-card:hover{ transform: translateY(-2px); border-color: var(--nd-border-strong); box-shadow: var(--nd-rim, none), var(--nd-e2, none); } }
+.pp-sector-card:focus-visible{ outline: none; box-shadow: var(--nd-focus-ring); }
+.pp-sector-card.on{ border-color: var(--nd-lime); background: var(--nd-lime-faint); }
+.pp-sec-name{ display: block; font-weight: 700; font-size: 15px; margin-bottom: 2px; }
+.pp-sector-card.on .pp-sec-name::before{ content: ""; display: inline-block; width: 9px; height: 9px; background: var(--nd-lime); margin-right: 8px; }
+.pp-sec-count{ display: block; font-family: var(--nd-font-display, Spectral, serif); font-size: 30px; font-weight: 700; line-height: 1.1; }
+.pp-sec-meta{ display: block; font-family: var(--nd-font-mono, monospace); font-size: 12px; color: var(--nd-dim); margin-top: 6px; line-height: 1.5; }
+.pp-sec-bar{ display: block; height: 8px; background: var(--nd-inset); border-radius: 999px; overflow: hidden; margin-top: 10px; }
+.pp-sec-bar i{ display: block; height: 100%; background: var(--nd-lime); border-radius: 999px; }
+.pp-sector-head{ font-family: var(--nd-font-display, Spectral, serif); font-size: 20px; margin: 18px 0 12px; }
+
+/* ---- controls: the detail stock select carries 400+ "SYM — Full
+   Company Name" options; without a shrink allowance the longest
+   option forced the whole detail section past the viewport on phones
+   (measured 692px at 390px). Flex children must be allowed to shrink,
+   and selects/search must never exceed their row. ---- */
+.pp-controls > *{ min-width: 0; }
+.pp-sel, .pp-search{ max-width: 100%; }
+.pp-pager{ display: flex; align-items: center; gap: 10px; margin: 14px 0 4px; }
+.pp-pagebtn{ appearance: none; background: var(--nd-panel); color: var(--nd-text); border: 1px solid var(--nd-border); border-radius: 999px; padding: 8px 18px; font-weight: 600; font-size: 14px; cursor: pointer; transition: border-color .15s ease, box-shadow .15s ease; }
+.pp-pagebtn:hover:not(:disabled){ border-color: var(--nd-lime); box-shadow: var(--nd-e1, none); }
+.pp-pagebtn:focus-visible{ outline: none; box-shadow: var(--nd-focus-ring); }
+.pp-pagebtn:disabled{ opacity: .45; cursor: default; }
+.pp-pagenum{ font-family: var(--nd-font-mono, monospace); font-size: 12px; color: var(--nd-dim); }
+
+/* ---- forward bars: paired means, sign-coloured, values printed ---- */
+.pp-fwd-bars{ margin: 0 0 16px; display: grid; gap: 10px; max-width: 760px; }
+.pp-fwd-row{ display: grid; grid-template-columns: 150px 1fr 90px; gap: 12px; align-items: center; }
+.pp-fwd-lbl{ font-size: 13px; color: var(--nd-text); }
+.pp-fwd-track{ display: block; height: 12px; background: var(--nd-inset); border-radius: 999px; overflow: hidden; }
+.pp-fwd-track i{ display: block; height: 100%; border-radius: 999px; }
+.pp-fwd-track i.up{ background: var(--nd-up); }
+.pp-fwd-track i.down{ background: var(--nd-down); }
+.pp-fwd-val{ font-family: var(--nd-font-mono, monospace); font-size: 13px; text-align: right; }
+@media (max-width:560px){ .pp-fwd-row{ grid-template-columns: 1fr; } .pp-fwd-val{ text-align: left; } }
+
+/* ---- history bars: one column per published session, grows nightly ---- */
+.pp-hist-bars{ display: flex; align-items: flex-end; gap: 12px; margin: 0 0 16px; overflow-x: auto; padding-top: 4px; }
+.pp-hist-bar{ display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 44px; }
+.pp-hist-n{ font-family: var(--nd-font-mono, monospace); font-size: 12px; font-weight: 600; }
+.pp-hist-col{ display: flex; align-items: flex-end; height: 90px; }
+.pp-hist-col i{ display: block; width: 26px; background: var(--nd-lime); border-radius: 6px 6px 0 0; }
+.pp-hist-d{ font-family: var(--nd-font-mono, monospace); font-size: 11px; color: var(--nd-dim); }
+
+@media (prefers-reduced-motion: reduce){
+  .pp-sector-card, #winTabs .pp-wintab, .pp-pagebtn{ transition: none; }
 }

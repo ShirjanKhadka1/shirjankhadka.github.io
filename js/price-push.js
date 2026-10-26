@@ -5,9 +5,25 @@
 (function () {
   'use strict';
   var WINDOWS = [1, 7, 15, 30, 90, 180, 365];
-  var VT = '?v=20261024b';
-  function dataUrl(w) { return '/data/price-push-' + w + '.json' + VT; }
-  var HIST = '/data/price-push-history.json' + VT;
+  var VT = '?v=20261024b'; // fallback only; the manifest wins when it loads
+  var SHAS = null; // {windows: {w: sha8}, history: sha8} from the manifest
+  function dataUrl(w) {
+    var v = (SHAS && SHAS.windows && SHAS.windows[w]) ? '?v=' + SHAS.windows[w] : VT;
+    return '/data/price-push-' + w + '.json' + v;
+  }
+  function histUrl() {
+    var v = (SHAS && SHAS.history) ? '?v=' + SHAS.history : VT;
+    return '/data/price-push-history.json' + v;
+  }
+  function loadManifest() {
+    // Tiny file, fetched no-store: it carries the per-payload SHA stamp,
+    // so a board published after tonight's close can never hide behind
+    // yesterday's cached JSON. A failed fetch falls back to the old VT.
+    return fetch('/data/price-push-manifest.json', { cache: 'no-store' })
+      .then(function (r) { return r.json(); })
+      .then(function (j) { SHAS = j; })
+      .catch(function () { SHAS = null; });
+  }
   function $(id) { return document.getElementById(id); }
   function esc(s) {
     return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
@@ -57,6 +73,7 @@
   var P = null, P30 = null, HISTD = null;
   var curWin = 30, curSector = 'all', curSort = 'return', curSearch = '';
   var curSym = null;
+  var curPage = 0, PER_PAGE = 25;
 
   function renderMeta() {
     var m = P.market;
@@ -97,6 +114,149 @@
     if (keep && secs[keep]) sel.value = keep; else curSector = 'all';
   }
 
+  function renderHero() {
+    var host = $('heroPush');
+    if (!host) return;
+    var top = P.board.length ? P.board[0] : null;
+    if (!top) { host.innerHTML = ''; return; }
+    var ld = top.lead;
+    var ldName = ld ? esc(ld.name || ld.broker) + ' (' + ld.broker + ')' : '—';
+    host.innerHTML =
+      '<div class="pp-hero-kick">Top push · ' + P.window_days + '-day window</div>' +
+      '<div class="pp-hero-row"><span class="pp-hero-sym">' + top.symbol + '</span>' +
+      '<span class="pp-hero-ret">' + pct(top.return_pct) + '</span></div>' +
+      '<div class="pp-hero-lead">Led by <b>' + ldName + '</b>' +
+      (ld ? ' · ' + ld.share_pct.toFixed(1) + '% of the net buying' : '') + '</div>' +
+      (ld ? '<div class="pp-hero-bar"><span class="pp-hero-track"><i style="width:' +
+        Math.max(0, Math.min(100, ld.share_pct)).toFixed(1) + '%"></i></span>' +
+        '<span class="pp-hero-barlbl">lead share ' + ld.share_pct.toFixed(1) + '%</span></div>' : '') +
+      '<div class="pp-hero-meta"><span>Net buying ' + money(top.net_buying) + '</span>' +
+      '<span>Turnover ' + money(top.turnover) + '</span>' +
+      '<span>Impact ' + (top.impact_pp_per_crore === null ? '—' :
+        pp(top.impact_pp_per_crore) + '/cr') + '</span>' +
+      '<span>Close ' + num(top.close, 2) + '</span></div>';
+  }
+
+  function sectorGroups() {
+    var g = {};
+    P.board.forEach(function (r) {
+      var s = r.sector || 'Unclassified';
+      if (!g[s]) g[s] = { name: s, rows: [], net: 0, turnover: 0 };
+      g[s].rows.push(r);
+      g[s].net += r.net_buying;
+      g[s].turnover += r.turnover;
+    });
+    var tot = P.board.reduce(function (a, r) { return a + r.net_buying; }, 0);
+    return Object.keys(g).sort(function (a, b) {
+      return g[b].rows.length - g[a].rows.length;
+    }).map(function (s) {
+      var grp = g[s];
+      var top = grp.rows.slice().sort(function (a, b) {
+        return b.return_pct - a.return_pct;
+      })[0];
+      var shares = grp.rows.map(function (r) {
+        return r.lead ? r.lead.share_pct : 0;
+      }).sort(function (a, b) { return a - b; });
+      var med = shares.length ? shares[Math.floor(shares.length / 2)] : 0;
+      return { name: s, rows: grp.rows, count: grp.rows.length,
+        net: grp.net, turnover: grp.turnover, top: top,
+        medianLead: med, netShare: tot ? 100 * grp.net / tot : 0 };
+    });
+  }
+
+  function renderSectorBlock() {
+    var grid = $('sectorGrid');
+    if (!grid || !P) return;
+    var groups = sectorGroups();
+    if (curSector !== 'all' && !groups.some(function (g) {
+      return g.name === curSector;
+    })) {
+      curSector = 'all';
+      $('sectorSel').value = 'all';
+    }
+    grid.innerHTML = groups.map(function (gr) {
+      var on = curSector === gr.name;
+      return '<button type="button" class="pp-sector-card' + (on ? ' on' : '') +
+        '" aria-pressed="' + on + '" data-sector="' + esc(gr.name) + '">' +
+        '<span class="pp-sec-name">' + esc(gr.name) + '</span>' +
+        '<span class="pp-sec-count">' + gr.count + '</span>' +
+        '<span class="pp-sec-meta">stocks pushed · top ' + gr.top.symbol +
+        ' ' + pct(gr.top.return_pct) + '</span>' +
+        '<span class="pp-sec-bar"><i style="width:' +
+        Math.max(0, Math.min(100, gr.netShare)).toFixed(1) + '%"></i></span>' +
+        '<span class="pp-sec-meta">Net buying ' + money(gr.net) +
+        ' · median lead ' + gr.medianLead.toFixed(1) + '%</span></button>';
+    }).join('');
+    Array.prototype.forEach.call(
+      document.querySelectorAll('#sectorGrid .pp-sector-card'),
+      function (btn) {
+        btn.addEventListener('click', function () {
+          curSector = btn.getAttribute('data-sector');
+          $('sectorSel').value = curSector;
+          curPage = 0;
+          renderSectorBlock();
+          renderBoard();
+        });
+      });
+    renderSectorList(groups);
+  }
+
+  function sectorRow(r, i, withSector) {
+    var ld = r.lead;
+    var ldTxt = ld ? esc(ld.name || ld.broker) + ' (' + ld.broker + ')' +
+      skilledChip(ld) : '—';
+    return '<tr class="pp-rowclick" data-sym="' + r.symbol + '">' +
+      '<td class="num">' + (i + 1) + '</td>' +
+      (withSector ? '<td>' + esc(r.sector || '—') + '</td>' : '') +
+      '<td><b>' + r.symbol + '</b></td>' +
+      '<td class="num">' + pct(r.return_pct) + '</td>' +
+      '<td class="num">' + num(r.close, 2) + '</td>' +
+      '<td>' + ldTxt + '</td>' +
+      '<td class="num">' + (ld ? shareBar(ld.share_pct) : '—') + '</td>' +
+      '<td class="num">' + num(r.top3_share_pct, 1) + '%</td>' +
+      '<td class="num">' + money(r.net_buying) + '</td>' +
+      '<td class="num">' + money(r.turnover) + '</td>' +
+      '<td class="num">' + (r.impact_pp_per_crore === null ? '—' :
+        pp(r.impact_pp_per_crore) + '/cr') + '</td></tr>';
+  }
+
+  function renderSectorList(groups) {
+    var head = $('sectorHead'), body = $('sectorBody'),
+      cap = $('sectorCount');
+    if (!head || !body) return;
+    if (curSector === 'all') {
+      head.innerHTML = 'Every sector\u2019s top riser — ' +
+        groups.length + ' sectors pushed stocks this window.';
+      body.innerHTML = groups.map(function (gr, i) {
+        return sectorRow(gr.top, i, true);
+      }).join('');
+      cap.textContent = groups.length + ' sectors · one top riser each · ' +
+        'pick a sector card above to see all its pushed stocks.';
+    } else {
+      var gr = null;
+      groups.forEach(function (g) { if (g.name === curSector) gr = g; });
+      if (!gr) { body.innerHTML = ''; cap.textContent = ''; return; }
+      head.innerHTML = esc(gr.name) + ' — ' + gr.count +
+        ' pushed stocks · net buying ' + money(gr.net) +
+        ' · top riser ' + gr.top.symbol + ' ' + pct(gr.top.return_pct);
+      var rows = gr.rows.slice().sort(function (a, b) {
+        return b.return_pct - a.return_pct;
+      });
+      body.innerHTML = rows.map(function (r, i) {
+        return sectorRow(r, i, true);
+      }).join('');
+      cap.textContent = rows.length + ' risers in ' + gr.name +
+        ' on the ' + P.window_days + '-day window.';
+    }
+    Array.prototype.forEach.call(
+      document.querySelectorAll('#sectorBody tr[data-sym]'),
+      function (tr) {
+        tr.addEventListener('click', function () {
+          selectSymbol(tr.getAttribute('data-sym'));
+        });
+      });
+  }
+
   function boardRows() {
     var rows = P.board.filter(function (r) {
       if (curSector !== 'all' && r.sector !== curSector) return false;
@@ -127,7 +287,12 @@
 
   function renderBoard() {
     var rows = boardRows();
-    $('boardBody').innerHTML = rows.map(function (r, i) {
+    var totalPages = Math.max(1, Math.ceil(rows.length / PER_PAGE));
+    if (curPage >= totalPages) curPage = totalPages - 1;
+    if (curPage < 0) curPage = 0;
+    var start = curPage * PER_PAGE;
+    var pageRows = rows.slice(start, start + PER_PAGE);
+    $('boardBody').innerHTML = pageRows.map(function (r, i) {
       var ld = r.lead;
       var ldTxt = ld ? esc(ld.name || ld.broker) + ' (' + ld.broker + ')' +
         skilledChip(ld) : '—';
@@ -135,7 +300,7 @@
         ' <span title="Measured from ' + r.base_date +
         ', the stock\'s first available close, not the window start">*</span>' : '');
       return '<tr class="pp-rowclick" data-sym="' + r.symbol + '">' +
-        '<td class="num">' + (i + 1) + '</td>' +
+        '<td class="num">' + (start + i + 1) + '</td>' +
         '<td><b>' + r.symbol + '</b></td>' +
         '<td>' + esc(r.sector || '—') + '</td>' +
         '<td class="num">' + ret + '</td>' +
@@ -149,10 +314,30 @@
           pp(r.impact_pp_per_crore) + '/cr') + '</td></tr>';
     }).join('') || '<tr><td colspan="11" class="pp-loading">' +
       'No risers match the filter.</td></tr>';
-    $('boardCount').textContent = rows.length + ' risers shown of ' +
-      P.board.length + ' on the ' + P.window_days + '-day window' +
+    var end = rows.length ? Math.min(rows.length, start + PER_PAGE) : 0;
+    $('boardCount').textContent = 'Showing ' + (rows.length ? start + 1 : 0) +
+      '–' + end + ' of ' + rows.length + ' risers' +
+      (rows.length !== P.board.length ? ' (filtered from ' + P.board.length + ')' : '') +
       ' · * partial: return measured from the stock\'s first available ' +
       'close (see Methodology).';
+    var pager = $('boardPager');
+    if (pager) {
+      pager.innerHTML =
+        '<button type="button" class="pp-pagebtn" data-dir="-1"' +
+        (curPage === 0 ? ' disabled' : '') + '>← Prev</button>' +
+        '<span class="pp-pagenum">Page ' + (curPage + 1) + ' of ' +
+        totalPages + '</span>' +
+        '<button type="button" class="pp-pagebtn" data-dir="1"' +
+        (curPage >= totalPages - 1 ? ' disabled' : '') + '>Next →</button>';
+      Array.prototype.forEach.call(
+        document.querySelectorAll('#boardPager .pp-pagebtn'),
+        function (b) {
+          b.addEventListener('click', function () {
+            curPage += parseInt(b.getAttribute('data-dir'), 10);
+            renderBoard();
+          });
+        });
+    }
     Array.prototype.forEach.call(
       document.querySelectorAll('#boardBody tr[data-sym]'),
       function (tr) {
@@ -241,6 +426,23 @@
       pp(f.spread_dom_minus_rest_pp) + '. ' + f.note +
       ' Dominant-push readings are few (n=' + f.dominant_push.n +
       '); treat the gap as measured description, not a signal.';
+    var bars = $('forwardBars');
+    if (bars) {
+      var mx = Math.max(Math.abs(f.dominant_push.mean_fwd_pct || 0),
+        Math.abs(f.other_risers.mean_fwd_pct || 0), 0.01);
+      function fwdBar(lbl, s) {
+        var v = s.mean_fwd_pct;
+        var w = v === null ? 0 : Math.abs(v) / mx * 100;
+        var cls = v === null ? '' : (v >= 0 ? ' up' : ' down');
+        return '<div class="pp-fwd-row"><span class="pp-fwd-lbl">' + lbl +
+          ' (n=' + s.n + ')</span><span class="pp-fwd-track"><i class="' +
+          cls + '" style="width:' + w.toFixed(1) + '%"></i></span>' +
+          '<span class="pp-fwd-val">' + (v === null ? '—' : pp(v)) +
+          '</span></div>';
+      }
+      bars.innerHTML = fwdBar('Dominant push', f.dominant_push) +
+        fwdBar('Other risers', f.other_risers);
+    }
   }
 
   function renderHistory() {
@@ -256,6 +458,20 @@
           '</td><td class="num">' + (e.median_lead_share_pct === null ?
             '—' : e.median_lead_share_pct.toFixed(1) + '%') + '</td></tr>';
       }).join('');
+    var bars = $('historyBars');
+    if (bars) {
+      var mx = 0;
+      HISTD.entries.forEach(function (e) {
+        mx = Math.max(mx, e.risers || 0);
+      });
+      bars.innerHTML = HISTD.entries.map(function (e) {
+        var h = mx ? (e.risers || 0) / mx * 100 : 0;
+        return '<div class="pp-hist-bar"><span class="pp-hist-n">' +
+          (e.risers || 0) + '</span><span class="pp-hist-col"><i style="height:' +
+          h.toFixed(1) + '%"></i></span><span class="pp-hist-d">' +
+          e.asof.slice(5) + '</span></div>';
+      }).join('');
+    }
   }
 
   function renderMethod() {
@@ -293,8 +509,11 @@
   }
 
   function renderTabs() {
+    // .on AND aria-selected are set from the same state on every render,
+    // so the lime pill and the selected flag can never disagree.
     $('winTabs').innerHTML = WINDOWS.map(function (w) {
-      return '<button type="button" role="tab" aria-selected="' +
+      return '<button type="button" class="pp-wintab' +
+        (w === curWin ? ' on' : '') + '" role="tab" aria-selected="' +
         (w === curWin) + '" data-w="' + w + '">' + w + 'D</button>';
     }).join('');
     Array.prototype.forEach.call(
@@ -324,9 +543,12 @@
     return fetch(dataUrl(w)).then(function (r) { return r.json(); })
       .then(function (j) {
         P = j;
+        curPage = 0;
         renderTabs();
         renderMeta();
+        renderHero();
         renderBoard();
+        renderSectorBlock();
         var sel = $('symSel');
         var keep = curSym;
         sel.innerHTML = '<option value="">— pick a stock —</option>' +
@@ -347,19 +569,21 @@
   }
 
   function init() {
+    loadManifest().then(function () {
     renderTabs();
     var fwd = fetch(dataUrl(30)).then(function (r) { return r.json(); })
       .then(function (j) { P30 = j; renderForward(); });
-    var hist = fetch(HIST).then(function (r) { return r.json(); })
+    var hist = fetch(histUrl()).then(function (r) { return r.json(); })
       .then(function (j) { HISTD = j; renderHistory(); });
     $('sectorSel').addEventListener('change', function (e) {
-      curSector = e.target.value; renderBoard();
+      curSector = e.target.value; curPage = 0;
+      renderSectorBlock(); renderBoard();
     });
     $('sortSel').addEventListener('change', function (e) {
-      curSort = e.target.value; renderBoard();
+      curSort = e.target.value; curPage = 0; renderBoard();
     });
     $('symSearch').addEventListener('input', function (e) {
-      curSearch = e.target.value.trim(); renderBoard();
+      curSearch = e.target.value.trim(); curPage = 0; renderBoard();
     });
     $('symSel').addEventListener('change', function (e) {
       if (e.target.value) selectSymbol(e.target.value);
@@ -368,6 +592,7 @@
       .catch(function (err) {
         $('ppSession').textContent = 'Failed to load the board: ' + err;
       });
+    });
   }
 
   if (document.readyState === 'loading') {
