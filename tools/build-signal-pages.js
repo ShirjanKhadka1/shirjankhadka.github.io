@@ -94,6 +94,12 @@ function page(sys, data) {
     card('Alpha vs NEPSE', pct(st.alpha_pct), st.alpha_pct >= 0 ? 'up' : 'down');
 
   const backtestNoteHtml = backtestNote(sys, st);
+  /* Reversal-only top banner (his call 2026-10-26): a losing system as
+   * specified, stated up front in the existing note treatment — copy only,
+   * no new styling, so the page's visual design is untouched. */
+  const bannerHtml = (sys === 'reversal')
+    ? '<div class="note"><strong>Losing system as specified — educational only.</strong> This system\'s backtest profit factor is ' + fmt(st.profit_factor) + ' — below 1.0, so it gave back more than it took. It is published for education, not as something to trade.</div>'
+    : '';
   const nepaliNoteHtml = nepaliNote(sys, st);
   const howtoNoteHtml = '<strong>How to read this.</strong> Every number below comes from a mechanical replay of these exact rules on historical NEPSE data (' + st.backtest_from + ' to ' + st.backtest_to + ', ' + data.universe_symbols + ' symbols, Rs 1 Cr portfolio, max 10 positions, ' + data.costs + '). Nothing is hand-picked. The <strong>Live forward record</strong> above tracks the same rules against real sessions since forward tracking began — that is the number to watch. Past performance does not predict future results.';
 
@@ -158,6 +164,7 @@ function page(sys, data) {
 <div id="nd-header"></div>
 <main id="main" class="sig-wrap">
 <nav class="sig-tabs" aria-label="Signal systems">${tabs}</nav>
+${bannerHtml}
 
 <p class="sig-kicker">Nepse Decode &middot; Chart &amp; signals &middot; rule-based, no black boxes</p>
 <h1>${title}</h1>
