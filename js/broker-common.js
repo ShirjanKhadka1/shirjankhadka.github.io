@@ -46,19 +46,39 @@ function fetchPeriodCached(url){
 }
 function loadPeriod(p, asof){
   var url;
-  if (p === 'latest') url = BASE+'intraday.json';
-  else if (p === 'asof') url = BASE+'daily/'+asof+'.json';
+  if (p === 'latest') {
+    /* FIX (2026-10-26, trade-pattern teardown): intraday.json never exists
+       (live 404) — the old code always fell through to the 1D fallback.
+       The live intraday feed is intraday-provisional.json, which is
+       SYMBOL-ONLY (no broker splits), so it cannot serve broker-split
+       views. Rule, same as the brokers main page: fetch the provisional
+       file (no-store) to learn its state, then serve the last final 1D
+       data with the state attached. Pages that only render broker splits
+       get exactly the same 1D + _fallback shape as before, so this is
+       backward-compatible with every subpage sharing this file; the new
+       _provState/_provAsOf fields are additive and ignored by pages
+       that don't read them. If a future provisional file ever carries
+       broker splits (symbol_only false), it is returned as-is. */
+    return fetch(BASE+'intraday-provisional.json', {cache: 'no-store'}).then(function(r){
+      if(!r.ok) throw new Error('no-prov');
+      return r.json();
+    }).then(function(prov){
+      if (prov && prov.symbol_only) {
+        return fetchPeriodCached(BASE+'periods/1D.json').then(function(d){
+          return Object.assign({}, d, { _fallback: true, _provState: 'symbol-only', _provAsOf: prov.asof || prov.date || null });
+        });
+      }
+      return prov;
+    }).catch(function(){
+      /* Provisional unreachable: same 1D fallback the old 404 path gave. */
+      return fetchPeriodCached(BASE+'periods/1D.json').then(function(d){
+        return Object.assign({}, d, { _fallback: true });
+      });
+    });
+  }
+  if (p === 'asof') url = BASE+'daily/'+asof+'.json';
   else url = BASE+'periods/'+p+'.json';
-  if (p !== 'latest') return fetchPeriodCached(url);
-  return fetch(url).then(function(r){
-    if(!r.ok) {
-      // FALLBACK: intraday.json only exists during market hours.
-      // Fall back to 1D period data when it's missing (weekends/holidays).
-      return fetchPeriodCached(BASE+'periods/1D.json')
-        .then(function(d){ return Object.assign({}, d, { _fallback: true }); });
-    }
-    return r.json();
-  });
+  return fetchPeriodCached(url);
 }
 function label(p, d, asof){
   if(p==='latest') {

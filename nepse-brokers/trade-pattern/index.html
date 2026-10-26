@@ -24,17 +24,16 @@
 {"@context":"https://schema.org","@type":"WebPage","name":"Broker Trade Pattern — Nepse Decode","url":"https://shirjankhadka.com.np/nepse-brokers/trade-pattern/"}
 </script>
 <link rel="stylesheet" href="/css/nd-tokens.css">
-<link rel="stylesheet" href="/css/nepse-design-system.css?v=8d179ee9">
-<link rel="stylesheet" href="/css/theme.css?v=f9678c21">
+<link rel="stylesheet" href="/css/fonts.css">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
-<link rel="stylesheet" href="/css/broker-pages.css?v=3806931f">
-<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=69b323cf">
+<link rel="stylesheet" href="/css/nd-trade-pattern.css?v=98b5d5e5">
 </head>
-<body class="nd">
+<body class="nd" data-page="trade-pattern">
+<a class="tp-skip" href="#main">Skip to content</a>
 <div id="nd-header"></div>
-<main class="bk-wrap">
+<main class="bk-wrap" id="main">
 <p class="bk-eyebrow">Brokers</p>
 <h1 class="bk-title">Broker Trade Pattern</h1>
 <p class="bk-sub">Pick a broker to see what it bought and sold, stock by stock, over the selected period.</p>
@@ -45,86 +44,49 @@
 <a href="/nepse-brokers/holdings/">Stockwise Holdings</a>
 <a href="/nepse-brokers/accdist/">Accumulation / Distribution</a>
 </nav>
+<p class="tp-fresh" id="tpFresh"><span class="tp-dot"></span>Loading broker data…</p>
+<p class="tp-notice" id="tpNotice"></p>
+<div class="tp-banner" id="tpBanner" style="display:none"></div>
 <div class="bk-periods" id="bkPeriods">
-<span style="font-size:.85rem;color:var(--muted)">Period:</span>
+<span class="bk-period-label">Period:</span>
 <button data-p="latest" class="active">Latest</button>
 <button data-p="1D">1D</button>
 <button data-p="1W">1W</button>
+<button data-p="2W">2W</button>
 <button data-p="1M">1M</button>
 <button data-p="3M">3M</button>
+<button data-p="6M">6M</button>
+<button data-p="1Y">1Y</button>
+<button data-p="2Y">2Y</button>
+<button data-p="3Y">3Y</button>
 </div>
 <div class="bk-ctl">
 <select id="brokerSel" aria-label="Select broker"><option value="">Select broker…</option></select>
 </div>
 <div id="bkResult"><div class="bk-empty">Pick a broker above to see its trade pattern.</div></div>
-<p class="bk-note">Transaction flow from public NEPSE floorsheet records — not verified shareholding. <strong>For education only. Not investment advice.</strong></p>
+<section class="tp-sec" aria-label="Stocks by sector">
+<h2>Stocks by sector</h2>
+<p class="tp-sec-lede">Every listed stock, grouped by sector. A lime mark shows stocks the selected broker traded in the current period — click a symbol for its stock page.</p>
+<select id="tpSecSelect" aria-label="Filter by sector">
+<option value="All">All sectors</option>
+</select>
+<p class="tp-sec-sum" id="tpSecSum"></p>
+<div class="bk-scroll"><table class="bk-table">
+<thead><tr><th>Symbol</th><th>Company</th><th>Sector</th></tr></thead>
+<tbody id="tpSecBody"></tbody>
+</table></div>
+<div class="tp-pager">
+<button type="button" id="tpSecPrev">Prev</button>
+<span class="tp-showing" id="tpSecShowing"></span>
+<button type="button" class="tp-next" id="tpSecNext">Next</button>
+</div>
+<p class="tp-sec-note">Sector counts come from the Engine Verdict batch (verdicts sec field); universe entries carry no sector field, so counts are stated from the batch, never the universe. Company names come from the universe.</p>
+</section>
+<p class="bk-note">Transaction flow from public NEPSE floorsheet records — not verified shareholding.</p>
 </main>
 <div id="nd-footer"></div>
-<script src="/js/broker-common.js?v=5a3d8ba5"></script>
-<script>
-(function(){
-"use strict";
-var BC = window.BrokerCommon;
-var state = { period: 'latest', brokers: {}, data: null, broker: null };
-var $ = function(id){ return document.getElementById(id); };
-function bname(code){ return state.brokers[code] || ('Broker '+code); }
-
-function render(){
-  var d = state.data, code = state.broker;
-  if(!d || !code){ return; }
-  var syms = (d.broker_symbols && d.broker_symbols[code]) || [];
-  var t = (d.brokers||[]).filter(function(b){return b.code===code})[0] || {};
-  var rows = syms.map(function(s){
-    return { symbol: s.symbol, buyQty: s.buy_qty||0, buyVal: s.buy_value||0,
-      sellQty: s.sell_qty||0, sellVal: s.sell_value||0, net: (s.buy_value||0)-(s.sell_value||0) };
-  });
-  var html = '<div class="bk-tiles">'+
-    '<div class="bk-tile"><div class="k">Buy value</div><div class="v">'+BC.fmtV(t.buy_value||0)+'</div></div>'+
-    '<div class="bk-tile"><div class="k">Sell value</div><div class="v">'+BC.fmtV(t.sell_value||0)+'</div></div>'+
-    '<div class="bk-tile"><div class="k">Net value</div><div class="v '+BC.cls((t.buy_value||0)-(t.sell_value||0))+'">'+BC.fmtV((t.buy_value||0)-(t.sell_value||0))+'</div></div>'+
-    '<div class="bk-tile"><div class="k">Stocks traded</div><div class="v">'+syms.length+'</div><div class="s">'+BC.label(state.period,d)+'</div></div></div>';
-  html += '<h2 style="font-family:var(--serif);font-size:1.2rem;margin:18px 0 8px">'+BC.esc(bname(code))+' — per-stock pattern</h2>';
-  html += '<div class="bk-scroll"><table class="bk-table nd-table" id="bkTable"><thead><tr>'+
-    '<th data-sort="symbol">Symbol</th><th data-sort="buyVal">Buy value</th><th data-sort="sellVal">Sell value</th>'+
-    '<th data-sort="net">Net value</th><th data-sort="buyQty">Buy qty</th><th data-sort="sellQty">Sell qty</th>'+
-    '</tr></thead><tbody id="bkBody"></tbody></table></div>';
-  $('bkResult').innerHTML = html;
-  function renderRows(rs){
-    $('bkBody').innerHTML = rs.map(function(r){
-      return '<tr><td><strong>'+BC.esc(r.symbol)+'</strong></td><td>'+BC.fmtV(r.buyVal)+'</td>'+
-        '<td>'+BC.fmtV(r.sellVal)+'</td><td class="'+BC.cls(r.net)+'">'+BC.fmtV(r.net)+'</td>'+
-        '<td>'+BC.fmtQ(r.buyQty,r.buyVal)+'</td><td>'+BC.fmtQ(r.sellQty,r.sellVal)+'</td></tr>';
-    }).join('') || '<tr><td colspan="6" class="bk-loading">No trades in this period.</td></tr>';
-  }
-  renderRows(rows);
-  BC.makeSortable($('bkTable'), function(){ return rows; }, renderRows);
-}
-function load(){
-  $('bkResult').innerHTML = '<p class="bk-loading">Loading…</p>';
-  BC.loadPeriod(state.period).then(function(d){
-    state.data = d;
-    if(state.broker) render();
-    else $('bkResult').innerHTML = '<div class="bk-empty">Pick a broker above to see its trade pattern.</div>';
-  }).catch(function(){
-    $('bkResult').innerHTML = '<div class="bk-empty">Data not available for this period yet.</div>';
-  });
-}
-$('brokerSel').addEventListener('change', function(){ state.broker = this.value || null; render(); });
-$('bkPeriods').addEventListener('click', function(e){
-  var b = e.target.closest('button'); if(!b) return;
-  document.querySelectorAll('#bkPeriods button').forEach(function(x){x.classList.remove('active')});
-  b.classList.add('active'); state.period = b.dataset.p; load();
-});
-Promise.all([BC.loadMeta(), BC.loadBrokers()]).then(function(res){
-  state.brokers = res[1];
-  var sel = $('brokerSel');
-  Object.keys(state.brokers).filter(function(c){return /^\d+$/.test(c)}).sort(function(a,b){return a-b}).forEach(function(c){
-    var o = document.createElement('option'); o.value=c; o.textContent=c+' — '+state.brokers[c]; sel.appendChild(o);
-  });
-  load();
-});
-})();
-</script>
+<script src="/js/broker-common.js?v=1e7a9771"></script>
+<script src="/js/trade-pattern.js?v=8a6c710e"></script>
 <script src="/js/nd-chrome.js?v=74c1c8b7" defer></script>
 </body>
 </html>
