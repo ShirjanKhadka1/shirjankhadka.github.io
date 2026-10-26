@@ -164,6 +164,18 @@
   // currently show identical totals. The condition expires on its own
   // once the window's start moves past the first session.
   var HISTORY_START = '2026-07-15';
+  // Single source of truth for the window buttons: .on AND
+  // aria-selected both follow state.window. (aria-selected was
+  // previously stuck on the initial 1D button forever, since only
+  // .on was ever updated — a real accessibility defect even
+  // though no site stylesheet paints aria-selected tabs.)
+  function syncWindowButtons() {
+    document.querySelectorAll('#mfWindow button').forEach(function (b) {
+      var on = b.getAttribute('data-window') === state.window;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+  }
   function renderWindowNote() {
     var note = $('mfWindowNote');
     if (!note) return;
@@ -176,9 +188,7 @@
     // Self-heal the window buttons on every render: the note and the
     // active button must never disagree. A stale .on surviving from
     // an earlier state is corrected here, not only on click.
-    document.querySelectorAll('#mfWindow button').forEach(function (b) {
-      b.classList.toggle('on', b.getAttribute('data-window') === state.window);
-    });
+    syncWindowButtons();
   }
 
   function renderSectors() {
@@ -381,9 +391,8 @@
   function bindControls() {
     document.querySelectorAll('#mfWindow button').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        document.querySelectorAll('#mfWindow button').forEach(function (b) { b.classList.remove('on'); });
-        btn.classList.add('on');
         state.window = btn.getAttribute('data-window');
+        syncWindowButtons();
         state.sector = '';
         state.page = 0;
         writeURL();
@@ -418,9 +427,7 @@
       });
     }
     // Reflect URL state in the controls.
-    document.querySelectorAll('#mfWindow button').forEach(function (b) {
-      b.classList.toggle('on', b.getAttribute('data-window') === state.window);
-    });
+    syncWindowButtons();
     document.querySelectorAll('.mf-tabs button').forEach(function (b) {
       b.classList.toggle('on', b.getAttribute('data-sort') === state.sort);
     });
