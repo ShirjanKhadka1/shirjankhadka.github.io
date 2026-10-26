@@ -273,7 +273,8 @@
         tradingCosts: tot('commission') + tot('otherFees'),
         maxDrawdownPct: mdd,
         bhFinal: bhFinal,
-        bhReturnPct: (bhFinal - opts.startCash) / opts.startCash * 100
+        bhReturnPct: (bhFinal - opts.startCash) / opts.startCash * 100,
+        bhTrades: bhQty >= 1 ? 1 : 0
       }
     };
   }
@@ -319,6 +320,14 @@
    * Replaced the stale third-party prices API (stopped 2026-02-12). */
   var PRICES = function (s) { return '/nepse-chart/data/history/' + s.replace('/', '-') + '.json'; };
   var universe = [], rows = [], curSym = null, lastRun = null, runSeq = 0;
+  /* Freshness state: `loadedHist` = the history file the in-memory rows
+   * came from; `publishedHist` = the newest file the refresh check saw.
+   * A run records the loaded key at run time (res.histKey). */
+  var universeAsof = null, loadedHist = null, publishedHist = null;
+  var lastCheckAt = null, lastCheckOk = null, freshTimer = null;
+  var verdicts = null, verdictsFailed = false, sectorPage = 0, sectorList = [];
+  var histCover = {}; /* sym -> through-date string or '' when no file */
+  var benchmarks = null, trackStrat = 'sma-cross';
   /* ---------- journal UI ---------- */
   function renderJournal() {
     var list = $('sim-journal-list'), empty = $('sim-journal-empty');
@@ -361,11 +370,37 @@
     el.textContent = msg; el.hidden = !msg;
     el.classList.toggle('err', !!isErr);
   }
-  function loadHistory(sym) {
+  function histKeyOf(meta) { return meta ? meta.updated + '|' + meta.lastYmd : null; }
+  function fmtTimeNPT(d) {
+    try { return d.toLocaleTimeString('en-GB', { timeZone: 'Asia/Kathmandu', hour: '2-digit', minute: '2-digit' }); }
+    catch (e) { return ''; }
+  }
+  function renderFreshLine() {
+    var el = $('sim-fresh-line'); if (!el) return;
+    var parts = [];
+    if (universeAsof) parts.push('Universe ' + esc(universeAsof));
+    if (loadedHist) parts.push('Loaded history: updated ' + esc(loadedHist.updated) + ' · latest session ' + esc(fmtYMD(loadedHist.lastYmd)));
+    if (publishedHist && histKeyOf(publishedHist) !== histKeyOf(loadedHist))
+      parts.push('Latest published: updated ' + esc(publishedHist.updated) + ' · latest session ' + esc(fmtYMD(publishedHist.lastYmd)));
+    if (lastCheckAt) parts.push('Last refresh check ' + esc(fmtTimeNPT(lastCheckAt)) + ' NPT' + (lastCheckOk === false ? ' (failed — showing last good data)' : ''));
+    el.innerHTML = parts.length ? parts.join(' · ') : 'Loading market data…';
+  }
+  function renderNewerNotice() {
+    var box = $('sim-newer'); if (!box) return;
+    var show = !!(lastRun && curSym && lastRun.sym === curSym && loadedHist &&
+      publishedHist && histKeyOf(publishedHist) !== lastRun.histKey);
+    box.hidden = !show;
+    if (show) $('sim-newer-text').textContent = 'Newer history published (updated ' +
+      publishedHist.updated + ', latest session ' + fmtYMD(publishedHist.lastYmd) +
+      ') after this run was computed. Your setup is preserved — re-run to use it.';
+  }
+  function loadHistory(sym, opts) {
     curSym = sym; rows = [];
     setStatus('Loading ' + sym + ' history…');
     $('sim-run').disabled = true;
-    fetch(PRICES(sym)).then(function (r) {
+    var keepStart = opts && opts.preserve ? $('sim-start').value : null;
+    var keepEnd = opts && opts.preserve ? $('sim-end').value : null;
+    return fetch(PRICES(sym), { cache: 'no-store' }).then(function (r) {
       if (!r.ok) throw new Error('http ' + r.status);
       return r.json();
     }).then(function (j) {
@@ -374,16 +409,19 @@
       }).filter(function (r) { return r[4] > 0 && r[2] > 0 && r[3] > 0; });
       rows.sort(function (a, b) { return a[0] - b[0]; });
       if (rows.length < 60) throw new Error('only ' + rows.length + ' sessions');
+      loadedHist = { updated: (j && j.updated) || fmtYMD(rows[rows.length - 1][0]), lastYmd: rows[rows.length - 1][0] };
+      if (!publishedHist) publishedHist = loadedHist;
       var first = fmtYMD(rows[0][0]), last = fmtYMD(rows[rows.length - 1][0]);
       var st = $('sim-start'), en = $('sim-end');
       st.min = first; st.max = last; en.min = first; en.max = last;
-      var back = rows[Math.max(0, rows.length - 253)][0];
-      st.value = fmtYMD(back); en.value = last;
-      var badge = $('sim-data-note');
-      if (badge && window.NepseFresh) {
-        badge.innerHTML = 'History: ' + rows.length + ' sessions, ' + first + ' to ' + last +
-          ' <span class="fresh">' + esc(window.NepseFresh.label(last)) + '</span>';
+      if (keepStart && keepEnd) {
+        st.value = keepStart < first ? first : keepStart > last ? last : keepStart;
+        en.value = keepEnd < first ? first : keepEnd > last ? last : keepEnd;
+      } else {
+        var back = rows[Math.max(0, rows.length - 253)][0];
+        st.value = fmtYMD(back); en.value = last;
       }
+      renderFreshLine(); renderNewerNotice();
       setStatus('');
       $('sim-run').disabled = false;
     }).catch(function () {
@@ -420,6 +458,7 @@
     });
     if (res.error) { setStatus(res.error, true); return; }
     res.sym = curSym; res.runId = 'run' + (++runSeq);
+    res.histKey = histKeyOf(loadedHist); res.histMeta = loadedHist;
     lastRun = res;
     setStatus('');
     renderResults(res);
@@ -457,6 +496,7 @@
       '</div></details>';
     drawEquity(res);
     var tb = $('sim-trades-body');
+    var maxAbsNet = res.trades.reduce(function (m, t) { return Math.max(m, Math.abs(t.netPnl || 0)); }, 0);
     tb.innerHTML = res.trades.map(function (t, i) {
       function money(x, signed) {
         return '<td class="' + cls(x) + '">' + (signed && x >= 0 ? '+' : '') +
@@ -468,13 +508,95 @@
         '<td>' + fmtRs(t.commission || 0).replace('Rs ', 'Rs\u00a0') + '</td>' +
         '<td>' + fmtRs(t.otherFees || 0).replace('Rs ', 'Rs\u00a0') + '</td>' +
         '<td>' + fmtRs(t.cgt || 0).replace('Rs ', 'Rs\u00a0') + '</td>' +
-        money(t.netPnl, true) +
+        '<td class="pnl-cell">' + (t.netPnl >= 0 ? '+' : '') + fmtRs(t.netPnl).replace('Rs ', 'Rs\u00a0') +
+        '<span class="pnlbar"><i class="' + (t.netPnl >= 0 ? 'pos' : 'neg') + '" style="width:' +
+        (maxAbsNet > 0 ? (Math.abs(t.netPnl) / maxAbsNet * 50).toFixed(1) : 0) + '%"></i></span></td>' +
         '<td>' + esc(REASONS[t.reason] || t.reason) + '</td>' +
         '<td><button class="linklike" data-note="' + i + '">Note</button><div class="tnote" id="tnote-' + i + '" hidden></div></td></tr>';
     }).join('') || '<tr><td colspan="13" class="muted">No trades were triggered in this range.</td></tr>';
     $('sim-run-note').value = '';
+    var rd = $('sim-run-data');
+    if (rd) {
+      rd.hidden = !(res.histMeta);
+      if (res.histMeta) rd.textContent = 'Run data: history updated ' + res.histMeta.updated +
+        ' · latest session ' + fmtYMD(res.histMeta.lastYmd) + ' · ' + res.curve.length + ' sessions in range';
+    }
+    renderBaseline(res); renderExitBreakdown(res); renderCosts(res); renderNewerNotice();
+  }
+  function bhDrawdown(res) {
+    var peak = -Infinity, mdd = 0;
+    res.curve.forEach(function (p) {
+      if (p.bh > peak) peak = p.bh;
+      if (peak > 0) { var dd = (peak - p.bh) / peak * 100; if (dd > mdd) mdd = dd; }
+    });
+    return mdd;
+  }
+  function measureRow(label, stratV, bhV, c1, c2) {
+    return '<tr><td>' + label + '</td><td class="' + (c1 || '') + '">' + stratV + '</td><td class="' + (c2 || '') + '">' + bhV + '</td></tr>';
+  }
+  function renderBaseline(res) {
+    var el = $('sim-baseline'); if (!el) return;
+    var s = res.stats, spread = s.totalReturnPct - s.bhReturnPct;
+    var bhDd = bhDrawdown(res);
+    var isBh = res.strat === 'buyhold';
+    el.innerHTML = '<div class="sim-measure"><h3>Baseline comparison</h3>' +
+      '<p class="res-sub">Same symbol, same date range. Buy-and-hold final equity and drawdown are derived from the buy-and-hold curve already computed for this run — no new math.</p>' +
+      '<div class="sim-measure-wrap"><table class="cx-table"><thead><tr><th></th><th class="num">Strategy</th><th class="num">Buy and hold</th></tr></thead><tbody>' +
+      measureRow('Return', fmtPct(s.totalReturnPct), fmtPct(s.bhReturnPct), cls(s.totalReturnPct), cls(s.bhReturnPct)) +
+      measureRow('Final equity', fmtRs(s.finalEquity), fmtRs(s.bhFinal)) +
+      measureRow('Max drawdown', '−' + fmtNum(s.maxDrawdownPct, 2) + '%', '−' + fmtNum(bhDd, 2) + '%', 'down', 'down') +
+      measureRow('Trades', String(s.nTrades), String(s.bhTrades != null ? s.bhTrades : '—')) +
+      '</tbody></table></div>' +
+      '<p class="sim-spread-note">Spread vs buy-and-hold: <span class="sim-spread ' + cls(spread) + '">' + fmtPct(spread) + '</span>' +
+      (isBh ? ' — this run IS buy-and-hold, so the spread is zero by construction.' : '') + '</p></div>';
+  }
+  function renderExitBreakdown(res) {
+    var el = $('sim-exit'); if (!el) return;
+    var agg = {};
+    res.trades.forEach(function (t) {
+      var a = agg[t.reason] || (agg[t.reason] = { n: 0, net: 0 });
+      a.n++; a.net += t.netPnl || 0;
+    });
+    var order = ['stop', 'target', 'signal', 'end'];
+    var body = order.filter(function (r) { return agg[r]; }).map(function (r) {
+      var a = agg[r];
+      return '<tr><td>' + esc(REASONS[r] || r) + '</td><td class="num">' + a.n + '</td>' +
+        '<td class="num ' + cls(a.net / a.n) + '">' + (a.net / a.n >= 0 ? '+' : '') + fmtRs(a.net / a.n) + '</td>' +
+        '<td class="num ' + cls(a.net) + '">' + (a.net >= 0 ? '+' : '') + fmtRs(a.net) + '</td></tr>';
+    }).join('');
+    el.innerHTML = '<div class="sim-measure"><h3>Exit breakdown</h3>' +
+      '<p class="res-sub">Counts and mean net P&L per exit reason, aggregated from this run\'s own trade log. Mean P&L is net of costs and CGT.</p>' +
+      '<div class="sim-measure-wrap"><table class="cx-table"><thead><tr><th>Exit reason</th><th class="num">Trades</th><th class="num">Mean net P&L</th><th class="num">Total net P&L</th></tr></thead><tbody>' +
+      (body || '<tr><td colspan="4" class="muted">No trades in this range.</td></tr>') +
+      '</tbody></table></div></div>';
+  }
+  function renderCosts(res) {
+    var el = $('sim-costs'); if (!el) return;
+    var s = res.stats, cgtS = 0, cgtL = 0;
+    res.trades.forEach(function (t) {
+      if ((t.holdingDays || 0) > 365) cgtL += t.cgt || 0; else cgtS += t.cgt || 0;
+    });
+    el.innerHTML = '<div class="sim-measure"><h3>Cash &amp; costs</h3>' +
+      '<p class="res-sub">Final equity is net liquidation after every cost below. CGT split uses each trade\'s holding period (≤ 365 days short-term, above long-term).</p>' +
+      '<div class="sim-measure-wrap"><table class="cx-table"><tbody>' +
+      '<tr><td>Starting cash</td><td class="num">' + fmtRs(res.startCash) + '</td></tr>' +
+      '<tr><td>Final equity (net)</td><td class="num">' + fmtRs(s.finalEquity) + '</td></tr>' +
+      '<tr><td>Net P&L</td><td class="num ' + cls(s.netPnl) + '">' + (s.netPnl >= 0 ? '+' : '') + fmtRs(s.netPnl) + '</td></tr>' +
+      '<tr><td>Trading costs (commission + other fees)</td><td class="num">' + fmtRs(s.tradingCosts) + '</td></tr>' +
+      '<tr><td>CGT — short-term (≤ 365 days)</td><td class="num">' + fmtRs(cgtS) + '</td></tr>' +
+      '<tr><td>CGT — long-term (&gt; 365 days)</td><td class="num">' + fmtRs(cgtL) + '</td></tr>' +
+      '<tr><td>Total CGT</td><td class="num">' + fmtRs(s.totalCgt) + '</td></tr>' +
+      '</tbody></table></div></div>';
   }
 
+  function tok(name, fallback) {
+    /* Canvas fills cannot use CSS var(): read the --nd-* token value from
+     * computed style at draw time. Fallbacks are the dark-theme token hexes. */
+    try {
+      var v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+      return v || fallback;
+    } catch (e) { return fallback; }
+  }
   function drawEquity(res) {
     var cv = $('sim-equity'), dpr = window.devicePixelRatio || 1;
     var W = cv.clientWidth || 800, H = 260;
@@ -487,21 +609,24 @@
     if (max === min) max = min + 1;
     var pad = 34, X = function (i) { return pad + (W - pad - 12) * i / Math.max(1, pts.length - 1); };
     var Y = function (v) { return H - 24 - (H - 48) * (v - min) / (max - min); };
-    ctx.strokeStyle = 'rgba(12,31,22,.12)'; ctx.lineWidth = 1;
-    ctx.fillStyle = '#66705F'; ctx.font = '11px Inter, sans-serif';
+    ctx.strokeStyle = tok('--nd-border', '#1E2430'); ctx.lineWidth = 1;
+    ctx.fillStyle = tok('--nd-dim', '#8E98A8'); ctx.font = '11px Inter, sans-serif';
     for (var g = 0; g <= 4; g++) {
       var v = min + (max - min) * g / 4, y = Y(v);
       ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(W - 12, y); ctx.stroke();
       ctx.fillText('Rs ' + fmtNum(v, 0), 2, y + 4);
     }
-    function line(key, color, width) {
-      ctx.strokeStyle = color; ctx.lineWidth = width; ctx.beginPath();
+    function line(key, color, width, dash) {
+      ctx.strokeStyle = color; ctx.lineWidth = width;
+      ctx.setLineDash(dash || []);
+      ctx.beginPath();
       pts.forEach(function (p, i) { var x = X(i), y = Y(p[key]); if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y); });
       ctx.stroke();
     }
-    line('bh', 'rgba(12,31,22,.35)', 1.5);
-    line('equity', '#C6A86B', 2.5);
-    ctx.fillStyle = '#66705F';
+    line('bh', tok('--nd-dim', '#8E98A8'), 2, [6, 4]);
+    line('equity', tok('--nd-lime', '#B8E62E'), 3);
+    ctx.setLineDash([]);
+    ctx.fillStyle = tok('--nd-dim', '#8E98A8');
     ctx.fillText(fmtYMD(pts[0].ymd), pad, H - 6);
     var le = fmtYMD(pts[pts.length - 1].ymd);
     ctx.fillText(le, W - 12 - ctx.measureText(le).width, H - 6);
@@ -524,14 +649,217 @@
     if (ta) ta.focus();
   }
 
+  /* ---------- freshness auto-refresh ----------
+   * Market-aware cadence, NPT clock: 15 min during market hours
+   * (11:00-15:00 Mon-Fri), 30 min otherwise, 2 h on weekends.
+   * The backtest run itself stays user-triggered: a refresh only
+   * re-renders freshness state. If the published history advanced past
+   * the displayed run's data key, a plain notice offers a one-click
+   * re-run with the setup preserved; nothing re-runs silently.
+   * Hidden tabs skip fetches and re-check on visibilitychange. */
+  function refreshDelayMs() {
+    var now;
+    try {
+      var parts = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Kathmandu', weekday: 'short', hour: 'numeric', hour12: false }).formatToParts(new Date());
+      var wd = parts.filter(function (x) { return x.type === 'weekday'; })[0].value;
+      var hr = parseInt(parts.filter(function (x) { return x.type === 'hour'; })[0].value, 10);
+      if (wd === 'Sat' || wd === 'Sun') return 2 * 60 * 60 * 1000;
+      if (wd !== 'Sat' && wd !== 'Sun' && hr >= 11 && hr < 15) return 15 * 60 * 1000;
+      return 30 * 60 * 1000;
+    } catch (e) { return 30 * 60 * 1000; }
+  }
+  function loadUniverse() {
+    return fetch('/nepse-chart/data/universe.json', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (u) {
+      universe = (u.symbols || []).filter(function (x) { return x.o === 1; })
+        .sort(function (a, b) { return a.s < b.s ? -1 : 1; });
+      universeAsof = u.asof || null;
+    }).catch(function () { universe = []; });
+  }
+  function checkFreshness() {
+    if (document.hidden) { scheduleFreshCheck(); return; }
+    var sym = curSym;
+    loadUniverse().then(function () {
+      if (!sym) { lastCheckAt = new Date(); lastCheckOk = true; renderFreshLine(); renderNewerNotice(); return; }
+      return fetch(PRICES(sym), { cache: 'no-store' }).then(function (r) {
+        if (!r.ok) throw new Error('http ' + r.status);
+        return r.json();
+      }).then(function (j) {
+        var data = j.data || [];
+        publishedHist = { updated: j.updated || null, lastYmd: data.length ? data[data.length - 1][0] : null };
+        lastCheckAt = new Date(); lastCheckOk = true;
+        /* No displayed run for this symbol: refresh the loaded rows so
+         * the next user-triggered Run uses fresh data (dates preserved
+         * where still in range). A displayed run keeps its rows until
+         * the user re-runs — see renderNewerNotice. */
+        if (!(lastRun && lastRun.sym === sym) && histKeyOf(publishedHist) !== histKeyOf(loadedHist)) {
+          loadHistory(sym, { preserve: true });
+        }
+        renderFreshLine(); renderNewerNotice();
+      });
+    }).catch(function () {
+      lastCheckAt = new Date(); lastCheckOk = false;
+      renderFreshLine(); renderNewerNotice();
+    }).then(function () { scheduleFreshCheck(); });
+  }
+  function scheduleFreshCheck() {
+    if (freshTimer) clearTimeout(freshTimer);
+    freshTimer = setTimeout(checkFreshness, refreshDelayMs());
+  }
+  function startFreshness() {
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) checkFreshness();
+    });
+    scheduleFreshCheck();
+  }
+
+  /* ---------- sector drill-down ----------
+   * Sector membership comes from verdicts.json `sec` (universe.json
+   * carries no sector field: entries are {s, n, t, o} only). Rows show
+   * latest close + day change from verdicts, company name from
+   * universe, and history coverage through-date fetched per visible
+   * page from the symbol's history file (cached; missing file = no
+   * history). Top backtested performer comes from the benchmark
+   * archive when published, else "not yet published". */
+  function loadVerdicts() {
+    if (verdicts || verdictsFailed) return Promise.resolve();
+    return fetch('/nepse-chart/data/verdicts.json').then(function (r) { return r.json(); }).then(function (v) {
+      verdicts = v.verdicts || {};
+      var secs = {};
+      Object.keys(verdicts).forEach(function (sym) { if (verdicts[sym].sec) secs[verdicts[sym].sec] = true; });
+      sectorList = Object.keys(secs).sort();
+      var sel = $('sim-sector');
+      sectorList.forEach(function (sec) {
+        var n = Object.keys(verdicts).filter(function (sym) { return verdicts[sym].sec === sec; }).length;
+        var o = document.createElement('option'); o.value = sec; o.textContent = sec + ' (' + n + ')';
+        sel.appendChild(o);
+      });
+    }).catch(function () { verdictsFailed = true; });
+  }
+  function sectorMembers(sec) {
+    return Object.keys(verdicts || {}).filter(function (sym) { return verdicts[sym].sec === sec; }).sort();
+  }
+  function medianOf(arr) {
+    if (!arr.length) return null;
+    var a = arr.slice().sort(function (x, y) { return x - y; });
+    var m = Math.floor(a.length / 2);
+    return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2;
+  }
+  function topBacktested(members) {
+    if (!benchmarks || !benchmarks.rows) return null;
+    var best = null;
+    benchmarks.rows.forEach(function (r) {
+      if (r.window !== '1Y' || members.indexOf(r.symbol) < 0) return;
+      if (!best || r.returnPct > best.returnPct) best = r;
+    });
+    return best;
+  }
+  function renderSector() {
+    var block = $('sim-sector-block'), sel = $('sim-sector');
+    var sec = sel.value;
+    if (!sec) { block.hidden = true; return; }
+    if (verdictsFailed) {
+      block.hidden = false;
+      $('sim-sector-title').textContent = sec;
+      $('sim-sector-summary').innerHTML = '';
+      $('sim-sector-note').textContent = 'Sector data unavailable — verdicts could not be loaded. No membership is shown rather than an invented list.';
+      $('sim-sector-body').innerHTML = '';
+      $('sim-sector-pager').textContent = '';
+      return;
+    }
+    block.hidden = false;
+    $('sim-sector-title').textContent = sec + ' stocks';
+    var members = sectorMembers(sec);
+    var withHist = members.filter(function (sym) { return universe.some(function (u) { return u.s === sym; }); });
+    var chs = members.map(function (sym) { return verdicts[sym].ch; }).filter(function (x) { return typeof x === 'number' && isFinite(x); });
+    var med = medianOf(chs);
+    var top = topBacktested(members);
+    var unmapped = universe.filter(function (u) { return !(verdicts && verdicts[u.s]); }).length;
+    $('sim-sector-summary').innerHTML =
+      statCard('Stocks in sector', String(members.length)) +
+      statCard('With full history', String(withHist.length)) +
+      statCard('Median day change', med == null ? '—' : fmtPct(med));
+    $('sim-sector-note').textContent = 'Sector membership from verdicts.json (sec field). ' +
+      (top ? 'Top 1Y backtested: ' + top.symbol + ' ' + fmtPct(top.returnPct) + ' (' + top.strategy + '). ' : 'Top backtested performer: not yet published — the benchmark archive is pending. ') +
+      unmapped + ' universe symbols have no verdicts sector mapping and appear in no sector.';
+    var per = 25, pages = Math.max(1, Math.ceil(members.length / per));
+    if (sectorPage >= pages) sectorPage = pages - 1;
+    var page = members.slice(sectorPage * per, sectorPage * per + per);
+    $('sim-sector-pager').textContent = 'Showing ' + (members.length ? sectorPage * per + 1 : 0) + '–' +
+      Math.min(members.length, sectorPage * per + per) + ' of ' + members.length + ' stocks in ' + sec;
+    $('sim-sector-prev').disabled = sectorPage <= 0;
+    $('sim-sector-next').disabled = sectorPage >= pages - 1;
+    $('sim-sector-body').innerHTML = page.map(function (sym) {
+      var v = verdicts[sym] || {};
+      var u = universe.filter(function (x) { return x.s === sym; })[0];
+      var cov = histCover[sym];
+      return '<tr><td><strong>' + esc(sym) + '</strong></td><td>' + esc(u ? u.n : '—') + '</td>' +
+        '<td class="num">' + (v.p != null ? fmtRs(v.p) : '—') + '</td>' +
+        '<td class="num ' + cls(v.ch) + '">' + (v.ch != null ? fmtPct(v.ch) : '—') + '</td>' +
+        '<td>' + (cov === undefined ? '…' : cov === '' ? 'no history file' : esc(cov)) + '</td>' +
+        '<td><button type="button" class="cx-btn quiet sim-load" data-load="' + esc(sym) + '">Load into backtest</button></td></tr>';
+    }).join('');
+    page.forEach(function (sym) {
+      if (histCover[sym] !== undefined) return;
+      fetch(PRICES(sym)).then(function (r) {
+        if (!r.ok) throw new Error('http ' + r.status);
+        return r.json();
+      }).then(function (j) {
+        var d = j.data || [];
+        histCover[sym] = d.length ? fmtYMD(d[d.length - 1][0]) : '';
+        if ($('sim-sector').value === sec) renderSector();
+      }).catch(function () { histCover[sym] = ''; if ($('sim-sector').value === sec) renderSector(); });
+    });
+  }
+
+  /* ---------- strategy track record (benchmark archive) ---------- */
+  var STRAT_NAMES = { buyhold: 'Buy and hold', 'sma-cross': 'SMA 20 / 50 crossover', 'rsi-swing': 'RSI(14) swing' };
+  function loadBenchmarks() {
+    return fetch('/data/sim-benchmarks.json').then(function (r) {
+      if (!r.ok) throw new Error('http ' + r.status);
+      return r.json();
+    }).then(function (j) { benchmarks = j; }).catch(function () { benchmarks = null; });
+  }
+  function renderTrack() {
+    var seg = $('sim-track-seg'), body = $('sim-track-body'), pend = $('sim-track-pending');
+    seg.innerHTML = Object.keys(STRAT_NAMES).map(function (k) {
+      return '<button type="button" aria-pressed="' + (k === trackStrat) + '" data-track="' + k + '">' + esc(STRAT_NAMES[k]) + '</button>';
+    }).join('');
+    if (!benchmarks || !benchmarks.aggregates) { body.innerHTML = ''; pend.hidden = false; return; }
+    pend.hidden = true;
+    var aggs = (benchmarks.aggregates || []).filter(function (a) { return a.strategy === trackStrat; });
+    var winRows = (benchmarks.windows || []).map(function (w) {
+      var a = aggs.filter(function (x) { return x.window === w; })[0];
+      if (!a) return '';
+      return '<tr><td>' + esc(w) + '</td><td class="num">' + a.nSymbols + '</td>' +
+        '<td class="num ' + cls(a.meanReturnPct) + '">' + fmtPct(a.meanReturnPct) + '</td>' +
+        '<td class="num ' + cls(a.medianReturnPct) + '">' + fmtPct(a.medianReturnPct) + '</td>' +
+        '<td class="num">' + fmtNum(a.winRatePct, 1) + '%</td>' +
+        '<td class="num">' + a.nTrades + '</td><td class="num">' + a.nResolved + ' / ' + a.nPending + '</td>' +
+        '<td class="num ' + cls(a.meanBhSpreadPct) + '">' + fmtPct(a.meanBhSpreadPct) + '</td></tr>';
+    }).join('');
+    var secs = (benchmarks.sectors || []).filter(function (x) { return x.strategy === trackStrat && x.window === '1Y'; })
+      .sort(function (a, b) { return b.meanReturnPct - a.meanReturnPct; });
+    var secRows = secs.map(function (x) {
+      return '<tr><td>' + esc(x.sector) + '</td><td class="num ' + cls(x.meanReturnPct) + '">' + fmtPct(x.meanReturnPct) + '</td>' +
+        '<td class="num">' + x.nSymbols + '</td><td>' + esc(x.bestSymbol || '—') + ' ' + (x.bestReturnPct != null ? fmtPct(x.bestReturnPct) : '') + '</td></tr>';
+    }).join('');
+    body.innerHTML = '<h3 class="res-h">Strategy × window — ' + esc(STRAT_NAMES[trackStrat]) + '</h3>' +
+      '<p class="res-sub">n = symbols with a full window. Resolved = trades closed by stop, target or signal; pending = positions still open at the window end (marked to market, re-categorized when new sessions land). Mean return is the average across symbols; win rate is trade-weighted.</p>' +
+      '<div class="sim-track-wrap"><table class="cx-table"><thead><tr><th>Window</th><th class="num">Symbols</th><th class="num">Mean return</th><th class="num">Median return</th><th class="num">Win rate</th><th class="num">Trades</th><th class="num">Resolved / pending</th><th class="num">Mean spread vs buy-hold</th></tr></thead><tbody>' + winRows + '</tbody></table></div>' +
+      '<h3 class="res-h">Sector ranking — 1Y window</h3>' +
+      '<div class="sim-track-wrap"><table class="cx-table"><thead><tr><th>Sector</th><th class="num">Mean return</th><th class="num">Symbols</th><th>Best symbol</th></tr></thead><tbody>' +
+      (secRows || '<tr><td colspan="4" class="muted">No sector aggregates in this archive.</td></tr>') + '</tbody></table></div>' +
+      '<p class="sim-fineprint">Archive generated ' + esc(benchmarks.generated || '—') + ' from the owned OHLC archive with the page\'s exact cost, tax and sizing rules. Daily closes only; dividends, bonus and rights are not adjusted; past performance does not predict future results.</p>';
+  }
+
   /* ---------- init ---------- */
   function init() {
     renderJournal();
     var symInput = $('sim-sym');
-    fetch('/nepse-chart/data/universe.json').then(function (r) { return r.json(); }).then(function (u) {
-      universe = (u.symbols || []).filter(function (s) { return s.o === 1; })
-        .sort(function (a, b) { return a.s < b.s ? -1 : 1; });
-    }).catch(function () { universe = []; });
+    loadUniverse().then(function () { renderFreshLine(); });
+    loadVerdicts().then(function () { if ($('sim-sector').value) renderSector(); });
+    loadBenchmarks().then(function () { renderTrack(); });
+    startFreshness();
     symInput.addEventListener('input', function () {
       chosen = null;
       var q = symInput.value.trim().toLowerCase();
@@ -570,6 +898,26 @@
       });
     });
     $('sim-run').addEventListener('click', doRun);
+    $('sim-rerun').addEventListener('click', function () {
+      if (!curSym) return;
+      loadHistory(curSym, { preserve: true }).then(function () { if (rows.length) doRun(); });
+    });
+    $('sim-sector').addEventListener('change', function () { sectorPage = 0; loadVerdicts().then(renderSector); });
+    $('sim-sector').addEventListener('focus', function () { loadVerdicts().then(renderSector); });
+    $('sim-sector-prev').addEventListener('click', function () { if (sectorPage > 0) { sectorPage--; renderSector(); } });
+    $('sim-sector-next').addEventListener('click', function () { sectorPage++; renderSector(); });
+    $('sim-sector-clear').addEventListener('click', function () { $('sim-sector').value = ''; sectorPage = 0; renderSector(); });
+    document.addEventListener('click', function (e) {
+      var lb = e.target.closest('[data-load]');
+      if (lb) {
+        var sym = lb.getAttribute('data-load');
+        var u = universe.filter(function (x) { return x.s === sym; })[0];
+        if (u) pick(u); else { $('sim-sym').value = sym; loadHistory(sym); }
+        return;
+      }
+      var tb = e.target.closest('[data-track]');
+      if (tb) { trackStrat = tb.getAttribute('data-track'); renderTrack(); }
+    });
     $('sim-save-run-note').addEventListener('click', function () {
       var ta = $('sim-run-note'), v = ta.value.trim();
       if (!v || !lastRun) return;

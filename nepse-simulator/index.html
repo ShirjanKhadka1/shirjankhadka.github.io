@@ -34,121 +34,21 @@
 {"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-decode/"},
 {"@type":"ListItem","position":3,"name":"Practice Trading","item":"https://shirjankhadka.com.np/nepse-simulator/"}]}
 </script>
-<style>
-/* Practice Trading — editorial theme */
-.sim-wrap{max-width:1080px;margin:0 auto;padding:0 var(--nd-gutter,24px)}
-.sim-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--nd-s5,20px);margin:var(--nd-s8,32px) 0}
-.sim-card{background:var(--nd-panel);border:1px solid var(--nd-border);border-radius:var(--nd-r-lg,18px);padding:var(--nd-s6,24px)}
-.sim-card h2{font-family:var(--nd-font-display);font-size:1.3rem;font-weight:600;margin:0 0 4px;color:var(--nd-text)}
-.sim-card .sub{font-size:.85rem;color:var(--nd-dim);margin:0 0 var(--nd-s5,20px)}
-.grp{margin-bottom:var(--nd-s5,20px)}
-.grp:last-child{margin-bottom:0}
-.grp-title{font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--nd-dim);margin:0 0 var(--nd-s3,12px);display:flex;align-items:center;gap:12px}
-.grp-title::after{content:"";flex:1;height:1px;background:var(--nd-border)}
-.field{margin-bottom:var(--nd-s3,12px)}
-.field label{display:block;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--nd-dim);margin-bottom:6px}
-.field input[type="text"],.field input[type="search"],.field input[type="date"],.field input[type="number"],.field textarea{width:100%;font:inherit;font-size:.95rem;padding:11px 14px;border:1px solid var(--nd-border);border-radius:10px;background:var(--nd-panel-2);color:var(--nd-text);outline:none;box-sizing:border-box}
-.field input:focus,.field textarea:focus{border-color:var(--nd-lime);box-shadow:0 0 0 3px var(--nd-lime-soft)}
-.field input:disabled{opacity:.45;cursor:not-allowed}
-.sim-search-wrap{position:relative}
-.sim-suggest{position:absolute;top:calc(100% + 8px);left:0;right:0;list-style:none;background:var(--nd-panel);border:1px solid var(--nd-border);border-radius:12px;box-shadow:var(--nd-shadow);overflow:hidden;z-index:50;margin:0;padding:0}
-.sim-suggest[hidden]{display:none}
-.sim-suggest li{display:flex;gap:12px;align-items:baseline;padding:10px 16px;cursor:pointer;font-size:.9rem;color:var(--nd-text)}
-.sim-suggest li strong{font-weight:700;color:var(--nd-lime)}
-.sim-suggest li span{color:var(--nd-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sim-suggest li[aria-selected="true"],.sim-suggest li:hover{background:var(--nd-lime-soft)}
-.dates{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.strat-pick{display:flex;flex-direction:column;gap:10px}
-.strat-opt{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--nd-border);border-radius:12px;padding:13px 15px;cursor:pointer;transition:border-color .2s}
-.strat-opt:hover{border-color:var(--nd-lime)}
-.strat-opt input{margin-top:4px;accent-color:var(--nd-lime)}
-.strat-opt strong{display:block;font-size:.95rem;color:var(--nd-text)}
-.strat-opt span{font-size:.85rem;color:var(--nd-dim)}
-.sizing3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-#sim-sizing.dimmed{opacity:.45}
-.sim-check{display:flex;gap:10px;align-items:flex-start;font-size:.92rem;font-weight:600;color:var(--nd-text);cursor:pointer;margin-bottom:12px}
-.sim-check input{margin-top:4px;accent-color:var(--nd-lime);width:17px;height:17px;flex:none}
-.sim-cgtnote{font-size:.82rem;color:var(--nd-dim);margin:8px 0 0}
-.sim-details{margin:12px 0;border:1px solid var(--nd-border);border-radius:10px;background:var(--nd-panel)}
-.sim-details summary{cursor:pointer;padding:12px 16px;font-size:.88rem;font-weight:600;color:var(--nd-text);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
-.sim-details summary::-webkit-details-marker{display:none}
-.sim-details summary::after{content:"+";font-size:1.2rem;color:var(--nd-lime);line-height:1}
-.sim-details[open] summary::after{content:"–"}
-.sim-details .math{margin:0 14px 14px;background:var(--nd-panel-2);border:1px dashed var(--nd-border);border-radius:10px;padding:14px 16px;font-size:.85rem;color:var(--nd-dim)}
-.sim-details .math code{font-family:ui-monospace,monospace;font-size:.82rem;color:var(--nd-text);background:var(--nd-lime-soft);padding:2px 7px;border-radius:6px}
-.btn{display:inline-block;background:var(--nd-lime);color:#0A0C10;border:0;border-radius:12px;font:inherit;font-weight:700;cursor:pointer;text-decoration:none}
-.btn:disabled{opacity:.5;cursor:not-allowed}
-.btn.small{padding:9px 18px;font-size:.85rem;border-radius:10px}
-.sim-runrow{margin-top:18px}
-.sim-runrow .btn{width:100%;padding:14px 20px;font-size:1rem;box-sizing:border-box}
-.sim-status{margin:12px 0;padding:13px 16px;border-radius:10px;background:var(--nd-lime-soft);border:1px solid var(--nd-border);font-size:.9rem;color:var(--nd-text)}
-.sim-status[hidden]{display:none}
-.sim-status.err{background:var(--nd-down-soft);border-color:var(--nd-down);color:var(--nd-down)}
-.sim-fineprint{font-size:.82rem;color:var(--nd-dim);margin:12px 0 0}
-/* results */
-#sim-results{margin:var(--nd-s8,32px) 0}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}
-.stat{background:var(--nd-panel);border:1px solid var(--nd-border);border-radius:12px;padding:14px 16px}
-.nl-stat-k{display:block;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--nd-dim);margin-bottom:4px}
-.nl-stat-v{font-size:1.15rem;font-weight:700;font-variant-numeric:tabular-nums;color:var(--nd-text)}
-.up{color:var(--nd-up)}.down{color:var(--nd-down)}
-.eq-wrap{background:var(--nd-panel);border:1px solid var(--nd-border);border-radius:14px;padding:18px;margin:16px 0}
-.eq-wrap h3{font-family:var(--nd-font-display);font-size:1.1rem;margin:0 0 8px;color:var(--nd-text)}
-.eq-wrap canvas{width:100%;height:260px;display:block}
-.eq-note{font-size:.8rem;color:var(--nd-dim);margin:8px 0 0}
-.eq-legend{display:flex;gap:22px;font-size:.82rem;color:var(--nd-dim);margin-top:10px}
-.eq-legend i{display:inline-block;width:22px;height:3px;border-radius:2px;vertical-align:middle;margin-right:7px}
-.res-h{font-family:var(--nd-font-display);font-size:1.3rem;font-weight:600;margin:24px 0 4px;color:var(--nd-text)}
-.res-sub{font-size:.85rem;color:var(--nd-dim);margin:0 0 4px}
-.trades-wrap{overflow:auto;margin:12px 0 16px;max-height:440px;border:1px solid var(--nd-border);border-radius:14px;background:var(--nd-panel)}
-table.trades{width:100%;min-width:1020px;border-collapse:collapse;font-size:.85rem;background:var(--nd-panel);margin:0;color:var(--nd-text)}
-table.trades th,table.trades td{padding:10px 12px;text-align:right;border-bottom:1px solid var(--nd-border);white-space:nowrap;font-variant-numeric:tabular-nums}
-table.trades th:first-child,table.trades td:first-child,table.trades th:nth-child(8),table.trades td:nth-child(8),table.trades th:nth-child(9),table.trades td:nth-child(9){text-align:left}
-table.trades th{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--nd-dim);background:var(--nd-panel-2);position:sticky;top:0;z-index:2}
-table.trades tr:last-child td{border-bottom:none}
-.muted{color:var(--nd-dim)}
-.tnote{margin-top:8px}
-.tnote textarea{width:100%;font:inherit;font-size:.85rem;padding:10px 12px;border:1px solid var(--nd-border);border-radius:10px;background:var(--nd-panel-2);color:var(--nd-text);margin-bottom:8px}
-.tnote-saved{font-size:.82rem;color:var(--nd-dim);background:var(--nd-lime-soft);border-radius:8px;padding:8px 12px;margin:6px 0}
-.run-note{margin:16px 0}
-.journal{margin:var(--nd-s8,32px) 0}
-.sec{font-family:var(--nd-font-display);font-size:1.3rem;font-weight:600;margin:0 0 4px;color:var(--nd-text)}
-.sec-sub{font-size:.85rem;color:var(--nd-dim);margin:0 0 12px}
-.sj-row{display:flex;gap:14px;justify-content:space-between;align-items:flex-start;background:var(--nd-panel);border:1px solid var(--nd-border);border-radius:12px;padding:14px 18px;margin-bottom:10px}
-.sj-row strong{font-size:.95rem;color:var(--nd-text)}
-.sj-meta{display:block;font-size:.75rem;color:var(--nd-dim);margin:3px 0 6px}
-.sj-row p{font-size:.88rem;color:var(--nd-dim);margin:0}
-.wl-rm{width:32px;height:32px;border-radius:50%;border:1px solid var(--nd-border);background:var(--nd-panel-2);color:var(--nd-dim);font-size:1rem;line-height:1;cursor:pointer;flex:none}
-.wl-rm:hover{background:var(--nd-down);border-color:var(--nd-down);color:#fff}
-.limits{margin:var(--nd-s8,32px) 0}
-.limits ul{margin:0;padding-left:22px;color:var(--nd-dim);font-size:.9rem;display:flex;flex-direction:column;gap:8px}
-.fresh{font-size:.72rem;color:var(--nd-lime);border:1px solid var(--nd-border);padding:3px 10px;border-radius:999px;white-space:nowrap}
-.asof{font-size:.85rem;color:var(--nd-dim)}
-.data-credit{font-size:.8rem;color:var(--nd-dim);margin:1.25rem 0 0}
-.data-credit a{color:var(--nd-lime)}
-@media(max-width:860px){.sim-grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.sizing3{grid-template-columns:1fr}}
-@media(prefers-reduced-motion:reduce){.strat-opt{transition:none}}
-/* cinema harmonization (2026-10-23): category marker on panel heads + rim-lit cards */
-.sim-card h2, h2.sec{display:flex;align-items:center;gap:10px}
-.sim-card h2::before, h2.sec::before{content:'';width:9px;height:9px;border-radius:2px;background:var(--nd-lime,#B8E62E);flex:none}
-[data-theme="light"] .sim-card h2::before, [data-theme="light"] h2.sec::before{background:#65A30D}
-.sim-card{box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 10px 26px rgba(0,0,0,.22)}
-[data-theme="light"] .sim-card{box-shadow:inset 0 1px 0 #fff,0 10px 24px rgba(30,40,60,.08)}
-</style>
 <link rel="stylesheet" href="/css/theme.css?v=f9678c21">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
+<link rel="stylesheet" href="/css/nd-simulator.css?v=6b05641e">
 </head>
-<body class="nd">
+<body class="nd" data-page="simulator">
 <div id="nd-header"></div>
-<div class="fb-wrap" style="display:flex;justify-content:center;padding:10px 16px 0"><div data-freshness-badge></div></div>
+<div class="fb-wrap"><div data-freshness-badge></div></div>
 
 <main id="main">
   <div class="sim-wrap">
     <div class="nd-masthead">
       <p class="nd-kicker">Practice Trading</p>
-      <h1 style="font-family:var(--nd-font-display);font-weight:600;font-size:clamp(1.8rem,4.5vw,2.5rem);letter-spacing:-0.015em;color:var(--nd-text)">Backtest strategies on NEPSE history</h1>
+      <h1 class="sim-h1">Backtest strategies on NEPSE history</h1>
       <p class="sec-sub">Paper-trade rule-based strategies on historical closes. Virtual cash, real rules — free, no login.</p>
     </div>
 
@@ -163,6 +63,33 @@ table.trades tr:last-child td{border-bottom:none}
             <div class="sim-search-wrap">
               <input id="sim-sym" type="search" placeholder="Search symbol or company name…" role="combobox" aria-expanded="false" aria-controls="sim-suggest" aria-autocomplete="list" autocomplete="off">
               <ul id="sim-suggest" class="sim-suggest" role="listbox" aria-label="Matching securities" hidden></ul>
+            </div>
+            <p class="sim-fresh" id="sim-fresh-line">Loading market data…</p>
+          </div>
+        </div>
+        <div class="grp">
+          <p class="grp-title">Browse by sector</p>
+          <div class="field">
+            <label for="sim-sector">Sector (membership from verdicts data)</label>
+            <select id="sim-sector" aria-label="Sector">
+              <option value="">All sectors — pick one to browse its stocks</option>
+            </select>
+          </div>
+          <div class="sim-sector-block" id="sim-sector-block" hidden>
+            <h3 id="sim-sector-title">Sector stocks</h3>
+            <div class="sim-sector-summary" id="sim-sector-summary"></div>
+            <p class="sim-sector-note" id="sim-sector-note"></p>
+            <div class="sim-sector-wrap">
+              <table class="cx-table">
+                <thead><tr><th>Symbol</th><th>Company</th><th class="num">Latest close</th><th class="num">Day change</th><th>History through</th><th></th></tr></thead>
+                <tbody id="sim-sector-body"></tbody>
+              </table>
+            </div>
+            <div class="sim-pager">
+              <button type="button" class="cx-btn quiet" id="sim-sector-prev">Prev</button>
+              <button type="button" class="cx-btn" id="sim-sector-next">Next</button>
+              <span class="sim-pager-txt" id="sim-sector-pager"></span>
+              <button type="button" class="cx-btn quiet" id="sim-sector-clear">Clear</button>
             </div>
           </div>
         </div>
@@ -234,19 +161,24 @@ table.trades tr:last-child td{border-bottom:none}
             Costs: broker commission (0.36% down to 0.243% by tier), SEBON 0.015%, DP Rs 25 per sell, Rs 5 name transfer per buy. Buy-side costs enter your cost basis; CGT applies only to positive gains. The equity curve is net of everything.
           </div>
         </details>
-        <div class="sim-runrow"><button id="sim-run" class="btn nd-btn nd-btn--primary" disabled>Run backtest</button></div>
+        <div class="sim-runrow"><button id="sim-run" class="btn cx-btn nd-btn nd-btn--primary" disabled>Run backtest</button></div>
         <p class="sim-status" id="sim-status" role="status" hidden></p>
       </section>
     </div>
 
     <section id="sim-results" aria-label="Backtest results" hidden>
+      <div class="sim-newer" id="sim-newer" hidden><span id="sim-newer-text"></span><button type="button" class="cx-btn" id="sim-rerun">Re-run with newer history</button></div>
       <div id="sim-res-head"></div>
+      <p class="sim-run-data" id="sim-run-data" hidden></p>
       <div class="stats" id="sim-stats"></div>
+      <div id="sim-baseline"></div>
+      <div id="sim-exit"></div>
+      <div id="sim-costs"></div>
       <div class="eq-wrap">
         <h3>Equity curve</h3>
         <canvas id="sim-equity" role="img" aria-label="Equity curve chart"></canvas>
         <p class="eq-note">Net of all costs. The final point is actual net liquidation.</p>
-        <div class="eq-legend"><span><i style="background:#B8E62E"></i>Strategy</span><span><i style="background:rgba(128,128,128,.5)"></i>Buy and hold</span></div>
+        <div class="eq-legend"><span><i class="leg-strat"></i>Strategy</span><span><i class="leg-bh"></i>Buy and hold</span></div>
       </div>
       <h3 class="res-h">Trade log</h3>
       <p class="res-sub">Every fill, with costs broken out per trade.</p>
@@ -263,6 +195,14 @@ table.trades tr:last-child td{border-bottom:none}
         </div>
         <button id="sim-save-run-note" class="btn small nd-btn nd-btn--ghost nd-btn--sm">Save run note</button>
       </div>
+    </section>
+
+    <section class="sim-track" aria-label="Strategy track record">
+      <h2 class="sec">Strategy track record</h2>
+      <p class="sec-sub">Measured across every symbol with full history, from our own OHLC archive — not from backtests run in this browser. Past performance does not predict future results. Daily closes only; no dividend adjustment.</p>
+      <div class="cx-seg" id="sim-track-seg" role="group" aria-label="Track record strategy"></div>
+      <div id="sim-track-body"></div>
+      <p class="sim-track-pending" id="sim-track-pending" hidden>No benchmark archive published yet. The track record appears here once the daily benchmark build runs after the history publish.</p>
     </section>
 
     <section class="journal" aria-label="Trade journal">
@@ -282,13 +222,14 @@ table.trades tr:last-child td{border-bottom:none}
       </ul>
     </section>
     <p class="data-credit">Backtest prices via the community Nepse-All-Scraper archive; history may be delayed or incomplete. <a href="/data-terms.html">Data terms</a>.</p>
+    <p class="sim-footlaw">For education only. Not investment advice.<br>Not affiliated with Nepal Stock Exchange Ltd.</p>
   </div>
 </main>
 
 <div id="nd-footer"></div>
 
 <script src="/js/nepse-fresh.js?v=1b1762ea"></script>
-<script src="/js/nepse-simulator.js?v=84c89ef2"></script>
+<script src="/js/nepse-simulator.js?v=5d6ee4b1"></script>
 <script src="/js/theme-toggle.js?v=6a6a46c6" defer></script>
 <script src="/js/nepse-market-config.js?v=4e6270bd" defer></script>
 <script src="/js/freshness-badge.js?v=9b77cf10" defer></script>
