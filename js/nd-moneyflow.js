@@ -173,6 +173,12 @@
       ? 'Single final session · ' + v.brokers.length + ' brokers'
       : v.from + ' → ' + v.to + ' · ' + v.trading_days + ' trading days · ' + v.brokers.length + ' brokers'
         + (v.from === HISTORY_START ? ' · full available history' : '');
+    // Self-heal the window buttons on every render: the note and the
+    // active button must never disagree. A stale .on surviving from
+    // an earlier state is corrected here, not only on click.
+    document.querySelectorAll('#mfWindow button').forEach(function (b) {
+      b.classList.toggle('on', b.getAttribute('data-window') === state.window);
+    });
   }
 
   function renderSectors() {
