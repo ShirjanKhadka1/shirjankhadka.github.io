@@ -7,7 +7,6 @@
 <meta name="theme-color" content="#0A0C10">
 <title>Sector Rotation (RRG): NEPSE Sectors vs the Index | Nepse Decode</title>
 <link rel="stylesheet" href="/css/nd-tokens.css">
-<link rel="stylesheet" href="/css/nepse-design-system.css?v=8d179ee9">
 <meta name="description" content="NEPSE sector rotation: the Sector Rotation Quadrant — 20-day relative strength, 5-day smoothed — plus a weekly posture table (RS-Ratio vs RS-Momentum, consistency, turnover flow) for all 11 sectors against the NEPSE index. Computed from Nepse Decode's own data archive, free. Educational use only.">
 <meta name="author" content="Shirjan Khadka">
 <link rel="canonical" href="https://shirjankhadka.com.np/nepse-sector-rotation/">
@@ -33,18 +32,12 @@
 {"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode Sector Rotation (RRG)","url":"https://shirjankhadka.com.np/nepse-sector-rotation/","description":"Relative rotation graph of NEPSE sectors versus the NEPSE index, computed from Nepse Decode's derived sector-index archive. Educational use only, not investment advice.","author":{"@type":"Organization","name":"Nepse Decode"}}
 </script>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
-{"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},
-{"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-decode/"},
-{"@type":"ListItem","position":3,"name":"Sector Rotation","item":"https://shirjankhadka.com.np/nepse-sector-rotation/"}]}
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},{"@type":"ListItem","position":2,"name":"Nepse Decode","item":"https://shirjankhadka.com.np/nepse-decode/"},{"@type":"ListItem","position":3,"name":"Sector Rotation","item":"https://shirjankhadka.com.np/nepse-sector-rotation/"}]}
 </script>
-<link rel="stylesheet" href="/css/theme.css?v=f9678c21">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
-<link rel="stylesheet" href="/css/nd-rotation.css?v=cb45f0d0">
-<link rel="stylesheet" href="/css/nd-3d.css">
-<link rel="stylesheet" href="/css/nd-research-3d.css">
+<link rel="stylesheet" href="/css/nd-rotation.css?v=d7e79f7e">
 </head>
 <body class="nd" data-page="sector-rotation">
 
@@ -58,42 +51,153 @@
 <main id="main">
 
   <div class="rr-masthead">
-    <p class="nd-kicker">Research</p>
+    <p class="cx-kicker">Research</p>
     <h1 class="rr-title">Sector Rotation</h1>
     <p class="rr-lede">Where is strength rotating? The <strong>Sector Rotation Quadrant</strong> below plots every NEPSE sector by its <strong>20-day relative strength, 5-day smoothed</strong>, against the 5-day change of that strength — one dot per sector, coloured by quadrant: leading, improving, weakening, lagging. A slower <strong>weekly posture table</strong> follows underneath. Both are computed from Nepse Decode's own derived sector indices. Free, always.</p>
     <p class="rr-meta"><span id="rrSession">Loading…</span></p>
   </div>
 
-  <section class="rr-chartwrap" aria-label="Sector Rotation Quadrant">
-    <h2 class="rr-h2">Sector Rotation Quadrant</h2>
-    <p class="rr-chartsub">20-day relative strength, 5-day smoothed · <span id="rrChartSession">latest session</span></p>
+  <section class="cx-card rr-hero" aria-label="Sector Rotation Quadrant">
+    <div class="cx-card-head">
+      <h2 class="cx-title">Sector Rotation Quadrant</h2>
+      <span class="cx-meta" id="rrChartSession">latest session</span>
+    </div>
+    <p class="rr-chartsub">20-day relative strength, 5-day smoothed · one dot per sector · click a dot to see its stocks</p>
     <div id="rrChart" class="rr-chart"></div>
-    <p class="rr-chartnote">One dot per sector, coloured by its quadrant. Right of the vertical line, the sector's 20-day relative strength is positive — it has beaten the index over the last 20 sessions; above the horizontal line, that strength is still improving over the last 5 sessions. Every sector is always in frame: the axes widen to fit the most extreme dot rather than clipping it away.</p>
+    <p class="cx-cap">Right of the vertical line, the sector's 20-day relative strength is positive — it has beaten the index over the last 20 sessions; above the horizontal line, that strength is still improving over the last 5 sessions. Every sector is always in frame: the axes widen to fit the most extreme dot rather than clipping it away.</p>
     <div id="rrLegend" class="rr-legend" aria-label="Quadrant legend"></div>
+    <div id="rrMix" class="rr-mix" role="img" aria-label="Sector quadrant mix"></div>
   </section>
 
-  <h2 class="rr-h2 rr-h2-table">Weekly posture</h2>
-  <p class="rr-chartsub">13-week RS ratio · 4-week momentum · weekly closes — the slower view of the same rotation</p>
-  <section class="rr-stats" id="rrStats" aria-label="Weekly posture summary"></section>
+  <section class="cx-stats rr-stats" id="rrStats" aria-label="Weekly posture summary"></section>
 
-  <div class="rr-tablewrap">
-    <table class="rr-table" id="rrTable">
-      <thead>
-        <tr>
-          <th data-key="sector" class="rr-sortable">Sector</th>
-          <th data-key="quadrant" class="rr-sortable">Quadrant</th>
-          <th data-key="rs_ratio" class="rr-sortable rr-num">RS-Ratio</th>
-          <th data-key="rs_momentum" class="rr-sortable rr-num">RS-Mom</th>
-          <th data-key="quadrant_weeks" class="rr-sortable rr-num">Weeks in Quad</th>
-          <th data-key="consistency" class="rr-sortable rr-num rr-hide-m">Consistency %</th>
-          <th data-key="turnover_share_pct" class="rr-sortable rr-num">Turnover %</th>
-          <th data-key="flow_shift_pp" class="rr-sortable rr-num rr-hide-m">Flow Shift pp</th>
-          <th data-key="rank_change_1w" class="rr-sortable rr-num rr-hide-s">Rank Δ 1W</th>
-        </tr>
-      </thead>
-      <tbody id="rrBody"><tr><td colspan="9" class="rr-loading">Loading the rotation map…</td></tr></tbody>
-    </table>
+  <div class="rr-controls" role="group" aria-label="Filter the posture table by quadrant">
+    <span class="rr-controls-label">Show</span>
+    <div class="cx-seg" id="rrQuadFilter">
+      <button type="button" data-quad="All" aria-pressed="true">All quadrants</button>
+      <button type="button" data-quad="Leading" aria-pressed="false">Leading</button>
+      <button type="button" data-quad="Improving" aria-pressed="false">Improving</button>
+      <button type="button" data-quad="Weakening" aria-pressed="false">Weakening</button>
+      <button type="button" data-quad="Lagging" aria-pressed="false">Lagging</button>
+    </div>
   </div>
+
+  <section class="cx-card rr-tablecard" aria-label="Weekly posture table">
+    <div class="cx-card-head">
+      <h2 class="cx-title">Weekly posture</h2>
+      <span class="cx-meta">13-week RS ratio · 4-week momentum · weekly closes</span>
+    </div>
+    <div class="cx-scroll">
+      <table class="cx-table rr-table" id="rrTable">
+        <thead>
+          <tr>
+            <th data-key="rotation_rank" class="rr-sortable num">Rank</th>
+            <th data-key="sector" class="rr-sortable">Sector</th>
+            <th data-key="quadrant" class="rr-sortable">Quadrant</th>
+            <th data-key="rs_ratio" class="rr-sortable num">RS-Ratio</th>
+            <th data-key="rs_momentum" class="rr-sortable num">RS-Mom</th>
+            <th data-key="quadrant_weeks" class="rr-sortable num">Weeks in Quad</th>
+            <th data-key="consistency" class="rr-sortable num rr-hide-m">Consistency %</th>
+            <th data-key="turnover_share_pct" class="rr-sortable num">Turnover %</th>
+            <th data-key="flow_shift_pp" class="rr-sortable num rr-hide-m">Flow Shift pp</th>
+            <th data-key="rank_change_1w" class="rr-sortable num rr-hide-s">Rank Δ 1W</th>
+          </tr>
+        </thead>
+        <tbody id="rrBody"><tr><td colspan="10" class="rr-loading">Loading the rotation map…</td></tr></tbody>
+      </table>
+    </div>
+    <p class="cx-cap">Click a column head to sort. Click a sector row to see its stocks below. A <span class="rr-moved">moved</span> tag means the sector changed quadrant since the previous week.</p>
+  </section>
+
+  <section class="cx-card rr-flow" aria-label="Where the money is">
+    <div class="cx-card-head">
+      <h2 class="cx-title">Where the money is</h2>
+      <span class="cx-meta">Latest session · turnover share and 120-session flow shift</span>
+    </div>
+    <div class="rr-flowgrid">
+      <div>
+        <h3 class="rr-flowh">Turnover share</h3>
+        <div id="rrFlowShare" class="rr-bars"></div>
+      </div>
+      <div>
+        <h3 class="rr-flowh">Flow shift <span class="rr-flowhint">(pp vs 120-session average)</span></h3>
+        <div id="rrFlowShift" class="rr-bars"></div>
+      </div>
+    </div>
+    <p class="cx-cap">Turnover share is the sector's share of total turnover across sector-mapped companies. Flow shift is that share minus its trailing 120-session average: positive means money is rotating toward the sector relative to its recent norm.</p>
+  </section>
+
+  <section class="cx-card rr-stocks" aria-label="Stocks in this sector">
+    <div class="cx-card-head">
+      <h2 class="cx-title">Stocks in this sector</h2>
+      <span class="cx-meta" id="rrStockMeta">—</span>
+    </div>
+    <p class="rr-chartsub">Each stock's 20-day relative strength vs NEPSE, on the quadrant chart's own mechanism, plus its own 20-day return. Pick a sector — or click its dot or table row.</p>
+    <div class="cx-seg rr-segwrap" id="rrSectorPills" role="group" aria-label="Choose a sector"></div>
+    <div class="rr-stockbar">
+      <label class="rr-sortlabel" for="rrStockSort">Sort
+        <select id="rrStockSort">
+          <option value="rs20">20-day RS vs NEPSE ↓</option>
+          <option value="ret20">20-day return ↓</option>
+          <option value="symbol">Symbol A–Z</option>
+        </select>
+      </label>
+      <span class="rr-countline" id="rrStockCount"></span>
+    </div>
+    <div class="cx-scroll">
+      <table class="cx-table rr-table" id="rrStockTable">
+        <thead>
+          <tr>
+            <th class="sym">Symbol</th>
+            <th>Company</th>
+            <th class="num">20d RS vs NEPSE %</th>
+            <th class="num">20d return %</th>
+          </tr>
+        </thead>
+        <tbody id="rrStockBody"><tr><td colspan="4" class="rr-loading">Loading stocks…</td></tr></tbody>
+      </table>
+    </div>
+    <div class="rr-pager">
+      <button type="button" class="cx-btn quiet rr-pagebtn" id="rrStockPrev">← Prev</button>
+      <span class="rr-pageline" id="rrStockPage"></span>
+      <button type="button" class="cx-btn quiet rr-pagebtn" id="rrStockNext">Next →</button>
+    </div>
+  </section>
+
+  <section class="cx-card rr-fwd" aria-label="Forward calls — did they work?">
+    <div class="cx-card-head">
+      <h2 class="cx-title">Forward calls — did they work?</h2>
+      <span class="cx-meta" id="rrFwdMeta">—</span>
+    </div>
+    <p class="rr-chartsub">Every published board is recorded as a call — one entry per sector — and resolved against realized weekly closes 4 and 13 weeks later. A sector "beats" when its relative-strength line rises over the window.</p>
+    <p class="rr-fwdsummary" id="rrFwdSummary"></p>
+    <div class="cx-seg" id="rrFwdFilter" role="group" aria-label="Filter forward calls">
+      <button type="button" data-fwd="All" aria-pressed="true">All calls</button>
+      <button type="button" data-fwd="Resolved" aria-pressed="false">Resolved</button>
+      <button type="button" data-fwd="Pending" aria-pressed="false">Pending</button>
+    </div>
+    <div class="cx-scroll">
+      <table class="cx-table rr-table" id="rrFwdTable">
+        <thead>
+          <tr>
+            <th>Board</th>
+            <th>Sector</th>
+            <th>Quadrant</th>
+            <th class="num">RS-Ratio</th>
+            <th class="num">4w forward RS %</th>
+            <th class="num">13w forward RS %</th>
+          </tr>
+        </thead>
+        <tbody id="rrFwdBody"><tr><td colspan="6" class="rr-loading">Loading forward calls…</td></tr></tbody>
+      </table>
+    </div>
+    <div class="rr-pager">
+      <button type="button" class="cx-btn quiet rr-pagebtn" id="rrFwdPrev">← Prev</button>
+      <span class="rr-pageline" id="rrFwdPage"></span>
+      <button type="button" class="cx-btn quiet rr-pagebtn" id="rrFwdNext">Next →</button>
+    </div>
+    <p class="cx-cap" id="rrFwdNote"></p>
+  </section>
 
   <section class="rr-section" aria-label="Methodology">
     <h2>How this map is built</h2>
@@ -103,11 +207,15 @@
       <p><strong>RS-Ratio (the table).</strong> The weekly posture table is built on <strong>weekly closes</strong> — the last session of each week. RS = sector index ÷ NEPSE index at each weekly close. RS-Ratio = 100 × (RS ÷ its own trailing 13-week average − 1), in percent. Above 0, the sector's relative line is running above its own 13-week trend — it has been beating the index by more than its recent norm; below 0, it is running below that trend. <strong>RS-Momentum</strong> = RS-Ratio minus its own trailing 4-week average: above 0, the ratio has been rising over the last four weeks. Weekly bars are deliberate: measured weekly, relative strength rotates smoothly from quadrant to quadrant; measured daily, the same maths whipsaws around every sharp move. Every input is our own data and the formulas are published, not borrowed as a black box.</p>
       <p><strong>Quadrants.</strong> Leading (ratio ≥ 0, momentum ≥ 0): strong and still strengthening. Weakening (≥ 0, &lt; 0): strong but losing steam. Lagging (both &lt; 0): weak and still weakening. Improving (&lt; 0, ≥ 0): weak but turning up — tomorrow's leaders often enter here. <strong>Weeks in Quad</strong> counts consecutive weeks in the current quadrant; <strong>Consistency</strong> is the share of the last 30 weeks spent in the sector's most frequent quadrant. A sector whose quadrant differs from the previous week carries a small <strong>moved</strong> tag beside its quadrant. <strong>Rotation rank</strong> orders sectors by RS-Ratio + RS-Momentum, their summed distance from the 0 / 0 centre.</p>
       <p><strong>Turnover and flow shift.</strong> Turnover % is the sector's share of total turnover across sector-mapped companies in the latest session (exchange-reported turnover from our archive). Flow Shift compares that share with its trailing 120-session average, in percentage points: positive means money is rotating toward the sector relative to its recent norm, negative means it is rotating away.</p>
+      <p><strong>Stocks in this sector.</strong> Every constituent's 20-day relative strength vs NEPSE uses the quadrant chart's own mechanism — EMA5 of the 20-session RS-line change on the common session grid — plus its own 20-day return. A stock shows numbers only when its last common-grid session is the board's latest session with 21+ common points; otherwise it is listed with dashes, never a stale number presented as current.</p>
+      <p><strong>Forward calls — did they work?</strong> Every published board is recorded as one call per sector (quadrant, RS-Ratio, RS-Momentum, rank, RS level) and resolved against realized weekly closes: 4-week and 13-week forward RS change, with beat = forward change above 0. Tracking started 2026-10-26 with the then-live 2026-10-16 board, whose forward windows were still open; no earlier board was backfilled. Until entries resolve, the page shows tracked counts and no rate — never a placeholder.</p>
+      <p><strong>Benchmark guard.</strong> The official index history carries a carried-forward stub row for 2026-10-19 (open = close = 2634.17 on a market holiday). The rotation maths never selects it — no sector session falls on that date and the chart counts only the common session grid — but the builder caps the benchmark at the archive's last session and lists any dropped rows in the payload, so a stub can never silently re-enter the series. The collector root-cause is separate pipeline work.</p>
       <p><strong>Reading it honestly.</strong> Rotation is relative: a sector can sit in Leading while falling, if it falls less than the index, and a Lagging sector can rise if it rises less. The map shows where relative strength and money are moving — it is a map, not a signal, and it says nothing about whether any sector is cheap or dear.</p>
+      <p><strong>Auto-updating.</strong> The board is rebuilt by a Python script after every market close (weekdays 16:38 NPT) from our own archive, and this page re-fetches on a market-aware schedule — every 5 minutes during market hours, every 30 minutes after close, every 2 hours on weekends — so an open page picks up the new board without a reload. Sessions advance only when the market trades; on holidays the board is unchanged by design.</p>
     </div>
   </section>
 
-  <p class="rr-fine">Mechanical relative-strength statistics for education, not investment advice. Data: Nepse Decode derived sector indices + official NEPSE index history, rebuilt after each close. Sector history begins when each derived index has enough sessions (Banking 2011, Hydropower 2009, Investment 2020).</p>
+  <p class="rr-fine">Mechanical relative-strength statistics for education, not investment advice. Data: Nepse Decode derived sector indices + official NEPSE index history, rebuilt after each close. Sector history begins when each derived index has enough sessions (Banking 2011, Hydropower 2009, Investment 2020). Forward tracking started 2026-10-26.</p>
 
 </main>
     </div>
@@ -116,6 +224,7 @@
 
 <div id="nd-footer"></div>
 <script src="/js/nd-chrome.js?v=74c1c8b7"></script>
-<script src="/js/nd-rotation.js?v=19898073"></script>
+<script src="/js/nd-rotation.js?v=03a80976"></script>
+<script defer src="/js/freshness-badge.js?v=9b77cf10"></script>
 </body>
 </html>
