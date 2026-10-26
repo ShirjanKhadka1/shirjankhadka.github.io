@@ -250,9 +250,19 @@ function tick(){
 }
 
 $('brokerSel').addEventListener('change', function(){
-  state.broker = this.value || null; state.sig = null;
-  if (state.broker && state.data) { render(); setFresh(false); setBanner(); }
-  else if (!state.broker) { $('bkResult').innerHTML = '<div class="bk-empty">Pick a broker above to see its trade pattern.</div>'; }
+  state.broker = this.value || null;
+  if (state.broker && state.data) {
+    render();
+    /* Selection is a VIEW change, not a data change: re-baseline the
+       signature here. Nulling it (the original bug, caught by the
+       stock-pattern teardown's re-check 2026-10-26) made the next silent
+       tick take the "unchanged" branch unconditionally, so a real data
+       change arriving in the first tick window after a selection was
+       never displayed. */
+    state.sig = signature(state.data);
+    setFresh(false); setBanner();
+  }
+  else if (!state.broker) { state.sig = null; $('bkResult').innerHTML = '<div class="bk-empty">Pick a broker above to see its trade pattern.</div>'; }
 });
 $('bkPeriods').addEventListener('click', function(e){
   var b = e.target.closest('button'); if (!b) return;
