@@ -159,6 +159,11 @@
       fact('Sessions archived', fmtNum(t.sessions_tracked || 0) + ' · ' + fmtNum(t.resolved_outcomes || 0) + ' tracked outcomes');
   }
 
+  // Broker history starts 2026-07-15. While a window reaches back to that
+  // first session it covers the whole available history, so 3M/6M/1Y
+  // currently show identical totals. The condition expires on its own
+  // once the window's start moves past the first session.
+  var HISTORY_START = '2026-07-15';
   function renderWindowNote() {
     var note = $('mfWindowNote');
     if (!note) return;
@@ -166,7 +171,8 @@
     if (!v) return;
     note.textContent = state.window === '1D'
       ? 'Single final session · ' + v.brokers.length + ' brokers'
-      : v.from + ' → ' + v.to + ' · ' + v.trading_days + ' trading days · ' + v.brokers.length + ' brokers';
+      : v.from + ' → ' + v.to + ' · ' + v.trading_days + ' trading days · ' + v.brokers.length + ' brokers'
+        + (v.from === HISTORY_START ? ' · full available history' : '');
   }
 
   function renderSectors() {

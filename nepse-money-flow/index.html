@@ -88,13 +88,13 @@
       <button data-window="6M" role="tab" aria-selected="false">6 months</button>
       <button data-window="1Y" role="tab" aria-selected="false">1 year</button>
     </div>
-    <p class="mf-fine">Windows come from the broker pipeline's published period aggregates. The archive and the tracking below are built on <strong>single sessions</strong> (the 1-day view); longer windows show where flow concentrated over the period, not a tracked signal.</p>
+    <p class="mf-fine">Windows come from the broker pipeline's published period aggregates, clamped to available history (broker data starts 2026-07-15, so the 3-month, 6-month and 1-year windows currently cover the same sessions and show the same totals). The archive and the tracking below are built on <strong>single sessions</strong> (the 1-day view); longer windows show where flow concentrated over the period, not a tracked signal.</p>
   </section>
 
   <section class="mf-panel" aria-label="Flow by sector">
     <div class="mf-sechead"><h2>Flow by sector</h2><span class="mf-secnote">Tap a sector to see only its stocks in the lists below.</span></div>
     <div class="mf-sectorgrid" id="mfSectors"><p class="mf-loading">Loading sectors…</p></div>
-    <p class="mf-fine" id="mfSectorNote">Sector nets cover the day's 400 largest stock-broker pairs only (top 200 accumulation + top 200 distribution). Full-market sector nets are zero by construction — every trade's buy is another broker's sell — so the concentration among the largest pairs is the honest sector signal.</p>
+    <p class="mf-fine" id="mfSectorNote">Sector nets cover the current window's 400 largest stock-broker pairs only (top 200 accumulation + top 200 distribution). Full-market sector nets are zero by construction — every trade's buy is another broker's sell — so the concentration among the largest pairs is the honest sector signal.</p>
   </section>
 
   <section class="mf-panel" aria-label="Broker flow table">
@@ -171,6 +171,6 @@
 
 <div id="nd-footer"></div>
 <script src="/js/nd-chrome.js?v=74c1c8b7"></script>
-<script src="/js/nd-moneyflow.js?v=90a02a8e"></script>
+<script src="/js/nd-moneyflow.js?v=41e5eff9"></script>
 </body>
 </html>
