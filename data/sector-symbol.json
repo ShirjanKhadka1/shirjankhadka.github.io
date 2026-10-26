@@ -1,7 +1,7 @@
 {
  "schema": "nd-sector-symbol/v1",
  "asof": "2026-10-16",
- "built_at": "2026-10-23T20:00:34+05:45",
+ "built_at": "2026-10-26T11:37:31+05:45",
  "status": "FINAL",
  "source": "Nepse Decode OHLC archive (ohlc-db) + derived equal-weight sector indices (data/sector-indices.json)",
  "windows": [
@@ -19795,11 +19795,27 @@
    }
   }
  },
+ "series_guard": {
+  "keystone_asof": "2026-10-16",
+  "archive_asof": "2026-10-16",
+  "extended_sessions": []
+ },
  "methodology": {
   "construction": "For each window (calendar days), a stock's return_ is its close-to-close return from the last close on or before (asof - days) to the as-of close. sector_return is the return of the stock's derived equal-weight sector index over the identical window \u2014 the same sector returns the Sector Price Rotation board publishes. rel_return = return_ - sector_return, in percentage points.",
   "identity": "rel_return = return_ - sector_return on every row; check any row by subtraction.",
   "sector_basis": "Sector indices are equal-weight composites of current constituents (the site's derived sector series), not official cap-weighted sub-indices. Our taxonomy has 11 sectors; Trading stocks sit inside Others.",
   "stability": "Relation stability is measured history, not a forecast: weekly snapshots over the trailing three years, each board recomputed 28 calendar days later.",
   "coverage": "Rows are the keystone sector constituents with a close on both sides of the window; the rest are listed per window as unscored rather than dropped silently."
+ },
+ "forward_started": "2026-10-16",
+ "forward_summary": {
+  "tracked": 7,
+  "resolved": 0,
+  "pending": 7,
+  "boards": [
+   "2026-10-16"
+  ],
+  "leaders_still_ahead_pct": null,
+  "sign_persistence_pct": null
  }
 }
