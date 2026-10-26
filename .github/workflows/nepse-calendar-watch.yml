@@ -1,8 +1,10 @@
 # NEPSE calendar watch (V3) — holiday/closure notice monitor.
 #
 # Daily: fetches official NEPSE notice sources, diffs against
-# tools/nepse-holidays.json. On findings: opens a PR with the proposed
-# additions (always status=unverified) and emails [NEPSE NOTICE].
+# tools/nepse-holidays.json. On findings: pushes a branch with the proposed
+# additions (always status=unverified), opens a PR when possible, and
+# emails [NEPSE NOTICE]. PR creation is best-effort (it has failed
+# repeatedly): findings delivery must not depend on it.
 # NEVER auto-applies a holiday change to production — the owner confirms.
 #
 # Safety: the calendar INFORMS labels; it never decides whether to fetch.
@@ -61,24 +63,33 @@ jobs:
 
       - name: Open PR with proposed calendar changes
         if: steps.findings.outputs.count != '0'
+        # Best-effort: PR creation failed on the 2026-10-24 runs (morning run
+        # pushed the branch but no PR was created; evening run then failed
+        # at checkout -b because the branch already existed). A PR failure
+        # must not fail the run or skip the notice email below.
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           BRANCH="calendar-watch/$(date -u +%Y%m%d)"
           git config user.name "Nepse Decode calendar watch"
           git config user.email "shirjan.2.khadka@gmail.com"
-          git checkout -b "$BRANCH"
+          git checkout -B "$BRANCH"
           mkdir -p tools/calendar-watch
           cp /tmp/calendar-report.json "tools/calendar-watch/report-$(date -u +%Y%m%d).json"
           git add tools/calendar-watch/
           git commit -m "Calendar watch: $(date -u +%Y-%m-%d) findings (unverified, needs owner confirmation)"
           git push -u origin "$BRANCH"
-          gh pr create --title "Calendar watch $(date -u +%Y-%m-%d): proposed holiday changes (UNVERIFIED)" \
-            --body "Automated findings from the NEPSE calendar watcher. Every item is status=unverified and needs owner confirmation against the official NEPSE notice before tools/nepse-holidays.json is updated. NEVER merge blindly." \
-            --base main --head "$BRANCH"
+          if [ -n "$(gh pr list --head "$BRANCH" --json number --jq '.[0].number // empty' 2>/dev/null || true)" ]; then
+            echo "PR already exists for $BRANCH, skipping creation"
+          else
+            gh pr create --title "Calendar watch $(date -u +%Y-%m-%d): proposed holiday changes (UNVERIFIED)" \
+              --body "Automated findings from the NEPSE calendar watcher. Every item is status=unverified and needs owner confirmation against the official NEPSE notice before tools/nepse-holidays.json is updated. NEVER merge blindly." \
+              --base main --head "$BRANCH"
+          fi
 
       - name: Email [NEPSE NOTICE] — calendar findings
-        if: steps.findings.outputs.count != '0'
+        if: always() && steps.findings.outputs.count != '0'
         uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7
         with:
           server_address: smtp.gmail.com
@@ -91,6 +102,8 @@ jobs:
           from: Nepse Decode calendar watch
           body: |
             The NEPSE calendar watcher found items needing your confirmation.
-            A PR has been opened with the proposed (UNVERIFIED) changes.
+            The proposed (UNVERIFIED) changes are committed on the
+            calendar-watch/<date> branch for your review (a PR is opened
+            when possible).
             Review the official NEPSE notice for each item before approving.
             Nothing was applied to production.
