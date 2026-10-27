@@ -280,8 +280,23 @@ def main():
     if page.count('na-viz-panel') != 3:
         fail('viz panels != 3')
     closes = re.search(r'<ul class="na-closes">(.*?)</ul>', page, re.S)
-    if not closes or closes.group(1).count('<li>') != 4:
-        fail('baked upcoming-closes list != 4 items')
+    # Upcoming closes mirror the baker (build-actions-page.js): dividend /
+    # bonus / right items whose resolved book-close is today or later.
+    # Never a hardcoded count: MEN's 2026-10-26 close made yesterday's list
+    # 4 and today's 3 (BHDC was never in the archive's list at all).
+    exp_closes = [(it.get('symbol'), div_bookclose(div, it)[0])
+                  for it in items if it.get('kind') in STATUS_KINDS]
+    exp_closes = [(s, b) for s, b in exp_closes if b and b >= today.isoformat()]
+    if not exp_closes:
+        if closes:
+            fail('baked upcoming-closes list present but none expected')
+    elif not closes or closes.group(1).count('<li>') != len(exp_closes):
+        got = closes.group(1).count('<li>') if closes else 0
+        fail(f"baked upcoming-closes list {got} != expected {len(exp_closes)} "
+             f"({', '.join(s + ' ' + b for s, b in exp_closes)})")
+    else:
+        info(f"baked upcoming-closes: {len(exp_closes)} "
+             f"({', '.join(s + ' ' + b for s, b in exp_closes)})")
     info(f"baked page: {len(cards)} cards, {opts} sector options, {chips} session chips, 3 viz panels")
 
     # --- 10. ledger consistency (if present) ---
