@@ -109,7 +109,12 @@ function main() {
   }
   /* Baked status uses the BUILD date as "today"; the client recomputes
      at view time, so a stale baked pill self-corrects on first refresh. */
-  const buildToday = new Date().toISOString().slice(0, 10);
+  // Calendar "today" is NPT, uniform with the verifier and the ledger:
+  // market dates (book closes, sessions) are NPT dates. UTC was a day
+  // behind during 00:00-05:45 NPT (2026-10-27: baker UTC vs verifier NPT).
+  const buildToday = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Kathmandu', year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(new Date());
   function statusAt(it, today) {
     const k = String(it.kind || '');
     if (k !== 'dividend' && k !== 'bonus-share' && k !== 'right-share') return null;
