@@ -45,14 +45,20 @@
   }
   function normStatus(v, row) {
     var s = String(v || '').toLowerCase().trim();
-    var upd = state.data && state.data.updated ? String(state.data.updated) : '';
-    // '-open' variants (e.g. 'foreign-open') are open-like; a bare === 'open'
-    // check used to fall through to 'closed' (HPHL bug 2026-10-12).
-    var openLike = s === 'open' || /-open$/.test(s);
-    if (openLike && row) {
-      if (row.closing_date && upd && String(row.closing_date) < upd) return 'closed';
-      if (row.opening_date && upd && String(row.opening_date) > upd) return 'upcoming';
+    // Status is date-driven against TODAY (Asia/Kathmandu), not the data's
+    // updated date: a tab must move Upcoming -> Open on opening day and
+    // Open -> Closed the day after close even if the data has not
+    // republished. (2026-10-27: baked 'upcoming' rows never promoted, so
+    // HPHL main + local would have sat on Upcoming past opening day.)
+    var today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kathmandu' });
+    if (row) {
+      var od = row.opening_date ? String(row.opening_date) : '';
+      var cd = row.closing_date ? String(row.closing_date) : '';
+      if (cd && cd < today) return 'closed';
+      if (od && od > today) return 'upcoming';
+      if (od && od <= today) return 'open';
     }
+    var openLike = s === 'open' || /-open$/.test(s);
     if (openLike) return 'open';
     if (s.indexOf('upcoming') !== -1 || s.indexOf('up coming') !== -1 || s === 'announced') return 'upcoming';
     return 'closed';
