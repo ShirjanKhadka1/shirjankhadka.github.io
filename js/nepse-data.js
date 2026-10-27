@@ -18,6 +18,11 @@
  *     if no broadcast arrives within 2x the expected interval.
  *  8. Change tracking (Phase 3): every snapshot swap records which symbols
  *     moved (getChangedSymbols), powering NepseFlash price-change highlights.
+ *  9. Snapshot shape (restored 2026-10-27): snapshot.map is a per-symbol
+ *     index over the same quote objects as snapshot.quotes (quarantined
+ *     included, flagged), and every quote preserves last_updated from the
+ *     feed (null when absent). getQuote() stays the quarantined-filtered
+ *     lookup; nothing else in the snapshot shape changed.
  *
  * Load order: nepse-market-config.js → nepse-format.js → nepse-data.js
  */
@@ -102,7 +107,12 @@
       open: isFiniteNum(raw.open) ? Number(raw.open) : null,
       volume: isFiniteNum(raw.volume) ? Number(raw.volume) : null,
       turnover: isFiniteNum(raw.turnover) ? Number(raw.turnover) : null,
-      trades: isFiniteNum(raw.trades) ? Number(raw.trades) : null
+      trades: isFiniteNum(raw.trades) ? Number(raw.trades) : null,
+      // Preserved verbatim from the feed (null when absent). Restored
+      // 2026-10-27: the normalizer used to drop this, which broke every
+      // consumer that read q.last_updated (the technical page's live
+      // candle among them). Never coerce: feeds carry naive ISO strings.
+      last_updated: (typeof raw.last_updated === 'string' && raw.last_updated) ? raw.last_updated : null
     };
     q.quarantined = quarantined(q);
     return q;
@@ -177,6 +187,14 @@
       return { ok: false, errors: ['no valid quotes after normalization'] };
     }
 
+    // Per-symbol index over the SAME quote objects as `quotes` (restored
+    // 2026-10-27: consumers used to read snap.map[sym]; the snapshot
+    // carried no map, so the live candle never landed). Mirrors quotes
+    // 1:1 — quarantined quotes are included, flagged via q.quarantined;
+    // use getQuote() for a quarantined-filtered lookup.
+    var map = {};
+    quotes.forEach(function (q) { map[q.symbol] = q; });
+
     var snapshot = {
       asof: asof.toISOString(),
       asofMs: asof.getTime(),
@@ -193,6 +211,7 @@
       },
       indices: indices,
       quotes: quotes,
+      map: map,
       quoteCount: quotes.length,
       partial: !!raw.partial,
       dropped: dropped,
@@ -205,6 +224,7 @@
       snapshot.quotes.forEach(function (q) { Object.freeze(q); });
       snapshot.indices.forEach(function (it) { Object.freeze(it); });
       Object.freeze(snapshot.quotes);
+      Object.freeze(snapshot.map);
       Object.freeze(snapshot.indices);
       Object.freeze(snapshot.index);
       Object.freeze(snapshot);
@@ -230,6 +250,15 @@
       if (!raw) return null;
       var parsed = JSON.parse(raw);
       if (!parsed || !parsed.snapshot) return null;
+      // Backfill for snapshots stored before the 2026-10-27 map restore:
+      // an old stored copy has quotes but no map — rebuild the index so
+      // consumers see the same shape either way. Parsed JSON is fresh
+      // (unfrozen), so assignment here is safe.
+      if (!parsed.snapshot.map && Array.isArray(parsed.snapshot.quotes)) {
+        var m = {};
+        parsed.snapshot.quotes.forEach(function (q) { if (q && q.symbol) m[q.symbol] = q; });
+        parsed.snapshot.map = m;
+      }
       return parsed.snapshot;
     } catch (e) { return null; }
   }
