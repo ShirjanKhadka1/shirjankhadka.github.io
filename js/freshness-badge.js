@@ -157,18 +157,23 @@
     var st = sessionState();
     var today = todayNpt();
     var stale = tradingDaysBetween(sessDate, today);
+    // Labeled partial tape (2026-10-27): the live tape carries partial=true
+    // with its traded-so-far quotes array. When the flag is absent/falsy the
+    // bit is empty, so rendering is byte-identical to before.
+    var partialBit = (live && live.partial === true && Array.isArray(live.quotes))
+      ? ' · Partial tape — ' + live.quotes.length + ' symbols traded so far' : '';
     if (stale > 1) {
-      render('Data as of ' + sessDate + ' · ' + stale + ' sessions old — refresh delayed', 'fb-stale');
+      render('Data as of ' + sessDate + ' · ' + stale + ' sessions old — refresh delayed' + partialBit, 'fb-stale');
       return true;
     }
     var age = ageText(asof);
     var ageBit = age ? ' · updated ' + age : '';
     if (st === 'OPEN') {
-      render('Data as of ' + sessDate + ' · Session open' + delayBit(live) + ageBit, 'fb-live');
+      render('Data as of ' + sessDate + ' · Session open' + delayBit(live) + ageBit + partialBit, 'fb-live');
     } else if (st === 'PRE-OPEN') {
-      render('Data as of ' + sessDate + ' · Pre-open' + delayBit(live) + ageBit, 'fb-live');
+      render('Data as of ' + sessDate + ' · Pre-open' + delayBit(live) + ageBit + partialBit, 'fb-live');
     } else {
-      render('Data as of ' + sessDate + ' · Session closed', 'fb-ok');
+      render('Data as of ' + sessDate + ' · Session closed' + partialBit, 'fb-ok');
     }
     return true;
   }

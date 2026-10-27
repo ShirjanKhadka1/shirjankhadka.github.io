@@ -194,6 +194,7 @@
       indices: indices,
       quotes: quotes,
       quoteCount: quotes.length,
+      partial: !!raw.partial,
       dropped: dropped,
       quarantinedCount: quarantinedCount,
       receivedAt: Date.now()
