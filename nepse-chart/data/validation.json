@@ -1,30 +1,30 @@
 {
-  "ran_at_npt": "2026-10-26T22:06:00+05:45",
-  "expected_session": "2026-10-26",
-  "passed": true,
+  "ran_at_npt": "2026-10-27T23:44:00+05:45",
+  "expected_session": "2026-10-27",
+  "passed": false,
   "gates": [
     {
       "gate": "manifest-present",
       "pass": true,
-      "detail": "data/manifest.json session=2026-10-26",
+      "detail": "data/manifest.json session=2026-10-27",
       "severity": "fail"
     },
     {
       "gate": "live-session-current",
-      "pass": true,
-      "detail": "live=2026-10-26 expected=2026-10-26",
+      "pass": false,
+      "detail": "live=2026-10-26 expected=2026-10-27",
       "severity": "fail"
     },
     {
       "gate": "universe-session-current",
-      "pass": true,
-      "detail": "universe=2026-10-26 expected=2026-10-26",
+      "pass": false,
+      "detail": "universe=2026-10-26 expected=2026-10-27",
       "severity": "fail"
     },
     {
       "gate": "security-count-stable",
       "pass": true,
-      "detail": "quotes=341 baseline=348 (last good tag data-2026-10-16-1) drift=2.0% band=±5%",
+      "detail": "quotes=341 baseline=341 (last good tag data-2026-10-26-1) drift=0.0% band=±5%",
       "severity": "fail"
     },
     {
@@ -95,32 +95,32 @@
     },
     {
       "gate": "signals/momentum.json-fresh",
-      "pass": true,
-      "detail": "generated=2026-10-26 expected>=2026-10-26",
+      "pass": false,
+      "detail": "generated=2026-10-26 expected>=2026-10-27",
       "severity": "fail"
     },
     {
       "gate": "signals/trend-relay.json-fresh",
-      "pass": true,
-      "detail": "generated=2026-10-26 expected>=2026-10-26",
+      "pass": false,
+      "detail": "generated=2026-10-26 expected>=2026-10-27",
       "severity": "fail"
     },
     {
       "gate": "signals/reversal.json-fresh",
-      "pass": true,
-      "detail": "generated=2026-10-26 expected>=2026-10-26",
+      "pass": false,
+      "detail": "generated=2026-10-26 expected>=2026-10-27",
       "severity": "fail"
     },
     {
       "gate": "all-files-parse",
       "pass": true,
-      "detail": "970 files ok",
+      "detail": "984 files ok",
       "severity": "fail"
     },
     {
       "gate": "sha256-integrity",
       "pass": true,
-      "detail": "970 files verified",
+      "detail": "984 files verified",
       "severity": "fail"
     }
   ],
