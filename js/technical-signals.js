@@ -1,5 +1,8 @@
 /* Technical Signals board — renders /data/technical-signals.json
-   (Nepse Decode teardown Link 9). Plain DOM, no dependencies. */
+   (Nepse Decode teardown Link 9, rebuilt 2026-10-27). Plain DOM, no
+   dependencies. Auto-refresh: 60s change-gated — an unchanged payload
+   moves only the freshness clock, never the DOM. View-change handlers
+   RE-BASELINE the refresh signature after render, never null it. */
 (function () {
   'use strict';
   var SIG_NAMES = { macd: 'MACD', rsi: 'RSI', sma: 'SMA', ema: 'EMA',
@@ -15,9 +18,12 @@
   SIG_ORDER.forEach(function (k) { FAM_NAMES[k] = SIG_NAMES[k]; });
   var RATINGS = ['Strong Buy', 'Buy', 'Neutral', 'Sell', 'Strong Sell'];
   var PAGE_SIZE = 25;
+  var REFRESH_MS = 60000;
   var state = { rating: 'All', sector: 'All', q: '', sort: 'score_desc',
     horizon: '10', page: 1, open: null };
   var DATA = null;
+  var lastSig = null;
+  var lastCheckMs = 0;
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -53,6 +59,14 @@
       el.appendChild(b);
     });
   }
+  /* Band colour for a score-band midpoint, reusing the rating segments. */
+  function bandCls(mid) {
+    if (mid >= 70) return 'ts-seg-sb';
+    if (mid >= 60) return 'ts-seg-b';
+    if (mid >= 51) return 'ts-seg-n';
+    if (mid >= 42) return 'ts-seg-s';
+    return 'ts-seg-ss';
+  }
 
   function renderStats(p) {
     var s = p.summary;
@@ -87,6 +101,22 @@
       }).join('') + '</div>';
     document.getElementById('ratingDist').innerHTML =
       '<div class="ts-dist-bar">' + bar + '</div><div class="ts-dist-legend">' + legend + '</div>' + classLine;
+  }
+
+  function renderVerdict(p) {
+    var s = p.summary;
+    document.getElementById('verdictMedian').textContent = s.median_score;
+    document.getElementById('verdictMean').textContent =
+      'Mean ' + fmt(s.mean_score, 1) + ' · ' + s.symbols_scored + ' stocks scored';
+    var sorted = p.board.slice().sort(function (a, b) { return b.score - a.score; });
+    var top = sorted.slice(0, 5);
+    var bottom = sorted.slice(-3).reverse();
+    function li(r) {
+      return '<li><span class="ts-sym">' + esc(r.symbol) + '</span> ' + esc(r.rating) +
+        '<span class="ts-vscore">' + r.score + '</span></li>';
+    }
+    document.getElementById('verdictTop').innerHTML = top.map(li).join('');
+    document.getElementById('verdictBottom').innerHTML = bottom.map(li).join('');
   }
 
   function kv(label, value) {
@@ -175,15 +205,15 @@
     if (state.page > pages) state.page = pages;
     var el = document.getElementById('boardPager');
     if (!total) { el.innerHTML = ''; return; }
-    function btn(label, to, disabled, aria) {
-      return '<button type="button" class="ts-pgbtn"' +
+    function btn(label, to, disabled, aria, extra) {
+      return '<button type="button" class="ts-pgbtn' + (extra ? ' ' + extra : '') + '"' +
         (disabled ? ' disabled' : '') + ' aria-label="' + aria + '" data-page="' + to + '">' +
         esc(label) + '</button>';
     }
     el.innerHTML = '<span class="ts-pginfo">Page ' + state.page + ' of ' + pages + '</span>' +
       '<span class="ts-pgbtns">' +
-      btn('‹ Prev', state.page - 1, state.page <= 1, 'Previous page') +
-      btn('Next ›', state.page + 1, state.page >= pages, 'Next page') + '</span>';
+      btn('‹ Prev', state.page - 1, state.page <= 1, 'Previous page', '') +
+      btn('Next ›', state.page + 1, state.page >= pages, 'Next page', 'ts-pgbtn-next') + '</span>';
     var btns = el.querySelectorAll('button[data-page]');
     Array.prototype.forEach.call(btns, function (b) {
       b.addEventListener('click', function () {
@@ -207,6 +237,17 @@
     return '<span class="ts-prev ' + cls + '">' + txt + '</span>';
   }
 
+  function renderSectorChip() {
+    var el = document.getElementById('sectorChip');
+    if (!el) return;
+    if (state.sector === 'All') { el.innerHTML = ''; return; }
+    el.innerHTML = '<button type="button" class="ts-chipbtn" id="sectorChipBtn">Sector: ' +
+      esc(state.sector) + ' ×</button>';
+    document.getElementById('sectorChipBtn').addEventListener('click', function () {
+      setSector('All');
+    });
+  }
+
   function renderBoard() {
     var rows = filteredRows();
     var pages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
@@ -216,7 +257,7 @@
     var html = '';
     page.forEach(function (r, i) {
       var chg = r.change_pct;
-      html += '<tr class="ts-row" data-sym="' + esc(r.symbol) + '"><td class="num">' + (start + i + 1) + '</td>' +
+      html += '<tr class="ts-row" tabindex="0" data-sym="' + esc(r.symbol) + '"><td class="num">' + (start + i + 1) + '</td>' +
         '<td class="ts-sym">' + esc(r.symbol) + '</td>' +
         '<td class="ts-sector">' + esc(r.sector) + '</td>' +
         '<td class="num">' + fmt(r.close, 2) + '</td>' +
@@ -244,27 +285,72 @@
         'No stocks match this filter · ' + DATA.board.length + ' scored stocks · session ' + DATA.asof;
     }
     renderPager(rows.length);
+    renderSectorChip();
     var trs = document.querySelectorAll('#boardTable tr.ts-row');
     Array.prototype.forEach.call(trs, function (tr) {
-      tr.addEventListener('click', function () {
+      function toggle() {
         var sym = tr.getAttribute('data-sym');
         state.open = state.open === sym ? null : sym;
         renderBoard();
+      }
+      tr.addEventListener('click', toggle);
+      tr.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+      });
+    });
+    /* View-change handlers RE-BASELINE the refresh signature after render:
+       the signature always describes the DATA on screen, so the next
+       refresh compares against the truth instead of a stale value. */
+    lastSig = signature(DATA);
+  }
+
+  function sectorEntries() {
+    return Object.keys(DATA.summary.by_sector).map(function (k) {
+      var s = DATA.summary.by_sector[k];
+      return { sector: k, n: s.n, med: s.median_score, bull: s.bullish_rated, bear: s.bearish_rated };
+    }).sort(function (a, b) { return b.med - a.med; });
+  }
+
+  function renderSectorCards() {
+    var el = document.getElementById('sectorCards');
+    if (!el) return;
+    var s = DATA.summary;
+    var cards = [{
+      sector: 'All', n: s.symbols_scored, med: s.median_score,
+      bull: s.rating_counts['Strong Buy'] + s.rating_counts['Buy'],
+      bear: s.rating_counts['Sell'] + s.rating_counts['Strong Sell'],
+      all: true
+    }].concat(sectorEntries());
+    el.innerHTML = cards.map(function (e) {
+      var pressed = state.sector === e.sector ? 'true' : 'false';
+      return '<button type="button" class="ts-seccard" data-sector="' + esc(e.sector) +
+        '" aria-pressed="' + pressed + '">' +
+        '<div class="ts-seccard-name">' + esc(e.all ? 'All sectors' : e.sector) + '</div>' +
+        '<div class="ts-seccard-n">' + e.n + ' stocks</div>' +
+        '<div class="ts-seccard-med">' + fmt(e.med, 0) + ' <small>median score</small></div>' +
+        '<span class="ts-seccard-bar"><i style="width:' + e.med + '%"></i></span>' +
+        '<div class="ts-seccard-counts"><span class="ts-pos">▲ ' + e.bull + ' bullish</span>' +
+        '<span class="ts-neg">▼ ' + e.bear + ' bearish</span></div></button>';
+    }).join('');
+    var btns = el.querySelectorAll('.ts-seccard');
+    Array.prototype.forEach.call(btns, function (b) {
+      b.addEventListener('click', function () {
+        setSector(b.getAttribute('data-sector'));
+        document.getElementById('board').scrollIntoView();
       });
     });
   }
 
-  function renderSectors() {
-    var entries = Object.keys(DATA.summary.by_sector).map(function (k) {
-      var s = DATA.summary.by_sector[k];
-      return { sector: k, n: s.n, med: s.median_score, bull: s.bullish_rated, bear: s.bearish_rated };
-    }).sort(function (a, b) { return b.med - a.med; });
-    document.getElementById('sectorBody').innerHTML = entries.map(function (e) {
-      return '<tr><td class="ts-sector">' + esc(e.sector) + '</td><td class="num">' + e.n +
-        '</td><td class="num"><span class="ts-medbar"><i style="width:' + e.med + '%"></i></span> ' + fmt(e.med, 0) +
-        '</td><td class="num ts-pos">' + e.bull +
-        '</td><td class="num ts-neg">' + e.bear + '</td></tr>';
-    }).join('');
+  /* Single funnel for sector changes: card, dropdown, or chip all land here,
+     so the board, the dropdown, and the cards can never disagree. */
+  function setSector(sector) {
+    state.sector = sector;
+    state.page = 1;
+    state.open = null;
+    var sel = document.getElementById('sectorSel');
+    if (sel) sel.value = sector;
+    renderBoard();
+    renderSectorCards();
   }
 
   function renderHist() {
@@ -278,10 +364,10 @@
     var max = Math.max.apply(null, buckets);
     document.getElementById('scoreHist').innerHTML = buckets.map(function (n, b) {
       var lo = b * 10, hi = b === 9 ? 100 : lo + 9;
-      return '<div class="ts-histcol"><div class="ts-histbar" style="height:' +
-        (max ? Math.round(100 * n / max) : 0) + '%" title="' + lo + '–' + hi + ': ' + n +
-        ' stocks"></div><span class="ts-histn">' + n + '</span><span class="ts-histlab">' +
-        lo + '–' + hi + '</span></div>';
+      return '<div class="ts-histcol"><div class="ts-histbar ' + bandCls(lo + 5) +
+        '" style="height:' + (max ? Math.round(100 * n / max) : 0) + '%" title="' +
+        lo + '–' + hi + ': ' + n + ' stocks"></div><span class="ts-histn">' + n +
+        '</span><span class="ts-histlab">' + lo + '–' + hi + '</span></div>';
     }).join('');
   }
 
@@ -349,20 +435,23 @@
       return;
     }
     var lat = co.latest;
-    var latHtml = '<p class="ts-note">Latest tracked session ' + esc(lat.asof) + ': ';
+    var tracked = '<p class="ts-note">Forward tracking: ' +
+      (co.sessions_tracked || 0) + ' sessions tracked · ' +
+      (co.resolved_outcomes || 0) + ' resolved outcomes. Latest tracked session ' +
+      esc(lat.asof) + ': ';
     ['Strong Buy', 'Strong Sell'].forEach(function (rating) {
       var cc = lat.cohorts[rating];
-      latHtml += esc(rating) + ' ' + cc.splits.all + ' stocks (flash ' + cc.splits.flash +
+      tracked += esc(rating) + ' ' + cc.splits.all + ' stocks (flash ' + cc.splits.flash +
         ', 2nd session ' + (cc.splits.all - cc.splits.flash - cc.splits.persistent) +
         ', persistent ' + cc.splits.persistent + '). ';
       [5, 10].forEach(function (h) {
         var o = cc.outcomes.all[h];
-        latHtml += '+' + h + ': ' + (o.status === 'resolved'
+        tracked += '+' + h + ': ' + (o.status === 'resolved'
           ? 'mean ' + fmtRet(o.mean) + ', spread ' + fmtRet(o.spread) + ' over ' + o.n + ' names'
           : 'pending — ' + o.sessions_to_go + ' more session' + (o.sessions_to_go === 1 ? '' : 's')) + '. ';
       });
     });
-    latHtml += '</p>';
+    tracked += '</p>';
     var agg = co.aggregate || {};
     var rows = '';
     ['Strong Buy', 'Strong Sell'].forEach(function (rating) {
@@ -378,7 +467,7 @@
         });
       });
     });
-    el.innerHTML = latHtml +
+    el.innerHTML = tracked +
       '<div class="cx-scroll ts-tablewrap"><table class="cx-table"><thead><tr>' +
       '<th>Cohort</th><th>Split</th><th class="num">Horizon</th><th class="num">Sessions</th>' +
       '<th class="num">Members</th><th class="num">Mean return</th><th class="num">Board mean</th>' +
@@ -437,24 +526,90 @@
     return parseInt(d[2], 10) + ' ' + (mon[parseInt(d[1], 10) - 1] || '') + ' ' + d[0];
   }
 
+  function nptTime(ms) {
+    return new Date(ms).toLocaleTimeString('en-GB', {
+      timeZone: 'Asia/Kathmandu', hour: '2-digit', minute: '2-digit', hour12: false
+    }) + ' NPT';
+  }
+
+  /* Page-owned freshness line: the BOARD session, labelled distinctly from
+     the shared chrome badge above it (which carries session state). */
+  function updateFreshLine(note) {
+    var el = document.getElementById('tsFresh');
+    if (!el || !DATA) return;
+    var built = builtDate(DATA.built_at);
+    el.textContent = 'Board as of ' + DATA.asof + ' · ' + DATA.summary.symbols_scored +
+      ' stocks scored' + (built ? ' · rebuilt ' + built : '') +
+      ' · checked ' + nptTime(lastCheckMs) +
+      ' · next check ' + nptTime(lastCheckMs + REFRESH_MS) +
+      (note ? ' · ' + note : '');
+  }
+
+  /* Signature: cheap, sensitive to any board change (session, build time,
+     row count, score sum, first/last row). */
+  function signature(p) {
+    if (!p) return '';
+    var sum = 0, i;
+    for (i = 0; i < p.board.length; i++) sum += p.board[i].score;
+    var first = p.board[0] || {}, last = p.board[p.board.length - 1] || {};
+    return [p.asof, p.built_at, p.board.length, sum,
+      first.symbol, first.score, last.symbol, last.score].join('|');
+  }
+
+  function renderAll() {
+    renderStats(DATA);
+    renderVerdict(DATA);
+    drawRatingSeg();
+    renderBoard();
+    renderHist();
+    renderChanges();
+    renderSectorCards();
+    renderReplay();
+    renderCohorts();
+    renderHistory();
+    renderMethod();
+    lastSig = signature(DATA);
+  }
+
+  function drawRatingSeg() {
+    var ratingOpts = ['All'].concat(RATINGS);
+    seg(document.getElementById('ratingTabs'), ratingOpts, state.rating, function (v) {
+      state.rating = v;
+      state.page = 1;
+      drawRatingSeg();
+      renderBoard();
+    });
+  }
+
+  function fetchPayload() {
+    return fetch('/data/technical-signals.json', { cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+  }
+
+  function refreshTick() {
+    if (document.hidden) return;
+    fetchPayload().then(function (p) {
+      lastCheckMs = Date.now();
+      if (signature(p) === lastSig) {
+        /* Unchanged payload: only the clock moves, the DOM is untouched. */
+        updateFreshLine();
+        return;
+      }
+      var keepPage = state.page;
+      DATA = p;
+      renderAll();
+      if (keepPage <= Math.max(1, Math.ceil(filteredRows().length / PAGE_SIZE))) state.page = keepPage;
+      renderBoard();
+      updateFreshLine('board updated');
+    }).catch(function () {
+      lastCheckMs = Date.now();
+      updateFreshLine('refresh failed — showing last board');
+    });
+  }
+
   function init(p) {
     DATA = p;
-    var built = builtDate(p.built_at);
-    document.getElementById('tsSession').textContent =
-      'Session ' + p.asof + ' · ' + p.summary.symbols_scored +
-      ' stocks scored · rebuilt after the close' +
-      (built ? ' · board built ' + built : '');
-    renderStats(p);
-    var ratingOpts = ['All'].concat(RATINGS);
-    function drawRatingSeg() {
-      seg(document.getElementById('ratingTabs'), ratingOpts, state.rating, function (v) {
-        state.rating = v;
-        state.page = 1;
-        drawRatingSeg();
-        renderBoard();
-      });
-    }
-    drawRatingSeg();
+    lastCheckMs = Date.now();
     var sel = document.getElementById('sectorSel');
     var fromRows = {};
     p.board.forEach(function (r) { fromRows[r.sector] = true; });
@@ -464,12 +619,7 @@
       sectors.map(function (s) {
         return '<option value="' + esc(s) + '">' + esc(s) + '</option>';
       }).join('');
-    sel.addEventListener('change', function () {
-      state.sector = sel.value;
-      state.page = 1;
-      state.open = null;
-      renderBoard();
-    });
+    sel.addEventListener('change', function () { setSector(sel.value); });
     document.getElementById('sortSel').addEventListener('change', function (e) {
       state.sort = e.target.value;
       state.page = 1;
@@ -480,18 +630,15 @@
       state.page = 1;
       renderBoard();
     });
-    renderBoard();
-    renderHist();
-    renderChanges();
-    renderSectors();
-    renderReplay();
-    renderCohorts();
-    renderHistory();
-    renderMethod();
+    renderAll();
+    updateFreshLine();
+    setInterval(refreshTick, REFRESH_MS);
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden && Date.now() - lastCheckMs >= REFRESH_MS - 5000) refreshTick();
+    });
   }
 
-  fetch('/data/technical-signals.json', { cache: 'no-store' })
-    .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+  fetchPayload()
     .then(init)
     .catch(function (e) {
       document.getElementById('boardBody').innerHTML =

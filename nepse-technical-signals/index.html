@@ -39,8 +39,8 @@
 <link rel="stylesheet" href="/css/fonts.css">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
-<link rel="stylesheet" href="/css/nd-technical-signals.css?v=46e81ce8">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=69b323cf">
+<link rel="stylesheet" href="/css/nd-technical-signals.css?v=70ad2754">
 </head>
 <body class="nd" data-page="technical-signals">
 
@@ -65,11 +65,29 @@
       <strong>measured replay</strong> further down before reading anything into
       a Strong Buy — it shows, session by session since 2021, what these grades
       were actually worth.</p>
-    <p class="ts-meta"><span id="tsSession">Loading…</span></p>
+    <p class="ts-meta" id="tsFresh" aria-label="Board freshness">Loading…</p>
   </div>
 
+  <section class="ts-verdict" aria-label="Board verdict">
+    <div class="ts-verdict-score">
+      <div class="ts-verdict-n" id="verdictMedian">–</div>
+      <div class="ts-verdict-l">Median score · 0–100</div>
+      <div class="ts-verdict-s" id="verdictMean"></div>
+    </div>
+    <div class="ts-verdict-lists">
+      <div>
+        <div class="ts-verdict-h">Highest scores</div>
+        <ul class="ts-verdict-ul" id="verdictTop"></ul>
+      </div>
+      <div>
+        <div class="ts-verdict-h">Lowest scores</div>
+        <ul class="ts-verdict-ul" id="verdictBottom"></ul>
+      </div>
+    </div>
+    <div class="ts-dist" id="ratingDist" aria-label="Rating distribution"></div>
+  </section>
+
   <div class="cx-stats ts-stats" id="statStrip" aria-label="Board summary"></div>
-  <div class="ts-dist" id="ratingDist" aria-label="Rating distribution"></div>
   <section class="ts-catsec ts-histsec" aria-label="Score distribution" id="distribution">
     <h2 class="ts-h2 ts-h2-sec">Where the scores sit</h2>
     <p class="ts-chartsub">The same board as a histogram: how many stocks fall in each
@@ -103,6 +121,7 @@
         <input type="search" id="symSearch" class="ts-search" placeholder="e.g. NABIL" autocomplete="off">
       </label>
     </div>
+    <div class="ts-sectorchip" id="sectorChip"></div>
     <div class="cx-scroll ts-tablewrap">
       <table class="cx-table" id="boardTable">
         <thead><tr>
@@ -154,21 +173,14 @@
     <div id="cohortBody"></div>
   </section>
 
-  <section class="ts-catsec" aria-label="Sector medians" id="sectors">
+  <section class="ts-catsec" aria-label="Sectors" id="sectors">
     <h2 class="ts-h2 ts-h2-sec">Sectors by median score</h2>
     <p class="ts-chartsub">The same board rolled up by sector: the median
       stock's score, and how many of the sector's stocks carry a bullish
-      (Buy or Strong Buy) or bearish (Sell or Strong Sell) rating. The bar
-      beside each median is that median on the 0–100 scale.</p>
-    <div class="cx-scroll ts-tablewrap">
-      <table class="cx-table" id="sectorTable">
-        <thead><tr>
-          <th>Sector</th><th class="num">Stocks</th><th class="num">Median score</th>
-          <th class="num">Bullish-rated</th><th class="num">Bearish-rated</th>
-        </tr></thead>
-        <tbody id="sectorBody"><tr><td colspan="5" class="ts-loading">Loading the sector roll-up…</td></tr></tbody>
-      </table>
-    </div>
+      (Buy or Strong Buy) or bearish (Sell or Strong Sell) rating. Select a
+      sector card to see that sector's stocks on the board above — select
+      All sectors to return to the full board.</p>
+    <div class="ts-seccards" id="sectorCards"></div>
   </section>
 
   <section class="ts-catsec" aria-label="Recent sessions" id="history">
@@ -206,6 +218,6 @@
 <div id="nd-footer"></div>
 <script src="/js/nd-chrome.js?v=74c1c8b7"></script>
 <script src="/js/freshness-badge.js?v=307d4f55" defer></script>
-<script src="/js/technical-signals.js?v=31c9faae"></script>
+<script src="/js/technical-signals.js?v=14e9dad4"></script>
 </body>
 </html>
