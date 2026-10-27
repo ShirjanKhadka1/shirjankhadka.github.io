@@ -37,10 +37,9 @@
 </script>
 <link rel="stylesheet" href="/css/nd-tokens.css">
 <link rel="stylesheet" href="/css/fonts.css">
-<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
-<link rel="stylesheet" href="/css/nd-smart-money-eps.css?v=172226b3">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=69b323cf">
+<link rel="stylesheet" href="/css/nd-smart-money-eps.css?v=7cfcf003">
 </head>
 <body class="nd" data-page="smart-money-eps">
 
@@ -66,7 +65,9 @@
       loss-making earnings — are the ones worth a second look. Nothing
       here is a call: skilled money beside an earnings trend is a
       description, not a prediction.</p>
+    <div class="sme-hero" id="smeHero" aria-label="Top conviction"></div>
     <p class="sme-meta"><span id="smeSession">Loading…</span></p>
+    <p class="sme-fresh" id="smeFresh">Board freshness: loading…</p>
   </div>
 
   <div class="cx-stats sme-stats" id="statStrip" aria-label="Board summary"></div>
@@ -78,6 +79,9 @@
       latest-quarter TTM EPS against the same quarter a year earlier.
       The money column counts only positive skilled net — the buying
       side of the skilled split.</p>
+    <div class="sme-story-grid" id="storyCards" aria-label="Earnings story cards"></div>
+    <div class="sme-storyviz" id="storyViz" aria-label="Skilled money by earnings story"></div>
+    <button type="button" class="sme-reset" id="storyReset">All stories</button>
     <div class="cx-scroll sme-tablewrap">
       <table class="cx-table" id="storyTable">
         <thead><tr>
@@ -97,20 +101,13 @@
       story, or sort by EPS change, P/E or skilled net. Select any row
       to open the stock's EPS series and its skilled backers below.</p>
     <div class="sme-controls">
-      <div class="cx-seg" id="storySeg" role="tablist" aria-label="Earnings story"></div>
+      <div class="sme-seg" id="storySeg" role="tablist" aria-label="Earnings story"></div>
       <label class="sme-selwrap">Sector
         <select id="sectorSel" class="sme-sel"></select>
       </label>
-      <label class="sme-selwrap">Sort
-        <select id="sortSel" class="sme-sel">
-          <option value="conviction">Conviction</option>
-          <option value="skilled">Skilled net</option>
-          <option value="epschg">EPS change, year on year</option>
-          <option value="eps">EPS (TTM)</option>
-          <option value="pe">P/E (TTM, low first)</option>
-          <option value="sym">Symbol</option>
-        </select>
-      </label>
+      <div class="sme-segwrap"><span class="sme-seglabel">Sort</span>
+        <div class="sme-seg" id="sortSeg" role="group" aria-label="Sort"></div>
+      </div>
       <label class="sme-selwrap">Find
         <input type="search" id="symSearch" class="sme-search" placeholder="e.g. NABIL" autocomplete="off">
       </label>
@@ -128,6 +125,11 @@
       </table>
     </div>
     <p class="cx-cap" id="boardCount"></p>
+    <div class="sme-pager" id="boardPager">
+      <button type="button" class="sme-pagebtn" id="boardPrev">Prev</button>
+      <span class="sme-pagenum" id="boardPageNum"></span>
+      <button type="button" class="sme-pagebtn sme-next" id="boardNext">Next</button>
+    </div>
   </section>
 
   <section class="sme-catsec" aria-label="Stock detail" id="detail">
@@ -146,6 +148,7 @@
     <div class="cx-stats sme-stats" id="detailStats" aria-label="Stock summary"></div>
 
     <h3 class="sme-h3">Quarterly EPS series (TTM)</h3>
+    <div class="sme-spark" id="epsSpark" aria-label="EPS trend sparkline"></div>
     <div class="cx-scroll sme-tablewrap">
       <table class="cx-table" id="epsTable">
         <thead><tr><th>Quarter</th><th class="num">EPS (TTM)</th><th class="num">EPS (annualised)</th><th class="num">P/E (TTM)</th><th class="num">Net profit</th></tr></thead>
@@ -185,6 +188,7 @@
   <section class="sme-catsec" aria-label="Measured record" id="forward">
     <h2 class="sme-h2 sme-h2-sec">What skilled events by EPS story were followed by — the measured replay</h2>
     <p class="sme-chartsub" id="forwardSub">Loading the replay…</p>
+    <div class="sme-fwd-bars" id="forwardBars" aria-label="Replay means by EPS story"></div>
     <div class="cx-scroll sme-tablewrap">
       <table class="cx-table" id="forwardTable">
         <thead><tr>
@@ -216,6 +220,11 @@
         <tbody id="historyBody"><tr><td colspan="7" class="sme-loading">Loading recent sessions…</td></tr></tbody>
       </table>
     </div>
+    <div class="sme-pager" id="histPager">
+      <button type="button" class="sme-pagebtn" id="histPrev">Prev</button>
+      <span class="sme-pagenum" id="histPageNum"></span>
+      <button type="button" class="sme-pagebtn sme-next" id="histNext">Next</button>
+    </div>
   </section>
 
   <section class="sme-catsec" aria-label="Methodology">
@@ -239,4 +248,4 @@
 <div id="nd-footer"></div>
 <script src="/js/nd-chrome.js?v=74c1c8b7"></script>
 <script src="/js/freshness-badge.js?v=307d4f55" defer></script>
-<script src="/js/smart-money-eps.js?v=55c77d0e"></script>
+<script src="/js/smart-money-eps.js?v=9c666aee"></script>
