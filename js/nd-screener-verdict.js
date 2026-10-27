@@ -178,6 +178,11 @@
       } else if (mode === 'weak') {
         if (sigSel) { sigSel.value = 'Exit / Reduce'; sigSel.dispatchEvent(evt); }
       }
+      // Pills filter correctly but never scrolled: the table sits below the
+      // fold, so a click looked like nothing happened (2026-10-27). Bring
+      // the table into view on every pill click, mirroring renderPager.
+      var tbl = document.getElementById('sc-table');
+      if (tbl) tbl.scrollIntoView({ block: 'start', behavior: 'smooth' });
     });
   }
 
