@@ -30,7 +30,8 @@
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
-<link rel="stylesheet" href="verdict.css?v=6005b9e6">
+<link rel="stylesheet" href="/css/nd-3d.css">
+<link rel="stylesheet" href="verdict.css?v=b6c49658">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebPage","name":"Engine Verdict: NEPSE Stocks Ranked by Score","url":"https://shirjankhadka.com.np/nepse-engine-verdict/","description":"NEPSE-listed securities ranked by the Nepse Decode Engine Verdict score — Strong Buy to Strong Exit, with RSI, stop-loss, targets and chart setups. Free, no login.","author":{"@type":"Organization","name":"Nepse Decode"}}
 </script>
@@ -41,7 +42,7 @@
 {"@type":"ListItem","position":3,"name":"Engine Verdict","item":"https://shirjankhadka.com.np/nepse-engine-verdict/"}]}
 </script>
 </head>
-<body>
+<body data-page="engine-verdict">
 <a class="skip-link" href="#main">Skip to content</a>
 <div id="nd-header"></div>
 
@@ -51,11 +52,40 @@
   <h1 class="ev-title nd-pagetitle">NEPSE stocks, ranked by score</h1>
   <p class="ev-lede">The transparent rule-based Engine Verdict scores listed securities daily — Strong Buy to Strong Exit, with every factor shown. The coverage line under this heading states exactly how many listed securities the latest batch scored. No black box, no login, free forever. For education only, not investment advice.</p>
   <p class="ev-asof" id="evAsof">Loading…</p>
+  <p class="ev-fresh" id="evFresh">Loading…</p>
 
   <div class="ev-stats" id="evStats" aria-label="Verdict distribution"></div>
 
+  <section class="ev-section" aria-label="Score distribution">
+    <div class="ev-hist" id="evHist"></div>
+  </section>
+
+  <section class="ev-section" aria-label="Sectors">
+    <p class="ev-eyebrow">Sectors</p>
+    <h2 class="ev-h2">Every sector, at a glance</h2>
+    <p class="ev-lede">Click a sector card to filter the ranking to its stocks; click again to clear.</p>
+    <div class="ev-sectors" id="evSectors"></div>
+  </section>
+
+  <section class="ev-section" aria-label="Session moves">
+    <div id="evMoves"></div>
+  </section>
+
   <div class="ev-toolbar">
     <div class="ev-filters" id="evFilters" role="group" aria-label="Filter by verdict"></div>
+    <select class="ev-select" id="evSector" aria-label="Filter by sector"></select>
+    <select class="ev-select" id="evSort" aria-label="Sort ranking">
+      <option value="s:desc">Score: high to low</option>
+      <option value="s:asc">Score: low to high</option>
+      <option value="p:desc">Price: high to low</option>
+      <option value="p:asc">Price: low to high</option>
+      <option value="ch:desc">Change: high to low</option>
+      <option value="ch:asc">Change: low to high</option>
+      <option value="rsi:desc">RSI: high to low</option>
+      <option value="rsi:asc">RSI: low to high</option>
+      <option value="sym:asc">Symbol: A to Z</option>
+    </select>
+    <button type="button" class="ev-stale" id="evStale" aria-pressed="false">Stale rows only</button>
     <input type="search" class="ev-search" id="evSearch" placeholder="Search symbol, e.g. NABIL" aria-label="Search symbols">
   </div>
   <p class="ev-count" id="evCount" aria-live="polite"></p>
@@ -64,6 +94,15 @@
     <div class="ev-empty">Loading engine verdicts…</div>
   </div>
   <nav class="ev-pager" id="evPager" aria-label="Table pages"></nav>
+  <p class="ev-repaint-note" id="evRepaintNote"></p>
+
+  <section class="ev-section" aria-label="Forward paper-trade ledger">
+    <div id="evTracking"></div>
+  </section>
+
+  <section class="ev-section" aria-label="Verdict archive">
+    <div id="evArchive"></div>
+  </section>
 
   <section class="ev-guide" aria-label="How to read engine verdicts">
     <p class="ev-eyebrow">Reading strategy</p>
@@ -90,7 +129,7 @@
 <div id="nd-footer"></div>
 <script src="/js/nd-chrome.js?v=74c1c8b7" defer></script>
 <script src="/js/nepse-market-config.js" defer></script>
-<script src="/js/freshness-badge.js" defer></script>
-<script src="verdict.js?v=13b5c8db" defer></script>
+<script src="/js/freshness-badge.js?v=307d4f55" defer></script>
+<script src="verdict.js?v=65351558" defer></script>
 </body>
 </html>
