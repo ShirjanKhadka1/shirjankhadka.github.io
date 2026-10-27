@@ -39,14 +39,14 @@
 <link rel="stylesheet" href="/css/fonts.css">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
-<link rel="stylesheet" href="/css/nd-smart-money.css?v=d4105a80">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=69b323cf">
+<link rel="stylesheet" href="/css/nd-smart-money.css?v=9382906b">
 </head>
 <body class="nd" data-page="broker-smart-money">
 
   <a class="skip-link" href="#main">Skip to content</a>
 <div id="nd-header"></div>
-<div class="fb-wrap" style="display:flex;justify-content:center;padding:10px 16px 0"><div data-freshness-badge></div></div>
+<div class="fb-wrap sm-fbwrap"><div data-freshness-badge></div></div>
 
 <div class="nd-shell">
   <div class="nd-content">
@@ -68,9 +68,12 @@
       is the uncomfortable part: a split-half check of whether the skill
       ranking persisted inside its own era (below — it largely did not).</p>
     <p class="sm-meta"><span id="smSession">Loading…</span></p>
+    <p class="sm-fresh" id="smFresh">Loading board…</p>
+    <p class="sm-notice" id="smNotice" role="status"></p>
   </div>
 
   <div class="cx-stats sm-stats" id="statStrip" aria-label="Board summary"></div>
+  <div class="sm-prop" id="tierProp" role="img" aria-label="Conviction tier distribution"></div>
   <div class="sm-dist" id="tierDist" aria-label="Conviction tier distribution"></div>
   <p class="sm-note" id="coverageNote"></p>
 
@@ -110,6 +113,35 @@
       </table>
     </div>
     <p class="cx-cap" id="boardCount"></p>
+    <div id="boardPager" class="sm-pagerwrap"></div>
+  </section>
+
+  <section class="sm-catsec" aria-label="Stocks by sector" id="sectors">
+    <h2 class="sm-h2 sm-h2-sec">Stocks by sector</h2>
+    <p class="sm-chartsub">Every stock in the universe, grouped by sector.
+      Select a sector to see its stocks with their real company names.
+      A lime ● marks the stock currently open below — click any row to
+      open its skilled-broker breakdown when the cohort touched it in
+      the window; the company page link always works.</p>
+    <div class="sm-controls">
+      <label class="sm-selwrap">Sector
+        <select id="smSectorSel" class="sm-sel"></select>
+      </label>
+      <label class="sm-selwrap">Find
+        <input type="search" id="smSectorSearch" class="sm-search" placeholder="e.g. NABIL or Machhapuchhre" autocomplete="off">
+      </label>
+    </div>
+    <div class="cx-scroll sm-tablewrap">
+      <table class="cx-table" id="sectorTable">
+        <thead><tr>
+          <th>Symbol</th><th>Company</th><th>Sector</th><th>Board tier</th><th>Open</th>
+        </tr></thead>
+        <tbody id="sectorBody"><tr><td colspan="5" class="sm-loading">Loading sectors…</td></tr></tbody>
+      </table>
+    </div>
+    <p class="cx-cap" id="sectorCount"></p>
+    <div id="sectorPager" class="sm-pagerwrap"></div>
+    <p class="sm-note" id="sectorNote"></p>
   </section>
 
   <section class="sm-catsec" aria-label="Stock detail" id="detail">
@@ -135,7 +167,7 @@
 
     <div class="sm-two">
       <div>
-        <h3 class="sm-h3">Accumulators (net bought)</h3>
+        <h3 class="sm-h3">Accumulators (net bought, top 12)</h3>
         <div class="cx-scroll sm-tablewrap">
           <table class="cx-table" id="accumTable">
             <thead><tr><th>Broker</th><th class="num">Net qty</th><th class="num">Net Rs</th><th class="num">Skill</th><th>Cohort</th></tr></thead>
@@ -144,7 +176,7 @@
         </div>
       </div>
       <div>
-        <h3 class="sm-h3">Distributors (net sold)</h3>
+        <h3 class="sm-h3">Distributors (net sold, top 8)</h3>
         <div class="cx-scroll sm-tablewrap">
           <table class="cx-table" id="distTable">
             <thead><tr><th>Broker</th><th class="num">Net qty</th><th class="num">Net Rs</th><th class="num">Skill</th><th>Cohort</th></tr></thead>
@@ -189,6 +221,8 @@
         <tbody id="leaderBody"><tr><td colspan="9" class="sm-loading">Loading…</td></tr></tbody>
       </table>
     </div>
+    <p class="cx-cap" id="leaderCount"></p>
+    <div id="leaderPager" class="sm-pagerwrap"></div>
     <p class="sm-note" id="leaderNote"></p>
   </section>
 
@@ -267,7 +301,9 @@
         on the distribution side instead. <em>Newly started</em> means the
         cohort's net was not positive in the previous 30 days;
         <em>price-confirmed</em> means the stock's 20-session momentum is
-        positive alongside the accumulation.</p>
+        positive alongside the accumulation. Skilled nets are broker-net
+        sums (buy minus sell) over the window, single-counted — never
+        halved, never doubled.</p>
       <p><strong>The honest limits.</strong> The floorsheet archive starts
         2026-07-15, so the whole skill era is about three months, in one
         market regime, from overlapping windows — event counts look large
@@ -294,8 +330,8 @@
 </div>
 
 <div id="nd-footer"></div>
-<script src="/js/nd-chrome.js?v=74c1c8b7"></script>
+<script src="/js/nd-chrome.js?v=74c1c8b7" defer></script>
 <script src="/js/freshness-badge.js?v=9b77cf10" defer></script>
-<script src="/js/smart-money.js?v=d15a0b44"></script>
+<script src="/js/smart-money.js?v=e9a68730"></script>
 </body>
 </html>
