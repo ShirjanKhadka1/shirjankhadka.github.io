@@ -7,8 +7,10 @@
    against a white canvas and every muted line fails contrast.
    (Same root cause as the f016c313 methodology fix — now in the shared
    stylesheet so a page restyle can't wipe it again. --nd-bg is
-   theme-aware: #0A0C10 dark / #F6F7F9 light.) */
-body.nd{background:var(--nd-bg,#0A0C10)}
+   theme-aware: #0A0C10 dark / #F6F7F9 light.)
+   Theme-scoped pin (beats any theme body rule at equal specificity
+   because this sheet loads last; also correct if theme.css is absent). */
+[data-theme] body.nd{background:var(--nd-bg,#0A0C10)}
 .sig-wrap{max-width:1080px;margin:0 auto;padding:28px 20px 72px}
 /* (Wave G2) Scoped --nd-dim override retired: css/nd-tokens.css now
    defines --nd-dim as #8E98A8 (brighter than the #6B7280 this once
@@ -27,9 +29,10 @@ body.nd{background:var(--nd-bg,#0A0C10)}
   box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 -1px 0 rgba(0,0,0,.2),0 3px 10px rgba(0,0,0,.4)}
 .sig-fresh .dot{width:8px;height:8px;border-radius:50%;background:var(--nd-lime,#B8E62E);flex:none;box-shadow:0 0 8px var(--nd-lime,#B8E62E)}
 
-/* tabs: dimensional pills */
+/* tabs: dimensional pills — 48px touch target (teardown 2026-10-27:
+   was 10px/20px padding, ~38px tall, far below the 48px standard) */
 .sig-tabs{display:flex;gap:10px;margin:0 0 28px;flex-wrap:wrap}
-.sig-tabs a{padding:10px 20px;color:var(--nd-muted,#9AA3B2);text-decoration:none;font-weight:600;font-size:.9rem;
+.sig-tabs a{min-height:48px;padding:0 22px;display:inline-flex;align-items:center;color:var(--nd-muted,#9AA3B2);text-decoration:none;font-weight:600;font-size:1rem;
   background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 50%),var(--nd-panel,#12141A);
   border:1px solid var(--nd-border,#1E2430);border-radius:999px;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 2px 5px rgba(0,0,0,.35);
@@ -41,7 +44,13 @@ body.nd{background:var(--nd-bg,#0A0C10)}
   border-color:color-mix(in srgb,var(--nd-lime,#B8E62E) 88%,white);
   box-shadow:inset 0 2px 0 rgba(255,255,255,.5),inset 0 -3px 6px rgba(0,0,0,.18),0 2px 6px rgba(0,0,0,.5),0 6px 18px rgba(184,230,46,.35),0 0 24px rgba(184,230,46,.3)}
 
-/* stat cards: strong 3D */
+/* shared lime focus-visible ring on every control */
+.sig-tabs a:focus-visible,.sig-tabs button:focus-visible,.sig-pager button:focus-visible,.sig-pager select:focus-visible,.sig-sector:focus-visible{outline:none;box-shadow:var(--nd-focus-ring,0 0 0 2px var(--nd-bg,#0A0C10),0 0 0 4px var(--nd-lime,#B8E62E))}
+
+/* cinematic hero: lime accent bar + larger display title, one panel */
+.sig-hero{border-left:4px solid var(--nd-lime,#B8E62E);padding-left:20px;margin:8px 0 24px}
+.sig-hero h1{font-size:2.6rem}
+@media(max-width:640px){.sig-hero h1{font-size:2rem}.sig-hero{padding-left:14px}}
 .sig-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:24px 0}
 @media(min-width:760px){.sig-grid{grid-template-columns:repeat(4,1fr)}}
 .sig-card{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0) 38%),var(--nd-panel,#12141A);
@@ -55,7 +64,7 @@ body.nd{background:var(--nd-bg,#0A0C10)}
    nepse-screener + nepse-trending; one copy here. Selected hook
    is [aria-selected="true"] or .active, whichever the page's
    painter uses; gradient derives from the one brand lime.) */
-.sig-tabs button{padding:10px 20px;color:var(--nd-muted,#9AA3B2);font-weight:600;font-size:.9rem;font-family:inherit;cursor:pointer;
+.sig-tabs button{min-height:48px;padding:0 22px;display:inline-flex;align-items:center;color:var(--nd-muted,#9AA3B2);font-weight:600;font-size:1rem;font-family:inherit;cursor:pointer;
   background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 50%),var(--nd-panel,#12141A);
   border:1px solid var(--nd-border,#1E2430);border-radius:999px;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 2px 5px rgba(0,0,0,.35);
@@ -129,23 +138,25 @@ body.nd{background:var(--nd-bg,#0A0C10)}
 .gloss dt{font-weight:700;white-space:nowrap;color:var(--nd-text,#fff)}
 .gloss dd{margin:0;color:var(--nd-muted,#9AA3B2);line-height:1.6}
 @media(max-width:640px){.gloss{grid-template-columns:1fr}.gloss dt{white-space:normal}}
-#eqchart{width:100%;height:280px;
+#eqchart{width:100%;height:320px;
   background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 45%),var(--nd-panel,#12141A);
   border:1px solid var(--nd-border,#1E2430);border-radius:20px;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.06),inset 0 -2px 8px rgba(0,0,0,.15),0 3px 8px rgba(0,0,0,.4),0 16px 40px rgba(0,0,0,.32)}
 
-/* pagination controls */
+/* pagination controls — 48px (was 8–9px padding, ~35px tall) */
 .sig-pager{display:flex;align-items:center;gap:12px;margin:14px 0;flex-wrap:wrap}
 .sig-pager label{font-size:.85rem;color:var(--nd-dim,#6B7280)}
-.sig-pager select{padding:8px 13px;border:1px solid var(--nd-border,#1E2430);border-radius:12px;
+.sig-pager select{min-height:48px;padding:0 13px;border:1px solid var(--nd-border,#1E2430);border-radius:12px;
   background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 50%),var(--nd-panel,#12141A);
-  color:var(--nd-text,#fff);font-size:.85rem;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 2px 5px rgba(0,0,0,.3)}
-.sig-pager button{padding:9px 20px;border:1px solid var(--nd-border,#1E2430);border-radius:12px;
+  color:var(--nd-text,#fff);font-size:.95rem;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 2px 5px rgba(0,0,0,.3)}
+.sig-pager button{min-height:48px;padding:0 22px;border:1px solid var(--nd-border,#1E2430);border-radius:12px;
   background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,0) 50%),var(--nd-panel,#12141A);
-  color:var(--nd-text,#fff);cursor:pointer;font-size:.85rem;font-weight:600;
+  color:var(--nd-text,#fff);cursor:pointer;font-size:.95rem;font-weight:600;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 2px 5px rgba(0,0,0,.35);transition:border-color .15s,transform .15s}
 .sig-pager button:hover:not(:disabled){border-color:var(--nd-lime,#B8E62E);transform:translateY(-1px)}
 .sig-pager button:disabled{cursor:default;opacity:.45}
+/* Next = lime primary, Prev = quiet panel (teardown pager rule) */
+.sig-pager button.sig-next{background:linear-gradient(180deg,color-mix(in srgb,var(--nd-lime,#B8E62E) 88%,white) 0%,var(--nd-lime,#B8E62E) 55%,color-mix(in srgb,var(--nd-lime,#B8E62E) 82%,black) 100%);border-color:color-mix(in srgb,var(--nd-lime,#B8E62E) 88%,white);color:var(--nd-on-lime,#0A0C10)}
 #closed-info{font-size:.85rem;color:var(--nd-dim,#6B7280)}
 
 /* methodology prose */
@@ -160,6 +171,43 @@ body.nd{background:var(--nd-bg,#0A0C10)}
 .method th{background:var(--nd-panel-2,#161A23);color:var(--nd-lime,#B8E62E);font-size:.76rem;letter-spacing:.06em;text-transform:uppercase}
 .method tr:last-child td{border-bottom:none}
 .method code{background:var(--nd-inset,#0D0F14);padding:2px 7px;border-radius:6px;font-size:.85em;color:var(--nd-text,#fff)}
+
+/* sector stock block (teardown 2026-10-27): sector cards filter the
+   record tables; active card = lime border + wash + aria-pressed */
+.sig-sectors{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin:18px 0}
+.sig-sector{text-align:left;min-height:72px;padding:14px 18px;cursor:pointer;font-family:inherit;
+  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 50%),var(--nd-panel,#12141A);
+  border:1px solid var(--nd-border,#1E2430);border-radius:16px;color:var(--nd-text,#fff);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 2px 5px rgba(0,0,0,.35);transition:border-color .15s,transform .15s}
+.sig-sector:hover{border-color:var(--nd-lime,#B8E62E);transform:translateY(-1px)}
+.sig-sector[aria-pressed="true"]{border-color:var(--nd-lime,#B8E62E);background:linear-gradient(180deg,var(--nd-lime-soft,rgba(184,230,46,.12)),rgba(184,230,46,0) 60%),var(--nd-panel,#12141A)}
+/* index sector cards are display-only divs, not filter buttons */
+.sig-sector:not(button){cursor:default}
+.sig-sector:not(button):hover{transform:none;border-color:var(--nd-border,#1E2430)}
+.sig-sector-n{display:block;font-family:var(--nd-font-display,Georgia,serif);font-size:1.05rem;font-weight:700}
+.sig-sector-c{display:block;font-family:var(--nd-font-mono,ui-monospace,monospace);font-size:.8rem;color:var(--nd-muted,#9AA3B2);margin-top:2px}
+.sig-sector-t{display:block;font-size:.8rem;color:var(--nd-dim,#6B7280);margin-top:6px;line-height:1.5}
+
+/* closed-trade P&L distribution bars (client-side, from recent_closed) */
+.sig-dist{margin:14px 0}
+.sig-dist-row{display:grid;grid-template-columns:110px 1fr 44px;gap:10px;align-items:center;margin:7px 0}
+.sig-dist-lab{font-family:var(--nd-font-mono,ui-monospace,monospace);font-size:.78rem;color:var(--nd-muted,#9AA3B2);text-align:right}
+.sig-dist-track{height:12px;border-radius:6px;background:var(--nd-inset,#0D0F14);overflow:hidden}
+.sig-dist-fill{display:block;height:12px;border-radius:6px;background:var(--nd-lime,#B8E62E)}
+.sig-dist-n{font-family:var(--nd-font-mono,ui-monospace,monospace);font-size:.8rem;color:var(--nd-text,#fff)}
+
+/* freshness failure state: amber dot, last-good data kept */
+.sig-fresh.fail .dot{background:var(--nd-amber,#F5B301);box-shadow:0 0 8px var(--nd-amber,#F5B301)}
+
+/* index system cards (moved from inline <style>, teardown 2026-10-27) */
+a.sys-link{text-decoration:none;color:inherit;display:flex;flex-direction:column}
+a.sys-link:hover .sys-open{color:var(--nd-lime,#B8E62E)}
+.sys-open{font-weight:700;margin-top:14px;font-size:.95rem;min-height:48px;display:flex;align-items:center}
+.sys-name{font-size:1.35rem;margin:0 0 8px;color:var(--nd-text,#fff)}
+.sys-desc{color:var(--nd-muted,#9AA3B2);font-size:.92rem;margin:0 0 16px;flex:1;line-height:1.6}
+.sys-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px 10px;margin-bottom:4px}
+.sys-live{margin-top:14px;padding-top:12px;border-top:1px solid var(--nd-border,#1E2430);display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sys-live-v{font-family:var(--nd-font-display,Georgia,serif);font-size:1.15rem;font-weight:700;color:var(--nd-text,#fff)}
 
 /* skip link (a11y) */
 .skip-link{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
@@ -220,3 +268,11 @@ body.nd{background:var(--nd-bg,#0A0C10)}
 [data-theme="light"] .method th{background:#EFF2F6;color:#4D7C0F}
 [data-theme="light"] .method td{border-bottom-color:#E8EDF2}
 [data-theme="light"] .method code{background:#EFF2F6;color:#0A0C10}
+[data-theme="light"] .sig-sector{background:linear-gradient(180deg,#FFFFFF 0%,#F2F5F8 100%);border-color:#CBD4DE;
+  box-shadow:inset 0 2px 0 #FFFFFF,0 1px 2px rgba(10,12,16,.1),0 4px 12px rgba(10,12,16,.08)}
+[data-theme="light"] .sig-sector[aria-pressed="true"]{border-color:#4D7C0F;background:linear-gradient(180deg,rgba(77,124,15,.12),rgba(77,124,15,0) 60%),#FFFFFF}
+[data-theme="light"] .sig-pager button.sig-next{background:linear-gradient(180deg,#65A30D,#4D7C0F);border-color:#3E650C;color:#fff}
+[data-theme="light"] .sys-name{color:#0A0C10}
+[data-theme="light"] .sys-desc{color:#3F4753}
+[data-theme="light"] a.sys-link:hover .sys-open{color:#4D7C0F}
+[data-theme="light"] .sys-live{border-top-color:#DDE3EA}

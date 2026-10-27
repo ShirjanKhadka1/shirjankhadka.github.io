@@ -30,21 +30,9 @@
 </script>
 <link rel="stylesheet" href="/css/nd-tokens.css">
 <link rel="stylesheet" href="/css/fonts.css">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
-<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=69b323cf">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
-<link rel="stylesheet" href="/css/sig-pro.css?v=ed0fe3e9">
-<style>
-a.sys-link{text-decoration:none;color:inherit;display:flex;flex-direction:column}
-a.sys-link:hover .sys-open{color:var(--nd-lime,#B8E62E)}
-.sys-open{font-weight:700;margin-top:14px;font-size:.95rem}
-.sys-name{font-size:1.35rem;margin:0 0 8px;color:var(--nd-text,#fff)}
-.sys-desc{color:var(--nd-muted,#9AA3B2);font-size:.92rem;margin:0 0 16px;flex:1;line-height:1.6}
-.sys-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px 10px;margin-bottom:4px}
-[data-theme="light"] .sys-name{color:#0A0C10}
-[data-theme="light"] .sys-desc{color:#3F4753}
-[data-theme="light"] a.sys-link:hover .sys-open{color:#4D7C0F}
-</style>
+<link rel="stylesheet" href="/css/sig-pro.css?v=fa50ce83">
 </head>
 <body class="nd">
 <a class="skip-link" href="#main">Skip to content</a>
@@ -52,9 +40,12 @@ a.sys-link:hover .sys-open{color:var(--nd-lime,#B8E62E)}
 <main id="main" class="sig-wrap">
 <nav class="sig-tabs nd-navpills" aria-label="Signal systems"><a href="/nepse-signals/momentum/">Momentum</a><a href="/nepse-signals/trend-relay/">Trend Relay</a><a href="/nepse-signals/reversal/">Reversal</a><a href="/nepse-signals/methodology/">Methodology</a></nav>
 
+<section class="sig-hero">
 <p class="sig-kicker">Nepse Decode &middot; Chart &amp; signals &middot; rule-based, no black boxes</p>
 <h1 class="nd-pagetitle">Trading Signals</h1>
 <p class="sig-lede">Three transparent, rule-based NEPSE trading systems. Every rule is published, every alert is open, every trade from <span class="sigwin" data-form="years-of">2.1 years of</span> backtesting is on the table. Pick the system that fits how you trade — then verify everything yourself.</p>
+<div class="sig-fresh" id="idx-fresh" hidden><span class="dot"></span><span id="idx-fresh-text">Loading…</span></div>
+</section>
 
 <div class="sig-grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
 <a class="sig-card sys-link" href="/nepse-signals/momentum/" data-sys="momentum">
@@ -65,6 +56,12 @@ a.sys-link:hover .sys-open{color:var(--nd-lime,#B8E62E)}
 <div><div class="sig-card-l">Win rate</div><div class="sig-card-v" data-f="win_rate_pct">33.38%</div><div class="cx-prop" style="margin-top:7px"><div class="cx-prop-track"><span class="cx-prop-fill" data-bar="win" style="--w:33.38%"></span></div></div></div>
 <div><div class="sig-card-l">Deepest fall</div><div class="sig-card-v" data-f="max_drawdown_pct" style="color:var(--nd-down,#F87171)">15.69%</div></div>
 <div><div class="sig-card-l">Trades</div><div class="sig-card-v" data-f="total_trades">767</div></div>
+</div>
+<div class="sys-live">
+<div><div class="sig-card-l">Live closed</div><div class="sys-live-v" data-lr="closed">–</div></div>
+<div><div class="sig-card-l">Live open</div><div class="sys-live-v" data-lr="open">–</div></div>
+<div><div class="sig-card-l">Live win rate</div><div class="sys-live-v" data-lr="win">–</div></div>
+<div><div class="sig-card-l">Live profit factor</div><div class="sys-live-v" data-lr="pf">–</div></div>
 </div>
 <span class="sys-open">Open Momentum &rarr;</span>
 </a>
@@ -77,6 +74,12 @@ a.sys-link:hover .sys-open{color:var(--nd-lime,#B8E62E)}
 <div><div class="sig-card-l">Backtest</div><div class="sig-card-v" data-f="backtest_years">2.1 yrs</div></div>
 <div><div class="sig-card-l">Style</div><div class="sig-card-v">Steady</div></div>
 </div>
+<div class="sys-live">
+<div><div class="sig-card-l">Live closed</div><div class="sys-live-v" data-lr="closed">–</div></div>
+<div><div class="sig-card-l">Live open</div><div class="sys-live-v" data-lr="open">–</div></div>
+<div><div class="sig-card-l">Live win rate</div><div class="sys-live-v" data-lr="win">–</div></div>
+<div><div class="sig-card-l">Live profit factor</div><div class="sys-live-v" data-lr="pf">–</div></div>
+</div>
 <span class="sys-open">Open Trend Relay &rarr;</span>
 </a>
 <a class="sig-card sys-link" href="/nepse-signals/reversal/" data-sys="reversal">
@@ -88,9 +91,22 @@ a.sys-link:hover .sys-open{color:var(--nd-lime,#B8E62E)}
 <div><div class="sig-card-l">Backtest</div><div class="sig-card-v" data-f="backtest_years">2.1 yrs</div></div>
 <div><div class="sig-card-l">Lesson</div><div class="sig-card-v" data-f="lesson" style="font-size:1rem">Mean-reversion fails on NEPSE</div></div>
 </div>
+<div class="sys-live">
+<div><div class="sig-card-l">Live closed</div><div class="sys-live-v" data-lr="closed">–</div></div>
+<div><div class="sig-card-l">Live open</div><div class="sys-live-v" data-lr="open">–</div></div>
+<div><div class="sig-card-l">Live win rate</div><div class="sys-live-v" data-lr="win">–</div></div>
+<div><div class="sig-card-l">Live profit factor</div><div class="sys-live-v" data-lr="pf">–</div></div>
+</div>
 <span class="sys-open">Open Reversal &rarr;</span>
 </a>
 </div>
+
+<section id="sector-block" hidden>
+<h2>Stocks by sector</h2>
+<p class="sig-sub">Current stocks across all three systems — open paper positions plus replay positions — grouped by sector. Open a system page to filter its tables by sector.</p>
+<div class="sig-sectors" id="sector-cards"></div>
+<p class="sig-sub" id="sector-note"></p>
+</section>
 
 <div class="note"><strong>Why publish a losing system?</strong> Because honesty is the product. The <span class="sigwin" data-form="hyphen">2.1-year</span> backtest shows NEPSE is a trend market — momentum worked, mean-reversion lost money. We publish all three, winners and losers, so you can see exactly what the data says instead of a cherry-picked highlight reel.</div>
 
@@ -100,9 +116,10 @@ a.sys-link:hover .sys-open{color:var(--nd-lime,#B8E62E)}
 
 <p class="sig-foot">Educational only — not investment advice.</p>
 <script>
-/* Keep the landing cards and backtest-window copy in sync with the published
-   signal JSONs (rebuilt daily by tools/build-signals.js). Static fallbacks
-   above are correct as of the last edit; this refresh corrects them on load. */
+/* Landing cards + live mini-records + sector block, kept in sync with the
+   published signal JSONs (rebuilt daily by tools/build-signals.js) and the
+   live forward records. 60s change-gated refresh (teardown 2026-10-27):
+   unchanged polls move only the freshness clock. */
 (function(){
   function yrs(a,b){
     var t1=Date.parse(a+'T00:00:00Z'),t2=Date.parse(b+'T00:00:00Z');
@@ -110,19 +127,59 @@ a.sys-link:hover .sys-open{color:var(--nd-lime,#B8E62E)}
     return ((t2-t1)/864e5/365.25).toFixed(1);
   }
   function f2(v){return (v==null||!isFinite(+v))?'–':Number(v).toFixed(2);}
-  var jobs=['momentum','trend-relay','reversal'].map(function(sys){
-    return fetch('/nepse-chart/data/signals/'+sys+'.json').then(function(r){return r.json();}).then(function(d){
-      return {sys:sys,d:d};
-    }).catch(function(){return null;});
-  });
-  Promise.all(jobs).then(function(rows){
-    rows=rows.filter(Boolean);
-    if(!rows.length)return;
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function fmtNPT(iso){
+    var t=new Date(iso).getTime();if(!isFinite(t))return '';
+    var n=new Date(t+5.75*3600*1000);
+    var M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    function p(x){return ('0'+x).slice(-2);}
+    return n.getUTCDate()+' '+M[n.getUTCMonth()]+', '+p(n.getUTCHours())+':'+p(n.getUTCMinutes())+' NPT';
+  }
+  var lastSig=null, lastRows=null, secMap=null, nameMap=null, secMapsTried=false, lastPoll=0;
+  function loadSectorMaps(){
+    if(secMapsTried)return Promise.resolve();
+    secMapsTried=true;
+    return Promise.all([
+      fetch('/nepse-chart/data/verdicts.json').then(function(r){return r.json();}).catch(function(){return null;}),
+      fetch('/nepse-chart/data/universe.json').then(function(r){return r.json();}).catch(function(){return null;})
+    ]).then(function(res){
+      secMap={}; nameMap={};
+      var v=res[0], u=res[1];
+      if(v&&v.verdicts)Object.keys(v.verdicts).forEach(function(s){var r=v.verdicts[s]; if(r&&r.sec)secMap[s]=r.sec;});
+      if(u&&u.symbols)u.symbols.forEach(function(x){if(x&&x.s)nameMap[x.s]=x.n||x.s;});
+    });
+  }
+  function sectorOf(sym){return (secMap&&secMap[sym])||'Unscored';}
+  function sigOf(rows){
+    return rows.map(function(row){
+      var lr=(row.d.live_track_record||{}), st=lr.stats||{};
+      return [row.sys, row.d.generated_at||'', row.d.asof||'', st.last_updated||'', st.open_positions||0, st.closed_trades||0].join('|');
+    }).join('||');
+  }
+  function renderFresh(rows, failed){
+    var fr=document.getElementById('idx-fresh'), ft=document.getElementById('idx-fresh-text');
+    if(!fr||!ft)return;
+    var now=new Date(), nxt=new Date(now.getTime()+60*1000);
+    var m=rows.filter(function(r){return r.sys==='momentum';})[0];
+    var parts=[];
+    if(m){
+      if(m.d.asof)parts.push('Systems as of '+esc(m.d.asof));
+      if(m.d.generated_at)parts.push('rebuilt '+fmtNPT(m.d.generated_at));
+    }
+    parts.push('checked '+fmtNPT(now.toISOString()));
+    parts.push('next check '+fmtNPT(nxt.toISOString()));
+    if(failed)parts.push('refresh failed — showing last good data');
+    ft.textContent=parts.join(' · ');
+    fr.hidden=false;
+    fr.classList.toggle('fail', !!failed);
+  }
+  function renderAll(rows){
     rows.forEach(function(row){
       var card=document.querySelector('[data-sys="'+row.sys+'"]');
       if(!card)return;
       var st=(row.d.stats||{}),y=yrs(st.backtest_from,st.backtest_to);
       function set(f,v){var n=card.querySelector('[data-f="'+f+'"]');if(n&&v!=null)n.textContent=v;}
+      function setLr(f,v){var n=card.querySelector('[data-lr="'+f+'"]');if(n&&v!=null)n.textContent=v;}
       var an=+st.annual_return_pct;
       set('annual_return_pct',f2(an)+'%');
       var anv=card.querySelector('[data-f="annual_return_pct"]');
@@ -136,8 +193,15 @@ a.sys-link:hover .sys-open{color:var(--nd-lime,#B8E62E)}
         var ln=card.querySelector('[data-f="lesson"]');
         if(ln&&isFinite(an))ln.textContent=an<0?'Mean-reversion fails on NEPSE':'Mean-reversion tested on NEPSE';
       }
+      /* live mini-record (honesty rule: no win/PF rate before any close) */
+      var lr=row.d.live_track_record||{}, s2=lr.stats||null;
+      if(s2){
+        setLr('closed', s2.closed_trades||0);
+        setLr('open', s2.open_positions||0);
+        setLr('win', (s2.closed_trades||0)===0 ? '–' : f2(s2.win_rate_pct)+'%');
+        setLr('pf', (s2.closed_trades||0)===0 ? '–' : f2(s2.profit_factor));
+      }
     });
-    /* backtest-window copy: use the momentum JSON as the canonical window */
     var m=rows.filter(function(r){return r.sys==='momentum';})[0];
     if(m){
       var st=m.d.stats||{},y=yrs(st.backtest_from,st.backtest_to);
@@ -156,8 +220,64 @@ a.sys-link:hover .sys-open{color:var(--nd-lime,#B8E62E)}
         });
       }
     }
+    renderSector(rows);
+    renderFresh(rows, false);
+  }
+  function renderSector(rows){
+    var sec=document.getElementById('sector-block');
+    if(!sec)return;
+    var syms=[], seen={};
+    rows.forEach(function(row){
+      var lr=row.d.live_track_record||{};
+      (lr.open_positions||[]).forEach(function(t){if(t.symbol&&!seen[t.symbol]){seen[t.symbol]=1;syms.push(t.symbol);}});
+      (row.d.alerts||[]).forEach(function(a){if(a.symbol&&!seen[a.symbol]){seen[a.symbol]=1;syms.push(a.symbol);}});
+    });
+    var bySec={};
+    syms.forEach(function(s){var k=sectorOf(s); (bySec[k]=bySec[k]||[]).push(s);});
+    var cards=document.getElementById('sector-cards');
+    var note=document.getElementById('sector-note');
+    if(note)note.textContent=secMap?'':'Sector data unavailable.';
+    function cardHtml(k, list){
+      var names=list.slice(0,3).map(function(s){return esc((nameMap&&nameMap[s])?nameMap[s]:s);}).join(', ');
+      return '<div class="sig-sector"><span class="sig-sector-n">'+esc(k===null?'All sectors':k)+'</span>'+
+        '<span class="sig-sector-c">'+list.length+' stock'+(list.length===1?'':'s')+'</span>'+
+        (k===null?'':'<span class="sig-sector-t">'+names+'</span>')+'</div>';
+    }
+    var html=cardHtml(null, syms);
+    Object.keys(bySec).sort().forEach(function(k){ html+=cardHtml(k, bySec[k]); });
+    cards.innerHTML=html;
+    sec.hidden=false;
+  }
+  function loadAll(isAuto){
+    lastPoll=Date.now();
+    var jobs=['momentum','trend-relay','reversal'].map(function(sys){
+      return fetch('/nepse-chart/data/signals/'+sys+'.json'+(isAuto?('?t='+Date.now()):''),{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){
+        return {sys:sys,d:d};
+      }).catch(function(){return null;});
+    });
+    Promise.all(jobs.concat([loadSectorMaps()])).then(function(all){
+      var rows=all.slice(0,3).filter(Boolean);
+      if(!rows.length){
+        if(!isAuto&&lastRows)renderFresh(lastRows, true);
+        return;
+      }
+      if(isAuto&&lastSig!==null&&sigOf(rows)===lastSig){
+        if(lastRows)renderFresh(lastRows, false); // clock only
+        return;
+      }
+      lastRows=rows; lastSig=sigOf(rows);
+      renderAll(rows);
+    }).catch(function(){
+      if(lastRows)renderFresh(lastRows, true);
+    });
+  }
+  loadAll(false);
+  setInterval(function(){ if(!document.hidden)loadAll(true); },60*1000);
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden && Date.now()-lastPoll>60*1000)loadAll(true);
   });
 })();
+
 </script>
 </main>
 <div id="nd-footer"></div>

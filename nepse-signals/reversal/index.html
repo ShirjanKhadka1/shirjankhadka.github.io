@@ -29,25 +29,33 @@
 </script>
 <link rel="stylesheet" href="/css/nd-tokens.css">
 <link rel="stylesheet" href="/css/fonts.css">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
-<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=69b323cf">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
-<link rel="stylesheet" href="/css/sig-pro.css?v=ed0fe3e9">
+<link rel="stylesheet" href="/css/sig-pro.css?v=fa50ce83">
 </head>
 <body class="nd">
 <a class="skip-link" href="#main">Skip to content</a>
 <div id="nd-header"></div>
 <main id="main" class="sig-wrap">
-<nav class="sig-tabs" aria-label="Signal systems"><a href="/nepse-signals/momentum/">Momentum</a><a href="/nepse-signals/trend-relay/">Trend Relay</a><a href="/nepse-signals/reversal/" aria-current="page" class="active">Reversal</a></nav>
+<nav class="sig-tabs" aria-label="Signal systems"><a href="/nepse-signals/momentum/">Momentum</a><a href="/nepse-signals/trend-relay/">Trend Relay</a><a href="/nepse-signals/reversal/" aria-current="page" class="active">Reversal</a><a href="/nepse-signals/methodology/">Methodology</a></nav>
 <div class="note"><strong>Losing system as specified — educational only.</strong> This system's backtest profit factor is 0.85 — below 1.0, so it gave back more than it took. It is published for education, not as something to trade.</div>
 
+<section class="sig-hero">
 <p class="sig-kicker">Nepse Decode &middot; Chart &amp; signals &middot; rule-based, no black boxes</p>
 <h1>Reversal Signal</h1>
 <p class="sig-lede">Built for falling and sideways markets. Buys oversold bounces, exits at the mean.</p>
 
 <div class="sig-fresh" id="sig-fresh" hidden><span class="dot"></span><span id="sig-fresh-text">Loading…</span></div>
+</section>
 <p class="sig-sub">The headline numbers below are the <strong>backtest</strong> — a historical simulation (2024-09-01 &rarr; 2026-10-16), not live results. What these same rules have produced on real sessions is in the <strong>Live forward record</strong> directly underneath.</p>
 <div class="sig-grid"><div class="sig-card down"><div class="sig-card-l">Annual return</div><div class="sig-card-v">-10.32%</div></div><div class="sig-card "><div class="sig-card-l">Rs 1 Cr became</div><div class="sig-card-v">Rs 79.36 L</div></div><div class="sig-card "><div class="sig-card-l">Win rate</div><div class="sig-card-v">46.46%</div><div class="cx-prop" style="margin-top:9px"><div class="cx-prop-track"><span class="cx-prop-fill" style="--w:46.46%"></span></div></div></div><div class="sig-card down"><div class="sig-card-l">Deepest fall</div><div class="sig-card-v">34.87%</div><div class="cx-prop" style="margin-top:9px"><div class="cx-prop-track"><span class="cx-prop-fill" style="--w:34.87%;background:var(--nd-down,#F87171)"></span></div></div></div><div class="sig-card "><div class="sig-card-l">Profit factor</div><div class="sig-card-v">0.85</div></div><div class="sig-card "><div class="sig-card-l">Avg holding</div><div class="sig-card-v">9 days</div></div><div class="sig-card "><div class="sig-card-l">Charges paid</div><div class="sig-card-v">Rs 18.75 L</div></div><div class="sig-card down"><div class="sig-card-l">Alpha vs NEPSE</div><div class="sig-card-v">-9.19%</div></div></div>
+
+<section id="sector-block" hidden>
+<h2>Stocks by sector</h2>
+<p class="sig-sub">The stocks this system currently holds or tracks, grouped by sector. Pick a sector to filter every table on this page — open positions, closed trades, replay positions, and backtest history. Pick All sectors to reset.</p>
+<div class="sig-sectors" id="sector-cards"></div>
+<p class="sig-sub" id="sector-note"></p>
+</section>
 
 <section id="track-record" hidden>
 <h2>Live forward record — what the signals have actually produced</h2>
@@ -59,8 +67,10 @@
 </tr></thead><tbody><tr><td colspan="11">Loading…</td></tr></tbody></table></div>
 <h3>Closed paper trades — newest first</h3>
 <div class="scrollx"><table class="sig-table" id="track-closed"><thead><tr>
-<th>Symbol</th><th class="num">Entry date</th><th class="num">Exit date</th><th class="num">Entry</th><th class="num">Exit</th><th>Exit reason</th><th class="num">P&amp;L %</th><th class="num">Sessions</th>
-</tr></thead><tbody><tr><td colspan="8">Loading…</td></tr></tbody></table></div>
+<th>Symbol</th><th class="num">Entry date</th><th class="num">Exit date</th><th class="num">Entry</th><th class="num">Exit</th><th>Exit reason</th><th class="num">P&amp;L %</th><th class="num">P&amp;L Rs</th><th class="num">Sessions</th>
+</tr></thead><tbody><tr><td colspan="9">Loading…</td></tr></tbody></table></div>
+<h3>Closed-trade P&amp;L distribution</h3>
+<div class="sig-dist" id="track-dist"></div>
 </section>
 <div class="note"><strong>Read this first.</strong> Over 2.1 years this system <em>lost</em> money (-10.32% a year, worst fall 34.87%). That is itself the finding: on NEPSE, buying oversold dips against the trend has been a losing approach — sharp knives keep falling. It is published for education, so you can see exactly why, not as something to trade.</div>
 
@@ -84,6 +94,7 @@
 
 <h2>Equity curve — Rs 1 Cr through this system</h2>
 <canvas id="eqchart"></canvas>
+<p class="sig-sub">Weekly marked-to-market equity curve — Rs 1 Cr start, cash + open positions − exit costs. Drawn from the published backtest series, not a forecast.</p>
 
 <h2>The rules (exactly as coded)</h2>
 <div class="rules"><ol><li>Setup: RSI(14) below 30 and close below the lower Bollinger Band (20, 2)</li><li>Trigger: bullish candle (close > open) closing in the top half of its range (rejection)</li><li>Filter: 20-day avg turnover above Rs 10 lakh</li><li>Stop: 1.5 × ATR(14) below entry (tighter — mean reversion). Trail: none; exit at the mean</li><li>Targets: T1 = 20-day SMA (the mean), T2 = entry + 2 × risk (reference levels — not traded; see methodology)</li></ol></div>
@@ -97,17 +108,17 @@
 <h2>Closed history — backtest trades</h2>
 <p class="sig-sub">Finished trades from the mechanical backtest replay, newest first — hypothetical, not live trades (all 254 finished trades shown). The Live forward record above shows what the signals have produced since tracking began. P&amp;L is after the same trading charges the backtest applies.</p>
 <div class="scrollx"><table class="sig-table" id="closed"><thead><tr>
-<th>Symbol</th><th class="num">Entry date</th><th class="num">Exit date</th><th class="num">Entry price</th><th class="num">Exit price</th><th>Exit reason</th><th class="num">P&amp;L %</th><th class="num">Hold days</th>
-</tr></thead><tbody id="closed-body"><tr><td colspan="8">Loading trade history…</td></tr></tbody></table></div>
+<th>Symbol</th><th class="num">Entry date</th><th class="num">Exit date</th><th class="num">Entry price</th><th class="num">Exit price</th><th>Exit reason</th><th class="num">P&amp;L %</th><th class="num">P&amp;L Rs</th><th class="num">Hold days</th>
+</tr></thead><tbody id="closed-body"><tr><td colspan="9">Loading trade history…</td></tr></tbody></table></div>
 <div class="sig-pager">
       <label>Rows per page
         <select id="closed-size">
-          <option value="10" selected>10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option>
+          <option value="10">10</option><option value="25" selected>25</option><option value="50">50</option><option value="100">100</option>
         </select></label>
       <span id="closed-info" aria-live="polite"></span>
       <span style="display:flex;gap:8px;margin-left:auto">
         <button id="closed-prev">← Prev</button>
-        <button id="closed-next">Next →</button>
+        <button id="closed-next" class="sig-next">Next →</button>
       </span></div>
 
 <h2>About this system</h2>
@@ -130,13 +141,20 @@
 <dt>Turnover filter</dt><dd>Stocks trading under Rs 10 lakh a day on average are skipped — too thin to enter and exit cleanly without moving the price.</dd>
 </dl></div>
 
-<p class="sig-foot">Data: daily NEPSE OHLCV, corporate-action adjusted. Generated 2026-10-26. Educational only — not investment advice.</p>
+<p class="sig-foot">Data: daily NEPSE OHLCV, corporate-action adjusted — historical bars from the open scraper dataset, recent sessions from our own NEPSE feed. Generated 2026-10-27. Educational only — not investment advice.</p>
 </main>
 <script>
 (function(){
   var sys = "reversal";
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function fmtN(v){return (v==null||!isFinite(+v))?'–':Number(v).toLocaleString('en-US',{maximumFractionDigits:2});}
+  function fmtRs(v){
+    if(v==null||!isFinite(+v))return '–';
+    var a=Math.abs(v);
+    if(a>=1e7)return 'Rs '+(v/1e7).toFixed(2)+' Cr';
+    if(a>=1e5)return 'Rs '+(v/1e5).toFixed(2)+' L';
+    return 'Rs '+Math.round(v).toLocaleString('en-US');
+  }
   function fmtNPT(iso){
     var t=new Date(iso).getTime();if(!isFinite(t))return '';
     var n=new Date(t+5.75*3600*1000);
@@ -207,97 +225,166 @@
     if(cNext)cNext.onclick=function(){var s=parseInt(cSize.value,10)||50;if(cPage<Math.ceil(cBody.rows.length/s)-1){cPage++;cRender();}};
     cRender();
   }
-  var lastGen='';
-  function loadData(isAuto){
-    var url='/nepse-chart/data/signals/'+sys+'.json'+(isAuto?('?t='+Date.now()):'');
-    Promise.all([
-      fetch(url).then(function(r){return r.json();}),
-      fetch('/nepse-chart/data/live.json').then(function(r){return r.json();}).catch(function(){return null;})
+  /* ---- 60s change-gated refresh + sector filter (teardown 2026-10-27) ----
+     Replaces the old 15-min poll + generated_at-only guard. Signature is
+     view-independent; view changes RE-BASELINE it, never null it. */
+  var lastSig=null, lastData=null, lastLive=null, currentSector=null;
+  var secMap=null, nameMap=null, secMapsTried=false, lastPoll=0;
+  function loadSectorMaps(){
+    if(secMapsTried)return Promise.resolve();
+    secMapsTried=true;
+    return Promise.all([
+      fetch('/nepse-chart/data/verdicts.json').then(function(r){return r.json();}).catch(function(){return null;}),
+      fetch('/nepse-chart/data/universe.json').then(function(r){return r.json();}).catch(function(){return null;})
     ]).then(function(res){
-      var d=res[0], live=res[1];
-      // Live LTP map from our own market data (15-min delayed intraday, final close after 3:20 PM)
-      var ltpMap={};
-      if(live&&live.quotes){live.quotes.forEach(function(q){if(q.symbol&&q.ltp)ltpMap[q.symbol]=+q.ltp;});}
-    if(isAuto&&d.generated_at&&d.generated_at===lastGen)return; // no new build
-    if(d.generated_at)lastGen=d.generated_at;
-    /* freshness */
-    var fr=document.getElementById('sig-fresh'),ft=document.getElementById('sig-fresh-text');
-    if(fr&&ft){
-      var parts=[];
-      if(d.as_of)parts.push('Signals as of '+esc(d.as_of));
-      if(d.generated_at)parts.push('rebuilt '+fmtNPT(d.generated_at));
-      ft.textContent=parts.length?parts.join(' · '):'Signal data';
-      fr.hidden=false;
+      secMap={}; nameMap={};
+      var v=res[0], u=res[1];
+      if(v&&v.verdicts)Object.keys(v.verdicts).forEach(function(s){var r=v.verdicts[s]; if(r&&r.sec)secMap[s]=r.sec;});
+      if(u&&u.symbols)u.symbols.forEach(function(x){if(x&&x.s)nameMap[x.s]=x.n||x.s;});
+    });
+  }
+  function sectorOf(sym){return (secMap&&secMap[sym])||'Unscored';}
+  function sigOf(d){
+    var lr=d.live_track_record||{}, st=lr.stats||{};
+    return [d.generated_at||'', d.asof||'', st.last_updated||'', (d.alerts||[]).length, st.open_positions||0, st.closed_trades||0].join('|');
+  }
+  function renderFresh(d, failed){
+    var fr=document.getElementById('sig-fresh'), ft=document.getElementById('sig-fresh-text');
+    if(!fr||!ft)return;
+    var now=new Date(), nxt=new Date(now.getTime()+60*1000);
+    var parts=[];
+    if(d.asof)parts.push('Signals as of '+esc(d.asof));
+    if(d.generated_at)parts.push('rebuilt '+fmtNPT(d.generated_at));
+    parts.push('checked '+fmtNPT(now.toISOString()));
+    parts.push('next check '+fmtNPT(nxt.toISOString()));
+    if(failed)parts.push('refresh failed — showing last good data');
+    ft.textContent=parts.join(' · ');
+    fr.hidden=false;
+    fr.classList.toggle('fail', !!failed);
+  }
+  function rebaseline(){ if(lastData)lastSig=sigOf(lastData); }
+  function inSector(sym){ return !currentSector || sectorOf(sym)===currentSector; }
+  function emptyRow(cols, base){
+    var t=currentSector?('No rows in '+currentSector+' for this table.'):base;
+    return '<tr><td colspan="'+cols+'">'+t+'</td></tr>';
+  }
+  function renderSectorBlock(){
+    var sec=document.getElementById('sector-block');
+    if(!sec||!lastData)return;
+    var lr=lastData.live_track_record||{};
+    var syms=[], seen={};
+    (lr.open_positions||[]).forEach(function(t){if(t.symbol&&!seen[t.symbol]){seen[t.symbol]=1;syms.push(t.symbol);}});
+    (lastData.alerts||[]).forEach(function(a){if(a.symbol&&!seen[a.symbol]){seen[a.symbol]=1;syms.push(a.symbol);}});
+    var bySec={};
+    syms.forEach(function(s){var k=sectorOf(s); (bySec[k]=bySec[k]||[]).push(s);});
+    var cards=document.getElementById('sector-cards');
+    var note=document.getElementById('sector-note');
+    if(note)note.textContent=secMap?'':'Sector data unavailable — tables shown unfiltered.';
+    function cardHtml(k, list){
+      var names=list.slice(0,3).map(function(s){return esc((nameMap&&nameMap[s])?nameMap[s]:s);}).join(', ');
+      var active=(k===null&&currentSector===null)||(k!==null&&currentSector===k);
+      return '<button class="sig-sector" type="button" data-sec="'+esc(k===null?'':k)+'" aria-pressed="'+(active?'true':'false')+'">'+
+        '<span class="sig-sector-n">'+esc(k===null?'All sectors':k)+'</span>'+
+        '<span class="sig-sector-c">'+list.length+' stock'+(list.length===1?'':'s')+'</span>'+
+        (k===null?'':'<span class="sig-sector-t">'+names+'</span>')+'</button>';
     }
+    var html=cardHtml(null, syms);
+    Object.keys(bySec).sort().forEach(function(k){ html+=cardHtml(k, bySec[k]); });
+    cards.innerHTML=html;
+    Array.prototype.forEach.call(cards.querySelectorAll('.sig-sector'), function(b){
+      b.onclick=function(){
+        var v=b.getAttribute('data-sec');
+        currentSector=v?v:null;
+        renderAll(lastData, lastLive);
+        renderSectorBlock();
+        rebaseline();
+      };
+    });
+    sec.hidden=false;
+  }
+  function renderTrack(d){
     /* live forward record — paper trades from real signals.
        Rendered client-side from d.live_track_record (rewritten daily by
        tools/track-live-signals.py): numbers stay fresh with no page rebuild.
        HONESTY RULE: a win/failure rate appears only after trades close. With
        zero closed trades the section says so plainly — never 0%, never blank,
        never the backtest rate. */
-    (function(){
-      var lr=d.live_track_record, sec=document.getElementById('track-record');
-      var sub=document.getElementById('track-sub'), grid=document.getElementById('track-grid');
-      function card(l,v,cls){return '<div class="sig-card '+cls+'"><div class="sig-card-l">'+l+'</div><div class="sig-card-v">'+v+'</div></div>';}
-      function cardBar(l,v,cls,pct,col){return '<div class="sig-card '+cls+'"><div class="sig-card-l">'+l+'</div><div class="sig-card-v">'+v+'</div><div class="cx-prop" style="margin-top:9px"><div class="cx-prop-track"><span class="cx-prop-fill" style="--w:'+pct+'%;background:'+col+'"></span></div></div></div>';}
-      if(!lr||!lr.stats){
-        if(sub)sub.textContent='Forward tracking of live alerts begins with the next daily rebuild — no paper trades yet.';
-        grid.innerHTML='';
-        sec.hidden=false;
-        return;
-      }
-      var s2=lr.stats, since=lr.tracking_started||'2026-10-09', nClosed=s2.closed_trades||0;
-      if(nClosed===0){
-        if(sub)sub.textContent='No closed paper trades yet — forward tracking since '+since+'. Win and failure rates will appear here once the first paper trades close on real market data.';
-        grid.innerHTML=
-          card('Win rate','–','')+card('Failure rate','–','')+
-          card('Closed trades','0','')+card('Open now',s2.open_positions,'')+
-          card('Avg win','–','')+card('Avg loss','–','')+
-          card('Profit factor','–','')+card('Best / worst','–','');
-      }else{
-        if(sub)sub.textContent='Forward-tracked since '+since+' · data through '+(s2.data_through||'–')+'. Every live Entry alert becomes a Rs 10 lakh paper trade at the signal close; exits fire on real forward OHLC — Target 1, stop loss, a ratcheting trailing stop, or a 20-session time exit. P&L is net of 0.5% round-trip charges.';
-        var bw=(s2.best_trade?s2.best_trade.symbol+' '+(s2.best_trade.pnl_pct>=0?'+':'')+s2.best_trade.pnl_pct+'%':'–')+' / '+(s2.worst_trade?s2.worst_trade.symbol+' '+(s2.worst_trade.pnl_pct>=0?'+':'')+s2.worst_trade.pnl_pct+'%':'–');
-        grid.innerHTML=
-          cardBar('Win rate',s2.win_rate_pct+'%',s2.win_rate_pct>=50?'up':'',s2.win_rate_pct,'var(--nd-lime,#B8E62E)')+
-          cardBar('Failure rate',s2.failure_rate_pct+'%',s2.failure_rate_pct>=50?'down':'',s2.failure_rate_pct,'var(--nd-down,#F87171)')+
-          card('Closed trades',nClosed,'')+
-          card('Open now',s2.open_positions,'')+
-          card('Avg win','+'+s2.avg_win_pct+'%','up')+
-          card('Avg loss',s2.avg_loss_pct+'%','down')+
-          card('Profit factor',s2.profit_factor,'')+
-          card('Best / worst',esc(bw),'');
-      }
-      var otb=document.querySelector('#track-open tbody');
-      var opens=lr.open_positions||[];
-      otb.innerHTML=opens.length?opens.map(function(t){
-        var u=t.unrealized_pct>=0?'+'+t.unrealized_pct+'%':t.unrealized_pct+'%';
-        return '<tr><td>'+esc(t.entry_date)+'</td><td><strong>'+esc(t.symbol)+'</strong></td>'+
-        '<td class="num">'+fmtN(t.entry_price)+'</td><td class="num">'+fmtN(t.stop_loss)+'</td>'+
-        '<td class="num">'+fmtN(t.trail_stop)+'</td><td class="num">'+fmtN(t.target_1)+'</td>'+
-        '<td class="num">'+fmtN(t.target_2)+'</td><td class="num">'+fmtN(t.current_price)+'</td>'+
-        '<td class="num" style="color:var(--nd-'+(t.unrealized_pct>=0?'up':'down')+')">'+esc(u)+'</td>'+
-        '<td><div class="prog"><i style="width:'+(t.target_2>t.entry_price?Math.max(0,Math.min(100,(t.current_price-t.entry_price)/(t.target_2-t.entry_price)*100)):0)+'%\"></i></div></td>'+
-        '<td class="num">'+t.sessions_held+'</td></tr>';
-      }).join(''):'<tr><td colspan="11">No open paper positions right now.</td></tr>';
-      var ctb=document.querySelector('#track-closed tbody');
-      var closed=lr.recent_closed||[];
-      ctb.innerHTML=closed.length?closed.map(function(t){
-        var win=t.pnl_pct>=0,er=String(t.exit_reason||'');
-        var rp=win?'rp-win':(er.toLowerCase().indexOf('trail')>=0?'rp-trail':'rp-loss');
-        return '<tr><td><strong>'+esc(t.symbol)+'</strong></td>'+
-        '<td class="num">'+esc(t.entry_date)+'</td><td class="num">'+esc(t.exit_date)+'</td>'+
-        '<td class="num">'+fmtN(t.entry_price)+'</td><td class="num">'+fmtN(t.exit_price)+'</td>'+
-        '<td><span class="rpill '+rp+'">'+esc(er)+'</span></td>'+
-        '<td class="num" style="color:var(--nd-'+(win?'up':'down')+')"><strong>'+(win?'+':'')+t.pnl_pct.toFixed(2)+'%</strong></td>'+
-        '<td class="num">'+t.hold_sessions+'</td></tr>';
-      }).join(''):'<tr><td colspan="8">No closed paper trades yet — forward tracking since '+since+'. The ledger fills as real sessions elapse.</td></tr>';
+    var lr=d.live_track_record, sec=document.getElementById('track-record');
+    var sub=document.getElementById('track-sub'), grid=document.getElementById('track-grid');
+    function card(l,v,cls){return '<div class="sig-card '+cls+'"><div class="sig-card-l">'+l+'</div><div class="sig-card-v">'+v+'</div></div>';}
+    function cardBar(l,v,cls,pct,col){return '<div class="sig-card '+cls+'"><div class="sig-card-l">'+l+'</div><div class="sig-card-v">'+v+'</div><div class="cx-prop" style="margin-top:9px"><div class="cx-prop-track"><span class="cx-prop-fill" style="--w:'+pct+'%;background:'+col+'"></span></div></div></div>';}
+    if(!lr||!lr.stats){
+      if(sub)sub.textContent='Forward tracking of live alerts begins with the next daily rebuild — no paper trades yet.';
+      grid.innerHTML='';
       sec.hidden=false;
-    })();
-    /* alerts */
+      return;
+    }
+    var s2=lr.stats, since=lr.tracking_started||'2026-10-09', nClosed=s2.closed_trades||0;
+    if(nClosed===0){
+      if(sub)sub.textContent='No closed paper trades yet — forward tracking since '+since+'. Win and failure rates will appear here once the first paper trades close on real market data.';
+      grid.innerHTML=
+        card('Win rate','–','')+card('Failure rate','–','')+
+        card('Closed trades','0','')+card('Open now',s2.open_positions,'')+
+        card('Avg win','–','')+card('Avg loss','–','')+
+        card('Profit factor','–','')+card('Best / worst','–','');
+    }else{
+      if(sub)sub.textContent='Forward-tracked since '+since+' · data through '+(s2.data_through||'–')+'. Every live Entry alert becomes a Rs 10 lakh paper trade at the signal close; exits fire on real forward OHLC — Target 1, stop loss, a ratcheting trailing stop, or a 20-session time exit. P&L is net of 0.5% round-trip charges.';
+      var bw=(s2.best_trade?s2.best_trade.symbol+' '+(s2.best_trade.pnl_pct>=0?'+':'')+s2.best_trade.pnl_pct+'%':'–')+' / '+(s2.worst_trade?s2.worst_trade.symbol+' '+(s2.worst_trade.pnl_pct>=0?'+':'')+s2.worst_trade.pnl_pct+'%':'–');
+      grid.innerHTML=
+        cardBar('Win rate',s2.win_rate_pct+'%',s2.win_rate_pct>=50?'up':'',s2.win_rate_pct,'var(--nd-lime,#B8E62E)')+
+        cardBar('Failure rate',s2.failure_rate_pct+'%',s2.failure_rate_pct>=50?'down':'',s2.failure_rate_pct,'var(--nd-down,#F87171)')+
+        card('Closed trades',nClosed,'')+
+        card('Open now',s2.open_positions,'')+
+        card('Avg win','+'+s2.avg_win_pct+'%','up')+
+        card('Avg loss',s2.avg_loss_pct+'%','down')+
+        card('Profit factor',s2.profit_factor,'')+
+        card('Best / worst',esc(bw),'');
+    }
+    var otb=document.querySelector('#track-open tbody');
+    var opens=(lr.open_positions||[]).filter(function(t){return inSector(t.symbol);});
+    otb.innerHTML=opens.length?opens.map(function(t){
+      var u=t.unrealized_pct>=0?'+'+t.unrealized_pct+'%':t.unrealized_pct+'%';
+      return '<tr><td>'+esc(t.entry_date)+'</td><td><strong>'+esc(t.symbol)+'</strong></td>'+
+      '<td class="num">'+fmtN(t.entry_price)+'</td><td class="num">'+fmtN(t.stop_loss)+'</td>'+
+      '<td class="num">'+fmtN(t.trail_stop)+'</td><td class="num">'+fmtN(t.target_1)+'</td>'+
+      '<td class="num">'+fmtN(t.target_2)+'</td><td class="num">'+fmtN(t.current_price)+'</td>'+
+      '<td class="num" style="color:var(--nd-'+(t.unrealized_pct>=0?'up':'down')+')">'+esc(u)+'</td>'+
+      '<td><div class="prog"><i style="width:'+(t.target_2>t.entry_price?Math.max(0,Math.min(100,(t.current_price-t.entry_price)/(t.target_2-t.entry_price)*100)):0)+'%"></i></div></td>'+
+      '<td class="num">'+t.sessions_held+'</td></tr>';
+    }).join(''):emptyRow(11, 'No open paper positions right now.');
+    var ctb=document.querySelector('#track-closed tbody');
+    var closed=(lr.recent_closed||[]).filter(function(t){return inSector(t.symbol);});
+    ctb.innerHTML=closed.length?closed.map(function(t){
+      var win=t.pnl_pct>=0,er=String(t.exit_reason||'');
+      var rp=win?'rp-win':(er.toLowerCase().indexOf('trail')>=0?'rp-trail':'rp-loss');
+      return '<tr><td><strong>'+esc(t.symbol)+'</strong></td>'+
+      '<td class="num">'+esc(t.entry_date)+'</td><td class="num">'+esc(t.exit_date)+'</td>'+
+      '<td class="num">'+fmtN(t.entry_price)+'</td><td class="num">'+fmtN(t.exit_price)+'</td>'+
+      '<td><span class="rpill '+rp+'">'+esc(er)+'</span></td>'+
+      '<td class="num" style="color:var(--nd-'+(win?'up':'down')+')"><strong>'+(win?'+':'')+t.pnl_pct.toFixed(2)+'%</strong></td>'+
+      '<td class="num">'+fmtRs(t.pnl_rs)+'</td>'+
+      '<td class="num">'+t.hold_sessions+'</td></tr>';
+    }).join(''):emptyRow(9, 'No closed paper trades yet — forward tracking since '+since+'. The ledger fills as real sessions elapse.');
+    /* P&L distribution from the same closed ledger (filtered with the tables) */
+    var dist=document.getElementById('track-dist');
+    if(dist){
+      var buckets=[['< −5%',function(p){return p<-5;}],['−5–0%',function(p){return p>=-5&&p<0;}],['0–5%',function(p){return p>=0&&p<5;}],['5–10%',function(p){return p>=5&&p<10;}],['> 10%',function(p){return p>=10;}]];
+      var counts=buckets.map(function(b){return 0;});
+      closed.forEach(function(t){var p=+t.pnl_pct; buckets.forEach(function(b,i){if(b[1](p))counts[i]++;});});
+      var mx=Math.max.apply(null,counts);
+      dist.innerHTML=mx?buckets.map(function(b,i){
+        return '<div class="sig-dist-row"><span class="sig-dist-lab">'+b[0]+'</span><span class="sig-dist-track"><span class="sig-dist-fill" style="width:'+(counts[i]/mx*100)+'%"></span></span><span class="sig-dist-n">'+counts[i]+'</span></div>';
+      }).join(''):'<p class="sig-sub">No closed trades yet — the distribution appears here once trades close.</p>';
+    }
+    sec.hidden=false;
+  }
+  function renderAlerts(d, live){
     var tb=document.querySelector('#alerts tbody');
-    if(!d.alerts||!d.alerts.length){tb.innerHTML='<tr><td colspan="11">No positions were still open when the replay ended.</td></tr>';}
-    else tb.innerHTML=d.alerts.map(function(a){
-      // Override stale 'current' with live LTP; recalc unrealized % and progress
+    var ltpMap={};
+    if(live&&live.quotes){live.quotes.forEach(function(q){if(q.symbol&&q.ltp)ltpMap[q.symbol]=+q.ltp;});}
+    var rows=(d.alerts||[]).filter(function(a){return inSector(a.symbol);});
+    if(!rows.length){tb.innerHTML=emptyRow(11, 'No positions were still open when the replay ended.');}
+    else tb.innerHTML=rows.map(function(a){
       var cur=ltpMap[a.symbol]||+a.current||0;
       var upct=a.entry?Math.round((cur-(+a.entry))/(+a.entry)*10000)/100:(+a.unrealized_pct||0);
       var prog=(+a.target_2)>(+a.entry)?Math.max(0,Math.min(100,(cur-(+a.entry))/((+a.target_2)-(+a.entry))*100)):(+a.progress||0);
@@ -311,10 +398,11 @@
         '<td style="'+cls+'">'+esc(pnl)+'</td>'+
         '<td><div class="prog"><i style="width:'+Math.min(100,prog)+'%"></i></div></td></tr>';
     }).join('');
-    /* closed history — client-rendered from JSON (was 500-row SSR bake) */
+  }
+  function renderClosed(d){
     var cb=document.getElementById('closed-body');
-    var trades=d.recent_trades||[];
-    if(!trades.length){cb.innerHTML='<tr><td colspan="8">No closed trades yet.</td></tr>';}
+    var trades=(d.recent_trades||[]).filter(function(t){return inSector(t.symbol);});
+    if(!trades.length){cb.innerHTML=emptyRow(9, 'No closed trades yet.');}
     else{
       cb.innerHTML=trades.map(function(t){
         var pnl=+t.pnl_pct,win=pnl>=0;
@@ -327,28 +415,51 @@
           '<td class="num">'+fmtN(t.exit_price)+'</td>'+
           '<td><span class="rpill '+rp+'">'+esc(er||'—')+'</span></td>'+
           '<td class="num" style="color:var(--nd-'+(win?'up':'down')+')"><strong>'+(win?'+':'')+pnl.toFixed(2)+'%</strong></td>'+
+          '<td class="num">'+fmtRs(t.pnl_rs)+'</td>'+
           '<td class="num">'+esc(t.hold_days)+'</td></tr>';
       }).join('');
     }
+  }
+  function renderAll(d, live){
+    renderFresh(d, false);
+    renderTrack(d);
+    renderAlerts(d, live);
+    renderClosed(d);
     initClosedPager();
-    /* equity curve */
     eqPts=(d.stats&&d.stats.equity_curve)||null;
     drawEquity();
+  }
+  function loadData(isAuto){
+    lastPoll=Date.now();
+    var url='/nepse-chart/data/signals/'+sys+'.json'+(isAuto?('?t='+Date.now()):'');
+    Promise.all([
+      fetch(url,{cache:'no-store'}).then(function(r){return r.json();}),
+      fetch('/nepse-chart/data/live.json').then(function(r){return r.json();}).catch(function(){return null;}),
+      loadSectorMaps()
+    ]).then(function(res){
+      var d=res[0], live=res[1];
+      if(isAuto&&lastSig!==null&&sigOf(d)===lastSig){
+        if(lastData)renderFresh(lastData, false); // clock only, no DOM re-render
+        return;
+      }
+      lastData=d; lastLive=live; lastSig=sigOf(d);
+      renderAll(d, live);
+      renderSectorBlock();
     }).catch(function(){
-      if(isAuto)return; // silent on background refresh
+      if(isAuto){
+        if(lastData)renderFresh(lastData, true); // keep last-good + failure text
+        return;
+      }
       document.querySelector('#alerts tbody').innerHTML='<tr><td colspan="11">Could not load signal data.</td></tr>';
       var cb=document.getElementById('closed-body');
-      if(cb)cb.innerHTML='<tr><td colspan="8">Could not load trade history.</td></tr>';
+      if(cb)cb.innerHTML='<tr><td colspan="9">Could not load trade history.</td></tr>';
     });
   }
   loadData(false);
-  /* auto-refresh: daily-candle data rebuilds once per day; poll every 15 min
-     and on tab-visible so the page picks up the new build without reload */
-  setInterval(function(){loadData(true);},15*60*1000);
-  var lastHidden=0;
+  /* auto-refresh: 60s change-gated poll, skip while hidden, refresh on visible */
+  setInterval(function(){ if(!document.hidden)loadData(true); },60*1000);
   document.addEventListener('visibilitychange',function(){
-    if(document.hidden){lastHidden=Date.now();return;}
-    if(Date.now()-lastHidden>2*60*1000)loadData(true);
+    if(!document.hidden && Date.now()-lastPoll>60*1000)loadData(true);
   });
 })();
 </script>
