@@ -2,7 +2,7 @@
    NEPSE Technical — Nepse Decode editorial theme (2026-10-05)
    Matches the /nepse-ipo/ tracker design language: small-caps lime
    kicker, serif display headline, stat cards, pill tabs/buttons,
-   generous spacing. Uses --nd-* tokens from nd-editorial-theme.css.
+   generous spacing. Uses --nd-* tokens from nd-tokens.css.
    Light mode via [data-theme="light"] (this page toggles data-theme);
    dark mode is the token default. The d2 sidebar shell is untouched.
    ============================================================ */
@@ -87,7 +87,6 @@ body {
   background: var(--nd-panel, #12141A); border: 1px solid var(--nd-border, #1E2430);
   border-radius: var(--nd-r-card, 18px); padding: 20px;
   margin-bottom: var(--nd-s6, 24px);
-  animation: ntFadeIn .4s ease both;
 }
 .nt-search-row { display: flex; gap: 10px; }
 .nt-search-row input {
@@ -223,7 +222,6 @@ body {
   background: var(--nd-panel, #12141A); border: 1px solid var(--nd-border, #1E2430);
   border-radius: var(--nd-r-card, 18px); padding: 18px;
   margin-bottom: 0; position: relative;
-  animation: ntFadeIn .4s ease both;
   min-width: 0;
 }
 /* Merolagani-style two-line legend */
@@ -450,3 +448,150 @@ body {
 [data-theme="light"] .nt-pos-mk.s200, [data-theme="light"] .nt-pos-legend .s200{ background:#8E44AD; }
 [data-theme="light"] .nt-pos-mk.close, [data-theme="light"] .nt-pos-legend .close{ background:#65A30D; }
 [data-theme="light"] .nt-pos-track{ background:#F3F4F6; }
+
+/* ============================================================
+ * FULL RE-TEARDOWN (2026-10-27) — canvas pin, 48px controls,
+ * enlarged stats/strip/fundamentals, sector peers, freshness line.
+ * Appended last in the last-loaded sheet so every rule here wins
+ * ties against shared sheets.
+ * ============================================================ */
+
+/* ---- Page canvas, theme-scoped (overview values) ----
+   The plain `body` pin above (specificity 0,0,1) loses to theme.css
+   `[data-theme="dark"] body.nd` (0,2,1). This pin matches that
+   specificity and, as the later sheet, wins: dark #0A0C10,
+   light #F6F7F9, both straight from --nd-bg. */
+[data-theme="dark"] body.nd, [data-theme="light"] body.nd { background: var(--nd-bg); }
+
+/* ---- 48px control treatment ----
+   Every interactive control on the page is at least 48px tall:
+   search input, Open chart, quick chips, chart-type buttons,
+   overlay toggles, peers pager. One shared focus-visible ring. */
+.nt-search-row input {
+  min-height: 48px; box-sizing: border-box;
+  padding: 12px 16px; font-size: 1rem;
+}
+.nt-go {
+  min-height: 48px; display: inline-flex; align-items: center; justify-content: center;
+  padding: 0 24px;
+  font-size: .9375rem;
+}
+.nt-chips button {
+  min-height: 48px; display: inline-flex; align-items: center;
+  padding: 0 18px; font-size: .875rem;
+}
+.nt-seg button {
+  min-height: 48px; display: inline-flex; align-items: center;
+  padding: 0 16px; font-size: .875rem;
+}
+.nt-ovl {
+  min-height: 48px; display: inline-flex; align-items: center;
+  padding: 0 16px; font-size: .8125rem;
+}
+.nt-go:focus-visible, .nt-chips button:focus-visible, .nt-seg button:focus-visible,
+.nt-ovl:focus-visible, .nt-peer:focus-visible,
+.nt-pg-prev:focus-visible, .nt-pg-next:focus-visible {
+  outline: 2px solid var(--nd-lime, #B8E62E); outline-offset: 2px;
+}
+
+/* ---- Larger fundamentals values ---- */
+.nt-fund-head { font-size: 1rem; padding: 13px 18px; }
+.nt-frow { padding: 12px 18px; }
+.nt-frow dt { font-size: .9rem; }
+.nt-frow dd { font-size: .95rem; }
+
+/* ---- Enlarged MA stats (Spectral numerals kept) ---- */
+.nt-stat { padding: 18px 20px; }
+.nt-stat .v { font-size: 1.9rem; }
+
+/* ---- Bigger position strip, clearer markers + legend ---- */
+.nt-pos { padding: 18px 20px 14px; }
+.nt-pos-track { height: 34px; }
+.nt-pos-mk { width: 14px; height: 14px; border-width: 2px; }
+.nt-pos-mk.close { width: 15px; height: 15px; }
+.nt-pos-legend { font-size: .85rem; }
+.nt-pos-legend b { width: 10px; height: 10px; }
+
+/* ---- Chart freshness line (page-owned; distinct from the shared
+   session badge in the chrome header) ---- */
+.nt-fresh {
+  font-family: var(--nd-font-mono, monospace); font-size: var(--nd-text-meta, .6875rem);
+  color: var(--nd-muted, #9AA3B2); margin: 12px 2px 0;
+}
+.nt-fresh .fail { color: var(--nd-down, #F87171); font-weight: 700; }
+
+/* ---- Sector peers block (directly under the fundamentals panel) ---- */
+.nt-peers { margin-bottom: var(--nd-s8, 32px); }
+.nt-peers[hidden] { display: none; }
+.nt-peers-head h2 {
+  font-family: var(--nd-font-display, Georgia, serif); font-weight: 700;
+  font-size: 1.35rem; letter-spacing: -.01em; color: var(--nd-text, #fff);
+  margin: 0 0 4px;
+}
+.nt-peers-meta {
+  font-family: var(--nd-font-mono, monospace); font-size: var(--nd-text-meta, .6875rem);
+  color: var(--nd-muted, #9AA3B2); margin: 0 0 14px;
+}
+.nt-peers-open {
+  display: flex; flex-direction: column; gap: 3px;
+  background: var(--nd-panel, #12141A); border: 1px solid var(--nd-lime, #B8E62E);
+  border-radius: var(--nd-r-card, 18px); padding: 14px 18px; margin-bottom: 12px;
+}
+.nt-peer-tag {
+  font-size: .6875rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  background: var(--nd-lime, #B8E62E); color: var(--nd-on-lime, #0A0C10);
+  border-radius: 999px; padding: 2px 10px;
+}
+.nt-peers-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 12px;
+}
+.nt-peer {
+  appearance: none; cursor: pointer; text-align: left;
+  background: var(--nd-panel, #12141A); border: 1px solid var(--nd-border, #1E2430);
+  border-radius: var(--nd-r-card, 18px); padding: 14px 16px; min-height: 76px;
+  display: flex; flex-direction: column; gap: 3px;
+  transition: transform .2s ease, border-color .2s ease;
+}
+.nt-peer:hover { transform: translateY(-2px); border-color: var(--nd-lime, #B8E62E); }
+.nt-peer-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.nt-peer-sym { font-weight: 700; color: var(--nd-text, #fff); font-size: .95rem; }
+.nt-peer-name {
+  color: var(--nd-muted, #9AA3B2); font-size: .8rem; line-height: 1.4;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.nt-peer-close {
+  font-family: var(--nd-font-display, Georgia, serif); font-weight: 600;
+  font-size: 1.25rem; color: var(--nd-text, #fff); font-variant-numeric: tabular-nums;
+}
+.nt-peer-chg { font-family: var(--nd-font-mono, monospace); font-size: .8rem; font-weight: 600; white-space: nowrap; }
+.nt-peer-chg.up { color: var(--nd-up, #4ADE80); }
+.nt-peer-chg.down { color: var(--nd-down, #F87171); }
+.nt-peer-chg.flat { color: var(--nd-muted, #9AA3B2); }
+.nt-peers-empty { color: var(--nd-muted, #9AA3B2); font-size: .9rem; margin: 4px 0 0; }
+.nt-peers-pager { display: flex; align-items: center; gap: 14px; margin-top: 16px; }
+.nt-peers-pager[hidden] { display: none; }
+.nt-pg-prev, .nt-pg-next {
+  appearance: none; cursor: pointer; min-height: 48px;
+  display: inline-flex; align-items: center; padding: 0 20px;
+  border-radius: var(--nd-r-pill, 999px);
+  font: 600 .875rem var(--nd-font-sans, system-ui); white-space: nowrap;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.nt-pg-prev {
+  border: 1px solid var(--nd-border, #1E2430); background: var(--nd-panel, #12141A);
+  color: var(--nd-muted, #9AA3B2);
+}
+.nt-pg-next {
+  border: 1px solid var(--nd-lime, #B8E62E); background: var(--nd-lime, #B8E62E);
+  color: var(--nd-on-lime, #0A0C10);
+}
+.nt-pg-prev:disabled, .nt-pg-next:disabled { opacity: .35; cursor: not-allowed; }
+.nt-pg-count {
+  font-family: var(--nd-font-mono, monospace); font-size: .8rem; color: var(--nd-muted, #9AA3B2);
+}
+
+/* ---- Reduced motion: the single .nt-wrap entrance goes too ---- */
+@media (prefers-reduced-motion: reduce) {
+  .nt-wrap { animation: none; }
+}

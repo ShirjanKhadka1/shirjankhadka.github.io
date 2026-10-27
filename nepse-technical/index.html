@@ -25,11 +25,10 @@
 <script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);if(t==='light')document.documentElement.setAttribute('data-nd-ed','light')}catch(e){}</script>
 <link rel="stylesheet" href="/css/nd-tokens.css">
 <link rel="stylesheet" href="/css/fonts.css">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=69b323cf">
 <link rel="stylesheet" href="/css/theme.css?v=f9678c21">
-<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
-<link rel="stylesheet" href="/nepse-technical/tech.css?v=120f56ce">
+<link rel="stylesheet" href="/nepse-technical/tech.css?v=acc776ca">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"Nepse Decode Technical Charts","url":"https://shirjankhadka.com.np/nepse-technical/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Free interactive NEPSE technical charts: full-history candlesticks, volume, SMA/EMA overlays for the NEPSE index and every listed stock. No login.","author":{"@type":"Organization","name":"Nepse Decode","url":"https://shirjankhadka.com.np/"}}
 </script>
@@ -41,7 +40,7 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
 {"@type":"Question","name":"Is the NEPSE technical chart free? Do I need an account?","acceptedAnswer":{"@type":"Answer","text":"Yes, free, and no account or login is needed. The chart runs on TradingView's free open-source Lightweight Charts engine with Nepse Decode's own market data."}},
-{"@type":"Question","name":"Where does the chart data come from?","acceptedAnswer":{"@type":"Answer","text":"Per-stock daily OHLC comes from the open Nepse-All-Scraper dataset, the NEPSE index history stretches back to 2003 from the nepse-open-data archive, and the in-progress session is appended from our own market snapshots during trading hours. Data is delayed; the delay is measured from the feed's own timestamps and shown with the data, and where it cannot be measured it is labelled unverified — never a fixed figure."}},
+{"@type":"Question","name":"Where does the chart data come from?","acceptedAnswer":{"@type":"Answer","text":"Per-stock daily OHLC comes from our own daily-OHLC archive, gap-filled from the open Nepse-All-Scraper dataset where our archive lacks history, the NEPSE index history stretches back to 2003 from the nepse-open-data archive, and the in-progress session is appended from our own market snapshots during trading hours. Data is delayed; the delay is measured from the feed's own timestamps and shown with the data, and where it cannot be measured it is labelled unverified — never a fixed figure."}},
 {"@type":"Question","name":"Does it have drawing tools like trend lines or Fibonacci?","acceptedAnswer":{"@type":"Answer","text":"Not in this version. The chart is built on TradingView's free open-source Lightweight Charts engine, which does not include the annotation toolkit. It covers candlesticks, line and area views, volume, SMA/EMA overlays and full timeframe history."}},
 {"@type":"Question","name":"Is this investment advice?","acceptedAnswer":{"@type":"Answer","text":"No. The charts and overlays are mechanical presentations of historical data for education. Past performance does not guarantee future results."}}]}
 </script>
@@ -112,8 +111,24 @@
       <p class="nt-flag" id="nt-note" hidden></p>
       <p class="nt-flag" id="nt-ltponly" hidden>LTP-only history: this security has no full OHLC archive yet, so the chart shows closing levels and moving-average overlays are off.</p>
       <p class="nt-session" id="nt-session"></p>
+      <p class="nt-fresh" id="nt-fresh">Chart freshness: —</p>
     </section>
   </div>
+
+  <section class="nt-peers" id="nt-peers" aria-label="Sector peers" hidden>
+    <div class="nt-peers-head">
+      <h2 id="nt-peers-title">More in this sector</h2>
+      <p class="nt-peers-meta" id="nt-peers-meta"></p>
+    </div>
+    <div class="nt-peers-open" id="nt-peers-open"></div>
+    <div class="nt-peers-grid" id="nt-peers-grid"></div>
+    <p class="nt-peers-empty" id="nt-peers-empty" hidden>No sector on file for this symbol</p>
+    <div class="nt-peers-pager" id="nt-peers-pager" hidden>
+      <button type="button" class="nt-pg-prev" id="nt-peers-prev">Previous</button>
+      <span class="nt-pg-count" id="nt-peers-count"></span>
+      <button type="button" class="nt-pg-next" id="nt-peers-next">Next</button>
+    </div>
+  </section>
 
   <section class="nt-stats nt-stats-ma" aria-label="Moving averages">
     <div class="nt-stat"><span class="k">SMA 20</span><span class="v" id="nt-sma20">—</span></div>
@@ -124,12 +139,12 @@
 
   <section class="nt-notes" aria-label="About these charts">
     <h2>What this chart shows — and what it doesn&rsquo;t</h2>
-    <p>Every candle is a real NEPSE trading session: per-stock daily OHLC from the open Nepse-All-Scraper archive, the NEPSE index back to 2003, and the session in progress appended from our own market snapshots while the market is open (Mon–Fri, 11:00–15:00 NPT). Moving averages are computed in your browser from those closes — nothing hidden, nothing invented.</p>
+    <p>Every candle is a real NEPSE trading session: per-stock daily OHLC from our own daily-OHLC archive, gap-filled from the open Nepse-All-Scraper dataset where our archive lacks history, the NEPSE index back to 2003, and the session in progress appended from our own market snapshots while the market is open (Mon–Fri, 11:00–15:00 NPT). Moving averages are computed in your browser from those closes — nothing hidden, nothing invented.</p>
     <p>Drawing tools (trend lines, Fibonacci) are not part of this chart: it runs on TradingView&rsquo;s free open-source Lightweight Charts engine, which ships without the annotation toolkit. For pattern detection and rule-based signals, see the <a href="/nepse-chart/">Chart &amp; signals lab</a>.</p>
     <p class="fine">Data is delayed, like the rest of Nepse Decode — the delay is measured from the feed's own timestamps and shown with the chart; where it cannot be measured, it is labelled unverified. Securities without a full OHLC archive are clearly flagged as LTP-only. Educational use only — not investment advice.</p>
     <div class="nt-faq">
       <details><summary>Is this free? Do I need an account?</summary><p>Yes, free — no account, no login. Your symbol and overlay choices are remembered in your own browser only.</p></details>
-      <details><summary>Where does the data come from?</summary><p>Per-stock daily OHLC from the open Nepse-All-Scraper dataset, NEPSE index history (2003–present) from the nepse-open-data archive, and the live session from our own market snapshots.</p></details>
+      <details><summary>Where does the data come from?</summary><p>Per-stock daily OHLC from our own daily-OHLC archive, gap-filled from the open Nepse-All-Scraper dataset where our archive lacks history, NEPSE index history (2003–present) from the nepse-open-data archive, and the live session from our own market snapshots.</p></details>
       <details><summary>Why no drawing tools?</summary><p>This chart is built on TradingView&rsquo;s free open-source Lightweight Charts engine, which doesn&rsquo;t include the annotation toolkit — so what you get is fast, honest price action with moving averages instead.</p></details>
     </div>
   </section>
@@ -144,7 +159,7 @@
 <script src="/js/nepse-daily.js?v=c824ae66" defer></script>
 <script src="/js/nepse-market-config.js?v=4e6270bd" defer></script>
 <script src="/js/nepse-data.js?v=5b19641f" defer></script>
-<script src="/js/nepse-technical.js?v=52bd6407" defer></script>
+<script src="/js/nepse-technical.js?v=d0b99864" defer></script>
 <script src="/js/nd-chrome.js?v=74c1c8b7" defer></script>
 <script src="/js/theme-toggle.js?v=6a6a46c6" defer></script>
 <script src="/js/freshness-badge.js?v=307d4f55" defer></script>

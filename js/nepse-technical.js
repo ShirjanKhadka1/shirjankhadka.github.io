@@ -7,12 +7,17 @@
    self-hosted at /js/vendor/ — no license key, no account needed).
 
    Data — real data only, nothing synthetic:
-   - Stocks: daily OHLC from the open Nepse-All-Scraper dataset
+   - Stocks: daily OHLC from OUR OWN archive first
+     (/nepse-chart/data/daily-ohlc/<SYM>.json → rows
+     [YYYYMMDD, open, high, low, close, volume, open_src]).
+     The open Nepse-All-Scraper dataset
      (https://samirwagle.github.io/Nepse-All-Scraper/docs/api/prices/<SYM>.json)
-     → rows [YYYYMMDD, open, high, low, close, volume].
+     is ONLY gap-fill: it supplies dates our archive lacks, and our
+     rows always win on date collision. If the scraper fetch fails,
+     our rows stand alone (the freshness line says so).
    - LTP-only fallback: /nepse-chart/data/ltp/<SYM>.json for listed
-     securities the scraper has no OHLC for (flagged honestly; overlays
-     off — same rule as the Chart & signals lab).
+     securities neither our archive nor the scraper covers (flagged
+     honestly; overlays off — same rule as the Chart & signals lab).
    - NEPSE index: window.NEPSE_DAILY (inline, recent) merged with
      /data/index-history.json (2003 → 2024-08, lazy) → full history.
    - 15-minute intraday: our own snapshot archive
@@ -25,9 +30,14 @@
      volume in the bucket minus the previous bucket's (session volume for
      the first bucket). Forward-only: before the archive starts, the 15m
      view shows an honest empty state.
-   - Live session candle: NepseData snapshot (js/nepse-data.js), same
-     staleness guards as the lab (quote older than 180 min is ignored;
-     LIVE badge only while the market is actually open).
+   - Live session candle: NepseData's PUBLIC API (getQuote /
+     getSnapshot). The snapshot object carries no per-symbol map and
+     normalized quotes carry no last_updated (the module drops it), so
+     this page never reads snap.map or q.last_updated — both are
+     always undefined with the current module, which silently disabled
+     the live candle. Staleness is measured from the snapshot's own
+     asof stamp (180-min guard); LIVE badge only while the market is
+     actually open.
    - Symbol universe: /nepse-chart/data/universe.json.
 
    Session date: snapshot.session_date when available, else the last
@@ -56,6 +66,10 @@
   var DIV_URL = '/nepse-chart/data/div-live.json';
   var DIV_HIST_URL = '/nepse-chart/data/div-history-yonepse.json';
   var divCache = null; // {symbol: [{cash_dividend, bonus_share, ...}]} — loaded once
+  var VERDICTS_URL = '/nepse-chart/data/verdicts.json';
+  var verdictCache = null; // {symbol: {sec, p, ch, ...}} — loaded once, shared across symbols
+  var verdictAsOf = null; // verdicts file asof (ISO date) for the peers-block label
+  var verdictFailed = false; // verdicts fetch failed — shown distinctly, never as "no sector"
 
   var fundCache = null; // {symbol: {eps_ttm, pe_ttm}} — loaded once, shared across symbols
   var techCache = null; // {symbol: {sector, shares_outstanding, book_value, pbv}} — own data bank
@@ -195,7 +209,9 @@
     sessionDate: null,
     loading: false, err: '',
     intra: null,         // 15m cache: {sym, rows:[[epochSec,o,h,l,c,vol|null]], baseVol, empty}
-    fund: null           // fundamentals row for the symbol (eps_ttm, pe_ttm), null if unavailable
+    fund: null,          // fundamentals row for the symbol (eps_ttm, pe_ttm), null if unavailable
+    prov: null,          // history provenance: 'own' | 'own+gap' | 'scraper' | 'ltp' | 'index'
+    peersPage: 1         // sector-peers pagination (25/page)
   };
 
   var chart = null;
@@ -265,6 +281,116 @@
       divCache = {};
       return divCache;
     });
+  }
+
+  function loadVerdicts() {
+    // Own verdicts batch (sector + close + % change per symbol) — the
+    // peers block's ONLY source. Cached for the page lifetime, shared
+    // across symbol switches. One fetch of our own published file; no
+    // new source, no builder change.
+    if (verdictCache) return Promise.resolve(verdictCache);
+    return fetchJSON(VERDICTS_URL).then(function (d) {
+      verdictCache = (d && d.verdicts) || {};
+      verdictAsOf = (d && d.asof) || null;
+      return verdictCache;
+    }).catch(function () {
+      verdictCache = {};
+      verdictFailed = true;
+      return verdictCache;
+    });
+  }
+
+  function peersFor(sym) {
+    // Membership uses verdicts `sec` EXACTLY — not the tech-fundamentals
+    // sector name. The two own files name banking differently (verdicts
+    // "Banking" vs tech-fundamentals "Commercial Banks"); the peers
+    // title therefore shows the verdicts sector, and the QA report
+    // states the gap rather than papering over it. Sorted by verdicts
+    // `ch` (percent change) descending, risers first.
+    if (!verdictCache) return null;
+    var v = verdictCache[sym];
+    if (!v || !v.sec) return null;
+    var list = [];
+    Object.keys(verdictCache).forEach(function (s) {
+      var r = verdictCache[s];
+      if (s !== sym && r && r.sec === v.sec) list.push({ s: s, ch: +r.ch || 0, p: +r.p || 0 });
+    });
+    list.sort(function (a, b) { return b.ch - a.ch; });
+    return { sec: v.sec, peers: list };
+  }
+
+  var PEERS_PER_PAGE = 25;
+  function peerCardHTML(p, tag) {
+    var cls = p.ch > 0 ? 'up' : (p.ch < 0 ? 'down' : 'flat');
+    return '<span class="nt-peer-top">' +
+      (tag ? '<span class="nt-peer-tag">' + esc(tag) + '</span>' : '') +
+      '<span class="nt-peer-sym">' + esc(p.s) + '</span>' +
+      '<span class="nt-peer-chg ' + cls + '">' + fmtSigned(p.ch, 2) + ' %</span></span>' +
+      '<span class="nt-peer-name">' + esc(state.names[p.s] || p.s) + '</span>' +
+      '<span class="nt-peer-close">' + fmtNum(p.p) + '</span>';
+  }
+
+  function paintPeers() {
+    var host = $('nt-peers');
+    if (!host) return;
+    if (state.sym === 'NEPSE') { host.hidden = true; return; } // index has no sector peers
+    if (!verdictCache) return; // verdicts still loading — the loader repaints on arrival
+    host.hidden = false;
+    var title = $('nt-peers-title'), meta = $('nt-peers-meta'),
+        open = $('nt-peers-open'), grid = $('nt-peers-grid'),
+        empty = $('nt-peers-empty'), pager = $('nt-peers-pager'),
+        count = $('nt-peers-count'), prev = $('nt-peers-prev'), next = $('nt-peers-next');
+    if (verdictFailed) {
+      // Load failure is NOT "no sector" — say so plainly.
+      if (title) title.textContent = 'More in this sector';
+      if (meta) meta.textContent = '';
+      if (open) open.innerHTML = '';
+      if (grid) grid.innerHTML = '';
+      if (empty) { empty.textContent = 'Sector peers could not be loaded right now — try reloading the page.'; empty.hidden = false; }
+      if (pager) pager.hidden = true;
+      return;
+    }
+    var res = peersFor(state.sym);
+    if (!res) {
+      // Honest empty state — never a guessed sector.
+      if (title) title.textContent = 'More in this sector';
+      if (meta) meta.textContent = '';
+      if (open) open.innerHTML = '';
+      if (grid) grid.innerHTML = '';
+      if (empty) { empty.textContent = 'No sector on file for this symbol'; empty.hidden = false; }
+      if (pager) pager.hidden = true;
+      return;
+    }
+    if (empty) empty.hidden = true;
+    var v = verdictCache[state.sym] || {};
+    if (title) title.textContent = 'More in ' + res.sec;
+    if (meta) {
+      var a = String(verdictAsOf || '');
+      if (/^\d{8}$/.test(a)) a = a.slice(0, 4) + '-' + a.slice(4, 6) + '-' + a.slice(6, 8);
+      meta.textContent = res.peers.length + ' peers · verdicts as of ' +
+        (a ? fmtDate(a) : '—') + ' · sorted by % change, risers first';
+    }
+    // Open symbol: pinned above pagination, marked, never duplicated as a peer.
+    if (open) {
+      open.innerHTML = peerCardHTML({ s: state.sym, ch: +v.ch || 0, p: +v.p || 0 }, 'Open');
+    }
+    var total = res.peers.length;
+    var pages = Math.max(1, Math.ceil(total / PEERS_PER_PAGE));
+    if (state.peersPage > pages) state.peersPage = pages;
+    if (state.peersPage < 1) state.peersPage = 1;
+    var from = (state.peersPage - 1) * PEERS_PER_PAGE;
+    var slice = res.peers.slice(from, from + PEERS_PER_PAGE);
+    if (grid) {
+      grid.innerHTML = slice.map(function (p) {
+        return '<button type="button" class="nt-peer" data-peer="' + esc(p.s) + '">' +
+          peerCardHTML(p, null) + '</button>';
+      }).join('');
+    }
+    if (pager) pager.hidden = pages <= 1;
+    if (count) count.textContent = total ?
+      ('Showing ' + (from + 1) + '–' + Math.min(from + PEERS_PER_PAGE, total) + ' of ' + total) : 'No peers';
+    if (prev) prev.disabled = state.peersPage <= 1;
+    if (next) next.disabled = state.peersPage >= pages;
   }
 
   /* Format a datetime like Merolagani: "2026/10/06 12:15:50" (NPT wall clock). */
@@ -378,40 +504,78 @@
 
   var OWN_OHLC = function (s) { return '/nepse-chart/data/daily-ohlc/' + s.replace('/', '-') + '.json'; };
 
-  function mergeOwnRows(rows, sym) {
-    // Overlay our own daily-OHLC archive on the scraper history: our rows
-    // win on date collision and extend past the scraper's last date.
+  function loadOwnRows(sym) {
+    // Own daily-OHLC archive — the BASE. Rejects when the file is
+    // missing or empty so the caller falls through to scraper, then LTP.
     return fetchJSON(OWN_OHLC(sym)).then(function (j) {
       var own = (j && j.rows) || [];
-      if (!own.length) return rows;
-      var byDate = {};
-      rows.forEach(function (r) { byDate[r[0]] = r; });
-      own.forEach(function (r) {
+      var rows = own.filter(function (r) { return r && r[0] && +r[4] > 0; }).map(function (r) {
         // Own row: [YYYYMMDD, open, high, low, close, volume, open_src]
-        if (r && r[0] && +r[4] > 0) byDate[r[0]] = [r[0], +r[1] || 0, +r[2] || 0, +r[3] || 0, +r[4], +r[5] || 0];
+        return [r[0], +r[1] || 0, +r[2] || 0, +r[3] || 0, +r[4], +r[5] || 0];
+      });
+      rows.sort(function (a, b) { return a[0] - b[0]; });
+      if (!rows.length) throw new Error('own-empty');
+      return rows;
+    });
+  }
+
+  function gapFillRows(ownRows, sym) {
+    // Scraper ONLY as gap-fill: it supplies dates our archive lacks.
+    // Our rows always win on collision. A scraper failure is NOT fatal:
+    // our rows stand alone (provenance 'own').
+    var byDate = {};
+    ownRows.forEach(function (r) { byDate[r[0]] = r; });
+    return fetchJSON(SRC.prices(sym)).then(function (j) {
+      var added = 0;
+      (j.data || []).forEach(function (d) {
+        var row = [ymdOf(d.date), +d.open || 0, +d.high || 0, +d.low || 0, +d.ltp || 0, +d.qty || 0];
+        if (row[4] > 0 && !byDate[row[0]]) { byDate[row[0]] = row; added++; }
       });
       var merged = Object.keys(byDate).map(function (k) { return byDate[k]; });
       merged.sort(function (a, b) { return a[0] - b[0]; });
-      return merged;
-    }).catch(function () { return rows; }); // archive missing — scraper data stands
+      return { rows: merged, gapFilled: added > 0 };
+    }).catch(function () {
+      return { rows: ownRows, gapFilled: false };
+    });
   }
 
   function loadStock(sym) {
-    return fetchJSON(SRC.prices(sym)).then(function (j) {
-      var rows = (j.data || []).map(function (d) {
-        return [ymdOf(d.date), +d.open || 0, +d.high || 0, +d.low || 0, +d.ltp || 0, +d.qty || 0];
-      }).filter(function (r) { return r[4] > 0; });
-      rows.sort(function (a, b) { return a[0] - b[0]; });
-      return mergeOwnRows(rows, sym).then(function (m) { return { rows: m, ltpOnly: false }; });
+    // DATA-CHAIN FLIP (2026-10-27 teardown): our archive is the BASE,
+    // the external scraper is gap-fill only. If our archive is missing
+    // entirely, fall back to the scraper as before, then to LTP as
+    // before. Provenance lands on state.prov for the freshness line.
+    // NOTE on the skip rule: the gap-fill fetch is skipped only for a
+    // symbol whose own archive already covers its full history. None
+    // qualifies today (the archive holds ~11 sessions, Oct 5–26), so it
+    // runs for every traded symbol; completeness cannot be inferred
+    // from the archive file alone (it carries no coverage flag), so no
+    // skip is guessed here — the scraper-blocked harness instead proves
+    // a failed gap-fill fetch leaves our rows standing.
+    return loadOwnRows(sym).then(function (ownRows) {
+      return gapFillRows(ownRows, sym).then(function (g) {
+        state.prov = g.gapFilled ? 'own+gap' : 'own';
+        return { rows: g.rows, ltpOnly: false };
+      });
     }).catch(function () {
-      // LTP-only fallback — open/high/low are never fabricated.
-      return fetchJSON(SRC.ltp(sym)).then(function (j) {
-        var rows = (j.rows || []).map(function (d) {
-          return [d[0], d[1], d[1], d[1], d[1], d[2] || 0];
+      return fetchJSON(SRC.prices(sym)).then(function (j) {
+        var rows = (j.data || []).map(function (d) {
+          return [ymdOf(d.date), +d.open || 0, +d.high || 0, +d.low || 0, +d.ltp || 0, +d.qty || 0];
         }).filter(function (r) { return r[4] > 0; });
         rows.sort(function (a, b) { return a[0] - b[0]; });
         if (!rows.length) throw new Error('empty');
-        return { rows: rows, ltpOnly: true };
+        state.prov = 'scraper';
+        return { rows: rows, ltpOnly: false };
+      }).catch(function () {
+        // LTP-only fallback — open/high/low are never fabricated.
+        return fetchJSON(SRC.ltp(sym)).then(function (j) {
+          var rows = (j.rows || []).map(function (d) {
+            return [d[0], d[1], d[1], d[1], d[1], d[2] || 0];
+          }).filter(function (r) { return r[4] > 0; });
+          rows.sort(function (a, b) { return a[0] - b[0]; });
+          if (!rows.length) throw new Error('empty');
+          state.prov = 'ltp';
+          return { rows: rows, ltpOnly: true };
+        });
       });
     });
   }
@@ -439,17 +603,27 @@
   function applyLiveToRows(rows, isIndex) {
     // Mirrors the lab's honesty guards: stale quotes are ignored, the live
     // candle is replaced (never duplicated) for today's session.
+    // PUBLIC-API ONLY: getQuote() for stocks (it also filters quarantined
+    // quotes), snapshot.index for the index. Never snap.map (the module
+    // builds none) and never q.last_updated (normalized quotes carry
+    // none) — both read undefined with the current module, which is
+    // what silently disabled this candle. Staleness uses the snapshot's
+    // own asof stamp (the feed's time), falling back to receivedAt.
     var snap = null;
     try { snap = window.NepseData && window.NepseData.getSnapshot ? window.NepseData.getSnapshot() : null; } catch (e) {}
     if (snap && snap.session_date) state.sessionDate = snap.session_date;
-    var q = isIndex ? (snap && snap.index) : (snap && snap.map && snap.map[state.sym]);
+    var q = null;
+    try {
+      if (isIndex) q = snap && snap.index;
+      else if (window.NepseData && window.NepseData.getQuote) q = window.NepseData.getQuote(state.sym);
+    } catch (e) { q = null; }
     state.live = q || null;
     state.liveBadge = false;
     if (!q) return { rows: rows, live: false };
     var ltp = isIndex ? q.value : q.ltp;
-    var upd = q.last_updated;
-    if (!ltp || !upd) return { rows: rows, live: false };
-    var ageMin = (Date.now() - parseMarketTime(upd)) / 60000;
+    if (!ltp) return { rows: rows, live: false };
+    var stampMs = (snap && snap.asofMs) || (snap && snap.receivedAt) || 0;
+    var ageMin = stampMs ? (Date.now() - stampMs) / 60000 : NaN;
     if (!(ageMin >= 0) || ageMin > 180) return { rows: rows, live: false };
     var t = todayNPT();
     var ymd = t.getUTCFullYear() * 10000 + (t.getUTCMonth() + 1) * 100 + t.getUTCDate();
@@ -938,6 +1112,7 @@
     setLoading(true); setNote(null);
     state.sym = sym; state.symName = isIndex ? 'NEPSE Index' : (state.names[sym] || sym);
     state.intra = null; // drop the cached 15m bars — rebuilt for the new symbol
+    state.peersPage = 1; // peer pagination restarts on every symbol change
     store(LS.sym, sym);
     var inp = $('nt-sym'); if (inp && document.activeElement !== inp) inp.value = sym;
     var chips = document.querySelectorAll('[data-chip]');
@@ -949,6 +1124,7 @@
     p.then(function (r) {
       state.rows = r.rows;
       state.ltpOnly = !!r.ltpOnly;
+      if (isIndex) state.prov = 'index';
       var merged = applyLiveToRows(state.rows, isIndex);
       state.rows = merged.rows;
       if (!state.rows.length) throw new Error('empty');
@@ -961,6 +1137,11 @@
       setLtpNote();
       state.loading = false; setLoading(false);
       refreshLive(); // sync in case the live snapshot landed mid-load
+      paintPeers();
+      rebaselineFresh(); // view/symbol change re-baselines, never nulls
+      freshCheckedMs = Date.now();
+      paintFresh();
+      startFreshTimer();
     }).catch(function (e) {
       state.loading = false; setLoading(false);
       setNote(e && e.message === 'lib'
@@ -1081,6 +1262,126 @@
     paintStats();
   }
 
+  /* ---------- page-owned freshness (60s change-gated timer) ---------- */
+
+  var freshTimer = null, freshSig = null, freshCheckedMs = 0,
+      freshFailed = false, freshManifestDays = null;
+
+  function fmtClock(ms) { // '14:32:05 NPT' wall clock, no weekday ever guessed
+    if (!ms) return '—';
+    var d = new Date(ms + 5.75 * 3600e3);
+    function p(n) { return (n < 10 ? '0' : '') + n; }
+    return p(d.getUTCHours()) + ':' + p(d.getUTCMinutes()) + ':' + p(d.getUTCSeconds()) + ' NPT';
+  }
+
+  function provLabel() {
+    if (state.sym === 'NEPSE') return 'Index history';
+    if (state.prov === 'own') return 'Own OHLC archive';
+    if (state.prov === 'own+gap') return 'Own archive + gap-fill';
+    if (state.prov === 'scraper') return 'External history (own archive missing)';
+    if (state.prov === 'ltp') return 'LTP-only';
+    return '—';
+  }
+
+  function freshSignature() {
+    // View-independent by construction: chart type, overlays, timeframe
+    // and peers page NEVER enter it. The live LTP comes from NepseData
+    // (the only module allowed to fetch live.json) — this page never
+    // fetches live.json directly. The brief's "ltp file" input is the
+    // live quote for the open symbol as delivered by NepseData; the
+    // per-symbol ltp history files are load-time fallback history, not
+    // polled live inputs.
+    var snap = null;
+    try { snap = window.NepseData && window.NepseData.getSnapshot ? window.NepseData.getSnapshot() : null; } catch (e) {}
+    var q = null;
+    if (snap) {
+      if (state.sym === 'NEPSE') q = snap.index;
+      else if (window.NepseData && window.NepseData.getQuote) {
+        try { q = window.NepseData.getQuote(state.sym); } catch (e) {}
+      }
+    }
+    var ltp = q ? (state.sym === 'NEPSE' ? q.value : q.ltp) : '';
+    var upd = (snap && snap.asof) || ''; // feed stamp — moves on every real feed rebuild
+    var sess = (snap && snap.session_date) || state.sessionDate || '';
+    var intra = '';
+    if (tfDef().intra && state.intra && state.intra.rows.length) {
+      var lr = state.intra.rows[state.intra.rows.length - 1];
+      intra = lr[0] + '|' + lr[4];
+    }
+    return [state.sym, sess, ltp, upd, intra, UNIVERSE_V, Object.keys(state.names).length].join('|');
+  }
+
+  function rebaselineFresh() {
+    // After ANY render (load, view change, peer page): record the
+    // current signature. NEVER null it — nulling swallows the first
+    // real data change after a selection (trade-pattern lesson).
+    freshSig = freshSignature();
+  }
+
+  function paintFresh() {
+    var el = $('nt-fresh');
+    if (!el) return;
+    var rows = state.rows;
+    var asof = state.sessionDate || (rows.length ? isoOf(rows[rows.length - 1][0]) : null);
+    var asofTxt = asof ? fmtDate(asof) : '—';
+    var status;
+    if (freshFailed) status = '<span class="fail">last check failed, showing ' + esc(asofTxt) + '</span>';
+    else if (!marketOpenNPT()) status = 'FINAL';
+    else status = 'live';
+    el.innerHTML = 'Chart freshness: data as of ' + esc(asofTxt) +
+      ' · checked ' + esc(fmtClock(freshCheckedMs)) +
+      ' · next check ' + esc(fmtClock(freshCheckedMs ? freshCheckedMs + 60000 : 0)) +
+      ' · ' + status +
+      ' · History: ' + esc(provLabel());
+  }
+
+  function freshTick() {
+    if (document.hidden) return; // skip while hidden; visibilitychange resumes
+    if (!state.rows.length || !chart) { paintFresh(); return; }
+    freshCheckedMs = Date.now();
+    freshFailed = false;
+    var done = function () {
+      var sig = freshSignature();
+      if (sig === freshSig) { paintFresh(); return; } // unchanged: clock only
+      refreshLive(); // chart last candle + legend + MA stats + position + session
+      paintFundamentals(); // price / change
+      paintPeers(); // peers % changes (verdicts cache)
+      rebaselineFresh();
+      paintFresh();
+    };
+    if (tfDef().intra && state.sym !== 'NEPSE') {
+      // 15m view only: the intraday manifest is the page's own archive
+      // file (already fetched by loadIntraday). A changed day-list means
+      // new snapshots landed — drop the cached bars and rebuild, without
+      // rebaselining: the next tick still sees the change once bars land.
+      fetchJSON(SRC.intraDir + 'manifest.json').then(function (m) {
+        var days = JSON.stringify((m && m.days) || []);
+        if (freshManifestDays !== null && days !== freshManifestDays) {
+          freshManifestDays = days;
+          state.intra = null;
+          paintData(false);
+          paintFresh();
+          return;
+        }
+        freshManifestDays = days;
+        done();
+      }).catch(function () {
+        freshFailed = true; // failed poll keeps the last-good chart
+        paintFresh();
+      });
+    } else {
+      done();
+    }
+  }
+
+  function startFreshTimer() {
+    if (freshTimer) return;
+    freshTimer = setInterval(freshTick, 60000);
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) freshTick(); // refresh-on-visible
+    });
+  }
+
   /* ---------- UI wiring ---------- */
 
   function markSeg(id, val, attr) {
@@ -1102,6 +1403,7 @@
       store(LS.type, state.type);
       markSeg('nt-type', state.type, 'type');
       applyVisibility();
+      rebaselineFresh(); // view change re-baselines, never nulls
     });
 
     // Overlays — pill toggle buttons (same language as the tracker's pills)
@@ -1118,6 +1420,22 @@
       store(LS.ov, JSON.stringify(state.ov));
       syncOverlayUI();
       applyVisibility();
+      rebaselineFresh(); // view change re-baselines, never nulls
+    });
+
+    // Sector peers: a peer card opens that symbol's chart exactly like search.
+    var pg = $('nt-peers-grid');
+    if (pg) pg.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-peer]');
+      if (!b) return;
+      loadSymbol(b.getAttribute('data-peer'));
+    });
+    var pv = $('nt-peers-prev'), nx = $('nt-peers-next');
+    if (pv) pv.addEventListener('click', function () {
+      if (state.peersPage > 1) { state.peersPage--; paintPeers(); rebaselineFresh(); }
+    });
+    if (nx) nx.addEventListener('click', function () {
+      state.peersPage++; paintPeers(); rebaselineFresh();
     });
 
     // Search
@@ -1191,6 +1509,9 @@
       });
       loadDividends().then(function () {
         if (state.rows.length) { paintFundamentals(); paintData(false); }
+      });
+      loadVerdicts().then(function () {
+        if (state.rows.length) paintPeers();
       });
       // Wait for the deferred data scripts (nepse-daily.js) and the first
       // live snapshot — getSnapshot() existing is not enough, the first
