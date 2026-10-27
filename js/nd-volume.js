@@ -17,9 +17,11 @@
     });
   }
   function fmt(n, d) {
+    if (n == null || (typeof n === 'number' && !isFinite(n))) return '—';
     return Number(n).toLocaleString('en-IN', { minimumFractionDigits: d || 0, maximumFractionDigits: d == null ? 2 : d });
   }
   function fmtVol(n) {
+    if (n == null) return '—';
     if (n >= 1e7) return (n / 1e7).toFixed(2) + ' Cr';
     if (n >= 1e5) return (n / 1e5).toFixed(1) + ' L';
     if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
@@ -34,11 +36,11 @@
 
   var TAG_LABEL = {
     HIGH_VOLUME_SPIKE: 'Spike', ELEVATED_VOLUME: 'Elevated',
-    NORMAL: 'Normal', VOLUME_DRYUP: 'Dry-up'
+    NORMAL: 'Normal', VOLUME_DRYUP: 'Dry-up', NEW: 'New listing'
   };
   var TAG_COLOR = {
     HIGH_VOLUME_SPIKE: '#b45309', ELEVATED_VOLUME: '#2563eb',
-    NORMAL: '#8A94A3', VOLUME_DRYUP: '#7c3aed'
+    NORMAL: '#8A94A3', VOLUME_DRYUP: '#7c3aed', NEW: '#0e7490'
   };
   var FLAG_DEFS = [
     ['flag_volume_shock', 'shock', 'Shock'],
@@ -102,6 +104,9 @@
     var k = state.sortKey, dir = state.sortDir;
     rows.sort(function (a, b) {
       var x = a[k], y = b[k];
+      if (x == null && y == null) return 0;
+      if (x == null) return 1;
+      if (y == null) return -1;
       if (typeof x === 'string') return dir * x.localeCompare(y);
       return dir * (x - y);
     });
@@ -157,15 +162,16 @@
   function sectorAgg() {
     var m = {};
     state.rows.forEach(function (r) {
-      var s = m[r.sector] || (m[r.sector] = { sector: r.sector, n: 0, rvol: 0, spikes: 0, elevated: 0, topPvcs: null, topPvcsSym: '' });
-      s.n += 1; s.rvol += r.rvol_7;
+      var s = m[r.sector] || (m[r.sector] = { sector: r.sector, n: 0, rvol: 0, nRvol: 0, spikes: 0, elevated: 0, topPvcs: null, topPvcsSym: '' });
+      s.n += 1;
+      if (r.rvol_7 != null) { s.rvol += r.rvol_7; s.nRvol += 1; }
       if (r.signal_tag === 'HIGH_VOLUME_SPIKE') s.spikes += 1;
       if (r.signal_tag === 'ELEVATED_VOLUME') s.elevated += 1;
       if (s.topPvcs === null || r.pvcs > s.topPvcs) { s.topPvcs = r.pvcs; s.topPvcsSym = r.symbol; }
     });
     return Object.keys(m).map(function (k) {
       var s = m[k];
-      s.meanRvol = s.rvol / s.n;
+      s.meanRvol = s.nRvol ? s.rvol / s.nRvol : 0;
       var br = 0;
       state.rows.forEach(function (r) { if (r.sector === k && r.rvol_7 >= 1) br += 1; });
       s.breadth = br / s.n * 100;
@@ -304,11 +310,11 @@
       $('vpSession').textContent = 'Session ' + data.asof + ' · ' + data.count + ' equities · rebuilt after every close · Source: Nepse Decode OHLCV archive';
     }
     $('vpStats').innerHTML =
-      statCard('Equities scanned', String(data.count), 'ordinary shares with 91+ sessions of history') +
+      statCard('Equities scanned', String(data.count), 'ordinary shares ranked on today\'s board') +
       statCard('Median RVOL-7', fmt(sum.median_rvol_7), 'half the market traded above this pace') +
       statCard('Volume spikes', String(tc.HIGH_VOLUME_SPIKE || 0), 'RVOL-7 at or above 3.5× normal pace') +
       statCard('Volume dry-ups', String(tc.VOLUME_DRYUP || 0), 'RVOL-7 at or below 0.5× normal pace');
-    var distOrder = ['HIGH_VOLUME_SPIKE', 'ELEVATED_VOLUME', 'NORMAL', 'VOLUME_DRYUP'];
+    var distOrder = ['HIGH_VOLUME_SPIKE', 'ELEVATED_VOLUME', 'NORMAL', 'VOLUME_DRYUP', 'NEW'];
     var total = data.count || 1;
     $('vpDist').innerHTML = '<div class="vp-dist-bar" aria-hidden="true">' + distOrder.map(function (k) {
       return '<i style="width:' + ((tc[k] || 0) / total * 100).toFixed(1) + '%;background:' + TAG_COLOR[k] + '"></i>';
