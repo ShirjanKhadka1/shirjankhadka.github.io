@@ -30,7 +30,8 @@
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
-<link rel="stylesheet" href="verdicts-v2.css?v=e0287a7e">
+<link rel="stylesheet" href="/css/nd-3d.css">
+<link rel="stylesheet" href="verdicts-v2.css?v=cf58332b">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebPage","name":"NEPSE Warning Radar","url":"https://shirjankhadka.com.np/nepse-verdicts-v2/","description":"The Warning Radar scans listed NEPSE stocks for pump-and-distribution footprints with full evidence, and names any stock it could not score. A warning instrument, not a trading system.","author":{"@type":"Organization","name":"Nepse Decode"}}
 </script>
@@ -41,23 +42,40 @@
 {"@type":"ListItem","position":3,"name":"Warning Radar","item":"https://shirjankhadka.com.np/nepse-verdicts-v2/"}]}
 </script>
 </head>
-<body>
+<body data-page="verdicts-v2">
 <a class="skip-link" href="#main">Skip to content</a>
 <div id="nd-header"></div>
 
 <main id="main" class="v2-shell">
 <div data-freshness-badge style="margin:12px 0"></div>
-  <p class="v2-eyebrow">Warning Radar</p>
+  <p class="v2-eyebrow">Warning Radar · NEPSE</p>
   <h1 class="v2-title nd-pagetitle">NEPSE stocks, scanned for traps</h1>
+  <div class="v2-hero" id="v2Hero" aria-label="Today's warnings">
+    <div class="v2-hero-num"><span id="v2HeroNum">…</span><span class="v2-hero-lbl">stocks flagged in the latest session</span></div>
+    <div class="v2-hero-chips" id="v2HeroChips" aria-label="Flagged symbols"></div>
+  </div>
   <p class="v2-lede">This page checks listed NEPSE stocks for danger signs — prices that shot up too fast, big players quietly selling while small buyers rush in — and shows you the proof behind each flag; any stock it could not score is named under the table instead of being silently skipped. It is a <strong>warning tool, not a trading system</strong>: it tells you which stocks look risky and why, in plain words. No black box, no login, free forever. For education only, not investment advice.</p>
   <p class="v2-regime" id="v2Regime">Loading market regime…</p>
   <p class="v2-asof" id="v2Asof">Loading…</p>
+  <p class="v2-fresh" id="v2Fresh">Loading board…</p>
 
   <div class="v2-stats" id="v2Stats" aria-label="Verdict distribution"></div>
 
+  <div class="v2-controls" role="group" aria-label="Board controls">
+    <label class="v2-ctl"><span class="v2-ctl-lbl">Sector</span><select id="v2SectorSel" class="v2-select" aria-label="Filter by sector"></select></label>
+    <label class="v2-ctl"><span class="v2-ctl-lbl">Sort</span><select id="v2SortSel" class="v2-select" aria-label="Sort board">
+      <option value="" disabled>Sorted by column header</option>
+      <option value="confidence|-1">Confidence · high first</option>
+      <option value="pump|-1">Pump score · high first</option>
+      <option value="opp|-1">Opportunity · high first</option>
+      <option value="sym|1">Symbol · A to Z</option>
+      <option value="sec|1">Sector · A to Z</option>
+      <option value="age|-1">Age · oldest first</option>
+    </select></label>
+    <label class="v2-ctl v2-ctl-search"><span class="v2-ctl-lbl">Symbol search</span><input type="search" class="v2-search" id="v2Search" placeholder="Search symbol, e.g. SONA" aria-label="Search symbols"></label>
+  </div>
   <div class="v2-toolbar">
     <div class="v2-filters" id="v2Filters" role="group" aria-label="Filter by verdict"></div>
-    <input type="search" class="v2-search" id="v2Search" placeholder="Search symbol, e.g. SONA" aria-label="Search symbols">
   </div>
   <p class="v2-count" id="v2Count" aria-live="polite"></p>
 
@@ -65,6 +83,42 @@
     <div class="v2-empty">Loading warning radar…</div>
   </div>
   <nav class="v2-pager" id="v2Pager" aria-label="Table pages"></nav>
+
+  <section class="v2-sectors" aria-label="Warnings by sector">
+    <p class="v2-eyebrow">Sectors</p>
+    <h2 class="v2-h2">Warnings by sector</h2>
+    <p class="v2-lede">Tap a sector card to filter the board to that sector's stocks. The board itself stays the single stock list — cards filter it, they never duplicate it.</p>
+    <div class="v2-sectorgrid" id="v2Sectors"><div class="v2-empty">Loading sectors…</div></div>
+  </section>
+
+  <section class="v2-trend" aria-label="Warnings issued per session">
+    <p class="v2-eyebrow">Ledger</p>
+    <h2 class="v2-h2">Warnings issued per session</h2>
+    <p class="v2-lede">Every warning the ledger has recorded, counted by the session it was issued — from the warning ledger file, not the board.</p>
+    <div id="v2Trend"><div class="v2-empty">Loading ledger…</div></div>
+  </section>
+
+  <section class="v2-track" aria-label="Forward track record">
+    <p class="v2-eyebrow">Forward tracking</p>
+    <h2 class="v2-h2">Do the warnings work? Tracked forward</h2>
+    <p class="v2-lede">Each warning is followed for 20 sessions against the site's own OHLC mirror. A warning counts as a hit only when the stock falls 10% or more from its warning close inside that window.</p>
+    <div id="v2Track"><div class="v2-empty">Loading track record…</div></div>
+  </section>
+
+  <section class="v2-ledger" aria-label="Warning ledger">
+    <p class="v2-eyebrow">Ledger</p>
+    <h2 class="v2-h2">Warning ledger — every warning, tracked forward</h2>
+    <p class="v2-count" id="v2LedgerCount" aria-live="polite"></p>
+    <div id="v2Ledger"><div class="v2-empty">Loading ledger…</div></div>
+    <nav class="v2-pager" id="v2LedgerPager" aria-label="Ledger pages"></nav>
+  </section>
+
+  <section class="v2-history" aria-label="Archive sessions">
+    <p class="v2-eyebrow">Archive</p>
+    <h2 class="v2-h2">Sessions in the archive</h2>
+    <div id="v2History"><div class="v2-empty">Loading archive…</div></div>
+  </section>
+
   <div class="v2-failures" id="v2Failures" aria-label="Securities awaiting data"></div>
 
   <section class="v2-guide" aria-label="How to read the warning radar">
@@ -91,7 +145,7 @@
 <div id="nd-footer"></div>
 <script src="/js/nd-chrome.js?v=74c1c8b7" defer></script>
 <script src="/js/nepse-market-config.js" defer></script>
-<script src="/js/freshness-badge.js" defer></script>
-<script src="verdicts-v2.js?v=22dd295a" defer></script>
+<script src="/js/freshness-badge.js?v=307d4f55" defer></script>
+<script src="verdicts-v2.js?v=f3cba3ab" defer></script>
 </body>
 </html>
