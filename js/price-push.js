@@ -1,10 +1,27 @@
 /* Price Push — renders /data/price-push-{window}.json (+ history ledger).
    All numbers come from the payload; nothing is computed client-side
-   except ordering, filtering and display formatting. Payload shape is
-   nd-price-push/v1 (see tools/build-price-push.py). */
+   except ordering, filtering and display formatting/aggregation
+   (sector grouping, histogram buckets, ranked viz bars).
+   Payload shape is nd-price-push/v1 (see tools/build-price-push.py).
+   AUTO-REFRESH (change-gated, 60s manifest poll): the refresh
+   signature is the manifest SHAs for the current window, the 30-day
+   forward payload, and the history ledger. View state (window, sector,
+   sort, search, pages, selected stock) NEVER touches that signature,
+   so a view change cannot swallow a real data change — the signature
+   is re-read from the manifest on every poll, never nulled or reset
+   by a render. Unchanged payloads: no DOM re-render, only the
+   freshness line's clock moves. */
 (function () {
   'use strict';
   var WINDOWS = [1, 7, 15, 30, 90, 180, 365];
+  var SORTS = [
+    { v: 'return', lbl: 'Price return' },
+    { v: 'share', lbl: 'Lead pusher share' },
+    { v: 'net', lbl: 'Net buying' },
+    { v: 'turnover', lbl: 'Turnover' },
+    { v: 'impact', lbl: 'Impact per crore' },
+    { v: 'sym', lbl: 'Symbol' }
+  ];
   var VT = '?v=20261024b'; // fallback only; the manifest wins when it loads
   var SHAS = null; // {windows: {w: sha8}, history: sha8} from the manifest
   function dataUrl(w) {
@@ -21,8 +38,8 @@
     // yesterday's cached JSON. A failed fetch falls back to the old VT.
     return fetch('/data/price-push-manifest.json', { cache: 'no-store' })
       .then(function (r) { return r.json(); })
-      .then(function (j) { SHAS = j; })
-      .catch(function () { SHAS = null; });
+      .then(function (j) { SHAS = j; return j; })
+      .catch(function () { SHAS = null; return null; });
   }
   function $(id) { return document.getElementById(id); }
   function esc(s) {
@@ -69,19 +86,40 @@
       '<div class="lbl">' + lbl + '</div>' +
       (sub ? '<div class="sub">' + sub + '</div>' : '') + '</div>';
   }
+  function hhmm(d) {
+    return ('0' + d.getHours()).slice(-2) + ':' +
+      ('0' + d.getMinutes()).slice(-2);
+  }
 
   var P = null, P30 = null, HISTD = null;
   var curWin = 30, curSector = 'all', curSort = 'return', curSearch = '';
   var curSym = null;
-  var curPage = 0, PER_PAGE = 25;
+  var curPage = 0, secPage = 0, histPage = 0, PER_PAGE = 25;
+  var lastCheck = null, lastCheckOk = true, refreshTimer = null;
+
+  /* ---- page-owned freshness line: tape freshness, distinct from the
+     shared badge (badge = live/manifest session state) ---- */
+  function renderFresh() {
+    var el = $('ppFresh');
+    if (!el) return;
+    if (!P) { el.textContent = 'Loading the board…'; return; }
+    var checked = lastCheck ? hhmm(lastCheck) : '—';
+    var next = lastCheck ?
+      hhmm(new Date(lastCheck.getTime() + 60000)) : '—';
+    var manAs = (SHAS && SHAS.asof) ? SHAS.asof : '—';
+    if (lastCheckOk) {
+      el.textContent = 'Board freshness: board as of ' + P.asof + ' · ' +
+        P.status + ' · checked ' + checked + ' · next check ' + next +
+        ' · manifest as of ' + manAs;
+    } else {
+      el.textContent = 'Board freshness: last check failed at ' + checked +
+        ' — showing the ' + P.asof + ' board (last good) · next check ' +
+        next + ' · manifest as of ' + manAs;
+    }
+  }
 
   function renderMeta() {
     var m = P.market;
-    $('ppSession').textContent = 'Session ' + P.asof + ' · ' +
-      P.window_days + '-day window (' + P.window_start + ' to ' +
-      P.window_end + ')' + (P.partial ? ' · partial window' : '') +
-      (P.gap_dates && P.gap_dates.length ?
-        ' · flow gap: ' + P.gap_dates.join(', ') : '') + ' · FINAL';
     $('statStrip').innerHTML =
       statCard(m.risers, 'Stocks pushed up',
         'of ' + m.symbols_traded + ' traded') +
@@ -96,6 +134,7 @@
         P.board.length ? pct(P.board[0].return_pct) : '');
     $('coverageNote').textContent =
       'Window covers ' + P.sessions_in_window + ' trading sessions' +
+      '; archive starts ' + P.archive_start +
       (P.partial ? '; the window reaches before the floorsheet archive ' +
         'starts (' + P.archive_start + '), so long-window returns are ' +
         'measured from each stock\'s first available close and marked ' +
@@ -103,15 +142,6 @@
       (P.gap_dates && P.gap_dates.length ?
         '; 2026-10-07 has broker totals only, so windows spanning it ' +
         'understate flow.' : '');
-    var secs = {};
-    P.board.forEach(function (r) { if (r.sector) secs[r.sector] = 1; });
-    var sel = $('sectorSel');
-    var keep = sel.value;
-    sel.innerHTML = '<option value="all">All sectors</option>' +
-      Object.keys(secs).sort().map(function (s) {
-        return '<option value="' + esc(s) + '">' + esc(s) + '</option>';
-      }).join('');
-    if (keep && secs[keep]) sel.value = keep; else curSector = 'all';
   }
 
   function renderHero() {
@@ -124,7 +154,9 @@
     host.innerHTML =
       '<div class="pp-hero-kick">Top push · ' + P.window_days + '-day window</div>' +
       '<div class="pp-hero-row"><span class="pp-hero-sym">' + top.symbol + '</span>' +
-      '<span class="pp-hero-ret">' + pct(top.return_pct) + '</span></div>' +
+      '<span class="pp-hero-ret">' + pct(top.return_pct) + '</span>' +
+      (top.partial ? '<span class="pp-hero-part">partial — from ' +
+        top.base_date + '</span>' : '') + '</div>' +
       '<div class="pp-hero-lead">Led by <b>' + ldName + '</b>' +
       (ld ? ' · ' + ld.share_pct.toFixed(1) + '% of the net buying' : '') + '</div>' +
       (ld ? '<div class="pp-hero-bar"><span class="pp-hero-track"><i style="width:' +
@@ -164,6 +196,26 @@
     });
   }
 
+  /* Shared pager: Prev quiet, Next lime primary, real buttons. */
+  function pagerHtml(page, totalPages) {
+    return '<button type="button" class="pp-pagebtn pp-prev" data-dir="-1"' +
+      (page === 0 ? ' disabled' : '') + '>← Prev</button>' +
+      '<span class="pp-pagenum">Page ' + (page + 1) + ' of ' +
+      totalPages + '</span>' +
+      '<button type="button" class="pp-pagebtn pp-next" data-dir="1"' +
+      (page >= totalPages - 1 ? ' disabled' : '') + '>Next →</button>';
+  }
+  function bindPager(hostId, getPage, setPage, render) {
+    Array.prototype.forEach.call(
+      document.querySelectorAll('#' + hostId + ' .pp-pagebtn'),
+      function (b) {
+        b.addEventListener('click', function () {
+          setPage(getPage() + parseInt(b.getAttribute('data-dir'), 10));
+          render();
+        });
+      });
+  }
+
   function renderSectorBlock() {
     var grid = $('sectorGrid');
     if (!grid || !P) return;
@@ -172,7 +224,7 @@
       return g.name === curSector;
     })) {
       curSector = 'all';
-      $('sectorSel').value = 'all';
+      secPage = 0;
     }
     grid.innerHTML = groups.map(function (gr) {
       var on = curSector === gr.name;
@@ -187,18 +239,39 @@
         '<span class="pp-sec-meta">Net buying ' + money(gr.net) +
         ' · median lead ' + gr.medianLead.toFixed(1) + '%</span></button>';
     }).join('');
+    var resetBtn = $('secReset');
+    if (resetBtn) {
+      resetBtn.className = 'pp-sec-reset' + (curSector === 'all' ? ' on' : '');
+      resetBtn.setAttribute('aria-pressed', String(curSector === 'all'));
+    }
     Array.prototype.forEach.call(
       document.querySelectorAll('#sectorGrid .pp-sector-card'),
       function (btn) {
         btn.addEventListener('click', function () {
           curSector = btn.getAttribute('data-sector');
-          $('sectorSel').value = curSector;
-          curPage = 0;
+          secPage = 0; curPage = 0;
           renderSectorBlock();
           renderBoard();
         });
       });
+    renderSectorViz(groups);
     renderSectorList(groups);
+  }
+
+  /* Ranked net-buying share bars: which sector dominates the flow. */
+  function renderSectorViz(groups) {
+    var host = $('sectorViz');
+    if (!host) return;
+    var ranked = groups.slice().sort(function (a, b) {
+      return b.netShare - a.netShare;
+    });
+    host.innerHTML = ranked.map(function (gr) {
+      return '<div class="pp-secviz-row"><span class="pp-secviz-name">' +
+        esc(gr.name) + '</span><span class="pp-secviz-track"><i style="width:' +
+        Math.max(0, Math.min(100, gr.netShare)).toFixed(1) + '%"></i></span>' +
+        '<span class="pp-secviz-val">' + gr.netShare.toFixed(1) + '% · ' +
+        money(gr.net) + '</span></div>';
+    }).join('');
   }
 
   function sectorRow(r, i, withSector) {
@@ -222,7 +295,7 @@
 
   function renderSectorList(groups) {
     var head = $('sectorHead'), body = $('sectorBody'),
-      cap = $('sectorCount');
+      cap = $('sectorCount'), pager = $('sectorPager');
     if (!head || !body) return;
     if (curSector === 'all') {
       head.innerHTML = 'Every sector\u2019s top riser — ' +
@@ -232,6 +305,7 @@
       }).join('');
       cap.textContent = groups.length + ' sectors · one top riser each · ' +
         'pick a sector card above to see all its pushed stocks.';
+      if (pager) pager.innerHTML = '';
     } else {
       var gr = null;
       groups.forEach(function (g) { if (g.name === curSector) gr = g; });
@@ -242,17 +316,50 @@
       var rows = gr.rows.slice().sort(function (a, b) {
         return b.return_pct - a.return_pct;
       });
-      body.innerHTML = rows.map(function (r, i) {
-        return sectorRow(r, i, true);
+      var totalPages = Math.max(1, Math.ceil(rows.length / PER_PAGE));
+      if (secPage >= totalPages) secPage = totalPages - 1;
+      if (secPage < 0) secPage = 0;
+      var start = secPage * PER_PAGE;
+      body.innerHTML = rows.slice(start, start + PER_PAGE).map(function (r, i) {
+        return sectorRow(r, start + i, true);
       }).join('');
-      cap.textContent = rows.length + ' risers in ' + gr.name +
-        ' on the ' + P.window_days + '-day window.';
+      var end = Math.min(rows.length, start + PER_PAGE);
+      cap.textContent = 'Showing ' + (start + 1) + '–' + end + ' of ' +
+        rows.length + ' risers in ' + gr.name + ' on the ' +
+        P.window_days + '-day window.';
+      if (pager) {
+        pager.innerHTML = pagerHtml(secPage, totalPages);
+        bindPager('sectorPager', function () { return secPage; },
+          function (v) { secPage = v; },
+          function () { renderSectorList(groups); });
+      }
     }
     Array.prototype.forEach.call(
       document.querySelectorAll('#sectorBody tr[data-sym]'),
       function (tr) {
         tr.addEventListener('click', function () {
           selectSymbol(tr.getAttribute('data-sym'));
+        });
+      });
+  }
+
+  function renderSortSeg() {
+    var host = $('sortSeg');
+    if (!host) return;
+    host.innerHTML = SORTS.map(function (s) {
+      var on = s.v === curSort;
+      return '<button type="button" class="pp-sortbtn' + (on ? ' on' : '') +
+        '" aria-pressed="' + on + '" data-sort="' + s.v + '">' +
+        s.lbl + '</button>';
+    }).join('');
+    Array.prototype.forEach.call(
+      document.querySelectorAll('#sortSeg .pp-sortbtn'),
+      function (b) {
+        b.addEventListener('click', function () {
+          curSort = b.getAttribute('data-sort');
+          curPage = 0;
+          renderSortSeg();
+          renderBoard();
         });
       });
   }
@@ -322,21 +429,9 @@
       'close (see Methodology).';
     var pager = $('boardPager');
     if (pager) {
-      pager.innerHTML =
-        '<button type="button" class="pp-pagebtn" data-dir="-1"' +
-        (curPage === 0 ? ' disabled' : '') + '>← Prev</button>' +
-        '<span class="pp-pagenum">Page ' + (curPage + 1) + ' of ' +
-        totalPages + '</span>' +
-        '<button type="button" class="pp-pagebtn" data-dir="1"' +
-        (curPage >= totalPages - 1 ? ' disabled' : '') + '>Next →</button>';
-      Array.prototype.forEach.call(
-        document.querySelectorAll('#boardPager .pp-pagebtn'),
-        function (b) {
-          b.addEventListener('click', function () {
-            curPage += parseInt(b.getAttribute('data-dir'), 10);
-            renderBoard();
-          });
-        });
+      pager.innerHTML = pagerHtml(curPage, totalPages);
+      bindPager('boardPager', function () { return curPage; },
+        function (v) { curPage = v; }, renderBoard);
     }
     Array.prototype.forEach.call(
       document.querySelectorAll('#boardBody tr[data-sym]'),
@@ -345,6 +440,26 @@
           selectSymbol(tr.getAttribute('data-sym'));
         });
       });
+  }
+
+  /* Lead-share histogram: ten buckets over the window board's lead
+     shares (display aggregation only; counts + bars from payload rows). */
+  function renderLeadHist() {
+    var host = $('leadHist');
+    if (!host || !P) return;
+    var buckets = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    P.board.forEach(function (r) {
+      var s = r.lead ? r.lead.share_pct : 0;
+      buckets[Math.min(9, Math.floor(s / 10))] += 1;
+    });
+    var mx = Math.max.apply(null, buckets.concat([1]));
+    host.innerHTML = buckets.map(function (c, i) {
+      var lo = i * 10, hi = (i + 1) * 10;
+      return '<div class="pp-leadhist-row"><span class="pp-leadhist-bucket">' +
+        lo + '–' + hi + '%</span><span class="pp-leadhist-track"><i style="width:' +
+        (c / mx * 100).toFixed(1) + '%"></i></span>' +
+        '<span class="pp-leadhist-count">' + c + '</span></div>';
+    }).join('');
   }
 
   function renderDetail() {
@@ -435,9 +550,10 @@
         var w = v === null ? 0 : Math.abs(v) / mx * 100;
         var cls = v === null ? '' : (v >= 0 ? ' up' : ' down');
         return '<div class="pp-fwd-row"><span class="pp-fwd-lbl">' + lbl +
-          ' (n=' + s.n + ')</span><span class="pp-fwd-track"><i class="' +
+          '</span><span class="pp-fwd-track"><i class="' +
           cls + '" style="width:' + w.toFixed(1) + '%"></i></span>' +
-          '<span class="pp-fwd-val">' + (v === null ? '—' : pp(v)) +
+          '<span class="pp-fwd-val">mean ' + (v === null ? '—' : pp(v)) +
+          ' · median ' + pp(s.median_fwd_pct) + ' · n=' + s.n +
           '</span></div>';
       }
       bars.innerHTML = fwdBar('Dominant push', f.dominant_push) +
@@ -447,7 +563,12 @@
 
   function renderHistory() {
     if (!HISTD) return;
-    $('historyBody').innerHTML = HISTD.entries.slice().reverse().map(
+    var entries = HISTD.entries.slice().reverse();
+    var totalPages = Math.max(1, Math.ceil(entries.length / PER_PAGE));
+    if (histPage >= totalPages) histPage = totalPages - 1;
+    if (histPage < 0) histPage = 0;
+    var start = histPage * PER_PAGE;
+    $('historyBody').innerHTML = entries.slice(start, start + PER_PAGE).map(
       function (e) {
         return '<tr><td>' + e.asof + '</td><td class="num">' + e.risers +
           '</td><td class="num">' + money(e.risers_turnover) +
@@ -458,6 +579,18 @@
           '</td><td class="num">' + (e.median_lead_share_pct === null ?
             '—' : e.median_lead_share_pct.toFixed(1) + '%') + '</td></tr>';
       }).join('');
+    var cap = $('historyCap');
+    if (cap) cap.textContent = HISTD.note || '';
+    var pager = $('historyPager');
+    if (pager) {
+      if (totalPages > 1) {
+        pager.innerHTML = pagerHtml(histPage, totalPages);
+        bindPager('historyPager', function () { return histPage; },
+          function (v) { histPage = v; }, renderHistory);
+      } else {
+        pager.innerHTML = '';
+      }
+    }
     var bars = $('historyBars');
     if (bars) {
       var mx = 0;
@@ -538,17 +671,31 @@
     document.getElementById('detail').scrollIntoView({ behavior: 'smooth' });
   }
 
+  function renderAll() {
+    renderMeta();
+    renderHero();
+    renderBoard();
+    renderSectorBlock();
+    renderLeadHist();
+    renderForward();
+    renderHistory();
+    renderMethod();
+    renderFresh();
+  }
+
   function loadWindow(w) {
     curWin = w;
     return fetch(dataUrl(w)).then(function (r) { return r.json(); })
       .then(function (j) {
         P = j;
         curPage = 0;
+        secPage = 0;
         renderTabs();
         renderMeta();
         renderHero();
         renderBoard();
         renderSectorBlock();
+        renderLeadHist();
         var sel = $('symSel');
         var keep = curSym;
         sel.innerHTML = '<option value="">— pick a stock —</option>' +
@@ -565,32 +712,100 @@
         }
         renderDetail();
         renderMethod();
+        renderFresh();
       });
+  }
+
+  /* ---- change-gated refresh ---- */
+  function refreshSig() {
+    if (!SHAS || !SHAS.windows) return null;
+    return [SHAS.windows[curWin], SHAS.windows[30], SHAS.history].join('|');
+  }
+  function pollManifest() {
+    // Hidden tabs skip the poll entirely; becoming visible re-polls at
+    // once (see the visibilitychange handler in init).
+    if (document.hidden) return Promise.resolve();
+    var oldSig = refreshSig();
+    return loadManifest().then(function () {
+      lastCheck = new Date();
+      if (!SHAS) { lastCheckOk = false; renderFresh(); return; }
+      lastCheckOk = true;
+      var newSig = refreshSig();
+      if (oldSig !== null && newSig === oldSig) {
+        // Unchanged payloads: no DOM re-render, only the clock moves.
+        renderFresh();
+        return;
+      }
+      return Promise.all([
+        fetch(dataUrl(curWin)).then(function (r) { return r.json(); }),
+        fetch(dataUrl(30)).then(function (r) { return r.json(); }),
+        fetch(histUrl()).then(function (r) { return r.json(); })
+      ]).then(function (parts) {
+        P = parts[0];
+        P30 = parts[1];
+        HISTD = parts[2];
+        // View state survives the refresh; only vanished selections
+        // fall back (sector gone -> all, stock gone -> board top).
+        if (curSector !== 'all' &&
+            !P.board.some(function (r) { return r.sector === curSector; })) {
+          curSector = 'all';
+          secPage = 0;
+        }
+        if (curSym && !P.symbols[curSym]) {
+          curSym = P.board.length ? P.board[0].symbol : null;
+          $('symSel').value = curSym || '';
+        }
+        renderAll();
+      }).catch(function () {
+        // Failed refresh keeps the last-good board; the freshness line
+        // says so plainly and the next cycle retries.
+        lastCheckOk = false;
+        renderFresh();
+      });
+    }).catch(function () {
+      lastCheck = new Date();
+      lastCheckOk = false;
+      renderFresh();
+    });
+  }
+  function startRefresh() {
+    if (refreshTimer) return;
+    refreshTimer = setInterval(pollManifest, 60000);
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) pollManifest();
+    });
   }
 
   function init() {
     loadManifest().then(function () {
-    renderTabs();
-    var fwd = fetch(dataUrl(30)).then(function (r) { return r.json(); })
-      .then(function (j) { P30 = j; renderForward(); });
-    var hist = fetch(histUrl()).then(function (r) { return r.json(); })
-      .then(function (j) { HISTD = j; renderHistory(); });
-    $('sectorSel').addEventListener('change', function (e) {
-      curSector = e.target.value; curPage = 0;
-      renderSectorBlock(); renderBoard();
-    });
-    $('sortSel').addEventListener('change', function (e) {
-      curSort = e.target.value; curPage = 0; renderBoard();
-    });
-    $('symSearch').addEventListener('input', function (e) {
-      curSearch = e.target.value.trim(); curPage = 0; renderBoard();
-    });
-    $('symSel').addEventListener('change', function (e) {
-      if (e.target.value) selectSymbol(e.target.value);
-    });
-    loadWindow(30).then(function () { return Promise.all([fwd, hist]); })
-      .catch(function (err) {
-        $('ppSession').textContent = 'Failed to load the board: ' + err;
+      lastCheck = new Date();
+      renderTabs();
+      renderSortSeg();
+      var fwd = fetch(dataUrl(30)).then(function (r) { return r.json(); })
+        .then(function (j) { P30 = j; renderForward(); });
+      var hist = fetch(histUrl()).then(function (r) { return r.json(); })
+        .then(function (j) { HISTD = j; renderHistory(); });
+      $('symSearch').addEventListener('input', function (e) {
+        curSearch = e.target.value.trim(); curPage = 0; renderBoard();
+      });
+      $('secReset').addEventListener('click', function () {
+        curSector = 'all'; secPage = 0; curPage = 0;
+        renderSectorBlock();
+        renderBoard();
+      });
+      $('symSel').addEventListener('change', function (e) {
+        if (e.target.value) selectSymbol(e.target.value);
+      });
+      loadWindow(30).then(function () {
+        return Promise.all([fwd, hist]);
+      }).then(function () {
+        renderFresh();
+        startRefresh();
+      }).catch(function (err) {
+        lastCheckOk = false;
+        renderFresh();
+        var el = $('ppFresh');
+        if (el) el.textContent = 'Board freshness: failed to load the board: ' + err;
       });
     });
   }

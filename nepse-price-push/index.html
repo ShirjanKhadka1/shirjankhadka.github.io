@@ -37,10 +37,9 @@
 </script>
 <link rel="stylesheet" href="/css/nd-tokens.css">
 <link rel="stylesheet" href="/css/fonts.css">
-<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
-<link rel="stylesheet" href="/css/nd-price-push.css?v=f6fa02df">
+<link rel="stylesheet" href="/css/nd-price-push.css?v=6ad2266b">
 </head>
 <body class="nd" data-page="price-push">
 
@@ -58,15 +57,13 @@
     <h1 class="pp-title">Price Push</h1>
     <p class="pp-lede">When a stock rises, <strong>whose money pushed
       it?</strong> This board answers per stock: the brokers that net-bought
-      it over the window, ranked by net amount, with the
-      <strong>lead pusher</strong> first and each pusher's share of the
-      net buying printed beside their money. A second number — the
-      <strong>price impact per crore of net buying</strong> — says how
-      many percentage points the price moved for each crore that went
-      in. Both are descriptions of what happened, not claims about what
-      caused it: every buy has a seller, and flow beside a rise is not
-      proof the flow made the rise.</p>
-    <p class="pp-meta"><span id="ppSession">Loading…</span></p>
+      it over the window, ranked by net amount, lead pusher first, each
+      pusher's share of the net buying beside their money — plus the
+      <strong>price impact per crore of net buying</strong>. Both are
+      descriptions of what happened, not proof of what caused it: every
+      buy has a seller, and flow beside a rise is not proof the flow
+      made the rise.</p>
+    <p class="pp-meta" id="ppFresh" aria-live="polite">Loading the board…</p>
     <div class="pp-hero-push" id="heroPush" aria-label="Top push this window"></div>
   </div>
 
@@ -79,6 +76,8 @@
       every riser in that sector, with its lead pusher and push share.
       With no sector picked, the list shows each sector's top riser.</p>
     <div class="pp-sector-grid" id="sectorGrid" role="group" aria-label="Sectors"></div>
+    <button type="button" class="pp-sec-reset" id="secReset">All sectors</button>
+    <div class="pp-secviz" id="sectorViz" aria-label="Net buying by sector, ranked"></div>
     <div class="pp-sector-head" id="sectorHead"></div>
     <div class="cx-scroll pp-tablewrap">
       <table class="cx-table" id="sectorTable">
@@ -93,6 +92,7 @@
       </table>
     </div>
     <p class="cx-cap" id="sectorCount"></p>
+    <div class="pp-pager" id="sectorPager"></div>
   </section>
 
   <section class="pp-catsec" aria-label="Pushed stocks" id="board">
@@ -104,19 +104,7 @@
       ranked pusher list below.</p>
     <div class="pp-controls">
       <div class="cx-seg" id="winTabs" role="tablist" aria-label="Window"></div>
-      <label class="pp-selwrap">Sector
-        <select id="sectorSel" class="pp-sel"></select>
-      </label>
-      <label class="pp-selwrap">Sort
-        <select id="sortSel" class="pp-sel">
-          <option value="return">Price return</option>
-          <option value="share">Lead pusher share</option>
-          <option value="net">Net buying</option>
-          <option value="turnover">Turnover</option>
-          <option value="impact">Impact per crore</option>
-          <option value="sym">Symbol</option>
-        </select>
-      </label>
+      <div class="pp-sortseg" id="sortSeg" role="group" aria-label="Sort"></div>
       <label class="pp-selwrap">Find
         <input type="search" id="symSearch" class="pp-search" placeholder="e.g. NABIL" autocomplete="off">
       </label>
@@ -135,6 +123,12 @@
     </div>
     <p class="cx-cap" id="boardCount"></p>
     <div class="pp-pager" id="boardPager"></div>
+
+    <h3 class="pp-h3">Lead-share distribution</h3>
+    <p class="pp-chartsub">Where the board's lead shares fall — how many
+      risers are led by one dominant broker, and how many are spread
+      across pushers. Ten buckets, counted from this window's board.</p>
+    <div class="pp-leadhist" id="leadHist" aria-label="Lead pusher share histogram"></div>
   </section>
 
   <section class="pp-catsec" aria-label="Stock detail" id="detail">
@@ -201,6 +195,8 @@
         <tbody id="historyBody"><tr><td colspan="6" class="pp-loading">Loading recent sessions…</td></tr></tbody>
       </table>
     </div>
+    <p class="cx-cap" id="historyCap"></p>
+    <div class="pp-pager" id="historyPager"></div>
   </section>
 
   <section class="pp-catsec" aria-label="Methodology">
@@ -212,8 +208,8 @@
   <p class="pp-fine">A descriptive reading of broker flow beside price
     moves, for education, not investment advice. Data: Nepse Decode's
     own floorsheet archive, rebuilt after each close. No live feed is
-    claimed: during market hours this page still shows the last close's
-    board.</p>
+    claimed: during market hours this page shows the last close's
+    board, and refreshes itself when a new board is published.</p>
 
 </main>
     </div>
@@ -223,6 +219,6 @@
 <div id="nd-footer"></div>
 <script src="/js/nd-chrome.js?v=74c1c8b7"></script>
 <script src="/js/freshness-badge.js?v=307d4f55" defer></script>
-<script src="/js/price-push.js?v=dded6bca"></script>
+<script src="/js/price-push.js?v=7697bf87"></script>
 </body>
 </html>

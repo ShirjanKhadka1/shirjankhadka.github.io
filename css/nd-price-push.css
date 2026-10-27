@@ -1,14 +1,18 @@
 /* nd-price-push.css — Price Push page (family of nd-smart-money.css).
-   Tokens from css/nd-tokens.css only; no hardcoded palette. */
+   Tokens from css/nd-tokens.css only; no hardcoded palette, no cream.
+   Every var used here is defined in nd-tokens.css: --nd-text-soft /
+   --nd-surface / --nd-surface-2 do NOT exist there, so this sheet uses
+   --nd-muted / --nd-panel / --nd-panel-2 (the old sheet's undefined
+   vars silently dropped lede colour, select backgrounds and row washes). */
 
 /* ---- masthead ---- */
 .pp-masthead{margin:18px 0 20px}
 .pp-title{font-family:var(--nd-font-display, Spectral, serif);font-size:44px;line-height:1.06;margin:6px 0 14px;letter-spacing:-.01em}
-.pp-lede{font-size:17px;line-height:1.6;color:var(--nd-text-soft);max-width:76ch}
-.pp-meta{font-family:var(--nd-font-mono, "IBM Plex Mono", monospace);font-size:13px;color:var(--nd-text-soft);margin-top:10px}
-.pp-fine{font-size:13px;line-height:1.55;color:var(--nd-text-soft);margin:26px 0 4px;border-top:1px solid var(--nd-border);padding-top:14px}
-.pp-note{font-size:14px;line-height:1.55;color:var(--nd-text-soft);margin:12px 0}
-.pp-chartsub{font-size:14px;line-height:1.55;color:var(--nd-text-soft);margin:8px 0 14px;max-width:78ch}
+.pp-lede{font-size:17px;line-height:1.6;color:var(--nd-muted);max-width:76ch}
+.pp-meta{font-family:var(--nd-font-mono, "IBM Plex Mono", monospace);font-size:13px;color:var(--nd-muted);margin-top:10px}
+.pp-fine{font-size:13px;line-height:1.55;color:var(--nd-muted);margin:26px 0 4px;border-top:1px solid var(--nd-border);padding-top:14px}
+.pp-note{font-size:14px;line-height:1.55;color:var(--nd-muted);margin:12px 0}
+.pp-chartsub{font-size:14px;line-height:1.55;color:var(--nd-muted);margin:8px 0 14px;max-width:78ch}
 
 /* ---- section headings: lime square + Spectral head (kit pattern) ---- */
 .pp-catsec{margin:34px 0}
@@ -20,32 +24,45 @@
 .pp-stats{margin:16px 0}
 .cx-stat .num{font-size:28px;line-height:1.15}
 .cx-stat .lbl{font-size:12px;letter-spacing:.02em}
+.cx-stat .sub{font-size:12px;color:var(--nd-muted);margin-top:3px}
 
 /* ---- controls ---- */
-.pp-controls{display:flex;flex-wrap:wrap;gap:12px;margin:0 0 14px}
+.pp-controls{display:flex;flex-wrap:wrap;gap:12px;margin:0 0 14px;align-items:flex-end}
 /* 7 window tabs exceed a 390px viewport: the strip scrolls internally
    instead of pushing the last tab off-screen (overflow-x:auto also
    drops the flex automatic minimum size so the strip can shrink). */
 #winTabs{overflow-x:auto;scrollbar-width:none}
 #winTabs::-webkit-scrollbar{display:none}
 #winTabs button{flex-shrink:0}
-.pp-selwrap{font-family:var(--nd-font-mono, "IBM Plex Mono", monospace);font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--nd-text-soft);display:flex;flex-direction:column;gap:4px}
-.pp-sel,.pp-search{background:var(--nd-surface);color:var(--nd-text);border:1px solid var(--nd-border);border-radius:8px;padding:8px 10px;font-size:14px;font-family:inherit;min-width:150px}
+.pp-selwrap{font-family:var(--nd-font-mono, "IBM Plex Mono", monospace);font-size:12px;color:var(--nd-muted);display:flex;flex-direction:column;gap:6px}
+.pp-sel,.pp-search{background:var(--nd-panel);color:var(--nd-text);border:1px solid var(--nd-border);border-radius:10px;padding:12px 16px;font-size:15px;font-family:inherit;min-width:150px}
 .pp-search{min-width:220px}
 .pp-selwrap input{text-transform:none;letter-spacing:0}
+/* Detail stock select: 400+ "SYM — Full Company Name" options. Large,
+   custom chevron (appearance none + SVG), lime focus. Without a shrink
+   allowance the longest option forced the whole detail section past the
+   viewport on phones (measured 692px at 390px). Flex children must be
+   allowed to shrink, and selects/search must never exceed their row. */
+.pp-controls > *{min-width:0}
+.pp-sel,.pp-search{max-width:100%}
+.pp-sel{appearance:none;-webkit-appearance:none;padding-right:38px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%238E98A8' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center}
+.pp-sel:focus,.pp-search:focus{outline:none;border-color:var(--nd-lime);box-shadow:var(--nd-focus-ring)}
+.pp-sel:focus-visible,.pp-search:focus-visible{outline:none;border-color:var(--nd-lime);box-shadow:var(--nd-focus-ring)}
 
 /* ---- tables ---- */
 .pp-tablewrap{overflow-x:auto;border:1px solid var(--nd-border);border-radius:12px}
 .pp-tablewrap table{margin:0;border:0;border-radius:0}
 .cx-table tbody tr.pp-rowclick{cursor:pointer}
-.cx-table tbody tr.pp-rowclick:hover td{background:var(--nd-surface-2)}
-.cx-table tbody tr.pp-active td{background:var(--nd-surface-2);box-shadow:inset 3px 0 0 var(--nd-lime)}
+.cx-table tbody tr.pp-rowclick:hover td{background:var(--nd-panel-2)}
+.cx-table tbody tr.pp-active td{background:var(--nd-panel-2);box-shadow:inset 3px 0 0 var(--nd-lime)}
 .pp-num{font-family:var(--nd-font-mono, "IBM Plex Mono", monospace);font-variant-numeric:tabular-nums;white-space:nowrap}
-.pp-loading{color:var(--nd-text-soft);font-style:italic}
+.pp-loading{color:var(--nd-muted);font-style:italic}
 
 /* push-share bar inside a cell */
 .pp-share{display:inline-flex;align-items:center;gap:8px}
-.pp-sharebar{display:inline-block;width:56px;height:8px;background:var(--nd-surface-2);border-radius:99px;overflow:hidden;vertical-align:middle}
+.pp-sharebar{display:inline-block;width:56px;height:8px;background:var(--nd-panel-2);border-radius:99px;overflow:hidden;vertical-align:middle}
 .pp-sharebar i{display:block;height:100%;background:var(--nd-lime)}
 
 /* skilled flag chip */
@@ -54,10 +71,10 @@
 /* ---- detail ---- */
 .pp-detail-head{font-family:var(--nd-font-display, Spectral, serif);font-size:24px;margin:18px 0 4px}
 .pp-ladder{list-style:none;padding:0;margin:8px 0;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.pp-ladder li{background:var(--nd-surface);border:1px solid var(--nd-border);border-radius:10px;padding:12px 14px}
-.pp-ladder .lbl{display:block;font-family:var(--nd-font-mono, "IBM Plex Mono", monospace);font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--nd-text-soft);margin-bottom:4px}
+.pp-ladder li{background:var(--nd-panel);border:1px solid var(--nd-border);border-radius:10px;padding:12px 14px}
+.pp-ladder .lbl{display:block;font-family:var(--nd-font-mono, "IBM Plex Mono", monospace);font-size:11px;color:var(--nd-muted);margin-bottom:4px}
 .pp-ladder .val{font-family:var(--nd-font-mono, "IBM Plex Mono", monospace);font-size:16px}
-.pp-method{font-size:15px;line-height:1.65;color:var(--nd-text-soft);max-width:82ch}
+.pp-method{font-size:15px;line-height:1.65;color:var(--nd-muted);max-width:82ch}
 .pp-method strong{color:var(--nd-text)}
 
 @media (max-width:900px){
@@ -86,10 +103,11 @@ body.nd{ font-family: var(--nd-font-sans); }
 .pp-hero-kick{ font-family: var(--nd-font-mono, monospace); font-size: 11px; text-transform: uppercase; letter-spacing: .14em; color: var(--nd-dim); margin-bottom: 8px; }
 .pp-hero-row{ display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
 .pp-hero-sym{ font-family: var(--nd-font-mono, monospace); font-size: 20px; font-weight: 700; color: var(--nd-text); }
-.pp-hero-ret{ font-family: var(--nd-font-display, Spectral, serif); font-size: clamp(2rem, 5vw, 3.25rem); font-weight: 700; color: var(--nd-up); line-height: 1; }
+.pp-hero-ret{ font-family: var(--nd-font-display, Spectral, serif); font-size: clamp(2.5rem, 7vw, 4.5rem); font-weight: 700; color: var(--nd-up); line-height: 1; }
 .pp-hero-lead{ font-size: 15px; color: var(--nd-text); margin-top: 8px; }
+.pp-hero-part{ font-family: var(--nd-font-mono, monospace); font-size: 12px; color: var(--nd-dim); margin-left: 6px; }
 .pp-hero-bar{ display: flex; align-items: center; gap: 12px; margin-top: 12px; }
-.pp-hero-track{ display: block; flex: 1; max-width: 420px; height: 12px; background: var(--nd-inset); border-radius: 999px; overflow: hidden; }
+.pp-hero-track{ display: block; flex: 1; max-width: 520px; height: 14px; background: var(--nd-inset); border-radius: 999px; overflow: hidden; }
 .pp-hero-track i{ display: block; height: 100%; background: var(--nd-lime); border-radius: 999px; }
 .pp-hero-barlbl{ font-family: var(--nd-font-mono, monospace); font-size: 12px; color: var(--nd-dim); white-space: nowrap; }
 .pp-hero-meta{ display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 12px; font-family: var(--nd-font-mono, monospace); font-size: 12px; color: var(--nd-dim); }
@@ -97,48 +115,75 @@ body.nd{ font-family: var(--nd-font-sans); }
 /* ---- stat numerals are Spectral (design master) ---- */
 .pp-stats .cx-stat .num{ font-family: var(--nd-font-display, Spectral, serif); font-size: 32px; }
 
-/* ---- window tabs: design-rich segmented pills; .on + aria-selected
-   are set from the same state on every render, so they never disagree ---- */
+/* ---- window tabs: design-rich segmented pills, LARGE; .on +
+   aria-selected are set from the same state on every render, so they
+   never disagree ---- */
 #winTabs{ display: flex; gap: 6px; background: var(--nd-inset); border: 1px solid var(--nd-border); border-radius: 999px; padding: 4px; overflow-x: auto; scrollbar-width: none; }
 #winTabs::-webkit-scrollbar{ display: none; }
-#winTabs .pp-wintab{ flex-shrink: 0; appearance: none; border: 0; background: transparent; color: var(--nd-muted); font-weight: 600; font-size: .86rem; padding: 8px 16px; border-radius: 999px; cursor: pointer; min-height: 38px; transition: background .15s ease, color .15s ease, box-shadow .15s ease; }
+#winTabs .pp-wintab{ flex-shrink: 0; appearance: none; border: 0; background: transparent; color: var(--nd-muted); font-weight: 600; font-size: 15px; padding: 12px 22px; border-radius: 999px; cursor: pointer; min-height: 48px; transition: background .15s ease, color .15s ease, box-shadow .15s ease; }
 #winTabs .pp-wintab:hover{ color: var(--nd-text); }
 #winTabs .pp-wintab:focus-visible{ outline: none; box-shadow: var(--nd-focus-ring); }
-#winTabs .pp-wintab.on{ background: var(--nd-lime); color: var(--nd-on-lime); box-shadow: 0 4px 14px rgba(0,0,0,.18); }
+#winTabs .pp-wintab.on{ background: var(--nd-lime); color: var(--nd-on-lime); font-weight: 700; box-shadow: 0 4px 14px rgba(0,0,0,.18); }
 
-/* ---- sector cards: one button per sector, active = lime rim + wash ---- */
+/* ---- sort: segmented BUTTON group (replaces the sort <select>);
+   same pill language as the window tabs, wraps on phones ---- */
+.pp-sortseg{ display: flex; flex-wrap: wrap; gap: 6px; background: var(--nd-inset); border: 1px solid var(--nd-border); border-radius: 18px; padding: 4px; }
+.pp-sortbtn{ appearance: none; border: 0; background: transparent; color: var(--nd-muted); font-weight: 600; font-size: 14px; padding: 10px 18px; border-radius: 999px; cursor: pointer; min-height: 44px; transition: background .15s ease, color .15s ease, box-shadow .15s ease; }
+.pp-sortbtn:hover{ color: var(--nd-text); }
+.pp-sortbtn:focus-visible{ outline: none; box-shadow: var(--nd-focus-ring); }
+.pp-sortbtn.on{ background: var(--nd-lime); color: var(--nd-on-lime); font-weight: 700; box-shadow: 0 4px 14px rgba(0,0,0,.18); }
+
+/* ---- sector cards: one button per sector, larger + richer;
+   active = lime rim + wash ---- */
 .pp-sector-grid{ display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; margin: 0 0 16px; }
-.pp-sector-card{ text-align: left; background: var(--nd-panel); border: 1px solid var(--nd-border); border-radius: 16px; padding: 14px 16px; box-shadow: var(--nd-rim, none), var(--nd-e1, none); cursor: pointer; color: var(--nd-text); font-family: inherit; transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
+.pp-sector-card{ text-align: left; background: var(--nd-panel); border: 1px solid var(--nd-border); border-radius: 16px; padding: 18px 20px; box-shadow: var(--nd-rim, none), var(--nd-e1, none); cursor: pointer; color: var(--nd-text); font-family: inherit; transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
 @media (hover:hover){ .pp-sector-card:hover{ transform: translateY(-2px); border-color: var(--nd-border-strong); box-shadow: var(--nd-rim, none), var(--nd-e2, none); } }
 .pp-sector-card:focus-visible{ outline: none; box-shadow: var(--nd-focus-ring); }
 .pp-sector-card.on{ border-color: var(--nd-lime); background: var(--nd-lime-faint); }
 .pp-sec-name{ display: block; font-weight: 700; font-size: 15px; margin-bottom: 2px; }
 .pp-sector-card.on .pp-sec-name::before{ content: ""; display: inline-block; width: 9px; height: 9px; background: var(--nd-lime); margin-right: 8px; }
-.pp-sec-count{ display: block; font-family: var(--nd-font-display, Spectral, serif); font-size: 30px; font-weight: 700; line-height: 1.1; }
+.pp-sec-count{ display: block; font-family: var(--nd-font-display, Spectral, serif); font-size: 34px; font-weight: 700; line-height: 1.1; }
 .pp-sec-meta{ display: block; font-family: var(--nd-font-mono, monospace); font-size: 12px; color: var(--nd-dim); margin-top: 6px; line-height: 1.5; }
 .pp-sec-bar{ display: block; height: 8px; background: var(--nd-inset); border-radius: 999px; overflow: hidden; margin-top: 10px; }
 .pp-sec-bar i{ display: block; height: 100%; background: var(--nd-lime); border-radius: 999px; }
+.pp-sec-reset{ appearance: none; background: var(--nd-panel); color: var(--nd-text); border: 1px solid var(--nd-border); border-radius: 999px; padding: 10px 18px; font-weight: 600; font-size: 14px; cursor: pointer; margin: 0 0 16px; transition: border-color .15s ease, box-shadow .15s ease; }
+.pp-sec-reset:hover{ border-color: var(--nd-lime); }
+.pp-sec-reset:focus-visible{ outline: none; box-shadow: var(--nd-focus-ring); }
+.pp-sec-reset.on{ background: var(--nd-lime); color: var(--nd-on-lime); border-color: var(--nd-lime); font-weight: 700; }
 .pp-sector-head{ font-family: var(--nd-font-display, Spectral, serif); font-size: 20px; margin: 18px 0 12px; }
 
-/* ---- controls: the detail stock select carries 400+ "SYM — Full
-   Company Name" options; without a shrink allowance the longest
-   option forced the whole detail section past the viewport on phones
-   (measured 692px at 390px). Flex children must be allowed to shrink,
-   and selects/search must never exceed their row. ---- */
-.pp-controls > *{ min-width: 0; }
-.pp-sel, .pp-search{ max-width: 100%; }
+/* ---- sector net-buying share viz: ranked bars, one row per sector ---- */
+.pp-secviz{ display: grid; gap: 8px; margin: 0 0 18px; }
+.pp-secviz-row{ display: grid; grid-template-columns: 170px 1fr 130px; gap: 12px; align-items: center; }
+.pp-secviz-name{ font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pp-secviz-track{ display: block; height: 10px; background: var(--nd-inset); border-radius: 999px; overflow: hidden; }
+.pp-secviz-track i{ display: block; height: 100%; background: var(--nd-lime); border-radius: 999px; }
+.pp-secviz-val{ font-family: var(--nd-font-mono, monospace); font-size: 12px; color: var(--nd-dim); text-align: right; white-space: nowrap; }
+@media (max-width:560px){ .pp-secviz-row{ grid-template-columns: 1fr 84px; } .pp-secviz-name{ grid-column: 1 / -1; } .pp-secviz-track{ grid-column: 1; } .pp-secviz-val{ grid-column: 2; } }
+
+/* ---- lead-share histogram: ten buckets of board lead shares ---- */
+.pp-leadhist{ display: grid; gap: 8px; max-width: 760px; margin: 0 0 16px; }
+.pp-leadhist-row{ display: grid; grid-template-columns: 74px 1fr 52px; gap: 12px; align-items: center; }
+.pp-leadhist-bucket{ font-family: var(--nd-font-mono, monospace); font-size: 12px; color: var(--nd-dim); white-space: nowrap; }
+.pp-leadhist-track{ display: block; height: 12px; background: var(--nd-inset); border-radius: 999px; overflow: hidden; }
+.pp-leadhist-track i{ display: block; height: 100%; background: var(--nd-lime); border-radius: 999px; }
+.pp-leadhist-count{ font-family: var(--nd-font-mono, monospace); font-size: 12px; text-align: right; }
+
+/* ---- pagers: Prev quiet, Next lime primary (pagination rule) ---- */
 .pp-pager{ display: flex; align-items: center; gap: 10px; margin: 14px 0 4px; }
-.pp-pagebtn{ appearance: none; background: var(--nd-panel); color: var(--nd-text); border: 1px solid var(--nd-border); border-radius: 999px; padding: 8px 18px; font-weight: 600; font-size: 14px; cursor: pointer; transition: border-color .15s ease, box-shadow .15s ease; }
+.pp-pagebtn{ appearance: none; background: var(--nd-panel); color: var(--nd-text); border: 1px solid var(--nd-border); border-radius: 999px; padding: 10px 20px; font-weight: 600; font-size: 14px; cursor: pointer; min-height: 44px; transition: border-color .15s ease, box-shadow .15s ease, background .15s ease; }
 .pp-pagebtn:hover:not(:disabled){ border-color: var(--nd-lime); box-shadow: var(--nd-e1, none); }
 .pp-pagebtn:focus-visible{ outline: none; box-shadow: var(--nd-focus-ring); }
 .pp-pagebtn:disabled{ opacity: .45; cursor: default; }
+.pp-pagebtn.pp-next{ background: var(--nd-lime); color: var(--nd-on-lime); border-color: var(--nd-lime); font-weight: 700; }
+.pp-pagebtn.pp-next:hover:not(:disabled){ box-shadow: 0 4px 14px rgba(0,0,0,.18); }
 .pp-pagenum{ font-family: var(--nd-font-mono, monospace); font-size: 12px; color: var(--nd-dim); }
 
-/* ---- forward bars: paired means, sign-coloured, values printed ---- */
-.pp-fwd-bars{ margin: 0 0 16px; display: grid; gap: 10px; max-width: 760px; }
-.pp-fwd-row{ display: grid; grid-template-columns: 150px 1fr 90px; gap: 12px; align-items: center; }
+/* ---- forward bars: paired means, sign-coloured, n/mean/median printed ---- */
+.pp-fwd-bars{ margin: 0 0 16px; display: grid; gap: 12px; max-width: 820px; }
+.pp-fwd-row{ display: grid; grid-template-columns: 170px 1fr 210px; gap: 12px; align-items: center; }
 .pp-fwd-lbl{ font-size: 13px; color: var(--nd-text); }
-.pp-fwd-track{ display: block; height: 12px; background: var(--nd-inset); border-radius: 999px; overflow: hidden; }
+.pp-fwd-track{ display: block; height: 16px; background: var(--nd-inset); border-radius: 999px; overflow: hidden; }
 .pp-fwd-track i{ display: block; height: 100%; border-radius: 999px; }
 .pp-fwd-track i.up{ background: var(--nd-up); }
 .pp-fwd-track i.down{ background: var(--nd-down); }
@@ -154,7 +199,7 @@ body.nd{ font-family: var(--nd-font-sans); }
 .pp-hist-d{ font-family: var(--nd-font-mono, monospace); font-size: 11px; color: var(--nd-dim); }
 
 @media (prefers-reduced-motion: reduce){
-  .pp-sector-card, #winTabs .pp-wintab, .pp-pagebtn, body.nd .skip-link{ transition: none; }
+  .pp-sector-card, #winTabs .pp-wintab, .pp-sortbtn, .pp-pagebtn, .pp-sec-reset, body.nd .skip-link{ transition: none; }
 }
 
 /* ---- skip link: the master head stack carries no .skip-link rule (it
