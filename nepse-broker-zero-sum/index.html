@@ -39,14 +39,14 @@
 <link rel="stylesheet" href="/css/fonts.css">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
-<link rel="stylesheet" href="/css/nd-zero-sum.css?v=c88dcbb6">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=69b323cf">
+<link rel="stylesheet" href="/css/nd-zero-sum.css?v=f51dc526">
 </head>
 <body class="nd" data-page="broker-zero-sum">
 
   <a class="skip-link" href="#main">Skip to content</a>
 <div id="nd-header"></div>
-<div class="fb-wrap" style="display:flex;justify-content:center;padding:10px 16px 0"><div data-freshness-badge></div></div>
+<div class="fb-wrap"><div data-freshness-badge></div></div>
 
 <div class="nd-shell">
   <div class="nd-content">
@@ -67,6 +67,8 @@
       our own floorsheet archive, in which the zero-sum identity is verified
       for every stock before anything is published.</p>
     <p class="zs-meta"><span id="zsSession">Loading…</span></p>
+    <p class="zs-fresh" id="zsFresh"></p>
+    <p class="zs-notice" id="zsNotice"></p>
   </div>
 
   <div class="cx-stats zs-stats" id="statStrip" aria-label="Window summary"></div>
@@ -101,7 +103,7 @@
 
     <div class="zs-two">
       <div>
-        <h3 class="zs-h3">Largest buyers</h3>
+        <h3 class="zs-h3">Largest buyers (top 15)</h3>
         <div class="cx-scroll zs-tablewrap">
           <table class="cx-table" id="buyersTable">
             <thead><tr><th>Broker</th><th class="num">Bought</th><th class="num">Avg rate</th><th class="num">Net</th><th class="num">Share</th></tr></thead>
@@ -110,7 +112,7 @@
         </div>
       </div>
       <div>
-        <h3 class="zs-h3">Largest sellers</h3>
+        <h3 class="zs-h3">Largest sellers (top 15)</h3>
         <div class="cx-scroll zs-tablewrap">
           <table class="cx-table" id="sellersTable">
             <thead><tr><th>Broker</th><th class="num">Sold</th><th class="num">Avg rate</th><th class="num">Net</th><th class="num">Share</th></tr></thead>
@@ -134,6 +136,7 @@
             <tbody id="holdersBody"><tr><td colspan="5" class="zs-loading">Loading…</td></tr></tbody>
           </table>
         </div>
+        <div id="holdPager"></div>
       </div>
       <div>
         <h4 class="zs-h4">Distributors (net sold)</h4>
@@ -143,6 +146,7 @@
             <tbody id="distributorsBody"><tr><td colspan="5" class="zs-loading">Loading…</td></tr></tbody>
           </table>
         </div>
+        <div id="distPager"></div>
       </div>
     </div>
   </section>
@@ -163,6 +167,24 @@
       </table>
     </div>
     <p class="cx-cap" id="boardCount"></p>
+    <div id="boardPager"></div>
+  </section>
+
+  <section class="zs-catsec" aria-label="Stocks by sector" id="sector">
+    <h2 class="zs-h2 zs-h2-sec">Stocks by sector</h2>
+    <p class="zs-chartsub">Every listed stock, grouped by sector. A lime mark highlights the stock currently open above — click a symbol for its stock page, or click a row to open it here (only stocks traded in this window open here).</p>
+    <label class="zs-selwrap">Sector
+      <select id="zsSecSelect" class="zs-sel"></select>
+    </label>
+    <p class="cx-cap" id="zsSecSum"></p>
+    <div class="cx-scroll zs-tablewrap">
+      <table class="cx-table" id="zsSecTable">
+        <thead><tr><th>Symbol</th><th>Company</th><th>Sector</th><th>Open</th></tr></thead>
+        <tbody id="zsSecBody"><tr><td colspan="4" class="zs-loading">Loading…</td></tr></tbody>
+      </table>
+    </div>
+    <div id="zsSecPager"></div>
+    <p class="zs-note">Sector counts come from the Engine Verdict batch (verdicts sec field); universe entries carry no sector field, so counts are stated from the batch, never the universe. Company names come from the universe.</p>
   </section>
 
   <section class="zs-catsec" aria-label="Measured forward behaviour" id="forward">
@@ -229,8 +251,13 @@
         the accumulators bought, everything the distributors sold — and the
         <em>net flow</em> is accumulators' gross buys minus distributors'
         gross sells. A positive net flow reads ACCUMULATING, a negative one
-        DISTRIBUTING. The sector rank is the stock's position inside its
-        sector by that side's cohort flow.</p>
+        DISTRIBUTING. Stance follows the sign of the cohort net in
+        <em>shares</em>; the rupee net shown beside it can rarely differ
+        in sign (different average rates on the two sides), and those
+        stocks are shown with their share stance and their rupee net side
+        by side. Totals here are broker-net sums (buy minus sell),
+        single-counted — never halved, never doubled. The sector rank is
+        the stock's position inside its sector by that side's cohort flow.</p>
       <p><strong>Windows</strong> are calendar days ending at the latest
         session: 1, 7, 15, 30, 90, 180 and 365 days. <strong>Coverage:</strong>
         the floorsheet archive starts 2026-07-15, so the 180- and 365-day
@@ -257,8 +284,8 @@
 </div>
 
 <div id="nd-footer"></div>
-<script src="/js/nd-chrome.js?v=74c1c8b7"></script>
+<script src="/js/nd-chrome.js?v=74c1c8b7" defer></script>
 <script src="/js/freshness-badge.js?v=9b77cf10" defer></script>
-<script src="/js/zero-sum.js?v=33e3def9"></script>
+<script src="/js/zero-sum.js?v=685ec53d"></script>
 </body>
 </html>

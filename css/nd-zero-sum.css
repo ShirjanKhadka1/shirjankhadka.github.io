@@ -3,6 +3,36 @@
    components composed from css/nd-cinema.css cx-* kit). */
 body{ font-family: var(--nd-font-sans); }
 
+/* Canvas pin (teardown 2026-10-27): this page's body background was
+   transparent in both themes, so the browser default showed through.
+   Theme-scoped pin to the overview tokens, dark and light. */
+html[data-theme="dark"] body.nd[data-page="broker-zero-sum"]{ background: var(--nd-bg); }
+html[data-theme="light"] body.nd[data-page="broker-zero-sum"]{ background: var(--nd-bg); }
+
+.fb-wrap{ display: flex; justify-content: center; padding: 10px 16px 0; }
+
+/* nd-content: wrapper class from the old kit's design-system sheet, which
+   this page no longer loads. Its only load-bearing property was
+   min-width:0 (grid/flex overflow guard); padding comes from nd-wrap. */
+.nd-content{ min-width: 0; }
+
+.zs-fresh{ font: 400 var(--step-0) var(--nd-font-mono); color: var(--nd-dim); margin: var(--nd-s2) 0 0; }
+.zs-notice{ font: 600 var(--step-0) var(--nd-font-sans); color: var(--nd-lime); margin: 6px 0 0; min-height: 1.2em; }
+.zs-notice:empty{ display: none; }
+
+.zs-pager{ display: flex; align-items: center; gap: 12px; margin-top: var(--nd-s3); }
+.zs-pager-prev, .zs-pager-next{
+  font: 600 var(--step-1) var(--nd-font-sans); cursor: pointer;
+  border: 1px solid var(--nd-border); border-radius: 999px; padding: 7px 16px;
+  background: var(--nd-panel); color: var(--nd-text);
+}
+.zs-pager-next{ background: var(--nd-lime); color: var(--nd-on-lime); border-color: transparent; }
+.zs-pager-prev:disabled, .zs-pager-next:disabled{ opacity: .45; cursor: default; }
+.zs-pager-showing{ font: 400 var(--step-0) var(--nd-font-mono); color: var(--nd-dim); }
+
+.zs-sec-cur{ background: var(--nd-lime-soft); }
+.zs-sec-mark{ color: var(--nd-lime); text-align: center; }
+
 .skip-link{
   position: absolute; left: -9999px; top: 0; z-index: 200;
   background: var(--nd-lime); color: var(--nd-on-lime);
@@ -90,6 +120,14 @@ body{ font-family: var(--nd-font-sans); }
 .zs-ladder li.zs-lad-cur{ border-color: var(--nd-lime); }
 
 .zs-two{ display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+/* 390px overflow fixes (teardown 2026-10-27): grid items default to
+   min-width:auto, so a wide table or a long-named select stretched the
+   page instead of scrolling inside its cx-scroll wrapper. */
+.zs-two > *{ min-width: 0; }
+.zs-face > *{ min-width: 0; }
+.zs-controls > *{ min-width: 0; }
+#winTabs{ flex-wrap: wrap; max-width: 100%; }
+.zs-sel{ max-width: 100%; }
 .zs-tablewrap{ border: 1px solid var(--nd-border); border-radius: var(--nd-r-card); background: var(--nd-panel); margin-top: var(--nd-s3); }
 .zs-loading{ color: var(--nd-dim); text-align: center; padding: 28px 14px !important; }
 .zs-broker{ font-family: var(--nd-font-mono); font-weight: 600; color: var(--nd-text); white-space: nowrap; }
