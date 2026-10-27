@@ -315,7 +315,11 @@ async function main() {
       market: closingRun ? 'CLOSED' : 'OPEN',
       index: index,
       indices: indices,
-      quotes: quotes
+      quotes: quotes,
+      // Labeled partial tape (2026-10-27): same semantics as intraday-ohlc-poll —
+      // true exactly when this traded-so-far pull carries fewer than 300 quotes.
+      // The badge label survives Alpha Lab writes only if this field is present.
+      partial: quotes.length < 300
     };
 
     // 2d. Carry the intraday-ohlc-poll's `intraday` key forward (see
