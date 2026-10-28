@@ -75,6 +75,9 @@
 .sp-fund-l{display:block;font-size:.75rem;color:var(--nd-dim,#8E98A8);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
 .sp-fund-v{display:block;font-size:1.1rem;font-weight:700;color:var(--nd-text,#fff);font-variant-numeric:tabular-nums}
 .sp-fund-v.na{color:var(--nd-dim,#8E98A8);font-weight:400}
+.sp-ret-v.pos{color:var(--nd-up,#4ADE80)}
+.sp-ret-v.neg{color:var(--nd-down,#F87171)}
+.sp-ret-ref{display:block;font-size:.8rem;color:var(--nd-dim,#8E98A8);margin-top:.35rem}
 /* tables: markup carries .nd-table inside .nd-tablewrap, so the table
    system in css/nd-chrome.css governs (sticky header + first column,
    mono small-caps dim headers, surface-shift zebra, .num right-align).
@@ -181,6 +184,8 @@
    tokens; only the deep-card light recipe remains explicit here */
 [data-theme="light"] .sp-price-card,[data-theme="light"] .vpill,[data-theme="light"] .sp-about,[data-theme="light"] .sp-fund,[data-theme="light"] .inv-cal,[data-theme="light"] .d2-val-lab{background:linear-gradient(180deg,#FFFFFF 0%,#F4F7FA 100%);border-color:#CBD4DE;box-shadow:inset 0 2px 0 #FFFFFF,0 1px 2px rgba(10,12,16,.1),0 8px 24px rgba(10,12,16,.1)}
 [data-theme="light"] .sp-price,[data-theme="light"] .sp-stat-v,[data-theme="light"] .sp-fund-v,[data-theme="light"] .d2-val-co-sym,[data-theme="light"] .inv-cal-head h2{color:#0A0C10}
+[data-theme="light"] .sp-ret-v.pos{color:#15803D}
+[data-theme="light"] .sp-ret-v.neg{color:#DC2626}
 [data-theme="light"] .sp-note{background:linear-gradient(180deg,#FFFFFF 0%,#F4F7FA 100%);border-color:#CBD4DE;border-left-color:#4D7C0F;color:#3F4753}
 [data-theme="light"] .sp-note strong{color:#0A0C10}
 [data-theme="light"] .sp-links a,[data-theme="light"] .sp-news li,[data-theme="light"] .sp-peers a,[data-theme="light"] .sp-dir li{background:linear-gradient(180deg,#FFFFFF,#F4F7FA);border-color:#CBD4DE;color:#0A0C10}

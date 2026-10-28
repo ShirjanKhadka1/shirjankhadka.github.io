@@ -161,6 +161,9 @@ const SP_STYLES =
 '.sp-fund-l{display:block;font-size:.75rem;color:var(--nd-dim,#8E98A8);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}\n' +
 '.sp-fund-v{display:block;font-size:1.1rem;font-weight:700;color:var(--nd-text,#fff);font-variant-numeric:tabular-nums}\n' +
 '.sp-fund-v.na{color:var(--nd-dim,#8E98A8);font-weight:400}\n' +
+'.sp-ret-v.pos{color:var(--nd-up,#4ADE80)}\n' +
+'.sp-ret-v.neg{color:var(--nd-down,#F87171)}\n' +
+'.sp-ret-ref{display:block;font-size:.8rem;color:var(--nd-dim,#8E98A8);margin-top:.35rem}\n' +
 '/* tables: markup carries .nd-table inside .nd-tablewrap, so the table\n' +
 '   system in css/nd-chrome.css governs (sticky header + first column,\n' +
 '   mono small-caps dim headers, surface-shift zebra, .num right-align).\n' +
@@ -259,6 +262,8 @@ SP_ABOUT_CSS +
 '   tokens; only the deep-card light recipe remains explicit here */\n' +
 '[data-theme=\"light\"] .sp-price-card,[data-theme=\"light\"] .vpill,[data-theme=\"light\"] .sp-about,[data-theme=\"light\"] .sp-fund,[data-theme=\"light\"] .inv-cal,[data-theme=\"light\"] .d2-val-lab{background:linear-gradient(180deg,#FFFFFF 0%,#F4F7FA 100%);border-color:#CBD4DE;box-shadow:inset 0 2px 0 #FFFFFF,0 1px 2px rgba(10,12,16,.1),0 8px 24px rgba(10,12,16,.1)}\n' +
 '[data-theme=\"light\"] .sp-price,[data-theme=\"light\"] .sp-stat-v,[data-theme=\"light\"] .sp-fund-v,[data-theme=\"light\"] .d2-val-co-sym,[data-theme=\"light\"] .inv-cal-head h2{color:#0A0C10}\n' +
+'[data-theme=\"light\"] .sp-ret-v.pos{color:#15803D}\n' +
+'[data-theme=\"light\"] .sp-ret-v.neg{color:#DC2626}\n' +
 '[data-theme=\"light\"] .sp-note{background:linear-gradient(180deg,#FFFFFF 0%,#F4F7FA 100%);border-color:#CBD4DE;border-left-color:#4D7C0F;color:#3F4753}\n' +
 '[data-theme=\"light\"] .sp-note strong{color:#0A0C10}\n' +
 '[data-theme=\"light\"] .sp-links a,[data-theme=\"light\"] .sp-news li,[data-theme=\"light\"] .sp-peers a,[data-theme=\"light\"] .sp-dir li{background:linear-gradient(180deg,#FFFFFF,#F4F7FA);border-color:#CBD4DE;color:#0A0C10}\n' +
@@ -1337,7 +1342,110 @@ function verifiedNoticesBlock(sym, actions) {
   return h;
 }
 
-function symbolPage(u, v, newsItems, fund, liveQ, liveDate, sector, sectorPeers, verdicts, quarterly, corpHist, related, extra) {
+/* Period-return ladder (agency-agents gap 1, C6b).
+ * Computed ONLY from our own OHLC archive (~/workspace/nepse-data-archive/
+ * ohlc-db, overridable via OHLC_DB_DIR), and ONLY from bars dated on or
+ * after VERIFIED_START (2026-07-15). Bars before that date exist in the
+ * archive from a scraper feed but are NOT independently verified, so they
+ * are never used here: a period whose reference bar would fall before the
+ * verified window renders as unavailable, never as a stub or an estimate.
+ * Returns are price returns on UNADJUSTED closes: (anchor/ref - 1) * 100.
+ * Bonus/right issues move price mechanically, so the section note says so.
+ * Each computable cell prints its actual reference date, so a period that
+ * lands on a non-trading stretch is visible, never silently shortened.
+ * A missing archive, a missing file, or a bad row degrades to unavailable
+ * cells, never to a crash and never to an invented number. */
+const OHLC_DB_DIR = process.env.OHLC_DB_DIR ||
+  '/home/hatch/workspace/nepse-data-archive/ohlc-db';
+const VERIFIED_START = '2026-07-15';
+const LADDER_PERIODS = [
+  { label: '1W', days: 7 },
+  { label: '1M', months: 1 },
+  { label: '3M', months: 3 },
+  { label: '6M', months: 6 },
+  { label: '1Y', months: 12 },
+  { label: '3Y', months: 36 },
+];
+function subMonthsIso(iso, m) {
+  const parts = iso.split('-').map(Number);
+  const total = (parts[0] * 12 + (parts[1] - 1)) - m;
+  const yy = Math.floor(total / 12);
+  const mm = total - yy * 12 + 1;
+  const dim = new Date(Date.UTC(yy, mm, 0)).getUTCDate();
+  const dd = Math.min(parts[2], dim);
+  return yy + '-' + String(mm).padStart(2, '0') + '-' + String(dd).padStart(2, '0');
+}
+function subDaysIso(iso, n) {
+  const dt = new Date(iso + 'T00:00:00Z');
+  dt.setUTCDate(dt.getUTCDate() - n);
+  return dt.toISOString().slice(0, 10);
+}
+function loadLadder(sym) {
+  const slug = slugOf(sym);
+  let data = null;
+  for (const f of [sym + '.json', slug + '.json']) {
+    try { data = JSON.parse(fs.readFileSync(path.join(OHLC_DB_DIR, f), 'utf8')); break; }
+    catch { /* try the next name */ }
+  }
+  if (!data || !Array.isArray(data.bars)) return null;
+  const byDate = new Map();
+  for (const b of data.bars) {
+    const d = String((b && b.date) || '');
+    const c = Number(b && b.close);
+    if (d >= VERIFIED_START && Number.isFinite(c) && c > 0) byDate.set(d, c);
+  }
+  const dates = [...byDate.keys()].sort();
+  if (!dates.length) return null;
+  const anchor = dates[dates.length - 1];
+  const c0 = byDate.get(anchor);
+  const cells = LADDER_PERIODS.map((p) => {
+    const target = p.days ? subDaysIso(anchor, p.days) : subMonthsIso(anchor, p.months);
+    let ref = null;
+    for (let i = dates.length - 1; i >= 0; i--) {
+      if (dates[i] <= target) { ref = dates[i]; break; }
+    }
+    if (!ref) return { label: p.label, pct: null, ref: null };
+    return { label: p.label, pct: (c0 / byDate.get(ref) - 1) * 100, ref };
+  });
+  return { anchor, close: c0, first: dates[0], cells };
+}
+function ladderSection(sym, ladder) {
+  let h = '<section aria-label="Period returns"><h2>Period returns</h2>\n';
+  if (!ladder) {
+    h += '<p class="sp-note">No verified OHLC history on file for this security, so no period return can be computed. Nothing is estimated.</p>\n';
+    h += '<div class="sp-fund-grid">\n';
+    for (const p of LADDER_PERIODS) {
+      h += '<div class="sp-fund"><span class="sp-fund-l">' + esc(p.label) + '</span>' +
+        '<span class="sp-fund-v na">–</span><span class="sp-ret-ref">No verified history</span></div>\n';
+    }
+    h += '</div></section>\n';
+    return h;
+  }
+  h += '<p class="sp-note">Price returns on unadjusted closes from Nepse Decode\'s own OHLC archive. ' +
+    'Latest close ' + esc(ladder.anchor) + ' · Rs ' + fmtNum(ladder.close) + '. ' +
+    (ladder.first > VERIFIED_START
+      ? 'First verified close for this security: ' + esc(ladder.first) + '.'
+      : 'Verified history starts 2026-07-15; longer periods show as unavailable until that history exists.') +
+    ' Bonus or right issues move price mechanically, so a return spanning one is a price move, not a total return.</p>\n';
+  h += '<div class="sp-fund-grid">\n';
+  for (const c of ladder.cells) {
+    if (c.pct === null) {
+      h += '<div class="sp-fund"><span class="sp-fund-l">' + esc(c.label) + '</span>' +
+        '<span class="sp-fund-v na">–</span><span class="sp-ret-ref">No verified history</span></div>\n';
+    } else {
+      const r = Math.round(c.pct * 100) / 100;
+      const cls = r > 0 ? ' pos' : (r < 0 ? ' neg' : '');
+      const sign = r > 0 ? '+' : '';
+      h += '<div class="sp-fund"><span class="sp-fund-l">' + esc(c.label) + '</span>' +
+        '<span class="sp-fund-v sp-ret-v' + cls + '">' + sign + r.toFixed(2) + '%</span>' +
+        '<span class="sp-ret-ref">from ' + esc(c.ref) + '</span></div>\n';
+    }
+  }
+  h += '</div></section>\n';
+  return h;
+}
+
+function symbolPage(u, v, newsItems, fund, liveQ, liveDate, sector, sectorPeers, verdicts, quarterly, corpHist, related, extra, ladder) {
   const sym = u.s, name = u.n, slug = slugOf(sym);
   // Headline price prefers our canonical live payload (NEPSE API) when it is
   // at least as fresh as the batch verdict — the batch daily history comes
@@ -1396,7 +1504,9 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
   h += '<ul class="sp-links">';
   h += '<li><a href="/nepse-chart/?s=' + esc(sym) + '">Full chart, patterns and divergences <span aria-hidden="true">→</span></a></li>';
   h += '<li><a href="/nepse-screener/">Ranked screener <span aria-hidden="true">→</span></a></li>';
-  h += '</ul></div>';
+  h += '</ul>';
+  h += ladderSection(sym, ladder);
+  h += '</div>';
   h += '<div class="sp-tabpanel" data-panel="signals" role="tabpanel" hidden>';
   h += '<h2>Engine Verdict signals</h2>';
   h += '<p class="sp-note">Transparent rule-based readings, one per timeframe. A daily Buy can be weak while the weekly read is stronger; each pill names its own timeframe and data date.</p>';
@@ -1695,6 +1805,19 @@ function main() {
    * the map is built from the blog tree, not the symbol batch). */
   const blogArts = scanRelatedArticles();
 
+  /* Period-return ladders from our own OHLC archive (verified window only).
+   * Never fatal: a missing archive or file degrades that symbol's ladder
+   * to unavailable cells, and the counts below make it visible in the log. */
+  const ladderMap = {};
+  let ladderOk = 0, ladderNone = 0;
+  for (const u of symbols) {
+    try {
+      const lad = loadLadder(u.s);
+      ladderMap[u.s] = lad;
+      if (lad) ladderOk++; else ladderNone++;
+    } catch { ladderMap[u.s] = null; ladderNone++; }
+  }
+
   let made = 0;
   for (const u of symbols) {
     const sym = u.s, slug = slugOf(sym);
@@ -1717,7 +1840,7 @@ function main() {
     };
     const dir = path.join(OUT, slug);
     fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, 'index.html'), symbolPage(u, v, newsBySym[sym] || [], fund, liveMap[sym], liveDate, sector, sectorPeers, verdicts, quarterly, corpHist[sym], related, extra));
+    fs.writeFileSync(path.join(dir, 'index.html'), symbolPage(u, v, newsBySym[sym] || [], fund, liveMap[sym], liveDate, sector, sectorPeers, verdicts, quarterly, corpHist[sym], related, extra, ladderMap[sym]));
     made++;
   }
   if (!onlySym) {
@@ -1729,7 +1852,7 @@ function main() {
     const extras = scanBakedExtras(new Set(symbols.map((u) => slugOf(u.s))));
     fs.writeFileSync(path.join(OUT, 'index.html'), indexPage(symbols.concat(extras), pageAsof));
   }
-  console.log(JSON.stringify({ pages: made, dir: 'stocks/', symbol: onlySym || undefined }));
+  console.log(JSON.stringify({ pages: made, dir: 'stocks/', symbol: onlySym || undefined, ladder: { withData: ladderOk, noData: ladderNone, archive: OHLC_DB_DIR } }));
 }
 
 /* Baked stock pages on disk that universe.json no longer carries.
