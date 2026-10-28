@@ -15,7 +15,24 @@
  * reports "delay unverified". Sessions more than one trading day old render amber.
  *
  * Session state comes from the canonical NepseMarketConfig (Mon–Fri trading
- * days, pre-open 10:45:00–10:59:59 NPT, open 11:00–15:00 NPT).
+ * days, pre-open 10:45:00–10:59:59 NPT, open 11:00–15:00 NPT) when the page
+ * loads it. Pages that DON'T load the config (14 badged pages) used to get
+ * a permanent "Session closed" from the null-config fallback — the badge now
+ * trusts the tape's own market field there instead of lying.
+ *
+ * Tick-following (2026-10-28): the badge used to freeze at its load-time
+ * state — a page loaded before the open kept saying "Session closed" at
+ * 11:02 even after the page's own hero went LIVE, because the badge never
+ * saw the page's 60s ticks. The badge now watches the page's OWN live.json
+ * responses (fetch wrapper, response cloned so the page is untouched) and
+ * re-renders whenever the tape changes. No extra requests, no page changes,
+ * and pages without ticks keep exactly the old load + day-transition behavior.
+ *
+ * Pre-open snapshot (2026-10-28): a tape whose session is today, whose
+ * market field is CLOSED, and whose asof falls in the pre-open window (or
+ * the clock is inside it) is labeled "Pre-open snapshot" — clearly distinct
+ * from "Session closed" and from "Session open", so a lagging tape at 11:02
+ * can never read as a live session or a closed market.
  *
  * Usage: <div data-freshness-badge></div> + <script src="/js/freshness-badge.js" defer></script>
  * Works from any path depth (resolves data relative to site root).
@@ -31,12 +48,24 @@
 
   var CFG = (typeof window !== 'undefined' && window.NepseMarketConfig) || null;
 
+  // Lazy config lookup: the config may load AFTER this script on pages that
+  // self-load dependencies, so every use re-reads window instead of trusting
+  // the single eval-time capture.
+  function cfg() {
+    return (typeof window !== 'undefined' && window.NepseMarketConfig) || CFG || null;
+  }
+
   function pad(n) { return ('0' + n).slice(-2); }
 
   // Canonical session state: 'PRE-OPEN' | 'OPEN' | 'CLOSED'.
   // The calendar lives in NepseMarketConfig — no duplicated logic here.
-  function sessionState() {
-    if (CFG && typeof CFG.marketState === 'function') return CFG.marketState();
+  // Without a config on the page, the tape's own market field is the only
+  // honest signal: OPEN means open, anything else means closed. Defaulting
+  // to CLOSED (the old behavior) lied on every config-less page at noon.
+  function sessionState(live) {
+    var c = cfg();
+    if (c && typeof c.marketState === 'function') return c.marketState();
+    if (live && live.market === 'OPEN') return 'OPEN';
     return 'CLOSED';
   }
 
@@ -84,13 +113,14 @@
   // Trading days strictly between fromYMD and toYMD (canonical calendar —
   // NepseMarketConfig only, no duplicated day-of-week logic).
   function tradingDaysBetween(fromYMD, toYMD) {
-    if (!CFG || typeof CFG.isTradingDay !== 'function') return 0;
+    var c = cfg();
+    if (!c || typeof c.isTradingDay !== 'function') return 0;
     var from = new Date(fromYMD + 'T00:00:00Z'), to = new Date(toYMD + 'T00:00:00Z');
     var n = 0, d = new Date(from);
     d.setUTCDate(d.getUTCDate() + 1);
     while (d <= to) {
       var ymd = d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate());
-      if (CFG.isTradingDay(ymd)) n++;
+      if (c.isTradingDay(ymd)) n++;
       d.setUTCDate(d.getUTCDate() + 1);
     }
     return n;
@@ -106,7 +136,14 @@
         '<span class="fb-dot" style="background:' + dot + '"></span>' +
         '<span class="fb-text"></span>';
       m.querySelector('.fb-text').textContent = text;
-      m.className = (m.className + ' freshness-badge ' + cls).trim();
+      // Replace (never accumulate) the state class: tick re-renders change
+      // state (LIVE -> CLOSED, ...), and stacked fb-* classes would fight.
+      // Page-owned classes on the mount are preserved.
+      var kept = m.className.split(/\s+/).filter(function (c) {
+        return c && c !== 'freshness-badge' && !/^fb-(live|ok|stale|unknown)$/.test(c);
+      });
+      kept.push('freshness-badge', cls);
+      m.className = kept.join(' ');
       m.setAttribute('role', 'status');
     }
   }
@@ -138,14 +175,61 @@
   // date is never a weekend or holiday — a snapshot refreshed on a Sunday
   // still carries Friday's session, never a phantom weekend "session".
   function lastTradingDay(ymd) {
-    if (!CFG || typeof CFG.isTradingDay !== 'function') return ymd;
+    var c = cfg();
+    if (!c || typeof c.isTradingDay !== 'function') return ymd;
     var d = new Date(ymd + 'T00:00:00Z');
     for (var i = 0; i < 10; i++) {
       var key = d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate());
-      if (CFG.isTradingDay(key)) return key;
+      if (c.isTradingDay(key)) return key;
       d.setUTCDate(d.getUTCDate() - 1);
     }
     return ymd;
+  }
+
+  // NPT minutes-since-midnight of an ISO instant, or null when unparseable.
+  function nptMinutesOfDay(iso) {
+    var t = new Date(iso).getTime();
+    if (!isFinite(t)) return null;
+    var n = new Date(t + NPT_MS);
+    return n.getUTCHours() * 60 + n.getUTCMinutes();
+  }
+
+  // True when the TAPE itself is a pre-open snapshot: today's session,
+  // market field CLOSED, and the snapshot was taken inside the pre-open
+  // window (10:45–10:59:59 NPT) — or the clock is inside it. This is a
+  // property of the tape, not the clock: at 11:02 with a lagging tape the
+  // clock says OPEN while the figures are still yesterday's closes, and
+  // neither "Session open" nor "Session closed" tells the truth.
+  function isPreOpenSnapshot(live, sessDate) {
+    if (!live || live.market !== 'CLOSED') return false;
+    if (sessDate !== todayNpt()) return false;
+    var mins = nptMinutesOfDay(live.asof);
+    if (mins != null && mins >= 645 && mins < 660) return true;
+    var c = cfg();
+    if (c && typeof c.isPreOpen === 'function') {
+      try { if (c.isPreOpen()) return true; } catch (e) {}
+    }
+    return false;
+  }
+
+  // Tape signature: everything the badge's rendering depends on. Unchanged
+  // ticks leave the DOM byte-identical (never a re-render storm).
+  var lastSig = null;
+  function tapeSig(live) {
+    if (!live) return '';
+    var q = Array.isArray(live.quotes) ? live.quotes.length : -1;
+    return [live.asof || '', live.session_date || '', live.market || '',
+      live.partial ? '1' : '0', q].join('|');
+  }
+
+  // Tick entry point: re-render from a tape the PAGE itself just fetched.
+  // Called by the fetch wrapper below; never fetches anything itself.
+  function onTickPayload(live) {
+    try {
+      if (!live || typeof live !== 'object') return;
+      if (tapeSig(live) === lastSig) return;
+      fromLive(live);
+    } catch (e) { /* never break the page on a tick */ }
   }
 
   // Primary path: the live quote feed.
@@ -154,7 +238,8 @@
     var sessDate = (live && live.session_date) || (asof ? nptDate(asof) : null);
     if (!sessDate) return false;
     sessDate = lastTradingDay(sessDate);
-    var st = sessionState();
+    lastSig = tapeSig(live);
+    var st = sessionState(live);
     var today = todayNpt();
     var stale = tradingDaysBetween(sessDate, today);
     // Labeled partial tape (2026-10-27): the live tape carries partial=true
@@ -168,7 +253,10 @@
     }
     var age = ageText(asof);
     var ageBit = age ? ' · updated ' + age : '';
-    if (st === 'OPEN') {
+    if (isPreOpenSnapshot(live, sessDate)) {
+      // Steady dot, never the pulsing live dot: nothing is trading yet.
+      render('Data as of ' + sessDate + ' · Pre-open snapshot' + delayBit(live) + ageBit + partialBit, 'fb-ok');
+    } else if (st === 'OPEN') {
       render('Data as of ' + sessDate + ' · Session open' + delayBit(live) + ageBit + partialBit, 'fb-live');
     } else if (st === 'PRE-OPEN') {
       render('Data as of ' + sessDate + ' · Pre-open' + delayBit(live) + ageBit + partialBit, 'fb-live');
@@ -205,6 +293,54 @@
     });
   }
 
+  // Tick-following: watch the page's OWN live-feed responses. Every script
+  // on the page fetches /nepse-chart/data/live.json through window.fetch
+  // (nepse-data.js, nd-home, nd-daily, sectors, ... — the codebase is
+  // fetch-only, no XHR). The wrapper clones the response, parses the
+  // clone, and hands the tape to onTickPayload; the page receives its
+  // original response untouched. Non-feed requests pass through unmodified.
+  // Installed before the badge's own load fetch, so the load fetch is
+  // sig-gated like any other tick. Guarded so a double-loaded badge never
+  // double-wraps.
+  try {
+    if (typeof window !== 'undefined' && typeof window.fetch === 'function' &&
+        !window.fetch.__ndBadgeWrapped) {
+      var origFetch = window.fetch;
+      var LIVE_TAIL = 'nepse-chart/data/live.json';
+      var wrappedFetch = function () {
+        var args = arguments;
+        var url = null;
+        try {
+          var first = args[0];
+          if (typeof first === 'string') url = first;
+          else if (first && typeof first.url === 'string') url = first.url;
+        } catch (e) {}
+        var isLive = false;
+        if (url) {
+          try {
+            var path = url.split('?')[0].split('#')[0];
+            isLive = path === '/' + LIVE_TAIL || path === LIVE_TAIL ||
+              path.slice(-LIVE_TAIL.length - 1) === '/' + LIVE_TAIL;
+          } catch (e) {}
+        }
+        var p = origFetch.apply(this, args);
+        if (!isLive) return p;
+        try {
+          return p.then(function (resp) {
+            try {
+              if (resp && typeof resp.clone === 'function') {
+                resp.clone().json().then(onTickPayload, function () {});
+              }
+            } catch (e) {}
+            return resp;
+          });
+        } catch (e) { return p; }
+      };
+      wrappedFetch.__ndBadgeWrapped = true;
+      window.fetch = wrappedFetch;
+    }
+  } catch (e) { /* badge still works from its own fetches */ }
+
   ensureCSS();
   paint();
   fetchJSON(LIVE_URL).then(function (live) {
@@ -226,14 +362,16 @@
     return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
   }
   try {
-    var initNPT = CFG ? CFG.nowNPT() : new Date(Date.now() + NPT_MS);
+    var c0 = cfg();
+    var initNPT = (c0 && typeof c0.nowNPT === 'function') ? c0.nowNPT() : new Date(Date.now() + NPT_MS);
     lastDateKey = dateKey(initNPT);
     lastState = sessionState();
   } catch (e) { /* keep nulls, first tick will set */ }
   setInterval(function () {
     if (document.hidden) return;
     try {
-      var npt = CFG ? CFG.nowNPT() : new Date(Date.now() + NPT_MS);
+      var cT = cfg();
+      var npt = (cT && typeof cT.nowNPT === 'function') ? cT.nowNPT() : new Date(Date.now() + NPT_MS);
       var dk = dateKey(npt);
       var st = sessionState();
       if (dk !== lastDateKey || st !== lastState) {
