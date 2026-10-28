@@ -32,12 +32,11 @@
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the market doing today?","acceptedAnswer":{"@type":"Answer","text":"The Nepse Decode homepage shows the NEPSE index with day change, market breadth, turnover, transactions, top gainers and losers, and the most active stocks — rebuilt from the latest session data."}},{"@type":"Question","name":"Is the market data real-time?","acceptedAnswer":{"@type":"Answer","text":"During market hours the page polls fresh quote files every 60 seconds; NEPSE publishes no free official real-time API, so quotes can be delayed up to 15 minutes. Every figure carries its session date."}},{"@type":"Question","name":"Where can I read past NEPSE market wraps?","acceptedAnswer":{"@type":"Answer","text":"The market wrap archive at https://shirjankhadka.com.np/nepse-decode/wrap/ keeps one entry per trading session — index close, change, sector leaders and market breadth — recorded automatically after each market close."}},{"@type":"Question","name":"How does the Engine Verdict work?","acceptedAnswer":{"@type":"Answer","text":"Ten transparent factors are scored on the daily chart and summed into a verdict from Strong Buy to Strong Exit, with every factor's contribution listed. It is a mechanical illustration for education, not investment advice."}}]}
 </script>
 <link rel="stylesheet" href="/css/sig-pro.css?v=ed0fe3e9">
-<link rel="stylesheet" href="/css/nepse-index-candles.css?v=9af344c6">
 <link rel="stylesheet" href="/css/nepse-logos.css">
 <link rel="stylesheet" href="/css/nd-tokens.css">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=69b323cf">
-<link rel="stylesheet" href="/css/nd-home.css?v=e68cf7f2">
+<link rel="stylesheet" href="/css/nd-home.css?v=9c7fd43d">
 <link rel="stylesheet" href="/css/nd-3d.css">
 <link rel="stylesheet" href="/css/nd-market-3d.css">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
@@ -202,7 +201,16 @@ gap:2px;padding:8px 6px;border-radius:10px;border:1px solid var(--hairline,#e5e7
       <div class="nd-ixcard" id="ndIxCard" aria-label="NEPSE index"></div>
     </section>
 
+    <noscript><div class="nd-noscript" role="note">
+      <div class="nd-noscript-kicker">NEPSE Index · static snapshot · JavaScript disabled</div>
+      <div class="nd-noscript-big">2,630.76 <span class="up">+0.94 (+0.04%)</span></div>
+      <div class="nd-noscript-meta">Session 2026-10-27 (closed) · Turnover Rs 5.80 arba · Breadth 174 up / 170 down / 16 flat · 360 scrips traded</div>
+      <div class="nd-noscript-note">Enable JavaScript for live updates during market hours. Figures above are the last close, not live prices.</div>
+    </div></noscript>
+
     <div class="d2-fresh-mount"><div data-freshness-badge></div></div>
+
+    <div class="nd-freshline" id="ndFreshline" role="status"><span class="nd-freshline-dot" aria-hidden="true"></span><span id="ndFreshlineText">Loading session data…</span></div>
 
     <div class="d2-ticker">
       <div class="d2-ticker-track" id="d2TickTrack"><span class="d2-skl" style="height:20px;width:40%;margin:2px 16px"></span></div>
@@ -219,6 +227,15 @@ gap:2px;padding:8px 6px;border-radius:10px;border:1px solid var(--hairline,#e5e7
       <div class="nd-wrapgrid solo">
         <div id="ndWrap" aria-label="Market wrap"></div>
       </div>
+
+      <section class="nd-statstrip" aria-label="Session summary">
+        <div class="nd-statgrid">
+          <div class="nd-statcard cx-card" data-cinema-lift><div class="nd-stat-eyebrow">NEPSE index</div><div class="nd-stat-num" id="ndStatIndex">—</div><div class="nd-stat-sub" id="ndStatIndexSub">—</div></div>
+          <div class="nd-statcard cx-card" data-cinema-lift><div class="nd-stat-eyebrow">Total turnover</div><div class="nd-stat-num" id="ndStatTurn">—</div><div class="nd-stat-sub" id="ndStatTurnSub">—</div></div>
+          <div class="nd-statcard cx-card" data-cinema-lift><div class="nd-stat-eyebrow">Traded scrips</div><div class="nd-stat-num" id="ndStatScrips">—</div><div class="nd-stat-sub" id="ndStatScripsSub">—</div></div>
+          <div class="nd-statcard cx-card" data-cinema-lift><div class="nd-stat-eyebrow">Breadth</div><div class="nd-stat-num" id="ndStatBreadth">—</div><div class="nd-stat-sub" id="ndStatBreadthSub">—</div><div class="cx-breadth" id="ndStatBreadthBar" role="img" aria-label="Market breadth"></div></div>
+        </div>
+      </section>
 
       <section class="nd-moves" aria-label="Biggest moves">
         <div class="nd-moves-head">
@@ -253,6 +270,21 @@ gap:2px;padding:8px 6px;border-radius:10px;border:1px solid var(--hairline,#e5e7
         </div>
       </section>
 
+      <section class="nd-sectors" aria-label="Sectors">
+        <div class="nd-moves-head"><h2>Sectors</h2><span class="sub" id="ndSectorSub">—</span></div>
+        <div class="nd-sector-cards" id="ndSectorCards" role="list"></div>
+        <div class="nd-sector-panel cx-card" id="ndSectorPanel">
+          <div class="nd-sector-controls">
+            <label class="nd-ctl"><span>Sector</span><select id="ndSectorSelect" aria-label="Sector"></select></label>
+            <label class="nd-ctl"><span>Sort</span><select id="ndSectorSort" aria-label="Sort sector stocks"><option value="turnover">Turnover</option><option value="pct">Day %</option><option value="ltp">LTP</option><option value="symbol">Symbol A–Z</option></select></label>
+            <label class="nd-ctl"><span>Search</span><input id="ndSectorSearch" type="search" placeholder="Symbol or name" aria-label="Search sector stocks"></label>
+          </div>
+          <div class="nd-sector-meta" id="ndSectorMeta"></div>
+          <table class="nd-table cx-table" aria-label="Sector stocks"><thead><tr><th>SYMBOL</th><th class="num">LTP (RS)</th><th class="num">DAY %</th><th class="num">TURNOVER</th><th>VERDICT</th></tr></thead><tbody id="ndSectorBody"></tbody></table>
+          <div class="nd-pager" id="ndSectorPager"><button class="nd-pager-prev" id="ndSectorPrev" type="button">Prev</button><span class="nd-pager-info" id="ndSectorInfo"></span><button class="nd-pager-next" id="ndSectorNext" type="button">Next</button></div>
+        </div>
+      </section>
+
       <section class="nd-pulse-engine" aria-label="Market pulse and engine verdicts">
         <div class="nd-pe-grid">
           <div class="nd-pe-card cx-card" data-cinema-lift>
@@ -262,6 +294,7 @@ gap:2px;padding:8px 6px;border-radius:10px;border:1px solid var(--hairline,#e5e7
             </div>
             <p class="nd-pe-sub" id="ndPulseSub">Ranked by live turnover</p>
             <div id="ndPulseList" class="nd-pulse-list"></div>
+            <div class="nd-pe-foot" id="ndPulseFoot"></div>
           </div>
           <div class="nd-pe-card cx-card" data-cinema-lift>
             <div class="nd-pe-head">
@@ -270,6 +303,7 @@ gap:2px;padding:8px 6px;border-radius:10px;border:1px solid var(--hairline,#e5e7
             </div>
             <p class="nd-pe-sub" id="ndEngineSub">Mechanical signals, not advice</p>
             <div id="ndEngineList" class="nd-engine-list"></div>
+            <div class="nd-pe-foot" id="ndEngineFoot"></div>
           </div>
         </div>
       </section>
@@ -280,6 +314,7 @@ gap:2px;padding:8px 6px;border-radius:10px;border:1px solid var(--hairline,#e5e7
           <span class="sub">Category feeds &middot; refreshed through the trading day</span>
         </div>
         <div class="nd-newsgrid" id="ndNewsGrid"></div>
+        <div class="nd-news-fresh" id="ndNewsFresh"></div>
       </section>
     </div>
 </main>
@@ -306,473 +341,11 @@ window.addEventListener('error', function (e) {
 <script src="/js/nepse-flash.js?v=bc2fe59d" defer></script>
 <script src="/js/company-logos.js?v=d8c620a6" defer></script>
 <script src="/js/nepse-logos.js" defer></script>
-<script src="/js/nd-home.js?v=c968968d" defer></script>
+<script src="/js/nd-home.js?v=3bc0ec33" defer></script>
 <script src="/js/nd-cinema.js?v=90f78cc3" defer></script>
 <script src="/js/nd-chrome.js?v=74c1c8b7" defer></script>
-<script>
-document.addEventListener('DOMContentLoaded', function(){
-  'use strict';
-  var DATA='/nepse-chart/data/';
-  var MONTHS_L=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  var MONTHS_S=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  function $(id){return document.getElementById(id);}
-  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
-  // Canonical Phase-1 formatters (en-IN, NPT-labelled). Market numbers must
-  // never use .toFixed()/.toLocaleString() directly — always via NepseFormat.
-  var F=window.NepseFormat||null;
-  function px(n){return F?F.fmtPrice(n):'—';} // price/index, 2dp
-  function sPx(v){v=+v;if(!isFinite(v))return '—';return (v<0?'-':'+')+px(Math.abs(v));} // signed price
-  function pc(v){return (v==null||!isFinite(+v))?'—':(F?F.fmtPct(v):((+v>=0?'+':'')+(+v).toFixed(2)+'%'));}
-  function ct(n){return F?F.fmtNum(n):String(n);} // grouped count
-  function money(n){
-    n=+n; if(!isFinite(n)) return '—';
-    if(n>=1e9)return 'Rs '+(n/1e9).toFixed(2)+' arba';
-    if(n>=1e7)return 'Rs '+(n/1e7).toFixed(2)+' cr';
-    if(n>=1e5)return 'Rs '+(n/1e5).toFixed(2)+' lakh';
-    if(n>=1e3)return 'Rs '+(n/1e3).toFixed(1)+' k';
-    return 'Rs '+n;
-  }
-  // NOTE: money() is the page's turnover display convention (Rs arba/cr/lakh);
-  // kept as-is for Phase 1 (counts/prices/percents moved to NepseFormat).
-  function nptDate(ms){ try{ return new Date(ms).toLocaleString('en-CA',{timeZone:'Asia/Kathmandu',year:'numeric',month:'2-digit',day:'2-digit'}).replace(/(\d+)\/(\d+)\/(\d+)/,'$3-$1-$2'); }catch(e){ return ''; } }
-  function fmtLong(iso){var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso||''));return m?(+m[3])+' '+MONTHS_L[(+m[2])-1]+' '+m[1]:(iso||'');}
-  function fmtShort(iso){var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso||''));return m?(+m[3])+' '+MONTHS_S[(+m[2])-1]+' '+m[1]:(iso||'');}
-  function getJSON(p){return fetch(DATA+p,{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json();});}
-  function symLink(s){return '/stocks/'+encodeURIComponent(s)+'/';}
-  var MAIN_INDICES={'NEPSE':1,'Sensitive':1,'Float':1,'Sensitive Float':1};
-  var STATE_LABEL={live:'Live',delayed:'Delayed',stale:'Stale',preopen:'Pre-open',closed:'Closed',unknown:'—'};
 
-  /* ---------- sparkline: compact index history, never the 247KB daily bundle ---------- */
-  var sparkCloses=null, sparkFrom=null, sparkTo=null;
-  function loadSpark(){
-    return getJSON('index-spark.json').then(function(j){
-      var arr=j.series||j.data||j.closes||j;
-      if(!Array.isArray(arr)||!arr.length) return;
-      sparkCloses=arr.map(function(r){return {d:String(r[0]), c:+r[1]};}).filter(function(r){return isFinite(r.c);});
-      sparkFrom=sparkCloses[0].d; sparkTo=sparkCloses[sparkCloses.length-1].d;
-    }).catch(function(){ sparkCloses=null; });
-  }
-  /* Session-range bar (kept): painted from the spark closes now that the
-     main visual is the interactive candle chart (js/nepse-index-candles.js). */
-  function paintSessionRange(liveVal, liveDateInt){
-    if(!sparkCloses||!sparkCloses.length) return;
-    var pts=sparkCloses.slice();
-    if(liveVal!=null&&liveDateInt&&liveDateInt>+(pts[pts.length-1].d)) pts.push({d:String(liveDateInt),c:+liveVal});
-    var closes=pts.map(function(p){return p.c;}).filter(isFinite);
-    if(!closes.length) return;
-    var lo=Math.min.apply(null,closes), hi=Math.max.apply(null,closes);
-    var lbl=$('d2SesRangeLbl');
-    if(lbl&&sparkFrom) lbl.textContent=fmtShort(sparkFrom.slice(0,4)+'-'+sparkFrom.slice(4,6)+'-'+sparkFrom.slice(6,8))+' → '+fmtShort(sparkTo.slice(0,4)+'-'+sparkTo.slice(4,6)+'-'+sparkTo.slice(6,8))+' · '+pts.length+' closes';
-    paintRange('d2SesRange','d2SesLow','d2SesHigh',lo,hi,closes[closes.length-1]);
-  }
-  function paintRange(barId,lowId,highId,lo,hi,val){
-    var bar=$(barId); if(!bar||lo==null||hi==null) return;
-    var l=$(lowId), h=$(highId);
-    if(l) l.textContent=px(lo); if(h) h.textContent=px(hi);
-    if(!(hi>lo)) return; // single print so far — labels painted, no bar to draw
-    var pos=Math.min(1,Math.max(0,(val-lo)/(hi-lo)));
-    var fill=bar.querySelector('.d2-range-fill'), mk=bar.querySelector('.d2-range-marker');
-    if(fill) fill.style.width=(pos*100)+'%';
-    if(mk) mk.style.left=(pos*100)+'%';
-  }
-
-  /* ---------- tables ---------- */
-  function paintTicker(quotes){
-    var el=$('d2TickTrack'); if(!el) return;
-    var list=quotes.filter(function(q){return q&&q.symbol&&(+q.turnover||0)>0;})
-      .sort(function(a,b){return (+b.turnover||0)-(+a.turnover||0);}).slice(0,30);
-    if(!list.length){ el.innerHTML='<span class="d2-caption" style="padding:0 16px">Ticker unavailable.</span>'; return; }
-    var html=list.map(function(q){
-      var ch=+q.change||0, p=q.pct, cls=ch>=0?'up':'down';
-      return '<a class="d2-tick-item" href="'+symLink(q.symbol)+'">'+(window.NepseLogo?window.NepseLogo.html(q.symbol,'',20):'')+'<span class="tk-sym">'+esc(q.symbol)+'</span>'+
-        '<span class="num">'+(q.ltp!=null?px(q.ltp):'—')+'</span>'+
-        '<span class="tk-chg '+cls+'">'+sPx(ch)+' ('+pc(p)+')</span></a>';
-    }).join('');
-    el.innerHTML=html+html; // loop for the marquee
-  }
-  function moverRow(q){
-    var sym = q && q.symbol ? String(q.symbol).toUpperCase() : '';
-    if(!sym) return ''; // never render a broken link: omit malformed rows
-    var ch=+q.change||0, p=q.pct, cls=ch>=0?'up':'down';
-    return '<tr><td><a class="t-sym" href="'+symLink(sym)+'">'+(window.NepseLogo?window.NepseLogo.html(sym,'',24):'')+esc(sym)+'</a></td>'+
-      '<td class="num '+cls+'">'+sPx(ch)+'</td>'+
-      '<td class="num '+cls+'">'+pc(p)+'</td>'+
-      '<td class="num">'+(q.ltp!=null?px(q.ltp):'—')+'</td></tr>';
-  }
-  function paintGainersLosers(quotes){
-    var gainers=quotes.filter(function(q){return q&&q.symbol&&(+q.change||0)>0;})
-      .sort(function(a,b){return (+b.pct||0)-(+a.pct||0);}).slice(0,7);
-    var losers=quotes.filter(function(q){return q&&q.symbol&&(+q.change||0)<0;})
-      .sort(function(a,b){return (+a.pct||0)-(+b.pct||0);}).slice(0,7);
-    var g=$('d2GainersT'), l=$('d2LosersT');
-    var empty='<tr><td colspan="4" style="color:var(--d2-muted);font-size:14px;padding:12px 8px">No data in the latest session.</td></tr>';
-    if(g) g.innerHTML=gainers.length?gainers.map(moverRow).join(''):empty;
-    if(l) l.innerHTML=losers.length?losers.map(moverRow).join(''):empty;
-  }
-  function idxRow(x){
-    var ch=+x.change||0, p=x.pct, cls=ch>=0?'up':'down';
-    return '<tr><td>'+esc(x.name)+'</td>'+
-      '<td class="num '+cls+'">'+sPx(ch)+'</td>'+
-      '<td class="num '+cls+'">'+pc(p)+'</td>'+
-      '<td class="num">'+px(x.value)+'</td></tr>';
-  }
-  var TT={ mode:'turnover', quotes:[] };
-  function paintTurnover(){
-    var el=$('d2TurnT'); if(!el) return;
-    var key=TT.mode;
-    var hEl=$('d2TurnValH');
-    if(hEl) hEl.textContent=key==='turnover'?'Turnover':key==='volume'?'Traded shares':'Transactions';
-    var list=TT.quotes.filter(function(q){return q&&q.symbol;}).slice().sort(function(a,b){return (+b[key]||0)-(+a[key]||0);}).slice(0,7);
-    if(!list.length){ el.innerHTML='<tr><td colspan="4" style="color:var(--d2-muted);font-size:14px;padding:12px 8px">No data in the latest session.</td></tr>'; return; }
-    el.innerHTML=list.map(function(q){
-      var ch=+q.pct||0, cls=ch>=0?'up':'down';
-      var v=key==='turnover'?money(+q.turnover||0):ct(Math.round(+q[key]||0));
-      return '<tr><td><a class="t-sym" href="'+symLink(q.symbol)+'">'+(window.NepseLogo?window.NepseLogo.html(q.symbol,'',24):'')+esc(q.symbol)+'</a></td>'+
-        '<td class="num">'+v+'</td>'+
-        '<td class="num '+cls+'">'+pc(ch)+'</td>'+
-        '<td class="num">'+(q.ltp!=null?px(q.ltp):'—')+'</td></tr>';
-    }).join('');
-  }
-  function initTurnTabs(){
-    document.querySelectorAll('.d2-tab').forEach(function(b){
-      b.addEventListener('click',function(){
-        document.querySelectorAll('.d2-tab').forEach(function(x){x.classList.remove('active');x.setAttribute('aria-selected','false');});
-        b.classList.add('active'); b.setAttribute('aria-selected','true');
-        TT.mode=b.getAttribute('data-tt'); paintTurnover();
-      });
-    });
-  }
-  /* Trending now — computed live from the quote tape, never a baked snapshot */
-  function paintTrending(quotes, sesLabel){
-    var el=$('d2TrendNow'); if(!el) return;
-    var list=quotes.filter(function(q){return q&&q.symbol&&(+q.turnover||0)>0;})
-      .sort(function(a,b){return (+b.turnover||0)-(+a.turnover||0);}).slice(0,6);
-    var cap=$('d2TrendCap');
-    if(cap&&sesLabel) cap.textContent='Ranked by live turnover · session of '+sesLabel+' · refreshes with the market feed.';
-    if(!list.length){ el.innerHTML='<p class="d2-caption">No turnover data in the latest session.</p>'; return; }
-    el.innerHTML=list.map(function(q,i){
-      var ch=+q.pct||0, cls=ch>=0?'up':'down';
-      return '<a class="d2-card d2-tool" href="'+symLink(q.symbol)+'">'+
-        '<span class="d2-wl-num" aria-hidden="true">'+(i+1)+'</span>'+
-        '<span style="flex:1"><h3>'+(window.NepseLogo?window.NepseLogo.html(q.symbol,'',28):'')+esc(q.symbol)+' <span class="d2-caption">· '+esc(q.name||'')+'</span></h3>'+
-        '<p>'+(q.ltp!=null?'Rs '+px(q.ltp):'—')+' · <span class="'+cls+'" style="font-weight:700;color:var(--d2-'+(ch>=0?'gain':'loss')+')">'+pc(ch)+'</span> today · '+money(+q.turnover||0)+' turnover</p></span></a>';
-    }).join('');
-  }
-
-  /* ---------- S1 hero from the canonical live payload ---------- */
-  function paintHero(d, st){
-    var ix=d.index||{};
-    var state=(st&&st.state)||'unknown';
-    var sEl=$('d2State'); if(sEl) sEl.textContent=STATE_LABEL[state]||'—';
-    var tEl=$('d2TopState'); if(tEl) tEl.textContent=STATE_LABEL[state]||'';
-    var vEl=$('d2IdxVal'); if(ix.value!=null&&vEl) vEl.textContent=px(ix.value);
-    var chEl=$('d2IdxChg');
-    if(chEl&&ix.change!=null&&ix.pct!=null){
-      var c=+ix.change, p=+ix.pct, cls=c>=0?'up':'down';
-      chEl.innerHTML='<span class="'+cls+'">'+sPx(c)+' ('+pc(p)+')</span>';
-      chEl.className='d2-hero-badge '+cls;
-    } else if(chEl){ chEl.textContent='—'; }
-    var f2=function(v){return v==null||!isFinite(+v)||+v<=0?'—':px(+v);}; // 0 never a valid level
-    if($('d2DayO'))$('d2DayO').textContent=f2(ix.open);
-    if($('d2DayH'))$('d2DayH').textContent=f2(ix.high);
-    if($('d2DayL'))$('d2DayL').textContent=f2(ix.low);
-    if($('d2DayP'))$('d2DayP').textContent=f2(ix.prev);
-    var sesNpt=d.asof? nptDate(d.asof):'';
-    if($('d2DayRangeSes')&&sesNpt) $('d2DayRangeSes').textContent='session '+sesNpt;
-    if(ix.low!=null&&ix.high!=null&&ix.value!=null) paintRange('d2DayRange','d2DayLow','d2DayHigh',ix.low,ix.high,ix.value);
-    var cap=$('d2HeroCap');
-    if(cap){
-      var bits=[];
-      if(sesNpt) bits.push('Session of '+fmtLong(sesNpt));
-      if(state==='live') bits.push('live during market hours');
-      else if(state==='delayed') bits.push('delayed snapshot');
-      else if(state==='stale') bits.push('stale snapshot · last verified data');
-      else if(state==='preopen') bits.push('pre-open · last close as reference');
-      else if(state==='closed') bits.push('market closed · latest verified session');
-      else bits.push('feed unavailable');
-      cap.textContent=bits.join(' · ');
-    }
-    // session-range bar: append today's live close when newer than the spark series
-    var liveDateInt=sesNpt?+(sesNpt.replace(/-/g,'')):null;
-    paintSessionRange(ix.value, liveDateInt);
-    return sesNpt;
-  }
-  function paintBreadthStats(quotes){
-    var adv=0,dec=0,unc=0,turn=0,shares=0,txns=0,scrips=0;
-    quotes.forEach(function(q){
-      var ch=+q.change||0;
-      if(ch>0)adv++; else if(ch<0)dec++; else unc++;
-      turn+=+q.turnover||0; shares+=+q.volume||0; txns+=+q.trades||0;
-      if((+q.volume||0)>0)scrips++;
-    });
-    var tot=adv+dec+unc;
-    var bar=$('d2Breadth');
-    if(bar){
-      var segs=bar.children;
-      if(segs[0])segs[0].style.width=(tot?adv/tot*100:0)+'%';
-      if(segs[1])segs[1].style.width=(tot?unc/tot*100:0)+'%';
-      if(segs[2])segs[2].style.width=(tot?dec/tot*100:0)+'%';
-    }
-    if($('d2BUp'))$('d2BUp').textContent=adv;
-    if($('d2BDn'))$('d2BDn').textContent=dec;
-    if($('d2BFl'))$('d2BFl').textContent=unc;
-    if($('d2BreadthN'))$('d2BreadthN').textContent=tot+' scrips';
-    if($('d2StatTurn'))$('d2StatTurn').textContent=money(turn);
-    if($('d2StatShares'))$('d2StatShares').textContent=ct(shares);
-    if($('d2StatTxns'))$('d2StatTxns').textContent=ct(txns);
-    if($('d2StatScrips'))$('d2StatScrips').textContent=scrips;
-  }
-  function paintMarketEmpty(msg){
-    if($('d2HeroCap'))$('d2HeroCap').textContent=msg;
-    if($('d2IdxVal'))$('d2IdxVal').textContent='—';
-    if($('d2IdxChg'))$('d2IdxChg').textContent='—';
-    if($('d2State'))$('d2State').textContent='—';
-    ['d2BUp','d2BDn','d2BFl','d2StatTurn','d2StatShares','d2StatTxns','d2StatScrips'].forEach(function(id){var el=$(id);if(el)el.textContent='—';});
-    var empty='<tr><td colspan="4" style="color:var(--d2-muted);font-size:14px;padding:12px 8px">'+esc(msg)+'</td></tr>';
-    ['d2GainersT','d2LosersT','d2TurnT','d2IndicesT','d2SubIndicesT'].forEach(function(id){var el=$(id);if(el)el.innerHTML=empty;});
-    var tEl=$('d2TickTrack');if(tEl)tEl.innerHTML='<span class="d2-caption" style="padding:0 16px">'+esc(msg)+'</span>';
-    var tr=$('d2TrendNow');if(tr)tr.innerHTML='<p class="d2-caption">'+esc(msg)+'</p>';
-  }
-
-  /* ---------- search ---------- */
-  function initSearch(quotes){
-    var input=$('d2SearchInput'), list=$('d2Symbols'), box=$('d2SearchMatches');
-    if(!input) return;
-    var idx=quotes.map(function(q){return {s:q.symbol,n:q.name||''};});
-    if(list) list.innerHTML=idx.map(function(x){return '<option value="'+esc(x.s)+'">';}).join('');
-    function find(q){
-      q=String(q||'').trim().toUpperCase(); if(!q) return [];
-      return idx.filter(function(x){return x.s.indexOf(q)===0||x.n.toUpperCase().indexOf(q)>-1;}).slice(0,6);
-    }
-    input.addEventListener('input',function(){
-      var m=find(input.value);
-      if(box) box.innerHTML=m.map(function(x){return '<a href="'+symLink(x.s)+'">'+(window.NepseLogo?window.NepseLogo.html(x.s,'',22):'')+esc(x.s)+' <span class="d2-caption">· '+esc(x.n)+'</span></a>';}).join('');
-    });
-    $('d2Search').addEventListener('submit',function(){
-      var m=find(input.value);
-      if(m.length) window.location.href=symLink(m[0].s);
-    });
-  }
-
-  /* ---------- S9 market pulse: event tape, not a trade tape ---------- */
-  var PULSE_KINDS=[['all','All'],['news','Announcements'],['corp','Corp. actions'],['ms','Milestones']];
-  var pulseEvents=[], pulseFilter='all', pulseOn=true, pulseLeft=60, pulseSig='';
-  var pulsePage=0; /* 2026-10-02: paged tape — rows-per-page + Showing X-Y + Prev/Next */
-  function pulseRel(dstr){
-    var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(dstr||'')); if(!m) return dstr||'';
-    var then=Date.UTC(+m[1],+m[2]-1,+m[3]);
-    var now=new Date(); var nowUTC=Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate());
-    var days=Math.round((nowUTC-then)/86400000);
-    if(days<=0) return 'today';
-    if(days===1) return 'yesterday';
-    if(days<7) return days+'d ago';
-    return fmtShort(dstr);
-  }
-  function pulseKindCls(e){ return e.kind==='corp'?'pk-corp':e.kind==='news'?'pk-news':'pk-ms'; }
-  function pulseKindLabel(e){ return e.kind==='corp'?'CORP':e.kind==='news'?'NEWS':'MILESTONE'; }
-  function pulseFiltered(){
-    return pulseEvents.filter(function(e){return pulseFilter==='all'||e.kind===pulseFilter;});
-  }
-  function pulseSize(){
-    var s=$('d2PulseSize'); return s ? (parseInt(s.value,10)||8) : 8;
-  }
-  function renderPulse(){
-    var tape=$('d2PulseTape'); if(!tape) return;
-    var rows=pulseFiltered();
-    var per=pulseSize();
-    var pages=Math.max(1,Math.ceil(rows.length/per));
-    if(pulsePage>=pages) pulsePage=pages-1;
-    if(pulsePage<0) pulsePage=0;
-    var box=$('d2PulsePages');
-    if(!rows.length){
-      tape.innerHTML='<p class="d2-caption" style="padding:8px 0">No events in this filter yet.</p>';
-      if(box) box.hidden=true;
-      return;
-    }
-    var lo=pulsePage*per, hi=Math.min(lo+per,rows.length);
-    var view=rows.slice(lo,hi);
-    tape.innerHTML=view.map(function(e){
-      return '<div class="d2-pulse-row"><div class="d2-pulse-time">'+esc(pulseRel(e.date))+'<span>'+esc(e.date)+'</span></div>'+
-        '<span class="d2-pulse-kind '+pulseKindCls(e)+'">'+pulseKindLabel(e)+'</span>'+
-        '<span class="d2-pulse-sym">'+(window.NepseLogo&&e.sym?window.NepseLogo.html(e.sym,'',20):'')+esc(e.sym||'—')+'</span>'+
-        '<div class="d2-pulse-title">'+esc(e.title)+(e.link?' <a href="'+esc(e.link)+'" target="_blank" rel="noopener">source ↗</a>':'')+'</div></div>';
-    }).join('');
-    if(box){
-      box.hidden=false;
-      var info=$('d2PulseInfo');
-      if(info) info.textContent='Showing '+(lo+1)+'–'+hi+' of '+rows.length+' events';
-      var pv=$('d2PulsePrev'), nx=$('d2PulseNext');
-      if(pv) pv.disabled=pulsePage===0;
-      if(nx) nx.disabled=pulsePage>=pages-1;
-    }
-  }
-  function buildMilestones(){
-    if(!sparkCloses||!sparkCloses.length) return [];
-    var hi=sparkCloses[0], lo=sparkCloses[0];
-    sparkCloses.forEach(function(p){ if(p.c>hi.c)hi=p; if(p.c<lo.c)lo=p; });
-    var f=function(d){return d.slice(0,4)+'-'+d.slice(4,6)+'-'+d.slice(6,8);};
-    return [
-      {kind:'ms',date:f(hi.d),sym:'NEPSE',title:'Session-range high '+px(hi.c)+' — strongest close in the recent series',link:'/nepse-chart/'},
-      {kind:'ms',date:f(lo.d),sym:'NEPSE',title:'Session-range low '+px(lo.c)+' — weakest close in the recent series',link:'/nepse-chart/'}
-    ];
-  }
-  function loadPulse(){
-    return Promise.all([
-      getJSON('news.json').catch(function(){return null;}),
-      getJSON('corporate-actions.json').catch(function(){return null;})
-    ]).then(function(res){
-      var evs=buildMilestones();
-      var nn=res[0], items=(nn&&nn.items)||[];
-      items.forEach(function(it,i){
-        evs.push({kind:'news',date:String(it.date||'').slice(0,10),sym:it.sym||'',title:it.title||'',link:'/nepse-news/story/?src=news&i='+i});
-      });
-      var ca=res[1], citems=(ca&&ca.items)||[];
-      citems.forEach(function(it){
-        evs.push({kind:'corp',date:String(it.announced||'').slice(0,10),sym:it.symbol||'',title:it.headline||'',link:it.officialPdf||''});
-      });
-      evs.sort(function(a,b){return String(b.date).localeCompare(String(a.date));});
-      var sig=evs.length+'|'+(evs[0]?evs[0].date+evs[0].title:'');
-      if(sig!==pulseSig){
-        pulseSig=sig; pulseEvents=evs; renderPulse();
-        var up=$('d2PulseUpdated');
-        if(up) up.textContent='last checked just now · '+evs.length+' events';
-        var fl=$('d2PulseFlash');
-        if(fl){ fl.style.opacity='1'; setTimeout(function(){fl.style.opacity='0';},2500); }
-      }
-    }).catch(function(){
-      var tape=$('d2PulseTape');
-      if(tape&&!pulseEvents.length) tape.innerHTML='<p class="d2-caption" style="padding:8px 0">Event feed is temporarily unavailable.</p>';
-    });
-  }
-  function initPulse(){
-    var f=$('d2PulseFilters');
-    if(f){
-      f.innerHTML=PULSE_KINDS.map(function(k){
-        return '<button class="d2-fbtn'+(k[0]==='all'?' on':'')+'" data-k="'+k[0]+'" aria-pressed="'+(k[0]==='all')+'">'+k[1]+'</button>';
-      }).join('');
-      f.addEventListener('click',function(ev){
-        var b=ev.target.closest('[data-k]'); if(!b) return;
-        pulseFilter=b.getAttribute('data-k');
-        pulsePage=0;
-        f.querySelectorAll('.d2-fbtn').forEach(function(x){
-          var on=x===b; x.classList.toggle('on',on); x.setAttribute('aria-pressed',on);
-        });
-        renderPulse();
-      });
-    }
-    var pg=$('d2PulsePages');
-    if(pg){
-      var sz=$('d2PulseSize');
-      if(sz) sz.addEventListener('change',function(){ pulsePage=0; renderPulse(); });
-      var pv=$('d2PulsePrev'), nx=$('d2PulseNext');
-      if(pv) pv.addEventListener('click',function(){ if(pulsePage>0){ pulsePage--; renderPulse(); } });
-      if(nx) nx.addEventListener('click',function(){
-        var pages=Math.max(1,Math.ceil(pulseFiltered().length/pulseSize()));
-        if(pulsePage<pages-1){ pulsePage++; renderPulse(); }
-      });
-    }
-    var tg=$('d2PulseToggle');
-    if(tg) tg.addEventListener('click',function(){
-      pulseOn=!pulseOn; pulseLeft=60;
-      tg.textContent=pulseOn?'Auto-refresh on':'Auto-refresh off';
-      tg.setAttribute('aria-pressed',pulseOn);
-    });
-    loadPulse();
-    setInterval(function(){
-      if(document.hidden) return;
-      var cd=$('d2PulseCount');
-      if(pulseOn){
-        pulseLeft--;
-        if(pulseLeft<=0){ pulseLeft=60; loadPulse(); }
-        if(cd) cd.textContent='0:'+String(Math.max(0,pulseLeft)).padStart(2,'0');
-      } else if(cd) cd.textContent='paused';
-    },1000);
-  }
-
-  /* ---------- engine verdicts teaser ---------- */
-  function pillClass(v){return v==='Strong Buy'?'v-sb':v==='Buy'?'v-b':v==='Hold'?'v-h':v==='Exit / Reduce'?'v-e':v==='Strong Exit'?'v-se':'v-h';}
-  function vdRow(sym,x){
-    return '<div class="vd-row"><a class="vd-sym" href="'+symLink(sym)+'">'+esc(sym)+'</a>'+
-      '<span class="d2-caption">score '+esc(x.s)+'</span>'+
-      '<span class="vd-pill '+pillClass(x.v)+'">'+esc(x.v)+'</span></div>';
-  }
-  function paintVerdicts(d){
-    var all=Object.keys(d.verdicts||{}).map(function(sym){return [sym,d.verdicts[sym]];});
-    var buys=all.filter(function(it){return it[1].v==='Strong Buy'||it[1].v==='Buy';}).sort(function(a,b){return b[1].s-a[1].s;}).slice(0,4);
-    var exits=all.filter(function(it){return it[1].v==='Strong Exit'||it[1].v==='Exit / Reduce';}).sort(function(a,b){return a[1].s-b[1].s;}).slice(0,4);
-    if($('d2VdBuys'))$('d2VdBuys').innerHTML=buys.length?buys.map(function(it){return vdRow(it[0],it[1]);}).join(''):'<p class="d2-caption">No buy verdicts in the latest batch.</p>';
-    if($('d2VdExits'))$('d2VdExits').innerHTML=exits.length?exits.map(function(it){return vdRow(it[0],it[1]);}).join(''):'<p class="d2-caption">No exit verdicts in the latest batch.</p>';
-    var asofEl=$('d2VdAsof');
-    if(asofEl){
-      asofEl.textContent=d.asof?('Batch of '+fmtLong(d.asof)+' · '+(d.count||all.length)+' securities scored.'):'Batch data unavailable.';
-    }
-  }
-
-  /* ---------- boot: NepseData (canonical validated snapshot) drives everything ---------- */
-  function paintBadge(st){
-    var b=$('d2LiveBadge'); if(!b) return;
-    var s=(st&&st.state)||'unknown';
-    b.textContent=STATE_LABEL[s]||'—';
-    // nlv-badge styles live in css/nepse-wave7.css; 'stale' reuses the delayed look.
-    b.className='nlv-badge '+(s==='stale'?'delayed':s);
-  }
-  function onData(snapshot, status){
-    if(!snapshot){ paintMarketEmpty('Market data is temporarily unavailable.'); return; }
-    // Quarantined quotes never reach the page: getQuotes() filters them.
-    var quotes=NepseData.getQuotes().map(function(q){
-      return { symbol:q.symbol, name:q.name, ltp:q.ltp, change:q.change, pct:q.percent_change,
-               volume:q.volume, turnover:q.turnover, trades:q.trades, high:q.high, low:q.low };
-    });
-    var ix=snapshot.index||{};
-    var d={ asof:snapshot.asof,
-            index:{ value:ix.value, change:ix.change, pct:ix.percent_change,
-                    high:ix.high, low:ix.low, open:ix.open, prev:ix.previous_close } };
-    var state=status==='stale' ? 'stale'
-      : status==='live' ? (snapshot.market==='OPEN'?'live':'closed') : 'unknown';
-    var st={ state:state };
-    paintBadge(st);
-    var sesNpt=''; try{ sesNpt=paintHero(d, st); }catch(e){ if(window.__nepseErrors) window.__nepseErrors.push(String(e&&e.message||e)); }
-    // Phase 3: flash the hero price when the index moved between polls.
-    if(window.NepseFlash) window.NepseFlash.apply(document);
-    paintBreadthStats(quotes);
-    paintTicker(quotes);
-    paintGainersLosers(quotes);
-    TT.quotes=quotes; paintTurnover();
-    paintTrending(quotes, sesNpt?fmtLong(sesNpt):'');
-    initSearch(quotes);
-    // Indices arrive in the canonical snapshot (validated, optional).
-    var list=snapshot.indices||[];
-    var norm=list.map(function(x){return {name:x.name,change:+x.change,pct:+x.percent_change,value:+x.value};});
-    var mEl=$('d2IndicesT'), sEl=$('d2SubIndicesT');
-    var empty='<tr><td colspan="4" style="color:var(--d2-muted);font-size:14px;padding:12px 8px">Index data unavailable.</td></tr>';
-    var main=norm.filter(function(x){return MAIN_INDICES[x.name];});
-    var sub=norm.filter(function(x){return !MAIN_INDICES[x.name];});
-    if(mEl) mEl.innerHTML=main.length?main.map(idxRow).join(''):empty;
-    if(sEl) sEl.innerHTML=sub.length?sub.map(idxRow).join(''):empty;
-  }
-
-  loadSpark().then(function(){
-    if(window.NepseData&&window.NepseFormat){
-      window.NepseData.start(); // idempotent
-      window.NepseData.subscribe(onData);
-      // Freshness: [data-freshness-badge] is the ONE freshness line (no
-      // NepseBadge mount — two badges contradict).
-    } else {
-      // Modules failed to load: honest empty state, never a reload loop.
-      paintMarketEmpty('Market data is temporarily unavailable.');
-    }
-  });
-  initTurnTabs();
-  initPulse();
-  getJSON('verdicts.json').then(paintVerdicts).catch(function(){
-    if($('d2VdAsof'))$('d2VdAsof').textContent='Verdict data is temporarily unavailable.';
-    if($('d2VdBuys'))$('d2VdBuys').innerHTML='<p class="d2-caption">Verdict data is temporarily unavailable.</p>';
-    if($('d2VdExits'))$('d2VdExits').innerHTML='<p class="d2-caption">Verdict data is temporarily unavailable.</p>';
-  });
-});
-</script>
 <script src="/js/theme-toggle.js?v=6a6a46c6" defer></script>
 <script src="/js/freshness-badge.js?v=307d4f55" defer></script>
-<script src="/js/nepse-index-candles.js?v=91cf152b" defer></script>
 </body>
 </html>

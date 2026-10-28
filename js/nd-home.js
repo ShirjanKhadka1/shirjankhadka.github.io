@@ -202,7 +202,9 @@
       '<div class="nd-wrap-actions">' +
         '<a class="nd-btn-lime" href="/nepse-daily/">See today\'s market →</a>' +
         '<a class="nd-link-more" href="/nepse-decode/wrap/">Every session’s wrap →</a>' +
-      '</div>';
+      '</div>' +
+      '<div class="nd-wrap-breadth"><div class="nd-wb-labels"><span>Breadth mix</span><span>' + adv + ' up · ' + dec + ' down · ' + (breadthTotal - adv - dec) + ' flat</span></div>' +
+      breadthBarHTML(adv, dec, breadthTotal - adv - dec) + '</div>';
   }
 
   /* ---------- NEPSE index card ---------- */
@@ -363,35 +365,6 @@
     if (ms && sessDate) ms.textContent = 'Ranked by % change · last session · closing figures from ' + sessDate;
   }
 
-  /* ---------- Newsroom ---------- */
-  function renderNewsroom(items) {
-    var host = $('ndNewsGrid');
-    if (!host || !items || !items.length) return;
-    // Categorize: markets / companies / economy (simple keyword buckets)
-    var cats = { Markets: [], Companies: [], 'Economy & Policy': [] };
-    items.forEach(function (n) {
-      var t = ((n.title || '') + ' ' + (n.summary || '')).toLowerCase();
-      if (/nrb|sebon|policy|economy|remittance|ipo|government|budget/.test(t)) cats['Economy & Policy'].push(n);
-      else if (/hydropower|bank|insurance|finance|company|ltd|dividend|bonus/.test(t)) cats.Companies.push(n);
-      else cats.Markets.push(n);
-    });
-    host.innerHTML = Object.keys(cats).map(function (cat) {
-      var list = cats[cat].slice(0, 4);
-      if (!list.length) return '';
-      return '<div class="nd-newscard cx-cat"><div class="cx-cat-head">' + esc(cat) + '</div>' +
-        list.map(function (n) {
-          var href = n.url || n.link || '/nepse-news/';
-          var time = n.published || n.date || '';
-          var tag = (n.tags && n.tags[0]) || (n.symbol || '');
-          return '<a class="cx-cat-item" href="' + esc(href) + '">' +
-            '<span class="cx-ci-t">' + esc(n.title || 'Untitled') + '</span>' +
-            '<span class="cx-ci-d">' + esc(time) +
-            (tag ? ' · ' + esc(String(tag).toUpperCase()) : '') +
-            '</span></a>';
-        }).join('') + '</div>';
-    }).join('');
-  }
-
   /* ---------- Most active ---------- */
   var activeQuotes = [];
   var activeMetric = 'turnover';
@@ -448,6 +421,7 @@
           seemore.setAttribute('href', '/nepse-daily/?sort=' + metricToSort[activeMetric] + '#all-stocks');
         }
         renderActive();
+        rebaseline();
       };
       // ARIA tabs pattern (Wave A): Arrow keys move + activate,
       // Home/End jump to the ends; roving tabindex stays in sync
@@ -491,6 +465,8 @@
       }).join('');
       var ps = $('ndPulseSub');
       if (ps && sessDate) ps.textContent = 'Ranked by live turnover · session of ' + sessDate;
+      var pf = $('ndPulseFoot');
+      if (pf) pf.innerHTML = '<a class="nd-pe-link" href="/nepse-trending/">Trending archive + forward record →</a>';
     }
 
     // Engine Verdicts: fetch from verdicts.json if available
@@ -529,22 +505,358 @@
           html += exits.map(engineRow).join('');
         }
         engineHost.innerHTML = html || '<p class="nd-pe-sub">No verdicts available.</p>';
+        verdictsData = v;
+        if (currentLive) renderSectors();
+        if (currentLive) renderStatStrip(currentLive);
+        rebaseline();
+        var ef = $('ndEngineFoot');
+        if (ef) {
+          var ch = v.changes || {};
+          ef.innerHTML = '<span class="nd-pe-changes">Upgraded ' + (ch.upgraded != null ? ch.upgraded : '—') + ' · Downgraded ' + (ch.downgraded != null ? ch.downgraded : '—') + ' · Held ' + (ch.held != null ? ch.held : '—') + ' · New ' + (ch.new != null ? ch.new : '—') + '</span> <a class="nd-pe-link" href="/nepse-screener/">Full verdict board + paper-trade ledger →</a>';
+        }
         var es = $('ndEngineSub');
         if (es) es.textContent = 'Batch of ' + sessDate + ' · ' + verdicts.length + ' securities scored · Not investment advice';
       }).catch(function () {
         engineHost.innerHTML = '<p class="nd-pe-sub">Verdicts unavailable.</p>';
+        var sc = $('ndSectorCards');
+        if (sc) sc.innerHTML = '<p class="nd-pe-sub">Sector data unavailable.</p>';
       });
     }
   }
 
-  /* ---------- Init ---------- */
+  /* ---------- Ticker tape (moved from the dead inline script, same markup) ---------- */
+  function renderTicker(quotes) {
+    var track = $('d2TickTrack');
+    if (!track || !quotes || !quotes.length) return;
+    var top = quotes.slice().filter(function (q) { return q.turnover && Number(q.turnover) > 0; })
+      .sort(function (a, b) { return Number(b.turnover) - Number(a.turnover); }).slice(0, 15);
+    function item(q) {
+      var pct = Number(q.percent_change) || 0;
+      var cls = pct > 0 ? 'up' : pct < 0 ? 'dn' : '';
+      return '<span class="d2-tick-item"><span class="d2-tick-sym">' + esc(q.symbol) + '</span>' +
+        '<span class="d2-tick-val">' + fmtNum(q.ltp) + '</span>' +
+        '<span class="' + cls + '">' + (pct > 0 ? '+' : '') + pct.toFixed(2) + '%</span></span>';
+    }
+    var html = top.map(item).join('');
+    track.innerHTML = html + html;
+  }
+
+  /* ---------- Nepali money ---------- */
+  function money(v) {
+    v = Number(v) || 0;
+    if (v >= 1e9) return 'Rs ' + (v / 1e9).toFixed(2) + ' arba';
+    if (v >= 1e7) return 'Rs ' + (v / 1e7).toFixed(2) + ' crore';
+    if (v >= 1e5) return 'Rs ' + (v / 1e5).toFixed(2) + ' lakh';
+    return 'Rs ' + v.toLocaleString('en-IN');
+  }
+
+  /* ---------- Breadth bar (kit cx-breadth structure) ---------- */
+  function breadthBarHTML(adv, dec, unc) {
+    var total = adv + dec + unc;
+    if (!total) return '';
+    return '<div class="cx-breadth" role="img" aria-label="Breadth: ' + adv + ' advancers, ' + dec + ' decliners, ' + unc + ' unchanged">' +
+      '<i class="b-up" style="width:' + (adv / total * 100).toFixed(1) + '%"></i>' +
+      '<i class="b-flat" style="width:' + (unc / total * 100).toFixed(1) + '%"></i>' +
+      '<i class="b-down" style="width:' + (dec / total * 100).toFixed(1) + '%"></i></div>' +
+      '<div class="cx-breadth-legend"><span><b>' + adv + '</b> advancers</span><span><b>' + dec + '</b> decliners</span><span><b>' + unc + '</b> unchanged</span></div>';
+  }
+
+  /* ---------- Stat strip (turnover total, previously computed but never shown) ---------- */
+  function renderStatStrip(live) {
+    if (!live || !live.index) return;
+    var ix = live.index, quotes = live.quotes || [];
+    var totTurn = 0, adv = 0, dec = 0, unc = 0;
+    quotes.forEach(function (q) {
+      totTurn += Number(q.turnover) || 0;
+      var pc = Number(q.percent_change);
+      if (pc > 0) adv++; else if (pc < 0) dec++; else unc++;
+    });
+    var chg = Number(ix.change) || 0, pct = Number(ix.percent_change) || 0;
+    var cls = chg > 0 ? 'up' : chg < 0 ? 'dn' : '';
+    var iEl = $('ndStatIndex'), iSub = $('ndStatIndexSub');
+    if (iEl) iEl.innerHTML = esc(fmtNum(ix.value)) + ' <span class="' + cls + '">' + (chg > 0 ? '+' : '') + fmtNum(chg) + ' (' + (pct > 0 ? '+' : '') + pct.toFixed(2) + '%)</span>';
+    if (iSub) iSub.textContent = 'Day range ' + fmtNum(ix.low) + ' – ' + fmtNum(ix.high);
+    var tEl = $('ndStatTurn'), tSub = $('ndStatTurnSub');
+    if (tEl) tEl.textContent = money(totTurn);
+    if (tSub) tSub.textContent = 'Rs ' + totTurn.toLocaleString('en-IN') + ' · tape sum of ' + quotes.length + ' quotes';
+    var sEl = $('ndStatScrips'), sSub = $('ndStatScripsSub');
+    var listed = 0;
+    if (verdictsData) {
+      if (verdictsData.count) listed = Number(verdictsData.count) || 0;
+      else if (verdictsData.verdicts) listed = Object.keys(verdictsData.verdicts).length;
+    }
+    if (sEl) sEl.textContent = quotes.length + (listed ? ' of ' + listed : '');
+    if (sSub) sSub.textContent = listed ? (listed - quotes.length) + ' listed symbols did not trade this session' : 'Traded this session';
+    var bEl = $('ndStatBreadth'), bSub = $('ndStatBreadthSub'), bBar = $('ndStatBreadthBar');
+    if (bEl) bEl.textContent = adv + ' up · ' + dec + ' down';
+    if (bSub) bSub.textContent = adv + ' advancers · ' + dec + ' decliners · ' + unc + ' unchanged';
+    if (bBar) bBar.innerHTML = breadthBarHTML(adv, dec, unc);
+  }
+
+  /* ---------- Sectors (verdicts sec + tape join) ---------- */
+  var sectorSel = 'Hydropower', sectorSort = 'turnover', sectorSearch = '', sectorPage = 1;
+  var SECTOR_PAGE_SIZE = 25;
+  function sectorRows() {
+    if (!verdictsData || !verdictsData.verdicts) return [];
+    var raw = verdictsData.verdicts;
+    var quoteBySym = {};
+    (currentLive && currentLive.quotes || []).forEach(function (q) { quoteBySym[q.symbol] = q; });
+    var rows = [];
+    Object.keys(raw).forEach(function (sym) {
+      var x = raw[sym] || {};
+      if (x.sec !== sectorSel) return;
+      var q = quoteBySym[sym];
+      var traded = !!q;
+      rows.push({
+        symbol: sym, name: traded ? (q.name || '') : '', traded: traded,
+        ltp: traded ? Number(q.ltp) : (x.p != null ? Number(x.p) : null),
+        pct: traded ? Number(q.percent_change) : (x.ch != null ? Number(x.ch) : null),
+        turnover: traded ? Number(q.turnover) || 0 : 0,
+        verdict: x.v || ''
+      });
+    });
+    var term = sectorSearch.trim().toLowerCase();
+    if (term) rows = rows.filter(function (r) {
+      return r.symbol.toLowerCase().indexOf(term) !== -1 || r.name.toLowerCase().indexOf(term) !== -1;
+    });
+    rows.sort(function (a, b) {
+      if (sectorSort === 'pct') return (Number(b.pct) || 0) - (Number(a.pct) || 0);
+      if (sectorSort === 'ltp') return (Number(b.ltp) || 0) - (Number(a.ltp) || 0);
+      if (sectorSort === 'symbol') return a.symbol < b.symbol ? -1 : a.symbol > b.symbol ? 1 : 0;
+      return (Number(b.turnover) || 0) - (Number(a.turnover) || 0);
+    });
+    return rows;
+  }
+  function renderSectors() {
+    var cardsHost = $('ndSectorCards'), panel = $('ndSectorPanel');
+    if (!cardsHost || !panel) return;
+    if (!verdictsData || !verdictsData.verdicts) {
+      cardsHost.innerHTML = '<p class="nd-pe-sub">Sector data loading…</p>';
+      return;
+    }
+    var raw = verdictsData.verdicts;
+    var quoteBySym = {};
+    (currentLive && currentLive.quotes || []).forEach(function (q) { quoteBySym[q.symbol] = q; });
+    var bySec = {};
+    Object.keys(raw).forEach(function (sym) {
+      var x = raw[sym] || {};
+      var s = x.sec || 'Others';
+      if (!bySec[s]) bySec[s] = [];
+      bySec[s].push({ symbol: sym, x: x, q: quoteBySym[sym] || null });
+    });
+    var secs = Object.keys(bySec).sort(function (a, b) { return bySec[b].length - bySec[a].length; });
+    if (secs.indexOf(sectorSel) === -1) sectorSel = secs[0] || 'Hydropower';
+    cardsHost.innerHTML = secs.map(function (s) {
+      var list = bySec[s];
+      var traded = list.filter(function (r) { return !!r.q; });
+      var mean = 0;
+      if (traded.length) {
+        var sum = 0;
+        traded.forEach(function (r) { sum += Number(r.q.percent_change) || 0; });
+        mean = sum / traded.length;
+      }
+      var top3 = list.slice().sort(function (a, b) { return (Number(b.q && b.q.turnover) || 0) - (Number(a.q && a.q.turnover) || 0); }).slice(0, 3);
+      var mCls = mean > 0 ? 'up' : mean < 0 ? 'dn' : '';
+      return '<button type="button" class="nd-sector-card cx-card' + (s === sectorSel ? ' on' : '') + '" data-sector="' + esc(s) + '" role="listitem">' +
+        '<span class="nd-sector-name">' + esc(s) + '</span>' +
+        '<span class="nd-sector-count">' + list.length + ' symbols · ' + traded.length + ' traded</span>' +
+        '<span class="nd-sector-mean ' + mCls + '">' + (mean > 0 ? '+' : '') + mean.toFixed(2) + '% <em>mean Day % (traded only)</em></span>' +
+        '<span class="nd-sector-top">' + top3.map(function (r) {
+          var pc = r.q ? (Number(r.q.percent_change) || 0) : 0;
+          var pcCls = pc > 0 ? 'up' : pc < 0 ? 'dn' : '';
+          return '<span>' + esc(r.symbol) + ' <b class="' + pcCls + '">' + (pc > 0 ? '+' : '') + pc.toFixed(2) + '%</b></span>';
+        }).join('') + '</span></button>';
+    }).join('');
+    var cards = cardsHost.querySelectorAll('.nd-sector-card');
+    cards.forEach(function (c) {
+      c.onclick = function () {
+        sectorSel = c.getAttribute('data-sector'); sectorPage = 1;
+        renderSectors(); rebaseline();
+        var p = $('ndSectorPanel');
+        if (p) p.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      };
+    });
+    var sel = $('ndSectorSelect');
+    if (sel) {
+      sel.innerHTML = secs.map(function (s) { return '<option value="' + esc(s) + '"' + (s === sectorSel ? ' selected' : '') + '>' + esc(s) + ' (' + bySec[s].length + ')</option>'; }).join('');
+      sel.onchange = function () { sectorSel = sel.value; sectorPage = 1; renderSectors(); rebaseline(); };
+    }
+    var sort = $('ndSectorSort');
+    if (sort) { sort.value = sectorSort; sort.onchange = function () { sectorSort = sort.value; sectorPage = 1; renderSectors(); rebaseline(); }; }
+    var search = $('ndSectorSearch');
+    if (search) { search.value = sectorSearch; search.oninput = function () { sectorSearch = search.value; sectorPage = 1; renderSectors(); rebaseline(); }; }
+    var rows = sectorRows();
+    var total = rows.length;
+    var pages = Math.max(1, Math.ceil(total / SECTOR_PAGE_SIZE));
+    if (sectorPage > pages) sectorPage = pages;
+    var start = (sectorPage - 1) * SECTOR_PAGE_SIZE;
+    var pageRows = rows.slice(start, start + SECTOR_PAGE_SIZE);
+    var sub = $('ndSectorSub');
+    if (sub) sub.textContent = secs.length + ' sectors · ' + Object.keys(raw).length + ' securities scored';
+    var meta = $('ndSectorMeta');
+    if (meta) {
+      var list = bySec[sectorSel] || [];
+      var tradedN = list.filter(function (r) { return !!r.q; }).length;
+      meta.textContent = sectorSel + ' · ' + list.length + ' symbols · ' + tradedN + ' traded this session · ' + total + ' shown';
+    }
+    var body = $('ndSectorBody');
+    if (body) {
+      body.innerHTML = pageRows.length ? pageRows.map(function (r) {
+        var pct = Number(r.pct);
+        var pctTxt = isFinite(pct) ? (pct > 0 ? '+' : '') + pct.toFixed(2) + '%' : '—';
+        var pctCls = pct > 0 ? 'up' : pct < 0 ? 'dn' : '';
+        var vCls = /buy/i.test(r.verdict) ? 'buy' : /exit|sell/i.test(r.verdict) ? 'exit' : 'hold';
+        return '<tr><td class="sym"><a href="/stocks/' + esc(r.symbol) + '/">' + esc(r.symbol) + '</a>' + (r.name ? '<span class="nd-row-name">' + esc(r.name) + '</span>' : '') + '</td>' +
+          '<td class="num">' + (r.ltp != null ? fmtNum(r.ltp) : '—') + (r.traded ? ' <span class="nd-live-dot" title="Live tape">●</span>' : ' <span class="nd-notrade">no trade</span>') + '</td>' +
+          '<td class="num"><span class="cx-chip ' + pctCls + '">' + pctTxt + '</span></td>' +
+          '<td class="num">' + (r.traded ? fmtCrore(r.turnover) : '—') + '</td>' +
+          '<td><span class="nd-verdict ' + vCls + '">' + esc(r.verdict || '—') + '</span></td></tr>';
+      }).join('') : '<tr><td colspan="5">No symbols match this search.</td></tr>';
+    }
+    var info = $('ndSectorInfo'), prev = $('ndSectorPrev'), next = $('ndSectorNext');
+    if (info) info.textContent = total ? ('Showing ' + (start + 1) + '–' + Math.min(start + SECTOR_PAGE_SIZE, total) + ' of ' + total) : 'Showing 0 of 0';
+    if (prev) { prev.disabled = sectorPage <= 1; prev.onclick = function () { if (sectorPage > 1) { sectorPage--; renderSectors(); rebaseline(); } }; }
+    if (next) { next.disabled = sectorPage >= pages; next.onclick = function () { if (sectorPage < pages) { sectorPage++; renderSectors(); rebaseline(); } }; }
+  }
+
+  /* ---------- Newsroom (data-derived panels: the feed carries no categories) ---------- */
+  var newsNewest = null, newsDataAsOf = null;
+  function renderNewsroom(items) {
+    var grid = $('ndNewsGrid');
+    if (!grid) return;
+    items = (items || []).slice();
+    items.sort(function (a, b) {
+      var da = String(a.date || ''), db = String(b.date || '');
+      return db < da ? -1 : db > da ? 1 : 0;
+    });
+    if (items.length) newsNewest = items[0].date || null;
+    function itemHTML(n) {
+      var href = n.link || n.url || '/nepse-news/';
+      var ext = /^https?:\/\//.test(href) && href.indexOf(location.host) === -1;
+      var syms = [];
+      if (n.sym) syms.push(n.sym);
+      if (Array.isArray(n.syms)) n.syms.forEach(function (s) { if (syms.indexOf(s) === -1) syms.push(s); });
+      return '<a class="cx-cat-item" href="' + esc(href) + '"' + (ext ? ' target="_blank" rel="noopener"' : '') + '>' +
+        '<span class="cx-ci-t">' + esc(n.title || '') + '</span>' +
+        '<span class="cx-ci-d">' + esc(n.date || '') + (n.src ? ' · ' + esc(n.src) : '') + (syms.length ? ' · ' + esc(syms.join(', ')) : '') + '</span></a>';
+    }
+    var latest = items.slice(0, 12);
+    var tagged = items.filter(function (n) { return n.sym || (Array.isArray(n.syms) && n.syms.length); }).slice(0, 8);
+    grid.innerHTML = '<div class="nd-newscard cx-cat"><div class="cx-cat-head">Latest stories</div>' +
+      (latest.length ? latest.map(itemHTML).join('') : '<p class="nd-pe-sub">No stories yet.</p>') + '</div>' +
+      '<div class="nd-newscard cx-cat"><div class="cx-cat-head">Tagged to listed companies</div>' +
+      (tagged.length ? tagged.map(itemHTML).join('') : '<p class="nd-pe-sub">No symbol-tagged stories in this feed.</p>') + '</div>' +
+      '<div class="nd-newscard cx-cat"><div class="cx-cat-head">More</div>' +
+      '<a class="cx-cat-item" href="/nepse-news/"><span class="cx-ci-t">Browse the full newsroom</span><span class="cx-ci-d">Every story, searchable</span></a>' +
+      '<a class="cx-cat-item" href="/nepse-decode/wrap/"><span class="cx-ci-t">Market Wrap archive</span><span class="cx-ci-d">Every session’s wrap</span></a></div>';
+    var nf = $('ndNewsFresh');
+    if (nf) {
+      var stale = '';
+      if (newsNewest) {
+        try {
+          var nd = new Date(newsNewest + 'T00:00:00+05:45');
+          var today = new Date();
+          var todayNPT = new Date(today.toLocaleString('en-US', { timeZone: 'Asia/Kathmandu' }));
+          var days = Math.floor((todayNPT - nd) / 86400000);
+          if (days > 3) stale = ' · STALE — feed has not updated in ' + days + ' days';
+        } catch (e) {}
+      }
+      nf.textContent = 'Feed as of ' + (newsDataAsOf || '—') + ' · newest story ' + (newsNewest || '—') + ' · ' + items.length + ' stories in feed' + stale;
+    }
+  }
+
+  /* ---------- Page-owned freshness line ---------- */
+  var lastTickFailed = false;
+  function nptTime(d) {
+    try { return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kathmandu' }); }
+    catch (e) { return ''; }
+  }
+  function renderFreshline(live) {
+    var el = $('ndFreshlineText');
+    if (!el) return;
+    if (!live) { el.textContent = 'Loading session data…'; return; }
+    var sessDate = '';
+    try {
+      var d = getSessionDate(live);
+      sessDate = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kathmandu' });
+    } catch (e) {}
+    var tapeTime = '';
+    try { if (live.asof) tapeTime = nptTime(new Date(live.asof)); } catch (e) {}
+    var now = new Date();
+    var next = new Date(now.getTime() + 60000);
+    var state = live.market === 'OPEN' ? 'LIVE' : 'CLOSED';
+    var fl = $('ndFreshline');
+    if (fl) fl.setAttribute('data-state', state.toLowerCase());
+    el.textContent = 'Session ' + sessDate + ' · tape ' + (tapeTime || '—') + ' · checked ' + nptTime(now) +
+      ' · next check ' + nptTime(next) + ' · ' + state +
+      (lastTickFailed ? ' · last data check failed — showing last good session' : '') +
+      ' · refreshes every 60s when data changes';
+  }
+
+  /* ---------- 60s change-gated refresh ---------- */
+  var currentLive = null, verdictsData = null;
+  var lastSig = null, tickCount = 0, lastAsofMs = 0;
+  function tapeHash(quotes) {
+    var h = 5381, s = '';
+    (quotes || []).forEach(function (q) {
+      s += q.symbol + ':' + q.ltp + ':' + q.percent_change + ':' + q.turnover + '|';
+    });
+    for (var i = 0; i < s.length; i++) { h = ((h << 5) + h + s.charCodeAt(i)) | 0; }
+    return String(h);
+  }
+  function computeSig() {
+    if (!currentLive) return null;
+    var ix = currentLive.index || {};
+    return [currentLive.asof, ix.value, tapeHash(currentLive.quotes), verdictsData && verdictsData.asof, newsNewest].join('|');
+  }
+  // View-change handlers call this after re-rendering: the stored signature
+  // is re-derived from current data (never nulled), so the next tick compares
+  // against the post-change state instead of forcing a re-render.
+  function rebaseline() { lastSig = computeSig(); }
+  function applyFlash() {
+    try { if (window.NepseFlash && typeof window.NepseFlash.apply === 'function') window.NepseFlash.apply(document); } catch (e) {}
+  }
+  function tick() {
+    tickCount++;
+    fetchJSON(LIVE_URL).then(function (live) {
+      lastTickFailed = false;
+      var prev = currentLive;
+      currentLive = live;
+      var sig = computeSig();
+      if (sig !== lastSig) {
+        lastSig = sig;
+        renderAll(live);
+        applyFlash();
+      }
+      renderFreshline(live);
+      if (prev && live.asof !== prev.asof) {
+        fetchJSON(NEWS_URL).then(function (news) {
+          var items = Array.isArray(news) ? news : (news.items || news.news || []);
+          newsDataAsOf = news.asof || null;
+          renderNewsroom(items);
+        }).catch(function () {});
+      }
+    }).catch(function () {
+      lastTickFailed = true;
+      if (currentLive) renderFreshline(currentLive);
+    });
+    if (tickCount % 10 === 0) {
+      fetchJSON(NEWS_URL).then(function (news) {
+        var items = Array.isArray(news) ? news : (news.items || news.news || []);
+        newsDataAsOf = news.asof || null;
+        renderNewsroom(items);
+      }).catch(function () {});
+    }
+  }
+
+  /* ---------- Render all + Init ---------- */
   // Renders every data-driven panel from one live snapshot. Called once on
-  // load and again whenever the shared feed delivers a NEWER snapshot —
-  // the first paint can come from a stale localStorage restore, with the
-  // fresh fetch landing a moment later.
-  var lastAsofMs = 0;
+  // load, again on session change (shared feed), and again on value change
+  // (the page's own 60s tick). View state (active metric, sector selection,
+  // sort, search, page) is read at render time, so ticks never clobber it.
   function renderAll(live) {
     if (!live) return;
+    currentLive = live;
     lastAsofMs = live.asofMs || 0;
     renderStrip(live.indices);
     renderWrap(live);
@@ -558,6 +870,10 @@
     activeQuotes = live.quotes || [];
     renderActive();
     renderPulseEngine(live.quotes, sessDate);
+    renderTicker(live.quotes);
+    renderStatStrip(live);
+    renderSectors();
+    renderFreshline(live);
     var as = $('ndActiveSub');
     if (as && sessDate) as.textContent = 'Ranked by trading activity · session of ' + sessDate;
   }
@@ -565,23 +881,32 @@
     if (!$('ndStripTrack') && !$('ndWrap') && !$('ndNewsGrid')) return;
     // Fetch spark data first for the index card chart
     fetchJSON(SPARK_URL).then(function (sp) { sparkData = sp; }).catch(function () {}).then(function () {
-      // P1.3: Use shared NepseData module (dedupes live.json fetch)
+      // Use shared NepseData module (dedupes live.json fetch)
       getLive().then(function (live) {
+        currentLive = live;
         renderAll(live);
+        lastSig = computeSig();
         // Stay in sync: if the first paint used a stale cached snapshot, the
         // background fetch delivers the fresh one here. NepseData only
-        // notifies on real changes, so re-renders are cheap and rare.
+        // notifies on session change, so re-renders are cheap and rare.
         try {
           if (window.NepseData && typeof window.NepseData.subscribe === 'function') {
             window.NepseData.subscribe(function (snap) {
-              if (snap && (snap.asofMs || 0) !== lastAsofMs) renderAll(snap);
+              if (snap && (snap.asofMs || 0) !== lastAsofMs) {
+                currentLive = snap;
+                renderAll(snap);
+                rebaseline();
+                applyFlash();
+              }
             });
           }
         } catch (e) {}
+        setInterval(tick, 60000);
       }).catch(function () {});
     });
     fetchJSON(NEWS_URL).then(function (news) {
       var items = Array.isArray(news) ? news : (news.items || news.news || []);
+      newsDataAsOf = news.asof || null;
       renderNewsroom(items);
     }).catch(function () {});
   }
