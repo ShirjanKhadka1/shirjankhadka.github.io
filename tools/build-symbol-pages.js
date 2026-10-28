@@ -1349,8 +1349,15 @@ function verifiedNoticesBlock(sym, actions) {
  * archive from a scraper feed but are NOT independently verified, so they
  * are never used here: a period whose reference bar would fall before the
  * verified window renders as unavailable, never as a stub or an estimate.
- * Returns are price returns on UNADJUSTED closes: (anchor/ref - 1) * 100.
+ * Returns are price returns on UNADJUSTED closes by default: (anchor/ref - 1) * 100.
  * Bonus/right issues move price mechanically, so the section note says so.
+ * Phase 2 (2026-10-28): where an event is OFFICIALLY VERIFIED (company
+ * notice / NEPSE / SEBON filing — never portal agreement), bars dated
+ * strictly before the event's ex-date are multiplied by the event factor
+ * (bonus: 100/(100+pct); right: TERP/cum-close), and the note says exactly
+ * which events were applied. Cash dividends are never adjusted: the honest
+ * label is "bonus/right-adjusted price returns", never "total return".
+ * A symbol with no verified event renders unadjusted with the caveat.
  * Each computable cell prints its actual reference date, so a period that
  * lands on a non-trading stretch is visible, never silently shortened.
  * A missing archive, a missing file, or a bad row degrades to unavailable
@@ -1366,6 +1373,47 @@ const LADDER_PERIODS = [
   { label: '1Y', months: 12 },
   { label: '3Y', months: 36 },
 ];
+/* Bonus/right adjustments (Phase 2 fix, 2026-10-28).
+ * adjustments.json (repo data) carries ONLY officially verified events:
+ * each { symbol, kind: 'bonus'|'right', pct (bonus), ratio_new/ratio_old/
+ * price (right), ex_date, book_close, source }. Cash dividends are never
+ * in this file and never adjusted. A symbol with a claimed-but-unverified
+ * event is listed under unverified_claims and renders unadjusted with
+ * that claim named. Missing file = all unadjusted, never fatal.
+ * Adjustment: bars dated strictly before ex_date are multiplied by the
+ * event factor (bonus: 100/(100+pct); right: TERP/cum-close, cum = last
+ * bar before ex_date). Bars on/after ex_date are already ex-basis. An
+ * event whose factor cannot be computed (right with no cum bar) is
+ * skipped and counted in the log, never estimated. */
+function loadAdjustments() {
+  const p = process.env.ADJUSTMENTS_JSON || path.join(DATA, 'adjustments.json');
+  try {
+    const d = JSON.parse(fs.readFileSync(p, 'utf8'));
+    const verified = new Map();
+    for (const e of (d.events || [])) {
+      if (!e || !e.symbol || !e.ex_date || !e.kind) continue;
+      if (!verified.has(e.symbol)) verified.set(e.symbol, []);
+      verified.get(e.symbol).push(e);
+    }
+    const unverified = new Map();
+    for (const u of (d.unverified_claims || [])) {
+      if (u && u.symbol && u.claim) unverified.set(u.symbol, u.claim);
+    }
+    return { verified, unverified };
+  } catch { return { verified: new Map(), unverified: new Map() }; }
+}
+function eventFactor(e, byDate) {
+  if (e.kind === 'bonus' && Number.isFinite(+e.pct) && +e.pct > 0) return 100 / (100 + +e.pct);
+  if (e.kind === 'right' && Number.isFinite(+e.ratio_new) && Number.isFinite(+e.ratio_old) && +e.ratio_old > 0 && Number.isFinite(+e.price)) {
+    let cum = null;
+    for (const d of [...byDate.keys()].sort()) {
+      if (d < e.ex_date) cum = byDate.get(d); else break;
+    }
+    if (cum == null || cum <= 0) return null;
+    return ((+e.ratio_old * cum + +e.ratio_new * +e.price) / (+e.ratio_old + +e.ratio_new)) / cum;
+  }
+  return null;
+}
 function subMonthsIso(iso, m) {
   const parts = iso.split('-').map(Number);
   const total = (parts[0] * 12 + (parts[1] - 1)) - m;
@@ -1380,7 +1428,7 @@ function subDaysIso(iso, n) {
   dt.setUTCDate(dt.getUTCDate() - n);
   return dt.toISOString().slice(0, 10);
 }
-function loadLadder(sym) {
+function loadLadder(sym, adjEvents) {
   const slug = slugOf(sym);
   let data = null;
   for (const f of [sym + '.json', slug + '.json']) {
@@ -1397,7 +1445,23 @@ function loadLadder(sym) {
   const dates = [...byDate.keys()].sort();
   if (!dates.length) return null;
   const anchor = dates[dates.length - 1];
-  const c0 = byDate.get(anchor);
+  const c0raw = byDate.get(anchor);
+  // Per-event factors (rights need the cum bar); uncomputable events skip.
+  const factors = [];
+  let skipped = 0;
+  for (const e of (adjEvents || [])) {
+    const f = eventFactor(e, byDate);
+    if (f == null) { skipped++; continue; }
+    factors.push({ event: e, factor: f });
+  }
+  const adj = (d) => {
+    let c = byDate.get(d);
+    for (const { event: e, factor: f } of factors) {
+      if (d < e.ex_date) c *= f;
+    }
+    return c;
+  };
+  const c0 = adj(anchor);
   const cells = LADDER_PERIODS.map((p) => {
     const target = p.days ? subDaysIso(anchor, p.days) : subMonthsIso(anchor, p.months);
     let ref = null;
@@ -1405,9 +1469,17 @@ function loadLadder(sym) {
       if (dates[i] <= target) { ref = dates[i]; break; }
     }
     if (!ref) return { label: p.label, pct: null, ref: null };
-    return { label: p.label, pct: (c0 / byDate.get(ref) - 1) * 100, ref };
+    return { label: p.label, pct: (c0 / adj(ref) - 1) * 100, ref };
   });
-  return { anchor, close: c0, first: dates[0], cells };
+  // Adjusted only if at least one computable cell actually changed: an
+  // event outside every (ref, anchor] interval leaves all ratios intact.
+  let adjusted = false;
+  for (const c of cells) {
+    if (c.pct === null) continue;
+    const raw = (c0raw / byDate.get(c.ref) - 1) * 100;
+    if (Math.abs(raw - c.pct) > 1e-9) { adjusted = true; break; }
+  }
+  return { anchor, close: c0raw, first: dates[0], cells, adjusted, adjEvents: factors.map((x) => x.event), skipped };
 }
 function ladderSection(sym, ladder) {
   let h = '<section aria-label="Period returns"><h2>Period returns</h2>\n';
@@ -1421,12 +1493,26 @@ function ladderSection(sym, ladder) {
     h += '</div></section>\n';
     return h;
   }
-  h += '<p class="sp-note">Price returns on unadjusted closes from Nepse Decode\'s own OHLC archive. ' +
-    'Latest close ' + esc(ladder.anchor) + ' · Rs ' + fmtNum(ladder.close) + '. ' +
-    (ladder.first > VERIFIED_START
-      ? 'First verified close for this security: ' + esc(ladder.first) + '.'
-      : 'Verified history starts 2026-07-15; longer periods show as unavailable until that history exists.') +
-    ' Bonus or right issues move price mechanically, so a return spanning one is a price move, not a total return.</p>\n';
+  const hist = ladder.first > VERIFIED_START
+    ? 'First verified close for this security: ' + esc(ladder.first) + '.'
+    : 'Verified history starts 2026-07-15; longer periods show as unavailable until that history exists.';
+  if (ladder.adjusted) {
+    const evList = ladder.adjEvents.map((e) => e.kind === 'bonus'
+      ? esc(+e.pct) + '% bonus (ex-date ' + esc(e.ex_date) + ')'
+      : esc(e.ratio_new) + ':' + esc(e.ratio_old) + ' right at Rs ' + esc(e.price) + ' (ex-date ' + esc(e.ex_date) + ')').join('; ');
+    h += '<p class="sp-note">Bonus/right-adjusted price returns from Nepse Decode\'s own OHLC archive. ' +
+      'Latest close ' + esc(ladder.anchor) + ' · Rs ' + fmtNum(ladder.close) + '. ' + hist +
+      ' Adjusted for: ' + evList + '. Cash dividends are not reinvested, so these are bonus/right-adjusted price returns, not total returns.</p>\n';
+  } else if (ladder.unverifiedClaim) {
+    h += '<p class="sp-note">Price returns on unadjusted closes from Nepse Decode\'s own OHLC archive. ' +
+      'Latest close ' + esc(ladder.anchor) + ' · Rs ' + fmtNum(ladder.close) + '. ' + hist +
+      ' Bonus or right issues move price mechanically, so a return spanning one is a price move, not a total return. ' +
+      'Note: ' + esc(ladder.unverifiedClaim) + ' — this could not be officially verified, so no adjustment is applied.</p>\n';
+  } else {
+    h += '<p class="sp-note">Price returns on unadjusted closes from Nepse Decode\'s own OHLC archive. ' +
+      'Latest close ' + esc(ladder.anchor) + ' · Rs ' + fmtNum(ladder.close) + '. ' + hist +
+      ' Bonus or right issues move price mechanically, so a return spanning one is a price move, not a total return.</p>\n';
+  }
   h += '<div class="sp-fund-grid">\n';
   for (const c of ladder.cells) {
     if (c.pct === null) {
@@ -1807,12 +1893,20 @@ function main() {
 
   /* Period-return ladders from our own OHLC archive (verified window only).
    * Never fatal: a missing archive or file degrades that symbol's ladder
-   * to unavailable cells, and the counts below make it visible in the log. */
+   * to unavailable cells, and the counts below make it visible in the log.
+   * Verified bonus/right events (adjustments.json) are applied per symbol;
+   * unverified claims ride along for the honest unadjusted note. */
+  const adjustments = loadAdjustments();
   const ladderMap = {};
-  let ladderOk = 0, ladderNone = 0;
+  let ladderOk = 0, ladderNone = 0, adjSymbols = 0, adjEventsApplied = 0, adjSkipped = 0;
   for (const u of symbols) {
     try {
-      const lad = loadLadder(u.s);
+      const lad = loadLadder(u.s, adjustments.verified.get(u.s) || []);
+      if (lad) {
+        lad.unverifiedClaim = adjustments.unverified.get(u.s) || null;
+        if (lad.adjusted) { adjSymbols++; adjEventsApplied += lad.adjEvents.length; }
+        adjSkipped += lad.skipped || 0;
+      }
       ladderMap[u.s] = lad;
       if (lad) ladderOk++; else ladderNone++;
     } catch { ladderMap[u.s] = null; ladderNone++; }
@@ -1852,7 +1946,7 @@ function main() {
     const extras = scanBakedExtras(new Set(symbols.map((u) => slugOf(u.s))));
     fs.writeFileSync(path.join(OUT, 'index.html'), indexPage(symbols.concat(extras), pageAsof));
   }
-  console.log(JSON.stringify({ pages: made, dir: 'stocks/', symbol: onlySym || undefined, ladder: { withData: ladderOk, noData: ladderNone, archive: OHLC_DB_DIR } }));
+  console.log(JSON.stringify({ pages: made, dir: 'stocks/', symbol: onlySym || undefined, ladder: { withData: ladderOk, noData: ladderNone, archive: OHLC_DB_DIR }, adjustments: { events: adjEventsApplied, symbols: adjSymbols, skipped: adjSkipped } }));
 }
 
 /* Baked stock pages on disk that universe.json no longer carries.
