@@ -35,47 +35,9 @@
 <link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
+<link rel="stylesheet" href="/css/nd-3d.css">
 <link rel="stylesheet" href="/css/sig-pro.css?v=ed0fe3e9">
-<style>
-/* Value page: score bars, symbol links, controls — new design tokens */
-.scorebar{width:80px;height:8px;background:var(--nd-inset,#0D0F14);border-radius:999px;overflow:hidden;display:inline-block;vertical-align:middle;
-  box-shadow:inset 0 1px 3px rgba(0,0,0,.5)}
-.scorebar i{display:block;height:100%;border-radius:999px;
-  background:linear-gradient(90deg,var(--nd-lime,#B8E62E),#7BAE1F);
-  box-shadow:0 0 6px rgba(184,230,46,.4)}
-.symlink{font-weight:700;color:#fff;text-decoration:none}
-.symlink:hover{text-decoration:underline}
-/* 2026-10-09: stock symbols in the value table render white (dark theme). The base .symlink rule is white too, so the featured NBL report link matches (his "sure"). Light theme keeps its readable green. */
-.sig-table .symlink{color:#fff}
-[data-theme="light"] .sig-table .symlink{color:#4D7C0F}
-/* 2026-10-09: headers neutral by default; only the active sort column goes yellow */
-.sig-table th{color:#fff}
-.sig-table th.sorted{color:var(--nd-lime,#B8E62E)}
-[data-theme="light"] .sig-table th{color:#0A0C10}
-[data-theme="light"] .sig-table th.sorted{color:#4D7C0F}
-.sname{font-size:.75rem;color:var(--nd-dim,#6B7280);display:block;font-weight:400}
-.submed{font-size:.72rem;color:var(--nd-dim,#6B7280);display:block;font-weight:400}
-[data-theme="light"] .symlink{color:#4D7C0F}
-.ctl{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 16px;align-items:center}
-.ctl label{font-size:.9rem;color:var(--nd-dim,#6B7280)}
-.ctl select{padding:9px 14px;border:1px solid var(--nd-border,#1E2430);border-radius:12px;font-size:.9rem;font-family:inherit;max-width:100%;
-  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 50%),var(--nd-panel,#12141A);
-  color:var(--nd-text,#fff);box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 2px 5px rgba(0,0,0,.3)}
-[data-theme="light"] .ctl label{color:#5F6B7A}
-[data-theme="light"] .ctl select{background:linear-gradient(180deg,#FFFFFF,#F4F6F9);border-color:#D5DCE4;color:#0A0C10}
-.sig-table th .arr{color:var(--nd-lime,#B8E62E);font-size:.75rem}
-.sig-table th.sortable{cursor:pointer;user-select:none}
-button.rs-toggle,button#valuePrev,button#valueNext{padding:9px 20px;border:1px solid var(--nd-border,#1E2430);border-radius:12px;font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit;
-  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,0) 50%),var(--nd-panel,#12141A);
-  color:var(--nd-text,#fff);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 2px 5px rgba(0,0,0,.35);transition:border-color .15s}
-button.rs-toggle:hover,button#valuePrev:hover:not(:disabled),button#valueNext:hover:not(:disabled){border-color:var(--nd-lime,#B8E62E)}
-button#valuePrev:disabled,button#valueNext:disabled{opacity:.45;cursor:default}
-[data-theme="light"] button.rs-toggle,[data-theme="light"] button#valuePrev,[data-theme="light"] button#valueNext{
-  background:linear-gradient(180deg,#FFFFFF,#F4F6F9);border-color:#D5DCE4;color:#0A0C10}
-.ne-sum{color:var(--nd-dim,#6B7280);font-size:.92rem;max-width:68ch;margin:0 0 22px;line-height:1.7}
-.snap-asof{font-size:.8rem;font-weight:400;color:var(--nd-dim,#6B7280)}
-.snap-note{font-size:.82rem;color:var(--nd-dim,#6B7280);margin:12px 0 0}
-</style>
+<link rel="stylesheet" href="/nepse-value/value.css?v=0f9da19d">
 </head>
 <body class="nd">
 <a class="skip-link" href="#main">Skip to content</a>
@@ -94,10 +56,18 @@ button#valuePrev:disabled,button#valueNext:disabled{opacity:.45;cursor:default}
   <a class="symlink" href="/blog/nepal-bank-nbl-company-analysis/">Read the NBL report →</a>
 </div>
 
+<h2 class="va-h2">Screen at a glance</h2>
+<div class="va-stats" id="va-stats"></div>
+<div class="va-hist" id="va-hist" role="img" aria-label="Value score distribution across scored companies"></div>
+
+<h2 class="va-h2">Sectors</h2>
+<div class="va-sectors" id="va-sectors"></div>
+<p class="va-note">Click a sector card to filter the screen below to that sector; click again to clear. Cards show the sector median P/E and P/BV and the top 3 companies by value score.</p>
+
 <!-- SNAP-START -->
-<section class="snap" aria-label="Value snapshot">
+<section class="snap va-snap" aria-label="Value snapshot">
   <h2>Top value-ranked companies <span class="snap-asof">· snapshot 2026-10-27</span></h2>
-  <div class="scrollx"><table class="sig-table">
+  <div class="scrollx va-cardwrap"><table class="sig-table va-table">
     <thead><tr><th>Score</th><th>Stock</th><th>Sector</th><th class="num">LTP</th><th class="num">P/E (TTM)</th><th class="num">P/BV</th><th class="num">Earn. yield</th><th class="num">ROE (TTM)</th></tr></thead>
     <tbody>
       <tr><td><span class="scorebar"><i style="width:96%"></i></span> 96.0</td><td><a class="symlink" href="/stocks/NBL/">NBL</a><span class="sname">Nepal Bank Limited</span></td><td>Banking</td><td class="num">302.40</td><td class="num">9.54<span class="submed">sector 20.6</span></td><td class="num">1.05<span class="submed">sector 2.11</span></td><td class="num">10.5%</td><td class="num">10.7%</td></tr>
@@ -122,18 +92,31 @@ button#valuePrev:disabled,button#valueNext:disabled{opacity:.45;cursor:default}
 <!-- SNAP-END -->
 <div class="note" id="coverage">Loading data…</div>
 
-<h2>The four factors, in plain language</h2>
-<div class="sig-grid" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
+<h2 class="va-h2">The four factors, in plain language</h2>
+<div class="sig-grid va-factors" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
   <div class="sig-card"><div class="sig-card-l">Earnings yield (1 ÷ P/E)</div><p class="sig-sub">What the business earns for every rupee of price you pay. Higher means you are paying less for each rupee of earnings.</p><p class="sig-card-s">Limit: earnings can be one-off or cyclical — a high yield can be a trap.</p></div>
   <div class="sig-card"><div class="sig-card-l">Price-to-book (P/BV)</div><p class="sig-sub">Price versus the accounting value of net assets per share. Below 1 means you pay less than book value.</p><p class="sig-card-s">Limit: book value may overstate assets that are hard to sell, like bad loans.</p></div>
   <div class="sig-card"><div class="sig-card-l">ROE (TTM)</div><p class="sig-sub">Return on equity: how much profit each rupee of shareholder capital generated over the last twelve months.</p><p class="sig-card-s">Limit: high ROE from heavy leverage is fragile, not strong.</p></div>
   <div class="sig-card"><div class="sig-card-l">P/E (TTM)</div><p class="sig-sub">How many years of current earnings the price implies. Lower usually means cheaper — within the same sector.</p><p class="sig-card-s">Limit: meaningless for loss-making companies; we exclude those.</p></div>
 </div>
 
-<h2>The screen</h2>
+<h2 class="va-h2">The screen</h2>
+<p class="va-fresh" id="va-fresh"></p>
 <div class="ctl">
   <label for="sectorSel">Sector:</label>
   <select id="sectorSel"><option value="">All sectors</option></select>
+  <label for="sortSel">Sort:</label>
+  <select id="sortSel">
+    <option value="value_score">Score ↓</option>
+    <option value="ltp">LTP ↓</option>
+    <option value="pe_ttm">P/E ↓</option>
+    <option value="pbv">P/BV ↓</option>
+    <option value="ey_pct">Earn. yield ↓</option>
+    <option value="roe_ttm_pct">ROE ↓</option>
+    <option value="symbol">Symbol A–Z</option>
+  </select>
+  <label for="va-search">Search:</label>
+  <input id="va-search" type="search" placeholder="Symbol or name…" autocomplete="off">
   <label for="perPageSel">Show:</label>
   <select id="perPageSel">
     <option value="20">20</option>
@@ -142,11 +125,11 @@ button#valuePrev:disabled,button#valueNext:disabled{opacity:.45;cursor:default}
   </select>
 </div>
 
-<div class="scrollx">
+<div class="scrollx va-cardwrap">
 <table class="sig-table nd-table cx-table" id="valueTable">
 <thead><tr>
 <th class="sortable" data-k="value_score">Score</th>
-<th>Stock</th>
+<th class="sortable" data-k="symbol">Stock</th>
 <th>Sector</th>
 <th class="sortable num" data-k="ltp">LTP</th>
 <th class="sortable num" data-k="pe_ttm">P/E (TTM)</th>
@@ -162,13 +145,34 @@ button#valuePrev:disabled,button#valueNext:disabled{opacity:.45;cursor:default}
 </div>
 <div class="sig-pager" id="valuePager">
   <span id="valueRange"></span>
+  <span class="va-pages" id="valuePages"></span>
   <span style="display:flex;gap:8px;margin-left:auto">
     <button id="valuePrev" class="rs-toggle" type="button">← Prev</button>
     <button id="valueNext" class="rs-toggle" type="button">Next →</button>
   </span>
 </div>
+<p class="va-repaint-note" id="va-repaint-note"></p>
 
-<h2>Methodology and caveats</h2>
+<h2 class="va-h2">Past screens — archive + forward record</h2>
+<div class="scrollx va-cardwrap">
+<table class="sig-table va-table" id="va-archive">
+<thead><tr><th>Session</th><th class="num">Scored</th><th>Top pick</th><th class="num">Score</th><th class="num">Screen LTP</th><th class="num">Oct-27 tape LTP</th><th class="num">Return since screen</th></tr></thead>
+<tbody>
+<tr><td>2026-10-16</td><td class="num">190</td><td><a class="symlink" href="/stocks/NBL/">NBL</a></td><td class="num">96.0</td><td class="num">306.80</td><td class="num">302.40</td><td class="num">−1.43%</td></tr>
+<tr><td>2026-10-16</td><td class="num">190</td><td><a class="symlink" href="/stocks/GUFL/">GUFL</a></td><td class="num">95.0</td><td class="num">490.50</td><td class="num">485.00</td><td class="num">−1.12%</td></tr>
+<tr><td>2026-10-16</td><td class="num">190</td><td><a class="symlink" href="/stocks/FOWAD/">FOWAD</a></td><td class="num">94.6</td><td class="num">903.00</td><td class="num">896.50</td><td class="num">−0.72%</td></tr>
+<tr><td>2026-10-26</td><td class="num">189</td><td><a class="symlink" href="/stocks/NBL/">NBL</a></td><td class="num">96.0</td><td class="num">304.50</td><td class="num">302.40</td><td class="num">−0.69%</td></tr>
+<tr><td>2026-10-26</td><td class="num">189</td><td><a class="symlink" href="/stocks/GUFL/">GUFL</a></td><td class="num">95.0</td><td class="num">489.50</td><td class="num">485.00</td><td class="num">−0.92%</td></tr>
+<tr><td>2026-10-26</td><td class="num">189</td><td><a class="symlink" href="/stocks/FOWAD/">FOWAD</a></td><td class="num">94.4</td><td class="num">899.00</td><td class="num">896.50</td><td class="num">−0.28%</td></tr>
+<tr><td>2026-10-27</td><td class="num">192</td><td><a class="symlink" href="/stocks/NBL/">NBL</a></td><td class="num">96.0</td><td class="num">302.40</td><td class="num">302.40</td><td class="num">—</td></tr>
+<tr><td>2026-10-27</td><td class="num">192</td><td><a class="symlink" href="/stocks/GUFL/">GUFL</a></td><td class="num">95.0</td><td class="num">485.00</td><td class="num">485.00</td><td class="num">—</td></tr>
+<tr><td>2026-10-27</td><td class="num">192</td><td><a class="symlink" href="/stocks/FOWAD/">FOWAD</a></td><td class="num">94.7</td><td class="num">896.50</td><td class="num">896.50</td><td class="num">—</td></tr>
+</tbody>
+</table>
+</div>
+<p class="va-note">Archive built from the value history at teardown (2026-10-28); the live screen above refreshes every 60 seconds. Returns are price-only (no dividends), from the screen LTP to the Oct-27 tape LTP; “—” means the screen day itself, no forward window yet. The screen makes no calls and sets no targets — this table records what its top picks did afterwards, nothing more.</p>
+
+<h2 class="va-h2">Methodology and caveats</h2>
 <div class="method" id="methodBox">Loading…</div>
 
 <div class="note"><p style="margin:0"><strong>Educational only — not investment advice.</strong> A high value score means a stock looks cheap on two accounting ratios relative to its sector peers. Cheap can mean undervalued, or it can mean the market sees risks the ratios miss — bad loans, weak governance, stalled projects. We publish no price targets and no buy/sell calls. Read the filings yourself before deciding anything.</p></div>
@@ -177,127 +181,7 @@ button#valuePrev:disabled,button#valueNext:disabled{opacity:.45;cursor:default}
 </main>
 <div id="nd-footer"></div>
 
-<script>
-(function(){
-"use strict";
-var BASE = '/nepse-chart/data/';
-var state = { sector: '', sort: 'value_score', dir: -1, rows: [], page: 1, perPage: 25 };
-var $ = function(id){ return document.getElementById(id); };
-
-function fmt(n, d){ d = d===undefined?2:d; if(n===null||n===undefined||!isFinite(n)) return '–';
-  return Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}); }
-function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-function filtered(){
-  var r = state.rows.filter(function(s){ return !state.sector || s.sector===state.sector; });
-  var k = state.sort, d = state.dir;
-  r.sort(function(a,b){ return ((a[k]||0)-(b[k]||0))*d; });
-  return r;
-}
-
-function render(){
-  var rows = filtered();
-  var total = rows.length;
-  var pages = Math.max(1, Math.ceil(total / state.perPage));
-  if (state.page > pages) state.page = pages;
-  var start = (state.page - 1) * state.perPage;
-  var pageRows = rows.slice(start, start + state.perPage);
-  var html = '';
-  pageRows.forEach(function(s){
-    var research = (s.symbol === 'NBL')
-      ? ' <a href="/blog/nepal-bank-nbl-company-analysis/" style="font-size:.72rem;font-weight:700;color:var(--nd-lime,#B8E62E);text-decoration:none;border:1px solid var(--nd-lime,#B8E62E);border-radius:999px;padding:1px 8px;white-space:nowrap" title="Full equity research report on Nepal Bank">Research</a>' : '';
-    html += '<tr>'
-      + '<td><span class="scorebar"><i style="width:'+Math.round(s.value_score)+'%"></i></span> '+fmt(s.value_score,1)+'</td>'
-      + '<td><a class="symlink" href="/nepse-chart/?s='+esc(s.symbol)+'">'+esc(s.symbol)+'</a>'+research+'<span class="sname">'+esc(s.name)+'</span></td>'
-      + '<td>'+esc(s.sector)+'</td>'
-      + '<td class="num">'+fmt(s.ltp)+'</td>'
-      + '<td class="num">'+fmt(s.pe_ttm)+'<span class="submed">sector '+fmt(s.sector_median_pe,1)+'</span></td>'
-      + '<td class="num">'+fmt(s.pbv)+'<span class="submed">sector '+fmt(s.sector_median_pbv,2)+'</span></td>'
-      + '<td class="num">'+fmt(s.ey_pct)+'%</td>'
-      + '<td class="num">'+fmt(s.roe_ttm_pct)+'%</td>'
-      + '<td class="num">'+fmt(s.eps_ttm)+'</td>'
-      + '<td class="num">'+fmt(s.bvps)+'</td>'
-      + '<td>'+esc(s.period||'–')+'</td>'
-      + '</tr>';
-  });
-  if(!pageRows.length) html = '<tr><td colspan="11" style="text-align:center;color:var(--nd-dim,#6B7280)">No companies in this sector.</td></tr>';
-  $('valueBody').innerHTML = html;
-  var ths = document.querySelectorAll('#valueTable th.sortable');
-  ths.forEach(function(th){
-    var k = th.getAttribute('data-k');
-    var base = th.textContent.replace(/ [▲▼]/,'');
-    th.classList.toggle('sorted', k===state.sort);
-    th.innerHTML = esc(base) + (k===state.sort ? ' <span class="arr">'+(state.dir===-1?'▼':'▲')+'</span>' : '');
-  });
-  // Pager
-  var range = $('valueRange');
-  if (range) range.textContent = total ? ('Showing ' + (start + 1) + '–' + Math.min(start + state.perPage, total) + ' of ' + total + ' companies · page ' + state.page + '/' + pages) : '';
-  var prev = $('valuePrev'), next = $('valueNext');
-  if (prev) prev.disabled = state.page <= 1;
-  if (next) next.disabled = state.page >= pages;
-}
-
-function load(silent){
-  // 2026-10-07: fetch live.json alongside value.json so LTP stays fresh intraday.
-  // (BASE is '/nepse-chart/data/'; the old '../nepse-chart/data/live.json'
-  // resolved to /nepse-chart/nepse-chart/data/live.json -> 404.)
-  var liveP = fetch(BASE+'live.json', { cache: 'no-store' })
-    .then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; });
-  fetch(BASE+'value.json', { cache: 'no-store' }).then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(d){
-    return liveP.then(function(live){
-      var ltpMap = {};
-      if (live && live.quotes) {
-        live.quotes.forEach(function(q){ if (q.ltp > 0) ltpMap[q.symbol] = q.ltp; });
-      }
-      state.rows = d.stocks || [];
-      state.rows.forEach(function(s){
-        if (ltpMap[s.symbol]) s.ltp = ltpMap[s.symbol];
-      });
-    if (!state.uiInit) {
-      var sectors = {};
-      state.rows.forEach(function(s){ sectors[s.sector] = 1; });
-      var sel = $('sectorSel');
-      Object.keys(sectors).sort().forEach(function(sc){
-        var o = document.createElement('option'); o.value = sc; o.textContent = sc; sel.appendChild(o);
-      });
-      sel.addEventListener('change', function(){ state.sector = sel.value; state.page = 1; render(); });
-      document.querySelectorAll('#valueTable th.sortable').forEach(function(th){
-        th.addEventListener('click', function(){
-          var k = th.getAttribute('data-k');
-          if(state.sort===k){ state.dir = -state.dir; } else { state.sort=k; state.dir=-1; }
-          state.page = 1;
-          render();
-        });
-      });
-      var ppSel = $('perPageSel');
-      if (ppSel) ppSel.addEventListener('change', function(){
-        state.perPage = parseInt(ppSel.value, 10) || 25;
-        state.page = 1;
-        render();
-      });
-      var prev = $('valuePrev'), next = $('valueNext');
-      if (prev) prev.addEventListener('click', function(){ if (state.page > 1) { state.page--; render(); window.scrollTo({top: $('valueTable').offsetTop - 80, behavior: 'smooth'}); } });
-      if (next) next.addEventListener('click', function(){ state.page++; render(); window.scrollTo({top: $('valueTable').offsetTop - 80, behavior: 'smooth'}); });
-      state.uiInit = true;
-    }
-  $('coverage').innerHTML = '<strong>Data as of ' + esc(d.asof) + '.</strong> ' + state.rows.length +
-    ' companies scored across ' + Object.keys(sectors).length + ' sectors (' +
-    (d.coverage && d.coverage.companies || '?') + ' companies in source filings). Rebuilt automatically each trading day after market close. Source: ' + esc(d.source) + '.';
-  $('methodBox').textContent = d.method || '';
-  render();
-    });
-  }).catch(function(){
-    if (silent) return; /* background refresh failed: keep last good render */
-    $('coverage').textContent = 'Could not load value data. Please try again later.';
-    $('valueBody').innerHTML = '<tr><td colspan="11" style="text-align:center;color:var(--nd-dim,#6B7280)">Data unavailable.</td></tr>';
-  });
-}
-load();
-/* Auto-refresh every 15 min (skipped while tab hidden) so LTPs stay fresh
-   intraday. Silent: no flash, errors keep data. */
-setInterval(function(){ if(!document.hidden) load(true); }, 15*60*1000);
-})();
-</script>
+<script src="/nepse-value/value.js?v=d5b192f6"></script>
 <script src="/js/theme-toggle.js?v=6a6a46c6" defer></script>
 <script src="/js/nepse-market-config.js?v=4e6270bd"></script>
 <script src="/js/freshness-badge.js?v=307d4f55" defer></script>

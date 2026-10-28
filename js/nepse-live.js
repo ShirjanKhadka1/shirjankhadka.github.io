@@ -203,7 +203,7 @@
     } else {
       sub = '<span class="nlv-sub">feed unavailable</span>';
     }
-    return '<span class="nlv-badge ' + cls + '" role="status">' + dot + label + '</span> ' + sub;
+    return '<span class="nlv-badge ' + cls + '" role="status">' + dot + label + '</span>' + sub;
   }
 
   function tickCountdowns() {

@@ -486,9 +486,9 @@ try:
             f'<td class="num">{_fmt(s["ey_pct"], 1)}%</td>'
             f'<td class="num">{_fmt(s["roe_ttm_pct"], 1)}%</td></tr>')
     _vfrag = (
-        '<section class="snap" aria-label="Value snapshot">\n'
+        '<section class="snap va-snap" aria-label="Value snapshot">\n'
         f'  <h2>Top value-ranked companies <span class="snap-asof">· snapshot {_snap_asof}</span></h2>\n'
-        '  <div class="scrollx"><table class="sig-table">\n'
+        '  <div class="scrollx va-cardwrap"><table class="sig-table va-table">\n'
         '    <thead><tr><th>Score</th><th>Stock</th><th>Sector</th><th class="num">LTP</th>'
         '<th class="num">P/E (TTM)</th><th class="num">P/BV</th><th class="num">Earn. yield</th><th class="num">ROE (TTM)</th></tr></thead>\n'
         '    <tbody>\n' + '\n'.join(_vrows) + '\n    </tbody>\n'
