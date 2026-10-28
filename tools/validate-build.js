@@ -196,8 +196,21 @@ function main() {
           `intraday: quotes=${q} (no earlier same-session POST-OPEN snapshot; early-session floor 50)`);
       }
     } else if (baseline && typeof baseline === 'number' && baseline > 0) {
-      const drift = Math.abs(q - baseline) / baseline;
-      gate('security-count-stable', drift <= 0.05, `quotes=${q} baseline=${baseline} (${baselineSrc}) drift=${(drift * 100).toFixed(1)}% band=±5%`);
+      const drift = (q - baseline) / baseline;
+      if (drift < -0.05) {
+        gate('security-count-stable', false, `quotes=${q} baseline=${baseline} (${baselineSrc}) drift=${(drift * 100).toFixed(1)}% — COLLAPSE beyond -5%`);
+      } else if (drift > 0.05) {
+        // P3-1 direction split: expansion beyond +5% with all other
+        // substantive gates passing is FLAG + deploy + notice, not FAIL.
+        // A growing book (new listings, resumed halts) is legitimate; the
+        // drift is recorded in validation.json (flagged list) and surfaced
+        // by the workflow's expansion-flag step. The Oct-27 case (360 vs
+        // 341 = +5.6%) would have flagged and deployed instead of failing
+        // into a rollback loop.
+        gate('security-count-stable', false, `quotes=${q} baseline=${baseline} (${baselineSrc}) drift=+${(drift * 100).toFixed(1)}% — EXPANSION beyond +5% (flag, deploy continues)`, 'flag');
+      } else {
+        gate('security-count-stable', true, `quotes=${q} baseline=${baseline} (${baselineSrc}) drift=${(drift * 100).toFixed(1)}% band=±5%`);
+      }
     } else {
       gate('security-count-stable', q >= 300, `quotes=${q} (no baseline yet; absolute floor 300)`);
     }
