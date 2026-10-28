@@ -278,6 +278,18 @@ function loadPeriod(silent){
     }
   }
   else { url = BASE+'periods/'+p+'.json'; req = fetchPeriodCached(url); }
+  /* Matching attach (gap 7): period payloads gain matching fields BEFORE
+     the change-gate signature is computed, so a matching publish
+     re-renders like any other data change. Range payloads already carry
+     matching from BrokerRange.loadRange; provisional payloads get the
+     final-only note. Never rejects. */
+  if (window.BrokerMatching && window.BrokerMatching.attach){
+    (function(mode, asof){
+      req = req.then(function(d){
+        return window.BrokerMatching.attach(d, mode, asof);
+      });
+    })(isLatest ? 'latest' : p, state.asof);
+  }
   if (!silent) $('view').innerHTML = '<p style="color:var(--nd-muted)">Loading…</p>';
   return req.then(function(d){
     var sig = sigOf(d);
@@ -322,13 +334,21 @@ function pagerK(page, totalPages, total, key){
 }
 function renderTop(d){
   var PER_PAGE = 10;
+  /* Matching (gap 7): d.matching null = unavailable ('–'); present but
+     no entry for a broker = zero self-trades ('0' / 'Rs 0'). */
+  var M = (d.matching !== undefined) ? d.matching : null;
+  function mEnt(code){ return M ? (M[code] || null) : null; }
+  function mCellQty(b){ var e = mEnt(b.code); return e ? fmtQ(e.qty, e.amount) : (M ? fmtQ(0, 0) : '–'); }
+  function mCellVal(b){ var e = mEnt(b.code); return e ? fmtV(e.amount) : (M ? fmtV(0) : '–'); }
   var get = {
     broker: function(b){ return bname(b.code).toLowerCase(); },
     code: function(b){ return numCode(b.code); },
     buy_qty: function(b){ return b.buy_qty||0; }, buy_value: function(b){ return b.buy_value||0; },
     sell_qty: function(b){ return b.sell_qty||0; }, sell_value: function(b){ return b.sell_value||0; },
     total_qty: function(b){ return b.total_qty||0; }, total_value: function(b){ return b.total||0; },
-    net_qty: function(b){ return b.net_qty||0; }, net_value: function(b){ return b.net||0; }
+    net_qty: function(b){ return b.net_qty||0; }, net_value: function(b){ return b.net||0; },
+    matching_qty: function(b){ var e = mEnt(b.code); return e ? (e.qty||0) : 0; },
+    matching_value: function(b){ var e = mEnt(b.code); return e ? (e.amount||0) : 0; }
   };
   var all = applySort((d.brokers || []).slice(), 'top', get);
   var totalPages = Math.max(1, Math.ceil(all.length / PER_PAGE));
@@ -342,14 +362,19 @@ function renderTop(d){
       '<td>'+fmtQ(b.buy_qty,b.buy_value)+'</td><td>'+fmtV(b.buy_value)+'</td>'+
       '<td>'+fmtQ(b.sell_qty,b.sell_value)+'</td><td>'+fmtV(b.sell_value)+'</td>'+
       '<td><strong>'+fmtQ(b.total_qty,b.total)+'</strong></td><td><strong>'+fmtV(b.total)+'</strong></td>'+
-      '<td class="'+cls(b.net_qty)+'">'+fmtQ(b.net_qty,Math.abs(b.net))+'</td><td class="'+cls(b.net)+'">'+fmtV(b.net)+'</td></tr>';
+      '<td class="'+cls(b.net_qty)+'">'+fmtQ(b.net_qty,Math.abs(b.net))+'</td><td class="'+cls(b.net)+'">'+fmtV(b.net)+'</td>'+
+      '<td>'+mCellQty(b)+'</td><td>'+mCellVal(b)+'</td></tr>';
   }).join('');
+  var mNote = (window.BrokerMatching && window.BrokerMatching.noteFor) ? window.BrokerMatching.noteFor(d) : null;
   return '<h2 class="bk-h">Top brokers by turnover — '+esc(label())+'</h2>'+
     '<div class="scrollx" tabindex="0" role="region" aria-label="Top brokers by turnover table"><table class="bk-table nd-table"><thead><tr><th>#</th>'+
     thS('top','broker','Broker','bk-name')+thS('top','buy_qty','Buy vol')+thS('top','buy_value','Buy value')+
     thS('top','sell_qty','Sell vol')+thS('top','sell_value','Sell value')+thS('top','total_qty','Total vol')+
     thS('top','total_value','Total value')+thS('top','net_qty','Net vol')+thS('top','net_value','Net value')+
-    '</tr></thead><tbody>'+rows+'</tbody></table></div>'+pager(state.topPage, totalPages, all.length, '', 'bkPrev', 'bkNext');
+    thS('top','matching_qty','Matching vol')+thS('top','matching_value','Matching value')+
+    '</tr></thead><tbody>'+rows+'</tbody></table></div>'+pager(state.topPage, totalPages, all.length, '', 'bkPrev', 'bkNext')+
+    (mNote ? '<p class="bk-cap">Matching: '+esc(mNote)+'</p>' : '')+
+    '<p class="bk-cap">Matching = a broker\u2019s transactions with itself (buyer = seller), counted once per trade, from Chukul floorsheet tape. It is not derivable from buy/sell totals.</p>';
 }
 
 function renderBroker(d){
@@ -358,11 +383,18 @@ function renderBroker(d){
   var allSyms = (d.broker_symbols && d.broker_symbols[code]) || [];
   var q = (state.brkQuery||'').trim().toUpperCase();
   var syms = q ? allSyms.filter(function(s){ return s.symbol.toUpperCase().indexOf(q) >= 0; }) : allSyms;
+  /* Matching (gap 7): null = unavailable ('–'); present but no entry for
+     a symbol = zero self-trades in it ('0' / 'Rs 0'). */
+  var MS = (d.matchingSymbols !== undefined && d.matchingSymbols) ? (d.matchingSymbols[code] || {}) : null;
+  var MT = (d.matching !== undefined && d.matching) ? (d.matching[code] || null) : null;
+  function msEnt(s){ return MS ? (MS[s.symbol] || null) : null; }
   var bget = {
     symbol: function(s){ return s.symbol; },
     buy_qty: function(s){ return s.buy_qty||0; }, buy_value: function(s){ return s.buy_value||0; },
     sell_qty: function(s){ return s.sell_qty||0; }, sell_value: function(s){ return s.sell_value||0; },
-    net_value: function(s){ return (s.buy_value||0)-(s.sell_value||0); }
+    net_value: function(s){ return (s.buy_value||0)-(s.sell_value||0); },
+    matching_qty: function(s){ var e = msEnt(s); return e ? (e.qty||0) : 0; },
+    matching_value: function(s){ var e = msEnt(s); return e ? (e.amount||0) : 0; }
   };
   syms = applySort(syms.slice(), 'broker', bget);
   var t = d.brokers.filter(function(b){return b.code===code})[0] || {};
@@ -373,9 +405,14 @@ function renderBroker(d){
   var start = state.brkPage * PER_PAGE;
   var rows = syms.slice(start, start + PER_PAGE).map(function(s){
     var net = s.buy_value - s.sell_value;
+    var me = msEnt(s);
+    var mQty = MS ? (me ? fmtQ(me.qty, me.amount) : fmtQ(0, 0)) : '–';
+    var mVal = MS ? (me ? fmtV(me.amount) : fmtV(0)) : '–';
     return '<tr><td><strong>'+esc(s.symbol)+'</strong></td><td>'+fmtQ(s.buy_qty,s.buy_value)+'</td><td>'+fmtV(s.buy_value)+'</td>'+
-      '<td>'+fmtQ(s.sell_qty,s.sell_value)+'</td><td>'+fmtV(s.sell_value)+'</td><td class="'+cls(net)+'">'+fmtV(net)+'</td></tr>';
+      '<td>'+fmtQ(s.sell_qty,s.sell_value)+'</td><td>'+fmtV(s.sell_value)+'</td><td class="'+cls(net)+'">'+fmtV(net)+'</td>'+
+      '<td>'+mQty+'</td><td>'+mVal+'</td></tr>';
   }).join('');
+  var mNote = (window.BrokerMatching && window.BrokerMatching.noteFor) ? window.BrokerMatching.noteFor(d) : null;
   return '<h2 class="bk-h">'+esc(bname(code))+' — trade pattern, '+esc(label())+'</h2>'+
     '<div class="stat-row">'+
     '<div class="stat"><div class="l">Buy volume</div><div class="v">'+fmtQ(t.buy_qty,t.buy_value)+'</div></div>'+
@@ -384,11 +421,14 @@ function renderBroker(d){
     '<div class="stat"><div class="l">Sell value</div><div class="v">'+fmtV(t.sell_value||0)+'</div></div>'+
     '<div class="stat"><div class="l">Net volume</div><div class="v '+cls((t.buy_qty||0)-(t.sell_qty||0))+'">'+fmtQ((t.buy_qty||0)-(t.sell_qty||0),Math.abs((t.buy_value||0)-(t.sell_value||0)))+'</div></div>'+
     '<div class="stat"><div class="l">Net value</div><div class="v '+cls((t.buy_value||0)-(t.sell_value||0))+'">'+fmtV((t.buy_value||0)-(t.sell_value||0))+'</div></div>'+
+    '<div class="stat"><div class="l">Matching value</div><div class="v">'+(MT ? fmtV(MT.amount) : (d.matching ? fmtV(0) : '–'))+'</div></div>'+
     '<div class="stat"><div class="l">Stocks traded</div><div class="v">'+allSyms.length+'</div></div></div>'+
     '<div class="scrollx" tabindex="0" role="region" aria-label="Broker stock detail table"><table class="bk-table nd-table"><thead><tr>'+
     thS('broker','symbol','Symbol')+thS('broker','buy_qty','Buy qty')+thS('broker','buy_value','Buy value')+
     thS('broker','sell_qty','Sell qty')+thS('broker','sell_value','Sell value')+thS('broker','net_value','Net value')+
-    '</tr></thead><tbody>'+(rows||'<tr><td colspan="6">'+(q?'No symbols match "'+esc(q)+'".':'No trades in this period.')+'</td></tr>')+'</tbody></table></div>'+pager(state.brkPage, totalPages, syms.length, '', 'brPrev', 'brNext');
+    thS('broker','matching_qty','Matching qty')+thS('broker','matching_value','Matching value')+
+    '</tr></thead><tbody>'+(rows||'<tr><td colspan="8">'+(q?'No symbols match "'+esc(q)+'".':'No trades in this period.')+'</td></tr>')+'</tbody></table></div>'+pager(state.brkPage, totalPages, syms.length, '', 'brPrev', 'brNext')+
+    (mNote ? '<p class="bk-cap">Matching: '+esc(mNote)+'</p>' : '');
 }
 
 function symbolOptions(d){

@@ -450,6 +450,13 @@ function loadRange(from, to, onProgress){
         checkZeroSum(result);
         return result;
       });
+    })
+    .then(function(result){
+      /* Matching is an add-on column: its absence never blocks the range
+         (unlike the main builder, which refuses partial sums). Best
+         effort over the range's trading days; the coverage note states
+         exactly which sessions are included. */
+      return mAttachRange(result, days);
     });
 }
 function loadHybrid(from, latest, meta, dailyFirst, onProgress){
@@ -557,6 +564,162 @@ function loadHybrid(from, latest, meta, dailyFirst, onProgress){
     });
   });
 }
+
+/* ---------- Broker Matching Amount (gap 7) ----------
+   Matching Amount = a broker's transactions with itself (buyer == seller
+   on the same trade), per the portal Glossary. It is NOT derivable from
+   aggregated broker columns, so it is computed at collection time from
+   Chukul bydate rows (tools/build-broker-matching.py) and published
+   under nepse-brokers/data/matching/. Pages NEVER call Chukul live.
+   Coverage: tape from 2026-10-26 (2026-10-23 was a holiday, Kojagrat
+   Purnima, so 2026-10-26 is the first trading session in the tape
+   archive). Sessions before that have no tape and render honestly
+   unavailable, never estimated. Provisional (intraday) views carry no
+   matching: live-day bydate rows do not carry broker codes, and
+   matching publishes after close with the final data.
+   Attached fields on a period payload d:
+     d.matching         {code: {qty, amount, trades}} or null
+     d.matchingSymbols  {code: {symbol: {qty, amount, trades}}} or null
+     d.matchingNote     null | 'final-only' | 'unavailable' | 'partial'
+     d.matchingCoverage {covered, total} for partial/unavailable windows
+   This module is standalone (no BrokerCommon dependency) and is loaded
+   by the hub and all four broker subpages, so all of them share this
+   one implementation. */
+var MBASE = '/nepse-brokers/data/matching/';
+var mFileCache = {};
+function mFetchJSON(url){
+  /* Period aggregates and daily matching files are immutable once
+     published: fetch once and reuse, same rule as the period cache.
+     Failures are evicted so retries work. */
+  if (!mFileCache[url]){
+    var pr = fetch(url).then(function(r){ if(!r.ok) throw new Error('no-matching'); return r.json(); });
+    mFileCache[url] = pr;
+    pr.catch(function(){ delete mFileCache[url]; });
+  }
+  return mFileCache[url];
+}
+function mRound2(x){ return Math.round(Number(x) * 100) / 100; }
+function mSumFiles(files){
+  var brokers = {}, symbols = {};
+  files.forEach(function(f){
+    Object.keys(f.brokers || {}).forEach(function(c){
+      var v = f.brokers[c], e = brokers[c] = brokers[c] || {qty: 0, amount: 0, trades: 0};
+      e.qty += v.qty || 0; e.amount += v.amount || 0; e.trades += v.trades || 0;
+    });
+    Object.keys(f.symbols || {}).forEach(function(c){
+      Object.keys(f.symbols[c]).forEach(function(s){
+        var v = f.symbols[c][s], m = symbols[c] = symbols[c] || {};
+        var e = m[s] = m[s] || {qty: 0, amount: 0, trades: 0};
+        e.qty += v.qty || 0; e.amount += v.amount || 0; e.trades += v.trades || 0;
+      });
+    });
+  });
+  Object.keys(brokers).forEach(function(c){
+    brokers[c].qty = mRound2(brokers[c].qty); brokers[c].amount = mRound2(brokers[c].amount);
+  });
+  Object.keys(symbols).forEach(function(c){
+    Object.keys(symbols[c]).forEach(function(s){
+      symbols[c][s].qty = mRound2(symbols[c][s].qty); symbols[c][s].amount = mRound2(symbols[c][s].amount);
+    });
+  });
+  return {brokers: brokers, symbols: symbols};
+}
+function mNoteFor(d){
+  if (d.matchingNote === 'partial' && d.matchingCoverage){
+    return 'Matching covers ' + d.matchingCoverage.covered + ' of ' +
+      d.matchingCoverage.total + ' sessions in this window (Chukul tape from 2026-10-26); earlier sessions are excluded.';
+  }
+  if (d.matchingNote === 'unavailable'){
+    return 'Matching unavailable for this window — no Chukul tape on file (tape from 2026-10-26).';
+  }
+  if (d.matchingNote === 'final-only'){
+    return 'Matching publishes after close — provisional views carry no matching.';
+  }
+  if (d.matchingNote === 'unpublished'){
+    return 'Matching not yet published for this period.';
+  }
+  return null;
+}
+function mAttachFromFile(d, file){
+  d.matching = file.brokers || {};
+  d.matchingSymbols = file.symbols || {};
+  if (file.covered_days !== undefined && file.trading_days !== undefined){
+    d.matchingCoverage = {covered: file.covered_days, total: file.trading_days};
+    d.matchingNote = (file.covered_days < file.trading_days)
+      ? (file.covered_days === 0 ? 'unavailable' : 'partial') : null;
+    if (file.covered_days === 0){ d.matching = null; d.matchingSymbols = null; }
+  } else {
+    d.matchingCoverage = {covered: 1, total: 1};
+    d.matchingNote = null;
+  }
+  return d;
+}
+/* Attach matching to a period payload. mode: 'latest' | fixed period code
+   | 'asof' (asof = single date) | 'range' (already attached: no-op).
+   Never rejects: on any failure the payload keeps matching=null and the
+   views render '–' with the honest note. */
+function mAttach(d, mode, asof){
+  if (!d || d.matching !== undefined) return Promise.resolve(d);
+  if (d._mode === 'provisional' || d.provisional === true){
+    d.matching = null; d.matchingSymbols = null; d.matchingNote = 'final-only';
+    return Promise.resolve(d);
+  }
+  if (mode === 'range') return Promise.resolve(d);
+  var url;
+  if (mode === 'asof' && asof) url = MBASE + 'daily/' + asof + '.json';
+  else if (mode === 'latest') url = MBASE + 'periods/1D.json';
+  else if (mode) url = MBASE + 'periods/' + mode + '.json';
+  else return Promise.resolve(d);
+  return mFetchJSON(url).then(function(f){
+    return mAttachFromFile(d, f);
+  }).catch(function(){
+    d.matching = null; d.matchingSymbols = null;
+    d.matchingNote = (mode === 'asof') ? 'unavailable' : 'unpublished';
+    d.matchingCoverage = {covered: 0, total: 1};
+    return d;
+  });
+}
+/* Range attach: sum matching daily files over the range's trading days.
+   Best-effort per file — a missing matching file NEVER blocks the range
+   (unlike the main range builder, which refuses partial sums): it only
+   narrows the coverage note. */
+function mAttachRange(result, days){
+  var idx = 0, files = [], covered = [], missing = [];
+  return new Promise(function(resolve){
+    function worker(){
+      if (idx >= days.length){
+        if (covered.length + missing.length >= days.length){
+          var sum = mSumFiles(files);
+          result.matching = covered.length ? sum.brokers : {};
+          result.matchingSymbols = covered.length ? sum.symbols : {};
+          result.matchingCoverage = {covered: covered.length, total: days.length};
+          result.matchingNote = covered.length === 0 ? 'unavailable'
+            : (covered.length < days.length ? 'partial' : null);
+          if (covered.length === 0){ result.matching = null; result.matchingSymbols = null; }
+          resolve(result);
+        }
+        return;
+      }
+      var date = days[idx++];
+      fetchCached(MBASE + 'daily/' + date + '.json').then(function(f){
+        if (f && f.brokers){ files.push(f); covered.push(date); }
+        else missing.push(date);
+        worker();
+      }).catch(function(){ missing.push(date); worker(); });
+    }
+    if (!days.length){ result.matching = null; result.matchingSymbols = null; result.matchingNote = 'unavailable'; result.matchingCoverage = {covered: 0, total: 0}; resolve(result); return; }
+    var w = Math.min(8, days.length);
+    for (var i = 0; i < w; i++) worker();
+  });
+}
+
+var BrokerMatching = {
+  attach: mAttach,
+  attachRange: mAttachRange,
+  noteFor: mNoteFor,
+  base: MBASE
+};
+if (typeof window !== 'undefined') window.BrokerMatching = BrokerMatching;
 
 var BrokerRange = {
   loadRange: loadRange,

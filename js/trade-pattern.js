@@ -65,8 +65,12 @@ function signature(d){
   if (!d || !state.broker) return state.period + '|none';
   var t = (d.brokers || []).filter(function(b){ return b.code === state.broker; })[0] || {};
   var syms = (d.broker_symbols && d.broker_symbols[state.broker]) || [];
+  /* Matching total for this broker, so a matching-only publish changes
+     the signature and the silent 60s tick re-renders (gap 7). */
+  var m = (d.matching && d.matching[state.broker]) ? d.matching[state.broker].amount
+    : (d.matching ? 0 : 'null');
   return [state.period, state.broker, t.buy_value || 0, t.sell_value || 0,
-    d.to || '', d._provState || '', d._provAsOf || '',
+    d.to || '', d._provState || '', d._provAsOf || '', m,
     syms.map(function(s){ return s.symbol + ':' + (s.buy_value || 0) + ':' + (s.sell_value || 0); }).join(',')].join('|');
 }
 
@@ -79,8 +83,10 @@ function renderTable(){
     return '<tr><td><a href="/stocks/' + BC.esc(r.symbol) + '/"><strong>' + BC.esc(r.symbol) + '</strong></a></td>' +
       '<td>' + BC.fmtV(r.buyVal) + '</td><td>' + BC.fmtV(r.sellVal) + '</td>' +
       '<td class="' + BC.cls(r.net) + '">' + BC.fmtV(r.net) + '</td>' +
-      '<td>' + BC.fmtQ(r.buyQty, r.buyVal) + '</td><td>' + BC.fmtQ(r.sellQty, r.sellVal) + '</td></tr>';
-  }).join('') || '<tr><td colspan="6" class="bk-loading">No trades in this period.</td></tr>';
+      '<td>' + BC.fmtQ(r.buyQty, r.buyVal) + '</td><td>' + BC.fmtQ(r.sellQty, r.sellVal) + '</td>' +
+      '<td>' + (r.mQty === null ? '–' : BC.fmtQ(r.mQty, r.mVal)) + '</td>' +
+      '<td>' + (r.mVal === null ? '–' : BC.fmtV(r.mVal)) + '</td></tr>';
+  }).join('') || '<tr><td colspan="8" class="bk-loading">No trades in this period.</td></tr>';
   var prev = $('tpPrev'), next = $('tpNext'), show = $('tpShowing');
   if (prev) prev.disabled = state.page <= 1;
   if (next) next.disabled = state.page >= pages;
@@ -128,25 +134,36 @@ function render(){
   var sub = state.period === 'latest'
     ? (d && d.provisional === true && d.symbol_only === false ? 'provisional session (' + periodDate(d) + ')' : 'last final session (' + periodDate(d) + ')')
     : (d.from || '?') + ' → ' + (d.to || '?');
+  /* Matching (gap 7): null = unavailable; {} = covered, no self-trades. */
+  var MS = (d.matchingSymbols !== undefined && d.matchingSymbols) ? (d.matchingSymbols[code] || {}) : null;
   state.rows = syms.map(function(s){
+    /* Matching (gap 7): null = unavailable ('–'); present but no entry
+       for a symbol = zero self-trades in it. */
+    var me = (MS && MS[s.symbol]) || null;
     return { symbol: s.symbol, buyQty: s.buy_qty || 0, buyVal: s.buy_value || 0,
-      sellQty: s.sell_qty || 0, sellVal: s.sell_value || 0, net: (s.buy_value || 0) - (s.sell_value || 0) };
+      sellQty: s.sell_qty || 0, sellVal: s.sell_value || 0, net: (s.buy_value || 0) - (s.sell_value || 0),
+      mQty: MS ? (me ? me.qty : 0) : null, mVal: MS ? (me ? me.amount : 0) : null };
   });
   state.page = 1;
+  var MT = (d.matching && d.matching[code]) || null;
   var html = '<div class="bk-tiles">' +
     '<div class="bk-tile"><div class="k">Buy value</div><div class="v">' + BC.fmtV(t.buy_value || 0) + '</div></div>' +
     '<div class="bk-tile"><div class="k">Sell value</div><div class="v">' + BC.fmtV(t.sell_value || 0) + '</div></div>' +
     '<div class="bk-tile"><div class="k">Net value</div><div class="v ' + BC.cls(net) + '">' + BC.fmtV(net) + '</div></div>' +
+    '<div class="bk-tile"><div class="k">Matching value</div><div class="v">' + (MT ? BC.fmtV(MT.amount) : (d.matching ? BC.fmtV(0) : '–')) + '</div></div>' +
     '<div class="bk-tile"><div class="k">Stocks traded</div><div class="v">' + syms.length + '</div><div class="s">' + BC.esc(sub) + '</div></div></div>';
   html += renderViz(code, t, state.rows);
   html += '<h2 class="bk-h2">' + BC.esc(bname(code)) + ' — per-stock pattern</h2>';
   html += '<div class="bk-scroll"><table class="bk-table nd-table" id="bkTable"><thead><tr>' +
     '<th data-sort="symbol">Symbol</th><th data-sort="buyVal">Buy value</th><th data-sort="sellVal">Sell value</th>' +
     '<th data-sort="net">Net value</th><th data-sort="buyQty">Buy qty</th><th data-sort="sellQty">Sell qty</th>' +
+    '<th data-sort="mQty">Matching qty</th><th data-sort="mVal">Matching value</th>' +
     '</tr></thead><tbody id="bkBody"></tbody></table></div>';
   html += '<div class="tp-pager"><button type="button" id="tpPrev">Prev</button>' +
     '<span class="tp-showing" id="tpShowing"></span>' +
     '<button type="button" class="tp-next" id="tpNext">Next</button></div>';
+  var mNote = (window.BrokerMatching && window.BrokerMatching.noteFor) ? window.BrokerMatching.noteFor(d) : null;
+  if (mNote) html += '<p class="bk-cap">Matching: ' + BC.esc(mNote) + '</p>';
   $('bkResult').innerHTML = html;
   renderTable();
   BC.makeSortable($('bkTable'), function(){ return state.rows; }, function(rs){
@@ -228,6 +245,13 @@ function load(opts){
   var silent = opts && opts.silent;
   if (!silent) $('bkResult').innerHTML = '<p class="bk-loading">Loading…</p>';
   loadData().then(function(d){
+    /* Matching attach (gap 7): same shared module as the hub. Range
+       payloads already carry matching from BrokerRange.loadRange. */
+    if (window.BrokerMatching && window.BrokerMatching.attach){
+      return window.BrokerMatching.attach(d, state.period === 'range' ? 'range' : state.period, null);
+    }
+    return d;
+  }).then(function(d){
     state.data = d; state.lastGood = d;
     var sig = signature(d);
     var changed = state.sig !== null && sig !== state.sig;
