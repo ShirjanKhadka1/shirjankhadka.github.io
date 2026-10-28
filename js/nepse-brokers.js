@@ -402,6 +402,7 @@ function renderStock(d){
   var s = d.symbols[sym];
   if(!s) return '<div class="cover">No trades for '+esc(sym)+' in this period.</div>';
   /* Legacy netflow-only shapes lack top-level qty/value — derive from netflow. */
+  var legacyHalved = false;
   if (s.netflow && (s.qty == null || s.value == null)){
     var tq = 0, tv = 0;
     Object.keys(s.netflow).forEach(function(c){
@@ -411,7 +412,17 @@ function renderStock(d){
     });
     s.qty = tq / 2; s.value = tv / 2;
     s.avg_rate = s.qty ? s.value / s.qty : 0;
+    legacyHalved = true;
   }
+  /* Per-symbol period values are DOUBLE-COUNTED (each trade lands once on
+     the buy side and once on the sell side of the symbol aggregate — the
+     per-symbol pages halve them: stock-pattern.js and holdings.js use
+     qty/2 and value/2). The hub tiles must do the same; avg_rate is a
+     ratio, so it is unaffected. The legacy branch above already halved,
+     so it is not halved again; null stays null so a missing total still
+     renders '–' instead of 0. */
+  var showQty = s.qty == null ? null : (legacyHalved ? s.qty : s.qty / 2);
+  var showVal = s.value == null ? null : (legacyHalved ? s.value : s.value / 2);
   function bt(obj, title){
     /* buyers/sellers entries are [qty, value]; tolerate legacy value-only schema
        and missing objects entirely. */
@@ -441,8 +452,8 @@ function renderStock(d){
   }
   return '<h2 class="bk-h">'+esc(sym)+' — trade pattern, '+esc(label())+'</h2>'+
     '<div class="stat-row">'+
-    '<div class="stat"><div class="l">Total quantity</div><div class="v">'+fmtN(s.qty,0)+'</div></div>'+
-    '<div class="stat"><div class="l">Total value</div><div class="v">'+fmtV(s.value)+'</div></div>'+
+    '<div class="stat"><div class="l">Total quantity</div><div class="v">'+fmtN(showQty,0)+'</div></div>'+
+    '<div class="stat"><div class="l">Total value</div><div class="v">'+fmtV(showVal)+'</div></div>'+
     '<div class="stat"><div class="l">Average rate</div><div class="v">Rs '+fmtN(s.avg_rate)+'</div></div>'+
     '<div class="stat"><div class="l">Brokers active</div><div class="v">'+activeN+'</div></div></div>'+
     '<div class="two">'+bt(buyers,'Top buyers')+bt(sellers,'Top sellers')+'</div>';
