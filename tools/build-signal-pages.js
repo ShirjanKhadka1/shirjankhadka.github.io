@@ -589,7 +589,7 @@ ${profileRows}</table></div>
 })();
 </script>
 <div id="nd-footer"></div>
-<script src="/js/nd-chrome.js?v=89886946" defer></script>
+<script src="/js/nd-chrome.js?v=ee689423" defer></script>
 <script src="/js/nd-cinema.js?v=90f78cc3" defer></script>
 <script src="/js/theme-toggle.js?v=6a6a46c6" defer></script>
 </body>

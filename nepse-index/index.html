@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t='dark';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0A0C10">
+<title>NEPSE Index: Live Level, Chart, Sub-Indices, Breadth &amp; Movers | Nepse Decode</title>
+<meta name="description" content="Free NEPSE index page: live level and day change, long-run chart with period returns, all 17 published sub-indices, market breadth and top movers. Free, no login, educational.">
+<meta name="author" content="Shirjan Khadka">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-index/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="keywords" content="nepse index, nepse index today, nepse index chart, nepse sub indices, nepse breadth, nepse top gainers losers, nepal stock exchange index">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:title" content="NEPSE Index: Live Level, Chart, Sub-Indices, Breadth &amp; Movers">
+<meta property="og:description" content="Live NEPSE index level, long-run chart with period returns, all published sub-indices, market breadth and top movers. Free, no login, educational.">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-index/">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/nepse-decode-og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="NEPSE Index: Live Level, Chart, Sub-Indices, Breadth &amp; Movers">
+<meta name="twitter:description" content="Live NEPSE index level, long-run chart with period returns, all published sub-indices, market breadth and top movers. Free, no login, educational.">
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
+<link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/nd-tokens.css?v=e100cabd">
+<link rel="stylesheet" href="/css/fonts.css?v=422e31c3">
+<link rel="stylesheet" href="/css/nepse-d2.css?v=c6edd4fd">
+<link rel="stylesheet" href="nepse-index.css?v=181a387c">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"Nepse Decode — NEPSE Index","url":"https://shirjankhadka.com.np/nepse-index/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Live NEPSE index level with a long-run chart, period returns, all published sub-indices, market breadth and top movers. Free, no login, educational use only.","author":{"@type":"Organization","name":"Nepse Decode","url":"https://shirjankhadka.com.np/nepse-index/"}}
+</script>
+</head>
+<body class="d2">
+<a class="skip-link" href="#main">Skip to content</a>
+<div id="nd-header"></div>
+<div class="d2-shell">
+<div class="d2-main">
+<div class="d2-wrap">
+<div data-freshness-badge></div>
+<main id="main">
+<div style="margin-bottom:8px">
+<p class="d2-kicker">Markets · NEPSE Index</p>
+<h1 style="font-family:var(--nd-font-display);font-weight:700;font-size:clamp(1.8rem,4.5vw,2.5rem);letter-spacing:-0.015em;margin:0 0 4px">NEPSE Index</h1>
+<p class="ix-cap" id="ixAsof">Loading index data…</p>
+<p class="ix-cap" style="margin-top:4px"><span id="ixStateChip" class="ix-chip unverified"><span class="dot"></span>STATE UNVERIFIED</span></p>
+<p class="ix-cap" id="ixFreshline" style="margin-top:4px">Index page loading…</p>
+</div>
+
+<noscript>
+<div class="ix-noscript" role="note">
+<p><strong>Static close — 28 Oct 2026 session (JavaScript off).</strong>
+NEPSE index 2,664.06 (+33.29, +1.27%) · day high 2,664.06 · day low 2,626.86 · previous close 2,630.77 ·
+tape turnover Rs 7,456,757,541.64 · 348 of 432 listed securities traded · breadth 282 up · 53 down · 13 flat.
+Enable JavaScript for the live index page.</p>
+</div>
+</noscript>
+
+<!-- Stat strip: hero figures from the live index block + quote sums. -->
+<section class="ix-sec" aria-label="Index session totals">
+<div class="ix-statgrid">
+<div class="ix-statcard"><div class="ix-eyebrow">NEPSE index</div><div class="ix-num" id="ixHeroVal">—</div><div class="ix-sub" id="ixHeroChg">—</div></div>
+<div class="ix-statcard"><div class="ix-eyebrow">Day range</div><div class="ix-num" style="font-size:clamp(1.2rem,2.4vw,1.6rem)">High <span id="ixHeroHigh">—</span></div><div class="ix-sub">Low <span id="ixHeroLow">—</span> · Prev close <span id="ixHeroPrev">—</span></div></div>
+<div class="ix-statcard"><div class="ix-eyebrow">Turnover</div><div class="ix-num" style="font-size:clamp(1.2rem,2.4vw,1.6rem)" id="ixStatTurn">—</div><div class="ix-sub" id="ixStatTurnSub">—</div></div>
+<div class="ix-statcard"><div class="ix-eyebrow">Breadth</div><div class="ix-num" style="font-size:clamp(1.2rem,2.4vw,1.6rem)" id="ixStatBreadth">—</div><div class="ix-sub" id="ixStatBreadthSub">—</div></div>
+</div>
+</section>
+
+<!-- Index chart: daily closes from the site index archive. -->
+<section class="d2-card ix-sec" aria-labelledby="ix-chart-h">
+<div class="ix-head"><p class="d2-kicker">History</p><h2 id="ix-chart-h">Index chart</h2></div>
+<div class="ix-seg" id="ixPeriodPills" role="group" aria-label="Chart period"></div>
+<div class="ix-chartbed" style="margin-top:12px"><canvas id="ixChart" role="img" aria-label="NEPSE index closes"></canvas></div>
+<p class="ix-cap" id="ixChartCap">Loading history…</p>
+<div class="ix-ret" id="ixReturns" aria-label="Index period returns"></div>
+<p class="ix-cap">Period returns compare the latest close with the close N sessions back (Max compares with the first published close, 17 Jul 2003). Reference dates are printed under each figure.</p>
+</section>
+
+<!-- Today's intraday path, when observations exist. -->
+<section class="d2-card ix-sec" aria-labelledby="ix-intra-h">
+<div class="ix-head"><p class="d2-kicker">Today</p><h2 id="ix-intra-h">Intraday path</h2></div>
+<div id="ixIntraBox"><p class="ix-cap">Loading intraday path…</p></div>
+</section>
+
+<!-- Sub-indices: every entry in the live indices block. -->
+<section class="d2-card ix-sec" aria-labelledby="ix-sub-h">
+<div class="ix-head"><p class="d2-kicker">Sub-indices</p><h2 id="ix-sub-h">All published sub-indices</h2></div>
+<div class="ix-tablewrap"><table class="ix-table">
+<thead><tr><th>Index</th><th class="num">Value</th><th class="num">Change</th><th class="num">% change</th><th>Day move</th></tr></thead>
+<tbody id="ixIndicesBody"><tr><td colspan="5">Loading…</td></tr></tbody>
+</table></div>
+<p class="ix-cap" id="ixIndicesCap">—</p>
+</section>
+
+<!-- Breadth + movers from the same published quotes. -->
+<section class="d2-card ix-sec" aria-labelledby="ix-breadth-h">
+<div class="ix-head"><p class="d2-kicker">Breadth &amp; movers</p><h2 id="ix-breadth-h">Market breadth</h2></div>
+<div class="ix-breadth" id="ixBreadthBar" role="img" aria-label="Market breadth"></div>
+<div class="ix-legend" id="ixBreadthLegend"></div>
+<p class="ix-cap">Breadth counts securities by the sign of their published day change, among traded securities only (348 on 28 Oct 2026). This is the daily page's definition; the sectors page counts breadth over all securities with change data (428), which is why its breadth figures differ — different denominator, both labeled.</p>
+</section>
+
+<section class="d2-card ix-sec" aria-labelledby="ix-gainers-h">
+<div class="ix-head"><p class="d2-kicker">Movers</p><h2 id="ix-gainers-h">Top gainers</h2></div>
+<div class="ix-tablewrap"><table class="ix-table">
+<thead><tr><th>Symbol</th><th>Company</th><th class="num">LTP (Rs)</th><th class="num">% change</th></tr></thead>
+<tbody id="ixGainersBody"><tr><td colspan="4">Loading…</td></tr></tbody>
+</table></div>
+</section>
+
+<section class="d2-card ix-sec" aria-labelledby="ix-losers-h">
+<div class="ix-head"><p class="d2-kicker">Movers</p><h2 id="ix-losers-h">Top losers</h2></div>
+<div class="ix-tablewrap"><table class="ix-table">
+<thead><tr><th>Symbol</th><th>Company</th><th class="num">LTP (Rs)</th><th class="num">% change</th></tr></thead>
+<tbody id="ixLosersBody"><tr><td colspan="4">Loading…</td></tr></tbody>
+</table></div>
+</section>
+
+<section class="d2-card ix-sec" aria-labelledby="ix-turn-h">
+<div class="ix-head"><p class="d2-kicker">Movers</p><h2 id="ix-turn-h">Top by turnover</h2></div>
+<div class="ix-tablewrap"><table class="ix-table">
+<thead><tr><th>Symbol</th><th>Company</th><th class="num">LTP (Rs)</th><th class="num">Turnover</th></tr></thead>
+<tbody id="ixTurnoverBody"><tr><td colspan="4">Loading…</td></tr></tbody>
+</table></div>
+<p class="ix-cap">Movers are ranked from the session's published quotes. Symbols link to their stock pages.</p>
+</section>
+
+<!-- Recent sessions: closes table, the non-chart fallback. -->
+<section class="d2-card ix-sec" aria-labelledby="ix-sess-h">
+<div class="ix-head"><p class="d2-kicker">Sessions</p><h2 id="ix-sess-h">Recent sessions</h2></div>
+<div class="ix-tablewrap"><table class="ix-table">
+<thead><tr><th>Date</th><th class="num">Close</th><th class="num">Change</th><th class="num">% change</th></tr></thead>
+<tbody id="ixSessionsBody"><tr><td colspan="4">Loading…</td></tr></tbody>
+</table></div>
+<p class="ix-cap" id="ixSessionsCap">—</p>
+</section>
+
+<section class="ix-sec" aria-labelledby="ix-built-h">
+<div class="ix-note">
+<h2 id="ix-built-h" style="font-family:var(--nd-font-display);font-size:1.1rem;color:var(--nd-text);margin:0 0 8px">How this page is built</h2>
+<p><strong>Sources.</strong> The level, day range and sub-indices come from the published NEPSE quote snapshot (live.json); the chart and session tables come from the site index archive of daily closes (2003–2026, index-history.json); the intraday path comes from the session's published index observations (intraday-index.json). Turnover is the sum of the session's published quote turnovers, and breadth counts quote day-change signs — the same definitions the daily page uses, so the figures match it exactly.</p>
+<p><strong>Delay honesty.</strong> The market feed is a delayed free feed. The freshness line shows the data's own timestamp and measured age; a closed session is labeled CLOSED and never repaints as live. During market hours this page refetches every 60 seconds and repaints only when the index value, timestamp or quote count changes.</p>
+<p><strong>What is not shown.</strong> The index archive publishes no open and no volume for the index itself, so neither appears here. The static block above is the no-JavaScript fallback for the 28 Oct 2026 close; it is hand-maintained and will stale at the next session until the noscript baker covers this page.</p>
+</div>
+</section>
+
+</main>
+</div>
+</div>
+</div>
+<div id="nd-footer"></div>
+<script src="/js/nepse-format.js?v=a5edf573"></script>
+<script src="/js/theme-toggle.js?v=6a6a46c6"></script>
+<script src="/js/nepse-sidebar.js?v=4253c371"></script>
+<script src="/js/nd-chrome.js?v=ee689423"></script>
+<script src="/js/freshness-badge.js?v=9e4228d4"></script>
+<script src="nepse-index.js?v=b2709f20"></script>
+</body>
+</html>

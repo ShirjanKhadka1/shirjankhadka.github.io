@@ -1,0 +1,52 @@
+/* nepse-index.css — family layer for /nepse-index/ (.ix- prefix).
+   Token-driven only; no hardcoded hexes. Light theme flips with the
+   --nd-* tokens, so no theme remap block is needed. */
+.ix-statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media(max-width:1000px){.ix-statgrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.ix-statgrid{grid-template-columns:1fr}}
+.ix-statcard{background:var(--nd-panel);border:1px solid var(--nd-border);border-radius:var(--nd-r-card);padding:20px;box-shadow:var(--nd-rim),var(--nd-e2)}
+.ix-eyebrow{font-family:var(--nd-font-mono);font-size:.6875rem;letter-spacing:.09em;text-transform:uppercase;color:var(--nd-dim);font-weight:600}
+.ix-num{font-family:var(--nd-font-display);font-weight:700;font-size:clamp(1.6rem,3vw,2.2rem);color:var(--nd-text);font-variant-numeric:tabular-nums;white-space:nowrap}
+.ix-sub{color:var(--nd-muted);font-size:.85rem;margin-top:4px;line-height:1.5}
+.ix-up{color:var(--nd-up)}
+.ix-down{color:var(--nd-down)}
+.ix-flat{color:var(--nd-flat)}
+.ix-cap{font-size:.8rem;color:var(--nd-dim);margin-top:8px;line-height:1.5}
+.ix-seg{display:inline-flex;background:var(--nd-inset);border:1px solid var(--nd-border);border-radius:999px;padding:3px;gap:2px;flex-wrap:wrap}
+.ix-seg button{border:0;background:transparent;color:var(--nd-muted);font:inherit;font-size:.8rem;font-weight:600;padding:6px 14px;border-radius:999px;cursor:pointer;min-height:48px}
+.ix-seg button[aria-pressed="true"]{background:var(--nd-lime);color:var(--nd-on-lime)}
+.ix-seg button:focus-visible{outline:none;box-shadow:var(--nd-focus-ring)}
+.ix-chartbed{background:var(--nd-inset);border:1px solid var(--nd-border);border-radius:var(--nd-r-md);padding:12px}
+.ix-chartbed canvas{width:100%;height:300px;display:block}
+@media(max-width:760px){.ix-chartbed canvas{height:240px}}
+.ix-ret{display:flex;flex-wrap:wrap;gap:12px 24px;margin-top:14px}
+.ix-ret .r b{display:block;font-variant-numeric:tabular-nums;font-size:1.05rem}
+.ix-ret .r span{font-size:.75rem;color:var(--nd-dim)}
+.ix-tablewrap{overflow:auto}
+.ix-table{width:100%;border-collapse:collapse}
+.ix-table th{background:var(--nd-panel-2);color:var(--nd-dim);font-family:var(--nd-font-mono);font-size:.6875rem;letter-spacing:.09em;text-transform:uppercase;text-align:left;padding:10px 12px;border-bottom:1px solid var(--nd-border);white-space:nowrap}
+.ix-table td{padding:10px 12px;border-bottom:1px solid var(--nd-border);color:var(--nd-text)}
+.ix-table td.num,.ix-table th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ix-table tbody tr:hover td{background:var(--nd-panel-2)}
+.ix-table a{color:var(--nd-text);font-weight:600;text-decoration:none}
+.ix-table a:hover{color:var(--nd-lime);text-decoration:underline}
+.ix-table td.sym{font-family:var(--nd-font-mono);font-weight:600}
+.ix-breadth{display:flex;height:12px;border-radius:999px;overflow:hidden;background:var(--nd-border)}
+.ix-breadth i{display:block}
+.ix-legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font-size:.85rem;color:var(--nd-muted)}
+.ix-legend .sw{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px;vertical-align:0}
+.ix-pctbar{display:flex;align-items:center;gap:8px;min-width:120px}
+.ix-pctbar .trk{flex:1;height:6px;background:var(--nd-border);border-radius:999px;overflow:hidden}
+.ix-pctbar .fl{display:block;height:100%}
+.ix-note{background:var(--nd-panel);border:1px solid var(--nd-border);border-left:4px solid var(--nd-lime);border-radius:var(--nd-r-md);padding:16px 20px;color:var(--nd-muted);line-height:1.65}
+.ix-note strong{color:var(--nd-text)}
+.ix-noscript{background:var(--nd-panel);border:1px solid var(--nd-border);border-radius:var(--nd-r-md);padding:16px 20px;color:var(--nd-muted);line-height:1.65}
+.ix-noscript strong{color:var(--nd-text)}
+.ix-sec{margin-top:16px}
+.ix-head{margin-bottom:12px}
+.ix-head h2{font-family:var(--nd-font-display);font-weight:700;font-size:1.25rem;color:var(--nd-text);margin:4px 0 0}
+.ix-chip{display:inline-flex;align-items:center;gap:6px;padding:3px 12px;border-radius:999px;font-size:.75rem;font-weight:700}
+.ix-chip .dot{width:8px;height:8px;border-radius:50%;background:currentColor}
+.ix-chip.live{background:var(--nd-chip-live-bg);color:var(--nd-chip-live-fg)}
+.ix-chip.closed{background:var(--nd-chip-closed-bg);color:var(--nd-chip-closed-fg)}
+.ix-chip.unverified{background:var(--nd-chip-unverified-bg);color:var(--nd-chip-unverified-fg)}
