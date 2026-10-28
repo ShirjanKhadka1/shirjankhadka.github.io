@@ -130,7 +130,7 @@ function render(){
   var d = state.data;
   if (!d) return;
   var topAcc = state.acc[0], topDist = state.dist[0];
-  var periodText = state.period === 'latest' ? 'Last final session (' + periodDate(d) + ')'
+  var periodText = state.period === 'latest' ? (d && d.provisional === true && d.symbol_only === false ? 'Provisional session (' + periodDate(d) + ')' : 'Last final session (' + periodDate(d) + ')')
     : (d.from ? d.from + ' → ' + d.to : state.period);
   var clampNote = (d.from === '2026-07-15' && (d.to || '') > '2026-07-15')
     ? 'Window-clamped to history start (2026-07-15)' : '';

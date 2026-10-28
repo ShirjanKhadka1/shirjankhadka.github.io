@@ -111,6 +111,10 @@ function freshState(d){
   }
   var prov = usableProv(d);
   if (prov) {
+    /* Splits data is provisional, not last final — never label it so. */
+    if (state.prov && state.prov.symbol_only === false) {
+      return { kind: 'prov', text: 'Provisional splits · ' + periodDate(d) };
+    }
     return { kind: 'prov', text: 'last final ' + periodDate(d) };
   }
   if (d._fallback) {
@@ -142,7 +146,9 @@ function setBanner(){
   if (state.period === 'latest' && d && usableProv(d)) {
     var pd = state.prov.date || '', fd = periodDate(d);
     el.className = 'hd-banner prov';
-    el.textContent = pd === fd
+    el.textContent = state.prov.symbol_only === false
+      ? 'Today\u2019s broker net positions show provisional splits (as of ' + provTime(state.prov) + ' NPT, not final). Final totals publish after close.'
+      : pd === fd
       ? 'Provisional totals above are today\u2019s pre-close snapshot (as of ' + provTime(state.prov) + ' NPT). Broker splits publish after close, so the broker net positions below show the last final session (' + fd + ').'
       : 'Live totals above are today\u2019s provisional snapshot (as of ' + provTime(state.prov) + ' NPT). The broker net positions below are the last final session (' + fd + ').';
     el.style.display = '';
@@ -253,7 +259,7 @@ function render(){
   /* Period tile, de-duplicated: BC.label('latest', d) returns
      "last session (last session)" when the period file carries no asof
      field, so latest gets its own one-line form. */
-  var periodText = state.period === 'latest' ? 'Last final session (' + periodDate(d) + ')'
+  var periodText = state.period === 'latest' ? (d && d.provisional === true && d.symbol_only === false ? 'Provisional session (' + periodDate(d) + ')' : 'Last final session (' + periodDate(d) + ')')
     : BC.label(state.period, d);
   var html = '<div class="bk-tiles">' +
     '<div class="bk-tile"><div class="k">Traded value</div><div class="v">' + BC.fmtV(dv.value) + '</div>' +
@@ -266,13 +272,22 @@ function render(){
     '<div class="s">' + BC.esc(periodText) + '</div></div></div>';
   var prec = usableProv(d);
   if (prec) {
-    var pavg = prec.qty ? prec.amount / prec.qty : 0;
+    /* Splits provisional files carry 1D-shaped symbol records (qty/value
+       double-counted like period files, true avg_rate, no per-symbol
+       trades) — halve qty/value, use the true avg, and leave trades as
+       a dash (splits carry no per-symbol trade counts). Symbol-only
+       records keep the original expressions exactly. */
+    var splits = state.prov && state.prov.symbol_only === false;
+    var pValue = splits ? (prec.value || 0) / 2 : prec.amount;
+    var pQty = splits ? (prec.qty || 0) / 2 : prec.qty;
+    var pAvg = splits ? (prec.avg_rate || 0) : (prec.qty ? prec.amount / prec.qty : 0);
+    var pTrades = splits ? null : prec.trades;
     html += '<div class="hd-prov"><p class="hd-prov-head">Provisional — ' + BC.esc(state.symbol) + ' (as of ' + BC.esc(provTime(state.prov)) + ' NPT, not final)</p>' +
       '<div class="bk-tiles">' +
-      '<div class="bk-tile"><div class="k">Provisional value</div><div class="v">' + BC.fmtV(prec.amount) + '</div></div>' +
-      '<div class="bk-tile"><div class="k">Provisional quantity</div><div class="v">' + BC.fmtN(prec.qty, 0) + '</div></div>' +
-      '<div class="bk-tile"><div class="k">Provisional avg rate</div><div class="v">Rs ' + BC.fmtN(pavg) + '</div></div>' +
-      '<div class="bk-tile"><div class="k">Provisional trades</div><div class="v">' + BC.fmtN(prec.trades, 0) + '</div></div></div></div>';
+      '<div class="bk-tile"><div class="k">Provisional value</div><div class="v">' + BC.fmtV(pValue) + '</div></div>' +
+      '<div class="bk-tile"><div class="k">Provisional quantity</div><div class="v">' + BC.fmtN(pQty, 0) + '</div></div>' +
+      '<div class="bk-tile"><div class="k">Provisional avg rate</div><div class="v">Rs ' + BC.fmtN(pAvg) + '</div></div>' +
+      '<div class="bk-tile"><div class="k">Provisional trades</div><div class="v">' + BC.fmtN(pTrades, 0) + '</div></div></div></div>';
   }
   if (dv.fromFallback) {
     html += '<p class="hd-note">Broker detail below is derived from the buyer/seller lists because this record carries no netflow — those lists are incomplete, so the detail understates the full flow.</p>';

@@ -126,7 +126,7 @@ function render(){
   var t = (d.brokers || []).filter(function(b){ return b.code === code; })[0] || {};
   var net = (t.buy_value || 0) - (t.sell_value || 0);
   var sub = state.period === 'latest'
-    ? 'last final session (' + periodDate(d) + ')'
+    ? (d && d.provisional === true && d.symbol_only === false ? 'provisional session (' + periodDate(d) + ')' : 'last final session (' + periodDate(d) + ')')
     : (d.from || '?') + ' → ' + (d.to || '?');
   state.rows = syms.map(function(s){
     return { symbol: s.symbol, buyQty: s.buy_qty || 0, buyVal: s.buy_value || 0,

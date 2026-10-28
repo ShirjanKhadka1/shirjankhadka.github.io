@@ -174,6 +174,8 @@ function setFresh(kind, extra){
     clsName = ' fail';
   } else if (kind === 'prov'){
     txt = 'PROVISIONAL symbol-only totals · as of ' + extra + ' NPT · checked ' + now + ' NPT · next check in 60 seconds · broker split publishes after close';
+  } else if (kind === 'provsplits'){
+    txt = 'PROVISIONAL broker splits · as of ' + extra + ' NPT · checked ' + now + ' NPT · next check in 60 seconds · final totals publish after close';
   } else if (kind === 'fallback'){
     txt = 'No provisional file — showing last final session (' + extra + ') · checked ' + now + ' NPT · next check in 60 seconds';
   } else if (kind === 'same'){
@@ -260,7 +262,7 @@ function loadPeriod(silent){
     if (d && d._mode === 'provisional' && lastData && lastData._mode === 'provisional') moved = movedCount(d, lastData);
     state.data = d; lastData = d; lastSig = sig;
     render();
-    if (d && d._mode === 'provisional') setFresh('prov', String(d.asof||'').slice(0,10) + ' ' + String(d.asof||'').slice(11,16));
+    if (d && d._mode === 'provisional') setFresh(d.symbol_only === false ? 'provsplits' : 'prov', String(d.asof||'').slice(0,10) + ' ' + String(d.asof||'').slice(11,16));
     else if (d && d._mode === 'fallback') setFresh('fallback', d.to ? String(d.to).slice(0,10) : 'last session');
     else if (moved) setFresh('changed', { moved: moved });
     else setFresh('ok', state.modeLabel || '');
@@ -642,7 +644,12 @@ function render(){
   }
   renderViz(d);
   var html = '';
-  if (d._mode === 'provisional') html = renderProvisional(d);
+  /* Splits provisional files carry genuine broker splits, so they render
+     through the normal view dispatch (top/broker/stock/holdings/accdist)
+     exactly like final data. Only symbol-only provisional files (or a
+     splits-shaped file with no brokers, defensively) take the symbol
+     totals view. */
+  if (d._mode === 'provisional' && !(d.symbol_only === false && (d.brokers || []).length)) html = renderProvisional(d);
   else if(state.view==='top') html = renderTop(d);
   else if(state.view==='broker') html = renderBroker(d);
   else if(state.view==='stock') html = renderStock(d);
