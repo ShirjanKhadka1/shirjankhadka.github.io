@@ -6,7 +6,7 @@ Inputs (both already in this repo, both ours):
   - tools/verdict-engine-v2/manual/float-archive.json : own archive,
     manually transcribed public facts; carries paidup_shares (listed
     total) for 267 symbols and promoter/public percentages.
-  - nepse-chart/data/universe.json : the 413 symbols the pages cover,
+  - nepse-chart/data/universe.json : the 432 symbols the pages cover,
     with the pipeline's instrument-type tags.
 
 Source rule applied here (2026-10-28, documented in the output file):
@@ -40,7 +40,7 @@ Source rule applied here (2026-10-28, documented in the output file):
     file in the archive).
   - Debentures and mutual funds get no split: units, not shares.
   - Equity-tagged symbols with no archive record get nothing: honest
-    unavailable (the 14 genuine no-record equities; the former
+    unavailable (the 15 genuine no-record equities; the former
     debenture/fund-pattern tag noise was corrected in the universe
     builder 2026-10-28, gap-2 item 3).
 
@@ -222,11 +222,11 @@ def main():
         out_symbols[sym] = entry
         counts["pages"] += 1
 
-    assert counts["pages"] == len(symbols) == 413, counts
+    assert counts["pages"] == len(symbols) == 432, counts
     total_status = (counts["split_verified"] + counts["split_promoter_instrument"]
                     + counts["split_held"] + counts["na_debenture"]
                     + counts["na_mutual_fund"] + counts["unavailable"])
-    assert total_status == 413, (total_status, counts)
+    assert total_status == 432, (total_status, counts)
     # Every archive-backed page must carry a listed total.
     for sym, e in out_symbols.items():
         if e["split_status"] in ("verified", "held"):

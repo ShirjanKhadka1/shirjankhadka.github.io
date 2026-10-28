@@ -198,6 +198,37 @@ const VERIFIED_OVERRIDES = {
   NMB50:    { name: 'NMB 50',                                          type: 'Mutual fund' },
   RBBF40:   { name: 'RBB Focus 40',                                    type: 'Mutual fund' },
   RURU:     { name: 'Ru Ru Jalbidhyut Pariyojana Limited',             type: 'Equity' },
+  // 2026-10-28 (gap-2 item 4, P3 orphan extension): 19 listed instruments
+  // whose pages exist but fell out of the universe feed snapshot (evidence:
+  // hidden_files/gap2-items/orphans.md — all 19 still listed and trading,
+  // ZERO deletions, ZERO redirects). All 19 are floorsheet-proven in the
+  // trailing-30-session broker aggregates (1M file 2026-09-07 -> 2026-10-28),
+  // so Gate 5 admits them and every future refresh keeps them. Names
+  // preserve the baked pages' descriptive titles where they exist; bare
+  // symbols take their evidence names (Vision/Merolagani/ShareHub titles).
+  // Slash symbols keep hyphenated page dirs via slugOf (same convention
+  // as the 6 universe slash-symbols). NABILP normalises from its baked
+  // Banking tag to Promoter share; SRBLD83 is maturity-watch only
+  // (Dec 2026) — never a deletion on maturity alone.
+  ADBLB86:   { name: 'Agricultural Bond (8 Year)',                      type: 'Debenture' },
+  EBLEB89:   { name: '5.5% Everest Bank Limited Energy Bond, 2089',     type: 'Debenture' },
+  FMDBLP:    { name: 'First Micro Finance Laghubitta Bittiya Sanstha Limited Promoter Share', type: 'Promoter share' },
+  GBBLPO:    { name: 'Garima Bikas Bank Limited Promoter Share',        type: 'Promoter share' },
+  KSBBLD87:  { name: '9% Kamana Sewa Bikas Bank Limited Debenture 2087', type: 'Debenture' },
+  MBLD87:    { name: '8.5% Machhapuchchhre Bank Debenture 2087',         type: 'Debenture' },
+  MFLD85:    { name: '9.5% Manjushree Finance Limited Debenture 2085',  type: 'Debenture' },
+  MNBBLP:    { name: 'Muktinath Bikas Bank Ltd. Promoter Share',        type: 'Promoter share' },
+  'MND84/85': { name: 'Muktinath Debenture 2084/85',                    type: 'Debenture' },
+  NABILP:    { name: 'NABIL Bank Limited Promotor Share',               type: 'Promoter share' },
+  NBLD85:    { name: '8% Nabil Debenture 2085',                          type: 'Debenture' },
+  NMBD2085:  { name: '10 % NMB DEBENTURE 2085',                          type: 'Debenture' },
+  'NMBD89/90': { name: 'NMB Debenture 10.75%-2089/90',                  type: 'Debenture' },
+  NLO:       { name: 'Nepal Lube Oil Limited',                          type: 'Equity' },
+  NMFBSP:    { name: 'National Laghubitta Bittiya Sanstha Limited Promoter', type: 'Promoter share' },
+  PBD84:     { name: '10.15% Prime Debenture 2084',                      type: 'Debenture' },
+  PRVUPO:    { name: 'Prabhu  Bank Limited Promoter Share',             type: 'Promoter share' },
+  SRBLD83:   { name: '10.25% Sunrise Bank Debenture 2083',               type: 'Debenture' },
+  SRLIP:     { name: 'Sanima Reliance Life Insurance Limited Promoter Share', type: 'Promoter share' },
 };
 
 // ---- buy-call track record (no-lookahead backtest) ----
