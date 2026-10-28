@@ -220,19 +220,24 @@ def main():
         warn(f"archive symbols missing from verdicts (no sector join): {missing}")
     info(f"sector join: {len(vset)} verdicts symbols == {len(uset)} universe symbols")
 
-    # --- 8. cross-file staleness ---
+    # --- 8. cross-file staleness (dividend/bonus scope only) ---
+    # div-live tracks dividends (and bonus figures), so only dividend and
+    # bonus-share PDF dates can advance it. Other kinds (promoter sales,
+    # lock-ins, meetings) must never fail this check.
     div_newest = max((r.get('announcement_date', '') for recs in div['companies'].values() for r in recs), default='')
     pdf_dates = []
     for it in items:
+        if it.get('kind') not in ('dividend', 'bonus-share'):
+            continue
         m = re.search(r'/(\d{4}-\d{2}-\d{2})/', it.get('officialPdf') or '')
         if m:
             pdf_dates.append(m.group(1))
     newest_pdf = max(pdf_dates) if pdf_dates else ''
     if newest_pdf > div_newest:
-        fail(f"newest corporate-actions PDF date {newest_pdf} is newer than div-live's "
+        fail(f"newest dividend/bonus PDF date {newest_pdf} is newer than div-live's "
              f"newest announcement {div_newest} — dividend calendar may be behind")
     else:
-        info(f"staleness: div-live newest announcement {div_newest} >= newest archive PDF date {newest_pdf} — no gap")
+        info(f"staleness: div-live newest announcement {div_newest} >= newest dividend/bonus PDF date {newest_pdf} — no gap")
     info(f"asof: corporate-actions updated {ca.get('updated')}, div-live asof {div.get('asof')}")
 
     # --- 9. baked page checks ---
