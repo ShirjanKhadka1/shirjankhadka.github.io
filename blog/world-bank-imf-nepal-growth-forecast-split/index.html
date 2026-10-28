@@ -152,6 +152,16 @@
 .td-table th{background:#F7F4EC;font-weight:700;color:#0B3D2E}
 .td-table td:first-child{color:#6F6A5E}
 .td-table{min-width:680px} /* wide tables scroll inside .nd-tablewrap instead of crushing columns */
+.td-viz{margin:24px 0;padding:18px 20px;border:1px solid #E7DFCE;border-radius:12px;background:#FDFCF9}
+.td-viz-head{font-weight:700;color:#1C1A15;margin:0 0 4px}
+.td-viz-note{font-size:.85rem;color:#6F6A5E;margin:0 0 6px;line-height:1.55}
+.td-viz-row{display:grid;grid-template-columns:158px 1fr 72px;gap:10px;align-items:center;margin:12px 0}
+.td-viz-label{font-size:.88rem;line-height:1.35}
+.td-viz-track{display:block;height:18px;background:#EFEAE0;border-radius:999px;overflow:hidden}
+.td-viz-track i{display:block;height:100%;background:#0B6B4A;border-radius:999px}
+.td-viz-track i.tgt{background:repeating-linear-gradient(45deg,#B7791F 0 6px,#D9B96A 6px 12px)}
+.td-viz-val{font-weight:700;text-align:right;white-space:nowrap}
+@media(max-width:560px){.td-viz-row{grid-template-columns:1fr 64px}.td-viz-label{grid-column:1/-1}.td-viz-track{grid-column:1}.td-viz-val{grid-column:2}}
 .td-table .pos{color:#0B6B4A;font-weight:700}
 .td-table .neg{color:#A33B2E;font-weight:700}
 .td-incta{margin:24px 0;padding:14px 18px;border:1px solid #E7DFCE;border-left:4px solid #0B6B4A;border-radius:10px;background:#F7F4EC;font-size:.95rem;line-height:1.65}
@@ -234,6 +244,15 @@
             <tr><td>Government of Nepal (target, not a forecast)</td><td>7% for the current fiscal year</td><td>—</td><td>The official target, reported alongside the World Bank release — 3.3 points above even the most optimistic forecaster</td></tr>
           </tbody>
         </table></div>
+        <figure class="td-viz" aria-label="Growth forecasts compared">
+          <p class="td-viz-head">The four numbers, as bars</p>
+          <p class="td-viz-note">Bars scaled 0–8%. The government 7% is a target, not a forecast — shown hatched. World Bank and ADB figures are fiscal-year; the IMF figure is calendar-year. Shown together for scale, not as a like-for-like ranking.</p>
+          <div class="td-viz-row"><span class="td-viz-label">World Bank — FY27</span><span class="td-viz-track"><i style="width:46.25%"></i></span><span class="td-viz-val">3.7%</span></div>
+          <div class="td-viz-row"><span class="td-viz-label">IMF — 2026</span><span class="td-viz-track"><i style="width:37.5%"></i></span><span class="td-viz-val">3.0%</span></div>
+          <div class="td-viz-row"><span class="td-viz-label">ADB — FY2026/27</span><span class="td-viz-track"><i style="width:51.25%"></i></span><span class="td-viz-val">4.1%</span></div>
+          <div class="td-viz-row"><span class="td-viz-label">Government target — current fiscal year</span><span class="td-viz-track"><i class="tgt" style="width:87.5%"></i></span><span class="td-viz-val">7% *</span></div>
+          <p class="td-viz-note">* Target, not a forecast. Sources: World Bank Nepal Development Update (Oct 6, 2026), IMF World Economic Outlook (Oct 13, 2026), ADB Asian Development Outlook (Sept 2026), government target as reported alongside the World Bank release.</p>
+        </figure>
         <p>
           The first thing to notice is that these numbers are not strictly
           comparable, and anyone who averages them is inventing a fourth
