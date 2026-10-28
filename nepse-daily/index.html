@@ -45,7 +45,7 @@
 <link rel="stylesheet" href="/css/nepse-logos.css">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
-<link rel="stylesheet" href="/css/nd-daily.css?v=448f5431">
+<link rel="stylesheet" href="/css/nd-daily.css?v=c8f99a91">
 <link rel="stylesheet" href="/css/nd-3d.css">
 <link rel="stylesheet" href="/css/nd-market-3d.css">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
@@ -68,7 +68,14 @@
       <span class="ds-badge lime" id="dsAsof">Loading…</span>
       <span class="ds-badge" id="dsUpdated"></span>
     </div>
+    <p class="ds-freshline" id="dsFreshline">Loading market data…</p>
   </div>
+
+  <noscript>
+    <div class="ds-noscript">
+      <p><strong>Market close, 27 Oct 2026.</strong> NEPSE 2,630.76 (+0.94, +0.04%) · turnover Rs 5.80 arba · 360 scrips traded · breadth 174 up · 16 unchanged · 170 down. These are the last closed session's figures, frozen at page build; enable JavaScript for live updates.</p>
+    </div>
+  </noscript>
 
   <!-- Market Overview: Chart + NEPSE summary -->
   <section class="ds-overview" aria-label="Market overview" id="dsOverview" hidden>
@@ -90,7 +97,7 @@
   </section>
 
   <!-- Index / Sub-Index Summary -->
-  <section class="ds-indices" aria-label="Index and sub-index summary" id="dsIndices" hidden>
+  <section class="ds-indices d3-card" aria-label="Index and sub-index summary" id="dsIndices" hidden>
     <h2 class="ds-sec-title">Index / Sub-Index summary</h2>
     <div class="ds-table-scroll">
       <table class="ds-table ds-idx-table nd-table cx-table" id="dsIdxTable">
@@ -108,6 +115,12 @@
         </tbody>
       </table>
     </div>
+  </section>
+
+  <section class="ds-sectors" aria-label="Sectors">
+    <h2 class="ds-sec-title">Sectors</h2>
+    <p class="ds-sec-lede">Every traded sector this session. Select a sector to show that sector's stocks in the table below.</p>
+    <div class="ds-sector-grid" id="dsSectorGrid" role="group" aria-label="Filter the table by sector"></div>
   </section>
 
   <h2 class="ds-sec-title" id="all-stocks">All stocks summary</h2>
@@ -134,7 +147,7 @@
     <a class="ds-pill" href="/nepse-daily/?sort=transactions" data-sort="transactions">Most transactions</a>
   </div>
 
-  <section aria-label="Daily market summary table">
+  <section class="d3-card ds-table-card" aria-label="Daily market summary table">
     <div class="ds-table-scroll">
       <table class="ds-table nd-table cx-table" id="dsTable">
         <caption class="visually-hidden">Daily summary of all NEPSE-listed securities</caption>
@@ -169,6 +182,7 @@
   <div class="ds-note" aria-label="Methodology note">
     <p><strong>How to read this table.</strong> Every row is one listed security as of the last closed session. Click a column header to sort — click again to reverse. <strong>Top gainers</strong> sorts by % change, highest first; <strong>top losers</strong> lowest first. Day range shows the session low and high. Turnover is in rupees.</p>
     <p><strong>Open</strong> is shown as <em>Unavailable</em> because the market feed does not publish opening prices — we never estimate or fill in a number. Figures may be delayed; the session date above is the data's own date, not the time you loaded the page.</p>
+    <p><strong>Two honest gaps, not errors.</strong> Previous close is the tape's own previous_close figure; where the validated end-of-day close field differs by a paisa-class rounding (0.01), both figures stay as their sources report them and neither is forced to match. Turnover here is the tape's own sum; the broker floorsheet total can differ by a fraction of a percent through aggregation, not dropped symbols. Market capitalisation is <em>Unavailable</em> because no quote in the feed carries it.</p>
   </div>
   <p class="ds-credit">Live quotes via our own 15-minute market snapshot; figures may be delayed — <a href="/data-terms.html">see our data terms</a>.</p>
 </main>
@@ -188,7 +202,7 @@
 <script src="/js/company-logos.js?v=d8c620a6" defer></script>
 <script src="/js/nepse-logos.js" defer></script>
 <script src="/js/nepse-daily.js?v=c824ae66"></script>
-<script src="/js/nd-daily.js?v=acd99129" defer></script>
+<script src="/js/nd-daily.js?v=5b624350" defer></script>
 <script src="/js/theme-toggle.js?v=6a6a46c6" defer></script>
 <script src="/js/freshness-badge.js?v=307d4f55" defer></script>
 <script src="/js/nepse-sidebar.js?v=4253c371" defer></script>

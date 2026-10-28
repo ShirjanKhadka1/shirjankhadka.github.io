@@ -239,7 +239,7 @@
     var slice = rows.slice(start, start + state.perPage);
 
     if (!slice.length) {
-      body.innerHTML = '<tr><td colspan="10" class="ds-empty">No securities match your search.</td></tr>';
+      body.innerHTML = '<tr><td colspan="9" class="ds-empty">No securities match your search.</td></tr>';
     } else {
       body.innerHTML = slice.map(function (q) {
         var sym = esc(q.symbol || '');
@@ -298,7 +298,7 @@
     });
 
     var count = $('dsCount');
-    if (count) count.textContent = total.toLocaleString() + ' securities';
+    if (count) count.textContent = total.toLocaleString() + ' securities' + (state.sector ? ' · ' + state.sector : '');
   }
 
   function onHeaderClick(th) {
@@ -489,7 +489,7 @@
 
   function fail(msg) {
     var body = $('dsBody');
-    if (body) body.innerHTML = '<tr><td colspan="10" class="ds-empty">' + esc(msg || 'Could not load market data. Please reload the page.') + '</td></tr>';
+    if (body) body.innerHTML = '<tr><td colspan="9" class="ds-empty">' + esc(msg || 'Could not load market data. Please reload the page.') + '</td></tr>';
     var asof = $('dsAsof');
     if (asof) asof.textContent = 'Data unavailable';
   }
@@ -555,14 +555,178 @@
       // Classify sectors using authoritative map. NOTE: quotes from the
       // shared NepseData module are deep-frozen — never mutate them.
       // Keep sector in a side Map keyed by symbol instead.
-      state.sectorBySymbol = {};
-      state.quotes.forEach(function (q) {
-        state.sectorBySymbol[q.symbol] = sectorOf(q.symbol, q.name);
-      });
+      buildSectorMap();
       populateSectors();
       renderMeta(live);
       renderTable();
+      renderSectors();
+      startTick(live);
     }).catch(function () { fail(); });
+  }
+
+  function buildSectorMap() {
+    state.sectorBySymbol = {};
+    state.quotes.forEach(function (q) {
+      state.sectorBySymbol[q.symbol] = sectorOf(q.symbol, q.name);
+    });
+  }
+
+  /* ---------- Sector block: cards that filter the table to a sector's stocks ---------- */
+  function fmtRs(v) {
+    var n = Number(v);
+    if (!isFinite(n)) return '—';
+    var a = Math.abs(n);
+    if (a >= 1e9) return 'Rs ' + (n / 1e9).toFixed(2) + ' arba';
+    if (a >= 1e7) return 'Rs ' + (n / 1e7).toFixed(2) + ' crore';
+    if (a >= 1e5) return 'Rs ' + (n / 1e5).toFixed(2) + ' lakh';
+    return 'Rs ' + fmtNum(n, 2);
+  }
+
+  function sectorStats() {
+    var by = {};
+    state.quotes.forEach(function (q) {
+      var sc = sectorOfRow(q);
+      if (!sc) return;
+      var s = by[sc] || (by[sc] = { n: 0, adv: 0, flat: 0, dec: 0, turn: 0 });
+      s.n++;
+      var p = Number(q.percent_change);
+      if (isFinite(p)) { if (p > 0) s.adv++; else if (p < 0) s.dec++; else s.flat++; }
+      s.turn += Number(q.turnover) || 0;
+    });
+    return Object.keys(by).sort(function (a, b) { return by[b].n - by[a].n; }).map(function (k) {
+      var s = by[k]; s.name = k; return s;
+    });
+  }
+
+  function mixBar(s) {
+    var traded = s.adv + s.flat + s.dec;
+    if (!traded) return '';
+    var pc = function (n) { return (n / traded * 100).toFixed(1); };
+    var segs = '';
+    if (s.adv) segs += '<i class="b-up" style="width:' + pc(s.adv) + '%"></i>';
+    if (s.flat) segs += '<i class="b-flat" style="width:' + pc(s.flat) + '%"></i>';
+    if (s.dec) segs += '<i class="b-down" style="width:' + pc(s.dec) + '%"></i>';
+    return '<div class="cx-breadth" role="img" aria-label="' + s.adv + ' up, ' + s.flat + ' unchanged, ' + s.dec + ' down">' + segs + '</div>';
+  }
+
+  function renderSectors() {
+    var grid = $('dsSectorGrid');
+    if (!grid) return;
+    var secs = sectorStats();
+    var tot = { n: 0, adv: 0, flat: 0, dec: 0, turn: 0 };
+    secs.forEach(function (s) { tot.n += s.n; tot.adv += s.adv; tot.flat += s.flat; tot.dec += s.dec; tot.turn += s.turn; });
+    function cardBtn(name, s, isAll) {
+      var active = isAll ? !state.sector : state.sector === name;
+      return '<button type="button" class="d3-card d3-card--lift ds-sector-card' + (active ? ' active' : '') + '" data-sector="' + esc(name) + '" aria-pressed="' + (active ? 'true' : 'false') + '">' +
+        '<span class="ds-sc-name">' + esc(name) + '</span>' +
+        '<span class="ds-sc-count">' + s.n.toLocaleString() + ' traded</span>' +
+        '<span class="ds-sc-sub" title="Rs ' + fmtNum(s.turn, 2) + '">Turnover ' + fmtRs(s.turn) + '</span>' +
+        mixBar(s) +
+        '<span class="ds-sc-mix"><b>' + s.adv + '</b> up · <b>' + s.dec + '</b> down' + (s.flat ? ' · <b>' + s.flat + '</b> flat' : '') + '</span></button>';
+    }
+    grid.innerHTML = cardBtn('All sectors', tot, true) +
+      secs.map(function (s) { return cardBtn(s.name, s, false); }).join('');
+    Array.prototype.forEach.call(grid.querySelectorAll('.ds-sector-card'), function (btn) {
+      btn.addEventListener('click', function () {
+        var name = btn.getAttribute('data-sector');
+        state.sector = (name === 'All sectors') ? '' : name;
+        var sel = $('dsSector');
+        if (sel) sel.value = state.sector || '';
+        state.page = 0;
+        renderTable();
+        renderSectors();
+        var t = $('all-stocks');
+        if (t) t.scrollIntoView();
+        var nb = null;
+        Array.prototype.forEach.call(grid.querySelectorAll('.ds-sector-card'), function (b) {
+          if (b.getAttribute('data-sector') === name) nb = b;
+        });
+        if (nb && nb.focus) { try { nb.focus({ preventScroll: true }); } catch (e) { nb.focus(); } }
+      });
+    });
+  }
+
+  /* ---------- 60s change-gated refresh + page-owned freshness line ----------
+     The signature tracks DATA only (session + index value + tape hash);
+     view state (sort/filter/search/page/sector) lives in `state` and is
+     never touched by a tick, so a tick can never reset the user's view. */
+  var lastSig = null, lastLive = null, tickTimer = null;
+
+  function hashStr(str) {
+    var h = 2166136261;
+    for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return (h >>> 0).toString(16);
+  }
+  function sigOf(live) {
+    var qs = (live.quotes || []).slice().sort(function (a, b) {
+      return (a.symbol || '') < (b.symbol || '') ? -1 : 1;
+    });
+    var tape = qs.map(function (q) {
+      return (q.symbol || '') + ':' + (q.ltp == null ? '' : q.ltp) + ':' +
+        (q.percent_change == null ? '' : q.percent_change) + ':' + (q.turnover == null ? '' : q.turnover);
+    }).join(';');
+    var ix = live.index || {};
+    return (live.session_date || live.asof || '') + '|' + (ix.value == null ? '' : ix.value) + '|' + hashStr(tape);
+  }
+  function fmtClockNPT(d) {
+    try {
+      return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kathmandu', hour12: false });
+    } catch (e) { return ''; }
+  }
+  function renderFreshline(live, opts) {
+    var el = $('dsFreshline');
+    if (!el || !live) return;
+    var sess = '';
+    try {
+      var d = getSessionDate(live);
+      sess = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kathmandu' });
+    } catch (e) {}
+    var tapeTime = '';
+    try {
+      var at = live.asof ? new Date(live.asof) : null;
+      tapeTime = at && isFinite(at.getTime()) ? fmtClockNPT(at) : '';
+    } catch (e) {}
+    var now = new Date();
+    var nxt = new Date(now.getTime() + 60000);
+    var mkt = (typeof live.market === 'string' && live.market) ? live.market.toUpperCase() : '';
+    var chipCls = mkt === 'CLOSED' ? 'closed' : (mkt === 'LIVE' || mkt === 'OPEN' ? 'live' : 'unverified');
+    var chipTxt = mkt || 'UNVERIFIED';
+    var stale = opts && opts.stale;
+    var partialNote = '';
+    if (live.partial) {
+      var n = (live.quotes || []).length;
+      partialNote = ' · Partial tape — ' + n.toLocaleString() + ' symbols traded so far';
+    }
+    el.innerHTML = 'Session ' + esc(sess || 'unavailable') +
+      (tapeTime ? ' · tape ' + esc(tapeTime) : '') +
+      ' · checked ' + esc(fmtClockNPT(now)) + ' · next check ' + esc(fmtClockNPT(nxt)) +
+      ' · <span class="ds-fl-chip ' + chipCls + '">' + esc(chipTxt) + '</span>' +
+      (stale ? ' · <span class="ds-fl-chip stale">CHECK FAILED — SHOWING LAST GOOD</span>' : '') +
+      ' · refreshes every 60s when data changes' + partialNote;
+  }
+  function tick() {
+    fetchJSON(LIVE_URL).then(function (live) {
+      var sig = sigOf(live);
+      if (sig === lastSig) {
+        renderFreshline(lastLive || live);
+        return;
+      }
+      lastSig = sig; lastLive = live;
+      state.quotes = Array.isArray(live.quotes) ? live.quotes : [];
+      buildSectorMap();
+      populateSectors();
+      renderMeta(live);
+      renderTable();
+      renderSectors();
+      renderFreshline(live);
+    }).catch(function () {
+      if (lastLive) renderFreshline(lastLive, { stale: true });
+    });
+  }
+  function startTick(live) {
+    lastSig = sigOf(live); lastLive = live;
+    renderFreshline(live);
+    if (!tickTimer) tickTimer = setInterval(tick, 60000);
   }
 
   function populateSectors() {
@@ -573,11 +737,16 @@
     var list = Object.keys(sectors).sort();
     sel.innerHTML = '<option value="">All Sectors</option>' +
       list.map(function (s) { return '<option value="' + esc(s) + '">' + esc(s) + '</option>'; }).join('');
-    sel.addEventListener('change', function () {
-      state.sector = sel.value;
-      state.page = 0;
-      renderTable();
-    });
+    sel.value = state.sector || '';
+    if (!sel.dataset.wired) {
+      sel.dataset.wired = '1';
+      sel.addEventListener('change', function () {
+        state.sector = sel.value;
+        state.page = 0;
+        renderTable();
+        renderSectors();
+      });
+    }
   }
 
   if (document.readyState === 'loading') {
