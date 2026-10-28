@@ -53,7 +53,7 @@ def main():
         m = re.search(pat, html)
         ok(m and m.group(1) == sha1_8(path), f'{label} stamp {m.group(1) if m else None} == raw {sha1_8(path)}')
     ok('nd-chrome.css?v=69b323cf' in html, 'chrome bumped to nav-fix stamp 69b323cf')
-    ok('nd-chrome.js?v=ee689423" defer' in html, 'nd-chrome.js deferred')
+    ok('nd-chrome.js?v=643c6521" defer' in html, 'nd-chrome.js deferred')
     m = re.search(r"broker-smart-money\.json\?v=(\S+?)'", js)
     ok(m and m.group(1) != '20261024a', f'data token fresh ({m.group(1) if m else None} != 20261024a)')
 
