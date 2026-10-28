@@ -22,7 +22,7 @@
 
   var NUMERIC_COLS = { units: 1, auction_units: 1, total_alloted: 1, closing_price: 1, cut_off_price: 1 };
 
-  var state = { data: null, tab: 'ipo', q: '', sortKey: 'closing_date', sortDir: -1, page: 1, statusFilter: 'all' };
+  var state = { data: null, sig: null, tab: 'ipo', q: '', sortKey: 'closing_date', sortDir: -1, page: 1, statusFilter: 'all' };
 
   function esc(s) {
     return String(s == null ? '' : s)
@@ -70,7 +70,21 @@
       var src = row.source === 'SEBON'
         ? ' <span class="ipo-src" title="Verified from SEBON prospectus listing ' + esc(row.verified_date || '') + '">SEBON ✓</span>'
         : '';
-      return '<td class="sym">' + esc(v) + src + '</td>';
+      var co = row.company ? '<div class="ipo-co">' + esc(row.company) + '</div>' : '';
+      var det = '';
+      if (row.notes || row.source) {
+        det = '<details class="ipo-det"><summary>Details</summary>';
+        if (row.notes) det += '<div class="ipo-notes">' + esc(row.notes) + '</div>';
+        if (row.source) {
+          det += '<div class="ipo-det-src">Source: ';
+          if (row.source_url) det += '<a href="' + esc(row.source_url) + '" target="_blank" rel="noopener">' + esc(row.source) + '</a>';
+          else det += esc(row.source);
+          if (row.verified_date) det += ' · verified ' + fmtDate(row.verified_date);
+          det += '</div>';
+        }
+        det += '</details>';
+      }
+      return '<td class="sym">' + esc(v) + src + co + det + '</td>';
     }
     if (col === 'status') {
       var st = normStatus(v, row);
@@ -102,7 +116,10 @@
     var rows = (cat.items || []).slice();
     if (state.q) {
       var q = state.q.toLowerCase();
-      rows = rows.filter(function (r) { return String(r.symbol || '').toLowerCase().indexOf(q) !== -1; });
+      rows = rows.filter(function (r) {
+        return String(r.symbol || '').toLowerCase().indexOf(q) !== -1 ||
+          String(r.company || '').toLowerCase().indexOf(q) !== -1;
+      });
     }
     if (state.statusFilter !== 'all') {
       rows = rows.filter(function (r) { return normStatus(r.status, r) === state.statusFilter; });
@@ -231,14 +248,14 @@
   function renderPager(host, totalPages, totalRows) {
     if (!host) return;
     if (totalPages <= 1) { host.innerHTML = ''; return; }
-    var h = '<button type="button" class="ipo-pagebtn" data-pg="prev"' + (state.page <= 1 ? ' disabled' : '') + ' aria-label="Previous page">←</button>';
+    var h = '<button type="button" class="ipo-pagebtn ipo-pagebtn-prev" data-pg="prev"' + (state.page <= 1 ? ' disabled' : '') + ' aria-label="Previous page">←</button>';
     var win = 2, lo = Math.max(1, state.page - win), hi = Math.min(totalPages, state.page + win);
     if (lo > 1) h += '<button type="button" class="ipo-pagebtn" data-pg="1">1</button>' + (lo > 2 ? '<span class="ipo-pageinfo">…</span>' : '');
     for (var p = lo; p <= hi; p++) {
       h += '<button type="button" class="ipo-pagebtn" data-pg="' + p + '"' + (p === state.page ? ' aria-current="true"' : '') + '>' + p + '</button>';
     }
     if (hi < totalPages) h += (hi < totalPages - 1 ? '<span class="ipo-pageinfo">…</span>' : '') + '<button type="button" class="ipo-pagebtn" data-pg="' + totalPages + '">' + totalPages + '</button>';
-    h += '<button type="button" class="ipo-pagebtn" data-pg="next"' + (state.page >= totalPages ? ' disabled' : '') + ' aria-label="Next page">→</button>';
+    h += '<button type="button" class="ipo-pagebtn ipo-pagebtn-next" data-pg="next"' + (state.page >= totalPages ? ' disabled' : '') + ' aria-label="Next page">→</button>';
     h += '<span class="ipo-pageinfo">Page ' + state.page + ' of ' + totalPages + '</span>';
     host.innerHTML = h;
     host.querySelectorAll('.ipo-pagebtn').forEach(function (b) {
@@ -274,21 +291,58 @@
     }).join('');
   }
 
-  function init() {
-    var search = $('ipoSearch');
-    if (search) search.addEventListener('input', function () { state.q = search.value.trim(); state.page = 1; renderTable(); });
-    fetch(DATA_URL, { credentials: 'same-origin' })
-      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-      .then(function (json) {
-        state.data = json;
-        var asof = $('ipoAsof');
-        if (asof && json.updated) asof.textContent = 'Data last updated ' + fmtDate(json.updated) + ' · verified against issue-manager notices';
+  // 60s change-gated refresh. The payload is static (no intraday feed),
+  // so the gate is a hash of the payload bytes: unchanged bytes advance
+  // only the freshness clock; changed bytes re-render everything. The
+  // freshness line always states the payload's own updated date — the
+  // page never pretends the static tracker is live. View state lives
+  // in `state` and is never touched by the tick, so a tab/filter/
+  // search/sort/page selection survives every tick; the signature is
+  // over data bytes only, so view changes can neither fake a data
+  // change nor swallow a real one.
+  function fnv1a(str) {
+    var h = 0x811c9dc5;
+    for (var i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 0x01000193) >>> 0;
+    }
+    return h.toString(16);
+  }
+  function nptHM(d) {
+    return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kathmandu' });
+  }
+  function renderFreshline(ok) {
+    var asof = $('ipoAsof');
+    if (!asof || !state.data) return;
+    var now = new Date();
+    var next = new Date(now.getTime() + 60000);
+    var txt = 'Data last updated ' + fmtDate(state.data.updated) + ' · verified against issue-manager notices · checked ' + nptHM(now) + ' · next check ' + nptHM(next) + ' · re-checks every 60s';
+    if (!ok) txt += ' · last check failed, showing last good data';
+    asof.textContent = txt;
+  }
+  function loadData() {
+    fetch(DATA_URL, { credentials: 'same-origin', cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+      .then(function (text) {
+        var sig = fnv1a(text);
+        if (sig === state.sig) { renderFreshline(true); return; }
+        state.data = JSON.parse(text);
+        state.sig = sig;
+        renderFreshline(true);
         renderStats(); renderOpenStrip(); renderTabs(); renderStatusFilter(); renderTable();
       })
       .catch(function () {
+        if (state.data) { renderFreshline(false); return; }
         var host = $('ipoTableWrap');
         if (host) host.innerHTML = '<div class="ipo-empty">Could not load IPO data. Please reload the page.</div>';
       });
+  }
+
+  function init() {
+    var search = $('ipoSearch');
+    if (search) search.addEventListener('input', function () { state.q = search.value.trim(); state.page = 1; renderTable(); });
+    loadData();
+    setInterval(loadData, 60000);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

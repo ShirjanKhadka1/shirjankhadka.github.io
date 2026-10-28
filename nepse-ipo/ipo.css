@@ -8,6 +8,13 @@
 }
 .skip-link:focus{ top: 12px; }
 
+/* ---- Canvas pin (theme-scoped, master tokens) ----
+   Measured 2026-10-28: the unpinned page rendered the UA default
+   canvas (dark #121212 / light #FFFFFF) because no site rule paints
+   the body. This pin puts the master canvas behind everything. */
+html[data-theme="dark"] body.nd, html[data-nd-ed="dark"] body.nd{ background: #0A0C10; }
+html[data-theme="light"] body.nd, html[data-nd-ed="light"] body.nd{ background: #F6F7F9; }
+
 /* ============================================================
    nepse-ipo/ipo.css — IPO/FPO tracker redesign (2026-10-04)
    Modern editorial UI with animations, full light/dark support.
@@ -49,7 +56,10 @@
 .ipo-asof::before{
   content: ''; width: 8px; height: 8px; border-radius: 50%;
   background: var(--nd-lime, #B8E62E); flex: none;
-  animation: ipoPulse 2s ease-in-out infinite;
+  /* Static dot, deliberately NOT pulsing: the payload is a static
+     tracker file (last verified 12 Oct 2026), and a pulsing "live"
+     dot would mislead. The open-issue chips below may pulse — those
+     issues genuinely are open now. */
 }
 @keyframes ipoPulse{
   0%, 100%{ opacity: 1; transform: scale(1); }
@@ -103,42 +113,49 @@
   to{ opacity: 1; transform: none; }
 }
 
-/* ---- Tabs ---- */
+/* ---- Tabs ----
+   Selectors are scoped under .ipo-tabs (0,2,0) to beat the shared
+   .nd-tabs kit rules in nd-chrome.css (same specificity — this
+   file loads later, so it wins ties). The kit's 40px tab height
+   and transparent background otherwise override the page's 48px
+   lime treatment. Shared files untouched. */
 .ipo-tabs{ display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 var(--nd-s4, 16px); }
-.ipo-tab{
+.ipo-tabs .ipo-tab{
   appearance: none; cursor: pointer; border: 1px solid var(--nd-border, #1E2430);
   background: var(--nd-panel, #12141A); color: var(--nd-muted, #9AA3B2);
-  border-radius: var(--nd-r-pill, 999px); padding: 8px 16px;
+  border-radius: var(--nd-r-pill, 999px); padding: 12px 18px;
+  display: inline-flex; align-items: center; min-height: 48px; box-sizing: border-box;
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: .8125rem; font-weight: 600; line-height: 1.4;
   flex: 0 0 auto; width: auto; max-width: none;
   transition: all .2s ease; position: relative; overflow: hidden;
   white-space: nowrap;
 }
-.ipo-tab::before{
+.ipo-tabs .ipo-tab::before{
   content: ''; position: absolute; inset: 0;
   background: var(--nd-lime, #B8E62E); opacity: 0;
   transition: opacity .2s ease; z-index: 0;
 }
-.ipo-tab:hover{ border-color: var(--nd-lime, #B8E62E); color: var(--nd-text, #fff); transform: translateY(-1px); }
-.ipo-tab[aria-selected="true"]{
+.ipo-tabs .ipo-tab:hover{ border-color: var(--nd-lime, #B8E62E); color: var(--nd-text, #fff); transform: translateY(-1px); }
+.ipo-tabs .ipo-tab[aria-selected="true"]{
   background: var(--nd-lime, #B8E62E); border-color: var(--nd-lime, #B8E62E);
   color: var(--nd-on-lime, #0A0C10); box-shadow: 0 4px 16px rgba(184,230,46,.3);
 }
-.ipo-tab span{ position: relative; z-index: 1; }
-.ipo-tab .cnt{
+.ipo-tabs .ipo-tab span{ position: relative; z-index: 1; }
+.ipo-tabs .ipo-tab .cnt{
   opacity: .65; font-weight: 500; font-family: var(--nd-font-mono, monospace);
   background: rgba(0,0,0,.15); border-radius: 999px; padding: 2px 8px; margin-left: 4px;
   font-size: .75em;
 }
-.ipo-tab[aria-selected="true"] .cnt{ background: rgba(0,0,0,.2); opacity: .9; }
+.ipo-tabs .ipo-tab[aria-selected="true"] .cnt{ background: rgba(0,0,0,.2); opacity: .9; }
 
 /* ---- Status filter ---- */
 .ipo-statusfilter{ display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 var(--nd-s4, 16px); }
 .ipo-sf{
   appearance: none; cursor: pointer; border: 1px solid var(--nd-border, #1E2430);
   background: transparent; color: var(--nd-dim, #6B7280);
-  border-radius: var(--nd-r-pill, 999px); padding: 6px 14px;
+  border-radius: var(--nd-r-pill, 999px); padding: 12px 18px;
+  display: inline-flex; align-items: center; min-height: 48px; box-sizing: border-box;
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: .75rem; font-weight: 600; letter-spacing: .04em; line-height: 1.4;
   flex: 0 0 auto; width: auto; white-space: nowrap;
@@ -162,7 +179,8 @@
 .ipo-search{
   background: var(--nd-inset, #0D0F14); border: 1px solid var(--nd-border, #1E2430);
   border-radius: var(--nd-r-md, 12px); color: var(--nd-text, #fff);
-  padding: 10px 16px; font-size: var(--nd-text-body, .875rem); min-width: 240px;
+  padding: 0 16px; height: 48px; box-sizing: border-box;
+  font-size: var(--nd-text-body, .875rem); min-width: 240px;
   transition: border-color .2s ease, box-shadow .2s ease;
 }
 .ipo-search::placeholder{ color: var(--nd-dim, #6B7280); }
@@ -249,20 +267,64 @@
 }
 .ipo-empty{ padding: var(--nd-s8, 32px); text-align: center; color: var(--nd-dim, #6B7280); font-size: var(--nd-text-body, .875rem); }
 
+/* ---- Per-issue context: company + expandable notes/source ----
+   The table cells are nowrap by default; these lines wrap so long
+   notes stay readable. Shown only for rows that carry the field —
+   no column is invented and the payload is untouched. */
+.ipo-table td.sym .ipo-co{
+  white-space: normal; font: 400 .75rem var(--nd-font-sans, system-ui);
+  color: var(--nd-muted, #9AA3B2); margin-top: 4px; line-height: 1.4;
+}
+.ipo-det{ white-space: normal; margin-top: 8px; }
+.ipo-det summary{
+  cursor: pointer; font: 600 .75rem var(--nd-font-sans, system-ui);
+  color: var(--nd-dim, #6B7280); letter-spacing: .04em;
+}
+.ipo-det summary:hover{ color: var(--nd-lime, #B8E62E); }
+.ipo-notes{
+  margin-top: 8px; font-size: .8125rem; line-height: 1.7;
+  color: var(--nd-muted, #9AA3B2); max-width: 72ch;
+}
+.ipo-det-src{ margin-top: 8px; font-size: .75rem; color: var(--nd-dim, #6B7280); }
+.ipo-det-src a{ color: inherit; text-decoration: underline; }
+.ipo-det-src a:hover{ color: var(--nd-lime, #B8E62E); }
+
+/* ---- Noscript fallback: dated static snapshot ----
+   Baked at build time from the payload (totals + open issues);
+   it ages until the next hand-edit of this page — same honesty
+   class as the decode/daily noscript blocks. */
+.ipo-noscript{
+  border: 1px solid var(--nd-border, #1E2430);
+  border-radius: var(--nd-r-card, 18px); background: var(--nd-panel, #12141A);
+  padding: 20px 24px; margin: 0 0 var(--nd-s6, 24px);
+  color: var(--nd-muted, #9AA3B2); font-size: .875rem; line-height: 1.8;
+}
+.ipo-noscript .big{
+  font: 600 1.5rem var(--nd-font-display, Georgia, serif);
+  color: var(--nd-text, #fff); font-variant-numeric: tabular-nums;
+  margin-bottom: 4px;
+}
+.ipo-noscript strong{ color: var(--nd-text, #fff); }
+
 /* ---- Pagination ---- */
 .ipo-pager{
   display: flex; align-items: center; justify-content: center;
   gap: 8px; margin: var(--nd-s6, 24px) 0; flex-wrap: wrap;
 }
 .ipo-pagebtn{
-  appearance: none; cursor: pointer; min-width: 40px; height: 40px;
+  appearance: none; cursor: pointer; min-width: 48px; height: 48px;
   display: inline-flex; align-items: center; justify-content: center;
   border: 1px solid var(--nd-border, #1E2430); background: var(--nd-panel, #12141A);
   color: var(--nd-muted, #9AA3B2); border-radius: 12px;
   font: 600 .875rem var(--nd-font-mono, monospace);
-  transition: all .2s ease; padding: 0 12px;
+  transition: all .2s ease; padding: 0 12px; box-sizing: border-box;
 }
 .ipo-pagebtn:hover:not(:disabled){ border-color: var(--nd-lime, #B8E62E); color: var(--nd-text, #fff); transform: translateY(-1px); }
+/* Prev is quiet (panel styling, no lime, no lift); Next is lime primary. */
+.ipo-pagebtn-prev:hover:not(:disabled){ border-color: var(--nd-border-strong, #2A3140); color: var(--nd-muted, #9AA3B2); transform: none; }
+.ipo-pagebtn-next{ background: var(--nd-lime, #B8E62E); border-color: var(--nd-lime, #B8E62E); color: var(--nd-on-lime, #0A0C10); }
+.ipo-pagebtn-next:hover:not(:disabled){ color: var(--nd-on-lime, #0A0C10); }
+.ipo-pagebtn-next:disabled{ background: var(--nd-panel, #12141A); border-color: var(--nd-border, #1E2430); color: var(--nd-muted, #9AA3B2); }
 .ipo-pagebtn[aria-current="true"]{
   background: var(--nd-lime, #B8E62E); border-color: var(--nd-lime, #B8E62E);
   color: var(--nd-on-lime, #0A0C10);
@@ -320,7 +382,7 @@
 /* ---- Mobile ---- */
 @media (max-width: 640px){
   .ipo-shell{ padding-left: 16px; padding-right: 16px; }
-  .ipo-tab{ padding: 8px 14px; font-size: .78rem; }
+  .ipo-tabs .ipo-tab{ padding: 12px 14px; font-size: .78rem; }
   .ipo-search{ min-width: 0; flex: 1 1 100%; }
   .ipo-stats{ grid-template-columns: repeat(2, 1fr); }
   .ipo-title{ font-size: 1.6rem; }
