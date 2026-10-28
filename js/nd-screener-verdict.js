@@ -7,6 +7,13 @@
  *   Factor 3 — RSI posture     (20%): oversold fuel vs overbought caution
  *   Factor 4 — Participation   (25%): session volume vs average (conviction)
  * No mock figures. Pill filters wire to the existing engine controls.
+ *
+ * Teardown 2026-10-28 (verdict series page 4): the old MutationObserver
+ * watched #sc-n-sbuy / #sc-n-total, elements that never existed on this
+ * page, so the verdict card rendered once and never recomputed. It is
+ * replaced by a public refresh hook: the screener's 60s change-gated tick
+ * calls window.ScreenerVerdict.refresh() whenever the batch signature
+ * changes. The pill-scroll fix (2026-10-27) is preserved verbatim below.
  */
 (function () {
   'use strict';
@@ -54,7 +61,11 @@
 
       if (typeof x.s === 'number' && isFinite(x.s)) { scoreSum += x.s; nScore++; }
 
-      var rsi = Number(x.rsi);
+      /* 2026-10-28 correction (score-neutral, display-truth): Number(null)
+       * is 0, so the old Number(x.rsi) counted the 2 null-RSI rows as
+       * oversold (21 of 417 "scored" vs the true 19 of 415). Null/blank RSI
+       * is now unscored; f3 rounds to the same 50 and the score stays 45. */
+      var rsi = (x.rsi === null || x.rsi === undefined || x.rsi === '') ? NaN : Number(x.rsi);
       if (isFinite(rsi)) {
         nRsi++;
         if (rsi < 30) nOversold++;
@@ -186,21 +197,19 @@
     });
   }
 
-  /* ---------- Init ---------- */
+  /* ---------- Init + public refresh hook (teardown 2026-10-28) ---------- */
   function init() {
     if (!$('scVerdictScore')) return;
     wirePills();
     renderVerdict();
-    // Re-render when the screener's own data refreshes
-    var observer = new MutationObserver(function () {
-      verdictCache = null;
-      renderVerdict();
-    });
-    ['sc-n-sbuy', 'sc-n-total'].forEach(function (id) {
-      var el = $(id);
-      if (el) observer.observe(el, { childList: true, characterData: true, subtree: true });
-    });
   }
+
+  /* The screener's 60s change-gated tick calls this when the batch
+   * signature changes. Invalidating the cache forces a fresh fetch +
+   * recompute; without it the card would show the first batch forever. */
+  window.ScreenerVerdict = {
+    refresh: function () { verdictCache = null; renderVerdict(); }
+  };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();

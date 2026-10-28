@@ -49,60 +49,8 @@
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
 <link rel="stylesheet" href="/css/sig-pro.css?v=ed0fe3e9">
 <link rel="stylesheet" href="/css/nepse-logos.css">
-<style>
-/* Screener-specific: controls, strategy steps (tab-button pills live in css/sig-pro.css since Wave G1) */
-.sc-controls{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0;align-items:center}
-.sc-controls label{font-size:.85rem;color:var(--nd-dim,#6B7280);display:flex;align-items:center;gap:8px}
-.sc-select,.sc-search,.sc-range-in{padding:9px 14px;border:1px solid var(--nd-border,#1E2430);border-radius:12px;font-size:.88rem;font-family:inherit;
-  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 50%),var(--nd-panel,#12141A);
-  color:var(--nd-text,#fff);box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 2px 5px rgba(0,0,0,.3)}
-.sc-search{min-width:220px}
-.sc-search::placeholder{color:var(--nd-dim,#6B7280)}
-.sc-reset{padding:9px 18px;border:1px solid var(--nd-border,#1E2430);border-radius:12px;font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit;
-  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,0) 50%),var(--nd-panel,#12141A);
-  color:var(--nd-text,#fff);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 2px 5px rgba(0,0,0,.35);transition:border-color .15s}
-.sc-reset:hover{border-color:var(--nd-lime,#B8E62E)}
-[data-theme="light"] .sc-select,[data-theme="light"] .sc-search,[data-theme="light"] .sc-reset,[data-theme="light"] .sc-range-in{
-  background:linear-gradient(180deg,#FFFFFF,#F4F6F9);border-color:#D5DCE4;color:#0A0C10;box-shadow:inset 0 1px 0 #FFFFFF,0 2px 5px rgba(10,12,16,.07)}
-[data-theme="light"] .sc-controls label{color:#5F6B7A}
-.sc-steps{list-style:none;margin:0;padding:0;display:grid;gap:14px}
-@media(min-width:760px){.sc-steps{grid-template-columns:repeat(2,1fr)}}
-@media(min-width:1020px){.sc-steps{grid-template-columns:repeat(3,1fr)}}
-.sc-steps li{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0) 38%),var(--nd-panel,#12141A);
-  border:1px solid var(--nd-border,#1E2430);border-radius:20px;padding:18px 20px;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 -2px 6px rgba(0,0,0,.15),0 3px 8px rgba(0,0,0,.45),0 18px 44px rgba(0,0,0,.4)}
-.sc-step-n{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font-weight:700;font-size:.85rem;margin-bottom:10px;
-  background:linear-gradient(180deg,#D4F34A 0%,var(--nd-lime,#B8E62E) 55%,#9BCB24 100%);color:var(--nd-on-lime,#0A0C10);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.5),0 2px 6px rgba(0,0,0,.4)}
-.sc-steps h3{font-size:1rem;margin:0 0 8px;color:var(--nd-text,#fff)}
-.sc-steps p{font-size:.86rem;color:var(--nd-muted,#9AA3B2);margin:0;line-height:1.6}
-[data-theme="light"] .sc-steps li{background:linear-gradient(180deg,#FFFFFF 0%,#F2F5F8 100%);border:1px solid #CBD4DE;border-top-color:#E8EEF3;
-  box-shadow:inset 0 2px 0 #FFFFFF,0 8px 24px rgba(10,12,16,.1)}
-[data-theme="light"] .sc-steps h3{color:#0A0C10}
-[data-theme="light"] .sc-steps p{color:#3F4753}
-.nd-faq details{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 45%),var(--nd-panel,#12141A);
-  border:1px solid var(--nd-border,#1E2430);border-radius:16px;padding:14px 18px;margin:10px 0}
-.nd-faq summary{font-weight:700;cursor:pointer;color:var(--nd-text,#fff)}
-.nd-faq details p{color:var(--nd-muted,#9AA3B2);line-height:1.65;font-size:.9rem;margin:10px 0 0}
-[data-theme="light"] .nd-faq details{background:#fff;border-color:#D5DCE4}
-[data-theme="light"] .nd-faq summary{color:#0A0C10}
-/* Ranked stocks: white symbols + white headers, no yellow (both themes) */
-#sc-table thead th{color:#fff}
-#sc-table thead th.sorted{color:#fff}
-#sc-table thead th .arr{color:#fff}
-#sc-table .sc-sym{color:#fff;text-decoration:none}
-#sc-table .sc-sym:hover{color:#fff;text-decoration:underline}
-[data-theme="light"] #sc-table thead th{color:#0A0C10;text-shadow:none}
-[data-theme="light"] #sc-table thead th.sorted{color:#0A0C10}
-[data-theme="light"] #sc-table thead th .arr{color:#0A0C10}
-[data-theme="light"] #sc-table .sc-sym{color:#0A0C10}
-[data-theme="light"] #sc-table .sc-sym:hover{color:#0A0C10}
-[data-theme="light"] .nd-faq details p{color:#3F4753}
-.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.skl{display:block;height:14px;border-radius:7px;background:linear-gradient(90deg,var(--nd-panel-2,#161A23) 25%,var(--nd-border,#1E2430) 50%,var(--nd-panel-2,#161A23) 75%);background-size:200% 100%;animation:skl 1.2s infinite}
-@keyframes skl{to{background-position:-200% 0}}
-.sc-prev{display:block;font-size:.72rem;color:var(--nd-dim,#6B7280);margin-top:2px;white-space:nowrap}
-</style>
+<link rel="stylesheet" href="/css/nd-3d.css">
+<link rel="stylesheet" href="/nepse-screener/screener.css?v=b9e0cc48">
 </head>
 <body class="nd" data-page="screener">
 
@@ -116,6 +64,7 @@
   <p class="sig-lede"><strong style="color:var(--nd-text,#fff)">Every stock, ranked.</strong><br>This free NEPSE screener ranks every listed security daily with a transparent, rule-based buy/hold/exit engine &mdash; no black box, no login. Each row shows RSI(14), an ATR-based stop-loss and target, and the ten scored factors behind the verdict, so you can audit every signal yourself. Educational use only; nothing here is investment advice.</p>
   <p class="sig-sub"><span id="sc-live"></span></p>
   <div class="sig-fresh" id="sc-asof-wrap"><span class="dot"></span><span id="sc-asof">Loading…</span></div>
+  <p class="sc-fresh" id="sc-fresh"><span class="dot"></span><span id="sc-fresh-text">Loading…</span></p>
 
   <section class="cx-card sc-verdict" aria-label="Market verdict">
     <div class="cx-card-head">
@@ -134,6 +83,26 @@
     </div>
   </section>
 
+<section class="sc-stats-wrap" aria-label="Batch summary">
+    <h2 class="visually-hidden">Batch summary</h2>
+    <div class="sc-stats" id="sc-stats" role="group" aria-label="Filter by signal">
+      <button type="button" class="sc-card" data-v="Strong Buy"><span class="sc-card-num" id="sc-n-sbuy">—</span><span class="sc-card-lab">Strong Buy</span></button>
+      <button type="button" class="sc-card" data-v="Buy"><span class="sc-card-num" id="sc-n-buy">—</span><span class="sc-card-lab">Buy</span></button>
+      <button type="button" class="sc-card" data-v="Hold"><span class="sc-card-num" id="sc-n-hold">—</span><span class="sc-card-lab">Hold</span></button>
+      <button type="button" class="sc-card" data-v="Exit / Reduce"><span class="sc-card-num" id="sc-n-exit">—</span><span class="sc-card-lab">Exit / Reduce</span></button>
+      <button type="button" class="sc-card" data-v="Strong Exit"><span class="sc-card-num" id="sc-n-sexit">—</span><span class="sc-card-lab">Strong Exit</span></button>
+      <button type="button" class="sc-card" data-v="Insufficient history"><span class="sc-card-num" id="sc-n-ins">—</span><span class="sc-card-lab">Insufficient history</span></button>
+    </div>
+    <div class="sc-mix" role="img" aria-label="Verdict mix"><div class="sc-mix-track" id="sc-mix-track"></div><div class="sc-mix-legend" id="sc-mix-legend"></div></div>
+    <div id="sc-card-results" hidden></div>
+  </section>
+
+  <section aria-label="Sectors">
+    <h2>Sectors</h2>
+    <p class="sig-sub">Tap a sector to filter the ranked table below — every stock in that sector, same batch.</p>
+    <div class="sc-sectors" id="sc-sectors"></div>
+  </section>
+
   <h2>RSI extremes &amp; biggest movers</h2>
   <p class="sig-sub">Daily batch <span id="w1-asof">—</span> &middot; auto-refreshes every 5 min during market hours</p>
 
@@ -145,12 +114,12 @@
       <button role="tab" id="w1tab-hi" aria-controls="w1p-hi" aria-selected="false" tabindex="-1">Highest RSI</button>
       <button role="tab" id="w1tab-mv" aria-controls="w1p-mv" aria-selected="false" tabindex="-1">Moves most</button>
     </div>
-    <div role="tabpanel" id="w1p-os" aria-labelledby="w1tab-os" tabindex="0"><div class="scrollx"><table class="sig-table nd-table"><caption class="visually-hidden">Oversold securities, RSI below 30</caption><thead><tr><th scope="col">Symbol</th><th scope="col">Company</th><th scope="col" class="num">RSI</th><th scope="col" class="num">Price</th><th scope="col" class="num">Change</th></tr></thead><tbody id="w1b-os"><tr><td colspan="5"><span class="skl" aria-hidden="true"></span></td></tr></tbody></table></div></div>
-    <div role="tabpanel" id="w1p-ob" aria-labelledby="w1tab-ob" tabindex="0" hidden><div class="scrollx"><table class="sig-table nd-table"><caption class="visually-hidden">Overbought securities, RSI above 70</caption><thead><tr><th scope="col">Symbol</th><th scope="col">Company</th><th scope="col" class="num">RSI</th><th scope="col" class="num">Price</th><th scope="col" class="num">Change</th></tr></thead><tbody id="w1b-ob"><tr><td colspan="5"><span class="skl" aria-hidden="true"></span></td></tr></tbody></table></div></div>
-    <div role="tabpanel" id="w1p-lo" aria-labelledby="w1tab-lo" tabindex="0" hidden><div class="scrollx"><table class="sig-table nd-table"><caption class="visually-hidden">Ten lowest RSI readings</caption><thead><tr><th scope="col">Symbol</th><th scope="col">Company</th><th scope="col" class="num">RSI</th><th scope="col" class="num">Price</th><th scope="col" class="num">Change</th></tr></thead><tbody id="w1b-lo"><tr><td colspan="5"><span class="skl" aria-hidden="true"></span></td></tr></tbody></table></div></div>
-    <div role="tabpanel" id="w1p-hi" aria-labelledby="w1tab-hi" tabindex="0" hidden><div class="scrollx"><table class="sig-table nd-table"><caption class="visually-hidden">Ten highest RSI readings</caption><thead><tr><th scope="col">Symbol</th><th scope="col">Company</th><th scope="col" class="num">RSI</th><th scope="col" class="num">Price</th><th scope="col" class="num">Change</th></tr></thead><tbody id="w1b-hi"><tr><td colspan="5"><span class="skl" aria-hidden="true"></span></td></tr></tbody></table></div></div>
-    <div role="tabpanel" id="w1p-mv" aria-labelledby="w1tab-mv" tabindex="0" hidden><div class="scrollx"><table class="sig-table nd-table"><caption class="visually-hidden">Biggest movers by 20-session average daily range</caption><thead><tr><th scope="col">Symbol</th><th scope="col">Company</th><th scope="col" class="num">Avg range %</th><th scope="col" class="num">Avg range</th><th scope="col" class="num">Sessions</th></tr></thead><tbody id="w1b-mv"><tr><td colspan="5"><span class="skl" aria-hidden="true"></span></td></tr></tbody></table></div></div>
-    <div class="note"><p style="margin:0">RSI(14) below 30 reads oversold and above 70 overbought, by convention. Each RSI is from that security's latest scored session in the daily batch. Moves most ranks securities by 20-session average daily range (high minus low) as a share of the latest close. Mechanical measurements for education, not recommendations.</p></div>
+    <div role="tabpanel" id="w1p-os" aria-labelledby="w1tab-os" tabindex="0"><div class="scrollx sc-cardwrap"><table class="sig-table nd-table"><caption class="visually-hidden">Oversold securities, RSI below 30</caption><thead><tr><th scope="col">Symbol</th><th scope="col">Company</th><th scope="col" class="num">RSI</th><th scope="col" class="num">Price</th><th scope="col" class="num">Change</th></tr></thead><tbody id="w1b-os"><tr><td colspan="5"><span class="skl" aria-hidden="true"></span></td></tr></tbody></table></div></div>
+    <div role="tabpanel" id="w1p-ob" aria-labelledby="w1tab-ob" tabindex="0" hidden><div class="scrollx sc-cardwrap"><table class="sig-table nd-table"><caption class="visually-hidden">Overbought securities, RSI above 70</caption><thead><tr><th scope="col">Symbol</th><th scope="col">Company</th><th scope="col" class="num">RSI</th><th scope="col" class="num">Price</th><th scope="col" class="num">Change</th></tr></thead><tbody id="w1b-ob"><tr><td colspan="5"><span class="skl" aria-hidden="true"></span></td></tr></tbody></table></div></div>
+    <div role="tabpanel" id="w1p-lo" aria-labelledby="w1tab-lo" tabindex="0" hidden><div class="scrollx sc-cardwrap"><table class="sig-table nd-table"><caption class="visually-hidden">Ten lowest RSI readings</caption><thead><tr><th scope="col">Symbol</th><th scope="col">Company</th><th scope="col" class="num">RSI</th><th scope="col" class="num">Price</th><th scope="col" class="num">Change</th></tr></thead><tbody id="w1b-lo"><tr><td colspan="5"><span class="skl" aria-hidden="true"></span></td></tr></tbody></table></div></div>
+    <div role="tabpanel" id="w1p-hi" aria-labelledby="w1tab-hi" tabindex="0" hidden><div class="scrollx sc-cardwrap"><table class="sig-table nd-table"><caption class="visually-hidden">Ten highest RSI readings</caption><thead><tr><th scope="col">Symbol</th><th scope="col">Company</th><th scope="col" class="num">RSI</th><th scope="col" class="num">Price</th><th scope="col" class="num">Change</th></tr></thead><tbody id="w1b-hi"><tr><td colspan="5"><span class="skl" aria-hidden="true"></span></td></tr></tbody></table></div></div>
+    <div role="tabpanel" id="w1p-mv" aria-labelledby="w1tab-mv" tabindex="0" hidden><div class="scrollx sc-cardwrap"><table class="sig-table nd-table"><caption class="visually-hidden">Biggest movers by 20-session average daily range</caption><thead><tr><th scope="col">Symbol</th><th scope="col">Company</th><th scope="col" class="num">Avg range %</th><th scope="col" class="num">Avg range</th><th scope="col" class="num">Sessions</th></tr></thead><tbody id="w1b-mv"><tr><td colspan="5"><span class="skl" aria-hidden="true"></span></td></tr></tbody></table></div></div>
+    <div class="note"><p style="margin:0">RSI(14) below 30 reads oversold and above 70 overbought, by convention. Each RSI is from that security's latest scored session in the daily batch. Moves most ranks securities by 20-session average daily range (high minus low) as a share of the latest close. Ranges computed through <span id="w1-mv-asof">—</span>. Mechanical measurements for education, not recommendations.</p></div>
   </section>
 
   <section class="sc-controls" aria-label="Screener controls">
@@ -161,6 +130,7 @@
         <option value="m">Monthly</option>
       </select>
     </label>
+    <span id="sc-tf-hint" class="sig-sub sc-tf-hint"></span>
     <label>Show
       <select id="sc-perpage" class="sc-select" aria-label="Rows per page">
         <option value="10">10</option>
@@ -202,7 +172,7 @@
   <section aria-label="Ranked stocks">
     <h2>Ranked stocks</h2>
     <p class="sig-sub" id="sc-summary" role="status" aria-live="polite"><b>—</b>&nbsp;of&nbsp;<b>—</b>&nbsp;shown</p>
-    <div class="scrollx">
+    <div class="scrollx sc-cardwrap">
       <table class="sig-table nd-table" id="sc-table">
         <caption class="visually-hidden">Ranked NEPSE securities: price, day change, volume, RSI, signal and setup, hit rate, stop loss and target</caption>
         <thead>
@@ -229,6 +199,7 @@
       <span id="sc-range"></span>
       <span style="display:flex;gap:8px;margin-left:auto" id="sc-pager" aria-label="Pagination"></span>
     </div>
+    <p class="sig-sub sc-repaint-note" id="sc-repaint-note"></p>
   </section>
 
   <div class="note" aria-label="Methodology note">
@@ -249,6 +220,13 @@
     <p class="sig-sub">Every Buy/Strong Buy signal becomes a live call with its own stop and target, and stays open until the target hits, the stop hits, or 20 sessions pass — never closed just because a later signal flipped. Flash = first session at Buy; persistent = 3+ consecutive Buy sessions.</p>
     <div id="sc-calls-body"></div>
     <p class="sig-sub">Educational record, not a recommendation. Past hit rates do not predict future ones.</p>
+  </section>
+
+<section aria-label="Verdict archive">
+    <h2>Verdict archive</h2>
+    <p class="sig-sub">Every scored session, same engine — the batch's history, not just today.</p>
+    <div class="scrollx sc-cardwrap"><table class="sig-table nd-table"><thead><tr><th>Session</th><th class="num">Scored</th><th class="num">Strong Buy</th><th class="num">Buy</th><th class="num">Hold</th><th class="num">Exit / Reduce</th><th class="num">Strong Exit</th><th class="num">Insufficient</th></tr></thead><tbody id="sc-archive-body"><tr><td colspan="8" class="sc-empty">Loading archive…</td></tr></tbody></table></div>
+    <p class="sig-sub" id="sc-archive-note"></p>
   </section>
 
   <section aria-label="NEPSE reading strategy">
@@ -296,8 +274,8 @@
 <script src="../js/nepse-suite.js?v=fc985220" defer></script>
 <script src="/js/company-logos.js?v=d8c620a6" defer></script>
 <script src="/js/nepse-logos.js" defer></script>
-<script src="../js/nepse-screener.js?v=b091699c" defer></script>
-<script src="../js/nd-screener-verdict.js?v=6d144095" defer></script>
+<script src="../js/nepse-screener.js?v=a36c68de" defer></script>
+<script src="../js/nd-screener-verdict.js?v=0a3f90d5" defer></script>
 <script src="/js/theme-toggle.js?v=6a6a46c6" defer></script>
 <script src="/js/freshness-badge.js?v=307d4f55" defer></script>
 <script src="/js/nd-chrome.js?v=74c1c8b7" defer></script>

@@ -1,9 +1,30 @@
-/* NEPSE Stock Screener - client-side ranking table.
+/* NEPSE Stock Screener - client-side ranking table (teardown 2026-10-28,
+ * verdict series page 4).
  *
  * Data: ../nepse-chart/data/verdicts.json (daily rule-based signals, built by
- * tools/build-nepse-universe.js) + ../nepse-chart/data/universe.json (names).
+ * tools/build-nepse-universe.js) + ../nepse-chart/data/universe.json (names)
+ * + ../nepse-chart/data/screener-calls.json (live call ledger)
+ * + ../nepse-chart/data/track-record.json (250-session setup replay)
+ * + ../nepse-chart/data/screener-verdict-archive.json (session archive)
+ * + ../nepse-chart/data/wave1.json (RSI extremes / biggest movers, via the
+ * shared js/nepse-wave1.js renderer — that file is shared with /nepse-daily/
+ * and /nepse-decode/ and is NOT rewritten here; this page only calls its
+ * public window.NepseWave1.refresh() on data change).
+ * Live tape: the 15-minute snapshot via window.NepseLive (js/nepse-data.js).
  * Everything rendered here comes from those files; no fabricated values.
  * Educational use only - not investment advice.
+ *
+ * Teardown changes vs the previous build (all behaviour-preserving except
+ * where noted): 60s change-gated refresh + page-owned freshness line
+ * (replaces the 5-minute market-hours-only refresh); stat cards +
+ * distribution mix bar + interactive sector blocks; session archive
+ * section; stale markers (row asof < batch asof) + live-tape markers on
+ * repainted prices; open-calls pagination; no-closed-calls banner;
+ * timeframe hint element; nulls sort LAST on every column (was: -1
+ * fallback, which put nulls first on ascending sorts); refresh preserves
+ * the selected sector + timeframe (was: sector select reset, timeframe
+ * silently reverted to daily); view handlers re-baseline the refresh
+ * signature, never null it.
  */
 (function () {
   'use strict';
@@ -11,6 +32,8 @@
   var RANK = { 'Strong Buy': 0, 'Buy': 1, 'Hold': 2, 'Exit / Reduce': 3, 'Strong Exit': 4, 'Insufficient history': 5 };
   var CLS = { 'Strong Buy': 'sbuy', 'Buy': 'buy', 'Hold': 'hold', 'Exit / Reduce': 'exit', 'Strong Exit': 'sexit', 'Insufficient history': 'insufficient' };
   var DISP = { 'Strong Buy': 'Strong Buy', 'Buy': 'Buy', 'Hold': 'Hold', 'Exit / Reduce': 'Exit', 'Strong Exit': 'Strong Exit', 'Insufficient history': 'No signal' };
+  var MIXCLS = { 'Strong Buy': 'm-sbuy', 'Buy': 'm-buy', 'Hold': 'm-hold', 'Exit / Reduce': 'm-exit', 'Strong Exit': 'm-sexit', 'Insufficient history': 'm-ins' };
+  var VERDICTS = ['Strong Buy', 'Buy', 'Hold', 'Exit / Reduce', 'Strong Exit', 'Insufficient history'];
 
   /* Honest sector/instrument grouping.
    * The repo ships no per-symbol sector field (tools/sector-map.json is
@@ -81,7 +104,10 @@
   }
 
   var state = { rows: [], q: '', sector: '', verdict: '', rsi: '', pmin: null, pmax: null, vmin: null,
-    sortK: 'sig', sortD: 1, page: 1, perPage: 25, tf: 'd' };
+    sortK: 'sig', sortD: 1, page: 1, perPage: 25, tf: 'd', callsPage: 1,
+    batchAsof: '', changes: null, callsDoc: null, trackRecord: null, archiveDoc: null,
+    wave1Asof: '', tapeSession: '', liveQuotes: {}, sig: null, lastChecked: null };
+
   var TF_LABEL = { d: 'Daily', w: 'Weekly', m: 'Monthly' };
   var TF_HINT = {
     d: "Today's signal from the latest session.",
@@ -106,6 +132,39 @@
       x.toFixed(1) + 'x</span>';
   }
   function pct(x) { return (x >= 0 ? '+' : '') + x.toFixed(1) + '%'; }
+  function nptParts(d) {
+    var n = new Date(d.getTime() + (5 * 60 + 45) * 60000);
+    var p = function (x) { return (x < 10 ? '0' : '') + x; };
+    return { y: n.getUTCFullYear(), m: p(n.getUTCMonth() + 1), d: p(n.getUTCDate()),
+      hh: p(n.getUTCHours()), mm: p(n.getUTCMinutes()) };
+  }
+  function scrollToEl(el) {
+    if (!el || !el.scrollIntoView) return;
+    var reduced = false;
+    try { reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+    el.scrollIntoView({ block: 'start', behavior: reduced ? 'auto' : 'smooth' });
+  }
+
+  /* Live-tape repaint (render-time, mirroring engine-verdict enrichRows):
+   * price + change only, tape session >= row asof, stops/targets/verdicts/
+   * scores NEVER repainted. Returns {p, ch, live}. */
+  function liveVal(r) {
+    var q = state.liveQuotes[r.sym];
+    var rowAsof = r.asof || state.batchAsof || '';
+    if (!q || q.ltp == null || !isFinite(Number(q.ltp))) return { p: r.p, ch: r.ch, live: false };
+    if (state.tapeSession && rowAsof && state.tapeSession < rowAsof) return { p: r.p, ch: r.ch, live: false };
+    var pctCh = null;
+    if (q.percent_change != null && isFinite(Number(q.percent_change))) pctCh = Number(q.percent_change);
+    else if (q.pct != null && isFinite(Number(q.pct))) pctCh = Number(q.pct);
+    else if (q.previous_close && isFinite(Number(q.previous_close)) && Number(q.previous_close) > 0)
+      pctCh = (Number(q.ltp) - Number(q.previous_close)) / Number(q.previous_close) * 100;
+    return { p: Number(q.ltp), ch: pctCh, live: true };
+  }
+  function staleMark(r) {
+    var a = r.asof || '';
+    if (!a || !state.batchAsof || a >= state.batchAsof) return '';
+    return ' <span class="sc-flag" title="Last scored ' + esc(a) + '">◷ ' + esc(a.slice(5)) + '</span>';
+  }
 
   function slCell(r) {
     if (r.sl == null || r.p == null || !r.p) return '<span class="sc-dash">—</span>';
@@ -123,7 +182,6 @@
     return '<span class="cx-hit"><b class="sc-hit">' + w + '%</b> <span class="sc-sub">' + r.tr.n + ' calls</span>' +
       '<span class="cx-prop"><span class="cx-prop-track"><span class="cx-prop-fill" style="--w:' + Math.max(0, Math.min(100, w)) + '%"></span></span></span></span>';
   }
-
   function rsiCell(r) {
     if (r.rsi == null) return '<span class="sc-dash">—</span>';
     var cls = r.rsi < 30 ? ' sc-rsi-os' : (r.rsi > 70 ? ' sc-rsi-ob' : '');
@@ -131,14 +189,12 @@
     return '<span class="cx-rsi"><b class="sc-rsi' + cls + '">' + r.rsi.toFixed(1) + '</b>' +
       '<span class="cx-rsi-bar"><span class="cx-rsi-mark" style="--pos:' + pos + '%"></span></span></span>';
   }
-
-  function chCell(r) {
-    var ch = Number(r.ch);
-    if (r.ch == null || !isFinite(ch)) return '<span class="sc-dash">—</span>';
-    var cls = ch > 0 ? 'up' : (ch < 0 ? 'down' : 'flat');
-    return '<span class="cx-chip ' + cls + '">' + (ch > 0 ? '+' : '') + ch.toFixed(2) + '%</span>';
+  function chCell(ch) {
+    var c = Number(ch);
+    if (ch == null || !isFinite(c)) return '<span class="sc-dash">—</span>';
+    var cls = c > 0 ? 'up' : (c < 0 ? 'down' : 'flat');
+    return '<span class="cx-chip ' + cls + '">' + (c > 0 ? '+' : '') + c.toFixed(2) + '%</span>';
   }
-
   function badge(v) {
     return '<span class="ms-v ' + (CLS[v] || 'insufficient') + '">' + esc(DISP[v] || v) + '</span>';
   }
@@ -161,28 +217,28 @@
       return true;
     });
     var k = state.sortK, d = state.sortD;
+    /* Nulls sort LAST on every column, regardless of direction (teardown
+     * fix; the old code's -1 fallback put nulls first on ascending sorts). */
+    function nullLast(a, b) {
+      if (a == null && b == null) return 0;
+      if (a == null) return 1;
+      if (b == null) return -1;
+      return null;
+    }
     out.sort(function (a, b) {
-      var x, y;
+      var x, y, nl;
       switch (k) {
         case 'sn': return 0; // S.N. follows the ranking order
         case 'sec': x = a.sec || ''; y = b.sec || ''; return (x < y ? -1 : x > y ? 1 : 0) * d || rankCmp(a, b);
         case 'sym': x = a.sym; y = b.sym; return (x < y ? -1 : x > y ? 1 : 0) * d || rankCmp(a, b);
-        case 'p': x = a.p || -1; y = b.p || -1; return (x - y) * d || rankCmp(a, b);
-        case 'ch':
-          if (a.ch == null && b.ch == null) return rankCmp(a, b);
-          if (a.ch == null) return 1;
-          if (b.ch == null) return -1;
-          return (a.ch - b.ch) * d || rankCmp(a, b);
-        case 'vol': x = a.vol || -1; y = b.vol || -1; return (x - y) * d || rankCmp(a, b);
-        case 'rsi':
-          if (a.rsi == null && b.rsi == null) return rankCmp(a, b);
-          if (a.rsi == null) return 1;
-          if (b.rsi == null) return -1;
-          return (a.rsi - b.rsi) * d || rankCmp(a, b);
+        case 'p': nl = nullLast(a.p, b.p); return nl !== null ? nl : (a.p - b.p) * d || rankCmp(a, b);
+        case 'ch': nl = nullLast(a.ch, b.ch); return nl !== null ? nl : (a.ch - b.ch) * d || rankCmp(a, b);
+        case 'vol': nl = nullLast(a.vol, b.vol); return nl !== null ? nl : (a.vol - b.vol) * d || rankCmp(a, b);
+        case 'rsi': nl = nullLast(a.rsi, b.rsi); return nl !== null ? nl : (a.rsi - b.rsi) * d || rankCmp(a, b);
         case 'sig': return rankCmp(a, b) * d;
-        case 'tr': x = a.tr ? a.tr.w : -1; y = b.tr ? b.tr.w : -1; return (x - y) * d || rankCmp(a, b);
-        case 'sl': x = a.sl == null ? -1 : a.sl; y = b.sl == null ? -1 : b.sl; return (x - y) * d || rankCmp(a, b);
-        case 'tp': x = a.tp == null ? -1 : a.tp; y = b.tp == null ? -1 : b.tp; return (x - y) * d || rankCmp(a, b);
+        case 'tr': x = a.tr ? a.tr.w : null; y = b.tr ? b.tr.w : null; nl = nullLast(x, y); return nl !== null ? nl : (x - y) * d || rankCmp(a, b);
+        case 'sl': nl = nullLast(a.sl, b.sl); return nl !== null ? nl : (a.sl - b.sl) * d || rankCmp(a, b);
+        case 'tp': nl = nullLast(a.tp, b.tp); return nl !== null ? nl : (a.tp - b.tp) * d || rankCmp(a, b);
         default: return 0;
       }
     });
@@ -192,7 +248,10 @@
   function rankCmp(a, b) {
     var ra = RANK[a.v] == null ? 9 : RANK[a.v], rb = RANK[b.v] == null ? 9 : RANK[b.v];
     if (ra !== rb) return ra - rb;
-    var sa = a.s == null ? -999 : a.s, sb = b.s == null ? -999 : b.s;
+    var sa = a.s == null ? null : a.s, sb = b.s == null ? null : b.s;
+    if (sa == null && sb == null) return a.sym < b.sym ? -1 : 1;
+    if (sa == null) return 1;
+    if (sb == null) return -1;
     return sb - sa || (a.sym < b.sym ? -1 : 1);
   }
 
@@ -220,6 +279,84 @@
     return n;
   }
 
+  /* ---------- Batch summary: distribution + sectors (active timeframe) ---------- */
+  function distCounts() {
+    var c = {};
+    VERDICTS.forEach(function (v) { c[v] = 0; });
+    state.rows.forEach(function (r) { if (c[r.v] != null) c[r.v]++; else c[r.v] = 1; });
+    return c;
+  }
+  function sectorCounts() {
+    var c = {};
+    state.rows.forEach(function (r) { c[r.sec || 'Others'] = (c[r.sec || 'Others'] || 0) + 1; });
+    return c;
+  }
+  function renderStats() {
+    var c = distCounts();
+    var map = { 'Strong Buy': 'sc-n-sbuy', 'Buy': 'sc-n-buy', 'Hold': 'sc-n-hold',
+      'Exit / Reduce': 'sc-n-exit', 'Strong Exit': 'sc-n-sexit', 'Insufficient history': 'sc-n-ins' };
+    VERDICTS.forEach(function (v) {
+      var el = $(map[v]);
+      if (el) el.textContent = c[v];
+    });
+    document.querySelectorAll('.sc-card[data-v]').forEach(function (x) {
+      x.classList.toggle('is-on', !!state.verdict && x.getAttribute('data-v') === state.verdict);
+    });
+    var track = $('sc-mix-track'), legend = $('sc-mix-legend');
+    if (!track || !legend) return;
+    var total = state.rows.length;
+    var segs = '', legs = '';
+    VERDICTS.forEach(function (v) {
+      if (!c[v]) return; // zero-count buckets render NO segment and NO legend row
+      var w = total ? (c[v] / total * 100) : 0;
+      segs += '<i class="' + MIXCLS[v] + '" style="width:' + w + '%" title="' + esc(v) + ' ' + c[v] + '"></i>';
+      legs += '<span><i class="' + MIXCLS[v] + '"></i>' + esc(DISP[v]) + ' <b>' + c[v] + '</b></span>';
+    });
+    track.innerHTML = segs;
+    legend.innerHTML = legs;
+    var mix = document.querySelector('.sc-mix');
+    if (mix) mix.setAttribute('aria-label', 'Verdict mix: ' + VERDICTS.filter(function (v) { return c[v]; }).map(function (v) { return DISP[v] + ' ' + c[v]; }).join(', '));
+  }
+  function renderSectors() {
+    var box = $('sc-sectors');
+    if (!box) return;
+    var counts = sectorCounts();
+    var names = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a] || (a < b ? -1 : 1); });
+    box.innerHTML = names.map(function (sec) {
+      var rows = state.rows.filter(function (r) { return (r.sec || 'Others') === sec; });
+      var buy = rows.filter(function (r) { return r.v === 'Strong Buy' || r.v === 'Buy'; }).length;
+      var exit = rows.filter(function (r) { return r.v === 'Exit / Reduce' || r.v === 'Strong Exit'; }).length;
+      var hold = rows.length - buy - exit;
+      var top = rows.slice().sort(rankCmp).slice(0, 3);
+      var topHtml = top.map(function (r) {
+        return '<a href="/stocks/' + esc(String(r.sym).replace(/\//g, '-')) + '/">' + esc(r.sym) + '</a> ' + badge(r.v) + (r.s != null ? ' ' + r.s.toFixed(1) : '');
+      }).join(' · ');
+      var tot = rows.length || 1;
+      var bar = '<span class="sc-mix-track" style="height:8px"><i class="m-sbuy" style="width:' + (buy / tot * 100) + '%"></i>' +
+        '<i class="m-hold" style="width:' + (hold / tot * 100) + '%"></i>' +
+        '<i class="m-sexit" style="width:' + (exit / tot * 100) + '%"></i></span>';
+      return '<button type="button" class="sc-sector-card' + (state.sector === sec ? ' is-on' : '') + '" data-sec="' + esc(sec) + '">' +
+        '<h3>' + esc(sec) + '</h3>' +
+        '<span class="sc-sec-meta">' + rows.length + ' stocks · ' + buy + ' buy-side · ' + exit + ' exit-side</span>' +
+        bar +
+        '<p class="sc-sec-top">' + topHtml + '</p></button>';
+    }).join('');
+    box.querySelectorAll('.sc-sector-card').forEach(function (card) {
+      card.addEventListener('click', function () {
+        var sec = card.getAttribute('data-sec') || '';
+        state.sector = (state.sector === sec) ? '' : sec;
+        var sel = $('sc-sector');
+        if (sel) sel.value = state.sector;
+        state.page = 1;
+        render();
+        renderStats();
+        renderSectors();
+        rebaseline();
+        if (state.sector) scrollToEl($('sc-table'));
+      });
+    });
+  }
+
   function trackPct(x) { return x == null ? '—' : (x * 100).toFixed(1) + '%'; }
   function trackRet(x) { return x == null ? '—' : (x >= 0 ? '+' : '') + (x * 100).toFixed(2) + '%'; }
   function renderTracking() {
@@ -232,7 +369,7 @@
           chBody.innerHTML = '<p class="sig-sub">This is the verdict archive\'s first session, so there is no previous session to compare it with.</p>';
         } else {
           chEl.textContent = 'vs ' + c.prev_session + ': ' + c.upgraded + ' upgraded · ' + c.downgraded + ' downgraded · ' + c.held + ' held · ' + c.new + ' new · ' + c.flips.length + ' full Buy↔Exit flip' + (c.flips.length === 1 ? '' : 's');
-          chBody.innerHTML = c.flips.length ? '<div class="scrollx"><table class="sig-table nd-table"><thead><tr><th>Symbol</th><th>From</th><th>To</th></tr></thead><tbody>' +
+          chBody.innerHTML = c.flips.length ? '<div class="scrollx sc-cardwrap"><table class="sig-table nd-table"><thead><tr><th>Symbol</th><th>From</th><th>To</th></tr></thead><tbody>' +
             c.flips.map(function (f) { return '<tr><td><a href="/stocks/' + esc(f.symbol) + '/">' + esc(f.symbol) + '</a></td><td>' + esc(f.from) + '</td><td>' + esc(f.to) + '</td></tr>'; }).join('') + '</tbody></table></div>'
             : '<p class="sig-sub">No security crossed from Buy to Exit (or back) in one step this session.</p>';
         }
@@ -260,26 +397,89 @@
         replayRows = '<h3>Setup track record — replay, most recent 250 sessions</h3>' +
           '<p class="sig-sub">The same win rule (target before stop, 20 sessions) replayed over history. ' +
           'This is the backtest the live ledger will either confirm or correct as real calls resolve.</p>' +
-          '<div class="scrollx"><table class="sig-table nd-table"><thead><tr><th>Setup</th><th class="num">Decided calls</th><th class="num">Win rate</th></tr></thead><tbody>' +
+          '<div class="scrollx sc-cardwrap"><table class="sig-table nd-table"><thead><tr><th>Setup</th><th class="num">Decided calls</th><th class="num">Win rate</th></tr></thead><tbody>' +
           tr.eval.setups.map(function (r) {
             return '<tr><td>' + esc(r.label) + '</td><td class="num">' + r.n + '</td><td class="num">' + trackPct(r.w) + '</td></tr>';
           }).join('') + '</tbody></table></div>';
       }
-      cb.innerHTML =
+      /* Open calls: paginated 25/page (was: all rows in one table). */
+      var callPer = 25;
+      var callPages = Math.max(1, Math.ceil(open.length / callPer));
+      if (state.callsPage > callPages) state.callsPage = callPages;
+      var cStart = (state.callsPage - 1) * callPer;
+      var cSlice = open.slice(cStart, cStart + callPer);
+      var cFrom = open.length ? cStart + 1 : 0, cTo = Math.min(cStart + callPer, open.length);
+      var banner = (s.decided === 0)
+        ? '<p class="sc-noclosed">No closed paper trades yet — every Buy/Strong Buy call below is still open; no win rate is shown until calls resolve.</p>'
+        : '';
+      var openHtml = open.length
+        ? '<div class="scrollx sc-cardwrap"><table class="sig-table nd-table"><thead><tr><th>Symbol</th><th>Entry</th><th class="num">Price</th><th class="num">Stop</th><th class="num">Target</th><th>Setup</th><th class="num">Streak</th><th class="num">Sessions</th><th class="num">Return now</th></tr></thead><tbody>' +
+          cSlice.map(function (x) {
+            var price = (x.entry != null) ? x.entry.toFixed(2) : '—';
+            return '<tr><td><a href="/stocks/' + esc(x.sym) + '/">' + esc(x.sym) + '</a></td><td>' + esc(x.date) + '</td><td class="num">' + price + '</td><td class="num">' + (x.sl != null ? x.sl.toFixed(2) : '—') + '</td><td class="num">' + (x.tp != null ? x.tp.toFixed(2) : '—') + '</td><td>' + esc(x.setup || '—') + '</td><td class="num">' + (x.streak != null ? x.streak : '—') + '</td><td class="num">' + (x.sessions_elapsed != null ? x.sessions_elapsed : '—') + '</td><td class="num">' + trackRet(x.last_return) + '</td></tr>';
+          }).join('') + '</tbody></table></div>' +
+          '<div class="sig-pager"><span>Showing ' + cFrom + ' to ' + cTo + ' of ' + open.length + ' open calls</span>' +
+          '<span style="display:flex;gap:8px;margin-left:auto" id="sc-calls-pager" aria-label="Open calls pagination"></span></div>'
+        : '<p class="sig-sub">No open calls.</p>';
+      cb.innerHTML = banner +
         '<p class="sig-sub">' + s.open + ' open · ' + s.decided + ' decided (target ' + s.closed_tp + ' · stop ' + s.closed_sl + ' · expired ' + s.closed_expired + ') · win rate ' + (s.win_rate == null ? '—' : trackPct(s.win_rate)) + ' on decided calls.</p>' +
-        '<div class="scrollx"><table class="sig-table nd-table"><thead><tr><th>Persistence at entry</th><th class="num">Decided</th><th class="num">Wins</th><th class="num">Win rate</th></tr></thead><tbody>' + persRows + '</tbody></table></div>' +
-        (setupRows ? '<div class="scrollx"><table class="sig-table nd-table"><thead><tr><th>Setup</th><th class="num">Decided</th><th class="num">Wins</th><th class="num">Win rate</th></tr></thead><tbody>' + setupRows + '</tbody></table></div>' : '') +
+        '<div class="scrollx sc-cardwrap"><table class="sig-table nd-table"><thead><tr><th>Persistence at entry</th><th class="num">Decided</th><th class="num">Wins</th><th class="num">Win rate</th></tr></thead><tbody>' + persRows + '</tbody></table></div>' +
+        (setupRows ? '<div class="scrollx sc-cardwrap"><table class="sig-table nd-table"><thead><tr><th>Setup</th><th class="num">Decided</th><th class="num">Wins</th><th class="num">Win rate</th></tr></thead><tbody>' + setupRows + '</tbody></table></div>' : '') +
         replayRows +
-        '<h3>Open calls</h3>' + (open.length ? '<div class="scrollx"><table class="sig-table nd-table"><thead><tr><th>Symbol</th><th>Entry</th><th class="num">Price</th><th class="num">Stop</th><th class="num">Target</th><th>Setup</th><th class="num">Streak</th><th class="num">Sessions</th><th class="num">Return now</th></tr></thead><tbody>' +
-        open.map(function (x) { return '<tr><td><a href="/stocks/' + esc(x.sym) + '/">' + esc(x.sym) + '</a></td><td>' + esc(x.date) + '</td><td class="num">' + x.entry.toFixed(2) + '</td><td class="num">' + x.sl.toFixed(2) + '</td><td class="num">' + x.tp.toFixed(2) + '</td><td>' + esc(x.setup || '—') + '</td><td class="num">' + x.streak + '</td><td class="num">' + x.sessions_elapsed + '</td><td class="num">' + trackRet(x.last_return) + '</td></tr>'; }).join('') + '</tbody></table></div>'
-        : '<p class="sig-sub">No open calls.</p>') +
-        '<h3>Recently closed</h3>' + (closed.length ? '<div class="scrollx"><table class="sig-table nd-table"><thead><tr><th>Symbol</th><th>Entry</th><th>Exit</th><th>Outcome</th><th class="num">Return</th><th class="num">Sessions held</th></tr></thead><tbody>' +
-        closed.map(function (x) { return '<tr><td><a href="/stocks/' + esc(x.sym) + '/">' + esc(x.sym) + '</a></td><td>' + esc(x.date) + '</td><td>' + esc(x.exit_date) + '</td><td>' + esc(x.exit) + '</td><td class="num">' + trackRet(x.exit_return) + '</td><td class="num">' + x.sessions_held + '</td></tr>'; }).join('') + '</tbody></table></div>'
+        '<h3>Open calls</h3>' + openHtml +
+        '<h3>Recently closed</h3>' + (closed.length ? '<div class="scrollx sc-cardwrap"><table class="sig-table nd-table"><thead><tr><th>Symbol</th><th>Entry</th><th>Exit</th><th>Outcome</th><th class="num">Return</th><th class="num">Sessions held</th></tr></thead><tbody>' +
+        closed.map(function (x) { return '<tr><td><a href="/stocks/' + esc(x.sym) + '/">' + esc(x.sym) + '</a></td><td>' + esc(x.date) + '</td><td>' + esc(x.exit_date) + '</td><td>' + esc(x.exit) + '</td><td class="num">' + trackRet(x.exit_return) + '</td><td class="num">' + (x.sessions_held != null ? x.sessions_held : '—') + '</td></tr>'; }).join('') + '</tbody></table></div>'
         : '<p class="sig-sub">No closed calls yet — the first calls resolve as their targets, stops or 20 sessions arrive.</p>');
+      /* Calls pager wiring (rebuilt on every renderTracking). */
+      var cp = $('sc-calls-pager');
+      if (cp && callPages > 1) {
+        var h = '<button class="sc-pg" data-pg="prev"' + (state.callsPage <= 1 ? ' disabled' : '') + '>‹ Prev</button>';
+        pageWindow(state.callsPage, callPages).forEach(function (p) {
+          if (p === '…') h += '<span class="sc-gap">…</span>';
+          else h += '<button class="sc-pg' + (p === state.callsPage ? ' is-on' : '') + '" data-pg="' + p + '">' + p + '</button>';
+        });
+        h += '<button class="sc-pg" data-pg="next"' + (state.callsPage >= callPages ? ' disabled' : '') + '>Next ›</button>';
+        cp.innerHTML = h;
+        cp.querySelectorAll('.sc-pg').forEach(function (b) {
+          b.addEventListener('click', function () {
+            var v = b.getAttribute('data-pg');
+            if (v === 'prev') state.callsPage = Math.max(1, state.callsPage - 1);
+            else if (v === 'next') state.callsPage = Math.min(callPages, state.callsPage + 1);
+            else state.callsPage = +v;
+            renderTracking();
+            rebaseline();
+            scrollToEl($('sc-calls-body'));
+          });
+        });
+      }
     } catch (e) {
       var cb2 = $('sc-calls-body');
       if (cb2) cb2.innerHTML = '<p class="sig-sub">The call ledger could not be rendered.</p>';
     }
+  }
+
+  function renderArchive() {
+    var sec = document.querySelector('section[aria-label="Verdict archive"]');
+    var body = $('sc-archive-body'), note = $('sc-archive-note');
+    var doc = state.archiveDoc;
+    if (!doc || !doc.sessions) {
+      if (sec) sec.style.display = 'none'; // absent component, never an empty frame
+      return;
+    }
+    if (sec) sec.style.display = '';
+    var sessions = Object.keys(doc.sessions).sort();
+    body.innerHTML = sessions.map(function (k) {
+      var snap = doc.sessions[k] || {};
+      var c = { 'Strong Buy': 0, 'Buy': 0, 'Hold': 0, 'Exit / Reduce': 0, 'Strong Exit': 0, 'Insufficient history': 0 };
+      var n = 0;
+      Object.keys(snap).forEach(function (s) {
+        var v = snap[s] && snap[s].v;
+        if (c[v] != null) c[v]++; else c[v] = 1;
+        n++;
+      });
+      return '<tr><td>' + esc(k) + '</td><td class="num">' + n + '</td><td class="num">' + c['Strong Buy'] + '</td><td class="num">' + c['Buy'] + '</td><td class="num">' + c['Hold'] + '</td><td class="num">' + c['Exit / Reduce'] + '</td><td class="num">' + c['Strong Exit'] + '</td><td class="num">' + c['Insufficient history'] + '</td></tr>';
+    }).join('');
+    if (note) note.textContent = sessions.length ? 'Tracking starts ' + sessions[0] + '.' : '';
   }
 
   function render() {
@@ -289,18 +489,23 @@
     if (state.page > pages) state.page = pages;
     var start = (state.page - 1) * perPage;
     var slice = rows.slice(start, start + perPage);
+    var repainted = 0;
 
     var html = slice.map(function (r, i) {
       var sn = start + i + 1;
       var Mono = window.NepseMono || null;
+      var lv = liveVal(r);
+      if (lv.live) repainted++;
+      var priceHtml = '<b>' + num2(lv.p) + '</b>' +
+        (lv.live ? ' <span class="sc-live-dot" title="Live tape, ' + esc(state.tapeSession) + '">●</span>' : '');
       return '<tr>' +
         '<td class="num sc-sn" data-label="S.N.">' + sn + '</td>' +
         '<td data-label="Sector">' + (r.sec ? '<span class="sc-sector">' + esc(r.sec) + '</span>' : '<span class="sc-dash">—</span>') + '</td>' +
-        '<td data-label="Symbol"><a class="sc-sym" href="/stocks/' + esc(String(r.sym).replace(/\//g, "-")) + '/">' +
+        '<td data-label="Symbol"><a class="sc-sym" href="/stocks/' + esc(String(r.sym).replace(/\//g, '-')) + '/">' +
           (window.NepseLogo ? window.NepseLogo.html(r.sym, r.sec, 28) : (Mono ? Mono.avatar(r.sym, r.sec, 28) : '')) + '<span>' + esc(r.sym) + '</span></a>' +
-          (r.l ? ' <span class="sc-ltp" title="LTP-only history">LTP</span>' : '') + '</td>' +
-        '<td class="num" data-label="Price"><b>' + num2(r.p) + '</b></td>' +
-        '<td class="num" data-label="Change">' + chCell(r) + '</td>' +
+          (r.l ? ' <span class="sc-ltp" title="LTP-only history">LTP</span>' : '') + staleMark(r) + '</td>' +
+        '<td class="num" data-label="Price">' + priceHtml + '</td>' +
+        '<td class="num" data-label="Change">' + chCell(lv.ch) + '</td>' +
         '<td class="num" data-label="Volume">' + fmtVol(r.vol) + rvolBadge(r) + '</td>' +
         '<td class="num" data-label="RSI">' + rsiCell(r) + '</td>' +
         '<td data-label="Signal &amp; setup">' + badge(r.v) + (r.setup ? ' <span class="sc-setup-chip">' + esc(r.setup) + '</span>' : '') +
@@ -336,6 +541,14 @@
     var from = rows.length ? start + 1 : 0, to = Math.min(start + perPage, rows.length);
     $('sc-range').textContent = 'Showing ' + from + ' to ' + to + ' of ' + rows.length + ' entries';
 
+    // repaint note: live prices are marked; signals/SL/TP stay daily-batch
+    var rn = $('sc-repaint-note');
+    if (rn) {
+      rn.textContent = state.tapeSession
+        ? repainted + ' price' + (repainted === 1 ? '' : 's') + ' on this page repainted from live tape ' + state.tapeSession + ' (●); signals, stop-loss, targets and hit rates stay daily-batch.'
+        : 'Batch prices shown (live tape unavailable). Signals, stop-loss and targets are daily-batch.';
+    }
+
     renderPager(rows.length, pages);
   }
 
@@ -357,7 +570,8 @@
         else if (v === 'next') state.page = Math.min(pages, state.page + 1);
         else state.page = +v;
         render();
-        document.getElementById('sc-table').scrollIntoView({ block: 'start', behavior: 'smooth' });
+        rebaseline();
+        scrollToEl(document.getElementById('sc-table'));
       });
     });
   }
@@ -372,22 +586,86 @@
     return out;
   }
 
+  // Summary cards double as signal filters (top-level: used by bindControls,
+  // applyData and the sector-card handler).
+// summary cards double as signal filters
+function syncCards() {
+  document.querySelectorAll('.sc-card[data-v]').forEach(function (x) {
+    x.classList.toggle('is-on', !!state.verdict && x.getAttribute('data-v') === state.verdict);
+  });
+  var sigSel2 = $('sc-signal');
+  if (sigSel2 && sigSel2.value !== state.verdict) sigSel2.value = state.verdict;
+}
+
+  // Wave 8: inline top-10 for the tapped signal card (top-level: used by
+  // bindControls, applyData and the live overlay).
+// Wave 8: inline top-10 for the tapped signal card. Rows carry symbol,
+// price, day change, verdict, stop loss, target and a chart link.
+function renderCardResults() {
+  var box = document.getElementById('sc-card-results');
+  if (!box) return;
+  if (!state.verdict) { box.innerHTML = ''; box.hidden = true; return; }
+  var matched = state.rows.filter(function (r) { return r.v === state.verdict; })
+    .sort(rankCmp);
+  var rows = matched.slice(0, 10);
+  var total = matched.length;
+  if (!rows.length) {
+    box.innerHTML = '<p class="sc-cr-empty">No ' + esc(DISP[state.verdict] || state.verdict) +
+      ' verdicts in the latest batch.</p>';
+    box.hidden = false;
+    return;
+  }
+  var Mono = window.NepseMono || null;
+  var h = '<h3 class="sc-cr-head">Top ' + rows.length + ' ' +
+    esc(DISP[state.verdict] || state.verdict) + ' matches</h3>';
+  h += '<div class="sc-cr-list">' + rows.map(function (r) {
+    var lv = liveVal(r);
+    var chHtml = chCell(lv.ch);
+    var priceHtml = num2(lv.p) + (lv.live ? ' <span class="sc-live-dot" title="Live tape, ' + esc(state.tapeSession) + '">●</span>' : '');
+    return '<div class="sc-cr-row">' +
+      '<a class="sc-cr-sym" href="/stocks/' + esc(String(r.sym).replace(/\//g, '-')) + '/">' +
+        (window.NepseLogo ? window.NepseLogo.html(r.sym, r.sec, 26) : (Mono ? Mono.avatar(r.sym, r.sec, 26) : '')) + '<span>' + esc(r.sym) + '</span></a>' +
+      '<span class="sc-cr-num tnum">Rs ' + priceHtml + '</span>' +
+      '<span class="sc-cr-num tnum">' + chHtml + '</span>' +
+      '<span>' + badge(r.v) + '</span>' +
+      '<span class="sc-cr-num tnum">SL ' + num2(r.sl) + '</span>' +
+      '<span class="sc-cr-num tnum">TP ' + num2(r.tp) + '</span>' +
+      '<a class="sc-cr-link" href="/nepse-chart/?s=' + esc(r.sym) + '">Chart</a>' +
+    '</div>';
+  }).join('') + '</div>';
+  if (total > rows.length) {
+    h += '<p class="sc-cr-more"><a href="#sc-table" id="sc-cr-all">See all ' + total +
+      ' in the full table below</a></p>';
+  }
+  box.innerHTML = h;
+  box.hidden = false;
+  var all = document.getElementById('sc-cr-all');
+  if (all) all.addEventListener('click', function (e) {
+    e.preventDefault();
+    var tbl = document.getElementById('sc-table');
+    if (tbl) scrollToEl(tbl);
+  });
+}
+
   function bindControls() {
     var q = $('sc-q'), deb = null;
     q.addEventListener('input', function () {
       clearTimeout(deb);
-      deb = setTimeout(function () { state.q = q.value; state.page = 1; render(); }, 160);
+      deb = setTimeout(function () { state.q = q.value; state.page = 1; render(); rebaseline(); }, 160);
     });
-    $('sc-sector').addEventListener('change', function (e) { state.sector = e.target.value; state.page = 1; render(); });
+    $('sc-sector').addEventListener('change', function (e) {
+      state.sector = e.target.value; state.page = 1; render(); renderStats(); renderSectors(); rebaseline();
+    });
     var sigSel = $('sc-signal');
     if (sigSel) sigSel.addEventListener('change', function (e) {
       state.verdict = e.target.value;
       syncCards();
-      state.page = 1; render();
+      state.page = 1; render(); renderStats();
       renderCardResults();
+      rebaseline();
     });
     var rsiSel = $('sc-rsi');
-    if (rsiSel) rsiSel.addEventListener('change', function (e) { state.rsi = e.target.value; state.page = 1; render(); });
+    if (rsiSel) rsiSel.addEventListener('change', function (e) { state.rsi = e.target.value; state.page = 1; render(); rebaseline(); });
     function numInput(id, set) {
       var el = $(id);
       if (!el) return;
@@ -397,7 +675,7 @@
         deb = setTimeout(function () {
           var v = parseFloat(el.value);
           set(isFinite(v) && v >= 0 ? v : null);
-          state.page = 1; render();
+          state.page = 1; render(); rebaseline();
         }, 220);
       });
     }
@@ -408,7 +686,7 @@
     if (resetBtn) resetBtn.addEventListener('click', resetFilters);
     $('sc-perpage').addEventListener('change', function (e) {
       state.perPage = Math.max(1, parseInt(e.target.value, 10) || 25);
-      state.page = 1; render();
+      state.page = 1; render(); rebaseline();
     });
     // Timeframe switch: Daily / Weekly / Monthly signal ranking.
     var tfSel = $('sc-tf');
@@ -436,84 +714,31 @@
       state.page = 1;
       syncCards();
       render();
+      renderStats();
+      renderSectors();
       renderCardResults();
+      rebaseline();
     });
-    // summary cards double as signal filters
-    function syncCards() {
-      document.querySelectorAll('.sc-card[data-v]').forEach(function (x) {
-        x.classList.toggle('is-on', !!state.verdict && x.getAttribute('data-v') === state.verdict);
-      });
-      var sigSel = $('sc-signal');
-      if (sigSel && sigSel.value !== state.verdict) sigSel.value = state.verdict;
-    }
     function cardFilter(card) {
       var v = card.getAttribute('data-v') || '';
       state.verdict = (state.verdict === v) ? '' : v;
       syncCards();
-      state.page = 1; render();
+      state.page = 1; render(); renderStats();
       // Wave 8: the top matches render directly beneath the cards, so the
       // result is visible the moment a card is tapped (the full table below
       // keeps working as the complete filtered view)
       renderCardResults();
+      rebaseline();
       if (state.verdict) {
         var box = document.getElementById('sc-card-results');
-        if (box && box.scrollIntoView) box.scrollIntoView({ block: 'start', behavior: 'smooth' });
+        if (box && box.scrollIntoView) scrollToEl(box);
       }
-    }
-    // Wave 8: inline top-10 for the tapped signal card. Rows carry symbol,
-    // price, day change, verdict, stop loss, target and a chart link.
-    function renderCardResults() {
-      var box = document.getElementById('sc-card-results');
-      if (!box) return;
-      if (!state.verdict) { box.innerHTML = ''; box.hidden = true; return; }
-      var matched = state.rows.filter(function (r) { return r.v === state.verdict; })
-        .sort(rankCmp);
-      var rows = matched.slice(0, 10);
-      var total = matched.length;
-      if (!rows.length) {
-        box.innerHTML = '<p class="sc-cr-empty">No ' + esc(DISP[state.verdict] || state.verdict) +
-          ' verdicts in the latest batch.</p>';
-        box.hidden = false;
-        return;
-      }
-      var Mono = window.NepseMono || null;
-      var h = '<h3 class="sc-cr-head">Top ' + rows.length + ' ' +
-        esc(DISP[state.verdict] || state.verdict) + ' matches</h3>';
-      h += '<div class="sc-cr-list">' + rows.map(function (r) {
-        var ch = Number(r.ch);
-        var chHtml = isFinite(ch)
-          ? '<span class="cx-chip ' + (ch > 0 ? 'up' : ch < 0 ? 'down' : 'flat') + '">' +
-            (ch > 0 ? '+' : '') + ch.toFixed(2) + '%</span>'
-          : '<span class="sc-dash">—</span>';
-        return '<div class="sc-cr-row">' +
-          '<a class="sc-cr-sym" href="/stocks/' + esc(String(r.sym).replace(/\//g, "-")) + '/">' +
-            (window.NepseLogo ? window.NepseLogo.html(r.sym, r.sec, 26) : (Mono ? Mono.avatar(r.sym, r.sec, 26) : '')) + '<span>' + esc(r.sym) + '</span></a>' +
-          '<span class="sc-cr-num tnum">Rs ' + num2(r.p) + '</span>' +
-          '<span class="sc-cr-num tnum">' + chHtml + '</span>' +
-          '<span>' + badge(r.v) + '</span>' +
-          '<span class="sc-cr-num tnum">SL ' + num2(r.sl) + '</span>' +
-          '<span class="sc-cr-num tnum">TP ' + num2(r.tp) + '</span>' +
-          '<a class="sc-cr-link" href="/nepse-chart/?s=' + esc(r.sym) + '">Chart</a>' +
-        '</div>';
-      }).join('') + '</div>';
-      if (total > rows.length) {
-        h += '<p class="sc-cr-more"><a href="#sc-table" id="sc-cr-all">See all ' + total +
-          ' in the full table below</a></p>';
-      }
-      box.innerHTML = h;
-      box.hidden = false;
-      var all = document.getElementById('sc-cr-all');
-      if (all) all.addEventListener('click', function (e) {
-        e.preventDefault();
-        var tbl = document.getElementById('sc-table');
-        if (tbl && tbl.scrollIntoView) tbl.scrollIntoView({ block: 'start', behavior: 'smooth' });
-      });
     }
     function resetFilters() {
       state.q = ''; state.sector = ''; state.verdict = '';
       state.rsi = ''; state.pmin = null; state.pmax = null; state.vmin = null;
       state.page = 1;
-      var q = $('sc-q'); if (q) q.value = '';
+      var q2 = $('sc-q'); if (q2) q2.value = '';
       var sec = $('sc-sector'); if (sec) sec.value = '';
       var sig = $('sc-signal'); if (sig) sig.value = '';
       var rs = $('sc-rsi'); if (rs) rs.value = '';
@@ -522,7 +747,10 @@
       });
       syncCards();
       render();
+      renderStats();
+      renderSectors();
       renderCardResults();
+      rebaseline();
     }
     document.querySelectorAll('.sc-card[data-v]').forEach(function (c) {
       c.addEventListener('click', function () { cardFilter(c); });
@@ -536,31 +764,18 @@
         if (k === 'sn') return; // S.N. always follows the ranking
         if (state.sortK === k) state.sortD = -state.sortD;
         else { state.sortK = k; state.sortD = (k === 'sym' || k === 'sec' || k === 'rsi') ? 1 : -1; }
-        state.page = 1; render();
+        state.page = 1; render(); rebaseline();
       });
     });
   }
 
-  function fetchData() {
-    function get(url) {
-      return fetch(url, { cache: 'no-store' }).then(function (r) {
-        if (!r.ok) throw new Error('http ' + r.status + ' ' + url);
-        return r.json();
-      });
-    }
-    return Promise.all([
-      get('../nepse-chart/data/verdicts.json'),
-      get('../nepse-chart/data/universe.json').catch(function () { return null; }),
-      get('../nepse-chart/data/screener-calls.json').catch(function () { return null; }),
-      get('../nepse-chart/data/track-record.json').catch(function () { return null; })
-    ]);
-  }
-
   var controlsBound = false;
 
-  /* Apply one batch load to the table. Safe to call repeatedly: controls
-   * bind once, the sector filter is rebuilt from scratch, and the
-   * freshness badge is replaced rather than duplicated. */
+  /* Apply one batch load to the page. Safe to call repeatedly: controls
+   * bind once, the sector filter is rebuilt from scratch (preserving the
+   * selected sector), and the freshness badge is replaced rather than
+   * duplicated. The active timeframe is re-applied after every rebuild
+   * (the old code silently reverted to daily on refresh). */
   function applyData(res) {
       var vj = res[0], uj = res[1];
       var names = {}, groups = {};
@@ -574,6 +789,8 @@
       state.changes = vj.changes || null;
       state.callsDoc = res[2] || null;
       state.trackRecord = res[3] || null;
+      state.archiveDoc = res[4] || null;
+      state.wave1Asof = (res[5] && res[5].asof) || '';
       state.rows = Object.keys(v).map(function (sym) {
         var e = v[sym];
         // Authoritative verdicts.json sec (written by the universe builder
@@ -586,7 +803,7 @@
           setup: e.setup || null, l: e.l || 0, tr: e.tr || null, rsi: e.rsi,
           pv: e.pv || null, ps: (e.ps == null ? null : e.ps),
           st: e.st || 0, vc: e.vc || null, flip: !!e.flip,
-          raw: e
+          asof: e.asof || null, raw: e
         };
       });
       var asof = vj.asof || '';
@@ -612,6 +829,7 @@
         o.value = s; o.textContent = s;
         sel.appendChild(o);
       });
+      if (state.sector) sel.value = state.sector; // preserve selection across refreshes
 
       if (!controlsBound) { bindControls(); controlsBound = true; }
 
@@ -623,9 +841,37 @@
           if (match) { state.sector = match; sel.value = match; }
         }
       } catch (e) {}
+      if (state.tf !== 'd') applyTf();
       render();
+      renderStats();
+      renderSectors();
       renderTracking();
+      renderArchive();
+      renderCardResults();
+      // movers window-end (the range window's last session, from wave1.json)
+      var mvEl = $('w1-mv-asof');
+      if (mvEl && res[5] && res[5].movers && res[5].movers.top) {
+        var ends = res[5].movers.top.map(function (t) { return t.asof || ''; }).filter(Boolean).sort();
+        if (ends.length) mvEl.textContent = ends[ends.length - 1];
+      }
       startLiveOverlay();
+  }
+
+  function fetchData() {
+    function get(url) {
+      return fetch(url, { cache: 'no-store' }).then(function (r) {
+        if (!r.ok) throw new Error('http ' + r.status + ' ' + url);
+        return r.json();
+      });
+    }
+    return Promise.all([
+      get('../nepse-chart/data/verdicts.json'),
+      get('../nepse-chart/data/universe.json').catch(function () { return null; }),
+      get('../nepse-chart/data/screener-calls.json').catch(function () { return null; }),
+      get('../nepse-chart/data/track-record.json').catch(function () { return null; }),
+      get('../nepse-chart/data/screener-verdict-archive.json').catch(function () { return null; }),
+      get('../nepse-chart/data/wave1.json').catch(function () { return null; })
+    ]);
   }
 
   function failLoad() {
@@ -642,73 +888,123 @@
       }
       $('sc-body').innerHTML = rows;
     })();
-    fetchData().then(applyData).catch(failLoad);
+    fetchData().then(function (res) { applyData(res); rebaseline(); }).catch(failLoad);
   }
 
-  /* Auto-refresh: re-pull the daily batch every 5 minutes during NEPSE
-   * market hours (Mon-Fri 11:00-15:00 NPT). RSI values, signals and the
-   * batch date update in place without a page reload; a failed poll keeps
-   * the last good data on screen. */
-  function nptNow() { return new Date(Date.now() + (5 * 60 + 45) * 60000); }
-  function inMarketHours() {
-    var n = nptNow(), day = n.getUTCDay(); /* 0=Sun, 6=Sat */
-    if (day === 0 || day === 6) return false;
-    var mins = n.getUTCHours() * 60 + n.getUTCMinutes();
-    return mins >= 11 * 60 && mins < 15 * 60;
-  }
-  function startAutoRefresh() {
-    setInterval(function () {
-      if (!inMarketHours()) return;
-      fetchData().then(applyData).catch(function () { /* keep stale data */ });
-    }, 5 * 60 * 1000);
-  }
-
-  /* Live overlay: when the 15-minute tape is fresh, repaint the Price and
-     Change cells in place — in BOTH the main table and the Top-10 teaser,
-     so they never disagree. Signals, SL/TP and hit rates stay daily-batch. */
+  /* Live overlay: the 15-minute tape (via window.NepseLive) feeds
+   * render-time repaint. Signals, SL/TP and hit rates stay daily-batch. */
+  var liveStarted = false;
   function startLiveOverlay() {
+    if (liveStarted) return;
     var NL = window.NepseLive || null;
     if (!NL || !document.getElementById('sc-live')) return;
+    liveStarted = true;
     NL.start({
       el: 'sc-live',
       onData: function (d) {
-        if (!d || !d.quotes) return;
-        var quotes = d.quotes;
-        repaintPrices($('sc-body'), quotes, '.sc-sym', /\/stocks\/([^\/]+)\//, 3, 4);
+        if (!d) return;
+        /* NL's d.asof is epoch ms (snap.asofMs), NOT a date string — the
+         * original .slice(0, 10) threw on a number and NL swallowed it, so
+         * the overlay never painted. Convert via the NPT clock helper. */
+        if (d.asof > 0) {
+          var tp = nptParts(new Date(d.asof));
+          state.tapeSession = tp.y + '-' + tp.m + '-' + tp.d;
+        }
+        /* Tape map from the RAW snapshot (quarantined-included), mirroring
+         * engine-verdict's direct live.json read: NL's d.quotes drops
+         * ±10% movers (BENH +14.98%), which the series displays with a ●,
+         * not hides. Raw quotes carry ltp/percent_change/previous_close,
+         * the exact fields liveVal reads. Fall back to d.quotes only if
+         * the snapshot is momentarily unavailable. */
+        var ND = window.NepseData || null;
+        var snap = ND ? ND.getSnapshot() : null;
+        var map = {};
+        if (snap && snap.quotes && snap.quotes.length) {
+          snap.quotes.forEach(function (q) { if (q && q.symbol) map[q.symbol] = q; });
+        } else if (d.quotes) {
+          map = d.quotes;
+        }
+        if (!Object.keys(map).length) return;
+        state.liveQuotes = map;
+        render();
+        renderCardResults();
+        renderFresh();
       }
     });
   }
 
-  // Repaint price/change cells for rows matched by symbol link.
-  // priceIdx/changeIdx are the td indexes in this table's rows.
-  function repaintPrices(tbody, quotes, linkSel, symRe, priceIdx, changeIdx) {
-    if (!tbody) return;
-    var rows = tbody.querySelectorAll('tr');
-    for (var i = 0; i < rows.length; i++) {
-      var link = rows[i].querySelector(linkSel);
-      if (!link) continue;
-      var m = link.getAttribute('href').match(symRe);
-      var sym = m && m[1];
-      var q = sym && quotes[sym];
-      if (!q || q.ltp == null || !isFinite(Number(q.ltp))) continue;
-      var cells = rows[i].querySelectorAll('td');
-      if (cells[priceIdx]) {
-        var b = cells[priceIdx].querySelector('b');
-        if (b) b.textContent = num2(q.ltp);
-        else cells[priceIdx].textContent = num2(q.ltp);
-      }
-      if (cells[changeIdx]) {
-        var pct = (q.pct != null && isFinite(Number(q.pct))) ? Number(q.pct) : null;
-        if (pct != null) {
-          var cls = pct > 0 ? 'up' : pct < 0 ? 'down' : '';
-          cells[changeIdx].innerHTML = '<span class="' + cls + '">' +
-            (pct > 0 ? '+' : '') + pct.toFixed(2) + '%</span>';
-        }
-      }
-    }
+  /* ---------- 60s change-gated refresh + page-owned freshness ---------- */
+  function computeSig() {
+    var c = distCounts();
+    var dist = VERDICTS.map(function (v) { return v + ':' + (c[v] || 0); }).join(',');
+    var secs = sectorCounts();
+    var secStr = Object.keys(secs).sort().map(function (s) { return s + ':' + secs[s]; }).join(',');
+    var arch = state.archiveDoc && state.archiveDoc.sessions
+      ? Object.keys(state.archiveDoc.sessions).sort().join(',') : '';
+    return [state.batchAsof, state.rows.length, dist, secStr,
+      (state.callsDoc && state.callsDoc.asof) || '',
+      (state.trackRecord && state.trackRecord.asof) || '',
+      state.wave1Asof, arch, state.tf].join('|');
   }
+  function renderFresh() {
+    var el = $('sc-fresh-text');
+    if (!el) return;
+    var now = new Date();
+    state.lastChecked = now;
+    var a = nptParts(now), b = nptParts(new Date(now.getTime() + 60000));
+    el.textContent = 'Ranking as of ' + (state.batchAsof || '—') +
+      ' · tape ' + (state.tapeSession || 'unavailable') +
+      ' · checked ' + a.hh + ':' + a.mm + ' · next check ' + b.hh + ':' + b.mm +
+      ' · refreshes every 60s when the data changes';
+  }
+  function rebaseline() {
+    state.sig = computeSig();
+    renderFresh();
+  }
+  function refreshTick() {
+    fetchData().then(function (res) {
+      var prevSig = state.sig;
+      /* Signature of the FRESH payloads, computed without touching state. */
+      var vj = res[0];
+      var freshRows = vj.verdicts || {};
+      var fc = {};
+      VERDICTS.forEach(function (v) { fc[v] = 0; });
+      Object.keys(freshRows).forEach(function (s) {
+        var vv = freshRows[s].v;
+        if (fc[vv] != null) fc[vv]++; else fc[vv] = 1;
+      });
+      var fdist = VERDICTS.map(function (v) { return v + ':' + (fc[v] || 0); }).join(',');
+      /* Fresh sector counts under the SAME rule as applyData (sec-wins,
+       * classifier fallback from the fresh universe) so the tick signature
+       * is computed identically to computeSig() — a placeholder here would
+       * make every tick look like a change. */
+      var fnames = {}, fgroups = {};
+      if (res[1] && res[1].symbols) res[1].symbols.forEach(function (it) {
+        if (it.s) { fnames[it.s] = it.n || it.s; fgroups[it.s] = classifySymbol(it.s, it.n, it.t); }
+      });
+      var fsec = {};
+      Object.keys(freshRows).forEach(function (sym) {
+        var e = freshRows[sym];
+        var sec = (e.sec && e.sec !== 'Unknown') ? e.sec : (fgroups[sym] || 'Others');
+        fsec[sec] = (fsec[sec] || 0) + 1;
+      });
+      var fsecStr = Object.keys(fsec).sort().map(function (s) { return s + ':' + fsec[s]; }).join(',');
+      var farch = (res[4] && res[4].sessions) ? Object.keys(res[4].sessions).sort().join(',') : '';
+      var freshSig = [vj.asof || '', Object.keys(freshRows).length, fdist, fsecStr,
+        (res[2] && res[2].asof) || '', (res[3] && res[3].asof) || '',
+        (res[5] && res[5].asof) || '', farch, state.tf].join('|');
+      if (freshSig !== prevSig) {
+        applyData(res);
+        if (window.ScreenerVerdict) window.ScreenerVerdict.refresh();
+        if (window.NepseWave1) window.NepseWave1.refresh();
+        rebaseline();
+      } else {
+        renderFresh(); // unchanged payloads: only the clock advances
+      }
+    }).catch(function () { /* failed poll keeps the last good data on screen */ });
+  }
+  setInterval(refreshTick, 60000);
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', load);
   else load();
-  startAutoRefresh();
 })();
