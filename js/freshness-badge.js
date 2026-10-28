@@ -130,8 +130,8 @@
     var ms = mounts();
     for (var i = 0; i < ms.length; i++) {
       var m = ms[i];
-      var dot = cls === 'fb-live' ? '#16a34a' : cls === 'fb-stale' ? '#d97706' :
-        cls === 'fb-unknown' ? '#9ca3af' : '#16a34a';
+      var dot = cls === 'fb-live' ? 'var(--nd-up, #4ADE80)' : cls === 'fb-stale' ? 'var(--nd-chip-stale-fg, #F87171)' :
+        cls === 'fb-unknown' ? 'var(--nd-flat, #9AA3B2)' : 'var(--nd-amber, #F5B301)';
       m.innerHTML =
         '<span class="fb-dot" style="background:' + dot + '"></span>' +
         '<span class="fb-text"></span>';
@@ -163,11 +163,11 @@
       '.freshness-badge .fb-dot{width:8px;height:8px;border-radius:50%;flex:none}' +
       '.freshness-badge.fb-live .fb-dot{animation:fb-pulse 1.6s infinite}' +
       '@keyframes fb-pulse{0%,100%{opacity:1}50%{opacity:.35}}' +
-      '.freshness-badge.fb-stale{background:#fffbeb;border-color:#fcd34d;color:#92400e}' +
+      '.freshness-badge.fb-stale{background:var(--nd-chip-stale-bg, rgba(248,113,113,.12));border-color:var(--nd-chip-stale-fg, #F87171);color:var(--nd-chip-stale-fg, #F87171)}' +
       '[data-theme="dark"] .freshness-badge{background:rgba(20,22,28,.85);' +
       'border-color:#2a2e38;color:#d1d5db}' +
-      '[data-theme="dark"] .freshness-badge.fb-stale{background:#3a2f12;' +
-      'border-color:#a16207;color:#fcd34d}';
+      '[data-theme="dark"] .freshness-badge.fb-stale{background:var(--nd-chip-stale-bg, rgba(248,113,113,.12));' +
+      'border-color:var(--nd-chip-stale-fg, #F87171);color:var(--nd-chip-stale-fg, #F87171)}';
     document.head.appendChild(s);
   }
 

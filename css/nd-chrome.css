@@ -145,7 +145,7 @@ html, body{ overflow-x: clip; }
 #nd-header .nd-burger{ display: none; }
 /* Drawer */
 #nd-header .nd-drawer{ display: none; }
-@media (max-width: 1100px) {
+@media (max-width: 1272px) {
   #nd-header .nd-nav{ display: none; }
   #nd-header .nd-burger{ display: inline-flex; }
   #nd-header .nd-search{ max-width: 220px; }
@@ -467,9 +467,10 @@ body:has(> #nd-header) .theme-toggle.fixed{ display: none !important; }
    wins) — the base 8px button padding is already overridden to 14px there,
    so this 10px value is a 4px/side tightening, not an 8px one. Reclaim is
    ~88px (bar padding 24→16, bar gap 12→8, nav gap 6→4, navbtn 14→10), so
-   the row fits from ~1273px up; below that a residual overflow remains
-   (see report) — the full-range fix is raising the 1100px nav-collapse
-   breakpoint, deliberately not done here. */
+   the row fits from ~1273px up. Phase 5 (2026-10-28) raised the nav-collapse
+   breakpoint 1100px -> 1272px (verified: bar no longer clips at 1150px;
+   burger shows <=1272, pills show >=1273), so this compaction block now
+   only matters at 1273-1360px. */
 @media (max-width: 1360px) and (min-width: 1101px) {
   #nd-header .nd-bar{ gap: var(--nd-s2); padding: 0 var(--nd-s4); }
   #nd-header .nd-nav{ gap: 4px; }
@@ -965,3 +966,17 @@ select option{ background: var(--nd-panel); color: var(--nd-text); }
   font-size: var(--step-4); line-height: 1.1; letter-spacing: -0.01em;
   color: var(--nd-text); margin: var(--nd-s8) 0 var(--nd-s3);
 }
+
+/* SKIP LINK (Phase 5): visually-hidden-until-focus fallback for chrome pages
+   whose family CSS carries no .skip-link rule. Family rules loaded after
+   this file win on equal specificity. */
+.skip-link{position:absolute;top:-48px;left:12px;z-index:200;padding:8px 14px;
+  border-radius:8px;background:var(--nd-lime,#B8E62E);color:#0A0C10;
+  font-weight:700;text-decoration:none;transition:top .15s ease}
+.skip-link:focus{top:12px}
+
+/* BASE FONT (Phase 5, master trap 2.6.2): the shared stack never set
+   body{font-family}, so every chrome page without a per-page body rule
+   rendered body copy in Times. One shared rule fixes all of them;
+   per-page body[data-page] rules loaded later still win. */
+body{font-family:var(--nd-font-sans)}

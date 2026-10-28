@@ -157,6 +157,11 @@
       btn.innerHTML = mode === 'light' ? sunSVG() : moonSVG();
       btn.title = mode === 'light' ? 'Switch to dark' : 'Switch to light';
     }
+    /* Phase 5: the header toggle must sync the browser-chrome color too.
+       Before this, boot() forcing dark on fresh visitors left the meta
+       at the pre-paint (light) value, and header toggles never moved it. */
+    var m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.setAttribute('content', mode === 'light' ? '#F6F7F9' : '#0A0C10');
   }
 
   function sunSVG() {

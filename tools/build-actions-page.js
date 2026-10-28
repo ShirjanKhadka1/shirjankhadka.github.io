@@ -324,7 +324,7 @@ function main() {
     '<link rel="stylesheet" href="/css/nd-cinema.css?v=' + st.cinema + '">\n' +
     '<link rel="stylesheet" href="/css/nd-chrome.css?v=' + st.chrome + '">\n' +
     '<link rel="stylesheet" href="/css/nd-actions.css?v=' + st.actions + '">\n' +
-    '<script>(function(){try{var t=localStorage.getItem("sk-theme");if(!t){t=window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";}document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>\n' +
+    '<script>(function(){try{var t=localStorage.getItem("sk-theme");if(!t){t="dark";}document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>\n' +
     '</head>\n<body class="nd" data-page="actions">\n' +
     '<a class="skip-link" href="#na-feed">Skip to notices</a>\n' +
     '<div id="nd-header"></div>\n' +
