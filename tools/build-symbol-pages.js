@@ -331,6 +331,15 @@ SP_ABOUT_CSS +
 '[data-theme="light"] .sp-sec-q,[data-theme="light"] .sp-sec-sort,[data-theme="light"] .sp-pager-prev{background:#fff;border-color:#D5DCE4;color:#0A0C10}\n' +
 '[data-theme="light"] .sp-peer-table tr.cur td{background:rgba(77,124,15,.08)}\n' +
 'body{font-family:var(--nd-font-sans,Inter,system-ui,-apple-system,Segoe UI,sans-serif)}\n' +
+'/* shareholding: distribution pattern — 12px flex track, block segments,\n' +
+'   legend with counts. Values are always printed; the bar never replaces\n' +
+'   numbers. Zero-count buckets render no segment and no legend row. */\n' +
+'.sp-sh-bar{display:flex;height:12px;border-radius:999px;overflow:hidden;background:var(--nd-panel-2,#161A23);border:1px solid var(--nd-border,#1E2430);margin:var(--nd-s4) 0}\n' +
+'.sp-sh-seg-prom{background:var(--nd-lime,#B8E62E)}\n' +
+'.sp-sh-seg-pub{background:var(--nd-muted,#B8C0CE)}\n' +
+'[data-theme="light"] .sp-sh-bar{background:#E8ECF1;border-color:#CBD4DE}\n' +
+'[data-theme="light"] .sp-sh-seg-prom{background:#4D7C0F}\n' +
+'[data-theme="light"] .sp-sh-seg-pub{background:#8A94A3}\n' +
 '</style>\n';
 
 function vClass(v) {
@@ -1531,7 +1540,70 @@ function ladderSection(sym, ladder) {
   return h;
 }
 
-function symbolPage(u, v, newsItems, fund, liveQ, liveDate, sector, sectorPeers, verdicts, quarterly, corpHist, related, extra, ladder) {
+function pctStr(p) {
+  const n = Number(p);
+  if (!Number.isFinite(n)) return null;
+  return (n % 1 === 0 ? n.toFixed(0) : n.toFixed(1)) + '%';
+}
+
+/* Shareholding (gap 2). Data: nepse-chart/data/shareholding.json, built by
+ * tools/build-shareholding.py from our own float archive. Splits publish
+ * ONLY where independently cross-checked (status "verified") or where the
+ * instrument itself defines them ("promoter_instrument": 100/0). Every
+ * other split is withheld, never estimated; totals publish where the
+ * archive carries them. Debentures and mutual funds have no share split
+ * (units, not shares). */
+function shareholdingSection(sym, sh) {
+  let h = '<section aria-label="Shareholding"><h2>Shareholding</h2>\n';
+  const st = sh && sh.split_status;
+  if ((st === 'verified' || st === 'promoter_instrument') && sh.promoter_pct !== null && sh.promoter_pct !== undefined) {
+    const prom = Number(sh.promoter_pct), pub = Number(sh.public_pct);
+    const promS = pctStr(prom), pubS = pctStr(pub);
+    h += '<div class="sp-sh-bar" role="img" aria-label="Promoter ' + esc(promS) + ', public ' + esc(pubS) + '">\n';
+    if (prom > 0) h += '<span class="sp-sh-seg-prom" style="width:' + esc(prom) + '%"></span>\n';
+    if (pub > 0) h += '<span class="sp-sh-seg-pub" style="width:' + esc(pub) + '%"></span>\n';
+    h += '</div>\n';
+    h += '<div class="sp-fund-grid">\n';
+    const promC = fmtNum(sh.promoter_shares);
+    h += '<div class="sp-fund"><span class="sp-fund-l">Promoter</span>' +
+      '<span class="sp-fund-v">' + (promC || '–') + '</span><span class="sp-ret-ref">' + esc(promS) + ' of listed shares</span></div>\n';
+    if (pub > 0) {
+      const pubC = fmtNum(sh.public_shares);
+      h += '<div class="sp-fund"><span class="sp-fund-l">Public</span>' +
+        '<span class="sp-fund-v">' + (pubC || '–') + '</span><span class="sp-ret-ref">' + esc(pubS) + ' of listed shares</span></div>\n';
+    }
+    const listed = fmtNum(sh.listed);
+    h += '<div class="sp-fund"><span class="sp-fund-l">Listed shares</span>' +
+      '<span class="sp-fund-v">' + (listed || '–') + '</span><span class="sp-ret-ref">' +
+      (listed ? 'Promoter + public = listed total' : 'Count not on file') + '</span></div>\n';
+    h += '</div>\n';
+    if (st === 'verified') {
+      h += '<p class="sp-note">Listed total and split from Nepse Decode\'s own archive (data as of 2026-10-28). ' +
+        'Split cross-checked against an independent republisher (October 2026) — the two sources agree. ' +
+        'Counts are computed from the listed total, so promoter + public = listed exactly.</p>\n';
+    } else {
+      h += '<p class="sp-note">Promoter-share instrument: the entire issue is promoter holding, so the public split is 0%. ' +
+        'Listed count is not on file.</p>\n';
+    }
+  } else if (st === 'held' && sh.listed) {
+    h += '<div class="sp-fund-grid">\n';
+    h += '<div class="sp-fund"><span class="sp-fund-l">Listed shares</span>' +
+      '<span class="sp-fund-v">' + fmtNum(sh.listed) + '</span><span class="sp-ret-ref">Total listed shares</span></div>\n';
+    h += '</div>\n';
+    h += '<p class="sp-note">Listed total from Nepse Decode\'s own archive (data as of 2026-10-28). ' +
+      'The promoter/public split is not shown: it is not independently verified on file, so it is withheld rather than estimated.</p>\n';
+  } else if (st === 'na_debenture') {
+    h += '<p class="sp-note">Corporate debenture — units, not shares. No promoter/public shareholding split applies, and no listed-share count is carried for it.</p>\n';
+  } else if (st === 'na_mutual_fund') {
+    h += '<p class="sp-note">Mutual fund — units, not shares. No promoter/public shareholding split applies, and no listed-share count is carried for it.</p>\n';
+  } else {
+    h += '<p class="sp-note">No verified shareholding on file for this security. Nothing is estimated.</p>\n';
+  }
+  h += '</section>\n';
+  return h;
+}
+
+function symbolPage(u, v, newsItems, fund, liveQ, liveDate, sector, sectorPeers, verdicts, quarterly, corpHist, related, extra, ladder, sh) {
   const sym = u.s, name = u.n, slug = slugOf(sym);
   // Headline price prefers our canonical live payload (NEPSE API) when it is
   // at least as fresh as the batch verdict — the batch daily history comes
@@ -1592,6 +1664,7 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
   h += '<li><a href="/nepse-screener/">Ranked screener <span aria-hidden="true">→</span></a></li>';
   h += '</ul>';
   h += ladderSection(sym, ladder);
+  h += shareholdingSection(sym, sh);
   h += '</div>';
   h += '<div class="sp-tabpanel" data-panel="signals" role="tabpanel" hidden>';
   h += '<h2>Engine Verdict signals</h2>';
@@ -1912,6 +1985,14 @@ function main() {
     } catch { ladderMap[u.s] = null; ladderNone++; }
   }
 
+  /* Shareholding (gap 2): nepse-chart/data/shareholding.json, built by
+   * tools/build-shareholding.py from our own float archive. Never fatal:
+   * a missing file degrades every section to the honest unavailable
+   * note, and the counts below make it visible in the log. */
+  const shData = loadJson(path.join(DATA, 'shareholding.json'), null);
+  const shMap = (shData && shData.symbols) || {};
+  const shCounts = (shData && shData.counts) || null;
+
   let made = 0;
   for (const u of symbols) {
     const sym = u.s, slug = slugOf(sym);
@@ -1934,7 +2015,7 @@ function main() {
     };
     const dir = path.join(OUT, slug);
     fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, 'index.html'), symbolPage(u, v, newsBySym[sym] || [], fund, liveMap[sym], liveDate, sector, sectorPeers, verdicts, quarterly, corpHist[sym], related, extra, ladderMap[sym]));
+    fs.writeFileSync(path.join(dir, 'index.html'), symbolPage(u, v, newsBySym[sym] || [], fund, liveMap[sym], liveDate, sector, sectorPeers, verdicts, quarterly, corpHist[sym], related, extra, ladderMap[sym], shMap[sym] || null));
     made++;
   }
   if (!onlySym) {
@@ -1946,7 +2027,7 @@ function main() {
     const extras = scanBakedExtras(new Set(symbols.map((u) => slugOf(u.s))));
     fs.writeFileSync(path.join(OUT, 'index.html'), indexPage(symbols.concat(extras), pageAsof));
   }
-  console.log(JSON.stringify({ pages: made, dir: 'stocks/', symbol: onlySym || undefined, ladder: { withData: ladderOk, noData: ladderNone, archive: OHLC_DB_DIR }, adjustments: { events: adjEventsApplied, symbols: adjSymbols, skipped: adjSkipped } }));
+  console.log(JSON.stringify({ pages: made, dir: 'stocks/', symbol: onlySym || undefined, ladder: { withData: ladderOk, noData: ladderNone, archive: OHLC_DB_DIR }, adjustments: { events: adjEventsApplied, symbols: adjSymbols, skipped: adjSkipped }, shareholding: shCounts }));
 }
 
 /* Baked stock pages on disk that universe.json no longer carries.

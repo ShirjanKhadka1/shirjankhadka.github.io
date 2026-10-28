@@ -250,6 +250,15 @@
 [data-theme="light"] .sp-sec-q,[data-theme="light"] .sp-sec-sort,[data-theme="light"] .sp-pager-prev{background:#fff;border-color:#D5DCE4;color:#0A0C10}
 [data-theme="light"] .sp-peer-table tr.cur td{background:rgba(77,124,15,.08)}
 body{font-family:var(--nd-font-sans,Inter,system-ui,-apple-system,Segoe UI,sans-serif)}
+/* shareholding: distribution pattern — 12px flex track, block segments,
+   legend with counts. Values are always printed; the bar never replaces
+   numbers. Zero-count buckets render no segment and no legend row. */
+.sp-sh-bar{display:flex;height:12px;border-radius:999px;overflow:hidden;background:var(--nd-panel-2,#161A23);border:1px solid var(--nd-border,#1E2430);margin:var(--nd-s4) 0}
+.sp-sh-seg-prom{background:var(--nd-lime,#B8E62E)}
+.sp-sh-seg-pub{background:var(--nd-muted,#B8C0CE)}
+[data-theme="light"] .sp-sh-bar{background:#E8ECF1;border-color:#CBD4DE}
+[data-theme="light"] .sp-sh-seg-prom{background:#4D7C0F}
+[data-theme="light"] .sp-sh-seg-pub{background:#8A94A3}
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebPage","name":"ICFCD83 Share Price, Signals and News | Nepse Decode","url":"https://shirjankhadka.com.np/stocks/ICFCD83/","description":"12% ICFC Finance Limited Debenture 2083 (ICFCD83): latest NEPSE price, Engine Verdict signals, 52-week range and headlines. Free, educational.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://shirjankhadka.com.np/"},{"@type":"ListItem","position":2,"name":"Stocks","item":"https://shirjankhadka.com.np/stocks/"},{"@type":"ListItem","position":3,"name":"ICFCD83","item":"https://shirjankhadka.com.np/stocks/ICFCD83/"}]},{"@type":"Corporation","name":"12% ICFC Finance Limited Debenture 2083","tickerSymbol":"ICFCD83","url":"https://shirjankhadka.com.np/stocks/ICFCD83/"}]}</script>
 </head>
@@ -295,6 +304,9 @@ body{font-family:var(--nd-font-sans,Inter,system-ui,-apple-system,Segoe UI,sans-
 <div class="sp-fund"><span class="sp-fund-l">1Y</span><span class="sp-fund-v na">–</span><span class="sp-ret-ref">No verified history</span></div>
 <div class="sp-fund"><span class="sp-fund-l">3Y</span><span class="sp-fund-v na">–</span><span class="sp-ret-ref">No verified history</span></div>
 </div></section>
+<section aria-label="Shareholding"><h2>Shareholding</h2>
+<p class="sp-note">Corporate debenture — units, not shares. No promoter/public shareholding split applies, and no listed-share count is carried for it.</p>
+</section>
 </div><div class="sp-tabpanel" data-panel="signals" role="tabpanel" hidden><h2>Engine Verdict signals</h2><p class="sp-note">Transparent rule-based readings, one per timeframe. A daily Buy can be weak while the weekly read is stronger; each pill names its own timeframe and data date.</p><div class="vpill"><span class="vpill-tf">Daily</span><span class="vpill-v vg-e">Exit / Reduce</span><span class="vpill-meta">score -2.5 · RSI 50.82 · 491 bars · as of 2026-10-16</span></div><div class="vpill vg-na"><span class="vpill-tf">Weekly</span><span class="vpill-na">Insufficient history on this timeframe</span></div><div class="vpill vg-na"><span class="vpill-tf">Monthly</span><span class="vpill-na">Insufficient history on this timeframe</span></div></div><div class="sp-tabpanel" id="fundamentals" data-panel="fundamentals" role="tabpanel" hidden><section aria-label="Fundamentals"><h2>Fundamentals</h2>
 <p class="sp-note">This is a fund or debt instrument, not an operating company; company-style quarterly profit figures do not apply.</p>
 </section>
