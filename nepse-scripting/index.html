@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t='dark';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0A0C10">
+<title>Custom Indicator Scripting for NEPSE — Pine-Style Scripts, Run Free | Nepse Decode</title>
+<meta name="description" content="Write Pine-style custom indicators for NEPSE stocks and the NEPSE index, free, no login. Your script runs in your browser on the site's published daily bars — SMA, EMA, RSI, MACD, Bollinger bands and more. Educational only, never a buy call.">
+<meta name="author" content="Shirjan Khadka">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-scripting/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="keywords" content="nepse pine script, nepse custom indicator, nepse scripting, nepse indicator builder, nepse sma rsi macd, nepal stock exchange indicators">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:title" content="Custom Indicator Scripting for NEPSE">
+<meta property="og:description" content="Write Pine-style custom indicators for NEPSE stocks and the index, free, no login. Scripts run in your browser on published daily bars. Educational only, never a buy call.">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-scripting/">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/nepse-decode-og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Custom Indicator Scripting for NEPSE">
+<meta name="twitter:description" content="Write Pine-style custom indicators for NEPSE stocks and the index, free, no login. Scripts run in your browser on published daily bars. Educational only, never a buy call.">
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
+<link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/nd-tokens.css?v=e100cabd">
+<link rel="stylesheet" href="/css/fonts.css?v=422e31c3">
+<link rel="stylesheet" href="/css/nepse-d2.css?v=c6edd4fd">
+<link rel="stylesheet" href="nepse-scripting.css?v=ecb02024">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"Nepse Decode — Custom Indicator Scripting","url":"https://shirjankhadka.com.np/nepse-scripting/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Write Pine-style custom indicators for NEPSE stocks and the NEPSE index, free, no login. Scripts run in your browser on the site's published daily bars. Educational use only, never a buy call.","author":{"@type":"Organization","name":"Nepse Decode","url":"https://shirjankhadka.com.np/nepse-scripting/"}}
+</script>
+</head>
+<body class="d2">
+<a class="skip-link" href="#main">Skip to content</a>
+<div id="nd-header"></div>
+<div class="d2-shell">
+<div class="d2-main">
+<div class="d2-wrap">
+<div data-freshness-badge></div>
+<main id="main">
+<div style="margin-bottom:8px">
+<p class="d2-kicker">Technical Analysis · Scripting</p>
+<h1 style="font-family:var(--nd-font-display);font-weight:700;font-size:clamp(1.8rem,4.5vw,2.5rem);letter-spacing:-0.015em;margin:0 0 4px">Custom indicator scripting</h1>
+<p class="sc-cap">Write a Pine-style indicator, run it on any NEPSE stock or the index, free and without signing in. Your script runs entirely in your browser on the site's published daily bars — nothing is sent anywhere, and nothing here is a buy call.</p>
+<p class="sc-cap" style="margin-top:4px"><span id="scStateChip" class="sc-chip closed"><span class="dot"></span>CLOSED SESSION DATA</span></p>
+<p class="sc-cap" id="scFreshline" style="margin-top:4px">Scripting loading…</p>
+</div>
+
+<section class="d2-card sc-sec" aria-labelledby="sc-run-h">
+<div class="sc-head"><h2 id="sc-run-h">Your script</h2></div>
+<div class="sc-controls">
+<label class="sc-field" for="scSym">Symbol
+<input id="scSym" list="scSymList" value="NABIL" autocomplete="off" spellcheck="false" aria-describedby="scSymName">
+<datalist id="scSymList"></datalist>
+</label>
+<button id="scRun" class="sc-btn primary" type="button">Run script</button>
+<span class="sc-field sc-ex">
+<span class="sc-ex-label">Examples</span>
+<span class="sc-ex-btns">
+<button type="button" data-example="cross" class="sc-btn">SMA crossover</button>
+<button type="button" data-example="rsi" class="sc-btn">RSI 14</button>
+<button type="button" data-example="bb" class="sc-btn">Bollinger</button>
+<button type="button" data-example="macd" class="sc-btn">MACD</button>
+</span>
+</span>
+<button id="scCopy" class="sc-btn" type="button">Copy share link</button>
+</div>
+<p class="sc-cap" id="scSymName">Loading symbols…</p>
+<p class="sc-cap" id="scErr2" role="status"></p>
+<p class="sc-cap" id="scNewNote" hidden role="status"></p>
+<textarea id="scEditor" class="sc-editor" rows="12" spellcheck="false" aria-label="Indicator script editor">//@version=1
+indicator("SMA Crossover", overlay=true)
+s20 = sma(close, 20)
+s50 = sma(close, 50)
+plot(s20, "SMA 20", #2962FF)
+plot(s50, "SMA 50", #FF6D00)
+bgcolor(crossover(s20, s50), #4ADE8033)
+bgcolor(crossunder(s20, s50), #F8717133)</textarea>
+<p class="sc-cap">Ctrl+Enter (or Cmd+Enter) also runs. A share link puts the symbol in the address and the script in the page fragment, so the script never reaches a server.</p>
+<div id="scErr" class="sc-err" role="alert" hidden></div>
+</section>
+
+<section class="d2-card sc-sec" aria-labelledby="sc-chart-h">
+<div class="sc-head"><h2 id="sc-chart-h"><span id="scTitle">SMA Crossover</span></h2></div>
+<div id="scLegend" class="sc-legend" aria-label="Plot legend"></div>
+<div id="scPriceChart" class="sc-chart" role="img" aria-label="Price chart with indicator overlays"></div>
+<div id="scIndWrap" hidden>
+<div id="scIndChart" class="sc-chart sc-ind" role="img" aria-label="Separate indicator pane"></div>
+</div>
+<div id="scOutputs" class="sc-outputs"></div>
+<p class="sc-cap">The chart starts on the last 250 bars; drag or scroll to move through history. The table below the chart is the full non-chart fallback: every plotted value is printed there.</p>
+</section>
+
+<noscript>
+<div class="sc-noscript" role="note">
+<p><strong>Static snapshot — SMA crossover on NABIL, 28 Oct 2026 close (JavaScript off).</strong>
+Enable JavaScript to write and run your own scripts.</p>
+<table class="sc-table"><thead><tr><th>Output</th><th>Last value</th></tr></thead><tbody>
+<tr><td>SMA 20</td><td>542.82 on 2026-10-28</td></tr>
+<tr><td>SMA 50</td><td>546.73 on 2026-10-28</td></tr>
+<tr><td>Close</td><td>545.00 on 2026-10-28</td></tr>
+</tbody></table>
+<p>SMA 20 sits below SMA 50 on the last bar, and no crossover or crossunder fired on 28 Oct 2026. RSI 14 on the same close was 51.45; MACD (12, 26) was −1.44 with a signal of −2.37.</p>
+</div>
+</noscript>
+
+<section class="d2-card sc-sec" aria-labelledby="sc-ref-h">
+<div class="sc-head"><p class="d2-kicker">Language reference</p><h2 id="sc-ref-h">ND Script v1 — what you can write</h2></div>
+<div class="sc-note">
+<p><strong>Header (required, first line):</strong> <code>//@version=1</code>. A script without it does not run, and the error says so.</p>
+<p><strong>Declaration (required, exactly once, before any plot):</strong> <code>indicator("Title", overlay=true)</code>. <code>overlay=true</code> draws on the price chart; <code>overlay=false</code> draws in a separate pane below it. The overlay flag may be omitted (defaults to true).</p>
+<p><strong>One statement per line.</strong> A statement never spans lines. Comments start with <code>//</code> and run to the end of the line.</p>
+<p><strong>Assignments:</strong> <code>name = expression</code>. Names start with a letter or underscore and may contain letters, digits and underscores. A name can be defined only once — there is no reassignment and no <code>:=</code>. Define a name before you use it.</p>
+<p><strong>Series you can read:</strong> <code>open</code>, <code>high</code>, <code>low</code>, <code>close</code>, <code>volume</code>, <code>bar_index</code> (0-based). <code>na</code> means "no value". For close-only symbols and the index, open/high/low are <code>na</code> where unpublished — never fabricated.</p>
+<p><strong>Operators:</strong> <code>+ - * / %</code>, unary <code>-</code>, <code>&gt; &lt; &gt;= &lt;= == !=</code>, <code>and or not</code> (or <code>&amp;&amp; || !</code>), parentheses, ternary <code>cond ? a : b</code>, and history <code>expr[N]</code> where N is a non-negative integer (0 = the current bar, 1 = the previous bar).</p>
+<p><strong>Built-ins (all series to series, single output):</strong></p>
+<ul>
+<li><code>sma(series, length)</code> — mean of the last length bars; null before bar length−1.</li>
+<li><code>ema(series, length)</code> — k = 2/(length+1), seeded on the first value, null before bar length−1 by absolute bar index. A series that itself starts late becomes non-null at its first value once past bar length−1.</li>
+<li><code>rsi(series, length)</code> — Wilder's RSI: seeded from the first length consecutive valid changes, then Wilder smoothing; average loss 0 gives 100 (or 50 when average gain is also 0). A null change yields null for that bar; the Wilder state freezes across the gap.</li>
+<li><code>macd(series, fast, slow)</code> — fast EMA minus slow EMA. <code>signal(macdSeries, length)</code> is its EMA; the histogram is <code>macd − signal</code> in user arithmetic.</li>
+<li><code>stdev(series, length)</code> — population standard deviation of the last length bars; null before bar length−1 or if the window holds a null.</li>
+<li><code>highest(series, length)</code> / <code>lowest(series, length)</code> — rolling maximum / minimum including the current bar; null before bar length−1 or if the window holds a null.</li>
+<li><code>crossover(a, b)</code> — true when a was at or below b on the previous bar and above b now; <code>crossunder(a, b)</code> mirrors it. Both are false on the first bar and whenever any involved value is null.</li>
+<li><code>abs(x)</code>, <code>min(a, b)</code>, <code>max(a, b)</code> — element-wise; null propagates.</li>
+</ul>
+<p><strong>Length arguments</strong> must be constant positive integers on every bar — <code>len = 20</code> then <code>sma(close, len)</code> works, but a length that varies bar to bar is a named error.</p>
+<p><strong>Null rules:</strong> a null input bar makes its output bar null, except <code>and</code>/<code>or</code> which use three-valued logic (<code>false and na</code> is false, <code>true or na</code> is true). Division or modulo by zero is null, never an error.</p>
+<p><strong>Outputs:</strong> <code>plot(series, "Title", color)</code> — title required, color optional (a fixed palette cycles when omitted), at most 8 plots, at least one plot required. <code>hline(number, "Title", color)</code> — the level must be a number literal, at most 8 lines; unlike Pine, hlines are allowed in either pane because this page has a single indicator pane. <code>bgcolor(condition, color)</code> — the condition must be true/false, at most 4 calls; flagged bars render as a translucent wash (the chart library has no per-bar background API, so the wash is a full-height translucent column, not a price-band fill).</p>
+<p><strong>Errors name the line and the problem.</strong> An unknown function lists the available built-ins. On any error the chart clears — a stale plot is never presented as the current result.</p>
+<p><strong>Deliberately not in v1, with reason:</strong> user-defined functions (keeps the engine auditable; variables plus built-ins cover indicator cases); strategy / backtest mode (the inventory scope is indicators; a backtest engine needs its own ledger and cost gates, a separate build); plotshape / plotchar / fill (a second chart layer; plots plus bgcolor plus hline cover indicator cases); alerts (no accounts, no notification channel); multi-timeframe or intraday bars (daily bars only — the published full-history archive); input.* controls (the editor is the input).</p>
+</div>
+</section>
+
+<section class="d2-card sc-sec" aria-labelledby="sc-how-h">
+<div class="sc-head"><p class="d2-kicker">Method</p><h2 id="sc-how-h">How this page is built</h2></div>
+<div class="sc-note">
+<p><strong>Sources (all published, no new feed):</strong> scripts run on the site's published daily-bar files — full OHLC bars with volume and turnover for 418 symbols, close-only bars for 14 symbols whose full history is not published, and the NEPSE index series. The page reads published files only; it never calls a live source and never proxies one.</p>
+<p><strong>Execution:</strong> your script is parsed by a restricted recursive-descent parser and evaluated as arrays of numbers over the bars. Your text is never passed to eval or inserted as HTML. It never leaves your browser: the share link carries the script in the URL fragment, which is never sent to a server.</p>
+<p><strong>Rendering:</strong> full-history symbols draw candlesticks with a volume histogram; close-only symbols and the index draw a close line, because their open/high/low are not published — flat candles are never fabricated. The volume histogram is hidden whenever the series carries no volume. Bars are as-published closes, NOT bonus-adjusted: a bonus ex-date appears as a step in the series.</p>
+<p><strong>Freshness:</strong> the page re-checks the data manifest every 60 seconds. A newly published session shows a note; your current view is never yanked away — run again to include it.</p>
+<p><strong>Honesty bounds:</strong> indicators only, educational framing only. Nothing on this page is a buy, sell or hold call, and nothing is presented as a prediction. A script's output is only as good as the bars it ran on.</p>
+<p><strong>Not shown here, with reason:</strong> intraday bars — the published archive is daily; per-bar time — daily bars carry dates, not times; saved scripts — there are no user accounts on this site, so sharing is by link, not by account; turnover — present in the source history files but not a script series, because indicators operate on price and volume series (turnover is the volume×price aggregate, not an independent input).</p>
+</div>
+</section>
+
+</main>
+</div>
+</div>
+</div>
+<div id="nd-footer"></div>
+<script src="/js/nepse-format.js?v=a5edf573"></script>
+<script src="/js/theme-toggle.js?v=6a6a46c6"></script>
+<script src="/js/nepse-sidebar.js?v=4253c371"></script>
+<script src="/js/nd-chrome.js?v=2bc98617"></script>
+<script src="/js/freshness-badge.js?v=9e4228d4"></script>
+<script src="/js/vendor/lightweight-charts.standalone.production.js?v=7c9b722e"></script>
+<script src="nepse-scripting.js?v=bc4b94e0"></script>
+</body>
+</html>

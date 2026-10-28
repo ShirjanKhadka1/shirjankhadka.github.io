@@ -1,0 +1,55 @@
+/* nepse-scripting.css — family layer for /nepse-scripting/ (.sc- prefix).
+   Token-driven only; no hardcoded hexes. Light theme flips with the
+   --nd-* tokens, so no theme remap block is needed. Mirrors the
+   nepse-floorsheet family layer conventions (fs- -> sc-). */
+.sc-sec{margin-top:16px}
+.sc-head{margin-bottom:12px}
+.sc-head h2{font-family:var(--nd-font-display);font-weight:700;font-size:1.25rem;color:var(--nd-text);margin:4px 0 0}
+.sc-cap{font-size:.8rem;color:var(--nd-dim);margin-top:8px;line-height:1.5}
+.sc-cap strong{color:var(--nd-text)}
+.sc-chip{display:inline-flex;align-items:center;gap:6px;padding:3px 12px;border-radius:999px;font-size:.75rem;font-weight:700;white-space:nowrap}
+.sc-chip .dot{width:8px;height:8px;border-radius:50%;background:currentColor}
+.sc-chip.closed{background:var(--nd-chip-closed-bg);color:var(--nd-chip-closed-fg)}
+.sc-controls{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.sc-field{display:flex;flex-direction:column;gap:6px;font-family:var(--nd-font-mono);font-size:.6875rem;letter-spacing:.09em;text-transform:uppercase;color:var(--nd-dim);font-weight:600}
+.sc-field input{box-sizing:border-box;min-height:48px;padding:10px 14px;background:var(--nd-inset);border:1px solid var(--nd-border);border-radius:var(--nd-r-md);color:var(--nd-text);font:inherit;font-size:1rem;text-transform:uppercase}
+.sc-field input:focus{outline:none;box-shadow:var(--nd-focus-ring)}
+.sc-btn{border:0;border-radius:999px;min-height:48px;padding:10px 22px;font:inherit;font-weight:700;cursor:pointer;background:var(--nd-panel-2);color:var(--nd-text);border:1px solid var(--nd-border)}
+.sc-btn.primary{background:var(--nd-lime);color:var(--nd-on-lime);border:0}
+.sc-btn:focus-visible{outline:none;box-shadow:var(--nd-focus-ring)}
+.sc-ex{display:flex;flex-direction:column;gap:6px}
+.sc-ex-label{font-family:var(--nd-font-mono);font-size:.6875rem;letter-spacing:.09em;text-transform:uppercase;color:var(--nd-dim);font-weight:600}
+.sc-ex-btns{display:flex;flex-wrap:wrap;gap:8px}
+.sc-ex-btns .sc-btn{min-height:48px;padding:10px 16px}
+.sc-editor{display:block;width:100%;box-sizing:border-box;min-height:280px;margin-top:14px;padding:14px 16px;background:var(--nd-inset);border:1px solid var(--nd-border);border-radius:var(--nd-r-md);color:var(--nd-text);font-family:var(--nd-font-mono);font-size:.9rem;line-height:1.6;resize:vertical;tab-size:2}
+.sc-editor:focus{outline:none;box-shadow:var(--nd-focus-ring)}
+.sc-err{background:var(--nd-down-soft);border:1px solid var(--nd-down);border-radius:var(--nd-r-md);padding:14px 18px;color:var(--nd-text);line-height:1.6;margin-top:14px}
+.sc-err ul{margin:8px 0 0;padding-left:20px}
+.sc-err li{font-family:var(--nd-font-mono);font-size:.85rem}
+.sc-legend{display:flex;flex-wrap:wrap;gap:10px 18px;margin-bottom:12px}
+.sc-leg{font-size:.85rem;color:var(--nd-muted)}
+.sc-leg b{color:var(--nd-text);font-variant-numeric:tabular-nums}
+.sc-swatch{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:6px}
+.sc-chart{width:100%;height:420px}
+.sc-chart.sc-ind{height:240px}
+.sc-chart table{border-collapse:collapse}
+.sc-outputs{margin-top:14px;overflow:auto}
+.sc-table{width:100%;border-collapse:collapse}
+.sc-table th{background:var(--nd-panel-2);color:var(--nd-dim);font-family:var(--nd-font-mono);font-size:.6875rem;letter-spacing:.09em;text-transform:uppercase;text-align:left;padding:10px 12px;border-bottom:1px solid var(--nd-border);white-space:nowrap}
+.sc-table td{padding:10px 12px;border-bottom:1px solid var(--nd-border);color:var(--nd-text);vertical-align:top;font-variant-numeric:tabular-nums}
+.sc-table td:nth-child(2){white-space:nowrap}
+.sc-dim{color:var(--nd-dim);font-size:.8rem}
+.sc-note{background:var(--nd-panel);border:1px solid var(--nd-border);border-left:4px solid var(--nd-lime);border-radius:var(--nd-r-md);padding:16px 20px;color:var(--nd-muted);line-height:1.65}
+.sc-note strong{color:var(--nd-text)}
+.sc-note code{font-family:var(--nd-font-mono);font-size:.85em;background:var(--nd-panel-2);padding:1px 5px;border-radius:4px;color:var(--nd-text)}
+.sc-note ul{margin:8px 0;padding-left:20px}
+.sc-note li{margin:4px 0}
+.sc-noscript{background:var(--nd-panel);border:1px solid var(--nd-border);border-radius:var(--nd-r-md);padding:16px 20px;color:var(--nd-muted);line-height:1.65;margin-top:16px}
+.sc-noscript strong{color:var(--nd-text)}
+@media(max-width:640px){
+  .sc-controls{flex-direction:column;align-items:stretch}
+  .sc-field input{width:100%}
+  .sc-ex-btns .sc-btn{flex:1 1 auto}
+  .sc-chart{height:340px}
+  .sc-chart.sc-ind{height:220px}
+}
