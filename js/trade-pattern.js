@@ -12,7 +12,7 @@ var BC = window.BrokerCommon;
 var $ = function(id){ return document.getElementById(id); };
 var PER = 25;
 var state = { period: 'latest', brokers: {}, data: null, broker: null,
-  sig: null, lastGood: null, page: 1, rows: [], sectorRows: [], secFilter: 'All', secPage: 1 };
+  sig: null, lastGood: null, page: 1, rows: [], sectorRows: [], secFilter: 'All', secPage: 1, rangeFrom: null, rangeTo: null };
 
 function nptTime(){
   try {
@@ -215,10 +215,19 @@ function tradedSet(){
 }
 function updateSectorMarks(){ renderSector(); }
 
+function rangeProgress(pr){
+  var el = $('bkResult');
+  if (el) el.innerHTML = '<p class="bk-loading">Building range… ' +
+    (pr.stage === 'daily' ? 'fetching daily files (' + pr.done + '/' + pr.total + ')' : 'loading period data (' + pr.done + '/' + pr.total + ')') + '</p>';
+}
+function loadData(){
+  if (state.period === 'range') return BC.loadRange(state.rangeFrom, state.rangeTo, rangeProgress);
+  return BC.loadPeriod(state.period);
+}
 function load(opts){
   var silent = opts && opts.silent;
   if (!silent) $('bkResult').innerHTML = '<p class="bk-loading">Loading…</p>';
-  BC.loadPeriod(state.period).then(function(d){
+  loadData().then(function(d){
     state.data = d; state.lastGood = d;
     var sig = signature(d);
     var changed = state.sig !== null && sig !== state.sig;
@@ -234,7 +243,14 @@ function load(opts){
     } else if (n) {
       n.textContent = '';
     }
-  }).catch(function(){
+  }).catch(function(e){
+    /* Range errors replace the view with their honest message — never
+       leave a stale period on screen behind a "refresh failed" line. */
+    if (state.period === 'range'){
+      $('bkResult').innerHTML = '<div class="bk-empty">' + BC.esc((e && e.message) ? e.message : 'Range could not be built.') + '</div>';
+      setFresh(true); setBanner();
+      return;
+    }
     if (state.lastGood) { setFresh(true); setBanner(); }
     else {
       $('bkResult').innerHTML = '<div class="bk-empty">Data not available for this period yet.</div>';
@@ -265,10 +281,27 @@ $('brokerSel').addEventListener('change', function(){
   else if (!state.broker) { state.sig = null; $('bkResult').innerHTML = '<div class="bk-empty">Pick a broker above to see its trade pattern.</div>'; }
 });
 $('bkPeriods').addEventListener('click', function(e){
-  var b = e.target.closest('button'); if (!b) return;
+  var b = e.target.closest('button'); if (!b || !b.dataset.p) return; /* Apply carries no data-p */;
   document.querySelectorAll('#bkPeriods button').forEach(function(x){ x.classList.remove('active'); });
-  b.classList.add('active'); state.period = b.dataset.p; state.sig = null; load();
+  b.classList.add('active'); state.period = b.dataset.p; state.sig = null;
+  if (b.dataset.p === 'range'){
+    /* Range needs dates + Apply: re-show a previously applied range if
+       one exists, else prompt for dates instead of loading blindly. */
+    if (state.rangeFrom && state.rangeTo) load();
+    else $('bkResult').innerHTML = '<div class="bk-empty">Pick a from and to date, then Apply.</div>';
+    return;
+  }
+  load();
 });
+var bkRangeApply = $('bkRangeApply');
+if (bkRangeApply) bkRangeApply.addEventListener('click', function(){
+  var f = $('bkRangeFrom').value, t = $('bkRangeTo').value;
+  document.querySelectorAll('#bkPeriods button').forEach(function(x){ x.classList.toggle('active', x.dataset.p === 'range'); });
+  state.period = 'range'; state.sig = null;
+  if (!f || !t){ $('bkResult').innerHTML = '<div class="bk-empty">Pick a from and to date, then Apply.</div>'; return; }
+  state.rangeFrom = f; state.rangeTo = t; load();
+});
+
 var secSel = $('tpSecSelect');
 if (secSel) secSel.addEventListener('change', function(){ state.secFilter = secSel.value; state.secPage = 1; renderSector(); });
 var secPrev = $('tpSecPrev'), secNext = $('tpSecNext');

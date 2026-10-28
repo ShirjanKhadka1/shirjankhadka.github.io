@@ -80,7 +80,18 @@ function loadPeriod(p, asof){
   else url = BASE+'periods/'+p+'.json';
   return fetchPeriodCached(url);
 }
+/* Custom date-range payloads (gap 3): aggregated by js/broker-range.js
+   into the same period shape, so every view renders them through its
+   existing path. loadRange rejects with an Error carrying a user-facing
+   message for validation / unavailable / zero-sum failures. */
+function loadRange(from, to, onProgress){
+  if (!window.BrokerRange || !window.BrokerRange.loadRange) {
+    return Promise.reject(new Error('Range module not loaded — please reload the page.'));
+  }
+  return window.BrokerRange.loadRange(from, to, onProgress);
+}
 function label(p, d, asof){
+  if(p==='range') return d && d.from ? d.from+' → '+d.to+' ('+d.trading_days+' sessions)' : 'range';
   if(p==='latest') {
     // If we fell back to 1D.json (weekends/holidays), don't claim "live today"
     if (d && d._fallback) {
@@ -127,6 +138,7 @@ function makeSortable(table, getRows, renderRows){
 window.BrokerCommon = {
   BASE: BASE, fmtN: fmtN, fmtV: fmtV, fmtQ: fmtQ, esc: esc, cls: cls,
   loadMeta: loadMeta, loadBrokers: loadBrokers, loadPeriod: loadPeriod,
+  loadRange: loadRange,
   label: label, makeSortable: makeSortable
 };
 })();

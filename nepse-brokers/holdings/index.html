@@ -28,7 +28,7 @@
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=1aebb748">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=e2586480">
-<link rel="stylesheet" href="/css/nd-holdings.css?v=0ffdfa2d">
+<link rel="stylesheet" href="/css/nd-holdings.css?v=9aea332f">
 </head>
 <body class="nd" data-page="holdings">
 
@@ -60,6 +60,10 @@
 <button data-p="1Y">1Y</button>
 <button data-p="2Y">2Y</button>
 <button data-p="3Y">3Y</button>
+<button data-p="range">Range</button>
+<input type="date" id="bkRangeFrom" title="Range from" aria-label="Range from">
+<input type="date" id="bkRangeTo" title="Range to" aria-label="Range to">
+<button type="button" id="bkRangeApply">Apply</button>
 </div>
 <div class="bk-ctl">
 <select id="symSel" aria-label="Select stock"><option value="">Select stock…</option></select>
@@ -93,8 +97,10 @@
 <p class="bk-note">Transaction flow from public NEPSE floorsheet records — not verified shareholding.</p>
 </main>
 <div id="nd-footer"></div>
-<script src="/js/broker-common.js?v=1e7a9771"></script>
-<script src="/js/holdings.js?v=8ea28991"></script>
+<script src="/js/nepse-market-config.js?v=1e1eb57b"></script>
+<script src="/js/broker-common.js?v=f331aa4a"></script>
+<script src="/js/broker-range.js?v=d2eddca7"></script>
+<script src="/js/holdings.js?v=3f9ff6ce"></script>
 <script src="/js/nd-chrome.js?v=89886946"></script>
 </body>
 </html>

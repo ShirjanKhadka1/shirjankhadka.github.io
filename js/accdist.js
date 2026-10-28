@@ -16,7 +16,7 @@ var BC = window.BrokerCommon;
 var PER = 25;
 var state = { period: 'latest', brokers: {}, acc: [], dist: [], accView: [], distView: [],
   accPage: 1, distPage: 1, q: '', sig: null, lastGood: null, data: null,
-  secRows: [], secFilter: 'All', secPage: 1, sectorBatch: '' };
+  secRows: [], secFilter: 'All', secPage: 1, sectorBatch: '', rangeFrom: null, rangeTo: null };
 var $ = function(id){ return document.getElementById(id); };
 
 function nptTime(){
@@ -247,10 +247,19 @@ function emptyWithGoto(msg){
     });
   });
 }
+function rangeProgress(pr){
+  var el = $('bkResult');
+  if (el) el.innerHTML = '<p class="bk-loading">Building range… ' +
+    (pr.stage === 'daily' ? 'fetching daily files (' + pr.done + '/' + pr.total + ')' : 'loading period data (' + pr.done + '/' + pr.total + ')') + '</p>';
+}
+function loadData(){
+  if (state.period === 'range') return BC.loadRange(state.rangeFrom, state.rangeTo, rangeProgress);
+  return BC.loadPeriod(state.period);
+}
 function load(opts){
   var silent = opts && opts.silent;
   if (!silent) $('bkResult').innerHTML = '<p class="bk-loading">Loading…</p>';
-  BC.loadPeriod(state.period).then(function(d){
+  loadData().then(function(d){
     state.data = d; state.lastGood = d;
     state.acc = norm(d.accumulation); state.dist = norm(d.distribution);
     applySearch();
@@ -269,7 +278,14 @@ function load(opts){
     } else if (n) {
       n.textContent = '';
     }
-  }).catch(function(){
+  }).catch(function(e){
+    /* Range errors keep the goto actions (Retry re-runs the range build)
+       but carry the range's own honest message. */
+    if (state.period === 'range'){
+      emptyWithGoto((e && e.message) ? e.message : 'Range could not be built.');
+      setFresh(true);
+      return;
+    }
     if (state.lastGood) { setFresh(true); setBanner(); }
     else {
       emptyWithGoto('Data not available for this period yet. Broker history is still building — try the latest session instead. This page also retries automatically every minute.');
@@ -285,9 +301,14 @@ function tick(){
 }
 
 $('bkPeriods').addEventListener('click', function(e){
-  var b = e.target.closest('button'); if (!b) return;
+  var b = e.target.closest('button'); if (!b || !b.dataset.p) return; /* Apply carries no data-p */
   document.querySelectorAll('#bkPeriods button').forEach(function(x){ x.classList.remove('active'); });
   b.classList.add('active'); state.period = b.dataset.p;
+  if (b.dataset.p === 'range'){
+    if (state.rangeFrom && state.rangeTo) load();
+    else $('bkResult').innerHTML = '<div class="bk-empty">Pick a from and to date, then Apply.</div>';
+    return;
+  }
   /* Period change is a VIEW change that loads fresh data: load() sets the
      signature from the fetched payload, so the next silent tick compares
      correctly. The signature is never nulled here — nulling it (the old
@@ -295,6 +316,15 @@ $('bkPeriods').addEventListener('click', function(e){
      unconditionally and swallow real changes. */
   load();
 });
+var bkRangeApply = $('bkRangeApply');
+if (bkRangeApply) bkRangeApply.addEventListener('click', function(){
+  var f = $('bkRangeFrom').value, t = $('bkRangeTo').value;
+  document.querySelectorAll('#bkPeriods button').forEach(function(x){ x.classList.toggle('active', x.dataset.p === 'range'); });
+  state.period = 'range'; state.sig = null;
+  if (!f || !t){ $('bkResult').innerHTML = '<div class="bk-empty">Pick a from and to date, then Apply.</div>'; return; }
+  state.rangeFrom = f; state.rangeTo = t; load();
+});
+
 var searchEl = $('bkStockSearch');
 if (searchEl) searchEl.addEventListener('input', function(){
   state.q = searchEl.value.trim().toLowerCase();

@@ -128,3 +128,20 @@ html[data-theme="light"] body.nd[data-page="stock-pattern"] { background: var(--
   .bk-ctl select { min-width: 0; width: 100%; }
   .bk-ctl input[type="search"] { width: 100%; }
 }
+
+/* Gap 3 — custom date-range picker inputs (tokens only, both themes;
+   mirrors the hub .periods date-input styling). */
+.bk-periods input[type="date"]{
+  background: var(--nd-inset);
+  border: 1px solid var(--nd-border);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: .85rem;
+  font-family: var(--nd-font-sans);
+  color: var(--nd-text);
+  color-scheme: light dark;
+}
+.bk-periods input[type="date"]:focus-visible{
+  box-shadow: var(--nd-focus-ring);
+  outline: none;
+}

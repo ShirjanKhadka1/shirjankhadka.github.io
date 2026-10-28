@@ -16,7 +16,7 @@
 "use strict";
 var BASE = '/nepse-brokers/data/';
 var DAILY_END = '2026-10-07'; /* daily archive end, rewritten by the snapshot baker; verifier-checked */
-var state = { view: 'top', period: 'latest', data: null, brokers: {}, meta: null, asof: null, symbol: null, broker: null, topPage: 0, holdPage: 0, brkPage: 0, brkQuery: '', accPage: 0, distPage: 0, accSearch: '', sorts: {}, provPage: 0, mode: '' };
+var state = { view: 'top', period: 'latest', data: null, brokers: {}, meta: null, asof: null, rangeFrom: null, rangeTo: null, symbol: null, broker: null, topPage: 0, holdPage: 0, brkPage: 0, brkQuery: '', accPage: 0, distPage: 0, accSearch: '', sorts: {}, provPage: 0, mode: '' };
 var $ = function(id){ return document.getElementById(id); };
 var lastSig = null, lastData = null, lastFresh = '';
 
@@ -40,6 +40,10 @@ function syncURL(){
   if(state.view!=='top') parts.push('view='+encodeURIComponent(state.view));
   if(state.period!=='latest') parts.push('period='+encodeURIComponent(state.period));
   if(state.period==='asof' && state.asof) parts.push('asof='+encodeURIComponent(state.asof));
+  if(state.period==='range' && state.rangeFrom && state.rangeTo){
+    parts.push('from='+encodeURIComponent(state.rangeFrom));
+    parts.push('to='+encodeURIComponent(state.rangeTo));
+  }
   if(state.symbol) parts.push('symbol='+encodeURIComponent(state.symbol));
   if(state.broker) parts.push('broker='+encodeURIComponent(state.broker));
   history.replaceState(null, '', location.pathname + (parts.length ? '?'+parts.join('&') : ''));
@@ -48,10 +52,14 @@ function initFromURL(){
   var q = readURL();
   var views = {top:1, broker:1, stock:1, holdings:1, accdist:1};
   if(q.view && views[q.view]) state.view = q.view;
-  var periods = {latest:1,'1D':1,'1W':1,'2W':1,'1M':1,'3M':1,'6M':1,'1Y':1,'2Y':1,'3Y':1,asof:1};
+  var periods = {latest:1,'1D':1,'1W':1,'2W':1,'1M':1,'3M':1,'6M':1,'1Y':1,'2Y':1,'3Y':1,asof:1,range:1};
   if(q.period && periods[q.period]){
     if(q.period==='asof'){
       if(/^\d{4}-\d{2}-\d{2}$/.test(q.asof||'')){ state.period='asof'; state.asof=q.asof; }
+    } else if(q.period==='range'){
+      if(/^\d{4}-\d{2}-\d{2}$/.test(q.from||'') && /^\d{4}-\d{2}-\d{2}$/.test(q.to||'') && q.from<=q.to){
+        state.period='range'; state.rangeFrom=q.from; state.rangeTo=q.to;
+      }
     } else {
       state.period = q.period;
     }
@@ -69,6 +77,10 @@ function syncStaticControls(){
     x.setAttribute('aria-selected', x.dataset.p===state.period ? 'true' : 'false');
   });
   if(state.period==='asof' && state.asof) $('asofDate').value = state.asof;
+  if(state.period==='range'){
+    if(state.rangeFrom) $('bkRangeFrom').value = state.rangeFrom;
+    if(state.rangeTo) $('bkRangeTo').value = state.rangeTo;
+  }
 }
 
 function fmtN(n, d){ d = d===undefined?2:d; if(n==null||n===''||!isFinite(Number(n))) return '–';
@@ -247,9 +259,24 @@ function fetchLatest(){
 }
 function loadPeriod(silent){
   var p = state.period;
+  /* Range payloads are immutable for fixed from/to (a hybrid range tracks
+     meta.latest only across day rollovers, which a reload picks up):
+     silent 60s ticks move only the freshness line, never recompute and
+     never reset pagination — the same rule fixed periods follow. */
+  if (silent && p === 'range'){ setFresh('same'); return Promise.resolve(); }
   var url, req, isLatest = (p === 'latest');
   if (isLatest) req = fetchLatest();
   else if (p === 'asof') { url = BASE+'daily/'+state.asof+'.json'; req = fetchPeriodCached(url); }
+  else if (p === 'range') {
+    if (!window.BrokerRange || !window.BrokerRange.loadRange) {
+      req = Promise.reject(new Error('Range module not loaded — please reload the page.'));
+    } else {
+      req = window.BrokerRange.loadRange(state.rangeFrom, state.rangeTo, function(pr){
+        if (!silent) $('view').innerHTML = '<p style="color:var(--nd-muted)">Building range… ' +
+          (pr.stage === 'daily' ? 'fetching daily files (' + pr.done + '/' + pr.total + ')' : 'loading period data (' + pr.done + '/' + pr.total + ')') + '</p>';
+      });
+    }
+  }
   else { url = BASE+'periods/'+p+'.json'; req = fetchPeriodCached(url); }
   if (!silent) $('view').innerHTML = '<p style="color:var(--nd-muted)">Loading…</p>';
   return req.then(function(d){
@@ -266,10 +293,14 @@ function loadPeriod(silent){
     else if (d && d._mode === 'fallback') setFresh('fallback', d.to ? String(d.to).slice(0,10) : 'last session');
     else if (moved) setFresh('changed', { moved: moved });
     else setFresh('ok', state.modeLabel || '');
-  }).catch(function(){
+  }).catch(function(e){
     if (silent){ setFresh('fail'); return; } /* background refresh failed: keep last good render */
     var msg;
-    if (p === 'asof'){
+    if (p === 'range'){
+      /* Range errors carry their own honest message (missing dates,
+         zero-sum failure, validation) — render it, never a stale view. */
+      msg = (e && e.message) ? e.message : 'Range could not be built.';
+    } else if (p === 'asof'){
       msg = (state.asof && state.asof > DAILY_END)
         ? 'No daily file for ' + esc(state.asof) + ' — the daily archive currently ends ' + DAILY_END + '; later sessions are in the period views (1D–3Y) above.'
         : 'No data for ' + esc(state.asof) + ' (weekend/holiday, or not yet backfilled).';
@@ -580,6 +611,11 @@ function renderViz(d){
 }
 
 function label(){
+  if(state.period==='range'){
+    var dd = state.data;
+    return state.rangeFrom+' → '+state.rangeTo+
+      (dd && dd.trading_days ? ' ('+dd.trading_days+' sessions)' : '');
+  }
   if(state.period==='latest'){
     var d = state.data;
     if (d && d._mode === 'provisional'){
@@ -773,10 +809,27 @@ $('viewTabs').addEventListener('click', function(e){
   b.classList.add('active'); state.view = b.dataset.view; syncControls(); syncURL(); render();
 });
 $('periodBar').addEventListener('click', function(e){
-  var b = e.target.closest('button'); if(!b) return;
+  var b = e.target.closest('button'); if(!b || !b.dataset.p) return; /* Apply carries no data-p */
   document.querySelectorAll('#periodBar button').forEach(function(x){x.classList.remove('active')});
   b.classList.add('active'); state.period = b.dataset.p; state.asof = null; state.holdPage = 0; state.brkPage = 0; state.brkQuery = ''; $('asofDate').value='';
   /* Selections live in state and are restored by render() — never wipe them here. */
+  syncURL();
+  if (b.dataset.p === 'range'){
+    /* Range needs dates + Apply: re-show a previously applied range if
+       one exists, else prompt for dates instead of loading blindly. */
+    if (state.rangeFrom && state.rangeTo) loadPeriod();
+    else $('view').innerHTML = '<div class="cover">Pick a from and to date, then Apply.</div>';
+    return;
+  }
+  loadPeriod();
+});
+var bkRangeApply = $('bkRangeApply');
+if (bkRangeApply) bkRangeApply.addEventListener('click', function(){
+  var f = $('bkRangeFrom').value, t = $('bkRangeTo').value;
+  document.querySelectorAll('#periodBar button').forEach(function(x){x.classList.toggle('active', x.dataset.p === 'range')});
+  state.period = 'range'; state.asof = null; $('asofDate').value='';
+  if (!f || !t){ $('view').innerHTML = '<div class="cover">Pick a from and to date, then Apply.</div>'; syncURL(); return; }
+  state.rangeFrom = f; state.rangeTo = t; state.holdPage = 0; state.brkPage = 0; state.brkQuery = '';
   syncURL();
   loadPeriod();
 });
