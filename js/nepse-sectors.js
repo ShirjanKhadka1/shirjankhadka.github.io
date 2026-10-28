@@ -1,8 +1,10 @@
 /* Nepse Decode sector dashboard.
    Loads /nepse-chart/data/verdicts.json (via version.json cache-bust) and
    aggregates it into a size-weighted heatmap, per-sector breadth cards, and
-   a sortable comparison table. Everything is computed client-side from the
-   latest daily batch; no figures are invented. */
+   a sortable comparison table, plus a stat strip and a paginated
+   sector-stocks panel. Everything is computed client-side from the latest
+   daily batch; no figures are invented. A page-owned 60s tick repaints
+   from the live tape only when its value-sensitive signature changes. */
 (function () {
   'use strict';
   var FALLBACK_V = '20260924g';
@@ -199,6 +201,7 @@
         name: g.name, count: g.count, adv: g.adv, dec: g.dec, flat: g.flat, nCh: n,
         avgCh: avgCh, pctUp: pctUp, avgRsi: avgRsi,
         turnShare: totalTurn > 0 ? (g.turn / totalTurn) * 100 : null,
+        turn: g.turn,
         gainers: gainers, losers: losers, tiles: g.tiles
       };
     });
@@ -206,7 +209,7 @@
     list.sort(function (a, b) {
       return b.count - a.count;
     });
-    return { sectors: list, asof: vj.asof || '', total: Object.keys(v).length, listed: universeSyms.length || Object.keys(v).length };
+    return { sectors: list, asof: vj.asof || '', total: Object.keys(v).length, listed: universeSyms.length || Object.keys(v).length, totalTurn: totalTurn };
   }
 
   /* Live-tape aggregation: recomputes the sector picture from the live
@@ -268,13 +271,14 @@
         name: g.name, count: g.count, adv: g.adv, dec: g.dec, flat: g.flat, nCh: n,
         avgCh: avgCh, pctUp: n ? (g.adv / n) * 100 : null, avgRsi: avgRsi,
         turnShare: totalTurn > 0 ? (g.turn / totalTurn) * 100 : null,
+        turn: g.turn,
         gainers: gainers, losers: losers, tiles: g.tiles
       };
     });
     list.sort(function (a, b) {
       return b.count - a.count;
     });
-    return { sectors: list, asof: todayStr, total: syms.length, listed: syms.length, traded: traded, noData: syms.length - traded, tapeAsof: (live && live.asof) || 0 };
+    return { sectors: list, asof: todayStr, total: syms.length, listed: syms.length, traded: traded, noData: syms.length - traded, tapeAsof: (live && live.asof) || 0, totalTurn: totalTurn };
   }
 
   var MONTHS_L = ['January','February','March','April','May','June','July',
@@ -388,9 +392,16 @@
           '<div class="sx-lead">' +
             '<div><h4>Top gainers</h4>' + leaderList(g.gainers, g.name, 'No change data in this sector.') + '</div>' +
             '<div><h4>Top losers</h4>' + leaderList(g.losers, g.name, 'No change data in this sector.') + '</div>' +
-          '</div></details></article>';
+          '</div></details>' +
+        '<button type="button" class="sx-panel-stockbtn" data-sec="' + esc(g.name) + '">View all ' + g.count + ' stocks in ' + esc(g.name) + '</button></article>';
     }).join('');
     $('sx-cards').innerHTML = h;
+    var btns = document.querySelectorAll('#sx-cards .sx-panel-stockbtn');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].addEventListener('click', function () {
+        openPanelSector(this.getAttribute('data-sec'));
+      });
+    }
   }
 
   function renderTable(sectors, mode) {
@@ -568,7 +579,7 @@
     var items = mapItems(sectors);
     var bands = mapBands();
     var light = document.documentElement.getAttribute('data-theme') === 'light';
-    ctx.fillStyle = light ? '#FAF8F2' : '#0b0f15';
+    ctx.fillStyle = light ? '#F6F7F9' : '#0A0C10';
     ctx.fillRect(0, 0, W, H);
     mapRects = items.length ? squarify(items, 0, 0, W, H) : [];
     mapRects.forEach(function (r) {
@@ -653,12 +664,13 @@
           seg[j].setAttribute('aria-pressed', seg[j] === this ? 'true' : 'false');
         mapMode = (this.getAttribute('data-size') === 'volume') ? 'volume' : 'turnover';
         renderMap(currentSectors);
+        rebaselineSig();
       });
     }
     var rsz = null;
     window.addEventListener('resize', function () {
       if (rsz) clearTimeout(rsz);
-      rsz = setTimeout(function () { renderMap(currentSectors); }, 150);
+      rsz = setTimeout(function () { renderMap(currentSectors); rebaselineSig(); }, 150);
     });
     try {
       new MutationObserver(function (muts) {
@@ -673,6 +685,246 @@
   var lastLiveAsOf = 0;
   var batchRsi = {};
   var heatFilter = 'all';
+
+  /* Teardown 2026-10-28 — sector-stocks panel state + refresh signature.
+   * The signature describes the DATA (mode/asof/traded/turnover/tape
+   * time), never the view: view-change handlers RE-BASELINE it from the
+   * last aggregate after re-rendering, so a tick never mistakes a
+   * filtered view for changed data. It is never nulled. */
+  var panelSector = null, panelSort = 'turnover', panelSearch = '', panelPage = 1;
+  var PANEL_PAGE = 25;
+  var lastSig = null, lastAgg = null, lastIsLive = false, drawCount = 0;
+  var freshTimer = null;
+
+  function sigOf(agg, isLive) {
+    if (!agg) return null;
+    // Value-sensitive tail: FNV-1a over symbol:price:change:turnover for
+    // every tile (sorted by symbol), so a quote move repaints even when
+    // the snapshot timestamp does not advance (beyond NepseLive's
+    // asof-only gate).
+    var tiles = [];
+    (agg.sectors || []).forEach(function (g) {
+      (g.tiles || []).forEach(function (t) { tiles.push(t); });
+    });
+    tiles.sort(function (a, b) { return String(a.sym).localeCompare(String(b.sym)); });
+    var h = 2166136261;
+    tiles.forEach(function (t) {
+      var s = t.sym + ':' + t.p + ':' + t.ch + ':' + t.turn + '|';
+      for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = (h * 16777619) >>> 0; }
+    });
+    return (isLive ? 'live' : 'batch') + '|' + (agg.asof || '') + '|' +
+      (agg.traded != null ? agg.traded : agg.total) + '|' +
+      Math.round(agg.totalTurn || 0) + '|' + (agg.tapeAsof || 0) + '|' + h.toString(16);
+  }
+  function rebaselineSig() {
+    // View changed, data did not: re-assert the signature from the last
+    // aggregate. Never nulls it — a null would force a spurious repaint.
+    if (lastAgg) lastSig = sigOf(lastAgg, lastIsLive);
+  }
+  function nptHHMM(t) {
+    var d = new Date((t || Date.now()) + 5.75 * 3600 * 1000);
+    return pad2(d.getUTCHours()) + ':' + pad2(d.getUTCMinutes());
+  }
+  function fmtMoneyFull(x) {
+    if (x == null || !isFinite(x)) return '-';
+    if (x >= 1e9) return 'Rs ' + (x / 1e9).toFixed(2) + ' arab';
+    if (x >= 1e7) return 'Rs ' + (x / 1e7).toFixed(2) + ' Cr';
+    if (x >= 1e5) return 'Rs ' + (x / 1e5).toFixed(2) + ' L';
+    return 'Rs ' + Math.round(x).toLocaleString('en-US');
+  }
+  function updateFreshline() {
+    var fl = $('sxFreshline');
+    if (!fl || !lastAgg) return;
+    var agg = lastAgg;
+    var state = lastIsLive ? 'live' : 'closed';
+    var now = Date.now(), next = now + 60000;
+    var session = lastIsLive ? ('Live session of ' + fmtLiveDay(agg.asof))
+      : ('Batch as of ' + (agg.asof || '—'));
+    var counts = lastIsLive
+      ? ((agg.traded != null ? agg.traded : agg.total) + ' traded · ' +
+        (agg.noData != null ? agg.noData : 0) + ' not yet traded')
+      : (agg.total + ' of ' + (agg.listed || agg.total) + ' listed securities');
+    fl.innerHTML = '<span class="sx-fresh-dot" data-state="' + state + '"></span>' +
+      esc(session) + ' · ' + esc(counts) +
+      ' · checked ' + nptHHMM(now) + ' NPT · next check ' + nptHHMM(next) +
+      ' NPT · refreshes every 60s when data changes';
+  }
+  function renderStats(agg, isLive) {
+    var secs = agg.sectors || [];
+    var adv = 0, dec = 0, flat = 0;
+    secs.forEach(function (g) { adv += g.adv; dec += g.dec; flat += g.flat; });
+    var t = adv + dec + flat;
+    var top = secs.slice().sort(function (a, b) { return (b.turnShare || 0) - (a.turnShare || 0); })[0];
+    var el;
+    el = $('sxStatListed');
+    if (el) el.textContent = isLive
+      ? ((agg.traded != null ? agg.traded : agg.total) + ' of ' + (agg.listed || agg.total))
+      : String(agg.listed || agg.total);
+    el = $('sxStatListedSub');
+    if (el) el.textContent = isLive
+      ? ((agg.noData != null ? agg.noData : 0) + ' not yet traded · ' + secs.length + ' sectors')
+      : (secs.length + ' sectors · batch as of ' + (agg.asof || '—'));
+    el = $('sxStatTurn');
+    if (el) el.textContent = fmtMoneyFull(agg.totalTurn);
+    el = $('sxStatTurnSub');
+    if (el) el.textContent = isLive ? 'tape sum · live session'
+      : 'batch sum (volume × price) · ' + (agg.asof || '—');
+    el = $('sxStatBreadth');
+    if (el) el.textContent = adv + ' up · ' + dec + ' down';
+    el = $('sxStatBreadthSub');
+    if (el) el.textContent = flat + ' flat · ' + t + ' with change data';
+    el = $('sxStatBreadthBar');
+    if (el) {
+      var wUp = t ? (adv / t) * 100 : 0, wDn = t ? (dec / t) * 100 : 0, wFl = t ? (flat / t) * 100 : 0;
+      el.innerHTML = '<i class="sx-b-up" style="width:' + wUp.toFixed(1) + '%"></i>' +
+        '<i class="sx-b-dn" style="width:' + wDn.toFixed(1) + '%"></i>' +
+        '<i class="sx-b-flat" style="width:' + wFl.toFixed(1) + '%"></i>';
+      el.setAttribute('aria-label', 'Breadth: ' + adv + ' up, ' + dec + ' down, ' + flat + ' flat');
+    }
+    el = $('sxStatTop');
+    if (el) el.textContent = top ? top.name : '—';
+    el = $('sxStatTopSub');
+    if (el) el.textContent = top
+      ? ((top.turnShare != null ? top.turnShare.toFixed(1) + '% of turnover' : '') +
+        (top.turn ? ' · ' + fmtTurn(top.turn) : ''))
+      : '—';
+  }
+  function panelRows() {
+    var g = null;
+    for (var i = 0; i < currentSectors.length; i++) {
+      if (currentSectors[i].name === panelSector) { g = currentSectors[i]; break; }
+    }
+    if (!g) return [];
+    var q = panelSearch.trim().toLowerCase();
+    var rows = (g.tiles || []).slice();
+    if (q) rows = rows.filter(function (t) {
+      return String(t.sym).toLowerCase().indexOf(q) >= 0 ||
+        String(t.name || '').toLowerCase().indexOf(q) >= 0;
+    });
+    if (panelSort === 'change') {
+      rows.sort(function (a, b) {
+        var ca = (a.ch == null ? -9999 : a.ch), cb = (b.ch == null ? -9999 : b.ch);
+        return cb - ca;
+      });
+    } else if (panelSort === 'symbol') {
+      rows.sort(function (a, b) { return String(a.sym).localeCompare(String(b.sym)); });
+    } else {
+      rows.sort(function (a, b) { return (b.turn || 0) - (a.turn || 0); });
+    }
+    return rows;
+  }
+  function renderPanelSelect() {
+    var sel = $('sxPanelSector');
+    if (!sel) return;
+    var names = currentSectors.map(function (g) { return g.name; });
+    if (panelSector == null || names.indexOf(panelSector) < 0) {
+      panelSector = currentSectors.length
+        ? currentSectors.slice().sort(function (a, b) { return b.count - a.count; })[0].name
+        : null;
+    }
+    sel.innerHTML = currentSectors.map(function (g) {
+      return '<option value="' + esc(g.name) + '"' +
+        (g.name === panelSector ? ' selected' : '') + '>' +
+        esc(g.name) + ' (' + g.count + ')</option>';
+    }).join('');
+  }
+  function renderPanel() {
+    var body = $('sxPanelBody');
+    if (!body) return;
+    var rows = panelRows();
+    var total = rows.length;
+    var pages = Math.max(1, Math.ceil(total / PANEL_PAGE));
+    if (panelPage > pages) panelPage = pages;
+    if (panelPage < 1) panelPage = 1;
+    var start = (panelPage - 1) * PANEL_PAGE;
+    var page = rows.slice(start, start + PANEL_PAGE);
+    body.innerHTML = page.length ? page.map(function (t) {
+      var traded = t.p != null;
+      var status = lastIsLive
+        ? (traded ? '<span class="sx-live-dot"></span>traded' : '<span class="sx-notrade">no trade</span>')
+        : (traded ? 'session' : '<span class="sx-notrade">no price data</span>');
+      return '<tr><td><a href="' + esc(stockURL(t.sym)) + '">' + esc(t.sym) + '</a></td>' +
+        '<td class="sx-col-name">' + esc(t.name || t.sym) + '</td>' +
+        '<td class="num">' + (t.p != null ? esc(num(t.p, 2)) : '<span class="sx-dash">-</span>') + '</td>' +
+        '<td class="num">' + signPct(t.ch) + '</td>' +
+        '<td class="num">' + (t.turn > 0 ? esc(fmtTurn(t.turn)) : '<span class="sx-dash">-</span>') + '</td>' +
+        '<td>' + status + '</td></tr>';
+    }).join('') : '<tr><td colspan="6" class="sx-empty">No stocks match this filter.</td></tr>';
+    var prev = $('sxPanelPrev'), next = $('sxPanelNext'), show = $('sxPanelShowing');
+    if (prev) prev.disabled = panelPage <= 1;
+    if (next) next.disabled = panelPage >= pages;
+    if (show) show.textContent = total
+      ? ('Showing ' + (start + 1) + '–' + Math.min(start + PANEL_PAGE, total) + ' of ' + total)
+      : 'Showing 0–0 of 0';
+  }
+  function openPanelSector(name) {
+    panelSector = name; panelPage = 1;
+    renderPanelSelect();
+    renderPanel();
+    rebaselineSig();
+    var sel = $('sxPanelSector');
+    var panel = $('sx-panel-h');
+    if (panel && panel.scrollIntoView) panel.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    if (sel) sel.focus({ preventScroll: true });
+  }
+  /* Shape a RAW live.json fetch into the NepseLive shape paintLiveFromTape
+   * expects: asof as epoch ms, quotes as a symbol-keyed map with pct
+   * (not percent_change). Skipping this step feeds aggregateLiveTape a
+   * LIST, which it reads as indices — every symbol renders untraded. */
+  function shapeRawTape(raw) {
+    if (!raw || !Array.isArray(raw.quotes)) return null;
+    var asofMs = Date.parse(raw.asof);
+    if (!isFinite(asofMs)) return null;
+    function num(v) { v = Number(v); return isFinite(v) ? v : null; }
+    var quotes = {};
+    raw.quotes.forEach(function (q) {
+      if (!q || !q.symbol) return;
+      quotes[q.symbol] = {
+        symbol: q.symbol, ltp: num(q.ltp), change: num(q.change),
+        pct: num(q.percent_change), high: num(q.high), low: num(q.low),
+        volume: num(q.volume), turnover: num(q.turnover), trades: num(q.trades),
+        prev: num(q.previous_close), name: q.name || null
+      };
+    });
+    return { asof: asofMs, quotes: quotes };
+  }
+  /* Page-owned 60s tick (all hours, visible tab only): fetches the tape,
+   * builds the live aggregate PURELY (no render), and repaints ONLY when
+   * its signature differs from the rendered state. Identical data →
+   * only the freshline clock advances; data containers stay byte-stable.
+   * A failed fetch never clears the page — it only skips the repaint. */
+  function tickNow() {
+    updateFreshline();
+    if (document.hidden) return;
+    getJSON('/nepse-chart/data/live.json').then(function (raw) {
+      var shaped = shapeRawTape(raw);
+      if (!shaped) return;
+      var NL = window.NepseLive;
+      var todayStr = null;
+      try { todayStr = NL ? NL.nowNPT().toISOString().slice(0, 10) : null; } catch (e) { /* keep null */ }
+      if (!todayStr) return;
+      // Stale tape (yesterday's frozen session on a new morning): the
+      // freshline clock already advanced above; never paint it as live.
+      var tapeDay = null;
+      try { tapeDay = new Date(shaped.asof + 5.75 * 3600 * 1000).toISOString().slice(0, 10); } catch (e) { /* keep null */ }
+      if (tapeDay !== todayStr) return;
+      var agg = aggregateLiveTape(shaped, todayStr);
+      if (sigOf(agg, true) === lastSig) return;
+      var hh = null;
+      try {
+        var npt = new Date(Date.now() + 5.75 * 3600 * 1000);
+        hh = npt.getUTCHours();
+      } catch (e) { /* keep null */ }
+      var st = (hh != null && hh >= 11 && hh < 15) ? 'live' : null;
+      // Paint DIRECTLY, not via paintLiveFromTape: that function's asof
+      // gate would swallow a value-only change (same snapshot time, new
+      // quotes — the exact change this hash detected). Day guards already
+      // applied above; the signature is this path's gate. NepseLive's own
+      // onData path keeps using paintLiveFromTape unchanged.
+      drawAll(agg, true, st);
+      lastLiveAsOf = shaped.asof;
+    }).catch(function () { /* tape unavailable: page keeps its last good render */ });
+  }
 
   /* Concept 03: sector filter pills for the heatmap (preview view-heatmap).
    * Pills are built from the real sector names in the data. */
@@ -693,17 +945,30 @@
         renderHeatFilters(currentSectors);
         renderHeat(heatFilter === 'all' ? currentSectors :
           currentSectors.filter(function (g) { return g.name === heatFilter; }));
+        rebaselineSig();
       });
     }
   }
 
   function drawAll(agg, isLive, marketState) {
     currentSectors = agg.sectors;
+    // Baseline FIRST: renders below (panel status, freshline) read the
+    // current mode, and the tick's before/after drawCount comparison
+    // needs the increment to cover this draw.
+    lastAgg = agg; lastIsLive = !!isLive;
+    lastSig = sigOf(agg, isLive);
+    drawCount++;
     renderHeatFilters(currentSectors);
-    renderHeat(currentSectors);
+    // View preservation: a live repaint must NOT reset the user's heat
+    // filter (pre-teardown bug: renderHeat always drew all sectors).
+    renderHeat(heatFilter === 'all' ? currentSectors :
+      currentSectors.filter(function (g) { return g.name === heatFilter; }));
     renderCards(currentSectors);
     var sel = $('sx-sort');
     renderTable(currentSectors, sel ? sel.value : 'change');
+    renderStats(agg, isLive);
+    renderPanelSelect();
+    renderPanel();
     animateSectors();
     var sxAsof = $('sx-asof');
     if (sxAsof) {
@@ -722,6 +987,7 @@
         sxAsof.insertAdjacentHTML('beforeend', ' · ' + window.NepseFresh.badge(agg.asof));
     }
     renderMap(currentSectors);
+    updateFreshline();
   }
 
   // Recomputes every sector figure from the quote tape whenever a fresh
@@ -756,6 +1022,39 @@
       var sel = $('sx-sort');
       if (sel) sel.addEventListener('change', function () {
         renderTable(currentSectors, sel.value);
+        rebaselineSig();
+      });
+      var psel = $('sxPanelSector');
+      if (psel) psel.addEventListener('change', function () {
+        panelSector = psel.value; panelPage = 1;
+        renderPanel();
+        rebaselineSig();
+      });
+      var psort = $('sxPanelSort');
+      if (psort) psort.addEventListener('change', function () {
+        panelSort = psort.value; panelPage = 1;
+        renderPanel();
+        rebaselineSig();
+      });
+      var psearch = $('sxPanelSearch');
+      if (psearch) psearch.addEventListener('input', function () {
+        panelSearch = psearch.value; panelPage = 1;
+        renderPanel();
+        rebaselineSig();
+      });
+      var pprev = $('sxPanelPrev');
+      if (pprev) pprev.addEventListener('click', function () {
+        if (panelPage > 1) { panelPage--; renderPanel(); rebaselineSig(); }
+      });
+      var pnext = $('sxPanelNext');
+      if (pnext) pnext.addEventListener('click', function () {
+        panelPage++; renderPanel(); rebaselineSig();
+      });
+      // Page-owned 60s refresh tick (all hours): value-sensitive, see
+      // tickNow. NepseLive's own 60s poll stays for the status badge.
+      if (!freshTimer) freshTimer = setInterval(tickNow, 60000);
+      document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'visible') tickNow();
       });
       // Wave 7: live feed status next to the batch date; the sector figures
       // themselves follow the 15-minute tape whenever it is today's.
