@@ -212,9 +212,9 @@ span.na-sym--nolink:hover { color: var(--nd-text); }
 /* Canvas: overview tokens, theme-scoped (0,3,1) so the pin beats
  * theme.css [data-theme="dark"] body.nd (0,2,1). Plain rule first
  * as the dark default; theme-scoped rules override per theme. */
-body.nd[data-page="actions"] { background: #0A0C10; }
-[data-theme="dark"] body.nd[data-page="actions"] { background: #0A0C10; }
-[data-theme="light"] body.nd[data-page="actions"] { background: #F6F7F9; }
+body.nd[data-page="actions"] { background: var(--nd-bg); }
+[data-theme="dark"] body.nd[data-page="actions"] { background: var(--nd-bg); }
+[data-theme="light"] body.nd[data-page="actions"] { background: var(--nd-bg); }
 
 /* ---------- Freshness line + new-notice ---------- */
 .na-fresh-line {
