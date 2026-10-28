@@ -436,7 +436,7 @@ const RAIL = '<body class="nd">\n' +
 
   const FOOT =
   '<div id="nd-footer"></div>\n' +
-  '<script src="/js/nd-chrome.js?v=643c6521" defer></script>\n' +
+  '<script src="/js/nd-chrome.js?v=40bfaff5" defer></script>\n' +
   '<script src="/js/theme-toggle.js?v=20261023d" defer></script>\n' +
   '<script src="/js/stock-live.js?v=c135f9d9" defer></script>\n' +
   '<script src="/js/val-lab.js?v=20261023d" defer></script>\n' +

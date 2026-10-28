@@ -1,0 +1,54 @@
+/* nepse-floorsheet.css — family layer for /nepse-floorsheet/ (.fs- prefix).
+   Token-driven only; no hardcoded hexes. Light theme flips with the
+   --nd-* tokens, so no theme remap block is needed. Mirrors the
+   nepse-compare family layer conventions (cp- -> fs-). */
+.fs-sec{margin-top:16px}
+.fs-head{margin-bottom:12px}
+.fs-head h2{font-family:var(--nd-font-display);font-weight:700;font-size:1.25rem;color:var(--nd-text);margin:4px 0 0}
+.fs-cap{font-size:.8rem;color:var(--nd-dim);margin-top:8px;line-height:1.5}
+.fs-cap strong{color:var(--nd-text)}
+.fs-chip{display:inline-flex;align-items:center;gap:6px;padding:3px 12px;border-radius:999px;font-size:.75rem;font-weight:700;white-space:nowrap}
+.fs-chip .dot{width:8px;height:8px;border-radius:50%;background:currentColor}
+.fs-chip.closed{background:var(--nd-chip-closed-bg);color:var(--nd-chip-closed-fg)}
+.fs-chip.unverified{background:var(--nd-chip-unverified-bg);color:var(--nd-chip-unverified-fg)}
+.fs-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px}
+@media(max-width:900px){.fs-stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.fs-stats{grid-template-columns:1fr}}
+.fs-stat{background:var(--nd-panel-2);border:1px solid var(--nd-border);border-radius:var(--nd-r-md);padding:14px 16px}
+.fs-stat .lab{font-family:var(--nd-font-mono);font-size:.6875rem;letter-spacing:.09em;text-transform:uppercase;color:var(--nd-dim);font-weight:600}
+.fs-stat .val{font-family:var(--nd-font-display);font-weight:700;font-size:1.5rem;color:var(--nd-text);margin-top:4px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.fs-stat .sub{font-size:.8rem;color:var(--nd-muted);margin-top:2px}
+.fs-field label{display:block;font-family:var(--nd-font-mono);font-size:.6875rem;letter-spacing:.09em;text-transform:uppercase;color:var(--nd-dim);font-weight:600;margin-bottom:6px}
+.fs-field input,.fs-field select{width:100%;box-sizing:border-box;min-height:48px;padding:10px 14px;background:var(--nd-inset);border:1px solid var(--nd-border);border-radius:var(--nd-r-md);color:var(--nd-text);font:inherit;font-size:1rem}
+.fs-field input:focus,.fs-field select:focus{outline:none;box-shadow:var(--nd-focus-ring)}
+.fs-field input{text-transform:uppercase}
+.fs-filters{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:12px}
+@media(max-width:760px){.fs-filters{grid-template-columns:1fr}}
+.fs-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.fs-btn{border:0;border-radius:999px;min-height:48px;padding:10px 22px;font:inherit;font-weight:700;cursor:pointer}
+.fs-btn.primary{background:var(--nd-lime);color:var(--nd-on-lime)}
+.fs-btn.ghost{background:var(--nd-panel-2);color:var(--nd-text);border:1px solid var(--nd-border)}
+.fs-btn:focus-visible{outline:none;box-shadow:var(--nd-focus-ring)}
+.fs-btn:disabled{opacity:.5;cursor:default}
+.fs-err{color:var(--nd-down);font-size:.85rem;margin-top:10px;line-height:1.5}
+.fs-pager{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:12px 0}
+.fs-pager .pg{font-size:.85rem;color:var(--nd-muted);font-variant-numeric:tabular-nums}
+.fs-pager input{width:84px;min-height:48px;box-sizing:border-box;padding:10px 12px;background:var(--nd-inset);border:1px solid var(--nd-border);border-radius:var(--nd-r-md);color:var(--nd-text);font:inherit;font-size:1rem;text-align:center}
+.fs-pager input:focus{outline:none;box-shadow:var(--nd-focus-ring)}
+.fs-tablewrap{overflow:auto}
+.fs-table{width:100%;border-collapse:collapse}
+.fs-table th{background:var(--nd-panel-2);color:var(--nd-dim);font-family:var(--nd-font-mono);font-size:.6875rem;letter-spacing:.09em;text-transform:uppercase;text-align:left;padding:10px 12px;border-bottom:1px solid var(--nd-border);white-space:nowrap}
+.fs-table td{padding:10px 12px;border-bottom:1px solid var(--nd-border);color:var(--nd-text);vertical-align:top}
+.fs-table td.num,.fs-table th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.fs-table tbody tr:hover td{background:var(--nd-panel-2)}
+.fs-table a{color:var(--nd-text);font-weight:600;text-decoration:none}
+.fs-table a:hover{color:var(--nd-lime);text-decoration:underline}
+.fs-table td.sym{font-family:var(--nd-font-mono);font-weight:600;white-space:nowrap}
+.fs-table td.tx{font-family:var(--nd-font-mono);font-size:.8rem;color:var(--nd-muted);white-space:nowrap}
+.fs-table td.brk{white-space:nowrap}
+.fs-table td.brk .sub{font-size:.75rem;color:var(--nd-dim);font-weight:400}
+.fs-table td.idx{color:var(--nd-muted);font-size:.85rem;white-space:nowrap}
+.fs-note{background:var(--nd-panel);border:1px solid var(--nd-border);border-left:4px solid var(--nd-lime);border-radius:var(--nd-r-md);padding:16px 20px;color:var(--nd-muted);line-height:1.65}
+.fs-note strong{color:var(--nd-text)}
+.fs-noscript{background:var(--nd-panel);border:1px solid var(--nd-border);border-radius:var(--nd-r-md);padding:16px 20px;color:var(--nd-muted);line-height:1.65}
+.fs-noscript strong{color:var(--nd-text)}
