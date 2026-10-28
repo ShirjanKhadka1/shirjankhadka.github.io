@@ -40,9 +40,9 @@ Source rule applied here (2026-10-28, documented in the output file):
     file in the archive).
   - Debentures and mutual funds get no split: units, not shares.
   - Equity-tagged symbols with no archive record get nothing: honest
-    unavailable (this includes 32 debenture-pattern and 7 fund-pattern
-    symbols whose universe type tag says Equity — the tag noise is a
-    separate pipeline item, not fixed here).
+    unavailable (the 14 genuine no-record equities; the former
+    debenture/fund-pattern tag noise was corrected in the universe
+    builder 2026-10-28, gap-2 item 3).
 
 Output: nepse-chart/data/shareholding.json, loaded by
 tools/build-symbol-pages.js in main(). Re-run this script whenever the

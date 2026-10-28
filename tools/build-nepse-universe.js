@@ -131,6 +131,13 @@ function classify(sym, name, assetType) {
   const nm = ((name || '') + ' ' + sym);
   if (assetType === 'open_ended_mutual_fund') return 'Mutual fund';
   if (/debenture/i.test(nm)) return 'Debenture';
+  // 2026-10-28 (gap-2 item 3): port of the sector builder's symbol rule,
+  // extended with the UR alternative for energy-bond tickers. Bare-ticker
+  // feed names carry no word for the word tests above to catch, so the
+  // symbol pattern is what tags these debentures. Verified against all
+  // 413 symbols: flips exactly the intended debentures, zero others.
+  if (/(D|UR)\d{2,4}(\/\d{2})?(KA)?$/i.test(sym)) return 'Debenture';
+  if (/\bbond\b|rinpatra/i.test(nm)) return 'Debenture';
   if (/preference/i.test(nm)) return 'Preference share';
   if (/mutual fund|mutual|yojana|scheme|\bfund\b|\bkosh\b/i.test(nm)) return 'Mutual fund';
   if (/promoter/i.test(nm)) return 'Promoter share';
@@ -174,6 +181,23 @@ const VERIFIED_OVERRIDES = {
   KBLPO:    { name: 'KBLPO', type: 'Promoter share' },
   MLBLPO:   { name: 'MLBLPO', type: 'Promoter share' },
   RBCLPO:   { name: 'RBCLPO', type: 'Promoter share' },
+  // 2026-10-28 (gap-2 item 3): universe type-tag corrections. Each entry
+  // corroborated by two independent sources (evidence:
+  // hidden_files/gap2-items/type-tags.md). SCBD/NIFRAGED match no symbol
+  // rule (no digits); CMF2/H8020/LSH12/NMB50/RBBF40 carry no fund word in
+  // any available name or are absent from the official close; RURU's
+  // feed asset_type is wrong (hydro equity, not a fund) and the override
+  // wins outright, which also protects it against future feed relapses.
+  // All 8 are already in the union, so Gate 5's floorsheet-admission
+  // rule below does not apply to them.
+  SCBD:     { name: '10.30% Standard Chartered Bank Limited Debenture', type: 'Debenture' },
+  NIFRAGED: { name: 'Nifra Green Energy Debenture 6% - 2088/89',        type: 'Debenture' },
+  CMF2:     { name: 'Citizens Mutual Fund 2',                          type: 'Mutual fund' },
+  H8020:    { name: 'Himalayan 80-20',                                 type: 'Mutual fund' },
+  LSH12:    { name: 'LS Horizon 12',                                   type: 'Mutual fund' },
+  NMB50:    { name: 'NMB 50',                                          type: 'Mutual fund' },
+  RBBF40:   { name: 'RBB Focus 40',                                    type: 'Mutual fund' },
+  RURU:     { name: 'Ru Ru Jalbidhyut Pariyojana Limited',             type: 'Equity' },
 };
 
 // ---- buy-call track record (no-lookahead backtest) ----
@@ -372,11 +396,18 @@ async function main() {
   // absent from ALL sources are NOT restored by this gate — the four such
   // scrips verified in Oct 2026 (PCBLP/PROFLP/SAND2085/SBD89) are restored by
   // Gate 5 below under their own stricter rule, never by invention here.
+  // Name-supply (2026-10-28, gap-2 item 3): the same closed file also
+  // supplies descriptive names where the community feed name is missing or
+  // bare — this is what lets the fund-word rules tag C30MF/LVF2/NIBLGF/
+  // SFEF/SFMF/SIGS2 and the bond/rinpatra rules tag NMBUR93/94. Only
+  // names that differ from the symbol are kept; fail-soft to {}.
+  const officialNames = {};
   try {
     const ownLive = JSON.parse(fs.readFileSync(path.join(ROOT, 'nepse-chart', 'data', 'live.json'), 'utf8'));
     if (ownLive.market === 'CLOSED' && Array.isArray(ownLive.quotes)) {
       let gate4Added = 0;
       ownLive.quotes.forEach((q) => { if (q && q.symbol && !union.has(q.symbol)) { union.add(q.symbol); gate4Added++; } });
+      ownLive.quotes.forEach((q) => { if (q && q.symbol && q.name && q.name.trim() !== q.symbol) officialNames[q.symbol] = q.name.trim(); });
       if (gate4Added) console.log('  Gate 4: +' + gate4Added + ' symbols from own validated close (live.json)');
     }
   } catch (e) { console.log('  Gate 4: own live.json unavailable:', e.message); }
@@ -524,10 +555,12 @@ async function main() {
   for (const sym of symbols) {
     const q = liveMap[sym];
     // Verified override (Gate 5) wins outright; else community name when
-    // present; otherwise fall back to our own NEPSE archive's securityName
-    // (never the bare symbol — it defeats classify()).
+    // present; otherwise the own official-close name when descriptive
+    // (gap-2 item 3 name-supply — never overwrites a descriptive feed
+    // name); otherwise our own NEPSE archive's securityName (never the
+    // bare symbol — it defeats classify()).
     const ovr = VERIFIED_OVERRIDES[sym];
-    const name = ovr ? ovr.name : ((q && q.name && q.name !== sym) ? q.name : (ownNames[sym] || sym));
+    const name = ovr ? ovr.name : ((q && q.name && q.name !== sym) ? q.name : (officialNames[sym] || ownNames[sym] || sym));
     const type = ovr ? ovr.type : classify(sym, name, q && q.asset_type);
     const rows = ohlcRows.get(sym) || null;
     let series = rows, ltpOnly = false;
