@@ -62,8 +62,10 @@ def main():
             fail(f'stale stamp for {ref}: page {m.group(1)} != file {want}')
         else:
             info(f'stamp current for {ref} ({want})')
-    if 'nd-chrome.css?v=69b323cf' in page:
-        info('chrome stamp is the nav fix (69b323cf)')
+    # Phase 5 stamp sweep (800bcd957) superseded the nav-fix stamp 69b323cf;
+    # pin to the current chrome file so page+file agreement is what is checked.
+    if 'nd-chrome.css?v=167f8f41' in page:
+        info('chrome stamp is current (167f8f41)')
     else:
         fail('chrome stamp is not the nav fix')
     if 'sig-pro.css' in page:
