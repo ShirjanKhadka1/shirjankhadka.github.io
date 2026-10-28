@@ -1,6 +1,6 @@
 /* Nepse Decode sector dashboard.
    Loads /nepse-chart/data/verdicts.json (via version.json cache-bust) and
-   aggregates it into a size-weighted heatmap, per-sector breadth cards, and
+   aggregates it into a sector-grouped tile heatmap, per-sector breadth cards, and
    a sortable comparison table, plus a stat strip and a paginated
    sector-stocks panel. Everything is computed client-side from the latest
    daily batch; no figures are invented. A page-owned 60s tick repaints
@@ -33,10 +33,16 @@
   }
 
   /* Honest sector/instrument grouping.
-   * The universe builder writes the authoritative per-symbol sector into
-   * every verdicts.json entry's `sec` field from tools/sector-map.json (the
-   * single source of truth). The classifier below is the client-side
-   * fallback and is kept identical in js/nepse-screener.js and
+   * The grouping key is the universe-derived classification below
+   * (official company name + instrument-type field from
+   * nepse-chart/data/universe.json), used identically in batch and
+   * live mode. verdicts.json `sec` is only the fallback, when
+   * universe.json failed to load or the symbol is absent from it:
+   * tools/sector-map.json (which the universe builder uses for `sec`)
+   * is stale (417 keys vs a 432-symbol universe), so 18 symbols carry
+   * a default 'Others' sec there (NABILP carries 'Banking') while
+   * their universe name+type classifies them correctly. The
+   * classifier below is kept identical in js/nepse-screener.js and
    * tools/build-symbol-pages.js. Groups are derived ONLY from real repo
    * data in nepse-chart/data/universe.json:
    *  - explicit verified symbol overrides (checked FIRST, before any
@@ -116,11 +122,20 @@
     return (nameMap && nameMap[sym]) || String(sym || '');
   }
   function sectorOf(e, sym) {
-    // Authoritative verdicts.json sec (written by the universe builder from
-    // tools/sector-map.json) wins; the local classifier is the fallback.
-    // Every security lands in exactly one real category — never Unclassified.
+    // Grouping key, SAME in batch and live mode: the universe-derived
+    // classification (sectorMap, built from universe.json name+type).
+    // verdicts.json sec is only the fallback, when universe.json failed
+    // to load or the symbol is absent from it. Reason (verified
+    // 2026-10-29): the classifier below disagrees with verdicts sec on
+    // exactly 18 symbols and on nothing else, and on all 18 the
+    // universe classification is the correct one (11 debentures and
+    // 6 promoter shares defaulted to 'Others' in verdicts sec, NABILP
+    // to 'Banking', BENH hydropower equity to 'Others'), so
+    // universe-first changes nothing but corrections. Every security
+    // lands in exactly one real category — never Unclassified.
+    if (sectorMap && sectorMap[sym]) return sectorMap[sym];
     if (e && e.sec && e.sec !== 'Unknown') return e.sec;
-    return (sectorMap && sectorMap[sym]) || 'Others';
+    return 'Others';
   }
 
   function load() {
