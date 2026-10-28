@@ -11,7 +11,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Nepse Decode">
 <meta property="og:title" content="Trending Stocks — Nepse Decode">
-<meta property="og:description" content="Which NEPSE stocks are genuinely attracting activity today — ranked by turnover acceleration, volume spikes, momentum, broker flow and news. Transparent, rule-based, free.">
+<meta property="og:description" content="Which NEPSE stocks are genuinely attracting activity today — ranked by turnover acceleration, volume spikes, 5-day momentum, broker flow concentration and news mentions. Transparent, rule-based, free.">
 <meta property="og:url" content="https://shirjankhadka.com.np/nepse-trending/">
 <meta property="og:image" content="https://shirjankhadka.com.np/assets/images/nepse-decode-og.jpg">
 <meta property="og:image:width" content="1200">
@@ -35,82 +35,11 @@
 <link rel="stylesheet" href="/css/nd-chrome.css?v=7ba40612">
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
+<link rel="stylesheet" href="/css/nd-3d.css">
 <link rel="stylesheet" href="/css/sig-pro.css?v=ed0fe3e9">
-<style>
-/* Trending: tone pills, hero cards, research panels — new design tokens */
-.pos{color:var(--nd-up,#4ADE80);font-weight:600}
-.neg{color:var(--nd-down,#F87171);font-weight:600}
-.tone{display:inline-block;padding:4px 11px;border-radius:999px;font-size:.75rem;font-weight:700;white-space:nowrap;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 1px 3px rgba(0,0,0,.3)}
-.tone-acc{background:linear-gradient(180deg,rgba(74,222,128,.2),rgba(74,222,128,.08));color:var(--nd-up,#4ADE80);border:1px solid rgba(74,222,128,.35)}
-.tone-dist{background:linear-gradient(180deg,rgba(248,113,113,.2),rgba(248,113,113,.08));color:var(--nd-down,#F87171);border:1px solid rgba(248,113,113,.35)}
-.tone-watch{background:linear-gradient(180deg,rgba(245,179,1,.22),rgba(245,179,1,.1));color:var(--nd-amber,#F5B301);border:1px solid rgba(245,179,1,.35)}
-[data-theme="light"] .tone-acc{background:rgba(21,128,61,.1);color:#15803D;border-color:rgba(21,128,61,.3)}
-[data-theme="light"] .tone-dist{background:rgba(220,38,38,.08);color:#DC2626;border-color:rgba(220,38,38,.28)}
-[data-theme="light"] .tone-watch{background:rgba(180,83,9,.1);color:#B45309;border-color:rgba(180,83,9,.3)}
-.scorebar{width:90px;height:8px;background:var(--nd-inset,#0D0F14);border-radius:999px;overflow:hidden;display:inline-block;vertical-align:middle;
-  box-shadow:inset 0 1px 3px rgba(0,0,0,.5)}
-.scorebar i{display:block;height:100%;border-radius:999px;
-  background:linear-gradient(90deg,var(--nd-lime,#B8E62E),#7BAE1F);
-  box-shadow:0 0 6px rgba(184,230,46,.4)}
-.rchips{display:flex;gap:5px;flex-wrap:wrap;max-width:300px}
-.rchip{background:var(--nd-panel-2,#161A23);border:1px solid var(--nd-border,#1E2430);border-radius:999px;padding:2px 9px;font-size:.72rem;color:var(--nd-muted,#9AA3B2);white-space:nowrap}
-.symlink{font-weight:700;color:var(--nd-text,#fff);text-decoration:none;transition:color .15s}
-.symlink:hover{color:var(--nd-lime,#B8E62E);text-decoration:underline}
-.sname{font-size:.75rem;color:var(--nd-dim,#6B7280);display:block;font-weight:400}
-.submed{font-size:.72rem;color:var(--nd-dim,#6B7280);display:block;font-weight:400}
-[data-theme="light"] .symlink{color:#4D7C0F}
-.sig-table th .arr{color:var(--nd-lime,#B8E62E);font-size:.75rem}
-.sig-table th.sortable{cursor:pointer;user-select:none}
-/* hero cards */
-.trend-hero{display:grid;gap:16px;margin:6px 0 26px}
-@media(min-width:760px){.trend-hero{grid-template-columns:repeat(3,1fr)}}
-.trend-card{position:relative;overflow:hidden;text-decoration:none;color:inherit;display:block;
-  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0) 38%),var(--nd-panel,#12141A);
-  border:1px solid var(--nd-border,#1E2430);border-radius:20px;padding:20px;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 -2px 6px rgba(0,0,0,.15),0 3px 8px rgba(0,0,0,.45),0 18px 44px rgba(0,0,0,.4);
-  transition:transform .2s ease,box-shadow .2s ease}
-.trend-card:hover{transform:translateY(-3px)}
-.trend-card .t-rank{position:absolute;top:10px;right:16px;font-size:2.4rem;font-weight:700;color:var(--nd-border,#1E2430);line-height:1;user-select:none}
-.trend-card .t-sym{font-size:1.25rem;font-weight:800;letter-spacing:.01em;color:var(--nd-text,#fff)}
-.trend-card .t-name{font-size:.78rem;color:var(--nd-dim,#6B7280);margin:2px 0 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.trend-card .t-price{font-size:1.6rem;font-weight:700;font-variant-numeric:tabular-nums;color:var(--nd-text,#fff)}
-.trend-card .t-chg{font-size:.85rem;font-weight:700;margin-left:8px}
-.trend-card .t-meta{display:flex;justify-content:space-between;align-items:center;margin-top:12px;gap:8px}
-.trend-card .t-turn{font-size:.78rem;color:var(--nd-dim,#6B7280);font-variant-numeric:tabular-nums}
-.trend-card .t-why{font-size:.76rem;color:var(--nd-muted,#9AA3B2);margin-top:10px;line-height:1.5;max-height:3.4em;overflow:hidden}
-[data-theme="light"] .trend-card{background:linear-gradient(180deg,#FFFFFF 0%,#F2F5F8 100%);border:1px solid #CBD4DE}
-[data-theme="light"] .trend-card .t-sym,[data-theme="light"] .trend-card .t-price{color:#0A0C10}
-/* research panels */
-button.rs-toggle{padding:6px 14px;border:1px solid var(--nd-border,#1E2430);border-radius:999px;font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;
-  background:transparent;color:var(--nd-lime,#B8E62E);transition:border-color .15s}
-button.rs-toggle:hover{border-color:var(--nd-lime,#B8E62E)}
-button.rs-toggle[aria-expanded="true"]{background:var(--nd-lime,#B8E62E);color:var(--nd-on-lime,#0A0C10);border-color:var(--nd-lime,#B8E62E)}
-.rs-panel-row td{background:var(--nd-panel-2,#161A23)!important;padding:0!important}
-.rs-panel{padding:24px}
-.rs-head{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:16px;row-gap:8px;margin:0 0 20px}
-.rs-asof{font-size:.8rem;color:var(--nd-dim,#6B7280)}
-.rs-grid{display:grid;gap:20px;margin:0 0 20px}
-@media(min-width:760px){.rs-grid{grid-template-columns:1fr 1fr}}
-.rs-card{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 45%),var(--nd-panel,#12141A);
-  border:1px solid var(--nd-border,#1E2430);border-radius:16px;padding:20px}
-.rs-card h3{font-weight:700;font-size:.95rem;margin:0 0 14px;color:var(--nd-text,#fff)}
-.rs-facts{display:grid;grid-template-columns:1fr auto;gap:8px 16px;font-size:.86rem;margin:0}
-.rs-facts dt{color:var(--nd-dim,#6B7280)}
-.rs-facts dd{margin:0;font-variant-numeric:tabular-nums;font-weight:600;text-align:right;color:var(--nd-text,#fff)}
-.rs-facts .rs-sub{grid-column:1/-1;color:var(--nd-dim,#6B7280);font-size:.78rem;margin-top:8px}
-.rs-note{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 45%),var(--nd-panel,#12141A);
-  border:1px solid var(--nd-border,#1E2430);border-left:4px solid var(--nd-lime,#B8E62E);border-radius:16px;padding:20px;margin:0 0 16px}
-.rs-note p{margin:10px 0 0;line-height:1.7;font-size:.92rem;color:var(--nd-muted,#9AA3B2);max-width:72ch}
-.rs-foot{margin:0}
-.rs-loading{padding:32px;text-align:center;color:var(--nd-dim,#6B7280);font-size:.9rem}
-canvas.spark{display:block}
-.ne-sum{color:var(--nd-dim,#6B7280);font-size:.92rem;max-width:68ch;margin:0 0 22px;line-height:1.7}
-.snap-asof{font-size:.8rem;font-weight:400;color:var(--nd-dim,#6B7280)}
-.snap-note{font-size:.82rem;color:var(--nd-dim,#6B7280);margin:12px 0 0}
-</style>
+<link rel="stylesheet" href="/nepse-trending/trending.css?v=d75f6408">
 </head>
-<body class="nd">
+<body class="nd" data-page="trending">
 <a class="skip-link" href="#main">Skip to content</a>
 <div id="nd-header"></div>
 <div class="fb-wrap" style="display:flex;justify-content:center;padding:10px 16px 0"><div data-freshness-badge></div></div>
@@ -121,13 +50,77 @@ canvas.spark{display:block}
 <p class="sig-lede">Which NEPSE stocks are genuinely attracting activity — ranked by turnover acceleration, volume spikes, 5-day momentum, broker flow concentration and news mentions. A transparent formula: every input is published below. No black box, no borrowed scores.</p>
 <p lang="ne" class="ne-sum">संक्षेप: यो पृष्ठमा नेप्सेमा अहिले सबैभन्दा सक्रिय स्टकहरूको दैनिक सूची छ — उच्च कारोबार, मूल्य गति र ब्रोकर प्रवाहका आधारमा छानिएको। यो शैक्षिक जानकारी हो, लगानी सल्लाह होइन।</p>
 
+<p class="tr-fresh" id="trFresh">Loading data…</p>
+
+<div class="tr-stats" id="trStats"></div>
+<div class="tr-mix" id="trMix"></div>
+<div class="note" id="coverage">Loading data…</div>
+
 <div style="display:flex;align-items:baseline;justify-content:space-between;margin:0 0 12px;flex-wrap:wrap;gap:8px">
   <h2 style="margin:0">🔥 Hottest right now</h2>
   <span class="sig-sub" id="trendHeroAsof"></span>
 </div>
 <div class="trend-hero" id="trendHero" aria-label="Top trending stocks"></div>
 
+<section class="tr-section" aria-label="Sectors">
+  <h2>Sectors — click a card to filter the board</h2>
+  <div class="tr-sectors" id="trSectors"></div>
+</section>
+
+<div class="sig-grid" id="toneKey" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
+  <div class="sig-card"><span class="tone tone-acc">Accumulation interest</span><p class="sig-sub" style="margin-top:10px">Rising price with heavy volume — buyers are showing up. Worth studying, not a buy call.</p></div>
+  <div class="sig-card"><span class="tone tone-dist">Distribution pressure</span><p class="sig-sub" style="margin-top:10px">Falling price with heavy volume — sellers are active. We never disguise selling as a buying opportunity.</p></div>
+  <div class="sig-card"><span class="tone tone-watch">Watch</span><p class="sig-sub" style="margin-top:10px">Elevated activity without a clear price direction — the market is deciding.</p></div>
+</div>
+
+<div class="sig-tabs nd-tabs nd-tabs--pill" role="tablist" id="toneTabs">
+<button data-tone="all" class="active">All</button>
+<button data-tone="accumulation">Accumulation</button>
+<button data-tone="distribution">Distribution</button>
+<button data-tone="watch">Watch</button>
+</div>
+
+<div class="tr-controls">
+  <select class="tr-select" id="trSector" aria-label="Filter by sector"></select>
+  <select class="tr-select" id="trSort" aria-label="Sort board">
+    <option value="score">Sort: Score ↓</option>
+    <option value="day">Sort: Day % ↓</option>
+    <option value="ret5">Sort: 5d % ↓</option>
+    <option value="turnover">Sort: Turnover ↓</option>
+    <option value="ltp">Sort: LTP ↓</option>
+    <option value="sym">Sort: Symbol A–Z</option>
+  </select>
+  <input class="tr-search" id="trSearch" type="search" placeholder="Search symbol or name…" aria-label="Search symbol or name">
+  <button type="button" class="tr-toggle" id="trReset">Reset</button>
+</div>
+
+<div class="d3-card tr-cardwrap">
+<div class="scrollx">
+<table class="sig-table nd-table cx-table" id="trendTable">
+<thead><tr>
+<th class="num">#</th>
+<th>Stock</th>
+<th class="sortable num" data-k="_ltp">LTP</th>
+<th class="sortable num" data-k="_day">Day % (1-day, adj.)</th>
+<th class="sortable num" data-k="ret_5d_pct">5d %</th>
+<th class="sortable num" data-k="turnover_rs_m">Turnover</th>
+<th class="num">vs 52w high</th>
+<th>Tone</th>
+<th class="sortable num" data-k="score">Score</th>
+<th>Why trending</th>
+<th>30-day trend</th>
+<th>Research</th>
+</tr></thead>
+<tbody id="trendBody"><tr><td colspan="12" style="text-align:center;color:var(--nd-dim,#6B7280)">Loading…</td></tr></tbody>
+</table>
+</div>
+</div>
+<p class="tr-repaint-note" id="trRepaintNote"></p>
+<div class="tr-pager" id="trPager"></div>
+
+<div class="tr-snapwrap">
 <!-- SNAP-START -->
+
 <section class="snap" aria-label="Trending snapshot">
   <h2>Top trending stocks <span class="snap-asof">· snapshot 2026-10-27</span></h2>
   <div class="scrollx"><table class="sig-table">
@@ -150,334 +143,35 @@ canvas.spark{display:block}
       <tr><td class="num">15</td><td><a class="symlink" href="/stocks/MHL/">MHL</a><span class="sname">Mandakini Hydropower Limited · Hydropower</span></td><td class="num">474.50</td><td class="num pos">+2.06%</td><td class="num pos">+6.41%</td><td class="num">Rs 9.6 M<span class="submed">3.0× avg</span></td><td><span class="tone tone-acc">Accumulation interest</span></td><td class="num"><span class="scorebar"><i style="width:45%"></i></span> 45.2</td></tr>
     </tbody>
   </table></div>
-  <p class="snap-note">Static daily snapshot · the full interactive ranking below refreshes every 60 seconds.</p>
+  <p class="snap-note">Static daily snapshot · the full interactive ranking above refreshes every 60 seconds.</p>
 </section>
+
 <!-- SNAP-END -->
-<div class="note" id="coverage">Loading data…</div>
-
-<div class="sig-grid" id="toneKey" style="display:none;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
-  <div class="sig-card"><span class="tone tone-acc">Accumulation interest</span><p class="sig-sub" style="margin-top:10px">Rising price with heavy volume — buyers are showing up. Worth studying, not a buy call.</p></div>
-  <div class="sig-card"><span class="tone tone-dist">Distribution pressure</span><p class="sig-sub" style="margin-top:10px">Falling price with heavy volume — sellers are active. We never disguise selling as a buying opportunity.</p></div>
-  <div class="sig-card"><span class="tone tone-watch">Watch</span><p class="sig-sub" style="margin-top:10px">Elevated activity without a clear price direction — the market is deciding.</p></div>
-</div>
-
-<div class="sig-tabs nd-tabs nd-tabs--pill" role="tablist" id="toneTabs">
-<button data-tone="all" class="active">All</button>
-<button data-tone="accumulation">Accumulation</button>
-<button data-tone="distribution">Distribution</button>
-<button data-tone="watch">Watch</button>
-</div>
-
-<div class="scrollx">
-<table class="sig-table nd-table cx-table" id="trendTable">
-<thead><tr>
-<th class="num">#</th>
-<th>Stock</th>
-<th class="sortable num" data-k="ltp">LTP</th>
-<th class="sortable num" data-k="ret_5d_pct">5d %</th>
-<th class="sortable num" data-k="turnover_rs_m">Turnover</th>
-<th>Tone</th>
-<th class="sortable num" data-k="score">Score</th>
-<th>Why trending</th>
-<th>30-day trend</th>
-<!-- RESEARCH-LAYER-START: research toggle column (lazy-loaded panel) -->
-<th>Research</th>
-<!-- RESEARCH-LAYER-END -->
-</tr></thead>
-<tbody id="trendBody"><tr><td colspan="10" style="text-align:center;color:var(--nd-dim,#6B7280)">Loading…</td></tr></tbody>
-</table>
+<p class="snap-note">Snapshot Day % is the builder's raw prior-close figure (baked at build time); with JavaScript on, it is repainted from the exchange adjusted reference like the interactive ranking above — see the repaint note under the board.</p>
 </div>
 
 <h2>How the score is built</h2>
 <div class="method" id="methodBox">Loading…</div>
+
+<section class="tr-section" aria-label="Session archive">
+  <h2>Session archive</h2>
+  <div id="trArchive"></div>
+</section>
+
+<section class="tr-section" aria-label="Forward record">
+  <h2>Forward record — top 15</h2>
+  <div id="trForward"></div>
+</section>
 
 <div class="note"><p style="margin:0"><strong>Educational only — not investment advice.</strong> A high activity score means a stock is attracting attention, not that it is a good buy. Distribution-pressure stocks are falling on heavy volume; treat them as caution flags, never as opportunities. Verify every price with your broker before trading. Nepse Decode publishes no buy/sell calls.</p></div>
 
 <p class="sig-foot">Educational only — not investment advice.</p>
 </main>
 <div id="nd-footer"></div>
-<script>
-(function(){
-"use strict";
-var BASE = '/nepse-chart/data/';
-var state = { tone: 'all', sort: 'score', dir: -1, rows: [], meta: null };
-var $ = function(id){ return document.getElementById(id); };
-
-function fmt(n, d){ d = d===undefined?2:d; if(n===null||n===undefined||!isFinite(n)) return '–';
-  return Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}); }
-function cls(v){ return v>0?'pos':(v<0?'neg':''); }
-function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-var TONE_LABEL = { accumulation: ['tone-acc','Accumulation interest'], distribution: ['tone-dist','Distribution pressure'], watch: ['tone-watch','Watch'] };
-
-function sparkline(cv, data, up){
-  var dpr = window.devicePixelRatio || 1;
-  var W = 120, H = 36;
-  cv.width = W*dpr; cv.height = H*dpr; cv.style.width = W+'px'; cv.style.height = H+'px';
-  var c = cv.getContext('2d'); c.scale(dpr, dpr);
-  c.clearRect(0,0,W,H);
-  var mn = Math.min.apply(null,data), mx = Math.max.apply(null,data), rg = (mx-mn)||1;
-  c.beginPath();
-  data.forEach(function(v,i){
-    var x = 2 + i*(W-4)/(data.length-1);
-    var y = 3 + (1-(v-mn)/rg)*(H-6);
-    if(i===0) c.moveTo(x,y); else c.lineTo(x,y);
-  });
-  c.strokeStyle = up ? '#4ADE80' : '#F87171'; c.lineWidth = 1.6; c.stroke();
-  c.lineTo(W-2,H); c.lineTo(2,H); c.closePath();
-  c.fillStyle = up ? 'rgba(74,222,128,.12)' : 'rgba(248,113,113,.12)'; c.fill();
-  var lx = 2 + (data.length-1)*(W-4)/(data.length-1), ly = 3 + (1-(data[data.length-1]-mn)/rg)*(H-6);
-  c.beginPath(); c.arc(lx-2,ly,2.6,0,7); c.fillStyle = up ? '#4ADE80' : '#F87171'; c.fill();
-}
-
-function filtered(){
-  var r = state.rows.filter(function(s){ return state.tone==='all' || s.tone===state.tone; });
-  var k = state.sort, d = state.dir;
-  r.sort(function(a,b){ return ((a[k]||0)-(b[k]||0))*d; });
-  return r.slice(0,30);
-}
-
-/* P15: hero cards — top 3 by score, visual and modern */
-function renderHero(rows){
-  var host = $('trendHero');
-  if(!host) return;
-  var top3 = rows.slice(0,3);
-  if(!top3.length){ host.innerHTML = ''; return; }
-  var medals = ['🥇','🥈','🥉'];
-  host.innerHTML = top3.map(function(s, i){
-    var chg = (s.change_pct !== undefined && s.change_pct !== null) ? s.change_pct : s.ret_5d_pct;
-    var chgCls = chg > 0 ? 'pos' : (chg < 0 ? 'neg' : '');
-    var chgTxt = (chg > 0 ? '+' : '') + fmt(chg) + '%';
-    var why = (s.reasons||[]).slice(0,2).join(' · ');
-    var tl = TONE_LABEL[s.tone] || TONE_LABEL.watch;
-    return '<a class="trend-card cx-card" href="/nepse-chart/?s='+esc(s.symbol)+'">'
-      + '<span class="t-rank">'+(i+1)+'</span>'
-      + '<div class="t-sym">'+medals[i]+' '+esc(s.symbol)+'</div>'
-      + '<div class="t-name">'+esc(s.name)+' · '+esc(s.sector)+'</div>'
-      + '<div><span class="t-price">Rs '+fmt(s.ltp)+'</span><span class="t-chg '+chgCls+'">'+chgTxt+'</span></div>'
-      + '<div class="t-meta"><span class="tone '+tl[0]+'">'+tl[1]+'</span>'
-      + '<span><span class="scorebar"><i style="width:'+Math.round(s.score)+'%"></i></span> <b>'+fmt(s.score,1)+'</b></span></div>'
-      + '<div class="t-turn">Rs '+fmt(s.turnover_rs_m,1)+' M turnover · '+fmt(s.turnover_ratio,1)+'× average</div>'
-      + (why ? '<div class="t-why">'+esc(why)+'</div>' : '')
-      + '</a>';
-  }).join('');
-  var asof = $('trendHeroAsof');
-  if(asof && state.meta && state.meta.asof) asof.textContent = 'Session of ' + state.meta.asof;
-}
-
-function render(){
-  closeResearchPanels();
-  var rows = filtered();
-  var html = '';
-  rows.forEach(function(s, i){
-    var tl = TONE_LABEL[s.tone] || TONE_LABEL.watch;
-    var chips = (s.reasons||[]).map(function(r){ return '<span class="rchip">'+esc(r)+'</span>'; }).join('');
-    html += '<tr>'
-      + '<td class="num">'+(i+1)+'</td>'
-      + '<td><a class="symlink" href="/nepse-chart/?s='+esc(s.symbol)+'">'+esc(s.symbol)+'</a><span class="sname">'+esc(s.name)+' · '+esc(s.sector)+'</span></td>'
-      + '<td class="num">'+fmt(s.ltp)+'</td>'
-      + '<td class="num"><span class="cx-chip '+(s.ret_5d_pct>0?'up':s.ret_5d_pct<0?'down':'flat')+'">'+(s.ret_5d_pct>0?'+':'')+fmt(s.ret_5d_pct)+'%</span></td>'
-      + '<td class="num">Rs '+fmt(s.turnover_rs_m,1)+' M<br><span style="color:var(--nd-dim,#6B7280);font-size:.75rem">'+fmt(s.turnover_ratio,1)+'× avg</span></td>'
-      + '<td><span class="tone '+tl[0]+'">'+tl[1]+'</span></td>'
-      + '<td class="num"><span class="scorebar"><i style="width:'+Math.round(s.score)+'%"></i></span> '+fmt(s.score,1)+'</td>'
-      + '<td><div class="rchips">'+chips+'</div></td>'
-      + '<td><canvas class="spark" data-i="'+i+'"></canvas></td>'
-      // RESEARCH-LAYER-START: per-row research toggle; panel lazy-loads trending-research.json
-      + '<td><button class="rs-toggle" data-sym="'+esc(s.symbol)+'" aria-expanded="false">Research</button></td>'
-      // RESEARCH-LAYER-END
-      + '</tr>';
-  });
-  if(!rows.length) html = '<tr><td colspan="10" style="text-align:center;color:var(--nd-dim,#6B7280)">No stocks in this tone right now.</td></tr>';
-  $('trendBody').innerHTML = html;
-  renderHero(rows);
-  var cvs = $('trendBody').querySelectorAll('canvas.spark');
-  rows.forEach(function(s, i){
-    if(cvs[i]) sparkline(cvs[i], s.spark, s.ret_5d_pct >= 0);
-  });
-  var ths = document.querySelectorAll('#trendTable th.sortable');
-  ths.forEach(function(th){
-    var k = th.getAttribute('data-k');
-    var base = th.textContent.replace(/ [▲▼]/,'');
-    th.innerHTML = esc(base) + (k===state.sort ? ' <span class="arr">'+(state.dir===-1?'▼':'▲')+'</span>' : '');
-  });
-}
-
-function initTabs(){
-  $('toneTabs').addEventListener('click', function(e){
-    var b = e.target.closest('button'); if(!b) return;
-    state.tone = b.getAttribute('data-tone');
-    var bs = this.querySelectorAll('button');
-    bs.forEach(function(x){ x.classList.remove('active'); });
-    b.classList.add('active');
-    render();
-  });
-  document.querySelectorAll('#trendTable th.sortable').forEach(function(th){
-    th.addEventListener('click', function(){
-      var k = th.getAttribute('data-k');
-      if(state.sort===k){ state.dir = -state.dir; } else { state.sort=k; state.dir=-1; }
-      render();
-    });
-  });
-}
-
-/* ============================================================
-   RESEARCH LAYER — equity-research expandable panels.
-   trending-research.json is fetched ONCE, lazily, on the first
-   Research expand — the initial page load never waits for it.
-   ============================================================ */
-var researchCache = null, researchPromise = null;
-function getResearch(){
-  if(researchCache) return Promise.resolve(researchCache);
-  if(!researchPromise){
-    researchPromise = fetch(BASE+'trending-research.json').then(function(r){
-      if(!r.ok) throw 0; return r.json();
-    }).then(function(d){
-      researchCache = { _meta: d, _bySym: {} };
-      (d.stocks||[]).forEach(function(s){ researchCache._bySym[s.symbol] = s; });
-      return researchCache;
-    }).catch(function(){ researchPromise = null; throw 0; });
-  }
-  return researchPromise;
-}
-function closeResearchPanels(){
-  var rows = document.querySelectorAll('#trendBody .rs-panel-row');
-  rows.forEach(function(r){ r.remove(); });
-  var btns = document.querySelectorAll('#trendBody .rs-toggle[aria-expanded="true"]');
-  btns.forEach(function(b){ b.setAttribute('aria-expanded','false'); });
-}
-function rsRow(label, val){
-  if(val===null||val===undefined||val==='') return '';
-  return '<dt>'+esc(label)+'</dt><dd>'+esc(val)+'</dd>';
-}
-function researchPanelHTML(e, meta){
-  var f = e.financial, m = e.management, h = '';
-  h += '<div class="rs-head"><span class="sig-kicker">Equity research</span>'
-     + '<span class="rs-asof">As of '+esc(meta.asof||'')+' · from published filings &amp; the corporate-action archive</span></div>';
-  h += '<div class="rs-grid">';
-  // --- financial analysis ---
-  h += '<section class="rs-card"><h3>Financial analysis</h3>';
-  if(f){
-    h += '<dl class="rs-facts">';
-    h += rsRow('Reporting period', f.period || '—');
-    h += rsRow('TTM EPS', f.eps_ttm!==null ? 'Rs '+fmt(f.eps_ttm) : '—');
-    h += rsRow('P/E (TTM)', f.pe_ttm!==null ? fmt(f.pe_ttm) : 'n/a (loss-making year)');
-    h += rsRow('P/BV', f.pbv!==null ? fmt(f.pbv) : '—');
-    h += rsRow('ROE (TTM)', f.roe_ttm_pct!==null ? fmt(f.roe_ttm_pct)+'%' : '—');
-    h += rsRow('Earnings yield', f.ey_pct!==null ? fmt(f.ey_pct)+'%' : '—');
-    h += rsRow('Revenue', f.revenue_rs_m!==null ? 'Rs '+fmt(f.revenue_rs_m,1)+' M' : '—');
-    h += rsRow('Net profit', f.net_profit_rs_m!==null ? 'Rs '+fmt(f.net_profit_rs_m,1)+' M' : '—');
-    h += rsRow('Net worth', f.networth_rs_m!==null ? 'Rs '+fmt(f.networth_rs_m,1)+' M' : '—');
-    if(f.sector_median_pe){
-      h += '<div class="rs-sub">Sector P/E median '+fmt(f.sector_median_pe)
-         + (f.sector_median_pbv ? ' · P/BV median '+fmt(f.sector_median_pbv) : '') + '</div>';
-    }
-    if(f.trend && f.trend.quarters >= 2){
-      h += '<div class="rs-sub">Net profit '+esc(f.trend.direction)+' over '+f.trend.quarters
-         + ' quarters (Rs '+fmt(f.trend.first_rs_m,1)+' M → Rs '+fmt(f.trend.last_rs_m,1)+' M)</div>';
-    }
-    h += '</dl>';
-  } else {
-    h += '<p class="sig-sub">No published fundamentals in our dataset for this symbol — the activity is pure trading interest with no reported numbers behind it.</p>';
-  }
-  h += '</section>';
-  // --- management & governance ---
-  h += '<section class="rs-card"><h3>Management &amp; governance</h3>';
-  if(m){
-    h += '<dl class="rs-facts">';
-    h += rsRow('Dividend years (last 5 FY)', m.dividend_years_last5+' of 5');
-    var ld = m.latest_dividend;
-    h += rsRow('Latest dividend', (ld && ld.year) ? ld.bonus_pct.toFixed(2)+'% bonus + '+ld.cash_pct.toFixed(2)+'% cash · FY '+esc(ld.year) : '—');
-    h += rsRow('AGMs on record', m.agm_count);
-    h += rsRow('Rights issues', m.rights_count + (m.latest_right && m.latest_right.ratio ? ' · latest '+esc(m.latest_right.ratio) : ''));
-    h += rsRow('Auction sales', m.auctions_count);
-    h += '<div class="rs-sub">From the corporate-action archive (dividend, AGM, rights &amp; auction notices). Promoter/ownership percentages are not in our datasets and are never estimated.</div>';
-    h += '</dl>';
-  } else {
-    h += '<p class="sig-sub">Our corporate-action archive holds no dividend or AGM record for this symbol.</p>';
-  }
-  h += '</section>';
-  h += '</div>';
-  h += '<div class="rs-note"><span class="sig-kicker">Analyst note</span><p>'+esc(e.analyst_note)+'</p></div>';
-  h += '<p class="sig-sub rs-foot">Educational only — not investment advice. Figures from published quarterly filings and the corporate-action archive.</p>';
-  return h;
-}
-function researchMissingHTML(sym){
-  return '<div class="rs-panel"><div class="rs-loading">Research was compiled for the top 40 activity-ranked stocks in today\'s run; '
-       + esc(sym) + ' is outside that set. The activity row above still shows its full trading picture.</div></div>';
-}
-function initResearch(){
-  $('trendBody').addEventListener('click', function(ev){
-    var b = ev.target.closest('.rs-toggle'); if(!b) return;
-    var sym = b.getAttribute('data-sym');
-    var tr = b.closest('tr');
-    var wasOpen = tr.nextElementSibling && tr.nextElementSibling.classList.contains('rs-panel-row');
-    closeResearchPanels();
-    if(wasOpen) return;
-    b.setAttribute('aria-expanded','true');
-    var panelTr = document.createElement('tr');
-    panelTr.className = 'rs-panel-row';
-    panelTr.innerHTML = '<td colspan="10"><div class="rs-panel"><div class="rs-loading">Loading research…</div></div></td>';
-    tr.after(panelTr);
-    getResearch().then(function(cache){
-      var entry = cache._bySym[sym];
-      panelTr.querySelector('.rs-panel').outerHTML =
-        '<!-- RESEARCH-LAYER-START: equity-research panel for '+sym.replace(/[^A-Z0-9]/g,'')+' -->'
-        + '<div class="rs-panel">' + (entry ? researchPanelHTML(entry, cache._meta) : researchMissingHTML(sym)) + '</div>'
-        + '<!-- RESEARCH-LAYER-END -->';
-    }).catch(function(){
-      b.setAttribute('aria-expanded','false');
-      panelTr.querySelector('.rs-panel').innerHTML = '<div class="rs-loading">Research data is unavailable right now. Please try again later.</div>';
-    });
-  });
-}
-
-function load(silent){
-  // 2026-10-07: fetch live.json alongside trending.json so LTP stays fresh
-  // intraday. The daily rebuild provides scores/reasons; live LTP overrides
-  // the stale close for the price column.
-  // (BASE is '/nepse-chart/data/'; the old '../nepse-chart/data/live.json'
-  // resolved to /nepse-chart/nepse-chart/data/live.json -> 404.)
-  var liveP = fetch(BASE+'live.json', { cache: 'no-store' })
-    .then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; });
-  fetch(BASE+'trending.json', { cache: 'no-store' }).then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(d){
-    return liveP.then(function(live){
-      var ltpMap = {};
-      if (live && live.quotes) {
-        live.quotes.forEach(function(q){ if (q.ltp > 0) ltpMap[q.symbol] = q.ltp; });
-      }
-      state.rows = d.stocks || [];
-      // Override stale LTP with live price
-      state.rows.forEach(function(s){
-        if (ltpMap[s.symbol]) s.ltp = ltpMap[s.symbol];
-      });
-      state.meta = d;
-      var counts = {accumulation:0, distribution:0, watch:0};
-      state.rows.forEach(function(s){ if(counts[s.tone]!==undefined) counts[s.tone]++; });
-      var liveNote = Object.keys(ltpMap).length ? ' LTPs live.' : '';
-      $('coverage').innerHTML = '<strong>Data as of ' + esc(d.asof) + '.' + liveNote + '</strong> ' + state.rows.length +
-        ' equities scored (' + counts.accumulation + ' accumulation · ' + counts.distribution +
-        ' distribution · ' + counts.watch + ' watch). Scores rebuild every trading day from the daily close.';
-      $('methodBox').textContent = d.method || '';
-      $('toneKey').style.display = '';
-      if (!state.tabsInit) { initTabs(); state.tabsInit = true; }
-      if (!state.rsInit) { initResearch(); state.rsInit = true; } // RESEARCH-LAYER: wire once
-      render();
-    });
-  }).catch(function(){
-    if (silent) return; /* background refresh failed: keep last good render */
-    $('coverage').textContent = 'Could not load trending data. Please try again later.';
-    $('trendBody').innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--nd-dim,#6B7280)">Data unavailable.</td></tr>';
-  });
-}
-load();
-/* Auto-refresh every 15 min during market hours (skipped while tab hidden) so
-   LTPs stay fresh intraday. Silent: no flash, errors keep data. */
-setInterval(function(){ if(!document.hidden) load(true); }, 15*60*1000);
-})();
-</script>
 <script src="/js/theme-toggle.js?v=6a6a46c6" defer></script>
 <script src="/js/nepse-market-config.js?v=4e6270bd"></script>
 <script src="/js/freshness-badge.js?v=307d4f55" defer></script>
 <script src="/js/nd-chrome.js?v=74c1c8b7" defer></script>
+<script src="/nepse-trending/trending.js?v=5a4ded61" defer></script>
 </body>
 </html>
