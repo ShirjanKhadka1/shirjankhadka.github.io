@@ -142,6 +142,7 @@ function page(sys, data) {
 <script>try{var t=localStorage.getItem('sk-theme');if(!t)t='dark';document.documentElement.setAttribute('data-theme',t);if(t==='light')document.documentElement.setAttribute('data-nd-ed','light')}catch(e){}</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0A0C10">
 <title>${title} — Nepse Decode Signals</title>
 <meta name="description" content="${metaDesc}">
 <link rel="canonical" href="${pageUrl}">
@@ -159,11 +160,11 @@ function page(sys, data) {
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebPage","name":"${title} — Nepse Decode Signals","url":"${pageUrl}","description":"${metaDesc}","isPartOf":{"@type":"WebSite","name":"Nepse Decode","url":"https://shirjankhadka.com.np/"},"author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}
 </script>
-<link rel="stylesheet" href="/css/nd-tokens.css">
-<link rel="stylesheet" href="/css/fonts.css">
-<link rel="stylesheet" href="/css/nd-chrome.css?v=69b323cf">
-<link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
-<link rel="stylesheet" href="/css/sig-pro.css?v=fa50ce83">
+<link rel="stylesheet" href="/css/nd-tokens.css?v=e100cabd">
+<link rel="stylesheet" href="/css/fonts.css?v=422e31c3">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=e2586480">
+<link rel="stylesheet" href="/css/nd-cinema.css?v=1aebb748">
+<link rel="stylesheet" href="/css/sig-pro.css?v=805f97ca">
 </head>
 <body class="nd">
 <a class="skip-link" href="#main">Skip to content</a>
@@ -203,6 +204,7 @@ ${bannerHtml ? bannerHtml + '\n' : ''}
 <h3>Closed-trade P&amp;L distribution</h3>
 <div class="sig-dist" id="track-dist"></div>
 </section>
+<noscript><div class="sig-noscript" style="overflow-x:auto"><!-- baker:forward-record:start --><!-- baker:forward-record:end --></div></noscript>
 <div class="note">${backtestNoteHtml}</div>
 
 <div class="note" lang="ne">${nepaliNoteHtml}</div>
@@ -587,7 +589,7 @@ ${profileRows}</table></div>
 })();
 </script>
 <div id="nd-footer"></div>
-<script src="/js/nd-chrome.js?v=74c1c8b7" defer></script>
+<script src="/js/nd-chrome.js?v=89886946" defer></script>
 <script src="/js/nd-cinema.js?v=90f78cc3" defer></script>
 <script src="/js/theme-toggle.js?v=6a6a46c6" defer></script>
 </body>
