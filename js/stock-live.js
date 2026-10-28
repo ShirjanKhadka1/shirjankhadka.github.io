@@ -86,6 +86,16 @@
     if (!snapshot) return; // loading / error with no data: keep baked snapshot, stay silent
     var q = window.NepseData.getQuote(SYM); // null when missing or quarantined
     if (q) paint(q, snapshot, status);
+    // teardown 2026-10-28: repaint the baked session line even when this
+    // symbol has no quote (quarantined/missing) — the session line is
+    // page-level, not quote-level, and NepseData already change-gates.
+    var sessEl = document.querySelector('[data-session-live]');
+    if (sessEl && snapshot.asof) {
+      var st = snapshot.market === 'OPEN' ? 'market open' : 'market closed';
+      var tx = 'Live tape ' + String(snapshot.asof).slice(0, 10) + ' · ' + st;
+      if (status === 'stale') tx += ' · STALE — NEWER SESSION PUBLISHED';
+      sessEl.textContent = tx;
+    }
   }
 
     window.NepseData.start(); // idempotent: safe if another script already started it

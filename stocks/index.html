@@ -188,6 +188,57 @@
 [data-theme="light"] .d2-metric-row{background:linear-gradient(180deg,#FFFFFF,#F4F7FA);border-color:#CBD4DE;color:#0A0C10}
 [data-theme="light"] .d2-bank-chips button{background:#EFF2F6;border-color:#D5DCE4;color:#3F4753}
 [data-theme="light"] .d2-bank-chips button[aria-pressed="true"]{background:#4D7C0F;border-color:#4D7C0F;color:#fff}
+.sp-tab{min-height:48px;padding:0 18px;display:inline-flex;align-items:center}
+.sp-peers a{min-height:48px;display:inline-flex;align-items:center}
+.inv-cal-tab,.inv-cal-perpage,.inv-cal-q,.inv-cal-prev,.inv-cal-next,.inv-cal-pg{min-height:48px}
+.d2-bank-chips button{min-height:48px}
+.d2-metric-row{min-height:48px}
+.sp-session{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 45%),var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);border-radius:var(--nd-r-card);padding:14px 18px;margin:var(--nd-s5) 0;box-shadow:var(--nd-rim),var(--nd-e1);font-size:.85rem}
+.sp-session-l{font-family:var(--nd-font-display,Georgia,serif);font-size:1.05rem;font-weight:700;color:var(--nd-text,#fff)}
+.sp-session-t{color:var(--nd-dim,#8E98A8)}
+.sp-chip{display:inline-block;padding:4px 10px;border-radius:var(--nd-r-pill);font-size:.75rem;font-weight:700;letter-spacing:.06em;background:var(--nd-panel2,#1A1E26);border:1px solid var(--nd-border,#1E2430);color:var(--nd-muted,#B8C0CE)}
+.sp-chip-stale{background:rgba(255,176,32,.14);border-color:#FFB020;color:#FFB020}
+.sp-secblock{margin:var(--nd-s6) 0}
+.sp-sec-controls{display:flex;gap:12px;flex-wrap:wrap;margin:0 0 14px}
+.sp-sec-controls label{font-size:.85rem;color:var(--nd-dim,#8E98A8);display:flex;align-items:center;gap:8px}
+.sp-sec-q,.sp-sec-sort{min-height:48px;padding:0 12px;border-radius:var(--nd-r-md);background:var(--nd-panel2,#1A1E26);border:1px solid var(--nd-border,#1E2430);color:var(--nd-text,#fff);font-size:.9rem}
+.sp-sec-q:focus,.sp-sec-sort:focus{outline:none;border-color:var(--nd-lime,#B8E62E);box-shadow:0 0 0 3px rgba(184,230,46,.25)}
+.sp-table-wrap{overflow-x:auto;border:1px solid var(--nd-border,#1E2430);border-radius:var(--nd-r-card);background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 45%),var(--nd-panel,#12141A);box-shadow:var(--nd-rim),var(--nd-e1)}
+.sp-peer-table{width:100%;border-collapse:collapse;font-size:.9rem}
+.sp-peer-table th{text-align:left;padding:12px 14px;color:var(--nd-dim,#8E98A8);font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--nd-border,#1E2430);white-space:nowrap}
+.sp-peer-table td{padding:12px 14px;border-bottom:1px solid var(--nd-border,#1E2430)}
+.sp-peer-table tr.cur td{background:rgba(184,230,46,.08)}
+.sp-peer-table a{color:var(--nd-text,#fff);font-weight:700;text-decoration:none}
+.sp-peer-table a:hover{color:var(--nd-lime,#B8E62E)}
+.sp-peer-table .pos{color:var(--nd-up,#34D399)}
+.sp-peer-table .neg{color:var(--nd-down,#F87171)}
+.sp-pager{display:flex;gap:10px;align-items:center;justify-content:flex-end;margin-top:12px}
+.sp-pager-info{font-size:.85rem;color:var(--nd-dim,#8E98A8)}
+.sp-pager-prev,.sp-pager-next{min-height:48px;padding:0 18px;border-radius:var(--nd-r-pill);border:1px solid var(--nd-border,#1E2430);background:var(--nd-panel2,#1A1E26);color:var(--nd-text,#fff);font-weight:700;cursor:pointer}
+.sp-pager-next{background:var(--nd-lime,#B8E62E);border-color:var(--nd-lime,#B8E62E);color:#0A0C10}
+.sp-pager-prev:disabled,.sp-pager-next:disabled{opacity:.45;cursor:default}
+.sp-pager-prev:focus-visible,.sp-pager-next:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(184,230,46,.35)}
+.sp-val-row{margin:0 0 14px}
+.sp-val-row b{display:block;font-size:.9rem;margin-bottom:6px}
+.sp-val-bar{height:12px;border-radius:6px;background:var(--nd-panel2,#1A1E26);overflow:hidden;margin:4px 0}
+.sp-val-fill{display:block;height:100%;background:var(--nd-lime,#B8E62E)}
+.sp-val-fill.dim{background:var(--nd-dim,#8E98A8)}
+.sp-val-lab{font-size:.8rem;color:var(--nd-dim,#8E98A8)}
+.sp-cat{display:inline-block;padding:3px 9px;border-radius:var(--nd-r-pill);font-size:.78rem;font-weight:700;white-space:nowrap}
+.sp-cat-up{background:rgba(52,211,153,.15);color:#34D399}
+.sp-cat-down{background:rgba(248,113,113,.15);color:#F87171}
+.sp-cat-bounce{background:rgba(255,176,32,.16);color:#FFB020}
+.sp-cat-fade,.sp-cat-flat,.sp-cat-pend{background:rgba(142,152,168,.14);color:#8E98A8}
+.sp-act{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.sp-act li{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 45%),var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);border-radius:var(--nd-r-card);padding:14px 18px;box-shadow:var(--nd-rim),var(--nd-e1)}
+.sp-act-kind{display:inline-block;padding:3px 9px;border-radius:var(--nd-r-pill);font-size:.75rem;font-weight:700;background:rgba(184,230,46,.14);color:var(--nd-lime,#B8E62E);margin-right:8px}
+.sp-act li a{color:var(--nd-text,#fff);font-weight:700}
+.sp-act-meta{display:block;font-size:.8rem;color:var(--nd-dim,#8E98A8);margin-top:6px}
+.sp-news-foot{font-size:.82rem;color:var(--nd-dim,#8E98A8);margin-top:10px}
+[data-theme="light"] .sp-session,[data-theme="light"] .sp-table-wrap,[data-theme="light"] .sp-act li{background:linear-gradient(180deg,#FFFFFF 0%,#F4F7FA 100%);border-color:#CBD4DE;box-shadow:inset 0 2px 0 #FFFFFF,0 1px 2px rgba(10,12,16,.1),0 8px 24px rgba(10,12,16,.1)}
+[data-theme="light"] .sp-session-l,[data-theme="light"] .sp-peer-table a,[data-theme="light"] .sp-act li a{color:#0A0C10}
+[data-theme="light"] .sp-sec-q,[data-theme="light"] .sp-sec-sort,[data-theme="light"] .sp-pager-prev{background:#fff;border-color:#D5DCE4;color:#0A0C10}
+[data-theme="light"] .sp-peer-table tr.cur td{background:rgba(77,124,15,.08)}
 body{font-family:var(--nd-font-sans,Inter,system-ui,-apple-system,Segoe UI,sans-serif)}
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"All NEPSE Listed Securities | Nepse Decode","url":"https://shirjankhadka.com.np/stocks/","description":"Alphabetical directory of every NEPSE-listed security with a free price, signal and news snapshot. Educational, no login.","author":{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}}</script>
@@ -637,7 +688,7 @@ body{font-family:var(--nd-font-sans,Inter,system-ui,-apple-system,Segoe UI,sans-
 <div id="nd-footer"></div>
 <script src="/js/nd-chrome.js?v=20261023d" defer></script>
 <script src="/js/theme-toggle.js?v=20261023d" defer></script>
-<script src="/js/stock-live.js?v=20261023d" defer></script>
+<script src="/js/stock-live.js?v=c135f9d9" defer></script>
 <script src="/js/val-lab.js?v=20261023d" defer></script>
 </body>
 </html>

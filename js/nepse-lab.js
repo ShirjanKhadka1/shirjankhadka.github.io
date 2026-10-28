@@ -1320,6 +1320,271 @@
       });
     }
   }
+  /* ============ teardown 2026-10-28: session strip, sector block, valuation,
+     news, forward record, verified notices. All extras are lazy, cached per
+     session, and re-fetched when a new session lands (extraSession guard in
+     renderShell). Every block hides itself on error or in index mode rather
+     than rendering a wrong number. ============ */
+  var extraCache = {}, extraSession = '';
+  function loadExtra(url, cb, fresh) {
+    if (!fresh && extraCache[url]) { cb(extraCache[url]); return; }
+    fetchJSON(url).then(function (j) { extraCache[url] = j; cb(j); }).catch(function () { cb(null); });
+  }
+  function renderSessionStrip() {
+    var el = document.getElementById('nl-session'); if (!el) return;
+    var rows = state.rows, n = rows.length;
+    if (state.loading || state.err || !n) { el.innerHTML = ''; return; }
+    var lastD = fmtD(rows[n - 1][0]);
+    var q = state.live;
+    var badge = state.liveBadge === 'live' ? '<span class="nl-chip live">LIVE</span>'
+      : state.liveBadge === 'delayed' ? '<span class="nl-chip delayed">DELAYED</span>'
+      : '<span class="nl-chip closed">CLOSED</span>';
+    // teardown 2026-10-28: the strip counts TRADED quotes, not displayed
+    // ones — the live map filters quarantined quotes (360 traded vs 358
+    // displayed on 2026-10-27), so prefer the raw snapshot count.
+    var snapQ = (window.NepseData && window.NepseData.getSnapshot) ? window.NepseData.getSnapshot() : null;
+    var quotes = (snapQ && snapQ.quotes) ? snapQ.quotes.length : Object.keys(liveCache.map).length;
+    var uni = state.universe.length || 0;
+    el.innerHTML = '<div class="nl-session-card"><span class="nl-session-date">Session ' + esc(lastD) + '</span>' + badge +
+      '<span class="nl-session-meta">tape <b>' + esc(q && q.last_updated ? q.last_updated : lastD) + '</b></span>' +
+      (quotes ? '<span class="nl-session-meta"><b>' + quotes + '</b> quotes of <b>' + (uni || '—') + '</b> listed</span>' : '') +
+      '<span class="nl-session-meta" id="nl-session-manifest">checking manifest…</span></div>';
+    // Manifest is always fetched fresh: it is the session ledger (session_date,
+    // generated_at_npt, market_state). A newer manifest session than the last
+    // row date is a VISIBLE stale marker, never a silent old date.
+    loadExtra('/nepse-chart/data/manifest.json?v=' + UNIVERSE_V, function (m) {
+      var mEl = document.getElementById('nl-session-manifest');
+      if (!mEl) return;
+      if (!m || !m.session_date) { mEl.textContent = 'manifest unavailable'; return; }
+      var stale = String(m.session_date) > lastD;
+      mEl.innerHTML = 'manifest session <b>' + esc(m.session_date) + '</b> · generated <b>' +
+        esc(String(m.generated_at_npt || '').slice(0, 16)) + '</b>' +
+        (stale ? ' <span class="nl-chip stale">STALE — NEWER SESSION PUBLISHED</span>' : '');
+    }, true);
+  }
+  var secState = { sym: '', page: 0, q: '', sort: 'score' };
+  function renderSectorBlock() {
+    var el = document.getElementById('nl-sector'); if (!el) return;
+    if (state.mode !== 'stock' || state.loading || state.err || !state.sym) { el.innerHTML = ''; return; }
+    if (secState.sym !== state.sym) secState = { sym: state.sym, page: 0, q: '', sort: 'score' };
+    var sym = state.sym;
+    loadExtra('/nepse-chart/data/verdicts.json?v=' + UNIVERSE_V, function (v) {
+      if (state.sym !== sym || !el) return;
+      var head = '<h2 class="nl-sec-head"><span class="nl-sec-sq" aria-hidden="true"></span>Stocks in this sector</h2>';
+      if (!v || !v.verdicts || !v.verdicts[sym] || !v.verdicts[sym].sec) {
+        el.innerHTML = head + '<p class="nl-sec-note">No sector mapping published for ' + esc(sym) + '.</p>';
+        return;
+      }
+      var sec = v.verdicts[sym].sec;
+      var peers = Object.keys(v.verdicts).filter(function (s) { return v.verdicts[s].sec === sec; }).map(function (s) {
+        var row = v.verdicts[s] || {};
+        var q = liveCache.map[s];
+        return { s: s, name: state.names[s] || s,
+          p: q && isFinite(+q.ltp) ? +q.ltp : (isFinite(+row.p) ? +row.p : null),
+          ch: q && isFinite(+q.percent_change) ? +q.percent_change : (isFinite(+row.ch) ? +row.ch : null),
+          sc: (row.s === null || row.s === undefined) ? null : +row.s,
+          v: row.v || '' };
+      });
+      var q = secState.q.toLowerCase();
+      var list = peers.filter(function (r) {
+        return !q || r.s.toLowerCase().indexOf(q) > -1 || r.name.toLowerCase().indexOf(q) > -1;
+      });
+      list.sort(function (a, b) {
+        if (secState.sort === 'day') return (b.ch === null ? -Infinity : b.ch) - (a.ch === null ? -Infinity : a.ch);
+        if (secState.sort === 'sym') return a.s.localeCompare(b.s);
+        return (b.sc === null ? -Infinity : b.sc) - (a.sc === null ? -Infinity : a.sc);
+      });
+      var per = 25, pages = Math.max(1, Math.ceil(list.length / per));
+      if (secState.page >= pages) secState.page = pages - 1;
+      if (secState.page < 0) secState.page = 0;
+      var lo = secState.page * per, hi = Math.min(lo + per, list.length);
+      var rowsHtml = list.slice(lo, hi).map(function (r) {
+        var chT = r.ch === null ? '—' : ((r.ch > 0 ? '+' : '') + r.ch.toFixed(2) + '%');
+        var chC = r.ch === null ? '' : (r.ch < 0 ? 'neg' : (r.ch > 0 ? 'pos' : ''));
+        return '<tr' + (r.s === sym ? ' class="cur"' : '') + '><td class="sym"><a href="?s=' + esc(r.s) + '">' + esc(r.s) + '</a></td>' +
+          '<td>' + esc(r.name) + '</td><td class="num">' + (r.p === null ? '—' : num(r.p, 2)) + '</td>' +
+          '<td class="num ' + chC + '">' + chT + '</td>' +
+          '<td class="num">' + (r.sc === null ? '—' : r.sc) + '</td><td>' + esc(r.v) + '</td></tr>';
+      }).join('');
+      var pgBtns = '';
+      for (var i = 0; i < pages && i < 7; i++) {
+        pgBtns += '<button type="button" class="nl-pager-pg' + (i === secState.page ? ' cur' : '') + '" data-pg="' + i + '">' + (i + 1) + '</button>';
+      }
+      el.innerHTML = head +
+        '<p class="nl-sec-sub">Every stock in ' + esc(sec) + ' (' + peers.length + '), same session data as this page. Day % is the exchange adjusted reference from the live tape. Click a symbol to open its chart.</p>' +
+        '<div class="nl-sec-controls"><input type="search" id="nl-sec-q" placeholder="Search symbol or name…" aria-label="Search sector stocks" value="' + esc(secState.q) + '">' +
+        '<select id="nl-sec-sort" aria-label="Sort sector stocks">' +
+        '<option value="score"' + (secState.sort === 'score' ? ' selected' : '') + '>Sort: engine score</option>' +
+        '<option value="day"' + (secState.sort === 'day' ? ' selected' : '') + '>Sort: day %</option>' +
+        '<option value="sym"' + (secState.sort === 'sym' ? ' selected' : '') + '>Sort: symbol A–Z</option></select></div>' +
+        '<div class="nl-sec-tablewrap"><table class="nl-sec-table"><thead><tr>' +
+        '<th>Symbol</th><th>Company</th><th class="num">LTP (Rs)</th><th class="num">Day %</th><th class="num">Score</th><th>Verdict</th>' +
+        '</tr></thead><tbody>' + (rowsHtml || '<tr><td colspan="6">No matches.</td></tr>') + '</tbody></table></div>' +
+        '<div class="nl-pager"><span class="nl-pager-info">Showing ' + (list.length ? (lo + 1) + '–' + hi : '0') + ' of ' + list.length + ' in ' + esc(sec) + '</span>' +
+        '<span class="nl-pager-nav"><button type="button" class="nl-pager-prev" data-pg="prev"' + (secState.page <= 0 ? ' disabled' : '') + '>Prev</button>' +
+        pgBtns +
+        '<button type="button" class="nl-pager-next" data-pg="next"' + (secState.page >= pages - 1 ? ' disabled' : '') + '>Next</button></span></div>';
+      var qi = el.querySelector('#nl-sec-q');
+      if (qi) qi.addEventListener('input', function () { secState.q = qi.value; secState.page = 0; renderSectorBlock(); });
+      var ss = el.querySelector('#nl-sec-sort');
+      if (ss) ss.addEventListener('change', function () { secState.sort = ss.value; secState.page = 0; renderSectorBlock(); });
+      el.querySelectorAll('[data-pg]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var d = b.getAttribute('data-pg');
+          if (d === 'prev' && secState.page > 0) secState.page--;
+          else if (d === 'next' && secState.page < pages - 1) secState.page++;
+          else if (d !== 'prev' && d !== 'next') secState.page = parseInt(d, 10) || 0;
+          else return;
+          renderSectorBlock();
+        });
+      });
+    });
+  }
+  function renderValueBlock() {
+    var el = document.getElementById('nl-value'); if (!el) return;
+    if (state.mode !== 'stock' || state.loading || state.err || !state.sym) { el.innerHTML = ''; return; }
+    var sym = state.sym;
+    loadExtra('/nepse-chart/data/value.json?v=' + UNIVERSE_V, function (d) {
+      if (state.sym !== sym || !el) return;
+      var head = '<h2 class="nl-sec-head"><span class="nl-sec-sq" aria-hidden="true"></span>Valuation context</h2>';
+      var row = null;
+      if (d && Array.isArray(d.stocks)) {
+        for (var i = 0; i < d.stocks.length; i++) { if (d.stocks[i].symbol === sym) { row = d.stocks[i]; break; } }
+      }
+      if (!row) {
+        el.innerHTML = head +
+          '<p class="nl-val-note"><strong>No fair-value estimate is published for ' + esc(sym) + '.</strong> ' +
+          'This symbol is not scored in the value screen (its sector is not scored, or it fails the quality gate: positive TTM EPS and positive net worth). ' +
+          'Published fundamentals, peer comparison and the full chart are on the <a href="/stocks/' + esc(sym.replace(/\//g, '-')) + '/">stock page</a>. ' +
+          'Nothing here is a price target or a buy/sell call.</p>';
+        return;
+      }
+      function pair(label, val, med, fmt) {
+        var mx = Math.max(Math.abs(val || 0), Math.abs(med || 0)) || 1;
+        var wv = Math.max(0, Math.min(100, Math.abs(val || 0) / mx * 100));
+        var wm = Math.max(0, Math.min(100, Math.abs(med || 0) / mx * 100));
+        return '<div class="nl-val-card"><h3>' + label + '</h3><div class="nl-val-big">' + fmt(val) + '</div>' +
+          '<div class="nl-val-pair">' +
+          '<div class="nl-val-row"><span>' + esc(sym) + '</span><span class="nl-val-track"><i style="width:' + wv + '%"></i></span><b>' + fmt(val) + '</b></div>' +
+          '<div class="nl-val-row"><span>Sector median</span><span class="nl-val-track median"><i style="width:' + wm + '%"></i></span><b>' + fmt(med) + '</b></div>' +
+          '</div></div>';
+      }
+      var fx = function (v) { return (v === null || v === undefined) ? '—' : (+v).toFixed(2) + '×'; };
+      var fr = function (v) { return (v === null || v === undefined) ? '—' : 'Rs ' + (+v).toFixed(2); };
+      el.innerHTML = head +
+        '<p class="nl-sec-sub">Value score ' + esc(row.value_score) + ' / 100 for ' + esc(row.name) +
+        ' (' + esc(row.sector) + ', ' + esc(row.period) + '). The score ranks within its own sector only: 50% earnings-yield rank + 50% price-to-book rank. ' +
+        'This is valuation context, not a fair value and not a price target.</p>' +
+        '<div class="nl-val-grid">' +
+        pair('P/E (TTM)', row.pe_ttm, row.sector_median_pe, fx) +
+        pair('P/BV', row.pbv, row.sector_median_pbv, fx) +
+        '<div class="nl-val-card"><h3>EPS (TTM)</h3><div class="nl-val-big">' + fr(row.eps_ttm) + '</div>' +
+        '<p class="nl-val-note">Book value per share ' + fr(row.bvps) + ' · earnings yield ' +
+        ((row.ey_pct === null || row.ey_pct === undefined) ? '—' : (+row.ey_pct).toFixed(2) + '%') + '.</p></div>' +
+        '<div class="nl-val-card"><h3>Value score</h3><div class="nl-val-big">' + esc(row.value_score) + ' / 100</div>' +
+        '<p class="nl-val-note">Source: value screen, session ' + esc(d.asof || '') + '. P/BV = LTP / book value per share; book value = (paid-up capital + reserves) / shares. No DCF, no targets, no calls.</p></div>' +
+        '</div>';
+    });
+  }
+  function renderNewsBlock() {
+    var el = document.getElementById('nl-news'); if (!el) return;
+    if (state.mode !== 'stock' || state.loading || state.err || !state.sym) { el.innerHTML = ''; return; }
+    var sym = state.sym;
+    loadExtra('/nepse-chart/data/news.json?v=' + UNIVERSE_V, function (d) {
+      if (state.sym !== sym || !el) return;
+      var head = '<h2 class="nl-sec-head"><span class="nl-sec-sq" aria-hidden="true"></span>Headlines about ' + esc(sym) + '</h2>';
+      var items = (d && d.items ? d.items : []).filter(function (it) { return it.sym === sym; }).slice(0, 5);
+      if (!items.length) {
+        el.innerHTML = head + '<div class="nl-news-empty">No headlines in the current feed mention ' + esc(sym) + ' by symbol tag.' +
+          (d && d.asof ? ' Feed as of ' + esc(d.asof) + ' (' + (d.items ? d.items.length : 0) + ' items, all dated October 2026).' : '') +
+          ' General market news is never shown as if it were about this symbol. <a href="/nepse-news/">Open the newsroom</a> for the full market feed.</div>';
+        return;
+      }
+      el.innerHTML = head +
+        '<p class="nl-sec-sub">Symbol-tagged headlines only. Dates are each item’s own published date, not the page date.</p>' +
+        '<div class="nl-news-list">' + items.map(function (it) {
+          return '<div class="nl-news-item"><span class="nl-news-sym">' + esc(sym) + '</span><div class="nl-news-body">' +
+            '<a href="' + esc(it.link) + '" target="_blank" rel="noopener">' + esc(it.title) + '</a>' +
+            '<p>' + esc(it.src || '') + (it.date ? ' · ' + esc(it.date) : '') + '</p></div></div>';
+        }).join('') + '</div>';
+    });
+  }
+  var CA_KIND = { 'dividend': 'Dividend', 'bonus-share': 'Bonus share', 'right-share': 'Right share',
+    'promoter-share': 'Promoter share', 'auction': 'Auction' };
+  function renderActionsBlock() {
+    var el = document.getElementById('nl-actions'); if (!el) return;
+    if (state.mode !== 'stock' || state.loading || state.err || !state.sym) { el.innerHTML = ''; return; }
+    var sym = state.sym;
+    loadExtra('/nepse-chart/data/corporate-actions.json?v=' + UNIVERSE_V, function (d) {
+      if (state.sym !== sym || !el) return;
+      var head = '<h2 class="nl-sec-head"><span class="nl-sec-sq" aria-hidden="true"></span>Verified corporate notices</h2>';
+      var items = (d && d.items ? d.items : []).filter(function (a) { return a.symbol === sym; });
+      if (!items.length) {
+        el.innerHTML = head + '<p class="nl-sec-note">No verified corporate-action notices on record for ' + esc(sym) +
+          '. Full dividend, bonus, right, auction and AGM history is on the <a href="/stocks/' + esc(sym.replace(/\//g, '-')) + '/#actions">stock page</a>.</p>';
+        return;
+      }
+      el.innerHTML = head +
+        '<p class="nl-sec-sub">Official notices verified against the company notice or a NEPSE filing. Past history lives on the stock page.</p>' +
+        '<div class="nl-act-list">' + items.map(function (a) {
+          var link = a.officialPdf || a.sourceUrl || '';
+          var ttl = link ? '<a href="' + esc(link) + '" target="_blank" rel="noopener">' + esc(a.headline) + '</a>' : esc(a.headline);
+          return '<div class="nl-act-item"><b>' + ttl + '</b><div class="nl-act-meta">' +
+            esc(CA_KIND[a.kind] || a.kind) + ' · announced ' + esc(a.announced || '—') +
+            ' · source: ' + esc(a.source || '—') +
+            (a.verifiedAt ? ' · verified ' + esc(String(a.verifiedAt).slice(0, 10)) : '') +
+            (a.officialPdf ? ' · <a href="' + esc(a.officialPdf) + '" target="_blank" rel="noopener">Official PDF</a>' : '') +
+            '</div></div>';
+        }).join('') + '</div>';
+    });
+  }
+  function renderForwardBlock() {
+    var el = document.getElementById('nl-forward'); if (!el) return;
+    if (state.mode !== 'stock' || state.loading || state.err || !shHist || !shHist.length) { el.innerHTML = ''; return; }
+    var rows = state.rows;
+    var t = todayNPT();
+    var todayYmd = t.getUTCFullYear() * 10000 + (t.getUTCMonth() + 1) * 100 + t.getUTCDate();
+    var inProg = marketOpenNPT() && rows.length && rows[rows.length - 1][0] === todayYmd;
+    var closed = inProg ? rows.slice(0, -1) : rows;
+    var idxByDate = {};
+    closed.forEach(function (r, i) { idxByDate[r[0]] = i; });
+    var counts = { up: 0, faded: 0, bb: 0, down: 0, pend: 0, na: 0 };
+    var out = shHist.map(function (h) {
+      var i = idxByDate[h.d];
+      var ret = null, kind = 'pending';
+      if (i != null && i + 1 < closed.length) { ret = (closed[i + 1][4] - h.c) / h.c * 100; kind = 'close'; }
+      else if (i != null && i + 1 === closed.length && inProg) { kind = 'intraday'; }
+      var buySide = h.cls === 'sbuy' || h.cls === 'buy';
+      var exitSide = h.cls === 'exit' || h.cls === 'sexit';
+      var cat = 'pending', catLabel = 'Outcome pending';
+      if (ret === null) { counts.pend++; if (kind === 'intraday') catLabel = 'Next session in progress'; }
+      else if (!buySide && !exitSide) { cat = 'pending'; catLabel = 'No directional call'; counts.na++; }
+      else if (buySide && ret > 0) { cat = 'up'; catLabel = 'Followed up'; counts.up++; }
+      else if (buySide) { cat = 'down'; catLabel = 'Faded'; counts.faded++; }
+      else if (exitSide && ret > 0) { cat = 'bb'; catLabel = 'Bounce-back watch'; counts.bb++; }
+      else { cat = 'down'; catLabel = 'Followed down'; counts.down++; }
+      return { h: h, ret: ret, cat: cat, catLabel: catLabel };
+    });
+    var resolved = counts.up + counts.faded + counts.bb + counts.down;
+    el.innerHTML = '<h2 class="nl-sec-head"><span class="nl-sec-sq" aria-hidden="true"></span>Forward record: what happened after past verdicts</h2>' +
+      '<p class="nl-sec-sub">Each past verdict below is bucketed by the next closed session’s return (close-to-close, same history series). ' +
+      'A SELL-side verdict followed by a green next session is flagged <b>Bounce-back watch</b> — the failure pattern the learning loop reviews. ' +
+      'Engine rules are not changed here; cases are recorded for that loop.</p>' +
+      '<p class="nl-sec-note">Resolved sessions: <b>' + resolved + '</b> · followed up ' + counts.up + ' · faded ' + counts.faded +
+      ' · bounce-back watch ' + counts.bb + ' · followed down ' + counts.down +
+      (counts.bb ? ' — bounce-back sessions are listed in the table below for review.' : '') + '</p>' +
+      '<div class="nl-fw-tablewrap"><table class="nl-fw-table"><thead><tr>' +
+      '<th>Session</th><th class="num">Close (Rs)</th><th>Verdict then</th><th class="num">Next session</th><th>Outcome</th>' +
+      '</tr></thead><tbody>' + out.map(function (o) {
+        return '<tr><td>' + fmtD(o.h.d) + '</td><td class="num">' + num(o.h.c, 2) + '</td>' +
+          '<td><span class="nl-sh-pill ' + o.h.cls + '">' + esc(o.h.label) + '</span></td>' +
+          '<td class="num ' + (o.ret === null ? '' : (o.ret >= 0 ? 'pos' : 'neg')) + '">' +
+          (o.ret === null ? '—' : ((o.ret > 0 ? '+' : '') + o.ret.toFixed(2) + '%')) + '</td>' +
+          '<td><span class="nl-cat ' + o.cat + '">' + o.catLabel + '</span></td></tr>';
+      }).join('') + '</tbody></table></div>' +
+      '<p class="nl-sec-note">Returns are raw closes from the chart history series, not adjusted for bonus/right actions inside the window; a corporate action between the verdict session and the next session can move the raw return. Verdicts are mechanical readings, not predictions.</p>';
+  }
+
   function renderShell(S, divs, pats) {
     var wrap = document.getElementById('nl-lab'); if (!wrap) return;
     var rows = state.rows, n = rows.length;
@@ -1408,6 +1673,7 @@
             shHist = signalHistory();
             shPage = 0;
             renderSignalHistory(el);
+            renderForwardBlock();
             shellCache.shist = true;
             shellCache.shistKey = state.sym + '|' + rows[n - 1][0];
           } catch (e) { el.innerHTML = ''; }
@@ -1454,9 +1720,18 @@
       var win = rows.slice(-252), h52 = -Infinity, l52 = Infinity;
       win.forEach(function (x) { h52 = Math.max(h52, x[2]); l52 = Math.min(l52, x[3]); });
       setT('nl-52h', num(h52, 2)); setT('nl-52l', num(l52, 2));
+      // teardown 2026-10-28: 52-week range bar + RSI strip markers (same figures
+      // as the stat text above — visuals never carry a second number).
+      var r52 = document.getElementById('nl-52range');
+      if (r52) r52.textContent = num(l52, 2) + ' – ' + num(h52, 2);
+      var pos = (h52 > l52) ? Math.max(0, Math.min(100, (last[4] - l52) / (h52 - l52) * 100)) : 50;
+      var rf = document.getElementById('nl-52range-fill'); if (rf) rf.style.width = pos + '%';
+      var rm = document.getElementById('nl-52range-mark'); if (rm) rm.style.left = pos + '%';
       var rsiA = rsiArr(rows.map(function (r) { return r[4]; }), 14);
       var rv = rsiA[n - 1];
       setT('nl-rsi-v', rv == null ? '—' : rv.toFixed(1));
+      var rsm = document.getElementById('nl-rsi-mark');
+      if (rsm && rv != null) rsm.style.left = Math.max(0, Math.min(100, rv)) + '%';
       var s200 = smaArr(rows.map(function (r) { return r[4]; }), 200);
       var rg = document.getElementById('nl-regime');
       if (rg) {
@@ -1469,6 +1744,22 @@
       // contradicting "live · updated 11h ago" signal here (P0-2/P0-4).
       setT('nl-asof', lcoS ? lcoS.dateStr + ' · session close (full candle pending open data)' : fmtD(last[0]));
     }
+    // ---- teardown 2026-10-28: new blocks + per-symbol links (same shell gate) ----
+    (function () {
+      var lastRow = state.rows.length ? state.rows[state.rows.length - 1][0] : 0;
+      if (lastRow !== extraSession) { extraCache = {}; extraSession = lastRow; }
+      renderSessionStrip(); renderSectorBlock(); renderValueBlock(); renderNewsBlock(); renderActionsBlock(); renderForwardBlock();
+      var ls = document.getElementById('nl-link-stock');
+      if (ls) {
+        if (state.mode === 'stock' && state.sym) { ls.href = '/stocks/' + state.sym.replace(/\//g, '-') + '/'; ls.style.display = ''; }
+        else ls.style.display = 'none';
+      }
+      var lf = document.getElementById('nl-link-fund');
+      if (lf) {
+        if (state.mode === 'stock' && state.sym) { lf.href = '/nepse-fundamentals/?s=' + encodeURIComponent(state.sym); lf.style.display = ''; }
+        else lf.style.display = 'none';
+      }
+    })();
   }
   function setT(id, t) { var e = document.getElementById(id); if (e) e.textContent = t; }
   function locate(i2) {
@@ -1621,9 +1912,11 @@
     var start = m ? m[1].toUpperCase() : 'NEPSE';
     if (input) input.value = start;
     setSymbol(start);
-    // live auto-refresh during market hours (skipped when tab is hidden)
+    // live auto-refresh every 60s in all hours (skipped when tab is hidden).
+    // Closed-hours ticks pick up newly landed sessions; the shell rebuilds
+    // only on data change (maybeRenderShell), so unchanged ticks touch no DOM.
     setInterval(function () {
-      if (document.hidden || !marketOpenNPT() || (state.mode !== 'stock' && state.mode !== 'index')) return;
+      if (document.hidden || (state.mode !== 'stock' && state.mode !== 'index')) return;
       loadLive().then(function () {
         if (state.mode === 'index') {
           var ix = applyLiveIndexCandle(indexRows(), liveCache.index);

@@ -266,6 +266,65 @@ SP_ABOUT_CSS +
 '[data-theme=\"light\"] .d2-metric-row{background:linear-gradient(180deg,#FFFFFF,#F4F7FA);border-color:#CBD4DE;color:#0A0C10}\n' +
 '[data-theme=\"light\"] .d2-bank-chips button{background:#EFF2F6;border-color:#D5DCE4;color:#3F4753}\n' +
 '[data-theme=\"light\"] .d2-bank-chips button[aria-pressed=\"true\"]{background:#4D7C0F;border-color:#4D7C0F;color:#fff}\n' +
+/* teardown 2026-10-28: 48px design-rich controls (overrides earlier 40px
+ * tabs/chips at equal specificity — this block loads after them) */
+'.sp-tab{min-height:48px;padding:0 18px;display:inline-flex;align-items:center}\n' +
+'.sp-peers a{min-height:48px;display:inline-flex;align-items:center}\n' +
+'.inv-cal-tab,.inv-cal-perpage,.inv-cal-q,.inv-cal-prev,.inv-cal-next,.inv-cal-pg{min-height:48px}\n' +
+'.d2-bank-chips button{min-height:48px}\n' +
+'.d2-metric-row{min-height:48px}\n' +
+/* session strip: page-owned freshness line */
+'.sp-session{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 45%),var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);border-radius:var(--nd-r-card);padding:14px 18px;margin:var(--nd-s5) 0;box-shadow:var(--nd-rim),var(--nd-e1);font-size:.85rem}\n' +
+'.sp-session-l{font-family:var(--nd-font-display,Georgia,serif);font-size:1.05rem;font-weight:700;color:var(--nd-text,#fff)}\n' +
+'.sp-session-t{color:var(--nd-dim,#8E98A8)}\n' +
+'.sp-chip{display:inline-block;padding:4px 10px;border-radius:var(--nd-r-pill);font-size:.75rem;font-weight:700;letter-spacing:.06em;background:var(--nd-panel2,#1A1E26);border:1px solid var(--nd-border,#1E2430);color:var(--nd-muted,#B8C0CE)}\n' +
+'.sp-chip-stale{background:rgba(255,176,32,.14);border-color:#FFB020;color:#FFB020}\n' +
+/* sector-stocks block: full sector table + controls + pager */
+'.sp-secblock{margin:var(--nd-s6) 0}\n' +
+'.sp-sec-controls{display:flex;gap:12px;flex-wrap:wrap;margin:0 0 14px}\n' +
+'.sp-sec-controls label{font-size:.85rem;color:var(--nd-dim,#8E98A8);display:flex;align-items:center;gap:8px}\n' +
+'.sp-sec-q,.sp-sec-sort{min-height:48px;padding:0 12px;border-radius:var(--nd-r-md);background:var(--nd-panel2,#1A1E26);border:1px solid var(--nd-border,#1E2430);color:var(--nd-text,#fff);font-size:.9rem}\n' +
+'.sp-sec-q:focus,.sp-sec-sort:focus{outline:none;border-color:var(--nd-lime,#B8E62E);box-shadow:0 0 0 3px rgba(184,230,46,.25)}\n' +
+'.sp-table-wrap{overflow-x:auto;border:1px solid var(--nd-border,#1E2430);border-radius:var(--nd-r-card);background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 45%),var(--nd-panel,#12141A);box-shadow:var(--nd-rim),var(--nd-e1)}\n' +
+'.sp-peer-table{width:100%;border-collapse:collapse;font-size:.9rem}\n' +
+'.sp-peer-table th{text-align:left;padding:12px 14px;color:var(--nd-dim,#8E98A8);font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--nd-border,#1E2430);white-space:nowrap}\n' +
+'.sp-peer-table td{padding:12px 14px;border-bottom:1px solid var(--nd-border,#1E2430)}\n' +
+'.sp-peer-table tr.cur td{background:rgba(184,230,46,.08)}\n' +
+'.sp-peer-table a{color:var(--nd-text,#fff);font-weight:700;text-decoration:none}\n' +
+'.sp-peer-table a:hover{color:var(--nd-lime,#B8E62E)}\n' +
+'.sp-peer-table .pos{color:var(--nd-up,#34D399)}\n' +
+'.sp-peer-table .neg{color:var(--nd-down,#F87171)}\n' +
+'.sp-pager{display:flex;gap:10px;align-items:center;justify-content:flex-end;margin-top:12px}\n' +
+'.sp-pager-info{font-size:.85rem;color:var(--nd-dim,#8E98A8)}\n' +
+'.sp-pager-prev,.sp-pager-next{min-height:48px;padding:0 18px;border-radius:var(--nd-r-pill);border:1px solid var(--nd-border,#1E2430);background:var(--nd-panel2,#1A1E26);color:var(--nd-text,#fff);font-weight:700;cursor:pointer}\n' +
+'.sp-pager-next{background:var(--nd-lime,#B8E62E);border-color:var(--nd-lime,#B8E62E);color:#0A0C10}\n' +
+'.sp-pager-prev:disabled,.sp-pager-next:disabled{opacity:.45;cursor:default}\n' +
+'.sp-pager-prev:focus-visible,.sp-pager-next:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(184,230,46,.35)}\n' +
+/* valuation context: paired company-vs-median bars */
+'.sp-val-row{margin:0 0 14px}\n' +
+'.sp-val-row b{display:block;font-size:.9rem;margin-bottom:6px}\n' +
+'.sp-val-bar{height:12px;border-radius:6px;background:var(--nd-panel2,#1A1E26);overflow:hidden;margin:4px 0}\n' +
+'.sp-val-fill{display:block;height:100%;background:var(--nd-lime,#B8E62E)}\n' +
+'.sp-val-fill.dim{background:var(--nd-dim,#8E98A8)}\n' +
+'.sp-val-lab{font-size:.8rem;color:var(--nd-dim,#8E98A8)}\n' +
+/* forward record categories (mirror the chart page) */
+'.sp-cat{display:inline-block;padding:3px 9px;border-radius:var(--nd-r-pill);font-size:.78rem;font-weight:700;white-space:nowrap}\n' +
+'.sp-cat-up{background:rgba(52,211,153,.15);color:#34D399}\n' +
+'.sp-cat-down{background:rgba(248,113,113,.15);color:#F87171}\n' +
+'.sp-cat-bounce{background:rgba(255,176,32,.16);color:#FFB020}\n' +
+'.sp-cat-fade,.sp-cat-flat,.sp-cat-pend{background:rgba(142,152,168,.14);color:#8E98A8}\n' +
+/* verified notices */
+'.sp-act{list-style:none;margin:0;padding:0;display:grid;gap:12px}\n' +
+'.sp-act li{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 45%),var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);border-radius:var(--nd-r-card);padding:14px 18px;box-shadow:var(--nd-rim),var(--nd-e1)}\n' +
+'.sp-act-kind{display:inline-block;padding:3px 9px;border-radius:var(--nd-r-pill);font-size:.75rem;font-weight:700;background:rgba(184,230,46,.14);color:var(--nd-lime,#B8E62E);margin-right:8px}\n' +
+'.sp-act li a{color:var(--nd-text,#fff);font-weight:700}\n' +
+'.sp-act-meta{display:block;font-size:.8rem;color:var(--nd-dim,#8E98A8);margin-top:6px}\n' +
+'.sp-news-foot{font-size:.82rem;color:var(--nd-dim,#8E98A8);margin-top:10px}\n' +
+/* light theme for the new blocks */
+'[data-theme="light"] .sp-session,[data-theme="light"] .sp-table-wrap,[data-theme="light"] .sp-act li{background:linear-gradient(180deg,#FFFFFF 0%,#F4F7FA 100%);border-color:#CBD4DE;box-shadow:inset 0 2px 0 #FFFFFF,0 1px 2px rgba(10,12,16,.1),0 8px 24px rgba(10,12,16,.1)}\n' +
+'[data-theme="light"] .sp-session-l,[data-theme="light"] .sp-peer-table a,[data-theme="light"] .sp-act li a{color:#0A0C10}\n' +
+'[data-theme="light"] .sp-sec-q,[data-theme="light"] .sp-sec-sort,[data-theme="light"] .sp-pager-prev{background:#fff;border-color:#D5DCE4;color:#0A0C10}\n' +
+'[data-theme="light"] .sp-peer-table tr.cur td{background:rgba(77,124,15,.08)}\n' +
 'body{font-family:var(--nd-font-sans,Inter,system-ui,-apple-system,Segoe UI,sans-serif)}\n' +
 '</style>\n';
 
@@ -365,7 +424,7 @@ const RAIL = '<body class="nd">\n' +
   '<div id="nd-footer"></div>\n' +
   '<script src="/js/nd-chrome.js?v=20261023d" defer></script>\n' +
   '<script src="/js/theme-toggle.js?v=20261023d" defer></script>\n' +
-  '<script src="/js/stock-live.js?v=20261023d" defer></script>\n' +
+  '<script src="/js/stock-live.js?v=c135f9d9" defer></script>\n' +
   '<script src="/js/val-lab.js?v=20261023d" defer></script>\n' +
   '</body>\n</html>\n';
 
@@ -1107,7 +1166,178 @@ function relatedForSymbol(arts, sym) {
   return hits;
 }
 
-function symbolPage(u, v, newsItems, fund, liveQ, liveDate, sector, sectorPeers, verdicts, quarterly, corpHist, related) {
+/* ---- teardown 2026-10-28: session strip, sector-stocks block,
+ * valuation context, forward record, verified notices.
+ * All figures come from the same batch the page already renders; nothing
+ * here recomputes an engine verdict or invents a fair value. ---- */
+
+function sessionStrip(x) {
+  const stale = !!(x.manifest && x.manifest.session_date && x.pageAsof && x.pageAsof < x.manifest.session_date);
+  let h = '<section class="sp-session" aria-label="Data session">';
+  h += '<span class="sp-session-l">Session ' + esc(x.pageAsof || x.liveDate || '') + '</span>';
+  if (stale) h += '<span class="sp-chip sp-chip-stale">STALE — NEWER SESSION PUBLISHED</span>';
+  else if (x.manifest && x.manifest.market_state) h += '<span class="sp-chip">' + esc(x.manifest.market_state) + '</span>';
+  h += '<span class="sp-session-t">tape ' + esc(x.liveDate || '—');
+  if (x.quotes) h += ' · ' + esc(x.quotes) + ' quotes';
+  if (x.scored) h += ' · ' + esc(x.scored) + ' symbols scored';
+  h += '</span>';
+  if (x.manifest && x.manifest.session_date) {
+    h += '<span class="sp-session-t">manifest session ' + esc(x.manifest.session_date);
+    if (x.manifest.generated_at_npt) h += ' · generated ' + esc(String(x.manifest.generated_at_npt).slice(0, 16));
+    h += '</span>';
+  }
+  h += '<span class="sp-session-t" data-session-live>live tape refreshes in the browser when a newer snapshot lands</span>';
+  h += '</section>';
+  return h;
+}
+
+function sectorStocksBlock(sym, sector, sectorPeers, verdicts, liveMap) {
+  if (!sector || !sectorPeers || sectorPeers.length < 2) return '';
+  const rows = sectorPeers.map((p) => {
+    const v = verdicts[p.s] || {};
+    const q = liveMap[p.s] || null;
+    const price = q && Number.isFinite(Number(q.ltp)) ? Number(q.ltp) : (v.p !== undefined && v.p !== null ? Number(v.p) : null);
+    const chg = q && Number.isFinite(Number(q.percent_change)) ? Number(q.percent_change) : (v.ch !== undefined && v.ch !== null ? Number(v.ch) : null);
+    return { s: p.s, n: p.n, price, chg, score: (v.s !== undefined && v.s !== null ? Number(v.s) : null), verdict: v.v || '' };
+  });
+  rows.sort((a, b) => (b.score === null ? -Infinity : b.score) - (a.score === null ? -Infinity : a.score));
+  let h = '<section class="sp-secblock" aria-label="Stocks in this sector"><h2>Stocks in this sector</h2>';
+  h += '<p class="sp-note">Every stock in ' + esc(sector) + ' (' + rows.length + '), same session data as this page. Day % is the exchange adjusted reference from the live tape. Click a symbol to open its chart.</p>';
+  h += '<div class="sp-sec-controls"><label>Search <input class="sp-sec-q" type="search" placeholder="Symbol or name" aria-label="Search sector stocks"></label>';
+  h += '<label>Sort <select class="sp-sec-sort" aria-label="Sort sector stocks"><option value="score">Engine score</option><option value="day">Day %</option><option value="sym">Symbol A–Z</option></select></label></div>';
+  h += '<div class="sp-table-wrap"><table class="sp-peer-table"><thead><tr><th>Symbol</th><th>Company</th><th>LTP (Rs)</th><th>Day %</th><th>Score</th><th>Verdict</th></tr></thead><tbody>';
+  for (const r of rows) {
+    h += '<tr data-s="' + esc(r.s) + '" data-n="' + esc(String(r.n).toLowerCase()) + '" data-score="' + (r.score === null ? '' : r.score) + '" data-chg="' + (r.chg === null ? '' : r.chg) + '"' + (r.s === sym ? ' class="cur"' : '') + '>';
+    h += '<td><a href="/stocks/' + slugOf(r.s) + '/">' + esc(r.s) + '</a></td>';
+    h += '<td>' + esc(r.n) + '</td>';
+    h += '<td>' + (r.price === null || !Number.isFinite(r.price) ? '–' : fmtNum(r.price)) + '</td>';
+    h += '<td class="' + (r.chg === null ? '' : (r.chg < 0 ? 'neg' : (r.chg > 0 ? 'pos' : ''))) + '">' + (r.chg === null ? '–' : (r.chg > 0 ? '+' : '') + esc(r.chg) + '%') + '</td>';
+    h += '<td>' + (r.score === null ? '–' : esc(r.score)) + '</td>';
+    h += '<td>' + esc(r.verdict || '–') + '</td></tr>';
+  }
+  h += '</tbody></table></div>';
+  h += '<div class="sp-pager"><button class="sp-pager-prev" type="button">Prev</button><span class="sp-pager-info"></span><button class="sp-pager-next" type="button">Next</button></div>';
+  h += '<script>(function(){var b=document.querySelector(".sp-secblock");if(!b)return;';
+  h += 'var q=b.querySelector(".sp-sec-q"),srt=b.querySelector(".sp-sec-sort");';
+  h += 'var rows=Array.prototype.slice.call(b.querySelectorAll("tbody tr"));';
+  h += 'var st={q:"",sort:"score",page:1,per:25};';
+  h += 'function numv(r,k){var v=r.getAttribute("data-"+k);return v===""?null:+v;}';
+  h += 'function render(){var f=rows.filter(function(r){return !st.q||r.getAttribute("data-s").toLowerCase().indexOf(st.q)>-1||r.getAttribute("data-n").indexOf(st.q)>-1;});';
+  h += 'f.sort(function(a,b){if(st.sort==="sym")return a.getAttribute("data-s").localeCompare(b.getAttribute("data-s"));';
+  h += 'var ka=numv(a,st.sort==="day"?"chg":"score"),kb=numv(b,st.sort==="day"?"chg":"score");';
+  h += 'ka=ka===null?-Infinity:ka;kb=kb===null?-Infinity:kb;return kb-ka;});';
+  h += 'var pages=Math.max(1,Math.ceil(f.length/st.per));if(st.page>pages)st.page=pages;var s=(st.page-1)*st.per;';
+  h += 'rows.forEach(function(r){r.style.display="none";});';
+  h += 'f.slice(s,s+st.per).forEach(function(r){r.style.display="";});';
+  h += 'b.querySelector(".sp-pager-info").textContent=f.length?("Showing "+(s+1)+" to "+Math.min(s+st.per,f.length)+" of "+f.length):"Showing 0 entries";';
+  h += 'b.querySelector(".sp-pager-prev").disabled=st.page<=1;';
+  h += 'b.querySelector(".sp-pager-next").disabled=st.page>=pages;}';
+  h += 'q.addEventListener("input",function(){st.q=this.value.toLowerCase();st.page=1;render();});';
+  h += 'srt.addEventListener("change",function(){st.sort=this.value;st.page=1;render();});';
+  h += 'b.querySelector(".sp-pager-prev").addEventListener("click",function(){if(st.page>1){st.page--;render();}});';
+  h += 'b.querySelector(".sp-pager-next").addEventListener("click",function(){if(st.page<Math.ceil(rows.length/st.per)){st.page++;render();}});';
+  h += 'render();})();</scr' + 'ipt>';
+  h += '</section>';
+  return h;
+}
+
+function valuationContextBlock(sym, valueRow, fund) {
+  let h = '<section aria-label="Valuation context"><h2>Valuation context</h2>';
+  if (valueRow) {
+    const sc = valueRow.value_score;
+    const pe = Number(valueRow.pe_ttm), pb = Number(valueRow.pbv);
+    const mpe = Number(valueRow.sector_median_pe), mpb = Number(valueRow.sector_median_pbv);
+    const bar = (v, m) => {
+      if (!Number.isFinite(v) || !Number.isFinite(m) || m <= 0) return null;
+      const max = Math.max(v, m);
+      return { v: Math.round(v / max * 100), m: Math.round(m / max * 100) };
+    };
+    h += '<p class="sp-note">Value score ' + esc(sc) + ' of 100 — ranks this company within its own sector only: 50% earnings-yield rank (higher yield = cheaper) + 50% price-to-book rank (lower = cheaper). Quality gate: positive TTM EPS and positive net worth. This is a screening starting point for research — <strong>not a fair value and not a price target</strong>.</p>';
+    const peBar = bar(pe, mpe), pbBar = bar(pb, mpb);
+    if (peBar) {
+      h += '<div class="sp-val-row"><b>Price / Earnings (TTM): ' + fmtNum(pe) + ' vs sector median ' + fmtNum(mpe) + '</b>';
+      h += '<div class="sp-val-bar"><span class="sp-val-fill" style="width:' + peBar.v + '%"></span></div><span class="sp-val-lab">' + esc(sym) + '</span>';
+      h += '<div class="sp-val-bar"><span class="sp-val-fill dim" style="width:' + peBar.m + '%"></span></div><span class="sp-val-lab">Sector median</span></div>';
+    }
+    if (pbBar) {
+      h += '<div class="sp-val-row"><b>Price / Book: ' + fmtNum(pb) + ' vs sector median ' + fmtNum(mpb) + '</b>';
+      h += '<div class="sp-val-bar"><span class="sp-val-fill" style="width:' + pbBar.v + '%"></span></div><span class="sp-val-lab">' + esc(sym) + '</span>';
+      h += '<div class="sp-val-bar"><span class="sp-val-fill dim" style="width:' + pbBar.m + '%"></span></div><span class="sp-val-lab">Sector median</span></div>';
+    }
+    if (valueRow.eps_ttm !== undefined && valueRow.eps_ttm !== null) h += '<p>EPS (TTM): Rs ' + fmtNum(valueRow.eps_ttm) + (valueRow.bvps ? ' · Book value per share: Rs ' + fmtNum(valueRow.bvps) : '') + (valueRow.roe_ttm_pct !== undefined && valueRow.roe_ttm_pct !== null ? ' · ROE (TTM): ' + esc(valueRow.roe_ttm_pct) + '%' : '') + '.</p>';
+    h += '<p><a href="/nepse-value/">Open the value screen <span aria-hidden="true">→</span></a></p>';
+  } else {
+    h += '<p class="sp-note">No fair-value estimate is published for ' + esc(sym) + '. This symbol is not scored in the value screen (its sector is not scored, or it fails the quality gate: positive TTM EPS and positive net worth). Published fundamentals, peer comparison and the chart remain the research basis — nothing here is a price target.</p>';
+    if (fund) {
+      const bits = [];
+      if (fund.pe_ttm) bits.push('P/E (TTM): ' + fmtNum(fund.pe_ttm));
+      if (fund.eps_ttm) bits.push('EPS (TTM): Rs ' + fmtNum(fund.eps_ttm));
+      if (fund.netprofit_b !== undefined && fund.netprofit_b !== null) bits.push('Net profit: Rs ' + fmtNum(fund.netprofit_b) + 'B');
+      if (bits.length) h += '<p>' + bits.join(' · ') + ' (' + esc(fund.period || '') + ').</p>';
+    }
+    h += '<p><a href="/nepse-value/">Open the value screen <span aria-hidden="true">→</span></a></p>';
+  }
+  h += '</section>';
+  return h;
+}
+
+function forwardRecordBlock(sym, archiveSessions, ohlcRows) {
+  if (!archiveSessions || !archiveSessions.length) return '';
+  const byDate = new Map();
+  const sorted = [];
+  for (const r of (ohlcRows || [])) { byDate.set(r[0], r[4]); sorted.push(r[0]); }
+  sorted.sort((a, b) => a - b);
+  const dInt = (d) => Number(String(d).replace(/-/g, ''));
+  const dStr = (i) => String(i).replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3');
+  let bounce = 0, followed = 0, faded = 0, up = 0, pending = 0, flat = 0;
+  let rows = '';
+  for (const e of archiveSessions) {
+    const di = dInt(e.date);
+    const close = byDate.get(di);
+    let next = null;
+    for (const d of sorted) { if (d > di) { next = d; break; } }
+    const nextClose = next !== null ? byDate.get(next) : undefined;
+    let cat = '', cls = '', retTxt = '–';
+    const buySide = e.v === 'Buy' || e.v === 'Strong Buy';
+    const exitSide = e.v === 'Exit / Reduce' || e.v === 'Strong Exit';
+    if (close === undefined || nextClose === undefined) { cat = 'Outcome pending'; cls = 'pend'; pending++; }
+    else {
+      const ret = (nextClose - close) / close * 100;
+      retTxt = (ret > 0 ? '+' : '') + ret.toFixed(2) + '%';
+      if (buySide) { if (ret > 0) { cat = 'Followed up'; cls = 'up'; up++; } else { cat = 'Faded'; cls = 'fade'; faded++; } }
+      else if (exitSide) { if (ret > 0) { cat = 'Bounce-back watch'; cls = 'bounce'; bounce++; } else { cat = 'Followed down'; cls = 'down'; followed++; } }
+      else { cat = 'No directional call'; cls = 'flat'; flat++; }
+    }
+    rows += '<tr><td>' + esc(e.date) + '</td><td>' + esc(e.v) + '</td><td>' + esc(e.s) + '</td><td>' + esc(e.st) + '</td>';
+    rows += '<td>' + (close === undefined ? '–' : fmtNum(close)) + '</td><td>' + (next === null ? '—' : dStr(next)) + '</td><td>' + retTxt + '</td>';
+    rows += '<td><span class="sp-cat sp-cat-' + cls + '">' + cat + '</span></td></tr>';
+  }
+  let h = '<section aria-label="Forward record"><h2>Forward record: what happened after past verdicts</h2>';
+  h += '<p class="sp-note">Each past verdict below is bucketed by the next closed session\u2019s return (close-to-close, same history series). A SELL-side verdict followed by a green next session is flagged Bounce-back watch — the failure pattern the learning loop watches. Returns are raw closes, not adjusted for bonus/right actions inside the window. Engine rules are not changed here; cases are recorded for that loop.</p>';
+  if (!ohlcRows) h += '<p class="sp-note">No daily history file on record for ' + esc(sym) + ' — outcomes show as pending until the history backfill covers this symbol.</p>';
+  h += '<div class="sp-table-wrap"><table class="sp-peer-table"><thead><tr><th>Session</th><th>Verdict</th><th>Score</th><th>Buy streak</th><th>Close (Rs)</th><th>Next session</th><th>Next return</th><th>Outcome</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+  h += '<p>Summary: ' + up + ' followed up · ' + faded + ' faded · ' + followed + ' followed down · ' + bounce + ' bounce-back watch · ' + flat + ' no directional call · ' + pending + ' pending.</p>';
+  if (bounce) h += '<p><strong>' + bounce + ' bounce-back case' + (bounce > 1 ? 's' : '') + ' on record</strong> — SELL-side verdicts the next session proved wrong. Handed to the learning loop with this evidence, not silently rewritten.</p>';
+  h += '</section>';
+  return h;
+}
+
+function verifiedNoticesBlock(sym, actions) {
+  if (!actions || !actions.length) return '';
+  let h = '<section aria-label="Verified corporate notices"><h2>Verified corporate notices</h2><ul class="sp-act">';
+  for (const a of actions) {
+    const link = a.officialPdf || a.sourceUrl || '';
+    h += '<li><span class="sp-act-kind">' + esc(CA_KIND_LABEL[a.kind] || a.kind || 'Notice') + '</span> ';
+    h += (link ? '<a href="' + esc(link) + '" rel="noopener" target="_blank">' + esc(a.headline) + '</a>' : esc(a.headline));
+    h += '<span class="sp-act-meta">announced ' + esc(a.announced || '—') + ' · ' + esc(a.source || '');
+    if (a.verifiedAt) h += ' · verified ' + esc(String(a.verifiedAt).slice(0, 10));
+    h += '</span></li>';
+  }
+  h += '</ul></section>';
+  return h;
+}
+
+function symbolPage(u, v, newsItems, fund, liveQ, liveDate, sector, sectorPeers, verdicts, quarterly, corpHist, related, extra) {
   const sym = u.s, name = u.n, slug = slugOf(sym);
   // Headline price prefers our canonical live payload (NEPSE API) when it is
   // at least as fresh as the batch verdict — the batch daily history comes
@@ -1146,6 +1376,7 @@ function symbolPage(u, v, newsItems, fund, liveQ, liveDate, sector, sectorPeers,
   if (tno) h += '<div class="sp-stat"><span class="sp-stat-v" data-live-turnover>Rs ' + tno + '</span><span class="sp-stat-l">Turnover</span></div>\n';
   h += '</div>';
   h += '</div></section>\n';
+  if (extra) h += sessionStrip(extra);
 
 h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
   h += '<button class="sp-tab active" role="tab" aria-selected="true" data-tab="overview">Overview</button>';
@@ -1155,8 +1386,13 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
   h += '<button class="sp-tab" role="tab" aria-selected="false" data-tab="actions">Corporate Actions</button>';
   h += '</div>';
   h += '<div class="sp-tabpanel active" data-panel="overview" role="tabpanel">';
-  h += '<p class="sp-note">Price snapshot above. Switch tabs for engine signals, published fundamentals, latest headlines and corporate actions.</p>';
+  h += '<p class="sp-note">Price snapshot above. Below: every stock in this sector, valuation context and the forward record of past verdicts. Switch tabs for engine signals, published fundamentals, latest headlines and corporate actions.</p>';
   h += companyBlock(blockFacts(u, v, fund, sector, { pNum, cNum, asofD, volFmt: vol, tnoFmt: tno }));
+  if (extra) {
+    h += sectorStocksBlock(sym, sector, sectorPeers, verdicts, extra.liveMap);
+    h += valuationContextBlock(sym, extra.valueRow, fund);
+    h += forwardRecordBlock(sym, extra.archiveSessions, extra.ohlcRows);
+  }
   h += '<ul class="sp-links">';
   h += '<li><a href="/nepse-chart/?s=' + esc(sym) + '">Full chart, patterns and divergences <span aria-hidden="true">→</span></a></li>';
   h += '<li><a href="/nepse-screener/">Ranked screener <span aria-hidden="true">→</span></a></li>';
@@ -1174,6 +1410,7 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
   h += '</div>';
   h += '<div class="sp-tabpanel" data-panel="news" role="tabpanel" hidden>';
   h += '<h2>Latest headlines</h2>';
+  if (extra && extra.newsAsof) h += '<p class="sp-news-foot">Feed as of ' + esc(extra.newsAsof) + (extra.newsCount ? ' (' + esc(extra.newsCount) + ' items)' : '') + '. Only headlines tagged with this symbol appear here — general market news is never shown as if it were about this symbol.</p>';
   if (newsItems.length) {
     h += '<ul class="sp-news">';
     for (const it of newsItems.slice(0, 5)) {
@@ -1183,24 +1420,19 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
     h += '</ul>';
   } else {
     h += '<p class="sp-note">No recent headlines mention ' + esc(sym) + ' in the tracked press.</p>';
+    if (extra && extra.newsAsof) h += '<p class="sp-news-foot">The feed itself is current (as of ' + esc(extra.newsAsof) + ') — this symbol simply has no tagged headlines in it yet.</p>';
   }
   h += '</div>';
   h += '<div class="sp-tabpanel" data-panel="actions" role="tabpanel" hidden>';
   h += '<h2>Corporate actions</h2>';
   h += '<p class="sp-note">Past dividends, bonus shares, right shares, auctions and AGM history.</p>';
+  if (extra) h += verifiedNoticesBlock(sym, extra.actions);
   h += investmentCalendarCard(sym, name, corpHist);
   h += '</div>';
 
-  // More in this sector: true sector peers, not a random same-type list.
-  const morePeers = (sectorPeers || []).filter((p) => p.s !== sym).slice(0, 5);
-  if (morePeers.length) {
-    const moreLabel = sector ? 'More in the ' + sector + ' sector' : 'More ' + (u.t || 'securities');
-    h += '<section aria-label="' + esc(moreLabel) + '"><h2>' + esc(moreLabel) + '</h2><ul class="sp-peers">\n';
-    for (const p of morePeers) {
-      h += '<li><a href="/stocks/' + slugOf(p.s) + '/">' + esc(p.n) + ' (' + esc(p.s) + ')</a></li>\n';
-    }
-    h += '</ul></section>\n';
-  }
+  // (teardown 2026-10-28) The old top-5 "More in the sector" link list
+  // is gone: the full sector-stocks block in the overview panel now
+  // carries every peer link, so the short list only duplicated it.
 
   // SEO cross-linking: Nepse Decode articles that cover this symbol.
   if (related && related.length) {
@@ -1404,6 +1636,29 @@ function main() {
     liveDate = String(live.asof || '').slice(0, 10);
   }
   const pageAsof = (liveDate && liveDate >= String((ver && ver.asof) || '')) ? liveDate : ((ver && ver.asof) || '');
+  /* teardown 2026-10-28 payloads: manifest (session + generation stamp),
+   * audit (scored count), value screen (map), verdict archive (sessions). */
+  const manifest = loadJson(path.join(ROOT, 'data', 'manifest.json'), null);
+  const audit = loadJson(path.join(DATA, 'audit.json'), null);
+  const valueData = loadJson(path.join(DATA, 'value.json'), null);
+  const valueBySym = {};
+  if (valueData && Array.isArray(valueData.stocks)) {
+    for (const r of valueData.stocks) { if (r && r.symbol) valueBySym[r.symbol] = r; }
+  }
+  const archiveData = loadJson(path.join(DATA, 'screener-verdict-archive.json'), null);
+  const archiveSessionsBySym = {};
+  if (archiveData && archiveData.sessions) {
+    const dates = Object.keys(archiveData.sessions).sort().reverse();
+    for (const d of dates) {
+      const sess = archiveData.sessions[d] || {};
+      for (const sy of Object.keys(sess)) {
+        (archiveSessionsBySym[sy] = archiveSessionsBySym[sy] || []).push({ date: d, v: sess[sy].v, s: sess[sy].s, st: sess[sy].st });
+      }
+    }
+  }
+  const liveQuotesCount = (live && Array.isArray(live.quotes)) ? live.quotes.length : 0;
+  const newsAsof = news ? String(news.asof || '') : '';
+  const newsCount = (news && Array.isArray(news.items)) ? news.items.length : 0;
   if (!universe || !universe.symbols || !ver || !ver.verdicts) {
     console.error('build-symbol-pages: missing universe/verdicts data');
     process.exit(1);
@@ -1443,9 +1698,22 @@ function main() {
     const sector = sectorOf[sym] || null;
     const sectorPeers = sector ? (bySector[sector] || []) : [];
     const related = relatedForSymbol(blogArts, sym);
+    let ohlcRows = null;
+    try {
+      const od = loadJson(path.join(DATA, 'daily-ohlc', slug + '.json'), null);
+      if (od && Array.isArray(od.rows)) ohlcRows = od.rows;
+    } catch { ohlcRows = null; }
+    const extra = {
+      pageAsof, liveDate, manifest,
+      scored: audit ? audit.count : null, quotes: liveQuotesCount,
+      liveMap, valueRow: valueBySym[sym] || null,
+      archiveSessions: archiveSessionsBySym[sym] || [],
+      ohlcRows, actions: actionsBySym[sym] || [],
+      newsAsof, newsCount,
+    };
     const dir = path.join(OUT, slug);
     fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, 'index.html'), symbolPage(u, v, newsBySym[sym] || [], fund, liveMap[sym], liveDate, sector, sectorPeers, verdicts, quarterly, corpHist[sym], related));
+    fs.writeFileSync(path.join(dir, 'index.html'), symbolPage(u, v, newsBySym[sym] || [], fund, liveMap[sym], liveDate, sector, sectorPeers, verdicts, quarterly, corpHist[sym], related, extra));
     made++;
   }
   if (!onlySym) {
