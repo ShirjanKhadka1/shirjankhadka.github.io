@@ -230,3 +230,8 @@
   .mf-tile, .mf-sector, .mf-seg button, .mf-pager button{ transition: none; }
   .mf-tile:hover, .mf-sector:hover, .mf-seg button:hover{ transform: none; }
 }
+
+/* Skip-link AA (light only): beats design-system's `.nd a { color: inherit }`
+   (0,1,1), which otherwise inherits body ink onto the lime pill (3.4-3.5:1).
+   Light-scoped so dark keeps its own pill (theme.css:43) untouched. */
+[data-nd-ed="light"] body.nd .skip-link, [data-theme="light"] body.nd .skip-link { color: var(--nd-on-lime, #0A0C10); }

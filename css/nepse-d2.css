@@ -15,6 +15,9 @@
   transition: transform .25s ease;
 }
 .skip-link:focus { transform: none; }
+/* d2 pages: `body.d2 a` (0,1,2) otherwise wins over the pill rule for link
+   color; light-scoped so dark keeps its own pill untouched. */
+[data-nd-ed="light"] body.d2 .skip-link, [data-theme="light"] body.d2 .skip-link { color: var(--nd-on-lime, #0A0C10); }
 @media (prefers-reduced-motion: reduce) {
   .skip-link { transition: none; }
 }

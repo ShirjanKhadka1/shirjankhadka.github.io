@@ -182,3 +182,8 @@ table.trades td.pnl-cell{text-align:right}
   a{color:#000;text-decoration:none}
   .up{color:#0a6b3a}.down{color:#a11f1f}
 }
+
+/* Skip-link AA (light only): beats design-system's `.nd a { color: inherit }`
+   (0,1,1), which otherwise inherits body ink onto the lime pill (3.4-3.5:1).
+   Light-scoped so dark keeps its own pill (theme.css:43) untouched. */
+[data-nd-ed="light"] body.nd .skip-link, [data-theme="light"] body.nd .skip-link { color: var(--nd-on-lime, #0A0C10); }

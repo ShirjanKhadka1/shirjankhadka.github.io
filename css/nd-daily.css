@@ -238,11 +238,14 @@
 /* ---------- Teardown 2026-10-28: skip link, freshness, 48px controls,
    3D card wrappers, sector block (appended; earlier rules untouched) ---------- */
 
-/* Accessibility: hide skip-link until keyboard-focused (never display:none) */
-.skip-link {
+/* Accessibility: hide skip-link until keyboard-focused (never display:none).
+   Light-scoped scope beats design-system's `.nd a { color: inherit }` (0,1,1),
+   which otherwise inherits the body ink instead of the lime-pill text.
+   Light-only so dark keeps its own rendering untouched. */
+[data-nd-ed="light"] body.nd .skip-link, [data-theme="light"] body.nd .skip-link {
   position: absolute; top: -48px; left: 12px; z-index: 200;
   padding: 8px 14px; border-radius: 8px;
-  background: var(--nd-lime, #B8E62E); color: #0A0C10;
+  background: var(--nd-lime, #B8E62E); color: var(--nd-on-lime, #0A0C10);
   font-weight: 700; text-decoration: none;
   transition: top 0.15s ease;
 }
