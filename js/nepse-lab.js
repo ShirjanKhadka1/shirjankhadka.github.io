@@ -678,6 +678,53 @@
       return rows;
     });
   }
+  // Phase 6 (D9): own-archive-first, mirroring js/nepse-technical.js.
+  // The chart previously went scraper-first and fell through to the LTP
+  // file on scraper failure — but ltp/ holds only 68 files, so NABIL and
+  // NIFRA 404'd and the chart rendered empty. Our history/ archive holds
+  // full OHLC series for 421 symbols (row: [ymd, open, high, low, close,
+  // volume, turnover] — the same shape loadStock returns), so it is now
+  // the BASE: scraper is gap-fill only (our rows win on collision, and a
+  // scraper failure leaves our rows standing), then scraper-only, then
+  // LTP exactly as before. Today's candle still comes from applyLiveCandle.
+  var OWN_HIST = function (s) { return '/nepse-chart/data/history/' + s.replace('/', '-') + '.json'; };
+  function loadOwnRows(sym) {
+    return fetchJSON(OWN_HIST(sym)).then(function (j) {
+      var rows = ((j && j.data) || []).map(function (r) {
+        return [r[0], +r[1] || 0, +r[2] || 0, +r[3] || 0, +r[4], +r[5] || 0, +r[6] || 0];
+      }).filter(function (r) { return r && r[0] && r[4] > 0; });
+      rows.sort(function (a, b) { return a[0] - b[0]; });
+      if (!rows.length) throw new Error('own-empty');
+      return rows;
+    });
+  }
+  function gapFillRows(ownRows, sym) {
+    var byDate = {};
+    ownRows.forEach(function (r) { byDate[r[0]] = r; });
+    return fetchJSON(SRC.prices(sym)).then(function (j) {
+      var added = 0;
+      (j.data || []).forEach(function (d) {
+        var row = [ymdNum(d.date), +d.open || 0, +d.high || 0, +d.low || 0, +d.ltp || 0, +d.qty || 0, +d.turnover || 0];
+        if (row[4] > 0 && !byDate[row[0]]) { byDate[row[0]] = row; added++; }
+      });
+      var merged = Object.keys(byDate).map(function (k) { return byDate[k]; });
+      merged.sort(function (a, b) { return a[0] - b[0]; });
+      return { rows: merged, gapFilled: added > 0 };
+    }).catch(function () {
+      return { rows: ownRows, gapFilled: false };
+    });
+  }
+  function loadStockOwnFirst(sym) {
+    if (histCache[sym]) return Promise.resolve(histCache[sym]);
+    return loadOwnRows(sym).then(function (ownRows) {
+      return gapFillRows(ownRows, sym).then(function (g) {
+        histCache[sym] = g.rows;
+        return g.rows;
+      });
+    }).catch(function () {
+      return loadStock(sym);
+    });
+  }
   function loadLTP(sym) {
     // LTP-only fallback for listed securities the scraper has no OHLC for.
     // File holds compact [ymd, ltp, volume, turnover, trades]; open/high/low are
@@ -780,7 +827,7 @@
     state.mode = 'stock'; state.sym = sym; state.ltpOnly = false;
     state.latestClose = null;
     state.symName = state.names[sym] || sym;
-    loadStock(sym).catch(function () { return null; }).then(function (rows) {
+    loadStockOwnFirst(sym).catch(function () { return null; }).then(function (rows) {
       if (rows && rows.length) return { rows: rows, ltpOnly: false };
       return loadLTP(sym).then(function (lr) {
         if (lr && lr.length) return { rows: lr, ltpOnly: true };

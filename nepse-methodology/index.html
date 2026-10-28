@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t='dark';document.documentElement.setAttribute('data-theme',t);if(t==='light')document.documentElement.setAttribute('data-nd-ed','light')}catch(e){}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0A0C10">
+<title>Methodology — Nepse Decode</title>
+<meta name="description" content="How Nepse Decode engines work: verdict scoring, signal rules, forward paper-trade ledgers, and what accuracy is still pending promotion.">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-methodology/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:title" content="Methodology — Nepse Decode">
+<meta property="og:description" content="How Nepse Decode engines work: verdict scoring, signal rules, forward paper-trade ledgers, and what accuracy is still pending promotion.">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-methodology/">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/og/decode.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Methodology — Nepse Decode">
+<meta name="twitter:description" content="How Nepse Decode engines work: verdict scoring, signal rules, forward paper-trade ledgers, and what accuracy is still pending promotion.">
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
+<link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/nd-tokens.css?v=c7f80a9f">
+<link rel="stylesheet" href="/css/fonts.css?v=422e31c3">
+<script type="application/ld+json">
+{{"@context":"https://schema.org","@type":"WebPage","name":"Methodology — Nepse Decode","url":"https://shirjankhadka.com.np/nepse-methodology/","description":"How Nepse Decode engines work: verdict scoring, signal rules, forward paper-trade ledgers, and what accuracy is still pending promotion.","author":{{"@type":"Person","name":"Shirjan Khadka","url":"https://shirjankhadka.com.np/"}},"isPartOf":{{"@type":"WebSite","name":"Nepse Decode","url":"https://shirjankhadka.com.np/nepse-decode/"}}}}
+</script>
+<link rel="stylesheet" href="/css/nd-chrome.css?v=167f8f41">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
+<link rel="stylesheet" href="/css/sig-pro.css?v=fa50ce83">
+<style>
+.dv-wrap{overflow-x:auto;margin:14px 0}
+table.dv{border-collapse:collapse;width:100%;min-width:760px;font-size:.92rem}
+table.dv th,table.dv td{border:1px solid var(--nd-border,#1E2430);padding:8px 10px;text-align:left}
+table.dv th{background:var(--nd-panel-2,#161A23)}
+table.dv td.num,table.dv th.num{text-align:right}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:.78rem;font-weight:700}
+.pill-open{background:rgba(74,222,128,.15);color:#4ADE80}
+.pill-closed{background:rgba(248,113,113,.15);color:#F87171}
+.dv-filters{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.dv-filters button{cursor:pointer;padding:7px 14px;border-radius:999px;border:1px solid var(--nd-border,#1E2430);background:transparent;color:var(--nd-text,#fff);font-weight:600}
+.dv-filters button.on{background:var(--nd-lime,#B8E62E);color:#0A0C10;border-color:transparent}
+.dv-filters input{padding:7px 12px;border-radius:8px;border:1px solid var(--nd-border,#1E2430);background:transparent;color:var(--nd-text,#fff);min-width:220px}
+.mth-sec{margin:26px 0}.mth-sec h2{font-size:1.25rem}
+table.mth{border-collapse:collapse;width:100%;font-size:.92rem}
+table.mth th,table.mth td{border:1px solid var(--nd-border,#1E2430);padding:8px 10px;text-align:left}
+table.mth th{background:var(--nd-panel-2,#161A23)}
+table.mth td.num,table.mth th.num{text-align:right}
+.note{background:var(--nd-panel-2,#161A23);border:1px solid var(--nd-border,#1E2430);border-radius:12px;padding:14px 18px}
+</style>
+</head>
+<body class="nd">
+<a class="skip-link" href="#main">Skip to content</a>
+<div id="nd-header"></div>
+<main id="main" class="sig-wrap">
+
+<p class="sig-kicker">Research · Methodology</p>
+<h1>Methodology</h1>
+<p class="sig-lede">How every engine on this site works, what it has actually done forward, and what is still unproven. No accuracy figure on this page is hand-written: the forward ledgers below are rendered from the site's own live paper-trade ledger, and anything that has not cleared the promotion gates is labeled as pending — never filled in with a plausible number.</p>
+<div class="note" role="note"><p><strong>Read this first.</strong> Everything on this site is educational, not investment advice. Signals are mechanical readings of past prices; past patterns do not guarantee future results. A verdict is a rules-based summary, not a prediction, and never a guaranteed call.</p></div>
+
+<section class="mth-sec"><h2>1 · Engine verdict (chart + screener)</h2>
+<p>Each listed security gets a daily score from ten factors, all computed from its own price history:</p>
+<ul>
+<li>Trend vs SMA 50 (±1.5) and vs SMA 200 (±1.5); SMA 20/50 crossover in the last 20 sessions (±2)</li>
+<li>RSI(14) zones (overbought −1, firm above 55 +0.5, soft below 45 −0.5); MACD histogram direction (±1 to −1)</li>
+<li>Turnover surge (+1) or drought (−0.5); position within the 52-week range (±0.5 to −1)</li>
+<li>Divergences (bullish +2; bearish −1.5 regular, −1 hidden); chart patterns (±1) — <strong>only confirmed patterns score</strong>; a forming pattern is labeled as forming and scores 0</li>
+<li>Market backdrop: NEPSE index above or below its 200-day average (±0.5); support/resistance proximity (±0.5)</li>
+</ul>
+<p>Bands: score ≥ 5 Strong Buy; ≥ 2 Buy; above −2 Hold; above −5 Exit / Reduce; otherwise Strong Exit. <strong>Regime gate:</strong> a Buy or Strong Buy is blocked to Hold while the price sits below its 200-day average — no longs in a long-term downtrend.</p>
+<p><strong>How to read a pattern label next to a Buy.</strong> The setup label names the most recent pattern. Only a <em>confirmed</em> pattern subtracts points; a forming pattern scores 0. So a Buy shown next to a bearish pattern name is either a forming pattern (display state, not a logic contradiction) or — where the pattern is confirmed — a case the score's other factors outweighed. The engine does not hide these cases; the screener shows them, and the promotion-gated fix for confirmed-bearish Buys is pending (see §5).</p>
+</section>
+
+<section class="mth-sec"><h2>2 · Signal systems (momentum, trend-relay, reversal)</h2>
+<ul>
+<li><strong>Momentum:</strong> close above the 50-day SMA with the 20-day SMA above the 50-day SMA; trigger is a 50-session highest close; RSI(14) between 55 and 80; 20-day average turnover above Rs 10 lakh. Stop 2 × ATR(14); trail on a break of the 20-session lowest close.</li>
+<li><strong>Trend-relay:</strong> price below the 50-day SMA for at least 20 of the last 30 sessions, then the 20-day SMA crosses above the 50-day SMA with volume over 1.5 × the 20-day average; 20-day average turnover above Rs 10 lakh. Stop 2 × ATR(14); trail on a cross back or 3 closes under the 50-day SMA.</li>
+<li><strong>Reversal:</strong> RSI(14) below 30 with the close below the lower Bollinger Band (20, 2); trigger is a bullish candle closing in the top half of its range; 20-day average turnover above Rs 10 lakh. Stop 1.5 × ATR(14); exit at the mean (20-day SMA).</li>
+<li>Targets (T1/T2) are reference levels, not traded exits. Forward paper trades exit on Target 1, stop, ratcheting trailing stop, or a 20-session time exit, at Rs 10 lakh notional with 0.5% round-trip charges and no lookahead.</li>
+</ul>
+</section>
+
+<section class="mth-sec"><h2>3 · Forward paper-trade ledger (live, not backtest)</h2>
+<p>Every BUY alert since tracking started on 2026-08-03 is walked through real forward OHLC. Backtest figures and forward figures are never mixed: they are different trade sets. Ledger as of 28 Oct 2026 (data through 27 Oct 2026, updated 28 Oct 2026 15:06 NPT):</p>
+<div class="dv-wrap"><table class="mth" aria-label="Forward paper-trade ledger">
+<thead><tr><th>System</th><th class="num">Closed trades</th><th>Wins / losses</th><th class="num">Win rate</th><th class="num">Profit factor</th><th class="num">Open</th></tr></thead>
+<tbody id="mthLedger">
+<tr><td>Momentum</td><td class="num">17</td><td class="num">11W / 6L</td><td class="num">64.71%</td><td class="num">3.66</td><td class="num">5</td></tr><tr><td>Trend-relay</td><td class="num">9</td><td class="num">4W / 5L</td><td class="num">44.44%</td><td class="num">0.88</td><td class="num">3</td></tr><tr><td>Reversal</td><td class="num">5</td><td class="num">1W / 4L</td><td class="num">20.0%</td><td class="num">0.12</td><td class="num">1</td></tr>
+</tbody></table></div>
+<p class="sig-sub">Small numbers, stated plainly: 17, 9 and 5 closed trades. A single trade moves these rates materially — momentum's profit factor moves by roughly 0.8 on one trade. Do not quote these rates without their n.</p>
+</section>
+
+<section class="mth-sec"><h2>4 · Warning radar, technical board, simulator</h2>
+<ul>
+<li><strong>Warning radar (verdicts-v2):</strong> distribution and elevated-risk warnings per security per session, scored at a 20-session horizon. Warnings with no resolved horizon yet are shown as open, never as hits or misses.</li>
+<li><strong>Technical board:</strong> an 11-indicator vote scored 0–100 (≤41 Strong Sell … ≥70 Strong Buy). Cohort outcomes are tracked 5 and 10 sessions forward and stay pending until those sessions pass.</li>
+<li><strong>Simulator costs:</strong> tiered brokerage (0.36% ≤ Rs 50k down to 0.243% above Rs 1 Cr, minimum Rs 10), SEBON 0.015% both sides, DP Rs 25 per sell, transfer Rs 5 per buy, CGT 5% (≤365 days) / 3.75% (over 365 days) on positive gains only, buy costs in basis. Signal backtests use a simplified flat 0.5% round-trip instead — so backtest profit factors are slightly optimistic against the simulator's own tiered model, and the two are never presented as the same cost basis.</li>
+</ul>
+</section>
+
+<section class="mth-sec"><h2>5 · Accuracy status — what is pending, and why no number is shown for it</h2>
+<div class="note" role="note">
+<p><strong>Verdict-engine accuracy recomputation: pending promotion.</strong> The screener page currently prints hit-rate figures from an older static paragraph; those figures are frozen copy from windows that have since rolled forward, not a live ledger, and this page does not restate them as current accuracy. A recomputed verdict-engine accuracy exists only as staged analysis: under the site's own rule, no engine change or accuracy figure is promoted until it clears re-verification, a portfolio simulation, at least 20 forward shadow resolutions, and review. Until then, the honest statement is that the recomputation is pending — not a number.</p>
+<p>The same gate holds for the staged logic fixes (a confirmed-bearish pattern gate, a non-equity exclusion, a zero-volume guard, and a calls-ledger date fix). They are not live, they are not described here as improvements, and no figure derived from them appears on this page.</p>
+</div>
+<p><strong>Ledger rule going forward:</strong> every published rate must reconcile exactly to per-call rows (engine, engine version, symbol, session, inputs, entry, stop, target, horizon, outcome, costs, corporate-action adjustments). Aggregate-only track records — the mechanism that let the frozen screener figures drift from the live ledger — are not used for any new accuracy claim.</p>
+</section>
+
+<section class="mth-sec"><h2>6 · Data sources and limits</h2>
+<p>Market data comes from the site's own archive (daily OHLC, live tape, broker flows, corporate actions), cross-checked against independent sources on samples. The archive is the arbiter for chart history; where a source disagrees, the mismatch is reported, never force-fitted. Index and sub-index histories shown on this site are derived equal-weighted series unless labeled official. Delays: quotes are delayed snapshots during trading hours; figures shown are the last close when the market is shut.</p>
+<p>Related pages: <a href="/nepse-signals/">signal systems</a> · <a href="/nepse-screener/">screener</a> · <a href="/nepse-chart/?s=NABIL">chart room</a> · <a href="/nepse-dividends/">dividend archive</a>.</p>
+</section>
+
+</main>
+<div id="nd-footer"></div>
+<script src="/js/nd-chrome.js?v=89886946" defer></script>
+<script src="/js/theme-toggle.js?v=6a6a46c6" defer></script>
+
+<script>
+(function(){
+var el=document.getElementById('mthLedger');if(!el)return;
+fetch('/nepse-chart/data/signals/live-track-record.json').then(function(r){return r.json();}).then(function(j){
+  var s=j.systems||{};
+  function row(label,sys){
+    if(!sys||!sys.stats)return '';
+    var t=sys.stats;
+    return '<tr><td>'+label+'</td><td class="num">'+t.closed_trades+'</td><td class="num">'+t.wins+'W / '+t.losses+'L</td><td class="num">'+t.win_rate_pct+'%</td><td class="num">'+t.profit_factor+'</td><td class="num">'+t.open_positions+'</td></tr>';
+  }
+  var h=row('Momentum',s.momentum)+row('Trend-relay',s['trend-relay'])+row('Reversal',s.reversal);
+  if(h)el.innerHTML=h;
+}).catch(function(){});
+})();
+</script>
+</body>
+</html>

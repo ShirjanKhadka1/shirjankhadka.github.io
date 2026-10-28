@@ -1459,7 +1459,11 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
   h += 'if(location.hash==="#actions"){on("actions");}';
   // Investment Calendar: sidebar tabs, search, pagination
   h += 'document.querySelectorAll(".inv-cal").forEach(function(card){';
-  h += 'var uid=card.querySelector("[data-inv-uid]").dataset.invUid;';
+  // Phase 6 (D8): empty investor-calendar cards (debentures / new listings /
+  // promoter shares with no compiled history) carry no [data-inv-uid] child;
+  // the old unguarded .dataset read threw on all 111 such pages. Skip the
+  // pager wiring for a card with no uid element — there is nothing to page.
+  h += 'var uidEl=card.querySelector("[data-inv-uid]");if(!uidEl)return;var uid=uidEl.dataset.invUid;';
   h += 'var state={tab:"dividends",q:"",page:1,per:10};';
   h += 'function rows(){var p=card.querySelector("[data-inv-panel=\\""+state.tab+"\\"]");';
   h += 'if(!p)return[];return Array.prototype.slice.call(p.querySelectorAll("tbody tr"));}';
