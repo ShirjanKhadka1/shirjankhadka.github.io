@@ -24,6 +24,31 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
+
+// Stable item id: hash of the canonical link — survives feed re-ordering,
+// so story-reader deep links (?id=) keep pointing at the same story.
+// (Phase 0 item 2, 2026-10-28.)
+function itemId(link) { return 'n' + crypto.createHash('sha256').update(link, 'utf8').digest('hex').slice(0, 16); }
+function sha256(s) { return crypto.createHash('sha256').update(s, 'utf8').digest('hex'); }
+// Link key for dedup: strip tracking params, fragment, trailing slash, so
+// the same article under different tracking URLs still dedups to one row.
+function normLink(link) {
+  try {
+    const u = new URL(link);
+    for (const k of [...u.searchParams.keys()]) {
+      if (k.startsWith('utm_') || k === 'fbclid' || k === 'gclid') u.searchParams.delete(k);
+    }
+    u.hash = '';
+    let s = u.toString();
+    if (s.length > 1 && s.endsWith('/')) s = s.slice(0, -1);
+    return s;
+  } catch (e) { return link; }
+}
+// Title key for cross-source dedup: same story from two portals carries the
+// same headline text under different URLs. Date is part of the key so two
+// genuinely different stories sharing a headline on different days are kept.
+function normTitle(t) { return (t || '').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ''); }
 
 const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, 'nepse-chart', 'data', 'news.json');
@@ -415,8 +440,8 @@ async function main() {
   const matched = [];
   const seenLink = new Set();
   for (const it of fresh) {
-    if (seenLink.has(it.link)) continue;
-    seenLink.add(it.link);
+    if (seenLink.has(normLink(it.link))) continue;
+    seenLink.add(normLink(it.link));
     const syms0 = matchSymbol(it.title, aliases);
     // Market-wide or commodity story: keep a company symbol only with
     // explicit evidence; genuine market headlines with no company stay in
@@ -448,21 +473,52 @@ async function main() {
     if (!gated.includes(it.sym)) { it.sym = null; it.syms = []; }
   }
   for (const it of matched.concat(prev)) {
-    if (!byLink.has(it.link)) byLink.set(it.link, it);
+    if (!byLink.has(normLink(it.link))) byLink.set(normLink(it.link), it);
   }
-  const items = [...byLink.values()]
+  // Cross-source title dedup (Phase 0 item 6): the same story from two
+  // portals arrives under different URLs; the link key alone keeps both.
+  const seenTitle = new Set();
+  const deduped = [];
+  for (const it of byLink.values()) {
+    const k = normTitle(it.title) + '|' + (it.date || '').slice(0, 10);
+    if (seenTitle.has(k)) continue;
+    seenTitle.add(k);
+    deduped.push(it);
+  }
+  const items = deduped
     .filter((it) => new Date(it.date + 'T00:00:00Z').getTime() >= cutoff)
     .sort((a, b) => (a.date < b.date ? 1 : -1))
     .slice(0, MAX_ITEMS);
+  // Stable ids for every published row (backfills rows carried over from
+  // previous runs, which predate the id field). Pure function of the link,
+  // so an id never changes across rebuilds. (Phase 0 item 2.)
+  for (const it of items) if (!it.id) it.id = itemId(it.link);
 
   const symCount = new Set(items.map((i) => i.sym)).size;
+  // Data contract (Phase 0 item 4): generated_at (build timestamp),
+  // row_count (published rows) and checksum (sha256 over the items array)
+  // let any consumer verify the file without trusting the stamp alone.
   const out = {
     asof: new Date().toISOString().slice(0, 10),
+    generated_at: new Date().toISOString(),
+    row_count: items.length,
+    checksum: sha256(JSON.stringify(items)),
     sources: FEEDS.map((f) => f.src),
     note: 'Headlines only, attributed to source publications with outbound links.',
     items,
     stats: { fetched, matched: matched.length, kept: items.length, symbols: symCount },
   };
+  // Self-validation: fail loudly instead of publishing a bad file.
+  // Every item must carry its source (Phase 0 item 5) and a stable id.
+  if (!items.length) throw new Error('news: refusing to publish an empty file');
+  for (const it of items) {
+    if (!it.title || !it.link || !it.src || !it.id || !it.date) {
+      throw new Error('news: item missing title/link/src/id/date: ' + JSON.stringify(it).slice(0, 120));
+    }
+  }
+  if (out.row_count !== items.length || out.checksum !== sha256(JSON.stringify(items))) {
+    throw new Error('news: contract fields do not match items');
+  }
   fs.writeFileSync(OUT, JSON.stringify(out, null, 1));
   console.log('  fetched=' + fetched + ' matched=' + matched.length +
     ' kept=' + items.length + ' symbols=' + symCount);

@@ -81,14 +81,19 @@
   function q(name){var m=new RegExp('[?&]'+name+'=([^&]*)').exec(location.search);return m?decodeURIComponent(m[1]):null;}
   function fmtDate(iso){var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso||''));if(!m)return iso||'';var M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return (+m[3])+' '+M[+m[2]-1]+' '+m[1];}
 
-  var src=q('src')||'ann', idx=parseInt(q('i')||'0',10);
+  var src=q('src')||'ann', id=q('id'), idx=parseInt(q('i')||'0',10);
   var file=src==='news'?'/nepse-chart/data/news.json':'/nepse-chart/data/announcements.json';
 
   fetch(file,{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){
     var items=d.items||d;
-    var it=items[idx];
+    /* Phase 0 item 2: stable ids survive feed re-ordering; index links
+       (?i=) keep working best-effort for links shared before ids existed. */
+    var it=null, itIdx=-1;
+    if (id) {
+      for (var k=0;k<items.length;k++) { if (items[k].id === id) { it=items[k]; itIdx=k; break; } }
+    } else if (!isNaN(idx) && idx >= 0 && idx < items.length) { it=items[idx]; itIdx=idx; }
     var mount=$('story');
-    if(!it){mount.innerHTML='<p class="nd-caption">Story not found. <a href="/nepse-news/">Back to market news →</a></p>';return;}
+    if(!it){mount.innerHTML='<p class="nd-caption">' + (id ? 'This story is no longer listed in the current feed. ' : 'Story not found. ') + '<a href="/nepse-news/">Back to market news →</a></p>';return;}
 
     var url=it.url||it.link||'';
     var sym=it.sym||'';
@@ -96,6 +101,26 @@
     var kind=src==='news'?'Market headline':'Official disclosure';
 
     document.title=dec(it.title)+' — Nepse Decode';
+    /* Phase 0 item 2: the story page's own tags must describe the story,
+       not the generic index. Static-hosting caveat, stated plainly: these
+       are set by JS, so link-preview crawlers that don't run JS still see
+       the generic tags; per-story files would be needed to change that. */
+    (function(){
+      var desc = (kind + ': ' + dec(it.title)).slice(0, 200);
+      var url = 'https://shirjankhadka.com.np/nepse-news/story/?src=' + src + (it.id ? '&id=' + encodeURIComponent(it.id) : '&i=' + itIdx);
+      function setMeta(attr, val, content){
+        var sel = attr === 'property' ? 'meta[property="' + val + '"]' : 'meta[name="' + val + '"]';
+        var m = document.querySelector(sel);
+        if (!m) { m = document.createElement('meta'); m.setAttribute(attr, val); document.head.appendChild(m); }
+        m.setAttribute('content', content);
+      }
+      setMeta('property', 'og:title', dec(it.title) + ' — Nepse Decode');
+      setMeta('property', 'og:description', desc);
+      setMeta('property', 'og:url', url);
+      setMeta('name', 'description', desc);
+      var can = document.querySelector('link[rel="canonical"]');
+      if (can) can.setAttribute('href', url);
+    })();
 
     var h='<p class="story-kicker">'+esc(kind)+'</p>';
     h+='<h1 class="story-title">'+escT(it.title)+'</h1>';
@@ -108,14 +133,14 @@
     if(url) h+='<a class="btn-outline" href="'+esc(url)+'" target="_blank" rel="noopener">View original source ↗</a>';
     h+='</div>';
 
-    // related: same symbol, or latest others
-    var rel=items.filter(function(x,i){return i!==idx&&(sym&&x.sym===sym);}).slice(0,4);
-    if(!rel.length) rel=items.filter(function(x,i){return i!==idx;}).slice(0,4);
+    // related: same symbol, or latest others (never the story itself)
+    var rel=items.filter(function(x){return x!==it&&(sym&&x.sym===sym);}).slice(0,4);
+    if(!rel.length) rel=items.filter(function(x){return x!==it;}).slice(0,4);
     if(rel.length){
       h+='<div class="story-related"><h2>Related stories</h2>';
       rel.forEach(function(x){
-        var ri=items.indexOf(x);
-        h+='<a href="/nepse-news/story/?src='+src+'&i='+ri+'">'+escT(x.title)+'<span>'+fmtDate(x.date)+' · '+esc(x.src||'')+'</span></a>';
+        var rHref = x.id ? ('/nepse-news/story/?src='+src+'&id='+encodeURIComponent(x.id)) : ('/nepse-news/story/?src='+src+'&i='+items.indexOf(x));
+        h+='<a href="'+rHref+'">'+escT(x.title)+'<span>'+fmtDate(x.date)+' · '+esc(x.src||'')+'</span></a>';
       });
       h+='</div>';
     }

@@ -79,6 +79,19 @@
     try { return d.toLocaleTimeString('en-GB', { timeZone: 'Asia/Kathmandu', hour: '2-digit', minute: '2-digit' }); }
     catch(e) { return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
   }
+  /* NPT calendar date (YYYY-MM-DD) for feed-staleness thresholds. */
+  function nptDate(d){
+    try {
+      var p = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kathmandu', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(d);
+      var g = function(t){ var f = p.filter(function(x){ return x.type === t; }); return f.length ? f[0].value : ''; };
+      return g('year') + '-' + g('month') + '-' + g('day');
+    } catch(e) { return new Date(d.getTime() + 5.75 * 3600e3).toISOString().slice(0, 10); }
+  }
+  function dayBefore(iso){
+    var d = new Date(iso + 'T00:00:00Z');
+    d.setUTCDate(d.getUTCDate() - 1);
+    return d.toISOString().slice(0, 10);
+  }
   function itemKey(it, src){ return src + '|' + (it.title || '') + '|' + (it.date || ''); }
   function renderFresh(){
     var line = document.getElementById('nnFreshLine'); if (!line) return;
@@ -89,17 +102,27 @@
     var parts = [];
     parts.push(fresh.annOk ? ('Announcements updated ' + fmtDate(fresh.annUpd)) : 'Announcements refresh failed');
     parts.push(fresh.hlOk ? ('Headlines as of ' + fmtDate(fresh.hlAsof)) : 'Headlines refresh failed');
+    /* Phase 0 item 1: a stamp alone lets a dead writer hide — a feed file's
+       build date advances only while its writer runs, so a stamp older than
+       yesterday means that feed stopped updating. Flag it explicitly instead
+       of letting the "Live" badge imply freshness. */
+    var staleLimit = dayBefore(nptDate(new Date()));
+    var annStale = !!(fresh.annOk && fresh.annUpd && fresh.annUpd < staleLimit);
+    var hlStale = !!(fresh.hlOk && fresh.hlAsof && fresh.hlAsof < staleLimit);
+    if (annStale) parts.push('⚠ Announcements feed stale — last update ' + fmtDate(fresh.annUpd));
+    if (hlStale) parts.push('⚠ Headlines feed stale — last update ' + fmtDate(fresh.hlAsof));
     if (fresh.lastCheck) parts.push('checked ' + nptClock(fresh.lastCheck) + ' NPT');
     if (fresh.newCount > 0) parts.push(fresh.newCount + ' new since last check');
     if (anyFailed) parts.push('showing last loaded feed · will retry');
     else parts.push('next check in 60 seconds');
     line.textContent = parts.join(' · ');
-    line.classList.toggle('failed', anyFailed);
+    var anyStale = annStale || hlStale;
+    line.classList.toggle('failed', anyFailed || anyStale);
     if (badge) {
-      badge.textContent = anyFailed ? 'Check failed — showing last feed' : 'Live — auto-refreshes';
+      badge.textContent = anyFailed ? 'Check failed — showing last feed' : (anyStale ? 'Feed stale — showing last data' : 'Live — auto-refreshes');
       /* #nnFresh is the inner text span; the .nn-badge.failed style lives
          on its parent (the outer badge span). */
-      badge.parentNode.classList.toggle('failed', anyFailed);
+      badge.parentNode.classList.toggle('failed', anyFailed || anyStale);
     }
   }
   function noteNewItems(){
@@ -171,10 +194,15 @@
     }
     return '<span class="nn-mono" style="background:' + monoColor(sym) + '">' + esc(monoText(sym)) + '</span>';
   }
+  /* Phase 0 item 2: story links use the stable item id when the feed
+     carries one; index links (?i=) stay as fallback for old rows. */
+  function storyHref(src, it, i){
+    return '/nepse-news/story/?src=' + src + (it.id ? '&id=' + encodeURIComponent(it.id) : '&i=' + i);
+  }
   function annCard(it, i){
     var k = annKind(it.title);
     var cat = newsCategory(it.title, it.sym);
-    return '<a class="nn-card" href="/nepse-news/story/?src=ann&i=' + i + '">' +
+    return '<a class="nn-card" href="' + storyHref('ann', it, i) + '">' +
       '<div class="nn-card-top">' + logoHtml(it.sym, 40) +
       '<div><p class="nn-cat ' + (CAT_CLASS[cat] || 'companies') + '">' + esc(cat) + '</p>' +
       '<span class="nn-kind' + (k.hot ? ' hot' : '') + '">' + esc(k.label) + '</span></div></div>' +
@@ -185,7 +213,7 @@
   function annFeatured(it, i){
     var k = annKind(it.title);
     var cat = newsCategory(it.title, it.sym);
-    return '<a class="nn-featured" href="/nepse-news/story/?src=ann&i=' + i + '">' +
+    return '<a class="nn-featured" href="' + storyHref('ann', it, i) + '">' +
       '<div class="nn-featured-art">' + logoHtml(it.sym, 72) + '</div>' +
       '<div class="nn-featured-body"><p class="nn-cat ' + (CAT_CLASS[cat] || 'companies') + '">' + esc(cat) + ' · ' + esc(k.label) + '</p>' +
       '<h2>' + escT(it.title) + '</h2>' +
@@ -233,7 +261,7 @@
   var hlItems = [], hlFilter, activeCat = 'All', hlLimit = 9;
   function hlFeatured(it, i){
     var cat = newsCategory(it.title, it.sym);
-    return '<a class="nn-featured" href="/nepse-news/story/?src=news&i=' + i + '">' +
+    return '<a class="nn-featured" href="' + storyHref('news', it, i) + '">' +
       '<div class="nn-featured-art"><span style="font-size:28px;line-height:1;flex:none">📰</span></div>' +
       '<div class="nn-featured-body"><p class="nn-cat ' + CAT_CLASS[cat] + '">' + esc(cat) + ' · ' + esc(it.src || 'Market') + '</p>' +
       '<h2>' + escT(it.title) + '</h2>' +
@@ -241,7 +269,7 @@
   }
   function hlRow(it, i){
     var cat = newsCategory(it.title, it.sym);
-    return '<a class="nn-row" href="/nepse-news/story/?src=news&i=' + i + '">' +
+    return '<a class="nn-row" href="' + storyHref('news', it, i) + '">' +
       '<span style="font-size:28px;line-height:1;flex:none">📰</span>' +
       '<div><p class="nn-row-kicker"><span class="nn-cat ' + CAT_CLASS[cat] + '">' + esc(cat) + '</span> · ' + esc(it.src || 'Market') + '</p>' +
       '<h3 class="nn-row-title">' + escT(it.title) + '</h3>' +

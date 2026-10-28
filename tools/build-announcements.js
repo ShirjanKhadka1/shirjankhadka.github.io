@@ -5,7 +5,7 @@
  * NEPSE company disclosures), matches each item to a listed symbol via
  * universe.json, and writes nepse-chart/data/announcements.json.
  *
- * Each record: { sym, company, title, date, url, src }
+ * Each record: { sym, company, title, date, url, src, id }
  * - url points to the ShareSansar announcement detail page, which embeds
  *   the official NEPSE notice. We attribute; we don't rewrite.
  * - sym may be null when the company name doesn't match the universe;
@@ -17,6 +17,13 @@
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
+const crypto = require('crypto');
+
+// Stable item id: hash of the detail URL — survives archive re-ordering,
+// so story-reader deep links (?id=) keep pointing at the same notice.
+// (Phase 0 item 2, 2026-10-28.)
+function itemId(url) { return 'a' + crypto.createHash('sha256').update(url || '', 'utf8').digest('hex').slice(0, 16); }
+function sha256(s) { return crypto.createHash('sha256').update(s, 'utf8').digest('hex'); }
 
 const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, 'nepse-chart', 'data', 'announcements.json');
@@ -159,8 +166,29 @@ async function main() {
   const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 90);
   archive = archive.filter((i) => !i.date || i.date >= cutoff.toISOString().slice(0, 10));
   archive.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-  const out = { updated: new Date().toISOString().slice(0, 10), count: archive.length, items: archive.slice(0, 300),
+  const published = archive.slice(0, 300);
+  // Stable ids (Phase 0 item 2): backfills archive rows predating the id
+  // field; pure function of the URL, so an id never changes across rebuilds.
+  for (const it of published) if (!it.id) it.id = itemId(it.url);
+  // Data contract (Phase 0 item 4): generated_at, row_count (published
+  // rows — count stays the full archive size) and checksum over items.
+  const out = { updated: new Date().toISOString().slice(0, 10),
+    generated_at: new Date().toISOString(),
+    row_count: published.length,
+    checksum: sha256(JSON.stringify(published)),
+    count: archive.length, items: published,
     note: 'Company disclosures mirrored by ShareSansar from official NEPSE notices. Titles and dates as published; symbol matching is best-effort.' };
+  // Self-validation: fail loudly instead of publishing a bad file.
+  // Every item must carry its source (Phase 0 item 5) and a stable id.
+  if (!published.length) throw new Error('announcements: refusing to publish an empty file');
+  for (const it of published) {
+    if (!it.title || !it.url || !it.src || !it.id) {
+      throw new Error('announcements: item missing title/url/src/id: ' + JSON.stringify(it).slice(0, 120));
+    }
+  }
+  if (out.row_count !== published.length || out.checksum !== sha256(JSON.stringify(published))) {
+    throw new Error('announcements: contract fields do not match items');
+  }
   fs.writeFileSync(OUT, JSON.stringify(out, null, 1));
   const matched = items.filter((i) => i.sym).length;
   console.log(`announcements: ${items.length} items, ${matched} symbol-matched -> ${OUT}`);
