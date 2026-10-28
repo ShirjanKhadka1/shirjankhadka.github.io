@@ -437,6 +437,7 @@ _TONE_PILL = {'accumulation': ('tone-acc', 'Accumulation interest'),
               'distribution': ('tone-dist', 'Distribution pressure'),
               'watch': ('tone-watch', 'Watch')}
 _snap_asof = trending_out.get('asof') or today
+_vsnap_asof = value_out.get('asof') or today
 try:
     _trows = []
     for i, s in enumerate(trending[:15], 1):
@@ -467,7 +468,7 @@ try:
         '<th class="num">5-day %</th><th class="num">Turnover</th><th>Tone</th><th class="num">Score</th></tr></thead>\n'
         '    <tbody>\n' + '\n'.join(_trows) + '\n    </tbody>\n'
         '  </table></div>\n'
-        '  <p class="snap-note">Static daily snapshot · the full interactive ranking below refreshes every 60 seconds.</p>\n'
+        '  <p class="snap-note">Static daily snapshot · the full interactive ranking above refreshes every 60 seconds.</p>\n'
         '</section>')
     _bake_snapshot('nepse-trending/index.html', _tfrag)
 
@@ -487,7 +488,7 @@ try:
             f'<td class="num">{_fmt(s["roe_ttm_pct"], 1)}%</td></tr>')
     _vfrag = (
         '<section class="snap va-snap" aria-label="Value snapshot">\n'
-        f'  <h2>Top value-ranked companies <span class="snap-asof">· snapshot {_snap_asof}</span></h2>\n'
+        f'  <h2>Top value-ranked companies <span class="snap-asof">· snapshot {_vsnap_asof}</span></h2>\n'
         '  <div class="scrollx va-cardwrap"><table class="sig-table va-table">\n'
         '    <thead><tr><th>Score</th><th>Stock</th><th>Sector</th><th class="num">LTP</th>'
         '<th class="num">P/E (TTM)</th><th class="num">P/BV</th><th class="num">Earn. yield</th><th class="num">ROE (TTM)</th></tr></thead>\n'
