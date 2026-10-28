@@ -31,85 +31,7 @@
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=b875f30d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=857a8acb">
 <link rel="stylesheet" href="/css/sig-pro.css?v=ed0fe3e9">
-<style>
-.cal-controls{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;justify-content:space-between;margin:18px 0 12px}
-.cal-nav{display:flex;align-items:center;gap:10px}
-.cal-nav h2{margin:0;font-size:1.25rem;min-width:170px}
-.cal-filters{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
-.cal-fchip{cursor:pointer;opacity:.45;border:1px solid var(--nd-border,#1E2430);background:var(--nd-panel,#12141A)}
-.cal-fchip.on{opacity:1;border-color:var(--nd-border-strong,#2A3040)}
-.cal-fcount{opacity:.75;font-size:.72rem}
-.cal-dot{display:inline-block;width:8px;height:8px;border-radius:99px;flex:none}
-.cal-stats{margin:0 0 16px}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
-.cal-wd{font-size:.72rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--nd-dim,#8E98A8);text-align:center;padding:6px 0}
-.cal-wd.we{color:var(--nd-down,#F87171)}
-.cal-cell{appearance:none;text-align:left;background:var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);border-radius:12px;min-height:96px;padding:8px;display:flex;flex-direction:column;gap:4px;cursor:pointer;color:var(--nd-text,#FFF);font:inherit;width:100%}
-.cal-cell:hover{border-color:var(--nd-lime,#B8E62E)}
-.cal-cell.out{background:transparent;border-style:dashed;opacity:.35;cursor:default}
-.cal-cell.we{background:var(--nd-panel-2,#161A23)}
-.cal-cell.hol{border-color:#D97706}
-.cal-cell.today{outline:2px solid var(--nd-lime,#B8E62E);outline-offset:-2px}
-.cal-cell.sel{border-color:var(--nd-lime,#B8E62E);box-shadow:0 0 0 1px var(--nd-lime,#B8E62E)}
-.cal-drow{display:flex;justify-content:space-between;align-items:baseline;width:100%}
-.cal-bsd{font-size:.68rem;color:var(--nd-dim,#8E98A8);font-family:"IBM Plex Mono",monospace}
-.cal-d{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:.9rem}
-.cal-cell.we .cal-d{color:var(--nd-dim,#8E98A8)}
-.cal-ev{display:block;font-size:.66rem;font-weight:600;line-height:1.25;padding:2px 6px;border-radius:6px;background:var(--nd-inset,#0D0F14);border-left:3px solid var(--c,#888);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cal-more{font-size:.64rem;color:var(--nd-dim,#8E98A8)}
-.cal-cols{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;margin-top:18px;align-items:start}
-.cal-card{margin:0 0 12px;padding:16px 18px}
-.cal-card h3{margin:8px 0 10px;font-size:1.02rem}
-.cal-card h3 a{color:var(--nd-lime,#B8E62E);text-decoration:none}
-.cal-card-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.cal-card-top .cx-chip{border-left:3px solid var(--c,#888)}
-.cal-when{font-size:.75rem;color:var(--nd-dim,#8E98A8);font-family:"IBM Plex Mono",monospace}
-.cal-kv{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-top:1px solid var(--nd-border,#1E2430);font-size:.85rem}
-.cal-kv span{color:var(--nd-dim,#8E98A8)}
-.cal-kv strong{font-weight:600;text-align:right}
-.cal-detail{color:var(--nd-muted);font-size:.9rem;line-height:1.6;margin:2px 0 8px}
-.cal-src{font-size:.72rem;color:var(--nd-dim,#8E98A8);margin:10px 0 0}
-.cal-none{color:var(--nd-muted,#B8C0CE);font-size:.9rem;margin:6px 0 14px}
-.cal-ag-row{display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:none;border-top:1px solid var(--nd-border,#1E2430);padding:9px 2px;cursor:pointer;color:var(--nd-text,#FFF);font:inherit}
-.cal-ag-row:hover .cal-ag-t{color:var(--nd-lime,#B8E62E)}
-.cal-ag-d{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--nd-dim,#8E98A8);min-width:86px}
-.cal-ag-t{font-size:.88rem;font-weight:600}
-.cal-up-row{display:flex;gap:10px;align-items:baseline;padding:8px 0;border-top:1px solid var(--nd-border,#1E2430)}
-.cal-up-t{flex:1;font-size:.88rem;font-weight:600}
-.cal-up-d{font-family:"IBM Plex Mono",monospace;font-size:.75rem;color:var(--nd-dim,#8E98A8);white-space:nowrap}
-.cal-jump{background:none;border:none;padding:0;color:var(--nd-lime,#B8E62E);font:inherit;font-weight:600;cursor:pointer;text-decoration:underline}
-.cal-bs{color:var(--nd-dim,#8E98A8);font-size:.8rem}
-.cal-seg{display:inline-flex;border:1px solid var(--nd-border,#1E2430);border-radius:99px;overflow:hidden}
-.cal-seg button{appearance:none;background:var(--nd-panel,#12141A);color:var(--nd-muted,#B8C0CE);border:none;padding:7px 16px;font:600 .8rem inherit;cursor:pointer}
-.cal-seg button.on{background:var(--nd-lime,#B8E62E);color:#0A0C10}
-.cal-lockin-controls{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:end;margin:0 0 14px}
-.cal-ctl{display:flex;flex-direction:column;gap:4px}
-.cal-ctl label{font-size:.68rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--nd-dim,#8E98A8)}
-.cal-ctl select,.cal-ctl input{appearance:none;background:var(--nd-panel,#12141A);color:var(--nd-text,#FFF);border:1px solid var(--nd-border,#1E2430);border-radius:10px;padding:8px 12px;font:600 .85rem inherit;min-width:0}
-.cal-ctl select{padding-right:28px;cursor:pointer}
-.cal-ctl input{min-width:190px}
-.cal-ctl select:focus,.cal-ctl input:focus{outline:2px solid var(--nd-lime,#B8E62E);outline-offset:-2px}
-.cal-pager{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin:12px 0 4px}
-.cal-pager-info{font-size:.8rem;color:var(--nd-dim,#8E98A8);font-family:"IBM Plex Mono",monospace}
-.cal-pager-btns{display:flex;gap:8px}
-.cal-pager button:disabled{opacity:.35;cursor:default}
-.cal-viz{margin:0 0 16px}
-.cal-viz-row{display:grid;grid-template-columns:74px 1fr 34px;gap:10px;align-items:center;padding:3px 0;font-size:.8rem}
-.cal-viz-mon{font-family:"IBM Plex Mono",monospace;color:var(--nd-dim,#8E98A8);white-space:nowrap}
-.cal-viz-track{height:10px;background:var(--nd-inset,#0D0F14);border-radius:99px;overflow:hidden}
-.cal-viz-fill{display:block;height:100%;background:var(--nd-lime,#B8E62E);border-radius:99px}
-.cal-viz-n{font-family:"IBM Plex Mono",monospace;font-weight:700;text-align:right}
-.cal-viz-note{font-size:.78rem;color:var(--nd-dim,#8E98A8);margin:6px 0 0}
-@media (max-width:900px){.cal-cols{grid-template-columns:1fr}}
-@media (max-width:640px){
-  .cal-viz-row{grid-template-columns:64px 1fr 28px}
-  .cal-ctl input{min-width:140px}
-  .cal-cell{min-height:54px;padding:5px;border-radius:9px}
-  .cal-ev{font-size:0;height:7px;width:16px;padding:0;border-left:none;background:var(--c,#888)}
-  .cal-more{display:none}
-  .cal-nav h2{min-width:0;font-size:1.05rem}
-}
-</style>
+<link rel="stylesheet" href="/nepse-calendar/calendar.css?v=4e0969eb">
 </head>
 <body class="nd">
 <a class="skip-link" href="#main">Skip to content</a>
@@ -122,6 +44,12 @@
 <p class="sig-lede">Every date that moves the NEPSE calendar in one place: market holidays, promoter share lock-in unlocks, IPO and FPO opening and closing dates, and book closures. The calendar is drawn live from this site's own data files — the same files behind the IPO tracker and the lock-in dataset — and every event shows its source. A date we cannot source is not shown; it is never guessed.</p>
 <p lang="ne" class="ne-sum">संक्षेप: यस पात्रोमा नेप्से बिदा, प्रमोटर सेयर लक-इन खुल्ने मिति, IPO खुल्ने र बन्द हुने मिति तथा बुक क्लोजर देखाइएको छ। सबै मिति यसै साइटका प्रमाणित डाटा फाइलबाट आएका हुन्। यो शैक्षिक जानकारी हो, लगानी सल्लाह होइन।</p>
 <p class="sig-sub" id="calAsof">Loading the calendar data…</p>
+
+<noscript>
+  <div class="cal-noscript" role="note">
+    <p><strong>Market calendar snapshot · 28 Oct 2026.</strong> 241 events in the calendar database (209 builder events + 32 MF &amp; QII supplement rows, unverified third-party) · 100 promoter lock-in rows (45 with a published end date) · 15 gazette holidays. Today: MFIL book close, BARUN book close, HPHL foreign-employee IPO opens, HPHL local IPO opens. Calendar database generated 25 Oct 2026; MF &amp; QII supplement retrieved 23 Oct 2026. Enable JavaScript for the full interactive calendar.</p>
+  </div>
+</noscript>
 
 <div class="cx-stats cal-stats" id="calStats"></div>
 
@@ -162,7 +90,7 @@
     <div class="cal-ctl"><label for="calLockinSearch">Search</label><input id="calLockinSearch" type="search" placeholder="Symbol — e.g. ADBL" autocomplete="off" spellcheck="false"></div>
   </div>
   <div class="cal-viz" id="calLockinViz" aria-label="Lock-in unlocks by month"></div>
-  <div class="bk-scroll" style="overflow-x:auto">
+  <div class="bk-scroll cal-table-card" style="overflow-x:auto">
     <table class="cx-table" style="width:100%">
       <thead><tr><th>Symbol</th><th>Sector</th><th>Allotted (AD)</th><th>Lock-in ends</th><th>Status</th></tr></thead>
       <tbody id="calLockinBody"></tbody>
@@ -182,6 +110,6 @@
 <script src="/js/nd-chrome.js?v=74c1c8b7" defer></script>
 <script src="/js/nd-cinema.js?v=90f78cc3" defer></script>
 <script src="/js/bs-calendar.js?v=7a163aae" defer></script>
-<script src="/js/nd-calendar.js?v=51c70f4c" defer></script>
+<script src="/js/nd-calendar.js?v=283e7c53" defer></script>
 </body>
 </html>

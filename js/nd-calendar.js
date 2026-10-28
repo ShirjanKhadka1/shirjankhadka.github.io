@@ -21,7 +21,20 @@
   }
   function pad(n) { return (n < 10 ? '0' : '') + n; }
   function key(y, m, d) { return y + '-' + pad(m) + '-' + pad(d); }
-  function todayKey() { var t = new Date(); return key(t.getFullYear(), t.getMonth() + 1, t.getDate()); }
+  /* "Today" is always Asia/Kathmandu, never the viewer's local zone:
+     view-time statuses (Open/Locked) and the selected day depend on it.
+     (The old version used local time, so a viewer west of Nepal saw
+     yesterday's date — and yesterday's statuses — after midnight NPT.) */
+  function todayKey() {
+    try {
+      var parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kathmandu', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date());
+      var o = {};
+      parts.forEach(function (p) { o[p.type] = p.value; });
+      return key(+o.year, +o.month, +o.day);
+    } catch (e) {
+      var t = new Date(); return key(t.getFullYear(), t.getMonth() + 1, t.getDate());
+    }
+  }
   function parseK(k) { var p = k.split('-'); return { y: +p[0], m: +p[1], d: +p[2] }; }
   function weekday(k) { var p = parseK(k); return new Date(p.y, p.m - 1, p.d).getDay(); }
   function fmtNPT(iso) {
@@ -29,7 +42,7 @@
     var n = new Date(t + 5.75 * 3600 * 1000);
     var M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     function p(x) { return ('0' + x).slice(-2); }
-    return n.getUTCDate() + ' ' + M[n.getUTCMonth()] + ', ' + p(n.getUTCHours()) + ':' + p(n.getUTCMinutes()) + ' NPT';
+    return n.getUTCDate() + ' ' + M[n.getUTCMonth()] + ' ' + n.getUTCFullYear() + ', ' + p(n.getUTCHours()) + ':' + p(n.getUTCMinutes()) + ' NPT';
   }
   function fmtDate(k) {
     var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -93,7 +106,7 @@
   var cursor = (function () { var t = parseK(todayKey()); return { y: t.y, m: t.m }; })();
   var selected = todayKey();
   var lockinRows = [];        // resolved rows: {symbol, sector, allotment_ad, end, end_bs, endVerified, status}
-  var meta = { lockinAsof: '', dbGenerated: '', dbCount: 0, lockinDated: 0, lockinTotal: 0 };
+  var meta = { lockinAsof: '', dbGenerated: '', dbCount: 0, lockinDated: 0, lockinTotal: 0, mfRetrieved: '' };
   var lockPage = 1, agPage = 1;
   var lockFilter = { sector: '', sort: 'end-asc', q: '' };
 
@@ -168,6 +181,7 @@
         });
       });
     }
+    if (data.mf && data.mf._meta && data.mf._meta.retrieved) meta.mfRetrieved = data.mf._meta.retrieved;
     if (data.mf && data.mf.rows) {
       Object.keys(data.mf.rows).forEach(function (sym) {
         var r = data.mf.rows[sym];
@@ -528,19 +542,75 @@
     if (search) search.addEventListener('input', function () { lockFilter.q = search.value; lockPage = 1; renderLockins(); });
   }
 
-  function get(url) {
-    return fetch(url, { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+  /* ---------------- 60s change-gated refresh ----------------
+     The page re-fetches its three payloads every 60s (no-store) and
+     hashes the raw bytes (FNV-1a). Unchanged bytes advance only the
+     freshness clock; changed bytes rebuild events + lock-in rows and
+     re-render. View state (month cursor, selected day, grid/list view,
+     lock-in filter/page, agenda page) lives outside buildFrom and
+     survives every tick, so a tick can neither fake a data change nor
+     swallow a real one. A failed tick leaves the data untouched and
+     shows a stale chip on the freshness line. */
+  var PAYLOADS = ['/data/calendar-events.json', '/data/lockin-mf.json', '/data/lockin.json'];
+  var refreshSig = null, lastCheckOk = true;
+
+  function fnv1a(s) {
+    var h = 0x811c9dc5;
+    for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+    return ('0000000' + (h >>> 0).toString(16)).slice(-8);
+  }
+  function getText(url) {
+    return fetch(url, { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : null; }).catch(function () { return null; });
+  }
+  function loadPayloads() {
+    return Promise.all(PAYLOADS.map(getText));
+  }
+  function nptHM(d) {
+    try {
+      var parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kathmandu', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(d);
+      var o = {};
+      parts.forEach(function (p) { o[p.type] = p.value; });
+      return o.hour + ':' + o.minute;
+    } catch (e) {
+      return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+    }
+  }
+  function renderFreshline() {
+    var asof = $('calAsof');
+    if (!asof) return;
+    var now = new Date(), next = new Date(now.getTime() + 60000);
+    asof.textContent = 'Events: ' + events.length + ' · calendar database generated ' + (meta.dbGenerated ? fmtNPT(meta.dbGenerated) : '—') +
+      ' · MF & QII supplement retrieved ' + (meta.mfRetrieved || '2026-10-23') +
+      ' · checked ' + nptHM(now) + ' · next check ' + nptHM(next) + ' · re-checks every 60s' +
+      (lastCheckOk ? '' : ' · last check failed, showing last good data');
+  }
+  function refreshTick() {
+    loadPayloads().then(function (texts) {
+      if (texts.some(function (t) { return t === null; })) { lastCheckOk = false; renderFreshline(); return; }
+      var sig = fnv1a(texts.join('\n'));
+      if (sig === refreshSig) { lastCheckOk = true; renderFreshline(); return; }
+      var parsed;
+      try {
+        parsed = texts.map(function (t) { return JSON.parse(t); });
+      } catch (e) { lastCheckOk = false; renderFreshline(); return; }
+      refreshSig = sig;
+      events = []; byDate = {}; lockinRows = [];
+      meta = { lockinAsof: '', dbGenerated: '', dbCount: 0, lockinDated: 0, lockinTotal: 0, mfRetrieved: '' };
+      buildFrom({ db: parsed[0], mf: parsed[1], lockin: parsed[2] });
+      lastCheckOk = true;
+      renderAll(); renderLockins(); renderFreshline();
+    });
   }
 
   document.addEventListener('DOMContentLoaded', function () {
     wire();
-    Promise.all([get('/data/calendar-events.json'), get('/data/lockin-mf.json'), get('/data/lockin.json')])
-      .then(function (res) {
-        buildFrom({ db: res[0], mf: res[1], lockin: res[2] });
-        renderAll(); renderLockins();
-        var asof = $('calAsof');
-        if (asof) asof.textContent = 'Events: ' + events.length + ' · calendar database generated ' + (meta.dbGenerated ? fmtNPT(meta.dbGenerated) : '—') +
-          ' · MF & QII supplement retrieved 2026-10-23 · every event carries its own source and status';
-      });
+    loadPayloads().then(function (texts) {
+      lastCheckOk = texts.every(function (t) { return t !== null; });
+      var parsed = texts.map(function (t) { return t ? JSON.parse(t) : null; });
+      refreshSig = fnv1a(texts.map(function (t) { return t || ''; }).join('\n'));
+      buildFrom({ db: parsed[0], mf: parsed[1], lockin: parsed[2] });
+      renderAll(); renderLockins(); renderFreshline();
+      setInterval(refreshTick, 60000);
+    });
   });
 })();

@@ -1,90 +1,153 @@
-/* Nepse Decode — NEPSE Calendar (page-local, namespaced .ncal-).
-   Presentation strictly inherits the site design system (nd-tokens /
-   nepse-design-system); only calendar layout + category colors live here. */
+/* nepse-calendar/calendar.css — NEPSE Calendar page styles.
+ * Moved out of the inline <style> block 2026-10-28 (teardown);
+ * rules above the teardown marker are the Oct-25 page styles,
+ * verbatim. Page-local only; shared sheets are never edited. */
+.cal-controls{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;justify-content:space-between;margin:18px 0 12px}
+.cal-nav{display:flex;align-items:center;gap:10px}
+.cal-nav h2{margin:0;font-size:1.25rem;min-width:170px}
+.cal-filters{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.cal-fchip{cursor:pointer;opacity:.45;border:1px solid var(--nd-border,#1E2430);background:var(--nd-panel,#12141A)}
+.cal-fchip.on{opacity:1;border-color:var(--nd-border-strong,#2A3040)}
+.cal-fcount{opacity:.75;font-size:.72rem}
+.cal-dot{display:inline-block;width:8px;height:8px;border-radius:99px;flex:none}
+.cal-stats{margin:0 0 16px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal-wd{font-size:.72rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--nd-dim,#8E98A8);text-align:center;padding:6px 0}
+.cal-wd.we{color:var(--nd-down,#F87171)}
+.cal-cell{appearance:none;text-align:left;background:var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);border-radius:12px;min-height:96px;padding:8px;display:flex;flex-direction:column;gap:4px;cursor:pointer;color:var(--nd-text,#FFF);font:inherit;width:100%}
+.cal-cell:hover{border-color:var(--nd-lime,#B8E62E)}
+.cal-cell.out{background:transparent;border-style:dashed;opacity:.35;cursor:default}
+.cal-cell.we{background:var(--nd-panel-2,#161A23)}
+.cal-cell.hol{border-color:#D97706}
+.cal-cell.today{outline:2px solid var(--nd-lime,#B8E62E);outline-offset:-2px}
+.cal-cell.sel{border-color:var(--nd-lime,#B8E62E);box-shadow:0 0 0 1px var(--nd-lime,#B8E62E)}
+.cal-drow{display:flex;justify-content:space-between;align-items:baseline;width:100%}
+.cal-bsd{font-size:.68rem;color:var(--nd-dim,#8E98A8);font-family:"IBM Plex Mono",monospace}
+.cal-d{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:.9rem}
+.cal-cell.we .cal-d{color:var(--nd-dim,#8E98A8)}
+.cal-ev{display:block;font-size:.66rem;font-weight:600;line-height:1.25;padding:2px 6px;border-radius:6px;background:var(--nd-inset,#0D0F14);border-left:3px solid var(--c,#888);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal-more{font-size:.64rem;color:var(--nd-dim,#8E98A8)}
+.cal-cols{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;margin-top:18px;align-items:start}
+.cal-card{margin:0 0 12px;padding:16px 18px}
+.cal-card h3{margin:8px 0 10px;font-size:1.02rem}
+.cal-card h3 a{color:var(--nd-lime,#B8E62E);text-decoration:none}
+.cal-card-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.cal-card-top .cx-chip{border-left:3px solid var(--c,#888)}
+.cal-when{font-size:.75rem;color:var(--nd-dim,#8E98A8);font-family:"IBM Plex Mono",monospace}
+.cal-kv{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-top:1px solid var(--nd-border,#1E2430);font-size:.85rem}
+.cal-kv span{color:var(--nd-dim,#8E98A8)}
+.cal-kv strong{font-weight:600;text-align:right}
+.cal-detail{color:var(--nd-muted);font-size:.9rem;line-height:1.6;margin:2px 0 8px}
+.cal-src{font-size:.72rem;color:var(--nd-dim,#8E98A8);margin:10px 0 0}
+.cal-none{color:var(--nd-muted,#B8C0CE);font-size:.9rem;margin:6px 0 14px}
+.cal-ag-row{display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:none;border-top:1px solid var(--nd-border,#1E2430);padding:9px 2px;cursor:pointer;color:var(--nd-text,#FFF);font:inherit}
+.cal-ag-row:hover .cal-ag-t{color:var(--nd-lime,#B8E62E)}
+.cal-ag-d{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--nd-dim,#8E98A8);min-width:86px}
+.cal-ag-t{font-size:.88rem;font-weight:600}
+.cal-up-row{display:flex;gap:10px;align-items:baseline;padding:8px 0;border-top:1px solid var(--nd-border,#1E2430)}
+.cal-up-t{flex:1;font-size:.88rem;font-weight:600}
+.cal-up-d{font-family:"IBM Plex Mono",monospace;font-size:.75rem;color:var(--nd-dim,#8E98A8);white-space:nowrap}
+.cal-jump{background:none;border:none;padding:0;color:var(--nd-lime,#B8E62E);font:inherit;font-weight:600;cursor:pointer;text-decoration:underline}
+.cal-bs{color:var(--nd-dim,#8E98A8);font-size:.8rem}
+.cal-seg{display:inline-flex;border:1px solid var(--nd-border,#1E2430);border-radius:99px;overflow:hidden}
+.cal-seg button{appearance:none;background:var(--nd-panel,#12141A);color:var(--nd-muted,#B8C0CE);border:none;padding:7px 16px;font:600 .8rem inherit;cursor:pointer}
+.cal-seg button.on{background:var(--nd-lime,#B8E62E);color:#0A0C10}
+.cal-lockin-controls{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:end;margin:0 0 14px}
+.cal-ctl{display:flex;flex-direction:column;gap:4px}
+.cal-ctl label{font-size:.68rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--nd-dim,#8E98A8)}
+.cal-ctl select,.cal-ctl input{appearance:none;background:var(--nd-panel,#12141A);color:var(--nd-text,#FFF);border:1px solid var(--nd-border,#1E2430);border-radius:10px;padding:8px 12px;font:600 .85rem inherit;min-width:0}
+.cal-ctl select{padding-right:28px;cursor:pointer}
+.cal-ctl input{min-width:190px}
+.cal-ctl select:focus,.cal-ctl input:focus{outline:2px solid var(--nd-lime,#B8E62E);outline-offset:-2px}
+.cal-pager{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin:12px 0 4px}
+.cal-pager-info{font-size:.8rem;color:var(--nd-dim,#8E98A8);font-family:"IBM Plex Mono",monospace}
+.cal-pager-btns{display:flex;gap:8px}
+.cal-pager button:disabled{opacity:.35;cursor:default}
+.cal-viz{margin:0 0 16px}
+.cal-viz-row{display:grid;grid-template-columns:74px 1fr 34px;gap:10px;align-items:center;padding:3px 0;font-size:.8rem}
+.cal-viz-mon{font-family:"IBM Plex Mono",monospace;color:var(--nd-dim,#8E98A8);white-space:nowrap}
+.cal-viz-track{height:10px;background:var(--nd-inset,#0D0F14);border-radius:99px;overflow:hidden}
+.cal-viz-fill{display:block;height:100%;background:var(--nd-lime,#B8E62E);border-radius:99px}
+.cal-viz-n{font-family:"IBM Plex Mono",monospace;font-weight:700;text-align:right}
+.cal-viz-note{font-size:.78rem;color:var(--nd-dim,#8E98A8);margin:6px 0 0}
+@media (max-width:900px){.cal-cols{grid-template-columns:1fr}}
+@media (max-width:640px){
+  .cal-viz-row{grid-template-columns:64px 1fr 28px}
+  .cal-ctl input{min-width:140px}
+  .cal-cell{min-height:54px;padding:5px;border-radius:9px}
+  .cal-ev{font-size:0;height:7px;width:16px;padding:0;border-left:none;background:var(--c,#888)}
+  .cal-more{display:none}
+  .cal-nav h2{min-width:0;font-size:1.05rem}
+}
 
-.ncal-muted { color: var(--nd-dim, #8A94A3); }
+/* ==== 2026-10-28 teardown additions (core-series standard) ==== */
 
-/* stat cards */
-.ncal-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 20px 0 4px; }
-.ncal-stat { background: var(--nd-panel, #FFFFFF); border: 1px solid var(--nd-border, #E7DFCE); border-radius: var(--nd-r-card, 14px); padding: 14px 16px; display: flex; flex-direction: column; gap: 2px; }
-.ncal-stat-num { font-size: 1.55rem; font-weight: 700; line-height: 1.1; color: var(--ink, #1C1A15); }
-.ncal-stat-label { font-size: .8rem; color: var(--nd-dim, #8A94A3); text-transform: uppercase; letter-spacing: .05em; }
+/* Canvas pin: no shared rule paints the body, so the UA default canvas
+   (dark #121212 / light #FFFFFF) showed through. Pin to the master
+   tokens, theme-scoped (IPO D6 precedent). */
+html[data-theme="dark"] body.nd, html[data-nd-ed="dark"] body.nd{ background: #0A0C10; }
+html[data-theme="light"] body.nd, html[data-nd-ed="light"] body.nd{ background: #F6F7F9; }
 
-/* upcoming closures strip */
-.ncal-upcoming { margin: 18px 0 6px; }
-.ncal-upcoming-title { font-size: .8rem; text-transform: uppercase; letter-spacing: .07em; color: var(--nd-dim, #8A94A3); margin: 0 0 8px; font-weight: 700; }
-.ncal-upcoming-list { display: flex; flex-wrap: wrap; gap: 8px; }
-.ncal-up-chip { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--nd-border, #E7DFCE); background: var(--nd-panel, #FFFFFF); border-radius: var(--nd-r-pill, 999px); padding: 6px 12px; font-size: .85rem; color: var(--ink, #1C1A15); cursor: pointer; font: inherit; }
-.ncal-up-chip:hover { border-color: var(--nd-border-strong, #C9CFDA); }
-.ncal-up-chip .ncal-up-date { color: var(--nd-dim, #8A94A3); font-size: .78rem; white-space: nowrap; }
+/* Skip link: no loaded shared sheet defines .skip-link on this page,
+   so the anchor rendered inline and visible. Hidden until focus. */
+.skip-link{
+  position: absolute; left: 16px; top: -60px; z-index: 5000;
+  background: var(--nd-lime, #B8E62E); color: #0A0C10;
+  font: 600 .875rem system-ui, sans-serif;
+  padding: 10px 18px; border-radius: 10px; text-decoration: none;
+  transition: top .2s ease;
+}
+.skip-link:focus{ top: 12px; }
 
-/* toolbar */
-.ncal-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin: 18px 0 10px; }
-.ncal-nav { display: flex; gap: 8px; }
-.ncal-btn { font: inherit; font-size: .88rem; padding: 7px 14px; border-radius: var(--nd-r-pill, 999px); border: 1px solid var(--nd-border, #E7DFCE); background: var(--nd-panel, #FFFFFF); color: var(--ink, #1C1A15); cursor: pointer; }
-.ncal-btn:hover { border-color: var(--nd-border-strong, #C9CFDA); }
-.ncal-btn:focus-visible, .ncal-up-chip:focus-visible, .ncal-cell:focus-visible { outline: 2px solid var(--nd-lime, #4D7C0F); outline-offset: 2px; }
-.ncal-month-title { text-align: right; }
-.ncal-month-bs { font-family: var(--serif, Georgia, serif); font-size: 1.35rem; font-weight: 600; color: var(--ink, #1C1A15); }
-.ncal-month-ad { display: block; font-size: .8rem; color: var(--nd-dim, #8A94A3); }
+/* 48px design-rich controls (series standard). Shared .cx-btn measures
+   ~41px (13px padding), so page scope lifts it; seg buttons, filter
+   chips and lock-in inputs were all below 48px before. Shared files
+   untouched — page-side specificity only. */
+.cal-nav .cx-btn, .cal-pager .cx-btn{ min-height: 48px; }
+.cal-seg button{ min-height: 48px; padding: 7px 20px; }
+.cal-fchip{ min-height: 48px; display: inline-flex; align-items: center; }
+.cal-ctl select, .cal-ctl input{ min-height: 48px; padding: 8px 12px; box-sizing: border-box; }
 
-/* legend */
-.ncal-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 4px 0 12px; font-size: .8rem; color: var(--ink-soft, #4A463C); }
-.ncal-legend-item { display: inline-flex; align-items: center; gap: 6px; }
-.ncal-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+/* Pager series pattern: Prev quiet (panel, no lime, no lift), Next lime
+   primary. Month-nav Prev/Next are not pagers (no data-pg) and keep
+   the kit lime treatment. */
+.cal-pager [data-pg="prev"]{ background: var(--nd-panel, #12141A); color: var(--nd-muted, #B8C0CE); border-color: var(--nd-border, #1E2430); box-shadow: none; }
+.cal-pager [data-pg="prev"]:hover{ transform: none; box-shadow: none; }
+.cal-pager [data-pg="next"]{ background: var(--nd-lime, #B8E62E); color: var(--nd-on-lime, #0A0C10); border-color: var(--nd-lime, #B8E62E); }
+.cal-pager [data-pg="next"]:disabled{ background: var(--nd-panel, #12141A); color: var(--nd-muted, #B8C0CE); border-color: var(--nd-border, #1E2430); }
 
-/* grid */
-.ncal-gridwrap { border: 1px solid var(--nd-border, #E7DFCE); border-radius: var(--nd-r-card, 14px); overflow: hidden; background: var(--nd-panel, #FFFFFF); }
-.ncal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); background: var(--nd-panel-2, #F3EFE4); }
-.ncal-weekdays span { padding: 8px 6px; text-align: center; font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--nd-dim, #8A94A3); }
-.ncal-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
-.ncal-cell { min-height: 96px; padding: 6px; border-top: 1px solid var(--nd-border, #E7DFCE); border-left: 1px solid var(--nd-border, #E7DFCE); background: transparent; text-align: left; font: inherit; cursor: pointer; display: flex; flex-direction: column; gap: 3px; color: var(--ink, #1C1A15); }
-.ncal-cell:nth-child(7n+1) { border-left: none; }
-.ncal-cell:hover { background: var(--nd-panel-2, #F7F4EC); }
-.ncal-cell.is-pad { cursor: default; background: var(--nd-panel-2, #FAF8F2); }
-.ncal-cell.is-pad:hover { background: var(--nd-panel-2, #FAF8F2); }
-.ncal-cell.is-weekend .ncal-bs { color: var(--nd-dim, #8A94A3); }
-.ncal-cell.is-today { box-shadow: inset 0 0 0 2px var(--nd-lime, #4D7C0F); }
-.ncal-cell.is-selected { background: var(--nd-lime-soft, #EEF4E0); }
-.ncal-dayline { display: flex; align-items: baseline; gap: 5px; }
-.ncal-bs { font-size: 1.05rem; font-weight: 700; line-height: 1; }
-.ncal-ad { font-size: .68rem; color: var(--nd-dim, #8A94A3); }
-.ncal-chips { display: flex; flex-direction: column; gap: 2px; }
-.ncal-chip { font-size: .66rem; line-height: 1.25; padding: 1px 5px; border-radius: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-left: 3px solid; background: var(--nd-panel-2, #F3EFE4); color: var(--ink, #1C1A15); }
-.ncal-more { font-size: .66rem; color: var(--nd-dim, #8A94A3); }
+/* 3D stat treatment for the month stat strip (card recipe: panel +
+   border + rim shadow) + Spectral numerals. */
+.cal-stats .cx-stat{
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 10px 26px rgba(0,0,0,.22);
+  border-radius: 18px;
+}
+html[data-theme="light"] .cal-stats .cx-stat, html[data-nd-ed="light"] .cal-stats .cx-stat{
+  box-shadow: inset 0 1px 0 #fff, 0 10px 24px rgba(30,40,60,.08);
+}
+.cal-stats .cx-stat-v{ font-family: var(--nd-font-display, "Spectral", Georgia, serif); }
 
-/* category colors (dots + chip borders; badge uses the same hue) */
-.ncal-cat-public_holiday { --ncal-c: #C0392B; }
-.ncal-cat-nepse_closed { --ncal-c: #2456A6; }
-.ncal-cat-issue_opens { --ncal-c: #1E7B34; }
-.ncal-cat-issue_closes { --ncal-c: #B7791F; }
-.ncal-cat-lock_in_expiry { --ncal-c: #6D4AC8; }
-.ncal-cat-book_close { --ncal-c: #0E7C86; }
-.ncal-cat-agm { --ncal-c: #4757B8; }
-.ncal-cat-dividend { --ncal-c: #96700A; }
-.ncal-cat-other_event { --ncal-c: #6B7280; }
-.ncal-dot { background: var(--ncal-c, #6B7280); }
-.ncal-chip { border-left-color: var(--ncal-c, #6B7280); }
+/* NPT date for the noscript fallback (same snapshot block as index.html). */
+.cal-noscript{
+  background: var(--nd-panel, #12141A);
+  border: 1px solid var(--nd-border, #1E2430);
+  border-radius: 18px;
+  padding: 14px 18px;
+  margin: 0 0 16px;
+}
+.cal-noscript p{ color: var(--nd-muted, #B8C0CE); font-size: .9rem; line-height: 1.6; margin: 0; }
+.cal-noscript strong{ color: var(--nd-text, #FFF); }
 
-/* detail panel */
-.ncal-detail { margin-top: 18px; border: 1px solid var(--nd-border, #E7DFCE); border-radius: var(--nd-r-card, 14px); background: var(--nd-panel, #FFFFFF); padding: 16px 18px; }
-.ncal-detail-title { margin: 0 0 10px; font-size: 1.05rem; font-weight: 700; color: var(--ink, #1C1A15); }
-.ncal-event { padding: 10px 0; border-top: 1px solid var(--nd-border, #E7DFCE); }
-.ncal-event:first-of-type { border-top: none; }
-.ncal-event-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-.ncal-badge { font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #FFFFFF; background: var(--ncal-c, #6B7280); border-radius: var(--nd-r-pill, 999px); padding: 2px 8px; }
-.ncal-event-title { font-weight: 600; color: var(--ink, #1C1A15); }
-.ncal-event-title a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
-.ncal-flag { font-size: .7rem; font-weight: 700; letter-spacing: .03em; border: 1px solid var(--nd-border-strong, #C9CFDA); color: var(--nd-dim, #8A94A3); border-radius: var(--nd-r-pill, 999px); padding: 1px 7px; }
-.ncal-event-detail { margin: 6px 0 0; font-size: .9rem; line-height: 1.55; color: var(--ink-soft, #4A463C); }
-.ncal-event-meta { margin: 4px 0 0; font-size: .78rem; color: var(--nd-dim, #8A94A3); }
-
-@media (max-width: 720px) {
-  .ncal-cell { min-height: 74px; padding: 4px; }
-  .ncal-bs { font-size: .92rem; }
-  .ncal-chip { font-size: .6rem; }
-  .ncal-stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .ncal-stat { padding: 10px 12px; }
-  .ncal-stat-num { font-size: 1.2rem; }
-  .ncal-month-title { text-align: left; }
+/* Card-wrapper treatment for the lock-in table (the scroll container
+   itself becomes the card; its inline overflow-x:auto still scrolls). */
+.cal-table-card{
+  background: var(--nd-panel, #12141A);
+  border: 1px solid var(--nd-border, #1E2430);
+  border-radius: 18px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 10px 26px rgba(0,0,0,.22);
+  padding: 6px 14px;
+}
+html[data-theme="light"] .cal-table-card, html[data-nd-ed="light"] .cal-table-card{
+  background: #FFFFFF;
+  box-shadow: inset 0 1px 0 #fff, 0 10px 24px rgba(30,40,60,.08);
 }
