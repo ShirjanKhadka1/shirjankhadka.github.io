@@ -17,8 +17,16 @@ Source rule applied here (2026-10-28, documented in the output file):
     against an independent republisher (ShareHub, Oct 2026) on every
     sampled symbol (exact totals; post-bonus totals where ShareHub is
     pre-bonus: NABIL, SBL, GBIME).
-  - Promoter/public splits are published ONLY where the archive and
-    the independent republisher AGREE (7 symbols, asserted below).
+  - Promoter/public splits are published under a tier rule (2026-10-28):
+    Tier A filing-verified (a primary document: the company's own annual
+    report or a NEPSE/SEBON filing) and Tier B matched (a republisher
+    value matched against an independent site, rendered as matched,
+    never as filing-verified). Every other archive split is WITHHELD
+    (status "held"). The first filing-verified case is SHL (69/31,
+    Soaltee Hotel 51st Annual Report FY2081/82), which publishes
+    DESPITE archive disagreement (archive 85 = one broker snapshot):
+    the audited primary document outranks an unsourced transcription.
+    The 7 archive-agreement splits below remain published.
     Every other archive split is WITHHELD (status "held"): the
     cross-check sample disagrees on 9 of 16 symbols (NABIL 58.4 vs 60,
     SHL 85 vs 69, NFS 52 vs 60, NLICL 55 vs 65, LICN 65 vs 70,
@@ -49,6 +57,38 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ARCHIVE = os.path.join(REPO, "tools", "verdict-engine-v2", "manual", "float-archive.json")
 UNIVERSE = os.path.join(REPO, "nepse-chart", "data", "universe.json")
 OUT = os.path.join(REPO, "nepse-chart", "data", "shareholding.json")
+
+# Filing-verified splits (Tier A): promoter% proven by a PRIMARY document
+# (company's own annual report or a NEPSE/SEBON filing), checked BEFORE
+# VERIFIED_SPLITS because the archive may dissent (SHL: archive 85 vs
+# filing 69) and the primary document outranks an unsourced
+# transcription. Counts use the same rounding/remainder/sum assertions
+# as verified splits. Output carries verified_via "filing" + a
+# provenance note rendered verbatim on the page.
+FILING_VERIFIED = {
+    "SHL": {
+        "promoter_pct": 69.0,
+        "source": ("Soaltee Hotel Ltd 51st Annual Report FY2081/82, "
+                   "Notes to the Consolidated Financial Statements, "
+                   "'Details of Shareholding' (as at 32 Ashad 2082 / "
+                   "16 July 2025): Major Corporate Shareholders 69% / "
+                   "General Shareholders 31%, for both FY2081/82 and "
+                   "FY2080/81"),
+        "archive_dissent": 85.0,
+        "dissent_explanation": ("Archive 85 matches a single broker "
+                   "snapshot (Himalayan Capital Pulse, Baisakh 2081, "
+                   "footnoted 'as per Nepalstock.com Updated On March 6, "
+                   "2024'); no capital event explains a 69 -> 85 move "
+                   "between the July 2025 audited report and Mar 2026."),
+        "provenance": ("Shareholding 69% promoter / 31% public per "
+                   "Soaltee Hotel Ltd's own annual reports (51st report, "
+                   "FY2081/82, \"Details of Shareholding\": Major "
+                   "Corporate Shareholders 69% / General Shareholders "
+                   "31%, for both FY2081/82 and FY2080/81), matching "
+                   "ShareHub's 69/31 counts. Counts are computed from "
+                   "the listed total of 117,515,254 shares."),
+    },
+}
 
 # Archive promoter% asserted equal to the independent republisher's value
 # (ShareHub, Oct 2026, exact share counts). Fail loud if the archive moves.
@@ -115,7 +155,25 @@ def main():
             listed = int(float(paidup))
             entry["listed"] = listed
             counts["listed_total"] += 1
-        if sym in VERIFIED_SPLITS:
+        if sym in FILING_VERIFIED:
+            fv = FILING_VERIFIED[sym]
+            prom_pct = fv["promoter_pct"]
+            pub_pct = round(100.0 - prom_pct, 2)
+            prom_sh = int(round(listed * prom_pct / 100.0))
+            pub_sh = listed - prom_sh
+            assert abs(prom_sh + pub_sh - listed) <= 0, f"{sym}: split shares != listed"
+            assert abs(prom_sh - listed * prom_pct / 100.0) <= 1, f"{sym}: rounding drift"
+            entry.update({
+                "promoter_pct": prom_pct,
+                "public_pct": pub_pct,
+                "promoter_shares": prom_sh,
+                "public_shares": pub_sh,
+                "split_status": "verified",
+                "verified_via": "filing",
+                "provenance": fv["provenance"],
+            })
+            counts["split_verified"] += 1
+        elif sym in VERIFIED_SPLITS:
             ap = rec.get("promoter_pct")
             assert ap is not None, f"{sym}: verified split but no archive pct"
             assert abs(float(ap) - VERIFIED_SPLITS[sym]) < 0.05, (
@@ -185,7 +243,12 @@ def main():
                    "security/{id}): no promoter/public/listed-share fields. "
                    "Listed totals from own archive, cross-checked exact "
                    "against an independent republisher on sampled symbols. "
-                   "Splits withheld unless archive and republisher agree."),
+                   "Splits published under a tier rule: Tier A "
+                   "filing-verified (primary document) and Tier B matched "
+                   "(independent-site match, rendered as matched); all "
+                   "other splits withheld. First filing-verified case: "
+                   "SHL 69/31 (Soaltee Hotel 51st Annual Report "
+                   "FY2081/82)."),
         "counts": counts,
         "symbols": out_symbols,
         "verification": {
@@ -196,10 +259,13 @@ def main():
             ],
             "note": ("Archive splits agree with the independent republisher "
                      "on 7 of 16 sampled symbols and conflict on 9; the "
-                     "field as a whole is therefore NOT verified. Only the "
-                     "7 agreements are published as splits. NABIL (flagship) "
-                     "is held: archive 58.4 vs republisher 60, with a third "
-                     "source (Wikipedia, FY 2023/24) also at 60."),
+                     "field as a whole is therefore NOT verified. Published "
+                     "splits: the 7 agreements, plus SHL 69/31 as the first "
+                     "filing-verified case (Tier A: Soaltee Hotel 51st "
+                     "Annual Report FY2081/82, despite archive dissent 85). "
+                     "NABIL (flagship) is held: archive 58.4 vs republisher "
+                     "60, with a third source (Wikipedia, FY 2023/24) also "
+                     "at 60."),
         },
     }
     with open(OUT, "w", encoding="utf-8") as f:

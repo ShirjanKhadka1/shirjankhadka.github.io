@@ -1549,10 +1549,12 @@ function pctStr(p) {
 /* Shareholding (gap 2). Data: nepse-chart/data/shareholding.json, built by
  * tools/build-shareholding.py from our own float archive. Splits publish
  * ONLY where independently cross-checked (status "verified") or where the
- * instrument itself defines them ("promoter_instrument": 100/0). Every
- * other split is withheld, never estimated; totals publish where the
- * archive carries them. Debentures and mutual funds have no share split
- * (units, not shares). */
+ * instrument itself defines them ("promoter_instrument": 100/0). A
+ * verified entry carrying a "provenance" field renders that note
+ * verbatim (filing-verified splits); entries without one keep the
+ * archive-agreement note. Every other split is withheld, never
+ * estimated; totals publish where the archive carries them. Debentures
+ * and mutual funds have no share split (units, not shares). */
 function shareholdingSection(sym, sh) {
   let h = '<section aria-label="Shareholding"><h2>Shareholding</h2>\n';
   const st = sh && sh.split_status;
@@ -1578,9 +1580,13 @@ function shareholdingSection(sym, sh) {
       (listed ? 'Promoter + public = listed total' : 'Count not on file') + '</span></div>\n';
     h += '</div>\n';
     if (st === 'verified') {
-      h += '<p class="sp-note">Listed total and split from Nepse Decode\'s own archive (data as of 2026-10-28). ' +
-        'Split cross-checked against an independent republisher (October 2026) — the two sources agree. ' +
-        'Counts are computed from the listed total, so promoter + public = listed exactly.</p>\n';
+      if (sh.provenance) {
+        h += '<p class="sp-note">' + esc(sh.provenance) + '</p>\n';
+      } else {
+        h += '<p class="sp-note">Listed total and split from Nepse Decode\'s own archive (data as of 2026-10-28). ' +
+          'Split cross-checked against an independent republisher (October 2026) — the two sources agree. ' +
+          'Counts are computed from the listed total, so promoter + public = listed exactly.</p>\n';
+      }
     } else {
       h += '<p class="sp-note">Promoter-share instrument: the entire issue is promoter holding, so the public split is 0%. ' +
         'Listed count is not on file.</p>\n';
