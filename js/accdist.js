@@ -53,7 +53,7 @@ function signature(d){
 }
 function freshState(d){
   if (state.period === 'latest' && d && d._fallback) {
-    if (d._provState === 'symbol-only') return { kind: 'prov', text: 'Provisional (as of ' + provTime({ asof: d._provAsOf }) + ' NPT) → last final ' + periodDate(d) };
+    if (d._provState === 'symbol-only') return { kind: 'prov', text: 'last final ' + periodDate(d) };
     return { kind: 'fallback', text: 'Live feed unavailable · last final ' + periodDate(d) };
   }
   if (state.period === 'latest') return { kind: 'live', text: 'Live · ' + periodDate(d) };

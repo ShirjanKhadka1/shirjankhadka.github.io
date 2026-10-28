@@ -111,7 +111,7 @@ function freshState(d){
   }
   var prov = usableProv(d);
   if (prov) {
-    return { kind: 'prov', text: 'Provisional (as of ' + provTime(state.prov) + ' NPT) → last final ' + periodDate(d) };
+    return { kind: 'prov', text: 'last final ' + periodDate(d) };
   }
   if (d._fallback) {
     return { kind: 'fallback', text: 'Live feed unavailable · last final ' + periodDate(d) };

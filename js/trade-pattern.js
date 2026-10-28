@@ -31,7 +31,7 @@ function freshState(d){
   }
   if (d._provState === 'symbol-only') {
     var asof = d._provAsOf ? ' (as of ' + d._provAsOf.slice(11, 16) + ' NPT)' : '';
-    return { kind: 'prov', text: 'Provisional symbol-only' + asof + ' → last final ' + periodDate(d) };
+    return { kind: 'prov', text: 'last final ' + periodDate(d) };
   }
   if (d._fallback) {
     return { kind: 'fallback', text: 'Live feed unavailable · last final ' + periodDate(d) };
