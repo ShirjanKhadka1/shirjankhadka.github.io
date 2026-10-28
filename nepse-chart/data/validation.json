@@ -1,12 +1,12 @@
 {
-  "ran_at_npt": "2026-10-28T11:32:00+05:45",
-  "expected_session": "2026-10-27",
+  "ran_at_npt": "2026-10-28T17:31:00+05:45",
+  "expected_session": "2026-10-28",
   "passed": true,
   "gates": [
     {
       "gate": "manifest-present",
       "pass": true,
-      "detail": "data/manifest.json session=2026-10-27",
+      "detail": "data/manifest.json session=2026-10-28",
       "severity": "fail"
     },
     {
@@ -18,25 +18,25 @@
     {
       "gate": "universe-session-current",
       "pass": true,
-      "detail": "universe=2026-10-27 expected=2026-10-27",
+      "detail": "universe=2026-10-28 expected=2026-10-28",
       "severity": "fail"
     },
     {
       "gate": "security-count-stable",
       "pass": true,
-      "detail": "intraday: quotes=264 baseline=261 (same-session post-open snapshot cbc880b) — no intraday collapse",
+      "detail": "OVERRIDDEN by operator — quotes=348 baseline=341 reason=\"Legitimate\"",
       "severity": "fail"
     },
     {
       "gate": "no-dup-quotes",
       "pass": true,
-      "detail": "264 unique quoted symbols",
+      "detail": "348 unique quoted symbols",
       "severity": "fail"
     },
     {
       "gate": "price-sanity",
       "pass": true,
-      "detail": "264 quotes ok",
+      "detail": "348 quotes ok",
       "severity": "fail"
     },
     {
@@ -48,13 +48,13 @@
     {
       "gate": "quote-math-reconciles",
       "pass": true,
-      "detail": "264 quotes reconcile",
+      "detail": "348 quotes reconcile",
       "severity": "fail"
     },
     {
       "gate": "circuit-limits",
       "pass": false,
-      "detail": "BENH: 15.0% — review for corporate actions",
+      "detail": "BENH: 15.0%; BPCL: 10.6% — review for corporate actions",
       "severity": "flag"
     },
     {
@@ -66,13 +66,13 @@
     {
       "gate": "session-totals-consistent",
       "pass": true,
-      "detail": "turnover=Rs 0.85B vol=2.2M trades=6823 n=264",
+      "detail": "turnover=Rs 7.46B vol=19.4M trades=63707 n=348",
       "severity": "fail"
     },
     {
       "gate": "universe-membership-stable",
-      "pass": false,
-      "detail": "quoted=264 universe=417 (63.3%)",
+      "pass": true,
+      "detail": "quoted=348 universe=413 (84.3%)",
       "severity": "flag"
     },
     {
@@ -83,50 +83,48 @@
     },
     {
       "gate": "close-source-official",
-      "pass": false,
-      "detail": "close_source=unknown (pre-V4 capture) — verify against NEPSE official",
+      "pass": true,
+      "detail": "close_source=NEPSE official API",
       "severity": "flag"
     },
     {
       "gate": "no-dup-symbols",
       "pass": true,
-      "detail": "417 unique",
+      "detail": "413 unique",
       "severity": "fail"
     },
     {
       "gate": "signals/momentum.json-fresh",
       "pass": true,
-      "detail": "generated=2026-10-27 expected>=2026-10-27",
+      "detail": "generated=2026-10-28 expected>=2026-10-28",
       "severity": "fail"
     },
     {
       "gate": "signals/trend-relay.json-fresh",
       "pass": true,
-      "detail": "generated=2026-10-27 expected>=2026-10-27",
+      "detail": "generated=2026-10-28 expected>=2026-10-28",
       "severity": "fail"
     },
     {
       "gate": "signals/reversal.json-fresh",
       "pass": true,
-      "detail": "generated=2026-10-27 expected>=2026-10-27",
+      "detail": "generated=2026-10-28 expected>=2026-10-28",
       "severity": "fail"
     },
     {
       "gate": "all-files-parse",
       "pass": true,
-      "detail": "998 files ok",
+      "detail": "999 files ok",
       "severity": "fail"
     },
     {
       "gate": "sha256-integrity",
       "pass": true,
-      "detail": "998 files verified",
+      "detail": "999 files verified",
       "severity": "fail"
     }
   ],
   "flagged": [
-    "circuit-limits",
-    "universe-membership-stable",
-    "close-source-official"
+    "circuit-limits"
   ]
 }
