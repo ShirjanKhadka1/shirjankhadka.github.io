@@ -112,9 +112,12 @@ html[data-theme="light"] .sc-mix-track .m-sbuy{background:#4D7C0F}html[data-them
 /* Sector blocks (interactive; click filters + scrolls to the table). */
 .sc-sectors{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0}
 .sc-sector-card{text-align:left;cursor:pointer;padding:16px 18px;border:1px solid var(--nd-border,#1E2430);border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0) 38%),var(--nd-panel,#12141A);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 -2px 6px rgba(0,0,0,.15),0 3px 8px rgba(0,0,0,.45),0 18px 44px rgba(0,0,0,.4);color:var(--nd-text,#fff);font-family:inherit}
+/* A11y 2026-10-29: header toggle inside the card div — unstyled so the
+   card keeps its exact box; the top-3 links are its siblings, not nested. */
+.sc-sector-card-btn{display:block;width:100%;margin:0;padding:0;background:none;border:0;color:inherit;font:inherit;text-align:left;cursor:pointer}
 .sc-sector-card.is-on{border-color:var(--nd-lime,#B8E62E);box-shadow:0 0 0 2px rgba(184,230,46,.25),0 18px 44px rgba(0,0,0,.4)}
 .sc-sector-card h3{font-family:var(--nd-font-display);font-size:1.0625rem;margin:0 0 4px}
-.sc-sector-card .sc-sec-meta{font-size:.85rem;color:var(--nd-muted,#9AA3B2)}
+.sc-sector-card .sc-sec-meta{display:block;font-size:.85rem;color:var(--nd-muted,#9AA3B2)}
 .sc-sector-card .sc-sec-top{font-size:.85rem;color:var(--nd-muted,#9AA3B2);margin:10px 0 0;line-height:1.6}
 .sc-sector-card .sc-sec-top a{color:var(--nd-text,#fff);text-decoration:none}
 .sc-sector-card .sc-sec-top a:hover{color:var(--nd-lime,#B8E62E);text-decoration:underline}
@@ -186,3 +189,25 @@ html[data-theme="light"] .sc-sl{color:#DC2626}html[data-theme="light"] .sc-tp{co
 html[data-theme="light"] .cx-chip.up{color:#166534}html[data-theme="light"] .cx-chip.down{color:#B91C1C}
 html[data-theme="light"] .sc-dist.dn{color:#DC2626}
 html[data-theme="light"] .sc-flag{color:#92400E}
+
+/* ---- CLS reservations (2026-10-29) ---- */
+/* The verdict card grows 278 -> ~460px when renderVerdict() fills the
+   explanation + factor rows, pushing the pill row and stats block down
+   (Lighthouse CLS ~0.09). 414px is the card floor; the why block's own
+   132px floor (below) pins the pill row inside it, and the card grows
+   past 414 when the filled why block is taller. The freshness badge
+   mount is pinned at 58px total (border-box) in both its checking and
+   filled states. */
+.sc-verdict{min-height:414px}
+/* CLS: verdict internals fill after load — the why block is empty in HTML
+   and its fill moves the pill row within the card (card floor alone does
+   not pin it). Reserve the why block's filled height (132px, 2026-10-29). */
+#scVerdictWhy{min-height:132px}
+/* CLS: the page title's line box grows on font swap (fallback 1 line,
+   Inter 2 lines at desktop width), pushing the lede and everything below.
+   Reserve the filled height; narrower viewports grow past it naturally. */
+.sig-wrap > h1{min-height:52px}
+/* CLS: the live line is empty in HTML and fills late, pushing the
+   as-of line and verdict down. Reserve its one-line height. */
+.sig-sub{min-height:17px}
+.fb-wrap [data-freshness-badge]{box-sizing:border-box;min-height:58px}

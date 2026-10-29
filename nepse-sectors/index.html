@@ -81,7 +81,7 @@
 .sx-note{background:var(--d2-surface);border:1px solid var(--d2-line-soft);border-radius:var(--d2-r-lg);padding:20px 22px;margin-top:28px}
 .sx-note p{margin:0;font-size:.85rem;line-height:1.75;color:var(--d2-ink-soft)}
 .sx-note strong{color:var(--d2-ink)}
-.d2-fresh-mount{margin:0 0 12px}
+.d2-fresh-mount{margin:0 0 12px;min-height:34px}/* CLS reservation (2026-10-29): badge mount fills 0 -> 34px late. */
 </style>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebPage","name":"Nepse Decode Sectors: Heatmap, Breadth, Leaders & Laggards","url":"https://shirjankhadka.com.np/nepse-sectors/","description":"Free daily NEPSE sector dashboard: a sector heatmap, advancers and decliners breadth, leaders and laggards, and turnover share for all NEPSE sectors, computed in the browser from the latest daily batch. Educational use only.","author":{"@type":"Organization","name":"Nepse Decode"}}
@@ -116,7 +116,7 @@
     <div class="d2-fresh-mount"><div data-freshness-badge></div></div>
 
     <main id="main">
-      <div style="margin-bottom:8px">
+      <div style="margin-bottom:8px;min-height:205px"><!-- CLS reservation (2026-10-29): 205px = masthead's rendered height at desktop; the asof/live/freshline texts fill late and previously grew it ~45px, pushing the stat strip and cards down. -->
         <p class="d2-kicker">Sectors</p>
         <h1 style="font-family:var(--nd-font-display);font-weight:700;font-size:clamp(1.8rem,4.5vw,2.5rem);letter-spacing:-0.015em;margin:0 0 4px">Where the market is moving</h1>
         <p class="d2-caption" id="sx-asof" style="margin-top:8px">Loading sector data…</p>

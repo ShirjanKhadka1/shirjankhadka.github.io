@@ -69,7 +69,18 @@ function main() {
   const files = walk(ROOT);
   const broken = [];
   for (const f of files) {
-    const html = fs.readFileSync(f, 'utf8');
+    // Strip <script> BODIES (not the opening tags): JavaScript string
+    // concatenation like '?src='+src produces href/src-shaped text that
+    // is code, not a link (2026-10-29: 3 false positives in
+    // nepse-news/story/index.html from '?src='+src and '?src=' + src +
+    // ternaries). Real <script src> attributes stay checkable because
+    // the opening tag is preserved; real markup href/src are untouched.
+    // End-tag pattern is <\/script\b[^>]*> (not <\/script\s*>): it must
+    // also match malformed end tags like </script\tfoo>, else the body
+    // strip runs past them to a later end tag and could swallow real
+    // markup (CodeQL "Bad HTML filtering regexp" on PR #96, 2026-10-29).
+    const html = fs.readFileSync(f, 'utf8').replace(
+      /(<script\b[^>]*>)[\s\S]*?(<\/script\b[^>]*>)/gi, '$1$2');
     const rel = '/' + path.relative(ROOT, f);
     for (const u of targetsOf(html)) {
       const miss = resolveTarget(f, u);

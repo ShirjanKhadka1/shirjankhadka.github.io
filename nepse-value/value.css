@@ -77,7 +77,12 @@ button.va-page.active{background:var(--nd-lime,#B8E62E);color:var(--nd-on-lime,#
 .va-sectors{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:0 0 18px}
 .va-sector{background:var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);border-radius:18px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 10px 26px rgba(0,0,0,.22);padding:16px 18px;text-align:left;cursor:pointer;font-family:inherit;color:var(--nd-text,#fff)}
 [data-theme="light"] .va-sector{background:#fff;border-color:#E2E6EC;box-shadow:inset 0 1px 0 #fff,0 10px 24px rgba(30,40,60,.08);color:#0A0C10}
-.va-sector:hover,.va-sector[aria-pressed="true"]{border-color:var(--nd-lime,#B8E62E)}
+.va-sector:hover,.va-sector.is-pressed{border-color:var(--nd-lime,#B8E62E)}
+/* A11y 2026-10-29: header toggle inside the card div — unstyled so the
+   card keeps its exact box; the top-3 links are its siblings, not nested.
+   Pressed outline moved from the button's aria-pressed to .is-pressed so
+   the whole card still highlights; the button keeps aria-pressed for AT. */
+.va-sector-btn{display:block;width:100%;margin:0;padding:0;background:none;border:0;color:inherit;font:inherit;text-align:left;cursor:pointer}
 .va-sector .va-secname{font-family:var(--nd-font-display);font-size:1.05rem;font-weight:600}
 .va-sector .va-secmeta{font-size:.82rem;color:var(--nd-dim,#6B7280);margin:4px 0 10px}
 .va-sector .va-secmed{font-size:.82rem;color:var(--nd-muted,#B8C0CE);margin:0 0 10px}

@@ -377,3 +377,24 @@ html[data-nd-ed="light"] body.nd { background: var(--nd-bg, #F6F7F9); }
 [data-theme="light"] .ds-freshline .ds-fl-chip.closed { color: #92400E; }
 [data-theme="light"] .ds-freshline .ds-fl-chip.live { color: #166534; }
 [data-theme="light"] .ds-freshline .ds-fl-chip.stale { color: #B91C1C; }
+
+/* ---- CLS reservations (2026-10-29) ---- */
+/* The overview + indices sections shipped with the `hidden` attribute and
+   were unhidden by JS once data arrived, pushing the sectors/table block
+   down ~1540px (Lighthouse CLS ~0.51). They are now in layout from first
+   paint (see the HTML: `hidden` removed) with floors at their rendered
+   heights at the desktop breakpoint (611px / 915px); the badge mount
+   (0 -> 35px) is reserved the same way. */
+#dsOverview{min-height:611px}
+#dsIndices{min-height:915px}
+.fb-wrap [data-freshness-badge]{min-height:35px}
+
+/* ---- CLS reservations, round 2 (2026-10-29) ---- */
+/* Overview fill rebalanced the 1fr/1fr layout grid (summary min-content
+   widened its track 566 -> 659px, squeezing the chart 566 -> 473px) and
+   grew the chart head ~10px when the value filled, moving the chart svg.
+   min-width:0 pins both tracks at their 1fr share; the head floor and the
+   session badge floor pin the two remaining fill-driven moves. */
+.ds-ov-chart, .ds-ov-summary{min-width:0}
+.ds-ov-chart-head{min-height:38px}
+#dsAsof{min-width:224px}

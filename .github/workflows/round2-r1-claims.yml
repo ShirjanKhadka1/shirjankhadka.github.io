@@ -41,18 +41,10 @@ on:
       - 'tools/screener-performance.js'
       - 'tools/round2-verify-r1.py'
       - 'tools/build-nepse-universe.js'
+  # pull_request runs UNFILTERED by design: these are required checks,
+  # and a path-filtered check that never runs blocks the PR (GitHub
+  # reports it as Expected forever). Push stays path-filtered.
   pull_request:
-    paths:
-      - 'nepse-screener/index.html'
-      - 'nepse-chart/data/verdicts.json'
-      - 'nepse-chart/data/universe.json'
-      - 'nepse-chart/data/track-record.json'
-      - 'nepse-chart/data/screener-calls.json'
-      - 'nepse-chart/data/screener-performance.json'
-      - 'data/index-history.json'
-      - 'tools/screener-performance.js'
-      - 'tools/round2-verify-r1.py'
-      - 'tools/build-nepse-universe.js'
   workflow_dispatch:
 
 permissions:
