@@ -46,6 +46,106 @@
     if (ts != null) return new Date(ts);
     return live && live.asof ? new Date(live.asof) : new Date();
   }
+  /* ---------- Status honesty (2026-10-29) ----------
+   * A label may claim LIVE/OPEN only for a genuinely live snapshot: the
+   * canonical clock (NepseMarketConfig — the same source the footer
+   * freshness badge uses) says OPEN, the tape itself says OPEN, and the
+   * snapshot is fresh. Anything else renders the clock state plus the
+   * snapshot time, so a frozen feed can never read as live.
+   * The old predicate trusted the tape alone (live.market === 'OPEN'), so
+   * a noon-frozen feed kept saying OPEN/LIVE hours after the close.
+   * Freshness window: 20 min — the live feed refreshes every 15 min
+   * during market hours, plus publish/fetch lag. A snapshot from an
+   * older session is never fresh, whatever its age.
+   */
+  var FRESH_MAX_AGE_MIN = 20;
+
+  // Canonical clock state: 'PRE-OPEN' | 'OPEN' | 'CLOSED', or null when
+  // the config is not on the page. Lazy lookup: the config may load
+  // after this script, so every use re-reads window.
+  function clockState() {
+    try {
+      var c = window.NepseMarketConfig;
+      if (c && typeof c.marketState === 'function') return c.marketState();
+    } catch (e) {}
+    return null;
+  }
+  // Clock state for display: canonical clock when present, else the tape
+  // flag as proxy (OPEN only when the tape itself says so).
+  function displayClock(live) {
+    var st = clockState();
+    if (st) return st;
+    return (live && live.market === 'OPEN') ? 'OPEN' : 'CLOSED';
+  }
+  function nptDayStr(d) {
+    try { return d.toLocaleDateString('en-CA', { timeZone: 'Asia/Kathmandu' }); }
+    catch (e) { return ''; }
+  }
+  // Snapshot instant in ms: pipeline instant first (asof, ISO — the same
+  // instant the freshness line prints as "tape HH:MM"), then the data's
+  // own time (data_asof, naive NPT), then the newest index timestamp.
+  function tapeInstantMs(live) {
+    if (!live) return null;
+    if (live.asof) {
+      var a = new Date(live.asof).getTime();
+      if (isFinite(a)) return a;
+    }
+    if (live.data_asof) {
+      var s = String(live.data_asof);
+      var t = new Date(/[zZ]|[+-]\d{2}:?\d{2}$/.test(s) ? s : s + '+05:45').getTime();
+      if (isFinite(t)) return t;
+    }
+    var idx = live.indices || [];
+    var best = null;
+    for (var i = 0; i < idx.length; i++) {
+      if (idx[i] && idx[i].last_updated) {
+        var u = new Date(idx[i].last_updated).getTime();
+        if (isFinite(u) && (best == null || u > best)) best = u;
+      }
+    }
+    return best;
+  }
+  // Snapshot clock time "HH:MM" (NPT), or '' when unparseable.
+  function tapeHHMM(live) {
+    var ms = tapeInstantMs(live);
+    if (ms == null) return '';
+    try { return new Date(ms).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kathmandu' }); }
+    catch (e) { return ''; }
+  }
+  // Fresh only when the snapshot is from today's session and no older
+  // than the window. Any failure here fails closed (not fresh).
+  function snapshotFresh(live) {
+    if (!live) return false;
+    try {
+      if (nptDayStr(getSessionDate(live)) !== nptDayStr(new Date())) return false;
+    } catch (e) { return false; }
+    var ms = tapeInstantMs(live);
+    if (ms == null) return false;
+    var ageMin = (Date.now() - ms) / 60000;
+    if (ageMin < 0) ageMin = 0;
+    return ageMin <= FRESH_MAX_AGE_MIN;
+  }
+  // The single LIVE predicate for the homepage. Without the canonical
+  // clock on the page, tape flag plus freshness is the fallback —
+  // freshness alone kills the frozen-feed lie.
+  function isLiveSnapshot(live) {
+    if (!live) return false;
+    var st = clockState();
+    if (st) return st === 'OPEN' && live.market === 'OPEN' && snapshotFresh(live);
+    return live.market === 'OPEN' && snapshotFresh(live);
+  }
+  // " · as of HH:MM" suffix for non-live labels, or '' when no time.
+  function asOfSuffix(live) {
+    var t = tapeHHMM(live);
+    return t ? ' · as of ' + t : '';
+  }
+  // Hero pill: OPEN only when genuinely live; otherwise the clock state
+  // plus the snapshot time.
+  function heroPillText(live) {
+    if (isLiveSnapshot(live)) return 'OPEN';
+    return displayClock(live) + asOfSuffix(live);
+  }
+
   function fmtNum(v, dp) {
     if (v == null || !isFinite(Number(v))) return '—';
     return Number(v).toLocaleString('en-US', {
@@ -102,9 +202,10 @@
     var host = $('ndWrap');
     if (!host || !live || !live.index) return;
     var ix = live.index;
-    // Live wording follows the feed's own market flag — the same value the
-    // index-card pill shows, so the editorial can never contradict it.
-    var isLive = !!(live.market === 'OPEN');
+    // Live wording follows the honesty predicate (clock + tape + freshness),
+    // never the tape flag alone — a frozen feed must not read as live.
+    // The closed branch below already carries the final-state wording.
+    var isLive = isLiveSnapshot(live);
     var chg = Number(ix.change) || 0;
     var pct = Number(ix.percent_change) || 0;
     var dir = chg > 0 ? 'higher' : chg < 0 ? 'lower' : 'flat';
@@ -168,14 +269,21 @@
     }
     body1 += (isLive ? 'Day range so far: <strong>' : 'Day range: <strong>') + esc(fmtNum(ix.low)) + ' – ' + esc(fmtNum(ix.high)) + '</strong>.';
 
+    // Wrap pill: LIVE only when genuinely live; otherwise the closed/final
+    // wording (clock CLOSED) or the snapshot time (clock OPEN/PRE-OPEN
+    // with a stale tape) — never LIVE on old data, and never contradicting
+    // the hero pill on the same render.
+    var wrapPill;
+    if (isLive) wrapPill = chg > 0 ? '▲ LIVE' : chg < 0 ? '▼ LIVE' : '· LIVE';
+    else if (displayClock(live) === 'CLOSED') wrapPill = (chg > 0 ? '▲ GREEN CLOSE' : chg < 0 ? '▼ RED CLOSE' : '· FLAT CLOSE') + asOfSuffix(live);
+    else { var wt = tapeHHMM(live); wrapPill = (chg > 0 ? '▲' : chg < 0 ? '▼' : '·') + ' AS OF' + (wt ? ' ' + wt : ''); }
+
     host.innerHTML =
       '<div class="nd-badges">' +
         '<span class="nd-badge lime">Market Wrap</span>' +
         '<span class="nd-badge">' + esc(sessDate) + '</span>' +
         '<span class="nd-badge ' + (chg > 0 ? 'lime' : chg < 0 ? 'amber' : '') + '">' +
-          (isLive
-            ? (chg > 0 ? '▲ LIVE' : chg < 0 ? '▼ LIVE' : '· LIVE')
-            : (chg > 0 ? '▲ GREEN CLOSE' : chg < 0 ? '▼ RED CLOSE' : '· FLAT CLOSE')) + '</span>' +
+          esc(wrapPill) + '</span>' +
       '</div>' +
       '<h2 class="nd-wraphead">' + headlineHtml + '</h2>' +
       '<div class="nd-wrap-chips" aria-label="Market breadth">' +
@@ -302,7 +410,7 @@
     });
 
     host.innerHTML =
-      '<div class="lbl"><span>NEPSE INDEX</span><span class="nd-badge amber">' + esc(live.market || '—') + '</span></div>' +
+      '<div class="lbl"><span>NEPSE INDEX</span><span class="nd-badge amber">' + esc(heroPillText(live)) + '</span></div>' +
       '<div class="big">' + fmtNum(ix.value) + '</div>' +
       '<div class="chg ' + cls + '">' + arrow + ' ' + (chg > 0 ? '+' : '') + fmtNum(chg) +
         ' (' + (pct > 0 ? '+' : '') + pct.toFixed(2) + '%) · ' + esc(chgLabel) + '</div>' +
@@ -784,9 +892,13 @@
     try { if (live.asof) tapeTime = nptTime(new Date(live.asof)); } catch (e) {}
     var now = new Date();
     var next = new Date(now.getTime() + 60000);
-    var state = live.market === 'OPEN' ? 'LIVE' : 'CLOSED';
+    // Freshness state: LIVE only for a genuinely live snapshot; otherwise
+    // the clock state word (the tape time is already shown in this line).
+    // The dot stays binary (live vs not-live) so its styling never changes.
+    var liveNow = isLiveSnapshot(live);
+    var state = liveNow ? 'LIVE' : displayClock(live);
     var fl = $('ndFreshline');
-    if (fl) fl.setAttribute('data-state', state.toLowerCase());
+    if (fl) fl.setAttribute('data-state', liveNow ? 'live' : 'closed');
     el.textContent = 'Session ' + sessDate + ' · tape ' + (tapeTime || '—') + ' · checked ' + nptTime(now) +
       ' · next check ' + nptTime(next) + ' · ' + state +
       (lastTickFailed ? ' · last data check failed — showing last good session' : '') +
