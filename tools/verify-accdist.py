@@ -58,10 +58,17 @@ for old in ('nepse-design-system', '"/css/theme.css', 'broker-pages.css'):
         fail(f'old-kit ref still on page: {old}')
     else:
         ok(f'no {old} on page')
-if '69b323cf' in page:
-    ok('chrome stamp is nav fix 69b323cf')
+# Chrome stamp as page-vs-file agreement, never a literal pin: the
+# 69b323cf literal went stale at the next chrome re-stamp (main now
+# carries fe4f1d6e), while the generic stamp loop below already
+# re-checks every stamped asset including chrome. This named check
+# keeps a chrome failure attributable.
+_m_chrome = re.search(r'nd-chrome\.css\?v=([0-9a-f]{8})', page)
+_want_chrome = sha8(os.path.join(ROOT, 'css', 'nd-chrome.css'))
+if _m_chrome and _m_chrome.group(1) == _want_chrome:
+    ok(f'chrome stamp == raw sha1 {_want_chrome}')
 else:
-    fail('chrome stamp is not 69b323cf')
+    fail(f'chrome stamp mismatch: page {_m_chrome.group(1) if _m_chrome else None}, file {_want_chrome}')
 for m in re.finditer(r'(?:css|js)/([A-Za-z0-9_.-]+)\?v=([0-9a-f]{8})', page):
     fname, stamp = m.group(1), m.group(2)
     for base in (os.path.join(ROOT, 'css'), os.path.join(ROOT, 'js')):

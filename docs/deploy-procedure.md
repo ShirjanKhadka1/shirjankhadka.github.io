@@ -148,3 +148,22 @@ History that motivates this procedure (do not reintroduce these):
   done.
 - Token values are never printed in any output. PR URLs, SHAs and
   check names are fine; token values are never printed.
+- Cross-dataset gates are evaluated on the COMBINED tree only. Any
+  gate that compares two datasets — SSR session markers vs the
+  manifest session date, a baked page vs its batch payload, an
+  archive vs live bytes — can pass only on a tree containing ALL
+  compared sides. A single-lane PR that moves only one side is
+  EXPECTED to fail that gate (2026-10-29: universe PR #111 failed
+  the SSR-session smoke test while signals PR #109 failed the
+  mirror way; neither lane alone could ever go green). The correct
+  response is a combined PR carrying every side, never re-running
+  the check hoping for a pass and never merging on red.
+- Verifier pins are content-agreement checks, never literals. A
+  verifier must compare the page's stamp to the SHA-1 first-8 of
+  the file it names (or the value computed from the same source
+  the page uses); a literal hash, date, or token that a legitimate
+  re-stamp, rebuild, or re-issue changes is a stale pin, not a
+  gate (2026-10-29: the brokers verifier once demanded literal
+  e2586480 while the page correctly carried fe4f1d6e; the same
+  69b323cf chrome literal was removed from five sibling verifiers
+  the same night).

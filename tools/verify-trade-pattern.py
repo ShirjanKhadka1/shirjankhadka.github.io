@@ -54,7 +54,7 @@ def main():
     # ---- 1. Page chain ----
     for dead in ['/css/theme.css', '/css/nepse-design-system.css', '/css/broker-pages.css']:
         check(f'no {dead} in chain', dead not in page)
-    check('chrome stamp is nav fix 69b323cf', 'nd-chrome.css?v=69b323cf' in page)
+    check('chrome stamp == raw sha1', f"nd-chrome.css?v={sha1_8(os.path.join(root, 'css', 'nd-chrome.css'))}" in page)
     check('family css stamp = sha1', f"nd-trade-pattern.css?v={sha1_8(os.path.join(root, 'css', 'nd-trade-pattern.css'))}" in page)
     check('broker-common stamp = sha1', f"broker-common.js?v={sha1_8(os.path.join(root, 'js', 'broker-common.js'))}" in page)
     check('trade-pattern js stamp = sha1', f"trade-pattern.js?v={sha1_8(os.path.join(root, 'js', 'trade-pattern.js'))}" in page)
