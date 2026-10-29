@@ -14,6 +14,7 @@ Usage:
 - Exit non-zero with a clear stderr message on any failure.
 """
 import argparse
+from datetime import datetime
 import json
 import os
 import shutil
@@ -24,6 +25,23 @@ import tempfile
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC_JS = os.path.join(REPO, "tools", "fetch-nepse-live.js")
 MIN_QUOTES = 300
+RAMP_FLOOR = 150
+RAMP_MINUTES = 60
+
+
+def min_quotes_for_elapsed(elapsed_min):
+    """Session-ramp quote minimum: 150 at the 11:00 open, rising
+    linearly to the full 300 by 60 minutes after open, then flat.
+    The tape ramps up after open (2026-10-29: 157 quotes at 11:05
+    -> 303 by 11:37), so a flat 300 gate fails every healthy early
+    session. The gate still rejects partial/truncated feeds: below
+    the floor early, below 300 after the first hour. Thin days that
+    never reach 300 stay rejected intraday by design; the post-close
+    vpi-daily job publishes the FINAL board."""
+    if elapsed_min >= RAMP_MINUTES:
+        return MIN_QUOTES
+    return max(RAMP_FLOOR,
+               RAMP_FLOOR + (MIN_QUOTES - RAMP_FLOOR) * elapsed_min // RAMP_MINUTES)
 
 
 def fail(msg):
@@ -105,8 +123,31 @@ def main():
         quotes = live.get("quotes")
         if not isinstance(quotes, list):
             fail(f"live.json quotes is not a list (got {type(quotes).__name__})")
-        if len(quotes) < MIN_QUOTES:
-            fail(f"quotes count {len(quotes)} below minimum {MIN_QUOTES}")
+        # Minutes after the 11:00 NPT open, from the tape's own asof
+        # (NPT wall time, with or without a +05:45 offset); fall back
+        # to the local clock when asof is missing, stale, or unparseable.
+        elapsed = None
+        asof_raw = live.get("asof")
+        if isinstance(asof_raw, str):
+            try:
+                asof = datetime.fromisoformat(asof_raw.replace("Z", "+00:00"))
+                if asof.tzinfo is not None:
+                    asof = asof.replace(tzinfo=None)
+                if asof.date() == datetime.now().date():
+                    open_t = asof.replace(hour=11, minute=0, second=0,
+                                          microsecond=0)
+                    elapsed = int((asof - open_t).total_seconds() // 60)
+            except ValueError:
+                elapsed = None
+        if elapsed is None:
+            now = datetime.now()
+            open_t = now.replace(hour=11, minute=0, second=0, microsecond=0)
+            elapsed = int((now - open_t).total_seconds() // 60)
+        elapsed = max(0, elapsed)
+        minimum = min_quotes_for_elapsed(elapsed)
+        if len(quotes) < minimum:
+            fail(f"quotes count {len(quotes)} below session-ramp minimum "
+                 f"{minimum} ({elapsed} min after 11:00 open)")
 
         for i, row in enumerate(quotes):
             if not isinstance(row, dict):
