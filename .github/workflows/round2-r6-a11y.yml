@@ -81,6 +81,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Install Python deps (pyyaml for the verifier)
+        run: python3 -m pip install pyyaml
       - name: Install Playwright + axe-core (scratch, never committed)
         run: |
           mkdir -p "$RUNNER_TEMP/r6tools"

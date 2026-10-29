@@ -255,6 +255,14 @@ h1{font-family:'Spectral','Noto Serif Devanagari',Georgia,serif;letter-spacing:-
    sector-stocks header cell that carries the "Add" label, so the empty
    <th> has discernible text without any visible change. */
 .wl-sec-table th .visually-hidden{position:absolute !important;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+/* Fix 2026-10-29 (PR #98 quality regression): the absolute span above had
+   no positioned ancestor, so it anchored to the initial containing block
+   outside .tbl-scroll and stretched the document to 690px at narrow
+   viewports. Anchoring it to its own header cell keeps the 1x1 clipped
+   span inside the scroll container, so the table still clips correctly
+   and the document no longer overflows. Scoped with :has to the single
+   labeled th — no other cell or page is affected. */
+.wl-sec-table th:has(> .visually-hidden){position:relative}
 .wl-sec-table th.num,.wl-sec-table td.num{text-align:right;font-variant-numeric:tabular-nums}
 .wl-sec-table td{padding:10px 14px;border-bottom:1px solid var(--nd-border);font-size:13.5px}
 .wl-sec-table tbody tr:hover{background:var(--nd-panel-2)}
