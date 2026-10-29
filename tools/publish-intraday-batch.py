@@ -287,9 +287,11 @@ def build_and_push_branch(worktree, branch_prefix, live_bytes):
         with open(target, "wb") as f:
             f.write(live_bytes)
         sh(["git", "add", LIVE_PATH], cwd=worktree)
-        if not subprocess.run(
+        # diff --cached --quiet exits 0 = NO differences, 1 = differences.
+        # Commit only when the staged snapshot actually differs from HEAD.
+        if subprocess.run(
             ["git", "diff", "--cached", "--quiet"], cwd=worktree
-        ).returncode:
+        ).returncode != 0:
             sh(
                 ["git", "commit", "-m", "Intraday: live snapshot (batched publish)"],
                 cwd=worktree,
