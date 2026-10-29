@@ -62,6 +62,13 @@
 
 /* ---------- Table ---------- */
 .ds-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--nd-border); border-radius: 12px; background: var(--nd-panel); }
+/* Top scrollbar for the main table: mirrors its horizontal scroll so the
+   Turnover column is reachable from the top of the table, not only from
+   the scrollbar buried below 50 rows. Hidden by JS when the table fits. */
+.ds-table-card { min-width: 0; }
+.ds-table-topscroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--nd-border); border-bottom: 0; border-radius: 12px 12px 0 0; background: var(--nd-panel); }
+.ds-table-topscroll-inner { height: 1px; }
+.ds-table-card .ds-table-scroll { border-radius: 0 0 12px 12px; }
 .ds-table { width: 100%; min-width: 1080px; border-collapse: collapse; font-size: 0.9rem; }
 .ds-table thead th {
   position: sticky; top: 0; z-index: 1;

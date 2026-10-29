@@ -299,6 +299,7 @@
 
     var count = $('dsCount');
     if (count) count.textContent = total.toLocaleString() + ' securities' + (state.sector ? ' · ' + state.sector : '');
+    syncTopScroll();
   }
 
   function onHeaderClick(th) {
@@ -494,6 +495,35 @@
     if (asof) asof.textContent = 'Data unavailable';
   }
 
+  /* Top scrollbar: mirrors the main table's horizontal scroll so the
+     Turnover column is reachable from the top of the table, not only
+     from the scrollbar buried below 50 rows. Hidden when the table fits. */
+  var topSyncing = false;
+  function tableWrap() {
+    return document.querySelector('section.ds-table-card .ds-table-scroll');
+  }
+  function syncTopScroll() {
+    var bar = $('dsTopScroll'), inner = $('dsTopScrollInner'), wrap = tableWrap();
+    if (!bar || !inner || !wrap) return;
+    inner.style.width = wrap.scrollWidth + 'px';
+    bar.style.display = (wrap.scrollWidth > wrap.clientWidth + 1) ? 'block' : 'none';
+    if (bar.scrollLeft !== wrap.scrollLeft) bar.scrollLeft = wrap.scrollLeft;
+  }
+  function wireTopScroll() {
+    var bar = $('dsTopScroll'), wrap = tableWrap();
+    if (!bar || !wrap || bar._dsWired) return;
+    bar._dsWired = true;
+    bar.addEventListener('scroll', function () {
+      if (topSyncing) return; topSyncing = true;
+      wrap.scrollLeft = bar.scrollLeft; topSyncing = false;
+    });
+    wrap.addEventListener('scroll', function () {
+      if (topSyncing) return; topSyncing = true;
+      bar.scrollLeft = wrap.scrollLeft; topSyncing = false;
+    });
+    window.addEventListener('resize', syncTopScroll);
+  }
+
   /* ---------- Init ---------- */
   function init() {
     if (!$('dsTable')) return;
@@ -548,6 +578,9 @@
     var prev = $('dsPrev'), next = $('dsNext');
     if (prev) prev.addEventListener('click', function () { if (state.page > 0) { state.page--; renderTable(); } });
     if (next) next.addEventListener('click', function () { state.page++; renderTable(); });
+
+    // top scrollbar mirrors the main table's horizontal scroll
+    wireTopScroll();
 
     // P1.3: Use shared NepseData module (dedupes live.json fetch)
     getLive().then(function (live) {
