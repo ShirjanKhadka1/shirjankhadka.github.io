@@ -71,3 +71,7 @@
 .mf-pager button:not(:disabled):hover{box-shadow:var(--nd-focus-ring)}
 .mf-pager button:focus{outline:none;box-shadow:var(--nd-focus-ring)}
 .mf-pager span{font-size:13px;color:var(--nd-muted);font-variant-numeric:tabular-nums}
+/* MF canvas: the new-design light canvas (overview's #F6F7F9 via --nd-bg),
+   not the d2 light cream (#f4f2ec) that body.d2 otherwise paints. This page
+   only, light theme only — dark mode keeps d2's --nd-bg canvas untouched. */
+[data-theme="light"] body.d2,[data-nd-ed="light"] body.d2{background:var(--nd-bg)}
