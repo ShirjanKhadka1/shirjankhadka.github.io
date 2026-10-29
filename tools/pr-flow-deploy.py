@@ -25,6 +25,29 @@ Inputs:
   --allow-deletions  pass --force to the branch pusher for deleted paths
   --timeout    seconds to wait for checks per poll round (default 1800)
   --poll-interval  seconds between check polls (default 60)
+  --max-updates  max update-branch cycles in the merge loop (default 3)
+
+Hardening (2026-10-29, failure-class program):
+  * Every print carries flush=True: under cron (non-tty stdout) progress
+    must not sit in a buffer during 15-20+ min check polls.
+  * Update-branch leases are exact 40-char SHAs, validated before the
+    call and re-read from the API immediately before it: a short or
+    wrongly expanded SHA fails with a message naming the expected head
+    vs the actual head — never a silent wrong update (the #107 fix
+    worker's first update-branch attempt 422'd on a wrongly expanded
+    short SHA; the lease caught it, but the message path must make a
+    lease mismatch unmistakable).
+  * API-merge failures (including 404) are reported ONCE with the PR
+    state attached and never loop-retried: a merge POST is failed
+    loudly, not re-attempted.
+  * Check polls are keyed to the exact head SHA being waited on:
+    check-runs whose head_sha differs are ignored (a superseded run's
+    green is never the current head's green); a run concluded
+    "cancelled" counts as pending, never failed (cancel-in-progress
+    cancels the old head's run when the new head's run starts); and
+    when the branch tip moves mid-poll the poller returns "superseded"
+    with the new head so the caller re-polls it instead of failing on
+    the cancelled run or timing out on a dead head.
 
 Required checks (job names as shown in GitHub's picker):
   quality, Screener figures match the archive,
@@ -40,7 +63,8 @@ Contention design (read this before "optimizing" it):
   check polls CONCURRENTLY on separate branches, and the helper
   serializes only the merge itself through GitHub's atomic merge:
   update the branch from main, re-poll on the new SHA, attempt the
-  squash-merge, and retry (bounded: 3 update cycles). A merge that
+  squash-merge, and retry (bounded: --max-updates cycles, default 3).
+  A merge that
   still cannot land fails LOUDLY with the reason — it is never
   force-pushed, bypassed, or pushed direct-to-main instead. Order
   between dependent jobs comes from their schedules (later jobs build
@@ -111,7 +135,7 @@ BRANCH_RE = re.compile(r"^deploy/[A-Za-z0-9][A-Za-z0-9._-]*$")
 
 
 def fail(msg, code=1):
-    print(f"pr-flow-deploy: error: {msg}", file=sys.stderr)
+    print(f"pr-flow-deploy: error: {msg}", file=sys.stderr, flush=True)
     sys.exit(code)
 
 
@@ -173,6 +197,34 @@ def push_branch(repo_dir, branch, base_sha, local_ref, message, allow_deletions)
     return twin
 
 
+def validate_lease_sha(name, sha):
+    """Lease SHAs must be exact 40-char hex. A short prefix (or any
+    wrongly expanded value) is refused BEFORE any API call, naming
+    what was passed — it must never reach expected_head_sha, where
+    GitHub would 422 and the cause would read as a generic failure."""
+    if not re.fullmatch(r"[0-9a-f]{40}", sha or ""):
+        fail(f"lease SHA for {name} is not an exact 40-char SHA: "
+             f"got {sha!r}. Pass the full SHA (from the API ref read "
+             f"or `git rev-parse`); a short prefix is refused, never "
+             f"expanded or guessed", code=2)
+
+
+def pr_state(pr_number):
+    """Best-effort compact PR state for failure reports. Never raises:
+    a failed state fetch must not mask the original failure."""
+    try:
+        pr = gh("GET", f"/pulls/{pr_number}")
+        return {"number": pr_number, "state": pr.get("state"),
+                "merged": pr.get("merged"),
+                "mergeable": pr.get("mergeable"),
+                "mergeable_state": pr.get("mergeable_state"),
+                "head": (pr.get("head") or {}).get("sha"),
+                "base": (pr.get("base") or {}).get("sha"),
+                "url": pr.get("html_url")}
+    except Exception as e:
+        return {"number": pr_number, "unavailable": str(e)[:200]}
+
+
 def api_update_branch(repo_dir, branch, pr_number, old_tip, new_main):
     """Update the PR branch from main via GitHub's update-branch API
     (merge updates ONLY). Plain git push cannot authenticate here,
@@ -183,12 +235,37 @@ def api_update_branch(repo_dir, branch, pr_number, old_tip, new_main):
     expected_head_sha, and ancestry is verified: the new head's
     parents MUST contain new_main, else the branch is still not up
     to date and the deploy fails loudly. Never force-push; a 422
-    (e.g. merge conflict) fails loudly for manual resolution."""
+    (e.g. merge conflict) fails loudly for manual resolution.
+
+    Lease hardening: both SHAs are validated as exact 40-char values,
+    and the live branch tip is re-read immediately before the PUT and
+    compared to old_tip. A mismatch fails naming EXPECTED vs ACTUAL —
+    the branch moved under this deploy, so updating from the stale
+    lease would be a silent wrong update."""
+    validate_lease_sha("update-branch expected_head_sha", old_tip)
+    validate_lease_sha("update-branch main tip", new_main)
+    live_tip = branch_tip(branch)
+    if live_tip is None:
+        fail(f"refusing update-branch on PR #{pr_number}: cannot read "
+             f"the live head of {branch} to verify the lease "
+             f"(expected {old_tip}); refusing to update blind, never "
+             f"guessing")
+    if live_tip != old_tip:
+        fail(f"refusing update-branch on PR #{pr_number}: LEASE "
+             f"MISMATCH on {branch}: expected head {old_tip} (the head "
+             f"this deploy polled), actual remote head {live_tip} — "
+             f"the branch moved; refusing a stale-lease update, never "
+             f"a silent wrong update")
     try:
         gh("PUT", f"/pulls/{pr_number}/update-branch",
            {"expected_head_sha": old_tip})
     except Exception as e:
-        fail(f"branch update API failed: {e}")
+        state = pr_state(pr_number)
+        actual = branch_tip(branch)
+        fail(f"branch update API failed on PR #{pr_number} (reported "
+             f"once, not retried): {e}. Lease: expected head "
+             f"{old_tip}, actual remote head {actual}. PR state: "
+             f"{state}")
     deadline = time.time() + 180
     new_tip = None
     while time.time() < deadline:
@@ -197,16 +274,17 @@ def api_update_branch(repo_dir, branch, pr_number, old_tip, new_main):
             break
         time.sleep(10)
     if not new_tip or new_tip == old_tip:
-        fail(f"branch update did not advance {branch} from "
-             f"{old_tip[:12]} within 180s; aborting, never force-pushing")
+        actual = branch_tip(branch)
+        fail(f"branch update did not advance {branch} from expected "
+             f"head {old_tip} within 180s (actual remote head now "
+             f"{actual}); aborting, never force-pushing")
     parents = [p["sha"] for p in
                gh("GET", f"/git/commits/{new_tip}")["parents"]]
     if new_main not in parents:
-        fail(f"branch update ancestry wrong: new head {new_tip[:12]} "
-             f"parents {[p[:12] for p in parents]} do not contain main "
-             f"{new_main[:12]}")
+        fail(f"branch update ancestry wrong: new head {new_tip} "
+             f"parents {parents} do not contain main {new_main}")
     print(f"pr-flow-deploy: branch updated via update-branch API -> "
-          f"{new_tip[:12]} (parents {[p[:12] for p in parents]})")
+          f"{new_tip[:12]} (parents {[p[:12] for p in parents]})", flush=True)
     # Track the updated branch locally so the next loop iteration's
     # merge-base check reads the new head (whose parents are correct).
     git(["fetch", "origin", branch], repo_dir, check=False)
@@ -228,10 +306,21 @@ def create_pr(branch, title, body):
 def check_state(head_sha, required):
     """Aggregate latest check-run per required name -> (state, detail).
     state: 'green' | 'pending' | 'failed'. Missing names count as pending
-    until the caller times out (then reported as missing)."""
+    until the caller times out (then reported as missing).
+
+    Poll keying: the endpoint is already scoped to head_sha, but runs
+    are ALSO filtered to c["head_sha"] == head_sha, so a superseded
+    run's green can never count as this head's green. A run concluded
+    "cancelled" counts as PENDING, never failed: under
+    cancel-in-progress the old head's run is cancelled the moment the
+    new head's run starts, so failing on it would kill a deploy that
+    is simply being superseded (the caller detects the supersession
+    via the branch tip and re-polls the new head)."""
     runs = gh("GET", f"/commits/{head_sha}/check-runs?per_page=100")
     latest = {}
     for c in runs.get("check_runs", []):
+        if c.get("head_sha") and c["head_sha"] != head_sha:
+            continue
         name = c["name"]
         if name not in latest or c["id"] > latest[name]["id"]:
             latest[name] = c
@@ -242,6 +331,8 @@ def check_state(head_sha, required):
             missing.append(name)
         elif c["status"] in ("queued", "in_progress", "waiting"):
             pending.append(name)
+        elif c["conclusion"] == "cancelled":
+            pending.append(f"{name}=cancelled (awaiting re-run)")
         elif c["conclusion"] == "success":
             pass
         else:
@@ -253,15 +344,32 @@ def check_state(head_sha, required):
     return "green", "all required checks green"
 
 
-def poll_checks(head_sha, required, timeout, interval):
+def poll_checks(head_sha, required, timeout, interval, branch=None):
+    """Poll checks for EXACTLY head_sha. Returns (state, detail, head).
+
+    state 'superseded' means the branch tip moved mid-poll: detail
+    names old vs new head, and head is the NEW tip for the caller to
+    re-poll. It is never a failure (the old head's cancelled run must
+    not fail the deploy) and never a green (the new head has its own
+    runs to wait on). A None branch tip (transient API failure) is
+    ignored, never treated as supersession."""
     deadline = time.time() + timeout
     while True:
+        if branch:
+            tip = branch_tip(branch)
+            if tip and tip != head_sha:
+                return ("superseded",
+                        f"branch {branch} moved during poll: waited-on "
+                        f"head {head_sha} superseded by {tip}; "
+                        f"re-polling the new head, never failing on "
+                        f"the old head's cancelled run",
+                        tip)
         state, detail = check_state(head_sha, required)
-        print(f"pr-flow-deploy: checks on {head_sha[:12]}: {detail}")
+        print(f"pr-flow-deploy: checks on {head_sha[:12]}: {detail}", flush=True)
         if state != "pending":
-            return state, detail
+            return state, detail, head_sha
         if time.time() >= deadline:
-            return "failed", f"timed out after {timeout}s: {detail}"
+            return "failed", f"timed out after {timeout}s: {detail}", head_sha
         time.sleep(min(interval, max(1, deadline - time.time())))
 
 
@@ -276,6 +384,9 @@ def main():
     ap.add_argument("--allow-deletions", action="store_true")
     ap.add_argument("--timeout", type=int, default=1800)
     ap.add_argument("--poll-interval", type=int, default=60)
+    ap.add_argument("--max-updates", type=int, default=3,
+                    help="max update-branch cycles in the merge loop "
+                         "(default 3; superseded re-polls do not count)")
     ap.add_argument("--required-checks", nargs="*", default=DEFAULT_CHECKS)
     args = ap.parse_args()
     repo_dir = os.path.abspath(args.repo_dir)
@@ -297,12 +408,12 @@ def main():
     existing_tip = branch_tip(branch)
     if existing_tip:
         print(f"pr-flow-deploy: reusing remote branch {branch} at "
-              f"{existing_tip[:12]}")
+              f"{existing_tip[:12]}", flush=True)
         git(["checkout", "-B", branch, f"origin/{branch}"], repo_dir)
         base_sha = existing_tip
     else:
         print(f"pr-flow-deploy: creating branch {branch} from main "
-              f"{main_tip[:12]}")
+              f"{main_tip[:12]}", flush=True)
         gh("POST", "/git/refs",
            {"ref": f"refs/heads/{branch}", "sha": main_tip})
         git(["checkout", "-B", branch, "origin/main"], repo_dir)
@@ -321,10 +432,10 @@ def main():
                          f"origin/main..HEAD"], repo_dir)
         if ahead == "0":
             print("pr-flow-deploy: NO-CHANGES (nothing staged, branch "
-                  "has no commits vs main)")
-            print("RESULT: PRFLOW-NO-CHANGES")
+                  "has no commits vs main)", flush=True)
+            print("RESULT: PRFLOW-NO-CHANGES", flush=True)
             return 0
-        print("pr-flow-deploy: nothing new staged; reusing branch commits")
+        print("pr-flow-deploy: nothing new staged; reusing branch commits", flush=True)
         local_ref = git_out(["rev-parse", "HEAD"], repo_dir)
     else:
         modes = git_out(["ls-files", "-s"], repo_dir)
@@ -344,12 +455,12 @@ def main():
         local_ref = git_out(["rev-parse", "HEAD"], repo_dir)
     local_tree = git_out(["rev-parse", "HEAD^{tree}"], repo_dir)
     print(f"pr-flow-deploy: local commit {local_ref[:12]} "
-          f"tree {local_tree[:12]}")
+          f"tree {local_tree[:12]}", flush=True)
 
     head_sha = push_branch(repo_dir, branch, base_sha, local_ref,
                            args.message, args.allow_deletions)
     print(f"pr-flow-deploy: branch {branch} pushed -> {head_sha[:12]} "
-          f"(twin of local {local_ref[:12]})")
+          f"(twin of local {local_ref[:12]})", flush=True)
 
     title = args.message.splitlines()[0]
     body = (args.message + "\n\nPR-flow deploy via tools/pr-flow-deploy.py "
@@ -357,19 +468,35 @@ def main():
     pr = find_open_pr(branch)
     if pr:
         print(f"pr-flow-deploy: reusing open PR #{pr['number']}: "
-              f"{pr['html_url']}")
+              f"{pr['html_url']}", flush=True)
     else:
         pr = create_pr(branch, title, body)
         print(f"pr-flow-deploy: created PR #{pr['number']}: "
-              f"{pr['html_url']}")
+              f"{pr['html_url']}", flush=True)
     if args.no_merge:
-        print(f"RESULT: PRFLOW-PR {pr['html_url']}")
+        print(f"RESULT: PRFLOW-PR {pr['html_url']}", flush=True)
         return 0
 
-    # Merge loop: poll -> up-to-date? -> merge; at most 3 branch updates.
-    for cycle in range(4):
-        state, detail = poll_checks(head_sha, args.required_checks,
-                                    args.timeout, args.poll_interval)
+    # Merge loop: poll -> up-to-date? -> merge; at most --max-updates
+    # branch updates (default 3). A "superseded" poll (branch tip moved
+    # mid-poll) re-polls the new head WITHOUT consuming an update
+    # cycle; total rounds are bounded so contention cannot loop forever.
+    updates = 0
+    rounds = 0
+    while True:
+        rounds += 1
+        if rounds > 12:
+            fail("merge loop: too many poll/update rounds (contention); "
+                 "giving up, never force-push")
+        state, detail, polled_head = poll_checks(
+            head_sha, args.required_checks, args.timeout,
+            args.poll_interval, branch=branch)
+        if state == "superseded":
+            print(f"pr-flow-deploy: {detail}", flush=True)
+            head_sha = polled_head
+            print(f"pr-flow-deploy: re-polling new head "
+                  f"{head_sha[:12]}", flush=True)
+            continue
         if state != "green":
             fail(f"checks not green on {head_sha[:12]}: {detail}")
         git(["fetch", "origin", "main", branch], repo_dir, check=False)
@@ -377,11 +504,14 @@ def main():
         merge_base = git_out(["merge-base", f"origin/{branch}",
                               "origin/main"], repo_dir)
         if merge_base != new_main:
-            if cycle == 3:
-                fail("main moved again after 3 branch updates; giving up "
-                     "(contention — retry the deploy; never force-push)")
+            if updates >= args.max_updates:
+                fail(f"main moved again after {args.max_updates} branch "
+                     f"updates; giving up (contention — retry the "
+                     f"deploy; never force-push)")
+            updates += 1
             print(f"pr-flow-deploy: main moved ({new_main[:12]}); "
-                  f"updating branch (cycle {cycle + 1}/3)")
+                  f"updating branch (cycle {updates}/"
+                  f"{args.max_updates})", flush=True)
             old_tip = branch_tip(branch)
             # Merge updates go via GitHub's update-branch API (NOT
             # plain git push — it cannot authenticate here — and NOT
@@ -393,16 +523,25 @@ def main():
             head_sha = api_update_branch(repo_dir, branch, pr["number"],
                                          old_tip, new_main)
             print(f"pr-flow-deploy: branch updated -> {head_sha[:12]}; "
-                  f"re-polling checks")
+                  f"re-polling checks", flush=True)
             continue
         try:
             merged = gh("POST", f"/pulls/{pr['number']}/merge",
                         {"merge_method": "squash"})
         except Exception as e:
-            fail(f"squash-merge API failed: {e}")
+            # Report ONCE with the PR state attached; never loop-retry
+            # a merge POST. A 404 here is terminal for this run
+            # (transient or PR-specific per the #100/#102 evidence) —
+            # it is reported, not re-attempted.
+            state = pr_state(pr["number"])
+            kind = "API squash-merge 404" if "404" in str(e) \
+                else "squash-merge API failure"
+            fail(f"{kind} on PR #{pr['number']} (reported once, NOT "
+                 f"retried): {e}. Waited-on head: {head_sha}. PR "
+                 f"state: {state}")
         merge_sha = merged["sha"]
         print(f"pr-flow-deploy: squash-merged PR #{pr['number']} -> "
-              f"{merge_sha[:12]}")
+              f"{merge_sha[:12]}", flush=True)
         ref_main = main_branch_tip()
         if ref_main != merge_sha:
             fail(f"post-merge ref mismatch: main={ref_main[:12]} "
@@ -413,10 +552,10 @@ def main():
             fail(f"post-merge tree mismatch: main tree {main_tree[:12]} "
                  f"PR head tree {head_tree[:12]}")
         print(f"pr-flow-deploy: verified main={merge_sha[:12]} "
-              f"tree={main_tree[:12]} (matches PR head tree)")
+              f"tree={main_tree[:12]} (matches PR head tree)", flush=True)
         print(f"NOTE: HTML purge + live-bytes verification remain the "
-              f"caller's job (deploy-procedure §1 steps 4-5).")
-        print(f"RESULT: PRFLOW-MERGED {pr['html_url']} {merge_sha}")
+              f"caller's job (deploy-procedure §1 steps 4-5).", flush=True)
+        print(f"RESULT: PRFLOW-MERGED {pr['html_url']} {merge_sha}", flush=True)
         return 0
     fail("merge loop exhausted (unreachable)")
 
