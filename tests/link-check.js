@@ -69,7 +69,14 @@ function main() {
   const files = walk(ROOT);
   const broken = [];
   for (const f of files) {
-    const html = fs.readFileSync(f, 'utf8');
+    // Strip <script> BODIES (not the opening tags): JavaScript string
+    // concatenation like '?src='+src produces href/src-shaped text that
+    // is code, not a link (2026-10-29: 3 false positives in
+    // nepse-news/story/index.html from '?src='+src and '?src=' + src +
+    // ternaries). Real <script src> attributes stay checkable because
+    // the opening tag is preserved; real markup href/src are untouched.
+    const html = fs.readFileSync(f, 'utf8').replace(
+      /(<script\b[^>]*>)[\s\S]*?(<\/script\s*>)/gi, '$1$2');
     const rel = '/' + path.relative(ROOT, f);
     for (const u of targetsOf(html)) {
       const miss = resolveTarget(f, u);

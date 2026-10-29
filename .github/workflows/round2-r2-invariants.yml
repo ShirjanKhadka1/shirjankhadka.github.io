@@ -40,13 +40,10 @@ on:
       - 'tools/build-nepse-universe.js'
       - 'tools/round2-test-r2.js'
       - 'tools/round2-verify-r2.py'
+  # pull_request runs UNFILTERED by design: these are required checks,
+  # and a path-filtered check that never runs blocks the PR (GitHub
+  # reports it as Expected forever). Push stays path-filtered.
   pull_request:
-    paths:
-      - 'nepse-chart/data/verdicts.json'
-      - 'nepse-chart/data/universe.json'
-      - 'tools/build-nepse-universe.js'
-      - 'tools/round2-test-r2.js'
-      - 'tools/round2-verify-r2.py'
   workflow_dispatch:
 
 permissions:

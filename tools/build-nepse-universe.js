@@ -16,6 +16,11 @@
  * (weekly/monthly), never a forced call.
  *
  * Node 18+, no npm dependencies. Run: node tools/build-nepse-universe.js
+ *
+ * CI NOTE: this file is in the pull_request path lists of the R1/R2
+ * workflows, and the PR triggers are intentionally unfiltered — required
+ * checks must report on every PR, or a check that never runs blocks the
+ * merge as Expected. Do not re-add path filters to pull_request.
  */
 'use strict';
 const https = require('https');
