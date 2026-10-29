@@ -234,8 +234,24 @@
    * universe: securities with no quote on the tape yet render as no-data
    * tiles and are counted in noData — never silently dropped. RSI needs
    * multi-session history, so avgRsi reuses the latest daily batch values
-   * (batchRsi), which the loader caches from verdicts.json. */
-  function aggregateLiveTape(live, todayStr) {
+   * (batchRsi), which the loader caches from verdicts.json.
+   * QUARANTINE BUCKET (2026-10-30, audit F7): the live layer
+   * (js/nepse-data.js, ±10% vs previous close — threshold NOT changed
+   * here) drops quarantined quotes before consumers see them, so a
+   * quarantined symbol is ABSENT from the NepseLive quote map exactly
+   * like a genuinely unquoted symbol. Folding it into noData hid it:
+   * on 2026-10-29 BENH (+15.0%, real quote) was counted among the
+   * "not yet traded". Quarantined symbols are therefore counted
+   * SEPARATELY (agg.quarantined, per-sector g.quarantined, quarantined
+   * breadth qAdv/qDec/qFlat) and never contribute to traded, breadth,
+   * averages, or turnover — their tiles carry no price/change, so no
+   * quarantined figure is ever displayed, only the bucket count. The
+   * quarantine set comes from the live layer itself: the caller passes
+   * it (paintLiveFromTape reads NepseData's flagged snapshot), or a
+   * quote carries its own quarantined flag (shapeRawTape, raw-tape path,
+   * same ±10% rule). noData is then genuinely unquoted only, and
+   * traded + quarantined reconciles to the tape's quoted count. */
+  function aggregateLiveTape(live, todayStr, quarantinedSet) {
     var q = (live && live.quotes) || {};
     var sectors = {}, totalTurn = 0;
     // Full listed universe first (captured by load() from universe.json);
@@ -244,16 +260,48 @@
     Object.keys(q).forEach(function (sym) {
       if (syms.indexOf(sym) < 0) syms.push(sym);
     });
-    var traded = 0;
+    var qset = quarantinedSet || (live && live.quarantinedSet) || null;
+    var traded = 0, quarantined = 0, quarantinedSyms = [];
+    var qAdv = 0, qDec = 0, qFlat = 0;
     syms.forEach(function (sym) {
       var e = q[sym] || null;
       var sec = sectorOf(null, sym);
       if (!sectors[sec]) sectors[sec] = {
         name: sec, count: 0, chs: [], adv: 0, dec: 0, flat: 0,
-        turn: 0, rsis: [], rows: [], tiles: []
+        turn: 0, rsis: [], rows: [], tiles: [], quarantined: 0
       };
       var g = sectors[sec];
       g.count++;
+      // Quarantine check FIRST, before the no-quote branch: on the
+      // NepseLive path a quarantined symbol is ABSENT from the quote map
+      // (e === null) exactly like a genuinely unquoted symbol, so checking
+      // !e first would fold it back into noData — the bug being fixed.
+      // qset values carry the live layer's percent_change when known
+      // (see quarantinedSetFromLiveLayer), so quarantined breadth can
+      // still reconcile (traded up + quarantined up = tape up) without
+      // displaying any quarantined price/change.
+      var isQ = false, qch = null;
+      if (e && e.quarantined) {
+        isQ = true;
+        qch = (e.pct == null || isNaN(e.pct)) ? null : Number(e.pct);
+      } else if (qset && qset[sym] != null) {
+        isQ = true;
+        qch = (typeof qset[sym] === 'number') ? qset[sym]
+          : ((e && e.pct != null && !isNaN(e.pct)) ? Number(e.pct) : null);
+      }
+      if (isQ) {
+        // Quarantined by the live layer: counted in its own bucket only.
+        // No price/change/turnover is displayed for it, and it contributes
+        // to neither traded nor breadth nor any average.
+        quarantined++;
+        quarantinedSyms.push(sym);
+        g.quarantined++;
+        if (qch != null) {
+          if (qch > 0) qAdv++; else if (qch < 0) qDec++; else qFlat++;
+        }
+        g.tiles.push({ sym: sym, name: (e && e.name) || nameOf(sym), p: null, ch: null, turn: 0, vol: null, quarantined: true });
+        return;
+      }
       if (!e) {
         // Listed but not yet traded on this tape: no-data tile, and no
         // breadth/average contribution — present, never silently absent.
@@ -286,14 +334,44 @@
         name: g.name, count: g.count, adv: g.adv, dec: g.dec, flat: g.flat, nCh: n,
         avgCh: avgCh, pctUp: n ? (g.adv / n) * 100 : null, avgRsi: avgRsi,
         turnShare: totalTurn > 0 ? (g.turn / totalTurn) * 100 : null,
-        turn: g.turn,
+        turn: g.turn, quarantined: g.quarantined || 0,
         gainers: gainers, losers: losers, tiles: g.tiles
       };
     });
     list.sort(function (a, b) {
       return b.count - a.count;
     });
-    return { sectors: list, asof: todayStr, total: syms.length, listed: syms.length, traded: traded, noData: syms.length - traded, tapeAsof: (live && live.asof) || 0, totalTurn: totalTurn };
+    return { sectors: list, asof: todayStr, total: syms.length, listed: syms.length, traded: traded,
+      quarantined: quarantined, quarantinedSyms: quarantinedSyms,
+      quarantinedAdv: qAdv, quarantinedDec: qDec, quarantinedFlat: qFlat,
+      noData: syms.length - traded - quarantined, tapeAsof: (live && live.asof) || 0, totalTurn: totalTurn };
+  }
+
+  /* Quarantine set from the live layer: NepseData's canonical snapshot
+   * keeps quarantined quotes, flagged (q.quarantined), even though
+   * getQuotes()/NepseLive filter them out of the consumer map. Reading
+   * the set here — never re-deriving it from the filtered map, where
+   * quarantined and unquoted are indistinguishable — is what lets
+   * aggregateLiveTape break quarantine out of noData. Returns null when
+   * the live layer is unavailable (caller then falls back to the
+   * filtered counts, as before). */
+  function quarantinedSetFromLiveLayer() {
+    try {
+      var ND = window.NepseData;
+      if (!ND || typeof ND.getSnapshot !== 'function') return null;
+      var snap = ND.getSnapshot();
+      if (!snap) return null;
+      var set = {};
+      function put(qq) {
+        if (!qq || !qq.quarantined) return;
+        var pc = Number(qq.percent_change);
+        set[qq.symbol] = isFinite(pc) ? pc : true;
+      }
+      (snap.quotes || []).forEach(put);
+      var map = snap.map || {};
+      Object.keys(map).forEach(function (s) { put(map[s]); });
+      return set;
+    } catch (e) { return null; }
   }
 
   var MONTHS_L = ['January','February','March','April','May','June','July',
@@ -361,7 +439,8 @@
         var tip = t.sym +
           (t.p != null ? ' · Rs ' + num(t.p, 2) : '') +
           (t.ch != null ? ' · day ' + pctText(t.ch) : ' · no day-change data') +
-          (t.turn > 0 ? ' · turnover ' + fmtTurn(t.turn) : '');
+          (t.turn > 0 ? ' · turnover ' + fmtTurn(t.turn) : '') +
+          (t.quarantined ? ' · quarantined' : '');
         return '<a class="sx-tm-tile ' + heatClass(t.ch) + '"' +
           ' href="/stocks/' + esc(String(t.sym).replace(/\//g, '-')) + '/"' +
           ' title="' + esc(tip) + '">' +
@@ -388,6 +467,8 @@
   function renderCards(sectors) {
     var h = sectors.map(function (g) {
       var t = g.adv + g.dec + g.flat;
+      var qn = g.quarantined || 0;
+      var noCh = g.count - t - qn;
       var wUp = t ? (g.adv / t) * 100 : 0;
       var wDn = t ? (g.dec / t) * 100 : 0;
       var wFlat = t ? (g.flat / t) * 100 : 0;
@@ -402,7 +483,8 @@
         '<p class="sx-breadth-cap"><span data-count="' + g.adv + '">' + g.adv + '</span> up · ' +
           '<span data-count="' + g.dec + '">' + g.dec + '</span> down · ' +
           '<span data-count="' + g.flat + '">' + g.flat + '</span> flat' +
-          (g.count - t ? ' · ' + (g.count - t) + ' no change data' : '') + '</p>' +
+          (noCh ? ' · ' + noCh + ' no change data' : '') +
+          (qn ? ' · ' + qn + ' quarantined' : '') + '</p>' +
         '<details><summary>Leaders and laggards</summary>' +
           '<div class="sx-lead">' +
             '<div><h4>Top gainers</h4>' + leaderList(g.gainers, g.name, 'No change data in this sector.') + '</div>' +
@@ -729,6 +811,7 @@
     });
     return (isLive ? 'live' : 'batch') + '|' + (agg.asof || '') + '|' +
       (agg.traded != null ? agg.traded : agg.total) + '|' +
+      (agg.quarantined || 0) + '|' +
       Math.round(agg.totalTurn || 0) + '|' + (agg.tapeAsof || 0) + '|' + h.toString(16);
   }
   function rebaselineSig() {
@@ -757,6 +840,7 @@
       : ('Batch as of ' + (agg.asof || '—'));
     var counts = lastIsLive
       ? ((agg.traded != null ? agg.traded : agg.total) + ' traded · ' +
+        (agg.quarantined ? agg.quarantined + ' quarantined · ' : '') +
         (agg.noData != null ? agg.noData : 0) + ' not yet traded')
       : (agg.total + ' of ' + (agg.listed || agg.total) + ' listed securities');
     fl.innerHTML = '<span class="sx-fresh-dot" data-state="' + state + '"></span>' +
@@ -777,7 +861,9 @@
       : String(agg.listed || agg.total);
     el = $('sxStatListedSub');
     if (el) el.textContent = isLive
-      ? ((agg.noData != null ? agg.noData : 0) + ' not yet traded · ' + secs.length + ' sectors')
+      ? ((agg.noData != null ? agg.noData : 0) + ' not yet traded' +
+        (agg.quarantined ? ' · ' + agg.quarantined + ' quarantined' : '') +
+        ' · ' + secs.length + ' sectors')
       : (secs.length + ' sectors · batch as of ' + (agg.asof || '—'));
     el = $('sxStatTurn');
     if (el) el.textContent = fmtMoneyFull(agg.totalTurn);
@@ -787,7 +873,10 @@
     el = $('sxStatBreadth');
     if (el) el.textContent = adv + ' up · ' + dec + ' down';
     el = $('sxStatBreadthSub');
-    if (el) el.textContent = flat + ' flat · ' + t + ' with change data';
+    if (el) el.textContent = flat + ' flat · ' + t + ' with change data' +
+      ((isLive && agg.quarantined)
+        ? ' · ' + agg.quarantined + ' quarantined (' + (agg.quarantinedAdv || 0) + ' up)'
+        : '');
     el = $('sxStatBreadthBar');
     if (el) {
       var wUp = t ? (adv / t) * 100 : 0, wDn = t ? (dec / t) * 100 : 0, wFl = t ? (flat / t) * 100 : 0;
@@ -855,9 +944,11 @@
     var page = rows.slice(start, start + PANEL_PAGE);
     body.innerHTML = page.length ? page.map(function (t) {
       var traded = t.p != null;
-      var status = lastIsLive
-        ? (traded ? '<span class="sx-live-dot"></span>traded' : '<span class="sx-notrade">no trade</span>')
-        : (traded ? 'session' : '<span class="sx-notrade">no price data</span>');
+      var status = t.quarantined
+        ? '<span class="sx-notrade">quarantined</span>'
+        : (lastIsLive
+          ? (traded ? '<span class="sx-live-dot"></span>traded' : '<span class="sx-notrade">no trade</span>')
+          : (traded ? 'session' : '<span class="sx-notrade">no price data</span>'));
       return '<tr><td><a href="' + esc(stockURL(t.sym)) + '">' + esc(t.sym) + '</a></td>' +
         '<td class="sx-col-name">' + esc(t.name || t.sym) + '</td>' +
         '<td class="num">' + (t.p != null ? esc(num(t.p, 2)) : '<span class="sx-dash">-</span>') + '</td>' +
@@ -891,14 +982,28 @@
     var asofMs = Date.parse(raw.asof);
     if (!isFinite(asofMs)) return null;
     function num(v) { v = Number(v); return isFinite(v) ? v : null; }
+    // Quarantine threshold: read from the live layer's own config
+    // (nepse-market-config.js CIRCUIT_QUARANTINE_PCT, ±10%) — read,
+    // never changed, here. The flag lets aggregateLiveTape break
+    // quarantined symbols out of "not yet traded" on this raw-tape path,
+    // where no live-layer filtering has happened yet.
+    var thresh = 10;
+    try {
+      var CFG = window.NepseMarketConfig;
+      if (CFG && CFG.CIRCUIT_QUARANTINE_PCT != null && isFinite(Number(CFG.CIRCUIT_QUARANTINE_PCT)))
+        thresh = Number(CFG.CIRCUIT_QUARANTINE_PCT);
+    } catch (e) { /* keep 10 */ }
     var quotes = {};
     raw.quotes.forEach(function (q) {
       if (!q || !q.symbol) return;
+      var ltp = num(q.ltp), prev = num(q.previous_close);
+      var isQ = (ltp != null && prev != null && prev > 0 &&
+        Math.abs((ltp - prev) / prev) * 100 > thresh);
       quotes[q.symbol] = {
-        symbol: q.symbol, ltp: num(q.ltp), change: num(q.change),
+        symbol: q.symbol, ltp: ltp, change: num(q.change),
         pct: num(q.percent_change), high: num(q.high), low: num(q.low),
         volume: num(q.volume), turnover: num(q.turnover), trades: num(q.trades),
-        prev: num(q.previous_close), name: q.name || null
+        prev: prev, name: q.name || null, quarantined: isQ
       };
     });
     return { asof: asofMs, quotes: quotes };
@@ -992,6 +1097,7 @@
         sxAsof.textContent = (liveNow ? 'Live session of ' : 'Session of ') + fmtLiveDay(agg.asof) + ' · ' +
           agg.total + ' of ' + (agg.listed || agg.total) + ' listed securities · ' +
           (agg.traded != null ? agg.traded : agg.total) + ' traded · ' +
+          (agg.quarantined ? agg.quarantined + ' quarantined · ' : '') +
           (agg.noData != null ? agg.noData : 0) + ' not yet traded' + tapeAgeBit(agg.tapeAsof);
       } else {
         sxAsof.textContent = agg.asof
@@ -1027,7 +1133,10 @@
     } catch (e) { /* keep nulls */ }
     if (!dayStr || dayStr !== todayStr) return;
     lastLiveAsOf = d.asof;
-    drawAll(aggregateLiveTape(d, todayStr), true, st && st.state);
+    // NepseLive's map is already quarantine-filtered, so pass the live
+    // layer's own flagged set — without it, quarantined symbols would
+    // again fold into "not yet traded" (see aggregateLiveTape).
+    drawAll(aggregateLiveTape(d, todayStr, quarantinedSetFromLiveLayer()), true, st && st.state);
   }
 
   function init() {
