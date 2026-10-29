@@ -62,12 +62,17 @@ def main():
             fail(f'stale stamp for {ref}: page {m.group(1)} != file {want}')
         else:
             info(f'stamp current for {ref} ({want})')
-    # Phase 5 stamp sweep (800bcd957) superseded the nav-fix stamp 69b323cf;
-    # pin to the current chrome file so page+file agreement is what is checked.
-    if 'nd-chrome.css?v=e2586480' in page:
-        info('chrome stamp is current (167f8f41)')
+    # Chrome stamp: page+file agreement, like the other assets (the old
+    # literal nav-fix pin e2586480 went stale when R6 86f49909 changed
+    # nd-chrome.css; the page correctly carries the current file hash).
+    want_chrome = sha8(os.path.join(root, 'css', 'nd-chrome.css'))
+    mc = re.search(r'nd-chrome\.css\?v=([a-f0-9]+)', page)
+    if not mc:
+        fail('page missing stamp ref for nd-chrome.css')
+    elif mc.group(1) != want_chrome:
+        fail(f'stale chrome stamp: page {mc.group(1)} != file {want_chrome}')
     else:
-        fail('chrome stamp is not the nav fix')
+        info(f'chrome stamp current ({want_chrome})')
     if 'sig-pro.css' in page:
         fail('page still loads sig-pro.css (shell classes were ported)')
     else:
