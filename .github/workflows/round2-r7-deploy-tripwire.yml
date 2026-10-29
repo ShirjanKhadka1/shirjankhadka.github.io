@@ -1,0 +1,50 @@
+# ROUND 2 / R7 — deploy-procedure tripwire (READ-ONLY).
+#
+# Guards docs/deploy-procedure.md: on every push to main, and on every
+# PR touching the document, fail if the document is missing or if any
+# mandatory-step keyword is absent (twin-verification, authenticated
+# ref read, live-bytes, purge-before-verified, post-purge
+# re-verification). This workflow itself performs NO deploy, NO write
+# and NO merge: it only reads the checked-out tree and greps.
+#
+# It is NOT a substitute for the deploy-time verifier
+# (hidden_files/script-first/audit-deploy-verify.py), which needs
+# connector auth that GitHub runners do not have and therefore runs at
+# deploy time, not in CI. Do not reframe this tripwire as a deploy gate
+# until branch protection lists it as a required check (see
+# docs/deploy-procedure.md §5).
+#
+# HONEST MODE: no `|| true` anywhere — a missing keyword fails the run.
+
+name: R7 deploy-procedure tripwire
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/deploy-procedure.md'
+      - '.github/workflows/round2-r7-deploy-tripwire.yml'
+  pull_request:
+    paths:
+      - 'docs/deploy-procedure.md'
+      - '.github/workflows/round2-r7-deploy-tripwire.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  procedure-present:
+    name: Deploy procedure present and complete
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Mandatory steps present in docs/deploy-procedure.md
+        run: |
+          set -euo pipefail
+          test -f docs/deploy-procedure.md
+          for kw in "parallel pusher" "Authenticated ref read" "Live-bytes check" "Cloudflare purge" "Post-purge re-verification" "twin-verified direct-to-main"; do
+            grep -qF "$kw" docs/deploy-procedure.md || { echo "MISSING keyword: $kw"; exit 1; }
+          done
+          echo "deploy-procedure.md present with all mandatory steps"
