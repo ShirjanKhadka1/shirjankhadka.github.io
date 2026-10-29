@@ -15,7 +15,7 @@
 (function(){
 "use strict";
 var BASE = '/nepse-brokers/data/';
-var DAILY_END = '2026-10-07'; /* daily archive end, rewritten by the snapshot baker; verifier-checked */
+var DAILY_END = '2026-10-29'; /* daily archive end, rewritten by the snapshot baker; verifier-checked */
 var state = { view: 'top', period: 'latest', data: null, brokers: {}, meta: null, asof: null, rangeFrom: null, rangeTo: null, symbol: null, broker: null, topPage: 0, holdPage: 0, brkPage: 0, brkQuery: '', accPage: 0, distPage: 0, accSearch: '', sorts: {}, provPage: 0, mode: '' };
 var $ = function(id){ return document.getElementById(id); };
 var lastSig = null, lastData = null, lastFresh = '';
