@@ -40,7 +40,7 @@
     if (isNaN(n)) return '—';
     var sign = n < 0 ? '-' : '';
     var a = Math.abs(n);
-    if (a >= 1e9) return sign + 'Rs ' + (a / 1e9).toFixed(2) + ' arab';
+    if (a >= 1e9) return sign + 'Rs ' + (a / 1e9).toFixed(2) + ' arba';
     if (a >= 1e7) return sign + 'Rs ' + (a / 1e7).toFixed(2) + ' Cr';
     if (a >= 1e5) return sign + 'Rs ' + (a / 1e5).toFixed(2) + ' L';
     return sign + 'Rs ' + fmtNum(a);
@@ -341,9 +341,21 @@
     cv.setAttribute('aria-label', 'NEPSE index closes from ' + fmtDay(slice[0][0]) + ' to ' + fmtDay(slice[slice.length - 1][0]));
   }
 
-  function renderIntra(intra) {
+  function renderIntra(intra, sessionDate) {
     var box = $('ixIntraBox');
     if (!box) return;
+    /* Date gate: the intraday file is a per-session file. A file from
+       an earlier day must never be presented as this session's path —
+       its single close observation would read as today's session.
+       When the file's day is not this session's date, say so instead
+       of painting the old close. */
+    if (sessionDate) {
+      var day = (intra && intra.day) ? String(intra.day).slice(0, 10) : '';
+      if (day !== sessionDate) {
+        box.innerHTML = '<p class="ix-cap">No intraday path published for this session.</p>';
+        return;
+      }
+    }
     var obs = (intra && intra.obs) || [];
     if (obs.length <= 1) {
       box.innerHTML = '<p class="ix-cap">Only ' + obs.length + ' observation published for this session so far' +
@@ -385,6 +397,18 @@
   }
 
   function boot() {
+    /* Intraday fetch starts at boot but is rendered only once the
+       live session date is known, so the date gate in renderIntra
+       always compares against the real session (never a race). */
+    var intraP = fetchJSON(INTRA_URL);
+    var renderIntraBox = function (sessionDate) {
+      intraP.then(function (intra) {
+        renderIntra(intra, sessionDate);
+      }, function () {
+        var box = $('ixIntraBox');
+        if (box) box.innerHTML = '<p class="ix-cap">Intraday path unavailable for this session.</p>';
+      });
+    };
     fetchJSON(LIVE_URL).then(function (live) {
       lastLive = live; lastFp = fingerprint(live); lastSession = live.session_date || '';
       return fetchJSON(UNI_URL).then(function (uni) {
@@ -392,17 +416,17 @@
       }, function () { return { live: live, uniCount: null }; });
     }).then(function (res) {
       renderLive(res.live, res.uniCount);
+      var session = res.live.session_date || (res.live.asof ? String(res.live.asof).slice(0, 10) : '');
+      renderIntraBox(session);
     }, function () {
       var el = $('ixAsof');
       if (el) el.textContent = 'Live index data unavailable.';
+      var box = $('ixIntraBox');
+      if (box) box.innerHTML = '<p class="ix-cap">Intraday path unavailable for this session.</p>';
     });
     fetchJSON(HIST_URL).then(renderHistory, function () {
       var cc = $('ixChartCap');
       if (cc) cc.textContent = 'Index history unavailable.';
-    });
-    fetchJSON(INTRA_URL).then(renderIntra, function () {
-      var box = $('ixIntraBox');
-      if (box) box.innerHTML = '<p class="ix-cap">Intraday path unavailable for this session.</p>';
     });
     /* Redraw canvas on theme flip (colors are theme-paired). */
     if (typeof MutationObserver !== 'undefined') {
