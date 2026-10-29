@@ -306,7 +306,7 @@ def build_and_push_branch(worktree, branch, live_bytes, base_sha):
     raise RuntimeError("parallel pusher failed twice; aborting (main may be moving fast)")
 
 
-def open_pr(branch, asof_npt):
+def open_pr(branch, asof_npt, draft=False):
     body = (
         "Batched intraday publish: latest staged live snapshot "
         f"(asof {asof_npt} NPT, PROVISIONAL) through the full required gate. "
@@ -314,14 +314,20 @@ def open_pr(branch, asof_npt):
         "are full snapshots. Closing snapshots are NOT published by this job "
         "(close-capture owns the validated close)."
     )
+    if draft:
+        body = ("[PROOF RUN — DO NOT MERGE] Mechanics proof only; this PR is "
+                "opened as a draft and will be closed unmerged by the proof "
+                "run itself. It must never be merged.\n\n" + body)
     pr = gh_or_die(
         "POST",
         f"/repos/{REPO}/pulls",
         {
-            "title": f"Intraday: live snapshot {asof_npt} (batched publish)",
+            "title": ("[PROOF — DO NOT MERGE] " if draft else "")
+            + f"Intraday: live snapshot {asof_npt} (batched publish)",
             "head": branch,
             "base": "main",
             "body": body,
+            "draft": draft,
         },
     )
     return pr
@@ -484,7 +490,8 @@ def main():
         base = get_main_tip()
         _, tree = build_and_push_branch(worktree, branch, staged_raw, base)
         s_asof, _, _ = parse_snapshot(staged_raw)
-        pr = open_pr(branch, s_asof.astimezone(NPT).strftime("%Y-%m-%d %H:%M"))
+        pr = open_pr(branch, s_asof.astimezone(NPT).strftime("%Y-%m-%d %H:%M"),
+                     draft=args.proof)
         log(f"opened PR #{pr['number']} on {branch}")
         verify_pr_files(pr["number"])
 
