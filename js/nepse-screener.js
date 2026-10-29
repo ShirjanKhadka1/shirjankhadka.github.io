@@ -811,10 +811,16 @@ function renderCardResults() {
       state.wave1Asof = (res[5] && res[5].asof) || '';
       state.rows = Object.keys(v).map(function (sym) {
         var e = v[sym];
-        // Authoritative verdicts.json sec (written by the universe builder
-        // from tools/sector-map.json) wins; the local classifier is the
-        // fallback. Every security lands in exactly one real category.
-        var sec = (e.sec && e.sec !== 'Unknown') ? e.sec : (groups[sym] || 'Others');
+        // Universe classifier wins, mirroring js/nepse-sectors.js sectorOf()
+        // and nepse-compare.js: verdicts.json sec is only the fallback,
+        // when the symbol is absent from universe.json. Verified
+        // 2026-10-29: the classifier disagrees with verdicts sec on
+        // exactly 18 symbols and on nothing else, and on all 18 the
+        // universe classification is the correct one (11 debentures and
+        // 5 promoter shares defaulted to 'Others' in verdicts sec,
+        // NABILP to 'Banking', BENH hydropower equity to 'Others').
+        // Every security lands in exactly one real category.
+        var sec = groups[sym] || ((e.sec && e.sec !== 'Unknown') ? e.sec : 'Others');
         return {
           sym: sym, name: names[sym] || sym, v: e.v, s: e.s, p: e.p, ch: e.ch,
           vol: e.vol, volAvg: e.volAvg || null, sec: sec, sl: e.sl, tp: e.tp,
@@ -992,10 +998,10 @@ function renderCardResults() {
         if (fc[vv] != null) fc[vv]++; else fc[vv] = 1;
       });
       var fdist = VERDICTS.map(function (v) { return v + ':' + (fc[v] || 0); }).join(',');
-      /* Fresh sector counts under the SAME rule as applyData (sec-wins,
-       * classifier fallback from the fresh universe) so the tick signature
-       * is computed identically to computeSig() — a placeholder here would
-       * make every tick look like a change. */
+      /* Fresh sector counts under the SAME rule as applyData
+       * (classifier-first, verdicts sec fallback from the fresh universe)
+       * so the tick signature is computed identically to computeSig() — a
+       * placeholder here would make every tick look like a change. */
       var fnames = {}, fgroups = {};
       if (res[1] && res[1].symbols) res[1].symbols.forEach(function (it) {
         if (it.s) { fnames[it.s] = it.n || it.s; fgroups[it.s] = classifySymbol(it.s, it.n, it.t); }
@@ -1003,7 +1009,7 @@ function renderCardResults() {
       var fsec = {};
       Object.keys(freshRows).forEach(function (sym) {
         var e = freshRows[sym];
-        var sec = (e.sec && e.sec !== 'Unknown') ? e.sec : (fgroups[sym] || 'Others');
+        var sec = fgroups[sym] || ((e.sec && e.sec !== 'Unknown') ? e.sec : 'Others');
         fsec[sec] = (fsec[sec] || 0) + 1;
       });
       var fsecStr = Object.keys(fsec).sort().map(function (s) { return s + ':' + fsec[s]; }).join(',');
