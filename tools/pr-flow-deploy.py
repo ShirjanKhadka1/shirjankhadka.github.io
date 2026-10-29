@@ -151,6 +151,33 @@ def commit_tree(sha):
     return gh("GET", f"/git/commits/{sha}")["tree"]["sha"]
 
 
+def ensure_base_present(repo_dir, base_sha, tries=3):
+    """Guarantee the deploy base commit's objects exist locally.
+
+    Root cause of the 2026-10-30 00:05 midnight-rollover failure:
+    the old code ran `git fetch origin main <branch>` as ONE command.
+    When <branch> does not exist remotely yet (the normal case for a
+    fresh daily branch), that fetch exits 128 WITHOUT updating
+    origin/main — and the old check=False call swallowed it. Main
+    then moved during the build, so the API branch was created at a
+    tip the local clone had never downloaded, and the pusher died
+    128 diffing the unknown base. Fetching main ALONE cannot hit
+    that trap; retries cover transient proxy / ref-lock failures;
+    and a still-missing base after all tries fails LOUDLY here
+    instead of dying obscurely inside the pusher.
+    """
+    for i in range(tries):
+        r = git(["cat-file", "-e", f"{base_sha}^{{commit}}"],
+                repo_dir, check=False)
+        if r.returncode == 0:
+            return
+        git(["fetch", "origin", "main"], repo_dir, check=False)
+        time.sleep(5 * (i + 1))
+    fail(f"deploy base {base_sha[:12]} not present locally after "
+         f"{tries} fetches of origin/main; refusing to deploy on an "
+         f"unknown base (stale-clone trap — see ensure_base_present)")
+
+
 def push_branch(repo_dir, branch, base_sha, local_ref, message, allow_deletions):
     """Push local_ref's exact tree onto branch via the parallel pusher.
     Returns the remote (twin) commit SHA. The pusher cannot CREATE a
@@ -292,8 +319,15 @@ def main():
     if not git_out(["config", "user.name"], repo_dir):
         fail("git user.name not configured", code=2)
 
-    git(["fetch", "origin", "main", branch], repo_dir, check=False)
+    # Fetch main ALONE first: bundling the branch ref into this fetch
+    # exits 128 without updating origin/main when the branch does not
+    # exist remotely yet (fresh daily branch — the 2026-10-30
+    # midnight-rollover failure), and check=False used to swallow it.
+    git(["fetch", "origin", "main"], repo_dir, check=False)
     main_tip = main_branch_tip()
+    ensure_base_present(repo_dir, main_tip)
+    # Best-effort branch fetch: a missing branch is normal here.
+    git(["fetch", "origin", branch], repo_dir, check=False)
     existing_tip = branch_tip(branch)
     if existing_tip:
         print(f"pr-flow-deploy: reusing remote branch {branch} at "
@@ -305,7 +339,10 @@ def main():
               f"{main_tip[:12]}")
         gh("POST", "/git/refs",
            {"ref": f"refs/heads/{branch}", "sha": main_tip})
-        git(["checkout", "-B", branch, "origin/main"], repo_dir)
+        git(["checkout", "-B", branch, main_tip], repo_dir)
+        # base_sha is the API tip, and the local parent is now exactly
+        # that tip (not a possibly-newer local origin/main), so the
+        # pusher's diff base..local covers precisely this deploy.
         base_sha = main_tip
 
     # Stage + commit (refuse 100755: the branch pusher hardcodes 100644).
