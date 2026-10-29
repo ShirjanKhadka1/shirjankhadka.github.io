@@ -48,13 +48,73 @@ function bisectLeft(dates, target) {
   return lo;
 }
 
+// ROUND 2 / R3 fix 1 — date-type alignment. Series dates are YYYYMMDD
+// NUMBERS (the universe builder maps every row through ymdNum), but call
+// dates are 'YYYY-MM-DD' STRINGS (the build asof). The old walkCall fed
+// the raw string into bisectLeft against numbers: number < string coerces
+// the string to NaN, every comparison is false, ei collapses to 0, and
+// dates[0] !== call.date, so EVERY call returned unknown_series and the
+// caller silently skipped it — the ledger never aged (all 65 audit calls
+// frozen at sessions_elapsed 0). Normalising both sides to a YYYYMMDD
+// number before the bisect removes the type mismatch entirely, for string
+// and numeric call dates alike. unknown_series now means ONLY "this call
+// date is genuinely absent from the series", never a type artefact.
+function ymdNum(date) {
+  return +(String(date).replace(/-/g, ''));
+}
+
+function fmtDate(ymd) {
+  const s = String(ymd);
+  return s.slice(0, 4) + '-' + s.slice(4, 6) + '-' + s.slice(6, 8);
+}
+
+// ROUND 2 / R3 fix 2 — corporate-action-aware walk. NEPSE enforces a
+// ±10% daily circuit, so an overnight open/prev-close gap beyond ±10% is
+// a bonus/split/rights adjustment, not a market move (mirrors
+// tools/build-signals.js). Reverse-adjust all prior bars by the ratio and
+// scale the call's entry/sl/tp by every ratio dated AFTER the call date,
+// so a bonus ex-date drop cannot trip the stop. Without this, the date
+// fix alone reintroduces MEN-type false closes (MEN 2026-10-27 bonus
+// ex-date: raw low 560 trips sl 648.21; adjusted stop 540.18, call stays
+// open). Volume is untouched: the walk reads high/low/close only.
+// Returns { series, call, adjustments } where adjustments lists only the
+// ratios applied to the call levels (dated after the call date).
+function adjustForCorporateActions(call, series) {
+  const adj = series.map((r) => r.slice());
+  const all = [];
+  for (let i = 1; i < adj.length; i++) {
+    const prevC = adj[i - 1][4], open = adj[i][1];
+    if (!(prevC > 0 && open > 0)) continue;
+    const ratio = open / prevC;
+    if (ratio < 0.9 || ratio > 1.1) {
+      for (let j = 0; j < i; j++) {
+        adj[j][1] *= ratio; adj[j][2] *= ratio;
+        adj[j][3] *= ratio; adj[j][4] *= ratio;
+      }
+      all.push({ date: adj[i][0], ratio: Math.round(ratio * 10000) / 10000 });
+    }
+  }
+  const callDate = ymdNum(call.date);
+  let scale = 1;
+  const applied = [];
+  for (const a of all) {
+    if (a.date > callDate) { scale *= a.ratio; applied.push(a); }
+  }
+  const adjCall = Object.assign({}, call, {
+    entry: call.entry * scale, sl: call.sl * scale, tp: call.tp * scale });
+  return { series: adj, call: adjCall, adjustments: applied };
+}
+
 function walkCall(call, series) {
   // series rows: [date, open, high, low, close, vol, turnover],
-  // ascending. Returns a status update (never mutates on 'open' beyond
-  // elapsed/return bookkeeping).
+  // ascending, dates as YYYYMMDD numbers. Returns a status update
+  // (never mutates on 'open' beyond elapsed/return bookkeeping).
+  // exit_date is a 'YYYY-MM-DD' string, matching call.date format (the
+  // screener page renders it verbatim).
   const dates = series.map((r) => r[0]);
-  const ei = bisectLeft(dates, call.date);
-  if (ei >= dates.length || dates[ei] !== call.date) {
+  const callDate = ymdNum(call.date);
+  const ei = bisectLeft(dates, callDate);
+  if (ei >= dates.length || dates[ei] !== callDate) {
     return { status: 'open', sessions_elapsed: call.sessions_elapsed || 0,
              last_return: call.last_return || null, unknown_series: true };
   }
@@ -62,13 +122,13 @@ function walkCall(call, series) {
   for (let j = ei + 1; j <= Math.min(ei + MAX_HOLD, n - 1); j++) {
     const low = series[j][3], high = series[j][2];
     if (low != null && low <= call.sl) {
-      return { status: 'closed', exit: 'sl', exit_date: series[j][0],
+      return { status: 'closed', exit: 'sl', exit_date: fmtDate(series[j][0]),
                sessions_held: j - ei,
                exit_return: Math.round((call.sl / call.entry - 1) * 10000) / 10000,
                last_return: Math.round((call.sl / call.entry - 1) * 10000) / 10000 };
     }
     if (high != null && high >= call.tp) {
-      return { status: 'closed', exit: 'tp', exit_date: series[j][0],
+      return { status: 'closed', exit: 'tp', exit_date: fmtDate(series[j][0]),
                sessions_held: j - ei,
                exit_return: Math.round((call.tp / call.entry - 1) * 10000) / 10000,
                last_return: Math.round((call.tp / call.entry - 1) * 10000) / 10000 };
@@ -77,7 +137,7 @@ function walkCall(call, series) {
   if (n - 1 >= ei + MAX_HOLD) {
     const c = series[ei + MAX_HOLD][4];
     return { status: 'closed', exit: 'expired',
-             exit_date: series[ei + MAX_HOLD][0],
+             exit_date: fmtDate(series[ei + MAX_HOLD][0]),
              sessions_held: MAX_HOLD,
              exit_return: Math.round((c / call.entry - 1) * 10000) / 10000,
              last_return: Math.round((c / call.entry - 1) * 10000) / 10000 };
@@ -167,13 +227,24 @@ function updateScreenerTracking(deps) {
     hasOpen.add(sym);
     nCreated++;
   }
-  // Walk open calls against today's series.
-  let nClosed = 0;
+  // Walk open calls against today's series, corporate-action-adjusted.
+  // ROUND 2 / R3: unknown_series is LOUD now — the pre-R3 loop silently
+  // skipped it, which hid the date-type bug for the ledger's whole life.
+  // A call is skipped only when its date is genuinely absent from the
+  // series (or the series itself is missing), and every skip is logged
+  // and counted in the returned changes.
+  let nClosed = 0, nUnknown = 0;
   for (const call of callsDoc.calls) {
     if (call.status !== 'open') continue;
     const series = ohlcRows.get(call.sym);
-    if (!series || !series.length) continue;
-    const upd = walkCall(call, series);
+    if (!series || !series.length) {
+      nUnknown++;
+      console.log('  !! screener tracking: unknown_series (no series) for ' +
+        call.sym + ' ' + call.date + ' — call left unwalked');
+      continue;
+    }
+    const adjd = adjustForCorporateActions(call, series);
+    const upd = walkCall(adjd.call, adjd.series);
     if (upd.status === 'closed') {
       call.status = 'closed'; call.exit = upd.exit;
       call.exit_date = upd.exit_date; call.sessions_held = upd.sessions_held;
@@ -184,6 +255,10 @@ function updateScreenerTracking(deps) {
       call.sessions_elapsed = upd.sessions_elapsed;
       call.last_return = upd.last_return;
       call.updated_asof = asof;
+    } else {
+      nUnknown++;
+      console.log('  !! screener tracking: unknown_series for ' +
+        call.sym + ' ' + call.date + ' — call date absent from series, left unwalked');
     }
   }
   // Summary.
@@ -207,6 +282,9 @@ function updateScreenerTracking(deps) {
     }
   }
   const decided = tp + sl;
+  // ROUND 2 / R3: unknown_series count lands on the returned changes
+  // (assigned here, after the walk loop that computes it).
+  changes.unknown_series = nUnknown;
   callsDoc.asof = asof;
   callsDoc.summary = { asof, prev_session: prevDate, open,
     closed_tp: tp, closed_sl: sl, closed_expired: expired,
@@ -222,8 +300,10 @@ function updateScreenerTracking(deps) {
   console.log('  screener tracking: prev ' + (prevDate || 'none') +
     ', ' + nUp + ' up / ' + nDown + ' down / ' + nHeld + ' held / ' + nNew +
     ' new, ' + flips.length + ' flips, ' + nCreated + ' calls created, ' +
-    nClosed + ' calls closed, ' + open + ' open');
+    nClosed + ' calls closed, ' + open + ' open, ' + nUnknown +
+    ' unknown_series');
   return changes;
 }
 
-module.exports = { updateScreenerTracking, walkCall };
+module.exports = { updateScreenerTracking, walkCall,
+  adjustForCorporateActions, ymdNum, fmtDate };
