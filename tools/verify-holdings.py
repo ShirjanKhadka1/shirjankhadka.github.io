@@ -71,10 +71,17 @@ for old in ['nepse-design-system.css', '/css/theme.css', 'broker-pages.css']:
         fail('old-kit ref still on page: ' + old)
     else:
         ok('old-kit gone from page: ' + old)
-if 'nd-chrome.css?v=69b323cf' in page:
-    ok('chrome nav-fix stamp 69b323cf')
+# Chrome stamp as page-vs-file agreement, never a literal pin: the
+# 69b323cf literal went stale at the next chrome re-stamp (main now
+# carries fe4f1d6e). The stamped-asset loop below re-checks every
+# asset including chrome; this named check keeps a chrome failure
+# attributable.
+_m_chrome = re.search(r'nd-chrome\.css\?v=([0-9a-f]{8})', page)
+_want_chrome = sha8(os.path.join(ROOT, 'css', 'nd-chrome.css'))
+if _m_chrome and _m_chrome.group(1) == _want_chrome:
+    ok('chrome stamp == raw sha1 ' + _want_chrome)
 else:
-    fail('chrome stamp is not the nav fix')
+    fail('chrome stamp mismatch: page %s, file %s' % (_m_chrome.group(1) if _m_chrome else None, _want_chrome))
 for d, f, tok in re.findall(r'/(css|js)/([\w\-]+\.(?:css|js))\?v=([0-9a-f]{8})', page):
     p = os.path.join(ROOT, d, f)
     if not os.path.exists(p):

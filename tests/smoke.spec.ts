@@ -8,6 +8,11 @@
  * - any SSR session date on a page must equal the manifest session date
  *   (pages without an SSR date marker are REPORTED, not failed — Phase 2
  *   adds manifest-derived SSR dates everywhere)
+ *   CROSS-DATASET GATE: this test compares SSR markers (the page lane)
+ *   against manifest.session_date (the data lane). It can only pass on
+ *   a COMBINED tree containing both sides; a single-lane PR moving only
+ *   one side is EXPECTED to fail it — combine the lanes, never re-run
+ *   hoping for a pass and never merge on red (see docs/deploy-procedure.md §6).
  *
  * Any failure fails the test run. A JSON report is always written for the
  * CI artifact upload.
@@ -160,9 +165,16 @@ test('SSR session dates match the manifest session date', async ({ request, brow
     // honest data-vintage label like "Data as of 2026-10-02", tracked by the
     // freshness system — not an SSR session marker; without this strip the
     // gate flaps depending on whether the data fetch beat domcontentloaded)
+    // (#pf-bench-note is filled by page JS from the weekly benchmark DB —
+    // an honest data-vintage label like "Benchmark database as of
+    // 2026-10-26", not an SSR session marker; without this strip the gate
+    // flaps whenever the verdicts fetch hasn't beaten domcontentloaded,
+    // because the fresh line still says "Loading market data…" and the
+    // bench note becomes the first "as of" match)
     const ssr = html
       .replace(/<div[^>]*\sdata-freshness-badge[^>]*>[\s\S]*?<\/div>/g, '')
-      .replace(/<div[^>]*\sid="coverage"[\s\S]*?<\/div>/g, '');
+      .replace(/<div[^>]*\sid="coverage"[\s\S]*?<\/div>/g, '')
+      .replace(/<p[^>]*\sid="pf-bench-note"[^>]*>[\s\S]*?<\/p>/g, '');
     let found: string | null = null;
     for (const re of patterns) {
       const m = ssr.match(re);
@@ -173,5 +185,5 @@ test('SSR session dates match the manifest session date', async ({ request, brow
   }
   await page.close();
   console.log('pages without an SSR date marker (Phase 2 adds them):', noMarker);
-  expect(mismatched, 'SSR dates disagreeing with manifest').toEqual([]);
+  expect(mismatched, 'SSR dates disagreeing with manifest — CROSS-DATASET GATE: this test compares SSR markers (page lane) against manifest.session_date (data lane) and can only pass on a COMBINED tree containing both sides; a single-lane PR moving only one side is expected to fail — combine the lanes, do not re-run hoping for a pass, never merge on red').toEqual([]);
 });
