@@ -56,12 +56,19 @@ Contention design (read this before "optimizing" it):
   Push mechanics (ancestry matters): content pushes go through the
   parallel pusher (proven for big pushes; it creates a twin commit
   with a single parent, which is correct for a fresh branch or a
-  linear commit). Merge-update pushes MUST use plain `git push`
-  instead: the pusher would flatten a merge commit to a single parent
-  and the branch would no longer CONTAIN the main tip, so GitHub
-  would still report it as not up to date. Merge pushes carry only
-  commit + tree objects (no new blobs), so plain git push is safe
-  for them even on this proxy (forced HTTP/1.1).
+  linear commit). Merge-update pushes MUST NOT use plain `git push`:
+  it cannot authenticate from this environment (probe 2026-10-29:
+  `could not read Username for 'https://github.com'`, rc 128; the
+  #96 worker proved 4 auth methods fail here). They MUST NOT use the
+  parallel pusher either: it would flatten a merge commit to a single
+  parent and the branch would no longer CONTAIN the main tip, so
+  GitHub would still report it as not up to date. Merge updates
+  therefore replicate via the Git Data API: create a commit with the
+  merge result's exact tree and message and parents
+  [branch-tip, main-tip] (NEVER one parent — that fails GitHub's
+  up-to-date check), then a lease-checked NON-FORCE fast-forward ref
+  update (never force-push). The API twin differs from the local
+  merge commit only in timestamps, never in tree or parents.
 
   After a merge, HTML purge + live-bytes verification remain the
   CALLER's job (deploy-procedure §1 steps 4-5): this helper verifies
@@ -161,15 +168,48 @@ def push_branch(repo_dir, branch, base_sha, local_ref, message, allow_deletions)
     return twin
 
 
-def git_push_branch(repo_dir, branch):
-    """Plain git push of the current branch (merge updates ONLY).
-    Preserves merge ancestry, which the API pusher would flatten."""
-    r = subprocess.run(
-        ["git", "-c", "http.version=HTTP/1.1", "push", "origin", branch],
-        cwd=repo_dir, capture_output=True, text=True, timeout=300)
-    if r.returncode != 0:
-        fail(f"git push of merge update failed (rc={r.returncode}):\n"
-             f"stdout: {r.stdout[-1000:]}\nstderr: {r.stderr[-1000:]}")
+def api_push_merge(repo_dir, branch, old_tip, new_main):
+    """Replicate the local merge commit onto the remote branch via the
+    Git Data API (merge updates ONLY). Plain git push cannot
+    authenticate here, and the parallel pusher would flatten the merge
+    to a single parent. Returns the remote (twin) merge commit SHA.
+    The twin carries the merge result's exact tree and message with
+    parents [old_tip, new_main], so the branch CONTAINS the main tip
+    and GitHub's up-to-date check passes. Ref update is a lease-checked
+    non-force fast-forward; never force-push."""
+    local_tree = git_out(["rev-parse", "HEAD^{tree}"], repo_dir)
+    message = git_out(["log", "-1", "--format=%B", "HEAD"], repo_dir)
+    lease = branch_tip(branch)
+    if lease != old_tip:
+        fail(f"merge-update lease broken: remote branch moved "
+             f"({lease[:12] if lease else None} != expected "
+             f"{old_tip[:12]}); aborting, never force-pushing")
+    twin = gh("POST", "/git/commits",
+              {"message": message, "tree": local_tree,
+               "parents": [old_tip, new_main]})
+    twin_sha = twin["sha"]
+    if twin["tree"]["sha"] != local_tree:
+        fail(f"merge-update tree mismatch: API commit tree "
+             f"{twin['tree']['sha'][:12]} != local merge tree "
+             f"{local_tree[:12]}")
+    try:
+        gh("PATCH", f"/git/refs/heads/{branch}",
+           {"sha": twin_sha, "force": False})
+    except Exception as e:
+        fail(f"merge-update ref update failed (API commit {twin_sha[:12]} "
+             f"exists but is not the branch tip): {e}")
+    new_tip = branch_tip(branch)
+    if new_tip != twin_sha:
+        fail(f"merge-update push mismatch: remote {new_tip[:12] if new_tip else None} "
+             f"!= API merge {twin_sha[:12]}")
+    print(f"pr-flow-deploy: merge replicated via API -> {twin_sha[:12]} "
+          f"(tree {local_tree[:12]}, parents {old_tip[:12]}, "
+          f"{new_main[:12]})")
+    # Track the remote twin locally so the next loop iteration's
+    # merge-base check reads the twin (whose parents are correct).
+    git(["fetch", "origin", branch], repo_dir, check=False)
+    git(["checkout", "-B", branch, f"origin/{branch}"], repo_dir)
+    return twin_sha
 
 
 def find_open_pr(branch):
@@ -349,16 +389,13 @@ def main():
                 fail("merge conflict updating branch from main; "
                      "resolve manually, never force-push")
             merge_commit = git_out(["rev-parse", "HEAD"], repo_dir)
-            # Merge updates go via plain git push (NOT the API pusher):
-            # the pusher would flatten the merge to a single parent and
-            # GitHub would still report the branch as not up to date.
-            git_push_branch(repo_dir, branch)
-            new_tip = branch_tip(branch)
-            if new_tip != merge_commit:
-                fail(f"merge-update push mismatch: remote {new_tip[:12]} "
-                     f"!= local merge {merge_commit[:12]}")
-            head_sha = merge_commit
-            print(f"pr-flow-deploy: branch updated -> {head_sha[:12]}; "
+            # Merge updates go via Git Data API replication (NOT plain
+            # git push — it cannot authenticate here — and NOT the
+            # parallel pusher, which would flatten the merge to one
+            # parent and fail GitHub's up-to-date check).
+            head_sha = api_push_merge(repo_dir, branch, old_tip, new_main)
+            print(f"pr-flow-deploy: branch updated (local merge "
+                  f"{merge_commit[:12]} replicated as {head_sha[:12]}); "
                   f"re-polling checks")
             continue
         try:
