@@ -323,10 +323,18 @@ def build_and_push_branch(worktree, branch_prefix, live_bytes):
         )
         tail = (proc.stdout.strip().splitlines() or [""]) [-1]
         log(f"pusher: {tail}")
-        if proc.returncode == 0 and f"Deployed {branch}" in proc.stdout:
-            tree = sh(["git", "rev-parse", f"{local}^{{tree}}"], cwd=worktree)
-            return branch, local, tree
-        log(f"pusher attempt {attempt} failed: {proc.stderr.strip()[-300:]}")
+        # The pusher prints "Deployed <branch> -> <sha>" to STDERR and the
+        # bare commit SHA to STDOUT. Trust neither string alone: verify the
+        # branch ref actually points at the pushed commit.
+        if proc.returncode == 0:
+            pushed_sha = (proc.stdout.strip().splitlines() or [""]) [-1].strip()
+            status, ref = gh("GET", f"/repos/{REPO}/git/refs/heads/{branch}")
+            if status == 200 and ref["object"]["sha"] == pushed_sha:
+                tree = sh(["git", "rev-parse", f"{local}^{{tree}}"], cwd=worktree)
+                return branch, local, tree
+            log(f"pusher ref verification failed: ref={ref}")
+        else:
+            log(f"pusher attempt {attempt} failed: {proc.stderr.strip()[-300:]}")
     raise RuntimeError("parallel pusher failed twice; aborting (main may be moving fast)")
 
 
