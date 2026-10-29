@@ -48,6 +48,13 @@ Hardening (2026-10-29, failure-class program):
     when the branch tip moves mid-poll the poller returns "superseded"
     with the new head so the caller re-polls it instead of failing on
     the cancelled run or timing out on a dead head.
+  * Branch fetches use an explicit refspec into
+    refs/remotes/origin/<branch> (fetch_branch_ref): a bare
+    `git fetch origin <branch>` only updates FETCH_HEAD in
+    single-branch clones (refspec covers main only), leaving
+    origin/<branch> unknown — which killed the first #124 run at the
+    merge-base step after all 5 checks were green. Full clones never
+    noticed because their wildcard refspec masks it.
 
 Required checks (job names as shown in GitHub's picker):
   quality, Screener figures match the archive,
@@ -171,6 +178,26 @@ def branch_tip(branch):
         return None
 
 
+def fetch_branch_ref(repo_dir, branch):
+    """Fetch <branch> into refs/remotes/origin/<branch> explicitly.
+
+    A bare `git fetch origin <branch>` updates only FETCH_HEAD when
+    the clone's fetch refspec covers main alone (single-branch
+    clones); origin/<branch> then stays unknown and every later
+    merge-base / checkout -B origin/<branch> fails. The explicit
+    mapping works identically in full clones. Fails loudly if the
+    ref still cannot be resolved — never let a later step die on an
+    'unknown revision' for a branch that exists remotely."""
+    git(["fetch", "origin",
+         f"{branch}:refs/remotes/origin/{branch}"], repo_dir)
+    resolved = git(["rev-parse", "--verify", "--quiet",
+                    f"refs/remotes/origin/{branch}"], repo_dir,
+                   check=False).stdout.strip()
+    if not resolved:
+        fail(f"cannot resolve origin/{branch} after explicit fetch; "
+             f"refusing to continue with a stale local ref view")
+
+
 def commit_tree(sha):
     return gh("GET", f"/git/commits/{sha}")["tree"]["sha"]
 
@@ -287,7 +314,7 @@ def api_update_branch(repo_dir, branch, pr_number, old_tip, new_main):
           f"{new_tip[:12]} (parents {[p[:12] for p in parents]})", flush=True)
     # Track the updated branch locally so the next loop iteration's
     # merge-base check reads the new head (whose parents are correct).
-    git(["fetch", "origin", branch], repo_dir, check=False)
+    fetch_branch_ref(repo_dir, branch)
     git(["checkout", "-B", branch, f"origin/{branch}"], repo_dir)
     return new_tip
 
@@ -403,12 +430,13 @@ def main():
     if not git_out(["config", "user.name"], repo_dir):
         fail("git user.name not configured", code=2)
 
-    git(["fetch", "origin", "main", branch], repo_dir, check=False)
+    git(["fetch", "origin", "main"], repo_dir, check=False)
     main_tip = main_branch_tip()
     existing_tip = branch_tip(branch)
     if existing_tip:
         print(f"pr-flow-deploy: reusing remote branch {branch} at "
               f"{existing_tip[:12]}", flush=True)
+        fetch_branch_ref(repo_dir, branch)
         git(["checkout", "-B", branch, f"origin/{branch}"], repo_dir)
         base_sha = existing_tip
     else:
@@ -499,7 +527,8 @@ def main():
             continue
         if state != "green":
             fail(f"checks not green on {head_sha[:12]}: {detail}")
-        git(["fetch", "origin", "main", branch], repo_dir, check=False)
+        git(["fetch", "origin", "main"], repo_dir, check=False)
+        fetch_branch_ref(repo_dir, branch)
         new_main = main_branch_tip()
         merge_base = git_out(["merge-base", f"origin/{branch}",
                               "origin/main"], repo_dir)
