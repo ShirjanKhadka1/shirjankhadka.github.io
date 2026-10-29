@@ -256,14 +256,32 @@ def merge_pr(pr):
     return None
 
 
-def build_and_push_branch(worktree, branch, live_bytes, base_sha):
-    """Create a local commit (main tree + staged live.json) and push it to
-    `branch` via the parallel pusher (lease-checked fast-forward). Returns
-    (local_commit, tree_sha). Retries once if main moved mid-run."""
+def ensure_branch(branch, base_sha):
+    """The parallel pusher 404s on a nonexistent branch ref, so create it at
+    `base_sha` first (tonight's proven pattern). Idempotent for fresh names."""
+    status, _ = gh("GET", f"/repos/{REPO}/git/refs/heads/{branch}")
+    if status == 200:
+        return
+    status, body = gh(
+        "POST",
+        f"/repos/{REPO}/git/refs",
+        {"ref": f"refs/heads/{branch}", "sha": base_sha},
+    )
+    if status != 201:
+        raise RuntimeError(f"create branch ref {branch} -> {status}: {body}")
+
+
+def build_and_push_branch(worktree, branch_prefix, live_bytes):
+    """Create a local commit (main tree + staged live.json) and push it to a
+    fresh timestamped branch via the parallel pusher (lease-checked
+    fast-forward). Returns (branch, local_commit, tree_sha). Retries once
+    with a NEW branch name if main moved mid-run (a reused name would trip
+    the pusher's tip==base lease check after the first attempt created it)."""
     for attempt in (1, 2):
         sh(["git", "fetch", "origin", "main"], cwd=worktree)
         sh(["git", "reset", "--hard", "HEAD"], cwd=worktree)
         base = sh(["git", "rev-parse", "origin/main"], cwd=worktree)
+        branch = branch_prefix + npt_now().strftime("%Y%m%d-%H%M%S")
         sh(["git", "checkout", "-B", "publish-tmp", base], cwd=worktree)
         target = os.path.join(worktree, LIVE_PATH)
         with open(target, "wb") as f:
@@ -276,7 +294,10 @@ def build_and_push_branch(worktree, branch, live_bytes, base_sha):
                 ["git", "commit", "-m", "Intraday: live snapshot (batched publish)"],
                 cwd=worktree,
             )
+        else:
+            raise RuntimeError("staged bytes equal main bytes at build time; nothing to publish")
         local = sh(["git", "rev-parse", "HEAD"], cwd=worktree)
+        ensure_branch(branch, base)
         env = dict(os.environ, PYTHONPATH="/opt/muse/skills/custom-connector-setup/bin")
         proc = subprocess.run(
             [
@@ -298,10 +319,11 @@ def build_and_push_branch(worktree, branch, live_bytes, base_sha):
             capture_output=True,
             text=True,
         )
-        log(proc.stdout.strip().splitlines()[-1] if proc.stdout.strip() else "(pusher silent)")
+        tail = (proc.stdout.strip().splitlines() or [""]) [-1]
+        log(f"pusher: {tail}")
         if proc.returncode == 0 and f"Deployed {branch}" in proc.stdout:
             tree = sh(["git", "rev-parse", f"{local}^{{tree}}"], cwd=worktree)
-            return local, tree
+            return branch, local, tree
         log(f"pusher attempt {attempt} failed: {proc.stderr.strip()[-300:]}")
     raise RuntimeError("parallel pusher failed twice; aborting (main may be moving fast)")
 
@@ -485,10 +507,7 @@ def main():
                 return 0
 
         # Open a fresh PR with exactly the staged bytes.
-        now = npt_now()
-        branch = PUBLISH_PREFIX + now.strftime("%Y%m%d-%H%M")
-        base = get_main_tip()
-        _, tree = build_and_push_branch(worktree, branch, staged_raw, base)
+        branch, _, tree = build_and_push_branch(worktree, PUBLISH_PREFIX, staged_raw)
         s_asof, _, _ = parse_snapshot(staged_raw)
         pr = open_pr(branch, s_asof.astimezone(NPT).strftime("%Y-%m-%d %H:%M"),
                      draft=args.proof)
