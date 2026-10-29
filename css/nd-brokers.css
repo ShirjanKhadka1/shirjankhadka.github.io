@@ -39,7 +39,7 @@ body.nd[data-page="brokers"]{font-family:var(--nd-font-sans)}
   font-size:.9rem;line-height:1.6;color:var(--nd-text,#fff)}
 .bk-prov strong{color:var(--nd-lime,#B8E62E)}
 [data-theme="light"] .bk-prov{background:rgba(77,124,15,.10);color:var(--nd-text)}
-[data-theme="light"] .bk-prov strong{color:var(--nd-lime)}
+[data-theme="light"] .bk-prov strong{color:#3f6212} /* AA on the pale chip bg: axe measured #4d7c0f (var --nd-lime) at 4.11:1, want >=4.5:1; lime-800 computes 5.83:1 on the composited #e5ebe2 bg (PR #96 axe finding, 2026-10-29). Dark theme untouched (passes). */
 
 /* ---- View tabs: dimensional pills, lime active ---- */
 .bk-tabs{display:flex;gap:10px;margin:0 0 28px;flex-wrap:wrap}
