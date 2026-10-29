@@ -1,0 +1,66 @@
+/* Nepse Decode — Mutual Funds page family (.mf-). Token-driven only;
+   both themes come from var(--nd-*) flips, no hardcoded theme colours. */
+.mf-cap{font-size:13px;line-height:1.55;color:var(--nd-muted);margin:8px 0}
+.mf-err{font-size:13px;line-height:1.5;color:var(--nd-down);margin:8px 0}
+.mf-err:empty{display:none}
+.mf-sec{margin-top:18px}
+.mf-head{margin-bottom:10px}
+.mf-head h2{font-family:var(--nd-font-display);font-weight:600;font-size:1.25rem;margin:2px 0 0}
+.mf-h3{font-family:var(--nd-font-display);font-weight:600;font-size:1.0625rem;margin:20px 0 6px}
+.mf-chip{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;
+  letter-spacing:.08em;padding:4px 10px;border-radius:999px;
+  background:var(--nd-chip-closed-bg);color:var(--nd-chip-closed-fg)}
+.mf-chip .dot{width:7px;height:7px;border-radius:50%;background:currentColor;display:block}
+.mf-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.mf-stat{background:var(--nd-panel-2);border:1px solid var(--nd-border);border-radius:var(--nd-r-md);padding:12px 14px}
+.mf-stat .lab{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--nd-dim)}
+.mf-stat .val{font-family:var(--nd-font-display);font-weight:700;font-size:1.5rem;
+  font-variant-numeric:tabular-nums;white-space:nowrap;margin:2px 0}
+.mf-stat .sub{font-size:12px;color:var(--nd-muted)}
+.mf-mixbar{display:flex;height:12px;border-radius:999px;overflow:hidden;background:var(--nd-border)}
+.mf-mixbar i{display:block;height:100%}
+.mf-mixbar i.up{background:var(--nd-up)}
+.mf-mixbar i.down{background:var(--nd-down)}
+.mf-mixbar i.none{background:var(--nd-flat)}
+.mf-legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:8px;font-size:13px;color:var(--nd-muted)}
+.mf-legend span{display:inline-flex;align-items:center;gap:6px}
+.mf-legend i{width:8px;height:8px;border-radius:2px;display:block}
+.mf-legend i.up{background:var(--nd-up)}
+.mf-legend i.down{background:var(--nd-down)}
+.mf-legend i.none{background:var(--nd-flat)}
+.mf-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0}
+.mf-controls input[type=search],.mf-controls select{min-height:48px;padding:0 12px;
+  border:1px solid var(--nd-border);border-radius:10px;background:var(--nd-inset);
+  color:var(--nd-text);font-size:14px}
+.mf-controls input[type=search]{flex:1 1 220px}
+.mf-controls select{flex:0 1 auto}
+.mf-controls input:focus,.mf-controls select:focus{outline:none;box-shadow:var(--nd-focus-ring)}
+.mf-lab{font-size:12px;font-weight:600;color:var(--nd-muted)}
+.mf-tablewrap{overflow-x:auto;border:1px solid var(--nd-border);border-radius:var(--nd-r-md)}
+.mf-table{width:100%;border-collapse:collapse;font-size:14px}
+.mf-table thead th{background:var(--nd-panel-2);color:var(--nd-dim);font-size:11px;
+  letter-spacing:.08em;text-transform:uppercase;text-align:left;padding:10px 12px;
+  white-space:nowrap;position:sticky;top:0}
+.mf-table thead th.num{text-align:right}
+.mf-table thead th[data-sort]{cursor:pointer}
+.mf-table thead th[data-sort] .dir{color:var(--nd-lime)}
+.mf-table tbody td{padding:9px 12px;border-top:1px solid var(--nd-border)}
+.mf-table tbody tr:hover td{background:var(--nd-panel-2)}
+.mf-table td.num,.mf-table th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mf-table td.sym{font-family:var(--nd-font-mono);font-size:13px}
+.mf-table td.sym a{color:inherit;text-decoration:none}
+.mf-table td.sym a:hover{color:var(--nd-lime);text-decoration:underline}
+.mf-table td.up{color:var(--nd-up)}
+.mf-table td.down{color:var(--nd-down)}
+.mf-rank{display:grid;grid-template-columns:minmax(150px,1fr) 90px;gap:8px 12px;align-items:center;padding:7px 0;border-top:1px solid var(--nd-border)}
+.mf-rank:first-child{border-top:0}
+.mf-rank .nm{font-size:14px}
+.mf-rank .pct{font-size:14px;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mf-rank .track{grid-column:1 / -1;height:10px;border-radius:999px;background:var(--nd-border);overflow:hidden}
+.mf-rank .track i{display:block;height:100%;background:var(--nd-lime);border-radius:999px}
+.mf-note p{font-size:14px;line-height:1.6;color:var(--nd-muted);margin:0 0 10px}
+.mf-note strong{color:var(--nd-text)}
+@media (max-width:560px){
+  .mf-rank{grid-template-columns:1fr auto}
+  .mf-controls input[type=search]{flex-basis:100%}
+}

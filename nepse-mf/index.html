@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t='dark';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0A0C10">
+<title>Mutual Funds in Nepal — NAV, Premium/Discount & Sector Allocation | Nepse Decode</title>
+<meta name="description" content="Every Nepali mutual fund's NAV snapshot: weekly and monthly NAV, market price, premium or discount, and sector allocation — from daily snapshots, free, no login. Educational only, never a buy call.">
+<meta name="author" content="Shirjan Khadka">
+<link rel="canonical" href="https://shirjankhadka.com.np/nepse-mf/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="keywords" content="nepse mutual funds, nepal mutual fund NAV, mutual fund premium discount, mf sector allocation, nepal stock exchange funds">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nepse Decode">
+<meta property="og:title" content="Mutual Funds in Nepal — NAV, Premium/Discount & Sector Allocation">
+<meta property="og:description" content="Every Nepali mutual fund's NAV snapshot: weekly and monthly NAV, market price, premium or discount, and sector allocation — from daily snapshots, free, no login. Educational only, never a buy call.">
+<meta property="og:url" content="https://shirjankhadka.com.np/nepse-mf/">
+<meta property="og:image" content="https://shirjankhadka.com.np/assets/images/nepse-decode-og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Mutual Funds in Nepal — NAV, Premium/Discount & Sector Allocation">
+<meta name="twitter:description" content="Every Nepali mutual fund's NAV snapshot: weekly and monthly NAV, market price, premium or discount, and sector allocation — from daily snapshots, free, no login. Educational only, never a buy call.">
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
+<link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/nd-tokens.css?v=e100cabd">
+<link rel="stylesheet" href="/css/fonts.css?v=422e31c3">
+<link rel="stylesheet" href="/css/nepse-d2.css?v=c6edd4fd">
+<link rel="stylesheet" href="nepse-mf.css?v=569a89b3">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"Nepse Decode — Mutual Funds","url":"https://shirjankhadka.com.np/nepse-mf/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"NPR"},"description":"Every Nepali mutual fund's NAV snapshot: weekly and monthly NAV, market price, premium or discount, and sector allocation — from daily snapshots. Educational use only, never a buy call.","author":{"@type":"Organization","name":"Nepse Decode","url":"https://shirjankhadka.com.np/nepse-mf/"}}
+</script>
+</head>
+<body class="d2">
+<a class="skip-link" href="#main">Skip to content</a>
+<div id="nd-header"></div>
+<div class="d2-shell">
+<div class="d2-main">
+<div class="d2-wrap">
+<div data-freshness-badge></div>
+<main id="main">
+<div style="margin-bottom:8px">
+<p class="d2-kicker">Markets · Mutual Funds</p>
+<h1 style="font-family:var(--nd-font-display);font-weight:700;font-size:clamp(1.8rem,4.5vw,2.5rem);letter-spacing:-0.015em;margin:0 0 4px">Mutual funds</h1>
+<p class="mf-cap">Every Nepali mutual fund's NAV snapshot — weekly and monthly NAV, market price, premium or discount, and sector allocation. The source publishes snapshots only, no history, so this page keeps every daily snapshot from 29 Oct 2026 onward and never backfills earlier ones. Nothing here is a buy call.</p>
+<p class="mf-cap" style="margin-top:4px"><span id="mfStateChip" class="mf-chip closed"><span class="dot"></span>SNAPSHOT DATA</span></p>
+<p class="mf-cap" id="mfFreshline" style="margin-top:4px">Mutual-fund snapshot loading…</p>
+<p class="mf-cap" id="mfTickNote" style="margin-top:4px" role="status"></p>
+<p class="mf-err" id="mfErr" role="alert"></p>
+</div>
+
+<!-- Snapshot summary: counts + averages, all computed from the snapshot. -->
+<section class="d2-card mf-sec" aria-labelledby="mf-sum-h">
+<div class="mf-head"><p class="d2-kicker">Summary</p><h2 id="mf-sum-h">Snapshot totals</h2></div>
+<div class="mf-stats">
+<div class="mf-stat"><div class="lab">Funds</div><div class="val" id="mfStatFunds">—</div><div class="sub">in this snapshot</div></div>
+<div class="mf-stat"><div class="lab">With market price</div><div class="val" id="mfStatPriced">—</div><div class="sub">listed funds with a price</div></div>
+<div class="mf-stat"><div class="lab">Open-end</div><div class="val" id="mfStatOef">—</div><div class="sub">no market price, no sectors</div></div>
+<div class="mf-stat"><div class="lab">Average premium / discount</div><div class="val" id="mfStatAvgPrem">—</div><div class="sub">as published by the source</div></div>
+<div class="mf-stat"><div class="lab">Average weekly NAV</div><div class="val" id="mfStatAvgNav">—</div><div class="sub">Rs, as published</div></div>
+</div>
+</section>
+
+<!-- Premium/discount mix: counts by sign, same data as the table. -->
+<section class="d2-card mf-sec" aria-labelledby="mf-mix-h">
+<div class="mf-head"><p class="d2-kicker">Distribution</p><h2 id="mf-mix-h">Premium / discount mix</h2></div>
+<div class="mf-mixbar" id="mfMixBar" role="img" aria-label="Premium and discount mix"></div>
+<div class="mf-legend" id="mfMixLegend"></div>
+<p class="mf-cap">The bar is computed from the same snapshot as the table below; segment widths are each count's share of all funds.</p>
+</section>
+
+<!-- NAV table: sortable, searchable, filterable. -->
+<section class="d2-card mf-sec" aria-labelledby="mf-nav-h">
+<div class="mf-head"><p class="d2-kicker">NAV statement</p><h2 id="mf-nav-h">NAV, market price &amp; premium / discount</h2></div>
+<div class="mf-controls">
+<input id="mfSearch" type="search" placeholder="Search fund symbol…" aria-label="Search fund symbol" autocomplete="off">
+<select id="mfType" aria-label="Filter by fund type">
+<option value="all">All funds</option>
+<option value="priced">With market price</option>
+<option value="oef">Open-end [OEF]</option>
+<option value="noprice">No market price</option>
+</select>
+</div>
+<p class="mf-cap" id="mfRowCount"></p>
+<div class="mf-tablewrap">
+<table class="mf-table">
+<thead><tr>
+<th data-sort="symbol" role="button" tabindex="0" aria-label="Sort by fund">Fund <span class="dir"></span></th>
+<th class="num" data-sort="weekly_nav" role="button" tabindex="0" aria-label="Sort by weekly NAV">Weekly NAV <span class="dir"></span></th>
+<th class="num" data-sort="monthly_nav" role="button" tabindex="0" aria-label="Sort by monthly NAV">Monthly NAV <span class="dir"></span></th>
+<th class="num" data-sort="market_price" role="button" tabindex="0" aria-label="Sort by market price">Market price <span class="dir"></span></th>
+<th class="num" data-sort="premium_discount_pct" role="button" tabindex="0" aria-label="Sort by premium or discount">Premium / discount <span class="dir"></span></th>
+</tr></thead>
+<tbody id="mfTableBody"><tr><td colspan="5" class="mf-cap">Loading snapshot…</td></tr></tbody>
+</table>
+</div>
+<p class="mf-cap">Click a column head to sort; the arrow shows the direction. Weekly NAV dates vary by fund (see the freshness line) — no single weekly date is stamped on the table. Monthly NAV is Bhadra 2083; market prices are as of 28 Oct 2026. “–” means the source published no value for that cell. Click a fund symbol to see its sector allocation below. Average figures are shown separately, not as a table row, because they are aggregates, not a fund.</p>
+</section>
+
+<!-- Average figures, as published (not a fund, not in the sortable table). -->
+<section class="d2-card mf-sec" aria-labelledby="mf-avg-h">
+<div class="mf-head"><p class="d2-kicker">Average</p><h2 id="mf-avg-h">Average across funds, as published</h2></div>
+<div class="mf-stats">
+<div class="mf-stat"><div class="lab">Weekly NAV</div><div class="val" id="mfAvgWeekly">—</div><div class="sub">Rs</div></div>
+<div class="mf-stat"><div class="lab">Monthly NAV</div><div class="val" id="mfAvgMonthly">—</div><div class="sub">Bhadra 2083</div></div>
+<div class="mf-stat"><div class="lab">Market price</div><div class="val" id="mfAvgPrice">—</div><div class="sub">28 Oct 2026</div></div>
+<div class="mf-stat"><div class="lab">Premium / discount</div><div class="val" id="mfAvgPrem">—</div><div class="sub">mean of funds' figures, as published</div></div>
+</div>
+<p class="mf-cap">The average premium/discount is the source's published average figure — it is not recomputed from the average NAV and average price above (that division gives a different number, because the average price and average NAV are averages over different fund sets).</p>
+</section>
+
+<!-- Sector allocation for one fund + the source's average sector mix. -->
+<section class="d2-card mf-sec" aria-labelledby="mf-sec-h">
+<div class="mf-head"><p class="d2-kicker">Sector allocation</p><h2 id="mf-sec-h">Where a fund's money sits</h2></div>
+<div class="mf-controls">
+<label class="mf-lab" for="mfFundSel">Fund</label>
+<select id="mfFundSel" aria-label="Choose a fund for sector allocation"></select>
+</div>
+<p class="mf-cap" id="mfSectorNote"></p>
+<div id="mfSectorList"></div>
+<p class="mf-cap">Sector market values were not transcribed in this snapshot, so this panel shows percentages only — never estimated values. The view is shareable: the URL carries the fund as ?fund=SYMBOL.</p>
+<h3 class="mf-h3">Average sector mix, as published</h3>
+<div id="mfSectorAvg"></div>
+<p class="mf-cap" id="mfSectorAvgNote"></p>
+</section>
+
+<!-- How this page is built: sources, rules, honest drops. -->
+<section class="d2-card mf-sec" aria-labelledby="mf-how-h">
+<div class="mf-head"><p class="d2-kicker">Method</p><h2 id="mf-how-h">How this page is built</h2></div>
+<div class="mf-note">
+<p><strong>Source (one page, published files only):</strong> the Capital Max MF Screener (login-gated portal) is read through a saved login at snapshot time and served from this site's own data files — visitors need no login, and the page never calls the source live. Each snapshot carries the NAV Statement view and the Sector Allocation view exactly as captured.</p>
+<p><strong>Snapshot-only, history from now on:</strong> the source publishes no history and no date picker, so there is no earlier history to show. Snapshots accumulate daily from 29 Oct 2026 onward; earlier dates render honestly unavailable, never backfilled or estimated.</p>
+<p><strong>Premium / discount definition:</strong> (Market Price − Weekly NAV) ÷ Weekly NAV, as published by the source. Recomputing it from the two-decimal figures shown here can differ by about 0.01 percentage points, because the source computes from unrounded values (C30MF: published −0.50%, recomputed −0.51%). The page shows the source's published figure, never a recomputed replacement.</p>
+<p><strong>Open-end funds [OEF]:</strong> per the source's footnote, open-end funds have no market price and no sector allocation — every such cell is “–”. Funds without the [OEF] tag but with no market price in this snapshot (GRSY, MSIP, SEOS, SIGS1) are shown the same way, not guessed at.</p>
+<p><strong>Empty rows are kept:</strong> SIGS1 is an entirely empty row in both source views and stays in the table as a row of “–” values, never dropped silently. LVF1 has a market price but no weekly NAV, so its premium/discount is “–”. SEOS has a monthly NAV only.</p>
+<p><strong>Average sector mix:</strong> the 29 Oct 2026 Average sector row sums to 127.07%, not 100% — it is an aggregate across funds, not a single fund's allocation. It is shown exactly as published, never recomputed or “fixed”. Per-fund sector rows do sum to ~100% and are validated on every snapshot.</p>
+<p><strong>Not in this snapshot, with reason:</strong> fund size, maturity date/period and fund manager appear on the source page but were not transcribed in the 29 Oct 2026 capture; sector market values (Rs) were likewise not transcribed — only percentages. The snapshot schema already carries these fields, so a future capture can add them without a page change. Holdings detail and holding changes are unavailable at the source itself (those sections are broken on the source site) and are never shown here.</p>
+<p><strong>Refresh:</strong> the snapshot list re-checks every 60 seconds; a newly published snapshot appears as a note, and the current view is never yanked away.</p>
+</div>
+</section>
+
+<noscript>
+<!-- MF-NOSCRIPT-START -->
+<p class="mf-cap">Snapshot captured 2026-10-29. 68 funds, 52 with a market price. Average weekly NAV 10.19, monthly 10.29, market price 9.59, premium/discount -5.56%. Market prices as of 2026-10-28; monthly NAV Bhadra 2083; weekly NAV dates vary by fund (2026-10-02 / 2026-10-09). – means the source published no value for that cell.</p><div class="mf-tablewrap"><table class="mf-table"><thead><tr><th>Fund</th><th class="num">Weekly NAV</th><th class="num">Monthly NAV</th><th class="num">Market price</th><th class="num">Premium/discount</th></tr></thead><tbody><tr><td>C30MF</td><td class="num">9.83</td><td class="num">10.45</td><td class="num">9.78</td><td class="num">-0.50%</td></tr><tr><td>CSBY [OEF]</td><td class="num">10.03</td><td class="num">10.09</td><td class="num">–</td><td class="num">–</td></tr><tr><td>CSY</td><td class="num">9.58</td><td class="num">9.51</td><td class="num">9.14</td><td class="num">-4.59%</td></tr><tr><td>ELIS [OEF]</td><td class="num">9.66</td><td class="num">9.69</td><td class="num">–</td><td class="num">–</td></tr><tr><td>GBIMESY2</td><td class="num">9.96</td><td class="num">10.00</td><td class="num">9.21</td><td class="num">-7.53%</td></tr><tr><td>GIBF1</td><td class="num">10.53</td><td class="num">11.74</td><td class="num">10.30</td><td class="num">-2.18%</td></tr><tr><td>GRSY</td><td class="num">9.79</td><td class="num">9.82</td><td class="num">–</td><td class="num">–</td></tr><tr><td>GSY</td><td class="num">10.07</td><td class="num">10.14</td><td class="num">9.21</td><td class="num">-8.54%</td></tr><tr><td>H8020</td><td class="num">10.98</td><td class="num">12.53</td><td class="num">11.30</td><td class="num">+2.91%</td></tr><tr><td>HLICF</td><td class="num">8.63</td><td class="num">8.57</td><td class="num">8.60</td><td class="num">-0.34%</td></tr><tr><td>KDBY</td><td class="num">10.92</td><td class="num">11.05</td><td class="num">10.41</td><td class="num">-4.67%</td></tr><tr><td>KEF</td><td class="num">10.17</td><td class="num">10.21</td><td class="num">9.55</td><td class="num">-6.09%</td></tr><tr><td>KSLY [OEF]</td><td class="num">11.10</td><td class="num">11.20</td><td class="num">–</td><td class="num">–</td></tr><tr><td>KSY</td><td class="num">9.84</td><td class="num">9.92</td><td class="num">9.32</td><td class="num">-5.28%</td></tr><tr><td>LEMF</td><td class="num">9.97</td><td class="num">9.88</td><td class="num">9.47</td><td class="num">-5.01%</td></tr><tr><td>LSH12</td><td class="num">9.98</td><td class="num">10.01</td><td class="num">9.17</td><td class="num">-8.11%</td></tr><tr><td>LUK</td><td class="num">10.11</td><td class="num">10.16</td><td class="num">9.56</td><td class="num">-5.44%</td></tr><tr><td>LVF1</td><td class="num">–</td><td class="num">10.26</td><td class="num">9.66</td><td class="num">–</td></tr><tr><td>LVF2</td><td class="num">9.90</td><td class="num">9.93</td><td class="num">9.10</td><td class="num">-8.08%</td></tr><tr><td>MBLEF</td><td class="num">10.10</td><td class="num">10.14</td><td class="num">9.38</td><td class="num">-7.12%</td></tr><tr><td>MMF1</td><td class="num">9.52</td><td class="num">9.50</td><td class="num">8.95</td><td class="num">-5.98%</td></tr><tr><td>MNMF1</td><td class="num">9.94</td><td class="num">10.11</td><td class="num">9.09</td><td class="num">-8.55%</td></tr><tr><td>MSIP</td><td class="num">11.54</td><td class="num">11.68</td><td class="num">–</td><td class="num">–</td></tr><tr><td>NADDF [OEF]</td><td class="num">9.80</td><td class="num">9.86</td><td class="num">–</td><td class="num">–</td></tr><tr><td>NBF2</td><td class="num">9.63</td><td class="num">10.11</td><td class="num">9.32</td><td class="num">-3.21%</td></tr><tr><td>NBF3</td><td class="num">9.78</td><td class="num">10.09</td><td class="num">9.30</td><td class="num">-4.90%</td></tr><tr><td>NEF</td><td class="num">10.31</td><td class="num">10.33</td><td class="num">9.90</td><td class="num">-3.97%</td></tr><tr><td>NFCF [OEF]</td><td class="num">10.20</td><td class="num">10.22</td><td class="num">–</td><td class="num">–</td></tr><tr><td>NI31 [OEF]</td><td class="num">10.37</td><td class="num">10.32</td><td class="num">–</td><td class="num">–</td></tr><tr><td>NIBLGF</td><td class="num">9.79</td><td class="num">9.84</td><td class="num">9.15</td><td class="num">-6.53%</td></tr><tr><td>NIBLPF</td><td class="num">9.81</td><td class="num">9.80</td><td class="num">9.32</td><td class="num">-4.99%</td></tr><tr><td>NIBLSF [OEF]</td><td class="num">10.11</td><td class="num">10.11</td><td class="num">–</td><td class="num">–</td></tr><tr><td>NIBLSTF</td><td class="num">9.34</td><td class="num">9.44</td><td class="num">8.74</td><td class="num">-6.42%</td></tr><tr><td>NIBSF2</td><td class="num">9.67</td><td class="num">9.72</td><td class="num">8.99</td><td class="num">-7.03%</td></tr><tr><td>NICBF</td><td class="num">9.99</td><td class="num">10.01</td><td class="num">9.24</td><td class="num">-7.50%</td></tr><tr><td>NICFC</td><td class="num">9.94</td><td class="num">9.94</td><td class="num">9.18</td><td class="num">-7.64%</td></tr><tr><td>NICGF</td><td class="num">11.49</td><td class="num">10.25</td><td class="num">10.90</td><td class="num">-5.13%</td></tr><tr><td>NICGF2</td><td class="num">9.75</td><td class="num">9.86</td><td class="num">9.03</td><td class="num">-7.38%</td></tr><tr><td>NICSF</td><td class="num">9.23</td><td class="num">9.28</td><td class="num">8.60</td><td class="num">-6.82%</td></tr><tr><td>NMBHF1</td><td class="num">10.16</td><td class="num">10.13</td><td class="num">9.86</td><td class="num">-2.95%</td></tr><tr><td>NMBHF2</td><td class="num">9.93</td><td class="num">9.92</td><td class="num">9.20</td><td class="num">-7.35%</td></tr><tr><td>NMBSBF [OEF]</td><td class="num">10.07</td><td class="num">10.03</td><td class="num">–</td><td class="num">–</td></tr><tr><td>NSIF2</td><td class="num">10.49</td><td class="num">10.53</td><td class="num">10.30</td><td class="num">-1.81%</td></tr><tr><td>NSY</td><td class="num">9.70</td><td class="num">9.76</td><td class="num">9.00</td><td class="num">-7.21%</td></tr><tr><td>PRSF</td><td class="num">13.14</td><td class="num">13.01</td><td class="num">12.50</td><td class="num">-4.87%</td></tr><tr><td>PSF</td><td class="num">12.14</td><td class="num">12.00</td><td class="num">11.30</td><td class="num">-6.91%</td></tr><tr><td>PSIS [OEF]</td><td class="num">11.40</td><td class="num">11.16</td><td class="num">–</td><td class="num">–</td></tr><tr><td>RBBF40</td><td class="num">9.90</td><td class="num">9.99</td><td class="num">9.10</td><td class="num">-8.08%</td></tr><tr><td>RMF1</td><td class="num">9.83</td><td class="num">10.22</td><td class="num">9.06</td><td class="num">-7.83%</td></tr><tr><td>RMF2</td><td class="num">10.12</td><td class="num">10.81</td><td class="num">9.60</td><td class="num">-5.13%</td></tr><tr><td>RSY</td><td class="num">10.30</td><td class="num">10.40</td><td class="num">9.55</td><td class="num">-7.28%</td></tr><tr><td>RSY2</td><td class="num">9.96</td><td class="num">9.93</td><td class="num">9.15</td><td class="num">-8.13%</td></tr><tr><td>SAEF</td><td class="num">11.64</td><td class="num">11.74</td><td class="num">11.25</td><td class="num">-3.35%</td></tr><tr><td>SAEF2</td><td class="num">10.01</td><td class="num">9.98</td><td class="num">9.23</td><td class="num">-7.79%</td></tr><tr><td>SAGF</td><td class="num">9.97</td><td class="num">10.00</td><td class="num">9.35</td><td class="num">-6.21%</td></tr><tr><td>SBCF</td><td class="num">9.80</td><td class="num">9.82</td><td class="num">9.57</td><td class="num">-2.34%</td></tr><tr><td>SEF</td><td class="num">10.52</td><td class="num">10.49</td><td class="num">9.85</td><td class="num">-6.36%</td></tr><tr><td>SEF2</td><td class="num">10.14</td><td class="num">10.09</td><td class="num">9.37</td><td class="num">-7.59%</td></tr><tr><td>SEOS</td><td class="num">–</td><td class="num">11.31</td><td class="num">–</td><td class="num">–</td></tr><tr><td>SFEF</td><td class="num">9.88</td><td class="num">9.94</td><td class="num">9.22</td><td class="num">-6.68%</td></tr><tr><td>SFF [OEF]</td><td class="num">10.37</td><td class="num">10.36</td><td class="num">–</td><td class="num">–</td></tr><tr><td>SFMF</td><td class="num">10.03</td><td class="num">10.06</td><td class="num">9.50</td><td class="num">-5.28%</td></tr><tr><td>SIGS1</td><td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">–</td></tr><tr><td>SIGS2</td><td class="num">10.37</td><td class="num">10.31</td><td class="num">9.89</td><td class="num">-4.62%</td></tr><tr><td>SIGS3</td><td class="num">10.71</td><td class="num">10.72</td><td class="num">10.55</td><td class="num">-1.49%</td></tr><tr><td>SLCF</td><td class="num">9.96</td><td class="num">10.04</td><td class="num">9.20</td><td class="num">-7.63%</td></tr><tr><td>SLK [OEF]</td><td class="num">9.92</td><td class="num">9.97</td><td class="num">–</td><td class="num">–</td></tr><tr><td>SSIS [OEF]</td><td class="num">10.82</td><td class="num">10.75</td><td class="num">–</td><td class="num">–</td></tr></tbody></table></div><p class="mf-cap">This static table is regenerated with every snapshot; the live table above updates automatically.</p>
+<!-- MF-NOSCRIPT-END -->
+</noscript>
+
+</main>
+</div>
+</div>
+</div>
+<div id="nd-footer"></div>
+<script src="/js/nepse-format.js?v=a5edf573"></script>
+<script src="/js/theme-toggle.js?v=6a6a46c6"></script>
+<script src="/js/nepse-sidebar.js?v=4253c371"></script>
+<script src="/js/nd-chrome.js?v=ac51169e"></script>
+<script src="/js/nepse-market-config.js?v=1e1eb57b" defer></script>
+<script src="/js/freshness-badge.js?v=9e4228d4"></script>
+<script src="nepse-mf.js?v=6dbeeb00"></script>
+</body>
+</html>

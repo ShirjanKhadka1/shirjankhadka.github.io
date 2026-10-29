@@ -22,6 +22,7 @@
       ['Index', '/nepse-index/'],
       ['Compare', '/nepse-compare/'],
       ['IPO / FPO', '/nepse-ipo/'],
+      ['Mutual Funds', '/nepse-mf/'],
       ['Calendar', '/nepse-calendar/']
     ]},
     { label: 'Stocks', links: [
@@ -279,7 +280,7 @@
   /* ---------------- footer ---------------- */
 
   var FOOT = [
-    ['MARKETS', [['Overview', '/nepse-decode/'], ['Daily summary', '/nepse-daily/'], ['Heat Map', '/nepse-sectors/'], ['Index', '/nepse-index/'], ['Compare', '/nepse-compare/'], ['IPO / FPO', '/nepse-ipo/'], ['Calendar', '/nepse-calendar/']]],
+    ['MARKETS', [['Overview', '/nepse-decode/'], ['Daily summary', '/nepse-daily/'], ['Heat Map', '/nepse-sectors/'], ['Index', '/nepse-index/'], ['Compare', '/nepse-compare/'], ['IPO / FPO', '/nepse-ipo/'], ['Mutual Funds', '/nepse-mf/'], ['Calendar', '/nepse-calendar/']]],
     ['STOCKS', [['Warning Radar', '/nepse-verdicts-v2/'], ['Engine Verdict', '/nepse-engine-verdict/'], ['Distribution Radar', '/nepse-radar/'], ['Stock Screener', '/nepse-screener/'], ['Fair Value', '/nepse-value/'], ['Trending Stocks', '/nepse-trending/']]],
     ['TECHNICAL', [['Technical Chart', '/nepse-technical/'], ['Scripting', '/nepse-scripting/'], ['Trading Signals', '/nepse-signals/'], ['Momentum Signal', '/nepse-signals/momentum/'], ['Trend Relay', '/nepse-signals/trend-relay/'], ['Reversal Signal', '/nepse-signals/reversal/']]],
     ['BROKER', [['Top Brokers', '/nepse-brokers/'], ['Floorsheet', '/nepse-floorsheet/'], ['Broker Trade Pattern', '/nepse-brokers/trade-pattern/'], ['Stock Trade Pattern', '/nepse-brokers/stock-pattern/'], ['Stockwise Holdings', '/nepse-brokers/holdings/'], ['Accumulation / Distribution', '/nepse-brokers/accdist/'], ['Zero-Sum Analysis', '/nepse-broker-zero-sum/'], ['Broker Smart Money', '/nepse-broker-smart-money/'], ['Price Push', '/nepse-price-push/'], ['Smart-Money EPS', '/nepse-smart-money-eps/']]],
