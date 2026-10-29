@@ -52,8 +52,17 @@ def main():
         ('freshness-badge.js', os.path.join(WT, 'js/freshness-badge.js'), r'freshness-badge\.js\?v=([0-9a-f]{8})')]:
         m = re.search(pat, html)
         ok(m and m.group(1) == sha1_8(path), f'{label} stamp {m.group(1) if m else None} == raw {sha1_8(path)}')
-    ok('nd-chrome.css?v=69b323cf' in html, 'chrome bumped to nav-fix stamp 69b323cf')
-    ok('nd-chrome.js?v=ac51169e" defer' in html, 'nd-chrome.js deferred')
+    # Chrome CSS: page-vs-file agreement (the 69b323cf literal went stale
+    # at the next chrome re-stamp; the loop above already checks this
+    # asset, this named check keeps the failure attributable).
+    _m_chrome = re.search(r'nd-chrome\.css\?v=([0-9a-f]{8})', html)
+    ok(_m_chrome and _m_chrome.group(1) == sha1_8(os.path.join(WT, 'css/nd-chrome.css')), f'chrome stamp == raw sha1 ({_m_chrome.group(1) if _m_chrome else None})')
+    # Chrome JS defer: the defer attribute is the property under test, not
+    # the hash — pinning ac51169e made a correct re-stamp look like a
+    # missing defer. Stamp agreement is already checked by the loop above.
+    ok(re.search(r'nd-chrome\.js\?v=[0-9a-f]+" defer', html) is not None, 'nd-chrome.js deferred')
+    # Data token: already re-issue-safe — "not the previous token", not
+    # equality with one token, so a legitimate re-issue passes.
     m = re.search(r"broker-smart-money\.json\?v=(\S+?)'", js)
     ok(m and m.group(1) != '20261024a', f'data token fresh ({m.group(1) if m else None} != 20261024a)')
 
