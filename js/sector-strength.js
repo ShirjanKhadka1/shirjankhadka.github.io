@@ -28,6 +28,49 @@
   }
   function cls(x) { return x > 0 ? 'st-pos' : (x < 0 ? 'st-neg' : ''); }
   function rows() { return PAYLOAD.rows; }
+  /* Realised-window tab labels (2026-10-30): the requested window
+     (e.g. 7D) can realise to an earlier base across a holiday gap,
+     so tabs print the realised base date + session count.
+     '2026-10-16' -> '16 Oct'. */
+  var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  function shortDate(iso) {
+    if (!iso || iso.length < 10) return iso || '';
+    var label = parseInt(iso.slice(8, 10), 10) + ' ' +
+      MONTHS[parseInt(iso.slice(5, 7), 10) - 1];
+    /* Bases from a prior year need the year, otherwise '28 Oct'
+       reads as this year's 28 Oct. */
+    if (PAYLOAD.asof && iso.slice(0, 4) !== PAYLOAD.asof.slice(0, 4))
+      label += " ’" + iso.slice(2, 4);
+    return label;
+  }
+  function realisedWindow() {
+    return PAYLOAD.realised_windows &&
+      PAYLOAD.realised_windows[state.win + 'd'];
+  }
+  function realisedLabel(d) {
+    var rw = PAYLOAD.realised_windows &&
+      PAYLOAD.realised_windows[d + 'd'];
+    if (!rw) return d + 'D';
+    return d + 'D · ' + shortDate(rw.realised_base_date) + ' · ' +
+      rw.sessions + ' sess';
+  }
+  function renderScope() {
+    if (!PAYLOAD || !PAYLOAD.scope_note) return;
+    var box = document.querySelector('.st-method');
+    if (!box) return;
+    var p = document.getElementById('stScopeNote');
+    if (!p) {
+      p = document.createElement('p');
+      p.id = 'stScopeNote';
+      box.appendChild(p);
+    }
+    var un = PAYLOAD.unscored || [];
+    p.innerHTML = '<strong>Scope.</strong> ' + esc(PAYLOAD.scope_note) +
+      (un.length ? ' Unscored: ' + un.map(function (u) {
+        return esc(u.symbol) + ' (' + esc(u.sector) + ', ' + esc(u.reason) + ')';
+      }).join('; ') + '.' : '');
+  }
   function bySector(name) {
     var r = rows().filter(function (x) { return x.sector === name; });
     return r.length ? r[0] : null;
@@ -39,7 +82,12 @@
     var leading = rs.filter(function (x) { return x.trend_phase === 'Leading'; }).length;
     var improving = rs.filter(function (x) { return x.trend_phase === 'Improving'; }).length;
     var mean = rs.reduce(function (a, x) { return a + x.overall_score; }, 0) / rs.length;
+    var rw = realisedWindow();
     var stats = [
+      { k: 'Window', v: state.win + ' days', s: rw
+        ? 'realised base ' + rw.realised_base_date + ' · ' +
+          rw.sessions + ' sessions over ' + rw.span_days + ' calendar days'
+        : 'calendar days' },
       { k: 'Strongest sector', v: esc(top.sector), s: 'overall ' + num(top.overall_score) + ' of 100 · ' + esc(top.trend_phase) },
       { k: 'Leading + Improving', v: leading + improving + ' of ' + rs.length, s: leading + ' Leading · ' + improving + ' Improving' },
       { k: 'Mean overall score', v: num(mean), s: 'the board average across all 11 sectors' },
@@ -53,9 +101,13 @@
   }
 
   function renderTabs() {
+    /* Long realised labels must wrap like the symbol page's tabs
+       (its CSS sets flex-wrap on #winTabs; this strip has no such
+       rule, so set it here to keep every tab reachable at 390px). */
+    document.getElementById('winTabs').style.flexWrap = 'wrap';
     document.getElementById('winTabs').innerHTML = PAYLOAD.windows.map(function (d) {
       return '<button type="button" role="tab" data-win="' + d + '"' +
-        (String(d) === state.win ? ' class="on"' : '') + '>' + d + 'D</button>';
+        (String(d) === state.win ? ' class="on"' : '') + '>' + esc(realisedLabel(d)) + '</button>';
     }).join('');
     Array.prototype.forEach.call(
       document.querySelectorAll('#winTabs button'), function (btn) {
@@ -153,7 +205,7 @@
     }).join('');
   }
 
-  function renderWindow() { renderBoard(); renderRs(); }
+  function renderWindow() { renderStats(); renderBoard(); renderRs(); }
 
   function renderAll() {
     document.getElementById('stSession').textContent =
@@ -167,7 +219,7 @@
         return d + '-day ' + pct(PAYLOAD.nepse_returns[d + 'd']);
       }).join(', ');
     renderStats(); renderTabs(); renderBoard(); renderPhaseMix();
-    renderRs(); renderPersist(); renderReadings();
+    renderRs(); renderPersist(); renderReadings(); renderScope();
   }
 
   fetch(DATA_URL, { cache: 'no-cache' })

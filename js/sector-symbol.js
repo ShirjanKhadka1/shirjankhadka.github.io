@@ -27,6 +27,37 @@
   }
   function cls(x) { return x > 0 ? 'ss-pos' : (x < 0 ? 'ss-neg' : ''); }
   function board() { return PAYLOAD.boards[state.days]; }
+  /* Realised-window tab labels (2026-10-30): the requested window
+     (e.g. 3D) can realise to an earlier base across a holiday gap,
+     so tabs print the realised base date + session count, and flag
+     boards identical to another window's. '2026-10-16' -> '16 Oct'. */
+  var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  function shortDate(iso) {
+    if (!iso || iso.length < 10) return iso || '';
+    var label = parseInt(iso.slice(8, 10), 10) + ' ' +
+      MONTHS[parseInt(iso.slice(5, 7), 10) - 1];
+    /* Bases from a prior year (e.g. a 365D window) need the year,
+       otherwise '28 Oct' reads as this year's 28 Oct. */
+    if (PAYLOAD.asof && iso.slice(0, 4) !== PAYLOAD.asof.slice(0, 4))
+      label += " ’" + iso.slice(2, 4);
+    return label;
+  }
+  function realisedLabel(d) {
+    var b = PAYLOAD.boards[String(d)];
+    var r = b && b.realised;
+    if (!r) return d + 'D';
+    var label = d + 'D · ' + shortDate(r.base_date) + ' · ' +
+      r.sessions + ' sess';
+    if (r.identical_to && r.identical_to.length)
+      label += ' · same as ' +
+        r.identical_to.map(function (x) { return x + 'D'; }).join('/');
+    return label;
+  }
+  function fmtUnscored(u) {
+    if (typeof u === 'string') return u;
+    return u.symbol + ' (' + u.sector + ', ' + u.reason + ')';
+  }
 
   function readURL() {
     try {
@@ -66,8 +97,17 @@
     var rels = b.rows.map(function (r) { return r.rel_return; })
       .sort(function (a, c) { return a - c; });
     var med = rels.length ? rels[Math.floor(rels.length / 2)] : null;
+    var r = b.realised;
+    var winSub = r
+      ? 'realised base ' + r.base_date + ' · ' + r.sessions +
+        ' sessions over ' + r.span_days + ' calendar days' +
+        (r.identical_to && r.identical_to.length
+          ? ' · same board as ' +
+            r.identical_to.map(function (x) { return x + 'D'; }).join(', ')
+          : '')
+      : 'base ' + b.base_date;
     var stats = [
-      { k: 'Window', v: state.days + ' days', s: 'base ' + b.base_date },
+      { k: 'Window', v: state.days + ' days', s: winSub },
       { k: 'Stocks scored', v: String(s.priced), s: 'of ' + PAYLOAD.universe.constituents + ' constituents · ' + s.unscored + ' unscored' },
       { k: 'Ahead of their sector', v: String(s.outperformers), s: share + '% of scored stocks' },
       { k: 'Median relative return', v: pp(med), s: 'half the board sits above this line' }
@@ -84,7 +124,7 @@
   function renderTabs() {
     document.getElementById('winTabs').innerHTML = PAYLOAD.windows.map(function (d) {
       return '<button type="button" role="tab" aria-selected="' + (String(d) === state.days) + '" data-days="' + d + '"' +
-        (String(d) === state.days ? ' class="active"' : '') + '>' + d + 'D</button>';
+        (String(d) === state.days ? ' class="active"' : '') + '>' + esc(realisedLabel(d)) + '</button>';
     }).join('');
     Array.prototype.forEach.call(
       document.querySelectorAll('#winTabs button'), function (btn) {
@@ -456,10 +496,10 @@
       ' sector constituents on the ' + state.days + 'D window (all windows: ' +
       PAYLOAD.windows.map(function (d) {
         return d + 'D ' + PAYLOAD.boards[String(d)].summary.priced;
-      }).join(' · ') + ').';
+      }).join(' · ') + '). ' + (PAYLOAD.scope_note || '');
     var un = PAYLOAD.windows.map(function (d) {
       var u = PAYLOAD.boards[String(d)].unscored;
-      return d + 'D: ' + (u.length ? u.join(', ') : 'none');
+      return d + 'D: ' + (u.length ? u.map(fmtUnscored).join('; ') : 'none');
     }).join(' · ');
     document.getElementById('unscoredText').textContent = un + '.';
   }
