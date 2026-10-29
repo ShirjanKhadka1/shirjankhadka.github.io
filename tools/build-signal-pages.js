@@ -6,7 +6,9 @@
  * The forward record's NUMBERS render client-side from live_track_record in
  * each signal JSON (rewritten daily by tools/track-live-signals.py), so they
  * stay fresh with no page rebuild. The builder emits the section shell, the
- * honest empty-state copy, and the renderer.
+ * honest empty-state copy, and the renderer — plus a server-rendered no-JS
+ * snapshot of the same record between the baker markers (R5 discipline
+ * included), so a regen never wipes the noscript fallback again.
  */
 'use strict';
 const fs = require('fs');
@@ -72,6 +74,76 @@ function nepaliNote(sys, st) {
   if (sys === 'trend-relay') return "<strong>\u0938\u0902\u0915\u094d\u0937\u0947\u092a\u0964</strong> \u092f\u094b \u092a\u094d\u0930\u0923\u093e\u0932\u0940 \u0927\u0948\u0930\u094d\u092f\u092a\u0942\u0930\u094d\u0935\u0915 \u092a\u094d\u0930\u0935\u0943\u0924\u094d\u0924\u093f \u092a\u091b\u094d\u092f\u093e\u0909\u0928\u0947 \u0928\u093f\u092f\u092e \u0939\u094b \u2014 \u0925\u094b\u0930\u0948 \u091f\u094d\u0930\u0947\u0921, \u0932\u093e\u092e\u094b \u0939\u094b\u0932\u094d\u0921\u093f\u0919\u0964 " + yrsN + " \u0935\u0930\u094d\u0937\u092e\u093e " + tr + " \u091f\u094d\u0930\u0947\u0921 \u092e\u093e\u0924\u094d\u0930, \u0935\u093e\u0930\u094d\u0937\u093f\u0915 " + an + '%' + " \u092a\u094d\u0930\u0924\u093f\u092b\u0932\u0964 \u092f\u094b \u0936\u0948\u0915\u094d\u0937\u093f\u0915 \u091c\u093e\u0928\u0915\u093e\u0930\u0940 \u0939\u094b, \u0932\u0917\u093e\u0928\u0940 \u0938\u0932\u094d\u0932\u093e\u0939 \u0939\u094b\u0907\u0928\u0964";
   if (sys === 'reversal') return "<strong>\u0938\u0902\u0915\u094d\u0937\u0947\u092a\u0964</strong> \u092f\u094b \u092a\u094d\u0930\u0923\u093e\u0932\u0940 \u0918\u091f\u0947\u0915\u093e \u0938\u094d\u091f\u0915 \"\u092b\u0930\u094d\u0915\u0928\u094d\u091b\u0928\u094d\" \u092d\u0928\u094d\u0928\u0947 \u0905\u0928\u0941\u092e\u093e\u0928\u092e\u093e \u0915\u093f\u0928\u094d\u0928\u0947 \u0928\u093f\u092f\u092e \u0939\u094b \u2014 \u0924\u0930 " + yrsN + " \u0935\u0930\u094d\u0937\u0915\u094b \u092a\u0930\u0940\u0915\u094d\u0937\u0923\u092e\u093e \u092f\u0938\u0932\u0947 \u092a\u0948\u0938\u093e \u0917\u0941\u092e\u093e\u092f\u094b (\u0935\u093e\u0930\u094d\u0937\u093f\u0915 " + an + '%' + ")\u0964 \u0928\u0947\u092a\u094d\u0938\u0947\u092e\u093e \u092f\u094b \u0936\u0948\u0932\u0940\u0932\u0947 \u0915\u093e\u092e \u0917\u0930\u0947\u0928 \u092d\u0928\u094d\u0928\u0947 \u0907\u092e\u093e\u0928\u0926\u093e\u0930 \u0928\u093f\u0937\u094d\u0915\u0930\u094d\u0937\u0915\u093e \u0932\u093e\u0917\u093f \u092a\u094d\u0930\u0915\u093e\u0936\u093f\u0924 \u0917\u0930\u093f\u090f\u0915\u094b \u0939\u094b\u0964";
   return '';
+}
+
+function escHtml(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+/* Server-side Wilson 95% interval (twin of the client wilson() below). */
+function wilsonCI(w, n) {
+  if (!n) return null;
+  const z = 1.96, p = w / n, d = 1 + z * z / n;
+  const c = (p + z * z / (2 * n)) / d, h = z * Math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / d;
+  return [Math.max(0, c - h) * 100, Math.min(1, c + h) * 100];
+}
+/* R5: server-rendered no-JS fallback for the Live forward record, baked
+ * between the baker markers at build time (data through the JSON's
+ * data_through — a snapshot, while the JS path stays live). It carries the
+ * SAME discipline as the client render: n = decided only, Wilson 95%
+ * interval on the win rate, profit factor, and the too-few-trades badge
+ * below n=30. Previously this block was hand-baked once (P6-6) and every
+ * builder regen wiped it back to empty markers — baking it here makes the
+ * builder the sole source again. */
+function noscriptTrack(data) {
+  const lr = data.live_track_record;
+  if (!lr || !lr.stats) return '<p class="sig-sub">Forward tracking of live alerts begins with the next daily rebuild — no paper trades yet.</p><p><span class="rpill rp-trail">Too few trades</span> No decided trades yet — below 30, so no win rate or profit factor can prove an edge.</p>';
+  const s = lr.stats, since = lr.tracking_started || '2026-10-09', n = s.closed_trades || 0;
+  const wins = (s.wins != null) ? s.wins : Math.round(s.win_rate_pct / 100 * n);
+  const ci = wilsonCI(wins, n);
+  const ciTxt = ci ? ('95% CI ' + ci[0].toFixed(1) + '–' + ci[1].toFixed(1) + '%') : '';
+  const badge = (n < 30)
+    ? '<p><span class="rpill rp-trail">Too few trades</span> n=' + n + ' decided — below 30, so this win rate and profit factor are not proof of edge.</p>' : '';
+  const sub = '<p class="sig-sub">Forward-tracked since ' + since + ' · data through ' + (s.data_through || '–') + '. Every live Entry alert becomes a Rs 10 lakh paper trade at the signal close; exits fire on real forward OHLC — Target 1, stop loss, a ratcheting trailing stop, or a 20-session time exit. P&amp;L is net of 0.5% round-trip charges. n = decided trades only — open trades are shown separately and never enter n, the win rate, or profit factor. Win rate = wins ÷ n, shown with a Wilson 95% interval; profit factor = gross wins ÷ gross losses. Below n=30 the too-few-trades badge above applies.</p>';
+  const bw = (s.best_trade ? s.best_trade.symbol + ' ' + (s.best_trade.pnl_pct >= 0 ? '+' : '') + s.best_trade.pnl_pct + '%' : '–') + ' / ' + (s.worst_trade ? s.worst_trade.symbol + ' ' + (s.worst_trade.pnl_pct >= 0 ? '+' : '') + s.worst_trade.pnl_pct + '%' : '–');
+  const grid = '<div class="sig-grid">' +
+    cardBar('Win rate', n ? (s.win_rate_pct + '%<br><span style="font-size:.85rem;font-weight:400">' + ciTxt + '</span>') : '–', s.win_rate_pct >= 50 ? 'up' : '', fmt(s.win_rate_pct), '') +
+    cardBar('Failure rate', n ? s.failure_rate_pct + '%' : '–', s.failure_rate_pct >= 50 ? 'down' : '', fmt(s.failure_rate_pct), 'var(--nd-down,#F87171)') +
+    card('Decided trades (n)', n, '') + card('Open now', s.open_positions, '') +
+    card('Avg win', n ? ('+' + s.avg_win_pct + '%') : '–', 'up') +
+    card('Avg loss', n ? (s.avg_loss_pct + '%') : '–', 'down') +
+    card('Profit factor', n ? fmt(s.profit_factor) : '–', '') +
+    card('Best / worst', bw, '') + '</div>';
+  const opens = lr.open_positions || [];
+  const openRows = opens.length ? opens.map(t => {
+    const u = t.unrealized_pct >= 0 ? '+' + t.unrealized_pct + '%' : t.unrealized_pct + '%';
+    const prog = (t.target_2 > t.entry_price) ? Math.max(0, Math.min(100, (t.current_price - t.entry_price) / (t.target_2 - t.entry_price) * 100)) : 0;
+    return '<tr><td>' + escHtml(t.entry_date) + '</td><td><strong>' + escHtml(t.symbol) + '</strong></td>' +
+      '<td class="num">' + fmt(t.entry_price) + '</td><td class="num">' + fmt(t.stop_loss) + '</td>' +
+      '<td class="num">' + fmt(t.trail_stop) + '</td><td class="num">' + fmt(t.target_1) + '</td>' +
+      '<td class="num">' + fmt(t.target_2) + '</td><td class="num">' + fmt(t.current_price) + '</td>' +
+      '<td class="num">' + escHtml(u) + '</td><td><div class="prog"><i style="width:' + prog + '%"></i></div></td>' +
+      '<td class="num">' + t.sessions_held + '</td></tr>';
+  }).join('') : '<tr><td colspan="11">No open paper positions right now.</td></tr>';
+  const closed = lr.recent_closed || [];
+  const closedRows = closed.length ? closed.map(t => {
+    const win = t.pnl_pct >= 0, er = String(t.exit_reason || '');
+    const rp = win ? 'rp-win' : (er.toLowerCase().indexOf('trail') >= 0 ? 'rp-trail' : 'rp-loss');
+    return '<tr><td><strong>' + escHtml(t.symbol) + '</strong></td>' +
+      '<td class="num">' + escHtml(t.entry_date) + '</td><td class="num">' + escHtml(t.exit_date) + '</td>' +
+      '<td class="num">' + fmt(t.entry_price) + '</td><td class="num">' + fmt(t.exit_price) + '</td>' +
+      '<td><span class="rpill ' + rp + '">' + escHtml(er) + '</span></td>' +
+      '<td class="num"><strong>' + (win ? '+' : '') + t.pnl_pct.toFixed(2) + '%</strong></td>' +
+      '<td class="num">' + money(t.pnl_rs) + '</td><td class="num">' + t.hold_sessions + '</td></tr>';
+  }).join('') : '<tr><td colspan="9">No closed paper trades yet.</td></tr>';
+  const buckets = [['< −5%', p => p < -5], ['−5–0%', p => p >= -5 && p < 0], ['0–5%', p => p >= 0 && p < 5], ['5–10%', p => p >= 5 && p < 10], ['> 10%', p => p >= 10]];
+  const counts = buckets.map(() => 0);
+  closed.forEach(t => { const p = +t.pnl_pct; buckets.forEach((b, i) => { if (b[1](p)) counts[i]++; }); });
+  const mx = Math.max.apply(null, counts);
+  const dist = mx ? '<div class="sig-dist">' + buckets.map((b, i) =>
+    '<div class="sig-dist-row"><span class="sig-dist-lab">' + b[0] + '</span><span class="sig-dist-track"><span class="sig-dist-fill" style="width:' + (counts[i] / mx * 100) + '%"></span></span><span class="sig-dist-n">' + counts[i] + '</span></div>').join('') + '</div>'
+    : '<p class="sig-sub">No closed trades yet — the distribution appears here once trades close.</p>';
+  return sub + badge + grid +
+    '<h3>Open paper positions</h3><div class="scrollx"><table class="sig-table"><thead><tr><th>Date</th><th>Symbol</th><th class="num">Entry</th><th class="num">Stop loss</th><th class="num">Trail stop</th><th class="num">Target 1</th><th class="num">Target 2</th><th class="num">Current</th><th class="num">Unrealized</th><th>Progress to T2</th><th class="num">Sessions</th></tr></thead><tbody>' + openRows + '</tbody></table></div>' +
+    '<h3>Closed paper trades — newest first</h3><div class="scrollx"><table class="sig-table"><thead><tr><th>Symbol</th><th class="num">Entry date</th><th class="num">Exit date</th><th class="num">Entry</th><th class="num">Exit</th><th>Exit reason</th><th class="num">P&amp;L %</th><th class="num">P&amp;L Rs</th><th class="num">Sessions</th></tr></thead><tbody>' + closedRows + '</tbody></table></div>' +
+    '<h3>Closed-trade P&amp;L distribution</h3>' + dist;
 }
 
 function page(sys, data) {
@@ -192,6 +264,7 @@ ${bannerHtml ? bannerHtml + '\n' : ''}
 <section id="track-record" hidden>
 <h2>Live forward record — what the signals have actually produced</h2>
 <p class="sig-sub" id="track-sub">Every live Entry alert becomes a Rs 10 lakh paper trade at the signal close, scored against real forward OHLC. Loading…</p>
+<p id="track-badge" hidden></p>
 <div class="sig-grid" id="track-grid"></div>
 <h3>Open paper positions</h3>
 <div class="scrollx"><table class="sig-table" id="track-open"><thead><tr>
@@ -204,7 +277,7 @@ ${bannerHtml ? bannerHtml + '\n' : ''}
 <h3>Closed-trade P&amp;L distribution</h3>
 <div class="sig-dist" id="track-dist"></div>
 </section>
-<noscript><div class="sig-noscript" style="overflow-x:auto"><!-- baker:forward-record:start --><!-- baker:forward-record:end --></div></noscript>
+<noscript><div class="sig-noscript" style="overflow-x:auto"><!-- baker:forward-record:start -->${noscriptTrack(data)}<!-- baker:forward-record:end --></div></noscript>
 <div class="note">${backtestNoteHtml}</div>
 
 <div class="note" lang="ne">${nepaliNoteHtml}</div>
@@ -258,8 +331,9 @@ ${profileRows}</table></div>
 <dt>Breakout</dt><dd>The closing price prints higher than any close of the previous 50 sessions — the market just pushed into new territory.</dd>
 <dt>Risk (per trade)</dt><dd>Entry price minus stop price — the most you plan to lose if the trade fails. Targets are measured in multiples of this.</dd>
 <dt>T1 / T2 targets</dt><dd>Planned take-profit levels: entry + 1.5 × risk (T1) and entry + 3 × risk (T2).</dd>
-<dt>Win rate</dt><dd>The share of finished trades that made money. A low win rate can still profit if winners are much bigger than losers.</dd>
-<dt>Profit factor</dt><dd>Total money won divided by total money lost. Above 1.0 means the system took more from the market than it gave back.</dd>
+<dt>Win rate</dt><dd>The share of decided (finished) trades that made money, shown with a Wilson 95% interval — the range of true win rates consistent with the sample. Open trades never count. A low win rate can still profit if winners are much bigger than losers.</dd>
+<dt>Profit factor</dt><dd>Total money won divided by total money lost, from the forward ledger's closed trades net of 0.5% round-trip charges. Above 1.0 means the system took more from the market than it gave back.</dd>
+<dt>Too few trades (n &lt; 30)</dt><dd>Below 30 decided trades the badge on the Live forward record applies: the sample is too small for the win rate or profit factor to prove an edge, however good they look. n = decided trades only.</dd>
 <dt>Max drawdown ("deepest fall")</dt><dd>The worst peak-to-trough loss the portfolio suffered in the backtest — the pain you would have had to sit through.</dd>
 <dt>Alpha vs NEPSE</dt><dd>How much more (or less) this system earned per year than simply buying and holding the NEPSE index itself. Negative means buy &amp; hold won.</dd>
 <dt>Sharpe / Sortino</dt><dd>Return per unit of bumpiness. Higher means smoother gains. Sortino counts only the bad bumps (losses), ignoring upside jumps.</dd>
@@ -441,29 +515,42 @@ ${profileRows}</table></div>
     if(!lr||!lr.stats){
       if(sub)sub.textContent='Forward tracking of live alerts begins with the next daily rebuild — no paper trades yet.';
       grid.innerHTML='';
+      var b0=document.getElementById('track-badge');
+      if(b0){ b0.innerHTML='<span class="rpill rp-trail">Too few trades</span> No decided trades yet — below 30, so no win rate or profit factor can prove an edge.'; b0.hidden=false; }
       sec.hidden=false;
       return;
     }
     var s2=lr.stats, since=lr.tracking_started||'2026-10-09', nClosed=s2.closed_trades||0;
+    /* R5 small-sample discipline: n = decided trades only (open trades
+       never enter n, the win rate, or profit factor); win rate carries a
+       Wilson 95% interval; below n=30 the too-few-trades badge shows on
+       the display itself. PF comes from the ledger (net of 0.5% charges). */
+    function wilson(w,n){ if(!n)return null; var z=1.96,p=w/n,d=1+z*z/n,c=(p+z*z/(2*n))/d,h=z*Math.sqrt(p*(1-p)/n+z*z/(4*n*n))/d; return [Math.max(0,c-h)*100,Math.min(1,c+h)*100]; }
+    function ciText(w,n){ var w2=wilson(w,n); return w2?('95% CI '+w2[0].toFixed(1)+'–'+w2[1].toFixed(1)+'%'):''; }
+    function setBadge(n){ var b=document.getElementById('track-badge'); if(!b)return; if(n<30){ b.innerHTML='<span class="rpill rp-trail">Too few trades</span> n='+n+' decided — below 30, so this win rate and profit factor are not proof of edge.'; b.hidden=false; } else { b.innerHTML=''; b.hidden=true; } }
     if(nClosed===0){
       if(sub)sub.textContent='No closed paper trades yet — forward tracking since '+since+'. Win and failure rates will appear here once the first paper trades close on real market data.';
       grid.innerHTML=
         card('Win rate','–','')+card('Failure rate','–','')+
-        card('Closed trades','0','')+card('Open now',s2.open_positions,'')+
+        card('Decided trades (n)','0','')+card('Open now',s2.open_positions,'')+
         card('Avg win','–','')+card('Avg loss','–','')+
         card('Profit factor','–','')+card('Best / worst','–','');
+      setBadge(0);
     }else{
-      if(sub)sub.textContent='Forward-tracked since '+since+' · data through '+(s2.data_through||'–')+'. Every live Entry alert becomes a Rs 10 lakh paper trade at the signal close; exits fire on real forward OHLC — Target 1, stop loss, a ratcheting trailing stop, or a 20-session time exit. P&L is net of 0.5% round-trip charges.';
+      if(sub)sub.textContent='Forward-tracked since '+since+' · data through '+(s2.data_through||'–')+'. Every live Entry alert becomes a Rs 10 lakh paper trade at the signal close; exits fire on real forward OHLC — Target 1, stop loss, a ratcheting trailing stop, or a 20-session time exit. P&L is net of 0.5% round-trip charges. n = decided trades only — open trades are shown separately and never enter n, the win rate, or profit factor. Win rate = wins ÷ n, shown with a Wilson 95% interval; profit factor = gross wins ÷ gross losses. Below n=30 the too-few-trades badge above applies.';
       var bw=(s2.best_trade?s2.best_trade.symbol+' '+(s2.best_trade.pnl_pct>=0?'+':'')+s2.best_trade.pnl_pct+'%':'–')+' / '+(s2.worst_trade?s2.worst_trade.symbol+' '+(s2.worst_trade.pnl_pct>=0?'+':'')+s2.worst_trade.pnl_pct+'%':'–');
+      var nWins=(s2.wins!=null)?s2.wins:Math.round(s2.win_rate_pct/100*nClosed);
+      var winCell=s2.win_rate_pct+'%<br><span style="font-size:.85rem;font-weight:400">'+ciText(nWins,nClosed)+'</span>';
       grid.innerHTML=
-        cardBar('Win rate',s2.win_rate_pct+'%',s2.win_rate_pct>=50?'up':'',s2.win_rate_pct,'var(--nd-lime,#B8E62E)')+
+        cardBar('Win rate',winCell,s2.win_rate_pct>=50?'up':'',s2.win_rate_pct,'var(--nd-lime,#B8E62E)')+
         cardBar('Failure rate',s2.failure_rate_pct+'%',s2.failure_rate_pct>=50?'down':'',s2.failure_rate_pct,'var(--nd-down,#F87171)')+
-        card('Closed trades',nClosed,'')+
+        card('Decided trades (n)',nClosed,'')+
         card('Open now',s2.open_positions,'')+
         card('Avg win','+'+s2.avg_win_pct+'%','up')+
         card('Avg loss',s2.avg_loss_pct+'%','down')+
         card('Profit factor',s2.profit_factor,'')+
         card('Best / worst',esc(bw),'');
+      setBadge(nClosed);
     }
     var otb=document.querySelector('#track-open tbody');
     var opens=(lr.open_positions||[]).filter(function(t){return inSector(t.symbol);});

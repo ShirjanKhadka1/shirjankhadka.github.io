@@ -359,6 +359,14 @@
 
   function trackPct(x) { return x == null ? '—' : (x * 100).toFixed(1) + '%'; }
   function trackRet(x) { return x == null ? '—' : (x >= 0 ? '+' : '') + (x * 100).toFixed(2) + '%'; }
+  /* R5 small-sample discipline for the live call ledger: n = decided calls
+     only (open calls never enter n, the win rate, or profit factor); win
+     rates carry a Wilson 95% interval; below n=30 the too-few-trades badge
+     shows on the display itself. Ledger win = target hit (screener-tracking
+     summary); PF is return-based — see the method line in renderTracking. */
+  function trackWilson(w, n) { if (!n) return null; var z = 1.96, p = w / n, d = 1 + z * z / n, c = (p + z * z / (2 * n)) / d, h = z * Math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / d; return [Math.max(0, c - h) * 100, Math.min(1, c + h) * 100]; }
+  function trackCI(w, n) { var w2 = trackWilson(w, n); return w2 ? ('95% CI ' + w2[0].toFixed(1) + '–' + w2[1].toFixed(1) + '%') : '—'; }
+  function trackPF(closed) { var gw = 0, gl = 0; (closed || []).forEach(function (x) { var r = +x.exit_return; if (r > 0) gw += r; else if (r < 0) gl += -r; }); if (!gl) return gw > 0 ? '∞' : '—'; return (gw / gl).toFixed(2); }
   function renderTracking() {
     try {
       var chEl = $('sc-changes-line'), chBody = $('sc-changes-body');
@@ -386,10 +394,10 @@
       var closed = (d.calls || []).filter(function (x) { return x.status === 'closed'; }).sort(function (a, b) { return (b.exit_date || '') < (a.exit_date || '') ? -1 : 1; }).slice(0, 20);
       var persRows = ['flash', 'mid', 'persistent'].map(function (k) {
         var p = s.by_persistence[k];
-        return '<tr><td>' + k + '</td><td class="num">' + p.decided + '</td><td class="num">' + p.wins + '</td><td class="num">' + (p.decided ? trackPct(p.wins / p.decided) : '—') + '</td></tr>';
+        return '<tr><td>' + k + '</td><td class="num">' + p.decided + '</td><td class="num">' + p.wins + '</td><td class="num">' + (p.decided ? trackPct(p.wins / p.decided) : '—') + '</td><td class="num">' + (p.decided ? trackCI(p.wins, p.decided) : '—') + '</td></tr>';
       }).join('');
       var setupRows = (s.by_setup || []).map(function (r) {
-        return '<tr><td>' + esc(r.setup) + '</td><td class="num">' + r.decided + '</td><td class="num">' + r.wins + '</td><td class="num">' + (r.win_rate == null ? '—' : trackPct(r.win_rate)) + '</td></tr>';
+        return '<tr><td>' + esc(r.setup) + '</td><td class="num">' + r.decided + '</td><td class="num">' + r.wins + '</td><td class="num">' + (r.win_rate == null ? '—' : trackPct(r.win_rate)) + '</td><td class="num">' + (r.decided ? trackCI(r.wins, r.decided) : '—') + '</td></tr>';
       }).join('');
       var tr = state.trackRecord;
       var replayRows = '';
@@ -422,9 +430,11 @@
           '<span style="display:flex;gap:8px;margin-left:auto" id="sc-calls-pager" aria-label="Open calls pagination"></span></div>'
         : '<p class="sig-sub">No open calls.</p>';
       cb.innerHTML = banner +
-        '<p class="sig-sub">' + s.open + ' open · ' + s.decided + ' decided (target ' + s.closed_tp + ' · stop ' + s.closed_sl + ' · expired ' + s.closed_expired + ') · win rate ' + (s.win_rate == null ? '—' : trackPct(s.win_rate)) + ' on decided calls.</p>' +
-        '<div class="scrollx sc-cardwrap"><table class="sig-table nd-table"><thead><tr><th>Persistence at entry</th><th class="num">Decided</th><th class="num">Wins</th><th class="num">Win rate</th></tr></thead><tbody>' + persRows + '</tbody></table></div>' +
-        (setupRows ? '<div class="scrollx sc-cardwrap"><table class="sig-table nd-table"><thead><tr><th>Setup</th><th class="num">Decided</th><th class="num">Wins</th><th class="num">Win rate</th></tr></thead><tbody>' + setupRows + '</tbody></table></div>' : '') +
+        '<p class="sig-sub">' + s.open + ' open (excluded from every rate below) · ' + s.decided + ' decided (n=' + s.decided + '; target ' + s.closed_tp + ' · stop ' + s.closed_sl + ' · expired ' + s.closed_expired + ') · win rate ' + (s.win_rate == null ? '—' : trackPct(s.win_rate) + ' (' + trackCI(Math.round(s.win_rate * s.decided), s.decided) + ')') + ' on decided calls · profit factor ' + trackPF((d.calls || []).filter(function (x) { return x.status === 'closed'; })) + '.</p>' +
+        (s.decided < 30 ? '<p><span class="rpill rp-trail">Too few trades</span> n=' + s.decided + ' decided — below 30, so this win rate and profit factor are not proof of edge.</p>' : '') +
+        '<p class="sig-sub">n = decided calls only; open calls never enter n, the win rate, or profit factor. Win rate = wins ÷ n with a Wilson 95% interval (win = target hit, per the ledger). Profit factor = gross winning returns ÷ gross losing returns from the closed calls below (price returns; this ledger carries no Rs paper stake and deducts no charges). Breakdown rows are subsets of the same decided ledger, so the badge above covers them too.</p>' +
+        '<div class="scrollx sc-cardwrap"><table class="sig-table nd-table"><thead><tr><th>Persistence at entry</th><th class="num">Decided</th><th class="num">Wins</th><th class="num">Win rate</th><th class="num">95% CI</th></tr></thead><tbody>' + persRows + '</tbody></table></div>' +
+        (setupRows ? '<div class="scrollx sc-cardwrap"><table class="sig-table nd-table"><thead><tr><th>Setup</th><th class="num">Decided</th><th class="num">Wins</th><th class="num">Win rate</th><th class="num">95% CI</th></tr></thead><tbody>' + setupRows + '</tbody></table></div>' : '') +
         replayRows +
         '<h3>Open calls</h3>' + openHtml +
         '<h3>Recently closed</h3>' + (closed.length ? '<div class="scrollx sc-cardwrap"><table class="sig-table nd-table"><thead><tr><th>Symbol</th><th>Entry</th><th>Exit</th><th>Outcome</th><th class="num">Return</th><th class="num">Sessions held</th></tr></thead><tbody>' +

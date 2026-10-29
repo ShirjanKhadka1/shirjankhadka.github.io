@@ -135,6 +135,7 @@
 <li>Seeded from the engine's verifiable alert history: every distinct BUY alert found in git-committed signal JSONs on origin/main (2026-09-30 commits onward), each traced to its real alert record (system, symbol, signal date, published entry/stop/targets). Forward tracking started 2026-08-03; SIKLES was excluded because no verifiable alert record exists for it — never invented.</li>
 <li>Recomputed <strong>daily after market close</strong> by <code>tools/track-live-signals.py</code>, which rewrites <code>live_track_record</code> in each signal JSON. The pages render these numbers client-side, so they stay fresh with no page rebuild.</li>
 <li><strong>Honesty rule:</strong> win/failure rates appear only after trades close. With zero closed trades the section says so plainly — never 0%, never the backtest rate.</li>
+<li><strong>Small-sample discipline (R5):</strong> n = decided trades only — open trades are shown separately and never enter n, the win rate, or profit factor. Win rate = wins ÷ n, shown with a Wilson 95% interval; profit factor = gross wins ÷ gross losses (net of 0.5% charges). Below n=30 the <strong>too-few-trades badge</strong> shows on the record itself: the sample is too small for the win rate or profit factor to prove an edge.</li>
 </ul>
 </div>
 

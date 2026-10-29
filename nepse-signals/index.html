@@ -58,10 +58,11 @@
 <div><div class="sig-card-l">Trades</div><div class="sig-card-v" data-f="total_trades">767</div></div>
 </div>
 <div class="sys-live">
-<div><div class="sig-card-l">Live closed</div><div class="sys-live-v" data-lr="closed">–</div></div>
+<div><div class="sig-card-l">Live decided (n)</div><div class="sys-live-v" data-lr="closed">–</div></div>
 <div><div class="sig-card-l">Live open</div><div class="sys-live-v" data-lr="open">–</div></div>
 <div><div class="sig-card-l">Live win rate</div><div class="sys-live-v" data-lr="win">–</div></div>
 <div><div class="sig-card-l">Live profit factor</div><div class="sys-live-v" data-lr="pf">–</div></div>
+<div><span class="rpill rp-trail" data-lr="badge" hidden>Too few trades</span></div>
 </div>
 <span class="sys-open">Open Momentum &rarr;</span>
 </a>
@@ -75,10 +76,11 @@
 <div><div class="sig-card-l">Style</div><div class="sig-card-v">Steady</div></div>
 </div>
 <div class="sys-live">
-<div><div class="sig-card-l">Live closed</div><div class="sys-live-v" data-lr="closed">–</div></div>
+<div><div class="sig-card-l">Live decided (n)</div><div class="sys-live-v" data-lr="closed">–</div></div>
 <div><div class="sig-card-l">Live open</div><div class="sys-live-v" data-lr="open">–</div></div>
 <div><div class="sig-card-l">Live win rate</div><div class="sys-live-v" data-lr="win">–</div></div>
 <div><div class="sig-card-l">Live profit factor</div><div class="sys-live-v" data-lr="pf">–</div></div>
+<div><span class="rpill rp-trail" data-lr="badge" hidden>Too few trades</span></div>
 </div>
 <span class="sys-open">Open Trend Relay &rarr;</span>
 </a>
@@ -92,10 +94,11 @@
 <div><div class="sig-card-l">Lesson</div><div class="sig-card-v" data-f="lesson" style="font-size:1rem">Mean-reversion fails on NEPSE</div></div>
 </div>
 <div class="sys-live">
-<div><div class="sig-card-l">Live closed</div><div class="sys-live-v" data-lr="closed">–</div></div>
+<div><div class="sig-card-l">Live decided (n)</div><div class="sys-live-v" data-lr="closed">–</div></div>
 <div><div class="sig-card-l">Live open</div><div class="sys-live-v" data-lr="open">–</div></div>
 <div><div class="sig-card-l">Live win rate</div><div class="sys-live-v" data-lr="win">–</div></div>
 <div><div class="sig-card-l">Live profit factor</div><div class="sys-live-v" data-lr="pf">–</div></div>
+<div><span class="rpill rp-trail" data-lr="badge" hidden>Too few trades</span></div>
 </div>
 <span class="sys-open">Open Reversal &rarr;</span>
 </a>
@@ -110,7 +113,7 @@
 
 <div class="note"><strong>Why publish a losing system?</strong> Because honesty is the product. The <span class="sigwin" data-form="hyphen">2.1-year</span> backtest shows NEPSE is a trend market — momentum worked, mean-reversion lost money. We publish all three, winners and losers, so you can see exactly what the data says instead of a cherry-picked highlight reel.</div>
 
-<div class="note"><strong>How to read these.</strong> Every number comes from a mechanical replay of the exact published rules on historical NEPSE data (<span id="sig-range">2024-09-01 to 2026-10-16</span>, <span id="sig-syms">316</span> symbols, Rs 1 Cr portfolio). Nothing is hand-picked. Past performance does not predict future results. <a href="/nepse-signals/methodology/">Read the full methodology &rarr;</a></div>
+<div class="note"><strong>How to read these.</strong> Every number comes from a mechanical replay of the exact published rules on historical NEPSE data (<span id="sig-range">2024-09-01 to 2026-10-16</span>, <span id="sig-syms">316</span> symbols, Rs 1 Cr portfolio). Nothing is hand-picked. Live mini-records count decided trades only (n); open trades are shown separately and never enter n, the win rate, or profit factor. Live win rates carry a Wilson 95% interval, and below n=30 the too-few-trades badge applies. Past performance does not predict future results. <a href="/nepse-signals/methodology/">Read the full methodology &rarr;</a></div>
 
 <div class="note" lang="ne"><strong>संक्षेप।</strong> यी तीनवटा पारदर्शी नियम-आधारित प्रणाली हुन् — सबै नियम खुला, सबै अलर्ट खुला, पछिल्लो परीक्षणका सबै ट्रेड खुला। यो शैक्षिक जानकारी हो, लगानी सल्लाह होइन।</div>
 
@@ -193,13 +196,18 @@
         var ln=card.querySelector('[data-f="lesson"]');
         if(ln&&isFinite(an))ln.textContent=an<0?'Mean-reversion fails on NEPSE':'Mean-reversion tested on NEPSE';
       }
-      /* live mini-record (honesty rule: no win/PF rate before any close) */
+      /* live mini-record (honesty rule: no win/PF rate before any close;
+         R5: n = decided only, Wilson 95% interval, too-few-trades badge) */
+      function wilson(w,n){ if(!n)return null; var z=1.96,p=w/n,d=1+z*z/n,c=(p+z*z/(2*n))/d,h=z*Math.sqrt(p*(1-p)/n+z*z/(4*n*n))/d; return [Math.max(0,c-h)*100,Math.min(1,c+h)*100]; }
       var lr=row.d.live_track_record||{}, s2=lr.stats||null;
       if(s2){
-        setLr('closed', s2.closed_trades||0);
+        var nC=s2.closed_trades||0, nW=(s2.wins!=null)?s2.wins:Math.round(s2.win_rate_pct/100*nC), ci=wilson(nW,nC);
+        setLr('closed', nC);
         setLr('open', s2.open_positions||0);
-        setLr('win', (s2.closed_trades||0)===0 ? '–' : f2(s2.win_rate_pct)+'%');
-        setLr('pf', (s2.closed_trades||0)===0 ? '–' : f2(s2.profit_factor));
+        setLr('win', nC===0 ? '–' : f2(s2.win_rate_pct)+'% (95% CI '+(ci?ci[0].toFixed(1)+'–'+ci[1].toFixed(1)+'%':'–')+')');
+        setLr('pf', nC===0 ? '–' : f2(s2.profit_factor));
+        var bd=card.querySelector('[data-lr="badge"]');
+        if(bd){ if(nC<30){ bd.textContent='Too few trades (n='+nC+')'; bd.hidden=false; } else { bd.hidden=true; } }
       }
     });
     var m=rows.filter(function(r){return r.sys==='momentum';})[0];
@@ -281,7 +289,7 @@
 </script>
 </main>
 <div id="nd-footer"></div>
-<script src="/js/nd-chrome.js?v=89886946" defer></script>
+<script src="/js/nd-chrome.js?v=ac51169e" defer></script>
 <script src="/js/theme-toggle.js?v=6a6a46c6" defer></script>
 </body>
 </html>
