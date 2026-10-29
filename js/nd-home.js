@@ -657,7 +657,7 @@
       }
       var top3 = list.slice().sort(function (a, b) { return (Number(b.q && b.q.turnover) || 0) - (Number(a.q && a.q.turnover) || 0); }).slice(0, 3);
       var mCls = mean > 0 ? 'up' : mean < 0 ? 'dn' : '';
-      return '<button type="button" class="nd-sector-card cx-card' + (s === sectorSel ? ' on' : '') + '" data-sector="' + esc(s) + '" role="listitem">' +
+      return '<button type="button" class="nd-sector-card cx-card' + (s === sectorSel ? ' on' : '') + '" data-sector="' + esc(s) + '">' +
         '<span class="nd-sector-name">' + esc(s) + '</span>' +
         '<span class="nd-sector-count">' + list.length + ' symbols · ' + traded.length + ' traded</span>' +
         '<span class="nd-sector-mean ' + mCls + '">' + (mean > 0 ? '+' : '') + mean.toFixed(2) + '% <em>mean Day % (traded only)</em></span>' +

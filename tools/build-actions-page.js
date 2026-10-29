@@ -342,11 +342,11 @@ function main() {
     '<input class="na-search" id="na-q" type="search" placeholder="Search by symbol" aria-label="Search by symbol">\n' +
     '<span class="na-count" id="na-count" aria-live="polite">' + items.length + ' of ' + items.length + ' notices</span>\n' +
     '</div>\n' +
-    '<div class="na-pills" id="naPills" role="tablist" aria-label="Filter by notice kind">\n' +
-    '<button class="na-pill" data-kind="" aria-selected="true">All</button>\n' +
-    '<button class="na-pill" data-kind="dividend" aria-selected="false">Dividend</button>\n' +
-    '<button class="na-pill" data-kind="right-share" aria-selected="false">Right share</button>\n' +
-    '<button class="na-pill" data-kind="promoter-share" aria-selected="false">Promoter share</button>\n' +
+    '<div class="na-pills" id="naPills" role="group" aria-label="Filter by notice kind">\n' +
+    '<button class="na-pill" data-kind="" aria-pressed="true">All</button>\n' +
+    '<button class="na-pill" data-kind="dividend" aria-pressed="false">Dividend</button>\n' +
+    '<button class="na-pill" data-kind="right-share" aria-pressed="false">Right share</button>\n' +
+    '<button class="na-pill" data-kind="promoter-share" aria-pressed="false">Promoter share</button>\n' +
     '</div>\n' +
     '<div id="na-feed" aria-live="polite">' + feedHTML + '</div>\n' +
     '<div class="na-pager" id="na-pager"' + (pages > 1 ? '' : ' style="display:none"') + '>\n' +

@@ -72,7 +72,7 @@ function syncStaticControls(){
     x.classList.toggle('active', x.dataset.view===state.view);
     x.setAttribute('aria-selected', x.dataset.view===state.view ? 'true' : 'false');
   });
-  document.querySelectorAll('#periodBar button').forEach(function(x){
+  document.querySelectorAll('#periodBar button[data-p]').forEach(function(x){
     x.classList.toggle('active', x.dataset.p===state.period);
     x.setAttribute('aria-selected', x.dataset.p===state.period ? 'true' : 'false');
   });

@@ -470,7 +470,7 @@
   pills.forEach(function (btn) {
     btn.addEventListener('click', function () {
       activeKind = btn.getAttribute('data-kind') || '';
-      pills.forEach(function (b) { b.setAttribute('aria-selected', b === btn ? 'true' : 'false'); });
+      pills.forEach(function (b) { b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
       reset();
     });
   });

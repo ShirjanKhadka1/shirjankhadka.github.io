@@ -335,14 +335,22 @@
       var bar = '<span class="sc-mix-track" style="height:8px"><i class="m-sbuy" style="width:' + (buy / tot * 100) + '%"></i>' +
         '<i class="m-hold" style="width:' + (hold / tot * 100) + '%"></i>' +
         '<i class="m-sexit" style="width:' + (exit / tot * 100) + '%"></i></span>';
-      return '<button type="button" class="sc-sector-card' + (state.sector === sec ? ' is-on' : '') + '" data-sec="' + esc(sec) + '">' +
+      return '<div class="sc-sector-card' + (state.sector === sec ? ' is-on' : '') + '" data-sec="' + esc(sec) + '">' +
+        '<button type="button" class="sc-sector-card-btn">' +
         '<h3>' + esc(sec) + '</h3>' +
         '<span class="sc-sec-meta">' + rows.length + ' stocks · ' + buy + ' buy-side · ' + exit + ' exit-side</span>' +
-        bar +
-        '<p class="sc-sec-top">' + topHtml + '</p></button>';
+        bar + '</button>' +
+        '<p class="sc-sec-top">' + topHtml + '</p></div>';
     }).join('');
     box.querySelectorAll('.sc-sector-card').forEach(function (card) {
-      card.addEventListener('click', function () {
+      /* A11y 2026-10-29: the card is a div, not a button, so the top-3
+         stock links are siblings of the toggle button, not nested in it.
+         Clicks anywhere on the card except a link toggle the filter —
+         exactly the old whole-card behavior; a link click navigates only
+         (the old button handler's toggle was lost on navigation anyway).
+         Button keyboard activation bubbles here, so Enter/Space still work. */
+      card.addEventListener('click', function (ev) {
+        if (ev.target.closest && ev.target.closest('a')) return;
         var sec = card.getAttribute('data-sec') || '';
         state.sector = (state.sector === sec) ? '' : sec;
         var sel = $('sc-sector');

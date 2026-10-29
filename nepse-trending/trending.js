@@ -310,14 +310,21 @@ function renderSectors(){
       return '<a href="/nepse-chart/?s='+esc(s.symbol)+'">'+esc(s.symbol)+'</a> '+fmt(s.score,1)+' · '+(finite(s._day)?(s._day>0?'+':'')+fmt(s._day)+'%':'–');
     }).join('<br>');
     var pressed = state.sector===sec.name ? 'true' : 'false';
-    return '<button type="button" class="d3-card tr-sector" data-sector="'+esc(sec.name)+'" aria-pressed="'+pressed+'">'
+    return '<div class="d3-card tr-sector' + (pressed === 'true' ? ' is-pressed' : '') + '" data-sector="'+esc(sec.name)+'">'
+      + '<button type="button" class="tr-sector-btn" aria-pressed="'+pressed+'">'
       + '<h3>'+esc(sec.name)+'</h3>'
       + '<p class="tr-secmeta">'+total+' stocks · '+sec.tones.accumulation+' acc · '+sec.tones.distribution+' dist · '+sec.tones.watch+' watch</p>'
-      + '<div class="tr-minibar">'+bar+'</div>'
-      + '<p class="tr-top">'+topHtml+'</p></button>';
+      + '<div class="tr-minibar">'+bar+'</div></button>'
+      + '<p class="tr-top">'+topHtml+'</p></div>';
   }).join('');
   host.querySelectorAll('.tr-sector').forEach(function(b){
-    b.addEventListener('click', function(){
+    /* A11y 2026-10-29: card is a div; the top-3 chart links are siblings
+       of the toggle button, not nested in it. Link clicks navigate only
+       (the old bubbled toggle was lost on navigation anyway); every other
+       card click — including button keyboard activation, which bubbles
+       here — toggles the filter exactly as before. */
+    b.addEventListener('click', function(ev){
+      if (ev.target.closest && ev.target.closest('a')) return;
       var name = b.getAttribute('data-sector');
       state.sector = (state.sector===name) ? 'all' : name;
       var sel = $('trSector'); if(sel) sel.value = state.sector;
