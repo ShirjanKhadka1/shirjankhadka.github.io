@@ -59,7 +59,7 @@
   <div class="nd-content">
     <div class="story-wrap">
       <div data-freshness-badge style="margin:10px 0"></div>
-      <div id="story"><p class="nd-caption">Loading story…</p></div>
+      <div id="story"><noscript><style>.story-loading{display:none}</style><p class="nd-caption">This story page loads its story from the live news feed with JavaScript enabled. Without JavaScript the story itself cannot be shown here — browse the latest stories instead: <a href="/nepse-news/">All market news →</a></p></noscript><p class="nd-caption story-loading">Loading story…</p></div>
     </div>
   </div>
 </main>
@@ -81,18 +81,26 @@
   function q(name){var m=new RegExp('[?&]'+name+'=([^&]*)').exec(location.search);return m?decodeURIComponent(m[1]):null;}
   function fmtDate(iso){var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso||''));if(!m)return iso||'';var M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return (+m[3])+' '+M[+m[2]-1]+' '+m[1];}
 
-  var src=q('src')||'ann', id=q('id'), idx=parseInt(q('i')||'0',10);
+  var src=q('src')||'ann', id=q('id');
   var file=src==='news'?'/nepse-chart/data/news.json':'/nepse-chart/data/announcements.json';
 
   fetch(file,{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){
     var items=d.items||d;
-    /* Phase 0 item 2: stable ids survive feed re-ordering; index links
-       (?i=) keep working best-effort for links shared before ids existed. */
-    var it=null, itIdx=-1;
-    if (id) {
-      for (var k=0;k<items.length;k++) { if (items[k].id === id) { it=items[k]; itIdx=k; break; } }
-    } else if (!isNaN(idx) && idx >= 0 && idx < items.length) { it=items[idx]; itIdx=idx; }
+    /* Id routing only: every feed item carries a stable id, and the live
+       feed reorders as new items arrive, so a positional index (?i=) into
+       today's feed can point at a DIFFERENT story than the one the link
+       was baked for. Resolving an index would show the wrong story, so
+       legacy ?i= links fail closed with a stale-link notice instead of
+       ever rendering a story from an index. */
     var mount=$('story');
+    if (!id && q('i') !== null) {
+      mount.innerHTML='<p class="nd-caption">This story link uses an old positional address that no longer points at the story it was made for, because the news feed has moved on since. No story is shown rather than the wrong one. <a href="/nepse-news/">Browse the latest market news →</a></p>';
+      return;
+    }
+    var it=null;
+    if (id) {
+      for (var k=0;k<items.length;k++) { if (items[k].id === id) { it=items[k]; break; } }
+    }
     if(!it){mount.innerHTML='<p class="nd-caption">' + (id ? 'This story is no longer listed in the current feed. ' : 'Story not found. ') + '<a href="/nepse-news/">Back to market news →</a></p>';return;}
 
     var url=it.url||it.link||'';
@@ -107,7 +115,7 @@
        the generic tags; per-story files would be needed to change that. */
     (function(){
       var desc = (kind + ': ' + dec(it.title)).slice(0, 200);
-      var url = 'https://shirjankhadka.com.np/nepse-news/story/?src=' + src + (it.id ? '&id=' + encodeURIComponent(it.id) : '&i=' + itIdx);
+      var url = 'https://shirjankhadka.com.np/nepse-news/story/?src=' + src + '&id=' + encodeURIComponent(it.id);
       function setMeta(attr, val, content){
         var sel = attr === 'property' ? 'meta[property="' + val + '"]' : 'meta[name="' + val + '"]';
         var m = document.querySelector(sel);
@@ -139,7 +147,7 @@
     if(rel.length){
       h+='<div class="story-related"><h2>Related stories</h2>';
       rel.forEach(function(x){
-        var rHref = x.id ? ('/nepse-news/story/?src='+src+'&id='+encodeURIComponent(x.id)) : ('/nepse-news/story/?src='+src+'&i='+items.indexOf(x));
+        var rHref = x.id ? ('/nepse-news/story/?src='+src+'&id='+encodeURIComponent(x.id)) : '/nepse-news/';
         h+='<a href="'+rHref+'">'+escT(x.title)+'<span>'+fmtDate(x.date)+' · '+esc(x.src||'')+'</span></a>';
       });
       h+='</div>';
