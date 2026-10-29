@@ -46,6 +46,39 @@ function secOf(sym) {
   return (e && e.sector) ? e.sector : 'Others';
 }
 
+// ---- ROUND 2 / R2 invariant gates (2026-10-29, audit Phase 4 S1–S3) ----
+// Applied HERE in the builder — never by hand-editing verdicts.json — so
+// the daily 17:38 refresh preserves them. Score is always kept; only the
+// label is capped to Hold, mirroring the SMA200 regime gate in
+// js/nepse-lab.js computeVerdict. Gate reasons are recorded per symbol in
+// the verdicts.json top-level `gates` map ({sym: {d: [...], w: [...],
+// m: [...]}}) so the R2 verify script can audit every cap.
+//   S1: a CONFIRMED bearish pattern (note starting 'Confirmed:') caps
+//       Buy/Strong Buy at Hold. Forming patterns score 0 in the engine
+//       and are NOT capped (display-confusion only, not a contradiction).
+//   S2: non-equity by sector+type UNION caps Buy/Strong Buy at Hold:
+//       sector in {Debentures, Mutual Funds, Promoter Shares} OR universe
+//       type in {Debenture, Mutual fund, Promoter share}. The union is
+//       required: sector-map has no entry for PROFLP/PCBLP/SBD87 (sec
+//       'Others') while their types are non-equity, and the type field
+//       mistags 33 bare-symbol debentures as Equity the other way.
+//   S3: last-session volume not > 0 caps Buy/Strong Buy at Hold —
+//       zero-volume symbols never rank as Buy.
+const R2_NON_EQ_SECTORS = new Set(['Debentures', 'Mutual Funds', 'Promoter Shares']);
+const R2_NON_EQ_TYPES = new Set(['Debenture', 'Mutual fund', 'Promoter share']);
+const R2_BEARISH = new Set(['Double Top', 'Head & Shoulders', 'Rising Wedge', 'Descending Triangle']);
+function r2GateReasons(label, pats, sec, type, vol) {
+  const reasons = [];
+  if (label !== 'Buy' && label !== 'Strong Buy') return reasons;
+  const confBear = (pats || []).filter((p) => /Confirmed/.test(p.note || '') && R2_BEARISH.has(p.label))[0];
+  if (confBear) reasons.push('S1-confirmed-bearish:' + confBear.label);
+  if (R2_NON_EQ_SECTORS.has(sec)) reasons.push('S2-non-equity-sector:' + sec);
+  else if (R2_NON_EQ_TYPES.has(type)) reasons.push('S2-non-equity-type:' + type);
+  if (!(vol > 0)) reasons.push('S3-zero-volume');
+  return reasons;
+}
+function r2ApplyGate(label, reasons) { return reasons.length ? 'Hold' : label; }
+
 const U = {
   manifest: 'https://shubhamnpk.github.io/yonepse/data/ltp/manifest.json',
   monthly: (m) => 'https://shubhamnpk.github.io/yonepse/data/ltp/monthly/' + m + '.json',
@@ -319,7 +352,7 @@ function trackRecord(ENGINE, IDX, series, isEquity) {
 // has no timeframe); the verdict, RSI, stop/target and setup are per
 // timeframe. asof is the latest session the verdict's data runs through.
 const TF_MIN = { w: 40, m: 36 };
-function tfVerdict(agg, tf, regime, asofD) {
+function tfVerdict(agg, tf, regime, asofD, gateCtx) {
   const minN = TF_MIN[tf];
   if (!agg || agg.length < minN) return null;
   const divs = ENGINE.detectDivergences(agg);
@@ -337,10 +370,13 @@ function tfVerdict(agg, tf, regime, asofD) {
   const byRecency = (a, b) => (b.i2 || 0) - (a.i2 || 0);
   const topPat = pats.slice().sort(byRecency)[0];
   const topDiv = divs.slice().sort(byRecency)[0];
+  // R2: the same S1/S2/S3 gates as the daily verdict (score kept, label capped).
+  const ctx = gateCtx || {};
+  const reasons = r2GateReasons(v.label, pats, ctx.sec, ctx.type, ctx.vol);
   return {
-    v: v.label, s: v.score, rsi: r2(rsiA[n - 1]),
+    v: r2ApplyGate(v.label, reasons), s: v.score, rsi: r2(rsiA[n - 1]),
     sl: sl, tp: tp, setup: (topPat && topPat.label) || (topDiv && topDiv.label) || null,
-    n: n, asof: asofD
+    n: n, asof: asofD, g: reasons.length ? reasons : undefined
   };
 }
 
@@ -678,29 +714,40 @@ async function main() {
     }
     if (sec) report.secCount = (report.secCount || 0) + 1;
     if (sl != null && tp != null) report.sltpCount = (report.sltpCount || 0) + 1;
-    // buy-call track record (OHLC history only; LTP-only has no intrabar range; equity only)
-    const tr = (!ltpOnly && n >= TR_MINN) ? trackRecord(ENGINE, IDX, series, type === 'Equity') : null;
+    // buy-call track record (OHLC history only; LTP-only has no intrabar range;
+    // equity only by the R2 S2 UNION — the R1 leftover: the type-only gate
+    // left per-row hit rates on mistagged non-equities. The aggregate
+    // screener-performance figure is unchanged: it already applied the union.)
+    const tr = (!ltpOnly && n >= TR_MINN) ? trackRecord(ENGINE, IDX, series, type === 'Equity' && !R2_NON_EQ_SECTORS.has(sec)) : null;
     if (tr) report.trCount = (report.trCount || 0) + 1;
     if (tr && tr.tune) { (report.tuneWs = report.tuneWs || []).push(tr.tune.w); (report.tuneNs = report.tuneNs || []).push(tr.tune.n); }
     // Multi-timeframe verdicts: weekly + monthly on aggregated candles.
     // Only for symbols with a real daily OHLC verdict (n >= 60, not LTP-only).
+    // R2 gates apply to w/m with the same daily sec/type/vol context.
     let wV = null, mV = null;
     if (!ltpOnly && n >= 60) {
-      wV = tfVerdict(ENGINE.toWeekly(series), 'w', idxRegimeW, fmtD(last[0]));
-      mV = tfVerdict(ENGINE.toMonthly(series), 'm', idxRegimeM, fmtD(last[0]));
+      wV = tfVerdict(ENGINE.toWeekly(series), 'w', idxRegimeW, fmtD(last[0]), { sec: sec, type: type, vol: vol });
+      mV = tfVerdict(ENGINE.toMonthly(series), 'm', idxRegimeM, fmtD(last[0]), { sec: sec, type: type, vol: vol });
       if (wV) report.tfW = (report.tfW || 0) + 1;
       if (mV) report.tfM = (report.tfM || 0) + 1;
     }
-    report.byVerdict[v.label] = (report.byVerdict[v.label] || 0) + 1;
+    // R2 gates on the daily verdict (score kept, label capped to Hold).
+    // Gated reasons ship on the entry as `g` (omitted when empty) so the
+    // verify script and any reader can audit every cap from the payload.
+    const gateReasons = r2GateReasons(v.label, pats, sec, type, vol);
+    const gatedLabel = r2ApplyGate(v.label, gateReasons);
+    if (gateReasons.length) report.r2Gated = (report.r2Gated || 0) + 1;
+    report.byVerdict[gatedLabel] = (report.byVerdict[gatedLabel] || 0) + 1;
     verdicts[sym] = {
-      v: v.label, s: v.score, p: r2(price), ch: chgOut,
+      v: gatedLabel, s: v.score, p: r2(price), ch: chgOut,
       h52: r2(h52), l52: r2(l52), pos: r2(pos), rsi: r2(rsi),
       n: n, l: ltpOnly ? 1 : 0, asof: fmtD(last[0]),
       sec: sec, vol: vol, volAvg: volAvg, sl: sl, tp: tp, setup: setup,
       tr: tr ? { n: tr.n, w: tr.w } : null,
-      w: wV, m: mV
+      w: wV, m: mV,
+      g: gateReasons.length ? gateReasons : undefined
     };
-    audit.push({ s: sym, n: name, t: type, src: ltpOnly ? 'ltp' : 'ohlc', days: n, lp: r2(price), ld: fmtD(last[0]), verdict: v.label, live: liveFlag, isNew });
+    audit.push({ s: sym, n: name, t: type, src: ltpOnly ? 'ltp' : 'ohlc', days: n, lp: r2(price), ld: fmtD(last[0]), verdict: gatedLabel, live: liveFlag, isNew });
 
     if (++done % 100 === 0) console.log('  verdicts: ' + done + '/' + symbols.length);
   }
@@ -896,6 +943,7 @@ async function main() {
   lines.push('  symbols with sector (sec) : ' + (report.secCount || 0));
   lines.push('  symbols with stop/target (sl/tp): ' + (report.sltpCount || 0));
   lines.push('  symbols with buy-call track record: ' + (report.trCount || 0));
+  lines.push('  R2-gated daily verdicts (Buy/SB -> Hold): ' + (report.r2Gated || 0));
   lines.push('  symbols with weekly verdict (>=40 weeks): ' + (report.tfW || 0));
   lines.push('  symbols with monthly verdict (>=36 months): ' + (report.tfM || 0));
   lines.push('');
@@ -929,5 +977,5 @@ async function main() {
 if (require.main === module) {
   main().catch((e) => { console.error('BUILD FAILED:', e); process.exit(1); });
 } else {
-  module.exports = { trackRecord, idxRegimeAt, setupLabelOf, TR_LOOKBACK, TR_FORWARD, TR_MINN, TR_MINCALLS, setupStats, tuneSetupStats };
+  module.exports = { trackRecord, idxRegimeAt, setupLabelOf, TR_LOOKBACK, TR_FORWARD, TR_MINN, TR_MINCALLS, setupStats, tuneSetupStats, r2GateReasons, r2ApplyGate, R2_NON_EQ_SECTORS, R2_NON_EQ_TYPES, R2_BEARISH };
 }

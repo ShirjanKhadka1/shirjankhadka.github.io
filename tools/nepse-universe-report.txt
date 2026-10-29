@@ -1,10 +1,10 @@
-NEPSE universe build — 2026-10-28T17:31:39.026Z
-duration: 301s
+NEPSE universe build — 2026-10-29T03:00:40.239Z
+duration: 273s
 data asof: 2026-10-28
 
 universe symbols (currently listed): 432
   monthly-only historical symbols excluded: 175
-  new listings vs last build: ADBLB86, EBLEB89, FMDBLP, GBBLPO, KSBBLD87, MBLD87, MFLD85, MNBBLP, MND84/85, NABILP, NBLD85, NLO, NMBD2085, NMBD89/90, NMFBSP, PBD84, PRVUPO, SRBLD83, SRLIP
+  new listings vs last build: none
   with scraper OHLC : 363
   LTP-only fallback : 69 (files in data/ltp: 69)
   no data at all    : 0
@@ -16,17 +16,18 @@ by instrument type:
   Promoter share: 17
 
 by verdict:
-  Strong Buy: 51
-  Buy: 66
-  Hold: 144
-  Exit / Reduce: 115
-  Strong Exit: 38
+  Strong Buy: 9
+  Buy: 15
+  Hold: 237
+  Exit / Reduce: 116
+  Strong Exit: 37
   Insufficient history: 18
 
 screener fields:
   symbols with sector (sec) : 432
   symbols with stop/target (sl/tp): 362
   symbols with buy-call track record: 211
+  R2-gated daily verdicts (Buy/SB -> Hold): 93
   symbols with weekly verdict (>=40 weeks): 349
   symbols with monthly verdict (>=36 months): 286
 
@@ -53,7 +54,7 @@ buy-call track record (win = +4xATR before -2xATR within 20 sessions):
     21.8%  (1416 calls)  Head & Shoulders
     0.0%  (10 calls)  Bullish divergence (MACD, hidden)
 
-file sizes: universe.json 29.8KB, verdicts.json 198.4KB
+file sizes: universe.json 29.8KB, verdicts.json 205.2KB
 
 LTP-only symbols (69):
   ADBLB86 (3)

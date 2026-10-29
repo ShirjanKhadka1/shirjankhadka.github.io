@@ -1,0 +1,74 @@
+# ROUND 2 / R2 — verdict invariant gates (S1/S2/S3).
+#
+# Fails the build when the shipped verdicts.json violates any invariant:
+#   S1 (via gate log): every gated row reads Hold; no Buy/Strong Buy
+#        carries a gate (confirmed-vs-forming proof itself lives in
+#        tools/round2-test-r2.js, run below, plus the staged-pass rerun).
+#   S2: 0 Buy/Strong Buy with sector in {Debentures, Mutual Funds,
+#        Promoter Shares} or universe type in {Debenture, Mutual fund,
+#        Promoter share} — daily, weekly and monthly verdicts.
+#   S3: 0 Buy/Strong Buy with last-session volume not > 0 — d/w/m.
+#
+# tools/round2-verify-r2.py in no-argument (CI) mode checks exactly the
+# current-file invariants above; the before/control attribution mode is
+# for the R2 deploy evidence, not for CI.
+#
+# Runs on every push to main touching the verdict chain. HONEST MODE:
+# no `|| true` anywhere — a verification failure fails the run.
+#
+# ENFORCEMENT NOTE (R7, still blocked): this workflow RUNS on push, but
+# it is not yet a REQUIRED status check — required checks need the PR
+# flow (fine-grained token with contents + PR write, plus branch
+# protection), which needs the site owner's GitHub action and is tracked
+# as an R7 blocker. Until R7 lands, deploys stay twin-verified
+# direct-to-main and this check is a post-push tripwire, not a gate.
+# Do not claim it blocks merges until branch protection lists it.
+#
+# The builder side of this contract lives in tools/build-nepse-universe.js
+# (r2GateReasons, applied to daily + weekly + monthly verdicts and to the
+# track-record equity gate): every universe build re-applies the gates,
+# so a passing run stays passing across rebuilds.
+
+name: R2 verdict invariants check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'nepse-chart/data/verdicts.json'
+      - 'nepse-chart/data/universe.json'
+      - 'tools/build-nepse-universe.js'
+      - 'tools/round2-test-r2.js'
+      - 'tools/round2-verify-r2.py'
+  pull_request:
+    paths:
+      - 'nepse-chart/data/verdicts.json'
+      - 'nepse-chart/data/universe.json'
+      - 'tools/build-nepse-universe.js'
+      - 'tools/round2-test-r2.js'
+      - 'tools/round2-verify-r2.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: r2-invariants-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-verdict-invariants:
+    name: Verdict invariants hold on the shipped batch
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Unit tests for each invariant gate
+        run: node tools/round2-test-r2.js
+      - name: Verify invariants on the shipped verdicts
+        run: python3 tools/round2-verify-r2.py
