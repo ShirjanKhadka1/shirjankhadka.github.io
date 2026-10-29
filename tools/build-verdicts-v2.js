@@ -145,14 +145,22 @@ async function main() {
   if (limit > 0) symbols = symbols.slice(0, limit);
 
   // ---- exclude completed mergers (absorbed symbols must never get verdicts)
+  // 2026-10-30 coverage fix (audit F-V1): an absorbed symbol is EXCLUDED
+  // from scoring but must still be NAMED. It is recorded in
+  // absorbedInUniverse and, after the engine loop, appended to `failures`
+  // with an explicit exclusion reason — never silently dropped. That keeps
+  // scored + failures == universe count by construction, which the
+  // coverage guard below enforces before anything is written.
+  let absorbedInUniverse = [];
   try {
     const mtPath = path.join(ENG, 'manual', 'merger-tracker.json');
     if (fs.existsSync(mtPath)) {
       const mt = JSON.parse(fs.readFileSync(mtPath, 'utf8'));
       const absorbed = new Set((mt.completed_mergers || []).map((m) => m.absorbed));
+      absorbedInUniverse = symbols.filter((s) => absorbed.has(s));
       const before = symbols.length;
       symbols = symbols.filter((s) => !absorbed.has(s));
-      if (symbols.length < before) log('merger exclusion:', (before - symbols.length) + ' absorbed symbols skipped');
+      if (symbols.length < before) log('merger exclusion:', (before - symbols.length) + ' absorbed symbols named in failures, not scored');
     }
   } catch (e) { log('merger-tracker read failed:', e.message); }
   log('symbols:', symbols.length);
@@ -261,6 +269,44 @@ async function main() {
   }
   log('verdicts:', Object.keys(verdicts).length, '| failures:', failures.length);
 
+  // ---- coverage guard (2026-10-30, audit F-V1): every universe symbol
+  // must land in exactly one of verdicts / failures. The Oct-28 snapshot
+  // shipped listed=417 against a 432-symbol universe because 15 symbols
+  // were absent from both lists with no record of why; the page claims
+  // unscored stocks are named, not skipped, so a short count must be a
+  // loud failure, never a published file. Absorbed merger symbols are
+  // named here with an explicit exclusion reason, then failures are
+  // re-sorted into universe order (the loop already visits symbols in
+  // universe order, so this only positions the appended exclusions).
+  for (const s of absorbedInUniverse) {
+    if (!verdicts[s] && !failures.some((f) => f.symbol === s)) {
+      failures.push({ symbol: s, reason: 'excluded: completed merger (absorbed symbol)' });
+    }
+  }
+  const universeIndex = {};
+  universe.symbols.forEach((s, i) => { universeIndex[s.s] = i; });
+  failures.sort((a, b) => (universeIndex[a.symbol] ?? 1e9) - (universeIndex[b.symbol] ?? 1e9));
+  {
+    const seen = new Set();
+    const dupes = [];
+    for (const f of failures) {
+      if (seen.has(f.symbol) || verdicts[f.symbol]) dupes.push(f.symbol);
+      seen.add(f.symbol);
+    }
+    const unaccounted = universe.symbols.map((s) => s.s)
+      .filter((s) => !verdicts[s] && !seen.has(s));
+    if (unaccounted.length || dupes.length) {
+      console.error('verdicts-v2 FATAL: coverage breach — universe=' +
+        universe.symbols.length + ' scored=' + Object.keys(verdicts).length +
+        ' failures=' + failures.length + ' unaccounted=[' + unaccounted.join(',') +
+        '] dupes=[' + dupes.join(',') + ']; refusing to write');
+      process.exit(1);
+    }
+    log('coverage: universe=' + universe.symbols.length +
+      ' scored=' + Object.keys(verdicts).length +
+      ' failures=' + failures.length + ' listed=' + universe.symbols.length);
+  }
+
   // ---- summary (compact table feed)
   const summary = {};
   for (const [s, v] of Object.entries(verdicts)) {
@@ -298,13 +344,16 @@ async function main() {
     regime: regime.regime,
     regime_note: regime.note,
     engine: 'verdict-v2',
-    // Coverage accounting: every attempted symbol lands in exactly one of
-    // verdicts / failures, so scored + failures == listed by construction.
-    // The page prints this verbatim — counts are never hardcoded there.
+    // Coverage accounting: every universe symbol lands in exactly one of
+    // verdicts / failures (absorbed merger symbols are named in failures),
+    // so scored + failures == universe == listed, enforced by the guard
+    // above before any file is written. The page prints this verbatim —
+    // counts are never hardcoded there.
     coverage: {
+      universe: universe.symbols.length,
       scored: Object.keys(verdicts).length,
       failures: failures.length,
-      listed: symbols.length,
+      listed: universe.symbols.length,
     },
     verdicts,
     failures,
