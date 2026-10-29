@@ -64,3 +64,10 @@
   .mf-rank{grid-template-columns:1fr auto}
   .mf-controls input[type=search]{flex-basis:100%}
 }
+.mf-pager{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0}
+.mf-pager button{min-height:48px;padding:0 16px;border:1px solid var(--nd-border);
+  border-radius:10px;background:var(--nd-panel-2);color:var(--nd-text);font-size:14px;cursor:pointer}
+.mf-pager button:disabled{opacity:.45;cursor:default}
+.mf-pager button:not(:disabled):hover{box-shadow:var(--nd-focus-ring)}
+.mf-pager button:focus{outline:none;box-shadow:var(--nd-focus-ring)}
+.mf-pager span{font-size:13px;color:var(--nd-muted);font-variant-numeric:tabular-nums}

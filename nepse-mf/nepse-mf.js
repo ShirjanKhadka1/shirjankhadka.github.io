@@ -19,7 +19,8 @@
     return parseInt(m[3], 10) + ' ' + mon[parseInt(m[2], 10) - 1] + ' ' + m[1];
   }
 
-  var S = { snap: null, win: null, sortKey: 'symbol', sortDir: 1, query: '', type: 'all', fund: null };
+  var S = { snap: null, win: null, sortKey: 'symbol', sortDir: 1, query: '', type: 'all', fund: null, page: 1, pages: 1 };
+  var PAGE_SIZE = 20;
 
   function setErr(msg) { $('mfErr').textContent = msg || ''; }
 
@@ -27,6 +28,9 @@
     $('mfFreshline').textContent = 'No mutual-fund snapshot published yet — the first daily snapshot will appear here.';
     $('mfTableBody').innerHTML = '<tr><td colspan="5" class="mf-cap">No snapshot published yet.</td></tr>';
     $('mfRowCount').textContent = '';
+    $('mfPageInfo').textContent = 'Page 1 of 1';
+    $('mfPrev').disabled = true;
+    $('mfNext').disabled = true;
     $('mfSectorNote').textContent = 'No sector allocation published yet.';
     $('mfSectorAvgNote').textContent = '';
   }
@@ -102,7 +106,16 @@
       if (bv == null) return -1;
       return cmpVal(av, bv) * d;
     });
-    var html = rows.map(function (x) {
+    // Paginate the current view (after search, filter, and sort). Page resets
+    // to 1 whenever search, filter, or sort changes (see init handlers);
+    // the clamp below is a safety net for a view that shrinks underfoot.
+    var total = rows.length;
+    S.pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    if (S.page > S.pages) S.page = S.pages;
+    if (S.page < 1) S.page = 1;
+    var start = (S.page - 1) * PAGE_SIZE;
+    var pageRows = rows.slice(start, start + PAGE_SIZE);
+    var html = pageRows.map(function (x) {
       return '<tr><td class="sym"><a href="#" data-fund="' + esc(x.symbol) + '">' + esc(x.symbol) +
         (x.oef ? ' [OEF]' : '') + '</a></td>' +
         '<td class="num">' + num2(x.weekly_nav) + '</td>' +
@@ -111,7 +124,12 @@
         '<td class="num ' + pctCls(x.premium_discount_pct) + '">' + pct(x.premium_discount_pct) + '</td></tr>';
     }).join('');
     $('mfTableBody').innerHTML = html || '<tr><td colspan="5" class="mf-cap">No funds match this filter.</td></tr>';
-    $('mfRowCount').textContent = 'Showing ' + rows.length + ' of ' + S.snap.funds.length + ' funds.';
+    $('mfRowCount').textContent = total === 0
+      ? 'Showing 0 of 0 funds.'
+      : 'Showing ' + (start + 1) + '–' + Math.min(start + PAGE_SIZE, total) + ' of ' + total + ' funds.';
+    $('mfPageInfo').textContent = 'Page ' + S.page + ' of ' + S.pages;
+    $('mfPrev').disabled = S.page <= 1;
+    $('mfNext').disabled = S.page >= S.pages;
     var ths = document.querySelectorAll('.mf-table thead th[data-sort]');
     ths.forEach(function (th) {
       var dir = th.querySelector('.dir');
@@ -235,14 +253,17 @@
       emptyState();
     });
 
-    $('mfSearch').addEventListener('input', function (e) { S.query = e.target.value.trim(); renderTable(); });
-    $('mfType').addEventListener('change', function (e) { S.type = e.target.value; renderTable(); });
+    $('mfSearch').addEventListener('input', function (e) { S.query = e.target.value.trim(); S.page = 1; renderTable(); });
+    $('mfType').addEventListener('change', function (e) { S.type = e.target.value; S.page = 1; renderTable(); });
+    $('mfPrev').addEventListener('click', function () { if (S.page > 1) { S.page--; renderTable(); } });
+    $('mfNext').addEventListener('click', function () { if (S.page < S.pages) { S.page++; renderTable(); } });
     $('mfFundSel').addEventListener('change', function (e) { selectFund(e.target.value, true); });
     document.querySelectorAll('.mf-table thead th[data-sort]').forEach(function (th) {
       function toggle() {
         var k = th.getAttribute('data-sort');
         if (S.sortKey === k) S.sortDir = -S.sortDir;
         else { S.sortKey = k; S.sortDir = 1; }
+        S.page = 1;
         renderTable();
       }
       th.addEventListener('click', toggle);
