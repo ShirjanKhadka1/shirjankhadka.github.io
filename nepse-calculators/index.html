@@ -39,6 +39,7 @@
 <a class="skip-link" href="#main">Skip to content</a>
 <div id="nd-header"></div>
 <main id="main" class="wrap calc-wrap">
+<noscript><p class="calc-note">JavaScript is off, so these calculators cannot run: every calculation happens in your browser, and with JavaScript off the results stay blank. Turn JavaScript on to use them &mdash; nothing you enter ever leaves your browser.</p></noscript>
 <p class="sig-kicker calc-kicker">Nepse Decode · Tools</p>
 <h1 class="nd-pagetitle">NEPSE Calculators</h1>
 <p class="calc-intro">Share buying and selling costs with capital gains tax, weighted average cost, SIP projections, and bonus / right share price adjustments — all running on the <strong>current</strong> verified fee schedule, shown in full below. No sign-up, nothing leaves your browser.</p>
@@ -118,7 +119,7 @@
   <div class="cx-stats" id="sipStats"></div>
   <div class="calc-scroll calc-scroll-gap"><table class="cx-table" id="sipTable"></table></div>
   <p class="calc-check" id="sipCheck"></p>
-  <p class="calc-note">An illustration with a constant assumed return, compounded monthly — markets do not move in straight lines, so treat the projection as arithmetic, not a forecast.</p>
+  <p class="calc-note">An illustration with a constant assumed return, compounded monthly — markets do not move in straight lines, so treat the projection as arithmetic, not a forecast. Each month's investment is counted at the start of the month, so it earns that month's return (an annuity-due schedule, not end-of-month contributions).</p>
 </section>
 
 <section class="cx-cat cx-reveal" data-calc="adj">
@@ -131,7 +132,7 @@
   </div>
   <div class="cx-stats" id="adjStats"></div>
   <p class="calc-check" id="adjCheck"></p>
-  <p class="calc-note">Bonus adjustment: price ÷ (1 + bonus%). Right adjustment: (price + face value × right%) ÷ (1 + right%). These are the standard NEPSE reference-price formulas applied after book closure.</p>
+  <p class="calc-note">Bonus adjustment: price ÷ (1 + bonus%). Right adjustment: (price + face value × right%) ÷ (1 + right%). These are the standard NEPSE reference-price formulas applied after book closure. Each leg is shown separately from the price before book closure — when both a bonus and a right apply, the combined sequential price (one adjustment applied after the other) is not displayed here.</p>
 </section>
 
 <section class="cx-cat cx-reveal" id="calc-history-sec">

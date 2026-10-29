@@ -342,6 +342,29 @@
 
   /* ---- Sector stocks block (verdicts batch; universe carries no sector field) ---- */
   var secRows = [], secFilter = 'All', secPage = 1, secBatch = '';
+  /* Sector pager/filter URL sync, mirroring the brokers pattern
+     (replaceState, no history spam): a paged/filtered sector view can
+     be linked and restored. Unknown query params are preserved. */
+  var secUrlInit = false;
+  function readSecURL(){
+    var q = {}, s = location.search.replace(/^\?/, '');
+    if (!s) return q;
+    s.split('&').forEach(function(p){
+      var kv = p.split('=');
+      if (kv[0]) q[decodeURIComponent(kv[0])] = decodeURIComponent(kv[1] || '');
+    });
+    return q;
+  }
+  function syncSecURL(){
+    try {
+      var q = readSecURL(), parts = [];
+      delete q.sector; delete q.secpage;
+      Object.keys(q).forEach(function(k){ parts.push(encodeURIComponent(k) + '=' + encodeURIComponent(q[k])); });
+      if (secFilter !== 'All') parts.push('sector=' + encodeURIComponent(secFilter));
+      if (secPage > 1) parts.push('secpage=' + secPage);
+      history.replaceState(null, '', location.pathname + (parts.length ? '?' + parts.join('&') : ''));
+    } catch(e) {}
+  }
   var SEC_PAGE = 25;
   function fmtCh(ch){
     if (ch === null || ch === undefined || isNaN(ch)) return '—';
@@ -371,6 +394,7 @@
     var pv = document.getElementById('nnSecPrev'), nx = document.getElementById('nnSecNext');
     if (pv) pv.disabled = secPage <= 1;
     if (nx) nx.disabled = secPage >= pages;
+    syncSecURL();
   }
   function loadSector(){
     return Promise.all([
@@ -396,7 +420,18 @@
         opts.push('<option value="' + esc(sec) + '">' + esc(sec) + ' (' + counts[sec] + ')</option>');
       });
       sel.innerHTML = opts.join('');
-      sel.value = 'All'; secFilter = 'All'; secPage = 1;
+      /* First load: restore sector/page from the URL (validated against
+         the sectors actually present; page is clamped in renderSector).
+         Later reloads (e.g. returning to the tab) keep the user's state
+         instead of resetting to All/page 1. */
+      if (!secUrlInit) {
+        secUrlInit = true;
+        var q = readSecURL();
+        if (q.sector && counts[q.sector]) secFilter = q.sector;
+        var pg = parseInt(q.secpage, 10);
+        if (!isNaN(pg) && pg >= 1) secPage = pg;
+      } else if (!counts[secFilter]) { secFilter = 'All'; secPage = 1; }
+      sel.value = secFilter;
       renderSector();
     }).catch(function(){ /* sector block keeps its last good state; never blanks on failure */ });
   }
