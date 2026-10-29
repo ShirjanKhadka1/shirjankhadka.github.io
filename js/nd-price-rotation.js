@@ -23,6 +23,49 @@
     return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
   function $(id) { return document.getElementById(id); }
+  /* Realised-window tab labels (2026-10-30): the requested window
+     (e.g. 7D) can realise to an earlier base across a holiday gap,
+     so tabs print the realised base date + session count.
+     '2026-10-16' -> '16 Oct'. */
+  var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  function shortDate(iso) {
+    if (!iso || iso.length < 10) return iso || "";
+    var label = parseInt(iso.slice(8, 10), 10) + " " +
+      MONTHS[parseInt(iso.slice(5, 7), 10) - 1];
+    /* Bases from a prior year (e.g. the 365D window) need the year,
+       otherwise '28 Oct' reads as this year's 28 Oct. */
+    if (state.board && state.board.asof &&
+        iso.slice(0, 4) !== state.board.asof.slice(0, 4))
+      label += " ’" + iso.slice(2, 4);
+    return label;
+  }
+  function realisedLabel(tf) {
+    var b = state.board && state.board.boards[String(tf)];
+    var r = b && b.realised;
+    if (!r) return tf + "D";
+    return tf + "D · " + shortDate(r.realised_base_date) + " · " +
+      r.sessions + " sess";
+  }
+  function renderScope() {
+    if (!state.board || !state.board.scope_note) return;
+    var box = document.querySelector(".pr-method");
+    if (!box) return;
+    var p = $("prScopeNote");
+    if (!p) {
+      p = document.createElement("p");
+      p.id = "prScopeNote";
+      box.appendChild(p);
+    }
+    var un = state.board.boards[String(state.tf)] &&
+      state.board.boards[String(state.tf)].unscored;
+    p.innerHTML = "<strong>Scope.</strong> " + esc(state.board.scope_note) +
+      (un && un.length
+        ? " Unscored on this window: " + un.map(function (u) {
+            return esc(u.symbol) + " (" + esc(u.sector) + ", " + esc(u.reason) + ")";
+          }).join("; ") + "."
+        : "");
+  }
 
   function readUrl() {
     try {
@@ -44,9 +87,13 @@
 
   function renderTabs() {
     var el = $("prTabs");
+    /* Long realised labels must wrap like the symbol page's tabs
+       (its CSS sets flex-wrap on #winTabs; this strip has no such
+       rule, so set it here to keep every tab reachable at 390px). */
+    el.style.flexWrap = "wrap";
     el.innerHTML = state.board.timeframes.map(function (tf) {
       return '<button type="button" role="tab" data-tf="' + tf +
-        '" aria-pressed="' + (tf === state.tf) + '">' + tf + "D</button>";
+        '" aria-pressed="' + (tf === state.tf) + '">' + esc(realisedLabel(tf)) + "</button>";
     }).join("");
     Array.prototype.forEach.call(el.querySelectorAll("button"), function (b) {
       b.addEventListener("click", function () {
@@ -133,8 +180,15 @@
   function renderBoard() {
     var b = state.board.boards[String(state.tf)];
     $("prTfLabel").textContent = TF_LABEL[state.tf];
-    $("prWindow").textContent =
-      b.window_from + " → " + b.window_to + " · session " + b.latest_date;
+    var r = b.realised;
+    $("prWindow").textContent = r
+      ? (r.realised_base_date + " → " + b.window_to + " · " +
+         r.sessions + " sessions · session " + b.latest_date +
+         (r.realised_base_date !== b.window_from
+           ? " (" + b.timeframe_days + " calendar days requested; base " +
+             "snapped to the last session on or before " + b.window_from + ")"
+           : ""))
+      : (b.window_from + " → " + b.window_to + " · session " + b.latest_date);
     renderChart(b.data);
     $("prBody").innerHTML = b.data.map(function (r) {
       var d = r.rank_change_1w;
@@ -293,7 +347,7 @@
   }
 
   function renderAll() {
-    renderTabs(); renderStats(); renderBoard(); renderStockSectors(); renderStocks(); renderPersist(); renderForward();
+    renderTabs(); renderStats(); renderBoard(); renderStockSectors(); renderStocks(); renderPersist(); renderForward(); renderScope();
   }
 
   function fail(msg) {

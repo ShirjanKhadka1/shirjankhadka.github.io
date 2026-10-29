@@ -415,7 +415,29 @@
     renderSectorPills();
     renderStocks();
     renderFwd();
+    renderScope();
     bindChartClicks();
+  }
+
+  /* Scope + unscored disclosure (2026-10-30): equity-sector symbols
+     classified by the site classifier but absent from the keystone
+     because only LTP data exists for them are listed, not dropped. */
+  function renderScope() {
+    var data = state.board;
+    if (!data || !data.scope_note) return;
+    var box = document.querySelector('.rr-method');
+    if (!box) return;
+    var p = document.getElementById('rrScopeNote');
+    if (!p) {
+      p = document.createElement('p');
+      p.id = 'rrScopeNote';
+      box.appendChild(p);
+    }
+    var un = data.unscored || [];
+    p.innerHTML = '<strong>Scope.</strong> ' + esc(data.scope_note) +
+      (un.length ? ' Unscored: ' + un.map(function (u) {
+        return esc(u.symbol) + ' (' + esc(u.sector) + ', ' + esc(u.reason) + ')';
+      }).join('; ') + '.' : '');
   }
 
   function bindChartClicks() {
