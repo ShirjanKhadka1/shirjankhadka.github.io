@@ -633,3 +633,41 @@ body.d2 input:focus-visible {
 @media (max-width: 480px){
   .nd-statgrid{ grid-template-columns: 1fr; }
 }
+
+/* ---- R6 (2026-10-29): light-theme contrast to AA (dark untouched) ---- */
+/* Base rules hardcode dark-theme greens/reds (#16a34a, #f87171, #4ade80)
+   with only [data-theme="dark"] overrides, so light inherited them and
+   failed on white (3.29:1 / 2.76:1 / 1.68:1). Light now uses the token
+   pair --nd-up #15803D (5.02:1 on white) / --nd-down #DC2626 (4.83:1).
+   Tinted-badge text darkens one step (#166534 / #B91C1C) because the
+   token pair fails on its own tints (4.24-4.35:1); the darkened pair
+   passes on every tint (5.10-6.41:1). Lime buttons switch to white
+   text (light --nd-on-lime): #FFFFFF on #4D7C0F = 4.99:1, vs 3.92:1
+   for the dark #0A0C10 text. Amber badge text #92400E = 7.09:1 on
+   white, vs 1.66:1 for #fbbf24. No layout, structure, or hue change. */
+[data-theme="light"] .nd-icard .ch.up,
+[data-theme="light"] .nd-ixcard .chg.up,
+[data-theme="light"] .nd-movecard .up,
+[data-theme="light"] .nd-wraphead .dir-up,
+[data-theme="light"] .nd-breadth .up,
+[data-theme="light"] .nd-pulse-item .meta .up,
+[data-theme="light"] .nd-stat-num .up,
+[data-theme="light"] .nd-sector-mean.up,
+[data-theme="light"] .nd-sector-top b.up,
+[data-theme="light"] .nd-noscript-big .up { color: var(--nd-up); }
+[data-theme="light"] .nd-icard .ch.dn,
+[data-theme="light"] .nd-ixcard .chg.dn,
+[data-theme="light"] .nd-movecard .dn,
+[data-theme="light"] .nd-wraphead .dir-dn,
+[data-theme="light"] .nd-sector-mean.dn,
+[data-theme="light"] .nd-sector-top b.dn,
+[data-theme="light"] .nd-stat-num .dn { color: var(--nd-down); }
+[data-theme="light"] .nd-verdict.buy { color: #166534; }
+[data-theme="light"] .nd-verdict.exit { color: #B91C1C; }
+[data-theme="light"] .nd-badge.amber { color: #92400E; }
+[data-theme="light"] .nd-btn-lime,
+[data-theme="light"] .nd-btn-lime:hover,
+[data-theme="light"] .nd-btn-lime:visited { color: #FFFFFF !important; }
+[data-theme="light"] .nd-pager-next { color: #FFFFFF; }
+[data-theme="light"] .nd-ixsearch button { color: #FFFFFF; }
+[data-theme="light"] .nd-eyebrow { opacity: 1; }

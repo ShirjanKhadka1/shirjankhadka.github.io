@@ -105,3 +105,10 @@
   font-size: 0.85em;
   opacity: 0.7;
 }
+
+/* ---- R6 (2026-10-29): light-theme contrast to AA ---- */
+/* .nd-eyebrow was lime at opacity .8; blended over light surfaces it
+   read as olive #6f953e/#71963f (~3.2:1). Full opacity restores the
+   token lime #4D7C0F on #F6F7F9 = 4.66:1. Dark theme untouched. */
+[data-theme="light"] .nd-eyebrow,
+[data-nd-ed="light"] .nd-eyebrow { opacity: 1; }

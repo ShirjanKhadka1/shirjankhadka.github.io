@@ -367,3 +367,10 @@ html[data-nd-ed="light"] body.d2 { background: var(--nd-bg, #F6F7F9); }
 .sx-noscript p{margin:0;font-size:.88rem;line-height:1.65;color:var(--nd-muted,#B8C0CE)}
 .sx-noscript strong{color:var(--nd-text,#FFFFFF)}
 [data-theme="light"] .sx-noscript strong{color:#0A0C10}
+
+/* ---- R6 (2026-10-29): light-theme contrast to AA (dark untouched) ---- */
+/* Active heat pill: dark text #10130a on light lime #4D7C0F = 3.75:1;
+   white text = 4.99:1. Market-status sub: d2 muted #7a7466 = 4.33:1;
+   #5F5A4E = 6.40:1 on #f6f7f9. */
+[data-theme="light"] .pillrow button.active{color:#fff}
+[data-theme="light"] .nlv-sub{color:#5F5A4E}

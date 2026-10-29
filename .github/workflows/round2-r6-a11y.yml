@@ -1,0 +1,121 @@
+# ROUND 2 / R6 — axe color-contrast check (5 core pages x 2 themes).
+#
+# Fails the build when axe-core reports ANY color-contrast node on
+# nepse-decode, nepse-screener, nepse-sectors, nepse-brokers or
+# nepse-daily, in dark or light theme (budget: 0 nodes = WCAG AA pass
+# on every page/theme; see tools/round2-budgets-r6.json). The check
+# runs axe via Playwright against a localhost static server rooted at
+# the checked-out repo (tools/round2-axe-r6.js), then asserts the
+# report with tools/round2-verify-r6.py --axe-json.
+#
+# Runs on every push to main touching the 5 pages, their stylesheets,
+# or the R6 tooling. HONEST MODE: no `|| true` anywhere — a contrast
+# failure fails the run.
+#
+# ENFORCEMENT NOTE (R7, still blocked): this workflow RUNS on push,
+# but it is not yet a REQUIRED status check — required checks need the
+# PR flow (fine-grained token with contents + PR write, plus branch
+# protection), which needs the site owner's GitHub action and is
+# tracked as an R7 blocker. Until R7 lands, deploys stay twin-verified
+# direct-to-main and this check is a post-push tripwire, not a gate.
+# Do not claim it blocks merges until branch protection lists it.
+#
+# PREVIEW NOTE (R7, still blocked): there is NO Cloudflare Pages
+# project and NO PR flow, so there is no preview deployment to test
+# against. This workflow deliberately runs against LOCALHOST builds
+# only. It does NOT run against the live custom domain as a substitute
+# preview — live verification stays the deploy-time authenticated ref
+# read + curl byte check, not CI. Do not reframe this as a preview
+# check until R7 delivers a real Pages preview per PR.
+
+name: R6 axe contrast check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'nepse-decode/index.html'
+      - 'nepse-screener/index.html'
+      - 'nepse-screener/screener.css'
+      - 'nepse-sectors/index.html'
+      - 'nepse-sectors/sectors.css'
+      - 'nepse-brokers/index.html'
+      - 'nepse-daily/index.html'
+      - 'css/nd-tokens.css'
+      - 'css/nd-editorial-theme.css'
+      - 'css/nd-chrome.css'
+      - 'css/nd-home.css'
+      - 'css/nd-cinema.css'
+      - 'css/nd-daily.css'
+      - 'css/sig-pro.css'
+      - 'tools/round2-axe-r6.js'
+      - 'tools/round2-verify-r6.py'
+      - 'tools/round2-budgets-r6.json'
+      - '.github/workflows/round2-r6-a11y.yml'
+  pull_request:
+    paths:
+      - 'nepse-decode/index.html'
+      - 'nepse-screener/index.html'
+      - 'nepse-screener/screener.css'
+      - 'nepse-sectors/index.html'
+      - 'nepse-sectors/sectors.css'
+      - 'nepse-brokers/index.html'
+      - 'nepse-daily/index.html'
+      - 'css/nd-tokens.css'
+      - 'css/nd-editorial-theme.css'
+      - 'css/nd-chrome.css'
+      - 'css/nd-home.css'
+      - 'css/nd-cinema.css'
+      - 'css/nd-daily.css'
+      - 'css/sig-pro.css'
+      - 'tools/round2-axe-r6.js'
+      - 'tools/round2-verify-r6.py'
+      - 'tools/round2-budgets-r6.json'
+      - '.github/workflows/round2-r6-a11y.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: r6-a11y-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  axe-contrast:
+    name: axe contrast 0 nodes (5 pages x dark/light)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Playwright + axe-core (scratch, never committed)
+        run: |
+          mkdir -p "$RUNNER_TEMP/r6tools"
+          cd "$RUNNER_TEMP/r6tools"
+          npm init -y >/dev/null 2>&1
+          npm install playwright axe-core
+          npx playwright install chromium
+      - name: Serve repo on localhost
+        run: |
+          nohup python3 -m http.server 8901 >/tmp/r6-server.log 2>&1 &
+          sleep 2
+          curl -sf -o /dev/null http://127.0.0.1:8901/nepse-decode/
+      - name: Run axe color-contrast (5 pages x 2 themes)
+        run: NODE_PATH="$RUNNER_TEMP/r6tools/node_modules" node tools/round2-axe-r6.js http://127.0.0.1:8901 axe-r6.json
+      - name: Assert zero contrast nodes + pins + baselines
+        run: python3 tools/round2-verify-r6.py --axe-json axe-r6.json
+      - name: Upload axe report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: axe-r6-report
+          path: axe-r6.json

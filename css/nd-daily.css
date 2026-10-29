@@ -160,7 +160,7 @@
 }
 .ds-ov-card .v.up { color: var(--nd-up); }
 .ds-ov-card .v.dn { color: var(--nd-down); }
-[data-theme="light"] .ds-ov-card .v.up { color: #16a34a; }
+[data-theme="light"] .ds-ov-card .v.up { color: var(--nd-up); }
 [data-theme="light"] .ds-ov-card .v.dn { color: var(--nd-down); }
 .ds-ov-card .unavail { color: var(--nd-dim); font-style: italic; font-weight: 500; font-size: 1rem; }
 
@@ -224,7 +224,7 @@
 .ds-ov-chart-val strong { font-weight: 700; color: var(--nd-text); }
 .ds-ov-chart-val .up { color: var(--nd-up); font-size: 1rem; }
 .ds-ov-chart-val .dn { color: var(--nd-down); font-size: 1rem; }
-[data-theme="light"] .ds-ov-chart-val .up { color: #16a34a; }
+[data-theme="light"] .ds-ov-chart-val .up { color: var(--nd-up); }
 [data-theme="light"] .ds-ov-chart-val .dn { color: var(--nd-down); }
 #dsChartSvg { width: 100%; height: 220px; display: block; }
 .ds-ov-chart-note { font-size: 0.75rem; color: var(--nd-dim); margin-top: 8px; }
@@ -366,3 +366,14 @@
 html[data-theme="dark"] body.nd { background: var(--nd-bg, #0A0C10); }
 html[data-theme="light"] body.nd { background: var(--nd-bg, #F6F7F9); }
 html[data-nd-ed="light"] body.nd { background: var(--nd-bg, #F6F7F9); }
+
+/* ---- R6 (2026-10-29): light-theme contrast to AA (dark untouched) ---- */
+/* Sorted-column header: light lime #4D7C0F on #eff1f5 = 4.42:1;
+   #3F6212 = 6.26:1. Freshness chips sit on amber/green/red tints:
+   CLOSED amber #B45309 = 4.25:1 on #f6eae1 -> #92400E = 6.00:1;
+   LIVE/STALE use the tint-passing pair #166534/#B91C1C (same as
+   nd-cinema chips) so the market-open states pass too. */
+[data-theme="light"] .ds-table thead th.sorted { color: #3F6212; }
+[data-theme="light"] .ds-freshline .ds-fl-chip.closed { color: #92400E; }
+[data-theme="light"] .ds-freshline .ds-fl-chip.live { color: #166534; }
+[data-theme="light"] .ds-freshline .ds-fl-chip.stale { color: #B91C1C; }

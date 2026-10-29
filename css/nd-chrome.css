@@ -980,3 +980,8 @@ select option{ background: var(--nd-panel); color: var(--nd-text); }
    rendered body copy in Times. One shared rule fixes all of them;
    per-page body[data-page] rules loaded later still win. */
 body{font-family:var(--nd-font-sans)}
+
+/* ---- R6 (2026-10-29): light-theme contrast to AA ---- */
+/* Footer headings were lime at opacity .8 -> blended olive #6f953e
+   (3.24:1) on light. Full opacity restores #4D7C0F = 4.66:1. */
+[data-theme="light"] #nd-footer .nd-footcol h3 { opacity: 1; }

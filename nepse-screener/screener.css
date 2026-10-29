@@ -176,3 +176,13 @@ html[data-theme="light"] .sc-sl{color:#DC2626}html[data-theme="light"] .sc-tp{co
 @media(max-width:900px){.sc-stats{grid-template-columns:repeat(3,1fr)}.sc-sectors{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:640px){.sc-stats{grid-template-columns:repeat(2,1fr)}.sc-sectors{grid-template-columns:1fr}.sc-controls .sc-select,.sc-controls .sc-search,.sc-controls .sc-range-in{width:100%}}
 @media(prefers-reduced-motion:reduce){.sc-fresh .dot{animation:none}}
+
+/* ---- R6 (2026-10-29): light-theme contrast to AA (dark untouched) ---- */
+/* Chips sit on green/red tints, so the token pair fails there
+   (#4D7C0F 4.26-4.48:1, #DC2626 4.35:1); one step darker (#166534 /
+   #B91C1C) passes on every chip tint (5.42-6.41:1). Plain-text downs
+   take the token red #DC2626 (4.83:1 on white). Stale flag amber
+   #F59E0B (2.03:1) -> #92400E (6.73:1 on #f8f9fb). */
+html[data-theme="light"] .cx-chip.up{color:#166534}html[data-theme="light"] .cx-chip.down{color:#B91C1C}
+html[data-theme="light"] .sc-dist.dn{color:#DC2626}
+html[data-theme="light"] .sc-flag{color:#92400E}

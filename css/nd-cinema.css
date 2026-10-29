@@ -114,8 +114,12 @@
 .cx-chip.up{color:var(--nd-up,#4ADE80);background:rgba(74,222,128,.10);border-color:rgba(74,222,128,.25)}
 .cx-chip.down{color:var(--nd-down,#F87171);background:rgba(248,113,113,.10);border-color:rgba(248,113,113,.25)}
 .cx-chip.flat{color:var(--nd-dim,#8E98A8);background:rgba(142,152,168,.10);border-color:rgba(142,152,168,.25)}
-[data-nd-ed="light"] .cx-chip.up, [data-theme="light"] .cx-chip.up{color:var(--nd-up,#15803D);background:rgba(21,128,61,.08);border-color:rgba(21,128,61,.28)}
-[data-nd-ed="light"] .cx-chip.down, [data-theme="light"] .cx-chip.down{color:var(--nd-down,#DC2626);background:rgba(220,38,38,.07);border-color:rgba(220,38,38,.26)}
+[data-nd-ed="light"] .cx-chip.up, [data-theme="light"] .cx-chip.up{color:#166534;background:rgba(21,128,61,.08);border-color:rgba(21,128,61,.28)}
+[data-nd-ed="light"] .cx-chip.down, [data-theme="light"] .cx-chip.down{color:#B91C1C;background:rgba(220,38,38,.07);border-color:rgba(220,38,38,.26)}
+/* R6 (2026-10-29): chip text darkened one step — the token pair failed
+   on its own tints (#15803D 4.28:1 on #e6efec, #DC2626 4.35:1 on
+   #fdf0f0); #166534/#B91C1C pass on every chip tint (5.42-6.41:1).
+   Dark theme untouched. */
 
 /* ---- ranked bars (gainers/losers/most-active) ---- */
 .cx-rank{display:flex;flex-direction:column;gap:13px}
