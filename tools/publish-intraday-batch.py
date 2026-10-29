@@ -533,6 +533,13 @@ def main():
             log(f"PR #{pr['number']} checks: {states}")
             if all(v == "green" for v in states.values()):
                 cur = gh_or_die("GET", f"/repos/{REPO}/pulls/{pr['number']}")
+                if args.proof:
+                    # Proof PRs are never merged, so up-to-date-ness is
+                    # irrelevant — and update-branch 404s on draft PRs.
+                    # Green is the whole proof: close and pass.
+                    close_pr(cur)
+                    print("RESULT: PROOF-PASS")
+                    return 0
                 if cur["base"]["sha"] != get_main_tip():
                     if updates < 2 and update_branch(cur):
                         updates += 1
@@ -540,10 +547,6 @@ def main():
                         time.sleep(POLL_INTERVAL)
                         continue
                     print("RESULT: WAIT green PR out-of-date; update cycles used")
-                    return 0
-                if args.proof:
-                    close_pr(cur)
-                    print("RESULT: PROOF-PASS")
                     return 0
                 # Merge-time freshness re-check: main may have moved during
                 # the poll (e.g. close-capture landed a newer live.json).
