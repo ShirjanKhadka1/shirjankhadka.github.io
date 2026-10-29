@@ -194,15 +194,17 @@
     }
     return '<span class="nn-mono" style="background:' + monoColor(sym) + '">' + esc(monoText(sym)) + '</span>';
   }
-  /* Phase 0 item 2: story links use the stable item id when the feed
-     carries one; index links (?i=) stay as fallback for old rows. */
-  function storyHref(src, it, i){
-    return '/nepse-news/story/?src=' + src + (it.id ? '&id=' + encodeURIComponent(it.id) : '&i=' + i);
+  /* Story links route by the stable item id, never by positional
+     index: the live feed reorders as new items arrive, so an index link
+     baked earlier resolves to a different story today. Items without an
+     id fall back to the news index rather than a possibly-wrong story. */
+  function storyHref(src, it){
+    return it.id ? ('/nepse-news/story/?src=' + src + '&id=' + encodeURIComponent(it.id)) : '/nepse-news/';
   }
-  function annCard(it, i){
+  function annCard(it){
     var k = annKind(it.title);
     var cat = newsCategory(it.title, it.sym);
-    return '<a class="nn-card" href="' + storyHref('ann', it, i) + '">' +
+    return '<a class="nn-card" href="' + storyHref('ann', it) + '">' +
       '<div class="nn-card-top">' + logoHtml(it.sym, 40) +
       '<div><p class="nn-cat ' + (CAT_CLASS[cat] || 'companies') + '">' + esc(cat) + '</p>' +
       '<span class="nn-kind' + (k.hot ? ' hot' : '') + '">' + esc(k.label) + '</span></div></div>' +
@@ -210,10 +212,10 @@
       '<div class="nn-foot">' + symLink(it.sym) + '<span>' + fmtDate(it.date) + '</span>' +
       (it.url ? '<span class="nn-src">' + esc(it.url.split('/')[2] || '') + '</span>' : '') + '</div></a>';
   }
-  function annFeatured(it, i){
+  function annFeatured(it){
     var k = annKind(it.title);
     var cat = newsCategory(it.title, it.sym);
-    return '<a class="nn-featured" href="' + storyHref('ann', it, i) + '">' +
+    return '<a class="nn-featured" href="' + storyHref('ann', it) + '">' +
       '<div class="nn-featured-art">' + logoHtml(it.sym, 72) + '</div>' +
       '<div class="nn-featured-body"><p class="nn-cat ' + (CAT_CLASS[cat] || 'companies') + '">' + esc(cat) + ' · ' + esc(k.label) + '</p>' +
       '<h2>' + escT(it.title) + '</h2>' +
@@ -229,10 +231,9 @@
     var count = document.getElementById('annCount');
     if (count) count.textContent = items.length + ' of ' + annItems.length;
     if (!items.length) { feed.innerHTML = '<p class="nn-empty">No announcements match this filter.</p>'; return; }
-    var idx = function(it){ return annItems.indexOf(it); };
-    feed.innerHTML = annFeatured(items[0], idx(items[0])) +
+    feed.innerHTML = annFeatured(items[0]) +
       '<h2 class="nn-sec-h">More announcements</h2><div class="nn-grid">' +
-      items.slice(1, 1 + annLimit).map(function(it){ return annCard(it, idx(it)); }).join('') + '</div>' +
+      items.slice(1, 1 + annLimit).map(function(it){ return annCard(it); }).join('') + '</div>' +
       (items.length > 1 + annLimit ? '<button type="button" class="nn-more" id="annMore">Show more announcements</button>' : '');
     var ab = document.getElementById('annMore');
     if (ab) ab.addEventListener('click', function(){ annLimit += 12; renderAnn(); });
@@ -259,17 +260,17 @@
 
   /* Headlines */
   var hlItems = [], hlFilter, activeCat = 'All', hlLimit = 9;
-  function hlFeatured(it, i){
+  function hlFeatured(it){
     var cat = newsCategory(it.title, it.sym);
-    return '<a class="nn-featured" href="' + storyHref('news', it, i) + '">' +
+    return '<a class="nn-featured" href="' + storyHref('news', it) + '">' +
       '<div class="nn-featured-art"><span style="font-size:28px;line-height:1;flex:none">📰</span></div>' +
       '<div class="nn-featured-body"><p class="nn-cat ' + CAT_CLASS[cat] + '">' + esc(cat) + ' · ' + esc(it.src || 'Market') + '</p>' +
       '<h2>' + escT(it.title) + '</h2>' +
       '<div class="nn-meta"><span>' + fmtDate(it.date) + '</span><span>Attributed to publisher</span></div></div></a>';
   }
-  function hlRow(it, i){
+  function hlRow(it){
     var cat = newsCategory(it.title, it.sym);
-    return '<a class="nn-row" href="' + storyHref('news', it, i) + '">' +
+    return '<a class="nn-row" href="' + storyHref('news', it) + '">' +
       '<span style="font-size:28px;line-height:1;flex:none">📰</span>' +
       '<div><p class="nn-row-kicker"><span class="nn-cat ' + CAT_CLASS[cat] + '">' + esc(cat) + '</span> · ' + esc(it.src || 'Market') + '</p>' +
       '<h3 class="nn-row-title">' + escT(it.title) + '</h3>' +
@@ -286,10 +287,9 @@
     var count = document.getElementById('hlCount');
     if (count) count.textContent = items.length + ' of ' + hlItems.length;
     if (!items.length) { feed.innerHTML = '<p class="nn-empty">No headlines match this filter.</p>'; return; }
-    var idx = function(it){ return hlItems.indexOf(it); };
-    feed.innerHTML = hlFeatured(items[0], idx(items[0])) +
+    feed.innerHTML = hlFeatured(items[0]) +
       '<h2 class="nn-sec-h">More headlines</h2><div class="nn-rows">' +
-      items.slice(1, 1 + hlLimit).map(function(it){ return hlRow(it, idx(it)); }).join('') + '</div>' +
+      items.slice(1, 1 + hlLimit).map(function(it){ return hlRow(it); }).join('') + '</div>' +
       (items.length > 1 + hlLimit ? '<button type="button" class="nn-more" id="hlMore">Show more headlines</button>' : '');
     var hb = document.getElementById('hlMore');
     if (hb) hb.addEventListener('click', function(){ hlLimit += 15; renderHl(); });
