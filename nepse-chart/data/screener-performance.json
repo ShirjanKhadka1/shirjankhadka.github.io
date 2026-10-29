@@ -1,0 +1,27 @@
+{
+  "asof": "2026-10-28",
+  "method": "Buy/Strong Buy replayed per signal session; win = +4xATR target before -2xATR stop within 20 sessions (daily high/low); undecided excluded; equity-only by sector+type union; wins estimated from per-symbol rates rounded to 3 decimals in verdicts.json.",
+  "filter": "universe type == 'Equity' AND verdict sector NOT IN {Debentures, Mutual Funds, Promoter Shares}",
+  "eval": {
+    "window": "most recent 250 sessions, minus the last 20 (forward window still open)",
+    "window_start": "2025-09-04",
+    "window_end": "2026-09-16",
+    "index_return_pct": -4.2,
+    "index_window_start_close_date": "2025-09-03",
+    "index_window_end_close_date": "2026-09-16",
+    "securities": 210,
+    "decided_calls": 5876,
+    "wins_est": 864.12,
+    "hit_rate_pct": 14.7,
+    "expectancy_atr": -1.12,
+    "breakeven_pct": 33.3
+  },
+  "excluded": {
+    "nonEquity": 37,
+    "noTr": 185
+  },
+  "dropped": {
+    "older_window_hit_rate": "Not published: the builder does not retain per-symbol older-window (tune) results in the shipped archive, so no equity-only older-window figure can be recomputed from it.",
+    "frozen_regime_copy": "Replaced: the previous 31.0%/11.4% regime sentences were hand-written static copy of windows that have rolled away; no 250-session window in the last 500 reproduces them."
+  }
+}

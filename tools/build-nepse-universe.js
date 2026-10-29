@@ -754,6 +754,24 @@ async function main() {
 
   fs.writeFileSync(path.join(OUT, 'universe.json'), JSON.stringify(universe));
   fs.writeFileSync(path.join(OUT, 'verdicts.json'), JSON.stringify({ asof: universe.asof, count: symbols.length, verdicts, changes: screenerChanges }));
+  // Screener performance figures (ROUND 2 / R1, 2026-10-29): archive-computed
+  // replacements for the frozen 31.0%/11.4% copy on nepse-screener/index.html.
+  // Runs on the just-written verdicts.json + universe.json, so the published
+  // figures always match the batch. Non-fatal like screener tracking: a copy
+  // failure logs loudly and the build continues — the CI check
+  // (tools/round2-verify-r1.py) fails the build on stale copy instead.
+  try {
+    const { computeScreenerPerformance, updateScreenerPage } = require('./screener-performance.js');
+    const indexRows = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'index-history.json'), 'utf8')).rows;
+    const perf = computeScreenerPerformance({ verdicts, universe, indexRows });
+    fs.writeFileSync(path.join(OUT, 'screener-performance.json'), JSON.stringify(perf, null, 2));
+    const sp = path.join(ROOT, 'nepse-screener', 'index.html');
+    const htmlBefore = fs.readFileSync(sp, 'utf8');
+    fs.writeFileSync(sp, updateScreenerPage(htmlBefore, perf));
+    console.log('  screener performance: equity-only ' + perf.eval.hit_rate_pct + '% (' + perf.eval.decided_calls + ' calls, ' + perf.eval.securities + ' securities), expectancy ' + perf.eval.expectancy_atr + ' ATR/call');
+  } catch (e) {
+    console.log('  !! screener performance skipped: ' + (e && e.message));
+  }
   // Per-stock data-check audit: one row per listed security (source, history
   // depth, live-quote presence, verdict, new-listing flag). Consumed by
   // nepse-chart/data-check.html. Deterministic (no timestamps) so scheduled

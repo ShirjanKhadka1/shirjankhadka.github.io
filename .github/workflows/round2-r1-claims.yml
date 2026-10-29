@@ -1,0 +1,78 @@
+# ROUND 2 / R1 — public claims integrity (screener page).
+#
+# Fails the build when any published screener performance figure differs
+# from the figure recomputed from the archive by tools/round2-verify-r1.py
+# (independent Python recomputation from verdicts.json + universe.json +
+# index-history.json, compared against screener-performance.json AND
+# nepse-screener/index.html). Also fails when the frozen 31.0%/11.4%
+# regime copy reappears, when the ranked-setup-score / research-only
+# framing is removed, or when anything is presented as an AI prediction.
+#
+# Runs on every push to main touching the screener claim chain. HONEST
+# MODE: no `|| true` anywhere — a verification failure fails the run.
+#
+# ENFORCEMENT NOTE (R7, still blocked): this workflow RUNS on push, but
+# it is not yet a REQUIRED status check — required checks need the PR
+# flow (fine-grained token with contents + PR write, plus branch
+# protection), which needs the site owner's GitHub action and is tracked
+# as an R7 blocker. Until R7 lands, deploys stay twin-verified
+# direct-to-main and this check is a post-push tripwire, not a gate.
+# Do not claim it blocks merges until branch protection lists it.
+#
+# The builder side of this contract lives in tools/screener-performance.js
+# (wired into tools/build-nepse-universe.js): every universe build
+# recomputes screener-performance.json and rewrites the three copy spots
+# on the screener page from the same figures, so a passing run stays
+# passing across rebuilds.
+
+name: R1 screener claims check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'nepse-screener/index.html'
+      - 'nepse-chart/data/verdicts.json'
+      - 'nepse-chart/data/universe.json'
+      - 'nepse-chart/data/track-record.json'
+      - 'nepse-chart/data/screener-calls.json'
+      - 'nepse-chart/data/screener-performance.json'
+      - 'data/index-history.json'
+      - 'tools/screener-performance.js'
+      - 'tools/round2-verify-r1.py'
+      - 'tools/build-nepse-universe.js'
+  pull_request:
+    paths:
+      - 'nepse-screener/index.html'
+      - 'nepse-chart/data/verdicts.json'
+      - 'nepse-chart/data/universe.json'
+      - 'nepse-chart/data/track-record.json'
+      - 'nepse-chart/data/screener-calls.json'
+      - 'nepse-chart/data/screener-performance.json'
+      - 'data/index-history.json'
+      - 'tools/screener-performance.js'
+      - 'tools/round2-verify-r1.py'
+      - 'tools/build-nepse-universe.js'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: r1-claims-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-screener-claims:
+    name: Screener figures match the archive
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify screener performance claims
+        run: python3 tools/round2-verify-r1.py
