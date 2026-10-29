@@ -56,26 +56,10 @@ on:
       - 'tools/round2-verify-r6.py'
       - 'tools/round2-budgets-r6.json'
       - '.github/workflows/round2-r6-perf.yml'
+  # pull_request runs UNFILTERED by design: these are required checks,
+  # and a path-filtered check that never runs blocks the PR (GitHub
+  # reports it as Expected forever). Push stays path-filtered.
   pull_request:
-    paths:
-      - 'nepse-decode/index.html'
-      - 'nepse-screener/index.html'
-      - 'nepse-screener/screener.css'
-      - 'nepse-sectors/index.html'
-      - 'nepse-sectors/sectors.css'
-      - 'nepse-brokers/index.html'
-      - 'nepse-daily/index.html'
-      - 'css/nd-tokens.css'
-      - 'css/nd-editorial-theme.css'
-      - 'css/nd-chrome.css'
-      - 'css/nd-home.css'
-      - 'css/nd-cinema.css'
-      - 'css/nd-daily.css'
-      - 'css/sig-pro.css'
-      - 'tools/round2-smoke-r6.js'
-      - 'tools/round2-verify-r6.py'
-      - 'tools/round2-budgets-r6.json'
-      - '.github/workflows/round2-r6-perf.yml'
   workflow_dispatch:
 
 permissions:

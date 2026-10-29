@@ -671,3 +671,17 @@ body.d2 input:focus-visible {
 [data-theme="light"] .nd-pager-next { color: #FFFFFF; }
 [data-theme="light"] .nd-ixsearch button { color: #FFFFFF; }
 [data-theme="light"] .nd-eyebrow { opacity: 1; }
+
+/* ---- CLS reservations (2026-10-29) ---- */
+/* The hero index card is painted by js/nd-home.js after the live fetch.
+   Unreserved it grows ~570px and pushes every section below the hero down
+   (Lighthouse CLS ~0.57). 668px is the card's rendered height at the
+   desktop breakpoint (609px stacked mobile, so the same floor covers
+   both); the height varies with the foot note (618px with the short
+   live note, 668px with the closing-figures note), so the floor is the
+   max observed. With the card pinned, the shipped align-items:center
+   no longer re-centres the copy mid-load. The badge mount (0 -> 30px)
+   and ticker (46 -> 50px) fill late for the same reason. */
+#ndIxCard{min-height:668px}
+.d2-fresh-mount{min-height:30px}
+.d2-ticker{min-height:50px}

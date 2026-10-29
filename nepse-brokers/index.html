@@ -39,7 +39,7 @@
 <link rel="stylesheet" href="/css/nd-editorial-theme.css?v=f7cba58d">
 <link rel="stylesheet" href="/css/nd-cinema.css?v=c6ab92ba">
 <link rel="stylesheet" href="/css/nd-chrome.css?v=fe4f1d6e">
-<link rel="stylesheet" href="/css/nd-brokers.css?v=0d00af33">
+<link rel="stylesheet" href="/css/nd-brokers.css?v=5dff2142">
 </head>
 <body class="nd" data-page="brokers">
 <a class="skip-link" href="#main">Skip to content</a>
@@ -88,8 +88,9 @@
 <button data-view="accdist" role="tab" aria-selected="false">Accumulation / Distribution</button>
 </div>
 
-<div class="periods nd-tabs nd-tabs--pill" role="tablist" aria-label="Period" id="periodBar">
+<div class="periods nd-tabs nd-tabs--pill" id="periodBar">
 <span class="p-label">Period:</span>
+<div class="bk-tablist" role="tablist" aria-label="Period">
 <button data-p="latest" role="tab" aria-selected="true" class="active">Latest</button>
 <button data-p="1D" role="tab" aria-selected="false">1D</button>
 <button data-p="1W" role="tab" aria-selected="false">1W</button>
@@ -100,8 +101,9 @@
 <button data-p="1Y" role="tab" aria-selected="false">1Y</button>
 <button data-p="2Y" role="tab" aria-selected="false">2Y</button>
 <button data-p="3Y" role="tab" aria-selected="false">3Y</button>
-<input type="date" id="asofDate" title="As of date" aria-label="As of date">
 <button data-p="range" role="tab" aria-selected="false">Range</button>
+</div>
+<input type="date" id="asofDate" title="As of date" aria-label="As of date">
 <input type="date" id="bkRangeFrom" title="Range from" aria-label="Range from">
 <input type="date" id="bkRangeTo" title="Range to" aria-label="Range to">
 <button type="button" id="bkRangeApply">Apply</button>
@@ -144,7 +146,7 @@
     <div id="nd-footer"></div>
 <script src="/js/nepse-market-config.js?v=1e1eb57b"></script>
 <script src="/js/broker-range.js?v=73a21a4f"></script>
-<script src="/js/nepse-brokers.js?v=ea8f4b07" defer></script>
+<script src="/js/nepse-brokers.js?v=e558b4bc" defer></script>
 
 <script src="/js/theme-toggle.js?v=6a6a46c6" defer></script>
 <script src="/js/freshness-badge.js?v=9e4228d4" defer></script>

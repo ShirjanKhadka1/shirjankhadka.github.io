@@ -104,8 +104,11 @@ html[data-theme="light"] body[data-page="trending"]{background:#F6F7F9}
 /* sector cards */
 .tr-sectors{display:grid;gap:14px;margin:0 0 22px}
 @media(min-width:760px){.tr-sectors{grid-template-columns:repeat(3,1fr)}}
-.tr-sector{cursor:pointer;text-align:left;font-family:inherit}
-.tr-sector[aria-pressed="true"]{outline:2px solid var(--nd-lime);outline-offset:2px}
+.tr-sector{cursor:pointer;text-align:left;font-family:inherit;padding:1px 6px}
+/* A11y 2026-10-29: card div keeps the old button's UA padding (1px 6px)
+   so the box is unchanged; the header toggle inside is unstyled. */
+.tr-sector-btn{display:block;width:100%;margin:0;padding:0;background:none;border:0;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.tr-sector.is-pressed{outline:2px solid var(--nd-lime);outline-offset:2px}
 .tr-sector h3{font-family:var(--nd-font-display);font-size:1.05rem;margin:0 0 6px;color:var(--nd-text)}
 .tr-sector .tr-secmeta{font-size:.78rem;color:var(--nd-dim);margin:0 0 10px}
 .tr-sector .tr-minibar{display:flex;height:8px;border-radius:999px;background:var(--nd-border);overflow:hidden;margin:0 0 10px}

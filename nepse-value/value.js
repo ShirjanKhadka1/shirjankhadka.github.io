@@ -114,16 +114,23 @@ function renderSectors(){
     var mem = state.rows.filter(function(s){ return s.sector === sec; });
     var top3 = mem.slice(0, 3);
     var med = mem[0] || {};
-    return '<button type="button" class="va-sector" data-sec="' + esc(sec) + '" aria-pressed="' + (state.sector === sec) + '">' +
+    return '<div class="va-sector' + (state.sector === sec ? ' is-pressed' : '') + '" data-sec="' + esc(sec) + '">' +
+      '<button type="button" class="va-sector-btn" aria-pressed="' + (state.sector === sec) + '">' +
       '<span class="va-secname">' + esc(sec) + '</span>' +
       '<span class="va-secmeta" style="display:block">' + counts[sec] + ' companies scored</span>' +
-      '<span class="va-secmed" style="display:block">Median P/E ' + fmt(med.sector_median_pe, 1) + ' · median P/BV ' + fmt(med.sector_median_pbv, 2) + '</span>' +
+      '<span class="va-secmed" style="display:block">Median P/E ' + fmt(med.sector_median_pe, 1) + ' · median P/BV ' + fmt(med.sector_median_pbv, 2) + '</span></button>' +
       '<span class="va-sectop" style="display:block">' + top3.map(function(s){
-        return '<a href="/stocks/' + esc(s.symbol) + '/" onclick="event.stopPropagation()">' + esc(s.symbol) + '</a> ' + fmt(s.value_score, 1);
-      }).join(' · ') + '</span></button>';
+        return '<a href="/stocks/' + esc(s.symbol) + '/">' + esc(s.symbol) + '</a> ' + fmt(s.value_score, 1);
+      }).join(' · ') + '</span></div>';
   }).join('');
   el.querySelectorAll('[data-sec]').forEach(function(b){
-    b.addEventListener('click', function(){
+    /* A11y 2026-10-29: card is a div; top-3 stock links are siblings of
+       the toggle button, not nested in it (the old stopPropagation is
+       gone because there is nothing left to stop). Link clicks navigate
+       only; every other card click — including button keyboard activation
+       bubbling here — toggles exactly as before. */
+    b.addEventListener('click', function(ev){
+      if (ev.target.closest && ev.target.closest('a')) return;
       var sec = b.getAttribute('data-sec');
       state.sector = (state.sector === sec) ? '' : sec;
       var sel = $('sectorSel'); if (sel) sel.value = state.sector;

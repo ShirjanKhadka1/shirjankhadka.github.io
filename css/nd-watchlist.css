@@ -250,6 +250,11 @@ h1{font-family:'Spectral','Noto Serif Devanagari',Georgia,serif;letter-spacing:-
   color:var(--nd-dim);background:var(--nd-panel-2);padding:10px 14px;border-bottom:1px solid var(--nd-border);
   white-space:nowrap;
 }
+/* A11y 2026-10-29: this page does not load nepse-design-system.css, so
+   .visually-hidden is undefined here — scope the sr-only rule to the
+   sector-stocks header cell that carries the "Add" label, so the empty
+   <th> has discernible text without any visible change. */
+.wl-sec-table th .visually-hidden{position:absolute !important;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
 .wl-sec-table th.num,.wl-sec-table td.num{text-align:right;font-variant-numeric:tabular-nums}
 .wl-sec-table td{padding:10px 14px;border-bottom:1px solid var(--nd-border);font-size:13.5px}
 .wl-sec-table tbody tr:hover{background:var(--nd-panel-2)}
