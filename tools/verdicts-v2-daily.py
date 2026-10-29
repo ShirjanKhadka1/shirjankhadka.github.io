@@ -16,7 +16,8 @@ Pipeline:
      the builder merges the official close from live.json when needed).
   5. Run node tools/build-health.js (session-data deploy bake).
   6. Run python3 tools/track-warning-radar.py (ledger + track record).
-  7. Commit + push via github-push.py (explicit --local-ref, --repo-dir).
+  7. Deploy via the PR-flow helper (tools/pr-flow-deploy.py: branch + PR +
+     required checks + API squash-merge; never pre-commit).
 
 Usage:
     python3 tools/verdicts-v2-daily.py [--force] [--no-deploy]
@@ -32,7 +33,6 @@ from datetime import datetime
 WORKTREE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OHLC_DB = os.environ.get("OHLC_DB", "/home/hatch/workspace/nepse-data-archive/ohlc-db")
 V2_MIRROR = os.environ.get("V2_MIRROR", "/home/hatch/workspace/v2-mirror")
-PUSH = "/home/hatch/workspace/skills/github/bin/github-push.py"
 REPO_SLUG = "ShirjanKhadka1/shirjankhadka.github.io"
 
 DATA_FILES = [
@@ -192,19 +192,28 @@ def main():
     log(f"changed files:\n{diff}")
 
     msg = f"v2 Warning Radar: daily rebuild {session} (ledger + track record)"
-    run(["git", "-c", "user.name=verdicts-v2-daily", "-c", "user.email=verdicts-v2-daily@local",
-         "commit", "-m", msg])
-    ref = subprocess.run(["git", "rev-parse", "HEAD"], cwd=WORKTREE,
-                         capture_output=True, text=True).stdout.strip()
     if args.no_deploy:
-        log(f"--no-deploy: built at {ref}, not pushed")
+        log(f"--no-deploy: built {session}, not pushed")
         return 0
-    r = run([PUSH, "--repo", REPO_SLUG, "--branch", "main", "--base", "main",
-             "--local-ref", ref, "--repo-dir", WORKTREE, "--message", msg], timeout=900)
-    if "Successfully updated" not in (r.stdout + r.stderr):
-        log(f"DEPLOY FAILED:\n{(r.stdout + r.stderr)[-1000:]}")
+    # PR-flow deploy (since PR #103): never pre-commit — the helper stages
+    # + commits from uncommitted worktree changes, polls the 5 required
+    # checks, updates the branch if main moves, and squash-merges via API.
+    helper = os.path.join(WORKTREE, "tools", "pr-flow-deploy.py")
+    dep = subprocess.run([sys.executable, "-u", helper, "--repo-dir", WORKTREE,
+                          "--branch", f"deploy/v2-verdicts-{session}",
+                          "--message", msg, "--files"] + existing,
+                         cwd=WORKTREE, capture_output=True, text=True, timeout=1800)
+    if dep.returncode != 0:
+        log(f"DEPLOY FAILED:\n{(dep.stdout + dep.stderr)[-1000:]}")
         return 1
-    log(f"deployed {ref}")
+    merged = None
+    for line in (dep.stdout or "").splitlines():
+        if line.startswith("RESULT: PRFLOW-MERGED"):
+            merged = line.split()[-1]
+    if not merged:
+        log("DEPLOY FAILED: helper output shows no RESULT: PRFLOW-MERGED line")
+        return 1
+    log(f"deployed {merged}")
     return 0
 
 

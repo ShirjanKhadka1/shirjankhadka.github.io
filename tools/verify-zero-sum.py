@@ -33,22 +33,26 @@ def main():
     tokens = open(os.path.join(ROOT, 'css/nd-tokens.css')).read()
     editorial = open(os.path.join(ROOT, 'css/nd-editorial-theme.css')).read()
 
-    # 1. Stamps == raw SHA-1 first-8
-    for label, path, expect in [
-        ('editorial', 'css/nd-editorial-theme.css', 'b875f30d'),
-        ('cinema', 'css/nd-cinema.css', '857a8acb'),
-        ('chrome-css', 'css/nd-chrome.css', '69b323cf'),
-        ('family-css', 'css/nd-zero-sum.css', None),
-        ('nd-chrome-js', 'js/nd-chrome.js', '74c1c8b7'),
-        ('freshness-badge', 'js/freshness-badge.js', '9b77cf10'),
-        ('zero-sum-js', 'js/zero-sum.js', None),
+    # 1. Stamps == raw SHA-1 first-8, page-vs-file agreement ONLY. The
+    # old expected-hash column went stale at every shared-CSS/JS
+    # re-stamp (chrome 69b323cf, editorial b875f30d, cinema 857a8acb,
+    # nd-chrome-js 74c1c8b7, freshness-badge 9b77cf10 all differ from
+    # the current file hashes on main) while a correctly re-stamped
+    # page would still fail it; agreement is the check, and a real
+    # page/file mismatch still fails the stamp: line below.
+    for label, path in [
+        ('editorial', 'css/nd-editorial-theme.css'),
+        ('cinema', 'css/nd-cinema.css'),
+        ('chrome-css', 'css/nd-chrome.css'),
+        ('family-css', 'css/nd-zero-sum.css'),
+        ('nd-chrome-js', 'js/nd-chrome.js'),
+        ('freshness-badge', 'js/freshness-badge.js'),
+        ('zero-sum-js', 'js/zero-sum.js'),
     ]:
         got = sha8(os.path.join(ROOT, path))
         pin = re.search(re.escape(path.split('/')[-1]) + r'\?v=([0-9a-f]{8})', html)
         ok('stamp:' + label, pin and pin.group(1) == got,
            'page pins %s, file hashes %s' % (pin.group(1) if pin else None, got))
-        if expect:
-            ok('stamp-expected:' + label, got == expect, 'got %s want %s' % (got, expect))
 
     # 2. No old-kit refs (theme.css matched as a standalone filename, so
     # nd-editorial-theme.css does not false-positive)
@@ -93,7 +97,11 @@ def main():
            'missing id/class ' + el)
     ok('canvas-pin', 'body.nd[data-page="broker-zero-sum"]' in fam and 'var(--nd-bg)' in fam,
        'theme-scoped canvas pin missing')
-    ok('fetch-token', 'v=20261027a' in js, 'data fetch token not bumped')
+    # Fetch token: presence of a dated cache-buster, never one literal
+    # token — 20261027a equality failed on the next legitimate data
+    # re-issue, while a missing/malformed token (real stale-cache
+    # defect) still fails this check.
+    ok('fetch-token', re.search(r'\.json\?v=20\d{6}[a-z]', js) is not None, 'data fetch token missing or malformed')
     ok('change-gate', 'setInterval(tick, 60000)' in js and 'STATE.sig' in js and 'document.hidden' in js,
        'change-gated refresh not present')
     ok('rebaseline', 're-baseline' in js or 're-baseline' in open(JS).read() or 'STATE.sig = signature(STATE.data)' in js,
