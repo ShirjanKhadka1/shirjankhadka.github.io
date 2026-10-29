@@ -238,25 +238,37 @@ function fetchPeriodCached(url){
   }
   return periodCache[url];
 }
-function fetchLatest(){
+function fetchLatest(useSummary){
   /* Provisional first; final wins when the 1D period already covers
      the provisional date (post-close). Provisional older than the
      1D period is stale (yesterday's file before today's first write)
-     and is ignored in favour of the final. */
+     and is ignored in favour of the final.
+     Audit-3f: when the current view needs only the summary (top /
+     accdist), the final/fallback branch reads periods/1D-summary.json
+     (~46KB) instead of the full 1D payload (~2.1MB). The summary keeps
+     every small field byte-identical (brokers, accumulation,
+     distribution, to, trading_days) plus symbol_keys, so the top view
+     and the viz footer render identically; detail views fetch full. */
+  var finalUrl = BASE+'periods/' + (useSummary ? '1D-summary.json' : '1D.json');
   return fetch(BASE+'intraday-provisional.json', { cache: 'no-store' }).then(function(r){
     if(!r.ok) throw 0; return r.json();
   }).then(function(prov){
-    return fetchPeriodCached(BASE+'periods/1D.json').then(function(d1){
+    return fetchPeriodCached(finalUrl).then(function(d1){
       if (prov.date && d1.to && prov.date <= d1.to) return Object.assign({}, d1, { _mode: 'final' });
       prov._mode = 'provisional';
       return prov;
     }, function(){ prov._mode = 'provisional'; return prov; });
   }).catch(function(){
-    return fetchPeriodCached(BASE+'periods/1D.json').then(function(d){
+    return fetchPeriodCached(finalUrl).then(function(d){
       return Object.assign({}, d, { _mode: 'fallback' });
     });
   });
 }
+/* Audit-3f: views that render from the summary twin only. Detail views
+   (broker / stock / holdings) read broker_symbols / symbols, which the
+   summary deliberately omits, so they always fetch the full payload. */
+function summaryView(v){ return v === 'top' || v === 'accdist'; }
+function needsDetailView(v){ return v === 'broker' || v === 'stock' || v === 'holdings'; }
 function loadPeriod(silent){
   var p = state.period;
   /* Range payloads are immutable for fixed from/to (a hybrid range tracks
@@ -265,7 +277,7 @@ function loadPeriod(silent){
      never reset pagination — the same rule fixed periods follow. */
   if (silent && p === 'range'){ setFresh('same'); return Promise.resolve(); }
   var url, req, isLatest = (p === 'latest');
-  if (isLatest) req = fetchLatest();
+  if (isLatest) req = fetchLatest(summaryView(state.view));
   else if (p === 'asof') { url = BASE+'daily/'+state.asof+'.json'; req = fetchPeriodCached(url); }
   else if (p === 'range') {
     if (!window.BrokerRange || !window.BrokerRange.loadRange) {
@@ -277,7 +289,7 @@ function loadPeriod(silent){
       });
     }
   }
-  else { url = BASE+'periods/'+p+'.json'; req = fetchPeriodCached(url); }
+  else { url = BASE+'periods/'+p+(summaryView(state.view) ? '-summary' : '')+'.json'; req = fetchPeriodCached(url); }
   /* Matching attach (gap 7): period payloads gain matching fields BEFORE
      the change-gate signature is computed, so a matching publish
      re-renders like any other data change. Range payloads already carry
@@ -432,7 +444,10 @@ function renderBroker(d){
 }
 
 function symbolOptions(d){
-  return Object.keys(d.symbols||{}).sort();
+  /* Audit-3f: summary payloads carry symbol_keys instead of the symbols
+     map; the dropdown list is identical either way. */
+  if (d.symbols) return Object.keys(d.symbols).sort();
+  return (d.symbol_keys || []).slice().sort();
 }
 
 function renderStock(d){
@@ -658,7 +673,7 @@ function renderViz(d){
     rankRows(top.map(function(b){ return { l: shortName(bname(b.code)), v: b.total||0 }; }), top.length ? top[0].total||0 : 0, fmtV)+'</div>'+
     '<div class="bk-viz-card"><h3>Net flow extremes</h3><p class="bk-cap">Largest net buyers (lime) and net sellers (red) by transaction value. Measured flow, not a forecast.</p>'+
     rankRows(buyers, maxNet, fmtV)+rankRows(sellers, maxNet, fmtV)+'</div></div>'+
-    '<div class="bk-totals"><span>Sessions <b>'+esc(d.trading_days||'')+'</b></span><span>Brokers <b>'+brokers.length+'</b></span><span>Symbols <b>'+Object.keys(d.symbols||{}).length+'</b></span><span>Turnover <b>'+fmtV(buySum)+'</b></span></div>';
+    '<div class="bk-totals"><span>Sessions <b>'+esc(d.trading_days||'')+'</b></span><span>Brokers <b>'+brokers.length+'</b></span><span>Symbols <b>'+(d.symbols ? Object.keys(d.symbols).length : (d.symbol_keys||[]).length)+'</b></span><span>Turnover <b>'+fmtV(buySum)+'</b></span></div>';
 }
 
 function label(){
@@ -857,7 +872,15 @@ function initSector(){
 $('viewTabs').addEventListener('click', function(e){
   var b = e.target.closest('button'); if(!b) return;
   document.querySelectorAll('#viewTabs button').forEach(function(x){x.classList.remove('active')});
-  b.classList.add('active'); state.view = b.dataset.view; syncControls(); syncURL(); render();
+  b.classList.add('active'); state.view = b.dataset.view; syncControls(); syncURL();
+  /* Audit-3f: switching from a summary view to a detail view needs the
+     full payload (broker_symbols / symbols). loadPeriod() re-selects
+     the URL by the new view, so it fetches full, re-attaches matching,
+     and renders; switching back to a summary view just re-renders the
+     full data already held (identical output, no refetch). Provisional
+     payloads render their own view and never take this branch. */
+  if (needsDetailView(state.view) && state.data && !state.data.broker_symbols && state.data._mode !== 'provisional') loadPeriod();
+  else render();
 });
 $('periodBar').addEventListener('click', function(e){
   var b = e.target.closest('button'); if(!b || !b.dataset.p) return; /* Apply carries no data-p */

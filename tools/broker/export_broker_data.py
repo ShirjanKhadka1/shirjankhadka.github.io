@@ -283,6 +283,32 @@ def export_daily(con, day_iso):
     return {"date": day_iso, "trading_days": 1, "symbols": sym_out}
 
 
+def period_summary(data):
+    """Summary view of a periods/<P>.json payload for the hub's top/accdist views.
+
+    Audit-3f (performance): the hub's Top Brokers view renders only
+    `brokers` (+ matching, attached separately by the page) and the
+    accumulation/distribution view renders only `accumulation` /
+    `distribution`, but the page was fetching the whole 2.1MB payload
+    (broker_symbols ~56% + symbols ~44% of bytes) on every initial load.
+    The summary keeps every small field byte-identical and drops only the
+    two big maps, replacing `symbols` with its sorted key list so the
+    stock dropdown and the viz "Symbols N" footer render identically.
+    Detail views (broker / stock / holdings) still fetch the full file;
+    the page JS chooses summary vs full by current view. Pure function of
+    the final payload dict — the exporter and the standalone derivation
+    from a published file produce identical bytes (compact separators,
+    no timestamps).
+    """
+    out = {}
+    for k, v in data.items():
+        if k in ("broker_symbols", "symbols"):
+            continue
+        out[k] = v
+    out["symbol_keys"] = sorted((data.get("symbols") or {}).keys())
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--periods", action="store_true", help="export preset periods")
@@ -330,6 +356,14 @@ def main():
             print(f"periods/{p}.json: {data['trading_days']}d, "
                   f"{len(data['brokers'])} brokers, {len(data['symbols'])} symbols, "
                   f"{os.path.getsize(path)//1024}KB")
+            # Audit-3f: summary twin for the hub's top/accdist views
+            # (same payload minus the two big maps; see period_summary).
+            spath = os.path.join(OUT, "periods", f"{p}-summary.json")
+            stmp = spath + ".tmp"
+            with open(stmp, "w") as f:
+                json.dump(period_summary(data), f, separators=(",", ":"))
+            os.replace(stmp, spath)
+            print(f"periods/{p}-summary.json: {os.path.getsize(spath)//1024}KB")
 
     if do_daily:
         days = [r[0] for r in con.execute(
