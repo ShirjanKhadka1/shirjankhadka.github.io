@@ -38,8 +38,10 @@ Hardening (2026-10-29, failure-class program):
     short SHA; the lease caught it, but the message path must make a
     lease mismatch unmistakable).
   * API-merge failures (including 404) are reported ONCE with the PR
-    state attached and never loop-retried: a merge POST is failed
-    loudly, not re-attempted.
+    state attached and never loop-retried: a merge PUT is failed
+    loudly, not re-attempted. (The merge endpoint requires PUT;
+    the pre-fix POST 404'd deterministically, which is why the
+    #100/#102/#235 merge 404s were never transient.)
   * Check polls are keyed to the exact head SHA being waited on:
     check-runs whose head_sha differs are ignored (a superseded run's
     green is never the current head's green); a run concluded
@@ -595,12 +597,14 @@ def main():
                   f"re-polling checks", flush=True)
             continue
         try:
-            merged = gh("POST", f"/pulls/{pr['number']}/merge",
+            merged = gh("PUT", f"/pulls/{pr['number']}/merge",
                         {"merge_method": "squash"})
         except Exception as e:
             # Report ONCE with the PR state attached; never loop-retry
-            # a merge POST. A 404 here is terminal for this run
-            # (transient or PR-specific per the #100/#102 evidence) —
+            # a merge PUT. A 404 here is terminal for this run
+            # (the merge endpoint requires PUT; POST 404s
+            # deterministically — see #235 request
+            # DFB3:29D8C2:352C82:55E044:6AE4E3CF) —
             # it is reported, not re-attempted.
             state = pr_state(pr["number"])
             kind = "API squash-merge 404" if "404" in str(e) \
