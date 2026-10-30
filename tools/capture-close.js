@@ -124,6 +124,33 @@ async function fetchOfficialClose(api) {
   return rows;
 }
 
+// Fail-closed freshness gate (2026-10-30): the close overlays today's indices
+// onto the existing live.json verbatim (Object.assign below), so the existing
+// tape's quotes BECOME today's close quotes. A stale tape (a previous session)
+// would publish yesterday's quotes stamped as today's close — the Oct-29
+// failure. Refuse to run unless the existing tape is from TODAY and fresh
+// (age ≤ 90 minutes at capture). Missing or unparseable data_asof FAILS:
+// fail-closed, never guess. `today` is the NPT session date (nptDate), and
+// `nowEpochMs` must be the true instant (Date.now()), NOT nptNow().getTime()
+// (nptNow is wall-clock-shifted for field reads only).
+function checkTapeFreshness(live, today, nowEpochMs) {
+  const raw = live && live.data_asof;
+  const asof = raw ? new Date(raw) : null;
+  if (!asof || isNaN(asof.getTime())) {
+    throw new Error('stale-tape gate: live.data_asof missing or unparseable (' + raw + ') — refusing to stamp a close over an unverified tape');
+  }
+  // NPT date of the tape instant (same wall-clock rule as nptDate).
+  const tapeDate = new Date(asof.getTime() + (5 * 60 + 45) * 60000).toISOString().slice(0, 10);
+  if (tapeDate !== today) {
+    throw new Error('stale-tape gate: live tape is from ' + tapeDate + ', not today (' + today + ') — refusing to publish a close over stale quotes');
+  }
+  const ageMin = (nowEpochMs - asof.getTime()) / 60000;
+  if (ageMin > 90) {
+    throw new Error('stale-tape gate: live tape is ' + ageMin.toFixed(1) + ' min old (>90) — refusing to publish a close over a stale tape');
+  }
+  return ageMin;
+}
+
 async function main() {
   const now = nptNow();
   const today = nptDate(now);
@@ -157,6 +184,12 @@ async function main() {
     log('close already captured for ' + today + '; nothing to do');
     return;
   }
+
+  // Fail-closed freshness gate (2026-10-30): must run AFTER the
+  // already-captured no-op above and BEFORE any fetch or write. A stale tape
+  // throws here, exits non-zero, and changes zero files — never a close
+  // stamped over yesterday's quotes.
+  checkTapeFreshness(live, today, Date.now());
 
   log('capturing close for ' + today + '...');
 
