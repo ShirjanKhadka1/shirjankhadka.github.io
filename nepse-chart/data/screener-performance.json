@@ -1,24 +1,24 @@
 {
-  "asof": "2026-10-29",
+  "asof": "2026-10-30",
   "method": "Buy/Strong Buy replayed per signal session; win = +4xATR target before -2xATR stop within 20 sessions (daily high/low); undecided excluded; equity-only by sector+type union; wins estimated from per-symbol rates rounded to 3 decimals in verdicts.json.",
   "filter": "universe type == 'Equity' AND verdict sector NOT IN {Debentures, Mutual Funds, Promoter Shares}",
   "eval": {
     "window": "most recent 250 sessions, minus the last 20 (forward window still open)",
-    "window_start": "2025-09-07",
-    "window_end": "2026-09-17",
-    "index_return_pct": -3.5,
-    "index_window_start_close_date": "2025-09-04",
-    "index_window_end_close_date": "2026-09-17",
+    "window_start": "2025-09-08",
+    "window_end": "2026-09-18",
+    "index_return_pct": -2.3,
+    "index_window_start_close_date": "2025-09-07",
+    "index_window_end_close_date": "2026-09-18",
     "securities": 211,
-    "decided_calls": 5907,
-    "wins_est": 875.07,
-    "hit_rate_pct": 14.8,
-    "expectancy_atr": -1.11,
+    "decided_calls": 5923,
+    "wins_est": 884,
+    "hit_rate_pct": 14.9,
+    "expectancy_atr": -1.1,
     "breakeven_pct": 33.3
   },
   "excluded": {
     "nonEquity": 0,
-    "noTr": 220
+    "noTr": 215
   },
   "dropped": {
     "older_window_hit_rate": "Not published: the builder does not retain per-symbol older-window (tune) results in the shipped archive, so no equity-only older-window figure can be recomputed from it.",
