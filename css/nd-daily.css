@@ -398,3 +398,25 @@ html[data-nd-ed="light"] body.nd { background: var(--nd-bg, #F6F7F9); }
 .ds-ov-chart, .ds-ov-summary{min-width:0}
 .ds-ov-chart-head{min-height:38px}
 #dsAsof{min-width:224px}
+
+/* ---- Daily table horizontal-scroll affordance (2026-10-30) ----
+   The table is 1080px-min in a narrower card on phones and mid-width
+   desktops, so it MUST scroll — but the only controls were a 1px
+   hairline top bar and a bottom scrollbar buried below 50 rows, so
+   readers saw the right-hand columns (Txn, Turnover) cut off with no
+   visible way to reach them. Both scrollbars are now visibly styled,
+   the top bar gets a real draggable height, and a hint line appears
+   exactly when the table overflows (toggled by syncTopScroll). */
+.ds-table-scroll, .ds-table-topscroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--nd-border-strong) transparent;
+  overscroll-behavior-x: contain;
+}
+.ds-table-scroll::-webkit-scrollbar, .ds-table-topscroll::-webkit-scrollbar { height: 10px; }
+.ds-table-scroll::-webkit-scrollbar-thumb, .ds-table-topscroll::-webkit-scrollbar-thumb {
+  background: var(--nd-border-strong); border-radius: 6px;
+}
+.ds-table-scroll::-webkit-scrollbar-track, .ds-table-topscroll::-webkit-scrollbar-track { background: transparent; }
+.ds-table-topscroll { height: 22px; }
+.ds-scroll-hint { display: none; margin: 0 0 8px; font-size: 0.8rem; color: var(--nd-muted); text-align: right; }
+.ds-table-card.ds-can-scroll .ds-scroll-hint { display: block; }

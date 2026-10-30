@@ -52,3 +52,12 @@
 .fs-note strong{color:var(--nd-text)}
 .fs-noscript{background:var(--nd-panel);border:1px solid var(--nd-border);border-radius:var(--nd-r-md);padding:16px 20px;color:var(--nd-muted);line-height:1.65}
 .fs-noscript strong{color:var(--nd-text)}
+
+/* ---- Light canvas (2026-10-30) ----
+   The floorsheet page (body.d2) inherited the d2 cream wash
+   (--d2-bg #f4f2ec) as its light-theme page background, while the
+   site light canvas is #F6F7F9. Page-scoped only: the d2 cream wash
+   stays as designed on other d2 pages, and the dark theme is
+   untouched (this rule is light-only). Specificity (0,2,2) beats
+   nepse-d2.css body.d2 (0,1,1). */
+html[data-theme="light"] body.d2 { background: var(--nd-bg, #F6F7F9); }

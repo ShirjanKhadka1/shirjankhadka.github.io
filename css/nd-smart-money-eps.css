@@ -110,11 +110,22 @@
 
 /* story + cohort chips */
 .sme-chip{display:inline-block;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:600;white-space:nowrap}
-.sme-chip-rising{background:var(--nd-lime);color:#07130c}
+.sme-chip-rising{background:var(--nd-lime);color:var(--nd-on-lime)}
 .sme-chip-falling{background:var(--nd-amber);color:#1a1000}
-.sme-chip-loss{background:var(--nd-down);color:#fff}
+.sme-chip-loss{background:var(--nd-down);color:#07130c}
 .sme-chip-flat,.sme-chip-new,.sme-chip-none{background:var(--nd-panel-2);color:var(--nd-text)}
-.sme-cohort{display:inline-block;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:600;white-space:nowrap;background:var(--nd-lime);color:#07130c}
+.sme-cohort{display:inline-block;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:600;white-space:nowrap;background:var(--nd-lime);color:var(--nd-on-lime)}
+/* ---- Chip contrast (2026-10-30) ----
+   The chips paired theme-varying backgrounds with FIXED text colours:
+   light-theme --nd-lime (#4D7C0F) and --nd-amber (#B45309) under
+   near-black text measured 3.80:1 / 3.74:1, and dark-theme --nd-down
+   (#F87171) under white measured 2.77:1 — all below AA 4.5:1. Rising
+   and cohort now use the theme-paired --nd-on-lime token; falling and
+   loss keep their passing dark-theme text and switch to white in the
+   light theme. After: rising 13.00/4.99, falling 10.13/5.02,
+   loss 6.85/4.83, flat/new/none 17.41/17.31 (dark/light). */
+[data-theme="light"] .sme-chip-falling{color:#fff}
+[data-theme="light"] .sme-chip-loss{color:#fff}
 
 /* ---- pagers: Prev quiet, Next lime primary (pagination rule) ---- */
 .sme-pager{display:flex;align-items:center;gap:10px;margin:14px 0 4px}
