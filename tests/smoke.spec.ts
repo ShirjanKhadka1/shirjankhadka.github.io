@@ -171,10 +171,18 @@ test('SSR session dates match the manifest session date', async ({ request, brow
     // flaps whenever the verdicts fetch hasn't beaten domcontentloaded,
     // because the fresh line still says "Loading market data…" and the
     // bench note becomes the first "as of" match)
+    // (#nl-session is filled by page JS from live data — an honest
+    // live-data session label like "Session 2026-10-30", not an SSR
+    // session marker; without this strip the gate fails whenever the
+    // live tape is a session ahead of the manifest — the close-correction
+    // case, where the tape is Oct-30 while verdicts/signals vintages stay
+    // Oct-29 until the evening jobs — and flaps whenever the data fetch
+    // beats domcontentloaded)
     const ssr = html
       .replace(/<div[^>]*\sdata-freshness-badge[^>]*>[\s\S]*?<\/div>/g, '')
       .replace(/<div[^>]*\sid="coverage"[\s\S]*?<\/div>/g, '')
-      .replace(/<p[^>]*\sid="pf-bench-note"[^>]*>[\s\S]*?<\/p>/g, '');
+      .replace(/<p[^>]*\sid="pf-bench-note"[^>]*>[\s\S]*?<\/p>/g, '')
+      .replace(/<section[^>]*\sid="nl-session"[\s\S]*?<\/section>/g, '');
     let found: string | null = null;
     for (const re of patterns) {
       const m = ssr.match(re);
