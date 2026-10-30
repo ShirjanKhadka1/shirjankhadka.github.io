@@ -92,6 +92,13 @@ jobs:
           # tip so the push stays fast-forward (the publisher only READS
           # staging, so this branch never races; no force-push, ever).
           cp nepse-chart/data/live.json /tmp/live-fresh.json
+          # The fetcher just dirtied live.json, and staging's copy differs
+          # byte-wise from main's (compact fetcher output vs the pretty
+          # published build) -- without this reset, git refuses to switch
+          # branches ("local changes would be overwritten") on every tick
+          # whose fresh bytes differ from staging's. Fresh bytes are safe
+          # in /tmp and are copied back below.
+          git checkout -- nepse-chart/data/live.json
           git fetch origin intraday-staging 2>/dev/null || true
           if git show-ref --verify --quiet refs/remotes/origin/intraday-staging; then
             git checkout -B intraday-staging origin/intraday-staging
