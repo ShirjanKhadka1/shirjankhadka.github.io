@@ -41,7 +41,7 @@ const SECTOR_OVERRIDES = {
   CGH:'Hotels And Tourism', KDL:'Hotels And Tourism',
   SAGF:'Mutual Funds', H8020:'Mutual Funds', NMB50:'Mutual Funds',
   CMF2:'Mutual Funds', NICBF:'Mutual Funds', LSH12:'Mutual Funds',
-  RBBF40:'Mutual Funds',
+  RBBF40:'Mutual Funds', SIGS2:'Mutual Funds',
   JBLBP:'Promoter Shares', KBLPO:'Promoter Shares', MLBLPO:'Promoter Shares',
   SCBD:'Debentures', SHINED:'Debentures',
   SFCL:'Finance',
