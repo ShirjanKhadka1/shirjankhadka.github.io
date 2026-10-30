@@ -1,0 +1,266 @@
+# P2 publish workflow — ONE publish path for all data publishers.
+#
+# Data publishers write validated outputs to the `data` branch
+# (tools/data-branch-writer.py, disjoint paths per component).
+# This workflow assembles main + one data snapshot into the deployed
+# site. No commit to main, no PR per data run, no merge ordering.
+#
+# Triggers:
+#   - workflow_dispatch: the data-branch writer dispatches after
+#     every write (primary path; always uses main's workflow file).
+#   - push to `data`: secondary path; fires only once the data
+#     branch carries this file (code-sync after this PR merges).
+# Concurrency: group `publish`, cancel-in-progress — newest snapshot
+# wins; a superseded run is cancelled, never deployed after a newer
+# one.
+#
+# Pages source gate (owner-UI blocker, see ops/PROGRAM-STATUS.md):
+#   While Pages serves from the branch (legacy), the deploy step is
+#   SKIPPED with the reason logged: the Pages artifact action deploys
+#   nothing servable until Settings -> Pages -> Source flips to
+#   "GitHub Actions". Pre-flip runs still prove the artifact (bytes,
+#   as_of, snapshot_id from main+data) and exit green; live proof
+#   is labeled pending the flip and re-verified the moment it flips.
+#   Post-flip, deploy + purge + live-verify run, and the tag job
+#   tags the deployed snapshot data-YYYY-MM-DD-N.
+#
+# Post-flip purge secret: the purge step needs repository secrets
+# CLOUDFLARE_API_TOKEN and CLOUDFLARE_ZONE_ID. Absent secrets fail
+# the job loudly (never silently stale) — see PROGRAM-STATUS
+# blockers for the owner action.
+#
+# Full HTML rebuild (phase 2): the full_rebuild input exists, but
+# page builders are not yet CI-proven (they need worktrees and
+# archives absent from runners). Requesting it fails fast with the
+# reason, rather than silently deploying a non-rebuilt tree. Baked
+# pages therefore lag the snapshot by one full rebuild in v1; fresh
+# data reaches them through their JSON fetches, and the noscript
+# fallback is asserted present (not current) by the assembler.
+name: Publish (P2)
+
+on:
+  workflow_dispatch:
+    inputs:
+      snapshot_sha:
+        description: "Data-branch commit to publish (default: data head)"
+        required: false
+        default: ""
+      redeploy_run_id:
+        description: "Previous publish run id whose artifact to redeploy"
+        required: false
+        default: ""
+      full_rebuild:
+        description: "Run full page builders (phase 2, not yet CI-proven)"
+        type: boolean
+        default: false
+  push:
+    branches: [data]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  actions: read
+
+concurrency:
+  group: publish
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      deployed: ${{ steps.outcome.outputs.deployed }}
+      verified: ${{ steps.outcome.outputs.verified }}
+      snapshot_sha: ${{ steps.effective.outputs.snapshot_sha }}
+    steps:
+      - name: Resolve mode
+        id: resolve
+        run: |
+          if [ -n "${{ inputs.redeploy_run_id }}" ]; then
+            echo "mode=redeploy" >> "$GITHUB_OUTPUT"
+          elif [ -n "${{ inputs.snapshot_sha }}" ]; then
+            echo "mode=assemble" >> "$GITHUB_OUTPUT"
+            echo "snapshot_sha=${{ inputs.snapshot_sha }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event_name }}" = "push" ]; then
+            echo "mode=assemble" >> "$GITHUB_OUTPUT"
+            echo "snapshot_sha=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "mode=assemble" >> "$GITHUB_OUTPUT"
+            echo "snapshot_sha=data" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Refuse unproven full rebuild
+        if: inputs.full_rebuild == true
+        run: |
+          echo "full_rebuild requested but page builders are not yet CI-proven"
+          echo "(they need worktrees and archives absent from runners)."
+          echo "Failing fast rather than silently deploying a non-rebuilt tree."
+          echo "See ops/PROGRAM-STATUS.md, P2 phase-2 follow-up."
+          exit 1
+
+      - name: Check out main (tools + pages tree)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: main-tree
+
+      - name: Check out data snapshot
+        if: steps.resolve.outputs.mode == 'assemble'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.resolve.outputs.snapshot_sha }}
+          path: snapshot-tree
+
+      - name: Assemble deploy tree from one snapshot
+        id: assemble
+        if: steps.resolve.outputs.mode == 'assemble'
+        run: |
+          python3 main-tree/tools/publish-assemble.py \
+            --main-dir main-tree \
+            --snapshot-dir snapshot-tree \
+            --out-dir site-tree \
+            --snapshot-sha "$(git -C snapshot-tree rev-parse HEAD)" \
+            --main-sha "$(git -C main-tree rev-parse HEAD)"
+          echo "snapshot_sha=$(git -C snapshot-tree rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Download redeploy artifact
+        if: steps.resolve.outputs.mode == 'redeploy'
+        uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ inputs.redeploy_run_id }}
+          name: publish-site-${{ inputs.redeploy_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: site-tree
+
+      - name: Effective snapshot SHA
+        id: effective
+        run: |
+          if [ "${{ steps.resolve.outputs.mode }}" = "assemble" ]; then
+            echo "snapshot_sha=${{ steps.assemble.outputs.snapshot_sha }}" >> "$GITHUB_OUTPUT"
+          else
+            SHA="$(python3 -c "import json; print(json.load(open('site-tree/data/publish-manifest.json'))['snapshot_sha'])")"
+            echo "snapshot_sha=$SHA" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Render program status page
+        if: steps.resolve.outputs.mode == 'assemble'
+        run: |
+          node main-tree/tools/render-program-status.js \
+            main-tree/ops/PROGRAM-STATUS.md \
+            site-tree/status/program-status.html \
+            "Published from snapshot ${{ steps.effective.outputs.snapshot_sha }}"
+
+      - name: Verify artifact bytes
+        run: |
+          python3 main-tree/tools/publish-verify.py --mode artifact \
+            --artifact-dir site-tree
+
+      - name: Upload proof artifact (always)
+        uses: actions/upload-artifact@v4
+        with:
+          name: publish-site-${{ github.run_id }}
+          path: site-tree
+          if-no-files-found: error
+
+      - name: Detect Pages source
+        id: pages
+        run: |
+          TYPE="$(gh api repos/${{ github.repository }}/pages --jq .build_type 2>/dev/null || echo unknown)"
+          echo "build_type=$TYPE" >> "$GITHUB_OUTPUT"
+          echo "Pages build_type: $TYPE"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Pages artifact (Actions source only)
+        if: steps.pages.outputs.build_type == 'workflow'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site-tree
+
+      - name: Deploy to GitHub Pages (Actions source only)
+        if: steps.pages.outputs.build_type == 'workflow'
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Generate purge URL list (post-flip only)
+        if: steps.pages.outputs.build_type == 'workflow'
+        run: |
+          CNAME="$(gh api repos/${{ github.repository }}/pages --jq .cname 2>/dev/null || echo shirjankhadka.com.np)"
+          python3 - "$CNAME" <<'PYEOF'
+          import json, sys
+          base = "https://" + sys.argv[1]
+          man = json.load(open("site-tree/data/publish-manifest.json"))
+          urls = {base + "/data/publish-manifest.json",
+                  base + "/status/program-status.html"}
+          for entry in man["components"].values():
+              for rel in entry["paths"]:
+                  urls.add(base + "/" + rel)
+          with open("purge-urls.txt", "w") as f:
+              f.write("\n".join(sorted(urls)) + "\n")
+          print(f"purge list: {len(urls)} URLs")
+          PYEOF
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Purge changed URLs (post-flip only)
+        if: steps.pages.outputs.build_type == 'workflow'
+        run: python3 main-tree/tools/publish-purge.py purge-urls.txt
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+
+      - name: Verify production bytes (post-flip only)
+        if: steps.pages.outputs.build_type == 'workflow'
+        run: |
+          python3 main-tree/tools/publish-verify.py --mode live \
+            --artifact-dir site-tree
+
+      - name: Record outcome + summary
+        id: outcome
+        run: |
+          if [ "${{ steps.pages.outputs.build_type }}" = "workflow" ]; then
+            echo "deployed=true" >> "$GITHUB_OUTPUT"
+            echo "verified=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "deployed=false" >> "$GITHUB_OUTPUT"
+            echo "verified=false" >> "$GITHUB_OUTPUT"
+          fi
+          {
+            echo "## Publish summary"
+            echo ""
+            echo "- Snapshot: \`${{ steps.effective.outputs.snapshot_sha }}\`"
+            echo "- Pages build_type: \`${{ steps.pages.outputs.build_type }}\`"
+            if [ "${{ steps.pages.outputs.build_type }}" != "workflow" ]; then
+              echo "- Deploy: SKIPPED (build_type is not 'workflow'; owner Pages flip pending — artifact proven, live proof pending)"
+            else
+              echo "- Deploy: Pages artifact deployed, URLs purged, production bytes verified"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  tag:
+    needs: publish
+    if: needs.publish.outputs.deployed == 'true' && needs.publish.outputs.verified == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Tag the deployed snapshot
+        run: |
+          DATE="$(TZ=Asia/Kathmandu date +%F)"
+          EXISTING="$(gh api repos/${{ github.repository }}/git/matching-refs/tags/data-${DATE}- --jq '.[].ref' 2>/dev/null || true)"
+          N=1
+          for ref in $EXISTING; do
+            SUF="${ref##*-}"
+            if [ "$SUF" -ge "$N" ] 2>/dev/null; then N=$((SUF + 1)); fi
+          done
+          TAG="data-${DATE}-${N}"
+          gh api repos/${{ github.repository }}/git/refs -X POST \
+            -f "ref=refs/tags/${TAG}" \
+            -f "sha=${{ needs.publish.outputs.snapshot_sha }}"
+          echo "Tagged ${TAG} at ${{ needs.publish.outputs.snapshot_sha }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
