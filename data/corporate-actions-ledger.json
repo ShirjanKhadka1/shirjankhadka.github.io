@@ -1,16 +1,38 @@
 {
   "meta": {
-    "built_at_npt": "2026-10-26",
+    "built_at_npt": "2026-10-30",
     "builder": "tools/build-actions-ledger.py",
     "sources": {
-      "corporate_actions_updated": "2026-10-26T13:12:19.889Z",
-      "div_live_asof": "2026-10-22T11:08:01.044Z"
+      "corporate_actions_updated": "2026-10-30T03:13:47.106340Z",
+      "div_live_asof": "2026-10-29T13:19:15.670Z"
     },
-    "items_total": 25,
-    "sessions_total": 13,
+    "items_total": 27,
+    "sessions_total": 15,
     "provenance": "sessions group by ANNOUNCED date; recording_runs group by VERIFIED date reconstructed from verifiedAt; no separate run log exists, so earlier runs are not inventable"
   },
   "sessions": [
+    {
+      "date": "2026-10-29",
+      "count": 1,
+      "items": [
+        {
+          "symbol": "LSL",
+          "kind": "dividend",
+          "headline": "Dividend declaration of Laxmi Sunrise Bank Limited (LSL) [LSL]"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-28",
+      "count": 1,
+      "items": [
+        {
+          "symbol": "SNORL",
+          "kind": "promoter-share",
+          "headline": "End of Lock-In Period of Mutual Fund [SNORL]"
+        }
+      ]
+    },
     {
       "date": "2026-10-26",
       "count": 1,
@@ -197,7 +219,7 @@
       "count": 1,
       "items": [
         {
-          "symbol": "",
+          "symbol": "MBLPNP",
           "kind": "dividend",
           "headline": "Book Closure Date for Cash Dividend of 8.25% Machhapuchchhre Perpetual Non-cumulative Preference Share."
         }
@@ -216,6 +238,20 @@
     }
   ],
   "recording_runs": [
+    {
+      "date": "2026-10-29",
+      "added": [
+        "dividend|LSL"
+      ],
+      "count": 1
+    },
+    {
+      "date": "2026-10-28",
+      "added": [
+        "promoter-share|SNORL"
+      ],
+      "count": 1
+    },
     {
       "date": "2026-10-26",
       "added": [
@@ -304,6 +340,30 @@
   ],
   "items": [
     {
+      "symbol": "LSL",
+      "kind": "dividend",
+      "announced": "2026-10-29",
+      "pdf_date": "2026-10-29",
+      "verified_at": "2026-10-29",
+      "sector": "Banking",
+      "bookclose": "",
+      "bookclose_source": "none",
+      "status_at_build": "Open",
+      "first_closed_date": null
+    },
+    {
+      "symbol": "SNORL",
+      "kind": "promoter-share",
+      "announced": "2026-10-28",
+      "pdf_date": "2026-10-27",
+      "verified_at": "2026-10-28",
+      "sector": "Hydropower",
+      "bookclose": "",
+      "bookclose_source": "none",
+      "status_at_build": null,
+      "first_closed_date": null
+    },
+    {
       "symbol": "VLUCL",
       "kind": "dividend",
       "announced": "2026-10-26",
@@ -384,7 +444,7 @@
       "sector": "Hydropower",
       "bookclose": "2026-10-28",
       "bookclose_source": "div-live",
-      "status_at_build": "Open",
+      "status_at_build": "Closed",
       "first_closed_date": "2026-10-29"
     },
     {
@@ -396,7 +456,7 @@
       "sector": "Hydropower",
       "bookclose": "2026-10-26",
       "bookclose_source": "div-live",
-      "status_at_build": "Open",
+      "status_at_build": "Closed",
       "first_closed_date": "2026-10-27"
     },
     {
@@ -468,7 +528,7 @@
       "sector": "Finance",
       "bookclose": "2026-10-28",
       "bookclose_source": "item",
-      "status_at_build": "Open",
+      "status_at_build": "Closed",
       "first_closed_date": "2026-10-29"
     },
     {
@@ -580,16 +640,16 @@
       "first_closed_date": "2026-09-26"
     },
     {
-      "symbol": "",
+      "symbol": "MBLPNP",
       "kind": "dividend",
       "announced": "2026-09-21",
       "pdf_date": "2026-09-18",
       "verified_at": "2026-09-29",
       "sector": null,
-      "bookclose": "",
-      "bookclose_source": "none",
-      "status_at_build": "Open",
-      "first_closed_date": null
+      "bookclose": "2026-09-28",
+      "bookclose_source": "item",
+      "status_at_build": "Closed",
+      "first_closed_date": "2026-09-29"
     },
     {
       "symbol": "NABIL",
@@ -598,36 +658,18 @@
       "pdf_date": "",
       "verified_at": "2026-10-09",
       "sector": "Banking",
-      "bookclose": "",
-      "bookclose_source": "none",
-      "status_at_build": "Open",
-      "first_closed_date": null
+      "bookclose": "2026-09-30",
+      "bookclose_source": "div-live",
+      "status_at_build": "Closed",
+      "first_closed_date": "2026-10-01"
     }
   ],
   "upcoming_closes": [
     {
-      "symbol": "MEN",
-      "kind": "dividend",
-      "bookclose": "2026-10-26",
-      "days_from_build": 0
-    },
-    {
-      "symbol": "BARUN",
-      "kind": "dividend",
-      "bookclose": "2026-10-28",
-      "days_from_build": 2
-    },
-    {
-      "symbol": "MFIL",
-      "kind": "dividend",
-      "bookclose": "2026-10-28",
-      "days_from_build": 2
-    },
-    {
       "symbol": "VLUCL",
       "kind": "dividend",
       "bookclose": "2026-11-02",
-      "days_from_build": 7
+      "days_from_build": 3
     }
   ],
   "data_notes": [
@@ -648,11 +690,6 @@
     },
     {
       "level": "WARN",
-      "item": "- 2026-09-21",
-      "message": "no div-live record; card renders figure-less"
-    },
-    {
-      "level": "WARN",
       "item": "NABIL 2026-09-07",
       "message": "no official PDF link (backfilled item)"
     }
@@ -662,6 +699,13 @@
       "run_date": "2026-10-26",
       "input_hash": "5821c946ef55",
       "items_total": 25,
+      "verifier": "pass",
+      "page_rebuilt": true
+    },
+    {
+      "run_date": "2026-10-30",
+      "input_hash": "e4b4d112c9a4",
+      "items_total": 27,
       "verifier": "pass",
       "page_rebuilt": true
     }
