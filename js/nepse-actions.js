@@ -106,6 +106,10 @@
   function statusOf(it) {
     var k = String(it.kind || '');
     if (k !== 'dividend' && k !== 'bonus-share' && k !== 'right-share') return null;
+    /* Decided-not-to-distribute (e.g. SMFBS FY 2082/83): no dividend exists,
+       hence no book-close date will ever arrive — Closed by decision, never
+       Open on a missing book-close. */
+    if (it.outcome === 'not_distributed') return 'Closed';
     var today = nptToday(), bc = divBookclose(it);
     if (/^\d{4}-\d{2}-\d{2}$/.test(bc)) return bc < today ? 'Closed' : 'Open';
     var ann = /^(\d{4}-\d{2}-\d{2})/.exec(String(it.announced || ''));
@@ -184,6 +188,9 @@
       ? '<span class="na-status ' + (st === 'Open' ? 'is-open' : 'is-closed') +
         '" data-bc="' + esc(divBookclose(it)) + '" data-ann="' + esc(String(it.announced || '').slice(0, 10)) + '">' + st + '</span>'
       : '';
+    var note = it.outcome === 'not_distributed'
+      ? '<p class="na-note">Board decided not to distribute a dividend' + (it.fiscal_year ? ' for FY ' + esc(it.fiscal_year) : '') + '.</p>'
+      : '';
     var facts = '';
     if (it.facts && typeof it.facts === 'object') {
       var rows = [];
@@ -199,7 +206,7 @@
     return '<article class="na-card" data-kind="' + esc(kk) + '" data-sym="' + esc(String(it.symbol || '').toLowerCase()) + '" data-year="' + esc(String(it.announced || '').slice(0, 4)) + '">' +
       '<div class="na-top"><span class="na-kind k-' + esc(kk) + '">' + esc(kind) + '</span>' +
       symChip(it.symbol) + status + '</div>' +
-      '<h3 class="na-head">' + esc(it.headline) + '</h3>' + figuresHTML(it) + facts +
+      '<h3 class="na-head">' + esc(it.headline) + '</h3>' + figuresHTML(it) + facts + note +
       '<p class="na-meta">' + (it.company ? esc(it.company) + dot : '') +
       (it.announced ? 'Announced ' + fmtDate(it.announced) + dot : '') +
       (it.officialPdf ? '<a href="' + esc(it.officialPdf) + '" rel="noopener" target="_blank">Official NEPSE PDF ↗</a>' : '') + '</p></article>';
@@ -389,7 +396,7 @@
   function signature() {
     var key = items.map(function (it) {
       return [it.storyKey || '', it.kind || '', it.symbol || '', it.announced || '',
-        it.headline || '', it.bookclose_date || ''].join('~');
+        it.headline || '', it.bookclose_date || '', it.outcome || ''].join('~');
     }).join('\n');
     var divKey = '';
     if (DIV) {
