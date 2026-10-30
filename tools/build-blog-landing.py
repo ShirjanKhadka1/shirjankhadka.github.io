@@ -124,7 +124,7 @@ def main():
     title = "Market Wrap | Nepse Decode — NEPSE analysis, company research & Nepali economy"
     desc = ("Nepse Decode's market wrap: NEPSE company analyses, market explainers and "
             "Nepali economy breakdowns with real data and cited sources, newest first.")
-    og_image = feat.get("image") or "https://shirjankhadka.com.np/assets/images/blog/hlbsl-company-analysis.jpg"
+    og_image = "https://shirjankhadka.com.np/assets/images/og/blog.png"
 
     itemlist = ",\n".join(
         f'    {{"@type": "ListItem", "position": {i + 1}, "url": "https://shirjankhadka.com.np/blog/{esc(a["slug"])}/", "headline": {json.dumps(a["title"])}}}'
