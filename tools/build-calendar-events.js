@@ -201,7 +201,10 @@ const divLive = load(path.join(ROOT, 'nepse-chart', 'data', 'div-live.json'), { 
 for (const [sym, entries] of Object.entries(divLive.companies || {})) {
   for (const e of entries) {
     const total = e.total_dividend;
-    if (e.announcement_date) {
+    /* A proposal later withdrawn/amended to no dividend is not a dividend
+     * event: the stock-page row carries the full story; the calendar must
+     * not imply a dividend is coming. */
+    if (e.announcement_date && e.outcome !== 'not_distributed') {
       add({
         date_ad: e.announcement_date, type: 'dividend',
         title: `${sym} — dividend proposed: ${total}% (FY ${e.year})`,
