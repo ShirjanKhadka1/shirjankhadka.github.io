@@ -844,3 +844,16 @@ body[data-page="verdicts-v2"]{ font-family:var(--nd-font-sans); }
   .v3-card.lg .v3-reason{ grid-area:reason; }
   .v2-trendrow{ grid-template-columns:88px 1fr 40px; }
 }
+
+/* ---- Sticky radar header (2026-10-30) ----
+   .v3-thead is position:sticky; top:70px, but it never stuck: the
+   board wrapper #v2TableWrap shares its class with the evidence-table
+   wrappers, and the later .v2-tablewrap rule (overflow-x:auto, for
+   wide evidence tables) overrode the board rule's overflow:visible.
+   A scroll container ancestor pins a sticky element to its own box,
+   so the thead scrolled away with the page and card rows slid under
+   the sticky site chrome instead of under the header. The ID rule
+   below restores overflow:visible for the board wrapper ONLY (evidence
+   wrappers keep overflow-x:auto); the thead then sticks at 70px, 9px
+   below the 61px site chrome, and rows pass beneath its opaque bar. */
+#v2TableWrap { overflow: visible; }

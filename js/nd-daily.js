@@ -506,7 +506,10 @@
     var bar = $('dsTopScroll'), inner = $('dsTopScrollInner'), wrap = tableWrap();
     if (!bar || !inner || !wrap) return;
     inner.style.width = wrap.scrollWidth + 'px';
-    bar.style.display = (wrap.scrollWidth > wrap.clientWidth + 1) ? 'block' : 'none';
+    var overflowing = wrap.scrollWidth > wrap.clientWidth + 1;
+    bar.style.display = overflowing ? 'block' : 'none';
+    var card = document.querySelector('section.ds-table-card');
+    if (card) card.classList.toggle('ds-can-scroll', overflowing);
     if (bar.scrollLeft !== wrap.scrollLeft) bar.scrollLeft = wrap.scrollLeft;
   }
   function wireTopScroll() {
