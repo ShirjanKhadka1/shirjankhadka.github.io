@@ -45,6 +45,15 @@ function main() {
     year,
     officialPdf: String(r.officialPdf || ''),
   };
+  /* Optional outcome fields, stored only when non-empty so ordinary records
+   * stay byte-identical in shape: fiscal_year (richness for the page merge),
+   * outcome=not_distributed for a proposal later withdrawn/amended to no
+   * dividend, and a human-readable note rendered in place of a book close
+   * date (which never existed for such rows). */
+  for (const k of ['fiscal_year', 'outcome', 'note']) {
+    const v = String(r[k] || '').trim();
+    if (v) rec[k] = v;
+  }
   const key = [year, Number(rec.bonus_share) || 0, Number(rec.cash_dividend) || 0].join('|');
   let db = { asof: '', companies: {} };
   try { db = JSON.parse(fs.readFileSync(FILE, 'utf8')); } catch { /* first run */ }
