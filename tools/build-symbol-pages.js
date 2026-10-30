@@ -282,13 +282,14 @@ SP_ABOUT_CSS +
 '.sp-session{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 45%),var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);border-radius:var(--nd-r-card);padding:14px 18px;margin:var(--nd-s5) 0;box-shadow:var(--nd-rim),var(--nd-e1);font-size:.85rem}\n' +
 '.sp-session-l{font-family:var(--nd-font-display,Georgia,serif);font-size:1.05rem;font-weight:700;color:var(--nd-text,#fff)}\n' +
 '.sp-session-t{color:var(--nd-dim,#8E98A8)}\n' +
-'.sp-chip{display:inline-block;padding:4px 10px;border-radius:var(--nd-r-pill);font-size:.75rem;font-weight:700;letter-spacing:.06em;background:var(--nd-panel2,#1A1E26);border:1px solid var(--nd-border,#1E2430);color:var(--nd-muted,#B8C0CE)}\n' +
+'.sp-chip{display:inline-block;padding:4px 10px;border-radius:var(--nd-r-pill);font-size:.75rem;font-weight:700;letter-spacing:.06em;background:var(--nd-panel-2);border:1px solid var(--nd-border,#1E2430);color:var(--nd-muted,#B8C0CE)}\n' +
 '.sp-chip-stale{background:rgba(255,176,32,.14);border-color:#FFB020;color:#FFB020}\n' +
+'[data-theme="light"] .sp-chip-stale{background:rgba(217,119,6,.12);border-color:#D97706;color:#92400E}\n' +
 /* sector-stocks block: full sector table + controls + pager */
 '.sp-secblock{margin:var(--nd-s6) 0}\n' +
 '.sp-sec-controls{display:flex;gap:12px;flex-wrap:wrap;margin:0 0 14px}\n' +
 '.sp-sec-controls label{font-size:.85rem;color:var(--nd-dim,#8E98A8);display:flex;align-items:center;gap:8px}\n' +
-'.sp-sec-q,.sp-sec-sort{min-height:48px;padding:0 12px;border-radius:var(--nd-r-md);background:var(--nd-panel2,#1A1E26);border:1px solid var(--nd-border,#1E2430);color:var(--nd-text,#fff);font-size:.9rem}\n' +
+'.sp-sec-q,.sp-sec-sort{min-height:48px;padding:0 12px;border-radius:var(--nd-r-md);background:var(--nd-panel-2);border:1px solid var(--nd-border,#1E2430);color:var(--nd-text,#fff);font-size:.9rem}\n' +
 '.sp-sec-q:focus,.sp-sec-sort:focus{outline:none;border-color:var(--nd-lime,#B8E62E);box-shadow:0 0 0 3px rgba(184,230,46,.25)}\n' +
 '.sp-table-wrap{overflow-x:auto;border:1px solid var(--nd-border,#1E2430);border-radius:var(--nd-r-card);background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 45%),var(--nd-panel,#12141A);box-shadow:var(--nd-rim),var(--nd-e1)}\n' +
 '.sp-peer-table{width:100%;border-collapse:collapse;font-size:.9rem}\n' +
@@ -301,14 +302,14 @@ SP_ABOUT_CSS +
 '.sp-peer-table .neg{color:var(--nd-down,#F87171)}\n' +
 '.sp-pager{display:flex;gap:10px;align-items:center;justify-content:flex-end;margin-top:12px}\n' +
 '.sp-pager-info{font-size:.85rem;color:var(--nd-dim,#8E98A8)}\n' +
-'.sp-pager-prev,.sp-pager-next{min-height:48px;padding:0 18px;border-radius:var(--nd-r-pill);border:1px solid var(--nd-border,#1E2430);background:var(--nd-panel2,#1A1E26);color:var(--nd-text,#fff);font-weight:700;cursor:pointer}\n' +
+'.sp-pager-prev,.sp-pager-next{min-height:48px;padding:0 18px;border-radius:var(--nd-r-pill);border:1px solid var(--nd-border,#1E2430);background:var(--nd-panel-2);color:var(--nd-text,#fff);font-weight:700;cursor:pointer}\n' +
 '.sp-pager-next{background:var(--nd-lime,#B8E62E);border-color:var(--nd-lime,#B8E62E);color:#0A0C10}\n' +
 '.sp-pager-prev:disabled,.sp-pager-next:disabled{opacity:.45;cursor:default}\n' +
 '.sp-pager-prev:focus-visible,.sp-pager-next:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(184,230,46,.35)}\n' +
 /* valuation context: paired company-vs-median bars */
 '.sp-val-row{margin:0 0 14px}\n' +
 '.sp-val-row b{display:block;font-size:.9rem;margin-bottom:6px}\n' +
-'.sp-val-bar{height:12px;border-radius:6px;background:var(--nd-panel2,#1A1E26);overflow:hidden;margin:4px 0}\n' +
+'.sp-val-bar{height:12px;border-radius:6px;background:var(--nd-panel-2);overflow:hidden;margin:4px 0}\n' +
 '.sp-val-fill{display:block;height:100%;background:var(--nd-lime,#B8E62E)}\n' +
 '.sp-val-fill.dim{background:var(--nd-dim,#8E98A8)}\n' +
 '.sp-val-lab{font-size:.8rem;color:var(--nd-dim,#8E98A8)}\n' +
@@ -1033,17 +1034,23 @@ function investmentCalendarCard(sym, name, hist) {
       const bcMarkedClosed = /\[closed\]/i.test(bcRaw);
       const bcDisp = bcRaw.replace(/\s*\[closed\]/i, '').trim();
       const bcIso = ((/^(\d{4}-\d{2}-\d{2})/.exec(bcDisp) || [])[1]) || '';
+      /* Withdrawn proposal (outcome=not_distributed, same vocabulary as the
+       * actions page): no book close ever existed, so never a guessed date —
+       * the row renders Closed with the reason in place of a date. */
+      const withdrawn = String(d.outcome || '') === 'not_distributed';
+      const withdrawNote = stripTags(d.note || '');
+      const bcCell = withdrawn ? (withdrawNote || 'Proposal withdrawn — no dividend') : (bcDisp || '–');
       const fy = String(d.year || d.fiscal_year || '');
       const annRaw = stripTags(d.announcement_date || d.announced || '');
       const annIso = ((/^(\d{4}-\d{2}-\d{2})/.exec(annRaw) || [])[1]) || '';
       h += '<tr><td>' + esc(bonus === '–' ? '–' : bonus + ' %') + '</td>' +
         '<td>' + esc(cash === '–' ? '–' : cash + ' %') + '</td>' +
         '<td>' + esc(total === '–' ? '–' : total + ' %') + '</td>' +
-        '<td>' + esc(bcDisp || '–') + '</td>' +
+        '<td>' + esc(bcCell) + '</td>' +
         '<td>' + esc(fy || '–') + '</td>' +
         '<td><span class="inv-cal-divstatus" data-bc="' + esc(bcIso) + '"' +
         (annIso ? ' data-ann="' + esc(annIso) + '"' : '') +
-        (bcMarkedClosed ? ' data-closed="1"' : '') + '></span></td></tr>\n';
+        (bcMarkedClosed || withdrawn ? ' data-closed="1"' : '') + '></span></td></tr>\n';
     }
     h += '</tbody></table></div>\n';
   } else {
