@@ -134,13 +134,42 @@
     if (st) return st === 'OPEN' && live.market === 'OPEN' && snapshotFresh(live);
     return live.market === 'OPEN' && snapshotFresh(live);
   }
-  // " · as of HH:MM" suffix for non-live labels, or '' when no time.
-  function asOfSuffix(live) {
+  // True when the snapshot belongs to today's NPT session. A pill label
+  // (PRE-OPEN/OPEN/CLOSED) describes TODAY's clock, so a bare "as of
+  // HH:MM" is only unambiguous when the snapshot is from today too.
+  function snapshotIsToday(live) {
+    try { return nptDayStr(getSessionDate(live)) === nptDayStr(new Date()); }
+    catch (e) { return false; }
+  }
+  // Snapshot session date "29 Oct" (NPT), or '' when unparseable.
+  function snapshotDateShort(live) {
+    try { return getSessionDate(live).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'Asia/Kathmandu' }); }
+    catch (e) { return ''; }
+  }
+  // Snapshot time label with no leading bullet: "as of HH:MM" for today's
+  // session; for an older session the date rides with the time ("last
+  // close 29 Oct, 15:00" when the snapshot really is a close, else
+  // "as of 29 Oct, HH:MM"), so the time can never be read as today's.
+  function snapshotTimeLabel(live) {
     var t = tapeHHMM(live);
-    return t ? ' · as of ' + t : '';
+    if (!t) return '';
+    if (snapshotIsToday(live)) return 'as of ' + t;
+    var d = snapshotDateShort(live);
+    if (!d) return 'as of ' + t;
+    if (live && (live.close === true || live.market === 'CLOSED')) return 'last close ' + d + ', ' + t;
+    return 'as of ' + d + ', ' + t;
+  }
+  // " · as of HH:MM" suffix for non-live labels, or '' when no time.
+  // Cross-session, the suffix carries the snapshot's date (see above).
+  function asOfSuffix(live) {
+    var lbl = snapshotTimeLabel(live);
+    return lbl ? ' · ' + lbl : '';
   }
   // Hero pill: OPEN only when genuinely live; otherwise the clock state
-  // plus the snapshot time.
+  // plus the snapshot time — dated when the snapshot is not today's, so
+  // a session label is never paired with another session's bare time
+  // (the old form read "PRE-OPEN · as of 15:00" on a morning whose tape
+  // was yesterday's final close).
   function heroPillText(live) {
     if (isLiveSnapshot(live)) return 'OPEN';
     return displayClock(live) + asOfSuffix(live);
@@ -271,12 +300,12 @@
 
     // Wrap pill: LIVE only when genuinely live; otherwise the closed/final
     // wording (clock CLOSED) or the snapshot time (clock OPEN/PRE-OPEN
-    // with a stale tape) — never LIVE on old data, and never contradicting
-    // the hero pill on the same render.
+    // with a stale tape) — dated when the snapshot is not today's, and
+    // never contradicting the hero pill on the same render.
     var wrapPill;
     if (isLive) wrapPill = chg > 0 ? '▲ LIVE' : chg < 0 ? '▼ LIVE' : '· LIVE';
     else if (displayClock(live) === 'CLOSED') wrapPill = (chg > 0 ? '▲ GREEN CLOSE' : chg < 0 ? '▼ RED CLOSE' : '· FLAT CLOSE') + asOfSuffix(live);
-    else { var wt = tapeHHMM(live); wrapPill = (chg > 0 ? '▲' : chg < 0 ? '▼' : '·') + ' AS OF' + (wt ? ' ' + wt : ''); }
+    else { var wl = snapshotTimeLabel(live); wrapPill = (chg > 0 ? '▲' : chg < 0 ? '▼' : '·') + (wl ? ' ' + wl.toUpperCase() : ''); }
 
     host.innerHTML =
       '<div class="nd-badges">' +
