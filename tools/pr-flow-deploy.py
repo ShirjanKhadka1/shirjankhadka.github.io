@@ -121,12 +121,15 @@ import subprocess
 import sys
 import time
 
-sys.path.insert(0, "/opt/muse/skills/custom-connector-setup/bin")
-import dynamic_credentials  # noqa: F401  (pin known-good module: gh_api
-# inserts a templates path that lacks it, so resolve it first or the
-# import fails whenever PYTHONPATH is unset, e.g. under cron runners)
-sys.path.insert(0, "/home/hatch/workspace/custom-connectors/custom.legacy-github/bin")
-from gh_api import api  # noqa: E402  (surrogate-authenticated, custom.github)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Shared logging client (P0): same api(method, path, data) signature as
+# the old gh_api import, but every request is logged (method, path,
+# step, attempt, status, truncated body, request id, rate-limit
+# headers) and 4xx failures carry the response body in the exception
+# instead of a bare "HTTP Error 422". gh_client pins the
+# dynamic_credentials surrogate itself; the old gh_api templates-path
+# trap (see the removed comment) no longer applies.
+from gh_client import api  # noqa: E402
 
 REPO = "ShirjanKhadka1/shirjankhadka.github.io"
 OWNER = "ShirjanKhadka1"
@@ -164,7 +167,7 @@ def git_out(args, cwd):
 
 
 def gh(method, path, data=None):
-    return api(method, f"/repos/{REPO}{path}", data)
+    return api(method, f"/repos/{REPO}{path}", data, step="pr-flow")
 
 
 def main_branch_tip():
