@@ -9,6 +9,10 @@
 # artifacts); every other gate is hard.
 # Artifacts: smoke report, axe results, link-check log, visual diffs,
 # lighthouse reports (3 runs/page, median).
+#
+# SPEED (gate-rules 2026-10-30, no check dropped, job name unchanged):
+# npm cache + Playwright browser cache + 3-lane Lighthouse. Expected
+# quality ~15 min -> ~8-9 min; measured on this PR's own check runs.
 
 name: CI quality gates
 
@@ -57,10 +61,22 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '20'
+          # Caches ~/.npm: npm ci (~1-2 min) -> seconds on hit, and warms
+          # the npx cache so the lighthouse@12 download below is cached too.
+          cache: 'npm'
+          cache-dependency-path: 'tests/package-lock.json'
 
       - name: Install test deps
         working-directory: tests
         run: npm ci
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.cache/ms-playwright
+          # Pinned to the Playwright version in tests/package.json; bump
+          # this key whenever that version changes, or stale browsers linger.
+          key: playwright-1.63.0-${{ runner.os }}-chromium
 
       - name: Install Playwright Chromium
         working-directory: tests
@@ -90,7 +106,8 @@ jobs:
       - name: Lighthouse (mobile, 3 runs per URL)
         run: |
           mkdir -p lhci-out
-          for page in "" "nepse-decode/" "nepse-chart/" "nepse-screener/" "nepse-trending/" "nepse-value/" "nepse-brokers/" "blog/"; do
+          run_page() {
+            page="$1"
             slug=$(echo "$page" | tr '/' '_' | sed 's/_$//'); [ -z "$slug" ] && slug=home
             for i in 1 2 3; do
               ok=false
@@ -105,7 +122,18 @@ jobs:
               done
               if [ "$ok" != "true" ]; then echo "::error::lighthouse failed twice for $page"; exit 1; fi
             done
+          }
+          # 3 lanes: 8 pages x 3 runs each, same per-page runs, same retry
+          # loop, same output filenames (the summary step below reads them
+          # exactly as before). Budgets are warn-level in this job, so CPU
+          # inflation from parallel runs cannot fail the run; the retry
+          # loop covers crash flakes. Sequential Lighthouse wall ~10 min
+          # -> ~3.5 min at 3 lanes.
+          for page in "" "nepse-decode/" "nepse-chart/" "nepse-screener/" "nepse-trending/" "nepse-value/" "nepse-brokers/" "blog/"; do
+            run_page "$page" &
+            while [ "$(jobs -r | wc -l)" -ge 3 ]; do wait -n; done
           done
+          wait
 
       - name: Summarize Lighthouse medians (budgets WARN-level)
         run: |
