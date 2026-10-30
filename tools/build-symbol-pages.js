@@ -1033,17 +1033,23 @@ function investmentCalendarCard(sym, name, hist) {
       const bcMarkedClosed = /\[closed\]/i.test(bcRaw);
       const bcDisp = bcRaw.replace(/\s*\[closed\]/i, '').trim();
       const bcIso = ((/^(\d{4}-\d{2}-\d{2})/.exec(bcDisp) || [])[1]) || '';
+      /* Withdrawn proposal (outcome=not_distributed, same vocabulary as the
+       * actions page): no book close ever existed, so never a guessed date —
+       * the row renders Closed with the reason in place of a date. */
+      const withdrawn = String(d.outcome || '') === 'not_distributed';
+      const withdrawNote = stripTags(d.note || '');
+      const bcCell = withdrawn ? (withdrawNote || 'Proposal withdrawn — no dividend') : (bcDisp || '–');
       const fy = String(d.year || d.fiscal_year || '');
       const annRaw = stripTags(d.announcement_date || d.announced || '');
       const annIso = ((/^(\d{4}-\d{2}-\d{2})/.exec(annRaw) || [])[1]) || '';
       h += '<tr><td>' + esc(bonus === '–' ? '–' : bonus + ' %') + '</td>' +
         '<td>' + esc(cash === '–' ? '–' : cash + ' %') + '</td>' +
         '<td>' + esc(total === '–' ? '–' : total + ' %') + '</td>' +
-        '<td>' + esc(bcDisp || '–') + '</td>' +
+        '<td>' + esc(bcCell) + '</td>' +
         '<td>' + esc(fy || '–') + '</td>' +
         '<td><span class="inv-cal-divstatus" data-bc="' + esc(bcIso) + '"' +
         (annIso ? ' data-ann="' + esc(annIso) + '"' : '') +
-        (bcMarkedClosed ? ' data-closed="1"' : '') + '></span></td></tr>\n';
+        (bcMarkedClosed || withdrawn ? ' data-closed="1"' : '') + '></span></td></tr>\n';
     }
     h += '</tbody></table></div>\n';
   } else {
