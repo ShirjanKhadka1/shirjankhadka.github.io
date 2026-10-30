@@ -931,7 +931,7 @@
     el.textContent = 'Session ' + sessDate + ' · tape ' + (tapeTime || '—') + ' · checked ' + nptTime(now) +
       ' · next check ' + nptTime(next) + ' · ' + state +
       (lastTickFailed ? ' · last data check failed — showing last good session' : '') +
-      ' · refreshes every 60s when data changes';
+      ' · page checks every 60s · market data collected every 15 min during trading hours';
   }
 
   /* ---------- 60s change-gated refresh ---------- */
