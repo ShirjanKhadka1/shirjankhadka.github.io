@@ -50,8 +50,8 @@
 <h2>1. Data</h2>
 <ul>
 <li><strong>Source:</strong> daily OHLCV per NEPSE symbol — historical bars from the open <code>samirwagle/Nepse-All-Scraper</code> dataset (MIT licence), with the most recent sessions overlaid from our own NEPSE feed. No fabricated bars.</li>
-<li><strong>Universe:</strong> every symbol with ≥ 250 valid sessions (<span id="m-symbols">316</span> symbols in the latest build). Symbols whose data ends more than 90 days before the newest bar are excluded as stale/delisted.</li>
-<li><strong>Sample period:</strong> <span id="m-window">2024-09-01 → 2026-10-28</span> (<span id="m-window-yrs">≈ 2.2</span> years) — the published backtest window, filled from the live data below. Individual symbols start later; signals are evaluated from each symbol's 61st bar.</li>
+<li><strong>Universe:</strong> every symbol with ≥ 250 valid sessions (<span id="m-symbols">315</span> symbols in the latest build). Symbols whose data ends more than 90 days before the newest bar are excluded as stale/delisted.</li>
+<li><strong>Sample period:</strong> <span id="m-window">2024-09-01 → 2026-10-30</span> (<span id="m-window-yrs">≈ 2.2</span> years) — the published backtest window, filled from the live data below. Individual symbols start later; signals are evaluated from each symbol's 61st bar.</li>
 <li><strong>Cash dividends are not received</strong> in the simulation — a stated limitation that slightly understates high-dividend stocks.</li>
 </ul>
 
@@ -99,7 +99,7 @@
 </ul>
 
 <h2>8. How each statistic is calculated</h2>
-<p>Let <code>V0 = Rs 1 Cr</code>, <code>Vf</code> = final portfolio value (<strong>cash + open positions at last close − exit costs</strong>), <code>T</code> = <span id="m-T">2.15</span> years (the published backtest window, filled from the live data below).</p>
+<p>Let <code>V0 = Rs 1 Cr</code>, <code>Vf</code> = final portfolio value (<strong>cash + open positions at last close − exit costs</strong>), <code>T</code> = <span id="m-T">2.16</span> years (the published backtest window, filled from the live data below).</p>
 <div class="nd-tablewrap"><table class="nd-table">
 <tr><th>Figure</th><th>Formula</th></tr>
 <tr><td>Total return %</td><td><code>(Vf − V0) / V0 × 100</code></td></tr>
