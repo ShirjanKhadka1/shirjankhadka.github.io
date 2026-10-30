@@ -3,14 +3,25 @@
     "built_at_npt": "2026-10-30",
     "builder": "tools/build-actions-ledger.py",
     "sources": {
-      "corporate_actions_updated": "2026-10-30T03:13:47.106340Z",
+      "corporate_actions_updated": "2026-10-30T07:54:49.000Z",
       "div_live_asof": "2026-10-29T13:19:15.670Z"
     },
-    "items_total": 27,
-    "sessions_total": 15,
+    "items_total": 28,
+    "sessions_total": 16,
     "provenance": "sessions group by ANNOUNCED date; recording_runs group by VERIFIED date reconstructed from verifiedAt; no separate run log exists, so earlier runs are not inventable"
   },
   "sessions": [
+    {
+      "date": "2026-10-30",
+      "count": 1,
+      "items": [
+        {
+          "symbol": "SMFBS",
+          "kind": "right-share",
+          "headline": "Right Share Proposal 1:1 [SMFBS]"
+        }
+      ]
+    },
     {
       "date": "2026-10-29",
       "count": 1,
@@ -239,6 +250,13 @@
   ],
   "recording_runs": [
     {
+      "date": "2026-10-30",
+      "added": [
+        "right-share|SMFBS"
+      ],
+      "count": 1
+    },
+    {
       "date": "2026-10-29",
       "added": [
         "dividend|LSL"
@@ -339,6 +357,18 @@
     }
   ],
   "items": [
+    {
+      "symbol": "SMFBS",
+      "kind": "right-share",
+      "announced": "2026-10-30",
+      "pdf_date": "2026-10-30",
+      "verified_at": "2026-10-30",
+      "sector": "Microfinance",
+      "bookclose": "2026-11-06",
+      "bookclose_source": "item",
+      "status_at_build": "Open",
+      "first_closed_date": "2026-11-07"
+    },
     {
       "symbol": "LSL",
       "kind": "dividend",
@@ -670,6 +700,12 @@
       "kind": "dividend",
       "bookclose": "2026-11-02",
       "days_from_build": 3
+    },
+    {
+      "symbol": "SMFBS",
+      "kind": "right-share",
+      "bookclose": "2026-11-06",
+      "days_from_build": 7
     }
   ],
   "data_notes": [
@@ -715,6 +751,13 @@
       "items_total": 27,
       "verifier": "skip",
       "page_rebuilt": true
+    },
+    {
+      "run_date": "2026-10-30",
+      "input_hash": "83fd86caa486",
+      "items_total": 28,
+      "verifier": "skip",
+      "page_rebuilt": false
     }
   ]
 }
