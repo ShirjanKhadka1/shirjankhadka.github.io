@@ -242,9 +242,34 @@ jobs:
           for entry in man["components"].values():
               for rel in entry["paths"]:
                   urls.add(base + "/" + rel)
-          with open("purge-urls.txt", "w") as f:
-              f.write("\n".join(sorted(urls)) + "\n")
-          print(f"purge list: {len(urls)} URLs")
+                  # CHARTER v3 P0: purge EVERY variant users fetch.
+                  # A directory index is fetched as /dir/index.html
+                  # (the deployed file), as /dir/ (the directory URL
+                  # that serves it), and as /dir (the no-slash URL,
+                  # which redirects to /dir/ — and the redirect itself
+                  # can be cached). Purging only the file URL leaves
+                  # the directory variants stale on their nodes — the
+                  # artifact-proved failure mode (nepse-actions/).
+                  if rel == "index.html":
+                      urls.add(base + "/")
+                      urls.add(base)
+                  elif rel.endswith("/index.html"):
+                      d = base + "/" + rel[: -len("index.html")]
+                      urls.add(d)            # trailing-slash variant
+                      urls.add(d.rstrip("/"))  # no-slash variant
+          # CHARTER v3 P0: when the expanded list is large, purge
+          # everything instead of hundreds of per-URL calls. The
+          # marker is consumed by tools/publish-purge.py. Normal
+          # manifest lists are ~70 URLs, well under the threshold.
+          if len(urls) > 100:
+              with open("purge-urls.txt", "w") as f:
+                  f.write("PURGE_EVERYTHING\n")
+              print(f"purge list: PURGE_EVERYTHING ({len(urls)} URLs "
+                    f"exceeded threshold 100)")
+          else:
+              with open("purge-urls.txt", "w") as f:
+                  f.write("\n".join(sorted(urls)) + "\n")
+              print(f"purge list: {len(urls)} URLs (variants expanded)")
           PYEOF
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

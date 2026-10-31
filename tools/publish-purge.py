@@ -9,6 +9,12 @@ purge discipline). Credentials come from the environment:
 the sandbox's connector token is NOT available inside CI, so the
 workflow fails loudly — not silently stale — when they are absent).
 
+If the file contains exactly one line, `PURGE_EVERYTHING`, the whole
+zone cache is purged instead (CHARTER v3 P0: the fallback when the
+changed-URL list is large — the publish workflow emits this marker
+when the expanded list exceeds its threshold, instead of hundreds
+of per-URL calls).
+
 Exit 0 only when every batch reports success. Exit 1 otherwise,
 printing the failing batch's response (the alert body).
 """
@@ -18,8 +24,8 @@ import sys
 import urllib.request
 
 
-def purge_batch(urls, token, zone):
-    body = json.dumps({"files": urls}).encode()
+def post_purge(payload, token, zone):
+    body = json.dumps(payload).encode()
     req = urllib.request.Request(
         f"https://api.cloudflare.com/client/v4/zones/{zone}/purge_cache",
         method="POST", data=body, headers={
@@ -33,6 +39,10 @@ def purge_batch(urls, token, zone):
             return e.code, json.loads(e.read().decode())
         except ValueError:
             return e.code, {"raw": "unparsable"}
+
+
+def purge_batch(urls, token, zone):
+    return post_purge({"files": urls}, token, zone)
 
 
 def main():
@@ -53,6 +63,17 @@ def main():
     urls = sorted(set(urls))
     if not urls:
         print("publish-purge: nothing to purge", flush=True)
+        return 0
+    if urls == ["PURGE_EVERYTHING"]:
+        status, body = post_purge({"purge_everything": True}, token, zone)
+        ok = status == 200 and body.get("success") is True
+        print(f"publish-purge: purge_everything -> {status} "
+              f"success={body.get('success')}", flush=True)
+        if not ok:
+            print(f"publish-purge: FAIL purge_everything -> "
+                  f"{json.dumps(body)[:400]}", flush=True)
+            return 1
+        print("publish-purge: OK purge_everything", flush=True)
         return 0
     failed = []
     for i in range(0, len(urls), 30):
