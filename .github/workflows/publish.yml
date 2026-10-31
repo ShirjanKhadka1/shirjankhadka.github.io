@@ -165,7 +165,8 @@ jobs:
       - name: Verify artifact bytes
         run: |
           python3 main-tree/tools/publish-verify.py --mode artifact \
-            --artifact-dir site-tree
+            --artifact-dir site-tree \
+            --report-path publish-verify-report.json
 
       - name: Upload proof artifact (always)
         uses: actions/upload-artifact@v4
@@ -223,9 +224,25 @@ jobs:
 
       - name: Verify production bytes (post-flip only)
         if: steps.pages.outputs.build_type == 'workflow'
+        id: verify_live
         run: |
           python3 main-tree/tools/publish-verify.py --mode live \
-            --artifact-dir site-tree
+            --artifact-dir site-tree \
+            --report-path publish-verify-report.json
+
+      - name: Upload verify report (on verify failure)
+        # The verify step's stdout is only readable with admin log
+        # access; the report file carries the same failure detail
+        # (every checked path + the exact failing field) and is
+        # retrievable via the artifacts API instead. Scoped to the
+        # verify step itself: if an earlier step failed, verify was
+        # skipped and there is no report to upload.
+        if: failure() && steps.verify_live.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: publish-verify-report-${{ github.run_id }}
+          path: publish-verify-report.json
+          if-no-files-found: warn
 
       - name: Record outcome + summary
         id: outcome
