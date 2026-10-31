@@ -1,0 +1,92 @@
+# Retention policy for the NEPSE Decode rolling data window (Phase A).
+#
+# WINDOW — RESOLVED by user decision 2026-10-31: window_years=3 is
+# CONFIRMED (window starts 2023-10-31 on 2026-10-31, 2023-11-01 on
+# 2026-11-01). The charters' example dates (2024-10-31) were wrong.
+#
+# PER-DATASET ACTUAL START (user decision 2026-10-31): the planner
+# reports window_start per dataset as max(formula window_start, first
+# real date in that dataset's rows). A dataset with shorter history
+# (e.g. floorsheet/broker since 2026-07-15) starts at its first real
+# date. The UI line must show each dataset's ACTUAL start per dataset
+# — never the formula date alone.
+#
+# PHASE B GATE (user decision 2026-10-31, HARD, fail safe): live mode
+# rolls ONLY datasets explicitly marked `phase_b: allowed` below.
+# Every other value (including `pending`) is REFUSED by the workflow's
+# live-mode phase-b-gate step. No live roll or cron until GATE A
+# (including the restore test) AND Phase B licensing allow archiving
+# EACH dataset. Flip a dataset to `allowed` only when Phase B licensing
+# permits archiving it, per the source matrix.
+#
+# COLD STORAGE TRIGGER (user decision 2026-10-31): if the repo size
+# passes cold_storage_trigger_gb, cold-branch writes STOP and the run
+# reports "migrate cold storage to R2/B2". The migration itself is a
+# follow-up, not this job. Repo-size tracking on /status is a separate
+# follow-up.
+#
+# Semantics (ops/retention.py implements exactly this):
+#   window_start(D) = first trading session on/after (D - window_years),
+#   Feb 29 safe (clamps to Feb 28). Trading sessions are regime-aware:
+#   Sun-Thu before regime_switch_date, Mon-Fri from it onward, skipping
+#   dates listed as closed in the holidays file.
+#   threshold = window_start - buffer_years for roll_rule
+#   window_minus_buffer, else window_start.
+#   expiring: date < threshold (moves to COLD)
+#   buffer_kept: threshold <= date < window_start (stays in HOT, warm-up)
+#   retained: date >= window_start (stays in HOT, displayed window)
+#
+# COLD store: an orphan `cold` branch in the SAME repo (R2 is optional
+# scale-out, not a gate — no card, no new service, no token change).
+# Layout ON the cold branch (branch-relative paths): the branch root
+# holds README.md + manifest.json; partitions live at
+# <dataset>/<year>/<month>.parquet. Simulation partitions live ONLY
+# under _simulation/ and NEVER enter the real manifest.
+#
+# SCOPE: only the datasets listed below may roll. Every other dataset
+# is OUT OF SCOPE until added here with its shape, date field, roll
+# rule, and a builder-window-aware confirmation. Live mode REFUSES any
+# dataset not in this table.
+#
+# builder_window_aware: does the dataset's owning builder apply the
+# same window (or build incrementally from the data-branch file)? If
+# false/unknown, the next publisher run may RESTORE pruned rows — the
+# roll proves the mechanism, but landing that dataset needs its
+# builder confirmed window-aware first. See ops/RETENTION.md.
+
+window_years: 3
+buffer_years: 1
+cold_storage_trigger_gb: 2
+regime_switch_date: "2026-04-06"
+cadence: "nightly after FINAL (dispatch only in this PR; the nightly cron is enabled by the GATE A follow-up, after simulation passes)"
+
+exemptions:
+  - prediction ledger (forward-tracking entries; never rolled, never pruned)
+  - CA/dividend adjustment factors (needed to recompute adjusted series)
+  - indicator warm-up buffer (buffer_years of extra history kept in HOT for indicator inputs)
+
+datasets:
+  - name: index-history
+    hot_path: data/index-history.json
+    shape: rows_array
+    row_fields: [date, open, high, low, close, volume]
+    roll_rule: window_minus_buffer
+    phase_b: pending
+    builder_window_aware: unknown
+    note: "NEPSE index daily history, 2003-07-17 to present (rows are [YYYYMMDD, open, high, low, close, volume]). The owning builder is not evidenced in the file itself, so its window-awareness is unknown: confirm before any live roll of this dataset, or its next rebuild may restore pruned rows."
+  - name: contributors-history
+    hot_path: data/contributors-history.json
+    shape: entries_list
+    date_field: asof
+    roll_rule: window
+    phase_b: pending
+    builder_window_aware: true
+    note: "Append-only daily snapshots (schema nd-contributors-history/v1; the file's own note says entries are never edited and a same-day rebuild replaces only that day's entry), so pruning sticks."
+  - name: sector-rotation-history
+    hot_path: data/sector-rotation-history.json
+    shape: entries_list
+    date_field: date
+    roll_rule: window
+    phase_b: pending
+    builder_window_aware: true
+    note: "Append-only rotation snapshots (the file declares append_only: true), so pruning sticks."
