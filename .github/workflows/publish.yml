@@ -111,14 +111,14 @@ jobs:
           exit 1
 
       - name: Check out main (tools + pages tree)
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           ref: main
           path: main-tree
 
       - name: Check out data snapshot
         if: steps.resolve.outputs.mode == 'assemble'
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           ref: ${{ steps.resolve.outputs.snapshot_sha }}
           path: snapshot-tree
@@ -137,7 +137,7 @@ jobs:
 
       - name: Download redeploy artifact
         if: steps.resolve.outputs.mode == 'redeploy'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
           run-id: ${{ inputs.redeploy_run_id }}
           name: publish-site-${{ inputs.redeploy_run_id }}
@@ -169,7 +169,7 @@ jobs:
             --report-path publish-verify-report.json
 
       - name: Upload proof artifact (always)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: publish-site-${{ github.run_id }}
           path: site-tree
@@ -217,7 +217,7 @@ jobs:
 
       - name: Upload Pages artifact (Actions source only)
         if: steps.pages.outputs.build_type == 'workflow'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: github-pages
           path: ${{ runner.temp }}/artifact.tar
@@ -227,7 +227,7 @@ jobs:
       - name: Deploy to GitHub Pages (Actions source only)
         if: steps.pages.outputs.build_type == 'workflow'
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e
 
       - name: Generate purge URL list (post-flip only)
         if: steps.pages.outputs.build_type == 'workflow'
@@ -298,7 +298,7 @@ jobs:
         # verify step itself: if an earlier step failed, verify was
         # skipped and there is no report to upload.
         if: failure() && steps.verify_live.outcome == 'failure'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: publish-verify-report-${{ github.run_id }}
           path: publish-verify-report.json
