@@ -4,6 +4,17 @@
 # CONFIRMED (window starts 2023-10-31 on 2026-10-31, 2023-11-01 on
 # 2026-11-01). The charters' example dates (2024-10-31) were wrong.
 #
+# LEAP-DAY RULE — DECIDED by user decision 2026-10-31: when D is
+# Feb 29, D - window_years CLAMPS to Feb 28 (standard date-arithmetic
+# clamping, never round-up to Mar 1). The regime forward-adjustment
+# then applies to the clamped date. Worked case: 2028-02-29 -> raw
+# 2025-02-28 (Friday, non-trading under the pre-2026-04-06 Sun-Thu
+# regime) -> window_start 2025-03-02. Mar 1 is NOT the clamp target:
+# round-up is non-standard, and it would not even change this case
+# (2025-03-01 is a Saturday, also non-trading under Sun-Thu, so it
+# would forward-adjust to 2025-03-02 anyway) — Feb 28 is the
+# unambiguous choice. Pinned by `python3 ops/retention.py self-test`.
+#
 # PER-DATASET ACTUAL START (user decision 2026-10-31): the planner
 # reports window_start per dataset as max(formula window_start, first
 # real date in that dataset's rows). A dataset with shorter history

@@ -49,6 +49,33 @@ accepted). NOTE: that file's own comment marks its per-date entries
 unverified — the roll logs which holidays it applied, and a real
 session (evidence) always wins over the file.
 
+### Leap-day rule — DECIDED 2026-10-31
+
+When D is Feb 29, `D - window_years` **clamps to Feb 28** — standard
+date-arithmetic clamping, never round-up to Mar 1. The regime
+forward-adjustment then applies to the **clamped** date, in that
+order. Worked case: 2028-02-29 → raw 2025-02-28 (Friday, non-trading
+under the pre-2026-04-06 Sun–Thu regime) → window_start 2025-03-02
+(Sunday).
+
+Why not Mar 1: it would be round-up, which is non-standard
+clamping behavior; and it would not even change this case:
+2025-03-01 is a Saturday, also non-trading under Sun–Thu, so it
+would forward-adjust to 2025-03-02 anyway. Feb 28 is the
+unambiguous choice.
+
+No behavior change: the code already clamped to Feb 28; this change
+pins the decision in docs and tests. Pinned by:
+
+```
+python3 ops/retention.py self-test
+```
+
+- clamp(2028-02-29, −3 years) = 2025-02-28
+- window_start(2028-02-29) = 2025-03-02 (Feb-28 clamp + forward-adjust)
+- non-leap Feb-28 source unaffected (2027-02-28 → 2024-02-28)
+- Mar-1-adjacent case unshifted (2029-03-01 → 2026-03-01)
+
 **RESOLVED (user decision 2026-10-31): window_years=3 is CONFIRMED**
 (window starts 2023-10-31 on 2026-10-31, 2023-11-01 on 2026-11-01).
 The charters' example dates (2024-10-31) were wrong. The earlier
