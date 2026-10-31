@@ -1,9 +1,31 @@
-# NEPSE content pipeline (Phase 1)
+# NEPSE content pipeline (Phase 1, data-branch path)
 #
 # Daily at 06:00 and 18:00 NPT (00:15 / 12:15 UTC), every day.
-# Refreshes: market news, announcements, corporate actions, actions archive
+# Refreshes: announcements, corporate actions, actions archive
 # page, sitemap. Also runs the staleness sentinel: if the market data is more
 # than one trading day behind the expected session, emails an alert.
+#
+# Publish path (GH006 fix, mirrors PR #249's news migration): this workflow
+# NEVER pushes to protected main. Validated outputs go to the `data` branch
+# via tools/content-data-writer.py (blobs -> tree -> commit -> fast-forward
+# ref update, rebase-and-retry, never force-push), and the Publish (P2)
+# workflow assembles main + data into the deployed site. No commit to main,
+# no PR per data run.
+#
+# OWNERSHIP (hard rule): news-refresh OWNS nepse-chart/data/news.json. This
+# workflow does NOT build news.json (build-nepse-news.js was removed from
+# the refresh step) and the writer REFUSES that path — a content run that
+# rewrites news.json is a failure of this migration, not a success.
+#
+# Seeding: builders that MERGE into an existing file build on the DATA
+# branch's copy, never main's stale copy — announcements.json (90-day
+# archive merge), corporate-actions.json (storyKey dedup store), jobs.json
+# (record-job preserves other jobs). sitemap.xml is the exception: its
+# preserved-entry set lives on main (blog posts land via PRs), so the
+# workflow keeps main's copy as the sitemap seed. data/manifest.json is
+# still built for the validation gates but is NOT staged: it describes
+# the whole main checkout, and staging it would mis-describe other
+# components' data-branch files (notably news.json).
 #
 # Alerts: email via SMTP (dawidd6/action-send-mail pinned to commit SHA),
 # subject "[NEPSE ALERT] content: ...", plus an Actions job summary.
@@ -11,8 +33,8 @@
 # (Gmail app password), ALERT_EMAIL_TO.
 #
 # workflow_dispatch input dry_run (default false): when true, the full pipeline
-# executes but EVERY git commit/push is skipped — safe proof mode, nothing
-# can reach main. Emails still send, so dry runs prove the alert paths too.
+# executes but EVERY data-branch write is skipped — safe proof mode, nothing
+# can reach the data branch. Emails still send, so dry runs prove the alert paths too.
 
 name: NEPSE content pipeline
 
@@ -24,7 +46,7 @@ on:
   workflow_dispatch:
     inputs:
       dry_run:
-        description: 'Dry run: skip every git commit/push/tag (safe proof mode). Also forced ON while the DRY_RUN repo variable is not false'
+        description: 'Dry run: skip every data-branch write (safe proof mode). Also forced ON while the DRY_RUN repo variable is not false'
         type: boolean
         default: false
 
@@ -70,9 +92,49 @@ jobs:
             echo "alert email configured"
           fi
 
-      - name: Refresh news + announcements + corporate actions
+      - name: Seed merge-base files from data branch
+        # Announcements / corporate-actions / jobs MERGE into their
+        # existing files: the merge base MUST be the data branch's
+        # copy (main's copy is stale since the migration). A 404
+        # means no data copy yet — proceed from main's copy. Any
+        # other failure aborts: building on a stale base would drop
+        # items. sitemap.xml is deliberately NOT seeded: its
+        # preserved entries live on main (blog posts land via PRs).
+        # news.json is deliberately NOT seeded, built, or staged:
+        # news-refresh owns it.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          node tools/build-nepse-news.js
+          python3 - <<'PYEOF'
+          import base64, json, os, sys, urllib.error, urllib.request
+          repo = os.environ["GITHUB_REPOSITORY"]
+          tok = os.environ["GITHUB_TOKEN"]
+          for path in ("nepse-chart/data/announcements.json",
+                       "nepse-chart/data/corporate-actions.json",
+                       "nepse-chart/data/jobs.json"):
+              url = (f"https://api.github.com/repos/{repo}/contents/"
+                     f"{path}?ref=data")
+              req = urllib.request.Request(url, headers={
+                  "Accept": "application/vnd.github+json",
+                  "Authorization": f"Bearer {tok}",
+                  "User-Agent": "nepse-content-pipeline"})
+              try:
+                  with urllib.request.urlopen(req) as resp:
+                      data = json.loads(resp.read())
+                  open(path, "wb").write(base64.b64decode(data["content"]))
+                  print(f"seeded {path} from data branch")
+              except urllib.error.HTTPError as e:
+                  if e.code == 404:
+                      print(f"no data-branch {path} yet; "
+                            "builder starts from main copy")
+                  else:
+                      print(f"seed failed for {path}: HTTP {e.code}",
+                            file=sys.stderr)
+                      sys.exit(1)
+          PYEOF
+
+      - name: Refresh announcements + corporate actions
+        run: |
           node tools/build-announcements.js
           node tools/collect-corporate-actions.js
           node tools/build-actions-page.js
@@ -128,38 +190,36 @@ jobs:
 
       - name: Validation FAILED — record, alert, block deploy
         if: steps.validate.outputs.valid == 'false'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           node tools/record-job.js content failed "validation gates failed — deploy blocked"
           if [ "$DRY_RUN" != "true" ]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            # Guarded adds: a crashed validator may not have written these —
-            # an unguarded `git add` exits 128 on a missing pathspec and the
-            # failure record never lands (seen 2026-10-02..05: 5 runs, 0 records).
-            [ -f nepse-chart/data/jobs.json ] && git add nepse-chart/data/jobs.json
-            [ -f nepse-chart/data/validation.json ] && git add nepse-chart/data/validation.json
-            if git diff --cached --quiet; then
-              echo "nothing new to record — failure already recorded on main"
+            # Stage ONLY the failure record to the data branch: the
+            # built data is NOT deployed when validation fails (old
+            # behavior committed only jobs+validation to main).
+            # --manifest-paths keeps the component's FULL path list
+            # registered, so this record can never shrink the
+            # overlay set and drop live data on the next Publish.
+            # Guarded files: a crashed validator may not have written
+            # validation.json — an unguarded writer call would fail
+            # on the missing file and the record would never land
+            # (seen 2026-10-02..05: 5 runs, 0 records).
+            files=""
+            [ -f nepse-chart/data/jobs.json ] && files="$files --file nepse-chart/data/jobs.json:nepse-chart/data/jobs.json"
+            [ -f nepse-chart/data/validation.json ] && files="$files --file nepse-chart/data/validation.json:nepse-chart/data/validation.json"
+            if [ -z "$files" ]; then
+              echo "nothing new to record — no jobs/validation file written"
             else
-              git commit -m "content: validation FAILED (deploy blocked)"
-              # --autostash: the failed run's manifest rewrite leaves unstaged
-              # changes (data/manifest.json), which make plain pull --rebase
-              # exit 128 — dropping the failure record, the job summary, and
-              # the exit-1 marker (seen 2026-10-07 run 37579495891).
-              git pull --rebase --autostash origin main
-              pushed=false
-              for i in 1 2 3; do
-                if git push origin main; then pushed=true; break; fi
-                echo "Push attempt $i failed, retrying after pull..."
-                git pull --rebase --autostash origin main
-                sleep 5
-              done
-              if [ "$pushed" != "true" ]; then
-                echo "::error::failure-record push failed after 3 attempts — record kept locally only"
-              fi
+              # shellcheck disable=SC2086
+              python3 tools/content-data-writer.py \
+                --asof "$(TZ=Asia/Kathmandu date +%F)" \
+                --message "content: validation FAILED (deploy blocked)" \
+                --manifest-paths "nepse-chart/data/announcements.json,nepse-chart/data/corporate-actions.json,nepse-chart/data/jobs.json,nepse-chart/data/validation.json,nepse-actions/index.html,sitemap.xml" \
+                $files
             fi
           else
-            echo "dry-run: git commit/push skipped — nothing reaches main"
+            echo "dry-run: data-branch write skipped — nothing reaches the data branch"
           fi
           {
             echo "## Content: VALIDATION FAILED (deploy blocked)"
@@ -191,23 +251,35 @@ jobs:
             Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
             Status page: https://shirjankhadka.com.np/status/
 
-      - name: Commit content refresh
+      - name: Stage content refresh to data branch
         if: steps.validate.outputs.valid == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          node tools/record-job.js content success "news/announcements/actions refreshed"
+          node tools/record-job.js content success "announcements/actions refreshed"
           if [ "$DRY_RUN" = "true" ]; then
-            echo "dry-run: git commit/push skipped — nothing reaches main"
-            echo "## Content: DRY-RUN — refresh validated, commit skipped" >> "$GITHUB_STEP_SUMMARY"
+            echo "dry-run: data-branch write skipped — nothing reaches the data branch"
+            echo "## Content: DRY-RUN — refresh validated, data-branch write skipped" >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add nepse-chart/data data nepse-actions sitemap.xml
-          git diff --cached --quiet && echo "no changes" && exit 0
-          git commit -m "content: news/announcements/actions refresh (validated)"
-          git pull --rebase origin main
-          git push origin main
-          echo "## Content: refreshed OK" >> "$GITHUB_STEP_SUMMARY"
+          # Exactly the component's own outputs — never news.json
+          # (news-refresh owns it; the writer refuses that path),
+          # never data/manifest.json (it describes the whole main
+          # checkout, not the data branch). The writer reports
+          # WRITTEN with a commit SHA, or NO-CHANGES when content
+          # is genuinely unchanged; Publish deploys the staged
+          # commit (dispatched, not auto-triggered: commits made
+          # with GITHUB_TOKEN do not re-trigger workflows).
+          python3 tools/content-data-writer.py \
+            --asof "$(TZ=Asia/Kathmandu date +%F)" \
+            --message "content: announcements/actions refresh (validated)" \
+            --file nepse-chart/data/announcements.json:nepse-chart/data/announcements.json \
+            --file nepse-chart/data/corporate-actions.json:nepse-chart/data/corporate-actions.json \
+            --file nepse-chart/data/jobs.json:nepse-chart/data/jobs.json \
+            --file nepse-chart/data/validation.json:nepse-chart/data/validation.json \
+            --file nepse-actions/index.html:nepse-actions/index.html \
+            --file sitemap.xml:sitemap.xml
+          echo "## Content: refreshed OK (see writer proof above: WRITTEN or NO-CHANGES)" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Email alert — job failed
         if: failure() && steps.validate.outputs.valid != 'false'
