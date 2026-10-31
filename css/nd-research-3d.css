@@ -141,7 +141,7 @@
   border: 1px solid var(--nd-d3-line);
   border-radius: 12px;
   box-shadow: var(--nd-d3-rim), var(--nd-d3-e1);
-  transition: all var(--nd-d3-t);
+  transition: transform var(--nd-d3-t), box-shadow var(--nd-d3-t), border-color var(--nd-d3-t), color var(--nd-d3-t), background-color var(--nd-d3-t);
 }
 .mf-tabs button:hover,
 [role="tab"]:hover {
@@ -188,3 +188,13 @@ button.on[data-sort] {
 main h2{ display:flex; align-items:center; gap:10px; }
 main h2::before{ content:''; width:9px; height:9px; border-radius:2px; background:var(--nd-lime,#B8E62E); flex:none; }
 [data-theme="light"] main h2::before{ background:#65A30D; }
+
+
+@media (prefers-reduced-motion: reduce){
+  .rg-gauge-wrap, .rg-signals > *, .rg-rules > *, .sn-verdict,
+  .sn-bar-row, .mf-tile, .mf-tabs button, [role="tab"]{transition:none}
+  .mf-tabs button:hover, [role="tab"]:hover{transform:none}
+}
+@media (pointer:coarse){
+  .mf-tabs button:hover, [role="tab"]:hover{transform:none}
+}
