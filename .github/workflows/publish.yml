@@ -69,9 +69,16 @@ concurrency:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    # NOTE: no `environment: github-pages` block here, deliberately.
+    # Binding the job to that environment makes the WHOLE job a
+    # deployment to it, and its deployment-branch rule (main only)
+    # rejects every data-branch run at job start — including
+    # artifact-proof runs that never deploy (proven by run
+    # 41147393968: 2s failure, no steps, no runner). The deploy step
+    # still uses actions/deploy-pages (pages:write + id-token:write);
+    # the page URL is printed in the summary instead. Post-flip
+    # deploys from data pushes additionally need owner blocker B5
+    # (github-pages environment must allow branch `data`).
     outputs:
       deployed: ${{ steps.outcome.outputs.deployed }}
       verified: ${{ steps.outcome.outputs.verified }}
@@ -238,6 +245,7 @@ jobs:
               echo "- Deploy: SKIPPED (build_type is not 'workflow'; owner Pages flip pending — artifact proven, live proof pending)"
             else
               echo "- Deploy: Pages artifact deployed, URLs purged, production bytes verified"
+              echo "- Page URL: ${{ steps.deployment.outputs.page_url }}"
             fi
           } >> "$GITHUB_STEP_SUMMARY"
 
