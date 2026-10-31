@@ -365,3 +365,64 @@
 .sig-wrap .gloss dt{font-family:Spectral,Georgia,serif;font-weight:600}
 .sig-wrap .gloss dd{color:var(--nd-muted,#B8C0CE);line-height:1.6}
 @media (prefers-reduced-motion:reduce){ .sig-wrap .sig-card, .sig-wrap a.sig-card:hover{transition:none;transform:none} }
+/* =====================================================================
+   UNIFIED TABLE SYSTEM — design-consistency program (PR2).
+   One header/number/hover discipline for the kit (.cx-table), chrome
+   (.nd-table), sector (.sx-table) and actions (.na-sec-table) tables.
+   Family tables with their own identity (.bk-table clones, .sig-table,
+   .mf-table, .vp-table, .ds-table) are deliberately NOT mapped here;
+   see audit-table.md. Header background is panel-2 everywhere (master
+   §4 + daily/moneyflow precedent); chrome headers move panel -> panel-2.
+   Tables inside cards/wrappers stay frameless by construction: the panel
+   lives on the card or the wrapper, never on the table — except the one
+   bare table (.na-sec-table), which gets its panel directly.
+   Specificity note: the table. prefix (0,1,2) beats family class-only
+   rules (0,1,1) and ties family thead rules (0,1,2), where the later
+   file (cinema, loaded after family sheets on kit pages) wins.
+   ===================================================================== */
+table.cx-table th, table.nd-table th, table.sx-table th, table.na-sec-table th{
+  font:600 0.6875rem var(--nd-font-mono, "IBM Plex Mono", monospace);
+  letter-spacing:.09em; text-transform:uppercase;
+  color:var(--nd-dim, #8E98A8); background:var(--nd-panel-2, #161A23);
+  border-bottom:1px solid var(--nd-border-strong, #2A3140);
+  white-space:nowrap;
+}
+table.cx-table .num, table.nd-table .num, table.sx-table .num, table.na-sec-table .num,
+table.cx-table th.num, table.nd-table th.num, table.sx-table th.num, table.na-sec-table th.num{
+  font-family:var(--nd-font-mono, "IBM Plex Mono", monospace);
+  font-variant-numeric:tabular-nums; text-align:right; white-space:nowrap;
+}
+table.cx-table tbody tr, table.nd-table tbody tr, table.sx-table tbody tr, table.na-sec-table tbody tr{
+  transition:background .15s;
+}
+table.cx-table tbody tr:hover, table.nd-table tbody tr:hover, table.sx-table tbody tr:hover, table.na-sec-table tbody tr:hover{
+  background:var(--nd-lime-faint, rgba(184, 230, 46, .06));
+}
+/* Sticky headers, scoped to scroll wrappers only. A bare table's thead
+   must never stick: without a wrapper it would stick to the viewport
+   under the 60px site header. Inside a wrapper, sticky is contained to
+   the wrapper's own scroll box. */
+.cx-scroll table.cx-table thead th, .nd-tablewrap table.nd-table thead th,
+.sx-table-wrap table.sx-table thead th, .cx-tablewrap table.cx-table thead th{
+  position:sticky; top:0; z-index:2; background:var(--nd-panel-2, #161A23);
+}
+/* Framed scroll wrapper for bare kit tables (mirrors chrome .nd-tablewrap). */
+.cx-tablewrap{
+  overflow:auto; background:var(--nd-panel, #12141A);
+  border:1px solid var(--nd-border, #1E2430); border-radius:var(--nd-r-card, 18px);
+  box-shadow:var(--nd-rim, inset 0 1px 0 rgba(255,255,255,.07)), var(--nd-e1, 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.35));
+}
+/* Bare table (no wrapper, no card): the panel lives on the table itself.
+   border-collapse:separate + spacing:0 is required for the radius; safe
+   here because cells carry bottom borders only (no side-border doubling).
+   Corner radii on first/last header + last-row cells clip the header
+   wash and row backgrounds to the panel's rounded corners. */
+table.na-sec-table{
+  background:var(--nd-panel, #12141A); border:1px solid var(--nd-border, #1E2430);
+  border-radius:var(--nd-r-card, 18px); border-collapse:separate; border-spacing:0;
+  box-shadow:var(--nd-rim, inset 0 1px 0 rgba(255,255,255,.07)), var(--nd-e1, 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.35));
+}
+table.na-sec-table thead th:first-child{ border-top-left-radius:var(--nd-r-card, 18px); }
+table.na-sec-table thead th:last-child{ border-top-right-radius:var(--nd-r-card, 18px); }
+table.na-sec-table tbody tr:last-child td:first-child{ border-bottom-left-radius:var(--nd-r-card, 18px); }
+table.na-sec-table tbody tr:last-child td:last-child{ border-bottom-right-radius:var(--nd-r-card, 18px); }
