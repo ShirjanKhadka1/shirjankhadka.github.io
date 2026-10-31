@@ -166,6 +166,14 @@
   font-variant-numeric: tabular-nums; word-break: break-word;
   overflow-wrap: break-word; text-wrap: balance;
 }
+/* CHG wrap fix: nd-cinema.css loads AFTER this sheet and sets
+   .ds-ov-card .v{white-space:nowrap} (same 0,2,0 specificity, later
+   sheet wins), which strands the comma-less CHG value "▼ -5.45
+   (-0.20%)" on one 195px line inside a 129px box — <wbr> breaks save
+   Turnover/Volume, but CHG has no commas, and nowrap suppresses its
+   space breaks. This 0,3,0 rule restores wrapping regardless of load
+   order; values that fit stay on one line, balance still applies. */
+.ds-overview .ds-ov-card .v { white-space: normal; }
 .ds-ov-card .v.up { color: var(--nd-up); }
 .ds-ov-card .v.dn { color: var(--nd-down); }
 [data-theme="light"] .ds-ov-card .v.up { color: var(--nd-up); }
