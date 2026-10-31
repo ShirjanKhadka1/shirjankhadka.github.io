@@ -102,6 +102,36 @@ bytes (base64, capped), the response headers, and the final URL
 after redirects. This changes NO pass/fail behavior: the strict
 pass still fails fast on first sight, and the captured bytes are
 diagnostic evidence for the next diff, nothing more.
+
+Beacon tolerance (2026-11-01, Publish run 41231693412 — the first
+run WITH mismatch capture): the captured bytes SOLVED ee56. Diff
+vs the deployed artifact bytes (data branch's
+nepse-actions/index.html at the pinned snapshot, 88af99a6d50b):
+first 39,179 bytes byte-identical; the ONLY difference is ONE
+extra line inserted before </body> — a Cloudflare Web Analytics
+beacon script (static.cloudflareinsights.com/beacon.min.js, 367
+bytes). The runner's headers confirm the edge path (cf-cache-status
+HIT, Server cloudflare, IAD region); other nodes serve pristine
+artifact bytes. ee56 was therefore never a stale page, a poisoned
+cache entry, or propagation delay: it is the current page plus
+edge-injected analytics, failing every time because
+nepse-actions/index.html is the sole verified HTML path (JSON
+responses never get beacon injection). The verifier now tolerates
+EXACTLY this element for HTML paths: strip_beacon() removes the
+single script element referencing
+static.cloudflareinsights.com/beacon.min.js (matched by host/path,
+never by token or integrity hash, which rotate; empty body only)
+together with its own line break, symmetrically from live AND
+artifact bytes, before hashing — for the settle comparison and the
+strict pass alike. Any other byte difference still fails, JSON and
+all non-HTML paths stay byte-exact, and a beacon the pattern does
+not match fails closed (loud failure, never a silent pass). The
+report keeps RAW live/artifact hashes as evidence and adds
+live_beacon_stripped / artifact_beacon_stripped counts so a
+beacon-tolerant pass is transparent, never hidden. Disabling Web
+Analytics was rejected (dashboard hand, loses analytics); the gate
+itself is not weakened — it now compares authored bytes, which is
+what it always meant to compare.
 """
 import argparse
 import base64
@@ -110,6 +140,7 @@ import hashlib
 import http.client
 import json
 import os
+import re
 import sys
 import time
 import urllib.error
@@ -157,6 +188,63 @@ def sha256(path):
         for chunk in iter(lambda: f.read(65536), b""):
             h.update(chunk)
     return h.hexdigest()
+
+
+# Cloudflare Web Analytics beacon element (see module docstring):
+# one <script> line injected by the edge before </body> into HTML
+# responses on some nodes. Matched by host/path only — the src
+# carries a version path segment, the integrity hash rotates with
+# beacon releases, and the data-cf-beacon token is zone-specific —
+# so none of those are part of the pattern. The body must be empty
+# (a src script has no inline body), so the pattern can never eat
+# authored content past the element; the trailing line break is
+# consumed only when the element occupies its own line (the real
+# injection shape), otherwise only adjacent spaces/tabs go with it.
+BEACON_SCRIPT_RE = re.compile(
+    rb"[ \t]*<script\b[^>]*static\.cloudflareinsights\.com/"
+    rb"beacon\.min\.js[^>]*>\s*</script>[ \t]*\r?\n?",
+    re.IGNORECASE)
+
+
+def strip_beacon(body):
+    """Remove Cloudflare beacon script element(s) from HTML bytes.
+
+    Returns (stripped_bytes, count_removed). Only the beacon
+    element above is removed; every other byte is kept exact.
+    """
+    return BEACON_SCRIPT_RE.subn(b"", body)
+
+
+def is_html_path(rel):
+    return rel.lower().endswith((".html", ".htm"))
+
+
+def comparable_hash(rel, body):
+    """(comparable_sha256, beacon_elements_stripped) for live bytes.
+
+    HTML paths hash beacon-stripped bytes; every other path hashes
+    raw bytes (identical to sha256 for those paths).
+    """
+    if is_html_path(rel):
+        stripped, n = strip_beacon(body)
+        return hashlib.sha256(stripped).hexdigest(), n
+    return hashlib.sha256(body).hexdigest(), 0
+
+
+def artifact_hash(rel, path):
+    """(raw_sha256, comparable_sha256, beacon_elements_stripped) for
+    an artifact file. Same beacon tolerance as comparable_hash,
+    applied symmetrically so an artifact that itself carries the
+    beacon compares equal to a live copy carrying it. Non-HTML
+    files stream exactly as sha256() does."""
+    if is_html_path(rel):
+        with open(path, "rb") as f:
+            data = f.read()
+        stripped, n = strip_beacon(data)
+        return (hashlib.sha256(data).hexdigest(),
+                hashlib.sha256(stripped).hexdigest(), n)
+    h = sha256(path)
+    return h, h, 0
 
 
 def bust_url(url, token):
@@ -391,7 +479,8 @@ def run(args, report):
     for comp, entry in expected["components"].items():
         for rel in entry["paths"]:
             try:
-                art_hashes[rel] = sha256(f"{args.artifact_dir}/{rel}")
+                art_hashes[rel] = artifact_hash(
+                    rel, f"{args.artifact_dir}/{rel}")[1]
             except OSError:
                 pass
     unsettled = set(art_hashes)
@@ -408,7 +497,7 @@ def run(args, report):
         for rel in sorted(unsettled):
             s2, body2, err2, attempts2, _m2 = fetch(bust_url(f"{base}/{rel}",
                                                        token))
-            if s2 == 200 and (hashlib.sha256(body2).hexdigest()
+            if s2 == 200 and (comparable_hash(rel, body2)[0]
                               == art_hashes[rel]):
                 unsettled.discard(rel)
     report["settle_converged"] = manifest_settled and not unsettled
@@ -459,8 +548,10 @@ def run(args, report):
                     "artifact_sha256": None})
                 continue
             live_hash = hashlib.sha256(body).hexdigest()
+            live_cmp_hash, live_stripped = comparable_hash(rel, body)
             try:
-                art_hash = sha256(f"{args.artifact_dir}/{rel}")
+                art_hash, art_cmp_hash, art_stripped = artifact_hash(
+                    rel, f"{args.artifact_dir}/{rel}")
             except OSError as e:
                 problems.append(f"{rel}: artifact unreadable: {e}")
                 report["checks"].append({
@@ -469,7 +560,7 @@ def run(args, report):
                     "attempts": attempts, "error": str(e),
                     "live_sha256": live_hash, "artifact_sha256": None})
                 continue
-            if live_hash != art_hash:
+            if live_cmp_hash != art_cmp_hash:
                 problems.append(
                     f"{rel}: bytes differ live={live_hash[:12]} "
                     f"artifact={art_hash[:12]}")
@@ -482,7 +573,9 @@ def run(args, report):
                     "outcome": "bytes_differ", "http_status": s,
                     "attempts": attempts,
                     "error": problems[-1], "live_sha256": live_hash,
-                    "artifact_sha256": art_hash}
+                    "artifact_sha256": art_hash,
+                    "live_beacon_stripped": live_stripped,
+                    "artifact_beacon_stripped": art_stripped}
                 check.update(live_capture(body, meta))
                 report["checks"].append(check)
                 print(f"publish-verify: captured live bytes for {rel} "
@@ -490,11 +583,18 @@ def run(args, report):
                       f"truncated={check['live_body_truncated']}) "
                       f"into the report", flush=True)
             else:
+                if live_stripped or art_stripped:
+                    print(f"publish-verify: beacon-tolerant ok for "
+                          f"{rel} (stripped live={live_stripped} "
+                          f"artifact={art_stripped} beacon element(s); "
+                          f"all other bytes identical)", flush=True)
                 report["checks"].append({
                     "component": comp, "path": rel, "url": url,
                     "outcome": "ok", "http_status": s, "attempts": attempts,
                     "error": None, "live_sha256": live_hash,
-                    "artifact_sha256": art_hash})
+                    "artifact_sha256": art_hash,
+                    "live_beacon_stripped": live_stripped,
+                    "artifact_beacon_stripped": art_stripped})
     if problems:
         print("publish-verify: FAIL production != snapshot:")
         for p in problems:
