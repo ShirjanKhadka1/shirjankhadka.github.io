@@ -458,3 +458,15 @@ html[data-nd-ed="light"] body.nd { background: var(--nd-bg, #F6F7F9); }
 }
 .ds-table-topscroll { scrollbar-color: #5b6b85 transparent; }
 .ds-table-topscroll::-webkit-scrollbar-thumb { background: #5b6b85; }
+
+/* ---------- Narrow-width table: un-stick the symbol column ----------
+   At narrow widths the frozen symbol column (shared nd-chrome.css rule
+   .nd-table td:first-child { position: sticky; left: 0 }) paints over the
+   first character of right-aligned turnover values when the table is
+   scrolled to max (proven live at 390px: 188,549,162.10 rendered as
+   88,549,162.10). Un-sticking the body cells at <=768px removes the
+   overlap; the header corner keeps vertical stick only (left: auto). */
+@media (max-width: 768px) {
+  #dsTable th:first-child { left: auto; }
+  #dsTable tbody td:first-child { position: static; }
+}
