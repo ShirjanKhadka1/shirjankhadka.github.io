@@ -1,9 +1,23 @@
-# NEPSE news refresh — real-time news feed (V4).
+# NEPSE news refresh — real-time news feed (V5, data-branch path).
 #
 # Every 30 minutes: rebuilds news.json from RSS feeds (Arthasansar, BizMandu,
-# OnlineKhabar, MeroLagani) and deploys if changed. Lightweight: news only,
-# no full content pipeline. The site's news sections fetch news.json
-# client-side, so new items appear automatically.
+# OnlineKhabar, MeroLagani) and stages it to the `data` branch if the
+# ITEMS changed. The Publish (P2) workflow deploys main + data on every
+# data push. No commit to protected main, no PR per data run (GH006 fix:
+# the old path pushed to main and died on branch protection).
+#
+# Two migration details that matter:
+#   * The builder MERGES fresh RSS items into the existing rolling file,
+#     so the workflow seeds nepse-chart/data/news.json from the DATA
+#     branch before building — main's copy is stale by design now and
+#     must never be used as the merge base again.
+#   * No-change detection is by ITEMS, not bytes: the builder stamps a
+#     fresh generated_at on every run, so a byte comparison would
+#     "change" every 30 minutes. When items are unchanged and the
+#     component is already registered, the writer prints NO-CHANGES
+#     and writes nothing — healthy ticks stay silent (no Publish,
+#     no mail). First registration always writes, so the assembler
+#     picks the file up.
 #
 # Owner directive 2026-10-04: news must be automated real-time, not manual —
 # "lots of news are happening and time really matters."
@@ -34,6 +48,40 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Seed current news.json from data branch
+        # The builder merges into the existing rolling file: the merge
+        # base MUST be the data branch's copy (main's copy is stale
+        # since the migration). A 404 means no data copy yet — proceed
+        # from main's copy (the pre-migration baseline). Any other
+        # failure aborts: building on a stale base would drop items.
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PYEOF'
+          import base64, json, os, sys, urllib.error, urllib.request
+          repo = os.environ["GITHUB_REPOSITORY"]
+          tok = os.environ["GITHUB_TOKEN"]
+          url = (f"https://api.github.com/repos/{repo}/contents/"
+                 f"nepse-chart/data/news.json?ref=data")
+          req = urllib.request.Request(url, headers={
+              "Accept": "application/vnd.github+json",
+              "Authorization": f"Bearer {tok}",
+              "User-Agent": "nepse-news-refresh"})
+          try:
+              with urllib.request.urlopen(req) as resp:
+                  data = json.loads(resp.read())
+              open("nepse-chart/data/news.json", "wb").write(
+                  base64.b64decode(data["content"]))
+              print("seeded news.json from data branch")
+          except urllib.error.HTTPError as e:
+              if e.code == 404:
+                  print("no data-branch news.json yet; "
+                        "builder starts from main copy")
+              else:
+                  print(f"seed failed: HTTP {e.code}", file=sys.stderr)
+                  sys.exit(1)
+          PYEOF
+
       - name: Rebuild news.json
         run: node tools/build-nepse-news.js
 
@@ -58,29 +106,15 @@ jobs:
           "
           echo "valid=true" >> "$GITHUB_OUTPUT"
 
-      - name: Commit and push if changed
+      - name: Stage to data branch if items changed
         if: steps.validate.outputs.valid == 'true'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
-          git config user.name "Nepse Decode news refresh"
-          git config user.email "shirjan.2.khadka@gmail.com"
-          if git diff --quiet nepse-chart/data/news.json; then
-            echo "no news changes"
-          else
-            git add nepse-chart/data/news.json
-            git commit -m "news: refresh $(date -u +%Y-%m-%dT%H:%M) ($(node -e "console.log(require('./nepse-chart/data/news.json').items.length)") items)"
-            pushed=false
-            for i in 1 2 3; do
-              if git push origin main; then pushed=true; break; fi
-              echo "Push attempt $i failed, retrying after pull..."
-              git pull --rebase origin main
-              sleep 5
-            done
-            if [ "$pushed" != "true" ]; then
-              echo "::error::git push failed after 3 attempts"
-              exit 1
-            fi
-            echo "news deployed"
-          fi
+          python3 tools/news-data-writer.py \
+            --file nepse-chart/data/news.json \
+            --asof "$(TZ=Asia/Kathmandu date +%F)" \
+            --message "news: refresh $(date -u +%Y-%m-%dT%H:%M) ($(node -e "console.log(require('./nepse-chart/data/news.json').items.length)") items)"
 
       - name: Email alert — news refresh failed
         if: failure()
