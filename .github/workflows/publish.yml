@@ -10,9 +10,10 @@
 #     every write (primary path; always uses main's workflow file).
 #   - push to `data`: secondary path; fires only once the data
 #     branch carries this file (code-sync after this PR merges).
-# Concurrency: group `publish`, cancel-in-progress — newest snapshot
-# wins; a superseded run is cancelled, never deployed after a newer
-# one.
+# Concurrency: group `publish`, cancel-in-progress: false — queued
+# runs are never superseded mid-deploy; each run builds from the
+# latest data snapshot at its own run start, and the last queued
+# run's data wins.
 #
 # Pages source gate (owner-UI blocker, see ops/PROGRAM-STATUS.md):
 #   While Pages serves from the branch (legacy), the deploy step is
@@ -64,7 +65,7 @@ permissions:
 
 concurrency:
   group: publish
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   publish:
