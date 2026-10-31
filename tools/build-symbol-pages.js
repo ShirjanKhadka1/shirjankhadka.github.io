@@ -115,14 +115,14 @@ const SP_STYLES =
 '.sp-snap{margin:var(--nd-s6) 0}\n' +
 '.sp-price-card{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0) 38%),var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);border-radius:var(--nd-r-card);padding:var(--nd-s5) var(--nd-s6);box-shadow:var(--nd-rim),var(--nd-e2);display:flex;gap:var(--nd-s6);flex-wrap:wrap;align-items:flex-start;justify-content:space-between}\n' +
 '.sp-price-main{min-width:200px}\n' +
-'.sp-price{font-family:var(--nd-font-display,Georgia,serif);font-size:var(--step-4);font-weight:700;color:var(--nd-text,#fff);letter-spacing:-.01em}\n' +
+'.sp-price{font-family:var(--nd-font-display,Georgia,serif);font-size:var(--step-4);font-weight:700;color:var(--nd-text,#fff);letter-spacing:-.01em;font-variant-numeric:tabular-nums;white-space:nowrap}\n' +
 '.sp-chg{font-size:.95rem;font-weight:700;margin-top:6px}\n' +
 '.sp-chg.pos{color:var(--nd-up,#4ADE80)}\n' +
 '.sp-chg.neg{color:var(--nd-down,#F87171)}\n' +
 '.sp-live-badge{display:inline-block;margin-top:8px;padding:3px var(--nd-s3);border-radius:var(--nd-r-pill);font-size:.72rem;font-weight:700;background:var(--nd-lime,#B8E62E);color:var(--nd-on-lime,#0A0C10)}\n' +
 '.sp-price-side{display:flex;gap:var(--nd-s6);flex-wrap:wrap}\n' +
 '.sp-stat{display:flex;flex-direction:column;gap:var(--nd-s1)}\n' +
-'.sp-stat-v{font-size:1.05rem;font-weight:700;color:var(--nd-text,#fff);font-variant-numeric:tabular-nums}\n' +
+'.sp-stat-v{font-size:1.05rem;font-weight:700;color:var(--nd-text,#fff);font-variant-numeric:tabular-nums;white-space:nowrap}\n' +
 '.sp-stat-l{font-size:.75rem;color:var(--nd-dim,#8E98A8);text-transform:uppercase;letter-spacing:.05em;font-weight:600}\n' +
 '/* tabs: nd-tabs--pill language (contract in css/nd-chrome.css); the JS\n' +
 '   contract is unchanged — .active class + aria-selected stay in sync,\n' +
@@ -177,6 +177,7 @@ const SP_STYLES =
 '.sp-peer-table td.pos{color:var(--nd-up,#4ADE80);font-weight:700}\n' +
 '.sp-peer-table td.neg{color:var(--nd-down,#F87171);font-weight:700}\n' +
 '.sp-peer-table tbody tr.sp-sec-row td{background:var(--nd-panel-2,#161A23)}\n' +
+'.sp-peer-table .num{white-space:nowrap}\n' +
 '.sp-sec-row strong{font-family:var(--nd-font-mono,ui-monospace,monospace);font-weight:600;font-size:.6875rem;letter-spacing:.09em;text-transform:uppercase;color:var(--nd-dim,#8E98A8)}\n' +
 '/* news */\n' +
 '.sp-news{list-style:none;margin:var(--nd-s4) 0;padding:0;display:grid;gap:var(--nd-s3)}\n' +
@@ -424,10 +425,10 @@ function head(sym, name, slug) {
     '<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">\n' +
     '<link rel="apple-touch-icon" href="/apple-touch-icon.png">\n' +
     '<link rel="stylesheet" href="/css/fonts.css">\n' +
-    '<link rel="stylesheet" href="/css/nd-tokens.css?v=20261023d">\n' +
-    '<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023d">\n' +
-    '<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023d">\n' +
-    '<link rel="stylesheet" href="/css/sig-pro.css?v=20261023d">\n' +
+    '<link rel="stylesheet" href="/css/nd-tokens.css?v=a4d9d211">\n' +
+    '<link rel="stylesheet" href="/css/nd-chrome.css?v=fe4f1d6e">\n' +
+    '<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=f7cba58d">\n' +
+    '<link rel="stylesheet" href="/css/sig-pro.css?v=1d95ac2e">\n' +
     SP_STYLES +
 
     '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>\n' +
@@ -441,9 +442,9 @@ const RAIL = '<body class="nd">\n' +
   const FOOT =
   '<div id="nd-footer"></div>\n' +
   '<script src="/js/nd-chrome.js?v=ac51169e" defer></script>\n' +
-  '<script src="/js/theme-toggle.js?v=20261023d" defer></script>\n' +
+  '<script src="/js/theme-toggle.js?v=6a6a46c6" defer></script>\n' +
   '<script src="/js/stock-live.js?v=c135f9d9" defer></script>\n' +
-  '<script src="/js/val-lab.js?v=20261023d" defer></script>\n' +
+  '<script src="/js/val-lab.js?v=6d559156" defer></script>\n' +
   '</body>\n</html>\n';
 
 function fmtNum(x) {
@@ -1868,10 +1869,10 @@ function indexPage(symbols, asof) {
     '<meta name="twitter:image" content="' + OG_STOCKS + '">\n' +
     '<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">\n' +
     '<link rel="stylesheet" href="/css/fonts.css">\n' +
-    '<link rel="stylesheet" href="/css/nd-tokens.css?v=20261023d">\n' +
-    '<link rel="stylesheet" href="/css/nd-chrome.css?v=20261023d">\n' +
-    '<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=20261023d">\n' +
-    '<link rel="stylesheet" href="/css/sig-pro.css?v=20261023d">\n' +
+    '<link rel="stylesheet" href="/css/nd-tokens.css?v=a4d9d211">\n' +
+    '<link rel="stylesheet" href="/css/nd-chrome.css?v=fe4f1d6e">\n' +
+    '<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=f7cba58d">\n' +
+    '<link rel="stylesheet" href="/css/sig-pro.css?v=1d95ac2e">\n' +
     SP_STYLES +
     '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>\n</head>\n' +
     RAIL + '<main id="main" class="sig-wrap">\n' +
