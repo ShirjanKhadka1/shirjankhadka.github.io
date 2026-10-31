@@ -1,0 +1,117 @@
+# ShareSansar cross-check (CROSS-CHECK ONLY, never a data source).
+#
+# Weekdays post-close, plus manual dispatch: compares ShareSansar's latest
+# session figures against OUR OWN published session data and uploads the
+# discrepancy log as a WORKFLOW ARTIFACT (retention 90 days). The log is
+# NEVER committed to any repo tree, never under data/, never in any
+# manifest, never rendered on the site. A mismatch is a lead for human
+# resolution from the primary source -- ShareSansar figures NEVER
+# overwrite primary figures, and this job has no publish/write-data
+# code path by construction (tools/sharesansar-crosscheck.py).
+#
+# Standing decision (docs/sources/sharesansar.md, Phase B): CROSS-CHECK
+# ONLY. ShareSansar's terms disclaim its data as "not necessarily
+# real-time or accurate", supplied by an unnamed third party, with no
+# republication licence. This job does not change that decision.
+#
+# Schedule note: 17:30 NPT (11:45 UTC), not 17:15 NPT -- 11:30 UTC is
+# already taken by nepse-freshness-watch on weekdays, so the original
+# ~17:15 NPT slot was shifted 15 minutes to avoid the collision.
+#
+# Rate discipline (binding in the script): at most 4 data pages per run
+# plus 1 robots.txt gate fetch, >=5 s spacing, identifying User-Agent,
+# 20 s timeout, abort on 429/403 or on any robots/terms change.
+# No SS Pro, no login, no key/token, no unofficial wrapper library.
+# Monday follow-up (not this job): re-check the wave-1 REPORT.md section 6
+# pages (floorsheet / top-brokers / AGM / dividend / company-list / NAV)
+# on a trading day; if rows appear server-rendered, a follow-up draft
+# widens CROSS-CHECK scope only, never primary ingest.
+
+name: ShareSansar cross-check (post-close)
+
+on:
+  schedule:
+    - cron: '45 11 * * 1-5'  # 17:30 NPT, weekdays, post-close
+  workflow_dispatch:
+    inputs:
+      as_of:
+        description: 'Primary session date YYYY-MM-DD (default: latest row in our index-history)'
+        type: string
+        default: ''
+      symbol:
+        description: 'Single symbol to spot-check (default ACLBSL)'
+        type: string
+        default: 'ACLBSL'
+
+permissions:
+  contents: read
+
+jobs:
+  crosscheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Build primary file from OUR OWN published session data
+        # Primary = this repo's own published data, never ShareSansar.
+        # nepse_close: data/index-history.json row for as_of (or latest).
+        # symbol close: nepse-chart/data/daily-ohlc/<SYMBOL>.json row for
+        # the SAME date; omitted (with a printed note) when that file has
+        # no row for as_of, so a stale symbol file can never manufacture
+        # a false mismatch.
+        env:
+          AS_OF_INPUT: ${{ inputs.as_of }}
+          SYMBOL_INPUT: ${{ inputs.symbol }}
+        run: |
+          python3 - <<'PYEOF'
+          import json, os, re, sys
+          symbol = (os.environ.get("SYMBOL_INPUT") or "ACLBSL").strip()
+          if not re.fullmatch(r"[A-Z0-9]+", symbol):
+              print(f"invalid symbol input: {symbol!r}", file=sys.stderr)
+              sys.exit(1)
+          as_of_in = os.environ.get("AS_OF_INPUT", "").strip()
+          if as_of_in and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", as_of_in):
+              print(f"invalid as_of input: {as_of_in!r}", file=sys.stderr)
+              sys.exit(1)
+          with open("data/index-history.json", encoding="utf-8") as fh:
+              rows = json.load(fh)["rows"]
+          want = int(as_of_in.replace("-", "")) if as_of_in else None
+          row = next((r for r in rows if r[0] == want), None) if want else rows[-1]
+          if row is None:
+              print(f"no index-history row for {as_of_in}", file=sys.stderr)
+              sys.exit(1)
+          as_of = f"{row[0] // 10000:04d}-{(row[0] // 100) % 100:02d}-{row[0] % 100:02d}"
+          primary = {"as_of": as_of, "nepse_close": row[4], "symbols": {}}
+          try:
+              with open(f"nepse-chart/data/daily-ohlc/{symbol}.json", encoding="utf-8") as fh:
+                  srows = json.load(fh)["rows"]
+          except FileNotFoundError:
+              srows = []
+          srow = next((r for r in srows if r[0] == row[0]), None)
+          if srow is not None:
+              primary["symbols"][symbol] = {"close": srow[4]}
+              print(f"primary: as_of={as_of} nepse_close={row[4]} {symbol}.close={srow[4]}")
+          else:
+              print(f"primary: as_of={as_of} nepse_close={row[4]}; "
+                    f"no {symbol} row for as_of, symbol check skipped")
+          with open("primary.json", "w", encoding="utf-8") as fh:
+              json.dump(primary, fh, indent=2)
+          PYEOF
+
+      - name: Run cross-check comparator (live)
+        env:
+          SYMBOL_INPUT: ${{ inputs.symbol }}
+        run: |
+          python3 tools/sharesansar-crosscheck.py --live \
+            --primary primary.json \
+            --symbol "${SYMBOL_INPUT:-ACLBSL}" \
+            --out sharesansar-crosscheck-log.json
+
+      - name: Upload discrepancy log (artifact only, never committed)
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: sharesansar-crosscheck-log
+          path: sharesansar-crosscheck-log.json
+          retention-days: 90

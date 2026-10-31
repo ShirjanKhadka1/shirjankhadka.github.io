@@ -166,3 +166,56 @@ a written permission from IMS Investment Management Services or a
 new, explicit user order that names ShareSansar and accepts the
 accuracy/licence risk — it cannot be done by citing the general
 ruling alone.
+
+## Evidence appendix — wave-1 technique verification (2026-10-31) + wave-2 comparator
+
+**Decision unchanged by this appendix:** ShareSansar stays CROSS-CHECK
+ONLY. Nothing below upgrades any dataset to primary, and no change was
+made to `docs/DATA_SOURCES.md` or `docs/source-matrix.json`.
+
+**Verified page URLs (public, no login, no block observed 2026-10-31):**
+
+- `https://www.sharesansar.com/market` — indices OHLC table (header:
+  Index, Open, High, Low, Close, Point Change, % Change, Turnover) +
+  market summary + top gainers/losers/turnover/volume/transactions +
+  top-5 brokers by broker NUMBER only (no names).
+- `https://www.sharesansar.com/datewise-indices` — indices/sub-indices
+  (Current / Point Change / % Change / Turnover; no OHLC).
+- `https://www.sharesansar.com/today-share-price` — one row per symbol,
+  latest session only (header: S.No, Symbol, Conf., Open, High, Low,
+  Close, LTP, ... , 120 Days, 180 Days, 52 Weeks High/Low).
+- `https://www.sharesansar.com/company/<SYMBOL>` (verified: `/company/BENH`)
+  — profile fields + pivot/MA sections; Dividend/Right/Auction sections
+  read "NO RECORD FOUND" for BENH (populated sample not observed).
+- `https://www.sharesansar.com/robots.txt` — `User-agent: *` with empty
+  `Disallow:` (permits crawling, grants no licence).
+- Terms: `http://www.sharesansar.com/terms-and-conditions` — data "not
+  necessarily real-time or accurate", "provided by a third party", no
+  republication licence, no script ban clause found.
+
+**Observed shapes (2026-10-31, "As of 2026-10-30" — Saturday, last session):**
+NEPSE Index Close 2,690.15 (−0.20%); ACLBSL Open 863.50, Close 854.00;
+market summary Total Traded Shares 22,862,554, Total Scrips Traded 348.
+
+**Comparator (wave 2, this repo):** `tools/sharesansar-crosscheck.py`
+(stdlib only) + workflow `.github/workflows/sharesansar-crosscheck.yml`
+(weekdays 17:30 NPT post-close + manual dispatch). The workflow builds
+its primary file from THIS repo's own published session data
+(`data/index-history.json` + `nepse-chart/data/daily-ohlc/<SYMBOL>.json`),
+never from ShareSansar. The script fetches at most 4 data pages plus
+1 robots.txt gate fetch, ≥5 s apart, identifying User-Agent, 20 s
+timeout, abort on 429/403 or robots/terms change, and writes ONLY an
+internal discrepancy log, uploaded as a workflow artifact (90 days).
+The log is never committed, never under `data/`, never in any manifest,
+never rendered on the site. Live sample run 2026-10-31 (primary
+2026-10-30 from our own data): 0 discrepancies, 0 unresolved notes —
+NEPSE close 2690.15 and ACLBSL close 854.00 both agreed.
+
+**Monday follow-up (not a blocker, not in this change):** re-check the
+wave-1 undetermined pages on a trading day — `/floorsheet`,
+`/top-brokers`, `/agm-list`, `/proposed-dividend`, `/company-list`,
+`/mutual-fund-navs` (weekend-empty vs JS-rendered). If rows appear
+server-rendered, file a follow-up draft widening CROSS-CHECK scope
+only, never primary ingest (that still needs the licence unblocker
+above). No email, no issue creation, no alerting in this job —
+alerting is a follow-up, not this change.
