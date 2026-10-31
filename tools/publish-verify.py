@@ -20,12 +20,34 @@ Inputs:
 Live mode fetches data/publish-manifest.json first, then every
 component file listed in it, and compares SHA-256 bytes to the
 artifact. Exit 0 only on full agreement. Exit 1 otherwise.
+
+Fetch hardening (2026-10-31, Publish run 41194180358): live mode
+failed at "Verify production bytes" with a bare exit 1 while the
+deployed tree was proven byte-correct — a runner-side fetch failure
+no one could diagnose, because transport errors were swallowed
+(the manifest fetch printed only "HTTP 0") and nothing was retried.
+So live fetches now retry TRANSPORT failures with backoff, and every
+failure prints the exact failing field (URL, status or transport
+error, attempts, manifest path). Retries NEVER apply to a genuine
+byte mismatch: a mismatch still fails fast on first sight.
 """
 import argparse
 import hashlib
+import http.client
 import json
 import sys
+import time
+import urllib.error
 import urllib.request
+
+
+# Bounded retry for transport failures only. Attempts = 3 total;
+# sleeps between attempts 1->2 and 2->3.
+RETRY_ATTEMPTS = 3
+RETRY_BACKOFF_S = (2, 5)
+# Transient edge statuses worth one more fetch (purge propagation,
+# edge overload). Any other HTTP status fails fast.
+TRANSIENT_HTTP = {429, 502, 503, 504}
 
 
 def sha256(path):
@@ -36,15 +58,52 @@ def sha256(path):
     return h.hexdigest()
 
 
-def fetch(url):
+def _fetch_once(url):
+    """One fetch. Returns (status, body, error).
+
+    status 0 + error text means a TRANSPORT failure (connection drop,
+    timeout, incomplete read); the caller decides whether to retry.
+    An HTTP response — even an error status — returns its status with
+    error None: HTTP statuses are not transport failures.
+    """
     req = urllib.request.Request(url, headers={"User-Agent": "muse-publish-verify"})
     try:
         with urllib.request.urlopen(req, timeout=30) as resp:
-            return resp.status, resp.read()
+            return resp.status, resp.read(), None
     except urllib.error.HTTPError as e:
-        return e.code, e.read()
-    except Exception as e:  # network error etc.
-        return 0, str(e).encode()
+        try:
+            body = e.read()
+        except Exception:
+            body = b""
+        return e.code, body, None
+    except (urllib.error.URLError, http.client.HTTPException,
+            OSError, TimeoutError) as e:
+        return 0, b"", f"{type(e).__name__}: {e}"
+
+
+def fetch(url):
+    """Fetch with bounded retry on TRANSPORT failures only.
+
+    Retried: connection/timeout/incomplete-read exceptions, and
+    transient edge statuses (429/502/503/504). Never retried: other
+    HTTP statuses, and (by the caller) byte mismatches.
+    Returns (status, body, error, attempts): error is None on a clean
+    non-transient response, else the transport error text or the
+    transient "HTTP <status>" label after the final attempt.
+    """
+    status, body, error = 0, b"", "no attempt made"
+    for attempt in range(1, RETRY_ATTEMPTS + 1):
+        status, body, error = _fetch_once(url)
+        if error is None and status not in TRANSIENT_HTTP:
+            return status, body, None, attempt
+        detail = error if error is not None else f"HTTP {status}"
+        if attempt < RETRY_ATTEMPTS:
+            print(f"publish-verify: retry {url} attempt "
+                  f"{attempt}/{RETRY_ATTEMPTS} after transport failure: "
+                  f"{detail}; sleeping {RETRY_BACKOFF_S[attempt - 1]}s",
+                  flush=True)
+            time.sleep(RETRY_BACKOFF_S[attempt - 1])
+    return status, body, detail, RETRY_ATTEMPTS
 
 
 def main():
@@ -85,14 +144,18 @@ def main():
 
     # Live mode.
     base = args.base_url.rstrip("/")
-    s, body = fetch(f"{base}/data/publish-manifest.json")
+    manifest_url = f"{base}/data/publish-manifest.json"
+    s, body, err, attempts = fetch(manifest_url)
     if s != 200:
-        print(f"publish-verify: FAIL live publish-manifest fetch: HTTP {s}")
+        detail = f"HTTP {s}" if s else f"transport error: {err}"
+        print(f"publish-verify: FAIL live publish-manifest fetch: "
+              f"url={manifest_url} {detail} after {attempts} attempt(s)")
         return 1
     try:
         live = json.loads(body.decode())
     except ValueError:
-        print("publish-verify: FAIL live publish-manifest is not JSON")
+        print("publish-verify: FAIL live publish-manifest is not JSON: "
+              f"url={manifest_url} first-bytes={body[:120]!r}")
         return 1
     if live.get("snapshot_sha") != expected["snapshot_sha"]:
         problems.append(
@@ -108,9 +171,13 @@ def main():
                 f"component {comp} asof: live={live_entry.get('asof')} "
                 f"expected={entry['asof']}")
         for rel in entry["paths"]:
-            s, body = fetch(f"{base}/{rel}")
+            url = f"{base}/{rel}"
+            s, body, err, attempts = fetch(url)
             if s != 200:
-                problems.append(f"{rel}: live fetch HTTP {s}")
+                detail = f"HTTP {s}" if s else f"transport error: {err}"
+                problems.append(
+                    f"{rel}: live fetch failed url={url} {detail} "
+                    f"after {attempts} attempt(s)")
                 continue
             live_hash = hashlib.sha256(body).hexdigest()
             try:
