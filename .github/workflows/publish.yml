@@ -174,6 +174,10 @@ jobs:
           name: publish-site-${{ github.run_id }}
           path: site-tree
           if-no-files-found: error
+          # Proof artifacts must contain dotfiles too (upload-artifact
+          # excludes hidden files by default): future verification of
+          # .well-known/security.txt depends on the proof tree.
+          include-hidden-files: true
 
       - name: Detect Pages source
         id: pages
@@ -184,11 +188,41 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Build Pages artifact tar (Actions source only)
+        if: steps.pages.outputs.build_type == 'workflow'
+        run: |
+          # upload-pages-artifact's tar excludes top-level dot-paths
+          # (--exclude=".[^/]*"), which drops .well-known/security.txt
+          # and .nojekyll from EVERY deployment (proven: the proof
+          # artifact of run 41209812356 contains zero dot-paths, and
+          # live security.txt 404s even cache-busted). Build the tar
+          # ourselves with the same shape (tar of the site root,
+          # .git/.github excluded) but WITHOUT the dot-path exclusion,
+          # then upload it as the github-pages artifact for
+          # deploy-pages below. If deploy-pages ever rejects this
+          # artifact, revert to upload-pages-artifact (and accept
+          # security.txt 404 as a platform limit) — the deploy step
+          # fails loudly, it cannot silently deploy a partial tree.
+          tar --dereference --hard-dereference \
+            --directory site-tree \
+            -cf "$RUNNER_TEMP/artifact.tar" \
+            --exclude=.git --exclude=.github .
+          # Fail loud, never silently deploy without security.txt:
+          # if it is in the tree it must be in the tar.
+          if [ -f site-tree/.well-known/security.txt ]; then
+            tar -tf "$RUNNER_TEMP/artifact.tar" | grep -q "well-known/security.txt" \
+              || { echo "FAIL: security.txt missing from Pages tar"; exit 1; }
+            echo "Pages tar contains .well-known/security.txt"
+          fi
+
       - name: Upload Pages artifact (Actions source only)
         if: steps.pages.outputs.build_type == 'workflow'
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-artifact@v4
         with:
-          path: site-tree
+          name: github-pages
+          path: ${{ runner.temp }}/artifact.tar
+          retention-days: 1
+          if-no-files-found: error
 
       - name: Deploy to GitHub Pages (Actions source only)
         if: steps.pages.outputs.build_type == 'workflow'
