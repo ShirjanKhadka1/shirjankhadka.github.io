@@ -115,17 +115,53 @@ function main() {
   const buildToday = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Asia/Kathmandu', year: 'numeric', month: '2-digit', day: '2-digit',
   }).format(new Date());
+  /* Outcome vocabulary (split 2026-10-31): "withdrawn" = a proposal existed
+     then was withdrawn/cancelled (Closed, never "no dividend");
+     "no_declaration" = no dividend was ever declared (pill "No dividend",
+     figures "-"). Legacy "not_distributed" rows are read by figures via
+     the dividend-calendar join: figures present -> withdrawn, figures
+     absent -> no_declaration. */
+  function normOutcome(it) {
+    const oc = String(it.outcome || '');
+    if (oc === 'withdrawn') return 'withdrawn';
+    if (oc === 'no_declaration') return 'no_declaration';
+    if (oc !== 'not_distributed') return '';
+    const rec = divMatch(it);
+    if (rec && (Number(rec.bonus_share) > 0 || Number(rec.cash_dividend) > 0)) return 'withdrawn';
+    return 'no_declaration';
+  }
   function statusAt(it, today) {
     const k = String(it.kind || '');
+    /* Withdrawn proposals are Closed by decision; no-declaration FYs are
+       "No dividend" (a third state, neither Open nor Closed) - never Closed,
+       never Open on announcement recency. */
+    const oc = normOutcome(it);
+    if (oc === 'withdrawn') return 'Closed';
+    if (oc === 'no_declaration') return 'No dividend';
+    if (k === 'ipo' || k === 'auction') {
+      /* No ipo/auction items on file (2026-10-31); the branch is dormant
+         and uses only fields already in the codebase vocabulary. */
+      const winOpen = String(it.opening_date || '').slice(0, 10);
+      const winClose = String(it.closing_date || '').slice(0, 10);
+      if (/^\d{4}-\d{2}-\d{2}$/.test(winOpen) && /^\d{4}-\d{2}-\d{2}$/.test(winClose)) {
+        if (today > winClose) return 'Closed';
+        if (today >= winOpen) return 'Open';
+        return 'Pending';
+      }
+      const bc = divBookclose(it);
+      if (/^\d{4}-\d{2}-\d{2}$/.test(bc)) return bc < today ? 'Closed' : 'Pending';
+      const ann = /^(\d{4}-\d{2}-\d{2})/.exec(String(it.announced || ''));
+      if (ann) { const days = daysBetween(ann[1], today); if (days >= 0 && days <= 365) return 'Pending'; }
+      return null;
+    }
     if (k !== 'dividend' && k !== 'bonus-share' && k !== 'right-share') return null;
-    /* Decided-not-to-distribute (e.g. SMFBS FY 2082/83): no dividend exists,
-       hence no book-close date will ever arrive — Closed by decision, never
-       Open on a missing book-close. */
-    if (it.outcome === 'not_distributed') return 'Closed';
     const bc = divBookclose(it);
-    if (/^\d{4}-\d{2}-\d{2}$/.test(bc)) return bc < today ? 'Closed' : 'Open';
+    /* Right shares: announced but not yet open render Pending, not Open -
+       Open only once a window is recorded. Dividends/bonus keep the old
+       date machine (future book-close -> Open). */
+    if (/^\d{4}-\d{2}-\d{2}$/.test(bc)) return bc < today ? 'Closed' : (k === 'right-share' ? 'Pending' : 'Open');
     const ann = /^(\d{4}-\d{2}-\d{2})/.exec(String(it.announced || ''));
-    if (ann) { const days = daysBetween(ann[1], today); if (days >= 0 && days <= 365) return 'Open'; }
+    if (ann) { const days = daysBetween(ann[1], today); if (days >= 0 && days <= 365) return k === 'right-share' ? 'Pending' : 'Open'; }
     return null;
   }
   function symChip(sym) {
@@ -165,12 +201,15 @@ function main() {
     const kk = normKind(it.kind), kind = kindLabel(kk), dot = ' <span class="na-dot">·</span> ';
     const st = statusAt(it, buildToday);
     const status = st
-      ? '<span class="na-status ' + (st === 'Open' ? 'is-open' : 'is-closed') +
-        '" data-bc="' + esc(divBookclose(it)) + '" data-ann="' + esc(String(it.announced || '').slice(0, 10)) + '">' + st + '</span>'
+      ? '<span class="na-status ' + (st === 'Open' ? 'is-open' : st === 'Closed' ? 'is-closed' : st === 'Pending' ? 'is-pending' : 'is-nodiv') +
+        '" data-bc="' + esc(divBookclose(it)) + '" data-ann="' + esc(String(it.announced || '').slice(0, 10)) + (normOutcome(it) ? '" data-outcome="' + esc(normOutcome(it)) + '"' : '"') + '>' + st + '</span>'
       : '';
-    const note = it.outcome === 'not_distributed'
+    const oc = normOutcome(it);
+    const note = oc === 'no_declaration'
       ? '<p class="na-note">Board decided not to distribute a dividend' + (it.fiscal_year ? ' for FY ' + esc(it.fiscal_year) : '') + '.</p>'
-      : '';
+      : oc === 'withdrawn'
+        ? '<p class="na-note">Proposal withdrawn.</p>'
+        : '';
     let facts = '';
     if (it.facts && typeof it.facts === 'object') {
       const rows = [];
@@ -231,11 +270,13 @@ function main() {
     kinds.map((k) => '<span class="na-mix-seg k-' + esc(k) + '" style="width:' + (kc[k] / items.length * 100).toFixed(1) + '%"></span>').join('') + '</div>';
   const mixLegend = '<div class="na-mix-legend">' + kinds.map((k) =>
     '<span class="na-mix-item"><i class="na-mix-dot k-' + esc(k) + '"></i>' + esc(kindLabel(k)) + ' <b>' + kc[k] + '</b></span>').join('') + '</div>';
-  let open = 0, closed = 0, nostatus = 0;
+  let open = 0, closed = 0, pending = 0, nodiv = 0, nostatus = 0;
   items.forEach((it) => {
     const st = statusAt(it, buildToday);
     if (st === 'Open') open++;
     else if (st === 'Closed') closed++;
+    else if (st === 'Pending') pending++;
+    else if (st === 'No dividend') nodiv++;
     else nostatus++;
   });
   const statusBar = open
@@ -263,7 +304,7 @@ function main() {
     '<section class="na-viz" aria-label="Archive overview">' +
     '<div class="na-viz-panel"><h2 class="na-viz-head">Notice mix</h2>' + mixBar + mixLegend + '</div>' +
     '<div class="na-viz-panel"><h2 class="na-viz-head">Dividend &amp; rights status</h2>' +
-    '<div class="na-statline"><span><b>' + open + '</b> Open</span><span><b>' + closed + '</b> Closed</span></div>' +
+    '<div class="na-statline"><span><b>' + open + '</b> Open</span><span><b>' + closed + '</b> Closed</span>' + (pending ? '<span><b>' + pending + '</b> Pending</span>' : '') + (nodiv ? '<span><b>' + nodiv + '</b> No dividend</span>' : '') + '</div>' +
     statusBar + '<p class="na-viz-note">' + nostatus + ' promoter / lock-in notices carry no book-close date and show no status.</p></div>' +
     '<div class="na-viz-panel"><h2 class="na-viz-head">Upcoming book-closes</h2>' + closesHTML + '</div></section>';
 
@@ -385,7 +426,7 @@ function main() {
   console.log(JSON.stringify({
     page: 'nepse-actions/index.html', bytes: html.length, items: items.length, pages,
     sessions: sessDates.length, sectors: sectors.length, sectorTotal: secTotal,
-    open, closed, nostatus, upcomingCloses: up.map((u) => u.it.symbol + ':' + u.bc),
+    open, closed, pending, nodiv, nostatus, upcomingCloses: up.map((u) => u.it.symbol + ':' + u.bc),
     stamps: st
   }, null, 2));
 }

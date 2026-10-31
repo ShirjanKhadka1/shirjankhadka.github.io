@@ -217,6 +217,8 @@ const SP_STYLES =
 '.inv-pill{display:inline-block;padding:3px 12px;border-radius:999px;font-size:.75rem;font-weight:700}\n' +
 '.inv-pill-open{background:rgba(74,222,128,.15);color:var(--nd-up,#4ADE80);border:1px solid rgba(74,222,128,.4)}\n' +
 '.inv-pill-closed{background:rgba(255,255,255,.05);color:var(--nd-dim,#8E98A8);border:1px solid var(--nd-border,#1E2430)}\n' +
+'.inv-pill-nodiv{background:rgba(255,255,255,.05);color:var(--nd-dim,#8E98A8);border:1px solid var(--nd-border,#1E2430)}\n' +
+'.inv-pill-pending{background:rgba(255,255,255,.05);color:var(--nd-dim,#8E98A8);border:1px dashed var(--nd-border,#1E2430)}\n' +
 '.inv-cal-foot{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-top:.9rem;flex-wrap:wrap}\n' +
 '.inv-cal-info{font-size:.85rem;color:var(--nd-dim,#8E98A8)}\n' +
 '.inv-cal-pages{display:flex;gap:6px;align-items:center}\n' +
@@ -1034,12 +1036,24 @@ function investmentCalendarCard(sym, name, hist) {
       const bcMarkedClosed = /\[closed\]/i.test(bcRaw);
       const bcDisp = bcRaw.replace(/\s*\[closed\]/i, '').trim();
       const bcIso = ((/^(\d{4}-\d{2}-\d{2})/.exec(bcDisp) || [])[1]) || '';
-      /* Withdrawn proposal (outcome=not_distributed, same vocabulary as the
-       * actions page): no book close ever existed, so never a guessed date —
-       * the row renders Closed with the reason in place of a date. */
-      const withdrawn = String(d.outcome || '') === 'not_distributed';
+      /* Outcome vocabulary (split 2026-10-31: one value conflated two realities
+       * and mislabeled both):
+       * - withdrawn: a proposal existed, later withdrawn/cancelled - the matter
+       *   is Closed, never 'no dividend'. No book close ever existed, so never
+       *   a guessed date - the row renders Closed with the reason in place of
+       *   a date.
+       * - no_declaration: no dividend was ever declared - figures render as
+       *   dashes and the status pill reads 'No dividend' (a third state,
+       *   neither Open nor Closed).
+       * Legacy not_distributed rows are read by figures: figures present means
+       * a proposal existed (withdrawn); figures absent means nothing was
+       * declared (no_declaration). */
+      const oc = String(d.outcome || '');
+      const hasFig = Number(d.bonus_share) > 0 || Number(d.cash_dividend) > 0;
+      const withdrawn = oc === 'withdrawn' || (oc === 'not_distributed' && hasFig);
+      const noDecl = oc === 'no_declaration' || (oc === 'not_distributed' && !hasFig);
       const withdrawNote = stripTags(d.note || '');
-      const bcCell = withdrawn ? (withdrawNote || 'Proposal withdrawn — no dividend') : (bcDisp || '–');
+      const bcCell = withdrawn ? (withdrawNote || 'Proposal withdrawn') : (bcDisp || '–');
       const fy = String(d.year || d.fiscal_year || '');
       const annRaw = stripTags(d.announcement_date || d.announced || '');
       const annIso = ((/^(\d{4}-\d{2}-\d{2})/.exec(annRaw) || [])[1]) || '';
@@ -1050,7 +1064,8 @@ function investmentCalendarCard(sym, name, hist) {
         '<td>' + esc(fy || '–') + '</td>' +
         '<td><span class="inv-cal-divstatus" data-bc="' + esc(bcIso) + '"' +
         (annIso ? ' data-ann="' + esc(annIso) + '"' : '') +
-        (bcMarkedClosed || withdrawn ? ' data-closed="1"' : '') + '></span></td></tr>\n';
+        (bcMarkedClosed || withdrawn ? ' data-closed="1"' : '') +
+        (noDecl ? ' data-nodecl="1"' : '') + '></span></td></tr>\n';
     }
     h += '</tbody></table></div>\n';
   } else {
@@ -1077,11 +1092,12 @@ function investmentCalendarCard(sym, name, hist) {
   }
   h += '</div>\n';
 
-  // Right share table
+  // Right share table (history rows + announced Pending rows merged in main()).
   h += '<div class="inv-cal-tablewrap" data-inv-panel="rights" hidden>\n';
   if (rights.length) {
     h += '<div class="inv-cal-scroll nd-tablewrap"><table class="inv-cal-table nd-table nd-table--dense">\n<thead><tr>' +
       '<th scope="col">Ratio</th><th scope="col">Units</th><th scope="col">Price (Rs)</th>' +
+      '<th scope="col">Book Close</th><th scope="col">Status</th>' +
       '</tr></thead>\n<tbody>\n';
     for (const r of rights) {
       const ratio = stripTags(r.ratio_value || r.ratio || r.right_ratio);
@@ -1092,9 +1108,19 @@ function investmentCalendarCard(sym, name, hist) {
       const priceRaw = stripTags(r.issue_price || r.price || r.rate);
       const priceNum = Number(String(priceRaw).replace(/,/g, ''));
       const price = priceRaw ? (Number.isFinite(priceNum) ? priceNum.toFixed(2) : priceRaw) : '–';
+      const bcR = stripTags(r.bookclose_date || '');
+      const bcRIso = ((/^(\d{4}-\d{2}-\d{2})/.exec(bcR) || [])[1]) || '';
+      const closeR = stripTags(r.closing_date || '');
+      const closeRIso = ((/^(\d{4}-\d{2}-\d{2})/.exec(closeR) || [])[1]) || '';
       h += '<tr><td>' + esc(ratio || '–') + '</td>' +
         '<td>' + esc(units) + '</td>' +
-        '<td>' + esc(price) + '</td></tr>\n';
+        '<td>' + esc(price) + '</td>' +
+        '<td>' + esc(bcRIso || '\u2013') + '</td>' +
+        '<td><span class="inv-cal-rightstatus"'
+        + (r._pending ? ' data-pending="1"' : '')
+        + (bcRIso ? ' data-bc="' + esc(bcRIso) + '"' : '')
+        + (closeRIso ? ' data-close="' + esc(closeRIso) + '"' : '')
+        + (r.announced ? ' data-ann="' + esc(stripTags(r.announced)) + '"' : '') + '></span></td></tr>\n';
     }
     h += '</tbody></table></div>\n';
   } else {
@@ -1781,6 +1807,8 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
    * date on record show an honest "–" (unknown) — never a guessed status. */
   h += 'card.querySelectorAll("[data-inv-panel=\\"dividends\\"] .inv-cal-divstatus").forEach(function(el){';
   h += 'var bc=el.getAttribute("data-bc")||"";';
+  /* No-declaration FYs (data-nodecl="1") render 'No dividend' - checked before any date logic. */
+  h += 'if(el.getAttribute("data-nodecl")==="1"){el.innerHTML="<span class=\\"inv-pill inv-pill-nodiv\\">No dividend</span>";return;}';
   h += 'if(el.getAttribute("data-closed")==="1"){el.innerHTML="<span class=\\"inv-pill inv-pill-closed\\">Closed</span>";return;}';
   h += 'var today="";try{today=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Kathmandu",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());}';
   h += 'catch(e){var kd=new Date(Date.now()+20700000);today=kd.getUTCFullYear()+"-"+("0"+(kd.getUTCMonth()+1)).slice(-2)+"-"+("0"+kd.getUTCDate()).slice(-2);}';
@@ -1790,6 +1818,19 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
   h += 'if(/^\\d{4}-\\d{2}-\\d{2}$/.test(ann)){var ad=new Date(ann+"T00:00:00"),td=new Date(today+"T00:00:00");';
   h += 'var daysOld=Math.floor((td-ad)/86400000);';
   h += 'if(daysOld>=0&&daysOld<=365){el.innerHTML="<span class=\\"inv-pill inv-pill-open\\">Open</span>";return;}}';
+  h += 'el.textContent="\\u2013";});';
+  /* Right-share status: announced rows stay Pending until their window opens
+   * (no window dates on record yet, so no Open state is computable); once the
+   * recorded book-close passes the row reads Closed. History rows read their
+   * closing date: Open while the window is open, Closed once it passes. */
+  h += 'card.querySelectorAll("[data-inv-panel=\\"rights\\"] .inv-cal-rightstatus").forEach(function(el){';
+  h += 'var bc=el.getAttribute("data-bc")||"";';
+  h += 'var cl=el.getAttribute("data-close")||"";';
+  h += 'var today="";try{today=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Kathmandu",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());}';
+  h += 'catch(e){var kd=new Date(Date.now()+20700000);today=kd.getUTCFullYear()+"-"+("0"+(kd.getUTCMonth()+1)).slice(-2)+"-"+("0"+kd.getUTCDate()).slice(-2);}';
+  h += 'if(el.getAttribute("data-pending")==="1"){if(/^\\d{4}-\\d{2}-\\d{2}$/.test(bc)&&bc<today){el.innerHTML="<span class=\\"inv-pill inv-pill-closed\\">Closed</span>";}else{el.innerHTML="<span class=\\"inv-pill inv-pill-pending\\">Pending</span>";}return;}';
+  h += 'if(/^\\d{4}-\\d{2}-\\d{2}$/.test(cl)){var closed=cl<today;';
+  h += 'el.innerHTML="<span class=\\"inv-pill "+(closed?"inv-pill-closed":"inv-pill-open")+"\\">"+(closed?"Closed":"Open")+"</span>";return;}';
   h += 'el.textContent="\\u2013";});';
   h += 'render();});';
   h += '})();</scr' + 'ipt>';
@@ -1912,6 +1953,52 @@ function main() {
       if (!a.symbol) continue;
       (actionsBySym[a.symbol] = actionsBySym[a.symbol] || []).push(a);
     }
+  }
+  /* Announced right shares (corporate-actions.json) merged into the history
+   * rights tab as Pending rows - an announced proposal must never render as
+   * an empty tab. Dedup: skip an announced item only when a history row
+   * already carries the same normalized ratio AND its opening or closing
+   * date falls within 0-365 days before the announced date (the same issue
+   * already recorded). Display ratio: facts "Right Ratio" verbatim when
+   * present (e.g. "1:1 (100%)"), else the N:M from the headline, else "" -
+   * never invented. Units/price stay "-" until the offer document states
+   * them. */
+  const normRatio = (s) => {
+    const m = /(\d+(?:\.\d+)?\s*:\s*\d+(?:\.\d+)?)/.exec(String(s || ''));
+    return m ? m[1].replace(/\s+/g, '') : '';
+  };
+  const dispRatio = (it) => {
+    if (it.facts && it.facts['Right Ratio']) return String(it.facts['Right Ratio']);
+    return normRatio(it.headline);
+  };
+  const daysBefore = (ann, d) => {
+    const a = new Date(ann + 'T00:00:00'), b = new Date(d + 'T00:00:00');
+    if (Number.isNaN(a) || Number.isNaN(b)) return -1;
+    return Math.floor((a - b) / 86400000);
+  };
+  for (const a of (actionsData.items || [])) {
+    if (a.kind !== 'right-share' || !a.symbol) continue;
+    if (!corpHist[a.symbol]) corpHist[a.symbol] = {};
+    const ratio = normRatio(dispRatio(a));
+    const ann = String(a.announced || '').slice(0, 10);
+    const hist = corpHist[a.symbol].rights || [];
+    const dup = hist.some((r) => {
+      if (normRatio(r.ratio_value || r.ratio || r.right_ratio || '') !== ratio) return false;
+      for (const k of ['opening_date', 'closing_date']) {
+        const dd = String(r[k] || '').slice(0, 10);
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dd) && /^\d{4}-\d{2}-\d{2}$/.test(ann)) {
+          const n = daysBefore(ann, dd);
+          if (n >= 0 && n <= 365) return true;
+        }
+      }
+      return false;
+    });
+    if (dup) continue;
+    hist.unshift({
+      ratio_value: dispRatio(a), total_units: '', issue_price: '',
+      bookclose_date: a.bookclose_date || '', announced: ann, _pending: true,
+    });
+    corpHist[a.symbol].rights = hist;
   }
   // Canonical live quotes (NEPSE API) for the headline price snapshot.
   const live = loadJson(path.join(DATA, 'live.json'), null);
