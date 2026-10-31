@@ -11,7 +11,7 @@
 
   var ORDER = ['Banking', 'Development Bank', 'Finance', 'Hotels And Tourism',
     'Hydropower', 'Investment', 'Life Insurance', 'Manufacturing And Processing',
-    'Microfinance', 'Non Life Insurance', 'Others', 'NEPSE'];
+    'Microfinance', 'Non Life Insurance', 'Others', 'Trading', 'NEPSE'];
   var SHORT = {
     BS: ['Bai', 'Jes', 'Ash', 'Shr', 'Bha', 'Asw', 'Kar', 'Man', 'Pou', 'Mag', 'Fal', 'Cha'],
     AD: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
