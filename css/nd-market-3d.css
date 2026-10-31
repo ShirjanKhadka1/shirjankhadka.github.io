@@ -93,7 +93,7 @@
   border: 1px solid var(--nd-d3-line);
   border-radius: 12px;
   box-shadow: var(--nd-d3-rim), var(--nd-d3-e1);
-  transition: all var(--nd-d3-t);
+  transition: transform var(--nd-d3-t), box-shadow var(--nd-d3-t), border-color var(--nd-d3-t), color var(--nd-d3-t), background-color var(--nd-d3-t);
 }
 .nd-active-tabs button:hover {
   transform: translateY(-1px);
@@ -174,7 +174,7 @@
   border: 1px solid var(--nd-d3-line);
   border-radius: 12px;
   box-shadow: var(--nd-d3-rim), var(--nd-d3-e1);
-  transition: all var(--nd-d3-t);
+  transition: transform var(--nd-d3-t), box-shadow var(--nd-d3-t), border-color var(--nd-d3-t), color var(--nd-d3-t), background-color var(--nd-d3-t);
 }
 .ds-pill:hover, .ds-page-btn:hover {
   transform: translateY(-1px);
@@ -249,7 +249,7 @@
   border: 1px solid var(--nd-d3-line);
   border-radius: 12px;
   box-shadow: var(--nd-d3-rim), var(--nd-d3-e1);
-  transition: all var(--nd-d3-t);
+  transition: transform var(--nd-d3-t), box-shadow var(--nd-d3-t), border-color var(--nd-d3-t), color var(--nd-d3-t), background-color var(--nd-d3-t);
 }
 .ipo-tab:hover, .ipo-statusfilter button:hover, .ipo-sf:hover {
   transform: translateY(-1px);
@@ -323,7 +323,7 @@
   border: 1px solid var(--nd-d3-line);
   border-radius: 12px;
   box-shadow: var(--nd-d3-rim), var(--nd-d3-e1);
-  transition: all var(--nd-d3-t);
+  transition: transform var(--nd-d3-t), box-shadow var(--nd-d3-t), border-color var(--nd-d3-t), color var(--nd-d3-t), background-color var(--nd-d3-t);
 }
 .nn-tabs button:hover, .nn-pills button:hover {
   transform: translateY(-1px);
@@ -427,7 +427,7 @@
   border: 1px solid var(--nd-d3-line);
   border-radius: 10px;
   box-shadow: var(--nd-d3-rim), var(--nd-d3-e1);
-  transition: all var(--nd-d3-t);
+  transition: transform var(--nd-d3-t), box-shadow var(--nd-d3-t), border-color var(--nd-d3-t), color var(--nd-d3-t), background-color var(--nd-d3-t);
 }
 .d2-seg button:hover, .sx-sort button:hover {
   transform: translateY(-1px);
@@ -462,7 +462,21 @@
 @media (prefers-reduced-motion: reduce) {
   .nd-ixcard, .nd-movecard, .nd-engine-list > *, .nd-newsgrid > *,
   .ds-ov-card, .ds-range-block, .ipo-stat, .nn-card, .nn-featured-art,
-  .sx-cards > *, .sx-heat .sx-cell, .d2-card { transition: none; }
+  .sx-cards > *, .sx-heat .sx-cell, .d2-card,
+  .nd-active-tabs button, .ds-pill, .ds-page-btn, .ipo-tab,
+  .ipo-statusfilter button, .ipo-sf, .nn-tabs button, .nn-pills button,
+  .d2-seg button, .sx-sort button { transition: none; }
   .nd-ixcard:hover, .nd-movecard:hover, .nn-card:hover,
-  .sx-cards > *:hover { transform: none; }
+  .sx-cards > *:hover, .nd-active-tabs button:hover, .ds-pill:hover,
+  .ds-page-btn:hover, .ipo-tab:hover, .ipo-statusfilter button:hover,
+  .ipo-sf:hover, .nn-tabs button:hover, .nn-pills button:hover,
+  .d2-seg button:hover, .sx-sort button:hover { transform: none; }
+}
+
+
+@media (pointer:coarse){
+  .nd-active-tabs button:hover, .ds-pill:hover, .ds-page-btn:hover,
+  .ipo-tab:hover, .ipo-statusfilter button:hover, .ipo-sf:hover,
+  .nn-tabs button:hover, .nn-pills button:hover, .d2-seg button:hover,
+  .sx-sort button:hover{transform:none}
 }

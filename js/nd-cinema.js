@@ -13,6 +13,7 @@
  */
 (function () {
   'use strict';
+  document.documentElement.classList.add('js');
   var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- 1. count-up ---------- */

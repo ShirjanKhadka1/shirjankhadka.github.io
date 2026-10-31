@@ -281,3 +281,15 @@ a.sys-link:hover .sys-open{color:var(--nd-lime,#B8E62E)}
 /* "Too few trades" pill: light amber #B45309 on its amber gradient
    tint (#efe7e1) = 4.11:1; #92400E = 5.80:1 on the same tint. */
 [data-theme="light"] .rpill.rp-trail{color:#92400E}
+
+
+@media (prefers-reduced-motion: reduce){
+  .sig-tabs a, .sig-tabs button, .sig-card, .sig-table tbody tr,
+  .sig-pager button, .sig-sector{transition:none}
+  .sig-tabs a:hover:not(.active), .sig-tabs button:hover, .sig-card:hover,
+  .sig-pager button:hover:not(:disabled), .sig-sector:hover{transform:none}
+}
+@media (pointer:coarse){
+  .sig-tabs a:hover:not(.active), .sig-tabs button:hover, .sig-card:hover,
+  .sig-pager button:hover:not(:disabled), .sig-sector:hover{transform:none}
+}
