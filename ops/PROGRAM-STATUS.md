@@ -1,9 +1,125 @@
 # Program status — Nepse Decode publishing rebuild (P0–P8)
 
-Last updated: 2026-10-31 (Saturday, market closed). Main tip at last
-verification: `f10d6161` (#249 news migration merge) — re-read before acting.
-Data branch head at last verification: `2f110da8` (regime consistency
-rebuild; 16 components). Tags through `data-2026-10-31-6` on `2f110da8`.
+Last updated: 2026-11-01 (Sunday, market closed). Main tip at last
+verification: `d43a9f9b` (#290 baseline-refresh merge) — re-read before acting.
+Data branch head at last verification: `8e9ef20f` (advanced by data-branch
+writers after the Publish snapshot; see Nov-1 update below). Tags through
+`data-2026-11-01-1` on `debee81d` (first Nov-1 tag; the tag job names by RUN
+date NPT, so no `data-2026-10-31-11` was ever due).
+
+## Update — Oct-31 evening → Nov-1: Charter v3, P0 green, design complete
+
+Charter v3 (owner order Sat Oct-31 19:50) governs from here: this repo
+only; free tier only, nothing paid; branch protection + required
+checks stay; PR flow with auto-merge; no bypass of logins/CAPTCHAs/
+bot challenges/rate limits/bans; credentials in secrets only; no
+fabricated numbers; research framing, no advice. Proof = live bytes
+on production, never a run record. This file updates after every
+item (Charter Rule 4 resolution stands: render-per-run +
+PR-on-merge).
+
+Access emails CANCELLED (owner, Oct-31 20:03): providers charge for
+API access and a portfolio site will not get keys — no final email
+files created, nothing sent, Phase B drafts remain drafts. P1 leans
+on free tiers + adapter + cross-check + derived data.
+
+P0 — the 9-run Publish failure is SOLVED and Publish is GREEN.
+Every failure was at "Verify production bytes" on exactly one field,
+`nepse-actions/index.html` (component `content`). #272 settle-wait
+and #278 (cache-busting `?verify=` token + no-cache headers +
+purge-all-variants) did NOT fix it — the never-seen token STILL
+returned the wrong hash, refuting the poisoned-cache /
+propagation-delay theory. #283 instrumentation captured the
+runner's live bytes (artifact `publish-verify-report-41231693412`)
+and proved ee56: first 39,179 bytes byte-identical; the ONLY
+difference = one extra line before `</body>`, a Cloudflare Web
+Analytics beacon script (367 bytes). ee56 was never a stale page —
+it is the current page + edge-injected analytics, which is why it
+failed every time (actions is the sole verified HTML path; JSON
+never gets beacon injection). #288 (merged `c81dfdec`) makes the
+verifier beacon-tolerant for .html/.htm only (host/path match,
+never rotating token; symmetric strip; raw hashes kept as
+evidence; JSON byte-exact; analytics NOT disabled). Fixtures 8/8.
+Single dispatch run 41234496960 (head `c81dfdec`, data `debee81d`)
+= SUCCESS — the FIRST GREEN PUBLISH (publish: success, tag:
+success); runner log: 'beacon-tolerant ok for
+nepse-actions/index.html (stripped live=1 artifact=0; all other
+bytes identical)'; settle converged 5.4s (was 306s unconverged).
+Tag `data-2026-11-01-1` → `debee81d` (NOT -11: the tag job names by
+RUN date NPT; the Nov-1 run is the first Nov-1 tag). #289
+(merged `53e99c35`) then pinned every publish.yml action to its
+commit SHA (checkout 11d5960a, download-artifact d3f86a10,
+upload-artifact ea165f8d, deploy-pages d6db9016; zero @v refs
+remain); no Publish dispatched from #289 — the next Publish proves
+the pinned workflow.
+
+Design-consistency program COMPLETE (Hallmark method, identity
+kept: light `#F6F7F9`, dark `#0A0C10`, lime accent, Spectral +
+Inter + IBM Plex Mono, 48px controls, 3D rim-lit cards,
+pagination, sector blocks showing that sector's stocks). Merged:
+#267 tokens-glow, #275 table-system, #280 card-glow-text, #281
+stock-sweep, #284 family-tables, #285 utility-chrome, #287
+verification fixes, #290 baseline refresh (exactly 16 PNGs from
+the pinned Playwright container, reviewed as pictures). Visual
+regression GREEN on main (check 'Visual regression (Playwright
+container)' = success on `d43a9f9b`) and now REQUIRED: branch
+protection flipped 2026-11-01 02:39 (6 required contexts, strict +
+enforce_admins unchanged). NOT YET LIVE: main tip `d43a9f9b`
+awaits deploy — the last green Publish deployed `c81dfdec`
+(live cinema still PR5 pin `059962c7`; new pin `26c53113`). The
+deploy is the morning decision, not an overnight unilateral
+dispatch. Residuals (not silently fixed): accdist bar-label
+truncation at 1440 (electable polish, no data loss); daily
+turnover wrap at 1440 dark (daily lane); utility h1 Inter
+(utility-prose migration); actions-page generator `stamp()`
+reverts sweeps on regeneration (actions pipeline owner).
+
+Daily page: #261 overflow fix, #268 390px fix, #273 CHG fix (pin
+`7d942c13`, live), #274 market cap (NEPSE official Oct-30 total
+Rs 4,630,727,163,404.20; renderer omits the card when no total
+exists), #282 JS pin bump (`5883a188`, live; JS at the new pin
+contains `market_cap_total` ×1). Rendered-picture checks still
+owed (CHG card 1920/1280/390 light+dark; 390px × 3 sort URLs;
+market-cap card-OMITTED, not 'Unavailable', until Monday's first
+intraday snapshot, then the Nov-2 total).
+
+Brokers: #270 fixed the stale-stamp verifier failure (baker
+re-stamps from shipped bytes); PROOF OWED at brokers-daily Sun
+Nov-1 18:20 (expect stamp → `c7c8d184`, PASS 35 / WARN 1 / FAIL 0).
+CSP: #276 removed inline handlers (pin `ea2b2579`, 7 HTML files);
+flip GATED on live re-verify + one clean Report-Only cycle, then
+rename with the 30 script hashes + 'unsafe-inline' in style-src
+only. Strategy: #277 `docs/DATA_STRATEGY.md` live via green
+deploys. security.txt: #279 fixed the dot-path tar exclusion;
+live 200. Rollover: #286 merged, live manifest v106 (today
+2026-11-01, session 2026-10-30, CLOSED); #235 closed as
+superseded. Sources: #263 comparator + #269 Chukul collector
+merged (Oct-30 sample 0 discrepancies; collector verify-only);
+#256 dossiers merged (GATE B NOT satisfied); #257 wrap archive
+merged (17 entries); #259 content migration merged, run
+41193596480 success (announcements 124); #249 news proof landed
+(run 41187307563 success, 500 items).
+
+P2: retention dry run on main DONE — run 41241250254 (head
+`d43a9f9b`, default inputs, job `roll` success). NO live roll, no
+HOT data moved. Next: nightly cron ONLY for Phase-B-allowed
+datasets (owned/derived first).
+
+LIVE STATE (verified 2026-11-01, this node): manifest v106,
+today 2026-11-01, session 2026-10-30; daily pins CSS `7d942c13` +
+JS `5883a188`; JS at new pin contains `market_cap_total` ×1;
+live `nepse-actions/index.html` sha `88af99a6d50b` = artifact
+hash; security.txt 200.
+
+OWED, stated plainly: main tip `d43a9f9b` NOT live (see deploy
+decision above); this file's own live render rides the next
+Publish; rendered checks above; brokers-daily 18:20 proof;
+Monday Nov-2 acceptance (Worker /health transitions ~05:00 +
+~05:15 UTC, ShareSansar 17:30 with 0 unexplained discrepancies,
+Nov-2 finals on every board, perf collector first real written
+commit 11:00, report at close); PROGRAM-STATUS contents send after
+the weekend migration lands and again after Monday's close (not
+before).
 
 ## LIVE PROOF — first P2 deploy (2026-10-31)
 
@@ -81,7 +197,7 @@ bytes.
 | B1 | Repo Settings → General → Pull Requests → **Allow auto-merge** | Code PRs merge themselves once green; until then, PUT merge only, never hand-polling | FLIPPED by owner in UI (verified via API: `allow_auto_merge=true`) |
 | B2 | Repo Settings → Pages → Build and deployment → Source → **GitHub Actions** | The P2 publish workflow deploys nothing servable while Pages serves from the branch; pre-flip runs prove the artifact only | FLIPPED by owner in UI (verified via API: `build_type=workflow`). Live site still serves the last branch deployment (homepage 200, live.json asof 2026-10-30T15:00 — no outage from the flip) until the first Actions deploy succeeds |
 | B3 | Repo Settings → Secrets → **CLOUDFLARE_API_TOKEN** + **CLOUDFLARE_ZONE_ID** | Post-flip purge step in the publish workflow; absent secrets fail the job loudly (never silently stale) | CLOSED 2026-10-31: owner added both secrets in UI (~06:33–06:34 NPT); proven by Publish run 41159785960 (purge step success, no Cloudflare rejection) + workflow tag `data-2026-10-31-3`. UI rerun of 41150937610 no longer needed |
-| B4 | Token scope: **Actions read+write** for this repo (token currently 403s workflow_dispatch) | `workflow_dispatch` is the writer's primary publish trigger; without it, only push-to-data triggers (which work) and UI dispatch (owner clicks Run workflow) can start runs | OPEN — fallback ready (push-to-data) |
+| B4 | Token scope: **Actions read+write** for this repo (token previously 403d workflow_dispatch) | `workflow_dispatch` is the writer's primary publish trigger | CLOSED 2026-11-01: token now dispatches workflows — proven by Publish dispatch 41234496960 (success) and retention dispatch 41241250254 (success). Token Repo_Auto carries Contents R/W, Pull requests R/W, Workflows R/W, Metadata RO + Administration R/W (Administration granted by owner in UI 2026-10-31 19:56, verified via protection GET 200) |
 | B5 | Repo Settings → Environments → **github-pages** → Deployment branches → add **`data`** | Post-flip deploys from data pushes hit the environment's main-only branch rule (proven: run 41147393968 rejected in 2s, no steps, no runner). Without B5, data-push runs prove the artifact but fail at deploy; main-branch (UI dispatch) runs deploy fine | MOOT — deploy-pages without the job-level environment does NOT hit the branch rule (run 41149221033 step 14 succeeded from branch `data`). No owner action needed. (The job-level environment block was the trigger; #239 removed it.) |
 
 ## Program P0–P8
@@ -98,6 +214,23 @@ bytes.
 | P6 — vendor login (Capital Max MF): terms-checked re-auth or last-known-good + STALE badge | NOT STARTED | MF snapshot blocked on sign-in wall (2026-10-30 18:45, 2nd consecutive); do-not-re-ask rule stands |
 | P7 — ONE events table (actions page + ledger + stock pages + sitemap) | NOT STARTED | Ledger-vs-page gap known (ledger builder doesn't know `outcome=not_distributed`); page is source of truth until P7 |
 | P8 — auto-recovery or loud alert per failure class; watchdog; /status rates | PARTIAL | This file is the /status half; standing live gate built + scheduled (30-min cron; 2026-10-31 08:48 run GATE OK, 28 pass, 0 fail, 2 by-design skips); watchdog + alert dedup for other jobs still open |
+
+### P0–P8 deltas — Nov-1 (appended 2026-11-01; table above kept intact)
+
+- P2: Publish fully green on the new path (run 41234496960, head
+  `c81dfdec`, tag `data-2026-11-01-1`); the ee56 verifier failure
+  class is closed by #288 (beacon tolerance, analytics kept).
+- P5: hashed asset URLs STILL NOT STARTED; the pin-convergence run
+  (normalizing `ea2b2579`-style plain cache-busters to content
+  hashes) is still owed.
+- Phase D / design: visual regression is now a REQUIRED check (6
+  contexts); the design-lane gate migration to gate.yml is still
+  pending.
+- Publishers table below is current through data head `2f110da8`
+  (Oct-31); the data branch has since advanced to `8e9ef20f`
+  (verified Nov-1) and the tagged Publish snapshot is `debee81d`.
+  Component-level asof refresh for the new head is NOT itemized
+  here — it rides the next full manifest read, not a guess.
 
 ## Publishers on the data branch (all written + blob-verified)
 
@@ -147,9 +280,37 @@ same-snapshot render).
 | #246 program status: #241/#242/#243 + B3 closed + live gate | DONE (merged 2026-10-31, auto-merge) | Merge `ab11e0bc`; file verified on main (blob `cb3adc3c`); renders to `/status/program-status.html` on the next Publish (not `/status/`, which is the pipeline-health page) |
 | #247 corporate-actions display: withdrawn vs no-declaration split | DONE (merged 2026-10-31, auto-merge) | Merge `b227c039`; vocabulary split (withdrawn → Closed; no_declaration → '- -' + 'No dividend'; announced rights → Pending); SMFBS template verified live; site-wide audit in the PR (div-live 45/46, corp-actions 28, rights 104 symbols, auctions 137; IPO/auction action items zero on file) |
 | #248 BPCL financials expansion | DONE (merged 2026-10-31) | Blog lane (other agent); merge `6dfc5788`; Publish on `6dfc578` green |
-| #249 news refresh: publish via data branch (GH006 fix) | DONE-code, PROOF PENDING (merged 2026-10-31, auto-merge) | Merge `f10d6161`; new `tools/news-data-writer.py` + rewritten `nepse-news-refresh.yml` (seed from data branch + stage via writer; items-hash no-change detection; SMTP alert unchanged). PROOF PENDING: the 12:23 user dispatch never appeared in the API (STALLED-NO-RUN, 15 min polling; latest still old failed 41172430353); proof needs a re-dispatch or the next scheduled tick. Component NOT yet registered in `data/_manifest.json` (still 16 components) — registration happens on the first migrated write |
+| #249 news refresh: publish via data branch (GH006 fix) | DONE (merged 2026-10-31, auto-merge; proof LANDED) | Merge `f10d6161`; new `tools/news-data-writer.py` + rewritten `nepse-news-refresh.yml` (seed from data branch + stage via writer; items-hash no-change detection; SMTP alert unchanged). PROOF LANDED 2026-10-31: run 41187307563 success (500 items); live via the green Publish deploys. Component registration in `data/_manifest.json` still to confirm on the next manifest read (16 components at last update). |
+| #256 Phase B dossiers | DONE (merged 2026-10-31) | 11 dossiers `docs/sources/` + `docs/DATA_SOURCES.md` + `docs/source-matrix.json` (13 files); merge `4d7f611c`. GATE B NOT SATISFIED: corporate-actions, fundamentals, ipo satisfied; news partial; mf-nav conditional (Capital Max use-with-account); index-close, floorsheet, broker-flow, daily-ohlc, monthly-ohlc, universe/reference BLOCKED (no permitted primary); CDSC/NRB/ChartNepali/ShareSansar cross-check only |
+| #257 wrap archive | DONE (merged 2026-10-31) | Merge `47143e88`; live wrap Oct-30 first, Oct-29 second; archive 17 entries. Follow-up owed: data branch still mirrors the Oct-28 wrap copy (wrap NOT a manifest component — registering it / teaching Publish to bake wrap = decision, not smuggled) |
+| #259 content via data branch | DONE (merged 2026-10-31; proof LANDED) | Merge `fa42106d`; `tools/content-data-writer.py`; run 41193596480 success; announcements 124. Old content pipeline GH006 failure resolved by migration |
+| #261 daily overflow | DONE (merged 2026-10-31) | Merge `dbdaf46e`; `minmax(0,1fr)` grid tracks (specificity bug in media rules fixed), sticky turnover bar, 3D glow cards, turnover wraps via `<wbr>` |
+| #263 ShareSansar comparator | DONE (merged 2026-10-31) | Merge `6741d5b4`; weekdays 17:30 NPT; artifact log only; Oct-30 sample 0 discrepancies. First scheduled run Mon Nov-2 17:30 |
+| #267 tokens-glow (design PR1) | DONE (merged 2026-10-31) | Merge `8f21b1c4`; tokens file + `--nd-glow-lime`, 591 files pin-only |
+| #268 390px turnover clipping | DONE (merged 2026-10-31) | Merge `f6749650`; shared `nd-chrome.css` sticky symbol column painting over text; page-scoped fix. Rendered 390px verification STILL OWED (live browser, 3 sort URLs) |
+| #269 Chukul collector | DONE (merged 2026-10-31) | Merge `2668f0c8`; workflow_dispatch ONLY, verify-only, stages nothing; Oct-30: 74,054 trades / 348 symbols / Rs 8,891,595,145.90 / 0 duplicates. COLLISION open: data branch already stages this dataset (`nepse-floorsheet/data/<date>/`, Oct 26–30) — consolidation decision owed |
+| #270 broker stamp | DONE (merged 2026-10-31) | Merge `47b8d11e`; baker now computes sha1[:8] of final shipped JS and rewrites the page reference (exactly-one assertion, fails loud); runs even on no-change days (self-heals). Root cause: #242 advanced DAILY_END but never re-stamped `?v=`. PROOF OWED: brokers-daily Sun Nov-1 18:20 — expect 'JS stamp refreshed to c7c8d184', verifier PASS 35 / WARN 1 / FAIL 0 |
+| #272 settle-wait | DONE (merged 2026-10-31) | Merge `1e085cff`; verifier waits for edge settle before strict live check. Did NOT fix ee56 (see Nov-1 update) |
+| #273 CHG fix | DONE (merged 2026-10-31) | Merge `19c0008f`; `.ds-overview.ds-ov-card.v { white-space: normal; }` (page-scoped; `nd-cinema.css:231` nowrap at equal specificity was winning); pin → `7d942c13`, live. Rendered-picture verification OWED (1920/1280/390, light+dark) |
+| #274 market cap | DONE (merged 2026-10-31) | Merge `94a1c2b7`; NEPSE official Oct-30 total Rs 4,630,727,163,404.20; fetcher writes `market_cap_total` only when summary turnover (0.1%) + transactions (1%) match snapshot sums; renderer prefers session total → per-quote sum → OMITS card when neither exists. JS pin bumped separately by #282 |
+| #275 table-system (design PR2) | DONE (merged 2026-10-31) | Merge `25611f40`; unified table section in `css/nd-cinema.css` + 83-file cinema pin sweep |
+| #276 CSP prereq | DONE (merged 2026-10-31) | Merge `3bc27a56`; `js/nepse-logos.js` no longer emits onerror/onload attributes (capture-phase document listeners); pin → `ea2b2579` in exactly 7 HTML files. #271 closed unmerged (superseded). FLIP GATED: live re-verify + one Report-Only cycle with no new violations, then rename Report-Only → CSP with the 30 script hashes + 'unsafe-inline' in style-src only |
+| #277 data strategy | DONE (merged 2026-10-31) | Merge `32babcbe`; one file `docs/DATA_STRATEGY.md` (10,626 bytes). Tiers: official/open only if terms+robots permit (currently NOT authorized — robots unknown, no documented API/terms); Capital Max conditional; Chukul floorsheet behind adapter + kill switch; ShareSansar cross-check only; derived aggregates published, never raw vendor rows. Market-cap durable path = versioned human-verified listed-shares dataset × price (schema only; dataset does not exist yet) |
+| #278 charter P0 spec | DONE (merged 2026-10-31) | Merge `3353a5ac`; cache-busting `?verify=` token + no-cache headers + purge-all-variants. Did NOT fix ee56 — the never-seen token STILL returned the wrong hash, refuting the poisoned-cache theory |
+| #279 security.txt artifact fix | DONE (merged 2026-10-31) | Merge `e706f5ad`; `upload-pages-artifact` tar `--exclude=".[^/]*"` was dropping every top-level dot-path; replaced with manual tar + `upload-artifact` as `github-pages` (+ `include-hidden-files: true` + fail-loud tar check). security.txt LIVE 200 (166 bytes, correct content) |
+| #280 card-glow-text (design PR3) | DONE (merged 2026-10-31) | Merge `6be65f3a`; kit tokenization, stat Spectral, reveal JS-scoping, hover guards, `transition:all` + reduced-motion fixes, 597 files |
+| #281 stock sweep (design PR4) | DONE (merged 2026-10-31) | Merge `6a662ad7`; generator template figure/num nowrap + 435 baked stock files (434 stock pages + `stocks/index.html`) + pin literal sync |
+| #282 JS pin bump | DONE (merged 2026-10-31) | Merge `1e808235`; one line: `nd-daily.js` pin → `5883a188` (= sha1[:8] of blob `ae6d0fb9`). #274 changed the JS but never updated its `?v=` pin; live JS at old pin `99df961b` had ZERO `market_cap_total`. Live since the #283 dispatch deploy; JS at new pin contains `market_cap_total` ×1. Rendered card-OMITTED check owed (card should be OMITTED, not 'Unavailable', until Monday's first intraday snapshot, then Nov-2 total) |
+| #283 verifier instrumentation | DONE (merged 2026-10-31) | Merge `7e59d66a`; verifier captures `live_body_b64` + `live_headers` + `live_final_url` on mismatch (diagnostic only, no pass/fail change). Its single dispatch (41231693412) captured the runner's live bytes and PROVED ee56: first 39,179 bytes byte-identical; the ONLY difference = one extra line before `</body>`, a Cloudflare Web Analytics beacon script (367 bytes) — edge-injected analytics, not a stale page |
+| #284 family tables (design PR5) | DONE (merged 2026-10-31) | Merge `3654c35e`; 19 cinema rules converging broker/signal/moneyflow/volume tables + 83-file sweep |
+| #285 utility chrome (design PR6) | DONE (merged 2026-10-31) | Merge `f67aeb6a`; privacy + data-terms onto shared chrome (about/contact excluded as portfolio; 404 already on shared chrome) |
+| #286 midnight rollover | DONE (merged 2026-10-31) | Merge `43b5a6aa`; Nov-1 00:05 run pushed via PR flow; live manifest v106, today_npt 2026-11-01 after the #283 dispatch deploy. Rollover workflow-proven end-to-end (merge + live) |
+| #287 verification fixes (design PR7) | DONE (merged 2026-10-31) | Merge `b796708b`; cinema PR7 section (+11 lines; `main.sig-wrap table.sig-table th` mono rule beating kit R2) + template peer-th mono + 435 stock files + 83-file sweep to cinema pin `26c53113` |
+| #288 beacon-tolerant verifier | DONE (merged 2026-11-01) | Merge `c81dfdec`; one file `tools/publish-verify.py`. For .html/.htm only, strips the single script element referencing `static.cloudflareinsights.com/beacon.min.js` (host/path match, never rotating token; empty body only) symmetrically from live AND artifact bytes before hashing, in settle and strict pass alike; raw hashes stay as evidence + stripped counts + 'beacon-tolerant ok' line; JSON byte-exact; unmatched beacon fails closed; Web Analytics NOT disabled. Fixtures 8/8 (incl. real ee56 pair → exit 0; JSON+beacon → fails; beacon+real-change → fails). FIRST GREEN PUBLISH: run 41234496960 (head c81dfdec, data debee81d) = SUCCESS (publish: success, tag: success); runner log 'beacon-tolerant ok for nepse-actions/index.html (stripped live=1 artifact=0; all other bytes identical)'; settle converged 5.4s (was 306s unconverged). Tag `data-2026-11-01-1` → debee81d (NOT -11: tag job names by RUN date NPT) |
+| #289 SHA-pinning publish.yml | DONE (merged 2026-11-01) | Merge `53e99c35`; exactly one file `.github/workflows/publish.yml`, 7 lines. Pinned: checkout ×2 @11d5960a, download-artifact ×1 @d3f86a10, upload-artifact ×3 @ea165f8d, deploy-pages ×1 @d6db9016 — each SHA API-resolved and equal to its v4 tag target (pure hardening, no behavior change); upload-pages-artifact needed no pin (replaced by manual tar in #279); zero @v refs remain (main blob `7546d478`). NO Publish dispatched from this PR (next Publish proves the pinned workflow) |
+| #290 baseline refresh | DONE (merged 2026-11-01) | Merge `d43a9f9b` (current main tip); exactly 16 PNGs, nothing else. Baselines generated in the pinned Playwright container (dispatch run 41236682898, artifact `visual-baselines-2751`, 15.5 MB), reviewed as pictures and approved. Visual regression GREEN on main (check 'Visual regression (Playwright container)' = success on d43a9f9b). VISUAL NOW REQUIRED: parent flipped branch protection 2026-11-01 02:39 (PUT contexts 200; verified 6 required contexts, strict + enforce_admins unchanged) |
 | #169, #173, #183, #186, #187 | OPEN — DO NOT HAND-MERGE | Stop rule from the 2026-10-31 04:50 order; parent sequences. NOTE: #173 is ALSO a perf PR (head `deploy/performance-snapshot-20261030-1411`, 13:41 snapshot) — see backlog row; its close needs an explicit parent call, not a blanket one |
-| #235 midnight rollover 2026-10-31 | OPEN — DO NOT MERGE, DO NOT CLOSE | Recommendation: close as superseded once P2 proves the rollover path |
+| #235 midnight rollover 2026-10-31 | CLOSED 2026-11-01 as superseded | Closed via API with comment citing #286 merged + live manifest v106; the rollover path is proven end-to-end (merge + live) |
 | #208 post-close sweep signals | OPEN | Likely superseded by #214/#223 absorption; diff-vs-main verification owed before any disposition (parent call) |
 | 40 performance-snapshot PRs (#161–#236, all created 2026-10-30) | OPEN — RECOMMENDATION ONLY, NO MASS-CLOSE | One PR per hourly run (incl. stalled pickups), each running CI that mails on failure — this is the inbox flood. All carry Oct-30 snapshots superseded by the single data-branch landing (Oct-30 23:41, `6b167615`) + the publish workflow (no PR per run). RECOMMENDATION (parent confirmation required): close all 40 as superseded by the data-branch path with a standard comment, #173 called out by name for its explicit confirmation (STOP-protected). Closing stops NEW CI mail; already-sent mail cannot be unsent. The job's own reroute LANDED via #241; first real written commit proven only Monday 11:00 NPT in-window run (forced publish deliberately avoided Saturday) |
 
@@ -408,6 +569,41 @@ The data branch is described in the charters as 'orphan'. That topology is UNVER
 21. Program-status contents send: after the weekend migration
     lands, and again after Monday's close (not before) — per the
     standing send rule.
+
+### Next steps — Nov-1 addendum (appended 2026-11-01; original list above kept intact)
+
+22. Deploy decision (morning): dispatch one Publish to deploy main tip
+    `d43a9f9b` (design PR7 + #289 + #290) live, or wait for the next
+    data-triggered Publish. Live still serves `c81dfdec` (cinema PR5
+    pin `059962c7`; new pin `26c53113`). Per the deploy rule, purge
+    each changed HTML page's URL before calling it live-verified.
+23. This file's live render (`/status/program-status.html`) rides the
+    next Publish — verify it then, not at merge time.
+24. Brokers-daily Sun Nov-1 18:20: #270 proof (stamp → `c7c8d184`,
+    verifier PASS 35 / WARN 1 / FAIL 0).
+25. Rendered-picture checks (live browser): #273 CHG card
+    (1920/1280/390, light+dark); #268 390px × 3 sort URLs; #274
+    market-cap card-OMITTED.
+26. P2: retention dry run on main DONE (run 41241250254, job `roll`
+    success, head `d43a9f9b`, default inputs). Next: nightly cron
+    ONLY for Phase-B-allowed datasets (owned/derived first).
+27. Monday Nov-2 acceptance + report at close: green Publish + tag;
+    Worker /health CLOSED→PRE_OPEN (~05:00 UTC) +
+    PRE_OPEN→CONTINUOUS (~05:15 UTC); Nov-2 finals on every board;
+    ShareSansar comparator 17:30 with 0 unexplained discrepancies;
+    no manual merge or dispatch; perf collector first real written
+    data commit 11:00; held queue (#169/#173/gates) + perf backlog
+    disposition via auto-merge/P2, never hand-merged.
+28. P1 remainders: listed-shares dataset build (human verification
+    is the bottleneck); Monday Chukul intraday measurement (does
+    by-date update intraday?); Capital Max tier-2 posture (never
+    bypass; re-login alert; last-known-good + STALE badge).
+29. Design residuals (electable / lane-owned, not silently fixed):
+    Finding 2 accdist bar-label truncation (no data loss — full
+    names in tables below); daily turnover wrap at 1440 dark
+    (daily lane); utility h1 Inter (utility-prose migration);
+    actions-page generator `stamp()` reverts sweeps on regeneration
+    (process fix belongs to the actions pipeline owner).
 
 ## Out of scope for this lane (parent/other lanes)
 
