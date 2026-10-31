@@ -47,9 +47,12 @@ function main() {
   };
   /* Optional outcome fields, stored only when non-empty so ordinary records
    * stay byte-identical in shape: fiscal_year (richness for the page merge),
-   * outcome=not_distributed for a proposal later withdrawn/amended to no
-   * dividend, and a human-readable note rendered in place of a book close
-   * date (which never existed for such rows). */
+   * outcome=withdrawn for a proposal later withdrawn/cancelled,
+   * outcome=no_declaration when no dividend was ever declared for the FY,
+   * and a human-readable note rendered in place of a book close date
+   * (which never existed for such rows). Legacy outcome=not_distributed is
+   * read by the builders from the figures: figures present -> withdrawn,
+   * figures absent -> no_declaration. */
   for (const k of ['fiscal_year', 'outcome', 'note']) {
     const v = String(r[k] || '').trim();
     if (v) rec[k] = v;

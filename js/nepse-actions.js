@@ -101,21 +101,45 @@
     if (rec) { var m2 = /^(\d{4}-\d{2}-\d{2})/.exec(String(rec.bookclose_date || '')); if (m2) return m2[1]; }
     return '';
   }
-  /* Status at view time. Promoter/lock-in/auction notices carry no
+  /* Status at view time. Promoter/lock-in notices carry no
      book-close and show no status pill. */
+  /* Outcome vocabulary (split 2026-10-31) - mirrors the builder. */
+  function normOutcome(it) {
+    var oc = String(it.outcome || '');
+    if (oc === 'withdrawn') return 'withdrawn';
+    if (oc === 'no_declaration') return 'no_declaration';
+    if (oc !== 'not_distributed') return '';
+    var rec = divMatch(it);
+    if (rec && (Number(rec.bonus_share) > 0 || Number(rec.cash_dividend) > 0)) return 'withdrawn';
+    return 'no_declaration';
+  }
   function statusOf(it) {
     var k = String(it.kind || '');
+    var oc = normOutcome(it);
+    if (oc === 'withdrawn') return 'Closed';
+    if (oc === 'no_declaration') return 'No dividend';
+    var today = nptToday();
+    if (k === 'ipo' || k === 'auction') {
+      var winOpen = String(it.opening_date || '').slice(0, 10);
+      var winClose = String(it.closing_date || '').slice(0, 10);
+      if (/^\d{4}-\d{2}-\d{2}$/.test(winOpen) && /^\d{4}-\d{2}-\d{2}$/.test(winClose)) {
+        if (today > winClose) return 'Closed';
+        if (today >= winOpen) return 'Open';
+        return 'Pending';
+      }
+      var bc0 = divBookclose(it);
+      if (/^\d{4}-\d{2}-\d{2}$/.test(bc0)) return bc0 < today ? 'Closed' : 'Pending';
+      var ann0 = /^(\d{4}-\d{2}-\d{2})/.exec(String(it.announced || ''));
+      if (ann0) { var days0 = daysBetween(ann0[1], today); if (days0 >= 0 && days0 <= 365) return 'Pending'; }
+      return null;
+    }
     if (k !== 'dividend' && k !== 'bonus-share' && k !== 'right-share') return null;
-    /* Decided-not-to-distribute (e.g. SMFBS FY 2082/83): no dividend exists,
-       hence no book-close date will ever arrive — Closed by decision, never
-       Open on a missing book-close. */
-    if (it.outcome === 'not_distributed') return 'Closed';
-    var today = nptToday(), bc = divBookclose(it);
-    if (/^\d{4}-\d{2}-\d{2}$/.test(bc)) return bc < today ? 'Closed' : 'Open';
+    var bc = divBookclose(it);
+    if (/^\d{4}-\d{2}-\d{2}$/.test(bc)) return bc < today ? 'Closed' : (k === 'right-share' ? 'Pending' : 'Open');
     var ann = /^(\d{4}-\d{2}-\d{2})/.exec(String(it.announced || ''));
     if (ann) {
       var days = daysBetween(ann[1], today);
-      if (days >= 0 && days <= 365) return 'Open';
+      if (days >= 0 && days <= 365) return k === 'right-share' ? 'Pending' : 'Open';
     }
     return null;
   }
@@ -185,12 +209,15 @@
     var kk = normKind(it.kind), kind = kindLabel(kk), dot = ' <span class="na-dot">·</span> ';
     var st = statusOf(it);
     var status = st
-      ? '<span class="na-status ' + (st === 'Open' ? 'is-open' : 'is-closed') +
-        '" data-bc="' + esc(divBookclose(it)) + '" data-ann="' + esc(String(it.announced || '').slice(0, 10)) + '">' + st + '</span>'
+      ? '<span class="na-status ' + (st === 'Open' ? 'is-open' : st === 'Closed' ? 'is-closed' : st === 'Pending' ? 'is-pending' : 'is-nodiv') +
+        '" data-bc="' + esc(divBookclose(it)) + '" data-ann="' + esc(String(it.announced || '').slice(0, 10)) + (normOutcome(it) ? '" data-outcome="' + esc(normOutcome(it)) + '"' : '"') + '>' + st + '</span>'
       : '';
-    var note = it.outcome === 'not_distributed'
+    var oc = normOutcome(it);
+    var note = oc === 'no_declaration'
       ? '<p class="na-note">Board decided not to distribute a dividend' + (it.fiscal_year ? ' for FY ' + esc(it.fiscal_year) : '') + '.</p>'
-      : '';
+      : oc === 'withdrawn'
+        ? '<p class="na-note">Proposal withdrawn.</p>'
+        : '';
     var facts = '';
     if (it.facts && typeof it.facts === 'object') {
       var rows = [];
@@ -290,17 +317,19 @@
     }
     /* Open / Closed among dividend + rights items. */
     if (statusEl) {
-      var open = 0, closed = 0, nostatus = 0;
+      var open = 0, closed = 0, pending = 0, nodiv = 0, nostatus = 0;
       items.forEach(function (it) {
         var st = statusOf(it);
         if (st === 'Open') open++;
         else if (st === 'Closed') closed++;
+        else if (st === 'Pending') pending++;
+        else if (st === 'No dividend') nodiv++;
         else nostatus++;
       });
       var bar = open ? '<div class="na-mix-bar" role="img" aria-label="Open ' + open + ', Closed ' + closed + '">' +
         '<span class="na-mix-seg k-open" style="width:' + (open / (open + closed || 1) * 100).toFixed(1) + '%"></span></div>' : '';
       statusEl.innerHTML = '<div class="na-statline"><span><b>' + open + '</b> Open</span>' +
-        '<span><b>' + closed + '</b> Closed</span></div>' + bar +
+        '<span><b>' + closed + '</b> Closed</span>' + (pending ? '<span><b>' + pending + '</b> Pending</span>' : '') + (nodiv ? '<span><b>' + nodiv + '</b> No dividend</span>' : '') + '</div>' + bar +
         '<p class="na-viz-note">' + nostatus + ' promoter / lock-in notices carry no book-close date and show no status.</p>';
     }
     /* Upcoming book-closes, nearest first. */
