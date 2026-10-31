@@ -67,6 +67,26 @@ afterwards is UNCHANGED: a mismatch still fails fast on first
 sight. Settle only moves the strict pass to after proven edge
 convergence; it never masks a real mismatch (a permanently stale
 path still fails the strict pass and is named exactly).
+
+CHARTER v3 P0 (2026-10-31, Publish run 41209812356 — the first run
+WITH settle): settle did NOT converge. The second artifact showed
+settle_converged=False after the full 306s budget, still unsettled
+on the same single path with the SAME live hash ee56d5f23f07, while
+a curl from another route served the artifact bytes throughout.
+That hash matches NO committed version of the page (last 15 commits
+on main and data checked) — so this is not propagation delay on a
+known version but a deterministic per-route difference (a stale
+non-git edge entry or a transformation on the runner's route).
+Settle-wait alone cannot fix a difference that never converges.
+P0 therefore stops trusting the edge cache for verification: every
+live fetch now carries a UNIQUE per-run cache-busting query string
+(`?verify=<token>`) plus `Cache-Control: no-cache` / `Pragma:
+no-cache` request headers, so the verifier reads origin bytes, not
+whatever a node cached. The companion purge change (publish.yml +
+publish-purge.py) purges every URL variant users actually fetch, so
+users get fresh bytes too. Settle stays as the retry layer (spec:
+retry up to N minutes for propagation; fail ONLY on a real
+mismatch) — with busting it should converge on the first round.
 """
 import argparse
 import datetime
@@ -78,6 +98,7 @@ import sys
 import time
 import urllib.error
 import urllib.request
+import uuid
 
 
 # Bounded retry for transport failures only. Attempts = 3 total;
@@ -97,6 +118,22 @@ def sha256(path):
     return h.hexdigest()
 
 
+def bust_url(url, token):
+    """Append the run's cache-bust token (None = URL unchanged).
+
+    Static origins (GitHub Pages) ignore the query string, so the
+    served bytes are the file's bytes — but edge caches key on the
+    full URL, so a never-before-seen query string cannot hit a stale
+    entry. Combined with the no-cache request headers below, the
+    verifier reads origin bytes even when a node holds a poisoned
+    entry for the clean URL (CHARTER v3 P0).
+    """
+    if not token:
+        return url
+    sep = "&" if "?" in url else "?"
+    return f"{url}{sep}verify={token}"
+
+
 def _fetch_once(url):
     """One fetch. Returns (status, body, error).
 
@@ -104,8 +141,13 @@ def _fetch_once(url):
     timeout, incomplete read); the caller decides whether to retry.
     An HTTP response — even an error status — returns its status with
     error None: HTTP statuses are not transport failures.
+    No-cache request headers: the verifier must never accept a cached
+    answer for a deploy it is gating (CHARTER v3 P0).
     """
-    req = urllib.request.Request(url, headers={"User-Agent": "muse-publish-verify"})
+    req = urllib.request.Request(url, headers={
+        "User-Agent": "muse-publish-verify",
+        "Cache-Control": "no-cache",
+        "Pragma": "no-cache"})
     try:
         with urllib.request.urlopen(req, timeout=30) as resp:
             return resp.status, resp.read(), None
@@ -197,9 +239,13 @@ def run(args, report):
               f"{len(expected['components'])}")
         return 0
 
-    # Live mode.
+    # Live mode. Every live URL carries the run's cache-bust token
+    # (CHARTER v3 P0): the token is generated once per run in main()
+    # and shared by the manifest fetch, the settle polls, and the
+    # strict pass, so all three read the same origin-backed entry.
     base = args.base_url.rstrip("/")
-    manifest_url = f"{base}/data/publish-manifest.json"
+    token = getattr(args, "cache_bust", None)
+    manifest_url = bust_url(f"{base}/data/publish-manifest.json", token)
     s, body, err, attempts = fetch(manifest_url)
     if s != 200:
         detail = f"HTTP {s}" if s else f"transport error: {err}"
@@ -299,7 +345,8 @@ def run(args, report):
             time.sleep(settle_interval)
         first_round = False
         for rel in sorted(unsettled):
-            s2, body2, err2, attempts2 = fetch(f"{base}/{rel}")
+            s2, body2, err2, attempts2 = fetch(bust_url(f"{base}/{rel}",
+                                                       token))
             if s2 == 200 and (hashlib.sha256(body2).hexdigest()
                               == art_hashes[rel]):
                 unsettled.discard(rel)
@@ -336,7 +383,7 @@ def run(args, report):
                 "attempts": attempts, "error": problems[-1],
                 "live_sha256": None, "artifact_sha256": None})
         for rel in entry["paths"]:
-            url = f"{base}/{rel}"
+            url = bust_url(f"{base}/{rel}", token)
             s, body, err, attempts = fetch(url)
             if s != 200:
                 detail = f"HTTP {s}" if s else f"transport error: {err}"
@@ -403,7 +450,18 @@ def main():
                     "before the strict pass; 0 = check once, do not wait")
     ap.add_argument("--settle-interval", type=float, default=15,
                     help="live mode only: seconds between settle polls")
+    ap.add_argument("--no-cache-bust", action="store_true",
+                    help="live mode only: do NOT append the per-run "
+                    "cache-bust query string (debugging only; default "
+                    "is busting ON)")
     args = ap.parse_args()
+
+    # CHARTER v3 P0: one unique token per live run, shared by every
+    # fetch in the run (manifest, settle polls, strict pass).
+    if args.mode == "live" and not args.no_cache_bust:
+        args.cache_bust = uuid.uuid4().hex[:16]
+    else:
+        args.cache_bust = None
 
     report = {
         "tool": "publish-verify.py",
@@ -421,7 +479,11 @@ def main():
         "settle_converged": None,
         "settle_waited_seconds": 0,
         "settle_unsettled": [],
+        "cache_bust": args.cache_bust,
     }
+    if args.cache_bust:
+        print(f"publish-verify: cache-bust token={args.cache_bust}",
+              flush=True)
     code = 1
     try:
         code = run(args, report)
