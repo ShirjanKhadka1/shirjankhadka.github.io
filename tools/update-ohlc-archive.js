@@ -9,14 +9,29 @@
  * builder (build-nepse-universe.js) reads ONLY from this archive — never from
  * source platforms directly. This separation keeps the builder footprint-free.
  *
- * Run: node tools/update-ohlc-archive.js
+ * Run: node tools/update-ohlc-archive.js [--universe <path>]
  * Scheduled: daily after market close (see cron).
+ *
+ * --universe: symbol-list source. Default: the worktree universe.json.
+ *   The script-first runner passes the LIVE data-branch universe here
+ *   (2026-10-31 REVIEW fix): the worktree copy goes stale (it was 410
+ *   symbols / asof 2026-10-01 while live had 426), and a stale list
+ *   silently skips symbols — PMLIP, BENH, PCBLP + 3 debentures were never
+ *   even attempted in October. Both universe formats are accepted.
+ * Fetch failures are LOUD (exit 1 after merging successes) so the runner
+ * retries once and then fails visibly — never a silent partial run.
  *
  * Node 18+, no npm dependencies.
  */
 'use strict';
 const fs = require('fs');
 const path = require('path');
+
+// CLI: --universe <path> (2026-10-31 REVIEW fix). Default: worktree universe.json.
+let universePath = null;
+for (let i = 2; i < process.argv.length; i++) {
+  if (process.argv[i] === '--universe' && process.argv[i + 1]) universePath = process.argv[++i];
+}
 
 const ARCH_DIR = '/home/hatch/workspace/nepse-data-archive';
 const ROOT = path.join(__dirname, '..');
@@ -42,7 +57,7 @@ async function pool(items, n, fn) {
         const k = i++; active++;
         Promise.resolve()
           .then(() => fn(items[k], k))
-          .then((v) => { out[k] = v; }, () => { out[k] = null; })
+          .then((v) => { out[k] = v; }, (e) => { out[k] = { __error: (e && e.message) || String(e) }; })
           .finally(() => { active--; next(); });
       }
     }
@@ -54,15 +69,31 @@ async function main() {
   console.log('== OHLC archive update ==');
   if (!fs.existsSync(ARCH_DIR)) fs.mkdirSync(ARCH_DIR, { recursive: true });
 
-  // Load symbol list from universe (or companies feed as fallback)
+  // Load symbol list from universe. Two formats (2026-10-31 REVIEW fix):
+  //   (a) worktree { asof, count, symbols: [{s, n, t, o}] } (or string list)
+  //   (b) data-branch dict { SYM: {s, n, t, o} } (no metadata keys)
+  // An unreadable or empty list is FATAL (exit 1), never a silent 0-row run.
+  if (!universePath) universePath = path.join(ROOT, 'nepse-chart', 'data', 'universe.json');
   let symbols = [];
+  let universeFormat = '';
   try {
-    const u = JSON.parse(fs.readFileSync(path.join(ROOT, 'nepse-chart', 'data', 'universe.json'), 'utf8'));
-    symbols = (u.symbols || []).map(s => (typeof s === 'string' ? s : s.s)).filter(Boolean);
+    const u = JSON.parse(fs.readFileSync(universePath, 'utf8'));
+    if (Array.isArray(u.symbols)) {
+      symbols = u.symbols.map(s => (typeof s === 'string' ? s : s.s)).filter(Boolean);
+      universeFormat = 'list';
+    } else if (u && typeof u === 'object') {
+      symbols = Object.keys(u).filter(k => u[k] && typeof u[k] === 'object' && ('s' in u[k] || 'n' in u[k]));
+      universeFormat = 'dict';
+    }
   } catch (e) {
-    console.log('  !! cannot load universe symbols:', e.message);
-    return;
+    console.error('FATAL: cannot load universe symbols from ' + universePath + ': ' + e.message);
+    process.exit(1);
   }
+  if (!symbols.length) {
+    console.error('FATAL: universe symbol list is empty (' + universePath + ') — refusing a silent 0-row run');
+    process.exit(1);
+  }
+  console.log('  universe: ' + universePath + ' (' + universeFormat + ')');
   console.log('  symbols:', symbols.length);
 
   const nowTs = Math.floor(Date.now() / 1000);
@@ -76,14 +107,22 @@ async function main() {
     try {
       const res = await fetch(url, { headers: FEED_HEADERS, signal: ctl.signal });
       clearTimeout(timer);
-      if (!res.ok) return null;
+      if (!res.ok) throw new Error(sym + ': HTTP ' + res.status);
       const data = await res.json();
-      return Array.isArray(data) ? { sym, rows: data } : null;
+      if (!Array.isArray(data)) throw new Error(sym + ': unexpected feed schema (not an array)');
+      return { sym, rows: data };
     } catch (e) {
       clearTimeout(timer);
-      return null;
+      throw new Error(sym + ': ' + e.message);
     }
   });
+  // Per-symbol failures are LOUD (2026-10-31 REVIEW fix): the old code
+  // mapped every failure to null, so a transient feed error for a symbol
+  // vanished without a trace. A symbol with no rows in 14 days is NOT a
+  // failure (it simply did not trade) — only transport/HTTP/schema errors
+  // land here. Successful rows are still merged below; then exit 1 so the
+  // runner retries once and fails visibly on persistent errors.
+  const failures = results.filter(r => r && r.__error).map(r => r.__error);
 
   // Merge into archive: group by date-range into monthly files
   // Format: ohlc-YYYY-MM.json with { asof, archive, data: { SYM: [rows] } }
@@ -150,6 +189,12 @@ async function main() {
 
   console.log(`  done: ${totalRows} rows fetched, ${merged} new merged`);
   console.log(`  archive: ${ARCH_DIR}/`);
+  if (failures.length) {
+    console.error(`  FAILED SYMBOLS (${failures.length}) — these symbols were NOT fetched (transient failures must be retried; persistent ones need a human):`);
+    failures.forEach(f => console.error('    - ' + f));
+    console.error('  (successful rows above were still merged; exiting 1 so the runner retries / fails loud)');
+    process.exit(1);
+  }
 }
 
 main().catch(e => { console.error('FATAL:', e.message); process.exit(1); });
