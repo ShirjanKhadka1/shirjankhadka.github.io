@@ -11,7 +11,9 @@
  *                   "percent_change","last_updated"}, ...],
  *      "quotes": [{"symbol","name","ltp","previous_close","change",
  *                  "percent_change","high","low","volume","turnover",
- *                  "trades","last_updated","market_cap"}, ...]}
+ *                  "trades","last_updated","market_cap"}, ...],
+ *      "market_cap_total": <official session total (Rs) from
+ *                   /api/nots/market-summary/; omitted when unverifiable>}
  * (quote objects match shubhamnpk/yonepse data/market/live.json element shape;
  *  last_updated stamps are NEPSE wall-clock (NPT) without an offset — the
  *  front end treats offset-less stamps as NPT)
@@ -329,6 +331,39 @@ async function main() {
     if (keptIntraday !== undefined) {
       payload.intraday = keptIntraday;
       log('preserved intraday key for session ' + payload.session_date);
+    }
+
+    // 2e. Session total market capitalisation — best-effort: a failure
+    // here must never abort the quote snapshot (same convention as 2b/2c).
+    // NEPSE's market summary carries no session date, so its total is
+    // accepted ONLY when its own turnover/transactions match this
+    // snapshot's quote sums (same session). On any failure or mismatch
+    // the field is omitted and the daily page hides the card instead of
+    // showing a stale or guessed number.
+    try {
+      const summary = await apiFetch('GET', '/api/nots/market-summary/');
+      const byDetail = {};
+      (Array.isArray(summary) ? summary : []).forEach((it) => {
+        if (it && typeof it.detail === 'string') byDetail[it.detail] = +it.value;
+      });
+      const sumTurn = byDetail['Total Turnover Rs:'];
+      const sumTrades = byDetail['Total Transactions'];
+      const totCap = byDetail['Total Market Capitalization Rs:'];
+      const qTurn = quotes.reduce((s, q) => s + (Number(q.turnover) || 0), 0);
+      const qTrades = quotes.reduce((s, q) => s + (Number(q.trades) || 0), 0);
+      const turnOk = Number.isFinite(sumTurn) && qTurn > 0 &&
+        Math.abs(sumTurn - qTurn) / qTurn < 0.001;
+      const tradesOk = Number.isFinite(sumTrades) && qTrades > 0 &&
+        Math.abs(sumTrades - qTrades) / qTrades < 0.01;
+      if (Number.isFinite(totCap) && totCap > 0 && turnOk && tradesOk) {
+        payload.market_cap_total = totCap;
+        log('captured session market cap total ' + totCap);
+      } else {
+        log('market summary session check failed (turnOk=' + turnOk +
+          ' tradesOk=' + tradesOk + '); omitting market_cap_total');
+      }
+    } catch (e) {
+      log('market summary fetch failed (non-fatal): ' + (e && e.message));
     }
 
     // 3. Atomic write: temp file + rename, never a partial live.json.
