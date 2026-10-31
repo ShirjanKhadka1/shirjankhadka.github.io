@@ -18,6 +18,13 @@
    Theme-color pairing (js/theme-toggle.js is the one place that
    writes <meta name="theme-color">): dark #0A0C10 (= --nd-bg),
    light #F6F7F9 (= light --nd-bg below). Keep them in sync.
+
+   FALLBACK POLICY (2026-10-31, design-consistency program): shared
+   stylesheets reference tokens as var(--nd-*, <current value>) — the
+   fallback keeps a sheet usable where nd-tokens.css did not load first,
+   and token changes propagate wherever the token file loads first (the
+   documented head stack). After ANY token value change, run
+   tools/update-asset-versions.py so every ?v= pin matches the new bytes.
    ============================================================ */
 
 :root {
@@ -127,6 +134,9 @@
 
   /* ---- Focus ---- */
   --nd-focus-ring: 0 0 0 2px var(--nd-bg), 0 0 0 4px var(--nd-lime);
+
+  /* ---- Glow (primary-action hover wash; kit .cx-btn/.d2-btn hover) ---- */
+  --nd-glow-lime: 0 10px 24px rgba(184, 230, 46, 0.25);
 }
 
 /* ============ LIGHT THEME (opt-in via data-nd-ed="light") ============ */
@@ -165,6 +175,7 @@
   --nd-shadow: 0 8px 28px rgba(10, 12, 16, 0.08);
   --nd-shadow-hover: 0 14px 40px rgba(10, 12, 16, 0.12), 0 0 0 1px rgba(77, 124, 15, 0.4);
   --nd-focus-ring: 0 0 0 2px var(--nd-bg), 0 0 0 4px var(--nd-lime);
+  --nd-glow-lime: 0 10px 24px rgba(77, 124, 15, 0.22);
 
   --nd-e1: 0 1px 2px rgba(40,55,25,.07), 0 4px 14px rgba(40,55,25,.07);
   --nd-e2: 0 2px 6px rgba(40,55,25,.08), 0 14px 34px rgba(40,55,25,.1);
