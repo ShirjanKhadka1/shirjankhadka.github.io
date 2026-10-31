@@ -398,6 +398,7 @@ function head(sym, name, slug) {
       { '@type': 'Corporation', name, tickerSymbol: sym, url },
     ],
   };
+  // CSP: the theme stub below is an inline script whose exact bytes are hashed in the edge CSP (script-src). Keep byte-identical or update the hash.
   return '<!DOCTYPE html>\n<html lang="en">\n<head>\n' +
     '<script>try{var t=localStorage.getItem(\'sk-theme\');if(!t)t=\'dark\';document.documentElement.setAttribute(\'data-theme\',t);if(t===\'light\')document.documentElement.setAttribute(\'data-nd-ed\',\'light\')}catch(e){}</script>\n' +
     '<meta charset="UTF-8">\n' +
@@ -1264,6 +1265,7 @@ function sectorStocksBlock(sym, sector, sectorPeers, verdicts, liveMap) {
   }
   h += '</tbody></table></div>';
   h += '<div class="sp-pager"><button class="sp-pager-prev" type="button">Prev</button><span class="sp-pager-info"></span><button class="sp-pager-next" type="button">Next</button></div>';
+  // CSP: the sector-table script below is hashed in the edge CSP (script-src). Keep byte-identical or update the hash.
   h += '<script>(function(){var b=document.querySelector(".sp-secblock");if(!b)return;';
   h += 'var q=b.querySelector(".sp-sec-q"),srt=b.querySelector(".sp-sec-sort");';
   h += 'var rows=Array.prototype.slice.call(b.querySelectorAll("tbody tr"));';
@@ -1752,7 +1754,7 @@ h += '<div class="sp-tabs" role="tablist" aria-label="Security details">';
   }
 
   h += '<p class="sp-disc">Educational use only, not investment advice. Signals are mechanical readings of past prices; past patterns do not guarantee future results.</p>\n';
-// Tab switching
+// Tab switching (CSP: this inline script is hashed in the edge CSP (script-src). Keep byte-identical or update the hash.)
   h += '<script>(function(){';
   h += 'var tabs=document.querySelectorAll(".sp-tab"),panels=document.querySelectorAll(".sp-tabpanel");';
   h += 'function on(n){tabs.forEach(function(t){var a=t.dataset.tab===n;t.classList.toggle("active",a);t.setAttribute("aria-selected",a);t.tabIndex=a?0:-1;});';
