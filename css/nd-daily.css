@@ -143,12 +143,19 @@
 /* ---------- Market overview cards ---------- */
 .ds-overview { margin: 0 0 0.5rem; }
 .ds-ov-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr);
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px; margin-bottom: 18px;
 }
 .ds-ov-card {
-  background: var(--nd-panel); border: 1px solid var(--nd-border);
-  border-radius: 12px; padding: 18px 20px;
+  min-width: 0;
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--nd-d3-panel, var(--nd-panel)) 100%, white 3%),
+    var(--nd-d3-panel, var(--nd-panel)));
+  border: 1px solid var(--nd-d3-line, var(--nd-border));
+  border-radius: 18px;
+  box-shadow: var(--nd-d3-rim, inset 0 1px 0 rgba(255,255,255,.08)),
+              var(--nd-d3-e2, 0 2px 6px rgba(0,0,0,.40), 0 14px 34px rgba(0,0,0,.40));
+  padding: 22px 24px;
 }
 .ds-ov-card .k {
   font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em;
@@ -157,6 +164,7 @@
 .ds-ov-card .v {
   font-size: 1.35rem; font-weight: 700; color: var(--nd-text);
   font-variant-numeric: tabular-nums; word-break: break-word;
+  overflow-wrap: break-word; text-wrap: balance;
 }
 .ds-ov-card .v.up { color: var(--nd-up); }
 .ds-ov-card .v.dn { color: var(--nd-down); }
@@ -228,11 +236,26 @@
 [data-theme="light"] .ds-ov-chart-val .dn { color: var(--nd-down); }
 #dsChartSvg { width: 100%; height: 220px; display: block; }
 .ds-ov-chart-note { font-size: 0.75rem; color: var(--nd-dim); margin-top: 8px; }
-.ds-ov-summary .ds-ov-grid { grid-template-columns: repeat(3, 1fr); }
+.ds-ov-summary .ds-ov-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .ds-ov-summary .ds-ov-ranges { grid-template-columns: 1fr; }
 
 @media (max-width: 900px) {
   .ds-ov-layout { grid-template-columns: 1fr; }
+}
+
+/* ---- Overview grid breakpoints, summary-scoped (2026-10-31) ----
+   The single-class .ds-ov-grid rules in the 900px/560px blocks above
+   NEVER applied: `.ds-ov-summary .ds-ov-grid` (0,2,0) beats them at
+   every width, so phones kept a 3-column grid whose 644px min-content
+   overflowed a 308px summary and pushed the page sideways. These
+   summary-scoped rules sit AFTER that line, so they win at equal
+   specificity; minmax(0,1fr) pins tracks to their share so a long
+   unbroken number can no longer widen its column past the box. */
+@media (max-width: 900px) {
+  .ds-ov-summary .ds-ov-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .ds-ov-summary .ds-ov-grid { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* ---------- Logos in table ---------- */
@@ -420,3 +443,18 @@ html[data-nd-ed="light"] body.nd { background: var(--nd-bg, #F6F7F9); }
 .ds-table-topscroll { height: 22px; }
 .ds-scroll-hint { display: none; margin: 0 0 8px; font-size: 0.8rem; color: var(--nd-muted); text-align: right; }
 .ds-table-card.ds-can-scroll .ds-scroll-hint { display: block; }
+
+/* ---- Table top scrollbar: sticky + visible thumb (2026-10-31) ----
+   The Oct-30 top bar works (two-way sync proven live), but it scrolled
+   away with the card top, leaving rows with no visible control, and its
+   dark-on-dark thumb barely read. It now sticks just under the 60px
+   sticky site header while the card is in view (ancestors are all
+   overflow:visible, so sticky is not clipped), and the thumb is a
+   lighter slate that reads on both dark and light panels. The
+   wrap/bottom scrollbar is unchanged; sync code in nd-daily.js is
+   untouched because it already works. */
+.ds-table-card .ds-table-topscroll {
+  position: sticky; top: 60px; z-index: 30;
+}
+.ds-table-topscroll { scrollbar-color: #5b6b85 transparent; }
+.ds-table-topscroll::-webkit-scrollbar-thumb { background: #5b6b85; }
