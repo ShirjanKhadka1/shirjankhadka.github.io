@@ -57,6 +57,7 @@ def main():
     blog_css_stamp = sha1_8(ROOT / "css/nd-blog.css")
     blog_js_stamp = sha1_8(ROOT / "js/nd-blog.js")
     editorial_stamp = sha1_8(ROOT / "css/nd-editorial-theme.css")
+    tokens_stamp = sha1_8(ROOT / "css/nd-tokens.css")
 
     feat, rail = arts[0], arts[1:5]
     grid = arts  # all 63 baked: no-JS readers get the full archive; the
@@ -158,7 +159,7 @@ def main():
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-  <link rel="stylesheet" href="/css/nd-tokens.css">
+  <link rel="stylesheet" href="/css/nd-tokens.css?v={tokens_stamp}">
   <link rel="stylesheet" href="/css/fonts.css">
   <link rel="stylesheet" href="/css/nd-editorial-theme.css?v={editorial_stamp}">
   <link rel="stylesheet" href="/css/nd-cinema.css?v={cinema_stamp}">
