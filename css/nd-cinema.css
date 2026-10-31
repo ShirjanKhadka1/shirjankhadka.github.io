@@ -440,3 +440,22 @@ table.na-sec-table tbody tr:last-child td:last-child{ border-bottom-right-radius
   .d2-btn:hover, .btn--primary:hover, .rs-toggle:hover,
   .sig-wrap a.sig-card:hover{transform:none}
 }
+
+/* ---- PR5: family-table convergence (broker / signal / moneyflow / volume) ----
+   One header/hover system for the family tables PR2 deliberately left alone.
+   Prefixed selectors (table./div.) beat family class rules regardless of
+   load order; attribute-qualified light twins beat family light rules.
+   Deliberately untouched: padding (family density), table containers
+   (bk OLD card-table vs NEW bare — no double-frame risk), bk .sorted
+   emphasis (functional signal), screener ID header colors, mf/vp sticky
+   identity columns and their z-index systems. */
+table.bk-table th, table.sig-table th{font:600 0.6875rem var(--nd-font-mono, "IBM Plex Mono", monospace);letter-spacing:.09em;text-transform:uppercase;color:var(--nd-dim,#8E98A8);background:var(--nd-panel-2,#161A23);border-bottom:1px solid var(--nd-border-strong,#2A3140);white-space:nowrap;position:sticky;top:0;z-index:2;text-shadow:none}
+[data-theme="light"] table.bk-table th, [data-nd-ed="light"] table.bk-table th, [data-theme="light"] table.sig-table th, [data-nd-ed="light"] table.sig-table th{font:600 0.6875rem var(--nd-font-mono, "IBM Plex Mono", monospace);letter-spacing:.09em;text-transform:uppercase;color:var(--nd-dim,#8E98A8);background:var(--nd-panel-2,#161A23);border-bottom:1px solid var(--nd-border-strong,#2A3140);white-space:nowrap;position:sticky;top:0;z-index:2;text-shadow:none;box-shadow:none}
+table.bk-table tbody tr:hover td, table.sig-table tbody tr:hover td{background:var(--nd-lime-faint,rgba(184,230,46,.06))}
+[data-theme="light"] table.bk-table tbody tr:hover td, [data-nd-ed="light"] table.bk-table tbody tr:hover td, [data-theme="light"] table.sig-table tbody tr:hover td, [data-nd-ed="light"] table.sig-table tbody tr:hover td{background:var(--nd-lime-faint,rgba(184,230,46,.06))}
+table.mf-table th{letter-spacing:.09em;border-bottom:1px solid var(--nd-border-strong,#2A3140);white-space:nowrap}
+.mf-table td.r{white-space:nowrap}
+div.mf-tablewrap{box-shadow:var(--nd-rim, inset 0 1px 0 rgba(255,255,255,.07)), var(--nd-e1, 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.35))}
+table.vp-table th{letter-spacing:.09em;border-bottom:1px solid var(--nd-border-strong,#2A3140);color:var(--nd-dim,#8E98A8)}
+table.vp-table tbody tr:hover{background:var(--nd-lime-faint,rgba(184,230,46,.06))}
+div.vp-tablewrap{background:var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);border-radius:var(--nd-r-card,18px);box-shadow:var(--nd-rim, inset 0 1px 0 rgba(255,255,255,.07)), var(--nd-e1, 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.35))}
