@@ -363,12 +363,17 @@
 
     var grid = $('dsOvGrid');
     if (grid) {
+      // Long grouped numbers break only at commas: a <wbr> after each
+      // comma keeps wraps on digit-group boundaries (never a dangling
+      // final digit), and is invisible to copy-paste and AT. text-wrap
+      // in CSS balances the resulting lines.
+      var commaBreak = function (s) { return String(s).replace(/,/g, ',<wbr>'); };
       grid.innerHTML =
         card('Current Value', fmtNum(ix.value)) +
         card('Chg (% Chg)', esc(chgArrow + chgTxt), chgCls) +
         card('Prev Close', fmtNum(ix.previous_close)) +
-        card('Turnover (Rs)', totTurn > 0 ? fmtNum(totTurn, 2) : '<span class="unavail">Unavailable</span>') +
-        card('Volume', totVol > 0 ? fmtInt(totVol) : '<span class="unavail">Unavailable</span>') +
+        card('Turnover (Rs)', totTurn > 0 ? commaBreak(fmtNum(totTurn, 2)) : '<span class="unavail">Unavailable</span>') +
+        card('Volume', totVol > 0 ? commaBreak(fmtInt(totVol)) : '<span class="unavail">Unavailable</span>') +
         card('Transactions', totTrades > 0 ? fmtInt(totTrades) : '<span class="unavail">Unavailable</span>') +
         card('Scrips Traded', quotes.length ? fmtInt(quotes.length) : '<span class="unavail">Unavailable</span>') +
         card('Market Cap (Rs)', totMcap > 0 ? fmtNum(totMcap, 2) : '<span class="unavail">Unavailable</span>');
