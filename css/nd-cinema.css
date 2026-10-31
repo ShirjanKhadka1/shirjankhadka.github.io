@@ -459,3 +459,14 @@ div.mf-tablewrap{box-shadow:var(--nd-rim, inset 0 1px 0 rgba(255,255,255,.07)), 
 table.vp-table th{letter-spacing:.09em;border-bottom:1px solid var(--nd-border-strong,#2A3140);color:var(--nd-dim,#8E98A8)}
 table.vp-table tbody tr:hover{background:var(--nd-lime-faint,rgba(184,230,46,.06))}
 div.vp-tablewrap{background:var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);border-radius:var(--nd-r-card,18px);box-shadow:var(--nd-rim, inset 0 1px 0 rgba(255,255,255,.07)), var(--nd-e1, 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.35))}
+
+/* ---- PR7: verification fixes (design-consistency) ----
+   Completes PR5 for sig-wrap tables. The kit's R2 rule (.sig-wrap .sig-table
+   th, 0,2,1) beats the PR5 convergence rule (table.sig-table th, 0,1,2), so
+   sig-wrap headers rendered Inter/muted/border instead of the unified
+   mono/dim/border-strong header. This rule (0,2,3) wins on the three
+   properties R2 takes; padding stays R2's 10/12 (family density), and
+   tracking/uppercase/bg/sticky/nowrap still come from PR5. Token values
+   resolve per theme, so no light twin is needed: this rule also beats the
+   PR5 light twin (0,2,2) with identical values. */
+main.sig-wrap table.sig-table th{font:600 0.6875rem var(--nd-font-mono, "IBM Plex Mono", monospace);color:var(--nd-dim,#8E98A8);border-bottom:1px solid var(--nd-border-strong,#2A3140)}
