@@ -34,14 +34,14 @@
 .sp-snap{margin:var(--nd-s6) 0}
 .sp-price-card{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0) 38%),var(--nd-panel,#12141A);border:1px solid var(--nd-border,#1E2430);border-radius:var(--nd-r-card);padding:var(--nd-s5) var(--nd-s6);box-shadow:var(--nd-rim),var(--nd-e2);display:flex;gap:var(--nd-s6);flex-wrap:wrap;align-items:flex-start;justify-content:space-between}
 .sp-price-main{min-width:200px}
-.sp-price{font-family:var(--nd-font-display,Georgia,serif);font-size:var(--step-4);font-weight:700;color:var(--nd-text,#fff);letter-spacing:-.01em}
+.sp-price{font-family:var(--nd-font-display,Georgia,serif);font-size:var(--step-4);font-weight:700;color:var(--nd-text,#fff);letter-spacing:-.01em;font-variant-numeric:tabular-nums;white-space:nowrap}
 .sp-chg{font-size:.95rem;font-weight:700;margin-top:6px}
 .sp-chg.pos{color:var(--nd-up,#4ADE80)}
 .sp-chg.neg{color:var(--nd-down,#F87171)}
 .sp-live-badge{display:inline-block;margin-top:8px;padding:3px var(--nd-s3);border-radius:var(--nd-r-pill);font-size:.72rem;font-weight:700;background:var(--nd-lime,#B8E62E);color:var(--nd-on-lime,#0A0C10)}
 .sp-price-side{display:flex;gap:var(--nd-s6);flex-wrap:wrap}
 .sp-stat{display:flex;flex-direction:column;gap:var(--nd-s1)}
-.sp-stat-v{font-size:1.05rem;font-weight:700;color:var(--nd-text,#fff);font-variant-numeric:tabular-nums}
+.sp-stat-v{font-size:1.05rem;font-weight:700;color:var(--nd-text,#fff);font-variant-numeric:tabular-nums;white-space:nowrap}
 .sp-stat-l{font-size:.75rem;color:var(--nd-dim,#8E98A8);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
 /* tabs: nd-tabs--pill language (contract in css/nd-chrome.css); the JS
    contract is unchanged — .active class + aria-selected stay in sync,
@@ -96,6 +96,7 @@
 .sp-peer-table td.pos{color:var(--nd-up,#4ADE80);font-weight:700}
 .sp-peer-table td.neg{color:var(--nd-down,#F87171);font-weight:700}
 .sp-peer-table tbody tr.sp-sec-row td{background:var(--nd-panel-2,#161A23)}
+.sp-peer-table .num{white-space:nowrap}
 .sp-sec-row strong{font-family:var(--nd-font-mono,ui-monospace,monospace);font-weight:600;font-size:.6875rem;letter-spacing:.09em;text-transform:uppercase;color:var(--nd-dim,#8E98A8)}
 /* news */
 .sp-news{list-style:none;margin:var(--nd-s4) 0;padding:0;display:grid;gap:var(--nd-s3)}
