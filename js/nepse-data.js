@@ -214,6 +214,11 @@
       map: map,
       quoteCount: quotes.length,
       partial: !!raw.partial,
+      // Session total market capitalisation (NEPSE official market
+      // summary, written by the fetcher). Passes through only when a
+      // finite positive number; otherwise null and consumers omit it.
+      market_cap_total: isFiniteNum(Number(raw.market_cap_total)) && Number(raw.market_cap_total) > 0
+        ? Number(raw.market_cap_total) : null,
       dropped: dropped,
       quarantinedCount: quarantinedCount,
       receivedAt: Date.now()
