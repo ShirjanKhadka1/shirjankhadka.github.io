@@ -45,6 +45,28 @@ checked path + outcome + hashes + attempts + error, and the exact
 failing field on failure), so the workflow can upload it as an
 artifact on verify failure and the cause can be read via the
 artifacts API instead of the admin-only job logs.
+
+Settle hardening (2026-10-31, Publish run 41205788829 — the first
+run WITH the report artifact): the artifact named the exact field —
+64/65 checks ok, exactly one failure, component "content", path
+"nepse-actions/index.html", outcome bytes_differ, HTTP 200, 1
+attempt, live=ee56d5f23f07 artifact=7ff6c24d46ed. The purge list
+already contains every manifest component path (publish.yml builds
+it from the manifest), and the purge step succeeded, so this was
+NOT a purge omission: it was edge propagation — the runner's node
+still served the pre-deploy actions page minutes after deploy +
+purge. Proof: a curl minutes later served exactly the artifact
+bytes (7ff6c24d46ed, 39194 bytes), and the actions page is the
+SOLE verified HTML path (sitemap.xml is XML; the rest are JSON),
+which is why it failed alone, every time, while every deploy was
+in fact correct. Fix: live mode now SETTLES before the strict
+pass — it polls the live manifest until its snapshot matches, then
+polls each component path until its live bytes match the artifact
+(or --settle-timeout, default 300s, expires). The strict pass
+afterwards is UNCHANGED: a mismatch still fails fast on first
+sight. Settle only moves the strict pass to after proven edge
+convergence; it never masks a real mismatch (a permanently stale
+path still fails the strict pass and is named exactly).
 """
 import argparse
 import datetime
@@ -208,6 +230,33 @@ def run(args, report):
         print("publish-verify: FAIL live publish-manifest is not JSON: "
               f"url={manifest_url} first-bytes={body[:120]!r}")
         return 1
+    # Settle phase 1: edge propagation. The live manifest may still be
+    # the pre-flip copy when verify starts (deploy + purge precede
+    # this step by ~1 min). Poll until its snapshot matches, or the
+    # settle budget expires — then the strict pass below reports the
+    # mismatch exactly as before.
+    settle_started = time.monotonic()
+    settle_timeout = args.settle_timeout
+    settle_interval = args.settle_interval
+    manifest_settled = (live.get("snapshot_sha") == expected["snapshot_sha"])
+    while not manifest_settled:
+        if time.monotonic() - settle_started >= settle_timeout:
+            break
+        print(f"publish-verify: settle: live manifest snapshot "
+              f"{live.get('snapshot_sha')} != expected "
+              f"{expected['snapshot_sha']}; sleeping "
+              f"{settle_interval}s", flush=True)
+        time.sleep(settle_interval)
+        s_try, body_try, err_try, attempts_try = fetch(manifest_url)
+        if s_try != 200:
+            continue
+        try:
+            live_try = json.loads(body_try.decode())
+        except ValueError:
+            continue
+        s, body, attempts, live = s_try, body_try, attempts_try, live_try
+        manifest_settled = (live.get("snapshot_sha")
+                            == expected["snapshot_sha"])
     report["live_snapshot_sha"] = live.get("snapshot_sha")
     report["checks"].append({
         "component": None, "path": "data/publish-manifest.json",
@@ -225,6 +274,47 @@ def run(args, report):
             "http_status": s, "attempts": attempts,
             "error": problems[-1], "live_sha256": None,
             "artifact_sha256": None})
+    # Settle phase 2: poll each component path's live bytes until
+    # they match the artifact (or the budget expires). Paths already
+    # matching are not re-fetched in later rounds. Artifact-
+    # unreadable paths are left for the strict pass to report.
+    # The strict pass below still re-fetches everything and fails
+    # fast on any mismatch — settle never masks a real difference.
+    art_hashes = {}
+    for comp, entry in expected["components"].items():
+        for rel in entry["paths"]:
+            try:
+                art_hashes[rel] = sha256(f"{args.artifact_dir}/{rel}")
+            except OSError:
+                pass
+    unsettled = set(art_hashes)
+    first_round = True
+    while unsettled:
+        if not first_round:
+            if time.monotonic() - settle_started >= settle_timeout:
+                break
+            print(f"publish-verify: settle: {len(unsettled)} path(s) "
+                  f"not yet converged; sleeping {settle_interval}s",
+                  flush=True)
+            time.sleep(settle_interval)
+        first_round = False
+        for rel in sorted(unsettled):
+            s2, body2, err2, attempts2 = fetch(f"{base}/{rel}")
+            if s2 == 200 and (hashlib.sha256(body2).hexdigest()
+                              == art_hashes[rel]):
+                unsettled.discard(rel)
+    report["settle_converged"] = manifest_settled and not unsettled
+    report["settle_waited_seconds"] = round(
+        time.monotonic() - settle_started, 3)
+    report["settle_unsettled"] = sorted(unsettled)
+    if report["settle_converged"]:
+        print(f"publish-verify: settle: converged in "
+              f"{report['settle_waited_seconds']}s", flush=True)
+    else:
+        print(f"publish-verify: settle: TIMEOUT after "
+              f"{report['settle_waited_seconds']}s; still unsettled: "
+              f"{sorted(unsettled)}; strict pass will report them",
+              flush=True)
     for comp, entry in expected["components"].items():
         live_entry = (live.get("components") or {}).get(comp)
         if not live_entry:
@@ -307,6 +397,12 @@ def main():
     ap.add_argument("--artifact-dir", required=True)
     ap.add_argument("--base-url", default="https://shirjankhadka.com.np")
     ap.add_argument("--report-path", default="publish-verify-report.json")
+    ap.add_argument("--settle-timeout", type=float, default=300,
+                    help="live mode only: max seconds to wait for edge "
+                    "convergence (manifest snapshot + component bytes) "
+                    "before the strict pass; 0 = check once, do not wait")
+    ap.add_argument("--settle-interval", type=float, default=15,
+                    help="live mode only: seconds between settle polls")
     args = ap.parse_args()
 
     report = {
@@ -322,6 +418,9 @@ def main():
         "problems": [],
         "fatal_error": None,
         "checks": [],
+        "settle_converged": None,
+        "settle_waited_seconds": 0,
+        "settle_unsettled": [],
     }
     code = 1
     try:
