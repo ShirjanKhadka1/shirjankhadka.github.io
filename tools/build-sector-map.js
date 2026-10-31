@@ -86,7 +86,7 @@ function classifySymbol(sym, name, type) {
   const has = (...ws) => ws.some((w) => n.indexOf(w) >= 0);
   if (has('laghu', 'microfinance')) return 'Microfinance';
   if (has('hydropower', 'hydro', 'power', 'urja', 'dhyut', 'dyut', 'energy')) return 'Hydropower';
-  if (has('development bank')) return 'Development Bank';
+  if (has('development bank', 'bikas', 'bikash')) return 'Development Bank';  // 'Bikas/Bikash Bank' is the Nepali name for a development bank
   if (has('bank')) return 'Banking';
   if (has('life insurance')) return 'Life Insurance';
   if (has('reinsurance', 'insurance', 'beema')) return 'Non Life Insurance';
