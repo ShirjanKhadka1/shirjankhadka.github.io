@@ -350,6 +350,12 @@
       totMcap += Number(q.market_cap) || 0;
     });
 
+    // Session total market capitalisation: NEPSE's official market-summary
+    // total (written by the fetcher) wins over the per-quote sum. When
+    // neither exists the card is omitted entirely — never "Unavailable".
+    var sessMcap = Number(live.market_cap_total) || 0;
+    var mcapVal = sessMcap > 0 ? sessMcap : totMcap;
+
     var chg = Number(ix.change), pct = Number(ix.percent_change);
     var chgCls = chg > 0 ? 'up' : chg < 0 ? 'dn' : 'flat';
     var chgArrow = chg > 0 ? '▲ ' : chg < 0 ? '▼ ' : '';
@@ -376,7 +382,7 @@
         card('Volume', totVol > 0 ? commaBreak(fmtInt(totVol)) : '<span class="unavail">Unavailable</span>') +
         card('Transactions', totTrades > 0 ? fmtInt(totTrades) : '<span class="unavail">Unavailable</span>') +
         card('Scrips Traded', quotes.length ? fmtInt(quotes.length) : '<span class="unavail">Unavailable</span>') +
-        card('Market Cap (Rs)', totMcap > 0 ? fmtNum(totMcap, 2) : '<span class="unavail">Unavailable</span>');
+        (mcapVal > 0 ? card('Market Cap (Rs)', commaBreak(fmtNum(mcapVal, 2))) : '');
     }
 
     // Day range bar
