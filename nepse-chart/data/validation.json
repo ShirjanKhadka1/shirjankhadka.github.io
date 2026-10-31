@@ -1,42 +1,42 @@
 {
-  "ran_at_npt": "2026-10-29T11:37:00+05:45",
-  "expected_session": "2026-10-28",
+  "ran_at_npt": "2026-10-31T16:24:00+05:45",
+  "expected_session": "2026-10-30",
   "passed": true,
   "gates": [
     {
       "gate": "manifest-present",
       "pass": true,
-      "detail": "data/manifest.json session=2026-10-28",
+      "detail": "data/manifest.json session=2026-10-30",
       "severity": "fail"
     },
     {
       "gate": "live-session-current",
       "pass": true,
-      "detail": "live=2026-10-29 expected=2026-10-29",
+      "detail": "live=2026-10-30 expected=2026-10-30",
       "severity": "fail"
     },
     {
       "gate": "universe-session-current",
       "pass": true,
-      "detail": "universe=2026-10-28 expected=2026-10-28",
+      "detail": "universe=2026-10-30 expected=2026-10-30",
       "severity": "fail"
     },
     {
       "gate": "security-count-stable",
       "pass": true,
-      "detail": "intraday: quotes=299 baseline=293 (same-session post-open snapshot b41e9a3) — no intraday collapse",
+      "detail": "quotes=348 baseline=348 (last good tag data-2026-10-31-10) drift=0.0% band=±5%",
       "severity": "fail"
     },
     {
       "gate": "no-dup-quotes",
       "pass": true,
-      "detail": "299 unique quoted symbols",
+      "detail": "348 unique quoted symbols",
       "severity": "fail"
     },
     {
       "gate": "price-sanity",
       "pass": true,
-      "detail": "299 quotes ok",
+      "detail": "348 quotes ok",
       "severity": "fail"
     },
     {
@@ -48,13 +48,13 @@
     {
       "gate": "quote-math-reconciles",
       "pass": true,
-      "detail": "299 quotes reconcile",
+      "detail": "348 quotes reconcile",
       "severity": "fail"
     },
     {
       "gate": "circuit-limits",
       "pass": false,
-      "detail": "BENH: 15.0% — review for corporate actions",
+      "detail": "BENH: 15.0%; SMFBS: 12.1% — review for corporate actions",
       "severity": "flag"
     },
     {
@@ -66,13 +66,13 @@
     {
       "gate": "session-totals-consistent",
       "pass": true,
-      "detail": "turnover=Rs 1.31B vol=3.5M trades=10320 n=299",
+      "detail": "turnover=Rs 8.89B vol=22.9M trades=74054 n=348",
       "severity": "fail"
     },
     {
       "gate": "universe-membership-stable",
-      "pass": false,
-      "detail": "quoted=299 universe=432 (69.2%)",
+      "pass": true,
+      "detail": "quoted=348 universe=426 (81.7%)",
       "severity": "flag"
     },
     {
@@ -83,50 +83,48 @@
     },
     {
       "gate": "close-source-official",
-      "pass": false,
-      "detail": "close_source=unknown (pre-V4 capture) — verify against NEPSE official",
+      "pass": true,
+      "detail": "close_source=NEPSE official API",
       "severity": "flag"
     },
     {
       "gate": "no-dup-symbols",
       "pass": true,
-      "detail": "432 unique",
+      "detail": "426 unique",
       "severity": "fail"
     },
     {
       "gate": "signals/momentum.json-fresh",
       "pass": true,
-      "detail": "generated=2026-10-29 expected>=2026-10-28",
+      "detail": "generated=2026-10-30 expected>=2026-10-30",
       "severity": "fail"
     },
     {
       "gate": "signals/trend-relay.json-fresh",
       "pass": true,
-      "detail": "generated=2026-10-29 expected>=2026-10-28",
+      "detail": "generated=2026-10-30 expected>=2026-10-30",
       "severity": "fail"
     },
     {
       "gate": "signals/reversal.json-fresh",
       "pass": true,
-      "detail": "generated=2026-10-29 expected>=2026-10-28",
+      "detail": "generated=2026-10-30 expected>=2026-10-30",
       "severity": "fail"
     },
     {
       "gate": "all-files-parse",
       "pass": true,
-      "detail": "1029 files ok",
+      "detail": "1032 files ok",
       "severity": "fail"
     },
     {
       "gate": "sha256-integrity",
       "pass": true,
-      "detail": "1029 files verified",
+      "detail": "1032 files verified",
       "severity": "fail"
     }
   ],
   "flagged": [
-    "circuit-limits",
-    "universe-membership-stable",
-    "close-source-official"
+    "circuit-limits"
   ]
 }
