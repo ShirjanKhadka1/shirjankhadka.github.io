@@ -1,9 +1,9 @@
 # Program status — Nepse Decode publishing rebuild (P0–P8)
 
 Last updated: 2026-10-31 (Saturday, market closed). Main tip at last
-verification: `c63a7755` (#244 merge) — re-read before acting.
+verification: `f10d6161` (#249 news migration merge) — re-read before acting.
 Data branch head at last verification: `2f110da8` (regime consistency
-rebuild; 16 components).
+rebuild; 16 components). Tags through `data-2026-10-31-6` on `2f110da8`.
 
 ## LIVE PROOF — first P2 deploy (2026-10-31)
 
@@ -64,7 +64,9 @@ market-regime.json asof 2026-10-30 (NEPSE 2690.15, 37 days in
 regime, breadth 58.36%, n=269). Later workflow tags on the same
 green path: `data-2026-10-31-4` on `40b30342` (sector boards with
 the Trading bucket + Bikas family moved), `data-2026-10-31-5` on
-`2f110da8` (regime consistency rebuild, Others n=5).
+`2f110da8` (regime consistency rebuild, Others n=5), and
+`data-2026-10-31-6`, also on `2f110da8` (a later Publish re-tagged
+the same snapshot).
 
 Legend: **LIVE** = verified on `shirjankhadka.com.np` bytes.
 **ARTIFACT** = proven on the data branch / workflow artifact; live
@@ -88,7 +90,7 @@ bytes.
 |---|---|---|
 | P0 — deploy-failure classification + gh_client | DONE | Client merged as #212 (`a79b0620`); 16 publishers classified (`fixprog-p0/FAILURE-TABLE.md`) |
 | P1a — dynamic universe gate + manifest advance | DONE | #223 (`95c47245`): manifest v105, session 2026-10-30, universe 426 |
-| P1b — direct-push publishers get a working path under protection | LIVE (fully-green deploys from 2026-10-31) | 16/16 components on the data branch (table below, incl. market-regime refresh `37cacfe6`); first fully-green run 41159785960 (deploy + purge + live-verify + workflow tag `data-2026-10-31-3`); data head `2f110da8`, tags through `data-2026-10-31-5` |
+| P1b — direct-push publishers get a working path under protection | LIVE (fully-green deploys from 2026-10-31) | 16/16 components on the data branch (table below, incl. market-regime refresh `37cacfe6`); first fully-green run 41159785960 (deploy + purge + live-verify + workflow tag `data-2026-10-31-3`); data head `2f110da8`, tags through `data-2026-10-31-6` (on `2f110da8`) |
 | P2 — ONE publish workflow (main + data → Pages artifact, no PR per data run) | LIVE (first fully-green run 2026-10-31) | #238 merged via PUT (200; `b717e48e`, parent `e96fb92d`); #239 environment-block fix merged via PUT (200; `d6669de9`). Fully-green run 41159785960: snapshot `37cacfe6`, purge ✓, live-verify ✓, workflow tag `data-2026-10-31-3`. B3 closed; UI rerun moot |
 | P3 — per-component as_of, quarantine-only gates | NOT STARTED (next now that P2 is proven fully green) | Data-branch `data/_manifest.json` already carries per-component asof (the P3 data shape); gates still global-session |
 | P4 — fresh checkout per run, no shared worktree | PARTIAL | Migration was read-only on worktrees; builder worktree hygiene still a per-job follow-up |
@@ -103,7 +105,7 @@ Data branch head: `2f110da8` (regime consistency rebuild). Manifest:
 `data/_manifest.json`, 16 components. Fully-green deploys from run
 41159785960 onward (purge + live-verify + workflow tag); tags
 `data-2026-10-31-3` (`37cacfe6`), `data-2026-10-31-4` (`40b30342`),
-`data-2026-10-31-5` (`2f110da8`).
+`data-2026-10-31-5` (`2f110da8`), `data-2026-10-31-6` (also `2f110da8`).
 
 | Component | asof | Data commit | Files | Note |
 |---|---|---|---|---|
@@ -140,7 +142,12 @@ same-snapshot render).
 | #241 performance-snapshot data-branch reroute | DONE (merged 2026-10-31, auto-merge) | Collector `deploy()` writes ONLY `nepse-chart/data/performance.json` via `tools/data-branch-writer.py`; health.json + status/index.html deliberately NOT written (publish assembler regenerates them). Merge `ee9a83d7`, parent `efa34923`. First real written commit proven only Monday 11:00 NPT in-window run |
 | #242 broker-hub Oct-30 bake | DONE (merged 2026-10-31, auto-merge) | Bake via `tools/bake-broker-snapshot.py`: hub HTML + `DAILY_END` 2026-10-29 → 2026-10-30 in `js/nepse-brokers.js` (2 files, 7+/7-). Merge `1d190674`, update-branched past #241 to `2d691d5e`. Live-verified: header 2026-10-30 · 68 days, Naasa 62.4/67.9/−5.5 Cr == daily file |
 | #243 sector map: Bikas → Development Bank + Trading bucket | DONE (merged 2026-10-31, auto-merge) | Map + all four sector boards: Bikas family of 8 (GBBL, JBBL, KSBBL, LBBL, MLBL, MNBBL, SABBL, SINDU) Banking → Development Bank (Banking 27→19, Dev Bank 9→17); Trading bucket [BBC, STC] on boards. Merge `314919d3`. Live-verified: map + boards |
-| #244 seasonality dropdown: Trading sector | DONE (merged 2026-10-31, auto-merge) | One-line dropdown change; merged via its own auto-merge (not touched by this lane). Trading is in data; the dropdown gains Trading on the next Publish |
+| #244 seasonality dropdown: Trading sector | DONE (merged 2026-10-31, auto-merge) | One-line dropdown change; merged via its own auto-merge (not touched by this lane). Deployed by Publish 41162382486; dropdown verified live (ORDER includes Trading) |
+| #245 BPCL blog post | DONE (merged 2026-10-31) | Blog lane (other agent); merge `eede963d`; deployed by the green Publish on `6dfc578` |
+| #246 program status: #241/#242/#243 + B3 closed + live gate | DONE (merged 2026-10-31, auto-merge) | Merge `ab11e0bc`; file verified on main (blob `cb3adc3c`); renders to `/status/program-status.html` on the next Publish (not `/status/`, which is the pipeline-health page) |
+| #247 corporate-actions display: withdrawn vs no-declaration split | DONE (merged 2026-10-31, auto-merge) | Merge `b227c039`; vocabulary split (withdrawn → Closed; no_declaration → '- -' + 'No dividend'; announced rights → Pending); SMFBS template verified live; site-wide audit in the PR (div-live 45/46, corp-actions 28, rights 104 symbols, auctions 137; IPO/auction action items zero on file) |
+| #248 BPCL financials expansion | DONE (merged 2026-10-31) | Blog lane (other agent); merge `6dfc5788`; Publish on `6dfc578` green |
+| #249 news refresh: publish via data branch (GH006 fix) | DONE-code, PROOF PENDING (merged 2026-10-31, auto-merge) | Merge `f10d6161`; new `tools/news-data-writer.py` + rewritten `nepse-news-refresh.yml` (seed from data branch + stage via writer; items-hash no-change detection; SMTP alert unchanged). PROOF PENDING: the 12:23 user dispatch never appeared in the API (STALLED-NO-RUN, 15 min polling; latest still old failed 41172430353); proof needs a re-dispatch or the next scheduled tick. Component NOT yet registered in `data/_manifest.json` (still 16 components) — registration happens on the first migrated write |
 | #169, #173, #183, #186, #187 | OPEN — DO NOT HAND-MERGE | Stop rule from the 2026-10-31 04:50 order; parent sequences. NOTE: #173 is ALSO a perf PR (head `deploy/performance-snapshot-20261030-1411`, 13:41 snapshot) — see backlog row; its close needs an explicit parent call, not a blanket one |
 | #235 midnight rollover 2026-10-31 | OPEN — DO NOT MERGE, DO NOT CLOSE | Recommendation: close as superseded once P2 proves the rollover path |
 | #208 post-close sweep signals | OPEN | Likely superseded by #214/#223 absorption; diff-vs-main verification owed before any disposition (parent call) |
@@ -258,6 +265,87 @@ data-branch ledger entries (see ledger rule above). Builder
 data-base changes (build on data-branch ledger state, not main's)
 are the permanent fix for dict accumulations.
 
+## Unified program matrix — P0–P8 + DATA ARCHIVE Phases 0/A–D (2026-10-31)
+
+This section unifies the original P0–P8 rebuild program with the
+DATA ARCHIVE, ACQUISITION AND SELF-VERIFICATION PROGRAM (second
+charter, 2026-10-31; one program, not two — it supersedes earlier
+data prompts; the Monday 2026-11-02 10:45 NPT deadline, the actions
+display law, and the agent split still stand). Status vocabulary
+matches the P0–P8 table above. Owner actions for the new program
+live in BLOCKERS.md (token Actions read/write, visual
+required-vs-remove, Phase B governance, sequencing) — they are
+pointed to, not duplicated, here. Live render note: this file
+renders to `/status/program-status.html` via the Publish
+workflow's render step (NOT `/status/`, which is the
+pipeline-health page); the live page updates on the NEXT Publish
+after a merge, not at merge time. This update's live render is
+therefore owed on the next Publish.
+
+| Item | Status | Evidence / next |
+|---|---|---|
+| P0 — deploy-failure classification | DONE | #212; see table above |
+| P1a — universe gate + manifest | DONE | #223, manifest v105, session 2026-10-30 CLOSED, universe 426 |
+| P1b — publishers under protection | LIVE | 16/16 components on data; fully-green deploys from 41159785960; tags through -6 |
+| P2 — ONE publish workflow | LIVE | #238 + #239; Publish green on `6dfc578`; renders this file per run (see Rule-4 resolution below) |
+| P3 — per-component as_of + per-component gates | NOT STARTED | Manifest already carries per-component asof; gates still global-session; one lane's update must never be blocked by another lane's date |
+| P4 — fresh checkout per run | PARTIAL | Worktree hygiene still per-job follow-up |
+| P5 — hashed asset URLs | NOT STARTED | Stale-token items open; content-hashed asset URL generation NOT implemented (charter 2 item — new build work, not a verifier fix) |
+| P6 — vendor login (Capital Max MF) | NOT STARTED | MF snapshot login-blocked before deploy (see Phase 0 note: NOT a migration target — P6 STALE-badge + one-step re-login path) |
+| P7 — ONE events table | NOT STARTED | Ledger-vs-page gap known; page is source of truth; #247 fixed the display vocabulary, not the ledger |
+| P8 — auto-recovery / watchdog / /status | PARTIAL | This file + standing live gate (agent cron, 30-min, 08:48 GATE OK); watchdog + alert dedup for other jobs open; gate migration to Actions pending (Phase D) |
+| Phase 0 — emergency decoupling | IN PROGRESS | Inventory DONE 2026-10-31 (section below); 5 OPEN writers; content migration CHAINED after news proof (NOT started); news migration DONE-code, proof PENDING |
+| Phase A — 3-year window + COLD archive | NOT STARTED — storage path decided, roll job owed | COLD = orphan `cold` branch in this repo (Parquet, dataset/year/month + checksum manifest + backup bundles, same API pattern as the data-branch writer); R2 = OPTIONAL future scale-out (same layout/manifest); Backblaze B2 (10 GB free, no card) = second fallback. NO live roll has happened; no live window shrink until the roll job (retention.py + retention.yaml + Parquet writer + restore test) is built and GATE A is simulated |
+| Phase B — source dossiers + acquisition | NOT STARTED — governance owed | Dossiers + matrix owed; NO source reclassified in this update; matrix-vs-Oct-23-API-ruling decision owed (see below) |
+| Phase C — audit resolutions | PENDING | REVIEW missing symbol unnamed; bearish ×9 unclassified; dynamic universe gate not implemented; SBLPNP/MBLPNP typing EVIDENCE-OWED (see below) |
+| Phase D — design / speed / monitoring | PARTIAL (bundle PASS; gate migration PENDING) | Bundle ~400 MB vs 800 MB guard = PASS today; design tokens = other agent's lane (PR coordination); gate.yml migration pending; concurrency proposal + content-hash URLs below |
+
+### Phase 0 inventory (2026-10-31, read-only, API + grep evidence)
+
+OPEN live writers still pushing to protected `main` (5):
+
+| Writer | Mechanism | Schedule / last run |
+|---|---|---|
+| NEPSE content pipeline (GH 371904582) | `nepse-content.yml:152,209` — `git push origin main` | 06:00 + 18:00 NPT; run 41173970474 FAILED 2026-10-31 11:32 NPT at 'Commit content refresh' (4th consecutive; last success 2026-10-29 05:51Z). Writes announcements, actions page, sitemap, `news.json`. CHAINED after news proof — NOT started |
+| NEPSE intraday floorsheet (GH 371427898) | `nepse-intraday-floorsheet.yml:93` — `pull --rebase origin main && git push origin main`, DRY_RUN-gated but live | Every 5 min, market hours; run 41054577148 FAILED 2026-10-30 (GH006). Overlaps agent intraday-staging files — migration must reconcile, not duplicate |
+| NEPSE market-close pipeline (GH 371904584) | `nepse-market-close.yml:142,173,273,347` — `git push origin main` | 15:20 / 16:10 / 17:00 NPT; run 41094868272 FAILED 2026-10-30 (GH006, 3rd that day). Arguably superseded by P1b/P2 close-capture + data publishers — MIGRATE-OR-DISABLE decision owed, not assumed |
+| IPO SEBON Watch (GH 374332113) | `nepse-ipo-watch.yml:46` — bare `git push` on a default `main` checkout | Daily 07:00 NPT; run 41017748432 SUCCESS 2026-10-30. LATENT: push skipped on no-change days, so it succeeds by no-op and fails GH006-style the first day a real IPO entry appears |
+| postclose-thorough-check (agent cron, Mon–Fri 18:38) | Repair deploys via `github-push-parallel.py` with NO `--branch` — the script defaults to `--branch main` (`:227`); the job body contains zero `branch` mentions | Repair-only; LATENT: normally a no-op, but any triggered repair attempts a direct-`main` push |
+
+Disabled direct-`main` texts (migrate before ANY re-enable): research-index-sync, seo-index-watch, daily-finance-blog-post, nepse-intraday-poll. Dormant orphan definition (trap if re-registered): universe-refresh 17:30 file, no registered schedule (67 unregistered .md files total: 52 archived, 13 expired runonce, 1 past timer). Unclassified (per-file deploy-path audit owed): floorsheet-daily 15:35, ohlc-archive-updater, nepse-eod-totals, intraday-broker-flow (disabled), workspace `tools/` PUSH constants (possibly dead code).
+
+Schedules to move to Actions/Cron: 64 live agent schedules (63 finance + learning-loop-weekly) + 14 GH scheduled workflows. Heartbeat: essentially NONE — live-gate state file + email-watch watermark only; the freshness watch is the closest dead-man alert; no missed-runs alert exists. MF snapshot is NOT a direct-`main` writer (PR-flow body, login-blocked before deploy) — it stays on the P6 path, not a migration.
+
+Sizes (API tree data): main 400.2 MB, data 400.1 MB — the data branch is a near-full copy of main (only 1 data-only file, `data/_manifest.json`). Pages artifact ~400 MB = ~40% of the 1 GB limit; the 800 MB guard is clear (~400 MB headroom). Growth vector: nepse-brokers 141 MB + data 99.1 MB + nepse-floorsheet 26.2 MB = 266 MB (66%). Largest file: technical-signals-board-archive 23.9 MB, growing every session. Environment gotcha: /tmp on the VM is a 512 MB tmpfs — a full clone fills it; use the API or workspace disk.
+
+### Phase A detail — rolling window + COLD (design decided, build owed)
+
+Window math: `window_start(D) = D - 3 years` (Feb 29 safe); 2026-10-31 → 2024-10-31; 2026-11-01 → 2024-11-01. If the start is a non-trading day, forward-adjust to the first trading day on or after it from the regime-aware calendar (Sun–Thu before 2026-04-06, Mon–Fri after). The roll job runs nightly after FINAL, including weekends and holidays. COLD layout: Parquet partitioned `dataset/year/month/` + checksum manifest + backup bundles on the orphan `cold` branch (same API write pattern as the data-branch writer; Publish never checks out `cold`, so the Pages guard is unaffected). R2 is an OPTIONAL future scale-out with the same layout/manifest (NOT a gate — the earlier R2/payment-card block is retired by the cold-branch alternative); Backblaze B2 (10 GB free, no card required) is the second fallback. Roll safety (unchanged): snapshot → write expiring rows to COLD → verify counts + checksums → restore-test a sample → only then remove from HOT → rebuild → verify every page shows the new window start; idempotent, resumable, never during a session, alerts on mismatch. PERMANENT exemptions (never roll off): prediction ledger + forward-accuracy history; corporate-action / dividend adjustment factors; 1-year indicator lookback buffer (200-day / EMA / 52-week exactness at the boundary). Raw series are never overwritten; adjusted series recompute from CA factors. Phase B licensing governs whether raw rows may be archived at all — still owed per dataset. UI: every page/chart shows `Data Window: <start> - <end>` + source + as_of per component; stock pages, screener and charts read only the window. GATE A (owed): simulate 2026-10-31 → 2026-11-01 end to end including the restore test; live pages show the new window start. NO live roll has happened and none happens until the roll job is built and GATE A is simulated — 2024-10-31 does NOT leave HOT tonight on its own.
+
+### Phase B detail — dossiers + acquisition (not started)
+
+Dossiers owed at `docs/sources/<name>.md` for NEPSE official, SEBON, CDSC, NRB, issuer notices, Capital Max, Chukul, Nepalytix, ChartNepali, ShareSansar, MeroLagani: datasets, cadence, latency, timestamps shown to visitors, documented API/export/RSS/feed, licence, terms, robots rules, rate limits, auth model — from PUBLIC material only. Matrix owed (`DATA_SOURCES.md` / `source-matrix.json`): per source and dataset, USE / USE-WITH-ACCOUNT / CROSS-CHECK ONLY / REQUEST ACCESS / SKIP with reasons. Consensus rule (charter 2): for index, close and turnover, compare official vs secondary feeds; discrepancy > 0.1% → log to `exceptions.json` and default to official NEPSE values. Adaptive scheduling: poll tightly around each source's predicted next update, back off when idle; the charter's 5–15s CONTINUOUS polling is NOT feasible in Actions — a Worker-style path is an architecture decision owed, not assumed. Login/bot walls: never bypass; ask for an official API/export or build an owner-triggered upload (CSV + schema + checksum validation); publish last-known-good with a visible STALE badge + one-step re-login alert meanwhile. GOVERNANCE OWED (not decided here): the matrix vs the 2026-10-23 ruling that free Capital Max/Chukul APIs are fair-game sources — if the matrix governs, a re-audit may stop republishing some currently-used free endpoints. NO source is reclassified in this update.
+
+### Phase C detail — audit resolutions (pending)
+
+- Oct-30 REVIEW: daily 347 vs floorsheet 348 vs monthly 342 — the missing symbol is STILL UNNAMED. Resolution (name it, fix or document it, then tag) is owed; it is not closed by any tag.
+- Bearish-pattern Buys ×9: classification owed — forming-label cases or a regression of the earlier invariant. Invariant to enforce: confirmed bearish patterns must never emit a BUY recommendation.
+- Dynamic universe gate: replace the hard-coded 400–420 bounds with a check against the official NEPSE listed-securities register count ±2%. NOT implemented.
+- SBLPNP/MBLPNP typing: EVIDENCE-OWED. The charter asserts DEBENTURE, but typing must be verified against the official register before it is baked in — preference shares take PREFERENCE_SHARE, not DEBENTURE. Typed instruments (preference shares + debentures) are excluded from equity rankings but remain accessible on stock pages. Do NOT treat DEBENTURE as fact until the register check lands.
+
+### Phase D detail — design / speed / monitoring
+
+- Design tokens (3D soft-glow tables, cards, sparklines, pagination, WCAG AA): the OTHER agent's lane — coordination via PR, not built here.
+- Bundle: ~400 MB vs the 800 MB guard = PASS today (see Phase 0 sizes); the guard itself (fail before deploy above 80% of 1 GB) is still to be added to the Publish workflow.
+- Standing gate migration: the live gate runs today as an agent cron (30-min, state-change-only; 08:48 GATE OK). Migration to `.github/workflows/gate.yml` is PENDING: all ~426 stock pages (not a 5-page sample), every baked page vs its source file, every board date vs the session engine, taxonomy vs the official classification, the data window on each page, archive health, size budgets, publisher heartbeats; report once per new failure/recovery; self-heal by triggering a republish on staleness; escalate by email only if self-heal fails; weekly negative-control test.
+- Publish concurrency: group `publish` exists, but `cancel-in-progress` is TRUE today. The charter proposes FALSE (queue instead of supersede) — recorded as a proposed workflow change, NOT flipped in this update (it changes deploy semantics).
+- Content-hashed asset URLs: NOT implemented (zero hits in the build) — new build work, not a verifier fix.
+- Charter Rule 4 resolution (recorded): 'every run commits PROGRAM-STATUS.md' is incompatible with branch protection + the no-PR-per-run rule — the standing resolution is render-per-run (Publish renders this file into the artifact) + PR-on-merge (this file updates via code PR when the program state changes). The workflow renders but does not commit this file.
+
+### Data-branch topology note
+
+The data branch is described in the charters as 'orphan'. That topology is UNVERIFIED (the GitHub compare API 422s 'diff taking too long') and is NOT claimed here — it is to be established during compaction design. What is functionally true and verified: publishers write disjoint component paths to the `data` branch; Publish overlays main + data into one artifact. The data branch is currently a near-full copy of main (see sizes above), not a slim data-only branch — compaction design must account for that.
+
 ## Next steps (in order)
 
 1. #237 merges via PUT (DONE: `e96fb92d`, tree-verified).
@@ -293,6 +381,33 @@ are the permanent fix for dict accumulations.
 14. Monday 2026-11-02 10:45 NPT deadline: every publisher lands
     without manual merging; live tape moves past the Oct-30 close;
     Monday evening finals show Nov 2.
+15. News proof: re-dispatch (or next scheduled tick) → verify data
+    head moves + green Publish + live news.json newer than
+    2026-10-30T13:02:12Z + news-refresh component in manifest →
+    then content migration starts (chained authorization
+    2026-10-31 12:21; news.json ownership stays with news-refresh).
+16. Phase 0: migrate the remaining OPEN writers one at a time
+    (intraday floorsheet with staging reconciliation; market-close
+    migrate-or-disable decision; IPO Watch latent fix; postclose
+    repair branch fix), each proven by new data live; trace the 5
+    unclassified items; migrate-or-delete the 4 disabled texts +
+    dormant orphan before any re-enable.
+17. Phase A: build the roll job (retention.py + retention.yaml +
+    Parquet writer + restore test) on the `cold` branch; simulate
+    GATE A (2026-10-31 → 2026-11-01); no live roll before that
+    simulation passes.
+18. Phase B: write the source dossiers + matrix; settle the
+    matrix-vs-Oct-23 governance decision; settle the Worker-style
+    path for sub-minute polling.
+19. Phase C: name the REVIEW missing symbol; classify the 9
+    bearish Buys; implement the dynamic universe gate; verify
+    SBLPNP/MBLPNP types against the official register.
+20. Phase D: migrate the standing gate to gate.yml (all pages +
+    self-heal); add the 800 MB size guard to Publish; decide the
+    concurrency proposal; implement content-hashed asset URLs.
+21. Program-status contents send: after the weekend migration
+    lands, and again after Monday's close (not before) — per the
+    standing send rule.
 
 ## Out of scope for this lane (parent/other lanes)
 
