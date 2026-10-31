@@ -1,0 +1,106 @@
+# Trade coverage — CI invariant (2026-10-31 Oct-30 REVIEW fix).
+#
+# Asserts: every symbol that traded in the latest session has BOTH
+#   (a) a daily-ohlc row for the session (nepse-chart/data/daily-ohlc/<SYM>.json)
+#   (b) a history (monthly-series) row for the session (nepse-chart/data/history/<SYM>.json)
+# with slash/hyphen normalization (floorsheet/monthly use GBILD84/85,
+# daily-ohlc/history filenames use GBILD84-85). It must FAIL LOUDLY,
+# listing ALL missing symbols, on a future PMLIP-class gap — instead of
+# producing a REVIEW flag days later.
+#
+# Triggers: schedule + dispatch ONLY. A push-to-data trigger is deliberately
+# absent: push events run the workflow file from the pushed branch, and the
+# data branch never carries new workflow files (data writers only touch data
+# paths), so a push trigger would run a stale copy or nothing at all.
+# Schedule events run this file from the default branch (main), and the
+# checkout step pins ref: data, so the check always evaluates live data.
+#
+# Scope note: "monthly row" here means the PUBLISHED monthly series
+# (history/ files on the data branch). The local monthly archive
+# (~/workspace/nepse-data-archive/ohlc-YYYY-MM.json) is not in git, so CI
+# cannot check it directly; it is covered by the REVIEW check plus the
+# updater fixes (dual-format universe, loud failures, live-universe refresh).
+#
+# This workflow is NOT a required check (only the owner can change the
+# required set, via GitHub UI). A red run signals loudly without blocking
+# merges. KNOWN STATUS at introduction (2026-10-31, reported honestly):
+# the daily half goes GREEN after the Oct-30 REVIEW backfill (PMLIP + 3
+# debentures + BENH/PCBLP + 35-symbol expansion); the history half is
+# expected RED on pre-existing history lag (the market-close/history lane
+# has been broken since Oct 28, so many symbols lack Oct-29/30 history
+# rows). That lag is a separate lane to fix, not a reason to scope
+# history out of this check.
+name: Trade coverage
+
+on:
+  schedule:
+    - cron: '45 12 * * 1-5' # 18:30 NPT weekdays — early signal after close
+    - cron: '45 15 * * 1-5' # 21:30 NPT weekdays — final check of the day
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  trade-coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: data
+      - name: Check every traded symbol has a daily row and a history row
+        run: |
+          python3 - <<'EOF'
+          import glob, json, os, sys
+
+          def norm(s):
+              # Slash -> hyphen (floorsheet/monthly use slash, filenames use hyphen).
+              return str(s).strip().replace('/', '-')
+
+          def ymd_of(iso_date):
+              return int(iso_date.replace('-', ''))
+
+          # Latest session + traded set from live.json (fallback: floorsheet chunks).
+          live = json.load(open('nepse-chart/data/live.json'))
+          session = live.get('session_date')
+          if not session:
+              print('FAIL: live.json has no session_date')
+              sys.exit(1)
+          quotes = live.get('quotes') or []
+          if not quotes:
+              print(f'FAIL: live.json for {session} has no quotes; refusing a silent pass')
+              sys.exit(1)
+          traded = {norm(q.get('symbol', '')) for q in quotes}
+          traded.discard('')
+          if not traded:
+              print(f'FAIL: traded set empty for {session}')
+              sys.exit(1)
+          print(f'session={session} traded={len(traded)}')
+
+          s_int = ymd_of(session)
+
+          def has_row(path, want):
+              try:
+                  d = json.load(open(path))
+              except Exception:
+                  return False
+              for row in d.get('rows') or d.get('data') or []:
+                  # daily-ohlc rows: [YYYYMMDD, ...]; history rows: [YYYYMMDD, ...]
+                  if isinstance(row, list) and row and row[0] == want:
+                      return True
+              return False
+
+          daily_missing, hist_missing = [], []
+          for sym in sorted(traded):
+              if not has_row(f'nepse-chart/data/daily-ohlc/{sym}.json', s_int):
+                  daily_missing.append(sym)
+              if not has_row(f'nepse-chart/data/history/{sym}.json', s_int):
+                  hist_missing.append(sym)
+
+          print(f'daily-missing ({len(daily_missing)}): {daily_missing}')
+          print(f'history-missing ({len(hist_missing)}): {hist_missing}')
+          if daily_missing or hist_missing:
+              print('FAIL: trade coverage incomplete')
+              sys.exit(1)
+          print('PASS: every traded symbol has a daily row and a history row')
+          EOF
