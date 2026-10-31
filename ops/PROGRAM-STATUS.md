@@ -1,9 +1,9 @@
 # Program status — Nepse Decode publishing rebuild (P0–P8)
 
 Last updated: 2026-10-31 (Saturday, market closed). Main tip at last
-verification: `d6669de9` (#239 merge) — re-read before acting.
-Data branch head at last verification: `6b167615` (performance-snapshot
-migration; 15 components, 43 files).
+verification: `314919d3` (#243 merge) — re-read before acting.
+Data branch head at last verification: `2f110da8` (regime consistency
+rebuild; 16 components).
 
 ## LIVE PROOF — first P2 deploy (2026-10-31)
 
@@ -25,9 +25,8 @@ vs floorsheet 348) or the missed-day-catchup baseline gap — those
 stay parent-owned. B5 is MOOT: deploy-pages without the job-level
 environment does NOT hit the github-pages branch rule (step 14
 succeeded from branch `data`), so no owner action is needed for
-deploys. First FULLY GREEN workflow run still awaits B3 (purge
-secrets) — after B3 lands, the next data push goes green end to
-end (deploy + purge + live-verify + workflow tag).
+deploys. First FULLY GREEN workflow run: DONE (run 41159785960,
+see third proof section below).
 
 ## LIVE PROOF — second P2 deploy, performance-snapshot (2026-10-31)
 
@@ -47,6 +46,26 @@ skipped by the purge failure, as before). Performance-snapshot is
 therefore LIVE at its Oct-30 23:41 content (346 symbols),
 replacing main's stale Oct-29 23:41 version.
 
+## LIVE PROOF — third P2 deploy, fully green (2026-10-31)
+
+Publish run 41159785960 (push, branch=data, snapshot `37cacfe6`,
+triggered by the market-regime Oct-30 refresh): EVERY step green,
+including **Purge changed URLs ✓**, **Verify production bytes ✓**,
+and the tag job ✓. Tag `data-2026-10-31-3` created on `37cacfe6`
+BY THE WORKFLOW (first workflow tag, not manual). This closes B3:
+the purge step ran against the owner-added secrets with no
+Cloudflare rejection, and the user's UI rerun of 41150937610 is NO
+LONGER NEEDED (a fresh push proved the path instead). Deployed
+main `1d190674` (incl. #242 broker-hub bake) + data `37cacfe6`
+(market-regime Oct-30 refresh: NEPSE 2690.15 BEAR, Banking BULL,
+calls ledger Oct-30 entry). Live-verified after: broker hub header
+2026-10-30 · 68 days, Naasa 62.4/67.9/−5.5 Cr == daily file;
+market-regime.json asof 2026-10-30 (NEPSE 2690.15, 37 days in
+regime, breadth 58.36%, n=269). Later workflow tags on the same
+green path: `data-2026-10-31-4` on `40b30342` (sector boards with
+the Trading bucket + Bikas family moved), `data-2026-10-31-5` on
+`2f110da8` (regime consistency rebuild, Others n=5).
+
 Legend: **LIVE** = verified on `shirjankhadka.com.np` bytes.
 **ARTIFACT** = proven on the data branch / workflow artifact; live
 proof pending the Pages flip (blocker B2). **NOT LIVE** = not on
@@ -59,7 +78,7 @@ bytes.
 |---|---|---|---|
 | B1 | Repo Settings → General → Pull Requests → **Allow auto-merge** | Code PRs merge themselves once green; until then, PUT merge only, never hand-polling | FLIPPED by owner in UI (verified via API: `allow_auto_merge=true`) |
 | B2 | Repo Settings → Pages → Build and deployment → Source → **GitHub Actions** | The P2 publish workflow deploys nothing servable while Pages serves from the branch; pre-flip runs prove the artifact only | FLIPPED by owner in UI (verified via API: `build_type=workflow`). Live site still serves the last branch deployment (homepage 200, live.json asof 2026-10-30T15:00 — no outage from the flip) until the first Actions deploy succeeds |
-| B3 | Repo Settings → Secrets → **CLOUDFLARE_API_TOKEN** + **CLOUDFLARE_ZONE_ID** | Post-flip purge step in the publish workflow; absent secrets fail the job loudly (never silently stale). Interim: purge from the sandbox after deploy | OPEN — CONFIRMED TWICE: (1) from run log (run 41149221033 line 4534, `publish-purge: FAIL CLOUDFLARE_API_TOKEN and CLOUDFLARE_ZONE_ID must both be set`; runner env both empty; NO Cloudflare call made — missing-secret, NOT a Cloudflare rejection); (2) from the USER'S OWN SCREENSHOT of Settings → Secrets and variables → Actions (2026-10-31 06:25): repo secrets are ONLY `ALERT_EMAIL_TO`, `BACKUP_REPO_TOKEN`, `MAIL_PASSWORD`, `MAIL_USERNAME` — both Cloudflare secrets ABSENT. OWNER-UI FIX (already relayed to the user): Repo → Settings → Secrets and variables → Actions → New repository secret, add BOTH: (1) `CLOUDFLARE_API_TOKEN` = Cloudflare API token with Zone → Cache Purge → Purge for the shirjankhadka.com.np zone; (2) `CLOUDFLARE_ZONE_ID` = the zone ID on the domain's Cloudflare Overview page. Then rerun the failed jobs from the UI (API rerun 403s on this token — B4). RERUN VERIFICATION PENDING (worker verifies when the rerun happens): the meaningful rerun is 41150937610 (current snapshot `6b167615`); rerunning 41149221033 would redeploy superseded `2f64a2ed`. Either way, a fully-green run (deploy + purge + live-verify + workflow tag) closes B3. Secret values NEVER go in chat — directly into GitHub's secret form only. No code change needed; do NOT work around it (no secret committed to the repo, no purge step bypassed) |
+| B3 | Repo Settings → Secrets → **CLOUDFLARE_API_TOKEN** + **CLOUDFLARE_ZONE_ID** | Post-flip purge step in the publish workflow; absent secrets fail the job loudly (never silently stale) | CLOSED 2026-10-31: owner added both secrets in UI (~06:33–06:34 NPT); proven by Publish run 41159785960 (purge step success, no Cloudflare rejection) + workflow tag `data-2026-10-31-3`. UI rerun of 41150937610 no longer needed |
 | B4 | Token scope: **Actions read+write** for this repo (token currently 403s workflow_dispatch) | `workflow_dispatch` is the writer's primary publish trigger; without it, only push-to-data triggers (which work) and UI dispatch (owner clicks Run workflow) can start runs | OPEN — fallback ready (push-to-data) |
 | B5 | Repo Settings → Environments → **github-pages** → Deployment branches → add **`data`** | Post-flip deploys from data pushes hit the environment's main-only branch rule (proven: run 41147393968 rejected in 2s, no steps, no runner). Without B5, data-push runs prove the artifact but fail at deploy; main-branch (UI dispatch) runs deploy fine | MOOT — deploy-pages without the job-level environment does NOT hit the branch rule (run 41149221033 step 14 succeeded from branch `data`). No owner action needed. (The job-level environment block was the trigger; #239 removed it.) |
 
@@ -69,26 +88,27 @@ bytes.
 |---|---|---|
 | P0 — deploy-failure classification + gh_client | DONE | Client merged as #212 (`a79b0620`); 16 publishers classified (`fixprog-p0/FAILURE-TABLE.md`) |
 | P1a — dynamic universe gate + manifest advance | DONE | #223 (`95c47245`): manifest v105, session 2026-10-30, universe 426 |
-| P1b — direct-push publishers get a working path under protection | LIVE (first + second deploy 2026-10-31) | 15/15 publishers migrated (table below, incl. performance-snapshot 2026-10-31); deployed snapshots `2f64a2ed` (42/42 bytes, tag `data-2026-10-31-1`) and `6b167615` (43/43 bytes, tag `data-2026-10-31-2`) |
-| P2 — ONE publish workflow (main + data → Pages artifact, no PR per data run) | LIVE (first deploy 2026-10-31) | #238 merged via PUT (200; `b717e48e`, parent `e96fb92d`); #239 environment-block fix merged via PUT (200; `d6669de9`). First live deploy: run 41149221033, snapshot `2f64a2ed`, all 42 files byte-identical live, tag `data-2026-10-31-1`. First fully-green run awaits B3 (purge secrets) |
-| P3 — per-component as_of, quarantine-only gates | NOT STARTED (next after P2 proves) | Data-branch `data/_manifest.json` already carries per-component asof (the P3 data shape); gates still global-session |
+| P1b — direct-push publishers get a working path under protection | LIVE (fully-green deploys from 2026-10-31) | 16/16 components on the data branch (table below, incl. market-regime refresh `37cacfe6`); first fully-green run 41159785960 (deploy + purge + live-verify + workflow tag `data-2026-10-31-3`); data head `2f110da8`, tags through `data-2026-10-31-5` |
+| P2 — ONE publish workflow (main + data → Pages artifact, no PR per data run) | LIVE (first fully-green run 2026-10-31) | #238 merged via PUT (200; `b717e48e`, parent `e96fb92d`); #239 environment-block fix merged via PUT (200; `d6669de9`). Fully-green run 41159785960: snapshot `37cacfe6`, purge ✓, live-verify ✓, workflow tag `data-2026-10-31-3`. B3 closed; UI rerun moot |
+| P3 — per-component as_of, quarantine-only gates | NOT STARTED (next now that P2 is proven fully green) | Data-branch `data/_manifest.json` already carries per-component asof (the P3 data shape); gates still global-session |
 | P4 — fresh checkout per run, no shared worktree | PARTIAL | Migration was read-only on worktrees; builder worktree hygiene still a per-job follow-up |
 | P5 — hashed asset URLs inside the build; post-hoc stamp verifier removed as blocker | NOT STARTED | Stale-token items still open (nd-tokens, nepse-index/compare/floorsheet, brokers.js pins) |
 | P6 — vendor login (Capital Max MF): terms-checked re-auth or last-known-good + STALE badge | NOT STARTED | MF snapshot blocked on sign-in wall (2026-10-30 18:45, 2nd consecutive); do-not-re-ask rule stands |
 | P7 — ONE events table (actions page + ledger + stock pages + sitemap) | NOT STARTED | Ledger-vs-page gap known (ledger builder doesn't know `outcome=not_distributed`); page is source of truth until P7 |
-| P8 — auto-recovery or loud alert per failure class; watchdog; /status rates | PARTIAL | This file is the /status half; watchdog + alert dedup still open |
+| P8 — auto-recovery or loud alert per failure class; watchdog; /status rates | PARTIAL | This file is the /status half; standing live gate built + scheduled (30-min cron; 2026-10-31 08:48 run GATE OK, 28 pass, 0 fail, 2 by-design skips); watchdog + alert dedup for other jobs still open |
 
 ## Publishers on the data branch (all written + blob-verified)
 
-Data branch head: `6b167615` (performance-snapshot). Manifest:
-`data/_manifest.json`, 15 components, 43 files. Both deploys live:
-snapshot `2f64a2ed` (42/42 bytes, tag `data-2026-10-31-1`) and
-snapshot `6b167615` (43/43 bytes, tag `data-2026-10-31-2`).
+Data branch head: `2f110da8` (regime consistency rebuild). Manifest:
+`data/_manifest.json`, 16 components. Fully-green deploys from run
+41159785960 onward (purge + live-verify + workflow tag); tags
+`data-2026-10-31-3` (`37cacfe6`), `data-2026-10-31-4` (`40b30342`),
+`data-2026-10-31-5` (`2f110da8`).
 
 | Component | asof | Data commit | Files | Note |
 |---|---|---|---|---|
 | contributors | 2026-10-30 | `ca4eb9a9` | 2 | History: exactly one Oct-30 entry appended; Oct-29 gap pre-existing, migrated as-is |
-| sector-rotation | 2026-10-30 | `3684bd39` | 3 | |
+| sector-rotation | 2026-10-30 | `3684bd39` | 3 | Boards rebuilt with Trading bucket [BBC, STC] + Bikas family of 8 → Development Bank (tag -4) |
 | sim-benchmarks | 2026-10-30 | `2d2fb616` | 1 | Generated 2026-10-30 19:30 NPT; rows run to 2026-10-30 |
 | reports-archive | 2026-10-29 | `1c5a85c0` | 1 | Entry session_date 2026-10-29; its market block IS the Oct-30 close (2690.15 / −5.45 / 348). asof kept at the file's own date |
 | price-push | 2026-10-30 | `e436a4dc` | 9 | 7 windows + history + manifest |
@@ -97,11 +117,12 @@ snapshot `6b167615` (43/43 bytes, tag `data-2026-10-31-2`).
 | smart-money-eps | 2026-10-29 | `3fc5c9c2` | 2 | Board asof stays 2026-10-29 (eps_asof 2026-09-30, Q4 FY82/83); Oct-30 run changed 2 lines vs main; label question flagged, not relabeled |
 | sector-symbol | 2026-10-30 | `7ed72f52` | 3 | |
 | money-flow | 2026-10-30 | `22727982` | 1 | Current board only; archive/cohorts NOT updated by the Oct-30 run (archive last 2026-10-29) — builder-side gap, not fabricated |
-| sector-price-rotation | 2026-10-30 | `5d2d32a5` | 3 | |
-| sector-seasonality | 2026-10-30 | `1f36c847` | 2 | Keystone update sector-strength waits on — satisfied on the data branch |
+| sector-price-rotation | 2026-10-30 | `5d2d32a5` | 3 | Boards rebuilt with Trading bucket [BBC, STC] + Bikas family of 8 → Development Bank (tag -4) |
+| sector-seasonality | 2026-10-30 | `1f36c847` | 2 | Keystone update sector-strength waits on — satisfied on the data branch. Trading is in data; the seasonality dropdown gains Trading only via #244 (open) + next Publish |
 | vpi | 2026-10-30 | `b484ff40` | 1 | FINAL board, 279 symbols; archive/cohorts untouched by design |
 | technical-signals | 2026-10-30 | `b67894e4` | 4 | |
-| performance-snapshot | 2026-10-30 | `6b167615` | 1 | `nepse-chart/data/performance.json`: the job's own stalled payload (Oct-30 23:41 build, 346 symbols, blob `ff84f9da` == WT-perf HEAD file byte-for-byte), replacing main's stale Oct-29 23:41 version. Job state files NOT touched (job owns them); collector `deploy()` reroute to the data-branch writer is Monday-critical (else Monday's in-window run re-opens a PR and the flood resumes). Saturday/Sunday runs are archive-only (non-trading days), so no new perf PRs before Monday 11:00 NPT |
+| performance-snapshot | 2026-10-30 | `6b167615` | 1 | `nepse-chart/data/performance.json`: the job's own stalled payload (Oct-30 23:41 build, 346 symbols, blob `ff84f9da` == WT-perf HEAD file byte-for-byte), replacing main's stale Oct-29 23:41 version. Job state files NOT touched (job owns them); collector `deploy()` reroute to the data-branch writer LANDED via #241 (`ee9a83d7`); first real written data commit proven only at the Monday 11:00 NPT in-window run (forced publish deliberately avoided Saturday). Saturday/Sunday runs are archive-only (non-trading days), so no new perf PRs before Monday 11:00 NPT |
+| market-regime | 2026-10-30 | `37cacfe6` | 2 | The missed 15th component (never among the 14 migrations); NEPSE 2690.15 BEAR, Banking BULL, calls ledger Oct-30 entry. Live-verified Oct-30 |
 
 Not on the data branch (separate paths, not P1b migrations):
 sector-strength (gate-correct refusal; clears once seasonality is
@@ -115,11 +136,15 @@ same-snapshot render).
 
 | PR | Status | Note |
 |---|---|---|
-| #237 pr-flow-deploy PUT fix | DONE (merged 2026-10-31) | Changes `tools/pr-flow-deploy.py:598` POST→PUT + docstring/comments. All 5 required checks green on head `e0a33806`. Merge commit `e96fb92d` via PUT (first attempt, 200); main tree `b74b7f52` == PR head tree exactly. PROVENANCE VERIFIED 2026-10-31: PR timeline events are only closed/commented/committed/merged — NO `auto_merge_enabled` event; merged 2026-10-30T23:37:07Z by ShirjanKhadka1 = the direct API PUT, NOT auto-merge. Consequence: the fixed HELPER binary's PUT merge path is still unproven (helper runs 1–2 never reached merge: run 1 poller died silently; run 2 died on the empty-diff tree-POST 422). Proof vehicle: THIS program-status PR, merged through the fixed helper end-to-end (creation + poll + PUT merge); its log carries the merge PUT request ID. Duplicate-push guard: check the branch tree before any helper re-run |
+| #237 pr-flow-deploy PUT fix | DONE (merged 2026-10-31) | Changes `tools/pr-flow-deploy.py:598` POST→PUT + docstring/comments. All 5 required checks green on head `e0a33806`. Merge commit `e96fb92d` via PUT (first attempt, 200); main tree `b74b7f52` == PR head tree exactly. PROVENANCE VERIFIED 2026-10-31: PR timeline events are only closed/commented/committed/merged — NO `auto_merge_enabled` event; merged 2026-10-30T23:37:07Z by ShirjanKhadka1 = the direct API PUT, NOT auto-merge. Consequence: the fixed HELPER binary's PUT merge path is still unproven (helper runs 1–2 never reached merge: run 1 poller died silently; run 2 died on the empty-diff tree-POST 422). Helper-PUT proof CLOSED by #240 (merged `efa34923` via the fixed helper PUT, request `7721:1F73A7:168DA57:4AA464C:6AE53D5C`). Duplicate-push guard: check the branch tree before any helper re-run |
+| #241 performance-snapshot data-branch reroute | DONE (merged 2026-10-31, auto-merge) | Collector `deploy()` writes ONLY `nepse-chart/data/performance.json` via `tools/data-branch-writer.py`; health.json + status/index.html deliberately NOT written (publish assembler regenerates them). Merge `ee9a83d7`, parent `efa34923`. First real written commit proven only Monday 11:00 NPT in-window run |
+| #242 broker-hub Oct-30 bake | DONE (merged 2026-10-31, auto-merge) | Bake via `tools/bake-broker-snapshot.py`: hub HTML + `DAILY_END` 2026-10-29 → 2026-10-30 in `js/nepse-brokers.js` (2 files, 7+/7-). Merge `1d190674`, update-branched past #241 to `2d691d5e`. Live-verified: header 2026-10-30 · 68 days, Naasa 62.4/67.9/−5.5 Cr == daily file |
+| #243 sector map: Bikas → Development Bank + Trading bucket | DONE (merged 2026-10-31, auto-merge) | Map + all four sector boards: Bikas family of 8 (GBBL, JBBL, KSBBL, LBBL, MLBL, MNBBL, SABBL, SINDU) Banking → Development Bank (Banking 27→19, Dev Bank 9→17); Trading bucket [BBC, STC] on boards. Merge `314919d3`. Live-verified: map + boards |
+| #244 seasonality dropdown: Trading sector | OPEN — mergeable, auto-merge armed (DO NOT TOUCH — watcher-owned) | One-line dropdown change; Trading is in data but NOT in that dropdown until #244 merges and rides the next Publish |
 | #169, #173, #183, #186, #187 | OPEN — DO NOT HAND-MERGE | Stop rule from the 2026-10-31 04:50 order; parent sequences. NOTE: #173 is ALSO a perf PR (head `deploy/performance-snapshot-20261030-1411`, 13:41 snapshot) — see backlog row; its close needs an explicit parent call, not a blanket one |
 | #235 midnight rollover 2026-10-31 | OPEN — DO NOT MERGE, DO NOT CLOSE | Recommendation: close as superseded once P2 proves the rollover path |
 | #208 post-close sweep signals | OPEN | Likely superseded by #214/#223 absorption; diff-vs-main verification owed before any disposition (parent call) |
-| 40 performance-snapshot PRs (#161–#236, all created 2026-10-30) | OPEN — RECOMMENDATION ONLY, NO MASS-CLOSE | One PR per hourly run (incl. stalled pickups), each running CI that mails on failure — this is the inbox flood. All carry Oct-30 snapshots superseded by the single data-branch landing (Oct-30 23:41, `6b167615`) + the publish workflow (no PR per run). RECOMMENDATION (parent confirmation required): close all 40 as superseded by the data-branch path with a standard comment, #173 called out by name for its explicit confirmation (STOP-protected). Closing stops NEW CI mail; already-sent mail cannot be unsent. The job's own reroute (collector `deploy()` → data-branch writer) must land before Monday 11:00 NPT or the flood resumes |
+| 40 performance-snapshot PRs (#161–#236, all created 2026-10-30) | OPEN — RECOMMENDATION ONLY, NO MASS-CLOSE | One PR per hourly run (incl. stalled pickups), each running CI that mails on failure — this is the inbox flood. All carry Oct-30 snapshots superseded by the single data-branch landing (Oct-30 23:41, `6b167615`) + the publish workflow (no PR per run). RECOMMENDATION (parent confirmation required): close all 40 as superseded by the data-branch path with a standard comment, #173 called out by name for its explicit confirmation (STOP-protected). Closing stops NEW CI mail; already-sent mail cannot be unsent. The job's own reroute LANDED via #241; first real written commit proven only Monday 11:00 NPT in-window run (forced publish deliberately avoided Saturday) |
 
 ## Stamp-only PR inventory (P1b item 4)
 
@@ -130,6 +155,21 @@ GitHub omits patches for large files, and a missing patch was
 wrongly read as "no data lines". Fixed (missing patch =
 unclassifiable = not stamp-only) and re-run: 0 flagged. #197 is a
 data PR, not a stamp PR.
+
+## Standing live gate (2026-10-31)
+
+Script `live_gate.py` (workspace goal hidden_files, not in the repo),
+30-min runtime cron, state-change-only reports (GATE OK stays
+silent). Checks live facts: board asof vs live manifest session,
+baked snapshots vs source files, sector taxonomy vs the live map.
+Dry run 07:52: 23 pass, 16 fail, 2 skip — the 16 were the regime
+Oct-29 lag, the broker-hub Oct-29 bake, and the taxonomy family
+(8 Bikas + BBC/STC). All cleared by #242, #243, and data
+`37cacfe6`/`40b30342`/`2f110da8`: manual run 08:48 GATE OK,
+28 pass, 0 failures, 2 by-design skips (sim-benchmarks: no asof
+field; smart-money-eps: EPS vintage by design). Limits (v1):
+symbol stamps sampled (5 pages); actions/signal/verdict/blog baked
+pages not gated yet.
 
 ## P2 proof notes (pre-flip)
 
@@ -185,10 +225,12 @@ data PR, not a stamp PR.
   noise under the agent split (visual regression is Muse's
   design gate).
 - Data tag: designed in the workflow (tag job, post-flip only,
-  `data-YYYY-MM-DD-N` on the deployed snapshot). First live tag
-  comes post-flip. The Oct-30 REVIEW flag (daily 347 vs floorsheet
-  348 vs monthly 342) and the `data-2026-10-28-1` baseline gap are
-  parent-owned resolutions, not closed by this workflow.
+  `data-YYYY-MM-DD-N` on the deployed snapshot). First workflow tag
+  landed 2026-10-31 (`data-2026-10-31-3` on `37cacfe6`, run
+  41159785960); tags -4/-5 followed on the same green path. The
+  Oct-30 REVIEW flag (daily 347 vs floorsheet 348 vs monthly 342)
+  and the `data-2026-10-28-1` baseline gap are parent-owned
+  resolutions, not closed by this workflow.
 - v1 honest limits: baked HTML pages lag the snapshot by one full
   rebuild (full_rebuild input fails fast until builders are
   CI-proven); noscript fallback is asserted present, not current;
@@ -231,20 +273,27 @@ are the permanent fix for dict accumulations.
    required, #173 explicit). Purge cause CONFIRMED from run log
    (missing-secret, not Cloudflare rejection) + B3 relay
    instruction prepared for the owner.
-7. PROGRAM-STATUS lands in the repo (`ops/PROGRAM-STATUS.md` via
-   PR merged through the FIXED HELPER — the helper-PUT proof;
-   auto-merge now enabled, B1 flipped, but this PR proves the
-   helper path per the parent's order). Helper run LAUNCHED
-   2026-10-31 (branch `deploy/program-status-20261031`); merge
-   PUT request ID lands in its log.
+7. PROGRAM-STATUS lands in the repo (DONE: #240, `efa34923`,
+   merged through the FIXED HELPER PUT — the helper-PUT proof,
+   request `7721:1F73A7:168DA57:4AA464C:6AE53D5C`).
 8. Owner adds B3 secrets → next data push goes fully green
-   (deploy + purge + live-verify + workflow tag).
-9. Reroute the 15 publishers' `run-*.sh` scripts + the perf
-   collector's `deploy()` to the data-branch path (Monday runs
-   need the new path; perf reroute is flood-critical).
-8. Monday 2026-11-02 10:45 NPT deadline: every publisher lands
-   without manual merging; live tape moves past the Oct-30 close;
-   Monday evening finals show Nov 2.
+   (DONE: secrets added ~06:33–06:34; run 41159785960 fully green,
+   workflow tag `data-2026-10-31-3`; UI rerun no longer needed).
+9. Perf collector `deploy()` reroute to the data-branch path
+   (DONE: #241, `ee9a83d7`; first real written commit proven only
+   at the Monday 11:00 NPT in-window run).
+10. Broker-hub Oct-30 bake (DONE: #242, `1d190674`; live-verified
+    2026-10-30 · 68 days, Naasa == daily file).
+11. Sector-map fix + Trading bucket + Bikas family (DONE: #243,
+    `314919d3`; boards + map live; tags -4/-5).
+12. Standing live gate (DONE: built + scheduled; 08:48 GATE OK,
+    28 pass, 0 failures, 2 by-design skips).
+13. #244 seasonality Trading dropdown (OPEN, mergeable,
+    auto-merge armed): merges, then rides the next Publish; do not
+    touch its branch or watcher.
+14. Monday 2026-11-02 10:45 NPT deadline: every publisher lands
+    without manual merging; live tape moves past the Oct-30 close;
+    Monday evening finals show Nov 2.
 
 ## Out of scope for this lane (parent/other lanes)
 
