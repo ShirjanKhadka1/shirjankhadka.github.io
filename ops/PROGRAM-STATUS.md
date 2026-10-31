@@ -1,7 +1,7 @@
 # Program status — Nepse Decode publishing rebuild (P0–P8)
 
 Last updated: 2026-10-31 (Saturday, market closed). Main tip at last
-verification: `314919d3` (#243 merge) — re-read before acting.
+verification: `c63a7755` (#244 merge) — re-read before acting.
 Data branch head at last verification: `2f110da8` (regime consistency
 rebuild; 16 components).
 
@@ -118,7 +118,7 @@ Data branch head: `2f110da8` (regime consistency rebuild). Manifest:
 | sector-symbol | 2026-10-30 | `7ed72f52` | 3 | |
 | money-flow | 2026-10-30 | `22727982` | 1 | Current board only; archive/cohorts NOT updated by the Oct-30 run (archive last 2026-10-29) — builder-side gap, not fabricated |
 | sector-price-rotation | 2026-10-30 | `5d2d32a5` | 3 | Boards rebuilt with Trading bucket [BBC, STC] + Bikas family of 8 → Development Bank (tag -4) |
-| sector-seasonality | 2026-10-30 | `1f36c847` | 2 | Keystone update sector-strength waits on — satisfied on the data branch. Trading is in data; the seasonality dropdown gains Trading only via #244 (open) + next Publish |
+| sector-seasonality | 2026-10-30 | `1f36c847` | 2 | Keystone update sector-strength waits on — satisfied on the data branch. Trading is in data; the seasonality dropdown gains Trading via #244 (merged `c63a7755`) on the next Publish |
 | vpi | 2026-10-30 | `b484ff40` | 1 | FINAL board, 279 symbols; archive/cohorts untouched by design |
 | technical-signals | 2026-10-30 | `b67894e4` | 4 | |
 | performance-snapshot | 2026-10-30 | `6b167615` | 1 | `nepse-chart/data/performance.json`: the job's own stalled payload (Oct-30 23:41 build, 346 symbols, blob `ff84f9da` == WT-perf HEAD file byte-for-byte), replacing main's stale Oct-29 23:41 version. Job state files NOT touched (job owns them); collector `deploy()` reroute to the data-branch writer LANDED via #241 (`ee9a83d7`); first real written data commit proven only at the Monday 11:00 NPT in-window run (forced publish deliberately avoided Saturday). Saturday/Sunday runs are archive-only (non-trading days), so no new perf PRs before Monday 11:00 NPT |
@@ -140,7 +140,7 @@ same-snapshot render).
 | #241 performance-snapshot data-branch reroute | DONE (merged 2026-10-31, auto-merge) | Collector `deploy()` writes ONLY `nepse-chart/data/performance.json` via `tools/data-branch-writer.py`; health.json + status/index.html deliberately NOT written (publish assembler regenerates them). Merge `ee9a83d7`, parent `efa34923`. First real written commit proven only Monday 11:00 NPT in-window run |
 | #242 broker-hub Oct-30 bake | DONE (merged 2026-10-31, auto-merge) | Bake via `tools/bake-broker-snapshot.py`: hub HTML + `DAILY_END` 2026-10-29 → 2026-10-30 in `js/nepse-brokers.js` (2 files, 7+/7-). Merge `1d190674`, update-branched past #241 to `2d691d5e`. Live-verified: header 2026-10-30 · 68 days, Naasa 62.4/67.9/−5.5 Cr == daily file |
 | #243 sector map: Bikas → Development Bank + Trading bucket | DONE (merged 2026-10-31, auto-merge) | Map + all four sector boards: Bikas family of 8 (GBBL, JBBL, KSBBL, LBBL, MLBL, MNBBL, SABBL, SINDU) Banking → Development Bank (Banking 27→19, Dev Bank 9→17); Trading bucket [BBC, STC] on boards. Merge `314919d3`. Live-verified: map + boards |
-| #244 seasonality dropdown: Trading sector | OPEN — mergeable, auto-merge armed (DO NOT TOUCH — watcher-owned) | One-line dropdown change; Trading is in data but NOT in that dropdown until #244 merges and rides the next Publish |
+| #244 seasonality dropdown: Trading sector | DONE (merged 2026-10-31, auto-merge) | One-line dropdown change; merged via its own auto-merge (not touched by this lane). Trading is in data; the dropdown gains Trading on the next Publish |
 | #169, #173, #183, #186, #187 | OPEN — DO NOT HAND-MERGE | Stop rule from the 2026-10-31 04:50 order; parent sequences. NOTE: #173 is ALSO a perf PR (head `deploy/performance-snapshot-20261030-1411`, 13:41 snapshot) — see backlog row; its close needs an explicit parent call, not a blanket one |
 | #235 midnight rollover 2026-10-31 | OPEN — DO NOT MERGE, DO NOT CLOSE | Recommendation: close as superseded once P2 proves the rollover path |
 | #208 post-close sweep signals | OPEN | Likely superseded by #214/#223 absorption; diff-vs-main verification owed before any disposition (parent call) |
@@ -288,9 +288,8 @@ are the permanent fix for dict accumulations.
     `314919d3`; boards + map live; tags -4/-5).
 12. Standing live gate (DONE: built + scheduled; 08:48 GATE OK,
     28 pass, 0 failures, 2 by-design skips).
-13. #244 seasonality Trading dropdown (OPEN, mergeable,
-    auto-merge armed): merges, then rides the next Publish; do not
-    touch its branch or watcher.
+13. #244 seasonality Trading dropdown (DONE: merged `c63a7755`
+    via its own auto-merge; rides the next Publish).
 14. Monday 2026-11-02 10:45 NPT deadline: every publisher lands
     without manual merging; live tape moves past the Oct-30 close;
     Monday evening finals show Nov 2.
