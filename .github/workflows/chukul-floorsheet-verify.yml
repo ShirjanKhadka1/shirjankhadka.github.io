@@ -1,0 +1,95 @@
+# Chukul floorsheet collector — VERIFY ONLY (no staging, no schedule).
+#
+# Manual dispatch ONLY (workflow_dispatch). There is deliberately NO cron:
+# a second daily schedule would double-pull the same endpoint and risk
+# writer conflicts, and the broker/floorsheet pipelines already cover
+# daily floorsheet operationally. A new daily schedule is a program
+# decision for the parent, not this job.
+#
+# What this job does: runs tools/collect-chukul-floorsheet.py for ONE
+# date and compares its totals against the data branch's ALREADY-STAGED
+# day manifest for that date (nepse-floorsheet/data/<date>/manifest.json).
+# It uploads ONLY the small verification report as a WORKFLOW ARTIFACT
+# (90 days). It writes NOTHING to the data branch, touches no manifest,
+# stages no second copy, dispatches no Publish, and renders nothing on
+# the site. The raw rows live only in the runner workspace and are
+# discarded with the run.
+#
+# Why verify instead of stage (AUDIT FINDING, 2026-10-31): the data
+# branch already stages this exact dataset — nepse-floorsheet/data/
+# <date>/c001.json... (1000 rows/chunk) + manifest.json + window.json
+# (rolling last 5 sessions; 2026-10-26..30 at audit time), and the day
+# manifests themselves cite "Chukul floorsheet bydate (public API)" as
+# their source. Staging a second copy would duplicate 74k rows/day.
+# CONSOLIDATION QUESTION (for the parent): the site now has (a) that
+# existing daily staging (agent-run, NOT registered in
+# data/_manifest.json) and (b) this maintained collector + verify job.
+# Options: keep both (collector as documented fallback/verification
+# tool); migrate the daily staging job onto this script (single writer);
+# or retire this script once the staging job documents its own call.
+#
+# LICENCE GAP, STATED PLAINLY: no terms/licence has been found for
+# chukul.com and no permission has been obtained. This job is NOT run
+# under a licence; it runs under the owner's 2026-10-31 runs=free order
+# (public no-auth endpoint, no ban found) and is consistent with
+# existing production use (the staged data already cites this endpoint
+# as its source). If the owner wants permission-first, this PR is the
+# thing to revert: revert = delete the script + this workflow. No site
+# data is touched by either.
+#
+# Collector discipline (binding in the script): ONLY a User-Agent
+# header (no token/session/key); retries with backoff on TRANSPORT
+# errors only; shape-asserts (dict with `data` list + `last_page`; rows
+# carry transaction/quantity/amount/buyer/seller); dedupe by transaction
+# (first wins); STOP LOUD (exit 2) on any 401/403/CAPTCHA/new-gate
+# signal — never silently continue, never retry a gate.
+
+name: Chukul floorsheet verify (manual only)
+
+on:
+  workflow_dispatch:
+    inputs:
+      date:
+        description: 'Session date YYYY-MM-DD to verify (default: latest staged session)'
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Fetch staged day manifest from the data branch
+        # Read-only: the manifest is the comparison target, never edited.
+        # Default date = latest session in window.json (rolling 5).
+        env:
+          DATE_INPUT: ${{ inputs.date }}
+        run: |
+          git fetch origin data --depth 1
+          if [ -n "$DATE_INPUT" ]; then DATE="$DATE_INPUT"; else
+            DATE=$(git show FETCH_HEAD:nepse-floorsheet/data/window.json | python3 -c "import json,sys; print(json.load(sys.stdin)['sessions'][0])")
+          fi
+          echo "DATE=$DATE" >> "$GITHUB_ENV"
+          echo "Verifying against staged manifest for $DATE"
+          git show "FETCH_HEAD:nepse-floorsheet/data/$DATE/manifest.json" > staged-manifest.json
+          cat staged-manifest.json
+
+      - name: Run collector in verify mode (no staging write)
+        run: |
+          python3 tools/collect-chukul-floorsheet.py --date "$DATE" \
+            --report chukul-floorsheet-verify-report.json \
+            --verify-against staged-manifest.json
+          cat chukul-floorsheet-verify-report.json
+
+      - name: Upload verification report (artifact only, never committed)
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: chukul-floorsheet-verify-report
+          path: chukul-floorsheet-verify-report.json
+          retention-days: 90
