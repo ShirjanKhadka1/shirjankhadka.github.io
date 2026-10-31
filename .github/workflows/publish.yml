@@ -228,7 +228,8 @@ jobs:
         run: |
           python3 main-tree/tools/publish-verify.py --mode live \
             --artifact-dir site-tree \
-            --report-path publish-verify-report.json
+            --report-path publish-verify-report.json \
+            --settle-timeout 300 --settle-interval 15
 
       - name: Upload verify report (on verify failure)
         # The verify step's stdout is only readable with admin log
