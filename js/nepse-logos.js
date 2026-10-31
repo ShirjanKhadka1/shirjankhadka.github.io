@@ -18,6 +18,10 @@
      js/company-logos.js  (window.NEPSE_LOGOS = { SYM: '/assets/logos/sym.webp' })
    Logos are sourced from official company websites only, normalized
    to webp, and self-hosted under /assets/logos/.
+
+   CSP: html() must NOT emit inline event-handler attributes (script-src
+   'self' blocks them and hashes cannot cover handlers). Load/error are
+   observed via capture-phase document listeners below instead.
    ============================================================ */
 (function () {
   'use strict';
@@ -59,7 +63,8 @@
       ';color:' + t[1] + '">' + esc(initials(sym)) + '</span>';
   }
 
-  // Called from the <img onerror> hook: swap a dead logo for the monogram.
+  // Called when a logo fails to load (capture listener below;
+  // formerly the <img onerror> hook): swap a dead logo for the monogram.
   function fallback(img) {
     try {
       var wrap = img.parentNode;
@@ -72,7 +77,8 @@
     } catch (e) { /* leave the chip as-is */ }
   }
 
-  // Called from the <img onload> hook. Two display defects a successful
+  // Called when a logo loads (capture listener below;
+  // formerly the <img onload> hook). Two display defects a successful
   // load can still have:
   //  1. Blank-on-white artwork: some official logos are white-only art on
   //     transparency (verified: BGWT, GFCL, GUFL have ZERO non-white opaque
@@ -120,15 +126,35 @@
     return '<span class="co-logo" style="width:' + px + 'px;height:' + px + 'px">' +
       '<img src="' + esc(src) + '" alt="' + esc(sym) + ' logo" loading="lazy" draggable="false" ' +
       'data-sym="' + esc(sym) + '" data-sector="' + esc(sector || '') + '" data-px="' + px + '" ' +
-      'onerror="NepseLogo.__fb(this)" onload="NepseLogo.__chk(this)">' +
+      '>' +
       '</span>';
   }
 
   window.NepseLogo = { html: html, mono: monoHtml, __fb: fallback, __chk: check };
 
+  // CSP: logo load/error hooks live here, not as inline attributes.
+  // script-src 'self' blocks inline event handlers, and hashes cannot
+  // cover them. Capture-phase listeners on document see every logo
+  // image — baked, deferred, or injected later — because error/load do
+  // not bubble but do capture. This also keeps unrebuilt pages working:
+  // their old inline attributes go inert under an enforced policy, but
+  // these listeners still fire and perform the same fallback/check.
+  // Double handling is safe: fallback() no-ops once the img is detached,
+  // and check() recomputes the same styles.
+  function onLogoEvent(e) {
+    var t = e.target;
+    if (!t || t.tagName !== 'IMG') return;
+    var wrap = t.parentNode;
+    if (!wrap || !wrap.className || wrap.className.indexOf('co-logo') === -1) return;
+    if (e.type === 'error') fallback(t);
+    else if (e.type === 'load') check(t);
+  }
+  document.addEventListener('error', onLogoEvent, true);
+  document.addEventListener('load', onLogoEvent, true);
+
   // Race guard: a cached image can finish loading before this deferred
-  // script runs, so its inline onload never fires — sweep any logo images
-  // already in the DOM and check the completed ones.
+  // script runs — sweep any logo images already in the DOM and check the
+  // completed ones. (Later loads are covered by the listeners above.)
   try {
     var sweep = function () {
       var imgs = document.querySelectorAll('.co-logo img');
