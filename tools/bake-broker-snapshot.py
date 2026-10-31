@@ -6,6 +6,7 @@ snapshot between SNAP-START / SNAP-END markers, so crawlers and no-JS
 visitors see real coverage info. The interactive views below remain the live
 surface. Run after export_broker_data.py (or standalone); safe to re-run.
 """
+import hashlib
 import json
 import os
 import re
@@ -58,8 +59,8 @@ def main():
     # so the page never claims a daily file exists past the archive.
     daily_dir = os.path.join(DATA, 'daily')
     daily_dates = sorted(f[:-5] for f in os.listdir(daily_dir) if f.endswith('.json'))
+    js_path = os.path.join(REPO, 'js', 'nepse-brokers.js')
     if daily_dates:
-        js_path = os.path.join(REPO, 'js', 'nepse-brokers.js')
         js = open(js_path).read()
         js2, n = re.subn(r"var DAILY_END = '[^']*'", f"var DAILY_END = '{daily_dates[-1]}'", js)
         assert n == 1, 'DAILY_END not found in nepse-brokers.js'
@@ -68,6 +69,22 @@ def main():
             print(f'DAILY_END refreshed to {daily_dates[-1]} in js/nepse-brokers.js')
         else:
             print(f'DAILY_END already {daily_dates[-1]}')
+    # Re-stamp the page's JS reference from the shipped bytes. This baker is
+    # the only writer of nepse-brokers.js (DAILY_END), so the page's ?v=
+    # stamp must track the file it ships. The Oct-30 snapshot PR (#242)
+    # changed DAILY_END without re-stamping (the Oct-29 PR #106 had updated
+    # the stamp by hand), which left every later daily run failing the
+    # verifier's stamp check. Computing the stamp here makes the bake
+    # self-consistent, and self-healing on no-change days too.
+    stamp = hashlib.sha1(open(js_path, 'rb').read()).hexdigest()[:8]
+    html = open(PAGE).read()
+    html2, n = re.subn(r'nepse-brokers\.js\?v=[a-f0-9]+', f'nepse-brokers.js?v={stamp}', html)
+    assert n == 1, 'nepse-brokers.js stamp ref not found exactly once in page'
+    if html2 != html:
+        open(PAGE, 'w').write(html2)
+        print(f'JS stamp refreshed to {stamp} in nepse-brokers/index.html')
+    else:
+        print(f'JS stamp already {stamp}')
 
 
 if __name__ == '__main__':
