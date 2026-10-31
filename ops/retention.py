@@ -14,6 +14,17 @@ Window rule (config/retention.yaml):
   (2024-10-31) were wrong. This code uses window_years from the
   config (3). See ops/RETENTION.md.
 
+  LEAP-DAY RULE — DECIDED by user decision 2026-10-31: when D is
+  Feb 29, D - window_years CLAMPS to Feb 28 (standard date-arithmetic
+  clamping, never round-up to Mar 1). The regime forward-adjustment
+  then applies to the CLAMPED date. Worked case: 2028-02-29 -> raw
+  2025-02-28 (Friday, non-trading under the pre-2026-04-06 Sun-Thu
+  regime) -> window_start 2025-03-02 (Sunday). Mar 1 is NOT the
+  clamp target: round-up is non-standard, and it would not even
+  change this case (2025-03-01 is a Saturday, also non-trading
+  under Sun-Thu, so it would forward-adjust to 2025-03-02 anyway) —
+  Feb 28 is the unambiguous choice. Pinned by `self-test`.
+
   PER-DATASET ACTUAL START (user decision 2026-10-31): the planner
   reports window_start per dataset as max(formula window_start,
   first real date in that dataset's rows). A dataset with shorter
@@ -56,6 +67,7 @@ CLI (every mode prints a JSON proof object as its LAST stdout line):
   manifest-init --output FILE
   manifest-add --manifest FILE --dataset NAME --path PATH --rows N
                --sha256 HEX --window-start YYYY-MM-DD --asof YYYY-MM-DD
+  self-test (pinned leap-day rule tests; no config, no files)
 """
 
 import argparse
@@ -86,10 +98,13 @@ def parse_date(s):
 
 
 def minus_years(d, years):
-    """D minus N years, Feb 29 safe (clamps to Feb 28)."""
+    """D minus N years. LEAP-DAY RULE (decided 2026-10-31): a Feb 29
+    source CLAMPS to Feb 28 — standard date-arithmetic clamping,
+    never round-up to Mar 1. The regime forward-adjustment in
+    window_start() then applies to the clamped date."""
     try:
         return d.replace(year=d.year - years)
-    except ValueError:  # Feb 29 -> Feb 28
+    except ValueError:  # Feb 29 -> Feb 28 (decided, never Mar 1)
         return d.replace(year=d.year - years, day=28)
 
 
@@ -641,6 +656,46 @@ def cmd_manifest_add(a):
     return 0
 
 
+def cmd_self_test(a):
+    """Pinned leap-day rule tests (user decision 2026-10-31: clamp
+    target Feb 28, forward-adjustment after clamping). Pure date
+    arithmetic — no config, no holidays file, no dataset files — so
+    the rule is pinned regardless of config or holidays state.
+    Prints one PASS/FAIL line per case, then a JSON summary as the
+    last stdout line. Returns 0 only if every case passes."""
+    cases = []
+
+    def check(name, got, want):
+        ok = got == want
+        cases.append({"name": name, "got": str(got),
+                      "want": str(want), "pass": ok})
+        print(f"{'PASS' if ok else 'FAIL'} {name}: "
+              f"got {got}, want {want}")
+
+    check("clamp(2028-02-29, -3y) = 2025-02-28",
+          minus_years(dt.date(2028, 2, 29), 3), dt.date(2025, 2, 28))
+    ws, raw, _applied = window_start(dt.date(2028, 2, 29), set(), 3)
+    check("window_start(2028-02-29) raw = 2025-02-28 (clamp, not Mar 1)",
+          raw, dt.date(2025, 2, 28))
+    check("window_start(2028-02-29) = 2025-03-02 "
+          "(Feb-28 clamp + forward-adjust)",
+          ws, dt.date(2025, 3, 2))
+    check("non-leap Feb-28 unaffected: minus_years(2027-02-28, 3)",
+          minus_years(dt.date(2027, 2, 28), 3), dt.date(2024, 2, 28))
+    ws2, _raw2, _ = window_start(dt.date(2027, 2, 28), set(), 3)
+    check("window_start(2027-02-28) = 2024-02-28 (trading Wednesday)",
+          ws2, dt.date(2024, 2, 28))
+    check("Mar-1-adjacent unshifted: minus_years(2029-03-01, 3)",
+          minus_years(dt.date(2029, 3, 1), 3), dt.date(2026, 3, 1))
+    ws3, _raw3, _ = window_start(dt.date(2029, 3, 1), set(), 3)
+    check("window_start(2029-03-01) = 2026-03-01 (trading Sunday)",
+          ws3, dt.date(2026, 3, 1))
+    status = "PASS" if all(c["pass"] for c in cases) else "FAIL"
+    print(json.dumps({"self_test": status, "tests": cases,
+                      "count": len(cases)}, indent=2, sort_keys=True))
+    return 0 if status == "PASS" else 1
+
+
 def main():
     ap = argparse.ArgumentParser(description="Retention-window logic")
     ap.add_argument("--config", default=None)
@@ -686,6 +741,9 @@ def main():
     p.add_argument("--window-start", required=True)
     p.add_argument("--asof", required=True)
     p.set_defaults(fn=cmd_manifest_add)
+
+    p = sub.add_parser("self-test")
+    p.set_defaults(fn=cmd_self_test)
 
     a = ap.parse_args()
     return a.fn(a)
