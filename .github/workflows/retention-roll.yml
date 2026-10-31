@@ -1,0 +1,248 @@
+# Retention roll (Phase A) — the rolling 3-year data window.
+#
+# DISPATCH ONLY in this PR. No cron schedule: the nightly cron is
+# enabled by the GATE A follow-up AFTER the simulation passes (see
+# ops/RETENTION.md). Dry-run defaults to true and pushes NOTHING.
+#
+# Roll safety sequence (enforced by the steps below, live mode only):
+#   snapshot -> write COLD -> verify counts/checksums -> restore-test
+#   a sample partition downloaded from `cold` -> ONLY THEN remove
+#   expired rows from HOT (data branch) -> Publish (auto-triggered by
+#   the data push; see the final step) -> verify pages show the new
+#   window start (manual, per the runbook).
+#
+# Never during a session: the session-guard step refuses live mode on
+# a trading day before 16:00 NPT. Live mode also refuses any dataset
+# not listed in config/retention.yaml (ops/retention.py exits 2).
+#
+# Publish trigger finding (verified 2026-10-31): publish.yml triggers
+# on `push: branches: [data]` AND the data branch carries publish.yml
+# (blob adfdd2d2, identical to main's), so a data-branch push
+# auto-triggers Publish. No workflow dispatch is needed for the roll's
+# Publish step, and the token's lack of Actions write does NOT block it.
+# Caveat: the push-triggered run uses the DATA branch's copy of
+# publish.yml — if main's copy changes, sync it to data before relying
+# on the push trigger again.
+
+name: Retention roll (Phase A)
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (compute plan + Parquet + checksums locally, push nothing)"
+        type: boolean
+        default: true
+      asof:
+        description: "Roll date YYYY-MM-DD (default: today, Asia/Kathmandu)"
+        required: false
+        default: ""
+      dataset:
+        description: "Dataset from config/retention.yaml (default: index-history)"
+        required: false
+        default: "index-history"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: retention-roll
+  cancel-in-progress: false
+
+jobs:
+  roll:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pyarrow (loosely pinned, version logged)
+        run: |
+          pip install "pyarrow>=17"
+          python3 -c "import pyarrow; print('pyarrow', pyarrow.__version__)"
+
+      - name: Resolve roll date
+        id: asof
+        run: |
+          if [ -n "${{ inputs.asof }}" ]; then
+            echo "date=${{ inputs.asof }}" >> "$GITHUB_OUTPUT"
+          else
+            python3 -c "
+          import datetime as dt
+          npt = dt.datetime.now(dt.timezone.utc) + dt.timedelta(hours=5, minutes=45)
+          print('date=' + npt.strftime('%Y-%m-%d'))
+          " >> "$GITHUB_OUTPUT"
+          fi
+          cat "$GITHUB_OUTPUT"
+
+      - name: Window start
+        run: |
+          python3 ops/retention.py --config config/retention.yaml \
+            --holidays tools/nepse-holidays.json \
+            window-start --date "${{ steps.asof.outputs.date }}"
+
+      - name: Fetch dataset file from the data branch (read-only)
+        run: |
+          git fetch origin data:refs/remotes/origin/data --depth 1
+          HOT_PATH=$(python3 -c "
+          import sys; sys.path.insert(0, 'ops')
+          from retention import load_config, get_dataset
+          cfg = load_config('config/retention.yaml')
+          print(get_dataset(cfg, '${{ inputs.dataset }}')['hot_path'])
+          ")
+          echo "HOT_PATH=$HOT_PATH" >> "$GITHUB_ENV"
+          git show "origin/data:$HOT_PATH" > dataset.json
+          ls -l dataset.json
+
+      - name: Session guard (live mode only)
+        if: ${{ inputs.dry_run == false }}
+        run: |
+          python3 ops/retention.py --config config/retention.yaml \
+            --holidays tools/nepse-holidays.json \
+            session-guard --date "${{ steps.asof.outputs.date }}"
+
+      - name: Plan (no writes)
+        run: |
+          python3 ops/retention.py --config config/retention.yaml \
+            --holidays tools/nepse-holidays.json \
+            plan --dataset "${{ inputs.dataset }}" --input dataset.json \
+            --asof "${{ steps.asof.outputs.date }}"
+
+      - name: Extract kept + expiring months
+        run: |
+          python3 ops/retention.py --config config/retention.yaml \
+            --holidays tools/nepse-holidays.json \
+            extract --dataset "${{ inputs.dataset }}" --input dataset.json \
+            --asof "${{ steps.asof.outputs.date }}" \
+            --kept-output kept.json --expiring-dir expiring
+
+      - name: Build Parquet partitions + manifest (local)
+        run: |
+          set -e
+          WS=$(python3 ops/retention.py --config config/retention.yaml \
+            --holidays tools/nepse-holidays.json \
+            window-start --date "${{ steps.asof.outputs.date }}" \
+            | python3 -c "import sys, json; print(json.load(sys.stdin)['window_start'])")
+          echo "window_start=$WS"
+          export WS
+          if [ "${{ inputs.dry_run }}" = "false" ]; then
+            git fetch origin cold:refs/remotes/origin/cold --depth 1
+            git show origin/cold:manifest.json > cold-manifest.json
+          else
+            python3 ops/retention.py manifest-init --output cold-manifest.json
+          fi
+          mkdir -p coldparts
+          : > cold-map.json
+          python3 - <<'PYEOF'
+          import json, os, subprocess, sys
+          ws = os.environ["WS"]
+          asof = os.environ["ASOF"]
+          dataset = os.environ["DATASET"]
+          mapping = {}
+          for month in sorted(os.listdir("expiring")):
+              if not month.endswith(".json"):
+                  continue
+              stem = month[:-5]
+              year, mon = stem.split("-")
+              rows_path = os.path.join("expiring", month)
+              with open(rows_path) as f:
+                  rows = json.load(f)
+              repo_path = f"{dataset}/{year}/{mon}.parquet"
+              local_path = os.path.join("coldparts", f"{stem}.parquet")
+              out = subprocess.run([sys.executable, "tools/to_parquet.py",
+                                    "write", "--input", rows_path,
+                                    "--output", local_path],
+                                   capture_output=True, text=True, check=True)
+              proof = json.loads(out.stdout)
+              subprocess.run([sys.executable, "ops/retention.py",
+                              "manifest-add", "--manifest", "cold-manifest.json",
+                              "--dataset", dataset, "--path", repo_path,
+                              "--rows", str(proof["rows"]),
+                              "--sha256", proof["sha256"],
+                              "--window-start", ws, "--asof", asof],
+                             check=True)
+              mapping[repo_path] = local_path
+          mapping["manifest.json"] = "cold-manifest.json"
+          with open("cold-map.json", "w") as f:
+              json.dump(mapping, f, indent=2, sort_keys=True)
+          print(f"partitions: {len(mapping) - 1}")
+          PYEOF
+        env:
+          ASOF: ${{ steps.asof.outputs.date }}
+          DATASET: ${{ inputs.dataset }}
+
+      - name: Verify partitions locally (restore-test, dry-run proof)
+        run: |
+          set -e
+          for pq in coldparts/*.parquet; do
+            [ -e "$pq" ] || continue
+            stem=$(basename "$pq" .parquet)
+            n=$(python3 -c "import json; print(len(json.load(open('expiring/$stem.json'))))")
+            python3 tools/to_parquet.py check --input "$pq" --expect-rows "$n"
+          done
+          echo "LOCAL RESTORE TEST OK (all partitions decode, rows match)"
+
+      - name: Dry-run summary (pushed nothing)
+        if: ${{ inputs.dry_run == true }}
+        run: |
+          echo "DRY-RUN COMPLETE: plan + Parquet + checksums + local restore test all green."
+          echo "Nothing was pushed to cold or data. Re-dispatch with dry_run=false to run live."
+
+      - name: Push COLD partitions + manifest
+        if: ${{ inputs.dry_run == false }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 tools/cold-branch-writer.py --branch cold \
+            --message "cold: ${{ inputs.dataset }} roll ${{ steps.asof.outputs.date }}" \
+            --map "$(cat cold-map.json)"
+
+      - name: Restore-test a sample partition from cold
+        if: ${{ inputs.dry_run == false }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          FIRST=$(python3 -c "
+          import json
+          m = json.load(open('cold-map.json'))
+          paths = sorted(p for p in m if p != 'manifest.json')
+          print(paths[0])
+          ")
+          echo "sample partition: $FIRST"
+          curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/contents/$FIRST?ref=cold" \
+            | python3 -c "import sys, json, base64; sys.stdout.buffer.write(base64.b64decode(json.load(sys.stdin)['content']))" \
+            > sample.parquet
+          N=$(python3 -c "
+          import json
+          m = json.load(open('cold-manifest.json'))
+          for p in m['datasets']['${{ inputs.dataset }}']['partitions']:
+              if p['path'] == '$FIRST':
+                  print(p['rows'])
+          ")
+          python3 tools/to_parquet.py check --input sample.parquet --expect-rows "$N"
+          echo "COLD RESTORE TEST OK: $FIRST decodes with $N rows (downloaded from cold)"
+
+      - name: Remove expired rows from HOT (data branch)
+        if: ${{ inputs.dry_run == false }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 -c "import json, os; print(json.dumps({os.environ['HOT_PATH']: 'kept.json'}))" > hot-map.json
+          python3 tools/cold-branch-writer.py --branch data \
+            --message "retention: ${{ inputs.dataset }} prune to window ${{ steps.asof.outputs.date }}" \
+            --map "$(cat hot-map.json)"
+
+      - name: Report (live mode)
+        if: ${{ inputs.dry_run == false }}
+        run: |
+          echo "ROLL COMPLETE: COLD written + restore-tested, HOT pruned."
+          echo "Publish auto-triggers on the data push (publish.yml push trigger on data; data branch carries publish.yml)."
+          echo "NEXT (manual, per ops/RETENTION.md): watch the Publish run, then verify live pages show the new window start."
