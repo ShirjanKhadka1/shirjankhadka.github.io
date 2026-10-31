@@ -8,13 +8,27 @@ Window rule (config/retention.yaml):
   Sun-Thu before 2026-04-06, Mon-Fri from 2026-04-06 onward, skipping
   dates listed as closed in the holidays file.
 
-  WINDOW AMBIGUITY — FLAGGED, NOT SILENTLY RESOLVED: both charters
-  state window_start(D) = D - 3 years AND give the example "on
-  2026-10-31 window starts 2024-10-31" (which is D - 2 years). This
-  code defaults to the FORMULA (window_years from the config, 3 —
-  it deletes LESS, the conservative choice). To adopt the example,
-  set window_years: 2 in config/retention.yaml — one edit, no code
-  change. See ops/RETENTION.md.
+  WINDOW AMBIGUITY — RESOLVED by user decision 2026-10-31:
+  window_years=3 is CONFIRMED (window starts 2023-10-31 on
+  2026-10-31, 2023-11-01 on 2026-11-01). The charters' example dates
+  (2024-10-31) were wrong. This code uses window_years from the
+  config (3). See ops/RETENTION.md.
+
+  PER-DATASET ACTUAL START (user decision 2026-10-31): the planner
+  reports window_start per dataset as max(formula window_start,
+  first real date in that dataset's rows). A dataset with shorter
+  history (e.g. floorsheet/broker since 2026-07-15) therefore starts
+  at its first real date, and the UI line must show that ACTUAL start
+  per dataset — never the formula date alone. Buckets and the
+  threshold are computed from the EFFECTIVE start.
+
+  PHASE B GATE (user decision 2026-10-31, HARD, fail safe): live
+  mode rolls ONLY datasets whose retention.yaml entry is explicitly
+  marked `phase_b: allowed`. Every other dataset is refused by the
+  `phase-b-gate` command (the workflow runs it in live mode only, so
+  dry-run previews still work). No live roll or cron until GATE A
+  (including the restore test) AND Phase B licensing allow archiving
+  EACH dataset.
 
 Row buckets for a dataset (reported by --plan, enforced by
 --extract):
@@ -38,6 +52,7 @@ CLI (every mode prints a JSON proof object as its LAST stdout line):
   extract --dataset NAME --input FILE --kept-output FILE
           --expiring-dir DIR [--asof YYYY-MM-DD] [--config PATH]
   session-guard [--asof YYYY-MM-DD] [--holidays PATH] [--config PATH]
+  phase-b-gate --dataset NAME [--config PATH]
   manifest-init --output FILE
   manifest-add --manifest FILE --dataset NAME --path PATH --rows N
                --sha256 HEX --window-start YYYY-MM-DD --asof YYYY-MM-DD
@@ -525,21 +540,51 @@ def _plan_common(a):
     ds = get_dataset(cfg, a.dataset)
     asof = parse_date(a.asof) if a.asof else today_npt()[0]
     holidays, source = resolve_holidays(a.holidays)
-    ws, raw, applied = window_start(asof, holidays, cfg["window_years"])
+    ws_formula, raw, applied = window_start(
+        asof, holidays, cfg["window_years"])
+    rows, _doc = load_dataset_rows(a.input, ds)
+    # Per-dataset ACTUAL start (user decision 2026-10-31):
+    # effective = max(formula window, first real date in the rows).
+    # A young dataset starts at its first real date; an old dataset
+    # is unaffected (its first date precedes the formula window).
+    first_date = min((r["_date"] for r in rows), default=None)
+    ws = max(ws_formula, first_date) if first_date else ws_formula
     threshold = (minus_years(ws, cfg["buffer_years"])
                  if ds["roll_rule"] == "window_minus_buffer" else ws)
-    rows, _doc = load_dataset_rows(a.input, ds)
     counts = plan_counts(rows, ws, threshold)
     return cfg, ds, asof, ws, threshold, counts, {
         "dataset": a.dataset, "hot_path": ds["hot_path"],
         "roll_rule": ds["roll_rule"],
         "asof": asof.isoformat(), "window_years": cfg["window_years"],
         "buffer_years": cfg["buffer_years"], "raw": raw.isoformat(),
+        "window_start_formula": ws_formula.isoformat(),
+        "first_date": first_date.isoformat() if first_date else None,
         "window_start": ws.isoformat(),
         "threshold": threshold.isoformat(),
         "holidays_source": source, "holidays_applied": applied,
         **counts,
     }
+
+
+def cmd_phase_b_gate(a):
+    cfg = load_config(a.config)
+    ds = get_dataset(cfg, a.dataset)
+    # HARD gate: only an explicit `phase_b: allowed` passes. Anything
+    # else (pending, missing, any other value) refuses live mode.
+    if ds.get("phase_b") == "allowed":
+        print(json.dumps({"gate": "OK", "dataset": a.dataset,
+                          "phase_b": "allowed"}, indent=2, sort_keys=True))
+        return 0
+    print(json.dumps({
+        "gate": "REFUSED", "dataset": a.dataset,
+        "phase_b": ds.get("phase_b"),
+        "reason": "live mode rolls ONLY datasets explicitly marked "
+                  "phase_b: allowed in config/retention.yaml. No live "
+                  "roll or cron until GATE A (including the restore "
+                  "test) AND Phase B licensing allow archiving EACH "
+                  "dataset.",
+    }, indent=2, sort_keys=True))
+    return 2
 
 
 def cmd_plan(a):
@@ -609,6 +654,10 @@ def main():
     p = sub.add_parser("session-guard")
     p.add_argument("--date", default=None)
     p.set_defaults(fn=cmd_session_guard)
+
+    p = sub.add_parser("phase-b-gate")
+    p.add_argument("--dataset", required=True)
+    p.set_defaults(fn=cmd_phase_b_gate)
 
     p = sub.add_parser("plan")
     p.add_argument("--dataset", required=True)

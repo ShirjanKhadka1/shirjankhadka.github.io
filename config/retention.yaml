@@ -1,11 +1,29 @@
 # Retention policy for the NEPSE Decode rolling data window (Phase A).
 #
-# WINDOW AMBIGUITY — FLAGGED, NOT SILENTLY RESOLVED: both charters state
-# window_start(D) = D - 3 years AND give the example "on 2026-10-31 the
-# window starts 2024-10-31" (which is D - 2 years, contradicting the
-# formula). This file defaults to the FORMULA (window_years: 3 — it
-# deletes LESS, the conservative choice). To adopt the example, set
-# window_years: 2 here — one edit, no code change. See ops/RETENTION.md.
+# WINDOW — RESOLVED by user decision 2026-10-31: window_years=3 is
+# CONFIRMED (window starts 2023-10-31 on 2026-10-31, 2023-11-01 on
+# 2026-11-01). The charters' example dates (2024-10-31) were wrong.
+#
+# PER-DATASET ACTUAL START (user decision 2026-10-31): the planner
+# reports window_start per dataset as max(formula window_start, first
+# real date in that dataset's rows). A dataset with shorter history
+# (e.g. floorsheet/broker since 2026-07-15) starts at its first real
+# date. The UI line must show each dataset's ACTUAL start per dataset
+# — never the formula date alone.
+#
+# PHASE B GATE (user decision 2026-10-31, HARD, fail safe): live mode
+# rolls ONLY datasets explicitly marked `phase_b: allowed` below.
+# Every other value (including `pending`) is REFUSED by the workflow's
+# live-mode phase-b-gate step. No live roll or cron until GATE A
+# (including the restore test) AND Phase B licensing allow archiving
+# EACH dataset. Flip a dataset to `allowed` only when Phase B licensing
+# permits archiving it, per the source matrix.
+#
+# COLD STORAGE TRIGGER (user decision 2026-10-31): if the repo size
+# passes cold_storage_trigger_gb, cold-branch writes STOP and the run
+# reports "migrate cold storage to R2/B2". The migration itself is a
+# follow-up, not this job. Repo-size tracking on /status is a separate
+# follow-up.
 #
 # Semantics (ops/retention.py implements exactly this):
 #   window_start(D) = first trading session on/after (D - window_years),
@@ -38,6 +56,7 @@
 
 window_years: 3
 buffer_years: 1
+cold_storage_trigger_gb: 2
 regime_switch_date: "2026-04-06"
 cadence: "nightly after FINAL (dispatch only in this PR; the nightly cron is enabled by the GATE A follow-up, after simulation passes)"
 
@@ -52,6 +71,7 @@ datasets:
     shape: rows_array
     row_fields: [date, open, high, low, close, volume]
     roll_rule: window_minus_buffer
+    phase_b: pending
     builder_window_aware: unknown
     note: "NEPSE index daily history, 2003-07-17 to present (rows are [YYYYMMDD, open, high, low, close, volume]). The owning builder is not evidenced in the file itself, so its window-awareness is unknown: confirm before any live roll of this dataset, or its next rebuild may restore pruned rows."
   - name: contributors-history
@@ -59,6 +79,7 @@ datasets:
     shape: entries_list
     date_field: asof
     roll_rule: window
+    phase_b: pending
     builder_window_aware: true
     note: "Append-only daily snapshots (schema nd-contributors-history/v1; the file's own note says entries are never edited and a same-day rebuild replaces only that day's entry), so pruning sticks."
   - name: sector-rotation-history
@@ -66,5 +87,6 @@ datasets:
     shape: entries_list
     date_field: date
     roll_rule: window
+    phase_b: pending
     builder_window_aware: true
     note: "Append-only rotation snapshots (the file declares append_only: true), so pruning sticks."

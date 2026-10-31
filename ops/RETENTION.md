@@ -34,7 +34,7 @@ If the repo ever outgrows comfort, the fallbacks — in order — are
 Backblaze B2 (10 GB free, no card required) and then R2, both with
 the SAME layout and manifest shape: zero redesign.
 
-## Window math — and the flagged ambiguity
+## Window math — RESOLVED by user decision 2026-10-31
 
 ```
 window_start(D) = first trading session on/after (D - window_years)
@@ -49,16 +49,51 @@ accepted). NOTE: that file's own comment marks its per-date entries
 unverified — the roll logs which holidays it applied, and a real
 session (evidence) always wins over the file.
 
-**WINDOW AMBIGUITY — FLAGGED, NOT SILENTLY RESOLVED.** Both charters
-state window_start(D) = D - 3 years AND give the example "on
-2026-10-31 the window starts 2024-10-31" (which is D - 2 years,
-contradicting the formula). This job defaults to the FORMULA
-(`window_years: 3` in `config/retention.yaml` — it deletes LESS, the
-conservative choice). To adopt the example, set `window_years: 2` —
-one edit, no code change. Under the 2-year alternative the simulated
-windows would be 2024-10-31 (for 2026-10-31) and 2024-11-01 (for
-2026-11-01), and the transition row would be 2024-10-31 instead of
-2023-10-31.
+**RESOLVED (user decision 2026-10-31): window_years=3 is CONFIRMED**
+(window starts 2023-10-31 on 2026-10-31, 2023-11-01 on 2026-11-01).
+The charters' example dates (2024-10-31) were wrong. The earlier
+"discrepancy flagged" note in this file and the PR body is superseded
+by that decision; nothing in the code changes (it already used the
+formula).
+
+## Per-dataset actual start (user decision 2026-10-31)
+
+The planner reports `window_start` per dataset as max(formula
+window_start, first real date in that dataset's rows). A dataset with
+shorter history (e.g. floorsheet/broker since 2026-07-15) therefore
+starts at its first real date. The plan/extract output carries all
+three values: `window_start_formula`, `first_date`, and `window_start`
+(the EFFECTIVE start). The manifest records the effective start.
+
+**UI contract:** every page must show each dataset's ACTUAL
+(effective) start — never the formula date alone. The retention job
+computes and reports the effective start per dataset; consuming it on
+the pages (the "Data window:" line per component) is a follow-up for
+the page builders, listed below. Until then, the plan output is the
+source of truth for a dataset's actual start.
+
+## Phase B gate (user decision 2026-10-31, HARD, fail safe)
+
+Live mode rolls ONLY datasets whose `config/retention.yaml` entry is
+explicitly marked `phase_b: allowed`. The workflow enforces this with
+the `phase-b-gate` step (live mode only, so dry-run previews still
+work for any tabled dataset). All three tabled datasets are currently
+`phase_b: pending` — so live mode presently refuses all of them, by
+design. **No live roll or cron until GATE A (including the restore
+test) AND Phase B licensing allow archiving EACH dataset.** Flip a
+dataset to `allowed` only when Phase B licensing permits archiving
+it, per the source matrix. Cron stays OUT of this job regardless.
+
+## Cold-storage trigger: 2 GB (user decision 2026-10-31)
+
+If the repo size passes `cold_storage_trigger_gb` (2 GB, set in
+`config/retention.yaml`), cold-branch writes STOP: the workflow's
+live-mode repo-size guard (which reads the GitHub API's repo `size`
+field in KB and compares it to the trigger) fails the run with
+"migrate cold storage to R2/B2" before any cold push. The migration
+itself is a follow-up, not this job; repo-size tracking on /status is
+a separate follow-up. Current repo size (2026-10-31, API): 482,451 KB
+(471.1 MB) — about 1.6 GB of headroom to the trigger.
 
 Row buckets (per dataset; see `ops/retention.py`):
 
@@ -114,12 +149,16 @@ default today NPT), `dataset` (default `index-history`).
   (decode + row count + SHA-256), builds the manifest locally — and
   pushes NOTHING. This is the safe way to preview any roll.
 - **Live run (`dry_run=false`):** session-guard first (refuses a
-  trading day before 16:00 NPT, and any future roll date), then the
-  roll safety sequence below, then stops and reports. It does NOT
+  trading day before 16:00 NPT, and any future roll date), Phase B
+  gate (refuses any dataset not marked `phase_b: allowed`), repo-size
+  guard (refuses if the repo passed 2 GB), then the roll safety
+  sequence below, then stops and reports. It does NOT
   dispatch Publish itself.
 
 ## Roll safety sequence (live mode, enforced by the workflow)
 
+0. Guards: session guard, Phase B gate, repo-size guard (all fail
+   the run before any write if tripped).
 1. Snapshot: the dataset file is fetched read-only from the `data`
    branch; the plan is computed and printed.
 2. Write COLD: expiring rows are split by month, converted to
@@ -189,8 +228,10 @@ No holidays applied (neither boundary date is in
 2028-02-29 → raw clamped 2025-02-28 (Friday, non-trading under the
 pre-2026-04-06 Sun–Thu regime) → window_start 2025-03-02 (Sunday).
 2026-04-03 → raw 2023-04-03 (Monday) → window_start 2023-04-03.
-2-year alternative (if the user flips `window_years: 2`):
-2026-10-31 → 2024-10-31, 2026-11-01 → 2024-11-01.
+Note on the per-dataset actual-start rule (user decision 2026-10-31):
+the simulation is unaffected — its synthetic first date (2023-10-30)
+precedes both formula windows, so effective start = formula window
+for both dates, and the transition row is still 2023-10-31.
 
 **Simulation partitions** (synthetic rows shaped like index-history
 dicts, under `_simulation/gate-a-2026-10-31/`, 5 rows total):
@@ -249,20 +290,29 @@ restore test, and its own live-byte verification.
 
 1. **Cron enablement** — add the nightly-after-FINAL schedule to
    `retention-roll.yml` AFTER a dispatched dry run passes on main
-   (this PR is dispatch-only by design).
+   AND Phase B licensing allows archiving each dataset (this PR is
+   dispatch-only by design, and the Phase B gate refuses live mode
+   until then).
 2. **Full dataset table** — every remaining dataset needs its shape,
    date field, roll rule, and builder-window-aware confirmation before
    it enters `config/retention.yaml`.
 3. **index-history builder confirmation** — its window-awareness is
    unknown; no live roll of it until confirmed (see stickiness above).
-4. **Cold-branch size tracking** — report `cold` size on /status
-   alongside repo and data-branch size; the scale-out trigger is the
-   repo approaching the 1 GB recommendation.
-5. **Writer GITHUB_TOKEN path** — the writer script authenticates
+4. **Phase B flips** — each dataset's `phase_b` moves from `pending`
+   to `allowed` only when Phase B licensing permits archiving it, per
+   the source matrix. Until then live mode refuses it.
+5. **UI actual-start consumption** — pages must show each dataset's
+   effective (actual) start from the plan output; the retention job
+   computes it, the page builders consume it.
+6. **Cold-storage migration (on trigger)** — when the repo-size guard
+   trips (repo past 2 GB), migrate cold storage to R2/B2 with the
+   same layout and manifest shape. Repo-size tracking on /status is
+   a separate follow-up.
+7. **Writer GITHUB_TOKEN path** — the writer script authenticates
    with GITHUB_TOKEN, which exists only in Actions; its API sequence
    is proven here via the surrogate-authenticated equivalent, but the
    literal GITHUB_TOKEN path is first exercised on the first live
    dispatch (dry-run default protects against accidents).
-6. **Token Actions write** — needed for API dispatch of this workflow
+8. **Token Actions write** — needed for API dispatch of this workflow
    (and Publish); until then, dispatch from the GitHub UI. Owner-UI
    action; the roll does not work around it.

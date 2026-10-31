@@ -5,11 +5,17 @@
 # ops/RETENTION.md). Dry-run defaults to true and pushes NOTHING.
 #
 # Roll safety sequence (enforced by the steps below, live mode only):
-#   snapshot -> write COLD -> verify counts/checksums -> restore-test
-#   a sample partition downloaded from `cold` -> ONLY THEN remove
-#   expired rows from HOT (data branch) -> Publish (auto-triggered by
-#   the data push; see the final step) -> verify pages show the new
-#   window start (manual, per the runbook).
+#   session guard + Phase B gate + repo-size guard -> snapshot ->
+#   write COLD -> verify counts/checksums -> restore-test a sample
+#   partition downloaded from `cold` -> ONLY THEN remove expired rows
+#   from HOT (data branch) -> Publish (auto-triggered by the data
+#   push; see the final step) -> verify pages show the new window
+#   start (manual, per the runbook).
+#
+# Phase B gate (HARD): live mode rolls ONLY datasets explicitly marked
+# phase_b: allowed in config/retention.yaml. Repo-size guard: if the
+# repo passes cold_storage_trigger_gb (2 GB), cold-branch writes STOP
+# and the run reports "migrate cold storage to R2/B2".
 #
 # Never during a session: the session-guard step refuses live mode on
 # a trading day before 16:00 NPT. Live mode also refuses any dataset
@@ -106,6 +112,12 @@ jobs:
             --holidays tools/nepse-holidays.json \
             session-guard --date "${{ steps.asof.outputs.date }}"
 
+      - name: Phase B gate (live mode only)
+        if: ${{ inputs.dry_run == false }}
+        run: |
+          python3 ops/retention.py --config config/retention.yaml \
+            phase-b-gate --dataset "${{ inputs.dataset }}"
+
       - name: Plan (no writes)
         run: |
           python3 ops/retention.py --config config/retention.yaml \
@@ -126,7 +138,8 @@ jobs:
           set -e
           WS=$(python3 ops/retention.py --config config/retention.yaml \
             --holidays tools/nepse-holidays.json \
-            window-start --date "${{ steps.asof.outputs.date }}" \
+            plan --dataset "${{ inputs.dataset }}" --input dataset.json \
+            --asof "${{ steps.asof.outputs.date }}" \
             | python3 -c "import sys, json; print(json.load(sys.stdin)['window_start'])")
           echo "window_start=$WS"
           export WS
@@ -192,6 +205,37 @@ jobs:
         run: |
           echo "DRY-RUN COMPLETE: plan + Parquet + checksums + local restore test all green."
           echo "Nothing was pushed to cold or data. Re-dispatch with dry_run=false to run live."
+
+      - name: Repo size guard (live mode only)
+        if: ${{ inputs.dry_run == false }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 - <<'PYEOF'
+          import json, os, sys, urllib.request
+          sys.path.insert(0, 'ops')
+          from retention import load_config
+          cfg = load_config('config/retention.yaml')
+          trigger_gb = cfg.get('cold_storage_trigger_gb', 2)
+          trigger_kb = int(trigger_gb * 1024 * 1024)
+          repo = os.environ['GITHUB_REPOSITORY']
+          r = urllib.request.Request(
+              f'https://api.github.com/repos/{repo}',
+              headers={'Accept': 'application/vnd.github+json',
+                       'User-Agent': 'nepse-retention-roll',
+                       'Authorization': f"Bearer {os.environ['GITHUB_TOKEN']}"})
+          with urllib.request.urlopen(r) as resp:
+              size_kb = json.load(resp)['size']
+          print(f'repo size: {size_kb} KB ({size_kb / 1024:.1f} MB); '
+                f'trigger: {trigger_kb} KB ({trigger_gb} GB)')
+          if size_kb > trigger_kb:
+              raise SystemExit(
+                  'REPO SIZE GUARD TRIPPED: repo size has passed '
+                  f'{trigger_gb} GB — cold-branch writes STOP. '
+                  'Migrate cold storage to R2/B2 '
+                  '(follow-up, not this job).')
+          print('repo size guard OK')
+          PYEOF
 
       - name: Push COLD partitions + manifest
         if: ${{ inputs.dry_run == false }}
