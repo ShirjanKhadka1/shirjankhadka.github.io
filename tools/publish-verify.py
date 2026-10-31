@@ -87,8 +87,24 @@ publish-purge.py) purges every URL variant users actually fetch, so
 users get fresh bytes too. Settle stays as the retry layer (spec:
 retry up to N minutes for propagation; fail ONLY on a real
 mismatch) — with busting it should converge on the first round.
+
+Mismatch instrumentation (2026-10-31, Publish run 41222569853 —
+the first run WITH busting): busting did NOT clear the one
+permanent field (nepse-actions/index.html, live=ee56d5f23f07 vs
+artifact=7ff6c24d46ed, 65/66 ok, settle 306s unconverged). A
+unique never-seen ?verify= token plus no-cache headers still
+returned ee56, and ee56 is unreproducible from any other route and
+matches no committed version — so the cache/propagation theory is
+dead and the cause is a serving-side divergence on the runner's
+route. Hashes alone cannot identify it. On a strict-pass
+bytes_differ, the check entry therefore ALSO captures the live
+bytes (base64, capped), the response headers, and the final URL
+after redirects. This changes NO pass/fail behavior: the strict
+pass still fails fast on first sight, and the captured bytes are
+diagnostic evidence for the next diff, nothing more.
 """
 import argparse
+import base64
 import datetime
 import hashlib
 import http.client
@@ -108,6 +124,31 @@ RETRY_BACKOFF_S = (2, 5)
 # Transient edge statuses worth one more fetch (purge propagation,
 # edge overload). Any other HTTP status fails fast.
 TRANSIENT_HTTP = {429, 502, 503, 504}
+# Mismatch evidence cap: live bytes captured on a bytes_differ are
+# base64-embedded in the report JSON (which the workflow uploads as
+# an artifact). Cap at 1 MiB so a multi-MB component cannot blow up
+# the report; the failing HTML page is ~39 KiB, so it is captured
+# whole, and truncation is flagged explicitly when it ever applies.
+MAX_LIVE_CAPTURE_BYTES = 1_048_576
+
+
+def live_capture(body, meta):
+    """Diagnostic capture for a strict-pass bytes_differ.
+
+    Returns the report fields for the live response: base64 body
+    (capped), full byte length, truncation flag, response headers,
+    and the final URL after redirects. No pass/fail input — the
+    caller already decided the outcome before calling this.
+    """
+    truncated = len(body) > MAX_LIVE_CAPTURE_BYTES
+    kept = body[:MAX_LIVE_CAPTURE_BYTES]
+    return {
+        "live_body_b64": base64.b64encode(kept).decode("ascii"),
+        "live_body_bytes": len(body),
+        "live_body_truncated": truncated,
+        "live_headers": (meta or {}).get("headers") or {},
+        "live_final_url": (meta or {}).get("final_url"),
+    }
 
 
 def sha256(path):
@@ -135,7 +176,7 @@ def bust_url(url, token):
 
 
 def _fetch_once(url):
-    """One fetch. Returns (status, body, error).
+    """One fetch. Returns (status, body, error, meta).
 
     status 0 + error text means a TRANSPORT failure (connection drop,
     timeout, incomplete read); the caller decides whether to retry.
@@ -143,6 +184,11 @@ def _fetch_once(url):
     error None: HTTP statuses are not transport failures.
     No-cache request headers: the verifier must never accept a cached
     answer for a deploy it is gating (CHARTER v3 P0).
+    meta carries the diagnostic evidence for a mismatch: the
+    response headers as a plain dict and the final URL after
+    redirects (urllib follows them silently, so the fetched URL and
+    the served URL can differ — that difference is itself evidence).
+    Transport failures carry empty headers and final_url None.
     """
     req = urllib.request.Request(url, headers={
         "User-Agent": "muse-publish-verify",
@@ -150,16 +196,28 @@ def _fetch_once(url):
         "Pragma": "no-cache"})
     try:
         with urllib.request.urlopen(req, timeout=30) as resp:
-            return resp.status, resp.read(), None
+            return resp.status, resp.read(), None, {
+                "headers": dict(resp.headers),
+                "final_url": resp.geturl()}
     except urllib.error.HTTPError as e:
         try:
             body = e.read()
         except Exception:
             body = b""
-        return e.code, body, None
+        try:
+            headers = dict(e.headers)
+        except Exception:
+            headers = {}
+        try:
+            final_url = e.geturl()
+        except Exception:
+            final_url = None
+        return e.code, body, None, {
+            "headers": headers, "final_url": final_url}
     except (urllib.error.URLError, http.client.HTTPException,
             OSError, TimeoutError) as e:
-        return 0, b"", f"{type(e).__name__}: {e}"
+        return 0, b"", f"{type(e).__name__}: {e}", {
+            "headers": {}, "final_url": None}
 
 
 def fetch(url):
@@ -168,15 +226,18 @@ def fetch(url):
     Retried: connection/timeout/incomplete-read exceptions, and
     transient edge statuses (429/502/503/504). Never retried: other
     HTTP statuses, and (by the caller) byte mismatches.
-    Returns (status, body, error, attempts): error is None on a clean
-    non-transient response, else the transport error text or the
-    transient "HTTP <status>" label after the final attempt.
+    Returns (status, body, error, attempts, meta): error is None on a
+    clean non-transient response, else the transport error text or
+    the transient "HTTP <status>" label after the final attempt.
+    meta is the final attempt's diagnostic evidence (headers +
+    final URL); callers that do not need it ignore it.
     """
-    status, body, error = 0, b"", "no attempt made"
+    status, body, error, meta = 0, b"", "no attempt made", {
+        "headers": {}, "final_url": None}
     for attempt in range(1, RETRY_ATTEMPTS + 1):
-        status, body, error = _fetch_once(url)
+        status, body, error, meta = _fetch_once(url)
         if error is None and status not in TRANSIENT_HTTP:
-            return status, body, None, attempt
+            return status, body, None, attempt, meta
         detail = error if error is not None else f"HTTP {status}"
         if attempt < RETRY_ATTEMPTS:
             print(f"publish-verify: retry {url} attempt "
@@ -184,7 +245,7 @@ def fetch(url):
                   f"{detail}; sleeping {RETRY_BACKOFF_S[attempt - 1]}s",
                   flush=True)
             time.sleep(RETRY_BACKOFF_S[attempt - 1])
-    return status, body, detail, RETRY_ATTEMPTS
+    return status, body, detail, RETRY_ATTEMPTS, meta
 
 
 def run(args, report):
@@ -246,7 +307,7 @@ def run(args, report):
     base = args.base_url.rstrip("/")
     token = getattr(args, "cache_bust", None)
     manifest_url = bust_url(f"{base}/data/publish-manifest.json", token)
-    s, body, err, attempts = fetch(manifest_url)
+    s, body, err, attempts, _meta = fetch(manifest_url)
     if s != 200:
         detail = f"HTTP {s}" if s else f"transport error: {err}"
         problems.append(
@@ -293,7 +354,7 @@ def run(args, report):
               f"{expected['snapshot_sha']}; sleeping "
               f"{settle_interval}s", flush=True)
         time.sleep(settle_interval)
-        s_try, body_try, err_try, attempts_try = fetch(manifest_url)
+        s_try, body_try, err_try, attempts_try, _m = fetch(manifest_url)
         if s_try != 200:
             continue
         try:
@@ -345,7 +406,7 @@ def run(args, report):
             time.sleep(settle_interval)
         first_round = False
         for rel in sorted(unsettled):
-            s2, body2, err2, attempts2 = fetch(bust_url(f"{base}/{rel}",
+            s2, body2, err2, attempts2, _m2 = fetch(bust_url(f"{base}/{rel}",
                                                        token))
             if s2 == 200 and (hashlib.sha256(body2).hexdigest()
                               == art_hashes[rel]):
@@ -384,7 +445,7 @@ def run(args, report):
                 "live_sha256": None, "artifact_sha256": None})
         for rel in entry["paths"]:
             url = bust_url(f"{base}/{rel}", token)
-            s, body, err, attempts = fetch(url)
+            s, body, err, attempts, meta = fetch(url)
             if s != 200:
                 detail = f"HTTP {s}" if s else f"transport error: {err}"
                 problems.append(
@@ -412,12 +473,22 @@ def run(args, report):
                 problems.append(
                     f"{rel}: bytes differ live={live_hash[:12]} "
                     f"artifact={art_hash[:12]}")
-                report["checks"].append({
+                # Mismatch instrumentation (2026-10-31): capture the
+                # live bytes + headers + final URL into the report
+                # so the next diff names the cause. Diagnostic only;
+                # the outcome above is already decided.
+                check = {
                     "component": comp, "path": rel, "url": url,
                     "outcome": "bytes_differ", "http_status": s,
                     "attempts": attempts,
                     "error": problems[-1], "live_sha256": live_hash,
-                    "artifact_sha256": art_hash})
+                    "artifact_sha256": art_hash}
+                check.update(live_capture(body, meta))
+                report["checks"].append(check)
+                print(f"publish-verify: captured live bytes for {rel} "
+                      f"({check['live_body_bytes']} bytes, "
+                      f"truncated={check['live_body_truncated']}) "
+                      f"into the report", flush=True)
             else:
                 report["checks"].append({
                     "component": comp, "path": rel, "url": url,
