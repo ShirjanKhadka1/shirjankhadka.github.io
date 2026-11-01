@@ -1,21 +1,21 @@
 {
- "generated_at": "2026-10-28",
- "session_date": "2026-10-28",
+ "generated_at": "2026-10-30",
+ "session_date": "2026-10-30",
  "kind": "predictive-diagnostics",
  "note": "Educational diagnostics from Nepse Decode's own signal/outcome ledgers. Track records are historical measurements, not predictions or calls. warning_hit_probability is a model score validated out-of-sample (VAL->OOS AUC 0.69; top-tercile precision 51.5% vs 34.2% base) \u2014 evidence, not a guarantee. DIST_STALL is an experimental evidence-only flag (weight 0).",
  "class_track_records": {
   "signals:momentum": {
    "n_firings": 500,
    "n_resolved": 500,
-   "success_rate": 0.308,
+   "success_rate": 0.314,
    "by_era": {
     "IS": {
-     "n": 263,
-     "success_rate": 0.3688212927756654
+     "n": 261,
+     "success_rate": 0.3793103448275862
     },
     "VAL": {
-     "n": 108,
-     "success_rate": 0.3611111111111111
+     "n": 110,
+     "success_rate": 0.36363636363636365
     },
     "OOS": {
      "n": 129,
@@ -24,9 +24,9 @@
    }
   },
   "signals:reversal": {
-   "n_firings": 253,
-   "n_resolved": 253,
-   "success_rate": 0.466403162055336,
+   "n_firings": 254,
+   "n_resolved": 254,
+   "success_rate": 0.4645669291338583,
    "by_era": {
     "IS": {
      "n": 149,
@@ -37,8 +37,8 @@
      "success_rate": 0.6896551724137931
     },
     "OOS": {
-     "n": 75,
-     "success_rate": 0.4533333333333333
+     "n": 76,
+     "success_rate": 0.4473684210526316
     }
    }
   },
@@ -77,22 +77,22 @@
    }
   },
   "verdicts_v2:DISTRIBUTION_WARNING": {
-   "n_firings": 3129,
-   "n_resolved": 2957,
-   "success_rate": 0.30672979370984105,
+   "n_firings": 3242,
+   "n_resolved": 2958,
+   "success_rate": 0.3069641649763354,
    "by_era": {
     "VAL": {
      "n": 2159,
      "success_rate": 0.301991662806855
     },
     "OOS": {
-     "n": 798,
-     "success_rate": 0.31954887218045114
+     "n": 799,
+     "success_rate": 0.32040050062578224
     }
    }
   },
   "verdicts_v2:DIST_STALL": {
-   "n_firings": 2610,
+   "n_firings": 2612,
    "n_resolved": 2608,
    "success_rate": 0.3220858895705521,
    "by_era": {
@@ -111,13 +111,13 @@
    }
   },
   "verdicts_v2:ELEVATED_RISK": {
-   "n_firings": 44,
+   "n_firings": 53,
    "n_resolved": 2,
    "success_rate": 0.5,
    "by_era": {}
   },
   "verdicts_v2:EXHAUSTION_RISK": {
-   "n_firings": 85,
+   "n_firings": 95,
    "n_resolved": 85,
    "success_rate": 0.5529411764705883,
    "by_era": {
@@ -131,8 +131,8 @@
  "sector_track_records": {
   "signals:momentum": {
    "Hydropower": {
-    "n": 145,
-    "success_rate": 0.3310344827586207
+    "n": 147,
+    "success_rate": 0.3401360544217687
    },
    "Banking": {
     "n": 63,
@@ -140,14 +140,18 @@
    },
    "Microfinance": {
     "n": 106,
-    "success_rate": 0.2830188679245283
+    "success_rate": 0.3018867924528302
    },
    "Finance": {
-    "n": 36,
-    "success_rate": 0.25
+    "n": 35,
+    "success_rate": 0.2571428571428571
    }
   },
   "signals:reversal": {
+   "Microfinance": {
+    "n": 65,
+    "success_rate": 0.49230769230769234
+   },
    "Banking": {
     "n": 53,
     "success_rate": 0.5094339622641509
@@ -155,10 +159,6 @@
    "Hydropower": {
     "n": 59,
     "success_rate": 0.423728813559322
-   },
-   "Microfinance": {
-    "n": 63,
-    "success_rate": 0.5079365079365079
    },
    "Non Life Insurance": {
     "n": 26,
@@ -199,8 +199,8 @@
   },
   "verdicts_v2:DISTRIBUTION_WARNING": {
    "Microfinance": {
-    "n": 587,
-    "success_rate": 0.252129471890971
+    "n": 588,
+    "success_rate": 0.2534013605442177
    },
    "Hydropower": {
     "n": 1278,
@@ -298,47 +298,47 @@
    "type": "signal_filter",
    "rule": "F1_regime_bear",
    "scope": "momentum",
-   "n_total": 498,
-   "n_skipped": 212,
+   "n_total": 497,
+   "n_skipped": 211,
    "base": {
     "IS": {
-     "n": 263,
-     "win_rate": 0.3688212927756654,
-     "mean_pnl_pct": 0.05275112223136745
+     "n": 261,
+     "win_rate": 0.3793103448275862,
+     "mean_pnl_pct": 0.055197524028715736
     },
     "VAL": {
-     "n": 108,
-     "win_rate": 0.3611111111111111,
-     "mean_pnl_pct": 0.045119947404767866
+     "n": 109,
+     "win_rate": 0.3669724770642202,
+     "mean_pnl_pct": 0.038090741336286656
     },
     "OOS": {
      "n": 127,
      "win_rate": 0.14173228346456693,
-     "mean_pnl_pct": -0.04678266669372575
+     "mean_pnl_pct": -0.04678266690902214
     }
    },
    "kept": {
     "IS": {
-     "n": 129,
-     "win_rate": 0.3643410852713178,
-     "mean_pnl_pct": 0.04439979437407487
+     "n": 127,
+     "win_rate": 0.3779527559055118,
+     "mean_pnl_pct": 0.04711644304641273
     },
     "VAL": {
-     "n": 102,
-     "win_rate": 0.35294117647058826,
-     "mean_pnl_pct": 0.0445499908103262
+     "n": 103,
+     "win_rate": 0.3592233009708738,
+     "mean_pnl_pct": 0.037116849986345526
     },
     "OOS": {
-     "n": 55,
-     "win_rate": 0.18181818181818182,
-     "mean_pnl_pct": -0.05053429713566389
+     "n": 56,
+     "win_rate": 0.17857142857142858,
+     "mean_pnl_pct": -0.05020562506338179
     }
    },
-   "oos_mean_gain_pp": -0.37516304419381374,
+   "oos_mean_gain_pp": -0.34229581543596466,
    "era_degradation_pp": [
     [
      "IS",
-     -0.8351327857292583
+     -0.8081080982303007
     ]
    ],
    "status": "REJECTED",
@@ -402,13 +402,13 @@
    "type": "signal_filter",
    "rule": "F1_regime_bear",
    "scope": "reversal",
-   "n_total": 253,
-   "n_skipped": 160,
+   "n_total": 254,
+   "n_skipped": 161,
    "base": {
     "IS": {
      "n": 149,
      "win_rate": 0.42953020134228187,
-     "mean_pnl_pct": -0.003031198829830946
+     "mean_pnl_pct": -0.0030311985365361507
     },
     "VAL": {
      "n": 29,
@@ -416,9 +416,9 @@
      "mean_pnl_pct": 0.008916687017787535
     },
     "OOS": {
-     "n": 75,
-     "win_rate": 0.4533333333333333,
-     "mean_pnl_pct": -0.01788898304546865
+     "n": 76,
+     "win_rate": 0.4473684210526316,
+     "mean_pnl_pct": -0.018644146095498592
     }
    },
    "kept": {
@@ -438,7 +438,7 @@
      "mean_pnl_pct": -0.04321852033753729
     }
    },
-   "oos_mean_gain_pp": -2.5329537292068642,
+   "oos_mean_gain_pp": -2.45743742420387,
    "era_degradation_pp": [
     [
      "VAL",
@@ -457,39 +457,39 @@
    "n_skipped": 540,
    "base": {
     "IS": {
-     "n": 655,
-     "win_rate": 0.3801526717557252,
-     "mean_pnl_pct": 0.04433998856275359
+     "n": 653,
+     "win_rate": 0.38437978560490044,
+     "mean_pnl_pct": 0.04529203855581883
     },
     "VAL": {
-     "n": 197,
-     "win_rate": 0.43147208121827413,
-     "mean_pnl_pct": 0.04527829595629544
+     "n": 198,
+     "win_rate": 0.43434343434343436,
+     "mean_pnl_pct": 0.041407882774396554
     },
     "OOS": {
-     "n": 288,
-     "win_rate": 0.21180555555555555,
-     "mean_pnl_pct": -0.03741224379338662
+     "n": 289,
+     "win_rate": 0.21107266435986158,
+     "mean_pnl_pct": -0.03754327894354924
     }
    },
    "kept": {
     "IS": {
-     "n": 310,
-     "win_rate": 0.3709677419354839,
-     "mean_pnl_pct": 0.0634358953392924
+     "n": 308,
+     "win_rate": 0.37662337662337664,
+     "mean_pnl_pct": 0.0646796829474656
     },
     "VAL": {
-     "n": 182,
-     "win_rate": 0.4175824175824176,
-     "mean_pnl_pct": 0.04652851362160299
+     "n": 183,
+     "win_rate": 0.4207650273224044,
+     "mean_pnl_pct": 0.04233402166706045
     },
     "OOS": {
-     "n": 108,
-     "win_rate": 0.19444444444444445,
-     "mean_pnl_pct": -0.044008012743287195
+     "n": 109,
+     "win_rate": 0.1926605504587156,
+     "mean_pnl_pct": -0.04389902786571453
     }
    },
-   "oos_mean_gain_pp": -0.6595768949900577,
+   "oos_mean_gain_pp": -0.635574892216529,
    "era_degradation_pp": [],
    "status": "REJECTED",
    "reason": "kept subset does not beat baseline OOS"
@@ -499,43 +499,43 @@
    "type": "signal_filter",
    "rule": "F2_t2_recent",
    "scope": "momentum",
-   "n_total": 498,
-   "n_skipped": 190,
+   "n_total": 497,
+   "n_skipped": 188,
    "base": {
     "IS": {
-     "n": 263,
-     "win_rate": 0.3688212927756654,
-     "mean_pnl_pct": 0.05275112223136745
+     "n": 261,
+     "win_rate": 0.3793103448275862,
+     "mean_pnl_pct": 0.055197524028715736
     },
     "VAL": {
-     "n": 108,
-     "win_rate": 0.3611111111111111,
-     "mean_pnl_pct": 0.045119947404767866
+     "n": 109,
+     "win_rate": 0.3669724770642202,
+     "mean_pnl_pct": 0.038090741336286656
     },
     "OOS": {
      "n": 127,
      "win_rate": 0.14173228346456693,
-     "mean_pnl_pct": -0.04678266669372575
+     "mean_pnl_pct": -0.04678266690902214
     }
    },
    "kept": {
     "IS": {
      "n": 153,
-     "win_rate": 0.3660130718954248,
-     "mean_pnl_pct": 0.0556896730935563
+     "win_rate": 0.37254901960784315,
+     "mean_pnl_pct": 0.05754688572278508
     },
     "VAL": {
-     "n": 56,
-     "win_rate": 0.4107142857142857,
-     "mean_pnl_pct": 0.0919223413894352
+     "n": 57,
+     "win_rate": 0.42105263157894735,
+     "mean_pnl_pct": 0.0875330097861714
     },
     "OOS": {
      "n": 99,
      "win_rate": 0.1717171717171717,
-     "mean_pnl_pct": -0.0339952689304011
+     "mean_pnl_pct": -0.03399526920658939
     }
    },
-   "oos_mean_gain_pp": 1.2787397763324653,
+   "oos_mean_gain_pp": 1.278739770243275,
    "era_degradation_pp": [],
    "status": "PASS",
    "reason": "OOS improves, no era degradation, n adequate",
@@ -605,13 +605,13 @@
    "type": "signal_filter",
    "rule": "F2_t2_recent",
    "scope": "reversal",
-   "n_total": 253,
+   "n_total": 254,
    "n_skipped": 4,
    "base": {
     "IS": {
      "n": 149,
      "win_rate": 0.42953020134228187,
-     "mean_pnl_pct": -0.003031198829830946
+     "mean_pnl_pct": -0.0030311985365361507
     },
     "VAL": {
      "n": 29,
@@ -619,16 +619,16 @@
      "mean_pnl_pct": 0.008916687017787535
     },
     "OOS": {
-     "n": 75,
-     "win_rate": 0.4533333333333333,
-     "mean_pnl_pct": -0.01788898304546865
+     "n": 76,
+     "win_rate": 0.4473684210526316,
+     "mean_pnl_pct": -0.018644146095498592
     }
    },
    "kept": {
     "IS": {
      "n": 148,
      "win_rate": 0.42567567567567566,
-     "mean_pnl_pct": -0.003567601296030192
+     "mean_pnl_pct": -0.0035676010007536754
     },
     "VAL": {
      "n": 28,
@@ -636,12 +636,12 @@
      "mean_pnl_pct": 0.014233564316731418
     },
     "OOS": {
-     "n": 73,
-     "win_rate": 0.4520547945205479,
-     "mean_pnl_pct": -0.01996452612250724
+     "n": 74,
+     "win_rate": 0.44594594594594594,
+     "mean_pnl_pct": -0.020712051105280713
     }
    },
-   "oos_mean_gain_pp": -0.207554307703859,
+   "oos_mean_gain_pp": -0.20679050097821214,
    "era_degradation_pp": [],
    "status": "STAGED",
    "reason": "insufficient evidence \u2014 the rule fires on only 4 archived trades; a PASS/REJECT on that count would be noise"
@@ -652,90 +652,90 @@
    "rule": "F2_t2_recent",
    "scope": "POOLED",
    "n_total": 1140,
-   "n_skipped": 312,
+   "n_skipped": 310,
    "base": {
     "IS": {
-     "n": 655,
-     "win_rate": 0.3801526717557252,
-     "mean_pnl_pct": 0.04433998856275359
+     "n": 653,
+     "win_rate": 0.38437978560490044,
+     "mean_pnl_pct": 0.04529203855581883
     },
     "VAL": {
-     "n": 197,
-     "win_rate": 0.43147208121827413,
-     "mean_pnl_pct": 0.04527829595629544
+     "n": 198,
+     "win_rate": 0.43434343434343436,
+     "mean_pnl_pct": 0.041407882774396554
     },
     "OOS": {
-     "n": 288,
-     "win_rate": 0.21180555555555555,
-     "mean_pnl_pct": -0.03741224379338662
+     "n": 289,
+     "win_rate": 0.21107266435986158,
+     "mean_pnl_pct": -0.03754327894354924
     }
    },
    "kept": {
     "IS": {
      "n": 463,
-     "win_rate": 0.3779697624190065,
-     "mean_pnl_pct": 0.040623157527516274
+     "win_rate": 0.3801295896328294,
+     "mean_pnl_pct": 0.041236880153807685
     },
     "VAL": {
-     "n": 125,
-     "win_rate": 0.472,
-     "mean_pnl_pct": 0.06593630203925784
+     "n": 126,
+     "win_rate": 0.47619047619047616,
+     "mean_pnl_pct": 0.06415689043579866
     },
     "OOS": {
-     "n": 240,
-     "win_rate": 0.24166666666666667,
-     "mean_pnl_pct": -0.030344269451382102
+     "n": 241,
+     "win_rate": 0.24066390041493776,
+     "mean_pnl_pct": -0.030530730583079216
     }
    },
-   "oos_mean_gain_pp": 0.7067974342004516,
+   "oos_mean_gain_pp": 0.7012548360470022,
    "era_degradation_pp": [
     [
      "IS",
-     -0.3716831035237317
+     -0.4055158402011143
     ]
    ],
    "status": "STAGED",
-   "reason": "OOS improves but IS degrades -0.37pp"
+   "reason": "OOS improves but IS degrades -0.41pp"
   },
   {
    "id": "F3_lockin_near@momentum",
    "type": "signal_filter",
    "rule": "F3_lockin_near",
    "scope": "momentum",
-   "n_total": 498,
+   "n_total": 497,
    "n_skipped": 0,
    "base": {
     "IS": {
-     "n": 263,
-     "win_rate": 0.3688212927756654,
-     "mean_pnl_pct": 0.05275112223136745
+     "n": 261,
+     "win_rate": 0.3793103448275862,
+     "mean_pnl_pct": 0.055197524028715736
     },
     "VAL": {
-     "n": 108,
-     "win_rate": 0.3611111111111111,
-     "mean_pnl_pct": 0.045119947404767866
+     "n": 109,
+     "win_rate": 0.3669724770642202,
+     "mean_pnl_pct": 0.038090741336286656
     },
     "OOS": {
      "n": 127,
      "win_rate": 0.14173228346456693,
-     "mean_pnl_pct": -0.04678266669372575
+     "mean_pnl_pct": -0.04678266690902214
     }
    },
    "kept": {
     "IS": {
-     "n": 263,
-     "win_rate": 0.3688212927756654,
-     "mean_pnl_pct": 0.05275112223136745
+     "n": 261,
+     "win_rate": 0.3793103448275862,
+     "mean_pnl_pct": 0.055197524028715736
     },
     "VAL": {
-     "n": 108,
-     "win_rate": 0.3611111111111111,
-     "mean_pnl_pct": 0.045119947404767866
+     "n": 109,
+     "win_rate": 0.3669724770642202,
+     "mean_pnl_pct": 0.038090741336286656
     },
     "OOS": {
      "n": 127,
      "win_rate": 0.14173228346456693,
-     "mean_pnl_pct": -0.04678266669372575
+     "mean_pnl_pct": -0.04678266690902214
     }
    },
    "oos_mean_gain_pp": 0.0,
@@ -794,13 +794,30 @@
    "type": "signal_filter",
    "rule": "F3_lockin_near",
    "scope": "reversal",
-   "n_total": 253,
+   "n_total": 254,
    "n_skipped": 1,
    "base": {
     "IS": {
      "n": 149,
      "win_rate": 0.42953020134228187,
-     "mean_pnl_pct": -0.003031198829830946
+     "mean_pnl_pct": -0.0030311985365361507
+    },
+    "VAL": {
+     "n": 29,
+     "win_rate": 0.6896551724137931,
+     "mean_pnl_pct": 0.008916687017787535
+    },
+    "OOS": {
+     "n": 76,
+     "win_rate": 0.4473684210526316,
+     "mean_pnl_pct": -0.018644146095498592
+    }
+   },
+   "kept": {
+    "IS": {
+     "n": 149,
+     "win_rate": 0.42953020134228187,
+     "mean_pnl_pct": -0.0030311985365361507
     },
     "VAL": {
      "n": 29,
@@ -810,27 +827,10 @@
     "OOS": {
      "n": 75,
      "win_rate": 0.4533333333333333,
-     "mean_pnl_pct": -0.01788898304546865
+     "mean_pnl_pct": -0.01654140546675146
     }
    },
-   "kept": {
-    "IS": {
-     "n": 149,
-     "win_rate": 0.42953020134228187,
-     "mean_pnl_pct": -0.003031198829830946
-    },
-    "VAL": {
-     "n": 29,
-     "win_rate": 0.6896551724137931,
-     "mean_pnl_pct": 0.008916687017787535
-    },
-    "OOS": {
-     "n": 74,
-     "win_rate": 0.4594594594594595,
-     "mean_pnl_pct": -0.015747622096738037
-    }
-   },
-   "oos_mean_gain_pp": 0.21413609487306134,
+   "oos_mean_gain_pp": 0.21027406287471329,
    "era_degradation_pp": [],
    "status": "STAGED",
    "reason": "insufficient evidence \u2014 the rule fires on only 1 archived trades; a PASS/REJECT on that count would be noise"
@@ -844,39 +844,39 @@
    "n_skipped": 3,
    "base": {
     "IS": {
-     "n": 655,
-     "win_rate": 0.3801526717557252,
-     "mean_pnl_pct": 0.04433998856275359
+     "n": 653,
+     "win_rate": 0.38437978560490044,
+     "mean_pnl_pct": 0.04529203855581883
     },
     "VAL": {
-     "n": 197,
-     "win_rate": 0.43147208121827413,
-     "mean_pnl_pct": 0.04527829595629544
+     "n": 198,
+     "win_rate": 0.43434343434343436,
+     "mean_pnl_pct": 0.041407882774396554
     },
     "OOS": {
-     "n": 288,
-     "win_rate": 0.21180555555555555,
-     "mean_pnl_pct": -0.03741224379338662
+     "n": 289,
+     "win_rate": 0.21107266435986158,
+     "mean_pnl_pct": -0.03754327894354924
     }
    },
    "kept": {
     "IS": {
-     "n": 655,
-     "win_rate": 0.3801526717557252,
-     "mean_pnl_pct": 0.04433998856275359
+     "n": 653,
+     "win_rate": 0.38437978560490044,
+     "mean_pnl_pct": 0.04529203855581883
     },
     "VAL": {
-     "n": 197,
-     "win_rate": 0.43147208121827413,
-     "mean_pnl_pct": 0.04527829595629544
+     "n": 198,
+     "win_rate": 0.43434343434343436,
+     "mean_pnl_pct": 0.041407882774396554
     },
     "OOS": {
-     "n": 285,
-     "win_rate": 0.21403508771929824,
-     "mean_pnl_pct": -0.03671853849872579
+     "n": 286,
+     "win_rate": 0.21328671328671328,
+     "mean_pnl_pct": -0.036853373686458864
     }
    },
-   "oos_mean_gain_pp": 0.06937052946608263,
+   "oos_mean_gain_pp": 0.06899052570903744,
    "era_degradation_pp": [],
    "status": "STAGED",
    "reason": "insufficient evidence \u2014 the rule fires on only 3 archived trades; a PASS/REJECT on that count would be noise"
@@ -886,53 +886,44 @@
    "type": "signal_filter",
    "rule": "F4_thin_turnover",
    "scope": "momentum",
-   "n_total": 498,
-   "n_skipped": 78,
+   "n_total": 497,
+   "n_skipped": 82,
    "base": {
     "IS": {
-     "n": 263,
-     "win_rate": 0.3688212927756654,
-     "mean_pnl_pct": 0.05275112223136745
+     "n": 261,
+     "win_rate": 0.3793103448275862,
+     "mean_pnl_pct": 0.055197524028715736
     },
     "VAL": {
-     "n": 108,
-     "win_rate": 0.3611111111111111,
-     "mean_pnl_pct": 0.045119947404767866
+     "n": 109,
+     "win_rate": 0.3669724770642202,
+     "mean_pnl_pct": 0.038090741336286656
     },
     "OOS": {
      "n": 127,
      "win_rate": 0.14173228346456693,
-     "mean_pnl_pct": -0.04678266669372575
+     "mean_pnl_pct": -0.04678266690902214
     }
    },
    "kept": {
     "IS": {
-     "n": 217,
-     "win_rate": 0.3686635944700461,
-     "mean_pnl_pct": 0.05048711540746553
+     "n": 213,
+     "win_rate": 0.38028169014084506,
+     "mean_pnl_pct": 0.05340085928399036
     },
     "VAL": {
-     "n": 99,
-     "win_rate": 0.37373737373737376,
-     "mean_pnl_pct": 0.042505751150285646
+     "n": 98,
+     "win_rate": 0.3877551020408163,
+     "mean_pnl_pct": 0.03675142468874444
     },
     "OOS": {
      "n": 104,
      "win_rate": 0.14423076923076922,
-     "mean_pnl_pct": -0.049830811652412384
+     "mean_pnl_pct": -0.04983081191532239
     }
    },
-   "oos_mean_gain_pp": -0.30481449586866327,
-   "era_degradation_pp": [
-    [
-     "VAL",
-     -0.26141962544822195
-    ],
-    [
-     "IS",
-     -0.2264006823901918
-    ]
-   ],
+   "oos_mean_gain_pp": -0.3048145006300247,
+   "era_degradation_pp": [],
    "status": "REJECTED",
    "reason": "kept subset does not beat baseline OOS"
   },
@@ -992,13 +983,13 @@
    "type": "signal_filter",
    "rule": "F4_thin_turnover",
    "scope": "reversal",
-   "n_total": 253,
-   "n_skipped": 66,
+   "n_total": 254,
+   "n_skipped": 67,
    "base": {
     "IS": {
      "n": 149,
      "win_rate": 0.42953020134228187,
-     "mean_pnl_pct": -0.003031198829830946
+     "mean_pnl_pct": -0.0030311985365361507
     },
     "VAL": {
      "n": 29,
@@ -1006,16 +997,16 @@
      "mean_pnl_pct": 0.008916687017787535
     },
     "OOS": {
-     "n": 75,
-     "win_rate": 0.4533333333333333,
-     "mean_pnl_pct": -0.01788898304546865
+     "n": 76,
+     "win_rate": 0.4473684210526316,
+     "mean_pnl_pct": -0.018644146095498592
     }
    },
    "kept": {
     "IS": {
      "n": 101,
      "win_rate": 0.45544554455445546,
-     "mean_pnl_pct": 0.0012433594125554706
+     "mean_pnl_pct": 0.00124335941255547
     },
     "VAL": {
      "n": 24,
@@ -1025,10 +1016,10 @@
     "OOS": {
      "n": 62,
      "win_rate": 0.4032258064516129,
-     "mean_pnl_pct": -0.025768483345880472
+     "mean_pnl_pct": -0.025768483371631953
     }
    },
-   "oos_mean_gain_pp": -0.7879500300411821,
+   "oos_mean_gain_pp": -0.7124337276133361,
    "era_degradation_pp": [
     [
      "VAL",
@@ -1044,46 +1035,46 @@
    "rule": "F4_thin_turnover",
    "scope": "POOLED",
    "n_total": 1140,
-   "n_skipped": 218,
+   "n_skipped": 223,
    "base": {
     "IS": {
-     "n": 655,
-     "win_rate": 0.3801526717557252,
-     "mean_pnl_pct": 0.04433998856275359
+     "n": 653,
+     "win_rate": 0.38437978560490044,
+     "mean_pnl_pct": 0.04529203855581883
     },
     "VAL": {
-     "n": 197,
-     "win_rate": 0.43147208121827413,
-     "mean_pnl_pct": 0.04527829595629544
+     "n": 198,
+     "win_rate": 0.43434343434343436,
+     "mean_pnl_pct": 0.041407882774396554
     },
     "OOS": {
-     "n": 288,
-     "win_rate": 0.21180555555555555,
-     "mean_pnl_pct": -0.03741224379338662
+     "n": 289,
+     "win_rate": 0.21107266435986158,
+     "mean_pnl_pct": -0.03754327894354924
     }
    },
    "kept": {
     "IS": {
-     "n": 499,
-     "win_rate": 0.374749498997996,
-     "mean_pnl_pct": 0.0380351903861705
+     "n": 495,
+     "win_rate": 0.3797979797979798,
+     "mean_pnl_pct": 0.03918836158943234
     },
     "VAL": {
-     "n": 181,
-     "win_rate": 0.430939226519337,
-     "mean_pnl_pct": 0.04515511276589189
+     "n": 180,
+     "win_rate": 0.4388888888888889,
+     "mean_pnl_pct": 0.04203692036802839
     },
     "OOS": {
      "n": 242,
      "win_rate": 0.19834710743801653,
-     "mean_pnl_pct": -0.04038142772069292
+     "mean_pnl_pct": -0.040381427840276526
     }
    },
-   "oos_mean_gain_pp": -0.29691839273063014,
+   "oos_mean_gain_pp": -0.28381488967272883,
    "era_degradation_pp": [
     [
      "IS",
-     -0.6304798176583088
+     -0.6103676966386486
     ]
    ],
    "status": "REJECTED",
@@ -1094,35 +1085,35 @@
    "type": "signal_filter",
    "rule": "F5_breadth_low",
    "scope": "momentum",
-   "n_total": 498,
+   "n_total": 497,
    "n_skipped": 115,
    "base": {
     "IS": {
-     "n": 263,
-     "win_rate": 0.3688212927756654,
-     "mean_pnl_pct": 0.05275112223136745
+     "n": 261,
+     "win_rate": 0.3793103448275862,
+     "mean_pnl_pct": 0.055197524028715736
     },
     "VAL": {
-     "n": 108,
-     "win_rate": 0.3611111111111111,
-     "mean_pnl_pct": 0.045119947404767866
+     "n": 109,
+     "win_rate": 0.3669724770642202,
+     "mean_pnl_pct": 0.038090741336286656
     },
     "OOS": {
      "n": 127,
      "win_rate": 0.14173228346456693,
-     "mean_pnl_pct": -0.04678266669372575
+     "mean_pnl_pct": -0.04678266690902214
     }
    },
    "kept": {
     "IS": {
-     "n": 227,
-     "win_rate": 0.3788546255506608,
-     "mean_pnl_pct": 0.04395656900243423
+     "n": 225,
+     "win_rate": 0.39111111111111113,
+     "mean_pnl_pct": 0.04671622128087884
     },
     "VAL": {
-     "n": 82,
-     "win_rate": 0.32926829268292684,
-     "mean_pnl_pct": 0.032761460610901835
+     "n": 83,
+     "win_rate": 0.3373493975903614,
+     "mean_pnl_pct": 0.023679232000412845
     },
     "OOS": {
      "n": 74,
@@ -1130,19 +1121,19 @@
      "mean_pnl_pct": -0.035621099415276025
     }
    },
-   "oos_mean_gain_pp": 1.1161567278449727,
+   "oos_mean_gain_pp": 1.1161567493746118,
    "era_degradation_pp": [
     [
      "VAL",
-     -1.235848679386603
+     -1.4411509335873811
     ],
     [
      "IS",
-     -0.8794553228933223
+     -0.8481302747836893
     ]
    ],
    "status": "STAGED",
-   "reason": "OOS improves but VAL degrades -1.24pp; IS degrades -0.88pp"
+   "reason": "OOS improves but VAL degrades -1.44pp; IS degrades -0.85pp"
   },
   {
    "id": "F5_breadth_low@trend-relay",
@@ -1200,13 +1191,13 @@
    "type": "signal_filter",
    "rule": "F5_breadth_low",
    "scope": "reversal",
-   "n_total": 253,
+   "n_total": 254,
    "n_skipped": 199,
    "base": {
     "IS": {
      "n": 149,
      "win_rate": 0.42953020134228187,
-     "mean_pnl_pct": -0.003031198829830946
+     "mean_pnl_pct": -0.0030311985365361507
     },
     "VAL": {
      "n": 29,
@@ -1214,9 +1205,9 @@
      "mean_pnl_pct": 0.008916687017787535
     },
     "OOS": {
-     "n": 75,
-     "win_rate": 0.4533333333333333,
-     "mean_pnl_pct": -0.01788898304546865
+     "n": 76,
+     "win_rate": 0.4473684210526316,
+     "mean_pnl_pct": -0.018644146095498592
     }
    },
    "kept": {
@@ -1231,12 +1222,12 @@
      "mean_pnl_pct": -0.015018760166453595
     },
     "OOS": {
-     "n": 7,
-     "win_rate": 0.42857142857142855,
-     "mean_pnl_pct": -0.04583590037675299
+     "n": 8,
+     "win_rate": 0.375,
+     "mean_pnl_pct": -0.049516584836184804
     }
    },
-   "oos_mean_gain_pp": -2.7946917331284338,
+   "oos_mean_gain_pp": -3.0872438740686214,
    "era_degradation_pp": [
     [
      "VAL",
@@ -1244,7 +1235,7 @@
     ],
     [
      "IS",
-     -3.253551719196653
+     -3.253551748526133
     ]
    ],
    "status": "REJECTED",
@@ -1259,100 +1250,98 @@
    "n_skipped": 384,
    "base": {
     "IS": {
-     "n": 655,
-     "win_rate": 0.3801526717557252,
-     "mean_pnl_pct": 0.04433998856275359
+     "n": 653,
+     "win_rate": 0.38437978560490044,
+     "mean_pnl_pct": 0.04529203855581883
     },
     "VAL": {
-     "n": 197,
-     "win_rate": 0.43147208121827413,
-     "mean_pnl_pct": 0.04527829595629544
+     "n": 198,
+     "win_rate": 0.43434343434343436,
+     "mean_pnl_pct": 0.041407882774396554
     },
     "OOS": {
-     "n": 288,
-     "win_rate": 0.21180555555555555,
-     "mean_pnl_pct": -0.03741224379338662
+     "n": 289,
+     "win_rate": 0.21107266435986158,
+     "mean_pnl_pct": -0.03754327894354924
     }
    },
    "kept": {
     "IS": {
-     "n": 474,
-     "win_rate": 0.3670886075949367,
-     "mean_pnl_pct": 0.046025220942731974
+     "n": 472,
+     "win_rate": 0.3728813559322034,
+     "mean_pnl_pct": 0.04734949862605958
     },
     "VAL": {
-     "n": 143,
-     "win_rate": 0.38461538461538464,
-     "mean_pnl_pct": 0.044150483624246235
+     "n": 144,
+     "win_rate": 0.3888888888888889,
+     "mean_pnl_pct": 0.03883649752921895
     },
     "OOS": {
-     "n": 139,
-     "win_rate": 0.16546762589928057,
-     "mean_pnl_pct": -0.03588633516377284
+     "n": 140,
+     "win_rate": 0.16428571428571428,
+     "mean_pnl_pct": -0.03616772831297595
     }
    },
-   "oos_mean_gain_pp": 0.15259086296137772,
-   "era_degradation_pp": [],
-   "status": "PASS",
-   "reason": "OOS improves, no era degradation, n adequate",
-   "activation_gates": [
-    "re-verify on the FULL uncapped replay history (momentum builder list is capped at 500 of 770)",
-    "portfolio-level simulation (compounded, position-sized) must preserve the improvement",
-    "forward shadow tracking in the weekly loop: live alerts the filter would skip are tagged and their paper outcomes compared for >=20 resolutions",
-    "parent review before any build-signals.js change"
+   "oos_mean_gain_pp": 0.13755506305732912,
+   "era_degradation_pp": [
+    [
+     "VAL",
+     -0.2571385245177603
+    ]
    ],
-   "ship_state": "STAGED-ACTIVE: published in diagnostics as a per-alert lesson; engine behaviour unchanged until gates clear (DIST_STALL precedent)"
+   "status": "STAGED",
+   "reason": "OOS improves but VAL degrades -0.26pp"
   },
   {
    "id": "F6_rsi_hot@momentum",
    "type": "signal_filter",
    "rule": "F6_rsi_hot",
    "scope": "momentum",
-   "n_total": 498,
-   "n_skipped": 57,
+   "n_total": 497,
+   "n_skipped": 58,
    "base": {
     "IS": {
-     "n": 263,
-     "win_rate": 0.3688212927756654,
-     "mean_pnl_pct": 0.05275112223136745
+     "n": 261,
+     "win_rate": 0.3793103448275862,
+     "mean_pnl_pct": 0.055197524028715736
     },
     "VAL": {
-     "n": 108,
-     "win_rate": 0.3611111111111111,
-     "mean_pnl_pct": 0.045119947404767866
+     "n": 109,
+     "win_rate": 0.3669724770642202,
+     "mean_pnl_pct": 0.038090741336286656
     },
     "OOS": {
      "n": 127,
      "win_rate": 0.14173228346456693,
-     "mean_pnl_pct": -0.04678266669372575
+     "mean_pnl_pct": -0.04678266690902214
     }
    },
    "kept": {
     "IS": {
-     "n": 231,
-     "win_rate": 0.37662337662337664,
-     "mean_pnl_pct": 0.05735926174995039
+     "n": 228,
+     "win_rate": 0.39035087719298245,
+     "mean_pnl_pct": 0.060743286865329656
     },
     "VAL": {
-     "n": 92,
-     "win_rate": 0.31521739130434784,
-     "mean_pnl_pct": 0.022647181435820295
+     "n": 93,
+     "win_rate": 0.3333333333333333,
+     "mean_pnl_pct": 0.022273596855357902
     },
     "OOS": {
      "n": 118,
      "win_rate": 0.1440677966101695,
-     "mean_pnl_pct": -0.04510238921324433
+     "mean_pnl_pct": -0.04510238944496162
     }
    },
-   "oos_mean_gain_pp": 0.16802774804814194,
+   "oos_mean_gain_pp": 0.168027746406052,
    "era_degradation_pp": [
     [
      "VAL",
-     -2.247276596894757
+     -1.5817144480928753
     ]
    ],
    "status": "STAGED",
-   "reason": "OOS improves but VAL degrades -2.25pp"
+   "reason": "OOS improves but VAL degrades -1.58pp"
   },
   {
    "id": "F6_rsi_hot@trend-relay",
@@ -1412,13 +1401,13 @@
    "type": "signal_filter",
    "rule": "F6_rsi_hot",
    "scope": "reversal",
-   "n_total": 253,
+   "n_total": 254,
    "n_skipped": 0,
    "base": {
     "IS": {
      "n": 149,
      "win_rate": 0.42953020134228187,
-     "mean_pnl_pct": -0.003031198829830946
+     "mean_pnl_pct": -0.0030311985365361507
     },
     "VAL": {
      "n": 29,
@@ -1426,16 +1415,16 @@
      "mean_pnl_pct": 0.008916687017787535
     },
     "OOS": {
-     "n": 75,
-     "win_rate": 0.4533333333333333,
-     "mean_pnl_pct": -0.01788898304546865
+     "n": 76,
+     "win_rate": 0.4473684210526316,
+     "mean_pnl_pct": -0.018644146095498592
     }
    },
    "kept": {
     "IS": {
      "n": 149,
      "win_rate": 0.42953020134228187,
-     "mean_pnl_pct": -0.003031198829830946
+     "mean_pnl_pct": -0.0030311985365361507
     },
     "VAL": {
      "n": 29,
@@ -1443,9 +1432,9 @@
      "mean_pnl_pct": 0.008916687017787535
     },
     "OOS": {
-     "n": 75,
-     "win_rate": 0.4533333333333333,
-     "mean_pnl_pct": -0.01788898304546865
+     "n": 76,
+     "win_rate": 0.4473684210526316,
+     "mean_pnl_pct": -0.018644146095498592
     }
    },
    "oos_mean_gain_pp": 0.0,
@@ -1459,85 +1448,85 @@
    "rule": "F6_rsi_hot",
    "scope": "POOLED",
    "n_total": 1140,
-   "n_skipped": 105,
+   "n_skipped": 106,
    "base": {
     "IS": {
-     "n": 655,
-     "win_rate": 0.3801526717557252,
-     "mean_pnl_pct": 0.04433998856275359
+     "n": 653,
+     "win_rate": 0.38437978560490044,
+     "mean_pnl_pct": 0.04529203855581883
     },
     "VAL": {
-     "n": 197,
-     "win_rate": 0.43147208121827413,
-     "mean_pnl_pct": 0.04527829595629544
+     "n": 198,
+     "win_rate": 0.43434343434343436,
+     "mean_pnl_pct": 0.041407882774396554
     },
     "OOS": {
-     "n": 288,
-     "win_rate": 0.21180555555555555,
-     "mean_pnl_pct": -0.03741224379338662
+     "n": 289,
+     "win_rate": 0.21107266435986158,
+     "mean_pnl_pct": -0.03754327894354924
     }
    },
    "kept": {
     "IS": {
-     "n": 585,
-     "win_rate": 0.38461538461538464,
-     "mean_pnl_pct": 0.04512644204948633
+     "n": 582,
+     "win_rate": 0.3900343642611684,
+     "mean_pnl_pct": 0.04638908691358599
     },
     "VAL": {
-     "n": 177,
-     "win_rate": 0.4180790960451977,
-     "mean_pnl_pct": 0.03407646992145208
+     "n": 178,
+     "win_rate": 0.42696629213483145,
+     "mean_pnl_pct": 0.03381707298623504
     },
     "OOS": {
-     "n": 273,
-     "win_rate": 0.21978021978021978,
-     "mean_pnl_pct": -0.035465119680102894
+     "n": 274,
+     "win_rate": 0.21897810218978103,
+     "mean_pnl_pct": -0.03561043457977545
     }
    },
-   "oos_mean_gain_pp": 0.19471241132837241,
+   "oos_mean_gain_pp": 0.1932844363773785,
    "era_degradation_pp": [
     [
      "VAL",
-     -1.1201826034843363
+     -0.7590809788161512
     ]
    ],
    "status": "STAGED",
-   "reason": "OOS improves but VAL degrades -1.12pp"
+   "reason": "OOS improves but VAL degrades -0.76pp"
   },
   {
    "id": "F7_high_turnover@momentum",
    "type": "signal_filter",
    "rule": "F7_high_turnover",
    "scope": "momentum",
-   "n_total": 498,
-   "n_skipped": 259,
+   "n_total": 497,
+   "n_skipped": 256,
    "base": {
     "IS": {
-     "n": 263,
-     "win_rate": 0.3688212927756654,
-     "mean_pnl_pct": 0.05275112223136745
+     "n": 261,
+     "win_rate": 0.3793103448275862,
+     "mean_pnl_pct": 0.055197524028715736
     },
     "VAL": {
-     "n": 108,
-     "win_rate": 0.3611111111111111,
-     "mean_pnl_pct": 0.045119947404767866
+     "n": 109,
+     "win_rate": 0.3669724770642202,
+     "mean_pnl_pct": 0.038090741336286656
     },
     "OOS": {
      "n": 127,
      "win_rate": 0.14173228346456693,
-     "mean_pnl_pct": -0.04678266669372575
+     "mean_pnl_pct": -0.04678266690902214
     }
    },
    "kept": {
     "IS": {
      "n": 159,
-     "win_rate": 0.3836477987421384,
-     "mean_pnl_pct": 0.06947248663379484
+     "win_rate": 0.39622641509433965,
+     "mean_pnl_pct": 0.07199219530585628
     },
     "VAL": {
-     "n": 30,
-     "win_rate": 0.43333333333333335,
-     "mean_pnl_pct": 0.1534787281594431
+     "n": 32,
+     "win_rate": 0.4375,
+     "mean_pnl_pct": 0.12610777060380535
     },
     "OOS": {
      "n": 50,
@@ -1545,7 +1534,7 @@
      "mean_pnl_pct": -0.039656675171291705
     }
    },
-   "oos_mean_gain_pp": 0.7125991522434045,
+   "oos_mean_gain_pp": 0.7125991737730437,
    "era_degradation_pp": [],
    "status": "STAGED",
    "reason": "OOS improves, no era degradation, n adequate; downgraded from PASS \u2014 rule was discovered on this same sample, so forward confirmation is required",
@@ -1603,13 +1592,13 @@
    "type": "signal_filter",
    "rule": "F7_high_turnover",
    "scope": "reversal",
-   "n_total": 253,
+   "n_total": 254,
    "n_skipped": 66,
    "base": {
     "IS": {
      "n": 149,
      "win_rate": 0.42953020134228187,
-     "mean_pnl_pct": -0.003031198829830946
+     "mean_pnl_pct": -0.0030311985365361507
     },
     "VAL": {
      "n": 29,
@@ -1617,16 +1606,16 @@
      "mean_pnl_pct": 0.008916687017787535
     },
     "OOS": {
-     "n": 75,
-     "win_rate": 0.4533333333333333,
-     "mean_pnl_pct": -0.01788898304546865
+     "n": 76,
+     "win_rate": 0.4473684210526316,
+     "mean_pnl_pct": -0.018644146095498592
     }
    },
    "kept": {
     "IS": {
      "n": 115,
      "win_rate": 0.4434782608695652,
-     "mean_pnl_pct": -0.00048196820721074454
+     "mean_pnl_pct": -0.00048196782720270594
     },
     "VAL": {
      "n": 20,
@@ -1634,12 +1623,12 @@
      "mean_pnl_pct": 0.02090067501168162
     },
     "OOS": {
-     "n": 52,
-     "win_rate": 0.5,
-     "mean_pnl_pct": -0.008183732553812991
+     "n": 53,
+     "win_rate": 0.49056603773584906,
+     "mean_pnl_pct": -0.009449725804641887
     }
    },
-   "oos_mean_gain_pp": 0.9705250491655659,
+   "oos_mean_gain_pp": 0.9194420290856705,
    "era_degradation_pp": [],
    "status": "STAGED",
    "reason": "OOS improves, no era degradation, n adequate; downgraded from PASS \u2014 rule was discovered on this same sample, so forward confirmation is required",
@@ -1651,42 +1640,42 @@
    "rule": "F7_high_turnover",
    "scope": "POOLED",
    "n_total": 1140,
-   "n_skipped": 456,
+   "n_skipped": 453,
    "base": {
     "IS": {
-     "n": 655,
-     "win_rate": 0.3801526717557252,
-     "mean_pnl_pct": 0.04433998856275359
+     "n": 653,
+     "win_rate": 0.38437978560490044,
+     "mean_pnl_pct": 0.04529203855581883
     },
     "VAL": {
-     "n": 197,
-     "win_rate": 0.43147208121827413,
-     "mean_pnl_pct": 0.04527829595629544
+     "n": 198,
+     "win_rate": 0.43434343434343436,
+     "mean_pnl_pct": 0.041407882774396554
     },
     "OOS": {
-     "n": 288,
-     "win_rate": 0.21180555555555555,
-     "mean_pnl_pct": -0.03741224379338662
+     "n": 289,
+     "win_rate": 0.21107266435986158,
+     "mean_pnl_pct": -0.03754327894354924
     }
    },
    "kept": {
     "IS": {
      "n": 467,
-     "win_rate": 0.4068522483940043,
-     "mean_pnl_pct": 0.05845436956380928
+     "win_rate": 0.41113490364025695,
+     "mean_pnl_pct": 0.059312257620680146
     },
     "VAL": {
-     "n": 78,
-     "win_rate": 0.5384615384615384,
-     "mean_pnl_pct": 0.09190976728162037
+     "n": 80,
+     "win_rate": 0.5375,
+     "mean_pnl_pct": 0.08250060828131082
     },
     "OOS": {
-     "n": 139,
-     "win_rate": 0.2805755395683453,
-     "mean_pnl_pct": -0.02766664728952361
+     "n": 140,
+     "win_rate": 0.2785714285714286,
+     "mean_pnl_pct": -0.028006752486368042
     }
    },
-   "oos_mean_gain_pp": 0.9745596503863009,
+   "oos_mean_gain_pp": 0.9536526457181196,
    "era_degradation_pp": [],
    "status": "STAGED",
    "reason": "OOS improves, no era degradation, n adequate; downgraded from PASS \u2014 rule was discovered on this same sample, so forward confirmation is required",
@@ -1780,69 +1769,69 @@
  "ml_models": [
   {
    "class": "signals:momentum",
-   "n": 498,
+   "n": 497,
    "n_by_era": {
-    "IS": 263,
-    "VAL": 108,
+    "IS": 261,
+    "VAL": 109,
     "OOS": 127
    },
-   "base_rate": 0.6907630522088354,
+   "base_rate": 0.6841046277665996,
    "models": {
     "histgb": {
-     "auc_val_A": 0.4619100706057228,
-     "auc_oos_A": 0.5555555555555556,
-     "auc_oos_B": 0.5484199796126402,
-     "brier_oos_B": 0.1769521269363844,
+     "auc_val_A": 0.43623188405797103,
+     "auc_oos_A": 0.545361875637105,
+     "auc_oos_B": 0.5443425076452599,
+     "brier_oos_B": 0.19006078592198836,
      "decision": {
-      "all_mean_pnl_pct": -0.04678266669372575,
-      "kept_mean_pnl_pct": -0.04146680140072745,
-      "kept_n": 75,
+      "all_mean_pnl_pct": -0.04678266690902214,
+      "kept_mean_pnl_pct": -0.04346127033523098,
+      "kept_n": 76,
       "oos_n": 127
      },
      "top_features_val": [
       [
-       "rsi14",
-       0.0222
-      ],
-      [
-       "breadth",
-       0.0185
+       "ret_1",
+       0.0165
       ],
       [
        "sma50_dist",
-       0.0167
-      ],
-      [
-       "ret_1",
-       0.013
+       0.0092
       ],
       [
        "turn20_rs",
-       0.0111
-      ],
-      [
-       "atr_pct",
-       0.0093
+       0.0055
       ],
       [
        "markup60",
-       0.0074
+       0.0018
       ],
       [
-       "proxy_ret_20",
-       0.0037
+       "circ60",
+       0.0
+      ],
+      [
+       "days_to_lockin",
+       0.0
+      ],
+      [
+       "broker_top3",
+       0.0
+      ],
+      [
+       "broker_net_ratio",
+       0.0
       ]
      ]
     },
     "logreg": {
-     "auc_val_A": 0.46451133407655143,
-     "auc_oos_A": 0.6049949031600408,
-     "auc_oos_B": 0.5662589194699287,
-     "brier_oos_B": 0.1578906286029815,
+     "auc_val_A": 0.4170289855072464,
+     "auc_oos_A": 0.6116207951070336,
+     "auc_oos_B": 0.5932721712538227,
+     "brier_oos_B": 0.1602290545160255,
      "decision": {
-      "all_mean_pnl_pct": -0.04678266669372575,
-      "kept_mean_pnl_pct": -0.04980476399887216,
-      "kept_n": 72,
+      "all_mean_pnl_pct": -0.04678266690902214,
+      "kept_mean_pnl_pct": -0.04831926148480882,
+      "kept_n": 67,
       "oos_n": 127
      }
     }
@@ -1851,7 +1840,7 @@
    "best_single_feature_oos_auc": 0.6088175331294597,
    "decision_positive": true,
    "status": "REJECTED",
-   "reason": "OOS AUC 0.5484199796126402 below 0.55 \u2014 no proven skill"
+   "reason": "OOS AUC 0.5443425076452599 below 0.55 \u2014 no proven skill"
   },
   {
    "class": "signals:trend-relay",
@@ -1865,13 +1854,13 @@
    "models": {
     "histgb": {
      "auc_val_A": 0.4875565610859729,
-     "auc_oos_A": 0.3434343434343434,
-     "auc_oos_B": 0.31024531024531027,
-     "brier_oos_B": 0.21963985708678155,
+     "auc_oos_A": 0.3708513708513709,
+     "auc_oos_B": 0.3434343434343434,
+     "brier_oos_B": 0.21108892611765054,
      "decision": {
       "all_mean_pnl_pct": -0.04060062574397705,
-      "kept_mean_pnl_pct": -0.04585904424230978,
-      "kept_n": 69,
+      "kept_mean_pnl_pct": -0.045531668919847924,
+      "kept_n": 65,
       "oos_n": 86
      },
      "top_features_val": [
@@ -1911,13 +1900,13 @@
     },
     "logreg": {
      "auc_val_A": 0.5192307692307693,
-     "auc_oos_A": 0.4704184704184704,
-     "auc_oos_B": 0.507936507936508,
-     "brier_oos_B": 0.16815558274944567,
+     "auc_oos_A": 0.47619047619047616,
+     "auc_oos_B": 0.5108225108225108,
+     "brier_oos_B": 0.16776848262426206,
      "decision": {
       "all_mean_pnl_pct": -0.04060062574397705,
-      "kept_mean_pnl_pct": -0.04180713838582153,
-      "kept_n": 55,
+      "kept_mean_pnl_pct": -0.04094374136621416,
+      "kept_n": 54,
       "oos_n": 86
      }
     }
@@ -1926,28 +1915,28 @@
    "best_single_feature_oos_auc": 0.5223665223665224,
    "decision_positive": false,
    "status": "REJECTED",
-   "reason": "OOS AUC 0.31024531024531027 below 0.55 \u2014 no proven skill"
+   "reason": "OOS AUC 0.3434343434343434 below 0.55 \u2014 no proven skill"
   },
   {
    "class": "signals:reversal",
-   "n": 253,
+   "n": 254,
    "n_by_era": {
     "IS": 149,
     "VAL": 29,
-    "OOS": 75
+    "OOS": 76
    },
-   "base_rate": 0.5335968379446641,
+   "base_rate": 0.5354330708661418,
    "models": {
     "histgb": {
      "auc_val_A": 0.2777777777777778,
-     "auc_oos_A": 0.35652797704447636,
-     "auc_oos_B": 0.45121951219512196,
-     "brier_oos_B": 0.3051617911027275,
+     "auc_oos_A": 0.3508403361344538,
+     "auc_oos_B": 0.4439775910364146,
+     "brier_oos_B": 0.30698691124456107,
      "decision": {
-      "all_mean_pnl_pct": -0.01788898304546865,
-      "kept_mean_pnl_pct": -0.017817828355750378,
-      "kept_n": 68,
-      "oos_n": 75
+      "all_mean_pnl_pct": -0.018644146095498592,
+      "kept_mean_pnl_pct": -0.01865063337737348,
+      "kept_n": 69,
+      "oos_n": 76
      },
      "top_features_val": [
       [
@@ -1986,97 +1975,97 @@
     },
     "logreg": {
      "auc_val_A": 0.36666666666666664,
-     "auc_oos_A": 0.4533715925394548,
-     "auc_oos_B": 0.6126255380200862,
-     "brier_oos_B": 0.25082356134520273,
+     "auc_oos_A": 0.4572829131652661,
+     "auc_oos_B": 0.6106442577030813,
+     "brier_oos_B": 0.2512203491426112,
      "decision": {
-      "all_mean_pnl_pct": -0.01788898304546865,
-      "kept_mean_pnl_pct": -0.01668268613696278,
-      "kept_n": 63,
-      "oos_n": 75
+      "all_mean_pnl_pct": -0.018644146095498592,
+      "kept_mean_pnl_pct": -0.017598290648068744,
+      "kept_n": 64,
+      "oos_n": 76
      }
     }
    },
    "best_single_feature_val": "proxy_ret_20",
-   "best_single_feature_oos_auc": 0.7259684361549498,
-   "decision_positive": true,
+   "best_single_feature_oos_auc": 0.7296918767507002,
+   "decision_positive": false,
    "status": "REJECTED",
-   "reason": "OOS AUC 0.45121951219512196 below 0.55 \u2014 no proven skill"
+   "reason": "OOS AUC 0.4439775910364146 below 0.55 \u2014 no proven skill"
   },
   {
    "class": "signals:POOLED",
    "n": 1140,
    "n_by_era": {
-    "IS": 655,
-    "VAL": 197,
-    "OOS": 288
+    "IS": 653,
+    "VAL": 198,
+    "OOS": 289
    },
-   "base_rate": 0.6535087719298246,
+   "base_rate": 0.6508771929824562,
    "models": {
     "histgb": {
-     "auc_val_A": 0.5125,
-     "auc_oos_A": 0.44825593991478296,
-     "auc_oos_B": 0.4842926265617101,
-     "brier_oos_B": 0.22410161116376268,
+     "auc_val_A": 0.5173380398671097,
+     "auc_oos_A": 0.44096922634454994,
+     "auc_oos_B": 0.5159620362381363,
+     "brier_oos_B": 0.21781407047214002,
      "decision": {
-      "all_mean_pnl_pct": -0.03741224379338662,
-      "kept_mean_pnl_pct": -0.043435655928753335,
-      "kept_n": 215,
-      "oos_n": 288
+      "all_mean_pnl_pct": -0.03754327894354924,
+      "kept_mean_pnl_pct": -0.04081592695436878,
+      "kept_n": 222,
+      "oos_n": 289
      },
      "top_features_val": [
       [
-       "sma50_dist",
-       0.0193
-      ],
-      [
-       "turn20_rs",
-       0.0102
-      ],
-      [
-       "breadth",
-       0.0091
-      ],
-      [
        "markup60",
-       0.0081
-      ],
-      [
-       "ret_60",
-       0.0061
+       0.0354
       ],
       [
        "proxy_ret_20",
-       0.0061
-      ],
-      [
-       "ret_5",
-       0.002
+       0.0192
       ],
       [
        "ret_20",
-       0.002
+       0.0091
+      ],
+      [
+       "turn20_rs",
+       0.0071
+      ],
+      [
+       "circ60",
+       0.004
+      ],
+      [
+       "vol_ratio",
+       0.003
+      ],
+      [
+       "days_to_lockin",
+       0.0
+      ],
+      [
+       "broker_top3",
+       0.0
       ]
      ]
     },
     "logreg": {
-     "auc_val_A": 0.5211134453781513,
-     "auc_oos_A": 0.6300281649454755,
-     "auc_oos_B": 0.6338557088177945,
-     "brier_oos_B": 0.18935033310585933,
+     "auc_val_A": 0.5007267441860466,
+     "auc_oos_A": 0.6171268334771354,
+     "auc_oos_B": 0.6399913718723037,
+     "brier_oos_B": 0.18767286520310472,
      "decision": {
-      "all_mean_pnl_pct": -0.03741224379338662,
-      "kept_mean_pnl_pct": -0.03600168319130295,
-      "kept_n": 188,
-      "oos_n": 288
+      "all_mean_pnl_pct": -0.03754327894354924,
+      "kept_mean_pnl_pct": -0.0370127912067039,
+      "kept_n": 176,
+      "oos_n": 289
      }
     }
    },
    "best_single_feature_val": "breadth",
-   "best_single_feature_oos_auc": 0.6291615512385353,
+   "best_single_feature_oos_auc": 0.6294938165084843,
    "decision_positive": false,
    "status": "REJECTED",
-   "reason": "OOS AUC 0.4842926265617101 below 0.55 \u2014 no proven skill"
+   "reason": "OOS AUC 0.5159620362381363 below 0.55 \u2014 no proven skill"
   },
   {
    "class": "verdicts_v2:warnings",
@@ -2100,8 +2089,8 @@
      }
     },
     "logreg": {
-     "auc_oos_B": 0.6439386206661902,
-     "brier_oos_B": 0.24378047612048856,
+     "auc_oos_B": 0.6439499620065099,
+     "brier_oos_B": 0.24377674814575553,
      "decision": {
       "base_precision": 0.3423728813559322,
       "top_tercile_precision": 0.49491525423728816,
@@ -2140,47 +2129,25 @@
    ]
   },
   {
-   "symbol": "GHL",
-   "system": "momentum",
-   "entry_date": "2026-10-01",
-   "entry_price": 273.6,
-   "would_skip_tags": [
-    "F2_t2_recent@momentum"
-   ]
-  },
-  {
-   "symbol": "CBBL",
-   "system": "momentum",
-   "entry_date": "2026-09-22",
-   "entry_price": 960.1,
-   "would_skip_tags": []
-  },
-  {
    "symbol": "PHCL",
    "system": "momentum",
    "entry_date": "2026-10-07",
    "entry_price": 344,
-   "would_skip_tags": [
-    "F5_breadth_low@POOLED"
-   ]
+   "would_skip_tags": []
   },
   {
    "symbol": "GIBF1",
    "system": "momentum",
    "entry_date": "2026-10-07",
    "entry_price": 10.4,
-   "would_skip_tags": [
-    "F5_breadth_low@POOLED"
-   ]
+   "would_skip_tags": []
   },
   {
    "symbol": "SLBBL",
    "system": "momentum",
    "entry_date": "2026-10-06",
    "entry_price": 828,
-   "would_skip_tags": [
-    "F5_breadth_low@POOLED"
-   ]
+   "would_skip_tags": []
   },
   {
    "symbol": "DLBS",
@@ -2211,19 +2178,19 @@
    ]
   },
   {
+   "symbol": "BNHC",
+   "system": "trend-relay",
+   "entry_date": "2026-10-29",
+   "entry_price": 282,
+   "would_skip_tags": [
+    "F1_regime_bear@trend-relay"
+   ]
+  },
+  {
    "symbol": "MKCL",
    "system": "reversal",
    "entry_date": "2026-10-06",
    "entry_price": 778.9,
-   "would_skip_tags": [
-    "F5_breadth_low@POOLED"
-   ]
-  },
-  {
-   "symbol": "GLBSL",
-   "system": "reversal",
-   "entry_date": "2026-10-15",
-   "entry_price": 1530,
    "would_skip_tags": []
   }
  ],
@@ -2243,18 +2210,21 @@
    }
   },
   "ADBL": {
-   "verdict_label": "NEUTRAL",
+   "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
+    "DIST_VOLUME",
+    "CLIMAX",
     "WINNER_FADE"
    ],
    "pump_score": 0,
    "opportunity_score": 0,
    "sector": "Development Bank",
    "dist_stall_evidence": false,
+   "warning_hit_probability": 0.41496944845741834,
    "screener_replay": {
-    "n": 59,
-    "wins": 0.034,
-    "hit_rate": 0.000576271186440678,
+    "n": 62,
+    "wins": 0.097,
+    "hit_rate": 0.0015645161290322581,
     "current_verdict": "Strong Buy"
    }
   },
@@ -2264,20 +2234,12 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": null,
-   "screener_replay": {
-    "n": 80,
-    "wins": 0.238,
-    "hit_rate": 0.0029749999999999998,
-    "current_verdict": "Strong Exit"
-   }
+   "dist_stall_evidence": false
   },
   "AHL": {
    "verdict_label": "NEUTRAL",
-   "flags": [
-    "CLIMAX"
-   ],
-   "pump_score": 0.143,
+   "flags": [],
+   "pump_score": 0,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false
@@ -2304,10 +2266,10 @@
    "sector": "Hydropower",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 65,
-    "wins": 0.292,
-    "hit_rate": 0.004492307692307692,
-    "current_verdict": "Hold"
+    "n": 67,
+    "wins": 0.284,
+    "hit_rate": 0.0042388059701492535,
+    "current_verdict": "Strong Exit"
    }
   },
   "AKPL": {
@@ -2315,7 +2277,7 @@
    "flags": [
     "CLIMAX"
    ],
-   "pump_score": 0.143,
+   "pump_score": 0.056,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
@@ -2328,18 +2290,16 @@
   },
   "ALBSL": {
    "verdict_label": "NEUTRAL",
-   "flags": [
-    "CLIMAX"
-   ],
-   "pump_score": 0.286,
+   "flags": [],
+   "pump_score": 0,
    "opportunity_score": null,
    "sector": "Microfinance",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 49,
-    "wins": 0.102,
-    "hit_rate": 0.0020816326530612244,
-    "current_verdict": "Hold"
+    "n": 45,
+    "wins": 0.111,
+    "hit_rate": 0.0024666666666666665,
+    "current_verdict": "Buy"
    }
   },
   "ALICL": {
@@ -2358,33 +2318,31 @@
    "sector": "Microfinance",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 37,
-    "wins": 0.108,
-    "hit_rate": 0.0029189189189189188,
+    "n": 35,
+    "wins": 0.057,
+    "hit_rate": 0.0016285714285714287,
     "current_verdict": "Hold"
    }
   },
   "APHL": {
    "verdict_label": "NEUTRAL",
    "flags": [],
-   "pump_score": null,
-   "opportunity_score": null,
+   "pump_score": 0,
+   "opportunity_score": 0,
    "sector": null,
    "dist_stall_evidence": false
   },
   "API": {
    "verdict_label": "NEUTRAL",
-   "flags": [
-    "CLIMAX"
-   ],
-   "pump_score": 0.143,
+   "flags": [],
+   "pump_score": 0,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 44,
-    "wins": 0.318,
-    "hit_rate": 0.007227272727272727,
+    "n": 45,
+    "wins": 0.333,
+    "hit_rate": 0.0074,
     "current_verdict": "Strong Buy"
    }
   },
@@ -2399,7 +2357,7 @@
     "n": 27,
     "wins": 0.296,
     "hit_rate": 0.010962962962962963,
-    "current_verdict": "Buy"
+    "current_verdict": "Exit / Reduce"
    }
   },
   "BANDIPUR": {
@@ -2413,7 +2371,7 @@
     "n": 10,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Exit / Reduce"
+    "current_verdict": "Hold"
    }
   },
   "BARUN": {
@@ -2439,12 +2397,10 @@
    "dist_stall_evidence": false
   },
   "BEDC": {
-   "verdict_label": "BOUNCE_SETUP",
-   "flags": [
-    "BOUNCE_SETUP"
-   ],
+   "verdict_label": "NEUTRAL",
+   "flags": [],
    "pump_score": 0,
-   "opportunity_score": 1,
+   "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false
   },
@@ -2467,39 +2423,41 @@
     "n": 29,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Exit / Reduce"
+    "current_verdict": "Hold"
    }
   },
   "BGWT": {
-   "verdict_label": "NEUTRAL",
+   "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
+    "DIST_VOLUME",
     "CLIMAX"
    ],
-   "pump_score": 0.143,
+   "pump_score": 0.178,
    "opportunity_score": 0,
    "sector": "Hydropower",
-   "dist_stall_evidence": false
+   "dist_stall_evidence": false,
+   "warning_hit_probability": 0.153320273306688
   },
   "BHCL": {
    "verdict_label": "NEUTRAL",
-   "flags": [
-    "CLIMAX"
-   ],
-   "pump_score": 0.143,
+   "flags": [],
+   "pump_score": 0,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 44,
-    "wins": 0.295,
-    "hit_rate": 0.006704545454545454,
-    "current_verdict": "Strong Exit"
+    "n": 45,
+    "wins": 0.289,
+    "hit_rate": 0.0064222222222222215,
+    "current_verdict": "Hold"
    }
   },
   "BHDC": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.056,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false
@@ -2512,10 +2470,10 @@
    "sector": "Hydropower",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 35,
-    "wins": 0.114,
-    "hit_rate": 0.0032571428571428573,
-    "current_verdict": "Buy"
+    "n": 36,
+    "wins": 0.139,
+    "hit_rate": 0.0038611111111111116,
+    "current_verdict": "Hold"
    }
   },
   "BHPL": {
@@ -2554,7 +2512,7 @@
    "pump_score": 0,
    "opportunity_score": 0,
    "sector": "Manufacturing And Processing",
-   "dist_stall_evidence": null,
+   "dist_stall_evidence": false,
    "screener_replay": {
     "n": 53,
     "wins": 0.132,
@@ -2570,10 +2528,10 @@
    "sector": "Manufacturing And Processing",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 13,
-    "wins": 0.077,
-    "hit_rate": 0.005923076923076923,
-    "current_verdict": "Strong Buy"
+    "n": 16,
+    "wins": 0.125,
+    "hit_rate": 0.0078125,
+    "current_verdict": "Hold"
    }
   },
   "BOKD86": {
@@ -2582,13 +2540,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": null,
-   "screener_replay": {
-    "n": 115,
-    "wins": 0.226,
-    "hit_rate": 0.001965217391304348,
-    "current_verdict": "Strong Buy"
-   }
+   "dist_stall_evidence": null
   },
   "BOKD86KA": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -2599,20 +2551,21 @@
    "dist_stall_evidence": null
   },
   "BPCL": {
-   "verdict_label": "BOUNCE_SETUP",
+   "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
-    "CLIMAX",
-    "BOUNCE_SETUP"
+    "DIST_VOLUME",
+    "CLIMAX"
    ],
-   "pump_score": 0.143,
-   "opportunity_score": 1,
+   "pump_score": 0.178,
+   "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
+   "warning_hit_probability": 0.24157134632176905,
    "screener_replay": {
-    "n": 20,
-    "wins": 0.05,
-    "hit_rate": 0.0025,
-    "current_verdict": "Strong Exit"
+    "n": 21,
+    "wins": 0.048,
+    "hit_rate": 0.002285714285714286,
+    "current_verdict": "Hold"
    }
   },
   "BUNGAL": {
@@ -2635,26 +2588,22 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Mutual Funds",
-   "dist_stall_evidence": false,
-   "screener_replay": {
-    "n": 39,
-    "wins": 0,
-    "hit_rate": 0.0,
-    "current_verdict": "Strong Exit"
-   }
+   "dist_stall_evidence": null
   },
   "CBBL": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.1,
    "opportunity_score": null,
    "sector": "Microfinance",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 30,
-    "wins": 0.133,
-    "hit_rate": 0.004433333333333333,
-    "current_verdict": "Strong Buy"
+    "n": 32,
+    "wins": 0.125,
+    "hit_rate": 0.00390625,
+    "current_verdict": "Hold"
    }
   },
   "CBLD88": {
@@ -2675,7 +2624,9 @@
   },
   "CFCL": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
+   "flags": [
+    "CLIMAX"
+   ],
    "pump_score": 0,
    "opportunity_score": 0,
    "sector": "Finance",
@@ -2684,13 +2635,15 @@
     "n": 44,
     "wins": 0.045,
     "hit_rate": 0.0010227272727272726,
-    "current_verdict": "Exit / Reduce"
+    "current_verdict": "Hold"
    }
   },
   "CGH": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.111,
    "opportunity_score": 0,
    "sector": "Hotels And Tourism",
    "dist_stall_evidence": false
@@ -2720,7 +2673,7 @@
     "n": 24,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Buy"
+    "current_verdict": "Hold"
    }
   },
   "CHL": {
@@ -2734,14 +2687,16 @@
     "n": 26,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Exit / Reduce"
+    "current_verdict": "Hold"
    }
   },
   "CIT": {
-   "verdict_label": "NEUTRAL",
-   "flags": [],
+   "verdict_label": "BOUNCE_SETUP",
+   "flags": [
+    "BOUNCE_SETUP"
+   ],
    "pump_score": 0,
-   "opportunity_score": 0,
+   "opportunity_score": 1,
    "sector": "Investment",
    "dist_stall_evidence": false
   },
@@ -2759,13 +2714,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": null,
-   "screener_replay": {
-    "n": 16,
-    "wins": 0.313,
-    "hit_rate": 0.0195625,
-    "current_verdict": "Exit / Reduce"
-   }
+   "dist_stall_evidence": false
   },
   "CIZBD90": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -2773,20 +2722,14 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": null,
-   "screener_replay": {
-    "n": 75,
-    "wins": 0.293,
-    "hit_rate": 0.003906666666666667,
-    "current_verdict": "Buy"
-   }
+   "dist_stall_evidence": false
   },
   "CKHL": {
    "verdict_label": "NEUTRAL",
    "flags": [
     "CLIMAX"
    ],
-   "pump_score": 0.143,
+   "pump_score": 0.05,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
@@ -2794,13 +2737,15 @@
     "n": 29,
     "wins": 0.103,
     "hit_rate": 0.0035517241379310342,
-    "current_verdict": "Hold"
+    "current_verdict": "Strong Exit"
    }
   },
   "CLI": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.1,
    "opportunity_score": 0,
    "sector": "Life Insurance",
    "dist_stall_evidence": false,
@@ -2817,19 +2762,15 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Mutual Funds",
-   "dist_stall_evidence": null,
-   "screener_replay": {
-    "n": 70,
-    "wins": 0.2,
-    "hit_rate": 0.002857142857142857,
-    "current_verdict": "Exit / Reduce"
-   }
+   "dist_stall_evidence": null
   },
   "CORBL": {
-   "verdict_label": "NEUTRAL",
-   "flags": [],
+   "verdict_label": "BOUNCE_SETUP",
+   "flags": [
+    "BOUNCE_SETUP"
+   ],
    "pump_score": 0,
-   "opportunity_score": 0,
+   "opportunity_score": 1,
    "sector": "Development Bank",
    "dist_stall_evidence": false,
    "screener_replay": {
@@ -2862,28 +2803,35 @@
    "dist_stall_evidence": false
   },
   "CYCL": {
-   "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "verdict_label": "DISTRIBUTION_WARNING",
+   "flags": [
+    "PARABOLIC",
+    "DIST_VOLUME"
+   ],
+   "pump_score": 0.389,
    "opportunity_score": 0,
    "sector": "Microfinance",
    "dist_stall_evidence": false,
+   "warning_hit_probability": 0.3253380629022964,
    "screener_replay": {
     "n": 15,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Hold"
+    "current_verdict": "Exit / Reduce"
    }
   },
   "CZBIL": {
-   "verdict_label": "NEUTRAL",
+   "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
-    "CLIMAX"
+    "DIST_VOLUME",
+    "CLIMAX",
+    "WINNER_FADE"
    ],
-   "pump_score": 0.286,
+   "pump_score": 0.633,
    "opportunity_score": 0,
    "sector": "Banking",
    "dist_stall_evidence": false,
+   "warning_hit_probability": 0.2660232958799026,
    "screener_replay": {
     "n": 16,
     "wins": 0,
@@ -2893,17 +2841,15 @@
   },
   "DDBL": {
    "verdict_label": "NEUTRAL",
-   "flags": [
-    "CLIMAX"
-   ],
-   "pump_score": 0.286,
+   "flags": [],
+   "pump_score": 0,
    "opportunity_score": null,
    "sector": "Microfinance",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 51,
-    "wins": 0.039,
-    "hit_rate": 0.0007647058823529412,
+    "n": 55,
+    "wins": 0.036,
+    "hit_rate": 0.0006545454545454545,
     "current_verdict": "Hold"
    }
   },
@@ -2936,14 +2882,17 @@
    }
   },
   "DLBS": {
-   "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "verdict_label": "EXHAUSTION_RISK",
+   "flags": [
+    "EXHAUSTION"
+   ],
+   "pump_score": 0.294,
    "opportunity_score": 0,
    "sector": "Microfinance",
    "dist_stall_evidence": false,
+   "warning_hit_probability": 0.2048903639029495,
    "screener_replay": {
-    "n": 7,
+    "n": 8,
     "wins": 0,
     "hit_rate": 0.0,
     "current_verdict": "Hold"
@@ -2951,8 +2900,10 @@
   },
   "DOLTI": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.056,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false
@@ -2965,10 +2916,10 @@
    "sector": "Hydropower",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 15,
+    "n": 16,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Buy"
+    "current_verdict": "Hold"
    }
   },
   "EBL": {
@@ -2979,19 +2930,19 @@
    "sector": "Banking",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 69,
-    "wins": 0.116,
-    "hit_rate": 0.0016811594202898552,
-    "current_verdict": "Buy"
+    "n": 67,
+    "wins": 0.119,
+    "hit_rate": 0.0017761194029850746,
+    "current_verdict": "Strong Buy"
    }
   },
   "EBLD85": {
    "verdict_label": "NEUTRAL",
    "flags": [],
-   "pump_score": null,
+   "pump_score": 0,
    "opportunity_score": null,
    "sector": null,
-   "dist_stall_evidence": false
+   "dist_stall_evidence": null
   },
   "EBLD86": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -2999,13 +2950,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": null,
-   "screener_replay": {
-    "n": 92,
-    "wins": 0.152,
-    "hit_rate": 0.0016521739130434781,
-    "current_verdict": "Exit / Reduce"
-   }
+   "dist_stall_evidence": false
   },
   "EBLD91": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -3013,7 +2958,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": null
+   "dist_stall_evidence": false
   },
   "EBLEB89": {
    "verdict_label": "INSUFFICIENT_DATA",
@@ -3024,16 +2969,21 @@
    "dist_stall_evidence": null
   },
   "ECL": {
-   "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": null,
+   "verdict_label": "EXHAUSTION_RISK",
+   "flags": [
+    "EXHAUSTION"
+   ],
+   "pump_score": 0.222,
    "opportunity_score": null,
    "sector": null,
-   "dist_stall_evidence": false
+   "dist_stall_evidence": false,
+   "warning_hit_probability": 0.603001238925906
   },
   "EDBL": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
+   "flags": [
+    "CLIMAX"
+   ],
    "pump_score": 0,
    "opportunity_score": 0,
    "sector": "Development Bank",
@@ -3046,13 +2996,12 @@
    }
   },
   "EHPL": {
-   "verdict_label": "BOUNCE_SETUP",
+   "verdict_label": "NEUTRAL",
    "flags": [
-    "CLIMAX",
-    "BOUNCE_SETUP"
+    "CLIMAX"
    ],
-   "pump_score": 0.143,
-   "opportunity_score": 1,
+   "pump_score": 0.056,
+   "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false
   },
@@ -3061,7 +3010,7 @@
    "flags": [
     "CLIMAX"
    ],
-   "pump_score": 0.286,
+   "pump_score": 0.147,
    "opportunity_score": 0,
    "sector": "Investment",
    "dist_stall_evidence": false
@@ -3074,10 +3023,10 @@
    "sector": "Microfinance",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 34,
-    "wins": 0.206,
-    "hit_rate": 0.006058823529411764,
-    "current_verdict": "Exit / Reduce"
+    "n": 35,
+    "wins": 0.2,
+    "hit_rate": 0.005714285714285714,
+    "current_verdict": "Strong Exit"
    }
   },
   "FOWAD": {
@@ -3085,7 +3034,7 @@
    "flags": [
     "CLIMAX"
    ],
-   "pump_score": 0.286,
+   "pump_score": 0.111,
    "opportunity_score": 0,
    "sector": "Microfinance",
    "dist_stall_evidence": false,
@@ -3102,7 +3051,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": false
+   "dist_stall_evidence": null
   },
   "GBBL": {
    "verdict_label": "NEUTRAL",
@@ -3112,10 +3061,10 @@
    "sector": "Banking",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 63,
-    "wins": 0.27,
-    "hit_rate": 0.004285714285714286,
-    "current_verdict": "Exit / Reduce"
+    "n": 66,
+    "wins": 0.258,
+    "hit_rate": 0.003909090909090909,
+    "current_verdict": "Hold"
    }
   },
   "GBILD84/85": {
@@ -3132,25 +3081,23 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": null,
-   "screener_replay": {
-    "n": 75,
-    "wins": 0.147,
-    "hit_rate": 0.00196,
-    "current_verdict": "Buy"
-   }
+   "dist_stall_evidence": null
   },
   "GBIME": {
-   "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "verdict_label": "DISTRIBUTION_WARNING",
+   "flags": [
+    "CLIMAX",
+    "WINNER_FADE"
+   ],
+   "pump_score": 0.389,
    "opportunity_score": null,
    "sector": "Banking",
    "dist_stall_evidence": false,
+   "warning_hit_probability": 0.06213959856711617,
    "screener_replay": {
-    "n": 63,
-    "wins": 0.19,
-    "hit_rate": 0.003015873015873016,
+    "n": 65,
+    "wins": 0.185,
+    "hit_rate": 0.002846153846153846,
     "current_verdict": "Buy"
    }
   },
@@ -3170,9 +3117,9 @@
    "sector": "Microfinance",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 25,
-    "wins": 0.24,
-    "hit_rate": 0.0096,
+    "n": 22,
+    "wins": 0.136,
+    "hit_rate": 0.006181818181818182,
     "current_verdict": "Exit / Reduce"
    }
   },
@@ -3181,42 +3128,44 @@
    "flags": [
     "CLIMAX"
    ],
-   "pump_score": 0.286,
+   "pump_score": 0.111,
    "opportunity_score": 0,
    "sector": "Manufacturing And Processing",
    "dist_stall_evidence": false
   },
   "GFCL": {
-   "verdict_label": "BOUNCE_SETUP",
+   "verdict_label": "NEUTRAL",
    "flags": [
-    "BOUNCE_SETUP"
+    "CLIMAX"
    ],
    "pump_score": 0,
-   "opportunity_score": 1,
+   "opportunity_score": 0,
    "sector": "Finance",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 39,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Strong Exit"
+    "current_verdict": "Hold"
    }
   },
   "GHL": {
    "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
+    "PARABOLIC",
+    "DIST_VOLUME",
     "CLIMAX",
     "WINNER_FADE"
    ],
-   "pump_score": 0.5,
+   "pump_score": 0.389,
    "opportunity_score": null,
    "sector": "Hydropower",
    "dist_stall_evidence": true,
-   "warning_hit_probability": 0.33074627981967164,
+   "warning_hit_probability": 0.4347064837377147,
    "screener_replay": {
-    "n": 58,
-    "wins": 0.155,
-    "hit_rate": 0.002672413793103448,
+    "n": 62,
+    "wins": 0.21,
+    "hit_rate": 0.0033870967741935483,
     "current_verdict": "Buy"
    }
   },
@@ -3251,25 +3200,29 @@
    "dist_stall_evidence": false
   },
   "GLH": {
-   "verdict_label": "NEUTRAL",
+   "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
+    "DIST_VOLUME",
     "CLIMAX"
    ],
-   "pump_score": 0.143,
+   "pump_score": 0.178,
    "opportunity_score": null,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
+   "warning_hit_probability": 0.08702615562118363,
    "screener_replay": {
     "n": 51,
     "wins": 0.294,
     "hit_rate": 0.005764705882352941,
-    "current_verdict": "Buy"
+    "current_verdict": "Hold"
    }
   },
   "GMFBS": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.147,
    "opportunity_score": 0,
    "sector": "Microfinance",
    "dist_stall_evidence": false
@@ -3285,22 +3238,27 @@
     "n": 43,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Exit / Reduce"
+    "current_verdict": "Hold"
    }
   },
   "GMLI": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.111,
    "opportunity_score": 0,
    "sector": "Life Insurance",
    "dist_stall_evidence": false
   },
   "GRDBL": {
-   "verdict_label": "NEUTRAL",
-   "flags": [],
+   "verdict_label": "BOUNCE_SETUP",
+   "flags": [
+    "CLIMAX",
+    "BOUNCE_SETUP"
+   ],
    "pump_score": 0,
-   "opportunity_score": 0,
+   "opportunity_score": 1,
    "sector": "Development Bank",
    "dist_stall_evidence": false,
    "screener_replay": {
@@ -3335,19 +3293,21 @@
   "GVL": {
    "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
+    "PARABOLIC",
+    "DIST_VOLUME",
     "CLIMAX",
     "WINNER_FADE"
    ],
-   "pump_score": 0.5,
+   "pump_score": 0.389,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.22434933847937788,
+   "warning_hit_probability": 0.2649302294204092,
    "screener_replay": {
-    "n": 31,
-    "wins": 0.29,
-    "hit_rate": 0.009354838709677418,
-    "current_verdict": "Strong Buy"
+    "n": 29,
+    "wins": 0.31,
+    "hit_rate": 0.010689655172413793,
+    "current_verdict": "Hold"
    }
   },
   "GWFD83": {
@@ -3356,13 +3316,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": null,
-   "screener_replay": {
-    "n": 80,
-    "wins": 0.5,
-    "hit_rate": 0.00625,
-    "current_verdict": "Exit / Reduce"
-   }
+   "dist_stall_evidence": false
   },
   "H8020": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -3370,30 +3324,26 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Mutual Funds",
-   "dist_stall_evidence": false,
-   "screener_replay": {
-    "n": 51,
-    "wins": 0.118,
-    "hit_rate": 0.002313725490196078,
-    "current_verdict": "Hold"
-   }
+   "dist_stall_evidence": false
   },
   "HATHY": {
-   "verdict_label": "NEUTRAL",
+   "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
+    "DIST_VOLUME",
     "CLIMAX"
    ],
-   "pump_score": 0.286,
+   "pump_score": 0.356,
    "opportunity_score": 0,
    "sector": "Investment",
-   "dist_stall_evidence": false
+   "dist_stall_evidence": false,
+   "warning_hit_probability": 0.5688432411650101
   },
   "HBL": {
    "verdict_label": "NEUTRAL",
    "flags": [
     "CLIMAX"
    ],
-   "pump_score": 0.286,
+   "pump_score": 0.111,
    "opportunity_score": 0,
    "sector": "Banking",
    "dist_stall_evidence": false,
@@ -3401,7 +3351,7 @@
     "n": 21,
     "wins": 0.095,
     "hit_rate": 0.004523809523809524,
-    "current_verdict": "Strong Buy"
+    "current_verdict": "Hold"
    }
   },
   "HBLD83": {
@@ -3410,13 +3360,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": null,
-   "screener_replay": {
-    "n": 37,
-    "wins": 0.324,
-    "hit_rate": 0.008756756756756757,
-    "current_verdict": "Strong Exit"
-   }
+   "dist_stall_evidence": null
   },
   "HBLD86": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -3424,54 +3368,52 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": null,
-   "screener_replay": {
-    "n": 45,
-    "wins": 0.089,
-    "hit_rate": 0.0019777777777777775,
-    "current_verdict": "Buy"
-   }
+   "dist_stall_evidence": false
   },
   "HDHPC": {
-   "verdict_label": "BOUNCE_SETUP",
-   "flags": [
-    "CLIMAX",
-    "BOUNCE_SETUP"
-   ],
-   "pump_score": 0.143,
-   "opportunity_score": 1,
-   "sector": "Hydropower",
-   "dist_stall_evidence": false,
-   "screener_replay": {
-    "n": 45,
-    "wins": 0.244,
-    "hit_rate": 0.005422222222222222,
-    "current_verdict": "Buy"
-   }
-  },
-  "HDL": {
-   "verdict_label": "NEUTRAL",
-   "flags": [
-    "CLIMAX"
-   ],
-   "pump_score": 0.286,
-   "opportunity_score": 0,
-   "sector": "Manufacturing And Processing",
-   "dist_stall_evidence": false,
-   "screener_replay": {
-    "n": 20,
-    "wins": 0.25,
-    "hit_rate": 0.0125,
-    "current_verdict": "Buy"
-   }
-  },
-  "HEI": {
    "verdict_label": "NEUTRAL",
    "flags": [],
    "pump_score": 0,
    "opportunity_score": 0,
+   "sector": "Hydropower",
+   "dist_stall_evidence": false,
+   "screener_replay": {
+    "n": 46,
+    "wins": 0.239,
+    "hit_rate": 0.005195652173913043,
+    "current_verdict": "Hold"
+   }
+  },
+  "HDL": {
+   "verdict_label": "DISTRIBUTION_WARNING",
+   "flags": [
+    "DIST_VOLUME",
+    "CLIMAX"
+   ],
+   "pump_score": 0.356,
+   "opportunity_score": 0,
+   "sector": "Manufacturing And Processing",
+   "dist_stall_evidence": false,
+   "warning_hit_probability": 0.30451761079228085,
+   "screener_replay": {
+    "n": 20,
+    "wins": 0.35,
+    "hit_rate": 0.017499999999999998,
+    "current_verdict": "Hold"
+   }
+  },
+  "HEI": {
+   "verdict_label": "DISTRIBUTION_WARNING",
+   "flags": [
+    "DIST_VOLUME",
+    "CLIMAX",
+    "BOUNCE_SETUP"
+   ],
+   "pump_score": 0.32,
+   "opportunity_score": 1,
    "sector": "Non Life Insurance",
    "dist_stall_evidence": false,
+   "warning_hit_probability": 0.12187672447959119,
    "screener_replay": {
     "n": 25,
     "wins": 0.04,
@@ -3485,43 +3427,39 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Promoter Shares",
-   "dist_stall_evidence": null
+   "dist_stall_evidence": false
   },
   "HFIN": {
-   "verdict_label": "BOUNCE_SETUP",
-   "flags": [
-    "BOUNCE_SETUP"
-   ],
+   "verdict_label": "NEUTRAL",
+   "flags": [],
    "pump_score": 0,
-   "opportunity_score": 1,
+   "opportunity_score": 0,
    "sector": "Hotels And Tourism",
    "dist_stall_evidence": false
   },
   "HHL": {
-   "verdict_label": "DISTRIBUTION_WARNING",
+   "verdict_label": "NEUTRAL",
    "flags": [
-    "CLIMAX",
-    "WINNER_FADE"
+    "CLIMAX"
    ],
-   "pump_score": 0.5,
+   "pump_score": 0.056,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.26720345491991654,
    "screener_replay": {
     "n": 21,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Buy"
+    "current_verdict": "Hold"
    }
   },
   "HIDCL": {
-   "verdict_label": "BOUNCE_SETUP",
+   "verdict_label": "NEUTRAL",
    "flags": [
-    "BOUNCE_SETUP"
+    "CLIMAX"
    ],
-   "pump_score": 0,
-   "opportunity_score": 1,
+   "pump_score": 0.111,
+   "opportunity_score": 0,
    "sector": "Investment",
    "dist_stall_evidence": false,
    "screener_replay": {
@@ -3536,29 +3474,34 @@
    "flags": [
     "CLIMAX"
    ],
-   "pump_score": 0.286,
+   "pump_score": 0.111,
    "opportunity_score": null,
    "sector": "Investment",
    "dist_stall_evidence": false
   },
   "HIMSTAR": {
-   "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
-   "opportunity_score": 0,
+   "verdict_label": "BOUNCE_SETUP",
+   "flags": [
+    "CLIMAX",
+    "BOUNCE_SETUP"
+   ],
+   "pump_score": 0.056,
+   "opportunity_score": 1,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 13,
     "wins": 0.385,
     "hit_rate": 0.029615384615384616,
-    "current_verdict": "Exit / Reduce"
+    "current_verdict": "Hold"
    }
   },
   "HLBSL": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.147,
    "opportunity_score": 0,
    "sector": "Microfinance",
    "dist_stall_evidence": false,
@@ -3566,7 +3509,7 @@
     "n": 10,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Strong Exit"
+    "current_verdict": "Exit / Reduce"
    }
   },
   "HLI": {
@@ -3580,7 +3523,7 @@
     "n": 8,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Strong Exit"
+    "current_verdict": "Exit / Reduce"
    }
   },
   "HLICF": {
@@ -3594,14 +3537,14 @@
   "HPPL": {
    "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
-    "CLIMAX",
+    "DIST_VOLUME",
     "WINNER_FADE"
    ],
-   "pump_score": 0.5,
+   "pump_score": 0.261,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.1578834257037844,
+   "warning_hit_probability": 0.2930060470991819,
    "screener_replay": {
     "n": 13,
     "wins": 0,
@@ -3610,18 +3553,15 @@
    }
   },
   "HRL": {
-   "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
-   "opportunity_score": 0,
+   "verdict_label": "BOUNCE_SETUP",
+   "flags": [
+    "CLIMAX",
+    "BOUNCE_SETUP"
+   ],
+   "pump_score": 0.111,
+   "opportunity_score": 1,
    "sector": "Non Life Insurance",
-   "dist_stall_evidence": false,
-   "screener_replay": {
-    "n": 5,
-    "wins": 0,
-    "hit_rate": 0.0,
-    "current_verdict": "Strong Exit"
-   }
+   "dist_stall_evidence": false
   },
   "HURJA": {
    "verdict_label": "UNRELIABLE",
@@ -3631,27 +3571,26 @@
    "sector": "Hydropower",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 55,
-    "wins": 0.164,
-    "hit_rate": 0.002981818181818182,
+    "n": 56,
+    "wins": 0.161,
+    "hit_rate": 0.002875,
     "current_verdict": "Hold"
    }
   },
   "ICFC": {
-   "verdict_label": "BOUNCE_SETUP",
+   "verdict_label": "NEUTRAL",
    "flags": [
-    "CLIMAX",
-    "BOUNCE_SETUP"
+    "CLIMAX"
    ],
    "pump_score": 0,
-   "opportunity_score": 1,
+   "opportunity_score": 0,
    "sector": "Finance",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 49,
-    "wins": 0.163,
-    "hit_rate": 0.0033265306122448983,
-    "current_verdict": "Exit / Reduce"
+    "n": 47,
+    "wins": 0.17,
+    "hit_rate": 0.003617021276595745,
+    "current_verdict": "Hold"
    }
   },
   "ICFCD83": {
@@ -3668,7 +3607,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": false
+   "dist_stall_evidence": null
   },
   "ICFCD89": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -3703,14 +3642,17 @@
     "n": 5,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Exit / Reduce"
+    "current_verdict": "Hold"
    }
   },
   "ILBS": {
-   "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
-   "opportunity_score": 0,
+   "verdict_label": "BOUNCE_SETUP",
+   "flags": [
+    "CLIMAX",
+    "BOUNCE_SETUP"
+   ],
+   "pump_score": 0.111,
+   "opportunity_score": 1,
    "sector": "Microfinance",
    "dist_stall_evidence": false,
    "screener_replay": {
@@ -3722,8 +3664,10 @@
   },
   "ILI": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.1,
    "opportunity_score": 0,
    "sector": "Life Insurance",
    "dist_stall_evidence": false,
@@ -3731,7 +3675,7 @@
     "n": 28,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Strong Buy"
+    "current_verdict": "Hold"
    }
   },
   "JBBD87": {
@@ -3740,37 +3684,31 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": null,
-   "screener_replay": {
-    "n": 77,
-    "wins": 0.61,
-    "hit_rate": 0.007922077922077922,
-    "current_verdict": "Hold"
-   }
+   "dist_stall_evidence": null
   },
   "JBBL": {
    "verdict_label": "NEUTRAL",
    "flags": [
     "CLIMAX"
    ],
-   "pump_score": 0.286,
+   "pump_score": 0.111,
    "opportunity_score": null,
    "sector": "Banking",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 54,
-    "wins": 0.074,
-    "hit_rate": 0.0013703703703703703,
+    "n": 55,
+    "wins": 0.073,
+    "hit_rate": 0.0013272727272727273,
     "current_verdict": "Strong Buy"
    }
   },
   "JBLB": {
-   "verdict_label": "BOUNCE_SETUP",
+   "verdict_label": "NEUTRAL",
    "flags": [
-    "BOUNCE_SETUP"
+    "CLIMAX"
    ],
-   "pump_score": 0,
-   "opportunity_score": 1,
+   "pump_score": 0.111,
+   "opportunity_score": 0,
    "sector": "Microfinance",
    "dist_stall_evidence": false,
    "screener_replay": {
@@ -3817,46 +3755,64 @@
    }
   },
   "JOSHI": {
+   "verdict_label": "NEUTRAL",
+   "flags": [],
+   "pump_score": 0,
+   "opportunity_score": 0,
+   "sector": "Hydropower",
+   "dist_stall_evidence": false
+  },
+  "JSLBB": {
    "verdict_label": "BOUNCE_SETUP",
    "flags": [
     "BOUNCE_SETUP"
    ],
    "pump_score": 0,
    "opportunity_score": 1,
-   "sector": "Hydropower",
-   "dist_stall_evidence": false
-  },
-  "JSLBB": {
-   "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
-   "opportunity_score": 0,
    "sector": "Microfinance",
-   "dist_stall_evidence": false
+   "dist_stall_evidence": null
   },
   "KAHL": {
    "verdict_label": "NEUTRAL",
    "flags": [],
-   "pump_score": null,
-   "opportunity_score": null,
+   "pump_score": 0,
+   "opportunity_score": 0,
    "sector": null,
    "dist_stall_evidence": false
   },
   "KBL": {
-   "verdict_label": "NEUTRAL",
+   "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
+    "DIST_VOLUME",
     "CLIMAX"
    ],
-   "pump_score": 0.286,
+   "pump_score": 0.356,
    "opportunity_score": 0,
    "sector": "Banking",
    "dist_stall_evidence": false,
+   "warning_hit_probability": 0.1834832515206194,
    "screener_replay": {
-    "n": 28,
-    "wins": 0.5,
-    "hit_rate": 0.017857142857142856,
+    "n": 29,
+    "wins": 0.517,
+    "hit_rate": 0.01782758620689655,
     "current_verdict": "Strong Buy"
    }
+  },
+  "KBLD86": {
+   "verdict_label": "NEUTRAL",
+   "flags": [],
+   "pump_score": 0,
+   "opportunity_score": null,
+   "sector": null,
+   "dist_stall_evidence": null
+  },
+  "KBLD89": {
+   "verdict_label": "INSUFFICIENT_DATA",
+   "flags": [],
+   "pump_score": null,
+   "opportunity_score": null,
+   "sector": null,
+   "dist_stall_evidence": null
   },
   "KBLD90": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -3864,13 +3820,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": null,
-   "screener_replay": {
-    "n": 12,
-    "wins": 0.167,
-    "hit_rate": 0.013916666666666667,
-    "current_verdict": "Strong Buy"
-   }
+   "dist_stall_evidence": null
   },
   "KBLPO": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -3878,24 +3828,17 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Promoter Shares",
-   "dist_stall_evidence": null,
-   "screener_replay": {
-    "n": 37,
-    "wins": 0.649,
-    "hit_rate": 0.01754054054054054,
-    "current_verdict": "Exit / Reduce"
-   }
+   "dist_stall_evidence": null
   },
   "KBSH": {
-   "verdict_label": "ELEVATED_RISK",
+   "verdict_label": "NEUTRAL",
    "flags": [
     "WINNER_FADE"
    ],
-   "pump_score": 0.357,
+   "pump_score": 0.16,
    "opportunity_score": 0,
    "sector": "Hydropower",
-   "dist_stall_evidence": false,
-   "warning_hit_probability": 0.19156687278645296
+   "dist_stall_evidence": false
   },
   "KDBY": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -3906,14 +3849,16 @@
    "dist_stall_evidence": false
   },
   "KDL": {
-   "verdict_label": "NEUTRAL",
+   "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
+    "DIST_VOLUME",
     "CLIMAX"
    ],
-   "pump_score": 0.286,
+   "pump_score": 0.356,
    "opportunity_score": 0,
    "sector": "Hotels And Tourism",
-   "dist_stall_evidence": false
+   "dist_stall_evidence": false,
+   "warning_hit_probability": 0.23531768000827283
   },
   "KEF": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -3926,8 +3871,8 @@
   "KHPL": {
    "verdict_label": "NEUTRAL",
    "flags": [],
-   "pump_score": null,
-   "opportunity_score": null,
+   "pump_score": 0,
+   "opportunity_score": 0,
    "sector": null,
    "dist_stall_evidence": false
   },
@@ -3956,20 +3901,18 @@
     "n": 13,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Strong Exit"
+    "current_verdict": "Hold"
    }
   },
   "KPCL": {
    "verdict_label": "NEUTRAL",
-   "flags": [
-    "CLIMAX"
-   ],
-   "pump_score": 0.143,
+   "flags": [],
+   "pump_score": 0,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 11,
+    "n": 10,
     "wins": 0,
     "hit_rate": 0.0,
     "current_verdict": "Hold"
@@ -3977,17 +3920,27 @@
   },
   "KSBBL": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.111,
    "opportunity_score": null,
    "sector": "Banking",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 50,
-    "wins": 0.04,
-    "hit_rate": 0.0008,
-    "current_verdict": "Strong Buy"
+    "n": 47,
+    "wins": 0.043,
+    "hit_rate": 0.0009148936170212765,
+    "current_verdict": "Hold"
    }
+  },
+  "KSBBLD87": {
+   "verdict_label": "INSUFFICIENT_DATA",
+   "flags": [],
+   "pump_score": null,
+   "opportunity_score": null,
+   "sector": null,
+   "dist_stall_evidence": null
   },
   "KSY": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -3998,35 +3951,46 @@
    "dist_stall_evidence": false
   },
   "LBBL": {
-   "verdict_label": "BOUNCE_SETUP",
+   "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
-    "BOUNCE_SETUP"
+    "CLIMAX",
+    "WINNER_FADE"
    ],
-   "pump_score": 0,
-   "opportunity_score": 1,
+   "pump_score": 0.35,
+   "opportunity_score": 0,
    "sector": "Banking",
    "dist_stall_evidence": false,
+   "warning_hit_probability": 0.6141984758183755,
    "screener_replay": {
-    "n": 40,
-    "wins": 0.1,
-    "hit_rate": 0.0025,
+    "n": 41,
+    "wins": 0.098,
+    "hit_rate": 0.0023902439024390243,
     "current_verdict": "Hold"
    }
   },
+  "LBBLD89": {
+   "verdict_label": "NEUTRAL",
+   "flags": [],
+   "pump_score": null,
+   "opportunity_score": null,
+   "sector": null,
+   "dist_stall_evidence": null
+  },
   "LEC": {
-   "verdict_label": "BOUNCE_SETUP",
+   "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
-    "CLIMAX",
-    "BOUNCE_SETUP"
+    "PARABOLIC",
+    "DIST_VOLUME"
    ],
-   "pump_score": 0.143,
-   "opportunity_score": 1,
+   "pump_score": 0.175,
+   "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
+   "warning_hit_probability": 0.3141652482033522,
    "screener_replay": {
-    "n": 47,
-    "wins": 0.191,
-    "hit_rate": 0.004063829787234042,
+    "n": 49,
+    "wins": 0.184,
+    "hit_rate": 0.0037551020408163266,
     "current_verdict": "Hold"
    }
   },
@@ -4063,7 +4027,7 @@
   "LSH12": {
    "verdict_label": "NEUTRAL",
    "flags": [],
-   "pump_score": null,
+   "pump_score": 0,
    "opportunity_score": null,
    "sector": null,
    "dist_stall_evidence": false
@@ -4071,18 +4035,20 @@
   "LSL": {
    "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
+    "PARABOLIC",
+    "DIST_VOLUME",
     "CLIMAX",
     "WINNER_FADE"
    ],
-   "pump_score": 1,
+   "pump_score": 0.778,
    "opportunity_score": null,
    "sector": "Banking",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.10342823415169182,
+   "warning_hit_probability": 0.13386506416334343,
    "screener_replay": {
-    "n": 58,
-    "wins": 0.034,
-    "hit_rate": 0.0005862068965517242,
+    "n": 60,
+    "wins": 0.083,
+    "hit_rate": 0.0013833333333333334,
     "current_verdict": "Buy"
    }
   },
@@ -4100,21 +4066,13 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Mutual Funds",
-   "dist_stall_evidence": false,
-   "screener_replay": {
-    "n": 36,
-    "wins": 0,
-    "hit_rate": 0.0,
-    "current_verdict": "Exit / Reduce"
-   }
+   "dist_stall_evidence": false
   },
   "MABEL": {
-   "verdict_label": "BOUNCE_SETUP",
-   "flags": [
-    "BOUNCE_SETUP"
-   ],
+   "verdict_label": "NEUTRAL",
+   "flags": [],
    "pump_score": 0,
-   "opportunity_score": 1,
+   "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
    "screener_replay": {
@@ -4126,24 +4084,23 @@
   },
   "MAKAR": {
    "verdict_label": "NEUTRAL",
-   "flags": [
-    "CLIMAX"
-   ],
-   "pump_score": 0.143,
+   "flags": [],
+   "pump_score": 0,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false
   },
   "MANDU": {
-   "verdict_label": "ELEVATED_RISK",
+   "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
+    "DIST_VOLUME",
     "WINNER_FADE"
    ],
-   "pump_score": 0.357,
+   "pump_score": 0.261,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.2837585051263307,
+   "warning_hit_probability": 0.2898743427004539,
    "screener_replay": {
     "n": 21,
     "wins": 0,
@@ -4162,35 +4119,40 @@
   "MBJC": {
    "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
+    "PARABOLIC",
+    "DIST_VOLUME",
     "CLIMAX",
     "WINNER_FADE"
    ],
-   "pump_score": 0.5,
+   "pump_score": 0.389,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.12234497943451894,
+   "warning_hit_probability": 0.40949702680411465,
    "screener_replay": {
-    "n": 16,
-    "wins": 0,
-    "hit_rate": 0.0,
-    "current_verdict": "Strong Buy"
+    "n": 18,
+    "wins": 0.111,
+    "hit_rate": 0.006166666666666667,
+    "current_verdict": "Hold"
    }
   },
   "MBL": {
-   "verdict_label": "NEUTRAL",
+   "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
-    "CLIMAX"
+    "DIST_VOLUME",
+    "CLIMAX",
+    "WINNER_FADE"
    ],
-   "pump_score": 0.286,
+   "pump_score": 0.633,
    "opportunity_score": null,
    "sector": "Banking",
    "dist_stall_evidence": false,
+   "warning_hit_probability": 0.2654630511155698,
    "screener_replay": {
     "n": 52,
-    "wins": 0.212,
-    "hit_rate": 0.004076923076923077,
-    "current_verdict": "Strong Buy"
+    "wins": 0.231,
+    "hit_rate": 0.0044423076923076925,
+    "current_verdict": "Hold"
    }
   },
   "MBLD2085": {
@@ -4199,13 +4161,15 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": null,
-   "screener_replay": {
-    "n": 47,
-    "wins": 0.596,
-    "hit_rate": 0.012680851063829787,
-    "current_verdict": "Buy"
-   }
+   "dist_stall_evidence": null
+  },
+  "MBLD87": {
+   "verdict_label": "INSUFFICIENT_DATA",
+   "flags": [],
+   "pump_score": null,
+   "opportunity_score": null,
+   "sector": null,
+   "dist_stall_evidence": null
   },
   "MBLEF": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -4217,33 +4181,36 @@
   },
   "MCHL": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.056,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false
   },
   "MDB": {
-   "verdict_label": "NEUTRAL",
-   "flags": [],
+   "verdict_label": "BOUNCE_SETUP",
+   "flags": [
+    "CLIMAX",
+    "BOUNCE_SETUP"
+   ],
    "pump_score": 0,
-   "opportunity_score": 0,
+   "opportunity_score": 1,
    "sector": "Development Bank",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 37,
     "wins": 0.135,
     "hit_rate": 0.0036486486486486487,
-    "current_verdict": "Exit / Reduce"
+    "current_verdict": "Hold"
    }
   },
   "MEHL": {
-   "verdict_label": "BOUNCE_SETUP",
-   "flags": [
-    "BOUNCE_SETUP"
-   ],
+   "verdict_label": "NEUTRAL",
+   "flags": [],
    "pump_score": 0,
-   "opportunity_score": 1,
+   "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
    "screener_replay": {
@@ -4255,10 +4222,8 @@
   },
   "MEL": {
    "verdict_label": "NEUTRAL",
-   "flags": [
-    "CLIMAX"
-   ],
-   "pump_score": 0.143,
+   "flags": [],
+   "pump_score": 0,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
@@ -4271,30 +4236,37 @@
   },
   "MEN": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "DIST_VOLUME"
+   ],
+   "pump_score": 0.11,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 56,
-    "wins": 0.161,
-    "hit_rate": 0.002875,
-    "current_verdict": "Buy"
+    "n": 59,
+    "wins": 0.153,
+    "hit_rate": 0.0025932203389830506,
+    "current_verdict": "Strong Exit"
    }
   },
   "MEPDL": {
-   "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": null,
+   "verdict_label": "EXHAUSTION_RISK",
+   "flags": [
+    "EXHAUSTION"
+   ],
+   "pump_score": 0.222,
    "opportunity_score": null,
    "sector": null,
-   "dist_stall_evidence": false
+   "dist_stall_evidence": false,
+   "warning_hit_probability": 0.5357285489819462
   },
   "MERO": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.111,
    "opportunity_score": 0,
    "sector": "Microfinance",
    "dist_stall_evidence": false,
@@ -4313,18 +4285,26 @@
    "sector": "Finance",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 96,
-    "wins": 0.354,
-    "hit_rate": 0.0036875,
-    "current_verdict": "Hold"
+    "n": 93,
+    "wins": 0.366,
+    "hit_rate": 0.0039354838709677415,
+    "current_verdict": "Strong Exit"
    }
+  },
+  "MFLD85": {
+   "verdict_label": "NEUTRAL",
+   "flags": [],
+   "pump_score": 0,
+   "opportunity_score": null,
+   "sector": null,
+   "dist_stall_evidence": null
   },
   "MHCL": {
    "verdict_label": "NEUTRAL",
    "flags": [
     "CLIMAX"
    ],
-   "pump_score": 0.143,
+   "pump_score": 0.056,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false
@@ -4334,7 +4314,7 @@
    "flags": [
     "CLIMAX"
    ],
-   "pump_score": 0.143,
+   "pump_score": 0.056,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
@@ -4347,10 +4327,8 @@
   },
   "MHNL": {
    "verdict_label": "NEUTRAL",
-   "flags": [
-    "CLIMAX"
-   ],
-   "pump_score": 0.143,
+   "flags": [],
+   "pump_score": 0,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
@@ -4370,12 +4348,10 @@
    "dist_stall_evidence": false
   },
   "MKHC": {
-   "verdict_label": "BOUNCE_SETUP",
-   "flags": [
-    "BOUNCE_SETUP"
-   ],
+   "verdict_label": "NEUTRAL",
+   "flags": [],
    "pump_score": 0,
-   "opportunity_score": 1,
+   "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false
   },
@@ -4384,7 +4360,7 @@
    "flags": [
     "CLIMAX"
    ],
-   "pump_score": 0.143,
+   "pump_score": 0.056,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
@@ -4397,13 +4373,15 @@
   },
   "MKJC": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "DIST_VOLUME"
+   ],
+   "pump_score": 0.122,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 19,
+    "n": 16,
     "wins": 0,
     "hit_rate": 0.0,
     "current_verdict": "Exit / Reduce"
@@ -4418,19 +4396,21 @@
    "dist_stall_evidence": false
   },
   "MLBL": {
-   "verdict_label": "NEUTRAL",
+   "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
-    "CLIMAX"
+    "CLIMAX",
+    "WINNER_FADE"
    ],
-   "pump_score": 0.286,
+   "pump_score": 0.389,
    "opportunity_score": null,
    "sector": "Banking",
    "dist_stall_evidence": false,
+   "warning_hit_probability": 0.15592770278802456,
    "screener_replay": {
     "n": 12,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Buy"
+    "current_verdict": "Hold"
    }
   },
   "MLBLD89": {
@@ -4476,34 +4456,45 @@
   "MMKJL": {
    "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
+    "DIST_VOLUME",
     "CLIMAX",
     "WINNER_FADE"
    ],
-   "pump_score": 0.5,
+   "pump_score": 0.317,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.44899313775299715,
+   "warning_hit_probability": 0.5700723030656393,
    "screener_replay": {
     "n": 6,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Strong Exit"
+    "current_verdict": "Hold"
    }
   },
   "MNBBL": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.1,
    "opportunity_score": 0,
    "sector": "Banking",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 26,
+    "n": 24,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Exit / Reduce"
+    "current_verdict": "Hold"
    }
+  },
+  "MND84/85": {
+   "verdict_label": "NEUTRAL",
+   "flags": [],
+   "pump_score": null,
+   "opportunity_score": 0,
+   "sector": null,
+   "dist_stall_evidence": null
   },
   "MNMF1": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -4514,12 +4505,12 @@
    "dist_stall_evidence": false
   },
   "MPFL": {
-   "verdict_label": "BOUNCE_SETUP",
+   "verdict_label": "NEUTRAL",
    "flags": [
-    "BOUNCE_SETUP"
+    "CLIMAX"
    ],
    "pump_score": 0,
-   "opportunity_score": 1,
+   "opportunity_score": 0,
    "sector": "Finance",
    "dist_stall_evidence": false,
    "screener_replay": {
@@ -4534,7 +4525,7 @@
    "flags": [
     "CLIMAX"
    ],
-   "pump_score": 0.143,
+   "pump_score": 0.064,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false
@@ -4547,9 +4538,9 @@
    "sector": "Microfinance",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 28,
-    "wins": 0.036,
-    "hit_rate": 0.0012857142857142856,
+    "n": 27,
+    "wins": 0.037,
+    "hit_rate": 0.0013703703703703703,
     "current_verdict": "Hold"
    }
   },
@@ -4564,21 +4555,23 @@
     "n": 29,
     "wins": 0.172,
     "hit_rate": 0.00593103448275862,
-    "current_verdict": "Strong Exit"
+    "current_verdict": "Exit / Reduce"
    }
   },
   "NABIL": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.111,
    "opportunity_score": null,
    "sector": "Banking",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 60,
-    "wins": 0.1,
-    "hit_rate": 0.0016666666666666668,
-    "current_verdict": "Hold"
+    "n": 64,
+    "wins": 0.094,
+    "hit_rate": 0.00146875,
+    "current_verdict": "Strong Buy"
    }
   },
   "NABILD2089": {
@@ -4587,13 +4580,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": false,
-   "screener_replay": {
-    "n": 17,
-    "wins": 0.059,
-    "hit_rate": 0.0034705882352941177,
-    "current_verdict": "Strong Buy"
-   }
+   "dist_stall_evidence": false
   },
   "NABILD87": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -4601,18 +4588,14 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": null,
-   "screener_replay": {
-    "n": 47,
-    "wins": 0.149,
-    "hit_rate": 0.0031702127659574467,
-    "current_verdict": "Hold"
-   }
+   "dist_stall_evidence": null
   },
   "NADEP": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.147,
    "opportunity_score": 0,
    "sector": "Microfinance",
    "dist_stall_evidence": false
@@ -4623,13 +4606,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": null,
-   "screener_replay": {
-    "n": 47,
-    "wins": 0.255,
-    "hit_rate": 0.005425531914893617,
-    "current_verdict": "Exit / Reduce"
-   }
+   "dist_stall_evidence": null
   },
   "NBF2": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -4648,16 +4625,21 @@
    "dist_stall_evidence": false
   },
   "NBL": {
-   "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "verdict_label": "DISTRIBUTION_WARNING",
+   "flags": [
+    "PARABOLIC",
+    "DIST_VOLUME",
+    "CLIMAX"
+   ],
+   "pump_score": 0.5,
    "opportunity_score": null,
    "sector": "Banking",
    "dist_stall_evidence": false,
+   "warning_hit_probability": 0.23781321090050905,
    "screener_replay": {
-    "n": 46,
-    "wins": 0.435,
-    "hit_rate": 0.009456521739130435,
+    "n": 47,
+    "wins": 0.447,
+    "hit_rate": 0.009510638297872341,
     "current_verdict": "Buy"
    }
   },
@@ -4667,18 +4649,12 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": null,
-   "screener_replay": {
-    "n": 57,
-    "wins": 0.333,
-    "hit_rate": 0.005842105263157895,
-    "current_verdict": "Strong Exit"
-   }
+   "dist_stall_evidence": null
   },
   "NBLD85": {
    "verdict_label": "NEUTRAL",
    "flags": [],
-   "pump_score": null,
+   "pump_score": 0,
    "opportunity_score": null,
    "sector": null,
    "dist_stall_evidence": null
@@ -4689,12 +4665,12 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": false
+   "dist_stall_evidence": null
   },
   "NCCD86": {
    "verdict_label": "NEUTRAL",
    "flags": [],
-   "pump_score": null,
+   "pump_score": 0,
    "opportunity_score": null,
    "sector": null,
    "dist_stall_evidence": null
@@ -4724,7 +4700,7 @@
     "n": 16,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Exit / Reduce"
+    "current_verdict": "Hold"
    }
   },
   "NGPL": {
@@ -4742,13 +4718,10 @@
    }
   },
   "NHDL": {
-   "verdict_label": "BOUNCE_SETUP",
-   "flags": [
-    "CLIMAX",
-    "BOUNCE_SETUP"
-   ],
-   "pump_score": 0.143,
-   "opportunity_score": 1,
+   "verdict_label": "NEUTRAL",
+   "flags": [],
+   "pump_score": 0,
+   "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false
   },
@@ -4760,9 +4733,9 @@
    "sector": "Hydropower",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 59,
-    "wins": 0.305,
-    "hit_rate": 0.005169491525423729,
+    "n": 61,
+    "wins": 0.295,
+    "hit_rate": 0.004836065573770492,
     "current_verdict": "Hold"
    }
   },
@@ -4772,13 +4745,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": false,
-   "screener_replay": {
-    "n": 87,
-    "wins": 0.264,
-    "hit_rate": 0.00303448275862069,
-    "current_verdict": "Buy"
-   }
+   "dist_stall_evidence": null
   },
   "NIBLGF": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -4786,13 +4753,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Mutual Funds",
-   "dist_stall_evidence": false,
-   "screener_replay": {
-    "n": 74,
-    "wins": 0.284,
-    "hit_rate": 0.0038378378378378375,
-    "current_verdict": "Hold"
-   }
+   "dist_stall_evidence": false
   },
   "NIBLSTF": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -4812,8 +4773,10 @@
   },
   "NICA": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.111,
    "opportunity_score": 0,
    "sector": "Banking",
    "dist_stall_evidence": false,
@@ -4838,13 +4801,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": null,
-   "screener_replay": {
-    "n": 51,
-    "wins": 0.373,
-    "hit_rate": 0.007313725490196078,
-    "current_verdict": "Exit / Reduce"
-   }
+   "dist_stall_evidence": null
   },
   "NICBF": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -4853,14 +4810,6 @@
    "opportunity_score": null,
    "sector": "Mutual Funds",
    "dist_stall_evidence": false
-  },
-  "NICD88": {
-   "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": null,
-   "opportunity_score": null,
-   "sector": null,
-   "dist_stall_evidence": null
   },
   "NICFC": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -4889,7 +4838,7 @@
     "n": 9,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Hold"
+    "current_verdict": "Exit / Reduce"
    }
   },
   "NICLBSL": {
@@ -4916,8 +4865,10 @@
   },
   "NIFRA": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.111,
    "opportunity_score": 0,
    "sector": "Investment",
    "dist_stall_evidence": false,
@@ -4934,13 +4885,15 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": null,
-   "screener_replay": {
-    "n": 30,
-    "wins": 0.267,
-    "hit_rate": 0.0089,
-    "current_verdict": "Strong Buy"
-   }
+   "dist_stall_evidence": false
+  },
+  "NIFRAUR85/86": {
+   "verdict_label": "INSUFFICIENT_DATA",
+   "flags": [],
+   "pump_score": null,
+   "opportunity_score": null,
+   "sector": null,
+   "dist_stall_evidence": null
   },
   "NIL": {
    "verdict_label": "NEUTRAL",
@@ -4957,20 +4910,31 @@
    }
   },
   "NIMB": {
-   "verdict_label": "NEUTRAL",
+   "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
-    "CLIMAX"
+    "DIST_VOLUME",
+    "CLIMAX",
+    "WINNER_FADE"
    ],
-   "pump_score": 0.286,
+   "pump_score": 0.633,
    "opportunity_score": 0,
    "sector": "Banking",
    "dist_stall_evidence": false,
+   "warning_hit_probability": 0.2421040137714476,
    "screener_replay": {
     "n": 21,
     "wins": 0.048,
     "hit_rate": 0.002285714285714286,
-    "current_verdict": "Strong Buy"
+    "current_verdict": "Hold"
    }
+  },
+  "NIMBD90": {
+   "verdict_label": "INSUFFICIENT_DATA",
+   "flags": [],
+   "pump_score": null,
+   "opportunity_score": null,
+   "sector": null,
+   "dist_stall_evidence": null
   },
   "NIMBPO": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -5004,8 +4968,10 @@
   },
   "NLICL": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.1,
    "opportunity_score": null,
    "sector": "Life Insurance",
    "dist_stall_evidence": false,
@@ -5017,19 +4983,22 @@
    }
   },
   "NMB": {
-   "verdict_label": "NEUTRAL",
+   "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
-    "CLIMAX"
+    "DIST_VOLUME",
+    "CLIMAX",
+    "WINNER_FADE"
    ],
-   "pump_score": 0.286,
+   "pump_score": 0.633,
    "opportunity_score": null,
    "sector": "Banking",
    "dist_stall_evidence": false,
+   "warning_hit_probability": 0.21407744176985422,
    "screener_replay": {
-    "n": 32,
-    "wins": 0.031,
-    "hit_rate": 0.00096875,
-    "current_verdict": "Strong Buy"
+    "n": 35,
+    "wins": 0.057,
+    "hit_rate": 0.0016285714285714287,
+    "current_verdict": "Hold"
    }
   },
   "NMB50": {
@@ -5038,13 +5007,15 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Mutual Funds",
-   "dist_stall_evidence": null,
-   "screener_replay": {
-    "n": 45,
-    "wins": 0.044,
-    "hit_rate": 0.0009777777777777777,
-    "current_verdict": "Exit / Reduce"
-   }
+   "dist_stall_evidence": null
+  },
+  "NMBD2085": {
+   "verdict_label": "INSUFFICIENT_DATA",
+   "flags": [],
+   "pump_score": null,
+   "opportunity_score": null,
+   "sector": null,
+   "dist_stall_evidence": null
   },
   "NMBD87/88": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -5052,13 +5023,15 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": null,
-   "screener_replay": {
-    "n": 85,
-    "wins": 0.482,
-    "hit_rate": 0.005670588235294117,
-    "current_verdict": "Buy"
-   }
+   "dist_stall_evidence": null
+  },
+  "NMBD89/90": {
+   "verdict_label": "INSUFFICIENT_DATA",
+   "flags": [],
+   "pump_score": null,
+   "opportunity_score": null,
+   "sector": null,
+   "dist_stall_evidence": null
   },
   "NMBHF2": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -5079,13 +5052,13 @@
     "n": 8,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Hold"
+    "current_verdict": "Exit / Reduce"
    }
   },
   "NMBUR93/94": {
    "verdict_label": "NEUTRAL",
    "flags": [],
-   "pump_score": null,
+   "pump_score": 0,
    "opportunity_score": null,
    "sector": null,
    "dist_stall_evidence": null
@@ -5101,14 +5074,16 @@
     "n": 22,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Strong Buy"
+    "current_verdict": "Hold"
    }
   },
   "NMIC": {
-   "verdict_label": "NEUTRAL",
-   "flags": [],
+   "verdict_label": "BOUNCE_SETUP",
+   "flags": [
+    "BOUNCE_SETUP"
+   ],
    "pump_score": 0,
-   "opportunity_score": 0,
+   "opportunity_score": 1,
    "sector": "Non Life Insurance",
    "dist_stall_evidence": false,
    "screener_replay": {
@@ -5120,8 +5095,10 @@
   },
   "NMLBBL": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.111,
    "opportunity_score": 0,
    "sector": "Microfinance",
    "dist_stall_evidence": false,
@@ -5140,16 +5117,18 @@
    "sector": "Non Life Insurance",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 10,
+    "n": 8,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Exit / Reduce"
+    "current_verdict": "Hold"
    }
   },
   "NRM": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.111,
    "opportunity_score": 0,
    "sector": "Others",
    "dist_stall_evidence": false,
@@ -5157,23 +5136,21 @@
     "n": 6,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Strong Exit"
+    "current_verdict": "Hold"
    }
   },
   "NRN": {
-   "verdict_label": "BOUNCE_SETUP",
-   "flags": [
-    "BOUNCE_SETUP"
-   ],
+   "verdict_label": "NEUTRAL",
+   "flags": [],
    "pump_score": 0,
-   "opportunity_score": 1,
+   "opportunity_score": 0,
    "sector": "Investment",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 16,
     "wins": 0.063,
     "hit_rate": 0.0039375,
-    "current_verdict": "Strong Exit"
+    "current_verdict": "Hold"
    }
   },
   "NSIF2": {
@@ -5194,8 +5171,10 @@
   },
   "NTC": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.111,
    "opportunity_score": null,
    "sector": "Others",
    "dist_stall_evidence": false,
@@ -5203,29 +5182,29 @@
     "n": 38,
     "wins": 0.026,
     "hit_rate": 0.0006842105263157894,
-    "current_verdict": "Buy"
+    "current_verdict": "Hold"
    }
   },
   "NUBL": {
    "verdict_label": "NEUTRAL",
-   "flags": [
-    "CLIMAX"
-   ],
-   "pump_score": 0.286,
+   "flags": [],
+   "pump_score": 0,
    "opportunity_score": 0,
    "sector": "Microfinance",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 25,
-    "wins": 0.04,
-    "hit_rate": 0.0016,
+    "n": 23,
+    "wins": 0.043,
+    "hit_rate": 0.0018695652173913043,
     "current_verdict": "Hold"
    }
   },
   "NWCL": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.111,
    "opportunity_score": 0,
    "sector": "Others",
    "dist_stall_evidence": false,
@@ -5238,10 +5217,8 @@
   },
   "NYADI": {
    "verdict_label": "NEUTRAL",
-   "flags": [
-    "CLIMAX"
-   ],
-   "pump_score": 0.143,
+   "flags": [],
+   "pump_score": 0,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
@@ -5249,16 +5226,16 @@
     "n": 14,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Strong Exit"
+    "current_verdict": "Hold"
    }
   },
   "OHL": {
-   "verdict_label": "BOUNCE_SETUP",
+   "verdict_label": "NEUTRAL",
    "flags": [
-    "BOUNCE_SETUP"
+    "CLIMAX"
    ],
-   "pump_score": 0,
-   "opportunity_score": 1,
+   "pump_score": 0.111,
+   "opportunity_score": 0,
    "sector": "Hotels And Tourism",
    "dist_stall_evidence": false
   },
@@ -5273,8 +5250,16 @@
     "n": 11,
     "wins": 0.636,
     "hit_rate": 0.05781818181818182,
-    "current_verdict": "Exit / Reduce"
+    "current_verdict": "Strong Exit"
    }
+  },
+  "PBD84": {
+   "verdict_label": "INSUFFICIENT_DATA",
+   "flags": [],
+   "pump_score": null,
+   "opportunity_score": null,
+   "sector": null,
+   "dist_stall_evidence": null
   },
   "PBD85": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -5295,7 +5280,7 @@
   "PBD93": {
    "verdict_label": "NEUTRAL",
    "flags": [],
-   "pump_score": null,
+   "pump_score": 0,
    "opportunity_score": null,
    "sector": null,
    "dist_stall_evidence": null
@@ -5306,13 +5291,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": false,
-   "screener_replay": {
-    "n": 120,
-    "wins": 0.3,
-    "hit_rate": 0.0025,
-    "current_verdict": "Exit / Reduce"
-   }
+   "dist_stall_evidence": null
   },
   "PBLD87": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -5320,33 +5299,44 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": null,
-   "screener_replay": {
-    "n": 94,
-    "wins": 0.298,
-    "hit_rate": 0.0031702127659574467,
-    "current_verdict": "Strong Buy"
-   }
+   "dist_stall_evidence": null
   },
   "PCBL": {
-   "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "verdict_label": "DISTRIBUTION_WARNING",
+   "flags": [
+    "PARABOLIC",
+    "DIST_VOLUME",
+    "CLIMAX",
+    "WINNER_FADE"
+   ],
+   "pump_score": 0.778,
    "opportunity_score": null,
    "sector": "Banking",
    "dist_stall_evidence": false,
+   "warning_hit_probability": 0.2669845402805785,
    "screener_replay": {
-    "n": 28,
-    "wins": 0.107,
-    "hit_rate": 0.0038214285714285715,
+    "n": 30,
+    "wins": 0.167,
+    "hit_rate": 0.005566666666666667,
     "current_verdict": "Buy"
    }
   },
-  "PCIL": {
-   "verdict_label": "NEUTRAL",
+  "PCBLP": {
+   "verdict_label": "INSUFFICIENT_DATA",
    "flags": [],
-   "pump_score": 0,
-   "opportunity_score": 0,
+   "pump_score": null,
+   "opportunity_score": null,
+   "sector": null,
+   "dist_stall_evidence": null
+  },
+  "PCIL": {
+   "verdict_label": "BOUNCE_SETUP",
+   "flags": [
+    "CLIMAX",
+    "BOUNCE_SETUP"
+   ],
+   "pump_score": 0.147,
+   "opportunity_score": 1,
    "sector": "Manufacturing And Processing",
    "dist_stall_evidence": false
   },
@@ -5367,19 +5357,21 @@
   "PHCL": {
    "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
+    "PARABOLIC",
+    "DIST_VOLUME",
     "CLIMAX",
     "WINNER_FADE"
    ],
-   "pump_score": 0.5,
+   "pump_score": 0.389,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.2236374219475814,
+   "warning_hit_probability": 0.26167813331233925,
    "screener_replay": {
-    "n": 6,
-    "wins": 0.833,
-    "hit_rate": 0.13883333333333334,
-    "current_verdict": "Buy"
+    "n": 9,
+    "wins": 0.889,
+    "hit_rate": 0.09877777777777778,
+    "current_verdict": "Hold"
    }
   },
   "PMHPL": {
@@ -5387,7 +5379,7 @@
    "flags": [
     "CLIMAX"
    ],
-   "pump_score": 0.143,
+   "pump_score": 0.056,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
@@ -5395,7 +5387,7 @@
     "n": 36,
     "wins": 0.417,
     "hit_rate": 0.011583333333333333,
-    "current_verdict": "Exit / Reduce"
+    "current_verdict": "Hold"
    }
   },
   "PMLI": {
@@ -5403,7 +5395,7 @@
    "flags": [
     "CLIMAX"
    ],
-   "pump_score": 0.286,
+   "pump_score": 0.111,
    "opportunity_score": 0,
    "sector": "Life Insurance",
    "dist_stall_evidence": false,
@@ -5416,10 +5408,8 @@
   },
   "PPCL": {
    "verdict_label": "NEUTRAL",
-   "flags": [
-    "CLIMAX"
-   ],
-   "pump_score": 0.143,
+   "flags": [],
+   "pump_score": 0,
    "opportunity_score": null,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
@@ -5427,7 +5417,7 @@
     "n": 59,
     "wins": 0.339,
     "hit_rate": 0.0057457627118644074,
-    "current_verdict": "Strong Exit"
+    "current_verdict": "Hold"
    }
   },
   "PPL": {
@@ -5435,7 +5425,7 @@
    "flags": [
     "CLIMAX"
    ],
-   "pump_score": 0.143,
+   "pump_score": 0.056,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
@@ -5461,20 +5451,17 @@
    }
   },
   "PROFL": {
-   "verdict_label": "BOUNCE_SETUP",
-   "flags": [
-    "CLIMAX",
-    "BOUNCE_SETUP"
-   ],
+   "verdict_label": "NEUTRAL",
+   "flags": [],
    "pump_score": 0,
-   "opportunity_score": 1,
+   "opportunity_score": 0,
    "sector": "Finance",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 13,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Exit / Reduce"
+    "current_verdict": "Hold"
    }
   },
   "PRSF": {
@@ -5487,8 +5474,10 @@
   },
   "PRVU": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.111,
    "opportunity_score": 0,
    "sector": "Banking",
    "dist_stall_evidence": false,
@@ -5508,27 +5497,25 @@
    "dist_stall_evidence": false
   },
   "PURE": {
-   "verdict_label": "BOUNCE_SETUP",
+   "verdict_label": "NEUTRAL",
    "flags": [
-    "BOUNCE_SETUP"
+    "CLIMAX"
    ],
-   "pump_score": 0,
-   "opportunity_score": 1,
+   "pump_score": 0.056,
+   "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 28,
     "wins": 0.5,
     "hit_rate": 0.017857142857142856,
-    "current_verdict": "Strong Exit"
+    "current_verdict": "Hold"
    }
   },
   "RADHI": {
    "verdict_label": "NEUTRAL",
-   "flags": [
-    "CLIMAX"
-   ],
-   "pump_score": 0.143,
+   "flags": [],
+   "pump_score": 0,
    "opportunity_score": null,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
@@ -5540,19 +5527,17 @@
    }
   },
   "RAWA": {
-   "verdict_label": "BOUNCE_SETUP",
-   "flags": [
-    "BOUNCE_SETUP"
-   ],
+   "verdict_label": "NEUTRAL",
+   "flags": [],
    "pump_score": 0,
-   "opportunity_score": 1,
+   "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 5,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Strong Exit"
+    "current_verdict": "Hold"
    }
   },
   "RBBD2088": {
@@ -5561,13 +5546,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": false,
-   "screener_replay": {
-    "n": 21,
-    "wins": 0.095,
-    "hit_rate": 0.004523809523809524,
-    "current_verdict": "Hold"
-   }
+   "dist_stall_evidence": null
   },
   "RBBD83": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -5575,13 +5554,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": null,
-   "screener_replay": {
-    "n": 43,
-    "wins": 0.372,
-    "hit_rate": 0.008651162790697674,
-    "current_verdict": "Hold"
-   }
+   "dist_stall_evidence": null
   },
   "RBBF40": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -5599,9 +5572,9 @@
    "sector": "Non Life Insurance",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 50,
-    "wins": 0.12,
-    "hit_rate": 0.0024,
+    "n": 46,
+    "wins": 0.13,
+    "hit_rate": 0.002826086956521739,
     "current_verdict": "Hold"
    }
   },
@@ -5611,13 +5584,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Promoter Shares",
-   "dist_stall_evidence": false,
-   "screener_replay": {
-    "n": 56,
-    "wins": 0.089,
-    "hit_rate": 0.0015892857142857143,
-    "current_verdict": "Strong Exit"
-   }
+   "dist_stall_evidence": false
   },
   "RFPL": {
    "verdict_label": "UNRELIABLE",
@@ -5638,7 +5605,7 @@
     "n": 22,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Exit / Reduce"
+    "current_verdict": "Hold"
    }
   },
   "RHPL": {
@@ -5647,7 +5614,7 @@
     "CLIMAX",
     "BOUNCE_SETUP"
    ],
-   "pump_score": 0.143,
+   "pump_score": 0.056,
    "opportunity_score": 1,
    "sector": "Hydropower",
    "dist_stall_evidence": false
@@ -5681,19 +5648,17 @@
    }
   },
   "RLFL": {
-   "verdict_label": "BOUNCE_SETUP",
-   "flags": [
-    "BOUNCE_SETUP"
-   ],
+   "verdict_label": "NEUTRAL",
+   "flags": [],
    "pump_score": 0,
-   "opportunity_score": 1,
+   "opportunity_score": 0,
    "sector": "Finance",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 32,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Exit / Reduce"
+    "current_verdict": "Hold"
    }
   },
   "RMF1": {
@@ -5710,7 +5675,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Mutual Funds",
-   "dist_stall_evidence": null
+   "dist_stall_evidence": false
   },
   "RNLI": {
    "verdict_label": "NEUTRAL",
@@ -5723,13 +5688,15 @@
     "n": 18,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Strong Buy"
+    "current_verdict": "Hold"
    }
   },
   "RSDC": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.1,
    "opportunity_score": null,
    "sector": "Microfinance",
    "dist_stall_evidence": false,
@@ -5751,7 +5718,7 @@
     "n": 8,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Strong Exit"
+    "current_verdict": "Exit / Reduce"
    }
   },
   "RSY": {
@@ -5765,7 +5732,7 @@
   "RSY2": {
    "verdict_label": "NEUTRAL",
    "flags": [],
-   "pump_score": null,
+   "pump_score": 0,
    "opportunity_score": null,
    "sector": null,
    "dist_stall_evidence": null
@@ -5775,16 +5742,24 @@
    "flags": [
     "CLIMAX"
    ],
-   "pump_score": 0.143,
+   "pump_score": 0.056,
    "opportunity_score": 0,
    "sector": "Hydropower",
-   "dist_stall_evidence": false
+   "dist_stall_evidence": false,
+   "screener_replay": {
+    "n": 9,
+    "wins": 0,
+    "hit_rate": 0.0,
+    "current_verdict": "Hold"
+   }
   },
   "SABBL": {
-   "verdict_label": "NEUTRAL",
-   "flags": [],
+   "verdict_label": "BOUNCE_SETUP",
+   "flags": [
+    "BOUNCE_SETUP"
+   ],
    "pump_score": 0,
-   "opportunity_score": 0,
+   "opportunity_score": 1,
    "sector": "Banking",
    "dist_stall_evidence": false,
    "screener_replay": {
@@ -5795,25 +5770,27 @@
    }
   },
   "SADBL": {
-   "verdict_label": "NEUTRAL",
+   "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
+    "DIST_VOLUME",
     "CLIMAX"
    ],
    "pump_score": 0,
    "opportunity_score": null,
    "sector": "Development Bank",
    "dist_stall_evidence": false,
+   "warning_hit_probability": 0.051269450849044614,
    "screener_replay": {
-    "n": 29,
-    "wins": 0.069,
-    "hit_rate": 0.0023793103448275866,
-    "current_verdict": "Buy"
+    "n": 30,
+    "wins": 0.067,
+    "hit_rate": 0.0022333333333333333,
+    "current_verdict": "Exit / Reduce"
    }
   },
   "SAEF2": {
    "verdict_label": "NEUTRAL",
    "flags": [],
-   "pump_score": null,
+   "pump_score": 0,
    "opportunity_score": null,
    "sector": null,
    "dist_stall_evidence": false
@@ -5829,7 +5806,7 @@
     "n": 22,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Strong Exit"
+    "current_verdict": "Exit / Reduce"
    }
   },
   "SAGF": {
@@ -5848,9 +5825,9 @@
    "sector": "Hydropower",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 71,
-    "wins": 0.366,
-    "hit_rate": 0.005154929577464789,
+    "n": 74,
+    "wins": 0.351,
+    "hit_rate": 0.004743243243243243,
     "current_verdict": "Buy"
    }
   },
@@ -5865,13 +5842,15 @@
     "n": 13,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Exit / Reduce"
+    "current_verdict": "Hold"
    }
   },
   "SALICO": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.1,
    "opportunity_score": 0,
    "sector": "Non Life Insurance",
    "dist_stall_evidence": false,
@@ -5882,31 +5861,38 @@
     "current_verdict": "Exit / Reduce"
    }
   },
+  "SAND2085": {
+   "verdict_label": "INSUFFICIENT_DATA",
+   "flags": [],
+   "pump_score": null,
+   "opportunity_score": null,
+   "sector": null,
+   "dist_stall_evidence": null
+  },
   "SANIMA": {
    "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
+    "DIST_VOLUME",
     "CLIMAX",
     "WINNER_FADE"
    ],
-   "pump_score": 1,
+   "pump_score": 0.633,
    "opportunity_score": null,
    "sector": "Banking",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.10456978707352849,
+   "warning_hit_probability": 0.1882516182474205,
    "screener_replay": {
     "n": 84,
-    "wins": 0.238,
-    "hit_rate": 0.002833333333333333,
+    "wins": 0.274,
+    "hit_rate": 0.0032619047619047623,
     "current_verdict": "Strong Buy"
    }
   },
   "SANVI": {
-   "verdict_label": "BOUNCE_SETUP",
-   "flags": [
-    "BOUNCE_SETUP"
-   ],
+   "verdict_label": "NEUTRAL",
+   "flags": [],
    "pump_score": 0,
-   "opportunity_score": 1,
+   "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
    "screener_replay": {
@@ -5917,10 +5903,12 @@
    }
   },
   "SAPDBL": {
-   "verdict_label": "NEUTRAL",
-   "flags": [],
+   "verdict_label": "BOUNCE_SETUP",
+   "flags": [
+    "BOUNCE_SETUP"
+   ],
    "pump_score": 0,
-   "opportunity_score": 0,
+   "opportunity_score": 1,
    "sector": "Development Bank",
    "dist_stall_evidence": false,
    "screener_replay": {
@@ -5931,12 +5919,15 @@
    }
   },
   "SAPIL": {
-   "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": null,
+   "verdict_label": "EXHAUSTION_RISK",
+   "flags": [
+    "EXHAUSTION"
+   ],
+   "pump_score": 0.222,
    "opportunity_score": null,
    "sector": null,
-   "dist_stall_evidence": false
+   "dist_stall_evidence": false,
+   "warning_hit_probability": 0.7222043528446984
   },
   "SARBTM": {
    "verdict_label": "NEUTRAL",
@@ -5946,7 +5937,7 @@
    "sector": "Manufacturing And Processing",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 27,
+    "n": 26,
     "wins": 0,
     "hit_rate": 0.0,
     "current_verdict": "Hold"
@@ -5960,17 +5951,26 @@
    "sector": "Mutual Funds",
    "dist_stall_evidence": false
   },
+  "SBD89": {
+   "verdict_label": "INSUFFICIENT_DATA",
+   "flags": [],
+   "pump_score": null,
+   "opportunity_score": null,
+   "sector": null,
+   "dist_stall_evidence": null
+  },
   "SBI": {
    "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
+    "DIST_VOLUME",
     "CLIMAX",
     "WINNER_FADE"
    ],
-   "pump_score": 1,
+   "pump_score": 0.633,
    "opportunity_score": null,
    "sector": "Banking",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.04652246558596062,
+   "warning_hit_probability": 0.11010839759282234,
    "screener_replay": {
     "n": 26,
     "wins": 0,
@@ -5984,13 +5984,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": null,
-   "screener_replay": {
-    "n": 121,
-    "wins": 0.521,
-    "hit_rate": 0.004305785123966942,
-    "current_verdict": "Buy"
-   }
+   "dist_stall_evidence": null
   },
   "SBID2090": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -5998,7 +5992,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": false
+   "dist_stall_evidence": null
   },
   "SBID83": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -6006,7 +6000,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": false
+   "dist_stall_evidence": null
   },
   "SBID89": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -6014,26 +6008,22 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": false,
-   "screener_replay": {
-    "n": 115,
-    "wins": 0.426,
-    "hit_rate": 0.0037043478260869564,
-    "current_verdict": "Strong Buy"
-   }
+   "dist_stall_evidence": null
   },
   "SBL": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "DIST_VOLUME"
+   ],
+   "pump_score": 0.244,
    "opportunity_score": null,
    "sector": "Banking",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 91,
-    "wins": 0.352,
-    "hit_rate": 0.003868131868131868,
-    "current_verdict": "Buy"
+    "n": 93,
+    "wins": 0.344,
+    "hit_rate": 0.0036989247311827954,
+    "current_verdict": "Strong Buy"
    }
   },
   "SBLD2091": {
@@ -6050,35 +6040,31 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": null,
-   "screener_replay": {
-    "n": 93,
-    "wins": 0.301,
-    "hit_rate": 0.003236559139784946,
-    "current_verdict": "Exit / Reduce"
-   }
+   "dist_stall_evidence": null
   },
   "SBLD89": {
    "verdict_label": "NEUTRAL",
    "flags": [],
-   "pump_score": null,
+   "pump_score": 0,
    "opportunity_score": null,
    "sector": null,
-   "dist_stall_evidence": null
+   "dist_stall_evidence": false
   },
   "SCB": {
-   "verdict_label": "NEUTRAL",
+   "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
+    "DIST_VOLUME",
     "CLIMAX"
    ],
-   "pump_score": 0.286,
+   "pump_score": 0.32,
    "opportunity_score": null,
    "sector": "Banking",
    "dist_stall_evidence": false,
+   "warning_hit_probability": 0.030816565771549224,
    "screener_replay": {
-    "n": 67,
-    "wins": 0.284,
-    "hit_rate": 0.0042388059701492535,
+    "n": 70,
+    "wins": 0.271,
+    "hit_rate": 0.0038714285714285717,
     "current_verdict": "Buy"
    }
   },
@@ -6088,13 +6074,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Debentures",
-   "dist_stall_evidence": null,
-   "screener_replay": {
-    "n": 49,
-    "wins": 0.367,
-    "hit_rate": 0.007489795918367347,
-    "current_verdict": "Strong Exit"
-   }
+   "dist_stall_evidence": null
   },
   "SDBD87": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -6115,7 +6095,7 @@
   "SEF2": {
    "verdict_label": "NEUTRAL",
    "flags": [],
-   "pump_score": null,
+   "pump_score": 0,
    "opportunity_score": null,
    "sector": null,
    "dist_stall_evidence": false
@@ -6126,13 +6106,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Mutual Funds",
-   "dist_stall_evidence": false,
-   "screener_replay": {
-    "n": 37,
-    "wins": 0.027,
-    "hit_rate": 0.0007297297297297297,
-    "current_verdict": "Hold"
-   }
+   "dist_stall_evidence": false
   },
   "SFMF": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -6140,20 +6114,14 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Mutual Funds",
-   "dist_stall_evidence": false,
-   "screener_replay": {
-    "n": 48,
-    "wins": 0,
-    "hit_rate": 0.0,
-    "current_verdict": "Hold"
-   }
+   "dist_stall_evidence": false
   },
   "SGHC": {
    "verdict_label": "NEUTRAL",
    "flags": [
     "CLIMAX"
    ],
-   "pump_score": 0.143,
+   "pump_score": 0.056,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
@@ -6167,7 +6135,7 @@
   "SGHL": {
    "verdict_label": "NEUTRAL",
    "flags": [],
-   "pump_score": null,
+   "pump_score": 0,
    "opportunity_score": null,
    "sector": null,
    "dist_stall_evidence": false
@@ -6194,10 +6162,10 @@
    "sector": "Hydropower",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 69,
-    "wins": 0.319,
-    "hit_rate": 0.004623188405797102,
-    "current_verdict": "Strong Buy"
+    "n": 67,
+    "wins": 0.328,
+    "hit_rate": 0.004895522388059702,
+    "current_verdict": "Hold"
    }
   },
   "SHINE": {
@@ -6208,9 +6176,9 @@
    "sector": "Development Bank",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 36,
-    "wins": 0.139,
-    "hit_rate": 0.0038611111111111116,
+    "n": 40,
+    "wins": 0.125,
+    "hit_rate": 0.003125,
     "current_verdict": "Hold"
    }
   },
@@ -6224,15 +6192,17 @@
   },
   "SHIVM": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.111,
    "opportunity_score": 0,
    "sector": "Manufacturing And Processing",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 59,
-    "wins": 0.339,
-    "hit_rate": 0.0057457627118644074,
+    "n": 63,
+    "wins": 0.317,
+    "hit_rate": 0.005031746031746032,
     "current_verdict": "Hold"
    }
   },
@@ -6241,7 +6211,7 @@
    "flags": [
     "CLIMAX"
    ],
-   "pump_score": 0.286,
+   "pump_score": 0.1,
    "opportunity_score": null,
    "sector": "Hotels And Tourism",
    "dist_stall_evidence": false,
@@ -6265,12 +6235,12 @@
    "flags": [
     "CLIMAX"
    ],
-   "pump_score": 0.143,
+   "pump_score": 0.056,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 20,
+    "n": 23,
     "wins": 0,
     "hit_rate": 0.0,
     "current_verdict": "Hold"
@@ -6285,20 +6255,19 @@
    "dist_stall_evidence": false
   },
   "SIFC": {
-   "verdict_label": "BOUNCE_SETUP",
+   "verdict_label": "NEUTRAL",
    "flags": [
-    "CLIMAX",
-    "BOUNCE_SETUP"
+    "CLIMAX"
    ],
    "pump_score": 0,
-   "opportunity_score": 1,
+   "opportunity_score": 0,
    "sector": "Finance",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 46,
     "wins": 0.109,
     "hit_rate": 0.0023695652173913043,
-    "current_verdict": "Exit / Reduce"
+    "current_verdict": "Hold"
    }
   },
   "SIGS2": {
@@ -6307,13 +6276,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Mutual Funds",
-   "dist_stall_evidence": false,
-   "screener_replay": {
-    "n": 67,
-    "wins": 0.373,
-    "hit_rate": 0.005567164179104477,
-    "current_verdict": "Exit / Reduce"
-   }
+   "dist_stall_evidence": false
   },
   "SIGS3": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -6324,12 +6287,10 @@
    "dist_stall_evidence": false
   },
   "SIKLES": {
-   "verdict_label": "BOUNCE_SETUP",
-   "flags": [
-    "BOUNCE_SETUP"
-   ],
+   "verdict_label": "NEUTRAL",
+   "flags": [],
    "pump_score": 0,
-   "opportunity_score": 1,
+   "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false
   },
@@ -6348,12 +6309,10 @@
    }
   },
   "SIPD": {
-   "verdict_label": "BOUNCE_SETUP",
-   "flags": [
-    "BOUNCE_SETUP"
-   ],
+   "verdict_label": "NEUTRAL",
+   "flags": [],
    "pump_score": 0,
-   "opportunity_score": 1,
+   "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
    "screener_replay": {
@@ -6364,26 +6323,27 @@
    }
   },
   "SJCL": {
-   "verdict_label": "BOUNCE_SETUP",
+   "verdict_label": "NEUTRAL",
    "flags": [
-    "CLIMAX",
-    "BOUNCE_SETUP"
+    "CLIMAX"
    ],
-   "pump_score": 0.143,
-   "opportunity_score": 1,
+   "pump_score": 0.056,
+   "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 15,
     "wins": 0.267,
     "hit_rate": 0.0178,
-    "current_verdict": "Strong Exit"
+    "current_verdict": "Hold"
    }
   },
   "SJLIC": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.111,
    "opportunity_score": 0,
    "sector": "Life Insurance",
    "dist_stall_evidence": false,
@@ -6399,25 +6359,24 @@
    "flags": [
     "CLIMAX"
    ],
-   "pump_score": 0.286,
+   "pump_score": 0.1,
    "opportunity_score": 0,
    "sector": "Microfinance",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 16,
+    "n": 14,
     "wins": 0,
     "hit_rate": 0.0,
     "current_verdict": "Hold"
    }
   },
   "SKHEL": {
-   "verdict_label": "BOUNCE_SETUP",
+   "verdict_label": "NEUTRAL",
    "flags": [
-    "CLIMAX",
-    "BOUNCE_SETUP"
+    "CLIMAX"
    ],
-   "pump_score": 0.143,
-   "opportunity_score": 1,
+   "pump_score": 0.056,
+   "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false
   },
@@ -6434,7 +6393,7 @@
    "flags": [
     "CLIMAX"
    ],
-   "pump_score": 0.286,
+   "pump_score": 0.111,
    "opportunity_score": 0,
    "sector": "Microfinance",
    "dist_stall_evidence": false,
@@ -6442,7 +6401,7 @@
     "n": 6,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Buy"
+    "current_verdict": "Hold"
    }
   },
   "SLBSL": {
@@ -6463,13 +6422,15 @@
   },
   "SMATA": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.111,
    "opportunity_score": 0,
    "sector": "Microfinance",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 8,
+    "n": 6,
     "wins": 0,
     "hit_rate": 0.0,
     "current_verdict": "Exit / Reduce"
@@ -6484,12 +6445,17 @@
    "dist_stall_evidence": false
   },
   "SMFBS": {
-   "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
-   "opportunity_score": 0,
+   "verdict_label": "DISTRIBUTION_WARNING",
+   "flags": [
+    "CLIMAX",
+    "WINNER_FADE",
+    "BOUNCE_SETUP"
+   ],
+   "pump_score": 0.515,
+   "opportunity_score": 1,
    "sector": "Microfinance",
    "dist_stall_evidence": false,
+   "warning_hit_probability": 0.44157669211290457,
    "screener_replay": {
     "n": 6,
     "wins": 0,
@@ -6498,12 +6464,17 @@
    }
   },
   "SMH": {
-   "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
-   "opportunity_score": 0,
+   "verdict_label": "DISTRIBUTION_WARNING",
+   "flags": [
+    "CLIMAX",
+    "WINNER_FADE",
+    "BOUNCE_SETUP"
+   ],
+   "pump_score": 0.194,
+   "opportunity_score": 1,
    "sector": "Hydropower",
-   "dist_stall_evidence": false
+   "dist_stall_evidence": false,
+   "warning_hit_probability": 0.13794154645016332
   },
   "SMHL": {
    "verdict_label": "DISTRIBUTION_WARNING",
@@ -6511,26 +6482,28 @@
     "CLIMAX",
     "WINNER_FADE"
    ],
-   "pump_score": 0.5,
+   "pump_score": 0.194,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.186126600765076
+   "warning_hit_probability": 0.06272042283746512
   },
   "SMJC": {
    "verdict_label": "NEUTRAL",
    "flags": [
     "CLIMAX"
    ],
-   "pump_score": 0.143,
+   "pump_score": 0.056,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false
   },
   "SMPDA": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.1,
    "opportunity_score": 0,
    "sector": "Microfinance",
    "dist_stall_evidence": false,
@@ -6538,17 +6511,16 @@
     "n": 5,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Strong Exit"
+    "current_verdict": "Hold"
    }
   },
   "SNLI": {
-   "verdict_label": "BOUNCE_SETUP",
+   "verdict_label": "NEUTRAL",
    "flags": [
-    "CLIMAX",
-    "BOUNCE_SETUP"
+    "CLIMAX"
    ],
-   "pump_score": 0.286,
-   "opportunity_score": 1,
+   "pump_score": 0.1,
+   "opportunity_score": 0,
    "sector": "Life Insurance",
    "dist_stall_evidence": false,
    "screener_replay": {
@@ -6561,7 +6533,7 @@
   "SNORL": {
    "verdict_label": "NEUTRAL",
    "flags": [],
-   "pump_score": null,
+   "pump_score": 0,
    "opportunity_score": null,
    "sector": null,
    "dist_stall_evidence": false
@@ -6574,35 +6546,37 @@
    "sector": "Hydropower",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 10,
-    "wins": 0.2,
-    "hit_rate": 0.02,
-    "current_verdict": "Strong Exit"
+    "n": 14,
+    "wins": 0.143,
+    "hit_rate": 0.010214285714285714,
+    "current_verdict": "Buy"
    }
   },
   "SONA": {
    "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
+    "PARABOLIC",
+    "DIST_VOLUME",
     "CLIMAX",
     "WINNER_FADE"
    ],
-   "pump_score": 1,
+   "pump_score": 0.778,
    "opportunity_score": 0,
    "sector": "Manufacturing And Processing",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.1971340108628334,
+   "warning_hit_probability": 0.3552007157285803,
    "screener_replay": {
     "n": 32,
     "wins": 0.188,
     "hit_rate": 0.005875,
-    "current_verdict": "Strong Buy"
+    "current_verdict": "Hold"
    }
   },
   "SOPL": {
    "verdict_label": "NEUTRAL",
    "flags": [],
-   "pump_score": null,
-   "opportunity_score": null,
+   "pump_score": 0,
+   "opportunity_score": 0,
    "sector": null,
    "dist_stall_evidence": false
   },
@@ -6625,15 +6599,15 @@
    "flags": [
     "CLIMAX"
    ],
-   "pump_score": 0.143,
+   "pump_score": 0.056,
    "opportunity_score": null,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 33,
-    "wins": 0.121,
-    "hit_rate": 0.0036666666666666666,
-    "current_verdict": "Exit / Reduce"
+    "n": 32,
+    "wins": 0.125,
+    "hit_rate": 0.00390625,
+    "current_verdict": "Hold"
    }
   },
   "SPHL": {
@@ -6647,7 +6621,7 @@
     "n": 21,
     "wins": 0.048,
     "hit_rate": 0.002285714285714286,
-    "current_verdict": "Exit / Reduce"
+    "current_verdict": "Strong Exit"
    }
   },
   "SPIL": {
@@ -6672,20 +6646,27 @@
    "sector": "Hydropower",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 20,
+    "n": 18,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Hold"
+    "current_verdict": "Exit / Reduce"
    }
   },
+  "SRBLD83": {
+   "verdict_label": "INSUFFICIENT_DATA",
+   "flags": [],
+   "pump_score": null,
+   "opportunity_score": null,
+   "sector": null,
+   "dist_stall_evidence": null
+  },
   "SRLI": {
-   "verdict_label": "BOUNCE_SETUP",
+   "verdict_label": "NEUTRAL",
    "flags": [
-    "CLIMAX",
-    "BOUNCE_SETUP"
+    "CLIMAX"
    ],
-   "pump_score": 0.286,
-   "opportunity_score": 1,
+   "pump_score": 0.1,
+   "opportunity_score": 0,
    "sector": "Life Insurance",
    "dist_stall_evidence": false,
    "screener_replay": {
@@ -6694,6 +6675,14 @@
     "hit_rate": 0.0,
     "current_verdict": "Hold"
    }
+  },
+  "SRLIP": {
+   "verdict_label": "INSUFFICIENT_DATA",
+   "flags": [],
+   "pump_score": null,
+   "opportunity_score": null,
+   "sector": null,
+   "dist_stall_evidence": null
   },
   "SSHL": {
    "verdict_label": "UNRELIABLE",
@@ -6717,46 +6706,42 @@
    "sector": "Trading",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 54,
-    "wins": 0.204,
-    "hit_rate": 0.0037777777777777775,
-    "current_verdict": "Strong Buy"
+    "n": 57,
+    "wins": 0.193,
+    "hit_rate": 0.003385964912280702,
+    "current_verdict": "Hold"
    }
   },
   "SWASTIK": {
-   "verdict_label": "BOUNCE_SETUP",
-   "flags": [
-    "BOUNCE_SETUP"
-   ],
+   "verdict_label": "NEUTRAL",
+   "flags": [],
    "pump_score": 0,
-   "opportunity_score": 1,
+   "opportunity_score": 0,
    "sector": "Microfinance",
    "dist_stall_evidence": false
   },
   "SWBBL": {
-   "verdict_label": "BOUNCE_SETUP",
+   "verdict_label": "NEUTRAL",
    "flags": [
-    "BOUNCE_SETUP"
+    "CLIMAX"
    ],
-   "pump_score": 0,
-   "opportunity_score": 1,
+   "pump_score": 0.1,
+   "opportunity_score": 0,
    "sector": "Microfinance",
    "dist_stall_evidence": false
   },
   "SWMF": {
-   "verdict_label": "BOUNCE_SETUP",
-   "flags": [
-    "BOUNCE_SETUP"
-   ],
+   "verdict_label": "NEUTRAL",
+   "flags": [],
    "pump_score": 0,
-   "opportunity_score": 1,
+   "opportunity_score": 0,
    "sector": "Microfinance",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 6,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Exit / Reduce"
+    "current_verdict": "Hold"
    }
   },
   "SYPNL": {
@@ -6774,19 +6759,21 @@
    }
   },
   "TAMOR": {
-   "verdict_label": "ELEVATED_RISK",
+   "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
+    "PARABOLIC",
+    "DIST_VOLUME",
     "WINNER_FADE"
    ],
-   "pump_score": 0.357,
+   "pump_score": 0.3,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.23659650252218384,
+   "warning_hit_probability": 0.22960831304190094,
    "screener_replay": {
-    "n": 24,
-    "wins": 0.833,
-    "hit_rate": 0.034708333333333334,
+    "n": 28,
+    "wins": 0.821,
+    "hit_rate": 0.02932142857142857,
     "current_verdict": "Buy"
    }
   },
@@ -6807,7 +6794,7 @@
   "TPKHL": {
    "verdict_label": "NEUTRAL",
    "flags": [],
-   "pump_score": null,
+   "pump_score": 0,
    "opportunity_score": null,
    "sector": null,
    "dist_stall_evidence": false
@@ -6837,7 +6824,7 @@
     "n": 25,
     "wins": 0.04,
     "hit_rate": 0.0016,
-    "current_verdict": "Exit / Reduce"
+    "current_verdict": "Hold"
    }
   },
   "TTL": {
@@ -6855,10 +6842,13 @@
    }
   },
   "TVCL": {
-   "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
-   "opportunity_score": 0,
+   "verdict_label": "BOUNCE_SETUP",
+   "flags": [
+    "CLIMAX",
+    "BOUNCE_SETUP"
+   ],
+   "pump_score": 0.056,
+   "opportunity_score": 1,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
    "screener_replay": {
@@ -6870,8 +6860,10 @@
   },
   "UAIL": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.111,
    "opportunity_score": 0,
    "sector": "Non Life Insurance",
    "dist_stall_evidence": false,
@@ -6883,17 +6875,19 @@
    }
   },
   "UHEWA": {
-   "verdict_label": "NEUTRAL",
-   "flags": [],
+   "verdict_label": "BOUNCE_SETUP",
+   "flags": [
+    "BOUNCE_SETUP"
+   ],
    "pump_score": 0,
-   "opportunity_score": 0,
+   "opportunity_score": 1,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 40,
     "wins": 0.225,
     "hit_rate": 0.005625,
-    "current_verdict": "Hold"
+    "current_verdict": "Buy"
    }
   },
   "ULBSL": {
@@ -6904,48 +6898,49 @@
    "sector": "Microfinance",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 21,
+    "n": 19,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Strong Exit"
+    "current_verdict": "Exit / Reduce"
    }
   },
   "ULHC": {
-   "verdict_label": "NEUTRAL",
+   "verdict_label": "EXHAUSTION_RISK",
    "flags": [
-    "CLIMAX"
+    "EXHAUSTION"
    ],
-   "pump_score": 0.143,
+   "pump_score": 0.1,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
+   "warning_hit_probability": 0.23014561186253435,
    "screener_replay": {
     "n": 35,
     "wins": 0.2,
     "hit_rate": 0.005714285714285714,
-    "current_verdict": "Strong Exit"
+    "current_verdict": "Exit / Reduce"
    }
   },
   "UMHL": {
    "verdict_label": "NEUTRAL",
-   "flags": [
-    "CLIMAX"
-   ],
-   "pump_score": 0.143,
+   "flags": [],
+   "pump_score": 0,
    "opportunity_score": null,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 55,
-    "wins": 0.309,
-    "hit_rate": 0.005618181818181818,
+    "n": 52,
+    "wins": 0.327,
+    "hit_rate": 0.006288461538461539,
     "current_verdict": "Hold"
    }
   },
   "UMRH": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.056,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
@@ -6953,24 +6948,23 @@
     "n": 8,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Exit / Reduce"
+    "current_verdict": "Hold"
    }
   },
   "UNHPL": {
-   "verdict_label": "BOUNCE_SETUP",
+   "verdict_label": "NEUTRAL",
    "flags": [
-    "CLIMAX",
-    "BOUNCE_SETUP"
+    "CLIMAX"
    ],
-   "pump_score": 0.143,
-   "opportunity_score": 1,
+   "pump_score": 0.056,
+   "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 39,
-    "wins": 0.385,
-    "hit_rate": 0.009871794871794872,
-    "current_verdict": "Exit / Reduce"
+    "n": 35,
+    "wins": 0.343,
+    "hit_rate": 0.009800000000000001,
+    "current_verdict": "Hold"
    }
   },
   "UNL": {
@@ -6984,7 +6978,7 @@
     "n": 57,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Buy"
+    "current_verdict": "Hold"
    }
   },
   "UNLB": {
@@ -7000,15 +6994,15 @@
    "flags": [
     "CLIMAX"
    ],
-   "pump_score": 0.143,
+   "pump_score": 0.05,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
    "screener_replay": {
-    "n": 34,
+    "n": 30,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Exit / Reduce"
+    "current_verdict": "Hold"
    }
   },
   "UPPER": {
@@ -7030,7 +7024,7 @@
    "flags": [
     "CLIMAX"
    ],
-   "pump_score": 0.143,
+   "pump_score": 0.056,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
@@ -7038,7 +7032,7 @@
     "n": 37,
     "wins": 0.054,
     "hit_rate": 0.0014594594594594594,
-    "current_verdict": "Strong Buy"
+    "current_verdict": "Hold"
    }
   },
   "USHL": {
@@ -7060,7 +7054,7 @@
    "flags": [
     "CLIMAX"
    ],
-   "pump_score": 0.286,
+   "pump_score": 0.111,
    "opportunity_score": 0,
    "sector": "Microfinance",
    "dist_stall_evidence": false,
@@ -7082,7 +7076,7 @@
     "n": 5,
     "wins": 0,
     "hit_rate": 0.0,
-    "current_verdict": "Exit / Reduce"
+    "current_verdict": "Hold"
    }
   },
   "VLUCL": {
@@ -7090,7 +7084,7 @@
    "flags": [
     "CLIMAX"
    ],
-   "pump_score": 0.143,
+   "pump_score": 0.056,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false
@@ -7098,8 +7092,8 @@
   "YMHL": {
    "verdict_label": "NEUTRAL",
    "flags": [],
-   "pump_score": null,
-   "opportunity_score": null,
+   "pump_score": 0,
+   "opportunity_score": 0,
    "sector": null,
    "dist_stall_evidence": false
   }
