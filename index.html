@@ -243,21 +243,14 @@ section{position:relative;z-index:1;padding:96px 0 8px}
 .tl-card h3{font-family:var(--serif);font-size:1.2rem;margin:6px 0 4px}
 .tl-card p{color:var(--mut);font-size:.9rem}
 /* events */
-.event-grid{display:grid;gap:22px}
-@media(min-width:900px){.event-grid{grid-template-columns:repeat(3,1fr)}}
-.event-card{border-radius:20px;overflow:hidden;background:linear-gradient(180deg,var(--panel2),var(--panel));
-  border:1px solid var(--line);box-shadow:var(--e1),var(--rim);
-  transform-style:preserve-3d;transition:transform .35s var(--ease),box-shadow .35s var(--ease)}
-.event-card:hover{transform:translateY(-8px);box-shadow:var(--e3),var(--rim)}
-.event-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:10px 10px 0}
-.event-photos.two{grid-template-columns:repeat(2,1fr)}
-.event-photos img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:12px;display:block;
-  transition:transform .35s var(--ease);background:var(--panel2)}
-.event-card:hover .event-photos img{transform:scale(1.03)}
-.event-body{padding:22px 24px 26px}
-.event-body h3{font-family:var(--serif);font-size:1.3rem;margin:8px 0 2px;font-weight:600}
+.event-rows{display:grid;gap:22px}
+.event-row{display:grid;grid-template-columns:280px minmax(0,1fr);gap:24px;align-items:center;border-radius:20px;overflow:hidden;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);box-shadow:var(--e1),var(--rim);padding:22px 24px}
+.event-info h3{font-family:var(--serif);font-size:1.3rem;margin:8px 0 2px;font-weight:600}
 .event-role{font-size:.85rem;font-weight:600;color:var(--ink)}
-.event-body p.desc{color:var(--mut);font-size:.9rem;margin-top:10px}
+.event-info p.desc{color:var(--mut);font-size:.9rem;margin-top:10px}
+.event-strip{display:flex;gap:10px;overflow-x:auto;overflow-y:hidden;padding-bottom:6px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;min-width:0}
+.event-strip img{height:240px;width:auto;flex-shrink:0;scroll-snap-align:start;border-radius:12px;display:block;background:var(--panel2)}
+@media(max-width:900px){.event-row{grid-template-columns:1fr}}
 /* certs */
 .certs{display:flex;flex-wrap:wrap;gap:12px}
 .cert{padding:14px 20px;border-radius:999px;border:1px solid var(--line2);background:transparent;
@@ -417,43 +410,28 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;
 <section id="events"><div class="wrap">
   <div class="sec-head rv"><span class="sec-no">03</span><h2 class="sec-title">Events &amp; leadership</h2></div>
   <p class="sec-sub rv">Events I led, stages I built.</p>
-  <div class="event-grid">
-    <article class="event-card rv">
-      <div class="event-photos">
+  <div class="event-rows">
+    <article class="event-row rv">
+      <div class="event-info"><h3>Liverpool Unplugged 2022</h3><p class="event-role">Initiator &amp; Co-lead</p><p class="desc">A week-long music program bridging +2 and bachelor's students — auditions, selections, and a finale stage, run with my team and zero sponsorships.</p></div>
+      <div class="event-strip" tabindex="0" role="region" aria-label="Liverpool Unplugged 2022 photos">
         <img src="/assets/images/events/liverpool-unplugged-poster.jpg" width="1200" height="1200" alt="Liverpool Unplugged 2022 event poster" loading="lazy">
         <img src="/assets/images/events/liverpool-unplugged-shirjan-stage.jpg" width="529" height="793" alt="Shirjan on stage at Liverpool Unplugged 2022" loading="lazy">
         <img src="/assets/images/events/liverpool-unplugged-team.jpg" width="1200" height="820" alt="Liverpool Unplugged 2022 organizing team" loading="lazy">
       </div>
-      <div class="event-body">
-        <div class="tl-date">April 10–16, 2022 · Liverpool International College</div>
-        <h3>Liverpool Unplugged 2022</h3>
-        <p class="event-role">Initiator &amp; Co-lead</p>
-        <p class="desc">A week-long music program bridging +2 and bachelor's students — auditions, selections, and a finale stage, run with my team and zero sponsorships.</p>
-      </div>
     </article>
-    <article class="event-card rv">
-      <div class="event-photos">
+    <article class="event-row rv">
+      <div class="event-info"><h3>Milton Music &amp; Food Fest 2.0</h3><p class="event-role">Organizing Team</p><p class="desc">My first open event — secured sponsorships, invited artists and vendors, and helped set the college's event tradition with our program director's guidance.</p></div>
+      <div class="event-strip" tabindex="0" role="region" aria-label="Milton Music &amp; Food Fest 2.0 photos">
         <img src="/assets/images/events/milton-fest-poster.jpg" width="843" height="1080" alt="Milton Music and Food Fest 2.0 poster" loading="lazy">
         <img src="/assets/images/events/milton-fest-stage.jpg" width="1200" height="820" alt="Stage at Milton Music and Food Fest 2.0" loading="lazy">
         <img src="/assets/images/events/milton-fest-audience.jpg" width="1200" height="820" alt="Audience at Milton Music and Food Fest 2.0" loading="lazy">
       </div>
-      <div class="event-body">
-        <div class="tl-date">February 10 · Milton International College</div>
-        <h3>Milton Music &amp; Food Fest 2.0</h3>
-        <p class="event-role">Organizing Team</p>
-        <p class="desc">My first open event — secured sponsorships, invited artists and vendors, and helped set the college's event tradition with our program director's guidance.</p>
-      </div>
     </article>
-    <article class="event-card rv">
-      <div class="event-photos two">
+    <article class="event-row rv">
+      <div class="event-info"><h3>Guest Lecture: SMC Concept</h3><p class="event-role">Guest Lecturer</p><p class="desc">Guest lecture on the SMC trading concept for BBA/BBM sixth-semester students.</p></div>
+      <div class="event-strip" tabindex="0" role="region" aria-label="Guest Lecture: SMC Concept photos">
         <img src="/assets/images/events/guest-lecture-smc-session.jpg" width="1200" height="900" alt="Guest lecture on the SMC concept in session" loading="lazy">
         <img src="/assets/images/events/guest-lecture-felicitation.jpg" width="1200" height="900" alt="Felicitation after the guest lecture" loading="lazy">
-      </div>
-      <div class="event-body">
-        <div class="tl-date">Nepal Commerce Campus · BBA/BBM 6th Semester</div>
-        <h3>Guest Lecture: SMC Concept</h3>
-        <p class="event-role">Guest Lecturer</p>
-        <p class="desc">Guest lecture on the SMC trading concept for BBA/BBM sixth-semester students.</p>
       </div>
     </article>
   </div>
