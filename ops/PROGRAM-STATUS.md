@@ -1,10 +1,10 @@
 # Program status — Nepse Decode publishing rebuild (P0–P8)
 
 Last updated: 2026-11-01 (Sunday, market closed). Main tip at last
-verification: `d43a9f9b` (#290 baseline-refresh merge) — re-read before acting.
-Data branch head at last verification: `8e9ef20f` (advanced by data-branch
-writers after the Publish snapshot; see Nov-1 update below). Tags through
-`data-2026-11-01-1` on `debee81d` (first Nov-1 tag; the tag job names by RUN
+verification: `0eeaf359` (#295 Bikas-labels merge) — re-read before acting.
+Data branch head at last verification: `803b7da5` (benchmark rebuild from
+the restated keystone; see Nov-1 Priority-1 update below). Tags through
+`data-2026-11-01-9` on `803b7da5` (the tag job names by RUN
 date NPT, so no `data-2026-10-31-11` was ever due).
 
 ## Update — Oct-31 evening → Nov-1: Charter v3, P0 green, design complete
@@ -120,6 +120,78 @@ Nov-2 finals on every board, perf collector first real written
 commit 11:00, report at close); PROGRAM-STATUS contents send after
 the weekend migration lands and again after Monday's close (not
 before).
+
+## Update — Nov-1: Priority 1 CLOSED — weekly publishers migrated + full sector-history restatement
+
+Nov-1 user priority (1) (order 14:50 NPT) is CLOSED: the three
+failing weekly publishers now run the data-branch path (stage on
+the data branch via the shared writer; Publish deploys from a
+pinned snapshot; no commit to main, no PR per data run), and the
+sector-seasonality blocker is resolved by the full restatement
+below. This supersedes the 'main tip `d43a9f9b` NOT live' note
+above: design went live via Publish 41269408054 (09:14 NPT, tag
+`data-2026-11-01-2`), and main `0eeaf359` deployed via the -7/-9
+publishes below.
+
+Migration (all live-verified Nov-1):
+- portfolio-benchmark: staged data `78b940f2`, Publish run
+  41292695569, tag `data-2026-11-01-4`; live asof 2026-10-30, 1153
+  sessions. Runner rebuilt from the data-branch keystone (main's
+  copy is stale by design now).
+- learning-loop diagnostics: staged data `fba3f44c`, Publish run
+  41293084423, tag `data-2026-11-01-5`; live
+  `data/predictive-diagnostics.json` session 2026-10-30 (406
+  scrips, 9 shadow open trades, 38 lessons; momentum n_firings
+  500 / n_resolved 500 / success 0.314). This same payload is the
+  staging form for the weekly /methodology report (priority 5).
+- sector-seasonality: builder `tools/build-sector-seasonality.py`
+  migrated to the same path (Gate A vs live is the sole blocking
+  gate; main push / WT git-status gate / health bake removed).
+  The Nov-1 run was BLOCKED by Gate A, correctly: the builder's
+  sector map (`data/verdicts-v2.json`) still labeled all 8 Bikas
+  banks Banking, so staging would have regressed live taxonomy
+  (Banking 27 / Dev 9 vs live 19 / 17). Resolved by the
+  restatement below, not by weakening the gate.
+
+Full sector-history restatement (user order Nov-1 15:21 NPT, 'Fix
+labels + full restatement' — the explicit-order-only option, not
+tail correction):
+- Labels PR #295 (branch `labels/bikas-devbank`, only
+  `data/verdicts-v2.json`): GBBL, JBBL, KSBBL, LBBL, MLBL, MNBBL,
+  SABBL, SINDU → Development Bank; all 6 required checks green;
+  squash-merged `0eeaf359`. Main counts now Banking 19 /
+  Development Bank 17.
+- Restatement: data commit `ae27be0e` (sector-indices +
+  sector-seasonality in one commit), Publish run 41296462547, tag
+  `data-2026-11-01-7`. Live-verified: Banking 2026-10-30 level
+  10295.32 → 5886.81; Development Bank 65709.35 → 61595.61. Both
+  payloads carry a `restated` field citing the order.
+- Consequence, stated plainly: the corrected 5-member Others
+  series chains only from 2023-12-14 (658 sessions; the old
+  7-member series reached ~2019). One gate aspect overridden,
+  flagged, restate-mode-only: Others/BS Poush monthly average
+  48.72 (n=3) vs the ±40 plausibility cap — verified real (Poush
+  2080 small-cap rally: MKCL 420.8 → 952.0, NWCL 305.4 → 836.0),
+  corroborated by live's old +81.69 the same month. Normal weekly
+  runs still fail loud on membership moves.
+- Forward ledger preserved exactly: 64 entries, 12 resolved, 52
+  open carried unchanged, zero diffs vs pre-publish live.
+- Downstream benchmark rebuilt from the restated keystone:
+  Publish run 41296839901, tag `data-2026-11-01-9`; live
+  benchmark matches the restated keystone (Banking 5886.81, Dev
+  61595.61).
+- Known temporary inconsistency: the data-branch verdicts-v2
+  copy was deliberately NOT touched (the Monday post-close sweep
+  owns that path), so live verdict pages still show Banking for
+  the 8 until the sweep regenerates; live sector data is already
+  correct.
+- Open proof step: rendered-page visual check on
+  /nepse-seasonality/ (browser/device pass) — code path and live
+  data verified, visual not yet.
+
+Priorities 2–5 (same 14:50 order) follow in sequence. The
+publishers table below is current through Oct-31; its refresh
+rides the next full manifest read, not a guess.
 
 ## LIVE PROOF — first P2 deploy (2026-10-31)
 
@@ -309,6 +381,8 @@ same-snapshot render).
 | #288 beacon-tolerant verifier | DONE (merged 2026-11-01) | Merge `c81dfdec`; one file `tools/publish-verify.py`. For .html/.htm only, strips the single script element referencing `static.cloudflareinsights.com/beacon.min.js` (host/path match, never rotating token; empty body only) symmetrically from live AND artifact bytes before hashing, in settle and strict pass alike; raw hashes stay as evidence + stripped counts + 'beacon-tolerant ok' line; JSON byte-exact; unmatched beacon fails closed; Web Analytics NOT disabled. Fixtures 8/8 (incl. real ee56 pair → exit 0; JSON+beacon → fails; beacon+real-change → fails). FIRST GREEN PUBLISH: run 41234496960 (head c81dfdec, data debee81d) = SUCCESS (publish: success, tag: success); runner log 'beacon-tolerant ok for nepse-actions/index.html (stripped live=1 artifact=0; all other bytes identical)'; settle converged 5.4s (was 306s unconverged). Tag `data-2026-11-01-1` → debee81d (NOT -11: tag job names by RUN date NPT) |
 | #289 SHA-pinning publish.yml | DONE (merged 2026-11-01) | Merge `53e99c35`; exactly one file `.github/workflows/publish.yml`, 7 lines. Pinned: checkout ×2 @11d5960a, download-artifact ×1 @d3f86a10, upload-artifact ×3 @ea165f8d, deploy-pages ×1 @d6db9016 — each SHA API-resolved and equal to its v4 tag target (pure hardening, no behavior change); upload-pages-artifact needed no pin (replaced by manual tar in #279); zero @v refs remain (main blob `7546d478`). NO Publish dispatched from this PR (next Publish proves the pinned workflow) |
 | #290 baseline refresh | DONE (merged 2026-11-01) | Merge `d43a9f9b` (current main tip); exactly 16 PNGs, nothing else. Baselines generated in the pinned Playwright container (dispatch run 41236682898, artifact `visual-baselines-2751`, 15.5 MB), reviewed as pictures and approved. Visual regression GREEN on main (check 'Visual regression (Playwright container)' = success on d43a9f9b). VISUAL NOW REQUIRED: parent flipped branch protection 2026-11-01 02:39 (PUT contexts 200; verified 6 required contexts, strict + enforce_admins unchanged) |
+| #291 program status: Charter v3 + P0 green + design complete | DONE (merged 2026-11-01) | Merge `02ad8130`; only `ops/PROGRAM-STATUS.md` (418→614 lines); all 6 required checks green. Records Charter v3, P0 green, design complete, 28 code-PR rows (#256–#290), B4 CLOSED, #235 closed-as-superseded, #249 proof-landed |
+| #295 Bikas labels in verdicts-v2 | DONE (merged 2026-11-01) | Merge `0eeaf359` (current main tip); branch `labels/bikas-devbank`; only `data/verdicts-v2.json`. GBBL, JBBL, KSBBL, LBBL, MLBL, MNBBL, SABBL, SINDU Banking → Development Bank; all 6 required checks green. Main counts now Banking 19 / Development Bank 17; full history restatement rides the data-branch path (see Nov-1 Priority-1 update) |
 | #169, #173, #183, #186, #187 | OPEN — DO NOT HAND-MERGE | Stop rule from the 2026-10-31 04:50 order; parent sequences. NOTE: #173 is ALSO a perf PR (head `deploy/performance-snapshot-20261030-1411`, 13:41 snapshot) — see backlog row; its close needs an explicit parent call, not a blanket one |
 | #235 midnight rollover 2026-10-31 | CLOSED 2026-11-01 as superseded | Closed via API with comment citing #286 merged + live manifest v106; the rollover path is proven end-to-end (merge + live) |
 | #208 post-close sweep signals | OPEN | Likely superseded by #214/#223 absorption; diff-vs-main verification owed before any disposition (parent call) |
@@ -604,6 +678,11 @@ The data branch is described in the charters as 'orphan'. That topology is UNVER
     (daily lane); utility h1 Inter (utility-prose migration);
     actions-page generator `stamp()` reverts sweeps on regeneration
     (process fix belongs to the actions pipeline owner).
+30. Nov-1 user priority (1) CLOSED (see Nov-1 Priority-1 update
+    above: 3 weekly publishers on the data-branch path, labels
+    #295, full restatement tags -7/-9). Priorities 2–5 follow in
+    sequence. This file's live render rides the next Publish —
+    verify it then, not at merge time.
 
 ## Out of scope for this lane (parent/other lanes)
 
