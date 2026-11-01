@@ -8,6 +8,44 @@
 
   var LIVE_URL = '/nepse-chart/data/live.json';
   var NEWS_URL = '/nepse-chart/data/news.json';
+  var CALLS_URL = '/nepse-chart/data/screener-calls.json';
+
+  /* P4 label gate (2026-11-01, owner order): per-stock Buy / Strong
+   * Buy labels are hidden in the engine list and the sector-panel
+   * verdict column until the forward paper-trade ledger shows
+   * positive expectancy with n>=30 resolved calls — same rule as
+   * js/nepse-screener.js labelGateEval and the close baker's
+   * label_gate(), so the baked pre-render and the live render can
+   * never disagree. A target close pays +4 ATR, a stop close -2
+   * ATR, an expired close 0 ATR. Missing/unreachable ledger fails
+   * CLOSED (safe default). Aggregate counts and Exit labels are
+   * NOT gated. */
+  var gateOpen = false, gateEval = null;
+  function labelGateEval(callsDoc) {
+    var s = callsDoc && callsDoc.summary;
+    if (!s) return { open: false, decided: 0, expectancy: null };
+    var tp = s.closed_tp || 0, sl = s.closed_sl || 0, ex = s.closed_expired || 0;
+    var decided = (s.decided != null) ? s.decided : (tp + sl + ex);
+    if (!decided) return { open: false, decided: 0, expectancy: null };
+    var exp = (tp * 4 - sl * 2) / decided;
+    return { open: decided >= 30 && exp > 0, decided: decided, expectancy: exp };
+  }
+  function gateSentence() {
+    if (!gateEval || gateEval.open) return '';
+    var expTxt = gateEval.expectancy == null ? 'no resolved calls yet' :
+      ((gateEval.expectancy >= 0 ? '+' : '') + gateEval.expectancy.toFixed(2) + ' ATR');
+    return ' · Buy labels hidden — forward ledger below the gate (n=' + gateEval.decided +
+      ' decided, expectancy ' + expTxt + '; needs n≥30 and positive expectancy)';
+  }
+  var gatePromise = fetchJSON(CALLS_URL).then(function (doc) {
+    gateEval = labelGateEval(doc);
+    gateOpen = gateEval.open;
+    return gateOpen;
+  }).catch(function () {
+    gateEval = { open: false, decided: 0, expectancy: null };
+    gateOpen = false;
+    return false;
+  });
 
   function $(id) { return document.getElementById(id); }
   function esc(s) {
@@ -606,9 +644,13 @@
       if (pf) pf.innerHTML = '<a class="nd-pe-link" href="/nepse-trending/">Trending archive + forward record →</a>';
     }
 
-    // Engine Verdicts: fetch from verdicts.json if available
+    // Engine Verdicts: fetch from verdicts.json if available.
+    // The gate resolves first (already settled in practice — the
+    // fetch started at script eval), so a gated render can never
+    // flash Buy labels before the gate state arrives.
     if (engineHost) {
-      fetchJSON('/nepse-chart/data/verdicts.json').then(function (v) {
+      Promise.all([fetchJSON('/nepse-chart/data/verdicts.json'), gatePromise]).then(function (res) {
+        var v = res[0];
         var raw = Array.isArray(v) ? v : (v.verdicts || v.data || []);
         // verdicts.json uses {SYMBOL: {v, s, ...}} object format — normalize to array
         var verdicts = Array.isArray(raw) ? raw : Object.keys(raw).map(function (sym) {
@@ -628,13 +670,17 @@
         function engineRow(x) {
           var sc = Number(x.score);
           var pos = isFinite(sc) ? Math.max(0, Math.min(100, sc)) : 50;
-          return '<div class="nd-engine-item"><span class="sym">' + esc(x.symbol) + '</span>' +
+          var isBuy = /buy/i.test(x.verdict || '');
+          var row = '<div class="nd-engine-item"><span class="sym">' + esc(x.symbol) + '</span>' +
             '<span class="cx-gauge" role="img" aria-label="Score ' + esc(String(x.score)) + ' of 100"><span class="cx-gauge-mark" style="--pos:' + pos + '%"></span></span>' +
-            '<span class="score">score ' + esc(String(x.score)) + '</span>' +
-            '<span class="nd-verdict ' + (/buy/i.test(x.verdict || '') ? 'buy' : 'exit') + '">' + esc(x.verdict) + '</span></div>';
+            '<span class="score">score ' + esc(String(x.score)) + '</span>';
+          if (!(isBuy && !gateOpen)) {
+            row += '<span class="nd-verdict ' + (isBuy ? 'buy' : 'exit') + '">' + esc(x.verdict) + '</span>';
+          }
+          return row + '</div>';
         }
         if (buys.length) {
-          html += '<div class="nd-eyebrow" style="margin-bottom:8px">Strongest buys</div>';
+          html += '<div class="nd-eyebrow" style="margin-bottom:8px">' + (gateOpen ? 'Strongest buys' : 'Highest scores') + '</div>';
           html += buys.map(engineRow).join('');
         }
         if (exits.length) {
@@ -652,7 +698,7 @@
           ef.innerHTML = '<span class="nd-pe-changes">Upgraded ' + (ch.upgraded != null ? ch.upgraded : '—') + ' · Downgraded ' + (ch.downgraded != null ? ch.downgraded : '—') + ' · Held ' + (ch.held != null ? ch.held : '—') + ' · New ' + (ch.new != null ? ch.new : '—') + '</span> <a class="nd-pe-link" href="/nepse-screener/">Full verdict board + paper-trade ledger →</a>';
         }
         var es = $('ndEngineSub');
-        if (es) es.textContent = 'Batch of ' + sessDate + ' · ' + verdicts.length + ' securities scored · Not investment advice';
+        if (es) es.textContent = 'Batch of ' + sessDate + ' · ' + verdicts.length + ' securities scored · Not investment advice' + gateSentence();
       }).catch(function () {
         engineHost.innerHTML = '<p class="nd-pe-sub">Verdicts unavailable.</p>';
         var sc = $('ndSectorCards');
@@ -843,11 +889,13 @@
         var pctTxt = isFinite(pct) ? (pct > 0 ? '+' : '') + pct.toFixed(2) + '%' : '—';
         var pctCls = pct > 0 ? 'up' : pct < 0 ? 'dn' : '';
         var vCls = /buy/i.test(r.verdict) ? 'buy' : /exit|sell/i.test(r.verdict) ? 'exit' : 'hold';
+        var vCell = (/buy/i.test(r.verdict) && !gateOpen) ? '<td>—</td>' :
+          '<td><span class="nd-verdict ' + vCls + '">' + esc(r.verdict || '—') + '</span></td>';
         return '<tr><td class="sym"><a href="/stocks/' + esc(r.symbol) + '/">' + esc(r.symbol) + '</a>' + (r.name ? '<span class="nd-row-name">' + esc(r.name) + '</span>' : '') + '</td>' +
           '<td class="num">' + (r.ltp != null ? fmtNum(r.ltp) : '—') + (r.traded ? ' <span class="nd-live-dot" title="Live tape">●</span>' : ' <span class="nd-notrade">no trade</span>') + '</td>' +
           '<td class="num"><span class="cx-chip ' + pctCls + '">' + pctTxt + '</span></td>' +
           '<td class="num">' + (r.traded ? fmtCrore(r.turnover) : '—') + '</td>' +
-          '<td><span class="nd-verdict ' + vCls + '">' + esc(r.verdict || '—') + '</span></td></tr>';
+          vCell + '</tr>';
       }).join('') : '<tr><td colspan="5">No symbols match this search.</td></tr>';
     }
     var info = $('ndSectorInfo'), prev = $('ndSectorPrev'), next = $('ndSectorNext');
