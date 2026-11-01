@@ -193,6 +193,113 @@ Priorities 2–5 (same 14:50 order) follow in sequence. The
 publishers table below is current through Oct-31; its refresh
 rides the next full manifest read, not a guess.
 
+## Update — Nov-1: Priority 2 CLOSED — pre-render screener, decode, daily + forward-ledger label gate
+
+Nov-1 user priority (2) (order 14:50 NPT) is CLOSED: the served
+HTML for all three pages now carries its main content as
+build-time HTML for the 2026-10-30 close, not only `<noscript>`,
+with JS still hydrating and refreshing from live JSON on the
+60s change-gated tick. Noscript blocks shrink to short dated
+notes — no second copy of the truth.
+
+What shipped (PR #298, branch `p2-prerender`, squash-merged
+`3f35edac`, all 6 required checks green):
+- Screener: ranked table, all 426 rows, plus stat counts,
+  summary/range/repaint-note, as-of lines, gate note. Noscript
+  501,579 chars → 317 chars.
+- Decode: hero index card, indices strip (17), market wrap,
+  gainers/losers (5+5), most active (7), pulse (6), engine list,
+  sector cards (15) + Hydropower page 1 (25 rows), newsroom (22).
+- Daily: as-of/updated lines, 7 overview cards (Market Cap card
+  correctly omitted — no `market_cap_total` in the 2026-10-30
+  tape), trend chart (last 60 closes), 17 indices, 16 sector
+  cards, 50-row table (page 1/7, turnover desc).
+- Deliberately NOT pre-rendered (JS-hydrated, documented in the
+  PR body): screener sectors section (JS classifier differs from
+  verdicts `sec` on 18 symbols), signal changes, live-calls
+  ledger, verdict archive, market-verdict card; decode
+  freshline clock, tab switching, sector search/sort/pager,
+  ticker animation; daily freshline clock, top-scroll width,
+  `?sort=` preset first paints. Baked rows carry symbol text
+  only, no logo avatars — JS adds NepseLogo avatars on
+  hydration, as before.
+
+Priority-4 gate, designed into the pre-render (not a second
+pass): Buy/Strong Buy labels are HIDDEN in the pre-render AND
+the JS render path until the forward paper-trade ledger passes:
+decided n >= 30 AND expectancy > 0. The gate reads
+`nepse-chart/data/screener-calls.json` live on every load, so
+labels return with NO code change when it passes. Gate
+evaluation (live, asof 2026-10-30): 89 calls, 79 open, 10
+decided (3 TP / 7 SL / 0 expired), win rate 0.30, expectancy
+(3×4 − 7×2)/10 = −0.20 ATR → gate CLOSED (fails both prongs).
+Missing ledger → closed. Scope (implementation decision, not a
+user order): per-row verdict badges only — aggregate counts,
+filter text, page copy/lede, market-verdict card titles,
+signal-changes records and call tables are NOT gated; exits are
+not gated. No verdict-engine or ledger changes.
+
+Build notes (baker `noscript-close-baker.py`, workspace
+script-first copy, extended — not a parallel path):
+- Rewrites are required-region (missing pattern → exit 2) and
+  byte-idempotent on re-run (second run reports decode/daily
+  NOT changed). Baker `--self-test` PASS, incl. new double-run
+  idempotence asserts.
+- Two bugs caught and fixed during the bake: (1) the daily
+  sector map lives in `js/nd-daily.js`, the chart history in
+  `js/nepse-daily.js` — the baker read only the second file
+  and failed loud; inputs are now split. (2) A nested-div regex
+  duplicated the daily sector grid on re-run; both sector-card
+  regions moved to baker marker comments.
+- Baked figures cross-checked against live.json independently
+  (top turnover LBBL, breadth 131/194/23, NEPSE 2690.15 −5.45
+  (−0.20%), wrap laggards Finance/Hydropower, Hydropower 113
+  symbols). `node --check` on both edited JS files; R1 PASS.
+- Asset pins bumped via `tools/update-asset-versions.py` and
+  verified against sha1[:8] (`nd-home.js` 2ec094e9,
+  `nepse-screener.js` 4a762d22); the tool also corrected two
+  stale shared-asset pins on these same pages only
+  (nepse-data.js, nepse-logos.js) — no content change to those
+  files; stale pins on other pages were reverted to keep the PR
+  scoped to 5 files.
+
+Visual regression: the first PR run failed visual ONLY on the
+4 expected snapshots (decode/screener × desktop/mobile — the
+gate hiding labels); the other 12 passed. Baselines refreshed
+through the established container process (dispatch on the PR
+branch, run 41303966864, artifact visual-baselines-2772): only
+those 4 PNGs changed, committed to the PR branch; the
+regenerated decode-desktop PNG matches the failed run's actual
+at 0.0 sampled-pixel difference (116-byte file delta is PNG
+encoding only). No check weakened. Second PR run: all 6 green.
+
+Deploy + live proof (Nov-1, after merge):
+- Publish run 41306950260, tag `data-2026-11-01-14`, snapshot
+  `e1b59333` (news refresh 2026-11-01T11:59Z), head `3f35edac`;
+  publish + tag jobs success.
+- The 3 pages single-URL purged (all success: True), then
+  live-fetched with a browser UA. Served bytes carry the
+  pre-render: screener 426 rows, 0 buy badges, gate note, new
+  JS pin, noscript 317 chars; decode wrap + 17 strip cards,
+  "Highest scores", gate sentence, 0 `nd-verdict buy`, 22 news
+  items, hero 2,690.15, new JS pin; daily 50 rows, "Showing
+  1–50 of 348 securities", chart SVG, first row LBBL, as-of
+  Fri, 30 Oct 2026, noscript note.
+- Scheduled refresh: the `noscript-close-baker` cron guard was
+  updated the same day (same id, body only; Mon–Fri 18:30 NPT
+  unchanged, next Mon 2026-11-02 18:30) to allow the pre-render
+  regions on all three pages in addition to noscript lines, so
+  Monday's run refreshes the pre-render to the 2026-11-02
+  close instead of aborting on it.
+- Open proof step, stated plainly: the 60s change-gated
+  refresh after load is verified at the code path
+  (refreshTick → applyData → gate re-evaluated from live
+  JSON; CI Playwright smoke green), not yet by a live-browser
+  tick observation — that observation is owed via a browser
+  pass, and is the one item this record does not claim.
+
+Priorities 3–5 (same 14:50 order) follow in sequence.
+
 ## LIVE PROOF — first P2 deploy (2026-10-31)
 
 Publish run 41149221033 (push, branch=data, snapshot `2f64a2ed`):
@@ -678,11 +785,13 @@ The data branch is described in the charters as 'orphan'. That topology is UNVER
     (daily lane); utility h1 Inter (utility-prose migration);
     actions-page generator `stamp()` reverts sweeps on regeneration
     (process fix belongs to the actions pipeline owner).
-30. Nov-1 user priority (1) CLOSED (see Nov-1 Priority-1 update
-    above: 3 weekly publishers on the data-branch path, labels
-    #295, full restatement tags -7/-9). Priorities 2–5 follow in
-    sequence. This file's live render rides the next Publish —
-    verify it then, not at merge time.
+30. Nov-1 user priorities (1) and (2) CLOSED (see Nov-1
+    Priority-1 and Priority-2 updates above: 3 weekly publishers
+    on the data-branch path, labels #295, full restatement tags
+    -7/-9; pre-render PR #298, gate CLOSED n=10 / −0.20 ATR,
+    Publish tag -14). Priorities 3–5 follow in sequence. This
+    file's live render rides the next Publish — verify it then,
+    not at merge time.
 
 ## Out of scope for this lane (parent/other lanes)
 
