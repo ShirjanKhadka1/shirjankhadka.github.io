@@ -106,7 +106,8 @@
   var state = { rows: [], q: '', sector: '', verdict: '', rsi: '', pmin: null, pmax: null, vmin: null,
     sortK: 'sig', sortD: 1, page: 1, perPage: 25, tf: 'd', callsPage: 1,
     batchAsof: '', changes: null, callsDoc: null, trackRecord: null, archiveDoc: null,
-    wave1Asof: '', tapeSession: '', liveQuotes: {}, sig: null, lastChecked: null };
+    wave1Asof: '', tapeSession: '', liveQuotes: {}, sig: null, lastChecked: null,
+    labelGateOpen: false, labelGateEval: null };
 
   var TF_LABEL = { d: 'Daily', w: 'Weekly', m: 'Monthly' };
   var TF_HINT = {
@@ -195,7 +196,32 @@
     var cls = c > 0 ? 'up' : (c < 0 ? 'down' : 'flat');
     return '<span class="cx-chip ' + cls + '">' + (c > 0 ? '+' : '') + c.toFixed(2) + '%</span>';
   }
+  /* P4 label gate (2026-11-01, owner order): per-stock Buy / Strong Buy
+   * badges render ONLY while the forward paper-trade ledger passes:
+   * decided (resolved) calls n >= 30 AND expectancy > 0, where a target
+   * close pays +4 ATR, a stop close pays -2 ATR, and an expired close
+   * pays 0 ATR. The gate reads the live screener-calls.json summary on
+   * every load/refresh, so labels return with NO code change the moment
+   * the ledger passes. Default CLOSED (labels hidden, rank shown) when
+   * the ledger is missing or undecided. The same rule is mirrored in
+   * the close baker (noscript-close-baker.py label_gate) for the
+   * pre-rendered rows, so baked and hydrated rows can never disagree
+   * about the gate. Aggregate counts (stat cards, archive columns,
+   * ledger breakdowns) are honest data, not per-stock labels, and are
+   * NOT gated. */
+  function labelGateEval(callsDoc) {
+    var s = callsDoc && callsDoc.summary;
+    if (!s) return { open: false, decided: 0, expectancy: null };
+    var tp = s.closed_tp || 0, sl = s.closed_sl || 0, ex = s.closed_expired || 0;
+    var decided = (s.decided != null) ? s.decided : (tp + sl + ex);
+    if (!decided) return { open: false, decided: 0, expectancy: null };
+    var exp = (tp * 4 - sl * 2) / decided;
+    return { open: decided >= 30 && exp > 0, decided: decided, expectancy: exp,
+      tp: tp, sl: sl, ex: ex };
+  }
+
   function badge(v) {
+    if ((v === 'Buy' || v === 'Strong Buy') && !state.labelGateOpen) return '';
     return '<span class="ms-v ' + (CLS[v] || 'insufficient') + '">' + esc(DISP[v] || v) + '</span>';
   }
 
@@ -543,6 +569,20 @@
         (state.batchAsof ? '<span class="sc-sum-dot">·</span><span>as of ' + esc(state.batchAsof) + '</span>' : '');
     }
 
+    // P4 label-gate note: same numbers the baker prints in the pre-render.
+    var gateEl = $('sc-gate-note');
+    if (gateEl) {
+      var ge = state.labelGateEval;
+      if (ge && !ge.open) {
+        var expTxt = (ge.expectancy == null) ? 'no resolved calls yet'
+          : ((ge.expectancy >= 0 ? '+' : '') + ge.expectancy.toFixed(2) + ' ATR');
+        gateEl.textContent = 'Buy and Strong Buy labels are hidden while the forward call ledger is below the gate ' +
+          '(n=' + ge.decided + ' decided, expectancy ' + expTxt + '; the gate needs n≥30 and positive expectancy) — rows show rank only.';
+      } else {
+        gateEl.textContent = '';
+      }
+    }
+
     // sort indicators
     var ths = document.querySelectorAll('#sc-table th[data-k]');
     ths.forEach(function (th) {
@@ -806,6 +846,8 @@ function renderCardResults() {
       var v = vj.verdicts || {};
       state.changes = vj.changes || null;
       state.callsDoc = res[2] || null;
+      state.labelGateEval = labelGateEval(state.callsDoc);
+      state.labelGateOpen = state.labelGateEval.open;
       state.trackRecord = res[3] || null;
       state.archiveDoc = res[4] || null;
       state.wave1Asof = (res[5] && res[5].asof) || '';
@@ -904,13 +946,18 @@ function renderCardResults() {
   }
 
   function load() {
-    // skeleton rows: hold the table's footprint while the ranking loads
+    // skeleton rows ONLY when no pre-rendered rows are already in the
+    // table (fresh checkout / unbaked page): wiping baked rows for
+    // skeletons would throw away the pre-render's first paint.
     (function () {
-      var rows = '';
-      for (var i = 0; i < 10; i++) {
-        rows += '<tr><td colspan="11" aria-hidden="true"><span class="skl skl-row"></span></td></tr>';
+      var body = $('sc-body');
+      if (body && body.querySelector('tr td.sc-empty')) {
+        var rows = '';
+        for (var i = 0; i < 10; i++) {
+          rows += '<tr><td colspan="11" aria-hidden="true"><span class="skl skl-row"></span></td></tr>';
+        }
+        body.innerHTML = rows;
       }
-      $('sc-body').innerHTML = rows;
     })();
     fetchData().then(function (res) { applyData(res); rebaseline(); }).catch(failLoad);
   }
