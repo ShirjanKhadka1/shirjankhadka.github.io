@@ -455,7 +455,14 @@ async function main() {
 
   // Merge with the existing rolling file; drop items older than KEEP_DAYS.
   let prev = [];
-  try { prev = JSON.parse(fs.readFileSync(OUT, 'utf8')).items || []; } catch (e) { /* first run */ }
+  // Seed tolerates both shapes: the builder's dict envelope AND a bare
+  // items list (as written by the company-website monitor since its
+  // Nov-2 data-branch migration). A list seed used to yield prev=[]
+  // and silently drop the whole rolling history on the next build.
+  try {
+    const seed = JSON.parse(fs.readFileSync(OUT, 'utf8'));
+    prev = Array.isArray(seed) ? seed : (seed.items || []);
+  } catch (e) { /* first run */ }
   const cutoff = Date.now() - KEEP_DAYS * 864e5;
   const byLink = new Map();
   // Retroactive scrub: old rows merged from previous runs keep a company
