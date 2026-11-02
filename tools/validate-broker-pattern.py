@@ -3,10 +3,11 @@
 
 Validates every periods/<P>.json + meta.json before anything is published:
   1. broker codes are numeric and drawn from the 91-code active set; a broker
-     missing from the 1D period is tolerated ONLY when the day's raw floorsheet
+     missing from the 1D period (or its 1D-summary twin, same single-day
+     broker set) is tolerated ONLY when the day's raw floorsheet
      proves it had zero trades (legitimate quiet day, e.g. broker 73 on
-     2026-10-16) — a missing code WITH trades in raw is a pipeline data-loss
-     failure. Multi-day periods still require all 91.
+     2026-10-16 and 2026-11-02) — a missing code WITH trades in raw is a
+     pipeline data-loss failure. Multi-day periods still require all 91.
   2. market-level buy_value ~= sell_value (tolerance 0.5%)
   3. broker_symbols per-stock rows reconcile with broker aggregates (tolerance 0.1%)
   4. period date ranges end at the expected latest trading day
@@ -101,8 +102,9 @@ def main():
         brokers = d.get('brokers', [])
         codes = [str(b.get('code', '')) for b in brokers]
 
-        # 1. numeric codes from the active set; 1D tolerates proven zero-trade
-        # brokers, multi-day periods still require all 91
+        # 1. numeric codes from the active set; 1D and its 1D-summary twin
+        # tolerate proven zero-trade brokers, multi-day periods still
+        # require all 91
         bad_codes = [c for c in codes if not CODE_RE.match(c)]
         if bad_codes:
             fail(reasons, '%s: %d non-numeric broker codes (e.g. %s)' %
@@ -114,22 +116,22 @@ def main():
                  (p, len(unexpected), unexpected[:5]))
         missing = sorted(EXPECTED_CODES - code_set)
         if missing:
-            if p == '1D' and len(code_set) < EXPECTED_BROKERS and not unexpected:
+            if p in ('1D', '1D-summary') and len(code_set) < EXPECTED_BROKERS and not unexpected:
                 counts = raw_trade_counts(raw_floorsheet) if raw_floorsheet else None
                 if counts is None:
-                    fail(reasons, '1D: %d brokers missing %s but raw floorsheet '
+                    fail(reasons, '%s: %d brokers missing %s but raw floorsheet '
                          'unavailable at %s - cannot prove quiet day' %
-                         (len(code_set), missing, raw_floorsheet))
+                         (p, len(code_set), missing, raw_floorsheet))
                 else:
                     lost = [c for c in missing if counts.get(c, 0) > 0]
                     quiet = [c for c in missing if counts.get(c, 0) == 0]
                     if lost:
-                        fail(reasons, '1D: brokers %s have %d raw trades but are '
-                             'missing from 1D.json - PIPELINE DATA LOSS' %
-                             (lost, sum(counts[c] for c in lost)))
+                        fail(reasons, '%s: brokers %s have %d raw trades but are '
+                             'missing from %s.json - PIPELINE DATA LOSS' %
+                             (p, lost, sum(counts[c] for c in lost), p))
                     if quiet:
-                        print('1D: brokers %s verified ZERO trades in raw '
-                              'floorsheet - legitimate quiet day' % quiet)
+                        print('%s: brokers %s verified ZERO trades in raw '
+                              'floorsheet - legitimate quiet day' % (p, quiet))
             else:
                 fail(reasons, '%s: %d distinct brokers, expected %d (missing %s)' %
                      (p, len(code_set), EXPECTED_BROKERS, missing[:5]))
