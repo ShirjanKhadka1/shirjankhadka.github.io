@@ -227,7 +227,13 @@ def main():
             cur_text = get_blob_text(token, blobs[NEWS_PATH],
                                      "current-read", attempt)
             try:
-                cur_items = json.loads(cur_text).get("items")
+                # Current file may be a bare items list (company-
+                # website monitor, Nov-2 data-branch migration);
+                # .get("items") on a list raised AttributeError and
+                # killed the refresh staging step outright.
+                cur_parsed = json.loads(cur_text)
+                cur_items = cur_parsed.get("items") \
+                    if isinstance(cur_parsed, dict) else cur_parsed
                 cur_hash = items_hash(cur_items) \
                     if isinstance(cur_items, list) else None
             except ValueError:
