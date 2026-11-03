@@ -179,11 +179,11 @@ function initSector(){
     var names = {}, secs = {}, counts = {};
     (uni.symbols || []).forEach(function(e){ names[e.s] = e.n; });
     Object.keys(verdicts).forEach(function(sym){
-      var sec = (verdicts[sym] && verdicts[sym].sec) || 'Others';
-      secs[sym] = sec; counts[sec] = (counts[sec] || 0) + 1;
+      var sec = (verdicts[sym] && verdicts[sym].sec) || null; // 4B
+      secs[sym] = sec; if (sec != null) counts[sec] = (counts[sec] || 0) + 1; // 4B: null-sector rows are not a sector option
     });
     var rows = Object.keys(names).map(function(sym){
-      return { s: sym, n: names[sym], sec: secs[sym] || 'Others' };
+      return { s: sym, n: names[sym], sec: secs[sym] || null }; // 4B
     }).sort(function(a, b){ return a.s < b.s ? -1 : 1; });
     state.secRows = rows;
     state.sectorBatch = (res[0].asof || '');

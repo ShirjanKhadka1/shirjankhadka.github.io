@@ -74,8 +74,11 @@ for (const c of seed.closures) {
 
 /* ---------- 2. Promoter lock-in expiries ---------- */
 const lockin = load(path.join(ROOT, 'data', 'lockin.json'), { rows: {} });
-const verdictsDoc = load(path.join(ROOT, 'data', 'verdicts-v2-summary.json'), { verdicts: {} });
-const verdicts = verdictsDoc.verdicts || {};
+const MASTER = require('./master-instruments.js'); // 4B: sector tags from the master, not the v2 summary sector
+// NOTE: the v2 summary is still read below ONLY for its dated lock-in
+// fields (expiry cross-check) — never for sector (that field is ignored).
+const verdictsLockinDoc = load(path.join(ROOT, 'data', 'verdicts-v2-summary.json'), { verdicts: {} });
+const verdictsLockin = verdictsLockinDoc.verdicts || {};
 const lockEventsBySymbol = new Map(); // symbol -> event object (mutable for upgrades)
 
 const skippedLockin = [];
@@ -97,7 +100,7 @@ for (const [sym, r] of Object.entries(lockin.rows || {})) {
   lockEventsBySymbol.set(sym, ev);
 }
 /* Cross-check / upgrade with the verdict engine's dated lock-in fields. */
-for (const [sym, v] of Object.entries(verdicts)) {
+for (const [sym, v] of Object.entries(verdictsLockin)) {
   const lk = v && v.lockin;
   if (!lk || !lk.expiry) continue;
   const held = lockEventsBySymbol.get(sym);
@@ -248,7 +251,7 @@ for (const [sym, entries] of Object.entries(divLive.companies || {})) {
  * "Unclassified", never guessed. */
 const sectorMap = {};
 for (const sym of Object.keys(lockin.rows || {}).sort()) {
-  sectorMap[sym] = (verdicts[sym] && verdicts[sym].sector) || null;
+  sectorMap[sym] = MASTER.sectorOf(sym); // null = UNCONFIRMED (no sector); the page must not bucket null as 'Unclassified' (see nd-calendar.js, 4B note)
 }
 
 /* ---------- assemble + validate ---------- */

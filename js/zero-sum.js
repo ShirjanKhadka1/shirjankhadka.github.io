@@ -334,10 +334,10 @@ async function loadSectorData() {
   (u.symbols || []).forEach(e => { names[e.s] = e.n; });
   const counts = {};
   Object.values(v.verdicts || {}).forEach(row => {
-    const s = row.sec || 'Others';
-    counts[s] = (counts[s] || 0) + 1;
+    const s = row.sec || null; // 4B
+    if (s != null) counts[s] = (counts[s] || 0) + 1;
   });
-  const rows = (u.symbols || []).map(e => ({ s: e.s, n: e.n, sec: (v.verdicts[e.s] && v.verdicts[e.s].sec) || 'Others' }));
+  const rows = (u.symbols || []).map(e => ({ s: e.s, n: e.n, sec: (v.verdicts[e.s] && v.verdicts[e.s].sec) || null }));
   STATE.secData = { names, counts, rows, batch: v.asof, total: rows.length };
   return STATE.secData;
 }

@@ -310,9 +310,9 @@ function main() {
 
   /* ---- baked sector directory (All sectors, first page) ---- */
   const secOf = {};
-  Object.keys(verdicts).forEach((s) => { secOf[s] = verdicts[s].sec || 'Others'; });
+  Object.keys(verdicts).forEach((s) => { secOf[s] = verdicts[s].sec || null; }); // 4B: null = no sector
   const secCounts = {};
-  Object.keys(secOf).forEach((s) => { secCounts[secOf[s]] = (secCounts[secOf[s]] || 0) + 1; });
+  Object.keys(secOf).forEach((s) => { if (secOf[s] != null) secCounts[secOf[s]] = (secCounts[secOf[s]] || 0) + 1; });
   const sectors = Object.keys(secCounts).sort((a, b) => secCounts[b] - secCounts[a]);
   const secTotal = Object.keys(secOf).length;
   const acts = {};
@@ -322,7 +322,7 @@ function main() {
   const secRows = allSyms.slice(0, SECTOR_PAGE).map((s) => {
     const mark = acts[s] ? '<span class="na-sec-mark" title="' + acts[s] + ' archive notice(s)">● ' + acts[s] + '</span>' : '';
     return '<tr><td><a class="na-sym" href="/stocks/' + esc(s) + '/">' + esc(s) + '</a> ' + mark + '</td>' +
-      '<td>' + esc(names[s] || '') + '</td><td>' + esc(secOf[s]) + '</td></tr>';
+      '<td>' + esc(names[s] || '') + '</td><td>' + (secOf[s] ? esc(secOf[s]) : '—') + '</td></tr>';
   }).join('');
   const secInfo = 'Showing 1–' + Math.min(SECTOR_PAGE, allSyms.length) + ' of ' + allSyms.length + (secPages > 1 ? ' · page 1 of ' + secPages : '');
   const secSelect = '<option value="all">All sectors (' + secTotal + ')</option>' +

@@ -265,7 +265,7 @@
       var price = (vd.p != null && isFinite(vd.p)) ? +vd.p : null;
       var ch = (vd.ch != null && isFinite(vd.ch)) ? +vd.ch : null;
       return {
-        h: h, price: price, ch: ch, sec: vd.sec || 'Others',
+        h: h, price: price, ch: ch, sec: vd.sec || null, // 4B: null = no sector
         value: price == null ? null : round2(h.qty * price),
         unrl: Calc.unrealized(h.qty, h.cost, price),
         ret: Calc.retPct(h.qty, h.cost, price),
@@ -485,7 +485,7 @@
       .sort(function (a, b) { return b.value - a.value; });
     var secMap = {};
     priced.forEach(function (r) {
-      secMap[r.sec] = (secMap[r.sec] || 0) + r.value;
+      if (r.sec != null) secMap[r.sec] = (secMap[r.sec] || 0) + r.value; // 4B: null-sector holdings are not a sector slice
     });
     var bySec = Object.keys(secMap).map(function (k) { return { label: k, value: round2(secMap[k]) }; })
       .sort(function (a, b) { return b.value - a.value; });
@@ -881,17 +881,17 @@
 
   function sectorOf(sym) {
     var vd = verdicts[sym];
-    return (vd && vd.sec) || 'Others';
+    return (vd && vd.sec) || null; // 4B: null = no sector
   }
   /* Counts are computed over UNIVERSE symbols (not verdicts keys) so each
      option's count exactly matches the rows that sector shows. A universe
-     symbol with no verdict falls under Others, same as its rows. */
+     symbol with no sector (UNCONFIRMED) is excluded from sector counts. */
   function sectorCounts() {
     var m = {};
     var syms = universe.length ? universe.map(function (u) { return u.s; }) : Object.keys(verdicts);
     syms.forEach(function (s) {
       var sec = sectorOf(s);
-      m[sec] = (m[sec] || 0) + 1;
+      if (sec != null) m[sec] = (m[sec] || 0) + 1;
     });
     return m;
   }

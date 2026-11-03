@@ -78,7 +78,12 @@ const CONTRADICTORY_SECTOR_NOTE =
  * positives on f_slowbleed_v2 and f_vol_surge). Promoter-share lines are
  * illiquidity drift. → verdict EXCLUDED_NON_EQUITY, no equity scoring.
  * ---------------------------------------------------------------------------- */
-const EXCLUDED_SECTORS = ['Debentures', 'Mutual Funds', 'Promoter Shares'];
+/* Charter 4B: exclusion is TYPE-based, never sector-based. The old
+ * EXCLUDED_SECTORS list ('Debentures'/'Mutual Funds'/'Promoter Shares'
+ * sector buckets) is DELETED as a gate: a debenture's master sector is
+ * its issuer's sector, so sector can never identify a non-equity.
+ * Master instrument_type values below are the only gate signal. */
+const EXCLUDED_TYPES = ['DEBENTURE', 'MUTUAL_FUND', 'PROMOTER'];
 const EXCLUDED_NON_EQUITY_REASON =
   'Equity factors do not apply to this instrument type: NAV/par-pegged tapes ' +
   'make momentum/markup meaningless and institutional block crosses trigger ' +
@@ -423,7 +428,7 @@ module.exports = {
   SECTOR_BEARISH_MULTIPLIER,
   CONTRADICTORY_SECTORS,
   CONTRADICTORY_SECTOR_NOTE,
-  EXCLUDED_SECTORS,
+  EXCLUDED_TYPES,
   EXCLUDED_NON_EQUITY_REASON,
   VOLUME_FLOORS,
   RECENCY_DECAY,

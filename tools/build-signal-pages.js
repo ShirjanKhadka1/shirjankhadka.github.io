@@ -438,11 +438,14 @@ ${profileRows}</table></div>
     ]).then(function(res){
       secMap={}; nameMap={};
       var v=res[0], u=res[1];
-      if(v&&v.verdicts)Object.keys(v.verdicts).forEach(function(s){var r=v.verdicts[s]; if(r&&r.sec)secMap[s]=r.sec;});
+      // 4B: verdicts sec is the master sector post-regen; accept it ONLY
+      // when it is a master-vocabulary value (old bucket values rejected).
+      var MASTER_SECTORS=['Commercial Bank','Development Bank','Finance','Hotels and Tourism','Hydropower','Investment','Life Insurance','Manufacturing and Processing','Microfinance','Non Life Insurance','Trading'];
+      if(v&&v.verdicts)Object.keys(v.verdicts).forEach(function(s){var r=v.verdicts[s]; if(r&&r.sec&&MASTER_SECTORS.indexOf(r.sec)>=0)secMap[s]=r.sec;});
       if(u&&u.symbols)u.symbols.forEach(function(x){if(x&&x.s)nameMap[x.s]=x.n||x.s;});
     });
   }
-  function sectorOf(sym){return (secMap&&secMap[sym])||'Unscored';}
+  function sectorOf(sym){return (secMap&&secMap[sym])||null;} // 4B: null = no sector asserted (was the 'Unscored' bucket); sector cards group only real sectors.
   function sigOf(d){
     var lr=d.live_track_record||{}, st=lr.stats||{};
     return [d.generated_at||'', d.asof||'', st.last_updated||'', (d.alerts||[]).length, st.open_positions||0, st.closed_trades||0].join('|');

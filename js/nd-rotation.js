@@ -27,11 +27,15 @@
     return (n > 0 ? '+' : '') + fmt(n, d);
   }
 
+  // 4B: keys are the MASTER sector vocabulary (payloads regenerated
+  // from the master in the same program step); there is no 'Others' key
+  // and 'Banking' is 'Commercial Bank'. Unknown keys fall through to
+  // the full name at render time.
   var SHORT = {
-    'Banking': 'Banking', 'Development Bank': 'Dev Bank', 'Finance': 'Finance',
-    'Hotels And Tourism': 'Hotels', 'Hydropower': 'Hydropower', 'Investment': 'Investment',
-    'Life Insurance': 'Life Ins.', 'Manufacturing And Processing': 'Manuf.',
-    'Microfinance': 'Microfinance', 'Non Life Insurance': 'Non-Life', 'Others': 'Others'
+    'Commercial Bank': 'Comm Bank', 'Development Bank': 'Dev Bank', 'Finance': 'Finance',
+    'Hotels and Tourism': 'Hotels', 'Hydropower': 'Hydropower', 'Investment': 'Investment',
+    'Life Insurance': 'Life Ins.', 'Manufacturing and Processing': 'Manuf.',
+    'Microfinance': 'Microfinance', 'Non Life Insurance': 'Non-Life', 'Trading': 'Trading'
   };
   var QUADS = ['Leading', 'Improving', 'Weakening', 'Lagging'];
   var PAGE = 25;

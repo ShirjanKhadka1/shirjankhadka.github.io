@@ -367,11 +367,11 @@
     var sel = $('na-sector-select'), body = $('na-sector-body');
     if (!sel || !body || !verdicts || !universe) return;
     var secOf = {};
-    Object.keys(verdicts).forEach(function (s) { secOf[s] = verdicts[s].sec || 'Others'; });
+    Object.keys(verdicts).forEach(function (s) { secOf[s] = verdicts[s].sec || null; }); // 4B: null = no sector
     var names = {};
     universe.symbols.forEach(function (u) { names[u.s] = u.n; });
     var counts = {};
-    Object.keys(secOf).forEach(function (s) { counts[secOf[s]] = (counts[secOf[s]] || 0) + 1; });
+    Object.keys(secOf).forEach(function (s) { if (secOf[s] != null) counts[secOf[s]] = (counts[secOf[s]] || 0) + 1; });
     var sectors = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a]; });
     var total = Object.keys(secOf).length;
     sel.innerHTML = '<option value="all">All sectors (' + total + ')</option>' +
@@ -388,7 +388,7 @@
     body.innerHTML = rows.slice(start, end).map(function (s) {
       var mark = acts[s] ? '<span class="na-sec-mark" title="' + acts[s] + ' archive notice(s)">● ' + acts[s] + '</span>' : '';
       return '<tr><td><a class="na-sym" href="/stocks/' + esc(s) + '/">' + esc(s) + '</a> ' + mark + '</td>' +
-        '<td>' + esc(names[s] || '') + '</td><td>' + esc(secOf[s]) + '</td></tr>';
+        '<td>' + esc(names[s] || '') + '</td><td>' + (secOf[s] ? esc(secOf[s]) : '—') + '</td></tr>';
     }).join('');
     var info = $('na-sector-info'), prev = $('na-sector-prev'), next = $('na-sector-next'), pager = $('na-sector-pager');
     if (info) info.textContent = 'Showing ' + (rows.length ? (start + 1) + '–' + end + ' of ' + rows.length : '0 of 0') +

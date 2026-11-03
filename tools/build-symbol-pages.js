@@ -28,66 +28,35 @@ const esc = (s) => String(s == null ? '' : s)
   .replace(/"/g, '&quot;');
 const slugOf = (sym) => String(sym).replace(/\//g, '-');
 
-/* NEPSE sector classifier — kept identical to js/nepse-sectors.js and
- * js/nepse-screener.js. Verified symbol overrides are checked FIRST,
- * then NEPSE-official symbol overrides (NIFRA must precede the 'bank'
- * keyword; HIDCLP must precede the Promoter-share instrument check).
- * Anything left over falls into "Others" — never "Unclassified". */
-const DEB_SYM_RE = /D\d{2,4}(\/\d{2})?(KA)?$/i;
-const SECTOR_OVERRIDES = {
-  GVL:'Hydropower', SNORL:'Hydropower',
-  BNL:'Manufacturing And Processing', UNL:'Manufacturing And Processing',
-  SAIL:'Manufacturing And Processing',
-  CGH:'Hotels And Tourism', KDL:'Hotels And Tourism',
-  SAGF:'Mutual Funds', H8020:'Mutual Funds', NMB50:'Mutual Funds',
-  CMF2:'Mutual Funds', NICBF:'Mutual Funds', LSH12:'Mutual Funds',
-  RBBF40:'Mutual Funds', SIGS2:'Mutual Funds',
-  JBLBP:'Promoter Shares', KBLPO:'Promoter Shares', MLBLPO:'Promoter Shares',
-  SCBD:'Debentures', SHINED:'Debentures',
-  SFCL:'Finance',
-  WNLB:'Microfinance',
-  NTC:'Others', NRM:'Others', NWCL:'Others', TTL:'Others', MKCL:'Others'
-};
-const INVESTMENT_SYMBOLS = { CIT:1, HIDCL:1, HIDCLP:1, NIFRA:1, NRN:1, CHDC:1, ENL:1, HATHY:1 };
-const TRADING_SYMBOLS = { BBC:1, STC:1 };
-function classifySymbol(sym, name, type) {
-  const symU = String(sym || '').toUpperCase();
-  if (SECTOR_OVERRIDES[symU]) return SECTOR_OVERRIDES[symU];
-  if (INVESTMENT_SYMBOLS[symU]) return 'Investment';
-  if (TRADING_SYMBOLS[symU]) return 'Trading';
-  const n = String(name || '').toLowerCase().replace(/lagubitta/g, 'laghubitta');
-  if (type === 'Debenture' || DEB_SYM_RE.test(String(sym || '')) ||
-      n.indexOf('bond') >= 0 || n.indexOf('rinpatra') >= 0) return 'Debentures';
-  if (type === 'Mutual fund' || n.indexOf('fund') >= 0 || /\bkosh\b/.test(n)) return 'Mutual Funds';
-  if (type === 'Promoter share') return 'Promoter Shares';
-  if (type && type !== 'Equity') return 'Others';
-  const has = (...ws) => ws.some((w) => n.indexOf(w) >= 0);
-  if (has('laghu', 'microfinance')) return 'Microfinance';
-  if (has('hydropower', 'hydro', 'power', 'urja', 'dhyut', 'dyut', 'energy')) return 'Hydropower';
-  if (has('development bank')) return 'Development Bank';
-  if (has('bank')) return 'Banking';
-  if (has('life insurance')) return 'Life Insurance';
-  if (has('reinsurance', 'insurance', 'beema')) return 'Non Life Insurance';
-  if (has('finance')) return 'Finance';
-  if (has('hotel', 'tourism', 'cablecar')) return 'Hotels And Tourism';
-  if (has('investment')) return 'Investment';
-  if (has('trading')) return 'Trading';
-  if (has('manufacturing', 'cement', 'bottler', 'distiller', 'spinning', 'pharmaceut',
-    'paints', 'colour', 'panel', 'mineral', 'lube')) return 'Manufacturing And Processing';
-  return 'Others';
-}
+/* Charter 4B — MASTER sector/type (classifier DELETED).
+ * sectorOfSym() reads ONLY data/reference/instruments.json via
+ * tools/master-instruments.js. The old classifier (overrides,
+ * Investment/Trading sets, debenture suffix regex, name keywords,
+ * 'Others' fallback) is deleted: a symbol's sector is its master
+ * sector (null when UNCONFIRMED — peer blocks already return '' for
+ * a null sector, and blockFacts renders a dash), its type its master
+ * instrument_type. Peers are same-sector AND same-type (an equity
+ * page's peers are equities; a debenture page's peers are debentures
+ * of the same issuer sector) — previously the "Debentures" bucket
+ * mixed all debentures together, which the master model forbids. */
+const MASTER = require('./master-instruments.js');
+function sectorOfSym(sym) { return MASTER.sectorOf(sym); }
+function typeOfSym(sym) { return MASTER.typeOf(sym); }
 
 /* Sector group for choosing sector-appropriate fundamental metrics.
  * bank: deposit-taking lenders (bank-specific balance-sheet metrics apply).
  * ins: insurers (premium-driven; no deposits/loans/NPL).
  * inst: fund/debt instruments, not operating companies.
  * corp: everyone else (hydropower, manufacturing, hotels, investment, trading). */
-function sectorGroup(sec) {
-  if (sec === 'Banking' || sec === 'Development Bank' ||
+function sectorGroup(sec, type) {
+  // 4B: type decides 'inst' (non-equity instruments are not operating
+  // companies, whatever their issuer sector); sector decides bank/ins
+  // only for equities, on the master vocabulary (Banking -> Commercial
+  // Bank; old bucket values can no longer occur).
+  if (type && type !== 'EQUITY') return 'inst';
+  if (sec === 'Commercial Bank' || sec === 'Development Bank' ||
       sec === 'Finance' || sec === 'Microfinance') return 'bank';
   if (sec === 'Life Insurance' || sec === 'Non Life Insurance') return 'ins';
-  if (sec === 'Mutual Funds' || sec === 'Debentures' ||
-      sec === 'Promoter Shares') return 'inst';
   return 'corp';
 }
 
@@ -457,7 +426,7 @@ function fmtNum(x) {
 // (published quarterly figures); symbols without coverage get one honest line.
 function fundBlock(sym, fund, sector) {
   const f = fund && fund.companies && fund.companies[sym];
-  const g = sectorGroup(sector);
+  const g = sectorGroup(sector, MASTER.typeOf(sym));
   let h = '<section aria-label="Fundamentals"><h2>Fundamentals</h2>\n';
   if (g === 'inst') {
     h += '<p class="sp-note">This is a fund or debt instrument, not an operating company; company-style quarterly profit figures do not apply.</p>\n</section>\n';
@@ -616,7 +585,7 @@ function companyBlock(f) {
  * companies get revenue and profit lines, fund/debt instruments get no trend
  * table. Missing figures render as –. */
 function quarterlyTable(sym, quarterly, sector) {
-  const g = sectorGroup(sector);
+  const g = sectorGroup(sector, MASTER.typeOf(sym));
   if (g === 'inst') return '';
   const sq = quarterly && quarterly.symbols && quarterly.symbols[sym];
   if (!sq || !sq.quarters) return '';
@@ -744,7 +713,7 @@ function quarterlyTable(sym, quarterly, sector) {
  * quarters (published cumulative minus the prior quarter). All series come
  * from quarterly.json; unpublished quarters render as gaps, never as zeros. */
 function valLab(sym, name, sector, sectorPeers, quarterly, fund, snap, asofD) {
-  const g = sectorGroup(sector);
+  const g = sectorGroup(sector, MASTER.typeOf(sym));
   if (g === 'inst') return '';
   const sq = quarterly && quarterly.symbols && quarterly.symbols[sym];
   if (!sq || !sq.quarters) return '';
@@ -2062,17 +2031,20 @@ function main() {
       (newsBySym[it.sym] = newsBySym[it.sym] || []).push(it);
     }
   }
-  // Sector peers: classified with the same NEPSE sector map as the
-  // screener and sector heatmap, ranked by engine score desc.
+  // Sector peers (4B): master sector AND master type, ranked by
+  // engine score desc. UNCONFIRMED symbols (sector null) get no peers.
   const scoreOf = (s) => { const e = verdicts[s]; const sc = e && e.s; return (sc === null || sc === undefined) ? -Infinity : Number(sc); };
   const sectorOf = {};
-  const bySector = {};
+  const bySectorType = {};
   for (const u of symbols) {
-    const sec = classifySymbol(u.s, u.n, u.t);
+    const sec = sectorOfSym(u.s);
     sectorOf[u.s] = sec;
-    if (sec) (bySector[sec] = bySector[sec] || []).push(u);
+    if (sec) {
+      const key = sec + '|' + (typeOfSym(u.s) || '');
+      (bySectorType[key] = bySectorType[key] || []).push(u);
+    }
   }
-  for (const sec of Object.keys(bySector)) bySector[sec].sort((a, b) => scoreOf(b.s) - scoreOf(a.s));
+  for (const key of Object.keys(bySectorType)) bySectorType[key].sort((a, b) => scoreOf(b.s) - scoreOf(a.s));
 
   /* SEO cross-linking source: blog articles whose title/meta keywords mention
    * a symbol token. Scanned once per run (works for --symbol=XYZ too, since
@@ -2113,7 +2085,7 @@ function main() {
     const sym = u.s, slug = slugOf(sym);
     const v = verdicts[sym] || null;
     const sector = sectorOf[sym] || null;
-    const sectorPeers = sector ? (bySector[sector] || []) : [];
+    const sectorPeers = sector ? (bySectorType[sector + '|' + (typeOfSym(sym) || '')] || []) : [];
     const related = relatedForSymbol(blogArts, sym);
     let ohlcRows = null;
     try {
@@ -2168,5 +2140,5 @@ if (require.main === module) main();
 
 /* Exported for tools/apply-stock-seo.js, which brings the already-baked
  * pages to the identical end state without a full regeneration. */
-module.exports = { classifySymbol, sectorGroup, slugOf, fmtNum, esc,
+module.exports = { sectorOfSym, typeOfSym, sectorGroup, slugOf, fmtNum, esc,
   blockFacts, companyBlock, SP_ABOUT_CSS, OG_STOCKS, scanBakedExtras };

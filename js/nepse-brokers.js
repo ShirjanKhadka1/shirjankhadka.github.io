@@ -833,7 +833,7 @@ function initSector(){
     var slice = list.slice((page - 1) * PER, page * PER);
     body.innerHTML = slice.map(function(r){
       return '<tr><td><a href="/stocks/' + esc(r.s) + '/">' + esc(r.s) + '</a></td>' +
-        '<td>' + esc(r.n) + '</td><td>' + esc(r.sec) + '</td></tr>';
+        '<td>' + esc(r.n) + '</td><td>' + (esc(r.sec) || '—') + '</td></tr>';
     }).join('');
     if (sum) sum.textContent = list.length + ' stocks';
     if (show) show.textContent = list.length
@@ -856,10 +856,10 @@ function initSector(){
     rows = Object.keys(vd).sort().map(function(k){
       /* Company names come from the universe (n), never verdicts n —
          verdicts n is a count (the blog block's mislabel bug). */
-      return { s: k, n: uniMap[k] || k, sec: vd[k].sec || 'Others' };
+      return { s: k, n: uniMap[k] || k, sec: vd[k].sec || null }; // 4B: null = no sector (never an 'Others' bucket)
     });
     var counts = {};
-    rows.forEach(function(r){ counts[r.sec] = (counts[r.sec] || 0) + 1; });
+    rows.forEach(function(r){ if (r.sec != null) counts[r.sec] = (counts[r.sec] || 0) + 1; }); // 4B: null-sector rows are not a sector option
     var opts = ['<option value="All">All sectors (' + rows.length + ')</option>'];
     Object.keys(counts).sort().forEach(function(sec){
       opts.push('<option value="' + esc(sec) + '">' + esc(sec) + ' (' + counts[sec] + ')</option>');

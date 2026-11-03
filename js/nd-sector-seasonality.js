@@ -9,15 +9,17 @@
 (function () {
   'use strict';
 
-  var ORDER = ['Banking', 'Development Bank', 'Finance', 'Hotels And Tourism',
-    'Hydropower', 'Investment', 'Life Insurance', 'Manufacturing And Processing',
-    'Microfinance', 'Non Life Insurance', 'Others', 'Trading', 'NEPSE'];
+  // 4B: master sector vocabulary order (payloads regenerated from the
+  // master); no 'Others' entry — UNCONFIRMED rows have no sector.
+  var ORDER = ['Commercial Bank', 'Development Bank', 'Finance', 'Hotels and Tourism',
+    'Hydropower', 'Investment', 'Life Insurance', 'Manufacturing and Processing',
+    'Microfinance', 'Non Life Insurance', 'Trading', 'NEPSE'];
   var SHORT = {
     BS: ['Bai', 'Jes', 'Ash', 'Shr', 'Bha', 'Asw', 'Kar', 'Man', 'Pou', 'Mag', 'Fal', 'Cha'],
     AD: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
   };
   var PAGE = 25;
-  var state = { data: null, sector: 'Banking', cal: 'BS',
+  var state = { data: null, sector: 'Commercial Bank', cal: 'BS',
     stockSort: 'symbol', stockPage: 1, ledgerFilter: 'all', ledgerPage: 1,
     lastLoad: 0, wired: false };
 
@@ -267,7 +269,7 @@
       .then(function (data) {
         state.data = data;
         state.lastLoad = Date.now();
-        if (!data.sectors[state.sector]) state.sector = 'Banking';
+        if (!data.sectors[state.sector]) state.sector = 'Commercial Bank';
         var sel = $('ssSector');
         if (sel) {
           sel.innerHTML = ORDER.filter(function (s) { return data.sectors[s]; }).map(function (s) {

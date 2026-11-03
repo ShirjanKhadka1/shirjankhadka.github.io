@@ -823,7 +823,8 @@
     var bySec = {};
     Object.keys(raw).forEach(function (sym) {
       var x = raw[sym] || {};
-      var s = x.sec || 'Others';
+      var s = x.sec || null;
+      if (s == null) return; // 4B: UNCONFIRMED rows have no sector — excluded from sector cards, never bucketed.
       if (!bySec[s]) bySec[s] = [];
       bySec[s].push({ symbol: sym, x: x, q: quoteBySym[sym] || null });
     });

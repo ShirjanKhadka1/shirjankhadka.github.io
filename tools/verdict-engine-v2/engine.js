@@ -717,6 +717,12 @@ function generateVerdict({ symbol, bars, dossier, regime, asofYmd, opts, fundame
   const sessionDate = n ? ymdStr(nBars[n - 1].ymd) : null;
   const ident = (dossier && dossier.identity) || {};
   const sector = ident.sector || null;
+  // 4B TYPE gate input: master instrument_type, from the dossier's
+  // regenerated identity field, or from opts.instrument_type when the
+  // runner passes it (dossier-less symbols: the runner reads the master
+  // directly, so KSBBLD87/LSH12 can no longer slip through with a null
+  // sector). Sector is display/context only — it never gates.
+  const instrumentType = (opts && opts.instrument_type) || ident.instrument_type || null;
   const age = ident.age_sessions || n;
 
   const base = {
@@ -728,11 +734,11 @@ function generateVerdict({ symbol, bars, dossier, regime, asofYmd, opts, fundame
     disclaimer: R.DISCLAIMER,
   };
 
-  // --- gate 1: instrument type (rule 4) ---
-  if (sector && R.EXCLUDED_SECTORS.includes(sector)) {
+  // --- gate 1: instrument type (rule 4, Charter 4B TYPE-ONLY) ---
+  if (instrumentType && R.EXCLUDED_TYPES.includes(instrumentType)) {
     return { ...base, verdict: R.VERDICT_LABELS.EXCLUDED_NON_EQUITY, confidence: 0,
-      reason: 'sector "' + sector + '" — equity factors do not apply',
-      evidence: { identity: { sector, listing_date: ident.listing_date || null,
+      reason: 'instrument_type "' + instrumentType + '" — equity factors do not apply',
+      evidence: { identity: { sector, instrument_type: instrumentType, listing_date: ident.listing_date || null,
                               age_sessions: age, paidup_b: ident.paidup_b ?? null },
                   exclusion: { reason: R.EXCLUDED_NON_EQUITY_REASON } } };
   }

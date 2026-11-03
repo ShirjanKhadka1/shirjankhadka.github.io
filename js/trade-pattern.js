@@ -184,12 +184,12 @@ function initSector(){
   ]).then(function(res){
     var vd = res[0].verdicts || {}, uni = res[1].symbols || [];
     var secOf = {};
-    Object.keys(vd).forEach(function(k){ secOf[k] = vd[k].sec || 'Others'; });
+    Object.keys(vd).forEach(function(k){ secOf[k] = vd[k].sec || null; }); // 4B
     state.sectorRows = uni.map(function(u){
-      return { s: u.s, n: u.n || u.s, sec: secOf[u.s] || 'Others' };
+      return { s: u.s, n: u.n || u.s, sec: secOf[u.s] || null }; // 4B
     }).sort(function(a, b){ return a.s < b.s ? -1 : 1; });
     var counts = {};
-    state.sectorRows.forEach(function(r){ counts[r.sec] = (counts[r.sec] || 0) + 1; });
+    state.sectorRows.forEach(function(r){ if (r.sec != null) counts[r.sec] = (counts[r.sec] || 0) + 1; }); // 4B
     var opts = ['<option value="All">All sectors (' + state.sectorRows.length + ')</option>'];
     Object.keys(counts).sort().forEach(function(sec){
       opts.push('<option value="' + BC.esc(sec) + '">' + BC.esc(sec) + ' (' + counts[sec] + ')</option>');
