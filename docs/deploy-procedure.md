@@ -148,16 +148,21 @@ History that motivates this procedure (do not reintroduce these):
   done.
 - Token values are never printed in any output. PR URLs, SHAs and
   check names are fine; token values are never printed.
-- Cross-dataset gates are evaluated on the COMBINED tree only. Any
-  gate that compares two datasets — SSR session markers vs the
-  manifest session date, a baked page vs its batch payload, an
-  archive vs live bytes — can pass only on a tree containing ALL
-  compared sides. A single-lane PR that moves only one side is
-  EXPECTED to fail that gate (2026-10-29: universe PR #111 failed
-  the SSR-session smoke test while signals PR #109 failed the
-  mirror way; neither lane alone could ever go green). The correct
-  response is a combined PR carrying every side, never re-running
-  the check hoping for a pass and never merging on red.
+- Per-component gates are evaluated on the tree under test, one
+  component at a time. A gate that compares a page to the data file(s)
+  that page renders — never to the manifest, which is not a page
+  component — passes on any tree where each page and its own components
+  were baked together: a manifest-only PR passes (the manifest is not
+  compared), a page+component PR passes (both sides move together), and
+  only a page/component desync fails (page rebuilt without its
+  component, or component advanced without its page). The correct
+  response to a desync failure is to rebuild the page from the same
+  component (or the component from the same bake) in the same PR,
+  never re-running the check hoping for a pass and never merging on
+  red. (Charter v4.2 item 2 replaced the old SSR-vs-manifest gate,
+  which failed every single-lane PR, with this per-component gate in
+  tests/smoke.spec.ts; the manifest-session span on stock pages is a
+  manifest echo and is logged, not gated, for the same reason.)
 - Verifier pins are content-agreement checks, never literals. A
   verifier must compare the page's stamp to the SHA-1 first-8 of
   the file it names (or the value computed from the same source
