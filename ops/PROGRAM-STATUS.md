@@ -114,7 +114,7 @@ an older session whose components carry that same older session is
 not this gate's failure — staleness labelling stays with the live
 gate + freshness badges (Charter §C).
 
-What changed (PR __PR__; merge SHA + Publish run appended by
+What changed (PR #340; merge SHA + Publish run appended by
 follow-up status PR after merge+publish — post-merge facts cannot be
 in the merged commit itself):
 - tests/smoke.spec.ts: old test 'SSR session dates match the manifest
