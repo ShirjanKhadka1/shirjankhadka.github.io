@@ -63,6 +63,17 @@ function stamp(rel) {
   return sha1(f);
 }
 const esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+// Headlines arrive pre-escaped from the mirror collector (MEN stores
+// "&amp;"); esc() alone would double-escape to "&amp;amp;", rendering a
+// literal "&amp;". Decode entities once before esc() so the page shows
+// "&". Numeric entities + the named set; &amp; decoded last so a
+// doubly-escaped sequence degrades to its single-escaped form, never
+// to a raw "<".
+const decodeEntities = (s) => String(s == null ? '' : s)
+  .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(parseInt(n, 10)))
+  .replace(/&#x([0-9a-fA-F]+);/g, (_, n) => String.fromCharCode(parseInt(n, 16)))
+  .replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&#39;/g, "'")
+  .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 function fmtDate(iso) {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || ''));
@@ -225,7 +236,7 @@ function main() {
     return '<article class="na-card" data-kind="' + esc(kk) + '" data-sym="' + esc(String(it.symbol || '').toLowerCase()) + '" data-year="' + esc(String(it.announced || '').slice(0, 4)) + '">' +
       '<div class="na-top"><span class="na-kind k-' + esc(kk) + '">' + esc(kind) + '</span>' +
       symChip(it.symbol) + status + '</div>' +
-      '<h3 class="na-head">' + esc(it.headline) + '</h3>' + figuresHTML(it) + facts + note +
+      '<h3 class="na-head">' + esc(decodeEntities(it.headline)) + '</h3>' + figuresHTML(it) + facts + note +
       '<p class="na-meta">' + (it.company ? esc(it.company) + dot : '') +
       (it.announced ? 'Announced ' + fmtDate(it.announced) + dot : '') +
       (it.officialPdf ? '<a href="' + esc(it.officialPdf) + '" rel="noopener" target="_blank">Official NEPSE PDF ↗</a>' : '') + '</p></article>';
