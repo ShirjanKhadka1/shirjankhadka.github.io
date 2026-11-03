@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-30T19:10:55.104589+05:45",
+  "updated_at": "2026-11-03T06:40:51.691345+05:45",
   "tracking_started": "2026-08-03",
   "method": "Seeded from the engine's verifiable alert history: every distinct BUY alert found in git-committed signal JSONs on origin/main (2026-09-30 commits onward), each traced to its real alert record (system, symbol, signal date, published entry/stop/targets). Exits on real forward OHLC from the owned archive: target 1, stop loss, a trailing stop ratcheted from the stop (never from future-informed levels), or a 20-session time exit. Same-bar precedence is conservative: stop, then trail, then target. P&L net of 0.5% round-trip charges. Ongoing alerts are captured daily by the same logic; nothing here comes from the 2003-2026 backtest replay.",
   "provenance": {
@@ -22,10 +22,10 @@
           "target_1": 382.37,
           "target_2": 420.75,
           "status": "open",
-          "sessions_held": 12,
-          "current_price": 364,
-          "unrealized_pct": 5.81,
-          "data_through": "2026-10-30",
+          "sessions_held": 13,
+          "current_price": 363.6,
+          "unrealized_pct": 5.7,
+          "data_through": "2026-11-02",
           "captured_at": "2026-10-09T10:04:07.318491+05:45",
           "provenance": {
             "alert_commit": "16342e72",
@@ -44,10 +44,10 @@
           "target_1": 11.16,
           "target_2": 11.92,
           "status": "open",
-          "sessions_held": 12,
+          "sessions_held": 13,
           "current_price": 10.2,
           "unrealized_pct": -1.92,
-          "data_through": "2026-10-30",
+          "data_through": "2026-11-02",
           "captured_at": "2026-10-09T10:04:07.321360+05:45",
           "provenance": {
             "alert_commit": "a16a250f",
@@ -66,10 +66,10 @@
           "target_1": 877.74,
           "target_2": 927.47,
           "status": "open",
-          "sessions_held": 13,
-          "current_price": 830,
-          "unrealized_pct": 0.24,
-          "data_through": "2026-10-30",
+          "sessions_held": 14,
+          "current_price": 826.2,
+          "unrealized_pct": -0.22,
+          "data_through": "2026-11-02",
           "captured_at": "2026-10-09T10:04:07.329493+05:45",
           "provenance": {
             "alert_commit": "a16a250f",
@@ -651,7 +651,7 @@
       ],
       "stats": {
         "tracking_started": "2026-08-03",
-        "data_through": "2026-10-30",
+        "data_through": "2026-11-02",
         "open_positions": 3,
         "closed_trades": 19,
         "total_signals": 22,
@@ -677,7 +677,7 @@
           "exit_date": "2026-10-30",
           "exit_reason": "Time exit (20 sessions)"
         },
-        "last_updated": "2026-10-30T19:10:55.104456+05:45"
+        "last_updated": "2026-11-03T06:40:51.691191+05:45"
       }
     },
     "trend-relay": {
@@ -712,10 +712,10 @@
           "target_1": 213.33,
           "target_2": 227.96,
           "status": "open",
-          "sessions_held": 9,
-          "current_price": 208.4,
-          "unrealized_pct": 4.88,
-          "data_through": "2026-10-30",
+          "sessions_held": 10,
+          "current_price": 205.1,
+          "unrealized_pct": 3.22,
+          "data_through": "2026-11-02",
           "captured_at": "2026-10-12T15:06:21.101265+05:45"
         },
         {
@@ -730,10 +730,10 @@
           "target_1": 306.03,
           "target_2": 330.06,
           "status": "open",
-          "sessions_held": 1,
-          "current_price": 282.5,
-          "unrealized_pct": 0.18,
-          "data_through": "2026-10-30",
+          "sessions_held": 2,
+          "current_price": 280,
+          "unrealized_pct": -0.71,
+          "data_through": "2026-11-02",
           "captured_at": "2026-10-29T19:26:50.672630+05:45"
         },
         {
@@ -744,14 +744,14 @@
           "entry_price": 422.9,
           "qty": 2365,
           "stop_loss": 401.49,
-          "trail_stop": 401.49,
+          "trail_stop": 418.59,
           "target_1": 455.02,
           "target_2": 487.14,
           "status": "open",
-          "sessions_held": 0,
-          "current_price": 422.9,
-          "unrealized_pct": 0.0,
-          "data_through": "2026-10-30",
+          "sessions_held": 1,
+          "current_price": 440,
+          "unrealized_pct": 4.04,
+          "data_through": "2026-11-02",
           "captured_at": "2026-10-30T19:10:54.949778+05:45"
         }
       ],
@@ -1051,7 +1051,7 @@
       ],
       "stats": {
         "tracking_started": "2026-08-03",
-        "data_through": "2026-10-30",
+        "data_through": "2026-11-02",
         "open_positions": 4,
         "closed_trades": 10,
         "total_signals": 14,
@@ -1077,7 +1077,7 @@
           "exit_date": "2026-10-08",
           "exit_reason": "Trailing stop hit"
         },
-        "last_updated": "2026-10-30T19:10:55.104537+05:45"
+        "last_updated": "2026-11-03T06:40:51.691294+05:45"
       }
     },
     "reversal": {
@@ -1277,7 +1277,7 @@
           "exit_date": "2026-10-26",
           "exit_reason": "Stop loss hit"
         },
-        "last_updated": "2026-10-30T19:10:55.104573+05:45"
+        "last_updated": "2026-11-03T06:40:51.691328+05:45"
       }
     }
   }
