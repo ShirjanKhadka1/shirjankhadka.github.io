@@ -58,6 +58,13 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Node unit tests (tests/unit, plain node, no deps)
+        run: |
+          for f in tests/unit/*.test.js; do
+            echo "--- $f"
+            node "$f" || exit 1
+          done
+
       - name: Install test deps
         working-directory: tests
         run: npm ci

@@ -14,7 +14,17 @@
  * until evidence arrives — the 4C dividend scan lists it unchanged;
  * the renderer must not guess a unit from magnitude alone.
  *
+ * LEGACY DEFAULT (documented, NOT verified-correct): a row with NO
+ * dividend_unit and a non-UNL symbol renders as percent. That is the
+ * current default for unproven rows, not a claim that the unit IS
+ * percent — any such row is only as correct as its source data.
+ * The NMBCAP case below pins this default so a future change to it
+ * is a deliberate, reviewed decision, not a silent drift.
+ *
  * Run: node tests/unit/dividend-units.test.js   (exit 0 = pass)
+ * CI: .github/workflows/ci.yml "Node unit tests" step runs every
+ * tests/unit/*.test.js on every PR (added after #351 landed this
+ * file without any CI wiring — until then it ran nowhere).
  */
 'use strict';
 var B = require('../../tools/build-symbol-pages.js');
@@ -49,12 +59,24 @@ var legacy = dividendCells({ bonus_share: '0', cash_dividend: '1842', total_divi
 eq(legacy.cash, 'NPR 1,842 per share', 'UNL legacy: cash renders per-share without unit field');
 eq(legacy.total, 'NPR 1,842 per share', 'UNL legacy: total renders per-share without unit field');
 
-// --- ordinary percent row keeps "%" everywhere ---
+// --- ordinary percent row keeps "%" everywhere, never per-share text ---
 var pct = dividendCells({ bonus_share: '10', cash_dividend: '5', total_dividend: '15' }, 'NABIL');
 eq(pct.bonus, '10 %', 'percent row: bonus "10 %"');
 eq(pct.cash, '5 %', 'percent row: cash "5 %"');
 eq(pct.total, '15 %', 'percent row: total "15 %"');
 eq(pct.perShare, false, 'percent row: flag false');
+eq(/per share/.test(pct.cash), false, 'percent row: cash carries no per-share text');
+eq(/per share/.test(pct.total), false, 'percent row: total carries no per-share text');
+eq(/NPR/.test(pct.cash), false, 'percent row: cash carries no NPR text');
+eq(/NPR/.test(pct.total), false, 'percent row: total carries no NPR text');
+
+// --- legacy default: NO dividend_unit + non-UNL symbol keeps percent rendering ---
+// (current default, NOT verified-correct — see header; the percent claim
+// for such a row rests on its source data, not on this test)
+var legacyPct = dividendCells({ bonus_share: '10', cash_dividend: '5', total_dividend: '15' }, 'EBL');
+eq(legacyPct.cash, '5 %', 'legacy default: no-unit non-UNL row keeps percent cash');
+eq(legacyPct.total, '15 %', 'legacy default: no-unit non-UNL row keeps percent total');
+eq(legacyPct.perShare, false, 'legacy default: perShare flag false');
 
 // --- missing figures render as dashes, never "NaN" or "%" ---
 var dash = dividendCells({ bonus_share: null, cash_dividend: null, total_dividend: null }, 'NABIL');
