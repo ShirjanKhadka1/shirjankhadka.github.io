@@ -124,15 +124,17 @@ async function fetchOfficialClose(api) {
   return rows;
 }
 
-// Fail-closed freshness gate (2026-10-30): the close overlays today's indices
-// onto the existing live.json verbatim (Object.assign below), so the existing
-// tape's quotes BECOME today's close quotes. A stale tape (a previous session)
-// would publish yesterday's quotes stamped as today's close — the Oct-29
-// failure. Refuse to run unless the existing tape is from TODAY and fresh
-// (age ≤ 90 minutes at capture). Missing or unparseable data_asof FAILS:
-// fail-closed, never guess. `today` is the NPT session date (nptDate), and
-// `nowEpochMs` must be the true instant (Date.now()), NOT nptNow().getTime()
-// (nptNow is wall-clock-shifted for field reads only).
+// Fail-closed freshness gate (2026-10-30; criterion fixed 2026-11-03): the
+// close overlays today's indices onto the existing live.json verbatim
+// (Object.assign below), so the existing tape's quotes BECOME today's close
+// quotes. A stale tape (a previous session) would publish yesterday's quotes
+// stamped as today's close — the Oct-29 failure. Refuse to run unless the
+// existing tape is from TODAY and from the closing window (within 90 min
+// before the 15:00 close). Missing or unparseable data_asof FAILS:
+// fail-closed, never guess. `today` is the NPT session date (nptDate).
+// `nowEpochMs` is retained for call-site compatibility only: since
+// 2026-11-03 it no longer decides freshness (the 15:00 close does), so a
+// rerun hours after the close passes with the correct final tape.
 function checkTapeFreshness(live, today, nowEpochMs) {
   const raw = live && live.data_asof;
   const asof = raw ? new Date(raw) : null;
@@ -144,11 +146,19 @@ function checkTapeFreshness(live, today, nowEpochMs) {
   if (tapeDate !== today) {
     throw new Error('stale-tape gate: live tape is from ' + tapeDate + ', not today (' + today + ') — refusing to publish a close over stale quotes');
   }
-  const ageMin = (nowEpochMs - asof.getTime()) / 60000;
-  if (ageMin > 90) {
-    throw new Error('stale-tape gate: live tape is ' + ageMin.toFixed(1) + ' min old (>90) — refusing to publish a close over a stale tape');
+  // 2026-11-03 durable fix (was a 2026-11-02 worktree patch): measure tape
+  // freshness against the 15:00 close, not against the run instant. After
+  // the close the intraday tape stops updating by design (final tape), so
+  // age-vs-now grows unboundedly and a rerun can never pass even with the
+  // correct final tape. A tape from the closing window (within 90 min
+  // before the close, and no more than 15 min after it) passes at any
+  // rerun time; an early same-day tape is still refused, as before.
+  const closeEpochMs = Date.parse(today + 'T15:00:00+05:45');
+  const closeAgeMin = (closeEpochMs - asof.getTime()) / 60000;
+  if (closeAgeMin > 90 || closeAgeMin < -15) {
+    throw new Error('stale-tape gate: live tape is ' + closeAgeMin.toFixed(1) + ' min before close (must be within 90 min before close) — refusing to publish a close over a stale tape');
   }
-  return ageMin;
+  return closeAgeMin;
 }
 
 async function main() {
