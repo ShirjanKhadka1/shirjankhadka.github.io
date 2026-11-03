@@ -25,6 +25,21 @@
    "Dividend unit tests + div-live scan (4C)"
   ]
  },
+ "amendments": [
+  {
+   "item": "Charter v4.2 item 4C (orphan dispositions)",
+   "date": "2026-11-03",
+   "rows_added": [
+    "ICFCD83",
+    "KBLD89",
+    "LBBLD89",
+    "NCCD86",
+    "NIFRAUR85/86",
+    "NMLBBLP"
+   ],
+   "reason": "Ten baked stock pages survived the 4B rebuild carrying the retired Debentures/Promoter Shares buckets because the universe build only regenerates in-universe symbols. Each page was checked against its own trade record: all ten traded in October 2026 with future BS maturities (or, for promoters, no maturity), so none is ended. The six symbols absent from the master gain rows here under the 4A debenture/promoter rules (NCCD86 UNCONFIRMED: stem matches no EQUITY row); the four already in the master (EBLD85, LSLPO, NICD88, SBD87) gain no row. Page displays are fixed in the same PR; see data/reference/orphan-dispositions.json."
+  }
+ ],
  "classification_fields": "instrument_type and sector ONLY. TYPE decides ranking inclusion, never sector: a DEBENTURE/PROMOTER/MUTUAL_FUND row carrying a real sector (e.g. a debenture under Commercial Bank) is still excluded from equity rankings by its type.",
  "normalised_sector_vocabulary": [
   "Commercial Bank",
@@ -246,6 +261,11 @@
    "symbol": "NBF3",
    "instrument_type": "MUTUAL_FUND",
    "reason": "mutual-fund schemes carry no issuer sector in this master model; the sponsor/fund-house sector is not the scheme's sector, so no sector is asserted (see mutual_fund_sector_policy); ranking/exclusion is governed by instrument_type"
+  },
+  {
+   "symbol": "NCCD86",
+   "instrument_type": "DEBENTURE",
+   "reason": "issuer code NCC matches no EQUITY row in this master; successor not asserted without a permitted source"
   },
   {
    "symbol": "NFCF",
@@ -561,29 +581,29 @@
   }
  ],
  "counts": {
-  "total_rows": 428,
+  "total_rows": 434,
   "by_instrument_type": {
-   "DEBENTURE": 68,
+   "DEBENTURE": 73,
    "EQUITY": 281,
    "MUTUAL_FUND": 61,
-   "PROMOTER": 18
+   "PROMOTER": 19
   },
   "by_sector": {
-   "Commercial Bank": 68,
-   "Development Bank": 22,
-   "Finance": 17,
+   "Commercial Bank": 69,
+   "Development Bank": 23,
+   "Finance": 18,
    "Hotels and Tourism": 8,
    "Hydropower": 114,
-   "Investment": 9,
+   "Investment": 10,
    "Life Insurance": 16,
    "Manufacturing and Processing": 18,
-   "Microfinance": 51,
+   "Microfinance": 52,
    "Non Life Insurance": 16,
    "Trading": 2,
-   "UNCONFIRMED": 87
+   "UNCONFIRMED": 88
   },
-  "unconfirmed_rows": 87,
-  "issuer_id_null_rows": 428
+  "unconfirmed_rows": 88,
+  "issuer_id_null_rows": 434
  },
  "instruments": [
   {
@@ -3070,6 +3090,28 @@
    ]
   },
   {
+   "symbol": "ICFCD83",
+   "name": "12% ICFC Finance Limited Debenture 2083",
+   "instrument_type": "DEBENTURE",
+   "sector": "Finance",
+   "issuer_id": null,
+   "parent_symbol": null,
+   "parent_link_basis": null,
+   "parent_verified": false,
+   "listing_status": "listed",
+   "source": "stock page stocks/ICFCD83/index.html (baked name); daily-ohlc ICFCD83.json last trade 2026-10-26; adopted:Charter-v4.2-item-4C 2026-11-03 (debenture rule: issuer ICFC)",
+   "as_of": "2026-11-03",
+   "verification_status": "verified",
+   "gaps": [],
+   "disagreements": [],
+   "notes": [
+    "Debenture sector rule (4A, applied in 4C): issuer ICFC, sector Finance. Basis: name \"ICFC Finance Limited Debenture\" + stem ICFC = EQUITY row ICFC. Precedent rows ICFCD88/ICFCD89 carry the same issuer sector. Last traded 2026-10-26 (15 shares @ Rs 1,086.6) — live, not matured (maturity 2083 BS)."
+   ],
+   "unresolved_fields": [
+    "issuer_id"
+   ]
+  },
+  {
    "symbol": "ICFCD88",
    "name": "9% ICFC Finance Limited Debenture 2088",
    "instrument_type": "DEBENTURE",
@@ -3426,6 +3468,28 @@
    ]
   },
   {
+   "symbol": "KBLD89",
+   "name": "11% KBL Debenture 2089",
+   "instrument_type": "DEBENTURE",
+   "sector": "Commercial Bank",
+   "issuer_id": null,
+   "parent_symbol": null,
+   "parent_link_basis": null,
+   "parent_verified": false,
+   "listing_status": "listed",
+   "source": "stock page stocks/KBLD89/index.html (baked name); daily-ohlc KBLD89.json last trade 2026-10-27; adopted:Charter-v4.2-item-4C 2026-11-03 (debenture rule: issuer KBL)",
+   "as_of": "2026-11-03",
+   "verification_status": "verified",
+   "gaps": [],
+   "disagreements": [],
+   "notes": [
+    "Debenture sector rule (4A, applied in 4C): issuer KBL, sector Commercial Bank. Basis: stem KBL = EQUITY row KBL. Precedent rows KBLD86/KBLD90 carry the same issuer sector. Last traded 2026-10-27 (25 shares @ Rs 1,319.7) — live, not matured (maturity 2089 BS)."
+   ],
+   "unresolved_fields": [
+    "issuer_id"
+   ]
+  },
+  {
    "symbol": "KBLD90",
    "name": "KBLD90",
    "instrument_type": "DEBENTURE",
@@ -3744,6 +3808,28 @@
     "sector-map=Development Bank (Nov-1 restatement) vs verdicts=Banking (stale); master adopts Development Bank per the restatement"
    ],
    "notes": [],
+   "unresolved_fields": [
+    "issuer_id"
+   ]
+  },
+  {
+   "symbol": "LBBLD89",
+   "name": "11% L.B.B.L. Debenture 2089",
+   "instrument_type": "DEBENTURE",
+   "sector": "Development Bank",
+   "issuer_id": null,
+   "parent_symbol": null,
+   "parent_link_basis": null,
+   "parent_verified": false,
+   "listing_status": "listed",
+   "source": "stock page stocks/LBBLD89/index.html (baked name); daily-ohlc LBBLD89.json last trade 2026-10-16; adopted:Charter-v4.2-item-4C 2026-11-03 (debenture rule: issuer LBBL)",
+   "as_of": "2026-11-03",
+   "verification_status": "verified",
+   "gaps": [],
+   "disagreements": [],
+   "notes": [
+    "Debenture sector rule (4A, applied in 4C): issuer LBBL, sector Development Bank. Basis: name \"L.B.B.L. Debenture\" + stem LBBL = EQUITY row LBBL. Last traded 2026-10-16 (25 shares @ Rs 1,290) — live, not matured (maturity 2089 BS)."
+   ],
    "unresolved_fields": [
     "issuer_id"
    ]
@@ -5100,6 +5186,30 @@
    ]
   },
   {
+   "symbol": "NCCD86",
+   "name": "9.5% NCC Debenture 2086",
+   "instrument_type": "DEBENTURE",
+   "sector": "UNCONFIRMED",
+   "issuer_id": null,
+   "parent_symbol": null,
+   "parent_link_basis": null,
+   "parent_verified": false,
+   "listing_status": "listed",
+   "source": "stock page stocks/NCCD86/index.html (baked name); daily-ohlc NCCD86.json last trade 2026-10-16; adopted:Charter-v4.2-item-4C 2026-11-03 (UNCONFIRMED per 4A rule)",
+   "as_of": "2026-11-03",
+   "verification_status": "UNCONFIRMED",
+   "gaps": [
+    "sector UNCONFIRMED: stem NCC matches no EQUITY row in this master (4C); sector not asserted, successor not asserted without a permitted source"
+   ],
+   "disagreements": [],
+   "notes": [
+    "UNCONFIRMED per the 4A debenture rule: stem NCC matches no EQUITY row in this master, and no successor is asserted without a permitted source — so no sector is asserted, exactly as for the 4A UNCONFIRMED debentures. Last traded 2026-10-16 (84 shares @ Rs 1,163.9) — live, not matured (maturity 2086 BS)."
+   ],
+   "unresolved_fields": [
+    "issuer_id"
+   ]
+  },
+  {
    "symbol": "NESDO",
    "name": "NESDO Sambridha Laghubitta Bittiya Sanstha Limited",
    "instrument_type": "EQUITY",
@@ -5616,6 +5726,28 @@
    ]
   },
   {
+   "symbol": "NIFRAUR85/86",
+   "name": "NIFRA Uraj Rinpatra7%-2085/86",
+   "instrument_type": "DEBENTURE",
+   "sector": "Investment",
+   "issuer_id": null,
+   "parent_symbol": null,
+   "parent_link_basis": null,
+   "parent_verified": false,
+   "listing_status": "listed",
+   "source": "stock page stocks/NIFRAUR85-86/index.html (baked name, verbatim including the missing space); daily-ohlc NIFRAUR85-86.json last trade 2026-10-28; adopted:Charter-v4.2-item-4C 2026-11-03 (debenture rule: UR-infix stem NIFRA)",
+   "as_of": "2026-11-03",
+   "verification_status": "verified",
+   "gaps": [],
+   "disagreements": [],
+   "notes": [
+    "Debenture sector rule (4A, applied in 4C): UR energy-bond infix variant — stem NIFRA = EQUITY row NIFRA, sector Investment. Precedent row NIFRAGED (ED suffix, same issuer) carries Investment. Last traded 2026-10-28 (51 shares @ Rs 1,070) — live, not matured (maturity 2085/86 BS). One row for the single year-range instrument; page dir stocks/NIFRAUR85-86."
+   ],
+   "unresolved_fields": [
+    "issuer_id"
+   ]
+  },
+  {
    "symbol": "NIL",
    "name": "Neco Insurance Limited",
    "instrument_type": "EQUITY",
@@ -6059,6 +6191,28 @@
    "gaps": [],
    "disagreements": [],
    "notes": [],
+   "unresolved_fields": [
+    "issuer_id"
+   ]
+  },
+  {
+   "symbol": "NMLBBLP",
+   "name": "Nerude Mirmire Laghubitta Bittiya Sanstha Limited Promoter",
+   "instrument_type": "PROMOTER",
+   "sector": "Microfinance",
+   "issuer_id": null,
+   "parent_symbol": "NMLBBL",
+   "parent_link_basis": "paired-name: stock page name is the parent issuer name + Promoter (Nerude Mirmire Laghubitta Bittiya Sanstha Limited)",
+   "parent_verified": false,
+   "listing_status": "listed",
+   "source": "stock page stocks/NMLBBLP/index.html (baked name); daily-ohlc NMLBBLP.json last trade 2026-10-16; adopted:Charter-v4.2-item-4C 2026-11-03 (promoter rule: parent NMLBBL)",
+   "as_of": "2026-11-03",
+   "verification_status": "verified",
+   "gaps": [],
+   "disagreements": [],
+   "notes": [
+    "Promoter sector rule (4A, applied in 4C): sector = parent NMLBBL sector (Microfinance). Basis: paired name — page name is the parent issuer name + Promoter. parent_verified stays false (no filing/register extract checked). Last traded 2026-10-16 (56,168 shares @ Rs 275) — live promoter instrument, no maturity."
+   ],
    "unresolved_fields": [
     "issuer_id"
    ]
