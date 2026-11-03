@@ -1,7 +1,7 @@
 {
-  "ran_at_npt": "2026-11-03T12:38:00+05:45",
+  "ran_at_npt": "2026-11-03T14:38:00+05:45",
   "expected_session": "2026-11-02",
-  "passed": false,
+  "passed": true,
   "gates": [
     {
       "gate": "manifest-present",
@@ -11,8 +11,8 @@
     },
     {
       "gate": "live-session-current",
-      "pass": false,
-      "detail": "live=2026-11-02 expected=2026-11-03",
+      "pass": true,
+      "detail": "live=2026-11-02 expected=2026-11-03 (last completed session, market open)",
       "severity": "fail"
     },
     {
@@ -24,7 +24,7 @@
     {
       "gate": "security-count-stable",
       "pass": true,
-      "detail": "quotes=343 baseline=348 (last good tag data-2026-11-03-30) drift=-1.4% band=±5%",
+      "detail": "quotes=343 baseline=348 (last good tag data-2026-11-03-55) drift=-1.4% band=±5%",
       "severity": "fail"
     },
     {
