@@ -846,9 +846,15 @@ function valLab(sym, name, sector, sectorPeers, quarterly, fund, snap, asofD) {
     })),
   };
   let h = '<section class="d2-val-lab" id="valLab" aria-label="Valuation lab">\n';
-  h += '<p class="d2-val-label">Valuation lab · ' + esc(sector || 'sector peers') + '</p>\n';
+  // Charter 4B: a self-only set is not a peer set. When the focus company
+  // is the only company with quarterly history (sector unconfirmed, or a
+  // thin sector with no other published peers), say so honestly instead
+  // of rendering "Peer set · 1".
+  h += '<p class="d2-val-label">Valuation lab · ' + esc(sector || 'own figures') + '</p>\n';
   h += '<div class="d2-val-grid">\n<div>\n';
-  h += '<div class="d2-val-label">Peer set · ' + allSyms.length + ' ' + esc(sector || 'companies') + '</div>\n';
+  h += '<div class="d2-val-label">' + (allSyms.length < 2
+    ? esc(sector ? 'No peers with published quarterly figures in this sector' : 'No sector peers — sector unconfirmed')
+    : 'Peer set · ' + allSyms.length + ' ' + esc(sector || 'companies')) + '</div>\n';
   h += '<div class="d2-bank-chips" role="group" aria-label="Choose a company to highlight">\n' + chips + '\n</div>\n';
   h += '<div class="d2-val-co"><div class="d2-val-co-head"><div>' +
     '<div class="d2-val-co-sym" id="valCoSym">' + esc(sym) + '</div>' +
