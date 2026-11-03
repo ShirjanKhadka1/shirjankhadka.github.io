@@ -114,9 +114,11 @@ an older session whose components carry that same older session is
 not this gate's failure — staleness labelling stays with the live
 gate + freshness badges (Charter §C).
 
-What changed (PR #340; merge SHA + Publish run appended by
-follow-up status PR after merge+publish — post-merge facts cannot be
-in the merged commit itself):
+What changed (PR #340, merged 2026-11-03T06:35:13Z as
+99766a9635e14ea0f00c4ed918e0231bf1b78a29; Publish (P2) run
+41590940829 completed success 2026-11-03T06:36:24Z on that SHA;
+live manifest still v108 / session 2026-11-02, as expected — the
+manifest stays the last complete close until close + rollover):
 - tests/smoke.spec.ts: old test 'SSR session dates match the manifest
   session date' REPLACED by 'page date markers match their own
   rendered components' (same file, same required-check set). Item 1's
@@ -185,6 +187,11 @@ in the merged commit itself):
   page-only tree (baked batch 2026-11-03, component 2026-11-02)
   FAILED with 'baked batch date 2026-11-03 != component
   2026-11-02'; component-only tree FAILED with the mirror message.
+  Re-verified 2026-11-03 from the merged main tree (99766a9635) with
+  the same four fixtures — baseline PASS, manifest-only PASS,
+  page+component PASS, page-only FAIL, component-only FAIL — and the
+  item-1 ledger test PASS; all 6 required checks green on #340's head
+  (see PR body for the exact context names).
 - Scope guardrail: this PR touches tests/smoke.spec.ts, docs, and
   this file ONLY. No capture-close.js, close runner, or close
   cron touched (separate worker owns the durable capture-close gate).
