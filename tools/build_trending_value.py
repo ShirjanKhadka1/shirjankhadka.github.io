@@ -341,6 +341,11 @@ for sector, members in by_sector.items():
         c['sector_median_pe'] = round(med_pe, 2)
         c['sector_median_pbv'] = round(med_pbv, 2)
 
+# UNCONFIRMED-sector companies are never sector-scored (4B intent): give them
+# an explicit None instead of crashing the ranking comprehension (GMFIL/NTC).
+for c in companies:
+    c.setdefault('value_score', None)
+
 ranked = sorted([c for c in companies if c['value_score'] is not None],
                 key=lambda x: -x['value_score'])
 # Fail-soft: never publish an empty value ranking — keep last-good.
