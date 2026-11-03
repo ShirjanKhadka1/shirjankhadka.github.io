@@ -137,7 +137,14 @@ async function getSymbolData(symbol, noFetch) {
     const livePath = path.join(REPO, 'nepse-chart', 'data', 'live.json');
     if (fs.existsSync(livePath)) {
       const live = JSON.parse(fs.readFileSync(livePath, 'utf8'));
-      const session = live.session_date; // YYYY-MM-DD
+      // Close tape carries no session_date (schema drift: it has asof /
+      // data_asof timestamps instead). Fall back to their date part so the
+      // overlay still fires for the Nov-2 close; without this, bars end at
+      // the third-party API's last date and asof stays a session behind
+      // (2026-11-03 incident: signals-overlay-field-drift).
+      const session = live.session_date
+        || (live.data_asof ? String(live.data_asof).slice(0, 10) : null)
+        || (live.asof ? String(live.asof).slice(0, 10) : null); // YYYY-MM-DD
       if (session && live.quotes) {
         const q = live.quotes.find(x => x.symbol === symbol);
         if (q && q.ltp > 0) {
