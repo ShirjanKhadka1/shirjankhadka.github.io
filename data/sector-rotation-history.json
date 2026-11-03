@@ -562,7 +562,13 @@
   },
   {
    "date": "2026-10-23",
-   "note": "Quadrant chart added 2026-10-23 (board JSON 'quadrant_chart' block): a separate daily mechanism from the weekly posture table \u2014 x = EMA5 of the 20-session RS-line change in %, y = the 5-session change of x, quadrants by sign; decoded from the reference chart's own published spec ('20-day relative strength, 5-day smoothed') and a coordinate fit against its 2026-10-16 screenshot. Ledger entries are unaffected."
+   "note": "Quadrant chart added 2026-10-23 (board JSON 'quadrant_chart' block): a separate daily mechanism from the weekly posture table — x = EMA5 of the 20-session RS-line change in %, y = the 5-session change of x, quadrants by sign; decoded from the reference chart's own published spec ('20-day relative strength, 5-day smoothed') and a coordinate fit against its 2026-10-16 screenshot. Ledger entries are unaffected."
   }
- ]
+ ],
+ "classification_restated": {
+  "source": "data/reference/instruments.json",
+  "note": "restated 2026-11-03, classification corrected: sector + type from data/reference/instruments.json (Charter v4.2 item 4A master); UNCONFIRMED rows have no sector and are excluded from sector boards (never an Others/Unclassified bucket); TYPE decides equity inclusion, never sector.",
+  "series_recompute_pending": true,
+  "history_note": "Append-only history: entries retain pre-master sector labels and pre-master membership; the current board is restated. Future entries use master sectors."
+ }
 }

@@ -846,9 +846,15 @@ function valLab(sym, name, sector, sectorPeers, quarterly, fund, snap, asofD) {
     })),
   };
   let h = '<section class="d2-val-lab" id="valLab" aria-label="Valuation lab">\n';
-  h += '<p class="d2-val-label">Valuation lab · ' + esc(sector || 'sector peers') + '</p>\n';
+  // Charter 4B: a self-only set is not a peer set. When the focus company
+  // is the only company with quarterly history (sector unconfirmed, or a
+  // thin sector with no other published peers), say so honestly instead
+  // of rendering "Peer set · 1".
+  h += '<p class="d2-val-label">Valuation lab · ' + esc(sector || 'own figures') + '</p>\n';
   h += '<div class="d2-val-grid">\n<div>\n';
-  h += '<div class="d2-val-label">Peer set · ' + allSyms.length + ' ' + esc(sector || 'companies') + '</div>\n';
+  h += '<div class="d2-val-label">' + (allSyms.length < 2
+    ? esc(sector ? 'No peers with published quarterly figures in this sector' : 'No sector peers — sector unconfirmed')
+    : 'Peer set · ' + allSyms.length + ' ' + esc(sector || 'companies')) + '</div>\n';
   h += '<div class="d2-bank-chips" role="group" aria-label="Choose a company to highlight">\n' + chips + '\n</div>\n';
   h += '<div class="d2-val-co"><div class="d2-val-co-head"><div>' +
     '<div class="d2-val-co-sym" id="valCoSym">' + esc(sym) + '</div>' +
@@ -935,6 +941,27 @@ function pct(x) {
   const n = Number(x);
   return Number.isFinite(n) ? String(n) : String(x);
 }
+/* Dividend row cells (Investment Calendar dividends table).
+ * Per-share dividends (2026-11-03): UNL declares in rupees per share,
+ * never percent — its official notices quote "NPR 1,540 per equity
+ * share", and its yonepse history rows are all rupee-scale (650–1,842).
+ * A row is per-share when it carries dividend_unit 'per_share' (the
+ * div-live record) or when the symbol is UNL (legacy yonepse rows
+ * carry no unit field). Per-share rows render "NPR X per share" with
+ * NO % suffix; bonus stays a percent. Never render a per-share
+ * figure with a % suffix — that would misstate rupees as percent.
+ * Unit tests: tests/unit/dividend-units.test.js. */
+function dividendCells(d, sym) {
+  const bonus = pct(d.bonus_share), cash = pct(d.cash_dividend), total = pct(d.total_dividend);
+  const perShare = d.dividend_unit === 'per_share' || sym === 'UNL';
+  const rs = (v) => { const n = Number(String(v).replace(/,/g, '')); return Number.isFinite(n) ? 'NPR ' + n.toLocaleString('en-US') + ' per share' : String(v); };
+  return {
+    bonus: bonus === '–' ? '–' : bonus + ' %',
+    cash: cash === '–' ? '–' : (perShare ? rs(d.cash_dividend) : cash + ' %'),
+    total: total === '–' ? '–' : (perShare ? rs(d.total_dividend) : total + ' %'),
+    perShare,
+  };
+}
 /* Investment Calendar card: Nepse Alpha-style past corporate-action history.
  * Shows all-time per-scrip history (dividends, AGMs, rights, auctions) in
  * a card with sidebar navigation, search, and pagination. History rows come
@@ -997,19 +1024,8 @@ function investmentCalendarCard(sym, name, hist) {
       '<th scope="col">Book Close Date</th><th scope="col">Fiscal Year</th><th scope="col">Status</th>' +
       '</tr></thead>\n<tbody>\n';
     for (const d of divs) {
-      const bonus = pct(d.bonus_share), cash = pct(d.cash_dividend), total = pct(d.total_dividend);
-      /* Per-share dividends (2026-11-03): UNL declares in rupees per share,
-       * never percent — its official notices quote "NPR 1,540 per equity
-       * share", and its yonepse history rows are all rupee-scale (650–1,842).
-       * A row is per-share when it carries dividend_unit 'per_share' (the
-       * div-live record) or when the symbol is UNL (legacy yonepse rows
-       * carry no unit field). Per-share rows render "NPR X per share" with
-       * NO % suffix; bonus stays a percent. Never render a per-share
-       * figure with a % suffix — that would misstate rupees as percent. */
-      const perShare = d.dividend_unit === 'per_share' || sym === 'UNL';
-      const rs = (v) => { const n = Number(String(v).replace(/,/g, '')); return Number.isFinite(n) ? 'NPR ' + n.toLocaleString('en-US') + ' per share' : String(v); };
-      const cashCell = cash === '–' ? '–' : (perShare ? rs(d.cash_dividend) : cash + ' %');
-      const totalCell = total === '–' ? '–' : (perShare ? rs(d.total_dividend) : total + ' %');
+      const cells = dividendCells(d, sym);
+      const cashCell = cells.cash, totalCell = cells.total;
       /* Status pill: computed live in the browser from the book close date vs
        * today (Open while the date is today or in the future, Closed once it
        * has passed), so it flips on its own with no rebuild. A [Closed]
@@ -1040,7 +1056,7 @@ function investmentCalendarCard(sym, name, hist) {
       const fy = String(d.year || d.fiscal_year || '');
       const annRaw = stripTags(d.announcement_date || d.announced || '');
       const annIso = ((/^(\d{4}-\d{2}-\d{2})/.exec(annRaw) || [])[1]) || '';
-      h += '<tr><td>' + esc(bonus === '–' ? '–' : bonus + ' %') + '</td>' +
+      h += '<tr><td>' + esc(cells.bonus) + '</td>' +
         '<td>' + esc(cashCell) + '</td>' +
         '<td>' + esc(totalCell) + '</td>' +
         '<td>' + esc(bcCell) + '</td>' +
@@ -2141,4 +2157,4 @@ if (require.main === module) main();
 /* Exported for tools/apply-stock-seo.js, which brings the already-baked
  * pages to the identical end state without a full regeneration. */
 module.exports = { sectorOfSym, typeOfSym, sectorGroup, slugOf, fmtNum, esc,
-  blockFacts, companyBlock, SP_ABOUT_CSS, OG_STOCKS, scanBakedExtras };
+  blockFacts, companyBlock, SP_ABOUT_CSS, OG_STOCKS, scanBakedExtras, dividendCells };

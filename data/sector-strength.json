@@ -27,7 +27,7 @@
  },
  "rows": [
   {
-   "sector": "Banking",
+   "sector": "Commercial Bank",
    "rank": 1,
    "rank_change_1w": 0,
    "returns": {
@@ -97,7 +97,7 @@
    "comment": "Hydropower is in the Improving phase. Outperforming NEPSE by 1.84% over the last 7 days. Returns: 7d +2.98%, 21d +4.00%, 45d +3.33%, 90d -2.05%. Risk is Low on our banding (60-session volatility 0.89, risk score 22.66 of 100)."
   },
   {
-   "sector": "Manufacturing And Processing",
+   "sector": "Manufacturing and Processing",
    "rank": 3,
    "rank_change_1w": 5,
    "returns": {
@@ -307,42 +307,7 @@
    "comment": "Development Bank is in the Lagging phase. Underperforming NEPSE by 2.48% over the last 7 days. Returns: 7d -1.35%, 21d +0.52%, 45d -1.59%, 90d -11.06%. Risk is Low on our banding (60-session volatility 0.80, risk score 30.92 of 100)."
   },
   {
-   "sector": "Others",
-   "rank": 9,
-   "rank_change_1w": 2,
-   "returns": {
-    "7d": 0.48,
-    "21d": -0.6,
-    "45d": -4.28,
-    "90d": -11.63
-   },
-   "relative_strength": {
-    "7d": -0.66,
-    "21d": -4.16,
-    "45d": -8.37,
-    "90d": -11.31
-   },
-   "strength_scores": {
-    "7d": 42.12,
-    "21d": 1.36,
-    "45d": 0.0,
-    "90d": 12.68
-   },
-   "volatility_long": 0.79,
-   "risk_score": 31.64,
-   "risk_level": "Low",
-   "overall_score": 19.32,
-   "trend_phase": "Lagging",
-   "momentum_labels": {
-    "7d": "Flat",
-    "21d": "Flat",
-    "45d": "Mild Bearish",
-    "90d": "Strong Bearish"
-   },
-   "comment": "Others is in the Lagging phase. Underperforming NEPSE by 0.66% over the last 7 days. Returns: 7d +0.48%, 21d -0.60%, 45d -4.28%, 90d -11.63%. Risk is Low on our banding (60-session volatility 0.79, risk score 31.64 of 100)."
-  },
-  {
-   "sector": "Hotels And Tourism",
+   "sector": "Hotels and Tourism",
    "rank": 10,
    "rank_change_1w": 0,
    "returns": {
@@ -421,11 +386,24 @@
  },
  "methodology": {
   "construction": "For each window (7/21/45/90 calendar days), a sector's return is its derived index's close-to-close return from the last close on or before (asof - days). Relative strength = sector return - NEPSE return over the same window. Strength score = the relative strength min-max normalised across the board's 11 sectors (weakest 0, strongest 100).",
-  "risk": "volatility_long = population stdev of the sector index's daily % returns over the trailing 60 sessions. risk_score = 100 x (1 - volatility / the board's maximum volatility) \u2014 calmer sectors score higher. risk_level bands volatility: Low < 1.5, Moderate < 2.5, High above (our banding, stated).",
+  "risk": "volatility_long = population stdev of the sector index's daily % returns over the trailing 60 sessions. risk_score = 100 x (1 - volatility / the board's maximum volatility) — calmer sectors score higher. risk_level bands volatility: Low < 1.5, Moderate < 2.5, High above (our banding, stated).",
   "overall": "overall_score = 0.7 x mean of the four strength scores + 0.3 x risk_score. Sectors are ranked by overall score.",
   "phase": "trend_phase is the quadrant of (90d relative strength sign, 7d strength score >= 50): Leading / Weakening / Improving / Lagging.",
   "labels": "momentum_labels band the window's own return: >= +5 Strong Bullish, >= +1 Mild Bullish, between -1 and +1 Flat, <= -1 Mild Bearish, <= -5 Strong Bearish.",
   "sector_basis": "Sector indices are equal-weight composites of current constituents (the site's derived sector series), not official cap-weighted sub-indices; our taxonomy has 11 sectors with Trading inside Others and Hotels And Tourism as its own sector.",
   "persistence": "Measured history, not a forecast: weekly snapshots over the trailing three years, each board recomputed 28 calendar days later."
+ },
+ "unsectorised_equity": [
+  "GMFIL",
+  "MKCL",
+  "NRM",
+  "NTC",
+  "NWCL",
+  "TTL"
+ ],
+ "classification_restated": {
+  "source": "data/reference/instruments.json",
+  "note": "restated 2026-11-03, classification corrected: sector + type from data/reference/instruments.json (Charter v4.2 item 4A master); UNCONFIRMED rows have no sector and are excluded from sector boards (never an Others/Unclassified bucket); TYPE decides equity inclusion, never sector.",
+  "series_recompute_pending": true
  }
 }
