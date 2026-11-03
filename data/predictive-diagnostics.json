@@ -2,7 +2,7 @@
  "generated_at": "2026-10-30",
  "session_date": "2026-10-30",
  "kind": "predictive-diagnostics",
- "note": "Educational diagnostics from Nepse Decode's own signal/outcome ledgers. Track records are historical measurements, not predictions or calls. warning_hit_probability is a model score validated out-of-sample (VAL->OOS AUC 0.69; top-tercile precision 51.5% vs 34.2% base) \u2014 evidence, not a guarantee. DIST_STALL is an experimental evidence-only flag (weight 0).",
+ "note": "Educational diagnostics from Nepse Decode's own signal/outcome ledgers. Track records are historical measurements, not predictions or calls. warning_hit_probability is a model score validated out-of-sample (VAL->OOS AUC 0.69; top-tercile precision 51.5% vs 34.2% base) — evidence, not a guarantee. DIST_STALL is an experimental evidence-only flag (weight 0).",
  "class_track_records": {
   "signals:momentum": {
    "n_firings": 500,
@@ -134,10 +134,6 @@
     "n": 147,
     "success_rate": 0.3401360544217687
    },
-   "Banking": {
-    "n": 63,
-    "success_rate": 0.3968253968253968
-   },
    "Microfinance": {
     "n": 106,
     "success_rate": 0.3018867924528302
@@ -145,16 +141,16 @@
    "Finance": {
     "n": 35,
     "success_rate": 0.2571428571428571
+   },
+   "Commercial Bank": {
+    "n": 63,
+    "success_rate": 0.3968253968253968
    }
   },
   "signals:reversal": {
    "Microfinance": {
     "n": 65,
     "success_rate": 0.49230769230769234
-   },
-   "Banking": {
-    "n": 53,
-    "success_rate": 0.5094339622641509
    },
    "Hydropower": {
     "n": 59,
@@ -163,16 +159,16 @@
    "Non Life Insurance": {
     "n": 26,
     "success_rate": 0.3076923076923077
+   },
+   "Commercial Bank": {
+    "n": 53,
+    "success_rate": 0.5094339622641509
    }
   },
   "signals:trend-relay": {
    "Microfinance": {
     "n": 92,
     "success_rate": 0.30434782608695654
-   },
-   "Banking": {
-    "n": 69,
-    "success_rate": 0.391304347826087
    },
    "Hydropower": {
     "n": 100,
@@ -181,6 +177,10 @@
    "Non Life Insurance": {
     "n": 27,
     "success_rate": 0.25925925925925924
+   },
+   "Commercial Bank": {
+    "n": 69,
+    "success_rate": 0.391304347826087
    }
   },
   "verdicts_v2:BOUNCE_SETUP": {
@@ -214,33 +214,29 @@
     "n": 100,
     "success_rate": 0.35
    },
-   "Hotels And Tourism": {
-    "n": 57,
-    "success_rate": 0.3333333333333333
-   },
    "Life Insurance": {
     "n": 98,
     "success_rate": 0.3469387755102041
-   },
-   "Banking": {
-    "n": 267,
-    "success_rate": 0.2696629213483146
-   },
-   "Manufacturing And Processing": {
-    "n": 77,
-    "success_rate": 0.5064935064935064
    },
    "Non Life Insurance": {
     "n": 122,
     "success_rate": 0.2786885245901639
    },
-   "Others": {
-    "n": 49,
-    "success_rate": 0.4489795918367347
-   },
    "Development Bank": {
     "n": 96,
     "success_rate": 0.4166666666666667
+   },
+   "Hotels and Tourism": {
+    "n": 57,
+    "success_rate": 0.3333333333333333
+   },
+   "Commercial Bank": {
+    "n": 267,
+    "success_rate": 0.2696629213483146
+   },
+   "Manufacturing and Processing": {
+    "n": 77,
+    "success_rate": 0.5064935064935064
    }
   },
   "verdicts_v2:DIST_STALL": {
@@ -264,25 +260,25 @@
     "n": 266,
     "success_rate": 0.37593984962406013
    },
-   "Manufacturing And Processing": {
-    "n": 51,
-    "success_rate": 0.45098039215686275
-   },
-   "Hotels And Tourism": {
-    "n": 72,
-    "success_rate": 0.2222222222222222
-   },
    "Investment": {
     "n": 64,
     "success_rate": 0.328125
    },
-   "Banking": {
-    "n": 352,
-    "success_rate": 0.2755681818181818
-   },
    "Non Life Insurance": {
     "n": 146,
     "success_rate": 0.3013698630136986
+   },
+   "Manufacturing and Processing": {
+    "n": 51,
+    "success_rate": 0.45098039215686275
+   },
+   "Hotels and Tourism": {
+    "n": 72,
+    "success_rate": 0.2222222222222222
+   },
+   "Commercial Bank": {
+    "n": 352,
+    "success_rate": 0.2755681818181818
    }
   },
   "verdicts_v2:EXHAUSTION_RISK": {
@@ -644,7 +640,7 @@
    "oos_mean_gain_pp": -0.20679050097821214,
    "era_degradation_pp": [],
    "status": "STAGED",
-   "reason": "insufficient evidence \u2014 the rule fires on only 4 archived trades; a PASS/REJECT on that count would be noise"
+   "reason": "insufficient evidence — the rule fires on only 4 archived trades; a PASS/REJECT on that count would be noise"
   },
   {
    "id": "F2_t2_recent@POOLED",
@@ -741,7 +737,7 @@
    "oos_mean_gain_pp": 0.0,
    "era_degradation_pp": [],
    "status": "STAGED",
-   "reason": "insufficient evidence \u2014 the rule fires on only 0 archived trades; a PASS/REJECT on that count would be noise"
+   "reason": "insufficient evidence — the rule fires on only 0 archived trades; a PASS/REJECT on that count would be noise"
   },
   {
    "id": "F3_lockin_near@trend-relay",
@@ -787,7 +783,7 @@
    "oos_mean_gain_pp": 0.062371185260721995,
    "era_degradation_pp": [],
    "status": "STAGED",
-   "reason": "insufficient evidence \u2014 the rule fires on only 2 archived trades; a PASS/REJECT on that count would be noise"
+   "reason": "insufficient evidence — the rule fires on only 2 archived trades; a PASS/REJECT on that count would be noise"
   },
   {
    "id": "F3_lockin_near@reversal",
@@ -833,7 +829,7 @@
    "oos_mean_gain_pp": 0.21027406287471329,
    "era_degradation_pp": [],
    "status": "STAGED",
-   "reason": "insufficient evidence \u2014 the rule fires on only 1 archived trades; a PASS/REJECT on that count would be noise"
+   "reason": "insufficient evidence — the rule fires on only 1 archived trades; a PASS/REJECT on that count would be noise"
   },
   {
    "id": "F3_lockin_near@POOLED",
@@ -879,7 +875,7 @@
    "oos_mean_gain_pp": 0.06899052570903744,
    "era_degradation_pp": [],
    "status": "STAGED",
-   "reason": "insufficient evidence \u2014 the rule fires on only 3 archived trades; a PASS/REJECT on that count would be noise"
+   "reason": "insufficient evidence — the rule fires on only 3 archived trades; a PASS/REJECT on that count would be noise"
   },
   {
    "id": "F4_thin_turnover@momentum",
@@ -1440,7 +1436,7 @@
    "oos_mean_gain_pp": 0.0,
    "era_degradation_pp": [],
    "status": "STAGED",
-   "reason": "insufficient evidence \u2014 the rule fires on only 0 archived trades; a PASS/REJECT on that count would be noise"
+   "reason": "insufficient evidence — the rule fires on only 0 archived trades; a PASS/REJECT on that count would be noise"
   },
   {
    "id": "F6_rsi_hot@POOLED",
@@ -1537,7 +1533,7 @@
    "oos_mean_gain_pp": 0.7125991737730437,
    "era_degradation_pp": [],
    "status": "STAGED",
-   "reason": "OOS improves, no era degradation, n adequate; downgraded from PASS \u2014 rule was discovered on this same sample, so forward confirmation is required",
+   "reason": "OOS improves, no era degradation, n adequate; downgraded from PASS — rule was discovered on this same sample, so forward confirmation is required",
    "discovered_in_sample": true
   },
   {
@@ -1584,7 +1580,7 @@
    "oos_mean_gain_pp": 0.1755325152600823,
    "era_degradation_pp": [],
    "status": "STAGED",
-   "reason": "OOS improves, no era degradation, n adequate; downgraded from PASS \u2014 rule was discovered on this same sample, so forward confirmation is required",
+   "reason": "OOS improves, no era degradation, n adequate; downgraded from PASS — rule was discovered on this same sample, so forward confirmation is required",
    "discovered_in_sample": true
   },
   {
@@ -1631,7 +1627,7 @@
    "oos_mean_gain_pp": 0.9194420290856705,
    "era_degradation_pp": [],
    "status": "STAGED",
-   "reason": "OOS improves, no era degradation, n adequate; downgraded from PASS \u2014 rule was discovered on this same sample, so forward confirmation is required",
+   "reason": "OOS improves, no era degradation, n adequate; downgraded from PASS — rule was discovered on this same sample, so forward confirmation is required",
    "discovered_in_sample": true
   },
   {
@@ -1678,7 +1674,7 @@
    "oos_mean_gain_pp": 0.9536526457181196,
    "era_degradation_pp": [],
    "status": "STAGED",
-   "reason": "OOS improves, no era degradation, n adequate; downgraded from PASS \u2014 rule was discovered on this same sample, so forward confirmation is required",
+   "reason": "OOS improves, no era degradation, n adequate; downgraded from PASS — rule was discovered on this same sample, so forward confirmation is required",
    "discovered_in_sample": true
   },
   {
@@ -1756,7 +1752,7 @@
    "status": "STAGED",
    "activation_gates": [
     "JS-harness re-verification (pending)",
-    ">=20 live ledger resolutions at >=36.6% precision (0 so far \u2014 flag not emitted live)",
+    ">=20 live ledger resolutions at >=36.6% precision (0 so far — flag not emitted live)",
     "parent review"
    ],
    "py_precision": {
@@ -1840,7 +1836,7 @@
    "best_single_feature_oos_auc": 0.6088175331294597,
    "decision_positive": true,
    "status": "REJECTED",
-   "reason": "OOS AUC 0.5443425076452599 below 0.55 \u2014 no proven skill"
+   "reason": "OOS AUC 0.5443425076452599 below 0.55 — no proven skill"
   },
   {
    "class": "signals:trend-relay",
@@ -1915,7 +1911,7 @@
    "best_single_feature_oos_auc": 0.5223665223665224,
    "decision_positive": false,
    "status": "REJECTED",
-   "reason": "OOS AUC 0.3434343434343434 below 0.55 \u2014 no proven skill"
+   "reason": "OOS AUC 0.3434343434343434 below 0.55 — no proven skill"
   },
   {
    "class": "signals:reversal",
@@ -1990,7 +1986,7 @@
    "best_single_feature_oos_auc": 0.7296918767507002,
    "decision_positive": false,
    "status": "REJECTED",
-   "reason": "OOS AUC 0.4439775910364146 below 0.55 \u2014 no proven skill"
+   "reason": "OOS AUC 0.4439775910364146 below 0.55 — no proven skill"
   },
   {
    "class": "signals:POOLED",
@@ -2065,7 +2061,7 @@
    "best_single_feature_oos_auc": 0.6294938165084843,
    "decision_positive": false,
    "status": "REJECTED",
-   "reason": "OOS AUC 0.5159620362381363 below 0.55 \u2014 no proven skill"
+   "reason": "OOS AUC 0.5159620362381363 below 0.55 — no proven skill"
   },
   {
    "class": "verdicts_v2:warnings",
@@ -2218,7 +2214,7 @@
    ],
    "pump_score": 0,
    "opportunity_score": 0,
-   "sector": "Development Bank",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": false,
    "warning_hit_probability": 0.41496944845741834,
    "screener_replay": {
@@ -2233,7 +2229,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": false
   },
   "AHL": {
@@ -2329,7 +2325,7 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": 0,
-   "sector": null,
+   "sector": "Hydropower",
    "dist_stall_evidence": false
   },
   "API": {
@@ -2365,7 +2361,7 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": 0,
-   "sector": "Hotels And Tourism",
+   "sector": "Hotels and Tourism",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 10,
@@ -2409,7 +2405,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": null,
+   "sector": "Hydropower",
    "dist_stall_evidence": null
   },
   "BFC": {
@@ -2511,7 +2507,7 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": 0,
-   "sector": "Manufacturing And Processing",
+   "sector": "Manufacturing and Processing",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 53,
@@ -2525,7 +2521,7 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": 0,
-   "sector": "Manufacturing And Processing",
+   "sector": "Manufacturing and Processing",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 16,
@@ -2539,7 +2535,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": null,
    "dist_stall_evidence": null
   },
   "BOKD86KA": {
@@ -2547,7 +2543,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": null,
    "dist_stall_evidence": null
   },
   "BPCL": {
@@ -2587,7 +2583,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": null
   },
   "CBBL": {
@@ -2611,7 +2607,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": null,
    "dist_stall_evidence": null
   },
   "CCBD88": {
@@ -2619,7 +2615,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": null,
    "dist_stall_evidence": null
   },
   "CFCL": {
@@ -2645,7 +2641,7 @@
    ],
    "pump_score": 0.111,
    "opportunity_score": 0,
-   "sector": "Hotels And Tourism",
+   "sector": "Hotels and Tourism",
    "dist_stall_evidence": false
   },
   "CHCL": {
@@ -2705,7 +2701,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Hotels And Tourism",
+   "sector": "Hotels and Tourism",
    "dist_stall_evidence": false
   },
   "CIZBD86": {
@@ -2713,7 +2709,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": false
   },
   "CIZBD90": {
@@ -2721,7 +2717,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": false
   },
   "CKHL": {
@@ -2761,7 +2757,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": null
   },
   "CORBL": {
@@ -2799,7 +2795,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "CYCL": {
@@ -2829,7 +2825,7 @@
    ],
    "pump_score": 0.633,
    "opportunity_score": 0,
-   "sector": "Banking",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": false,
    "warning_hit_probability": 0.2660232958799026,
    "screener_replay": {
@@ -2927,7 +2923,7 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": null,
-   "sector": "Banking",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 67,
@@ -2941,7 +2937,7 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": null,
-   "sector": null,
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "EBLD86": {
@@ -2949,7 +2945,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": false
   },
   "EBLD91": {
@@ -2957,7 +2953,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": false
   },
   "EBLEB89": {
@@ -2965,7 +2961,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": null,
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "ECL": {
@@ -2975,7 +2971,7 @@
    ],
    "pump_score": 0.222,
    "opportunity_score": null,
-   "sector": null,
+   "sector": "Manufacturing and Processing",
    "dist_stall_evidence": false,
    "warning_hit_probability": 0.603001238925906
   },
@@ -3050,7 +3046,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Development Bank",
    "dist_stall_evidence": null
   },
   "GBBL": {
@@ -3058,7 +3054,7 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": null,
-   "sector": "Banking",
+   "sector": "Development Bank",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 66,
@@ -3072,7 +3068,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": null,
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "GBILD86/87": {
@@ -3080,7 +3076,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "GBIME": {
@@ -3091,7 +3087,7 @@
    ],
    "pump_score": 0.389,
    "opportunity_score": null,
-   "sector": "Banking",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": false,
    "warning_hit_probability": 0.06213959856711617,
    "screener_replay": {
@@ -3106,7 +3102,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "GBLBS": {
@@ -3130,7 +3126,7 @@
    ],
    "pump_score": 0.111,
    "opportunity_score": 0,
-   "sector": "Manufacturing And Processing",
+   "sector": "Manufacturing and Processing",
    "dist_stall_evidence": false
   },
   "GFCL": {
@@ -3174,7 +3170,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "GILB": {
@@ -3232,7 +3228,7 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": 0,
-   "sector": "Banking",
+   "sector": null,
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 43,
@@ -3273,7 +3269,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "GUFL": {
@@ -3315,7 +3311,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "H8020": {
@@ -3323,7 +3319,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "HATHY": {
@@ -3345,7 +3341,7 @@
    ],
    "pump_score": 0.111,
    "opportunity_score": 0,
-   "sector": "Banking",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 21,
@@ -3359,7 +3355,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "HBLD86": {
@@ -3367,7 +3363,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": false
   },
   "HDHPC": {
@@ -3392,7 +3388,7 @@
    ],
    "pump_score": 0.356,
    "opportunity_score": 0,
-   "sector": "Manufacturing And Processing",
+   "sector": "Manufacturing and Processing",
    "dist_stall_evidence": false,
    "warning_hit_probability": 0.30451761079228085,
    "screener_replay": {
@@ -3426,7 +3422,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Promoter Shares",
+   "sector": "Non Life Insurance",
    "dist_stall_evidence": false
   },
   "HFIN": {
@@ -3434,7 +3430,7 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": 0,
-   "sector": "Hotels And Tourism",
+   "sector": "Hotels and Tourism",
    "dist_stall_evidence": false
   },
   "HHL": {
@@ -3531,7 +3527,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "HPPL": {
@@ -3606,7 +3602,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Finance",
    "dist_stall_evidence": null
   },
   "ICFCD89": {
@@ -3614,7 +3610,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Finance",
    "dist_stall_evidence": false
   },
   "IGI": {
@@ -3683,7 +3679,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": null,
    "dist_stall_evidence": null
   },
   "JBBL": {
@@ -3693,7 +3689,7 @@
    ],
    "pump_score": 0.111,
    "opportunity_score": null,
-   "sector": "Banking",
+   "sector": "Development Bank",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 55,
@@ -3723,7 +3719,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Promoter Shares",
+   "sector": null,
    "dist_stall_evidence": null
   },
   "JFL": {
@@ -3777,7 +3773,7 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": 0,
-   "sector": null,
+   "sector": "Hydropower",
    "dist_stall_evidence": false
   },
   "KBL": {
@@ -3788,7 +3784,7 @@
    ],
    "pump_score": 0.356,
    "opportunity_score": 0,
-   "sector": "Banking",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": false,
    "warning_hit_probability": 0.1834832515206194,
    "screener_replay": {
@@ -3803,7 +3799,7 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": null,
-   "sector": null,
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "KBLD89": {
@@ -3819,7 +3815,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "KBLPO": {
@@ -3827,7 +3823,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Promoter Shares",
+   "sector": null,
    "dist_stall_evidence": null
   },
   "KBSH": {
@@ -3845,7 +3841,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "KDL": {
@@ -3856,7 +3852,7 @@
    ],
    "pump_score": 0.356,
    "opportunity_score": 0,
-   "sector": "Hotels And Tourism",
+   "sector": "Hotels and Tourism",
    "dist_stall_evidence": false,
    "warning_hit_probability": 0.23531768000827283
   },
@@ -3865,7 +3861,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "KHPL": {
@@ -3873,7 +3869,7 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": 0,
-   "sector": null,
+   "sector": "Hydropower",
    "dist_stall_evidence": false
   },
   "KKHC": {
@@ -3925,7 +3921,7 @@
    ],
    "pump_score": 0.111,
    "opportunity_score": null,
-   "sector": "Banking",
+   "sector": "Development Bank",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 47,
@@ -3939,7 +3935,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": null,
+   "sector": "Development Bank",
    "dist_stall_evidence": null
   },
   "KSY": {
@@ -3947,7 +3943,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "LBBL": {
@@ -3958,7 +3954,7 @@
    ],
    "pump_score": 0.35,
    "opportunity_score": 0,
-   "sector": "Banking",
+   "sector": "Development Bank",
    "dist_stall_evidence": false,
    "warning_hit_probability": 0.6141984758183755,
    "screener_replay": {
@@ -4021,7 +4017,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": null,
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "LSH12": {
@@ -4042,7 +4038,7 @@
    ],
    "pump_score": 0.778,
    "opportunity_score": null,
-   "sector": "Banking",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": false,
    "warning_hit_probability": 0.13386506416334343,
    "screener_replay": {
@@ -4057,7 +4053,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "LVF2": {
@@ -4065,7 +4061,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "MABEL": {
@@ -4145,7 +4141,7 @@
    ],
    "pump_score": 0.633,
    "opportunity_score": null,
-   "sector": "Banking",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": false,
    "warning_hit_probability": 0.2654630511155698,
    "screener_replay": {
@@ -4160,7 +4156,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "MBLD87": {
@@ -4168,7 +4164,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": null,
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "MBLEF": {
@@ -4176,7 +4172,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "MCHL": {
@@ -4257,7 +4253,7 @@
    ],
    "pump_score": 0.222,
    "opportunity_score": null,
-   "sector": null,
+   "sector": "Hydropower",
    "dist_stall_evidence": false,
    "warning_hit_probability": 0.5357285489819462
   },
@@ -4296,7 +4292,7 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": null,
-   "sector": null,
+   "sector": "Finance",
    "dist_stall_evidence": null
   },
   "MHCL": {
@@ -4344,7 +4340,7 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": 0,
-   "sector": "Others",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "MKHC": {
@@ -4403,7 +4399,7 @@
    ],
    "pump_score": 0.389,
    "opportunity_score": null,
-   "sector": "Banking",
+   "sector": "Development Bank",
    "dist_stall_evidence": false,
    "warning_hit_probability": 0.15592770278802456,
    "screener_replay": {
@@ -4418,7 +4414,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Development Bank",
    "dist_stall_evidence": null
   },
   "MLBLPO": {
@@ -4426,7 +4422,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Promoter Shares",
+   "sector": null,
    "dist_stall_evidence": null
   },
   "MLBS": {
@@ -4450,7 +4446,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "MMKJL": {
@@ -4479,7 +4475,7 @@
    ],
    "pump_score": 0.1,
    "opportunity_score": 0,
-   "sector": "Banking",
+   "sector": "Development Bank",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 24,
@@ -4501,7 +4497,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "MPFL": {
@@ -4565,7 +4561,7 @@
    ],
    "pump_score": 0.111,
    "opportunity_score": null,
-   "sector": "Banking",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 64,
@@ -4579,7 +4575,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": false
   },
   "NABILD87": {
@@ -4587,7 +4583,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "NADEP": {
@@ -4605,7 +4601,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": null,
    "dist_stall_evidence": null
   },
   "NBF2": {
@@ -4613,7 +4609,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "NBF3": {
@@ -4621,7 +4617,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "NBL": {
@@ -4633,7 +4629,7 @@
    ],
    "pump_score": 0.5,
    "opportunity_score": null,
-   "sector": "Banking",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": false,
    "warning_hit_probability": 0.23781321090050905,
    "screener_replay": {
@@ -4648,7 +4644,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "NBLD85": {
@@ -4656,7 +4652,7 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": null,
-   "sector": null,
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "NBLD87": {
@@ -4664,7 +4660,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "NCCD86": {
@@ -4744,7 +4740,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "NIBLGF": {
@@ -4752,7 +4748,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "NIBLSTF": {
@@ -4760,7 +4756,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "NIBSF2": {
@@ -4768,7 +4764,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "NICA": {
@@ -4778,7 +4774,7 @@
    ],
    "pump_score": 0.111,
    "opportunity_score": 0,
-   "sector": "Banking",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 35,
@@ -4792,7 +4788,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "NICAD85/86": {
@@ -4800,7 +4796,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "NICBF": {
@@ -4808,7 +4804,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "NICFC": {
@@ -4816,7 +4812,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "NICGF2": {
@@ -4824,7 +4820,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "NICL": {
@@ -4860,7 +4856,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "NIFRA": {
@@ -4884,7 +4880,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Investment",
    "dist_stall_evidence": false
   },
   "NIFRAUR85/86": {
@@ -4918,7 +4914,7 @@
    ],
    "pump_score": 0.633,
    "opportunity_score": 0,
-   "sector": "Banking",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": false,
    "warning_hit_probability": 0.2421040137714476,
    "screener_replay": {
@@ -4933,7 +4929,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": null,
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "NIMBPO": {
@@ -4941,7 +4937,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Promoter Shares",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "NLG": {
@@ -4991,7 +4987,7 @@
    ],
    "pump_score": 0.633,
    "opportunity_score": null,
-   "sector": "Banking",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": false,
    "warning_hit_probability": 0.21407744176985422,
    "screener_replay": {
@@ -5006,7 +5002,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": null
   },
   "NMBD2085": {
@@ -5014,7 +5010,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": null,
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "NMBD87/88": {
@@ -5022,7 +5018,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "NMBD89/90": {
@@ -5030,7 +5026,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": null,
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "NMBHF2": {
@@ -5038,7 +5034,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "NMBMF": {
@@ -5060,7 +5056,7 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": null,
-   "sector": null,
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "NMFBS": {
@@ -5130,7 +5126,7 @@
    ],
    "pump_score": 0.111,
    "opportunity_score": 0,
-   "sector": "Others",
+   "sector": null,
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 6,
@@ -5158,7 +5154,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "NSY": {
@@ -5166,7 +5162,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "NTC": {
@@ -5176,7 +5172,7 @@
    ],
    "pump_score": 0.111,
    "opportunity_score": null,
-   "sector": "Others",
+   "sector": null,
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 38,
@@ -5206,7 +5202,7 @@
    ],
    "pump_score": 0.111,
    "opportunity_score": 0,
-   "sector": "Others",
+   "sector": null,
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 20,
@@ -5236,7 +5232,7 @@
    ],
    "pump_score": 0.111,
    "opportunity_score": 0,
-   "sector": "Hotels And Tourism",
+   "sector": "Hotels and Tourism",
    "dist_stall_evidence": false
   },
   "OMPL": {
@@ -5244,7 +5240,7 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": 0,
-   "sector": "Manufacturing And Processing",
+   "sector": "Manufacturing and Processing",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 11,
@@ -5258,7 +5254,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": null,
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "PBD85": {
@@ -5266,7 +5262,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "PBD88": {
@@ -5274,7 +5270,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": false
   },
   "PBD93": {
@@ -5282,7 +5278,7 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": null,
-   "sector": null,
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "PBLD84": {
@@ -5290,7 +5286,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": null,
    "dist_stall_evidence": null
   },
   "PBLD87": {
@@ -5298,7 +5294,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": null,
    "dist_stall_evidence": null
   },
   "PCBL": {
@@ -5311,7 +5307,7 @@
    ],
    "pump_score": 0.778,
    "opportunity_score": null,
-   "sector": "Banking",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": false,
    "warning_hit_probability": 0.2669845402805785,
    "screener_replay": {
@@ -5326,7 +5322,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": null,
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "PCIL": {
@@ -5337,7 +5333,7 @@
    ],
    "pump_score": 0.147,
    "opportunity_score": 1,
-   "sector": "Manufacturing And Processing",
+   "sector": "Manufacturing and Processing",
    "dist_stall_evidence": false
   },
   "PFL": {
@@ -5469,7 +5465,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "PRVU": {
@@ -5479,7 +5475,7 @@
    ],
    "pump_score": 0.111,
    "opportunity_score": 0,
-   "sector": "Banking",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 29,
@@ -5493,7 +5489,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "PURE": {
@@ -5545,7 +5541,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": null,
    "dist_stall_evidence": null
   },
   "RBBD83": {
@@ -5553,7 +5549,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": null,
    "dist_stall_evidence": null
   },
   "RBBF40": {
@@ -5561,7 +5557,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "RBCL": {
@@ -5583,7 +5579,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Promoter Shares",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "RFPL": {
@@ -5666,7 +5662,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "RMF2": {
@@ -5674,7 +5670,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "RNLI": {
@@ -5712,7 +5708,7 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": 0,
-   "sector": "Manufacturing And Processing",
+   "sector": "Manufacturing and Processing",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 8,
@@ -5726,7 +5722,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "RSY2": {
@@ -5760,7 +5756,7 @@
    ],
    "pump_score": 0,
    "opportunity_score": 1,
-   "sector": "Banking",
+   "sector": "Development Bank",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 9,
@@ -5800,7 +5796,7 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": 0,
-   "sector": "Manufacturing And Processing",
+   "sector": "Manufacturing and Processing",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 22,
@@ -5814,7 +5810,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "SAHAS": {
@@ -5836,7 +5832,7 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": 0,
-   "sector": "Manufacturing And Processing",
+   "sector": "Manufacturing and Processing",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 13,
@@ -5866,7 +5862,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": null,
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "SANIMA": {
@@ -5878,7 +5874,7 @@
    ],
    "pump_score": 0.633,
    "opportunity_score": null,
-   "sector": "Banking",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": false,
    "warning_hit_probability": 0.1882516182474205,
    "screener_replay": {
@@ -5925,7 +5921,7 @@
    ],
    "pump_score": 0.222,
    "opportunity_score": null,
-   "sector": null,
+   "sector": "Manufacturing and Processing",
    "dist_stall_evidence": false,
    "warning_hit_probability": 0.7222043528446984
   },
@@ -5934,7 +5930,7 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": 0,
-   "sector": "Manufacturing And Processing",
+   "sector": "Manufacturing and Processing",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 26,
@@ -5948,7 +5944,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "SBD89": {
@@ -5956,7 +5952,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": null,
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "SBI": {
@@ -5968,7 +5964,7 @@
    ],
    "pump_score": 0.633,
    "opportunity_score": null,
-   "sector": "Banking",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": false,
    "warning_hit_probability": 0.11010839759282234,
    "screener_replay": {
@@ -5983,7 +5979,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "SBID2090": {
@@ -5991,7 +5987,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "SBID83": {
@@ -5999,7 +5995,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "SBID89": {
@@ -6007,7 +6003,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "SBL": {
@@ -6017,7 +6013,7 @@
    ],
    "pump_score": 0.244,
    "opportunity_score": null,
-   "sector": "Banking",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 93,
@@ -6031,7 +6027,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": false
   },
   "SBLD84": {
@@ -6039,7 +6035,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "SBLD89": {
@@ -6047,7 +6043,7 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": null,
-   "sector": null,
+   "sector": "Commercial Bank",
    "dist_stall_evidence": false
   },
   "SCB": {
@@ -6058,7 +6054,7 @@
    ],
    "pump_score": 0.32,
    "opportunity_score": null,
-   "sector": "Banking",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": false,
    "warning_hit_probability": 0.030816565771549224,
    "screener_replay": {
@@ -6073,7 +6069,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "SDBD87": {
@@ -6081,7 +6077,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": null,
    "dist_stall_evidence": null
   },
   "SEF": {
@@ -6089,7 +6085,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "SEF2": {
@@ -6105,7 +6101,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "SFMF": {
@@ -6113,7 +6109,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "SGHC": {
@@ -6137,7 +6133,7 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": null,
-   "sector": null,
+   "sector": "Hydropower",
    "dist_stall_evidence": false
   },
   "SGIC": {
@@ -6187,7 +6183,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Debentures",
+   "sector": "Development Bank",
    "dist_stall_evidence": false
   },
   "SHIVM": {
@@ -6197,7 +6193,7 @@
    ],
    "pump_score": 0.111,
    "opportunity_score": 0,
-   "sector": "Manufacturing And Processing",
+   "sector": "Manufacturing and Processing",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 63,
@@ -6213,7 +6209,7 @@
    ],
    "pump_score": 0.1,
    "opportunity_score": null,
-   "sector": "Hotels And Tourism",
+   "sector": "Hotels and Tourism",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 20,
@@ -6275,7 +6271,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "SIGS3": {
@@ -6283,7 +6279,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "SIKLES": {
@@ -6299,7 +6295,7 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": 0,
-   "sector": "Banking",
+   "sector": "Development Bank",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 21,
@@ -6417,7 +6413,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": "Mutual Funds",
+   "sector": null,
    "dist_stall_evidence": false
   },
   "SMATA": {
@@ -6535,7 +6531,7 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": null,
-   "sector": null,
+   "sector": "Hydropower",
    "dist_stall_evidence": false
   },
   "SOHL": {
@@ -6562,7 +6558,7 @@
    ],
    "pump_score": 0.778,
    "opportunity_score": 0,
-   "sector": "Manufacturing And Processing",
+   "sector": "Manufacturing and Processing",
    "dist_stall_evidence": false,
    "warning_hit_probability": 0.3552007157285803,
    "screener_replay": {
@@ -6577,7 +6573,7 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": 0,
-   "sector": null,
+   "sector": "Manufacturing and Processing",
    "dist_stall_evidence": false
   },
   "SPC": {
@@ -6657,7 +6653,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": null,
+   "sector": "Commercial Bank",
    "dist_stall_evidence": null
   },
   "SRLI": {
@@ -6681,7 +6677,7 @@
    "flags": [],
    "pump_score": null,
    "opportunity_score": null,
-   "sector": null,
+   "sector": "Life Insurance",
    "dist_stall_evidence": null
   },
   "SSHL": {
@@ -6749,7 +6745,7 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": 0,
-   "sector": "Manufacturing And Processing",
+   "sector": "Manufacturing and Processing",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 9,
@@ -6796,7 +6792,7 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": null,
-   "sector": null,
+   "sector": "Hydropower",
    "dist_stall_evidence": false
   },
   "TRH": {
@@ -6804,7 +6800,7 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": 0,
-   "sector": "Hotels And Tourism",
+   "sector": "Hotels and Tourism",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 10,
@@ -6832,7 +6828,7 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": 0,
-   "sector": "Others",
+   "sector": null,
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 46,
@@ -6972,7 +6968,7 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": null,
-   "sector": "Manufacturing And Processing",
+   "sector": "Manufacturing and Processing",
    "dist_stall_evidence": false,
    "screener_replay": {
     "n": 57,
@@ -7094,8 +7090,13 @@
    "flags": [],
    "pump_score": 0,
    "opportunity_score": 0,
-   "sector": null,
+   "sector": "Hydropower",
    "dist_stall_evidence": false
   }
+ },
+ "classification_restated": {
+  "source": "data/reference/instruments.json",
+  "note": "restated 2026-11-03, classification corrected: sector + type from data/reference/instruments.json (Charter v4.2 item 4A master); UNCONFIRMED rows have no sector and are excluded from sector boards (never an Others/Unclassified bucket); TYPE decides equity inclusion, never sector.",
+  "series_recompute_pending": true
  }
 }
