@@ -1,14 +1,14 @@
 {
- "generated_at": "2026-11-02T12:00:15.749Z",
+ "generated_at": "2026-11-03T13:57:21.094Z",
  "generator": "tools/build-calendar-events.js",
  "note": "Nepse Decode market calendar. Sources: Nepal Gazette holiday lists and NEPSE closure confirmations (holidays), SEBON issue tracker (issues), official company disclosures recorded by Nepse Decode (dividends, book closes, AGMs), promoter lock-in expiries derived from IPO allotment dates + the 3-year SEBON lock-in. Unverified entries are labelled as such and confirmed against official notices as they appear.",
  "counts": {
   "issue_opens": 31,
   "issue_closes": 31,
-  "dividend": 44,
-  "book_close": 29,
+  "dividend": 47,
+  "book_close": 30,
   "public_holiday": 26,
-  "lock_in_expiry": 51,
+  "lock_in_expiry": 52,
   "other_event": 5,
   "agm": 2
  },
@@ -1910,6 +1910,42 @@
   },
   {
    "date_ad": "2026-11-02",
+   "type": "dividend",
+   "title": "RSDC — dividend proposed: 9.405% (FY 2082/2083)",
+   "symbol": "RSDC",
+   "units": null,
+   "detail": "Bonus share 0% + cash dividend 9.405% = 9.405% total for FY 2082/2083, as recorded from the official disclosure.",
+   "source": "Official NEPSE/company disclosure (div-live archive)",
+   "verified": true,
+   "date_bs": "2083-07-16",
+   "weekend": false
+  },
+  {
+   "date_ad": "2026-11-02",
+   "type": "dividend",
+   "title": "UNL — dividend proposed: 1540% (FY 2082/2083)",
+   "symbol": "UNL",
+   "units": null,
+   "detail": "Bonus share 0% + cash dividend 1540% = 1540% total for FY 2082/2083, as recorded from the official disclosure.",
+   "source": "Official NEPSE/company disclosure (div-live archive)",
+   "verified": true,
+   "date_bs": "2083-07-16",
+   "weekend": false
+  },
+  {
+   "date_ad": "2026-11-02",
+   "type": "dividend",
+   "title": "MAKAR — dividend proposed: 13.6842% (FY 2082/2083)",
+   "symbol": "MAKAR",
+   "units": null,
+   "detail": "Bonus share 13% + cash dividend 0.6842% = 13.6842% total for FY 2082/2083, as recorded from the official disclosure.",
+   "source": "Official NEPSE/company disclosure (div-live archive)",
+   "verified": true,
+   "date_bs": "2083-07-16",
+   "weekend": false
+  },
+  {
+   "date_ad": "2026-11-02",
    "type": "lock_in_expiry",
    "title": "CKHL — promoter lock-in expires",
    "symbol": "CKHL",
@@ -1930,6 +1966,18 @@
    "source": "ShareSansar official-notice mirror",
    "verified": true,
    "date_bs": "2083-07-16",
+   "weekend": false
+  },
+  {
+   "date_ad": "2026-11-03",
+   "type": "lock_in_expiry",
+   "title": "NWCL — lock-in release notice",
+   "symbol": "NWCL",
+   "units": null,
+   "detail": "Official lock-in release notice published 2026-11-03. A release notice can cover a specific tranche; the promoter lock-in expiry is listed separately.",
+   "source": "ShareSansar official-notice mirror",
+   "verified": true,
+   "date_bs": "2083-07-17",
    "weekend": false
   },
   {
@@ -2031,6 +2079,18 @@
    "symbol": null,
    "units": null,
    "detail": null,
+   "weekend": false
+  },
+  {
+   "date_ad": "2026-11-25",
+   "type": "book_close",
+   "title": "UNL — book close (FY 2082/2083)",
+   "symbol": "UNL",
+   "units": null,
+   "detail": "Book closure for the FY 2082/2083 dividend/AGM: shareholders on the register at this date are eligible.",
+   "source": "Official NEPSE/company disclosure (div-live archive)",
+   "verified": true,
+   "date_bs": "2083-08-09",
    "weekend": false
   },
   {
@@ -2773,10 +2833,5 @@
   "USHEC": "Hydropower",
   "USHL": "Hydropower",
   "VLUCL": "Hydropower"
- },
- "classification_restated": {
-  "source": "data/reference/instruments.json",
-  "note": "restated 2026-11-03, classification corrected: sector + type from data/reference/instruments.json (Charter v4.2 item 4A master); UNCONFIRMED rows have no sector and are excluded from sector boards (never an Others/Unclassified bucket); TYPE decides equity inclusion, never sector.",
-  "series_recompute_pending": false
  }
 }
