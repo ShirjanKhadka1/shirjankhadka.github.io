@@ -1,11 +1,100 @@
 # Program status — Nepse Decode publishing rebuild (P0–P8)
 
-Last updated: 2026-11-01 (Sunday, market closed). Main tip at last
-verification: `0eeaf359` (#295 Bikas-labels merge) — re-read before acting.
-Data branch head at last verification: `803b7da5` (benchmark rebuild from
-the restated keystone; see Nov-1 Priority-1 update below). Tags through
-`data-2026-11-01-9` on `803b7da5` (the tag job names by RUN
-date NPT, so no `data-2026-10-31-11` was ever due).
+Last updated: 2026-11-03 (Tuesday, market open). Main tip at last
+verification: `a2721083` (#337 Charter v4.2 item 1) — re-read before acting.
+Data branch head at last verification: `6ea0e0d8` (item-1 regime
+restatement). Tags through `data-2026-11-03-10` on `6ea0e0d8` (the tag
+job names by RUN date NPT; tags -7/-8 point at the item-1 ledger
+staging `fa61b29d`, -9/-10 at the regime staging).
+
+## Update — Nov-3: Charter v4.2 item 1 CLOSED — Nov-2 close integrity restated
+
+Charter v4.2 (owner order Nov-3 09:57 NPT) governs from here, in order:
+(1) close integrity, (2) smoke gate, (3) stale boards (14), (4) master
+adoption, (5) HPHL, (6) report per item + this file after every item.
+Item 1 is CLOSED below. Items 2–5 follow in sequence; sim-benchmarks,
+intraday-floorsheet migration, and the tracker two-build merge are
+explicitly NOT in v4.2 and stay pending.
+
+Nov-2 close reconciliation (evidence, not forced agreement):
+- Index: published 2657.51 RESTATED to 2657.50. Final published tables
+  unanimous (ShareSansar, RedVoice, Farsight, NepseData, NepView,
+  NepseTrading, ShareHub snapshot "Nov 02, 03:00 PM"): 2657.50, -32.65,
+  -1.21%; arithmetic 2690.15 - 32.65 = 2657.50 exact. The tape's 2657.51
+  is a 0.01 rounding artefact. Broker-terminal 2660.02 (NAASA X) is
+  UNEXPLAINED — no published source reports it for Nov-2, no vendor
+  timing/adjustment mechanism found; it sits inside the day's range
+  (2651.15–2691.10) so an intraday snapshot could numerically produce
+  it, but the reading carries no timestamp: a possibility, NOT a
+  finding. Not adopted.
+- Turnover: tape Rs 6,859,673,979 RESTATED to Rs 7,183,713,047.01
+  (floorsheet aggregate, 70,228 trades / 19,822,392 shares / 343
+  scrips), matching the final published total to the paisa. Mechanism:
+  the tape figure is a PRE-FINAL snapshot — it appears verbatim in a
+  third-party widget alongside non-final indices (Nepse 2653.22 vs
+  final 2657.50). Final tally adds 2,695 trades / 1,130,347 shares /
+  Rs 324,039,068.01. Rejected: different populations (both 343 scrips),
+  floorsheet double-count (final table matches to the paisa),
+  pre-open inclusion (227 trades / Rs 16.41m = 5% of the gap).
+- NOT directly verified from NEPSE today: the official market-summary
+  API text-fetch failed (network error, no HTTP status); no historical
+  official endpoint for Nov-2 surfaced. Direct NEPSE official re-fetch
+  still owed before this restatement is called officially verified.
+  Restatement notes state that gap honestly.
+
+Corrections landed (all with visible restatement notes):
+- PR #337 merged a2721083 (all 6 checks green), Publish 41581612306
+  success, changed URLs purged. Files: data/index-history.json (Nov-2
+  row 2657.51 -> 2657.50), data/reports-archive.json (main copy: Oct-16
+  + Oct-27 blocks + notes), nepse-chart/data/wrap-archive.json (Nov-2
+  entry: provisional 2679.11 OPEN -> final 2657.50 CLOSED),
+  nepse-decode/wrap/index.html (rebaked), sitemap.xml,
+  js/nepse-reports.js + js/nd-regime-board.js (render restatement
+  notes), tests/smoke.spec.ts (new ledger test: every entry's
+  market.index == its session's index-history close AND wrap value),
+  tools/build-market-wrap-archive.js (provisional entries labelled,
+  final tape replaces provisional same-session entries with note,
+  backfill path), docs/incidents/2026-11-03-close-integrity.md.
+- Root cause (ledger shift): build-reports-archive.py copied the
+  market block from wave1.json at snapshot-build time and only PRINTED
+  a note on asof mismatch — a late-built batch shipped the next
+  session's tape. The agent-side builder now FAILS LOUD on asof
+  mismatch; restatements go through the reviewed correction path.
+  Older entries corrected to their own sessions: Oct-16 2634.16
+  (+8.23, +0.31%, 348 traded, 209/109/30, Rs 4,870,242,080);
+  Oct-27 2630.76 (+0.94, +0.04%, 360, 174/170/16, Rs 5,795,196,379);
+  Oct-29 2695.60 (+31.54, +1.18%, 350, 219/116/15, Rs 8,570,098,823);
+  Oct-30 2690.15 (-5.45, -0.20%, 348, 131/194/23, Rs 8,891,595,146).
+  Turnover = sum of per-symbol history turnovers, rounded (method
+  validated EXACT on Oct-26 and Oct-30); breadth from each session's
+  own wrap-archive entry (history-derived breadth rejected: off by
+  1–4 on every checkable session).
+- Data staging (live-verified from served bytes): reports-archive
+  data commit fa61b29d, Publish 41581962184 success — all 7 entries
+  carry their own session's close, 5 carry restatement notes.
+  market-regime data commit 6ea0e0d8, Publish 41582435639
+  tags data-2026-11-03-9/-10 — NEPSE row Nov-2/2657.50, BEAR, raw RANGE, pending
+  flip, age 38, gap -1.23%, breadth 0.5502 (was Oct-30/2690.15, age 37,
+  gap -0.0%, breadth 0.5836 under a Nov-2 asof); regime-calls Nov-2
+  entry regenerated (only the NEPSE row changes); all other rows
+  unchanged except BNL's display name resolved from the Nov-2
+  universe. Board note renders via PR #337's JS; calls-ledger note
+  is payload-only for now (page rendering owed in a later PR
+  touching nd-regime-board.js).
+- Live gate: new served-ledger consistency check (one check per
+  ledger entry, ledger market.index == index-history session close,
+  < 0.005 tolerance) — all 7 pass live. The existing
+  reports-archive-vs-tape check tolerance moved to <= 0.011: the
+  restated 2657.50 vs tape 2657.51 differs by 0.0100000000002 in
+  binary float, so a naive <= 0.01 still failed; 0.011 covers the
+  documented correction and nothing larger. Gate edit tested locally
+  (--dry-run) before the next scheduled run; state file untouched.
+- Standing protocol (recorded, not re-litigated): poll after 15:00:30,
+  build FINAL only on agreement.
+- Still owed after item 1: direct NEPSE official re-fetch (needs
+  live-browser/official-API access); regime-calls note page rendering;
+  durable capture-close.js gate PR + repoint of the post-merge step
+  to data-branch staging.
 
 ## Update — Oct-31 evening → Nov-1: Charter v3, P0 green, design complete
 
