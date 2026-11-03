@@ -66,7 +66,7 @@ function factsForUniverse(u) {
   const asofD = useLive ? liveDate : vAsof;
   const volFmt = gen.fmtNum(useLive && Number.isFinite(Number(liveQ.volume)) ? Number(liveQ.volume) : (v && v.vol));
   const tnoFmt = gen.fmtNum(useLive && Number.isFinite(Number(liveQ.turnover)) ? Math.round(Number(liveQ.turnover)) : null);
-  const sector = gen.classifySymbol(u.s, u.n, u.t);
+  const sector = gen.sectorOfSym(u.s); // 4B: master sector (was classifier)
   return gen.blockFacts(u, v, fund, sector, { pNum, cNum, asofD, volFmt, tnoFmt });
 }
 

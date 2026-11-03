@@ -301,11 +301,11 @@
   }
 
   function peersFor(sym) {
-    // Membership uses verdicts `sec` EXACTLY — not the tech-fundamentals
-    // sector name. The two own files name banking differently (verdicts
-    // "Banking" vs tech-fundamentals "Commercial Banks"); the peers
-    // title therefore shows the verdicts sector, and the QA report
-    // states the gap rather than papering over it. Sorted by verdicts
+    // Membership uses verdicts `sec` EXACTLY. Charter 4B: verdicts sec
+    // and the tech-fundamentals sector are BOTH master sectors now
+    // (the old Banking vs Commercial Banks vocabulary gap is closed by
+    // the master regen); the peers title shows the verdicts sector.
+    // Sorted by verdicts
     // `ch` (percent change) descending, risers first.
     if (!verdictCache) return null;
     var v = verdictCache[sym];

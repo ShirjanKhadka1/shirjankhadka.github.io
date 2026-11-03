@@ -39,17 +39,20 @@ const { updateScreenerTracking } = require('./screener-tracking.js');
 // ltp/*.json, audit.json, track-record.json, version.json and the report.txt.
 const SCREENER_ONLY = process.argv.includes('--screener-only');
 if (SCREENER_ONLY) console.log('  !! --screener-only: writing universe.json, verdicts.json, screener snapshot only');
-// Sector lookup for the screener page (281 symbols; fail-soft to {}).
-let SECTORS = {};
-try {
-  SECTORS = JSON.parse(fs.readFileSync(path.join(__dirname, 'sector-map.json'), 'utf8'));
-} catch (e) { console.log('  !! sector-map.json not loaded:', e.message); }
-function secOf(sym) {
-  const e = SECTORS[sym];
-  // Authoritative map (tools/sector-map.json) wins; every listed security
-  // belongs to exactly one real category — never "Unclassified".
-  return (e && e.sector) ? e.sector : 'Others';
-}
+// Sector/type lookup — Charter v4.2 item 4B: the master ONLY.
+// data/reference/instruments.json (tools/master-instruments.js) is the
+// single source of truth. The old tools/sector-map.json classifier,
+// secOf() 'Others' fallback, classify() name/suffix heuristics, and
+// VERIFIED_OVERRIDES are DELETED: a symbol's sector is its master
+// sector (null when the master says UNCONFIRMED — never a bucket) and
+// its type is its master instrument_type. Symbols absent from the
+// master are carried with type/sector null and flagged in the output
+// classification.unmastered list (fail-safe: non-equity treatment in
+// gates) until the master itself is updated — never guessed here.
+const MASTER = require('./master-instruments.js');
+function secOf(sym) { return MASTER.sectorOf(sym); }
+function typeOf(sym) { return MASTER.legacyTypeOf(sym); }
+function masterTypeOf(sym) { return MASTER.typeOf(sym); }
 
 // ---- ROUND 2 / R2 invariant gates (2026-10-29, audit Phase 4 S1–S3) ----
 // Applied HERE in the builder — never by hand-editing verdicts.json — so
@@ -61,15 +64,15 @@ function secOf(sym) {
 //   S1: a CONFIRMED bearish pattern (note starting 'Confirmed:') caps
 //       Buy/Strong Buy at Hold. Forming patterns score 0 in the engine
 //       and are NOT capped (display-confusion only, not a contradiction).
-//   S2: non-equity by sector+type UNION caps Buy/Strong Buy at Hold:
-//       sector in {Debentures, Mutual Funds, Promoter Shares} OR universe
-//       type in {Debenture, Mutual fund, Promoter share}. The union is
-//       required: sector-map has no entry for PROFLP/PCBLP/SBD87 (sec
-//       'Others') while their types are non-equity, and the type field
-//       mistags 33 bare-symbol debentures as Equity the other way.
+//   S2 (Charter 4B, TYPE-ONLY): non-equity by master instrument_type
+//       caps Buy/Strong Buy at Hold. The old sector+type UNION is
+//       retired: sector no longer decides anything (a debenture's
+//       master sector is its issuer's sector, e.g. Commercial Bank,
+//       and must NOT gate it as equity). type here is the master legacy
+//       type; null (unmastered symbol) also gates, fail-safe.
 //   S3: last-session volume not > 0 caps Buy/Strong Buy at Hold —
 //       zero-volume symbols never rank as Buy.
-const R2_NON_EQ_SECTORS = new Set(['Debentures', 'Mutual Funds', 'Promoter Shares']);
+const R2_NON_EQ_SECTORS = new Set(); // RETIRED 4B: sector never gates (kept as empty set so old callers/tests importing it do not crash; S2 is type-only below).
 const R2_NON_EQ_TYPES = new Set(['Debenture', 'Mutual fund', 'Promoter share']);
 const R2_BEARISH = new Set(['Double Top', 'Head & Shoulders', 'Rising Wedge', 'Descending Triangle']);
 function r2GateReasons(label, pats, sec, type, vol) {
@@ -77,8 +80,8 @@ function r2GateReasons(label, pats, sec, type, vol) {
   if (label !== 'Buy' && label !== 'Strong Buy') return reasons;
   const confBear = (pats || []).filter((p) => /Confirmed/.test(p.note || '') && R2_BEARISH.has(p.label))[0];
   if (confBear) reasons.push('S1-confirmed-bearish:' + confBear.label);
-  if (R2_NON_EQ_SECTORS.has(sec)) reasons.push('S2-non-equity-sector:' + sec);
-  else if (R2_NON_EQ_TYPES.has(type)) reasons.push('S2-non-equity-type:' + type);
+  if (R2_NON_EQ_TYPES.has(type)) reasons.push('S2-non-equity-type:' + type);
+  else if (type == null) reasons.push('S2-unmastered-type:null');
   if (!(vol > 0)) reasons.push('S3-zero-volume');
   return reasons;
 }
@@ -165,110 +168,13 @@ function loadOwnSecurityNames() {
   return map;
 }
 
-function classify(sym, name, assetType) {
-  const nm = ((name || '') + ' ' + sym);
-  if (assetType === 'open_ended_mutual_fund') return 'Mutual fund';
-  if (/debenture/i.test(nm)) return 'Debenture';
-  // 2026-10-28 (gap-2 item 3): port of the sector builder's symbol rule,
-  // extended with the UR alternative for energy-bond tickers. Bare-ticker
-  // feed names carry no word for the word tests above to catch, so the
-  // symbol pattern is what tags these debentures. Verified against all
-  // 413 symbols: flips exactly the intended debentures, zero others.
-  if (/(D|UR)\d{2,4}(\/\d{2})?(KA)?$/i.test(sym)) return 'Debenture';
-  if (/\bbond\b|rinpatra/i.test(nm)) return 'Debenture';
-  if (/preference/i.test(nm)) return 'Preference share';
-  if (/mutual fund|mutual|yojana|scheme|\bfund\b|\bkosh\b/i.test(nm)) return 'Mutual fund';
-  if (/promoter/i.test(nm)) return 'Promoter share';
-  return 'Equity';
-}
-
-// Verified name/type overrides (EOD Gate 5, 2026-10-22 — Shirjan's call:
-// "go with the corroborated map"). Some genuinely listed, actively traded
-// instruments are absent from EVERY community feed (companies list, live
-// feed, our EOD archive — root cause confirmed 2026-10-20), so their names
-// can never reach classify() and a bare ticker would mistag them Equity.
-// Each entry below is corroborated by two independent sources and proven to
-// trade by our own broker floorsheets (see Gate 5 in main()). The map is
-// authoritative wherever it exists: it also wins over a wrong feed name.
-//   PCBLP    — ShareSansar "Prime Commercial Bank Limited Promoter (PCBLP)";
-//              Nepalytix lists PCBLP among promoter lines. Floorsheets:
-//              504,676 qty / Rs 5.54 crore in the 30 sessions to 2026-10-16.
-//   PROFLP   — ShareSansar "Progressive Finance Limited Promoter Share";
-//              ShareHub PROFL page (Progressive Finance Ltd). Floorsheets:
-//              49,638 qty / Rs 1.01 crore in the same window.
-//   SAND2085 — ShareHub symbol page: 10% Sanima Bank Limited Debenture,
-//              listed 2019-06-03, 20,00,000 units. Floorsheets: 2,178 qty.
-//   SBD89    — ShareHub: 10.25% Sanima Debenture 2089, listed 2022-08-30;
-//              ShareSansar 2079 issue coverage. NOT SBLD89 (Siddhartha
-//              Bank's 10.75% debenture — a different instrument, already in
-//              the universe). Floorsheets: 100 qty (thin, but real trades).
-const VERIFIED_OVERRIDES = {
-  PCBLP:    { name: 'Prime Commercial Bank Limited Promoter',    type: 'Promoter share' },
-  PROFLP:   { name: 'Progressive Finance Limited Promoter',      type: 'Promoter share' },
-  SAND2085: { name: '10% Sanima Bank Limited Debenture 2085',    type: 'Debenture' },
-  SBD89:    { name: '10.25% Sanima Debenture 2089',               type: 'Debenture' },
-  // 2026-10-26 (Shirjan's call): promoter lines mistagged Equity in the
-  // universe. TYPE verified by verdicts-v2 identity sector "Promoter
-  // Shares" + the VPI sector-gate failures on every session they traded
-  // (243/295 backfill sessions). NAMES are NOT verified in any available
-  // source (NEPSE EOD securityNames, live feed, broker 1M, v2 identity,
-  // community companies list all carry these as bare symbols) — so the
-  // bare symbol is kept deliberately, never an invented company name.
-  // Update the names when a verified source exists; the type fix stands.
-  JBLBP:    { name: 'JBLBP', type: 'Promoter share' },
-  KBLPO:    { name: 'KBLPO', type: 'Promoter share' },
-  MLBLPO:   { name: 'MLBLPO', type: 'Promoter share' },
-  RBCLPO:   { name: 'RBCLPO', type: 'Promoter share' },
-  // 2026-10-28 (gap-2 item 3): universe type-tag corrections. Each entry
-  // corroborated by two independent sources (evidence:
-  // hidden_files/gap2-items/type-tags.md). SCBD/NIFRAGED match no symbol
-  // rule (no digits); CMF2/H8020/LSH12/NMB50/RBBF40 carry no fund word in
-  // any available name or are absent from the official close; RURU's
-  // feed asset_type is wrong (hydro equity, not a fund) and the override
-  // wins outright, which also protects it against future feed relapses.
-  // All 8 are already in the union, so Gate 5's floorsheet-admission
-  // rule below does not apply to them.
-  SCBD:     { name: '10.30% Standard Chartered Bank Limited Debenture', type: 'Debenture' },
-  NIFRAGED: { name: 'Nifra Green Energy Debenture 6% - 2088/89',        type: 'Debenture' },
-  CMF2:     { name: 'Citizens Mutual Fund 2',                          type: 'Mutual fund' },
-  H8020:    { name: 'Himalayan 80-20',                                 type: 'Mutual fund' },
-  LSH12:    { name: 'LS Horizon 12',                                   type: 'Mutual fund' },
-  NMB50:    { name: 'NMB 50',                                          type: 'Mutual fund' },
-  RBBF40:   { name: 'RBB Focus 40',                                    type: 'Mutual fund' },
-  RURU:     { name: 'Ru Ru Jalbidhyut Pariyojana Limited',             type: 'Equity' },
-  // 2026-10-28 (gap-2 item 4, P3 orphan extension): 19 listed instruments
-  // whose pages exist but fell out of the universe feed snapshot (evidence:
-  // hidden_files/gap2-items/orphans.md — all 19 still listed and trading,
-  // ZERO deletions, ZERO redirects). All 19 are floorsheet-proven in the
-  // trailing-30-session broker aggregates (1M file 2026-09-07 -> 2026-10-28),
-  // so Gate 5 admits them and every future refresh keeps them. Names
-  // preserve the baked pages' descriptive titles where they exist; bare
-  // symbols take their evidence names (Vision/Merolagani/ShareHub titles).
-  // Slash symbols keep hyphenated page dirs via slugOf (same convention
-  // as the 6 universe slash-symbols). NABILP normalises from its baked
-  // Banking tag to Promoter share; SRBLD83 is maturity-watch only
-  // (Dec 2026) — never a deletion on maturity alone.
-  ADBLB86:   { name: 'Agricultural Bond (8 Year)',                      type: 'Debenture' },
-  EBLEB89:   { name: '5.5% Everest Bank Limited Energy Bond, 2089',     type: 'Debenture' },
-  FMDBLP:    { name: 'First Micro Finance Laghubitta Bittiya Sanstha Limited Promoter Share', type: 'Promoter share' },
-  GBBLPO:    { name: 'Garima Bikas Bank Limited Promoter Share',        type: 'Promoter share' },
-  KSBBLD87:  { name: '9% Kamana Sewa Bikas Bank Limited Debenture 2087', type: 'Debenture' },
-  MBLD87:    { name: '8.5% Machhapuchchhre Bank Debenture 2087',         type: 'Debenture' },
-  MFLD85:    { name: '9.5% Manjushree Finance Limited Debenture 2085',  type: 'Debenture' },
-  MNBBLP:    { name: 'Muktinath Bikas Bank Ltd. Promoter Share',        type: 'Promoter share' },
-  'MND84/85': { name: 'Muktinath Debenture 2084/85',                    type: 'Debenture' },
-  NABILP:    { name: 'NABIL Bank Limited Promotor Share',               type: 'Promoter share' },
-  NBLD85:    { name: '8% Nabil Debenture 2085',                          type: 'Debenture' },
-  NMBD2085:  { name: '10 % NMB DEBENTURE 2085',                          type: 'Debenture' },
-  'NMBD89/90': { name: 'NMB Debenture 10.75%-2089/90',                  type: 'Debenture' },
-  NLO:       { name: 'Nepal Lube Oil Limited',                          type: 'Equity' },
-  NMFBSP:    { name: 'National Laghubitta Bittiya Sanstha Limited Promoter', type: 'Promoter share' },
-  PBD84:     { name: '10.15% Prime Debenture 2084',                      type: 'Debenture' },
-  PRVUPO:    { name: 'Prabhu  Bank Limited Promoter Share',             type: 'Promoter share' },
-  SRBLD83:   { name: '10.25% Sunrise Bank Debenture 2083',               type: 'Debenture' },
-  SRLIP:     { name: 'Sanima Reliance Life Insurance Limited Promoter Share', type: 'Promoter share' },
-};
-
+// DELETED 4B: classify() name/suffix heuristics and VERIFIED_OVERRIDES.
+// Their function is now the master itself: data/reference/instruments.json
+// carries every listed symbol's type + sector (including the former
+// override/orphan rows), and tools/master-instruments.js is the only
+// reader. A symbol absent from the master is NOT classified here — it
+// is carried with type/sector null and flagged unmastered (see secOf/
+// typeOf above) until a master update adds it.
 // ---- buy-call track record (no-lookahead backtest) ----
 // For each EQUITY security with >= 80 OHLC sessions: replay the engine over the
 // last TR_LOOKBACK sessions, using only data available at each session
@@ -484,7 +390,7 @@ async function main() {
     }
   } catch (e) { console.log('  Gate 4: own live.json unavailable:', e.message); }
   // EOD Gate 5 (2026-10-22): floorsheet-proven scrips with verified names.
-  // A symbol from VERIFIED_OVERRIDES joins the union ONLY when our own
+  // A symbol from the MASTER joins the union ONLY when our own
   // broker floorsheet aggregates (nepse-brokers/data/periods/1M.json —
   // trailing 30 sessions, built from Chukul raw floorsheets) prove it
   // actually traded in that window. Both conditions are required: the map
@@ -497,10 +403,10 @@ async function main() {
     const p1m = JSON.parse(fs.readFileSync(path.join(ROOT, 'nepse-brokers', 'data', 'periods', '1M.json'), 'utf8'));
     const traded = (p1m && p1m.symbols) ? new Set(Object.keys(p1m.symbols)) : new Set();
     let gate5Added = 0;
-    Object.keys(VERIFIED_OVERRIDES).forEach((s) => {
-      if (traded.has(s) && !union.has(s)) { union.add(s); gate5Added++; console.log('  Gate 5: +' + s + ' (floorsheet-proven, verified override)'); }
+    Object.keys(MASTER.allRows()).forEach((s) => {
+      if (traded.has(s) && !union.has(s)) { union.add(s); gate5Added++; console.log('  Gate 5: +' + s + ' (floorsheet-proven, in master)'); }
     });
-    if (gate5Added) console.log('  Gate 5: +' + gate5Added + ' symbols from broker floorsheets + verified override map');
+    if (gate5Added) console.log('  Gate 5: +' + gate5Added + ' symbols from broker floorsheets + master');
   } catch (e) { console.log('  Gate 5: broker 1M periods unavailable:', e.message); }
   const monthlyOnly = [];
   monthlySeries.forEach((_, s) => { if (!union.has(s)) monthlyOnly.push(s); });
@@ -626,14 +532,14 @@ async function main() {
   console.log('  own-archive securityNames:', Object.keys(ownNames).length);
   for (const sym of symbols) {
     const q = liveMap[sym];
-    // Verified override (Gate 5) wins outright; else community name when
-    // present; otherwise the own official-close name when descriptive
-    // (gap-2 item 3 name-supply — never overwrites a descriptive feed
-    // name); otherwise our own NEPSE archive's securityName (never the
-    // bare symbol — it defeats classify()).
-    const ovr = VERIFIED_OVERRIDES[sym];
-    const name = ovr ? ovr.name : ((q && q.name && q.name !== sym) ? q.name : (officialNames[sym] || ownNames[sym] || sym));
-    const type = ovr ? ovr.type : classify(sym, name, q && q.asset_type);
+    // 4B: name from the community feed when descriptive, else the own
+    // official-close / archive name, else the MASTER name (the master
+    // carries names for former override/orphan rows); type + sector
+    // come ONLY from the master (null when unmastered — flagged below).
+    const mRow = MASTER.row(sym);
+    const name = ((q && q.name && q.name !== sym) ? q.name : (officialNames[sym] || ownNames[sym] || (mRow && mRow.name) || sym));
+    const type = typeOf(sym);
+    const masterType = masterTypeOf(sym);
     const rows = ohlcRows.get(sym) || null;
     let series = rows, ltpOnly = false;
 
@@ -652,14 +558,15 @@ async function main() {
       }
     }
 
-    universe.symbols.push({ s: sym, n: name, t: type, o: rows ? 1 : 0 });
+    universe.symbols.push({ s: sym, n: name, t: type, o: rows ? 1 : 0, sec: secOf(sym) });
+    if (!masterType) (universe.unmastered = universe.unmastered || []).push(sym);
     report.byType[type] = (report.byType[type] || 0) + 1;
     const liveFlag = liveMap[sym] ? 1 : 0;
     const isNew = newSet.has(sym) ? 1 : 0;
 
     if (!series || !series.length) {
       report.failures.push(sym);
-      verdicts[sym] = { v: 'Insufficient history', s: null, p: null, ch: null, h52: null, l52: null, pos: null, rsi: null, n: 0, l: 0, asof: universe.asof, sec: secOf(sym), vol: null, volAvg: null, sl: null, tp: null, setup: null, w: null, m: null };
+      verdicts[sym] = { v: 'Insufficient history', s: null, p: null, ch: null, h52: null, l52: null, pos: null, rsi: null, n: 0, l: 0, asof: universe.asof, sec: secOf(sym), type: masterType, vol: null, volAvg: null, sl: null, tp: null, setup: null, w: null, m: null };
       report.byVerdict['Insufficient history'] = (report.byVerdict['Insufficient history'] || 0) + 1;
       report.insufficient.push(sym + ' (0)');
       audit.push({ s: sym, n: name, t: type, src: 'none', days: 0, lp: null, ld: null, verdict: 'Insufficient history', live: liveFlag, isNew });
@@ -723,7 +630,7 @@ async function main() {
     // equity only by the R2 S2 UNION — the R1 leftover: the type-only gate
     // left per-row hit rates on mistagged non-equities. The aggregate
     // screener-performance figure is unchanged: it already applied the union.)
-    const tr = (!ltpOnly && n >= TR_MINN) ? trackRecord(ENGINE, IDX, series, type === 'Equity' && !R2_NON_EQ_SECTORS.has(sec)) : null;
+    const tr = (!ltpOnly && n >= TR_MINN) ? trackRecord(ENGINE, IDX, series, type === 'Equity') : null;
     if (tr) report.trCount = (report.trCount || 0) + 1;
     if (tr && tr.tune) { (report.tuneWs = report.tuneWs || []).push(tr.tune.w); (report.tuneNs = report.tuneNs || []).push(tr.tune.n); }
     // Multi-timeframe verdicts: weekly + monthly on aggregated candles.
@@ -747,7 +654,7 @@ async function main() {
       v: gatedLabel, s: v.score, p: r2(price), ch: chgOut,
       h52: r2(h52), l52: r2(l52), pos: r2(pos), rsi: r2(rsi),
       n: n, l: ltpOnly ? 1 : 0, asof: fmtD(last[0]),
-      sec: sec, vol: vol, volAvg: volAvg, sl: sl, tp: tp, setup: setup,
+      sec: sec, type: masterType, vol: vol, volAvg: volAvg, sl: sl, tp: tp, setup: setup,
       tr: tr ? { n: tr.n, w: tr.w } : null,
       w: wV, m: mV,
       g: gateReasons.length ? gateReasons : undefined
@@ -804,8 +711,14 @@ async function main() {
     console.log('  !! screener tracking skipped: ' + (e && e.message));
   }
 
+  // 4B: classification provenance travels with the payloads so a future
+  // reader can tell these fields came from the master, not a heuristic.
+  universe.classification = { source: 'data/reference/instruments.json',
+    note: 'restated 2026-11-03, classification corrected: sector + type from the master; sector null = UNCONFIRMED (no sector asserted, never a bucket); TYPE decides equity inclusion, never sector.',
+    unmastered: universe.unmastered || [] };
+  delete universe.unmastered;
   fs.writeFileSync(path.join(OUT, 'universe.json'), JSON.stringify(universe));
-  fs.writeFileSync(path.join(OUT, 'verdicts.json'), JSON.stringify({ asof: universe.asof, count: symbols.length, verdicts, changes: screenerChanges }));
+  fs.writeFileSync(path.join(OUT, 'verdicts.json'), JSON.stringify({ asof: universe.asof, count: symbols.length, verdicts, changes: screenerChanges, classification: universe.classification }));
   // Screener performance figures (ROUND 2 / R1, 2026-10-29): archive-computed
   // replacements for the frozen 31.0%/11.4% copy on nepse-screener/index.html.
   // Runs on the just-written verdicts.json + universe.json, so the published

@@ -25,7 +25,12 @@ def load_json(p):
         return json.load(f)
 
 # ---------- shared reference data ----------
-sector_map = load_json('tools/sector-map.json')          # sym -> {'sector': ...}
+# Charter 4B: sector + type ONLY from the master (data/reference/
+# instruments.json). The old tools/sector-map.json classifier is deleted;
+# EXCLUDE_SECTORS is retired — exclusion is by instrument_type.
+import sys as _sys
+_sys.path.insert(0, os.path.join(REPO, 'tools'))
+from master_instruments import sector_of as _master_sector, is_equity as _master_is_equity
 universe = {s['s']: s for s in load_json('nepse-chart/data/universe.json')['symbols']}
 
 # Merger guard (2026-10-09): universe.json can drift back to a stale state on
@@ -88,7 +93,8 @@ if latest_db:
 def clamp(x, lo, hi):
     return max(lo, min(hi, x))
 
-EXCLUDE_SECTORS = {'Debentures', 'Mutual Funds', 'Promoter Shares'}
+# EXCLUDE_SECTORS retired 4B (kept name for grep-ability, never used as a gate):
+EXCLUDE_SECTORS = set()  # exclusion is by master instrument_type (is_equity) below
 
 trending = []
 cache_files = glob.glob(os.path.join(REPO, 'tools/.cache/signals/*.json'))
@@ -99,9 +105,9 @@ for cf in cache_files:
         continue
     if sym in _absorbed_merged:   # completed merger: absorbed listing no longer trades
         continue
-    sector = (sector_map.get(sym) or {}).get('sector', '—')
-    if sector in EXCLUDE_SECTORS:
-        continue
+    if not _master_is_equity(sym):
+        continue  # 4B: TYPE decides inclusion, never sector
+    sector = _master_sector(sym)  # None = UNCONFIRMED (no sector asserted, never a bucket)
     try:
         d = json.load(open(cf))['data']
     except Exception:
@@ -262,9 +268,9 @@ for sym, v in funda.items():
         continue
     if sym in _absorbed_merged:   # completed merger: absorbed listing no longer trades
         continue
-    sector = (sector_map.get(sym) or {}).get('sector', 'Other')
-    if sector in EXCLUDE_SECTORS:
-        continue
+    if not _master_is_equity(sym):
+        continue  # 4B: TYPE decides inclusion, never sector
+    sector = _master_sector(sym)  # None = UNCONFIRMED; such companies are not sector-scored below
     try:
         eps = float(v['eps_ttm']); pe = float(v['pe_ttm'])
         paidup = float(v['paidup_b']); reserves = float(v['reserves_b'])
@@ -307,7 +313,8 @@ for sym, v in funda.items():
 from collections import defaultdict
 by_sector = defaultdict(list)
 for c in companies:
-    by_sector[c['sector']].append(c)
+    if c['sector'] is not None:  # 4B: UNCONFIRMED-sector companies are never a sector group
+        by_sector[c['sector']].append(c)
 
 for sector, members in by_sector.items():
     if len(members) < 4:

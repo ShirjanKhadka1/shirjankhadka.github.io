@@ -316,15 +316,15 @@ function initSector(){
   ]).then(function(res){
     var vd = res[0].verdicts || {}, uni = res[1].symbols || [];
     var secOf = {};
-    Object.keys(vd).forEach(function(k){ secOf[k] = vd[k].sec || 'Others'; });
+    Object.keys(vd).forEach(function(k){ secOf[k] = vd[k].sec || null; }); // 4B
     state.sectorBatch = res[0].asof || '';
     state.names = {};
     uni.forEach(function(u){ state.names[u.s] = u.n || u.s; });
     state.sectorRows = uni.map(function(u){
-      return { s: u.s, n: u.n || u.s, sec: secOf[u.s] || 'Others' };
+      return { s: u.s, n: u.n || u.s, sec: secOf[u.s] || null }; // 4B
     }).sort(function(a, b){ return a.s < b.s ? -1 : 1; });
     var counts = {};
-    state.sectorRows.forEach(function(r){ counts[r.sec] = (counts[r.sec] || 0) + 1; });
+    state.sectorRows.forEach(function(r){ if (r.sec != null) counts[r.sec] = (counts[r.sec] || 0) + 1; }); // 4B
     var sel = $('hdSecSelect');
     if (sel) {
       var opts = ['<option value="All">All sectors (' + state.sectorRows.length + ')</option>'];

@@ -81,7 +81,8 @@
     var total = 0, traded = 0, maxTurn = 0;
     ((uni && uni.symbols) || []).forEach(function (s) {
       var e = vv[s.s] || {};
-      var sec = (e.sec && e.sec !== 'Unknown') ? e.sec : 'Others';
+      var sec = (e.sec && e.sec !== 'Unknown') ? e.sec : null; // 4B: null = no sector
+      if (sec == null) return; // 4B: null-sector rows get no terrain plate, never a bucket
       var q = tape[s.s] || null;
       var turn = q ? (Number(q.turnover) || 0) : 0;
       if (q) { traded++; if (turn > maxTurn) maxTurn = turn; }

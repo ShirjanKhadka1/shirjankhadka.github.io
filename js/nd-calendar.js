@@ -147,7 +147,7 @@
         var status = end ? (end <= today ? 'Open' : 'Locked') : (r.status || '—');
         lockinRows.push({
           symbol: sym,
-          sector: sectorMap[sym] || 'Unclassified',
+          sector: sectorMap[sym] || null, // 4B: null = no sector asserted (was the 'Unclassified' bucket); grouping code must skip null sectors.
           allotment_ad: r.allotment_ad || '',
           end: end,
           end_bs: vDate ? '' : (r.lockin_end_bs || ''),
@@ -207,12 +207,8 @@
     var sel = $('calLockinSector');
     if (!sel) return;
     var seen = {}, list = [];
-    lockinRows.forEach(function (r) { if (!seen[r.sector]) { seen[r.sector] = true; list.push(r.sector); } });
-    list.sort(function (a, b) {
-      if (a === 'Unclassified') return 1;
-      if (b === 'Unclassified') return -1;
-      return a < b ? -1 : 1;
-    });
+    lockinRows.forEach(function (r) { if (r.sector && !seen[r.sector]) { seen[r.sector] = true; list.push(r.sector); } }); // 4B: null-sector rows never appear as a sector option.
+    list.sort(function (a, b) { return a < b ? -1 : 1; });
     sel.innerHTML = '<option value="">All sectors</option>' + list.map(function (s) {
       return '<option value="' + esc(s) + '">' + esc(s) + '</option>';
     }).join('');

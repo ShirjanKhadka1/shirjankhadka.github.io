@@ -336,7 +336,8 @@
       var built = {}, count = 0;
       Object.keys(v).forEach(function (sym) {
         var row = v[sym]; if (!row || !isFinite(row.p)) return;
-        var sec = row.sec || 'Others';
+        var sec = row.sec || null; // 4B
+        if (sec == null) return; // 4B: null-sector rows are not a sector in the picker
         if (!built[sec]) built[sec] = [];
         built[sec].push({ sym: sym, p: row.p, ch: row.ch, asof: row.asof || d.asof || '—' });
         count++;

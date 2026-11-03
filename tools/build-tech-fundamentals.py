@@ -7,7 +7,10 @@ the /nepse-technical/ fundamentals panel reads:
 
   sector, shares_outstanding, book_value (BVPS), pbv (P/B ratio)
 
-Source of truth is ALWAYS our own archive — never scraped, never invented.
+Sector source of truth is the MASTER (data/reference/instruments.json,
+Charter 4B) — the float archive's sector vocabulary (Commercial Banks,
+Hydro Power, Tradings, Others) is retired and never used. Shares/BV/PBV
+still come from the float archive, as before.
 Run after the float archive is rebuilt; deploy the output file.
 """
 import json
@@ -16,6 +19,8 @@ import sys
 from datetime import datetime, timezone
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "tools"))
+from master_instruments import sector_of as master_sector
 ARCHIVE = os.path.join(REPO, "tools", "verdict-engine-v2", "manual", "float-archive.json")
 OUT = os.path.join(REPO, "nepse-chart", "data", "tech-fundamentals.json")
 
@@ -31,7 +36,9 @@ def main():
         if not isinstance(rec, dict):
             continue
         entry = {}
-        sector = rec.get("sector")
+        # 4B: sector ONLY from the master (None = UNCONFIRMED -> no sector
+        # field; the panel renders '—'). Archive sector is ignored.
+        sector = master_sector(sym)
         if sector:
             entry["sector"] = sector
             filled["sector"] += 1

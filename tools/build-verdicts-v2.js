@@ -133,6 +133,9 @@ async function main() {
   if (!universe || !universe.symbols) { console.error('verdicts-v2: universe.json missing'); process.exit(2); }
   const lockin = readJSON(path.join(ROOT, 'data', 'lockin.json'), { rows: {} });
   const dossiers = readJSON(path.join(ENG, 'dossiers-compact.json'), {});
+  // 4B: master type for the engine's type-only gate (dossier-less symbols
+  // included) — read from the master, never from a dossier sector.
+  const MASTER = require('./master-instruments.js');
   const fundMerged = readJSON(path.join(ENG, 'fundamentals.json'), null);
   const fundamentals = fundMerged && fundMerged.companies ? fundMerged.companies : null;
   const regime = computeRegime();
@@ -258,6 +261,7 @@ async function main() {
         symbol: s,
         bars: win,
         dossier: dossiers[s] || null,
+        opts: { instrument_type: MASTER.typeOf(s) },
         regime: regime.regime,
         asofYmd,
         fundamentals,

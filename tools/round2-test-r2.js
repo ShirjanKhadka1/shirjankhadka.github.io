@@ -19,14 +19,16 @@ check('S1 confirmed Double Top caps Strong Buy', r2ApplyGate('Strong Buy', r2Gat
 check('S1 confirmed H&S caps Buy', r2ApplyGate('Buy', r2GateReasons('Buy', confHS, 'Hydropower', 'Equity', 500)) === 'Hold');
 check('S1 forming Double Top does NOT cap (engine scores forming at 0)', r2GateReasons('Buy', formingDT, 'Banking', 'Equity', 1000).length === 0);
 check('S1 does not touch Hold/Exit labels', r2GateReasons('Hold', confDT, 'Banking', 'Equity', 1000).length === 0);
-// S2: sector+type UNION.
-check('S2 sector Debentures caps Buy', r2GateReasons('Buy', [], 'Debentures', 'Equity', 1000).some((r) => r.startsWith('S2')));
-check('S2 sector Mutual Funds caps Strong Buy', r2GateReasons('Strong Buy', [], 'Mutual Funds', 'Equity', 1000).some((r) => r.startsWith('S2')));
-check('S2 sector Promoter Shares caps Buy', r2GateReasons('Buy', [], 'Promoter Shares', 'Equity', 1000).some((r) => r.startsWith('S2')));
-check('S2 type Promoter share caps Buy even when sector is Others (PROFLP case)', r2GateReasons('Buy', [], 'Others', 'Promoter share', 1000).some((r) => r.startsWith('S2')));
-check('S2 type Debenture caps Buy even when sector is Others', r2GateReasons('Buy', [], 'Others', 'Debenture', 1000).some((r) => r.startsWith('S2')));
-check('S2 type Mutual fund caps Buy even when sector is Others', r2GateReasons('Buy', [], 'Others', 'Mutual fund', 1000).some((r) => r.startsWith('S2')));
-check('S2 equity sector+type passes through', r2GateReasons('Buy', [], 'Banking', 'Equity', 1000).length === 0);
+// S2 (Charter 4B, TYPE-ONLY): sector never gates — a debenture's master
+// sector is its issuer's sector (e.g. Commercial Bank) and must pass the
+// sector half; only the master instrument type gates. Old sector-bucket
+// values ('Debentures' etc.) no longer occur in verdicts sec at all.
+check('S2 sector alone does NOT cap (issuer sector is not a gate)', r2GateReasons('Buy', [], 'Commercial Bank', 'Debenture', 1000).some((r) => r.startsWith('S2')) && !r2GateReasons('Buy', [], 'Commercial Bank', 'Equity', 1000).some((r) => r.startsWith('S2')));
+check('S2 type Promoter share caps Buy (PROFLP case)', r2GateReasons('Buy', [], 'Microfinance', 'Promoter share', 1000).some((r) => r.startsWith('S2')));
+check('S2 type Debenture caps Buy', r2GateReasons('Buy', [], 'Commercial Bank', 'Debenture', 1000).some((r) => r.startsWith('S2')));
+check('S2 type Mutual fund caps Buy', r2GateReasons('Buy', [], null, 'Mutual fund', 1000).some((r) => r.startsWith('S2')));
+check('S2 unmastered (null type) caps Buy, fail-safe', r2GateReasons('Buy', [], null, null, 1000).some((r) => r.startsWith('S2')));
+check('S2 equity type passes through', r2GateReasons('Buy', [], 'Commercial Bank', 'Equity', 1000).length === 0);
 // S3: zero volume caps; positive volume passes.
 check('S3 zero volume caps Buy', r2GateReasons('Buy', [], 'Banking', 'Equity', 0).some((r) => r.startsWith('S3')));
 check('S3 null volume caps Buy', r2GateReasons('Buy', [], 'Banking', 'Equity', null).some((r) => r.startsWith('S3')));
