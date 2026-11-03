@@ -1029,6 +1029,18 @@ function investmentCalendarCard(sym, name, hist) {
       '</tr></thead>\n<tbody>\n';
     for (const d of divs) {
       const bonus = pct(d.bonus_share), cash = pct(d.cash_dividend), total = pct(d.total_dividend);
+      /* Per-share dividends (2026-11-03): UNL declares in rupees per share,
+       * never percent — its official notices quote "NPR 1,540 per equity
+       * share", and its yonepse history rows are all rupee-scale (650–1,842).
+       * A row is per-share when it carries dividend_unit 'per_share' (the
+       * div-live record) or when the symbol is UNL (legacy yonepse rows
+       * carry no unit field). Per-share rows render "NPR X per share" with
+       * NO % suffix; bonus stays a percent. Never render a per-share
+       * figure with a % suffix — that would misstate rupees as percent. */
+      const perShare = d.dividend_unit === 'per_share' || sym === 'UNL';
+      const rs = (v) => { const n = Number(String(v).replace(/,/g, '')); return Number.isFinite(n) ? 'NPR ' + n.toLocaleString('en-US') + ' per share' : String(v); };
+      const cashCell = cash === '–' ? '–' : (perShare ? rs(d.cash_dividend) : cash + ' %');
+      const totalCell = total === '–' ? '–' : (perShare ? rs(d.total_dividend) : total + ' %');
       /* Status pill: computed live in the browser from the book close date vs
        * today (Open while the date is today or in the future, Closed once it
        * has passed), so it flips on its own with no rebuild. A [Closed]
@@ -1060,8 +1072,8 @@ function investmentCalendarCard(sym, name, hist) {
       const annRaw = stripTags(d.announcement_date || d.announced || '');
       const annIso = ((/^(\d{4}-\d{2}-\d{2})/.exec(annRaw) || [])[1]) || '';
       h += '<tr><td>' + esc(bonus === '–' ? '–' : bonus + ' %') + '</td>' +
-        '<td>' + esc(cash === '–' ? '–' : cash + ' %') + '</td>' +
-        '<td>' + esc(total === '–' ? '–' : total + ' %') + '</td>' +
+        '<td>' + esc(cashCell) + '</td>' +
+        '<td>' + esc(totalCell) + '</td>' +
         '<td>' + esc(bcCell) + '</td>' +
         '<td>' + esc(fy || '–') + '</td>' +
         '<td><span class="inv-cal-divstatus" data-bc="' + esc(bcIso) + '"' +
