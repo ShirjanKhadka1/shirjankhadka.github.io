@@ -195,3 +195,48 @@ test('SSR session dates match the manifest session date', async ({ request, brow
   console.log('pages without an SSR date marker (Phase 2 adds them):', noMarker);
   expect(mismatched, 'SSR dates disagreeing with manifest — CROSS-DATASET GATE: this test compares SSR markers (page lane) against manifest.session_date (data lane) and can only pass on a COMBINED tree containing both sides; a single-lane PR moving only one side is expected to fail — combine the lanes, do not re-run hoping for a pass, never merge on red').toEqual([]);
 });
+
+// Close-integrity regression (2026-11-03): every reports-archive entry's
+// market block must be its OWN session's close — never the next session's.
+// Root cause was the archive builder copying wave1.json's market block at
+// snapshot-build time (wave asof != batch asof) with only a printed note.
+// This test pins the tree's own files against each other: ledger index vs
+// index-history close AND vs the wrap-archive index value for the session.
+// It runs on the PR tree (main's ledger copy); the served data-branch
+// ledger is covered by the live gate's matching check.
+test('ledger market blocks match their sessions', async ({ request }) => {
+  test.setTimeout(60000);
+  const get = async (p: string, what: string) => {
+    const r = await request.get(p);
+    expect(r.status(), `${what} reachable`).toBe(200);
+    return r.json();
+  };
+  const ledger = await get('/data/reports-archive.json', 'reports-archive');
+  const idxHist = await get('/data/index-history.json', 'index-history');
+  const wrap = await get('/nepse-chart/data/wrap-archive.json', 'wrap-archive');
+  const closes = new Map<string, number>();
+  const rows = idxHist.rows || [];
+  for (const row of rows) {
+    if (Array.isArray(row) && row.length >= 5) {
+      const ymd = String(row[0]);
+      closes.set(`${ymd.slice(0, 4)}-${ymd.slice(4, 6)}-${ymd.slice(6, 8)}`, Number(row[4]));
+    }
+  }
+  const wrapIdx = new Map<string, number>();
+  for (const e of wrap) wrapIdx.set(e.session_date, Number(e.index && e.index.value));
+  const entries = Array.isArray(ledger) ? ledger : ledger.entries;
+  expect(Array.isArray(entries) && entries.length > 0, 'ledger has entries').toBe(true);
+  const bad: string[] = [];
+  for (const e of entries) {
+    const s = e.session_date;
+    const v = e.market && e.market.index;
+    if (typeof v !== 'number' || !isFinite(v)) { bad.push(`${s}: market.index not finite`); continue; }
+    const ih = closes.get(s);
+    if (ih === undefined) bad.push(`${s}: session missing from index-history`);
+    else if (ih !== v) bad.push(`${s}: ledger ${v} != index-history ${ih}`);
+    const wv = wrapIdx.get(s);
+    if (wv === undefined) bad.push(`${s}: session missing from wrap-archive`);
+    else if (wv !== v) bad.push(`${s}: ledger ${v} != wrap-archive ${wv}`);
+  }
+  expect(bad, 'ledger market blocks disagreeing with their sessions').toEqual([]);
+});

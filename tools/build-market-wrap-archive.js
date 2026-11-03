@@ -112,6 +112,10 @@ function entryFromLive(live) {
   headline += ' at ' + fmt(ix.value);
   if (chg > 0 && leadNames) headline += ' as ' + leadNames.toLowerCase() + ' lead';
   else if (chg < 0 && lagNames) headline += ' as ' + lagNames.toLowerCase() + ' drag';
+  // A non-CLOSED tape is provisional by definition: never headline it as a
+  // close. (2026-11-03: the Nov-2 wrap was first published from a 15:40
+  // intraday tape as if it were the official close.)
+  if (live.market !== 'CLOSED') headline += ' (provisional intraday snapshot)';
 
   const breadthTxt = adv > dec ? 'advancers outnumbered decliners'
     : dec > adv ? 'decliners outnumbered advancers' : 'advancers and decliners were evenly split';
@@ -144,8 +148,11 @@ function entryFromLive(live) {
   }
   body1 += 'Day range: ' + fmt(ix.low) + ' – ' + fmt(ix.high) + '.';
 
-  const body2 = 'All figures above are the official session close. ' +
-    'Quotes refresh during market hours; outside hours the last close is shown.';
+  const body2 = live.market === 'CLOSED'
+    ? 'All figures above are the official session close. ' +
+      'Quotes refresh during market hours; outside hours the last close is shown.'
+    : 'Provisional intraday snapshot — NOT the official session close. ' +
+      'The final close replaces this entry when the closing tape lands.';
 
   return {
     session_date: sessDate,
@@ -276,7 +283,8 @@ function entryCard(e) {
   <h2 itemprop="headline">${headlineHtml(e)}</h2>
   <div itemprop="articleBody">
   ${bodyHtml(e)}
-  </div>
+  </div>${e.restatement_note ? `
+  <p class="wa-restated">Restated: ${esc(e.restatement_note)}</p>` : ''}
   <div class="wa-meta"><strong>Nepse Decode Desk</strong> · ${meta.map(esc).join(' · ')} · Source: NEPSE</div>
   <meta itemprop="datePublished" content="${e.session_date}">
   <meta itemprop="author" content="Nepse Decode">
@@ -426,6 +434,19 @@ function main() {
       have.add(e.session_date);
       added.push(e.session_date);
     }
+  } else if (live && live.session_date && live.index && live.market === 'CLOSED' && live.close === true) {
+    // Final tape landed after a provisional entry: replace it. A provisional
+    // entry must never stand as the session's record once the final exists.
+    // (2026-11-03: Nov-2's provisional 15:40 entry survived because the
+    // have-set dedup skipped the session forever after.)
+    const i = archive.findIndex((e) => e.session_date === live.session_date);
+    if (i >= 0 && archive[i].market !== 'CLOSED') {
+      const e = entryFromLive(live);
+      e.restatement_note = 'Restated: this entry first published from a provisional intraday tape and replaced when the final closing tape landed.';
+      e.restated_at = new Date().toISOString().slice(0, 10);
+      archive[i] = e;
+      added.push(e.session_date + ' (restated)');
+    }
   }
 
   // Backfill: any session in the maintained index history that is missing
@@ -445,7 +466,23 @@ function main() {
     if (!isFinite(close) || close <= 0) continue;
     const ymd = String(r[0]);
     const sessDate = ymd.slice(0, 4) + '-' + ymd.slice(4, 6) + '-' + ymd.slice(6, 8);
-    if (sessDate < cutoff || sessDate > nptISO || sessDate < earliest || have.has(sessDate)) continue;
+    if (sessDate < cutoff || sessDate > nptISO || sessDate < earliest) continue;
+    // Provisional entries get replaced by the index-history record once the
+    // final tape is no longer available: the index-history entry carries
+    // honest "sector and breadth detail is only published for sessions
+    // recorded live" language, which beats a provisional tape standing as
+    // the session's record.
+    const existingIdx = archive.findIndex((e) => e.session_date === sessDate);
+    if (existingIdx >= 0) {
+      if (archive[existingIdx].market === 'CLOSED') continue;
+      const prevClose = i > 0 && Array.isArray(rows[i - 1]) ? Number(rows[i - 1][4]) : null;
+      const e = entryFromIndexRow(r, prevClose);
+      e.restatement_note = 'Restated: the provisional intraday entry for this session was replaced by the index-history record; sector and breadth detail is only published for sessions recorded live.';
+      e.restated_at = new Date().toISOString().slice(0, 10);
+      archive[existingIdx] = e;
+      added.push(sessDate + ' (restated)');
+      continue;
+    }
     if (sessDate === nptISO && live && live.market === 'OPEN' &&
         !(nptH >= 15 + 35 / 60)) continue; // today, pre-close
     const prevClose = i > 0 && Array.isArray(rows[i - 1]) ? Number(rows[i - 1][4]) : null;

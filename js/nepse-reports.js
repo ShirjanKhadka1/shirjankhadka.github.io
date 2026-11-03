@@ -229,6 +229,7 @@
         (m.change == null ? '' : ' (' + (m.change >= 0 ? '+' : '') + num(m.change, 2) + ')') +
         ' · traded ' + (m.traded == null ? '—' : m.traded) +
         ' · breadth ' + up + '↑ / ' + down + '↓ / ' + flat + '—</p>' +
+        (e.restatement_note ? '<p class="rp-restated">Restated: ' + esc(e.restatement_note) + '</p>' : '') +
         '<p>Top signal: ' + (top ? '<b>' + esc(top.s) + '</b> · ' + esc(top.v || '—') + ' (score ' + num(top.score, 1) + ')' : '—') + '</p>' +
         '<p>' + callsLine + '</p>' +
         '<p>Forward vs the average stock — ' + fwd('h5') + ' · ' + fwd('h10') + ' · ' + fwd('h20') + '.</p></article>';

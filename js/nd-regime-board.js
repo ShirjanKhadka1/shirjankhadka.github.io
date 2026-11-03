@@ -112,6 +112,13 @@
         d.counts.pending_flip + ' flip pending. Sector rows are derived ' +
         'equal-weight composites of their stocks (not official sub-indices); ' +
         'the NEPSE row is the official index. Tap an index name to see its stocks.';
+      if (d.restatement_note) {
+        note.appendChild(document.createElement('br'));
+        var rn = document.createElement('span');
+        rn.className = 'rgb-restated';
+        rn.textContent = 'Restated: ' + d.restatement_note;
+        note.appendChild(rn);
+      }
     }
     var tb = $('rgbTableBody');
     if (!tb) return;
