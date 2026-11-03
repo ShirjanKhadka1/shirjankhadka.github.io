@@ -7,6 +7,88 @@ restatement). Tags through `data-2026-11-03-10` on `6ea0e0d8` (the tag
 job names by RUN date NPT; tags -7/-8 point at the item-1 ledger
 staging `fa61b29d`, -9/-10 at the regime staging).
 
+## Update — Nov-3 evening: Charter v4.2 batch status (items 1–6)
+
+This batch records the state of every v4.2 item as verified
+2026-11-03 evening. Nothing below claims a step beyond its
+evidence: items marked CLOSED are closed on the stated evidence;
+items marked PARTIAL list exactly what is still owed and what
+triggers it. NOT claimed here: Nov-3 boards live, PR #362 merged,
+the actions page live on the new bake, the four deploy
+migrations live-proven, or this file itself live — this file's
+own live render rides the Publish after this PR merges, and is
+proven only from served bytes on /status/program-status.html.
+
+- Item 1 CLOSED (already recorded above — kept, not regressed):
+  Nov-2 restated close 2657.50 / Rs 7,183,713,047.
+- Item 2 CLOSED (code + unblock): the per-component smoke gate
+  via PR #340 (merged 99766a96): the gate never reads the
+  manifest file; the manifest-session span is deliberately NOT
+  gated (it is a manifest echo, and gating it would reintroduce
+  the coupling item 2 removes); the item-1 ledger-consistency
+  test is present and untouched. Nov-3 close live via PR #348
+  (merged 89075361): NEPSE 2664.13, official final turnover
+  Rs 5,651,142,523.49, 57,449 trades, 349 scrips. Live-gate
+  ahead-branch fix: stamps ahead of run-start are now expected
+  and re-checked against the current manifest instead of
+  failing.
+- Item 5 CLOSED (re-point, proof pending): HPHL SEBON
+  verification re-pointed in ipo-refresh.py — table-scoped
+  "IPO APPROVED" discovery, pinned anchor fallback to the
+  verified 2026-10-06 SEBON PDF, retries raised, split failure
+  messages. Acceptance passing (--check SILENT). Production
+  proof is the Nov-4 05:38 scheduled run: that run is the
+  confirmation step, NOT done yet. The general-public row stays
+  upcoming — no early close recorded without an official
+  figure.
+- Item 3 PARTIAL: sector Nov-2 boards live (rotation,
+  price-rotation, symbol, sentiment, strength, regime,
+  seasonality verified); contributors Nov-2 FINAL live via the
+  cap fix (data a5ba6217, Publish 41668241916, tag
+  data-2026-11-03-98, coverage 98.12%, residual +1.14, the 125%
+  gate untouched). Four deploy migrations code-done —
+  smart-money, rotation minus --force, price-rotation, symbol —
+  all to the data-branch writer + publish-wait path, with live
+  Publish proof owed via the Nov-4 scheduled runs (16:38
+  sector trio, 17:40 smart-money). Nov-3 boards still pending:
+  the Nov-3 broker deploy is held on the GATE-A 2D window, the
+  Nov-3 OHLC archive bars are owed, and the session_date
+  decision (below) is owed.
+- Item 4 PARTIAL: 4B merged — #346 (wiring every consumer to
+  the instrument master) and #349 (regeneration of sector
+  payloads, keystone and history from the master) — master
+  wired to consumers, sector payloads/keystone/history
+  regenerated, 10 orphan pages disposed then retired
+  2026-11-03 on universe regen. STILL OUTSTANDING: the CI
+  invariant (every symbol/sector/type on any page/data file
+  matches master), the 30-min live gate on production,
+  UNCONFIRMED resolutions (GMFIL, MKCL, NRM, NTC, NWCL, TTL +
+  others), and smart-money builder master-scope alignment —
+  the live Nov-2 board carries a restatement the builder does
+  not implement, flagged before the Nov-4 17:40 run.
+- Item 6 (this batch): the batch itself, plus the following
+  still-owed items with their triggers. PR #362 (noscript
+  baker, 5/6 required checks green, quality outstanding at
+  last check) is blocked on the missing wrap-archive Nov-3
+  entry on main — it merges only after the wrap publisher
+  lands that entry, then branch update + re-check + merge +
+  Publish + purge + verify. The live actions page is still
+  the old bake despite #364 (main ce6eab51) because the data
+  snapshot's content component overlays it — it goes live
+  only after content-writer staging of main's page + Publish;
+  that fix path belongs to another lane and is recorded here
+  as owed, NOT executed by this batch. Suite-order fix #363
+  landed (main 435f811d); confirmation is the Nov-4 universe
+  run footers matching the shipped manifest. Two decisions
+  surfaced-not-applied, awaiting user decisions: the
+  session_date program decision (served live.json
+  session_date is null; v2/52w/backstop consumers gate on
+  it) and the Nov-3 ledger turnover restatement (served
+  5,380,872,241 frozen-tape vs official final
+  5,651,142,523.49). The contributors script --publish
+  migration is a separate decision, not folded into the four
+  item-3 migrations.
+
 ## Update — Nov-3: Charter v4.2 item 1 CLOSED — Nov-2 close integrity restated
 
 Charter v4.2 (owner order Nov-3 09:57 NPT) governs from here, in order:
