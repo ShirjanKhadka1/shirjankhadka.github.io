@@ -189,6 +189,84 @@ in the merged commit itself):
   this file ONLY. No capture-close.js, close runner, or close
   cron touched (separate worker owns the durable capture-close gate).
 
+## Update — Nov-3: Charter v4.2 item 3 phase (a) — stale boards rebuilt at Nov-2 (pre-close)
+
+Phase (a) covers the last close session (Nov-2). Phase (b) — the
+post-close contributors FINAL run — is a separate dispatch after
+close and is NOT in this update.
+
+Contributors divisor fix (agent-side, no site PR):
+tools/build-contributors.py now plausibility-gates every divisor
+candidate in BOTH resolve_divisor (post-close) and
+resolve_divisor_live (live): a candidate jumping >10% vs the most
+recent stable earlier session's implied divisor is REJECTED and the
+payload carries a `REJECTED ... falling back` source note; the
+fallback is the last plausible implied divisor. Upper cap-coverage
+gate added at 125% next to the existing <85% check. Residual
+tolerance (±2.5) and the quote gate (250) untouched. The per-tick
+publish path now prints the official/explained/residual/divisor/
+coverage summary before a gate failure propagates, so a failed tick
+no longer logs only the gate line. Root cause, pinned: the Nov-2
+EOD snapshot's total market capitalisation collapsed
+Rs 4,630,727,163,404 (Oct-30) -> Rs 957,973,947,007 (Nov-2, -79.3%)
+while the index fell only 1.21%, so the Nov-3 live divisor came out
+Rs 360,478,022/pt instead of ~Rs 1,721M/pt, inflating every row's
+points ~4.74x (residual 19.02 on the 12:23 tape, pre-fix).
+Dry-run on a fresh Nov-3 tape (324 quotes, no --publish), post-fix:
+divisor Rs 1,721,363,925 with the REJECTED-Nov-2 note, cap coverage
+99.33%, residual +0.24 (official -4.74, explained -4.98) — inside
+±2.5. The same rejection was verified on the post-close path
+(synthetic Nov-3 session: Nov-2 candidate rejected, Oct-30 implied
+adopted), and the 125% gate was verified to fire on a 474%
+coverage board. No served data file was hand-edited; the Nov-2 EOD
+snapshot itself is untouched. Still owed: the fresh Nov-2 EOD
+re-fetch from the NEPSE official source (item-1 honest gap — it
+would also settle why the snapshot cap fields collapsed).
+
+Sector rotation x4: the Nov-2 failures were the builders reading
+the Oct-28 11-sector keystone from stale worktrees while the served
+keystone is Nov-2 with 12 sectors incl. Trading. Rebuilt from the
+data-branch sector-indices.json (sector-seasonality component,
+Nov-2) with main index-history (Nov-2 close 2657.50) and main
+universe (424 symbols): sector-rotation (12 sectors; Trading
+Lagging; Leading 2 / Improving 9 / Lagging 1), sector-price-
+rotation (30d leader Banking +6.30%), sector-price-rotation-
+forward, sector-symbol (12 sectors, 269 constituents, keystone
+asof Nov-2, no extension sessions needed). Data-branch commits:
+sector-rotation 32425e7d, sector-price-rotation ccab495a,
+sector-symbol a4245e29.
+
+Broker boards (all Nov-2, all via the data-branch writer):
+broker-smart-money f18e11bb (292 rows, gates clean),
+smart-money-eps c2db90cc (292 rows from Link 12 Nov-2; EPS cross-
+check quarterly Q4 == fundamentals Q4 on 247/247; stories
+rising 141 / falling 74 / loss-making 31 / new 5 / none 41),
+broker-zero-sum e634eb16 (all 7 windows), money-flow 03e0e099
+(90 brokers, buy == sell Rs 7,183,713,047.01 — matches the item-1
+restated turnover; archive 68 sessions).
+
+Publish + purge + live proof: the dispatched Publish
+(workflow_dispatch run 41592982429) was cancelled, superseded by
+push-triggered Publish runs — every data-branch write triggers one
+and each cancels its predecessor. The effective Publish is the
+push-triggered run 41593253813 (head b378398b, which contains all
+item-3a writes plus the later intraday live tape and performance
+snapshot): publish success, tag success, tag data-2026-11-03-31
+-> b378398b. The stale snapshot 03e0e099 was deliberately NOT
+re-dispatched: it predates the intraday/performance writes and
+would have regressed them. All 24 changed data URLs purged
+(LIVE-VERIFIED-STABLE, 3 consecutive identical fetches); served
+bytes after purge: sector-rotation, sector-price-rotation,
+sector-price-rotation-forward, sector-symbol, broker-smart-money,
+smart-money-eps, broker-zero-sum-1/-30/-365, money-flow — all
+asof 2026-11-02.
+
+Broker hub bake (PR #342, this branch): tools/bake-broker-snapshot.py
+re-run in a clean worktree at main 99766a9635;
+nepse-brokers/index.html snapshot Oct-30/68 days -> Nov-2/69 days
+with the Nov-2 top-5 broker rows, js/nepse-brokers.js DAILY_END
+2026-10-30 -> 2026-11-02 and the JS stamp recomputed (48e3f915).
+
 ## Update — Oct-31 evening → Nov-1: Charter v3, P0 green, design complete
 
 Charter v3 (owner order Sat Oct-31 19:50) governs from here: this repo
