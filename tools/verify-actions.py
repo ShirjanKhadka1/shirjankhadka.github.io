@@ -8,6 +8,7 @@ the baked page, WITHOUT touching any data value:
   nepse-chart/data/div-live.json          (dividend figures + book-closes)
   nepse-chart/data/verdicts.json          (sector per symbol)
   nepse-chart/data/universe.json          (company names)
+  data/reference/instruments.json         (sector master: expected sector list)
   nepse-actions/index.html                (baked page, generator output)
   css/nd-actions.css, js/nepse-actions.js (page assets, stamp-checked)
   data/corporate-actions-ledger.json      (if present, consistency-checked)
@@ -164,7 +165,8 @@ def main():
                      f"announced = mirror-surface date, not the PDF date)")
         if '&amp;' in str(it.get('headline') or ''):
             warn(f"headline carries a pre-escaped entity on {it.get('symbol') or '-'} "
-                 f"(renders as literal &amp;; upstream collector stored an escaped title)")
+                 f"(upstream collector stored an escaped title; page decodes "
+                 f"entities before rendering, so the stored form is a data note only)")
 
     # --- 5. div-live join coverage (dividend/bonus items) ---
     div_items = [it for it in items if it.get('kind') in ('dividend', 'bonus-share')]
@@ -273,8 +275,45 @@ def main():
     if 'class="na-page-btn is-next" id="na-next"' not in page:
         fail('feed Next button lacks lime-primary class')
     opts = len(re.findall(r'<option', page))
-    if opts != 16:
-        fail(f"sector select options {opts} != 16 (All + 15 sectors)")
+    # Sector select must list exactly the instrument-master sectors
+    # (Charter v4.2 items 4A/4B): All + every real master sector, never
+    # the abolished buckets (Debentures, Mutual Funds, Promoter Shares,
+    # Others) the old hardcoded 16 (All + 15) expected. The expectation
+    # is derived from the master itself, and compared by NAME, so a
+    # genuinely vanished sector still fails loudly instead of hiding
+    # behind a changed number.
+    master_sectors = None
+    try:
+        master_doc = json.loads(
+            (root / 'data/reference/instruments.json').read_text())
+        master_rows = (master_doc if isinstance(master_doc, list)
+                       else master_doc.get('rows',
+                                           master_doc.get('instruments', [])))
+        master_sectors = sorted({r.get('sector') for r in master_rows
+                                 if r.get('sector')
+                                 and r.get('sector') != 'UNCONFIRMED'})
+    except (OSError, json.JSONDecodeError) as e:
+        fail(f"cannot read instrument master: {e}")
+    if master_sectors is not None:
+        sel = re.search(
+            r'<select[^>]*id="na-sector-select"[^>]*>(.*?)</select>',
+            page, re.S)
+        if not sel:
+            fail('sector select element missing from baked page')
+        else:
+            opt_values = re.findall(r'<option value="([^"]*)"',
+                                    sel.group(1))
+            page_sectors = (opt_values[1:]
+                            if opt_values and opt_values[0] == 'all'
+                            else opt_values)
+            if (sorted(page_sectors) != master_sectors
+                    or len(page_sectors) != len(set(page_sectors))):
+                missing = sorted(set(master_sectors) - set(page_sectors))
+                extra = sorted(set(page_sectors) - set(master_sectors))
+                fail(f"sector select sectors {sorted(page_sectors)} != "
+                     f"master sectors {master_sectors}"
+                     + (f" (missing {missing})" if missing else "")
+                     + (f" (extra {extra})" if extra else ""))
     sec_body = re.search(r'<tbody id="na-sector-body">(.*?)</tbody>', page, re.S)
     if not sec_body or sec_body.group(1).count('<tr>') != 25:
         fail('baked sector table is not the 25-row first page')
