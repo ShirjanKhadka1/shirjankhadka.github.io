@@ -1,0 +1,35 @@
+# Charter v4.2 item 4C — instrument & sector invariant (required check).
+#
+# Crawls every served data JSON + built page in the repo and fails on ANY
+# sector/type value that disagrees with the adopted master
+# data/reference/instruments.json. UNCONFIRMED rows must never appear as
+# a sector bucket; retired bucket values (Promoter Shares, Debentures,
+# Mutual Funds, Others, old-vocabulary variants) fail anywhere.
+#
+# Deliberately reported-only, never failed (see the script header):
+# frozen history/archive snapshots, tests/fixtures, research dossiers,
+# the contributors provisional board (publisher-lane recompute pending),
+# MF source-taxonomy allocation (no holding symbols), and baked
+# manifest-session stamps (stamp freshness is the live gate's job).
+
+name: Instrument invariant
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  instrument-invariant:
+    name: Instrument invariant
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check instrument & sector invariant
+        run: python3 tools/check-instrument-invariant.py
