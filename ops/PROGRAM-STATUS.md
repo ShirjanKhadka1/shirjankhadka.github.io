@@ -96,6 +96,99 @@ Corrections landed (all with visible restatement notes):
   durable capture-close.js gate PR + repoint of the post-merge step
   to data-branch staging.
 
+## Update — Nov-3: Charter v4.2 item 2 CLOSED — smoke gate is per-component
+
+Item 2 replaces the old smoke gate, which compared every page's SSR
+date against manifest.session_date and therefore failed every
+single-lane PR (a manifest-only PR failed because pages still showed
+the old session; a page+component PR failed because the manifest had
+not rolled yet — the old #329/#332 failure mode). The new gate never
+reads the manifest file: each page is compared only to the data
+file(s) that page actually renders, fetched from the same served
+tree. A manifest-only tree passes; a page+component tree passes when
+page and components were baked together; a page advanced without its
+component fails, as does a component advanced without its page —
+that desync is the gate working, and the fix is to rebuild the two
+together in one PR. Stale-but-consistent passes here: a page showing
+an older session whose components carry that same older session is
+not this gate's failure — staleness labelling stays with the live
+gate + freshness badges (Charter §C).
+
+What changed (PR __PR__; merge SHA + Publish run appended by
+follow-up status PR after merge+publish — post-merge facts cannot be
+in the merged commit itself):
+- tests/smoke.spec.ts: old test 'SSR session dates match the manifest
+  session date' REPLACED by 'page date markers match their own
+  rendered components' (same file, same required-check set). Item 1's
+  ledger test ('ledger market blocks match their sessions') untouched
+  and still green; every other smoke test untouched.
+- Per-component mapping implemented (page → component file, all from
+  the same served tree):
+  - /nepse-decode/ baked wrap block (date + day range) →
+    nepse-chart/data/wrap-archive.json entry for that session
+    (membership + high/low match; archive keeps past sessions).
+  - /nepse-decode/ rendered freshline (Session date + tape time) →
+    nepse-chart/data/live.json via js/nd-home.js getSessionDate
+    priority (session_date, else data_asof, else latest indices
+    last_updated, Asia/Kathmandu).
+  - /nepse-decode/ rendered news line (feed date, newest story,
+    story count) → nepse-chart/data/news.json asof / items[0].date /
+    items.length.
+  - /nepse-screener/ baked track-record text (every 'batch as of') →
+    nepse-chart/data/track-record.json asof.
+  - /nepse-screener/ rendered signals line (date + ranked count) →
+    nepse-chart/data/verdicts.json asof + verdicts count.
+  - /nepse-signals/{momentum,trend-relay,reversal}/ rendered
+    freshness line → nepse-chart/data/signals/<sys>.json asof.
+  - /stocks/ directory date → stock-page bake formula
+    max(live-tape session date, verdicts asof)
+    (tools/build-symbol-pages.js).
+  - /stocks/NBL/ baked stamps → bake inputs: session header ==
+    max(live date, verdicts asof); tape line == live date; data-as-of
+    == prices session == about as-of (the page's asofD, following the
+    builder's useLive rule); verdict-pill as-ofs == verdicts asof;
+    news foot == news asof.
+  - Baked markers are read from raw served HTML; rendered markers
+    from the settled DOM (networkidle + 2s), because those elements'
+    baked text is a JS-overwritten fallback.
+- Deliberate exclusions (judgment calls, recorded for override):
+  - The stock page's 'manifest session' span is LOGGED, not gated.
+    It is a manifest echo baked from the manifest at build time, and
+    requiring it to equal its siblings would reintroduce the exact
+    coupling this item removes: a page+component PR would fail
+    whenever the manifest rollover lagged the component bake (the old
+    #329 mode). The task brief listed the span in the agreement set;
+    the brief's own consequence checks (page+component must pass) and
+    its core rule (manifest is not a component) override that
+    parenthetical — flagged here for owner override.
+  - /status/ is not gated: its noscript health line is a manifest
+    echo by construction; gating it would compare the manifest to
+    itself or reintroduce the coupling.
+  - Not gated (different vintages, not session markers): the
+    shareholding 'data as of 2026-10-28' note, quarterly 'as of Q4
+    FY' labels, corporate-action event dates, and the screener's
+    baked Oct-30 fallback (JS-overwritten; the rendered line is
+    gated instead).
+  - Pages with no mapped marker (/, chart, trending, value, brokers,
+    sectors, news, watchlist, portfolio, simulator, reports, actions,
+    signals methodology, blog, status) are reported, not failed.
+- docs/deploy-procedure.md §6: the 'COMBINED tree only / combine the
+  lanes' bullet REPLACED with the per-component doctrine. Historical
+  incident notes mentioning the old gate name are left as history
+  (they enforce nothing).
+- Proof run locally before PR (override server over the worktree,
+  Playwright, new test only): current tree PASS; manifest-only tree
+  (manifest session 2026-11-03, pages untouched) PASS — and the OLD
+  gate run against that same tree FAILED (stocks/NBL + status), the
+  exact failure this item removes; page+component tree (screener
+  baked 'batch as of' + track-record.json both 2026-11-03) PASS;
+  page-only tree (baked batch 2026-11-03, component 2026-11-02)
+  FAILED with 'baked batch date 2026-11-03 != component
+  2026-11-02'; component-only tree FAILED with the mirror message.
+- Scope guardrail: this PR touches tests/smoke.spec.ts, docs, and
+  this file ONLY. No capture-close.js, close runner, or close
+  cron touched (separate worker owns the durable capture-close gate).
+
 ## Update — Oct-31 evening → Nov-1: Charter v3, P0 green, design complete
 
 Charter v3 (owner order Sat Oct-31 19:50) governs from here: this repo
