@@ -107,12 +107,20 @@ function main() {
   const expected = argSession || td.expectedSessionDate(now);
   const failures = [];
 
-  // live.json refreshes intraday (live quote snapshots stream in during market
-  // hours), so once today's session has started its date IS today — unlike
-  // universe.json and the manifest, which are written once per day after the
-  // close. Gating live against the last *completed* session false-fails every
-  // run during market hours, so this gate uses its own live-aware expectation
-  // (wall-clock; --session still governs the universe/signals gates below).
+  // live.json's intraday snapshots stream to the DATA branch, not main —
+  // main's copy still carries the last close during market hours (data-branch
+  // migration, Nov 2026). Once today's session has started, today's date is
+  // the live expectation for a data-branch checkout, but main's last-close
+  // copy is also current while the market is still open: a market-hours run
+  // (e.g. the 06:00 content schedule drifting to 12:37 NPT on 2026-11-03)
+  // false-failed this gate with live=last close vs expected=today, blocking
+  // an otherwise-valid content refresh. So during market hours the last
+  // completed session passes too; before the open and after the close the
+  // two expectations coincide, so this tolerance changes nothing there, and
+  // live older than the last completed session still FAILS. Universe and
+  // manifest are written once per day after the close, so they keep gating
+  // against the last completed session (wall-clock; --session still governs
+  // the universe/signals gates below).
   const expectedLive = (() => {
     const today = td.todayNPT(now);
     if (td.isTradingDay(today) && td.timeNPT(now) >= td.MARKET_OPEN) return today;
@@ -134,7 +142,13 @@ function main() {
   try { universe = readData('universe.json'); } catch (e) { gate('universe.json-parse', false, e.message); }
   if (live) {
     const s = sessionOf(live);
-    gate('live-session-current', s === expectedLive, `live=${s} expected=${expectedLive}`);
+    // Market-hours tolerance (see expectedLive comment): main's live.json
+    // legitimately carries the last completed session until the close.
+    const liveOk = s === expectedLive ||
+      (td.marketState(now) === 'LIVE' && s === expected);
+    gate('live-session-current', liveOk,
+      `live=${s} expected=${expectedLive}` +
+      (liveOk && s !== expectedLive ? ' (last completed session, market open)' : ''));
   }
   if (universe) {
     const s = sessionOf(universe);
