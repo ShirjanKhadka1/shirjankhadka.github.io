@@ -1889,6 +1889,19 @@ function main() {
   /* --symbol=XYZ rebuilds a single stock page (used by the dividend watcher
    * to refresh one Investment Calendar the moment a dividend is announced). */
   const onlySym = (process.argv.find((a) => a.startsWith('--symbol=')) || '').slice(9).toUpperCase();
+  /* --manifest-session=YYYY-MM-DD stamps the SUITE session into the footer
+   * ("manifest session …") instead of the on-disk manifest's session_date.
+   * Durable suite-order fix (Nov-3 defect): the universe suite used to bake
+   * pages BEFORE build-manifest ran, so all 434 pages carried the previous
+   * session's footer token while the shipped manifest was the new session.
+   * The suite passes its own asof here; a malformed value fails hard rather
+   * than stamping a bad token. Without the flag, behaviour is unchanged
+   * (on-disk manifest, for standalone --symbol= rebuilds). */
+  const manifestSessionArg = (process.argv.find((a) => a.startsWith('--manifest-session=')) || '').slice(19);
+  if (manifestSessionArg && !/^\d{4}-\d{2}-\d{2}$/.test(manifestSessionArg)) {
+    console.error('build-symbol-pages: --manifest-session must be YYYY-MM-DD, got ' + manifestSessionArg);
+    process.exit(1);
+  }
   const universe = loadJson(path.join(DATA, 'universe.json'), null);
   const ver = loadJson(path.join(DATA, 'verdicts.json'), null);
   const news = loadJson(path.join(DATA, 'news.json'), null);
@@ -2011,7 +2024,10 @@ function main() {
   const pageAsof = (liveDate && liveDate >= String((ver && ver.asof) || '')) ? liveDate : ((ver && ver.asof) || '');
   /* teardown 2026-10-28 payloads: manifest (session + generation stamp),
    * audit (scored count), value screen (map), verdict archive (sessions). */
-  const manifest = loadJson(path.join(ROOT, 'data', 'manifest.json'), null);
+  const manifestDisk = loadJson(path.join(ROOT, 'data', 'manifest.json'), null);
+  const manifest = manifestSessionArg
+    ? Object.assign({}, manifestDisk || {}, { session_date: manifestSessionArg })
+    : manifestDisk;
   const audit = loadJson(path.join(DATA, 'audit.json'), null);
   const valueData = loadJson(path.join(DATA, 'value.json'), null);
   const valueBySym = {};
@@ -2130,7 +2146,7 @@ function main() {
     const extras = scanBakedExtras(new Set(symbols.map((u) => slugOf(u.s))));
     fs.writeFileSync(path.join(OUT, 'index.html'), indexPage(symbols.concat(extras), pageAsof));
   }
-  console.log(JSON.stringify({ pages: made, dir: 'stocks/', symbol: onlySym || undefined, ladder: { withData: ladderOk, noData: ladderNone, archive: OHLC_DB_DIR }, adjustments: { events: adjEventsApplied, symbols: adjSymbols, skipped: adjSkipped }, shareholding: shCounts }));
+  console.log(JSON.stringify({ pages: made, dir: 'stocks/', symbol: onlySym || undefined, manifestSession: manifest ? manifest.session_date : null, ladder: { withData: ladderOk, noData: ladderNone, archive: OHLC_DB_DIR }, adjustments: { events: adjEventsApplied, symbols: adjSymbols, skipped: adjSkipped }, shareholding: shCounts }));
 }
 
 /* Baked stock pages on disk that universe.json no longer carries.
