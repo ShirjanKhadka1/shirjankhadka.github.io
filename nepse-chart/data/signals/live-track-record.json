@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-03T19:10:40.729426+05:45",
+  "updated_at": "2026-11-04T19:11:19.114521+05:45",
   "tracking_started": "2026-08-03",
   "method": "Seeded from the engine's verifiable alert history: every distinct BUY alert found in git-committed signal JSONs on origin/main (2026-09-30 commits onward), each traced to its real alert record (system, symbol, signal date, published entry/stop/targets). Exits on real forward OHLC from the owned archive: target 1, stop loss, a trailing stop ratcheted from the stop (never from future-informed levels), or a 20-session time exit. Same-bar precedence is conservative: stop, then trail, then target. P&L net of 0.5% round-trip charges. Ongoing alerts are captured daily by the same logic; nothing here comes from the 2003-2026 backtest replay.",
   "provenance": {
@@ -22,10 +22,10 @@
           "target_1": 382.37,
           "target_2": 420.75,
           "status": "open",
-          "sessions_held": 13,
-          "current_price": 363.6,
-          "unrealized_pct": 5.7,
-          "data_through": "2026-11-02",
+          "sessions_held": 14,
+          "current_price": 358,
+          "unrealized_pct": 4.07,
+          "data_through": "2026-11-03",
           "captured_at": "2026-10-09T10:04:07.318491+05:45",
           "provenance": {
             "alert_commit": "16342e72",
@@ -44,10 +44,10 @@
           "target_1": 11.16,
           "target_2": 11.92,
           "status": "open",
-          "sessions_held": 13,
-          "current_price": 10.2,
-          "unrealized_pct": -1.92,
-          "data_through": "2026-11-02",
+          "sessions_held": 14,
+          "current_price": 10.1,
+          "unrealized_pct": -2.88,
+          "data_through": "2026-11-03",
           "captured_at": "2026-10-09T10:04:07.321360+05:45",
           "provenance": {
             "alert_commit": "a16a250f",
@@ -62,14 +62,14 @@
           "entry_price": 828,
           "qty": 1208,
           "stop_loss": 794.84,
-          "trail_stop": 800.64,
+          "trail_stop": 800.84,
           "target_1": 877.74,
           "target_2": 927.47,
           "status": "open",
-          "sessions_held": 14,
-          "current_price": 826.2,
-          "unrealized_pct": -0.22,
-          "data_through": "2026-11-02",
+          "sessions_held": 15,
+          "current_price": 834,
+          "unrealized_pct": 0.72,
+          "data_through": "2026-11-03",
           "captured_at": "2026-10-09T10:04:07.329493+05:45",
           "provenance": {
             "alert_commit": "a16a250f",
@@ -651,7 +651,7 @@
       ],
       "stats": {
         "tracking_started": "2026-08-03",
-        "data_through": "2026-11-02",
+        "data_through": "2026-11-03",
         "open_positions": 3,
         "closed_trades": 19,
         "total_signals": 22,
@@ -677,47 +677,11 @@
           "exit_date": "2026-10-30",
           "exit_reason": "Time exit (20 sessions)"
         },
-        "last_updated": "2026-11-03T19:10:40.729278+05:45"
+        "last_updated": "2026-11-04T19:11:19.114369+05:45"
       }
     },
     "trend-relay": {
       "open": [
-        {
-          "symbol": "DLBS",
-          "system": "trend-relay",
-          "rule": "SMA20/SMA50 golden cross + volume",
-          "entry_date": "2026-10-12",
-          "entry_price": 1259,
-          "qty": 794,
-          "stop_loss": 1040.69,
-          "trail_stop": 1040.69,
-          "target_1": 1586.46,
-          "target_2": 1913.92,
-          "status": "open",
-          "sessions_held": 9,
-          "current_price": 1076,
-          "unrealized_pct": -14.54,
-          "data_through": "2026-10-30",
-          "captured_at": "2026-10-12T15:06:21.101265+05:45"
-        },
-        {
-          "symbol": "HBL",
-          "system": "trend-relay",
-          "rule": "SMA20/SMA50 golden cross + volume",
-          "entry_date": "2026-10-12",
-          "entry_price": 198.7,
-          "qty": 5033,
-          "stop_loss": 188.95,
-          "trail_stop": 201.15,
-          "target_1": 213.33,
-          "target_2": 227.96,
-          "status": "open",
-          "sessions_held": 10,
-          "current_price": 205.1,
-          "unrealized_pct": 3.22,
-          "data_through": "2026-11-02",
-          "captured_at": "2026-10-12T15:06:21.101265+05:45"
-        },
         {
           "symbol": "BNHC",
           "system": "trend-relay",
@@ -730,12 +694,14 @@
           "target_1": 306.03,
           "target_2": 330.06,
           "status": "open",
-          "sessions_held": 2,
-          "current_price": 280,
-          "unrealized_pct": -0.71,
-          "data_through": "2026-11-02",
+          "sessions_held": 3,
+          "current_price": 276,
+          "unrealized_pct": -2.13,
+          "data_through": "2026-11-03",
           "captured_at": "2026-10-29T19:26:50.672630+05:45"
-        },
+        }
+      ],
+      "closed": [
         {
           "symbol": "MAKAR",
           "system": "trend-relay",
@@ -744,18 +710,76 @@
           "entry_price": 422.9,
           "qty": 2365,
           "stop_loss": 401.49,
-          "trail_stop": 418.59,
+          "trail_stop": 432.19,
           "target_1": 455.02,
           "target_2": 487.14,
-          "status": "open",
-          "sessions_held": 1,
-          "current_price": 440,
-          "unrealized_pct": 4.04,
-          "data_through": "2026-11-02",
-          "captured_at": "2026-10-30T19:10:54.949778+05:45"
-        }
-      ],
-      "closed": [
+          "status": "closed",
+          "sessions_held": 2,
+          "current_price": 453.6,
+          "unrealized_pct": 7.26,
+          "data_through": "2026-11-03",
+          "captured_at": "2026-10-30T19:10:54.949778+05:45",
+          "outcome": "win",
+          "exit_date": "2026-11-03",
+          "exit_price": 455.02,
+          "exit_reason": "Target 1 hit",
+          "pnl_pct": 7.1,
+          "pnl_rs": 71011.25,
+          "hold_sessions": 2,
+          "closed_at": "2026-11-04T19:11:19.104944+05:45"
+        },
+        {
+          "symbol": "HBL",
+          "system": "trend-relay",
+          "rule": "SMA20/SMA50 golden cross + volume",
+          "entry_date": "2026-10-12",
+          "entry_price": 198.7,
+          "qty": 5033,
+          "stop_loss": 188.95,
+          "trail_stop": 201.15,
+          "target_1": 213.33,
+          "target_2": 227.96,
+          "status": "closed",
+          "sessions_held": 11,
+          "current_price": 203,
+          "unrealized_pct": 2.16,
+          "data_through": "2026-11-03",
+          "captured_at": "2026-10-12T15:06:21.101265+05:45",
+          "outcome": "win",
+          "exit_date": "2026-11-03",
+          "exit_price": 201.15,
+          "exit_reason": "Trailing stop hit",
+          "pnl_pct": 0.73,
+          "pnl_rs": 7300.42,
+          "hold_sessions": 11,
+          "closed_at": "2026-11-04T19:11:19.078892+05:45"
+        },
+        {
+          "symbol": "DLBS",
+          "system": "trend-relay",
+          "rule": "SMA20/SMA50 golden cross + volume",
+          "entry_date": "2026-10-12",
+          "entry_price": 1259,
+          "qty": 794,
+          "stop_loss": 1040.69,
+          "trail_stop": 1040.69,
+          "target_1": 1586.46,
+          "target_2": 1913.92,
+          "status": "closed",
+          "sessions_held": 10,
+          "current_price": 1055,
+          "unrealized_pct": -16.2,
+          "data_through": "2026-11-03",
+          "captured_at": "2026-10-12T15:06:21.101265+05:45",
+          "outcome": "loss",
+          "exit_date": "2026-11-03",
+          "exit_price": 1040.69,
+          "exit_reason": "Stop loss hit",
+          "pnl_pct": -17.84,
+          "pnl_rs": -178336.85,
+          "hold_sessions": 10,
+          "closed_at": "2026-11-04T19:11:19.055065+05:45"
+        },
         {
           "symbol": "SHEL",
           "system": "trend-relay",
@@ -1051,17 +1075,17 @@
       ],
       "stats": {
         "tracking_started": "2026-08-03",
-        "data_through": "2026-11-02",
-        "open_positions": 4,
-        "closed_trades": 10,
+        "data_through": "2026-11-03",
+        "open_positions": 1,
+        "closed_trades": 13,
         "total_signals": 14,
-        "wins": 5,
-        "losses": 5,
-        "win_rate_pct": 50.0,
-        "failure_rate_pct": 50.0,
-        "avg_win_pct": 6.44,
-        "avg_loss_pct": -5.97,
-        "profit_factor": 1.08,
+        "wins": 7,
+        "losses": 6,
+        "win_rate_pct": 53.85,
+        "failure_rate_pct": 46.15,
+        "avg_win_pct": 5.72,
+        "avg_loss_pct": -7.95,
+        "profit_factor": 0.84,
         "round_trip_cost_pct": 0.5,
         "best_trade": {
           "symbol": "MHNL",
@@ -1071,13 +1095,13 @@
           "exit_reason": "Target 1 hit"
         },
         "worst_trade": {
-          "symbol": "KMCDB",
-          "pnl_pct": -11.05,
-          "entry_date": "2026-09-16",
-          "exit_date": "2026-10-08",
-          "exit_reason": "Trailing stop hit"
+          "symbol": "DLBS",
+          "pnl_pct": -17.84,
+          "entry_date": "2026-10-12",
+          "exit_date": "2026-11-03",
+          "exit_reason": "Stop loss hit"
         },
-        "last_updated": "2026-11-03T19:10:40.729377+05:45"
+        "last_updated": "2026-11-04T19:11:19.114458+05:45"
       }
     },
     "reversal": {
@@ -1094,10 +1118,10 @@
           "target_1": 867.09,
           "target_2": 876.73,
           "status": "open",
-          "sessions_held": 13,
-          "current_price": 756.2,
-          "unrealized_pct": -2.91,
-          "data_through": "2026-10-30",
+          "sessions_held": 14,
+          "current_price": 740,
+          "unrealized_pct": -4.99,
+          "data_through": "2026-11-03",
           "captured_at": "2026-10-09T10:04:07.331548+05:45",
           "provenance": {
             "alert_commit": "a16a250f",
@@ -1251,7 +1275,7 @@
       ],
       "stats": {
         "tracking_started": "2026-08-03",
-        "data_through": "2026-10-30",
+        "data_through": "2026-11-03",
         "open_positions": 1,
         "closed_trades": 5,
         "total_signals": 6,
@@ -1277,7 +1301,7 @@
           "exit_date": "2026-10-26",
           "exit_reason": "Stop loss hit"
         },
-        "last_updated": "2026-11-03T19:10:40.729410+05:45"
+        "last_updated": "2026-11-04T19:11:19.114503+05:45"
       }
     }
   }
