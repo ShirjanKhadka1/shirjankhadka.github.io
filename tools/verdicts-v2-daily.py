@@ -214,7 +214,7 @@ def main():
     rebuild_mirror()
 
     log("running build-verdicts-v2.js ...")
-    run(["node", "tools/build-verdicts-v2.js", "--mirror", V2_MIRROR], timeout=1200)
+    run(["node", "tools/build-verdicts-v2.js", "--session", session, "--mirror", V2_MIRROR], timeout=1200)
 
     log("running build-health.js ...")
     run(["node", "tools/build-health.js"], timeout=300)
