@@ -1,16 +1,53 @@
 {
   "meta": {
-    "built_at_npt": "2026-10-30",
+    "built_at_npt": "2026-11-04",
     "builder": "tools/build-actions-ledger.py",
     "sources": {
-      "corporate_actions_updated": "2026-10-30T07:54:49.000Z",
-      "div_live_asof": "2026-10-29T13:19:15.670Z"
+      "corporate_actions_updated": "2026-11-03T13:57:06.203Z",
+      "div_live_asof": "2026-11-02T13:58:38.546Z"
     },
-    "items_total": 28,
-    "sessions_total": 16,
+    "items_total": 33,
+    "sessions_total": 18,
     "provenance": "sessions group by ANNOUNCED date; recording_runs group by VERIFIED date reconstructed from verifiedAt; no separate run log exists, so earlier runs are not inventable"
   },
   "sessions": [
+    {
+      "date": "2026-11-03",
+      "count": 1,
+      "items": [
+        {
+          "symbol": "NWCL",
+          "kind": "promoter-share",
+          "headline": "Date Expiry Of Lock In Period [NWCL]"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-02",
+      "count": 4,
+      "items": [
+        {
+          "symbol": "ACLBSL",
+          "kind": "dividend",
+          "headline": "About Dividend [ACLBSL]"
+        },
+        {
+          "symbol": "MAKAR",
+          "kind": "bonus-share",
+          "headline": "Bonus share and cash dividend declaration [MAKAR]"
+        },
+        {
+          "symbol": "RSDC",
+          "kind": "dividend",
+          "headline": "Dividend of RSDC for FY 2082/83 [RSDC]"
+        },
+        {
+          "symbol": "UNL",
+          "kind": "dividend",
+          "headline": "Dividend Declaration of UNL (1540 per equity share) [UNL]"
+        }
+      ]
+    },
     {
       "date": "2026-10-30",
       "count": 1,
@@ -250,6 +287,23 @@
   ],
   "recording_runs": [
     {
+      "date": "2026-11-03",
+      "added": [
+        "promoter-share|NWCL"
+      ],
+      "count": 1
+    },
+    {
+      "date": "2026-11-02",
+      "added": [
+        "dividend|ACLBSL",
+        "bonus-share|MAKAR",
+        "dividend|RSDC",
+        "dividend|UNL"
+      ],
+      "count": 4
+    },
+    {
       "date": "2026-10-30",
       "added": [
         "right-share|SMFBS"
@@ -358,6 +412,66 @@
   ],
   "items": [
     {
+      "symbol": "NWCL",
+      "kind": "promoter-share",
+      "announced": "2026-11-03",
+      "pdf_date": "2026-11-03",
+      "verified_at": "2026-11-03",
+      "sector": null,
+      "bookclose": "",
+      "bookclose_source": "none",
+      "status_at_build": null,
+      "first_closed_date": null
+    },
+    {
+      "symbol": "ACLBSL",
+      "kind": "dividend",
+      "announced": "2026-11-02",
+      "pdf_date": "2026-11-02",
+      "verified_at": "2026-11-02",
+      "sector": "Microfinance",
+      "bookclose": "",
+      "bookclose_source": "none",
+      "status_at_build": "Open",
+      "first_closed_date": null
+    },
+    {
+      "symbol": "MAKAR",
+      "kind": "bonus-share",
+      "announced": "2026-11-02",
+      "pdf_date": "2026-11-02",
+      "verified_at": "2026-11-02",
+      "sector": "Hydropower",
+      "bookclose": "",
+      "bookclose_source": "none",
+      "status_at_build": "Open",
+      "first_closed_date": null
+    },
+    {
+      "symbol": "RSDC",
+      "kind": "dividend",
+      "announced": "2026-11-02",
+      "pdf_date": "2026-11-02",
+      "verified_at": "2026-11-02",
+      "sector": "Microfinance",
+      "bookclose": "",
+      "bookclose_source": "none",
+      "status_at_build": "Open",
+      "first_closed_date": null
+    },
+    {
+      "symbol": "UNL",
+      "kind": "dividend",
+      "announced": "2026-11-02",
+      "pdf_date": "2026-11-02",
+      "verified_at": "2026-11-02",
+      "sector": "Manufacturing and Processing",
+      "bookclose": "2026-11-25",
+      "bookclose_source": "div-live",
+      "status_at_build": "Open",
+      "first_closed_date": "2026-11-26"
+    },
+    {
       "symbol": "SMFBS",
       "kind": "right-share",
       "announced": "2026-10-30",
@@ -375,7 +489,7 @@
       "announced": "2026-10-29",
       "pdf_date": "2026-10-29",
       "verified_at": "2026-10-29",
-      "sector": "Banking",
+      "sector": "Commercial Bank",
       "bookclose": "",
       "bookclose_source": "none",
       "status_at_build": "Open",
@@ -402,7 +516,7 @@
       "sector": "Hydropower",
       "bookclose": "2026-11-02",
       "bookclose_source": "div-live",
-      "status_at_build": "Open",
+      "status_at_build": "Closed",
       "first_closed_date": "2026-11-03"
     },
     {
@@ -591,7 +705,7 @@
       "announced": "2026-10-08",
       "pdf_date": "2026-10-08",
       "verified_at": "2026-10-08",
-      "sector": "Banking",
+      "sector": "Commercial Bank",
       "bookclose": "",
       "bookclose_source": "none",
       "status_at_build": "Open",
@@ -615,7 +729,7 @@
       "announced": "2026-09-30",
       "pdf_date": "2026-09-30",
       "verified_at": "2026-09-30",
-      "sector": "Manufacturing And Processing",
+      "sector": "Manufacturing and Processing",
       "bookclose": "",
       "bookclose_source": "none",
       "status_at_build": null,
@@ -663,7 +777,7 @@
       "announced": "2026-09-28",
       "pdf_date": "2026-09-28",
       "verified_at": "2026-09-29",
-      "sector": "Hotels And Tourism",
+      "sector": "Hotels and Tourism",
       "bookclose": "2026-09-25",
       "bookclose_source": "div-live",
       "status_at_build": null,
@@ -687,7 +801,7 @@
       "announced": "2026-09-07",
       "pdf_date": "",
       "verified_at": "2026-10-09",
-      "sector": "Banking",
+      "sector": "Commercial Bank",
       "bookclose": "2026-09-30",
       "bookclose_source": "div-live",
       "status_at_build": "Closed",
@@ -696,16 +810,16 @@
   ],
   "upcoming_closes": [
     {
-      "symbol": "VLUCL",
-      "kind": "dividend",
-      "bookclose": "2026-11-02",
-      "days_from_build": 3
-    },
-    {
       "symbol": "SMFBS",
       "kind": "right-share",
       "bookclose": "2026-11-06",
-      "days_from_build": 7
+      "days_from_build": 2
+    },
+    {
+      "symbol": "UNL",
+      "kind": "dividend",
+      "bookclose": "2026-11-25",
+      "days_from_build": 21
     }
   ],
   "data_notes": [
@@ -713,11 +827,6 @@
       "level": "WARN",
       "item": "VLUCL 2026-10-26",
       "message": "announced-vs-PDF gap 10d; announced = mirror-surface date, not the PDF date"
-    },
-    {
-      "level": "WARN",
-      "item": "SMFBS 2026-10-14",
-      "message": "no div-live record; card renders figure-less"
     },
     {
       "level": "WARN",
@@ -758,6 +867,27 @@
       "items_total": 28,
       "verifier": "skip",
       "page_rebuilt": false
+    },
+    {
+      "run_date": "2026-11-01",
+      "input_hash": "4bbcf653ecc3",
+      "items_total": 28,
+      "verifier": "skip",
+      "page_rebuilt": true
+    },
+    {
+      "run_date": "2026-11-03",
+      "input_hash": "c1927163aa0b",
+      "items_total": 33,
+      "verifier": "skip",
+      "page_rebuilt": true
+    },
+    {
+      "run_date": "2026-11-04",
+      "input_hash": "bb7a2bccd020",
+      "items_total": 33,
+      "verifier": "skip",
+      "page_rebuilt": true
     }
   ]
 }
