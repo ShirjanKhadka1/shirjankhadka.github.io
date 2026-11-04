@@ -348,6 +348,23 @@ for c in companies:
 
 ranked = sorted([c for c in companies if c['value_score'] is not None],
                 key=lambda x: -x['value_score'])
+# Unscored (no sector): companies that passed every quality gate above but
+# have NO confirmed sector in the instrument master, so no sector median
+# exists and sector-relative scoring cannot score them. They are listed
+# here, never scored and never given an invented sector. (Small-sector
+# members with a confirmed sector but <4 peers are NOT in this list —
+# they are unscored by the <4 rule, not by missing sector.)
+unscored = []
+for c in companies:
+    if c['sector'] is None:
+        u = dict(c)
+        u['value_score'] = None
+        u['badge'] = 'Unclassified (unconfirmed)'
+        u['reason'] = ('Sector unconfirmed in the instrument master — '
+                       'sector-relative scoring needs a sector median, '
+                       'so this company is listed unscored, never scored.')
+        unscored.append(u)
+unscored.sort(key=lambda x: x['symbol'])
 # Fail-soft: never publish an empty value ranking — keep last-good.
 if not ranked:
     _prev_v = load_json('nepse-chart/data/value.json')
@@ -356,13 +373,15 @@ if not ranked:
               f"({len(_prev_v['stocks'])} stocks); rolling session labels to {session_date}")
         value_out = dict(_prev_v)
         value_out.update({'asof': session_date, 'built': today})
+        value_out.setdefault('unscored', [])
     else:
         value_out = {
             'asof': session_date, 'built': today,
             'fail_soft': True,
             'note': 'No value data available at build time; no previous output to retain. Not for display as current.',
-            'coverage': {'companies': 0, 'sectors_scored': 0},
+            'coverage': {'companies': 0, 'sectors_scored': 0, 'unscored': 0},
             'stocks': [],
+            'unscored': [],
         }
 else:
     value_out = {
@@ -374,8 +393,9 @@ else:
                    'Quality gate: positive TTM EPS and positive net worth. Sectors with fewer than 4 members are not scored. '
                    'P/BV = LTP / book value per share; book value = (paid-up capital + reserves) / shares. '
                    'No DCF, no price targets, no buy/sell calls - this is a screening starting point for research.'),
-        'coverage': {'companies': len(companies), 'sectors_scored': len([s for s in by_sector if len(by_sector[s]) >= 4])},
+        'coverage': {'companies': len(companies), 'sectors_scored': len([s for s in by_sector if len(by_sector[s]) >= 4]), 'unscored': len(unscored)},
         'stocks': ranked,
+        'unscored': unscored,
         'provenance': {
             'source': 'nepse-chart/data/live.json',
             'source_session': session_date,
@@ -385,7 +405,9 @@ else:
     }
 with open(os.path.join(REPO, 'nepse-chart/data/value.json'), 'w') as f:
     json.dump(value_out, f)
-print(f"value.json: {len(companies)} companies, {len(ranked)} scored, top: " +
+print(f"value.json: {len(companies)} companies, {len(ranked)} scored, "
+      f"{len(unscored)} unscored (no sector): "
+      f"{', '.join(s['symbol'] for s in unscored) or 'none'}, top: " +
       ", ".join(f"{s['symbol']}({s['value_score']})" for s in ranked[:5]))
 
 # ---------- RESEARCH LAYER ----------
