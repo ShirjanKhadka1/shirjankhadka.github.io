@@ -260,12 +260,43 @@
      "net_amt": -230228258.7
     }
    ]
+  },
+  {
+   "asof": "2026-11-04",
+   "built_at": "2026-11-04T17:10:32+05:45",
+   "window": 30,
+   "total_turnover": 89838199201.12,
+   "symbols_traded": 410,
+   "brokers_active": 91,
+   "accumulating": 154,
+   "distributing": 220,
+   "top_net_flow": [
+    {
+     "symbol": "GHL",
+     "stance": "ACCUMULATING",
+     "net_amt": 528338641.43
+    },
+    {
+     "symbol": "GCIL",
+     "stance": "DISTRIBUTING",
+     "net_amt": -448814076.9
+    },
+    {
+     "symbol": "API",
+     "stance": "DISTRIBUTING",
+     "net_amt": -303326013.5
+    },
+    {
+     "symbol": "SBI",
+     "stance": "ACCUMULATING",
+     "net_amt": 289103864.1
+    },
+    {
+     "symbol": "RSML",
+     "stance": "DISTRIBUTING",
+     "net_amt": -260569660.4
+    }
+   ]
   }
- ],
- "classification_restated": {
-  "source": "data/reference/instruments.json",
-  "note": "restated 2026-11-03, classification corrected: sector + type from data/reference/instruments.json (Charter v4.2 item 4A master); UNCONFIRMED rows have no sector and are excluded from sector boards (never an Others/Unclassified bucket); TYPE decides equity inclusion, never sector.",
-  "series_recompute_pending": true,
-  "history_note": "Append-only session ledger: entries retain pre-master labels (entries carry no sector fields); the current boards are restated."
- }
+ ]
 }
