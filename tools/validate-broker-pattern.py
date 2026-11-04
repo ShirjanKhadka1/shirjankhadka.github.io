@@ -3,11 +3,16 @@
 
 Validates every periods/<P>.json + meta.json before anything is published:
   1. broker codes are numeric and drawn from the 91-code active set; a broker
-     missing from the 1D period (or its 1D-summary twin, same single-day
-     broker set) is tolerated ONLY when the day's raw floorsheet
-     proves it had zero trades (legitimate quiet day, e.g. broker 73 on
-     2026-10-16 and 2026-11-02) — a missing code WITH trades in raw is a
-     pipeline data-loss failure. Multi-day periods still require all 91.
+     missing from a period is tolerated ONLY when it is proven to have had
+     zero trades on EVERY trading day in that period's window (legitimate
+     quiet days, e.g. broker 73 on 2026-10-16, 2026-11-02, 2026-11-03 and
+     2026-11-04): single-day periods (1D, 1D-summary) prove it from that
+     day's raw floorsheet; multi-day periods prove it day by day — the
+     day's raw floorsheet where one exists, else the floorsheet DB (which
+     must show the day was collected yet hold zero rows for the broker).
+     A missing code WITH trades anywhere in the window is a pipeline
+     data-loss failure; a window day that can be proven neither way
+     (no raw file and no usable DB) fails loud instead of passing.
   2. market-level buy_value ~= sell_value (tolerance 0.5%)
   3. broker_symbols per-stock rows reconcile with broker aggregates (tolerance 0.1%)
   4. period date ranges end at the expected latest trading day
@@ -17,8 +22,11 @@ Exit 0: all checks pass. Exit 1: FAIL LOUDLY with reasons (do NOT publish).
 Usage: python3 tools/validate-broker-pattern.py [--data-dir nepse-brokers/data]
          [--expected-date YYYY-MM-DD] [--prev-1d path/to/old/1D.json]
          [--raw-floorsheet path/to/chukul-floorsheet-raw.json]
+         [--holidays path/to/nepse-holidays.txt]
+         [--floorsheet-db path/to/floorsheet.db]
 """
 import json, os, re, sys
+from datetime import date, timedelta
 
 EXPECTED_BROKERS = 91
 # Active NEPSE broker codes. Code 55 is defunct (present in brokers.json but
@@ -57,6 +65,98 @@ def raw_trade_counts(raw_path):
     return counts
 
 
+def load_holidays(path):
+    """Set of YYYY-MM-DD holiday dates from a nepse-holidays.txt file."""
+    out = set()
+    try:
+        for line in open(os.path.expanduser(path)):
+            m = re.match(r'^(\d{4}-\d{2}-\d{2})', line.strip())
+            if m:
+                out.add(m.group(1))
+    except OSError:
+        pass
+    return out
+
+
+def window_trading_days(from_s, to_s, holidays):
+    """Weekday, non-holiday dates from from_s to to_s inclusive, or None."""
+    try:
+        d0 = date.fromisoformat(from_s)
+        d1 = date.fromisoformat(to_s)
+    except (TypeError, ValueError):
+        return None
+    if d1 < d0:
+        return None
+    days = []
+    d = d0
+    while d <= d1:
+        if d.weekday() < 5 and d.isoformat() not in holidays:
+            days.append(d)
+        d += timedelta(days=1)
+    return days
+
+
+def prove_quiet_window(codes, from_s, to_s, raw_base, db_path, holidays):
+    """Prove each code had zero trades on every trading day in [from, to].
+
+    Returns (quiet, lost, unproven) where quiet/lost are code lists and
+    unproven is a list of (code, day) pairs that could be proven neither
+    way. A day is proven quiet by its raw floorsheet (zero trades) or,
+    when no raw file exists, by the floorsheet DB (day collected, zero
+    rows for the code). A day with neither proof is unproven, never quiet.
+    """
+    days = window_trading_days(from_s, to_s, holidays)
+    if not days:
+        return [], [], [(c, '%s..%s (bad window)' % (from_s, to_s)) for c in codes]
+    db = None
+    if db_path and os.path.exists(db_path):
+        try:
+            import sqlite3
+            db = sqlite3.connect('file:%s?mode=ro' % db_path, uri=True)
+        except Exception:
+            db = None
+    quiet, lost, unproven = [], [], []
+    for code in codes:
+        code_lost = False
+        code_unproven = []
+        for d in days:
+            ds = d.isoformat()
+            raw = os.path.join(raw_base, ds, 'chukul-floorsheet-raw.json') \
+                if raw_base else None
+            if raw and os.path.exists(raw):
+                counts = raw_trade_counts(raw)
+                if counts is None:
+                    code_unproven.append(ds + ' (unreadable raw)')
+                elif counts.get(code, 0) > 0:
+                    code_lost = True
+            elif db is not None:
+                try:
+                    day_rows = db.execute(
+                        'SELECT COUNT(*) FROM daily_summary WHERE date=?',
+                        (ds,)).fetchone()[0]
+                    br_rows = db.execute(
+                        'SELECT COUNT(*) FROM daily_summary WHERE date=? '
+                        'AND CAST(broker AS TEXT)=?', (ds, code)).fetchone()[0]
+                except Exception:
+                    code_unproven.append(ds + ' (DB query failed)')
+                    continue
+                if br_rows > 0:
+                    code_lost = True
+                elif day_rows == 0:
+                    code_unproven.append(ds + ' (day not in DB)')
+            else:
+                code_unproven.append(ds + ' (no raw file, no DB)')
+        if code_lost:
+            lost.append(code)
+        elif code_unproven:
+            unproven.extend((code, u) for u in code_unproven)
+        else:
+            quiet.append(code)
+    if db is not None:
+        db.close()
+    return quiet, lost, unproven
+
+
 def main():
     ap_data = None
     args = sys.argv[1:]
@@ -64,6 +164,9 @@ def main():
     expected_date = None
     prev_1d = None
     raw_floorsheet = None
+    holidays_path = os.path.expanduser(
+        '~/workspace/nepse-data-archive/nepse-holidays.txt')
+    db_path = 'tools/broker/data/floorsheet.db'
     i = 0
     while i < len(args):
         if args[i] == '--data-dir':
@@ -74,11 +177,20 @@ def main():
             prev_1d = args[i + 1]; i += 2
         elif args[i] == '--raw-floorsheet':
             raw_floorsheet = args[i + 1]; i += 2
+        elif args[i] == '--holidays':
+            holidays_path = args[i + 1]; i += 2
+        elif args[i] == '--floorsheet-db':
+            db_path = args[i + 1]; i += 2
         else:
             i += 1
     if raw_floorsheet is None and expected_date:
         raw_floorsheet = os.path.expanduser(
             '~/workspace/broker-data/%s/chukul-floorsheet-raw.json' % expected_date)
+    # Per-day raw floorsheets live beside the expected day's file:
+    # <base>/<YYYY-MM-DD>/chukul-floorsheet-raw.json
+    raw_base = os.path.dirname(os.path.dirname(raw_floorsheet)) \
+        if raw_floorsheet else None
+    holidays = load_holidays(holidays_path)
 
     reasons = []
     periods_dir = os.path.join(data_dir, 'periods')
@@ -102,9 +214,9 @@ def main():
         brokers = d.get('brokers', [])
         codes = [str(b.get('code', '')) for b in brokers]
 
-        # 1. numeric codes from the active set; 1D and its 1D-summary twin
-        # tolerate proven zero-trade brokers, multi-day periods still
-        # require all 91
+        # 1. numeric codes from the active set; a missing broker is
+        # tolerated only with a proven zero-trade window (1D: the day's
+        # raw floorsheet; multi-day: every trading day in from..to)
         bad_codes = [c for c in codes if not CODE_RE.match(c)]
         if bad_codes:
             fail(reasons, '%s: %d non-numeric broker codes (e.g. %s)' %
@@ -132,6 +244,24 @@ def main():
                     if quiet:
                         print('%s: brokers %s verified ZERO trades in raw '
                               'floorsheet - legitimate quiet day' % (p, quiet))
+            elif not unexpected:
+                # Multi-day period: a missing broker must be proven quiet
+                # on EVERY trading day in the period's window.
+                quiet, lost, unproven = prove_quiet_window(
+                    missing, d.get('from'), d.get('to'),
+                    raw_base, db_path, holidays)
+                if lost:
+                    fail(reasons, '%s: brokers %s traded during %s..%s but are '
+                         'missing from %s.json - PIPELINE DATA LOSS' %
+                         (p, lost, d.get('from'), d.get('to'), p))
+                if unproven:
+                    fail(reasons, '%s: quiet window unproven for %s - no raw '
+                         'file and no DB proof (cannot pass a broker as quiet '
+                         'on an unproven day)' % (p, unproven[:5]))
+                if quiet and not lost and not unproven:
+                    print('%s: brokers %s verified ZERO trades on every '
+                          'trading day %s..%s - legitimate quiet window' %
+                          (p, quiet, d.get('from'), d.get('to')))
             else:
                 fail(reasons, '%s: %d distinct brokers, expected %d (missing %s)' %
                      (p, len(code_set), EXPECTED_BROKERS, missing[:5]))
