@@ -65,9 +65,16 @@ concurrency:
 jobs:
   close:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    # 60 min: the build (~15-20 min) plus the Publish wait below (up to
+    # 30 min) must fit inside one job run.
+    timeout-minutes: 60
     permissions:
       contents: write
+      # actions:write dispatches the Publish workflow for the staged
+      # snapshot (workflow_dispatch IS triggered by GITHUB_TOKEN;
+      # plain pushes by it are not — which is why Publish is
+      # dispatched explicitly instead of relying on the push trigger).
+      actions: write
     env:
       # Dry-run safety: true unless explicitly disabled. The DRY_RUN repo
       # variable defaults to 'true'; flipping it to 'false' (and not passing
@@ -110,6 +117,14 @@ jobs:
           SESSION_OVERRIDE: ${{ inputs.session }}
 
       - name: Manual rollback to tag
+        # KNOWN REMAINING 422 SURFACE (deliberate, 2026-11-04 migration):
+        # manual rollback restores files across ALL data components, so
+        # no single writer component can carry it, and its guards read
+        # main tags/manifest which no longer advance under the
+        # data-branch regime. It needs a data-snapshot rollback
+        # redesign, not a push swap. Manual-dispatch only: on
+        # invocation it fails loud at the push (fail-safe) instead of
+        # silently doing nothing.
         if: inputs.rollback_to_tag != '' && env.DRY_RUN != 'true'
         env:
           ROLLBACK_TAG: ${{ inputs.rollback_to_tag }}
@@ -142,38 +157,54 @@ jobs:
           git push origin main
           echo "## Market-close: manual rollback to \`$ROLLBACK_TAG\`" >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Idempotency check (skip if this session already done)
+      - name: Idempotency check (skip if this session already published)
         id: idem
         if: inputs.rollback_to_tag == ''
         run: |
           node -e "
+            const { execSync } = require('child_process');
             const fs = require('fs');
-            const td = require('./tools/trading-days');
+            const session = process.env.SESSION;
+            // The close no longer commits jobs.json to main (content
+            // lane owns it), so the old local-jobs check can never see
+            // a previous run's record. Skip only when the LIVE publish
+            // manifest already carries this session under the
+            // market-close component: staged-but-unpublished data must
+            // NOT skip, or a failed Publish would never be retried.
             let done = false;
             try {
-              const jobs = JSON.parse(fs.readFileSync('nepse-chart/data/jobs.json', 'utf8'));
-              const j = jobs['market-close'];
-              const today = td.todayNPT(new Date());
-              done = !!(j && j.status === 'success' && j.session_date === '${{ steps.trading.outputs.session }}' && String(j.ran_at_npt).startsWith(today));
-            } catch (e) {}
+              const raw = execSync('curl -sS -A \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36\" --max-time 30 https://shirjankhadka.com.np/data/publish-manifest.json', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+              const m = JSON.parse(raw);
+              const a = m.components && m.components['market-close'] && m.components['market-close'].asof;
+              done = (a === session);
+              console.log('live publish-manifest market-close asof=' + a + ' session=' + session);
+            } catch (e) {
+              console.log('::warning::Live publish-manifest unreadable — falling back to local jobs.json check');
+              try {
+                const jobs = JSON.parse(fs.readFileSync('nepse-chart/data/jobs.json', 'utf8'));
+                const j = jobs['market-close'];
+                const td = require('./tools/trading-days');
+                const today = td.todayNPT(new Date());
+                done = !!(j && j.status === 'success' && j.session_date === session && String(j.ran_at_npt).startsWith(today));
+              } catch (e2) {}
+            }
             console.log('already_done=' + done);
             fs.appendFileSync(process.env.GITHUB_OUTPUT, 'done=' + done + '\n');
           "
+        env:
+          SESSION: ${{ steps.trading.outputs.session }}
 
       - name: Skip — not a trading day
         if: steps.trading.outputs.trading != 'true' && inputs.rollback_to_tag == ''
         run: |
           node tools/record-job.js market-close skipped "not a trading day (weekend/holiday)" --session="${{ steps.trading.outputs.session }}"
-          if [ "$DRY_RUN" != "true" ]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add nepse-chart/data/jobs.json
-            git diff --cached --quiet || git commit -m "market-close: skipped (non-trading day)"
-            git pull --rebase --autostash origin main
-            git push origin main
-          else
-            echo "dry-run: git commit/push skipped — nothing reaches main"
-          fi
+          # No push: jobs.json is owned by the content lane (data
+          # branch), and a push to main 422s under branch protection —
+          # which used to turn every holiday into a false job failure.
+          # The skip is visible in this run's log + summary; the
+          # midnight rollover carries the holiday note to the live
+          # manifest.
+          echo "market-close: skipped (non-trading day) — record local only, no deploy"
           echo "## Market-close: skipped (non-trading day)" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Fetch + build market data
@@ -190,6 +221,38 @@ jobs:
           node tools/build-daily-ohlc.js
           node tools/build-sitemap.js
           node tools/prerender-freshness.js
+
+      - name: Stamp session_date on close payloads (Charter v5)
+        # Every staged payload must carry session_date, derived from
+        # the payload's OWN date (never imposed top-down, never
+        # overwriting a present value — a present-but-wrong stamp is
+        # a builder bug for validation/gates to catch, not to paper
+        # over). Runs before manifest + validation so the validated
+        # bytes are exactly the staged bytes. js/nepse-daily.js is the
+        # documented exception: it is generated JS, and its session
+        # is already carried by its header date range + last row.
+        if: steps.trading.outputs.trading == 'true' && steps.idem.outputs.done != 'true' && inputs.rollback_to_tag == ''
+        run: |
+          node -e "
+            const fs = require('fs');
+            const stamp = (file, ownDate) => {
+              const obj = JSON.parse(fs.readFileSync(file, 'utf8'));
+              if (obj.session_date) { console.log(file + ': session_date already ' + obj.session_date); return; }
+              if (!ownDate || !/^\d{4}-\d{2}-\d{2}$/.test(ownDate)) {
+                console.error(file + ': cannot derive session_date (no own date) — refusing to stage a session-less payload');
+                process.exit(1);
+              }
+              obj.session_date = ownDate;
+              fs.writeFileSync(file, JSON.stringify(obj, null, 1) + '\n');
+              console.log(file + ': stamped session_date=' + ownDate);
+            };
+            const wave1 = JSON.parse(fs.readFileSync('nepse-chart/data/wave1.json', 'utf8'));
+            stamp('nepse-chart/data/wave1.json', String(wave1.asof || '').slice(0, 10));
+            const spark = JSON.parse(fs.readFileSync('nepse-chart/data/index-spark.json', 'utf8'));
+            stamp('nepse-chart/data/index-spark.json', spark.to);
+            const arch = JSON.parse(fs.readFileSync('data/index-history.json', 'utf8'));
+            stamp('data/index-history.json', arch.to);
+          "
 
       - name: Source session check (new session at source?)
         id: srcsess
@@ -264,16 +327,15 @@ jobs:
           DATA_SESSION="${{ steps.srcsess.outputs.data_session }}"
           node tools/record-job.js market-close skipped "no new session at source after final retry — treated as market closed (unlisted holiday suspected); data session $DATA_SESSION" --session="$SESSION"
           node tools/build-manifest.js
-          if [ "$DRY_RUN" != "true" ]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add nepse-chart/data/jobs.json data/manifest.json nepse-chart/data/manifest.json
-            git diff --cached --quiet || git commit -m "market-close: no new session for $SESSION — treated as market closed (notice)"
-            git pull --rebase --autostash origin main
-            git push origin main
-          else
-            echo "dry-run: git commit/push skipped — nothing reaches main"
-          fi
+          # No push: jobs.json is owned by the content lane and the
+          # manifest describes the whole main checkout (content-lane
+          # precedent: never stage it). A push to main 422s under
+          # branch protection — which used to turn a benign
+          # market-closed day into a job failure + false alert. The
+          # skip record and manifest stay local; the midnight
+          # rollover carries the holiday note to the live manifest.
+          # The LOW-PRIORITY notice email below still sends.
+          echo "market-close: no new session — record + manifest local only, no deploy"
           {
             echo "## Market-close: no new session at source (treated as market closed)"
             echo ""
@@ -338,16 +400,14 @@ jobs:
             fi
             node tools/rollback-data.js "$TAG" "${{ steps.trading.outputs.session }}"
           node tools/record-job.js market-close failed "validation failed for session ${{ steps.trading.outputs.session }} — auto-rolled back to $TAG" --session="${{ steps.trading.outputs.session }}"
-          if [ "$DRY_RUN" != "true" ]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add nepse-chart/data data
-            git diff --cached --quiet || git commit -m "market-close: AUTO-ROLLBACK to $TAG after validation failure (session ${{ steps.trading.outputs.session }})"
-            git pull --rebase --autostash origin main
-            git push origin main
-          else
-            echo "dry-run: git commit/push skipped — nothing reaches main"
-          fi
+          # No push: validation gates staging, so an invalid build is
+          # never staged — the live data is untouched and there is
+          # nothing to roll back on the data branch. The local restore
+          # above keeps the working tree clean; the failure record
+          # stays local (jobs.json/validation.json are owned by the
+          # content lane). The old push to main 422s under branch
+          # protection.
+          echo "market-close: invalid build discarded, nothing staged — no data-branch rollback needed"
           fi
 
       - name: Email alert — security-count-stable overridden
@@ -413,40 +473,86 @@ jobs:
         if: steps.validate.outputs.valid == 'true'
         run: node tools/build-health.js
 
-      - name: Atomic deploy (single commit + tag)
+      - name: Stage close to data branch + Publish (data-branch path)
         if: steps.validate.outputs.valid == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           SESSION="${{ steps.trading.outputs.session }}"
           node tools/record-job.js market-close success "session $SESSION deployed" --session="$SESSION"
           if [ "$DRY_RUN" = "true" ]; then
-            echo "dry-run: would commit + tag data-$SESSION-N and push to main — SKIPPED (nothing reaches main)"
-            echo "## Market-close: DRY-RUN — deploy skipped (would have deployed session \`$SESSION\`)" >> "$GITHUB_STEP_SUMMARY"
+            echo "dry-run: would stage 4 close files to the data branch (component market-close) + dispatch Publish — SKIPPED (nothing reaches the data branch)"
+            echo "## Market-close: DRY-RUN — stage + Publish skipped (would have deployed session \`$SESSION\`)" >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add nepse-chart/data data js/nepse-daily.js nepse-screener/index.html stocks nepse-actions sitemap.xml \
-            nepse-decode/index.html nepse-chart/index.html nepse-trending/index.html nepse-value/index.html \
-            nepse-news/index.html nepse-sectors/index.html nepse-reports/index.html nepse-simulator/index.html \
-            js/freshness-badge.js status/index.html tools/nepse-universe-report.txt
-          git diff --cached --quiet && echo "no changes — nothing to deploy" && exit 0
-          git commit -m "market-close: data refresh for session $SESSION (validated)"
-          TAG="data-${SESSION}-1"
-          n=1; while git rev-parse "$TAG" >/dev/null 2>&1; do n=$((n+1)); TAG="data-${SESSION}-${n}"; done
-          git tag "$TAG"
-          # Pre-rebase guard (2026-10-06): fail fast if unstaged changes would block rebase.
-          # Transient build artifacts must be cleaned before this point; anything left is a bug.
-          UNSTAGED=$(git status --porcelain | grep -v '^M ' | grep -v '^A ' || true)
-          if [ -n "$UNSTAGED" ]; then
-            echo "ERROR: Unstaged changes would block rebase:"
-            echo "$UNSTAGED"
-            echo "Fix: add legitimate files to 'git add' above, or clean transient files before this step."
+          # Exactly the close pipeline's own outputs — never news.json
+          # (news-refresh owns it), never corporate-actions / jobs /
+          # validation (content lane owns them), never live.json
+          # (capture lane owns it), never universe / verdicts /
+          # trending / value (universe + signals lanes own them),
+          # never daily-ohlc (ohlc lane owns it), never pages or
+          # sitemap (page lanes own them; fresh data reaches pages
+          # through their JSON fetches), never data/manifest.json
+          # (it describes the whole main checkout — content-lane
+          # precedent: staging it would mis-describe other
+          # components' data-branch files), never data/health.json
+          # or status/index.html (Publish regenerates both; the
+          # assembler forbids staging them).
+          # tools/content-data-writer.py is reused with --component
+          # market-close: it is the proven runner-side writer
+          # (GITHUB_TOKEN auth, blobs -> tree -> commit ->
+          # fast-forward ref update, rebase-and-retry, never force,
+          # content-hash NO-CHANGES, manifest updated in the same
+          # commit). Its updated_via string still says
+          # content-data-writer — cosmetic, shared-tool provenance.
+          python3 tools/content-data-writer.py \
+            --component market-close \
+            --asof "$SESSION" \
+            --message "market-close: session $SESSION (validated)" \
+            --manifest-paths "nepse-chart/data/wave1.json,nepse-chart/data/index-spark.json,data/index-history.json,js/nepse-daily.js" \
+            --file nepse-chart/data/wave1.json:nepse-chart/data/wave1.json \
+            --file nepse-chart/data/index-spark.json:nepse-chart/data/index-spark.json \
+            --file data/index-history.json:data/index-history.json \
+            --file js/nepse-daily.js:js/nepse-daily.js > writer.log 2>&1 || { cat writer.log; exit 1; }
+          cat writer.log
+          PROOF="$(tail -n 1 writer.log)"
+          echo "writer proof: $PROOF"
+          SNAP="$(node -e "
+            const p = JSON.parse(process.argv[1]);
+            console.log(p.commit || '');
+          " "$PROOF")"
+          if [ -z "$SNAP" ]; then
+            # NO-CHANGES: no new commit — publish the current data
+            # head (it already carries this session's files). This
+            # is also the recovery path when a previous run staged
+            # but its Publish failed: re-dispatch, don't re-stage.
+            SNAP="$(gh api repos/${{ github.repository }}/git/refs/heads/data --jq .object.sha)"
+            echo "writer NO-CHANGES — publishing data head $SNAP"
+          fi
+          echo "snapshot=$SNAP"
+          # GITHUB_TOKEN pushes do not re-trigger workflows, so
+          # dispatch Publish explicitly for this snapshot
+          # (workflow_dispatch IS triggered by GITHUB_TOKEN) and
+          # wait for its tag job: the tag is created only after
+          # Pages deploy + production-byte verification. Publish
+          # itself purges the changed URLs (Cloudflare) and verifies
+          # served bytes, so no separate purge step is needed here.
+          gh workflow run publish.yml --ref main -f snapshot_sha="$SNAP"
+          PUBLISHED=""
+          for i in $(seq 1 30); do
+            if git ls-remote origin 'refs/tags/data-*' | grep -q "$SNAP"; then
+              PUBLISHED="yes"
+              break
+            fi
+            sleep 60
+          done
+          if [ "$PUBLISHED" != "yes" ]; then
+            echo "::error::Publish did not tag snapshot $SNAP within 30 minutes — data is staged but not verified live" >&2
             exit 1
           fi
-          git pull --rebase origin main
-          git push origin main
-          git push origin "$TAG"
-          echo "## Market-close: deployed session \`$SESSION\` (tag \`$TAG\`)" >> "$GITHUB_STEP_SUMMARY"
+          TAG="$(git ls-remote origin 'refs/tags/data-*' | awk -v s="$SNAP" '$1 == s {print $2}' | head -n 1)"
+          echo "## Market-close: deployed session \`$SESSION\` (data snapshot \`$SNAP\`, tag \`${TAG##refs/tags/}\`)" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Email alert — job failed
         if: failure() && steps.validate.outputs.valid != 'false'
