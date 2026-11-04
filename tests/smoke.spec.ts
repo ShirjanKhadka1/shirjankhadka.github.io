@@ -150,10 +150,14 @@ for (const width of WIDTHS) {
 // PAGE → COMPONENT MAPPING (each component fetched from the SAME served
 // tree as the page; the manifest file is never fetched here):
 // - /nepse-decode/ baked wrap block ("Data as of Mon, 2 Nov 2026" +
-//   day range) → nepse-chart/data/wrap-archive.json: the entry for that
-//   session must exist and its index high/low must round to the baked
-//   range. (Archive component: checked by membership + figures, since
-//   the archive keeps every past session.)
+//   day range) → nepse-chart/data/wrap-archive.json: when the entry for
+//   that session exists, its index high/low must round to the baked
+//   range. When the entry is missing, the baked range is verified
+//   against data/index-history.json for the same session instead —
+//   the archive lane's lag must not fail a correct bake (Charter v5
+//   item 5; Oct-30 #206 cross-dataset precedent). A present entry with
+//   wrong figures still fails, and a session missing from BOTH the
+//   archive and index-history fails as unverifiable.
 // - /nepse-decode/ rendered freshline ("Session 2 Nov 2026 · tape
 //   15:00 …") → nepse-chart/data/live.json, via the same priority as
 //   js/nd-home.js getSessionDate (session_date, else data_asof, else
@@ -267,6 +271,11 @@ test('page date markers match their own rendered components', async ({ request, 
   const trackRecord = await getJson('/nepse-chart/data/track-record.json', 'track-record batch');
   const news = await getJson('/nepse-chart/data/news.json', 'news feed');
   const wrapArchive = await getJson('/nepse-chart/data/wrap-archive.json', 'wrap archive');
+  const idxHist = await getJson('/data/index-history.json', 'index-history');
+  // Index-history day ranges by session (rows: [YYYYMMDD, ?, high, low,
+  // close, ?]) — the fallback source for the wrap leg when the archive
+  // entry is missing (see below). Rows with non-positive high/low are
+  // unusable and skipped.
   const liveDate = liveSessionDate(live);
   const verdictsAsof: string | null = typeof verdicts.asof === 'string' ? verdicts.asof : null;
   if (!liveDate || !DATE_RE.test(liveDate)) fail(`live tape: no usable session date (asof=${live && live.asof})`);
@@ -275,6 +284,14 @@ test('page date markers match their own rendered components', async ({ request, 
   if (typeof news.asof !== 'string' || !DATE_RE.test(news.asof)) fail('news feed: no asof');
   if (!Array.isArray(wrapArchive)) fail('wrap archive: not a list');
   const bakeSession = liveDate && verdictsAsof ? (liveDate >= verdictsAsof ? liveDate : verdictsAsof) : null;
+  const idxRange = new Map<string, [string, string]>();
+  for (const row of (idxHist.rows || [])) {
+    if (Array.isArray(row) && row.length >= 5 && Number(row[2]) > 0 && Number(row[3]) > 0) {
+      const ymd = String(row[0]);
+      idxRange.set(`${ymd.slice(0, 4)}-${ymd.slice(4, 6)}-${ymd.slice(6, 8)}`,
+        [Number(row[2]).toFixed(2), Number(row[3]).toFixed(2)]);
+    }
+  }
 
   // ---- Baked markers (raw served HTML) ----
   // Decode: baked wrap block vs its wrap-archive entry.
@@ -286,7 +303,17 @@ test('page date markers match their own rendered components', async ({ request, 
   if (!range) fail('/nepse-decode/ wrap day range not found');
   if (wrapDate && Array.isArray(wrapArchive)) {
     const entry = wrapArchive.find((e: any) => e && e.session_date === wrapDate);
-    if (!entry) fail(`/nepse-decode/ wrap date ${wrapDate} has no wrap-archive entry (page advanced without its component)`);
+    if (!entry) {
+      // Archive-lane lag, not a bake error (Charter v5 item 5; Oct-30 #206
+      // cross-dataset precedent): verify the baked range against
+      // index-history for the same session instead of failing on the
+      // missing archive entry. A session missing from both fails.
+      const ih = idxRange.get(wrapDate);
+      if (!ih) fail(`/nepse-decode/ wrap date ${wrapDate} has no wrap-archive entry and no index-history row (unverifiable)`);
+      else if (range && (ih[0] !== range[2].replace(/,/g, '') || ih[1] !== range[1].replace(/,/g, ''))) {
+        fail(`/nepse-decode/ wrap range ${range[1]} – ${range[2]} != index-history ${wrapDate} range ${ih[1]} – ${ih[0]}`);
+      }
+    }
     else if (!entry.index || entry.index.high == null || entry.index.low == null) fail(`/nepse-decode/ wrap-archive entry ${wrapDate} lacks index high/low`);
     else if (range) {
       const hi = Number(entry.index.high).toFixed(2);
@@ -404,6 +431,9 @@ test('page date markers match their own rendered components', async ({ request, 
 // index-history close AND vs the wrap-archive index value for the session.
 // It runs on the PR tree (main's ledger copy); the served data-branch
 // ledger is covered by the live gate's matching check.
+// Archive leg: a session missing from wrap-archive skips that leg (the
+// archive lane's lag must not fail the ledger lane — Charter v5 item 5);
+// a present entry with a disagreeing value still fails.
 test('ledger market blocks match their sessions', async ({ request }) => {
   test.setTimeout(60000);
   const get = async (p: string, what: string) => {
@@ -435,8 +465,10 @@ test('ledger market blocks match their sessions', async ({ request }) => {
     if (ih === undefined) bad.push(`${s}: session missing from index-history`);
     else if (ih !== v) bad.push(`${s}: ledger ${v} != index-history ${ih}`);
     const wv = wrapIdx.get(s);
-    if (wv === undefined) bad.push(`${s}: session missing from wrap-archive`);
-    else if (wv !== v) bad.push(`${s}: ledger ${v} != wrap-archive ${wv}`);
+    // Archive-lane lag (Charter v5 item 5): a missing archive entry skips
+    // the archive leg for that session; the index-history leg above still
+    // enforces it. A present entry with a disagreeing value still fails.
+    if (wv !== undefined && wv !== v) bad.push(`${s}: ledger ${v} != wrap-archive ${wv}`);
   }
   expect(bad, 'ledger market blocks disagreeing with their sessions').toEqual([]);
 });
