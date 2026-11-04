@@ -9,7 +9,7 @@
 (function(){
 "use strict";
 var BASE = '/nepse-chart/data/';
-var state = { sector: '', sort: 'value_score', dir: -1, search: '', rows: [], page: 1, perPage: 25,
+var state = { sector: '', sort: 'value_score', dir: -1, search: '', rows: [], unscored: [], page: 1, perPage: 25,
   valueAsOf: '', tapeSession: '', repainted: 0, uiInit: false, sig: '' };
 var $ = function(id){ return document.getElementById(id); };
 
@@ -33,12 +33,13 @@ function sectorCountsOf(rows){
   rows.forEach(function(s){ c[s.sector] = (c[s.sector] || 0) + 1; });
   return c;
 }
-function sigOf(valueAsOf, rows, tapeSession){
+function sigOf(valueAsOf, rows, tapeSession, unscored){
   var counts = sectorCountsOf(rows);
   var top = rows.slice(0, 3).map(function(s){ return s.symbol + ':' + s.value_score; }).join(',');
-  return [valueAsOf, rows.length, top, JSON.stringify(counts), tapeSession].join('|');
+  var un = (unscored || []).map(function(s){ return s.symbol; }).join(',');
+  return [valueAsOf, rows.length, top, JSON.stringify(counts), tapeSession, un].join('|');
 }
-function rebaseline(){ state.sig = sigOf(state.valueAsOf, state.rows, state.tapeSession); }
+function rebaseline(){ state.sig = sigOf(state.valueAsOf, state.rows, state.tapeSession, state.unscored); }
 function clockHM(d){ d = d || new Date(); return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'); }
 function renderFresh(){
   var el = $('va-fresh'); if (!el) return;
@@ -193,7 +194,38 @@ function render(){
   }
   var rn = $('va-repaint-note');
   if (rn) rn.textContent = state.tapeSession ? ('● Live tape (' + state.tapeSession + '): ' + state.repainted + ' LTPs confirmed by the tape. Ratios, sector medians and scores are filing-based and never repainted.') : '';
-  renderStats(); renderHist(); renderSectors();
+  renderStats(); renderHist(); renderSectors(); renderUnscored();
+}
+
+/* Unscored (no sector) — a completeness disclosure, NOT part of the scored
+   ranking: it is never filtered by the sector/search controls, so a company
+   can never be hidden again by having no sector. Old payloads without an
+   unscored key render nothing here (no breakage). */
+function renderUnscored(){
+  var el = $('va-unscored'); if (!el) return;
+  var rows = state.unscored || [];
+  if (!rows.length) { el.innerHTML = ''; return; }
+  var body = rows.map(function(s){
+    return '<tr>'
+      + '<td><a class="symlink" href="/nepse-chart/?s=' + esc(s.symbol) + '">' + esc(s.symbol) + '</a>'
+      + '<span class="sname">' + esc(s.name || '') + '</span></td>'
+      + '<td class="num">' + fmt(s.ltp) + '</td>'
+      + '<td class="num">' + fmt(s.pe_ttm) + '</td>'
+      + '<td class="num">' + fmt(s.pbv) + '</td>'
+      + '<td class="num">' + fmt(s.ey_pct) + '%</td>'
+      + '<td class="num">' + fmt(s.roe_ttm_pct) + '%</td>'
+      + '<td><span class="va-badge-unconfirmed">' + esc(s.badge || 'Unclassified (unconfirmed)') + '</span></td>'
+      + '</tr>';
+  }).join('');
+  var reason = rows[0] && rows[0].reason ? rows[0].reason : 'Sector unconfirmed in the instrument master.';
+  el.innerHTML =
+    '<h2 class="va-h2">Unscored (no sector)</h2>'
+    + '<p class="va-note">These companies passed every quality gate but have no confirmed sector, so sector-relative scoring cannot score them — there is no sector median to rank against. They are listed here with their filing ratios, never given a score and never assigned an invented sector.</p>'
+    + '<div class="scrollx va-cardwrap"><table class="sig-table nd-table cx-table"><thead><tr>'
+    + '<th>Stock</th><th class="num">LTP</th><th class="num">P/E (TTM)</th><th class="num">P/BV</th>'
+    + '<th class="num">Earn. yield</th><th class="num">ROE (TTM)</th><th>Sector status</th></tr></thead>'
+    + '<tbody>' + body + '</tbody></table></div>'
+    + '<p class="va-note">' + esc(reason) + '</p>';
 }
 
 /* Build the next state WITHOUT touching the DOM, so the tick can compare
@@ -207,6 +239,7 @@ function buildState(d, live){
   }
   var valueAsOf = d.asof || '';
   var rows = (d.stocks || []).map(function(s){ var c = {}; for (var k in s) c[k] = s[k]; return c; });
+  var unscored = (d.unscored || []).map(function(s){ var c = {}; for (var k in s) c[k] = s[k]; return c; });
   var repainted = 0;
   /* Repaint guard (screener precedent): tape session must be >= value asof.
      Value LTPs already come from this tape, so repaint confirms rather than
@@ -216,12 +249,12 @@ function buildState(d, live){
     s._repainted = false;
     if (ok && ltpMap[s.symbol]) { s.ltp = ltpMap[s.symbol]; s._repainted = true; repainted++; }
   });
-  return { valueAsOf: valueAsOf, tapeSession: tapeSession, rows: rows, repainted: repainted,
-    sig: sigOf(valueAsOf, rows, tapeSession), d: d };
+  return { valueAsOf: valueAsOf, tapeSession: tapeSession, rows: rows, unscored: unscored, repainted: repainted,
+    sig: sigOf(valueAsOf, rows, tapeSession, unscored), d: d };
 }
 function commitState(ns){
   state.valueAsOf = ns.valueAsOf; state.tapeSession = ns.tapeSession;
-  state.rows = ns.rows; state.repainted = ns.repainted;
+  state.rows = ns.rows; state.unscored = ns.unscored; state.repainted = ns.repainted;
   var d = ns.d;
   if (!state.uiInit) {
     var sectors = sectorCountsOf(state.rows);
@@ -261,7 +294,11 @@ function commitState(ns){
     var nsec = Object.keys(sectorCountsOf(state.rows)).length;
     cov.innerHTML = '<strong>Data as of ' + esc(d.asof) + '.</strong> ' + state.rows.length +
       ' companies scored across ' + nsec + ' sectors (' +
-      (d.coverage && d.coverage.companies || '?') + ' companies in source filings; the gap is the quality gate — positive TTM EPS and positive net worth, sectors with fewer than 4 members not scored). Rebuilt automatically each trading day after market close. Source: ' + esc(d.source) + '.';
+      (d.coverage && d.coverage.companies || '?') + ' companies in source filings; the gap is the quality gate — positive TTM EPS and positive net worth, sectors with fewer than 4 members not scored).'
+      + ((state.unscored && state.unscored.length)
+        ? ' ' + state.unscored.length + ' companies passed every quality gate but have no confirmed sector, so they are listed unscored below — never scored, never assigned an invented sector.'
+        : '')
+      + ' Rebuilt automatically each trading day after market close. Source: ' + esc(d.source) + '.';
   }
   var mb = $('methodBox'); if (mb) mb.textContent = d.method || '';
   render(); renderFresh(); syncSortSel(); rebaseline();
