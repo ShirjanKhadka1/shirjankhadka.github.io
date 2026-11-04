@@ -17,8 +17,11 @@
  * invented. Sessions where only index OHLC survives (index-history) get an
  * index-only entry with no sector/breadth claims (those fields stay null).
  *
- * Session-date rule: live.session_date is the authoritative trading-day
- * stamp. data_asof is a fetch timestamp and is NEVER used as the session.
+ * Session-date rule (Charter v5): live.session_date is authoritative
+ * when present. Otherwise the session is the NPT calendar date of the
+ * tape's own timestamp — asof first (the session's own clock),
+ * data_asof as fallback. A tape with an index but no derivable session
+ * refuses loudly instead of shipping a session-less payload.
  *
  * Idempotent: if the current session is already recorded, prints
  * "already current" and exits 0 without touching pages or the sitemap.
@@ -56,6 +59,26 @@ const fmt = (v, dp) => (v == null || !isFinite(Number(v)))
   : Number(v).toLocaleString('en-US', { minimumFractionDigits: dp == null ? 2 : dp, maximumFractionDigits: dp == null ? 2 : dp });
 const readJson = (p, fb) => { try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch (e) { return fb; } };
 
+// Session-date derivation (Charter v5: every payload carries session_date,
+// NPT, derived from the source's own timestamp via the calendar).
+// live.session_date wins when present. Otherwise the NPT calendar date of
+// the tape's own timestamp: asof first — a tape's asof always falls inside
+// its session day in NPT (sessions run 11:00–15:00 NPT) — data_asof only
+// as fallback (a post-midnight fetch timestamp would misdate the session).
+// Returns null when nothing is derivable.
+function tapeSessionDate(live) {
+  if (!live) return null;
+  if (live.session_date) return live.session_date;
+  for (const key of ['asof', 'data_asof']) {
+    const raw = live[key];
+    if (!raw) continue;
+    const d = new Date(raw);
+    if (!isFinite(d.getTime())) continue;
+    return d.toLocaleDateString('en-CA', { timeZone: 'Asia/Kathmandu' });
+  }
+  return null;
+}
+
 // Parse the JS-wrapped history file: /* comment */ window.NEPSE_DAILY=[...];
 function readIndexHistory() {
   try {
@@ -83,9 +106,12 @@ function weekdayLong(sessDate) {
 /* ---------- entry builders ---------- */
 
 // Full entry from a close-state live.json (index + indices + quotes).
-function entryFromLive(live) {
+// sess overrides live.session_date when the session was derived from the
+// tape timestamp (see tapeSessionDate); entry semantics are otherwise
+// identical.
+function entryFromLive(live, sess) {
   const ix = live.index || {};
-  const sessDate = live.session_date;
+  const sessDate = sess || live.session_date;
   const chg = Number(ix.change) || 0;
   const pct = Number(ix.percent_change) || 0;
   const dir = chg > 0 ? 'higher' : chg < 0 ? 'lower' : 'flat';
@@ -423,25 +449,31 @@ function main() {
   const nptH = npt.getUTCHours() + npt.getUTCMinutes() / 60;
 
   const live = readJson(LIVE, null);
-  if (live && live.session_date && live.index && !have.has(live.session_date)) {
+  const liveSession = tapeSessionDate(live);
+  if (live && live.index && !liveSession) {
+    console.error('ERROR: live.json carries an index but no derivable session_date ' +
+      '(no session_date, asof, or data_asof) — refusing to ship a session-less payload');
+    process.exit(1);
+  }
+  if (live && liveSession && live.index && !have.has(liveSession)) {
     const mkt = live.market || '';
-    const closePassed = nptISO > live.session_date || (nptISO === live.session_date && nptH >= 15 + 35 / 60);
+    const closePassed = nptISO > liveSession || (nptISO === liveSession && nptH >= 15 + 35 / 60);
     if (mkt === 'OPEN' && !closePassed) {
-      console.log(JSON.stringify({ status: 'market still open, skipping', session_date: live.session_date }));
+      console.log(JSON.stringify({ status: 'market still open, skipping', session_date: liveSession }));
     } else {
-      const e = entryFromLive(live);
+      const e = entryFromLive(live, liveSession);
       archive.push(e);
       have.add(e.session_date);
       added.push(e.session_date);
     }
-  } else if (live && live.session_date && live.index && live.market === 'CLOSED' && live.close === true) {
+  } else if (live && liveSession && live.index && live.market === 'CLOSED' && live.close === true) {
     // Final tape landed after a provisional entry: replace it. A provisional
     // entry must never stand as the session's record once the final exists.
     // (2026-11-03: Nov-2's provisional 15:40 entry survived because the
     // have-set dedup skipped the session forever after.)
-    const i = archive.findIndex((e) => e.session_date === live.session_date);
+    const i = archive.findIndex((e) => e.session_date === liveSession);
     if (i >= 0 && archive[i].market !== 'CLOSED') {
-      const e = entryFromLive(live);
+      const e = entryFromLive(live, liveSession);
       e.restatement_note = 'Restated: this entry first published from a provisional intraday tape and replaced when the final closing tape landed.';
       e.restated_at = new Date().toISOString().slice(0, 10);
       archive[i] = e;
@@ -532,4 +564,4 @@ function rebuildPages(archive) {
 }
 
 if (require.main === module) main();
-module.exports = { entryFromIndexRow, readIndexHistory, rebuildPages, readJson };
+module.exports = { entryFromIndexRow, readIndexHistory, rebuildPages, readJson, tapeSessionDate };
