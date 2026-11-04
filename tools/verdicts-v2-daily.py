@@ -8,6 +8,9 @@ MUST run from a clean worktree checked out at origin/main (~/workspace/wt-verdic
 Pipeline:
   1. Read session_date from the worktree's nepse-chart/data/live.json
      (authoritative trading day; the market-close pipeline keeps it fresh).
+     When the tape carries no session_date, derive it from the tape's own
+     timestamp (asof, data_asof fallback, NPT calendar date — precedent:
+     tools/build-market-wrap-archive.js tapeSessionDate, PR #371).
      Skip (exit 0) when data/verdicts-v2-summary.json already carries this
      session, unless --force.
   2. Append the session's bar to the own OHLC DB from live.json quotes.
@@ -28,7 +31,7 @@ import json
 import os
 import subprocess
 import sys
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 
 WORKTREE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OHLC_DB = os.environ.get("OHLC_DB", "/home/hatch/workspace/nepse-data-archive/ohlc-db")
@@ -61,6 +64,44 @@ def run(cmd, cwd=None, timeout=600):
 def load_json(path):
     with open(path) as f:
         return json.load(f)
+
+
+NPT = timezone(timedelta(hours=5, minutes=45))
+
+
+def tape_session_date(live):
+    """Derive the trading session date (NPT) from the tape.
+
+    Charter v5: every payload carries session_date, NPT, derived from the
+    source's own timestamp via the calendar. live['session_date'] wins
+    when present. Otherwise the NPT calendar date of the tape's own
+    timestamp: asof first — a tape's asof always falls inside its
+    session day in NPT (sessions run 11:00–15:00 NPT) — data_asof only
+    as fallback (a post-midnight fetch timestamp would misdate the
+    session). Returns None when nothing is derivable.
+    (Precedent: tools/build-market-wrap-archive.js tapeSessionDate, PR #371.)
+    """
+    if not isinstance(live, dict):
+        return None
+    if live.get("session_date"):
+        return live["session_date"]
+    for key in ("asof", "data_asof"):
+        raw = live.get(key)
+        if raw is None or raw == "":
+            continue
+        try:
+            if isinstance(raw, (int, float)) and not isinstance(raw, bool):
+                d = datetime.fromtimestamp(raw / 1000, tz=timezone.utc)
+            else:
+                d = datetime.fromisoformat(str(raw).replace("Z", "+00:00"))
+        except (ValueError, OverflowError, OSError):
+            continue
+        if d.tzinfo is None:
+            # Naive timestamp: read as UTC, mirroring JS Date parsing on a
+            # UTC runner, then convert to NPT below.
+            d = d.replace(tzinfo=timezone.utc)
+        return d.astimezone(NPT).date().isoformat()
+    return None
 
 
 def update_ohlc_db(live):
@@ -142,11 +183,14 @@ def main():
 
     os.chdir(WORKTREE)
     live = load_json(os.path.join(WORKTREE, "nepse-chart", "data", "live.json"))
-    session = live.get("session_date")
+    had_session = bool(live.get("session_date"))
+    session = tape_session_date(live)
     if not session:
-        log("FATAL: live.json has no session_date")
+        log("FATAL: live.json has no session_date and no derivable session from asof/data_asof")
         return 2
-    log(f"live session_date={session} market={live.get('market')}")
+    live["session_date"] = session
+    log(f"live session_date={session} market={live.get('market')}"
+        + ("" if had_session else " (derived from tape timestamp)"))
 
     # holiday guard (2026-10-19 fix): never append bars for a holiday session.
     try:
