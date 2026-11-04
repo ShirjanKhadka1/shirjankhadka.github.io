@@ -34,6 +34,19 @@ Usage:
       --file data/contributors.json:/path/to/contributors.json \
       --file data/contributors-history.json:/path/to/history.json
 
+  --manifest-paths (comma-separated) records a path list INDEPENDENT
+  of the staged --file set, for a writer that stages a SUBSET of a
+  multi-file component while keeping the component's full registered
+  set (the content component pattern: actions-daily stages the
+  corporate-actions archive + page under `content` with
+  --manifest-paths carrying all six content paths). Default (no flag)
+  records exactly the staged paths, as before. SAFETY GUARD: every
+  staged or deleted path MUST appear in the recorded list — a staged
+  file the manifest does not list would never be overlaid by Publish
+  and would be silently lost, so such a call fails BEFORE any API
+  write. Recorded paths must be relative with no `..`, like staged
+  paths.
+
   Prints a proof JSON object as its LAST stdout line:
   {"component": ..., "branch": "data", "head_before": ...,
    "commit": ..., "tree": ..., "asof": ...,
@@ -137,6 +150,41 @@ def validate_inputs(files, deletes):
     return contents
 
 
+def build_manifest_entry(paths, asof, updated_via="data-branch-writer"):
+    """Pure manifest entry for one component (no I/O; unit-tested)."""
+    return {"paths": list(paths), "asof": asof,
+            "updated_via": updated_via}
+
+
+def resolve_manifest_paths(file_paths, delete_paths, manifest_paths_arg):
+    """Resolve + validate the recorded path list for a write.
+
+    Returns the sorted recorded list. Raises SystemExit (before any
+    API write) when: a recorded path is unsafe (absolute or `..`),
+    or a staged/deleted path is missing from the recorded list
+    (that file would never be overlaid by Publish — silent loss).
+    With no --manifest-paths flag the recorded list is exactly the
+    staged + deleted paths, i.e. the historical behaviour.
+    """
+    staged = sorted(set(file_paths) | set(delete_paths))
+    if manifest_paths_arg:
+        recorded = sorted(p.strip() for p in
+                          manifest_paths_arg.split(",") if p.strip())
+    else:
+        # Historical behaviour exactly: sorted files, then sorted
+        # deletes (not a fully interleaved sort).
+        recorded = sorted(file_paths) + sorted(delete_paths)
+    for path in recorded:
+        if path.startswith("/") or ".." in path.split("/"):
+            raise SystemExit(f"refusing unsafe manifest path: {path}")
+    missing = [p for p in staged if p not in recorded]
+    if missing:
+        raise SystemExit(
+            "staged paths missing from --manifest-paths (Publish "
+            f"would never overlay them): {missing}")
+    return recorded
+
+
 def get_ref(branch):
     s, d, _h = api("GET", f"/git/refs/heads/{branch}", step="ref-read")
     if s == 200:
@@ -182,7 +230,7 @@ def get_blob_text(sha):
 
 
 def write_once(branch, component, message, asof, contents, deletes,
-               attempt):
+               attempt, manifest_paths=None):
     head = get_ref(branch)
     if head is None:
         # Branch does not exist yet: create it at the main tip.
@@ -238,8 +286,9 @@ def write_once(branch, component, message, asof, contents, deletes,
                 manifest = json.loads(raw)
             except ValueError:
                 manifest = {}
-    new_entry = {"paths": sorted(contents.keys()) + sorted(deletes),
-                 "asof": asof, "updated_via": "data-branch-writer"}
+    if manifest_paths is None:
+        manifest_paths = sorted(contents.keys()) + sorted(deletes)
+    new_entry = build_manifest_entry(manifest_paths, asof)
     if manifest.get(component) != new_entry:
         manifest[component] = new_entry
         mdata = (json.dumps(manifest, indent=2, sort_keys=True) + "\n"
@@ -302,6 +351,12 @@ def main():
                     help="PATH:LOCALFILE (repeatable)")
     ap.add_argument("--delete", action="append", default=[],
                     help="repo path to delete (repeatable)")
+    ap.add_argument("--manifest-paths", default="",
+                    help="comma-separated repo paths to RECORD for this "
+                         "component (default: exactly the staged paths). "
+                         "Use to stage a subset of a multi-file "
+                         "component while keeping its full registered "
+                         "set; every staged path must be listed.")
     ap.add_argument("--retries", type=int, default=MAX_RETRIES)
     args = ap.parse_args()
     files = []
@@ -311,10 +366,15 @@ def main():
         path, local = spec.split(":", 1)
         files.append((path, local))
     contents = validate_inputs(files, args.delete)
+    # Resolve + guard BEFORE any API write (and before the retry loop,
+    # so a bad --manifest-paths fails fast instead of retrying).
+    manifest_paths = resolve_manifest_paths(
+        [p for p, _ in files], args.delete, args.manifest_paths)
     last = None
     for attempt in range(1, args.retries + 1):
         last = write_once(args.branch, args.component, args.message,
-                          args.asof, contents, args.delete, attempt)
+                          args.asof, contents, args.delete, attempt,
+                          manifest_paths=manifest_paths)
         if last["status"] != "RETRY":
             print(json.dumps(last), flush=True)
             return 0
