@@ -22,6 +22,16 @@ on:
 jobs:
   watchdog:
     runs-on: ubuntu-latest
+    permissions:
+      # The check step reads workflow runs (actions:read, implied by
+      # write); the fallback dispatch needs actions:write. Without
+      # it, `gh workflow run` 403s — the 2026-11-04 run 41703832834
+      # failure (dispatch step failed, no fallback run created, and
+      # the alert below was skipped because the failed step skipped
+      # it). This is a dispatch-auth failure, NOT a branch-protection
+      # failure: the dispatch never reached the market-close workflow.
+      contents: read
+      actions: write
     steps:
       - name: Check today's market-close status
         id: check
@@ -45,16 +55,25 @@ jobs:
           fi
 
       - name: Trigger market-close fallback
+        id: dispatch
         if: steps.check.outputs.success_count == '0'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Dispatching market-close workflow as fallback..."
-          gh workflow run nepse-market-close.yml \
+          # Do NOT fail the job here on dispatch error: the alert
+          # below must send even when dispatch fails (2026-11-04:
+          # the failed dispatch skipped the alert, so the failure
+          # was silent). The final step fails the job after alerting.
+          if gh workflow run nepse-market-close.yml \
             --repo "${{ github.repository }}" \
-            --ref main
-
-          echo "Fallback dispatched. The market-close will run within a few minutes."
+            --ref main; then
+            echo "dispatched=true" >> "$GITHUB_OUTPUT"
+            echo "Fallback dispatched. The market-close will run within a few minutes."
+          else
+            echo "dispatched=false" >> "$GITHUB_OUTPUT"
+            echo "::error::Fallback dispatch failed — no fallback run was created."
+          fi
 
       - name: Email alert — watchdog triggered fallback
         if: steps.check.outputs.success_count == '0'
@@ -72,7 +91,15 @@ jobs:
             The NEPSE market-close pipeline did not complete successfully today.
             The watchdog triggered a fallback run via workflow_dispatch.
 
+            Fallback dispatch: ${{ steps.dispatch.outputs.dispatched == 'true' && 'SUCCEEDED — the market-close will run within a few minutes.' || 'FAILED — no fallback run was created; investigate the watchdog run log.' }}
+
             This can happen if GitHub Actions skipped the scheduled trigger
             (as on 2026-10-06) or if all scheduled attempts failed.
 
             Monitor: ${{ github.server_url }}/${{ github.repository }}/actions
+
+      - name: Fail the job if fallback dispatch failed
+        if: steps.check.outputs.success_count == '0' && steps.dispatch.outputs.dispatched != 'true'
+        run: |
+          echo "::error::Market-close fallback dispatch failed (no fallback run created)."
+          exit 1
