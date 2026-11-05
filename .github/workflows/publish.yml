@@ -10,9 +10,10 @@
 #     every write (primary path; always uses main's workflow file).
 #   - push to `data`: secondary path; fires only once the data
 #     branch carries this file (code-sync after this PR merges).
-# Concurrency: group `publish`, cancel-in-progress — newest snapshot
-# wins; a superseded run is cancelled, never deployed after a newer
-# one.
+# Concurrency: group `publish`, cancel-in-progress: false — queued
+# runs are never superseded mid-deploy; each run builds from the
+# latest data snapshot at its own run start, and the last queued
+# run's data wins.
 #
 # Pages source gate (owner-UI blocker, see ops/PROGRAM-STATUS.md):
 #   While Pages serves from the branch (legacy), the deploy step is
@@ -64,7 +65,7 @@ permissions:
 
 concurrency:
   group: publish
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   publish:
@@ -110,14 +111,14 @@ jobs:
           exit 1
 
       - name: Check out main (tools + pages tree)
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           ref: main
           path: main-tree
 
       - name: Check out data snapshot
         if: steps.resolve.outputs.mode == 'assemble'
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           ref: ${{ steps.resolve.outputs.snapshot_sha }}
           path: snapshot-tree
@@ -136,7 +137,7 @@ jobs:
 
       - name: Download redeploy artifact
         if: steps.resolve.outputs.mode == 'redeploy'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
           run-id: ${{ inputs.redeploy_run_id }}
           name: publish-site-${{ inputs.redeploy_run_id }}
@@ -164,14 +165,19 @@ jobs:
       - name: Verify artifact bytes
         run: |
           python3 main-tree/tools/publish-verify.py --mode artifact \
-            --artifact-dir site-tree
+            --artifact-dir site-tree \
+            --report-path publish-verify-report.json
 
       - name: Upload proof artifact (always)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: publish-site-${{ github.run_id }}
           path: site-tree
           if-no-files-found: error
+          # Proof artifacts must contain dotfiles too (upload-artifact
+          # excludes hidden files by default): future verification of
+          # .well-known/security.txt depends on the proof tree.
+          include-hidden-files: true
 
       - name: Detect Pages source
         id: pages
@@ -182,16 +188,46 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Build Pages artifact tar (Actions source only)
+        if: steps.pages.outputs.build_type == 'workflow'
+        run: |
+          # upload-pages-artifact's tar excludes top-level dot-paths
+          # (--exclude=".[^/]*"), which drops .well-known/security.txt
+          # and .nojekyll from EVERY deployment (proven: the proof
+          # artifact of run 41209812356 contains zero dot-paths, and
+          # live security.txt 404s even cache-busted). Build the tar
+          # ourselves with the same shape (tar of the site root,
+          # .git/.github excluded) but WITHOUT the dot-path exclusion,
+          # then upload it as the github-pages artifact for
+          # deploy-pages below. If deploy-pages ever rejects this
+          # artifact, revert to upload-pages-artifact (and accept
+          # security.txt 404 as a platform limit) — the deploy step
+          # fails loudly, it cannot silently deploy a partial tree.
+          tar --dereference --hard-dereference \
+            --directory site-tree \
+            -cf "$RUNNER_TEMP/artifact.tar" \
+            --exclude=.git --exclude=.github .
+          # Fail loud, never silently deploy without security.txt:
+          # if it is in the tree it must be in the tar.
+          if [ -f site-tree/.well-known/security.txt ]; then
+            tar -tf "$RUNNER_TEMP/artifact.tar" | grep -q "well-known/security.txt" \
+              || { echo "FAIL: security.txt missing from Pages tar"; exit 1; }
+            echo "Pages tar contains .well-known/security.txt"
+          fi
+
       - name: Upload Pages artifact (Actions source only)
         if: steps.pages.outputs.build_type == 'workflow'
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          path: site-tree
+          name: github-pages
+          path: ${{ runner.temp }}/artifact.tar
+          retention-days: 1
+          if-no-files-found: error
 
       - name: Deploy to GitHub Pages (Actions source only)
         if: steps.pages.outputs.build_type == 'workflow'
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e
 
       - name: Generate purge URL list (post-flip only)
         if: steps.pages.outputs.build_type == 'workflow'
@@ -206,9 +242,34 @@ jobs:
           for entry in man["components"].values():
               for rel in entry["paths"]:
                   urls.add(base + "/" + rel)
-          with open("purge-urls.txt", "w") as f:
-              f.write("\n".join(sorted(urls)) + "\n")
-          print(f"purge list: {len(urls)} URLs")
+                  # CHARTER v3 P0: purge EVERY variant users fetch.
+                  # A directory index is fetched as /dir/index.html
+                  # (the deployed file), as /dir/ (the directory URL
+                  # that serves it), and as /dir (the no-slash URL,
+                  # which redirects to /dir/ — and the redirect itself
+                  # can be cached). Purging only the file URL leaves
+                  # the directory variants stale on their nodes — the
+                  # artifact-proved failure mode (nepse-actions/).
+                  if rel == "index.html":
+                      urls.add(base + "/")
+                      urls.add(base)
+                  elif rel.endswith("/index.html"):
+                      d = base + "/" + rel[: -len("index.html")]
+                      urls.add(d)            # trailing-slash variant
+                      urls.add(d.rstrip("/"))  # no-slash variant
+          # CHARTER v3 P0: when the expanded list is large, purge
+          # everything instead of hundreds of per-URL calls. The
+          # marker is consumed by tools/publish-purge.py. Normal
+          # manifest lists are ~70 URLs, well under the threshold.
+          if len(urls) > 100:
+              with open("purge-urls.txt", "w") as f:
+                  f.write("PURGE_EVERYTHING\n")
+              print(f"purge list: PURGE_EVERYTHING ({len(urls)} URLs "
+                    f"exceeded threshold 100)")
+          else:
+              with open("purge-urls.txt", "w") as f:
+                  f.write("\n".join(sorted(urls)) + "\n")
+              print(f"purge list: {len(urls)} URLs (variants expanded)")
           PYEOF
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -222,9 +283,26 @@ jobs:
 
       - name: Verify production bytes (post-flip only)
         if: steps.pages.outputs.build_type == 'workflow'
+        id: verify_live
         run: |
           python3 main-tree/tools/publish-verify.py --mode live \
-            --artifact-dir site-tree
+            --artifact-dir site-tree \
+            --report-path publish-verify-report.json \
+            --settle-timeout 300 --settle-interval 15
+
+      - name: Upload verify report (on verify failure)
+        # The verify step's stdout is only readable with admin log
+        # access; the report file carries the same failure detail
+        # (every checked path + the exact failing field) and is
+        # retrievable via the artifacts API instead. Scoped to the
+        # verify step itself: if an earlier step failed, verify was
+        # skipped and there is no report to upload.
+        if: failure() && steps.verify_live.outcome == 'failure'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: publish-verify-report-${{ github.run_id }}
+          path: publish-verify-report.json
+          if-no-files-found: warn
 
       - name: Record outcome + summary
         id: outcome
