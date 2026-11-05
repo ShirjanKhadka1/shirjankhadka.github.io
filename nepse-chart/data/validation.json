@@ -1,30 +1,30 @@
 {
-  "ran_at_npt": "2026-11-05T12:37:00+05:45",
-  "expected_session": "2026-11-04",
+  "ran_at_npt": "2026-11-06T01:39:00+05:45",
+  "expected_session": "2026-11-05",
   "passed": false,
   "gates": [
     {
       "gate": "manifest-present",
       "pass": true,
-      "detail": "data/manifest.json session=2026-11-04",
+      "detail": "data/manifest.json session=2026-11-05",
       "severity": "fail"
     },
     {
       "gate": "live-session-current",
-      "pass": true,
-      "detail": "live=2026-11-04 expected=2026-11-05 (last completed session, market open)",
+      "pass": false,
+      "detail": "live=2026-11-04 expected=2026-11-05",
       "severity": "fail"
     },
     {
       "gate": "universe-session-current",
       "pass": false,
-      "detail": "universe=2026-11-03 expected=2026-11-04",
+      "detail": "universe=2026-11-03 expected=2026-11-05",
       "severity": "fail"
     },
     {
       "gate": "security-count-stable",
       "pass": true,
-      "detail": "quotes=358 baseline=348 (last good tag data-2026-11-05-22) drift=2.9% band=±5%",
+      "detail": "quotes=358 baseline=348 (last good tag data-2026-11-06-1) drift=2.9% band=±5%",
       "severity": "fail"
     },
     {
@@ -96,19 +96,19 @@
     {
       "gate": "signals/momentum.json-fresh",
       "pass": true,
-      "detail": "generated=2026-11-04 expected>=2026-11-04",
+      "detail": "generated=2026-11-05 expected>=2026-11-05",
       "severity": "fail"
     },
     {
       "gate": "signals/trend-relay.json-fresh",
       "pass": true,
-      "detail": "generated=2026-11-04 expected>=2026-11-04",
+      "detail": "generated=2026-11-05 expected>=2026-11-05",
       "severity": "fail"
     },
     {
       "gate": "signals/reversal.json-fresh",
       "pass": true,
-      "detail": "generated=2026-11-04 expected>=2026-11-04",
+      "detail": "generated=2026-11-05 expected>=2026-11-05",
       "severity": "fail"
     },
     {
