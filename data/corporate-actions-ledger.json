@@ -1,16 +1,27 @@
 {
   "meta": {
-    "built_at_npt": "2026-11-04",
+    "built_at_npt": "2026-11-06",
     "builder": "tools/build-actions-ledger.py",
     "sources": {
-      "corporate_actions_updated": "2026-11-03T13:57:06.203Z",
-      "div_live_asof": "2026-11-02T13:58:38.546Z"
+      "corporate_actions_updated": "2026-11-06T13:12:32.889Z",
+      "div_live_asof": "2026-11-05T13:28:09.928Z"
     },
-    "items_total": 33,
-    "sessions_total": 18,
+    "items_total": 34,
+    "sessions_total": 19,
     "provenance": "sessions group by ANNOUNCED date; recording_runs group by VERIFIED date reconstructed from verifiedAt; no separate run log exists, so earlier runs are not inventable"
   },
   "sessions": [
+    {
+      "date": "2026-11-06",
+      "count": 1,
+      "items": [
+        {
+          "symbol": "SGHL",
+          "kind": "promoter-share",
+          "headline": "End of Lock In Period for Mutual Funds [SGHL]"
+        }
+      ]
+    },
     {
       "date": "2026-11-03",
       "count": 1,
@@ -287,6 +298,13 @@
   ],
   "recording_runs": [
     {
+      "date": "2026-11-06",
+      "added": [
+        "promoter-share|SGHL"
+      ],
+      "count": 1
+    },
+    {
       "date": "2026-11-03",
       "added": [
         "promoter-share|NWCL"
@@ -411,6 +429,18 @@
     }
   ],
   "items": [
+    {
+      "symbol": "SGHL",
+      "kind": "promoter-share",
+      "announced": "2026-11-06",
+      "pdf_date": "2026-11-05",
+      "verified_at": "2026-11-06",
+      "sector": "Hydropower",
+      "bookclose": "",
+      "bookclose_source": "none",
+      "status_at_build": null,
+      "first_closed_date": null
+    },
     {
       "symbol": "NWCL",
       "kind": "promoter-share",
@@ -813,13 +843,13 @@
       "symbol": "SMFBS",
       "kind": "right-share",
       "bookclose": "2026-11-06",
-      "days_from_build": 2
+      "days_from_build": 0
     },
     {
       "symbol": "UNL",
       "kind": "dividend",
       "bookclose": "2026-11-25",
-      "days_from_build": 21
+      "days_from_build": 19
     }
   ],
   "data_notes": [
@@ -886,6 +916,13 @@
       "run_date": "2026-11-04",
       "input_hash": "bb7a2bccd020",
       "items_total": 33,
+      "verifier": "skip",
+      "page_rebuilt": true
+    },
+    {
+      "run_date": "2026-11-06",
+      "input_hash": "11e693974fbb",
+      "items_total": 34,
       "verifier": "skip",
       "page_rebuilt": true
     }
