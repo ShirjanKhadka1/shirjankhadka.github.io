@@ -1,7 +1,7 @@
 {
  "schema": "nd-sector-strength/v1",
- "asof": "2026-11-04",
- "built_at": "2026-11-05T16:40:46+05:45",
+ "asof": "2026-11-05",
+ "built_at": "2026-11-06T16:38:43+05:45",
  "status": "FINAL",
  "source": "Nepse Decode OHLC archive (ohlc-db) + derived equal-weight sector indices (data/sector-indices.json, data branch); benchmark: official NEPSE composite (data/index-history.json)",
  "windows": [
@@ -12,29 +12,29 @@
  ],
  "realised_windows": {
   "7d": {
-   "window_from": "2026-10-28",
-   "realised_base_date": "2026-10-28",
+   "window_from": "2026-10-29",
+   "realised_base_date": "2026-10-29",
    "sessions": 5,
    "span_days": 7,
    "calendar_days": 7
   },
   "21d": {
-   "window_from": "2026-10-14",
-   "realised_base_date": "2026-10-14",
+   "window_from": "2026-10-15",
+   "realised_base_date": "2026-10-15",
    "sessions": 10,
    "span_days": 21,
    "calendar_days": 21
   },
   "45d": {
-   "window_from": "2026-09-20",
+   "window_from": "2026-09-21",
    "realised_base_date": "2026-09-18",
-   "sessions": 26,
-   "span_days": 47,
+   "sessions": 27,
+   "span_days": 48,
    "calendar_days": 45
   },
   "90d": {
-   "window_from": "2026-08-06",
-   "realised_base_date": "2026-08-06",
+   "window_from": "2026-08-07",
+   "realised_base_date": "2026-08-07",
    "sessions": 54,
    "span_days": 90,
    "calendar_days": 90
@@ -43,15 +43,15 @@
  "unscored": [],
  "scope_note": "Scope: 275 of 275 equity-sector symbols scored; no LTP-only symbols excluded.",
  "nepse_returns": {
-  "7d": 0.06,
-  "21d": 1.69,
-  "45d": 0.69,
-  "90d": 0.43
+  "7d": -1.6,
+  "21d": 1.02,
+  "45d": 0.2,
+  "90d": 0.09
  },
  "phase_counts": {
-  "Leading": 2,
-  "Lagging": 7,
-  "Improving": 2
+  "Leading": 1,
+  "Weakening": 1,
+  "Lagging": 9
  },
  "universe": {
   "sectors": 11,
@@ -59,206 +59,206 @@
  },
  "rows": [
   {
-   "sector": "Commercial Bank",
-   "rank": 1,
-   "rank_change_1w": 0,
-   "returns": {
-    "7d": 0.14,
-    "21d": 1.0,
-    "45d": 2.3,
-    "90d": 3.6
-   },
-   "relative_strength": {
-    "7d": 0.08,
-    "21d": -0.69,
-    "45d": 1.61,
-    "90d": 3.17
-   },
-   "strength_scores": {
-    "7d": 76.41,
-    "21d": 58.02,
-    "45d": 100.0,
-    "90d": 100.0
-   },
-   "volatility_long": 0.81,
-   "risk_score": 30.85,
-   "risk_level": "Low",
-   "overall_score": 67.78,
-   "trend_phase": "Leading",
-   "momentum_labels": {
-    "7d": "Flat",
-    "21d": "Mild Bullish",
-    "45d": "Mild Bullish",
-    "90d": "Mild Bullish"
-   },
-   "comment": "Commercial Bank is in the Leading phase. Outperforming NEPSE by 0.08% over the last 7 days. Returns: 7d +0.14%, 21d +1.00%, 45d +2.30%, 90d +3.60%. Risk is Low on our banding (60-session volatility 0.81, risk score 30.85 of 100)."
-  },
-  {
    "sector": "Trading",
-   "rank": 2,
-   "rank_change_1w": 4,
+   "rank": 1,
+   "rank_change_1w": 7,
    "returns": {
-    "7d": 1.02,
-    "21d": 0.2,
-    "45d": -2.0,
-    "90d": 0.54
+    "7d": 0.85,
+    "21d": 0.37,
+    "45d": -2.11,
+    "90d": 0.49
    },
    "relative_strength": {
-    "7d": 0.96,
-    "21d": -1.49,
-    "45d": -2.69,
-    "90d": 0.11
+    "7d": 2.45,
+    "21d": -0.65,
+    "45d": -2.31,
+    "90d": 0.39
    },
    "strength_scores": {
     "7d": 100.0,
-    "21d": 31.13,
-    "45d": 57.76,
-    "90d": 81.89
+    "21d": 88.32,
+    "45d": 63.22,
+    "90d": 83.11
    },
    "volatility_long": 0.66,
-   "risk_score": 43.64,
+   "risk_score": 43.68,
    "risk_level": "Low",
-   "overall_score": 60.48,
+   "overall_score": 71.67,
    "trend_phase": "Leading",
    "momentum_labels": {
-    "7d": "Mild Bullish",
+    "7d": "Flat",
     "21d": "Flat",
     "45d": "Mild Bearish",
     "90d": "Flat"
    },
-   "comment": "Trading is in the Leading phase. Outperforming NEPSE by 0.96% over the last 7 days. Returns: 7d +1.02%, 21d +0.20%, 45d -2.00%, 90d +0.54%. Risk is Low on our banding (60-session volatility 0.66, risk score 43.64 of 100)."
+   "comment": "Trading is in the Leading phase. Outperforming NEPSE by 2.45% over the last 7 days. Returns: 7d +0.85%, 21d +0.37%, 45d -2.11%, 90d +0.49%. Risk is Low on our banding (60-session volatility 0.66, risk score 43.68 of 100)."
+  },
+  {
+   "sector": "Commercial Bank",
+   "rank": 2,
+   "rank_change_1w": -1,
+   "returns": {
+    "7d": -2.83,
+    "21d": 0.55,
+    "45d": 1.71,
+    "90d": 3.36
+   },
+   "relative_strength": {
+    "7d": -1.23,
+    "21d": -0.47,
+    "45d": 1.51,
+    "90d": 3.27
+   },
+   "strength_scores": {
+    "7d": 17.37,
+    "21d": 94.91,
+    "45d": 100.0,
+    "90d": 100.0
+   },
+   "volatility_long": 0.8,
+   "risk_score": 30.93,
+   "risk_level": "Low",
+   "overall_score": 63.93,
+   "trend_phase": "Weakening",
+   "momentum_labels": {
+    "7d": "Mild Bearish",
+    "21d": "Flat",
+    "45d": "Mild Bullish",
+    "90d": "Mild Bullish"
+   },
+   "comment": "Commercial Bank is in the Weakening phase. Underperforming NEPSE by 1.23% over the last 7 days. Returns: 7d -2.83%, 21d +0.55%, 45d +1.71%, 90d +3.36%. Risk is Low on our banding (60-session volatility 0.80, risk score 30.93 of 100)."
   },
   {
    "sector": "Manufacturing and Processing",
    "rank": 3,
    "rank_change_1w": 0,
    "returns": {
-    "7d": -1.13,
-    "21d": 0.83,
-    "45d": -0.77,
-    "90d": 0.35
+    "7d": -2.79,
+    "21d": -0.16,
+    "45d": -1.47,
+    "90d": -0.32
    },
    "relative_strength": {
-    "7d": -1.18,
-    "21d": -0.86,
-    "45d": -1.46,
-    "90d": -0.08
+    "7d": -1.19,
+    "21d": -1.18,
+    "45d": -1.67,
+    "90d": -0.41
    },
    "strength_scores": {
-    "7d": 42.39,
-    "21d": 52.36,
-    "45d": 69.82,
-    "90d": 80.79
+    "7d": 18.28,
+    "21d": 69.46,
+    "45d": 69.37,
+    "90d": 78.38
    },
    "volatility_long": 0.84,
-   "risk_score": 27.63,
+   "risk_score": 27.81,
    "risk_level": "Low",
-   "overall_score": 51.23,
+   "overall_score": 49.55,
    "trend_phase": "Lagging",
    "momentum_labels": {
     "7d": "Mild Bearish",
     "21d": "Flat",
-    "45d": "Flat",
+    "45d": "Mild Bearish",
     "90d": "Flat"
    },
-   "comment": "Manufacturing and Processing is in the Lagging phase. Underperforming NEPSE by 1.18% over the last 7 days. Returns: 7d -1.13%, 21d +0.83%, 45d -0.77%, 90d +0.35%. Risk is Low on our banding (60-session volatility 0.84, risk score 27.63 of 100)."
+   "comment": "Manufacturing and Processing is in the Lagging phase. Underperforming NEPSE by 1.19% over the last 7 days. Returns: 7d -2.79%, 21d -0.16%, 45d -1.47%, 90d -0.32%. Risk is Low on our banding (60-session volatility 0.84, risk score 27.81 of 100)."
   },
   {
    "sector": "Hydropower",
    "rank": 4,
    "rank_change_1w": -2,
    "returns": {
-    "7d": -2.08,
-    "21d": 2.24,
-    "45d": -2.26,
-    "90d": -4.27
+    "7d": -2.93,
+    "21d": 0.7,
+    "45d": -2.94,
+    "90d": -4.53
    },
    "relative_strength": {
-    "7d": -2.14,
-    "21d": 0.55,
-    "45d": -2.95,
-    "90d": -4.7
+    "7d": -1.34,
+    "21d": -0.32,
+    "45d": -3.14,
+    "90d": -4.62
    },
    "strength_scores": {
-    "7d": 16.66,
+    "7d": 15.02,
     "21d": 100.0,
-    "45d": 55.18,
-    "90d": 53.49
+    "45d": 55.22,
+    "90d": 53.66
    },
    "volatility_long": 0.87,
-   "risk_score": 25.28,
+   "risk_score": 25.38,
    "risk_level": "Low",
-   "overall_score": 47.02,
+   "overall_score": 46.8,
    "trend_phase": "Lagging",
    "momentum_labels": {
     "7d": "Mild Bearish",
-    "21d": "Mild Bullish",
+    "21d": "Flat",
     "45d": "Mild Bearish",
     "90d": "Mild Bearish"
    },
-   "comment": "Hydropower is in the Lagging phase. Underperforming NEPSE by 2.14% over the last 7 days. Returns: 7d -2.08%, 21d +2.24%, 45d -2.26%, 90d -4.27%. Risk is Low on our banding (60-session volatility 0.87, risk score 25.28 of 100)."
+   "comment": "Hydropower is in the Lagging phase. Underperforming NEPSE by 1.34% over the last 7 days. Returns: 7d -2.93%, 21d +0.70%, 45d -2.94%, 90d -4.53%. Risk is Low on our banding (60-session volatility 0.87, risk score 25.38 of 100)."
   },
   {
    "sector": "Life Insurance",
    "rank": 5,
    "rank_change_1w": -1,
    "returns": {
-    "7d": -1.11,
-    "21d": -0.37,
-    "45d": -1.55,
-    "90d": -1.75
+    "7d": -2.5,
+    "21d": -1.15,
+    "45d": -2.05,
+    "90d": -2.01
    },
    "relative_strength": {
-    "7d": -1.16,
-    "21d": -2.06,
-    "45d": -2.24,
-    "90d": -2.17
+    "7d": -0.9,
+    "21d": -2.17,
+    "45d": -2.26,
+    "90d": -2.11
    },
    "strength_scores": {
-    "7d": 42.93,
-    "21d": 11.6,
-    "45d": 62.22,
-    "90d": 68.42
+    "7d": 24.79,
+    "21d": 34.39,
+    "45d": 63.75,
+    "90d": 68.43
    },
    "volatility_long": 0.85,
-   "risk_score": 26.76,
+   "risk_score": 26.84,
    "risk_level": "Low",
-   "overall_score": 40.43,
+   "overall_score": 41.54,
    "trend_phase": "Lagging",
    "momentum_labels": {
     "7d": "Mild Bearish",
-    "21d": "Flat",
+    "21d": "Mild Bearish",
     "45d": "Mild Bearish",
     "90d": "Mild Bearish"
    },
-   "comment": "Life Insurance is in the Lagging phase. Underperforming NEPSE by 1.16% over the last 7 days. Returns: 7d -1.11%, 21d -0.37%, 45d -1.55%, 90d -1.75%. Risk is Low on our banding (60-session volatility 0.85, risk score 26.76 of 100)."
+   "comment": "Life Insurance is in the Lagging phase. Underperforming NEPSE by 0.90% over the last 7 days. Returns: 7d -2.50%, 21d -1.15%, 45d -2.05%, 90d -2.01%. Risk is Low on our banding (60-session volatility 0.85, risk score 26.84 of 100)."
   },
   {
    "sector": "Microfinance",
    "rank": 6,
-   "rank_change_1w": 1,
+   "rank_change_1w": 0,
    "returns": {
-    "7d": -1.23,
-    "21d": 0.23,
-    "45d": -4.49,
-    "90d": -6.85
+    "7d": -2.16,
+    "21d": -0.82,
+    "45d": -4.86,
+    "90d": -7.31
    },
    "relative_strength": {
-    "7d": -1.29,
-    "21d": -1.46,
-    "45d": -5.18,
-    "90d": -7.28
+    "7d": -0.57,
+    "21d": -1.84,
+    "45d": -5.07,
+    "90d": -7.4
    },
    "strength_scores": {
-    "7d": 39.52,
-    "21d": 32.13,
-    "45d": 33.28,
-    "90d": 38.26
+    "7d": 32.29,
+    "21d": 46.08,
+    "45d": 36.7,
+    "90d": 37.36
    },
    "volatility_long": 0.61,
-   "risk_score": 47.22,
+   "risk_score": 47.34,
    "risk_level": "Low",
-   "overall_score": 39.23,
+   "overall_score": 40.88,
    "trend_phase": "Lagging",
    "momentum_labels": {
     "7d": "Mild Bearish",
@@ -266,34 +266,34 @@
     "45d": "Mild Bearish",
     "90d": "Strong Bearish"
    },
-   "comment": "Microfinance is in the Lagging phase. Underperforming NEPSE by 1.29% over the last 7 days. Returns: 7d -1.23%, 21d +0.23%, 45d -4.49%, 90d -6.85%. Risk is Low on our banding (60-session volatility 0.61, risk score 47.22 of 100)."
+   "comment": "Microfinance is in the Lagging phase. Underperforming NEPSE by 0.57% over the last 7 days. Returns: 7d -2.16%, 21d -0.82%, 45d -4.86%, 90d -7.31%. Risk is Low on our banding (60-session volatility 0.61, risk score 47.34 of 100)."
   },
   {
    "sector": "Finance",
    "rank": 7,
    "rank_change_1w": -2,
    "returns": {
-    "7d": -1.25,
-    "21d": 0.99,
-    "45d": -3.65,
-    "90d": -9.47
+    "7d": -3.6,
+    "21d": -0.49,
+    "45d": -4.3,
+    "90d": -9.3
    },
    "relative_strength": {
-    "7d": -1.31,
-    "21d": -0.7,
-    "45d": -4.34,
-    "90d": -9.9
+    "7d": -2.0,
+    "21d": -1.51,
+    "45d": -4.5,
+    "90d": -9.4
    },
    "strength_scores": {
-    "7d": 38.94,
-    "21d": 57.78,
-    "45d": 41.51,
-    "90d": 22.82
+    "7d": 0.0,
+    "21d": 57.89,
+    "45d": 42.16,
+    "90d": 25.63
    },
    "volatility_long": 0.88,
-   "risk_score": 24.37,
+   "risk_score": 24.25,
    "risk_level": "Low",
-   "overall_score": 35.49,
+   "overall_score": 29.27,
    "trend_phase": "Lagging",
    "momentum_labels": {
     "7d": "Mild Bearish",
@@ -301,154 +301,154 @@
     "45d": "Mild Bearish",
     "90d": "Strong Bearish"
    },
-   "comment": "Finance is in the Lagging phase. Underperforming NEPSE by 1.31% over the last 7 days. Returns: 7d -1.25%, 21d +0.99%, 45d -3.65%, 90d -9.47%. Risk is Low on our banding (60-session volatility 0.88, risk score 24.37 of 100)."
+   "comment": "Finance is in the Lagging phase. Underperforming NEPSE by 2.00% over the last 7 days. Returns: 7d -3.60%, 21d -0.49%, 45d -4.30%, 90d -9.30%. Risk is Low on our banding (60-session volatility 0.88, risk score 24.25 of 100)."
   },
   {
    "sector": "Development Bank",
    "rank": 8,
    "rank_change_1w": 1,
    "returns": {
-    "7d": 0.34,
-    "21d": -0.13,
-    "45d": -5.04,
-    "90d": -9.94
+    "7d": -1.67,
+    "21d": -1.48,
+    "45d": -5.72,
+    "90d": -10.92
    },
    "relative_strength": {
-    "7d": 0.28,
-    "21d": -1.82,
-    "45d": -5.73,
-    "90d": -10.37
+    "7d": -0.08,
+    "21d": -2.5,
+    "45d": -5.92,
+    "90d": -11.02
    },
    "strength_scores": {
-    "7d": 81.66,
-    "21d": 20.02,
-    "45d": 27.88,
-    "90d": 20.01
+    "7d": 43.3,
+    "21d": 22.53,
+    "45d": 28.46,
+    "90d": 16.12
    },
    "volatility_long": 0.85,
-   "risk_score": 27.31,
+   "risk_score": 27.21,
    "risk_level": "Low",
-   "overall_score": 34.37,
-   "trend_phase": "Improving",
-   "momentum_labels": {
-    "7d": "Flat",
-    "21d": "Flat",
-    "45d": "Strong Bearish",
-    "90d": "Strong Bearish"
-   },
-   "comment": "Development Bank is in the Improving phase. Outperforming NEPSE by 0.28% over the last 7 days. Returns: 7d +0.34%, 21d -0.13%, 45d -5.04%, 90d -9.94%. Risk is Low on our banding (60-session volatility 0.85, risk score 27.31 of 100)."
-  },
-  {
-   "sector": "Hotels and Tourism",
-   "rank": 9,
-   "rank_change_1w": 1,
-   "returns": {
-    "7d": -1.13,
-    "21d": 0.41,
-    "45d": -7.88,
-    "90d": -10.94
-   },
-   "relative_strength": {
-    "7d": -1.18,
-    "21d": -1.28,
-    "45d": -8.57,
-    "90d": -11.37
-   },
-   "strength_scores": {
-    "7d": 42.32,
-    "21d": 38.16,
-    "45d": 0.0,
-    "90d": 14.13
-   },
-   "volatility_long": 0.87,
-   "risk_score": 25.67,
-   "risk_level": "Low",
-   "overall_score": 24.26,
+   "overall_score": 27.48,
    "trend_phase": "Lagging",
    "momentum_labels": {
     "7d": "Mild Bearish",
-    "21d": "Flat",
+    "21d": "Mild Bearish",
     "45d": "Strong Bearish",
     "90d": "Strong Bearish"
    },
-   "comment": "Hotels and Tourism is in the Lagging phase. Underperforming NEPSE by 1.18% over the last 7 days. Returns: 7d -1.13%, 21d +0.41%, 45d -7.88%, 90d -10.94%. Risk is Low on our banding (60-session volatility 0.87, risk score 25.67 of 100)."
+   "comment": "Development Bank is in the Lagging phase. Underperforming NEPSE by 0.08% over the last 7 days. Returns: 7d -1.67%, 21d -1.48%, 45d -5.72%, 90d -10.92%. Risk is Low on our banding (60-session volatility 0.85, risk score 27.21 of 100)."
   },
   {
    "sector": "Investment",
-   "rank": 10,
+   "rank": 9,
    "rank_change_1w": -2,
    "returns": {
-    "7d": -2.7,
-    "21d": -0.34,
-    "45d": -5.9,
-    "90d": -5.22
+    "7d": -3.18,
+    "21d": -1.24,
+    "45d": -5.94,
+    "90d": -5.06
    },
    "relative_strength": {
-    "7d": -2.76,
-    "21d": -2.03,
-    "45d": -6.59,
-    "90d": -5.65
+    "7d": -1.59,
+    "21d": -2.26,
+    "45d": -6.15,
+    "90d": -5.16
    },
    "strength_scores": {
-    "7d": 0.0,
-    "21d": 12.65,
-    "45d": 19.41,
-    "90d": 47.92
+    "7d": 9.38,
+    "21d": 31.06,
+    "45d": 26.29,
+    "90d": 50.54
    },
-   "volatility_long": 0.95,
-   "risk_score": 18.77,
+   "volatility_long": 0.94,
+   "risk_score": 18.99,
    "risk_level": "Low",
-   "overall_score": 19.63,
+   "overall_score": 26.22,
    "trend_phase": "Lagging",
    "momentum_labels": {
     "7d": "Mild Bearish",
-    "21d": "Flat",
+    "21d": "Mild Bearish",
     "45d": "Strong Bearish",
     "90d": "Strong Bearish"
    },
-   "comment": "Investment is in the Lagging phase. Underperforming NEPSE by 2.76% over the last 7 days. Returns: 7d -2.70%, 21d -0.34%, 45d -5.90%, 90d -5.22%. Risk is Low on our banding (60-session volatility 0.95, risk score 18.77 of 100)."
+   "comment": "Investment is in the Lagging phase. Underperforming NEPSE by 1.59% over the last 7 days. Returns: 7d -3.18%, 21d -1.24%, 45d -5.94%, 90d -5.06%. Risk is Low on our banding (60-session volatility 0.94, risk score 18.99 of 100)."
+  },
+  {
+   "sector": "Hotels and Tourism",
+   "rank": 10,
+   "rank_change_1w": 0,
+   "returns": {
+    "7d": -3.06,
+    "21d": -1.37,
+    "45d": -8.67,
+    "90d": -11.3
+   },
+   "relative_strength": {
+    "7d": -1.46,
+    "21d": -2.39,
+    "45d": -8.88,
+    "90d": -11.39
+   },
+   "strength_scores": {
+    "7d": 12.19,
+    "21d": 26.72,
+    "45d": 0.0,
+    "90d": 13.93
+   },
+   "volatility_long": 0.87,
+   "risk_score": 25.43,
+   "risk_level": "Low",
+   "overall_score": 16.88,
+   "trend_phase": "Lagging",
+   "momentum_labels": {
+    "7d": "Mild Bearish",
+    "21d": "Mild Bearish",
+    "45d": "Strong Bearish",
+    "90d": "Strong Bearish"
+   },
+   "comment": "Hotels and Tourism is in the Lagging phase. Underperforming NEPSE by 1.46% over the last 7 days. Returns: 7d -3.06%, 21d -1.37%, 45d -8.67%, 90d -11.30%. Risk is Low on our banding (60-session volatility 0.87, risk score 25.43 of 100)."
   },
   {
    "sector": "Non Life Insurance",
    "rank": 11,
    "rank_change_1w": 0,
    "returns": {
-    "7d": -0.79,
-    "21d": -0.72,
-    "45d": -5.03,
-    "90d": -13.33
+    "7d": -2.44,
+    "21d": -2.12,
+    "45d": -5.65,
+    "90d": -13.67
    },
    "relative_strength": {
     "7d": -0.85,
-    "21d": -2.41,
-    "45d": -5.72,
+    "21d": -3.14,
+    "45d": -5.85,
     "90d": -13.76
    },
    "strength_scores": {
-    "7d": 51.31,
+    "7d": 26.0,
     "21d": 0.0,
-    "45d": 27.94,
+    "45d": 29.16,
     "90d": 0.0
    },
-   "volatility_long": 1.16,
+   "volatility_long": 1.17,
    "risk_score": 0.0,
    "risk_level": "Low",
-   "overall_score": 13.87,
-   "trend_phase": "Improving",
+   "overall_score": 9.65,
+   "trend_phase": "Lagging",
    "momentum_labels": {
-    "7d": "Flat",
-    "21d": "Flat",
+    "7d": "Mild Bearish",
+    "21d": "Mild Bearish",
     "45d": "Strong Bearish",
     "90d": "Strong Bearish"
    },
-   "comment": "Non Life Insurance is in the Improving phase. Underperforming NEPSE by 0.85% over the last 7 days. Returns: 7d -0.79%, 21d -0.72%, 45d -5.03%, 90d -13.33%. Risk is Low on our banding (60-session volatility 1.16, risk score 0.00 of 100)."
+   "comment": "Non Life Insurance is in the Lagging phase. Underperforming NEPSE by 0.85% over the last 7 days. Returns: 7d -2.44%, 21d -2.12%, 45d -5.65%, 90d -13.67%. Risk is Low on our banding (60-session volatility 1.17, risk score 0.00 of 100)."
   }
  ],
  "persistence": {
   "snapshots": 134,
   "horizon_days": 28,
-  "overall_rank_rho": 0.375,
-  "leader_still_top3_pct": 58.2,
+  "overall_rank_rho": 0.378,
+  "leader_still_top3_pct": 60.4,
   "basis": "weekly snapshots over the trailing 3 years; the same strength board recomputed 28 calendar days later"
  },
  "methodology": {
