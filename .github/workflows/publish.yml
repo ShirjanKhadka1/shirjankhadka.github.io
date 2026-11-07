@@ -15,6 +15,21 @@
 # latest data snapshot at its own run start, and the last queued
 # run's data wins.
 #
+# Redundant-dispatch guard (2026-11-07): every data write fires BOTH
+# a push-triggered Publish and a writer-dispatched Publish for the
+# same snapshot. The push run deploys first (this concurrency group
+# serializes them); the dispatch run then fails at Deploy to GitHub
+# Pages on the back-to-back deployment and spams a failure email,
+# even though the snapshot is already live (proven 2026-11-07:
+# dispatch runs 42372094586 / 42373166653 / 42375958895 all failed
+# at deploy while their push siblings succeeded and tagged the
+# same snapshots). The publish job therefore skips the deploy when
+# the snapshot is already published (data-* tag exists at the
+# snapshot, or the served manifest already carries it) and exits
+# green. Fail-open: any guard check failure proceeds to deploy.
+# The dispatch path stays the safety net for snapshots the push
+# trigger never published.
+#
 # Pages source gate (owner-UI blocker, see ops/PROGRAM-STATUS.md):
 #   While Pages serves from the branch (legacy), the deploy step is
 #   SKIPPED with the reason logged: the Pages artifact action deploys
@@ -154,6 +169,29 @@ jobs:
             echo "snapshot_sha=$SHA" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Skip deploy if snapshot already published
+        id: already_published
+        run: |
+          SNAP="${{ steps.effective.outputs.snapshot_sha }}"
+          SKIP=false
+          # (1) Tag check: the push run tags data-YYYY-MM-DD-N at the snapshot.
+          TAGS="$(gh api repos/${{ github.repository }}/git/matching-refs/tags/data- --paginate --jq '.[].object.sha' 2>/dev/null || true)"
+          if printf '%s\n' "$TAGS" | grep -qx "$SNAP"; then
+            echo "Snapshot $SNAP already tagged (published by the push run) — skipping deploy"
+            SKIP=true
+          fi
+          # (2) Served-manifest check: covers a deploy whose tag job failed.
+          if [ "$SKIP" = false ]; then
+            LIVE="$(curl -sS --max-time 30 https://shirjankhadka.com.np/data/publish-manifest.json 2>/dev/null | python3 -c "import json,sys; print(json.load(sys.stdin).get('snapshot_sha',''))" 2>/dev/null || true)"
+            if [ -n "$LIVE" ] && [ "$LIVE" = "$SNAP" ]; then
+              echo "Snapshot $SNAP already live in served manifest — skipping deploy"
+              SKIP=true
+            fi
+          fi
+          echo "skip=$SKIP" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
       - name: Render program status page
         if: steps.resolve.outputs.mode == 'assemble'
         run: |
@@ -189,7 +227,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Pages artifact tar (Actions source only)
-        if: steps.pages.outputs.build_type == 'workflow'
+        if: steps.pages.outputs.build_type == 'workflow' && steps.already_published.outputs.skip != 'true'
         run: |
           # upload-pages-artifact's tar excludes top-level dot-paths
           # (--exclude=".[^/]*"), which drops .well-known/security.txt
@@ -216,7 +254,7 @@ jobs:
           fi
 
       - name: Upload Pages artifact (Actions source only)
-        if: steps.pages.outputs.build_type == 'workflow'
+        if: steps.pages.outputs.build_type == 'workflow' && steps.already_published.outputs.skip != 'true'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: github-pages
@@ -225,12 +263,12 @@ jobs:
           if-no-files-found: error
 
       - name: Deploy to GitHub Pages (Actions source only)
-        if: steps.pages.outputs.build_type == 'workflow'
+        if: steps.pages.outputs.build_type == 'workflow' && steps.already_published.outputs.skip != 'true'
         id: deployment
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e
 
       - name: Generate purge URL list (post-flip only)
-        if: steps.pages.outputs.build_type == 'workflow'
+        if: steps.pages.outputs.build_type == 'workflow' && steps.already_published.outputs.skip != 'true'
         run: |
           CNAME="$(gh api repos/${{ github.repository }}/pages --jq .cname 2>/dev/null || echo shirjankhadka.com.np)"
           python3 - "$CNAME" <<'PYEOF'
@@ -275,14 +313,14 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Purge changed URLs (post-flip only)
-        if: steps.pages.outputs.build_type == 'workflow'
+        if: steps.pages.outputs.build_type == 'workflow' && steps.already_published.outputs.skip != 'true'
         run: python3 main-tree/tools/publish-purge.py purge-urls.txt
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
 
       - name: Verify production bytes (post-flip only)
-        if: steps.pages.outputs.build_type == 'workflow'
+        if: steps.pages.outputs.build_type == 'workflow' && steps.already_published.outputs.skip != 'true'
         id: verify_live
         run: |
           python3 main-tree/tools/publish-verify.py --mode live \
@@ -307,7 +345,10 @@ jobs:
       - name: Record outcome + summary
         id: outcome
         run: |
-          if [ "${{ steps.pages.outputs.build_type }}" = "workflow" ]; then
+          if [ "${{ steps.already_published.outputs.skip }}" = "true" ]; then
+            echo "deployed=false" >> "$GITHUB_OUTPUT"
+            echo "verified=false" >> "$GITHUB_OUTPUT"
+          elif [ "${{ steps.pages.outputs.build_type }}" = "workflow" ]; then
             echo "deployed=true" >> "$GITHUB_OUTPUT"
             echo "verified=true" >> "$GITHUB_OUTPUT"
           else
@@ -319,7 +360,9 @@ jobs:
             echo ""
             echo "- Snapshot: \`${{ steps.effective.outputs.snapshot_sha }}\`"
             echo "- Pages build_type: \`${{ steps.pages.outputs.build_type }}\`"
-            if [ "${{ steps.pages.outputs.build_type }}" != "workflow" ]; then
+            if [ "${{ steps.already_published.outputs.skip }}" = "true" ]; then
+              echo "- Deploy: SKIPPED (snapshot already published — redundant dispatch, no-op success)"
+            elif [ "${{ steps.pages.outputs.build_type }}" != "workflow" ]; then
               echo "- Deploy: SKIPPED (build_type is not 'workflow'; owner Pages flip pending — artifact proven, live proof pending)"
             else
               echo "- Deploy: Pages artifact deployed, URLs purged, production bytes verified"
