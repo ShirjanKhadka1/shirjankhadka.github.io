@@ -152,7 +152,9 @@ function page(sys, data) {
   const tagline = data.tagline;
   const pageUrl = 'https://shirjankhadka.com.np/nepse-signals/' + sys + '/';
   const metaDesc = title + ': transparent rule-based NEPSE trading system. Backtested over ' + backtestYears(st) + ' years — ' + fmt(st.annual_return_pct) + '% annual return, ' + fmt(st.win_rate_pct) + '% win rate. Educational only.';
-  const genDate = new Date().toISOString().slice(0, 10);
+  // 2026-11-02 rebase: footer date is the DATA date, not the build date, so a rebuild
+  // must not make Oct-30 data look Nov-02 fresh. Falls back to today only if the data file has no generated_at.
+  const genDate = data.generated_at ? data.generated_at.slice(0, 10) : new Date().toISOString().slice(0, 10);
   const tabs = SLUGS.map(s => {
     const d = JSON.parse(fs.readFileSync(path.join(DATA, s + '.json'), 'utf8'));
     const nm = d.title.replace(/ Signal$/, '');
@@ -201,6 +203,36 @@ function page(sys, data) {
         ? 'ledger holds the newest ' + tc.closed_in_ledger + ' of ' + tc.closed_total + ' finished trades'
         : 'all ' + tc.closed_total + ' finished trades shown')
     : 'finished trades shown';
+
+
+  // 2026-11-02 rebased momentum (from wt-signal-momentum-b1, transplanted, not wholesale-copied):
+  // era split, SMA200 regime layer, Donchian standalone highlight, F2 SHADOW view.
+  // Headline stats below use main's st.* values (Oct-30 data), NOT the Oct-02 b1 numbers.
+  // Main's Live forward record (JS + noscript baker, n=19) is NOT replaced by the
+  // stale Oct-08 live-track table from b1; that table is deliberately omitted here.
+  let momentumSections = '';
+  if (sys === 'momentum') {
+    const era = JSON.parse(fs.readFileSync(path.join(DATA, 'momentum-era-shadow.json'), 'utf8'));
+    const eraRows = era.replay_era_splits.map(r =>
+      `<tr><td>${r.era}</td><td class="num">${r.n}</td><td class="num"><strong>${pct(r.success_pct)}</strong></td></tr>`).join('');
+    momentumSections = `
+<div class="note" style="border-color:var(--down)"><strong>Buy-call labels hidden — gate NOT cleared.</strong> No buy-call label is shown on this page. Open positions are shown as system state / Entry, not as calls. The forward-ledger gate requires positive expectancy with n &ge; 30 out-of-sample decided trades. It is not cleared: main's Live forward record above has n=19 decided (below 30), and the learning-loop OOS resolved count is 18. Relative-strength rank is not in momentum.json, so no rank is fabricated — system state is shown instead.</div>
+
+<h2 style="font-family:var(--serif);margin-top:28px">Regime first — SMA200 layer</h2>
+<div class="rules"><p><strong>Rule:</strong> read an open position as trend-aligned only if price is above a <strong>rising SMA200</strong>. Momentum's own setup already requires close above SMA50 and SMA20 above SMA50. <strong>Limitation, stated plainly:</strong> momentum.json does not carry SMA200 distance per alert, so this page does <em>not</em> claim each alert below passes SMA200. Check the chart for SMA200 before treating any open position as trend-aligned. Per-alert SMA200 status is future builder work, not invented here.</p></div>
+
+<h2 style="font-family:var(--serif);margin-top:28px">Era split — do not quote the headline alone</h2>
+<p style="color:var(--muted);font-size:.9rem">${era.replay_frame} ${era.replay_note}</p>
+<div class="scrollx"><table class="sig-table"><thead><tr><th>Replay era</th><th class="num">Trades (n)</th><th class="num">Success rate</th></tr></thead><tbody>${eraRows}</tbody></table></div>
+<p style="color:var(--muted);font-size:.9rem"><strong>The failure in the open:</strong> replay success fell from 37.9% in-sample and 36.4% in validation to <strong>14.0% out-of-sample (n=129)</strong>. That is a regime failure, not a coding bug. The backtest headline above (profit factor ${fmt(st.profit_factor)}, ${pct(st.win_rate_pct)} win, ${pct(st.total_return_pct)} total over ${st.backtest_from} to ${st.backtest_to}) must always be read beside this split.</p>
+
+<h2 style="font-family:var(--serif);margin-top:28px">Strongest single entry signal — Donchian breakout</h2>
+<div class="rules"><p><strong>Donchian 20-day breakout (standalone, not the momentum rule):</strong> +5.57% average 20-day return, 56.9% win, n=2567, vs +2.05% / 49.0% baseline (Sept-24 single-scrip study, pooled across 15 scrips). Momentum itself uses a <strong>Donchian-50 breakout + trend filter</strong> — the two are different and are not conflated here.</p></div>
+
+<h2 style="font-family:var(--serif);margin-top:28px">SHADOW filtered view — F2 T2-supply skip (NOT LIVE)</h2>
+<div class="note"><strong>SHADOW — NOT LIVE. Do not use these as the live stats.</strong> ${era.shadow_f2_t2_supply.rule} Learning-loop verdict: ${era.shadow_f2_t2_supply.verdict} Gate-evaluated n=${era.shadow_f2_t2_supply.gate_evaluation_n}: skipped ${era.shadow_f2_t2_supply.skipped}, kept ${era.shadow_f2_t2_supply.kept}. OOS mean gain on the kept subset: +${era.shadow_f2_t2_supply.oos_mean_gain_pp_on_kept}pp vs the unfiltered replay. No filtered profit factor or CAGR is claimed — only that mean-PnL gain. Portfolio simulation is still required before any live stat changes.</div>
+<p style="color:var(--muted);font-size:.9rem">Forward paper: see the <strong>Live forward record</strong> above (main, n=19 decided, data through 2026-10-30). The Oct-08 live-track figures in momentum-era-shadow.json are superseded and are not repeated here as current.</p>`;
+  }
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -253,6 +285,8 @@ ${bannerHtml ? bannerHtml + '\n' : ''}
 </section>
 <p class="sig-sub">The headline numbers below are the <strong>backtest</strong> — a historical simulation (${st.backtest_from} &rarr; ${st.backtest_to}), not live results. What these same rules have produced on real sessions is in the <strong>Live forward record</strong> directly underneath.</p>
 <div class="sig-grid">${cards}</div>
+
+${momentumSections}
 
 <section id="sector-block" hidden>
 <h2>Stocks by sector</h2>
@@ -686,7 +720,10 @@ ${profileRows}</table></div>
 </html>`;
 }
 
-for (const sys of SLUGS) {
+const onlyArg = process.argv.find(a => a.startsWith('--system='));
+const onlySys = onlyArg ? onlyArg.slice('--system='.length) : null;
+if (onlySys && !SLUGS.includes(onlySys)) { console.error('unknown --system=' + onlySys + ' (expected one of: ' + SLUGS.join(', ') + ')'); process.exit(2); }
+for (const sys of (onlySys ? [onlySys] : SLUGS)) {
   const data = JSON.parse(fs.readFileSync(path.join(DATA, sys + '.json'), 'utf8'));
   const out = path.join(OUT, sys, 'index.html');
   fs.mkdirSync(path.dirname(out), { recursive: true });

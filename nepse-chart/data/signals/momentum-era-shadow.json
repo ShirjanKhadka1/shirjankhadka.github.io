@@ -1,0 +1,101 @@
+{
+  "backtest_headline_source": "nepse-chart/data/signals/momentum.json, generated 2026-10-02T11:01:16.310Z, window 2024-09-01 to 2026-09-29, 315 symbols, 767 trades, profit factor 2.07, win rate 33.51%, total return 361.72%, annual return 109.00%, max drawdown 15.69%, charges 0.5% round-trip. [REBASE NOTE: superseded on main by 2026-10-30 data above; do not use these Oct-02 headline numbers on the main page.]",
+  "donchian_standalone": {
+    "avg_20d_return_pct": 5.57,
+    "baseline_avg_20d_return_pct": 2.05,
+    "baseline_win_pct": 49.0,
+    "n": 2567,
+    "note": "This is the standalone Donchian-20 signal, NOT the momentum system's Donchian-50 breakout + trend filter. The two are different and are not conflated on the page.",
+    "signal": "Donchian 20-day breakout",
+    "source": "Sept-24 single-scrip study, pooled across 15 scrips, 20-day horizon",
+    "win_pct": 56.9
+  },
+  "forward_gate": {
+    "cleared": false,
+    "reason": "Learning-loop OOS resolved is 18 (< 30) and live-track closed is 3 (< 30), and replay OOS success collapsed to 14.0%. Gate NOT cleared.",
+    "rule": "Buy / Strong Buy labels stay hidden until the forward ledger shows positive expectancy with n >= 30 out-of-sample decided trades."
+  },
+  "forward_paper_learning_loop": {
+    "note": "Separate from the backtest and from the Oct-08 live-track file below. Small n; do not cherry-pick it over the replay OOS collapse.",
+    "oos_n": 18,
+    "oos_success_pct": 66.7,
+    "resolved": 18,
+    "source": "Learning loop, Oct-23, signals/momentum/live_paper",
+    "success_pct": 66.7,
+    "total_signals": 22
+  },
+  "forward_paper_live_track_2026_10_08": {
+    "closed": [
+      {
+        "pnl_pct": 6.23,
+        "symbol": "SMHL"
+      },
+      {
+        "pnl_pct": 6.92,
+        "symbol": "TAMOR"
+      },
+      {
+        "pnl_pct": 4.2,
+        "symbol": "HDL"
+      }
+    ],
+    "closed_trades": 3,
+    "closed_win_rate_pct": 100.0,
+    "note": "n=3 closed is too small to judge anything. The file's profit_factor is 0 because there are no losses yet \u2014 that is an artefact, not a result, and is not shown as a PF.",
+    "open_positions": 6,
+    "open_symbols": [
+      "SLBBL",
+      "GHL",
+      "CHDC",
+      "ALBSL",
+      "SHIVM",
+      "MEN"
+    ],
+    "source": "nepse-chart/data/signals/live-track-record.json as found untracked in the wave8 working tree, updated 2026-10-08T21:29:37+05:45. This file is NOT in the HEAD commit, so it is cited here, not silently baked as HEAD data."
+  },
+  "note": "Preparation only. Not deployed. Era and shadow figures are from the learning loop (Oct-22/23), not from momentum.json, and use a different frame from the backtest headline. Do not blend them into the headline PF.",
+  "rebase_note_2026_11_02": "Rebased onto main 5e72d46ea (2026-11-02). Main momentum.json is 2026-10-30, asof 2026-10-30, 766 trades, PF 2.11, win 33.16%, total 389.59%, annual 108.61% \u2014 NOT the Oct-02 figures in backtest_headline_source below, which are retained for provenance of the b1 preparation only. Era/shadow figures are learning-loop replay (independent frame) and are unchanged. The Oct-08 live-track figures below are superseded by main's baked Live forward record: n=19 decided, win 63.16% (95% CI 41.0-80.9%), PF 2.37, open 3 (PHCL, GIBF1, SLBBL), data through 2026-10-30 \u2014 still below the n>=30 gate, so the gate remains NOT cleared.",
+  "relative_strength_rank": {
+    "limitation": "momentum.json carries no relative-strength rank per alert, so no rank is fabricated. The page shows System state (Open position, with stop / trail / targets / unrealized) instead, per the plan's 'rank OR system state' wording."
+  },
+  "replay_era_splits": [
+    {
+      "era": "In-sample (IS, < 2024-01-01)",
+      "n": 261,
+      "success_pct": 37.9
+    },
+    {
+      "era": "Validation (VAL, 2024-01-01 to 2025-06-30)",
+      "n": 110,
+      "success_pct": 36.4
+    },
+    {
+      "era": "Out-of-sample (OOS, >= 2025-07-01)",
+      "n": 129,
+      "success_pct": 14.0
+    },
+    {
+      "era": "All replay (capped list)",
+      "n": 500,
+      "success_pct": 31.4
+    }
+  ],
+  "replay_frame": "Learning-loop replay trades: signals at close, entry at next open, frame +4xATR target / -2xATR stop / 20-session timeout, same-session double touch = loss, full NEPSE costs. Success = target hit before stop within 20 sessions. This is NOT the backtest PF frame.",
+  "replay_note": "Momentum.json trade_counts.closed_in_ledger is 500, matching the capped replay list. The full backtest closed_total on main is 766 (b1 preparation said 767 on Oct-02 data). The era table covers the capped 500, not all 766.",
+  "shadow_f2_t2_supply": {
+    "gate_evaluation_n": 497,
+    "kept": 309,
+    "oos_mean_gain_pp_on_kept": 1.28,
+    "rule": "Skip a momentum entry taken within 2 sessions after a T+2 supply event (markup/volume-spike day).",
+    "skipped": 188,
+    "source": "hidden_files/py-harness/learning/LESSONS.md, F2_t2_recent on momentum",
+    "status": "SHADOW \u2014 NOT LIVE",
+    "verdict": "PASS in the learning loop (OOS improves, no era degradation, n adequate). Shadow only: portfolio simulation is still required before any live stat changes. No filtered PF or CAGR is claimed \u2014 only the mean-PnL gain on the kept subset."
+  },
+  "sma200_regime": {
+    "limitation": "momentum.json does not carry SMA200 distance per alert, so this page does NOT claim each current alert passes SMA200. Per-alert SMA200 status is future builder work, not invented here.",
+    "rule": "Read an open position as trend-aligned only if price is above a rising SMA200. Momentum's own setup already requires close above SMA50 and SMA20 above SMA50."
+  },
+  "system": "momentum",
+  "window_correction": "The previous momentum page described a 2003-2026, 23-year backtest (5.51% annual, 32.65% win). That framing does NOT match the current momentum.json window above. This build uses momentum.json as the source of truth and states its 2024-2026 window explicitly; the 23-year framing is not carried forward."
+}
