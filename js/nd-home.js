@@ -52,6 +52,13 @@
     return String(s == null ? '' : s).replace(/&/g, '&amp;')
       .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
+  // Stock-page slug: symbols with '/' (debentures GBILD86/87, NIFRAUR85/86)
+  // live under the dash slug (stocks/GBILD86-87/) — the raw symbol in an
+  // href 404s and fails the CI link check on any baked list that ranks one.
+  // Same rule as slugOf in tools/build-symbol-pages.js.
+  function slugSym(s) {
+    return String(s == null ? '' : s).replace(/\//g, '-');
+  }
   // True trading session date: derived from market-data timestamps, NOT the fetch time.
   // live.asof / data_asof are when the pipeline fetched (a refresh can land on a weekend);
   // the session is when the market actually traded.
@@ -486,7 +493,7 @@
         '<button class="on" data-tf="1D">1D</button><button data-tf="1W">1W</button>' +
         '<button data-tf="1M">1M</button><button data-tf="3M">3M</button><button data-tf="1Y">1Y</button>' +
       '</div>' +
-      '<div class="nd-ixsearch"><input type="text" id="ndIxSearch" placeholder="Search any symbol, e.g. NABIL" aria-label="Search symbol"><button onclick="var v=document.getElementById(\'ndIxSearch\').value.trim().toUpperCase();if(v)location.href=\'/stocks/\'+encodeURIComponent(v)+\'/\'">Search</button></div>' +
+      '<div class="nd-ixsearch"><input type="text" id="ndIxSearch" placeholder="Search any symbol, e.g. NABIL" aria-label="Search symbol"><button onclick="var v=document.getElementById(\'ndIxSearch\').value.trim().toUpperCase().replace(/\//g, \'-\');if(v)location.href=\'/stocks/\'+encodeURIComponent(v)+\'/\'">Search</button></div>' +
       '<div class="nd-ixfoot"><span class="nd-badge amber">CLOSING FIGURES</span>' +
       '<span class="note">Quotes are delayed during trading hours; figures shown are the last close when the market is shut.</span></div>';
     // Tab switching filters sparkline range
@@ -523,7 +530,7 @@
       var pct = Number(q.percent_change);
       var arrow = isUp ? '▲' : '▼';
       var w = maxAbs > 0 ? Math.max(4, Math.round(Math.abs(pct) / maxAbs * 100)) : 0;
-      return '<a class="cx-rank-row" href="/stocks/' + esc(q.symbol) + '/">' +
+      return '<a class="cx-rank-row" href="/stocks/' + esc(slugSym(q.symbol)) + '/">' +
         '<span class="cx-rank-n">' + (i + 1) + '</span>' +
         '<span class="cx-rank-sym">' + esc(q.symbol) +
         '<span class="cx-rank-sub">Rs ' + fmtNum(q.ltp) + ' · ' + fmtCrore(q.turnover) + '</span></span>' +
@@ -568,7 +575,7 @@
       var cls = pct > 0 ? 'up' : pct < 0 ? 'down' : 'flat';
       var topV = Number(top[0] ? (metric === 'turnover' ? top[0].turnover : metric === 'volume' ? top[0].volume : top[0].trades) : 0);
       var share = topV > 0 ? Math.max(3, Math.round(Number(v) / topV * 100)) : 0;
-      return '<tr><td class="sym"><a href="/stocks/' + esc(q.symbol) + '/">' + esc(q.symbol) + '</a></td>' +
+      return '<tr><td class="sym"><a href="/stocks/' + esc(slugSym(q.symbol)) + '/">' + esc(q.symbol) + '</a></td>' +
         '<td class="num">' + vTxt + '</td>' +
         '<td><span class="cx-prop"><span class="cx-prop-track"><span class="cx-prop-fill" style="--w:' + share + '%"></span></span></span></td>' +
         '<td class="num"><span class="cx-chip ' + cls + '">' + (pct > 0 ? '+' : '') + pct.toFixed(2) + '%</span></td>' +
@@ -631,7 +638,7 @@
         var pct = Number(q.percent_change) || 0;
         var cls = pct > 0 ? 'up' : pct < 0 ? 'dn' : '';
         var share = pulseTop > 0 ? Math.max(3, Math.round(Number(q.turnover) / pulseTop * 100)) : 0;
-        return '<a class="nd-pulse-item cx-pulse-item" href="/stocks/' + esc(q.symbol) + '/">' +
+        return '<a class="nd-pulse-item cx-pulse-item" href="/stocks/' + esc(slugSym(q.symbol)) + '/">' +
           '<span class="rank">' + (i + 1) + '</span>' +
           '<div class="info"><div class="sym">' + esc(q.symbol) + '</div>' +
           '<div class="meta">Rs ' + fmtNum(q.ltp) + ' · <span class="' + cls + '">' +
@@ -892,7 +899,7 @@
         var vCls = /buy/i.test(r.verdict) ? 'buy' : /exit|sell/i.test(r.verdict) ? 'exit' : 'hold';
         var vCell = (/buy/i.test(r.verdict) && !gateOpen) ? '<td>—</td>' :
           '<td><span class="nd-verdict ' + vCls + '">' + esc(r.verdict || '—') + '</span></td>';
-        return '<tr><td class="sym"><a href="/stocks/' + esc(r.symbol) + '/">' + esc(r.symbol) + '</a>' + (r.name ? '<span class="nd-row-name">' + esc(r.name) + '</span>' : '') + '</td>' +
+        return '<tr><td class="sym"><a href="/stocks/' + esc(slugSym(r.symbol)) + '/">' + esc(r.symbol) + '</a>' + (r.name ? '<span class="nd-row-name">' + esc(r.name) + '</span>' : '') + '</td>' +
           '<td class="num">' + (r.ltp != null ? fmtNum(r.ltp) : '—') + (r.traded ? ' <span class="nd-live-dot" title="Live tape">●</span>' : ' <span class="nd-notrade">no trade</span>') + '</td>' +
           '<td class="num"><span class="cx-chip ' + pctCls + '">' + pctTxt + '</span></td>' +
           '<td class="num">' + (r.traded ? fmtCrore(r.turnover) : '—') + '</td>' +
