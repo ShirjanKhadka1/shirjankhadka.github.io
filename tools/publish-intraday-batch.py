@@ -5,12 +5,12 @@ PROBLEM: per-tick PRs cannot keep up with the ~20-minute required gate
 (quality alone is 15-16 min), and the live-quotes workflow's own timeout is
 15 min. Per-tick PRs would pile up and land late/out of order.
 
-MODEL (30-minute batched windows, full gate preserved):
+MODEL (15-minute batched windows, full gate preserved):
 - Tick collectors (nepse-live-quotes.yml) write every fresh snapshot to the
   UNPROTECTED branch `intraday-staging` (fast-forward only, never
   force-push). Staging pushes are not gated by main's protection, so
   collection never blocks on CI.
-- This publisher runs every 30 min (goal cron `intraday-batched-publisher`).
+- This publisher runs every 15 min (goal cron `intraday-batched-publisher`).
   Each run takes the LATEST staged state (ticks inside a window collapse to
   the newest value; intraday files are full snapshots, so nothing is lost)
   and moves it to main through ONE PR under the FULL existing gate.
@@ -34,6 +34,42 @@ FRESHNESS GUARDS (normal mode; ALL must pass or the run SKIP, exit 0):
   a broken pull, not a publishable snapshot).
 - staged bytes differ from main bytes (else there is nothing to publish).
 
+CLOSE MODE (fallback close publisher — fixes the CLOSED-stage silent skip):
+- When the OPEN guards fail AND close_check passes, the run publishes in
+  CLOSE mode: same branch/PR/poll flow, but the PR is marked CLOSE
+  (provisional — a staged fetcher read, NOT the floorsheet-validated
+  close; the validated close supersedes it).
+- close_check requires: staged market == "CLOSED", staged session_date ==
+  today AND staged asof date == today (a stale tape can never pass as
+  fresh), staged asof strictly newer than main, not >10 min in the
+  future, quotes >= 150 — AND main must NOT already hold today's close
+  (market CLOSED + session_date == today). The last guard is essential:
+  a staged close's fetch-time asof runs LATER than a validated close's
+  session-time asof, so asof comparison alone would let a provisional
+  read overwrite a validated close.
+- RACE (documented): publisher CLOSE PR vs close-capture validated PR —
+  whoever merges first wins; the publisher's merge-time re-check blocks
+  equal/older asofs, and main_holds_todays_close blocks a provisional
+  merge over a validated close. A validated close-capture PR can merge
+  AFTER a provisional one and overwrite it (desired supersede).
+- KNOWN RESIDUAL (documented, not silently fixed): close-capture's no-op
+  (close:true + today -> no-op) means automated close-capture will no-op
+  after a provisional close merges; a same-evening supersede then needs
+  a worker-driven floorsheet correction (which bypasses capture-close.js)
+  or the next session.
+
+CLOSE-HANDOFF (OPEN PRs pending at 15:00 close unmerged, never merge
+post-bell — enforced at all three merge points):
+- main() pre-pass: close_open_prs_post_bell closes any open publisher PR
+  whose OWN live.json is OPEN when now >= 15:00 NPT (content-based, so a
+  CLOSE-mode run never inherits an OPEN PR).
+- handle_open_pr green branch + fresh-PR poll-loop green branch: an
+  OPEN-content PR greening post-bell is closed unmerged, never merged.
+- CLOSE merge guard: a CLOSE PR is never merged before 15:40 NPT
+  (close-capture owns 15:25-15:40: 15:25 run + 10-min retry). A green
+  CLOSE PR before 15:40 returns WAIT and stays open green; the 45-min
+  stale rule only closes PENDING PRs, so the wait is safe.
+
 PROOF MODE (--proof): bypasses the freshness guards (a fixture snapshot may
 be historical) but otherwise runs the identical path: staging read ->
 branch -> PR -> poll all 5 required checks -> REQUIRE green -> CLOSE
@@ -47,7 +83,7 @@ and green, and the next publisher run retries the merge. Never merge on
 red checks, never bypass, never force-push, never push to main directly.
 
 POST-MERGE: verify authenticated main ref == merge commit and main tree ==
-PR head tree, purge the live.json URL from edge cache, then live-verify
+PR head tree, purge live.json AND every tape-rendering page URL (TAPE_PAGE_URLS) from edge cache, then live-verify
 the served live.json data_asof == staged data_asof (3 attempts, 60 s apart
 for edge propagation).
 
@@ -100,6 +136,31 @@ PURGE_HELPER = os.path.expanduser(
     "~/workspace/custom-connectors/custom.cloudflare/bin/cloudflare-purge-url.py"
 )
 
+# Tape-rendering pages whose edge HTML copy must be purged when live.json
+# moves. These pages render live.json values via JS; their HTML edge copy
+# can otherwise lag the tape by the HTML TTL even after the JSON is fresh.
+# Purging HTML whose origin did not change is a content no-op, so this is
+# belt-and-braces for the edge-HTML/pin edge case; the load-bearing purge
+# remains the JSON purge. Stock pages are excluded deliberately: 431
+# one-by-one purges per run is infeasible, and their live line is a JSON
+# fetch with a short TTL, so no HTML purge is needed there.
+TAPE_PAGE_URLS = [
+    "https://shirjankhadka.com.np/nepse-decode/",
+    "https://shirjankhadka.com.np/nepse-decode/index.html",
+    "https://shirjankhadka.com.np/nepse-daily/",
+    "https://shirjankhadka.com.np/nepse-daily/index.html",
+    "https://shirjankhadka.com.np/nepse-sectors/",
+    "https://shirjankhadka.com.np/nepse-sectors/index.html",
+]
+# Close-handoff: a CLOSE-mode PR is never merged before 15:40 NPT, so the
+# 15:25 close-capture (plus its 10-min retry) owns the close window first.
+CLOSE_MERGE_AFTER = (15, 40)
+# Close-handoff: an OPEN-content PR still pending at 15:00 NPT is closed
+# unmerged, never merged post-bell. Post-bell, only the close publishes.
+OPEN_PR_BELL = (15, 0)
+
+
+
 
 def log(msg):
     print(f"[intraday-publish] {msg}", flush=True)
@@ -147,6 +208,92 @@ def parse_snapshot(raw):
         asof = asof.replace(tzinfo=timezone.utc)
     quotes = d.get("quotes") or []
     return asof, d.get("market"), len(quotes)
+
+
+def parse_tape(raw):
+    """Parse a live.json snapshot into a dict (asof, market, session_date,
+    n_quotes, close) or raise ValueError. session_date falls back to the
+    asof NPT date when the field is missing (old snapshots)."""
+    d = json.loads(raw.decode())
+    asof = datetime.fromisoformat(d["asof"].replace("Z", "+00:00"))
+    if asof.tzinfo is None:
+        asof = asof.replace(tzinfo=timezone.utc)
+    sess = d.get("session_date") or asof.astimezone(NPT).date().isoformat()
+    quotes = d.get("quotes") or []
+    return {"asof": asof, "market": d.get("market"), "session_date": sess,
+            "n_quotes": len(quotes), "close": d.get("close")}
+
+
+def main_holds_todays_close(main_raw):
+    """True iff main already carries TODAY's close (market CLOSED with
+    session_date == today NPT). A publisher CLOSE publish must never
+    overwrite it: the validated close wins, and a later staged fetch-time
+    asof must not outrank it (fetch-time asofs run later than the session
+    close-time asof a validated close carries)."""
+    try:
+        m = parse_tape(main_raw)
+    except Exception:
+        return False
+    return m["market"] == "CLOSED" and m["session_date"] == npt_now().date().isoformat()
+
+
+def close_check(staged_raw, main_raw):
+    """Return None if the staged snapshot qualifies as a CLOSE publish,
+    else a SKIP reason string. CLOSE mode is the FALLBACK close publisher:
+    it fires only when close-capture has not landed a validated close.
+    It NEVER publishes a stale tape as fresh: session_date AND asof date
+    must both be today, and main must not already hold today's close."""
+    if staged_raw == main_raw:
+        return "staged bytes equal main bytes (nothing to publish)"
+    try:
+        s = parse_tape(staged_raw)
+    except Exception as e:
+        return f"staged live.json unparsable ({e})"
+    now = npt_now()
+    today = now.date().isoformat()
+    if s["market"] != "CLOSED":
+        return f"staged market is {s['market']!r}, not CLOSED (not a closing snapshot)"
+    if s["session_date"] != today:
+        return f"staged session_date {s['session_date']} != today {today}"
+    if s["asof"].astimezone(NPT).date().isoformat() != today:
+        return f"staged asof date {s['asof'].astimezone(NPT).date()} != today {today}"
+    if main_holds_todays_close(main_raw):
+        return "main already holds today's close (validated close wins; not overwriting)"
+    try:
+        m_asof, _, _ = parse_snapshot(main_raw)
+    except Exception:
+        m_asof = datetime(1970, 1, 1, tzinfo=timezone.utc)
+    if s["asof"] <= m_asof:
+        return f"staged asof {s['asof'].isoformat()} not newer than main {m_asof.isoformat()}"
+    if s["asof"] > datetime.now(timezone.utc) + timedelta(minutes=10):
+        return "staged asof more than 10 min in the future (clock sanity)"
+    if s["n_quotes"] < MIN_QUOTES:
+        return f"staged quotes {s['n_quotes']} < floor {MIN_QUOTES}"
+    return None
+
+
+def close_open_prs_post_bell(open_prs):
+    """Close-handoff pre-pass (content-based): at/after 15:00 NPT, any open
+    publisher PR whose OWN live.json is an OPEN snapshot is closed
+    unmerged, never merged post-bell. CLOSE-content PRs stand. Before
+    15:00 the list is returned untouched. Returns the PRs left standing."""
+    now = npt_now()
+    if (now.hour, now.minute) < OPEN_PR_BELL:
+        return open_prs
+    standing = []
+    for pr in open_prs:
+        market = None
+        try:
+            live = get_branch_file(pr["head"]["sha"], LIVE_PATH)
+            market = parse_tape(live)["market"] if live is not None else None
+        except Exception:
+            market = None
+        if market == "OPEN":
+            log(f"close-handoff: PR #{pr['number']} carries an OPEN snapshot post-bell; closing unmerged")
+            close_pr(pr)
+        else:
+            standing.append(pr)
+    return standing
 
 
 def freshness_check(staged_raw, main_raw):
@@ -338,7 +485,7 @@ def build_and_push_branch(worktree, branch_prefix, live_bytes):
     raise RuntimeError("parallel pusher failed twice; aborting (main may be moving fast)")
 
 
-def open_pr(branch, asof_npt, draft=False):
+def open_pr(branch, asof_npt, draft=False, mode="OPEN"):
     body = (
         "Batched intraday publish: latest staged live snapshot "
         f"(asof {asof_npt} NPT, PROVISIONAL) through the full required gate. "
@@ -346,6 +493,14 @@ def open_pr(branch, asof_npt, draft=False):
         "are full snapshots. Closing snapshots are NOT published by this job "
         "(close-capture owns the validated close)."
     )
+    if mode == "CLOSE":
+        body = (
+            "CLOSE (provisional): latest staged CLOSED snapshot "
+            f"(asof {asof_npt} NPT) through the full required gate. This is "
+            "a staged fetcher read, NOT the floorsheet-validated close; the "
+            "validated close supersedes it when it lands. Fires only because "
+            "close-capture has not landed today's validated close yet."
+        )
     if draft:
         body = ("[PROOF RUN — DO NOT MERGE] Mechanics proof only; this PR is "
                 "opened as a draft and will be closed unmerged by the proof "
@@ -355,7 +510,8 @@ def open_pr(branch, asof_npt, draft=False):
         f"/repos/{REPO}/pulls",
         {
             "title": ("[PROOF — DO NOT MERGE] " if draft else "")
-            + f"Intraday: live snapshot {asof_npt} (batched publish)",
+            + (f"Close: live snapshot {asof_npt} (provisional close, batched publish)"
+               if mode == "CLOSE" else f"Intraday: live snapshot {asof_npt} (batched publish)"),
             "head": branch,
             "base": "main",
             "body": body,
@@ -373,12 +529,16 @@ def verify_pr_files(pr_number):
 
 
 def purge_and_live_verify(staged_raw):
-    proc = subprocess.run(
-        [sys.executable, PURGE_HELPER, LIVE_URL],
-        capture_output=True,
-        text=True,
-    )
-    log(f"purge exit {proc.returncode}: {proc.stdout.strip()[-200:]}")
+    # live.json first (load-bearing), then every tape-rendering page
+    # (belt-and-braces for the edge-HTML/pin edge case). Purge failure
+    # stays non-gating, logged only.
+    for url in [LIVE_URL] + TAPE_PAGE_URLS:
+        proc = subprocess.run(
+            [sys.executable, PURGE_HELPER, url],
+            capture_output=True,
+            text=True,
+        )
+        log(f"purge {url} exit {proc.returncode}: {proc.stdout.strip()[-200:]}")
     want_asof, _, _ = parse_snapshot(staged_raw)
     for i in (1, 2, 3):
         try:
@@ -397,7 +557,7 @@ def purge_and_live_verify(staged_raw):
     return False
 
 
-def handle_open_pr(pr, staged_raw, main_raw, proof, worktree):
+def handle_open_pr(pr, staged_raw, main_raw, proof, worktree, mode="OPEN"):
     """Deal with an already-open publisher PR. Returns a RESULT string or
     None if the caller should proceed to open a fresh PR."""
     head = pr["head"]["sha"]
@@ -440,6 +600,27 @@ def handle_open_pr(pr, staged_raw, main_raw, proof, worktree):
         except Exception as e:
             log(f"merge-time re-check failed ({e}); refusing merge")
             return "RESULT: FAIL merge-time freshness re-check error; PR left open"
+        # Close-handoff (content-based, mode-independent): an OPEN-content
+        # PR must never merge post-bell, whatever the run's mode.
+        try:
+            pr_market = parse_tape(pr_live2)["market"]
+        except Exception:
+            pr_market = None
+        if pr_market == "OPEN" and (npt_now().hour, npt_now().minute) >= OPEN_PR_BELL:
+            log(f"close-handoff: PR #{pr['number']} carries an OPEN snapshot post-bell; closing unmerged")
+            close_pr(pr)
+            return None
+        if mode == "CLOSE":
+            # Merge-time close re-check: a validated close on main wins
+            # over a provisional staged close even when the staged
+            # fetch-time asof is later (see close_check).
+            if main_holds_todays_close(cur_main):
+                log("validated close already on main; provisional CLOSE PR closed unmerged")
+                close_pr(pr)
+                return None
+            if (npt_now().hour, npt_now().minute) < CLOSE_MERGE_AFTER:
+                log("CLOSE PR green before 15:40; waiting (close-capture owns 15:25-15:40)")
+                return "RESULT: WAIT CLOSE PR green, waiting for 15:40 close-handoff"
         merged = merge_pr(pr)
         if merged is None:
             return "RESULT: FAIL api merge 404/failed; PR left open green for next run"
@@ -478,17 +659,26 @@ def main():
         if main_raw is None:
             print("RESULT: FAIL main live.json unreadable")
             return 1
+        mode = "OPEN"
         if not args.proof:
             reason = freshness_check(staged_raw, main_raw)
             if reason:
-                print(f"RESULT: SKIP {reason}")
-                return 0
+                close_reason = close_check(staged_raw, main_raw)
+                if close_reason is None:
+                    mode = "CLOSE"
+                    log("mode=CLOSE: staged CLOSED snapshot qualifies as fallback close publish")
+                else:
+                    print(f"RESULT: SKIP {reason} (close check: {close_reason})")
+                    return 0
         elif staged_raw == main_raw:
             print("RESULT: FAIL proof needs staged != main (nothing to publish)")
             return 1
 
         # One-PR-in-flight: handle any open publisher PR first.
         open_prs = list_open_publisher_prs()
+        if not args.proof:
+            # Close-handoff pre-pass: never inherit an OPEN PR post-bell.
+            open_prs = close_open_prs_post_bell(open_prs)
         if args.proof and open_prs:
             # A proof run must prove ITS OWN fresh PR, never inherit or close
             # a real publisher PR that might be in flight.
@@ -498,7 +688,7 @@ def main():
             log(f"WARNING: {len(open_prs)} open publisher PRs; handling newest")
         if open_prs:
             newest = max(open_prs, key=lambda p: p["created_at"])
-            res = handle_open_pr(newest, staged_raw, main_raw, args.proof, worktree)
+            res = handle_open_pr(newest, staged_raw, main_raw, args.proof, worktree, mode=mode)
             if res is not None:
                 print(res)
                 return 0 if res.startswith(("RESULT: MERGED", "RESULT: WAIT", "RESULT: PROOF-PASS")) else 1
@@ -515,12 +705,19 @@ def main():
             if fresh_main is not None and staged_raw == fresh_main:
                 print("RESULT: SKIP staged == main on re-check (main moved first)")
                 return 0
+            if mode == "CLOSE":
+                # Main may have gained the validated close since the first
+                # read; never open a provisional CLOSE PR over it.
+                cur_main = get_branch_file("main", LIVE_PATH)
+                if cur_main is not None and main_holds_todays_close(cur_main):
+                    print("RESULT: SKIP validated close already on main; no provisional CLOSE PR")
+                    return 0
 
         # Open a fresh PR with exactly the staged bytes.
         branch, _, tree = build_and_push_branch(worktree, PUBLISH_PREFIX, staged_raw)
         s_asof, _, _ = parse_snapshot(staged_raw)
         pr = open_pr(branch, s_asof.astimezone(NPT).strftime("%Y-%m-%d %H:%M"),
-                     draft=args.proof)
+                     draft=args.proof, mode=mode)
         log(f"opened PR #{pr['number']} on {branch}")
         verify_pr_files(pr["number"])
 
@@ -563,6 +760,21 @@ def main():
                     log(f"merge-time freshness re-check failed ({e}); refusing merge")
                     print("RESULT: FAIL merge-time freshness re-check error; PR left open")
                     return 1
+                # Close-handoff (content-based): an OPEN snapshot must never
+                # merge post-bell.
+                if mode == "OPEN" and (npt_now().hour, npt_now().minute) >= OPEN_PR_BELL:
+                    close_pr(cur)
+                    print("RESULT: SKIP close-handoff: OPEN PR closed unmerged post-bell; next run handles the close")
+                    return 0
+                if mode == "CLOSE":
+                    cur_main2 = get_branch_file("main", LIVE_PATH)
+                    if cur_main2 is not None and main_holds_todays_close(cur_main2):
+                        close_pr(cur)
+                        print("RESULT: SKIP validated close already on main; provisional CLOSE PR closed unmerged")
+                        return 0
+                    if (npt_now().hour, npt_now().minute) < CLOSE_MERGE_AFTER:
+                        print("RESULT: WAIT CLOSE PR green, waiting for 15:40 close-handoff")
+                        return 0
                 merged = merge_pr(cur)
                 if merged is None:
                     print("RESULT: FAIL api merge failed; PR left open green for next run")
