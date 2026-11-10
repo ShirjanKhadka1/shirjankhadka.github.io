@@ -13,10 +13,20 @@
 # data branch never carries new workflow files (data writers only touch data
 # paths), so a push trigger would run a stale copy or nothing at all.
 # Schedule events run this file from the default branch (main), and the
-# checkout step pins ref: data, so the check always evaluates live data.
+# checkout step pins ref: main, so the check evaluates the SERVED data.
+# (2026-11-10 fix: the checkout used to pin ref: data, but the data
+# branch's daily-ohlc/history copies are unmaintained — last touched by
+# the Oct-30 REVIEW fix (41f5bc088); daily ends 20261030, history ends
+# 20261028, 727 files behind main as of Nov 10. The rows themselves are
+# maintained on main: daily via chart-daily-ohlc-backstop PRs (#453 added
+# the 20261106 rows for all 334 traded symbols) and history via the
+# simulator-history lane (#454). Checking the data branch therefore
+# failed 9 straight runs while the served data was already complete.
+# Nothing reads daily-ohlc/history from the data branch, so the stale
+# copies are left alone; do NOT "fix" this back to ref: data.)
 #
 # Scope note: "monthly row" here means the PUBLISHED monthly series
-# (history/ files on the data branch). The local monthly archive
+# (history/ files on main — the served copy). The local monthly archive
 # (~/workspace/nepse-data-archive/ohlc-YYYY-MM.json) is not in git, so CI
 # cannot check it directly; it is covered by the REVIEW check plus the
 # updater fixes (dual-format universe, loud failures, live-universe refresh).
@@ -30,6 +40,11 @@
 # has been broken since Oct 28, so many symbols lack Oct-29/30 history
 # rows). That lag is a separate lane to fix, not a reason to scope
 # history out of this check.
+# UPDATE 2026-11-10: both halves are now complete on main for session
+# 2026-11-06 (daily #453, history #454 — all 334 traded symbols have
+# both rows, verified locally against the main tree); the 9 straight
+# failures Nov 2–9 were the stale data-branch checkout, fixed by the
+# ref: main change above. Expect GREEN from the next scheduled run.
 name: Trade coverage
 
 on:
@@ -47,7 +62,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: data
+          ref: main
       - name: Check every traded symbol has a daily row and a history row
         run: |
           python3 - <<'EOF'
