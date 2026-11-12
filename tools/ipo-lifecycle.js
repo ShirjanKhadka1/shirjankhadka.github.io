@@ -7,8 +7,12 @@
  *   1. SEBON approval → status 'upcoming' (no dates yet)
  *   2. Local affected people phase → status 'local-open'
  *   3. Foreign employment phase → status 'foreign-open'
- *   4. General public phase → status 'open'
- *   5. Closing date passes → status 'closed'
+ *   4. General public phase → status 'Open'
+ *   5. Closing date passes → status 'Closed'
+ *
+ * The file's canonical display statuses are 'Open'/'Closed'
+ * (tools/ipo-status-update.js); phases 2–3 keep their lowercase
+ * '-open' form, which ipo-status-update.js treats as open-like.
  *
  * Sources (all official or openly permitted):
  *   - SEBON prospectus listings → upcoming (tools/ipo-sebon-watch.js)
@@ -213,13 +217,20 @@ async function main() {
     let changed = false;
     // Phase progression: upcoming → local-open → foreign-open → open.
     // Never regress a phase (e.g. don't move open back to local-open).
+    // Canonical display statuses are 'Open'/'Closed': normalize for
+    // ordering so a 'Closed' row is terminal (index 4) instead of
+    // unknown (-1, which let phase notices re-advance an already
+    // closed row — HPHL foreign, 2026-11-12), and write the display
+    // form back so the file keeps one vocabulary.
+    const DISPLAY = { open: 'Open', closed: 'Closed' };
+    const normStatus = (s) => (s === 'Closed' ? 'closed' : s === 'Open' ? 'open' : s);
     const order = ['upcoming', 'local-open', 'foreign-open', 'open', 'closed'];
-    const curIdx = order.indexOf(target.status);
+    const curIdx = order.indexOf(normStatus(target.status));
     const newIdx = order.indexOf(phase);
     if (newIdx > curIdx) {
-      target.status = phase;
+      target.status = DISPLAY[phase] || phase;
       changed = true;
-      console.log(`[ipo-lifecycle] ${target.symbol}: ${order[curIdx]} → ${phase}`);
+      console.log(`[ipo-lifecycle] ${target.symbol}: ${order[curIdx]} → ${target.status}`);
     }
     if (opening && !target.opening_date) { target.opening_date = opening; changed = true; }
     if (closing && !target.closing_date) { target.closing_date = closing; changed = true; }
@@ -228,15 +239,17 @@ async function main() {
     if (changed) updated++;
   }
 
-  // Date-driven transitions: any open phase → closed when closing_date passes.
+  // Date-driven transitions: any open phase → Closed when closing_date passes.
   for (const [cat, catData] of Object.entries(ipo.categories || {})) {
     for (const it of catData.items || []) {
-      if (['local-open', 'foreign-open', 'open'].includes(it.status) &&
+      // 'Open' is the display form of the 'open' phase (see above);
+      // both must get the close transition.
+      if (['local-open', 'foreign-open', 'open', 'Open'].includes(it.status) &&
           it.closing_date && it.closing_date < today) {
         const prev = it.status;
-        it.status = 'closed';
+        it.status = 'Closed';
         updated++;
-        console.log(`[ipo-lifecycle] ${it.symbol}: ${prev} → closed (past ${it.closing_date})`);
+        console.log(`[ipo-lifecycle] ${it.symbol}: ${prev} → Closed (past ${it.closing_date})`);
       }
     }
   }
