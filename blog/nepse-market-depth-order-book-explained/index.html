@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>try{var t=localStorage.getItem('sk-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <title>Why does my order fill at a different price? Reading NEPSE’s order book | Nepse Decode</title>
+  <meta name="description" content="The screen shows one price. Your order fills at another. The reason is the order book — the queue of waiting buy and sell orders behind every share on NEPSE. Here is how to read it: best bid, best ask, a Rs 4 spread, and why a 200-share market buy averages Rs 1,202.75.">
+  <meta name="author" content="Nepse Decode">
+  <link rel="canonical" href="https://shirjankhadka.com.np/blog/nepse-market-depth-order-book-explained/">
+  <meta name="theme-color" content="#FAF8F4">
+  <meta name="keywords" content="NEPSE order book, market depth Nepal, bid ask spread Nepal, NEPSE market depth, why order fills different price, price time priority NEPSE">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Nepse Decode">
+  <meta property="og:title" content="Why does my order fill at a different price? Reading NEPSE’s order book">
+  <meta property="og:description" content="The screen shows one price. Your order fills at another. The reason is the order book — the queue of waiting buy and sell orders behind every share on NEPSE. Here is how to read it: best bid, best ask, a Rs 4 spread, and why a 200-share market buy averages Rs 1,202.75.">
+  <meta property="og:url" content="https://shirjankhadka.com.np/blog/nepse-market-depth-order-book-explained/">
+  <meta property="og:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-market-depth-order-book-explained.jpg">
+  <meta property="og:image:width" content="1200"> <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="A stock exchange board showing rows of prices and quantities in red and green">
+  <meta property="article:published_time" content="2026-11-16T08:30:00+05:45">
+  <meta property="article:modified_time" content="2026-11-16T08:30:00+05:45">
+  <meta property="article:author" content="Nepse Decode">
+  <meta property="article:section" content="Education">
+  <meta property="article:tag" content="NEPSE">
+  <meta property="article:tag" content="Market Depth">
+  <meta property="article:tag" content="Education">
+  <meta property="article:tag" content="Market Basics">
+  <meta property="article:tag" content="November 2026">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Why does my order fill at a different price? Reading NEPSE’s order book">
+  <meta name="twitter:description" content="The screen shows one price. Your order fills at another. The reason is the order book — the queue of waiting buy and sell orders behind every share on NEPSE. Here is how to read it: best bid, best ask, a Rs 4 spread, and why a 200-share market buy averages Rs 1,202.75.">
+  <meta name="twitter:image" content="https://shirjankhadka.com.np/assets/images/blog/nepse-market-depth-order-book-explained.jpg">
+
+  <link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/nd-tokens.css?v=a4d9d211">
+  <link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="../../css/style.css?v=bd7aeedd">
+
+                                                                            <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "NewsArticle",
+  "headline": "Why does my order fill at a different price? Reading NEPSE’s order book",
+  "description": "The screen shows one price. Your order fills at another. The reason is the order book — the queue of waiting buy and sell orders behind every share on NEPSE. Here is how to read it: best bid, best ask, a Rs 4 spread, and why a 200-share market buy averages Rs 1,202.75.",
+  "image": {
+    "@type": "ImageObject",
+    "url": "https://shirjankhadka.com.np/assets/images/blog/nepse-market-depth-order-book-explained.jpg",
+    "width": 1200,
+    "height": 630
+  },
+  "author": {
+    "@type": "Organization",
+    "name": "Nepse Decode",
+    "url": "https://shirjankhadka.com.np/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Nepse Decode",
+    "url": "https://shirjankhadka.com.np/"
+  },
+  "datePublished": "2026-11-16T08:30:00+05:45",
+  "dateModified": "2026-11-16T08:30:00+05:45",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://shirjankhadka.com.np/blog/nepse-market-depth-order-book-explained/"
+  },
+  "articleSection": "Education",
+  "keywords": "NEPSE order book, market depth Nepal, bid ask spread Nepal, NEPSE market depth, why order fills different price, price time priority NEPSE",
+  "inLanguage": "en"
+}
+  </script>
+                                      <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is the bid-ask spread?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The gap between the best bid (the highest price a buyer will pay) and the best ask (the lowest price a seller will accept). In the example book in this article it is Rs 1,202 minus Rs 1,198, or Rs 4 a share."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is market depth?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The full queue of waiting buy and sell orders for a share, with the price and quantity at each level — the order book. NEPSE’s public site has a Market Depth page for each listed company, though a pre-open check on November 16, 2026 showed a price summary rather than a live book."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why did my market order fill above the price on the screen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The screen shows the last traded price. A market order fills at the best ask, which can sit above the last trade — and a large order walks up the book to higher asks. In the example, a 200-share market buy averages Rs 1,202.75, not the Rs 1,200 last price."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can my order fill partly?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. NEPSE’s FAQ confirms a TMS order can sit as “partially traded” — part filled, the rest still open in the book."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does the spread change during the day?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Orders arrive, fill and get cancelled all session, so the best bid, best ask and spread move with them. A spread quoted in the morning is not the spread at noon."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Who runs the matching?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "NEPSE’s trading system matches orders on price-time priority under its Bylaws 2075. SEBON regulates the market and CDSC keeps the records and settles trades on T+2 — the three roles are explained in NEPSE, SEBON, CDSC: who does what."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I see the live order book before I trade?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The book lives inside NEPSE’s trading system and is visible through a broker’s trading terminal. NEPSE’s public Market Depth page exists, but when checked before the open on November 16, 2026 it showed a price summary, not a live buy/sell book — so this article does not promise a live book on the public site. What the book will show you, wherever you see it, is the same: the best bid, the best ask, and how much waits at each level."
+      }
+    }
+  ]
+}
+  </script>
+
+<link rel="stylesheet" href="/css/theme.css?v=f9678c21">
+<link rel="stylesheet" href="/css/nd-editorial-theme.css?v=f7cba58d">
+<link rel="stylesheet" href="/css/nd-chrome.css?v=fe4f1d6e">
+<style>
+.faq{margin:36px 0 8px}
+.faq h2{font-size:1.35rem;margin:0 0 14px}
+.faq details{border:1px solid #E7DFCE;border-radius:10px;padding:14px 18px;margin:0 0 10px;background:#FDFCF9}
+.faq summary{font-weight:700;cursor:pointer;color:#1C1A15}
+.faq details p{margin:10px 0 0;line-height:1.7;color:#2A2721}
+.td-table{width:100%;border-collapse:collapse;margin:24px 0;font-size:.94rem;line-height:1.6}
+.td-table caption{text-align:left;font-weight:700;color:#1C1A15;margin-bottom:10px}
+.td-table th,.td-table td{text-align:left;padding:10px 12px;border-bottom:1px solid #E7DFCE;vertical-align:top}
+.td-table th{background:#F7F4EC;font-weight:700;color:#0B3D2E}
+.td-table td:first-child{color:#6F6A5E}
+.td-table{min-width:680px} /* wide tables scroll inside .nd-tablewrap instead of crushing columns */
+.td-viz{margin:24px 0;padding:18px 20px;border:1px solid #E7DFCE;border-radius:12px;background:#FDFCF9}
+.td-viz-head{font-weight:700;color:#1C1A15;margin:0 0 4px}
+.td-viz-note{font-size:.85rem;color:#6F6A5E;margin:0 0 6px;line-height:1.55}
+.td-viz-row{display:grid;grid-template-columns:158px minmax(0,1fr) auto;gap:10px;align-items:center;margin:12px 0}
+.td-viz-label{font-size:.88rem;line-height:1.35;color:#1C1A15}
+.td-viz-track{display:block;height:18px;background:#EFEAE0;border-radius:999px;overflow:hidden}
+.td-viz-track i{display:block;height:100%;background:#0B6B4A;border-radius:999px}
+.td-viz-track i.tgt{background:repeating-linear-gradient(45deg,#B7791F 0 6px,#D9B96A 6px 12px)}
+.td-viz-val{font-weight:700;text-align:right;white-space:nowrap;color:#1C1A15}
+@media(max-width:560px){.td-viz-row{grid-template-columns:minmax(0,1fr) auto}.td-viz-label{grid-column:1/-1}.td-viz-track{grid-column:1}.td-viz-val{grid-column:2}}
+[data-theme="dark"] .td-table caption{color:#F7F4EC}
+[data-theme="dark"] .td-table td:first-child{color:#C9C2B4}
+[data-theme="dark"] .faq summary{color:#1C1A15}
+[data-theme="dark"] .faq details p{color:#2A2721}
+.td-table .pos{color:#0B6B4A;font-weight:700}
+.td-table .neg{color:#A33B2E;font-weight:700}
+.td-incta{margin:24px 0;padding:14px 18px;border:1px solid #E7DFCE;border-left:4px solid #0B6B4A;border-radius:10px;background:#F7F4EC;font-size:.95rem;line-height:1.65}
+.td-incta a{color:#0B3D2E;font-weight:700;text-decoration:none}
+.td-incta a:hover{text-decoration:underline}
+.td-toolsbox{margin:32px 0 8px;padding:20px 22px;border:1px solid #E7DFCE;border-radius:12px;background:#FAF8F2}
+.td-toolsbox-kicker{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:#6F6A5E;font-weight:700;margin:0 0 6px}
+.td-toolsbox-head{font-size:1.05rem;font-weight:700;color:#1C1A15;margin:0 0 10px}
+.td-toolsbox ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.td-toolsbox a{color:#0B6B4A;font-weight:600;text-decoration:none}
+.td-toolsbox a:hover{text-decoration:underline}
+.author-box .logo-mark{background:#1d1d1f;color:#fff}
+</style>
+<style>h1,h2,h3{font-family:var(--nd-font-display,'Spectral',Georgia,serif)}</style>
+<style>.td-viz-ticks{margin-top:2px}.td-viz-ticks-track{display:flex;justify-content:space-between;font-size:.75rem;color:#6F6A5E}.td-table th{font-family:var(--nd-font-display,'Spectral',Georgia,serif);text-transform:none;letter-spacing:normal}@media(max-width:560px){.td-viz-ticks .td-viz-label{display:none}}</style>
+</head>
+<body>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="progress-bar" id="progressBar" aria-hidden="true"></div>
+
+      <div id="nd-header"></div>
+
+  <main id="main">
+  <article class="article news-article">
+    <div class="article-inner">
+
+      <span class="article-kicker">Education &middot; Market Basics</span>
+      <h1>Why does my order fill at a different price? Reading NEPSE&rsquo;s order book</h1>
+      <p class="article-dek">The screen shows one price. Your order fills at another. The reason is the order book &mdash; the queue of waiting buy and sell orders behind every share on NEPSE. Here is how to read it: best bid, best ask, a Rs 4 spread, and why a 200-share market buy averages Rs 1,202.75.</p>
+
+      <div class="article-byline">
+        <span class="byline-name">By Nepse Decode Research Desk</span>
+        <span class="byline-sep" aria-hidden="true">&middot;</span>
+        <span>Kathmandu</span>
+        <span class="byline-sep" aria-hidden="true">&middot;</span>
+        <span><time datetime="2026-11-16T08:30:00+05:45">November 16, 2026</time></span>
+        <span class="byline-sep" aria-hidden="true">&middot;</span>
+        <span>18 min read</span>
+      </div>
+
+            <div class="share-row" aria-label="Share this article">
+        <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fshirjankhadka.com.np%2Fblog%2Fnepse-market-depth-order-book-explained%2F" target="_blank" rel="noopener" aria-label="Share on Facebook">Facebook</a>
+        <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fshirjankhadka.com.np%2Fblog%2Fnepse-market-depth-order-book-explained%2F&amp;text=Why%20does%20my%20order%20fill%20at%20a%20different%20price%3F%20Reading%20NEPSE%E2%80%99s%20order%20book" target="_blank" rel="noopener" aria-label="Share on X">X</a>
+        <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fshirjankhadka.com.np%2Fblog%2Fnepse-market-depth-order-book-explained%2F" target="_blank" rel="noopener" aria-label="Share on LinkedIn">LinkedIn</a>
+        <a href="https://wa.me/?text=Why%20does%20my%20order%20fill%20at%20a%20different%20price%3F%20Reading%20NEPSE%E2%80%99s%20order%20book%20https%3A%2F%2Fshirjankhadka.com.np%2Fblog%2Fnepse-market-depth-order-book-explained%2F" target="_blank" rel="noopener" aria-label="Share on WhatsApp">WhatsApp</a>
+        <a href="https://viber://forward?text=Why%20does%20my%20order%20fill%20at%20a%20different%20price%3F%20Reading%20NEPSE%E2%80%99s%20order%20book%20https%3A%2F%2Fshirjankhadka.com.np%2Fblog%2Fnepse-market-depth-order-book-explained%2F" target="_blank" rel="noopener" aria-label="Share on Viber">Viber</a>
+      </div>
+
+            <figure class="article-hero">
+        <img src="/assets/images/blog/nepse-market-depth-order-book-explained.jpg" srcset="/assets/images/blog/nepse-market-depth-order-book-explained-480.webp 480w, /assets/images/blog/nepse-market-depth-order-book-explained-768.webp 768w, /assets/images/blog/nepse-market-depth-order-book-explained.jpg 1200w" sizes="(max-width: 640px) 100vw, 780px" alt="A stock exchange board showing rows of prices and quantities in red and green" width="1200" height="630" fetchpriority="high">
+        <figcaption>A stock exchange board &mdash; rows of prices and quantities, buyers on one side and sellers on the other. The photograph shows a generic market board, not NEPSE&rsquo;s order book and not any company&rsquo;s book. <span class="photo-credit">Photo by Pixabay, Pexels licence</span></figcaption>
+      </figure>
+
+            <div class="article-body">
+        <p class="lead">
+          The screen shows one price. You place your order at that price. And it fills somewhere else. Nobody cheated you. You were looking at the wrong price &mdash; the last traded price &mdash; while your order was filled from a queue of waiting orders, at the best price that queue had to offer.
+        </p>
+        <p>
+          That queue is the order book. Every share listed on NEPSE has one, and learning to read it explains most of the small mysteries of trading: why a market order fills above the price you saw, why a limit order waits all day, and why buying and selling the same share on the same day can lose money even when the price never moves. Every figure in this article is either a rule from NEPSE&rsquo;s own documents or arithmetic on one labelled illustration &mdash; the example book below is invented to teach the mechanism, not any real company&rsquo;s book, and it says so wherever it appears. No live order book is quoted, because the public Market Depth page, checked before the open on November 16, 2026, showed a price summary rather than a live book.
+        </p>
+
+        <h2>Signal summary</h2>
+        <ul>
+          <li><strong>Every share has two prices, not one.</strong> The best bid is the highest price any buyer will pay; the best ask is the lowest price any seller will accept. The gap between them is the spread &mdash; Rs 4 in the example book in this article.</li>
+          <li><strong>NEPSE matches orders on price-time priority.</strong> The rule is written into the Securities Trading Operation Bylaws 2075, Rule 3(2): the higher buy and the lower sell get priority, and at the same price the earlier order goes first. There is no negotiation in the match itself.</li>
+          <li><strong>A market order fills at the best available price for its size &mdash; and a big one walks the book.</strong> A 200-share market buy in the example takes 150 shares at Rs 1,202 and the next 50 at Rs 1,205, averaging Rs 1,202.75 a share.</li>
+          <li><strong>A limit order caps your price, but it can wait unfilled all day.</strong> A limit buy at Rs 1,200 in the example becomes the new best bid and fills only if a seller accepts Rs 1,200.</li>
+          <li><strong>Every round trip pays the spread before any charge or tax.</strong> Buy 100 shares at the ask and sell them straight back at the bid, and the price has not moved &mdash; yet you are Rs 400 poorer, before broker commission, the SEBON fee, the DP charge and capital gains tax.</li>
+        </ul>
+
+        <h2>01. Every share has two prices, not one</h2>
+        <p>
+          At any moment during the 11:00&ndash;15:00 continuous session, a share has a best bid and a best ask. The bid is the highest price any buyer is currently willing to pay. The ask is the lowest price any seller is currently willing to accept. The gap between them is the spread. Behind those two prices sits the full queue &mdash; the market depth &mdash; with a price and a quantity at each level: how many shares buyers want at each price below the best bid, and how many sellers offer at each price above the best ask.
+        </p>
+        <p>
+          Take an example book &mdash; an illustration, not a real stock:
+        </p>
+        <table class="td-table">
+          <caption>An example order book (illustration, not any real company&rsquo;s book)</caption>
+          <thead>
+            <tr><th>Bids (buyers waiting)</th><th>Asks (sellers waiting)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Rs 1,198 &times; 200 shares</td><td>Rs 1,202 &times; 150 shares</td></tr>
+            <tr><td>Rs 1,196 &times; 350 shares</td><td>Rs 1,205 &times; 400 shares</td></tr>
+            <tr><td>Rs 1,195 &times; 500 shares</td><td>Rs 1,208 &times; 300 shares</td></tr>
+          </tbody>
+        </table>
+        <p>
+          The best bid is Rs 1,198. The best ask is Rs 1,202. The spread is Rs 4. The last traded price &mdash; the single number on your screen &mdash; might be Rs 1,200, or Rs 1,198, or anything else; it is simply the price of the most recent trade, not a price anyone is offering now. That is the first confusion to clear away: the screen&rsquo;s single price is history, a record of a trade that already happened. The book&rsquo;s two prices are the present &mdash; what buyers will pay and sellers will accept, right now.
+        </p>
+        <div class="td-viz" role="img" aria-label="Bar chart: shares waiting at each level of the example order book. Bids: Rs 1,198 with 200 shares, Rs 1,196 with 350 shares, Rs 1,195 with 500 shares. Asks: Rs 1,202 with 150 shares, Rs 1,205 with 400 shares, Rs 1,208 with 300 shares.">
+          <p class="td-viz-head">The example book: shares waiting at each price (illustration)</p>
+          <p class="td-viz-note">Quantities waiting at each level of the example order book. Bars scaled to 500 shares, the largest quantity in the book. The best bid is Rs 1,198 and the best ask is Rs 1,202 &mdash; a Rs 4 spread. This is an illustration, not any real company&rsquo;s book.</p>
+          <div class="td-viz-row"><span class="td-viz-label">Bid &mdash; Rs 1,198</span><span class="td-viz-track"><i style="width:40.0%"></i></span><span class="td-viz-val">200 shares</span></div>
+          <div class="td-viz-row"><span class="td-viz-label">Bid &mdash; Rs 1,196</span><span class="td-viz-track"><i style="width:70.0%"></i></span><span class="td-viz-val">350 shares</span></div>
+          <div class="td-viz-row"><span class="td-viz-label">Bid &mdash; Rs 1,195</span><span class="td-viz-track"><i style="width:100%"></i></span><span class="td-viz-val">500 shares</span></div>
+          <div class="td-viz-row"><span class="td-viz-label">Ask &mdash; Rs 1,202</span><span class="td-viz-track"><i style="width:30.0%"></i></span><span class="td-viz-val">150 shares</span></div>
+          <div class="td-viz-row"><span class="td-viz-label">Ask &mdash; Rs 1,205</span><span class="td-viz-track"><i style="width:80.0%"></i></span><span class="td-viz-val">400 shares</span></div>
+          <div class="td-viz-row"><span class="td-viz-label">Ask &mdash; Rs 1,208</span><span class="td-viz-track"><i style="width:60.0%"></i></span><span class="td-viz-val">300 shares</span></div>
+        </div>
+        <p>
+          Read the chart the way a trader reads a book: the two prices nearest the middle are the ones that matter most, because they are the first your order will meet. The deeper levels &mdash; Rs 1,195 on the bid side, Rs 1,208 on the ask side &mdash; matter only when an order is big enough to reach them. In this book, 1,050 shares wait on the bid side and 850 on the ask side, but those totals are less useful than the shape: only 150 shares sit at the best ask, so a buy bigger than 150 shares cannot fill at Rs 1,202 alone.
+        </p>
+
+        <h2>02. How NEPSE matches orders</h2>
+        <p>
+          NEPSE&rsquo;s trading is automated &mdash; open-outcry trading was completely replaced by an automated system in 2064 BS (2007 AD), according to NEPSE&rsquo;s own Silver Jubilee souvenir, which calls that system the Automated Transaction System. Orders are matched on price-time priority, the rule written into NEPSE&rsquo;s Securities Trading Operation Bylaws 2075, Rule 3(2): the buy order quoting the higher price and the sell order quoting the lower price get priority, and when two orders quote the same price, the earlier one goes first.
+        </p>
+        <p>
+          In plain words: the highest bid meets the lowest ask. There is no negotiation, no phone call, no broker discretion in the match itself. The same rule governs the continuous session, which runs 11:00 to 15:00, Monday to Friday, under Rule 11 of the same Bylaws. And an order can fill partly &mdash; NEPSE&rsquo;s own FAQ confirms a TMS order moves from open to &ldquo;partially traded&rdquo; to &ldquo;completed&rdquo; as it fills. The unfilled remainder stays in the book, waiting at its price, in its turn.
+        </p>
+        <p>
+          Two things the rule does not say are worth stating plainly. First, it does not say the price you saw is the price you get: the match happens against the book as it stands when your order arrives, not against the last traded price. Second, it does not promise a fill at all. A limit order whose price the market never reaches simply waits, and the book moves on without it. The queue is fair &mdash; price first, then time &mdash; but fairness is not a guarantee.
+        </p>
+
+        <h2>03. The worked example: what your order actually does</h2>
+        <p>
+          Use the same example book. You want shares, and the last traded price on your screen is Rs 1,200. Three orders, three different outcomes.
+        </p>
+        <p>
+          <strong>A market buy of 100 shares</strong> says: fill me now, at whatever price is available. It takes the best ask first: 100 shares at Rs 1,202, costing Rs 120,200. You never saw Rs 1,202 on the screen as &ldquo;the price&rdquo; &mdash; but it was the cheapest anyone was willing to sell at. The Rs 2 above the last trade is not an error and not a fee; it is the ask.
+        </p>
+        <p>
+          <strong>A market buy of 200 shares</strong> walks up the book. There are only 150 shares at Rs 1,202, so it takes those, then the next 50 at Rs 1,205: 150 &times; 1,202 + 50 &times; 1,205 = Rs 240,550, an average of Rs 1,202.75 a share. The bigger the order, the further it walks &mdash; which is why a large market order in a thinly traded share can move its own fill price. The chart below shows the two fills side by side: the first 150 shares cost Rs 180,300, the next 50 cost Rs 60,250, and the average is higher than the best ask the buyer started from.
+        </p>
+        <div class="td-viz" role="img" aria-label="Bar chart: what a 200-share market buy pays in the example book. First 150 shares at Rs 1,202 cost Rs 180,300; the next 50 shares at Rs 1,205 cost Rs 60,250; total Rs 240,550, an average of Rs 1,202.75 a share.">
+          <p class="td-viz-head">A 200-share market buy walks the book (illustration)</p>
+          <p class="td-viz-note">The two fills of a 200-share market buy in the example book. Bars scaled to Rs 180,300. Total paid: Rs 240,550 for 200 shares &mdash; an average of Rs 1,202.75 a share, above the Rs 1,202 best ask it started from. Arithmetic on the illustrative book, labelled as such.</p>
+          <div class="td-viz-row"><span class="td-viz-label">150 shares at Rs 1,202</span><span class="td-viz-track"><i style="width:100%"></i></span><span class="td-viz-val">Rs 180,300</span></div>
+          <div class="td-viz-row"><span class="td-viz-label">50 shares at Rs 1,205</span><span class="td-viz-track"><i style="width:33.4%"></i></span><span class="td-viz-val">Rs 60,250</span></div>
+        </div>
+        <p>
+          <strong>A limit buy at Rs 1,200</strong> does something different. Rs 1,200 is above the best bid (Rs 1,198) but below the best ask (Rs 1,202), so your order becomes the new best bid and waits. It fills only if a seller accepts Rs 1,200. A limit order sets the worst price you will accept; a market order accepts the book&rsquo;s worst price for your size. That single sentence is the whole difference between the two order types, and the table below puts it next to the other trade-offs.
+        </p>
+        <table class="td-table">
+          <caption>Market order vs limit order, in the example book</caption>
+          <thead>
+            <tr><th></th><th>Market order</th><th>Limit order</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>What it says</strong></td><td>Fill me now, at whatever price is available</td><td>Fill me only at this price or better</td></tr>
+            <tr><td><strong>Price you get</strong></td><td>Best ask when buying, best bid when selling &mdash; walking the book if your order is big</td><td>Your limit price or better &mdash; never worse</td></tr>
+            <tr><td><strong>When it fills</strong></td><td>Immediately, if shares are waiting</td><td>Only if the market reaches your price</td></tr>
+            <tr><td><strong>What it costs</strong></td><td>The spread, plus the walk if your order is big</td><td>No spread paid &mdash; but it may never fill</td></tr>
+            <tr><td><strong>In the example</strong></td><td>200 shares average Rs 1,202.75</td><td>A buy at Rs 1,200 waits as the new best bid</td></tr>
+          </tbody>
+        </table>
+        <p>
+          Notice what the table leaves out: neither order type is right or wrong. A market order pays for certainty &mdash; it trades now, at the book&rsquo;s price. A limit order pays with patience &mdash; it trades at your price, if the market ever comes to it. The book shows you the price of each choice before you make it: how many shares sit at the best ask, and how far the next level is.
+        </p>
+
+        <h2>04. The spread is a cost</h2>
+        <p>
+          Buy 100 shares at the ask (Rs 1,202) and sell them straight back at the bid (Rs 1,198), and the price has not moved at all &mdash; yet you are Rs 400 poorer: 100 shares &times; Rs 4 of spread. That is before broker commission, the SEBON fee, the DP charge and capital gains tax, which all sit on top; the full cost of a round trip is worked out in our <a href="/blog/nepse-trading-cost-explained-broker-sebon-dp-cgt/">trading-costs explainer</a>.
+        </p>
+        <p>
+          The spread is the market&rsquo;s toll for immediacy. A market order pays it to trade now. A limit order refuses it and waits &mdash; and may never fill. Neither is right or wrong; they are different trades, and the book shows you the price of each. The toll is small in the example &mdash; Rs 4 on a Rs 1,200 share is a third of one percent &mdash; but it is charged on every round trip, and it is charged whether the trade wins or loses. A trader who buys and sells the same share ten times in a day pays it ten times, on top of every commission and fee.
+        </p>
+        <p>
+          This is also why the spread matters more than it looks. The last traded price can sit still all day while the spread quietly taxes every trade that crosses it. Two investors can hold the same share, buy on the same day, and end with different costs &mdash; one who waited with a limit order inside the spread, and one who crossed it with a market order. The difference is not skill and not luck; it is the order type, chosen against the book.
+        </p>
+
+        <h2>05. What a wide or narrow spread tells you</h2>
+        <p>
+          A narrow spread means many orders are waiting on both sides &mdash; buyers and sellers are close together, and a small order fills near the last price. A wide spread means few orders are waiting, so the best bid and the best ask sit far apart and even a modest order can fill noticeably away from the last traded price. That is a property of the book at that moment, not a verdict on the company &mdash; and it is one reason the <a href="/blog/nepse-market-breadth-explained/">index can rise while most shares fall</a>: the index is an average, and averages hide what is happening in individual books.
+        </p>
+        <p>
+          The spread moves all session. Orders arrive, fill and get cancelled, so the best bid, the best ask and the spread move with them. A spread quoted in the morning is not the spread at noon, and a book that looked deep at 11:00 can look thin by 14:30. None of that is a signal about where the share is going. The book is a queue, not a forecast: it tells you what it costs to trade, right now, at your size. The spread is widest, as a rule, exactly when you most want to trade in a hurry &mdash; after news, at the open, in a thin name &mdash; because that is when waiting orders are thinnest. The patient order, placed inside the spread, is the one tool that refuses the toll.
+        </p>
+
+        <h2>What to take from it</h2>
+        <p>
+          The screen&rsquo;s single price is the last trade. The book&rsquo;s two prices &mdash; best bid and best ask &mdash; are what your order will actually meet. A market order fills at the best available price for its size, and a big one walks the book. A limit order caps your price, but it can wait unfilled all day. Every round trip pays the spread, before any charge or tax. Before a market order, look at the book: how many shares sit at the best ask, and how far is the next level? The answers are the real price of trading now.
+        </p>
+        <p>
+          The order book is not a prediction tool. It will not tell you where a share is going. It tells you something more useful and more honest: what it costs to trade, right now, at your size. That is the number worth reading before you press buy.
+        </p>
+        <p>
+          For education only &mdash; not investment advice. This article explains how order matching works on NEPSE; it recommends no share, no order and no trade.
+        </p>
+
+        <h2>Sources and method</h2>
+        <ul>
+          <li>Price-time priority: NEPSE Securities Trading Operation Bylaws 2075, Rule 3(2) &mdash; the buy order quoting the higher price and the sell order quoting the lower price get priority; at the same price, the earlier order goes first. Rule 11(5) confirms the continuous session executes on the same basis. Source: official NEPSE download, read via the live browser on November 16, 2026, and confirmed reachable at publish time. The plain-language restatement &ldquo;the highest bid meets the lowest ask&rdquo; is this article&rsquo;s wording of Rule 3(2), recorded as such.</li>
+          <li>Partial fills: NEPSE&rsquo;s official FAQ, Q12 &mdash; a TMS order stays open until matched, goes to &ldquo;partially traded&rdquo; on a partial fill, and to &ldquo;completed&rdquo; on a full fill. Source: nepalstock.com.np/faq, read via the live browser on November 16, 2026, and confirmed reachable at publish time. No claim is made about how long an unfilled order stays open, because validity rules differ by order type.</li>
+          <li>Automated trading since 2064/2007: NEPSE&rsquo;s Silver Jubilee souvenir, &ldquo;A Glimpse of Nepal Stock Exchange Limited&rdquo;, p. 72 &mdash; &ldquo;Open-Out-Cry System was completely replaced by Automated Transaction System (ATS) in 2064 (2007).&rdquo; Source: official NEPSE download, read via the live browser on November 16, 2026. Naming note: the souvenir calls the 2007 system ATS, not NATS, and the FAQ calls the current system the NATS trading system with no go-live date &mdash; so this article says only &ldquo;automated trading since 2064/2007&rdquo; and never attaches a date to NATS.</li>
+          <li>Continuous session 11:00&ndash;15:00, Monday to Friday: Bylaws 2075, Rule 11(1)(&#2326;), the same official PDF. The pre-open session is NOT stated anywhere in this article: the Bylaws&rsquo; pre-open window differs from confirmed market practice, and that conflict was not resolved at publish time.</li>
+          <li>Market Depth page: NEPSE&rsquo;s public site has a Market Depth page at nepalstock.com.np/marketdepth, confirmed to exist by a live-browser visit on November 16, 2026. Honest limit: at that pre-open visit it showed only a price summary (last price, open, high, low, close) and no live buy/sell order book &mdash; no bid or ask prices or quantities. This article therefore does not claim you can see the live order book on the public site; the book is taught as the queue of orders inside the trading system.</li>
+          <li>Illustrative order book: bids Rs 1,198 &times; 200, Rs 1,196 &times; 350, Rs 1,195 &times; 500; asks Rs 1,202 &times; 150, Rs 1,205 &times; 400, Rs 1,208 &times; 300. Best bid Rs 1,198, best ask Rs 1,202, spread Rs 1,202 &minus; Rs 1,198 = Rs 4. Market buy of 100 shares: 100 &times; 1,202 = Rs 120,200. Market buy of 200 shares: 150 &times; 1,202 + 50 &times; 1,205 = 180,300 + 60,250 = Rs 240,550, average Rs 1,202.75. Round-trip spread cost on 100 shares: 100 &times; 4 = Rs 400, before broker commission, SEBON fee, DP charge and capital gains tax. All arithmetic re-checked by script at publish time. No real stock is named; the book is not any company&rsquo;s book.</li>
+          <li>Bar charts: the book chart scales quantities to 500 shares (200 &divide; 500 = 40.0%; 350 &divide; 500 = 70.0%; 500 &divide; 500 = 100%; 150 &divide; 500 = 30.0%; 400 &divide; 500 = 80.0%; 300 &divide; 500 = 60.0%). The fill chart scales costs to Rs 180,300 (60,250 &divide; 180,300 = 33.4%). Every value is printed beside its bar. No pie chart is used: the bars are comparisons of separate levels and fills, not slices of one whole.</li>
+          <li>Related reading on this site: <a href="/blog/nepse-trading-cost-explained-broker-sebon-dp-cgt/">what a trade costs: broker, SEBON and DP charges</a> (October 26, 2026), <a href="/blog/nepse-market-breadth-explained/">market breadth: the index rose and most shares fell</a> (November 12, 2026) and <a href="/blog/nepse-sebon-cdsc-who-does-what/">NEPSE, SEBON, CDSC: who does what when you buy a share</a> (November 13, 2026). Daily market data appears in <a href="/nepse-daily/">the daily market summary</a> and the <a href="/nepse-decode/">market overview</a>.</li>
+          <li>Hero photograph: a stock exchange board showing rows of prices and quantities, by Pixabay, Pexels licence, via Pexels (photo 210607), viewed at full size on November 16, 2026. The photograph shows a generic market board, not NEPSE&rsquo;s order book; the caption says so.</li>
+          <li>Method: this article expands the November 16, 2026 market-depth explainer, using that package&rsquo;s verified facts verbatim; no new numbers were introduced at publish time. &ldquo;Order-driven market&rdquo; is not claimed, because the phrase appears on none of the official pages read. No price prediction, no buy or sell call. For education only &mdash; not investment advice.</li>
+        </ul>
+
+        <div class="faq">
+        <h2>Frequently asked questions</h2>
+        <details>
+          <summary>What is the bid-ask spread?</summary>
+          <p>The gap between the best bid (the highest price a buyer will pay) and the best ask (the lowest price a seller will accept). In the example book in this article it is Rs 1,202 minus Rs 1,198, or Rs 4 a share.</p>
+        </details>
+        <details>
+          <summary>What is market depth?</summary>
+          <p>The full queue of waiting buy and sell orders for a share, with the price and quantity at each level &mdash; the order book. NEPSE&rsquo;s public site has a Market Depth page for each listed company, though a pre-open check on November 16, 2026 showed a price summary rather than a live book.</p>
+        </details>
+        <details>
+          <summary>Why did my market order fill above the price on the screen?</summary>
+          <p>The screen shows the last traded price. A market order fills at the best ask, which can sit above the last trade &mdash; and a large order walks up the book to higher asks. In the example, a 200-share market buy averages Rs 1,202.75, not the Rs 1,200 last price.</p>
+        </details>
+        <details>
+          <summary>Can my order fill partly?</summary>
+          <p>Yes. NEPSE&rsquo;s FAQ confirms a TMS order can sit as &ldquo;partially traded&rdquo; &mdash; part filled, the rest still open in the book.</p>
+        </details>
+        <details>
+          <summary>Does the spread change during the day?</summary>
+          <p>Yes. Orders arrive, fill and get cancelled all session, so the best bid, best ask and spread move with them. A spread quoted in the morning is not the spread at noon.</p>
+        </details>
+        <details>
+          <summary>Who runs the matching?</summary>
+          <p>NEPSE&rsquo;s trading system matches orders on price-time priority under its Bylaws 2075. SEBON regulates the market and CDSC keeps the records and settles trades on T+2 &mdash; the three roles are explained in <a href="/blog/nepse-sebon-cdsc-who-does-what/">NEPSE, SEBON, CDSC: who does what</a>.</p>
+        </details>
+        <details>
+          <summary>Can I see the live order book before I trade?</summary>
+          <p>The book lives inside NEPSE&rsquo;s trading system and is visible through a broker&rsquo;s trading terminal. NEPSE&rsquo;s public Market Depth page exists, but when checked before the open on November 16, 2026 it showed a price summary, not a live buy/sell book &mdash; so this article does not promise a live book on the public site. What the book will show you, wherever you see it, is the same: the best bid, the best ask, and how much waits at each level.</p>
+        </details>
+        </div>
+      </div>
+
+      </div>
+    </div>
+  </article>
+  </main>
+
+  <style>
+.sf{border-top:1px solid var(--hairline,#E7DFCE);margin-top:64px;background:var(--paper,#FAF8F2);color:var(--ink-soft,#4A463C);font-family:var(--sans,Inter,system-ui,-apple-system,"Segoe UI",sans-serif)}
+.sf-inner{max-width:1200px;margin:0 auto;padding:56px 24px 30px}
+.sf-top{display:flex;gap:18px;align-items:flex-start;margin-bottom:42px}
+.sf-mark{width:46px;height:46px;border-radius:12px;flex:none;box-shadow:0 2px 10px rgba(11,61,46,.12)}
+.sf-name{font-weight:700;font-size:1.06rem;color:var(--ink,#1C1A15);margin:2px 0 8px;letter-spacing:.01em}
+.sf-mission{margin:0;max-width:62ch;line-height:1.75;font-size:.92rem;color:var(--ink-soft,#4A463C)}
+.sf-cols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:36px 28px;margin-bottom:42px}
+.sf-col h3{font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft,#4A463C);margin:0 0 16px;font-weight:700}
+.sf-col ul{list-style:none;margin:0;padding:0;display:grid;gap:11px}
+.sf-col a{color:var(--ink-soft,#4A463C);text-decoration:none;font-size:.92rem;line-height:1.5}
+.sf-col ul a:hover{color:var(--green-900,#0B3D2E);text-decoration:underline}
+.sf-bottom{display:flex;flex-wrap:wrap;gap:10px 20px;justify-content:space-between;align-items:center;margin-top:26px;padding-top:22px;border-top:1px solid var(--hairline,#E7DFCE);font-size:.85rem;color:var(--muted,#8A8474)}
+.sf-bottom a{color:var(--ink-soft,#4A463C);text-decoration:none;font-weight:600}
+.sf-bottom a:hover{color:var(--green-900,#0B3D2E);text-decoration:underline}
+.sf-social{display:flex;gap:16px;align-items:center}
+@media(max-width:820px){.sf-cols{grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 20px}}
+@media(max-width:520px){.sf-inner{padding:44px 20px 26px}.sf-top{margin-bottom:34px}.sf-cols{margin-bottom:36px}}
+</style>
+<footer class="sf" aria-label="Nepse Decode site footer">
+  <div class="sf-inner">
+    <div class="sf-top">
+      <svg class="sf-mark" viewBox="0 0 64 64" role="img" aria-label="Nepse Decode iceberg mark"><rect width="64" height="64" rx="14" fill="#013E2E"/><polygon points="32,9 21,25 43,25" fill="#FFFFFF"/><polygon points="32,9 37,25 27,25" fill="#EEF2EF"/><polygon points="13,27.5 51,27.5 45,42 32,57 21,45 15,37" fill="#FFFFFF"/><polygon points="13,27.5 27,27.5 21,45 15,37" fill="#D6DDD9"/><polygon points="51,27.5 45,42 38,27.5" fill="#C6CECA"/><polygon points="32,57 45,42 36,40 28,49" fill="#E4E9E6"/><polygon points="21,45 32,57 28,49 24,44" fill="#D6DDD9"/><rect x="4" y="25" width="56" height="2.6" rx="1.3" fill="#0B3D2E" opacity=".55"/></svg>
+      <div>
+        <p class="sf-name">Nepse Decode</p>
+        <p class="sf-mission">Free, honest NEPSE intelligence for every Nepali investor: live market data, screeners, signals and research, rebuilt every trading day. No login, no paywall, no buy calls.</p>
+      </div>
+    </div>
+    <nav class="sf-cols" aria-label="Footer sections">
+      <div class="sf-col">
+        <h3>Tools</h3>
+        <ul>
+          <li><a href="/nepse-decode/">NEPSE Tools</a></li>
+          <li><a href="/nepse-screener/">Stock Screener</a></li>
+          <li><a href="/nepse-chart/">Chart</a></li>
+          <li><a href="/nepse-trending/">Trending Stocks</a></li>
+          <li><a href="/nepse-value/">Value Investing</a></li>
+          <li><a href="/nepse-signals/momentum/">Trading Signals</a></li>
+          <li><a href="/nepse-watchlist/">Watchlist</a></li>
+        </ul>
+      </div>
+      <div class="sf-col">
+        <h3>Market data</h3>
+        <ul>
+          <li><a href="/nepse-decode/">Dashboard</a></li>
+          <li><a href="/nepse-brokers/">Broker Analytics</a></li>
+          <li><a href="/nepse-chart/">Chart</a></li>
+          <li><a href="/nepse-news/">Market News</a></li>
+          <li><a href="/nepse-actions/">Corp. Actions</a></li>
+          <li><a href="/stocks/">All Stocks</a></li>
+        </ul>
+      </div>
+      <div class="sf-col">
+        <h3>Research</h3>
+        <ul>
+          <li><a href="/blog/">Daily Blog</a></li>
+          <li><a href="/nepse-decode/">Market Dashboard</a></li>
+        </ul>
+      </div>
+      <div class="sf-col">
+        <h3>Info</h3>
+        <ul>
+          <li><a href="/privacy.html">Privacy</a></li>
+          <li><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Facebook Page</a></li>
+        </ul>
+      </div>
+    </nav>
+    <p class="sf-note"><strong>Educational use only.</strong> Nothing on this site is investment advice. Prices and figures are compiled from public sources and refreshed every trading day. Always verify with your broker before trading.</p>
+    <p class="sf-note" style="color:#6F6A5E">Often searched as Srijan Khadka or Shrijan Khadka, the NEPSE tools site by Shirjan Khadka.</p>
+    <div class="sf-bottom">
+      <span>© 2026 Nepse Decode · Kathmandu, Nepal</span>
+      <span class="sf-social"><a href="https://www.facebook.com/nepsedecode.np" target="_blank" rel="noopener">Facebook</a><a href="/blog/">Blog</a></span>
+    </div>
+  </div>
+</footer>
+<script src="/js/nd-chrome.js?v=ac51169e" defer></script>
+</body>
+</html>
