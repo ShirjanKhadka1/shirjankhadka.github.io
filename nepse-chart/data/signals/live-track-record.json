@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-17T19:11:26.221516+05:45",
+  "updated_at": "2026-11-18T19:11:22.374658+05:45",
   "tracking_started": "2026-08-03",
   "method": "Seeded from the engine's verifiable alert history: every distinct BUY alert found in git-committed signal JSONs on origin/main (2026-09-30 commits onward), each traced to its real alert record (system, symbol, signal date, published entry/stop/targets). Exits on real forward OHLC from the owned archive: target 1, stop loss, a trailing stop ratcheted from the stop (never from future-informed levels), or a 20-session time exit. Same-bar precedence is conservative: stop, then trail, then target. P&L net of 0.5% round-trip charges. Ongoing alerts are captured daily by the same logic; nothing here comes from the 2003-2026 backtest replay.",
   "provenance": {
@@ -10,28 +10,6 @@
   "systems": {
     "momentum": {
       "open": [
-        {
-          "symbol": "PHCL",
-          "system": "momentum",
-          "rule": "Donchian-50 breakout + trend filter",
-          "entry_date": "2026-10-07",
-          "entry_price": 344,
-          "qty": 2907,
-          "stop_loss": 318.42,
-          "trail_stop": 342.42,
-          "target_1": 382.37,
-          "target_2": 420.75,
-          "status": "open",
-          "sessions_held": 19,
-          "current_price": 359.8,
-          "unrealized_pct": 4.59,
-          "data_through": "2026-11-17",
-          "captured_at": "2026-10-09T10:04:07.318491+05:45",
-          "provenance": {
-            "alert_commit": "16342e72",
-            "alert_first_seen": "2026-10-08"
-          }
-        },
         {
           "symbol": "GIBF1",
           "system": "momentum",
@@ -44,10 +22,10 @@
           "target_1": 11.16,
           "target_2": 11.92,
           "status": "open",
-          "sessions_held": 17,
-          "current_price": 10.31,
-          "unrealized_pct": -0.87,
-          "data_through": "2026-11-17",
+          "sessions_held": 18,
+          "current_price": 10.11,
+          "unrealized_pct": -2.79,
+          "data_through": "2026-11-18",
           "captured_at": "2026-10-09T10:04:07.321360+05:45",
           "provenance": {
             "alert_commit": "a16a250f",
@@ -66,10 +44,10 @@
           "target_1": 662.14,
           "target_2": 706.29,
           "status": "open",
-          "sessions_held": 2,
-          "current_price": 595,
-          "unrealized_pct": -3.72,
-          "data_through": "2026-11-17",
+          "sessions_held": 3,
+          "current_price": 596.1,
+          "unrealized_pct": -3.54,
+          "data_through": "2026-11-18",
           "captured_at": "2026-11-09T19:10:53.190812+05:45"
         },
         {
@@ -84,10 +62,10 @@
           "target_1": 500.98,
           "target_2": 539.97,
           "status": "open",
-          "sessions_held": 1,
-          "current_price": 463.9,
-          "unrealized_pct": 0.41,
-          "data_through": "2026-11-17",
+          "sessions_held": 2,
+          "current_price": 454.4,
+          "unrealized_pct": -1.65,
+          "data_through": "2026-11-18",
           "captured_at": "2026-11-13T18:43:50.744265+05:45"
         },
         {
@@ -102,10 +80,10 @@
           "target_1": 976.72,
           "target_2": 1011.93,
           "status": "open",
-          "sessions_held": 1,
-          "current_price": 940.9,
-          "unrealized_pct": -0.06,
-          "data_through": "2026-11-17",
+          "sessions_held": 2,
+          "current_price": 940,
+          "unrealized_pct": -0.16,
+          "data_through": "2026-11-18",
           "captured_at": "2026-11-13T18:43:50.744265+05:45"
         },
         {
@@ -120,10 +98,10 @@
           "target_1": 503.7,
           "target_2": 543.5,
           "status": "open",
-          "sessions_held": 0,
-          "current_price": 463.9,
-          "unrealized_pct": 0.0,
-          "data_through": "2026-11-17",
+          "sessions_held": 1,
+          "current_price": 454.4,
+          "unrealized_pct": -2.05,
+          "data_through": "2026-11-18",
           "captured_at": "2026-11-17T19:11:26.105773+05:45"
         },
         {
@@ -138,14 +116,80 @@
           "target_1": 300.02,
           "target_2": 325.03,
           "status": "open",
-          "sessions_held": 0,
-          "current_price": 275,
-          "unrealized_pct": 0.0,
-          "data_through": "2026-11-17",
+          "sessions_held": 1,
+          "current_price": 270.8,
+          "unrealized_pct": -1.53,
+          "data_through": "2026-11-18",
           "captured_at": "2026-11-17T19:11:26.105773+05:45"
+        },
+        {
+          "symbol": "NTC",
+          "system": "momentum",
+          "rule": "Donchian-50 breakout + trend filter",
+          "entry_date": "2026-11-18",
+          "entry_price": 940,
+          "qty": 1064,
+          "stop_loss": 916.52,
+          "trail_stop": 916.52,
+          "target_1": 975.22,
+          "target_2": 1010.43,
+          "status": "open",
+          "sessions_held": 0,
+          "current_price": 940,
+          "unrealized_pct": 0.0,
+          "data_through": "2026-11-18",
+          "captured_at": "2026-11-18T19:11:22.173107+05:45"
+        },
+        {
+          "symbol": "PPCL",
+          "system": "momentum",
+          "rule": "Donchian-50 breakout + trend filter",
+          "entry_date": "2026-11-18",
+          "entry_price": 362,
+          "qty": 2762,
+          "stop_loss": 336.9,
+          "trail_stop": 336.9,
+          "target_1": 399.65,
+          "target_2": 437.3,
+          "status": "open",
+          "sessions_held": 0,
+          "current_price": 362,
+          "unrealized_pct": 0.0,
+          "data_through": "2026-11-18",
+          "captured_at": "2026-11-18T19:11:22.173107+05:45"
         }
       ],
       "closed": [
+        {
+          "symbol": "PHCL",
+          "system": "momentum",
+          "rule": "Donchian-50 breakout + trend filter",
+          "entry_date": "2026-10-07",
+          "entry_price": 344,
+          "qty": 2907,
+          "stop_loss": 318.42,
+          "trail_stop": 342.42,
+          "target_1": 382.37,
+          "target_2": 420.75,
+          "status": "closed",
+          "sessions_held": 20,
+          "current_price": 360,
+          "unrealized_pct": 4.65,
+          "data_through": "2026-11-18",
+          "captured_at": "2026-10-09T10:04:07.318491+05:45",
+          "provenance": {
+            "alert_commit": "16342e72",
+            "alert_first_seen": "2026-10-08"
+          },
+          "outcome": "win",
+          "exit_date": "2026-11-18",
+          "exit_price": 360,
+          "exit_reason": "Time exit (20 sessions)",
+          "pnl_pct": 4.15,
+          "pnl_rs": 41500.33,
+          "hold_sessions": 20,
+          "closed_at": "2026-11-18T19:11:22.208776+05:45"
+        },
         {
           "symbol": "SLBBL",
           "system": "momentum",
@@ -775,17 +819,17 @@
       ],
       "stats": {
         "tracking_started": "2026-08-03",
-        "data_through": "2026-11-17",
-        "open_positions": 7,
-        "closed_trades": 21,
-        "total_signals": 28,
-        "wins": 12,
+        "data_through": "2026-11-18",
+        "open_positions": 8,
+        "closed_trades": 22,
+        "total_signals": 30,
+        "wins": 13,
         "losses": 9,
-        "win_rate_pct": 57.14,
-        "failure_rate_pct": 42.86,
-        "avg_win_pct": 6.67,
+        "win_rate_pct": 59.09,
+        "failure_rate_pct": 40.91,
+        "avg_win_pct": 6.48,
         "avg_loss_pct": -4.79,
-        "profit_factor": 1.86,
+        "profit_factor": 1.95,
         "round_trip_cost_pct": 0.5,
         "best_trade": {
           "symbol": "GHL",
@@ -801,7 +845,7 @@
           "exit_date": "2026-10-30",
           "exit_reason": "Time exit (20 sessions)"
         },
-        "last_updated": "2026-11-17T19:11:26.221400+05:45"
+        "last_updated": "2026-11-18T19:11:22.374509+05:45"
       }
     },
     "trend-relay": {
@@ -1232,11 +1276,30 @@
           "exit_date": "2026-11-03",
           "exit_reason": "Stop loss hit"
         },
-        "last_updated": "2026-11-17T19:11:26.221469+05:45"
+        "last_updated": "2026-11-18T19:11:22.374604+05:45"
       }
     },
     "reversal": {
-      "open": [],
+      "open": [
+        {
+          "symbol": "MFIL",
+          "system": "reversal",
+          "rule": "RSI(14)<30 + below lower Bollinger Band + bullish rejection",
+          "entry_date": "2026-11-18",
+          "entry_price": 660,
+          "qty": 1515,
+          "stop_loss": 617.13,
+          "trail_stop": 617.13,
+          "target_1": 736.77,
+          "target_2": 745.74,
+          "status": "open",
+          "sessions_held": 0,
+          "current_price": 660,
+          "unrealized_pct": 0.0,
+          "data_through": "2026-11-18",
+          "captured_at": "2026-11-18T19:11:22.173107+05:45"
+        }
+      ],
       "closed": [
         {
           "symbol": "MKCL",
@@ -1413,10 +1476,10 @@
       ],
       "stats": {
         "tracking_started": "2026-08-03",
-        "data_through": "2026-11-05",
-        "open_positions": 0,
+        "data_through": "2026-11-18",
+        "open_positions": 1,
         "closed_trades": 6,
-        "total_signals": 6,
+        "total_signals": 7,
         "wins": 1,
         "losses": 5,
         "win_rate_pct": 16.67,
@@ -1439,7 +1502,7 @@
           "exit_date": "2026-11-05",
           "exit_reason": "Stop loss hit"
         },
-        "last_updated": "2026-11-17T19:11:26.221501+05:45"
+        "last_updated": "2026-11-18T19:11:22.374641+05:45"
       }
     }
   }
