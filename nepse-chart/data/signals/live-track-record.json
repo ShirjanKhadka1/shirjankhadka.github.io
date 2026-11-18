@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-17T19:11:26.221516+05:45",
+  "updated_at": "2026-11-18T18:42:18.924155+05:45",
   "tracking_started": "2026-08-03",
   "method": "Seeded from the engine's verifiable alert history: every distinct BUY alert found in git-committed signal JSONs on origin/main (2026-09-30 commits onward), each traced to its real alert record (system, symbol, signal date, published entry/stop/targets). Exits on real forward OHLC from the owned archive: target 1, stop loss, a trailing stop ratcheted from the stop (never from future-informed levels), or a 20-session time exit. Same-bar precedence is conservative: stop, then trail, then target. P&L net of 0.5% round-trip charges. Ongoing alerts are captured daily by the same logic; nothing here comes from the 2003-2026 backtest replay.",
   "provenance": {
@@ -143,6 +143,42 @@
           "unrealized_pct": 0.0,
           "data_through": "2026-11-17",
           "captured_at": "2026-11-17T19:11:26.105773+05:45"
+        },
+        {
+          "symbol": "NTC",
+          "system": "momentum",
+          "rule": "Donchian-50 breakout + trend filter",
+          "entry_date": "2026-11-18",
+          "entry_price": 940,
+          "qty": 1064,
+          "stop_loss": 916.52,
+          "trail_stop": 916.52,
+          "target_1": 975.22,
+          "target_2": 1010.43,
+          "status": "open",
+          "sessions_held": 0,
+          "current_price": 940,
+          "unrealized_pct": 0.0,
+          "data_through": "2026-11-18",
+          "captured_at": "2026-11-18T18:42:18.769917+05:45"
+        },
+        {
+          "symbol": "PPCL",
+          "system": "momentum",
+          "rule": "Donchian-50 breakout + trend filter",
+          "entry_date": "2026-11-18",
+          "entry_price": 362,
+          "qty": 2762,
+          "stop_loss": 336.9,
+          "trail_stop": 336.9,
+          "target_1": 399.65,
+          "target_2": 437.3,
+          "status": "open",
+          "sessions_held": 0,
+          "current_price": 362,
+          "unrealized_pct": 0.0,
+          "data_through": "2026-11-18",
+          "captured_at": "2026-11-18T18:42:18.769917+05:45"
         }
       ],
       "closed": [
@@ -775,10 +811,10 @@
       ],
       "stats": {
         "tracking_started": "2026-08-03",
-        "data_through": "2026-11-17",
-        "open_positions": 7,
+        "data_through": "2026-11-18",
+        "open_positions": 9,
         "closed_trades": 21,
-        "total_signals": 28,
+        "total_signals": 30,
         "wins": 12,
         "losses": 9,
         "win_rate_pct": 57.14,
@@ -801,7 +837,7 @@
           "exit_date": "2026-10-30",
           "exit_reason": "Time exit (20 sessions)"
         },
-        "last_updated": "2026-11-17T19:11:26.221400+05:45"
+        "last_updated": "2026-11-18T18:42:18.923995+05:45"
       }
     },
     "trend-relay": {
@@ -1232,11 +1268,30 @@
           "exit_date": "2026-11-03",
           "exit_reason": "Stop loss hit"
         },
-        "last_updated": "2026-11-17T19:11:26.221469+05:45"
+        "last_updated": "2026-11-18T18:42:18.924101+05:45"
       }
     },
     "reversal": {
-      "open": [],
+      "open": [
+        {
+          "symbol": "MFIL",
+          "system": "reversal",
+          "rule": "RSI(14)<30 + below lower Bollinger Band + bullish rejection",
+          "entry_date": "2026-11-18",
+          "entry_price": 660,
+          "qty": 1515,
+          "stop_loss": 617.13,
+          "trail_stop": 617.13,
+          "target_1": 736.77,
+          "target_2": 745.74,
+          "status": "open",
+          "sessions_held": 0,
+          "current_price": 660,
+          "unrealized_pct": 0.0,
+          "data_through": "2026-11-18",
+          "captured_at": "2026-11-18T18:42:18.769917+05:45"
+        }
+      ],
       "closed": [
         {
           "symbol": "MKCL",
@@ -1413,10 +1468,10 @@
       ],
       "stats": {
         "tracking_started": "2026-08-03",
-        "data_through": "2026-11-05",
-        "open_positions": 0,
+        "data_through": "2026-11-18",
+        "open_positions": 1,
         "closed_trades": 6,
-        "total_signals": 6,
+        "total_signals": 7,
         "wins": 1,
         "losses": 5,
         "win_rate_pct": 16.67,
@@ -1439,7 +1494,7 @@
           "exit_date": "2026-11-05",
           "exit_reason": "Stop loss hit"
         },
-        "last_updated": "2026-11-17T19:11:26.221501+05:45"
+        "last_updated": "2026-11-18T18:42:18.924140+05:45"
       }
     }
   }
