@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-19T19:11:27.546641+05:45",
+  "updated_at": "2026-11-20T18:47:22.280045+05:45",
   "tracking_started": "2026-08-03",
   "method": "Seeded from the engine's verifiable alert history: every distinct BUY alert found in git-committed signal JSONs on origin/main (2026-09-30 commits onward), each traced to its real alert record (system, symbol, signal date, published entry/stop/targets). Exits on real forward OHLC from the owned archive: target 1, stop loss, a trailing stop ratcheted from the stop (never from future-informed levels), or a 20-session time exit. Same-bar precedence is conservative: stop, then trail, then target. P&L net of 0.5% round-trip charges. Ongoing alerts are captured daily by the same logic; nothing here comes from the 2003-2026 backtest replay.",
   "provenance": {
@@ -157,6 +157,42 @@
           "unrealized_pct": 0.0,
           "data_through": "2026-11-18",
           "captured_at": "2026-11-18T19:11:22.173107+05:45"
+        },
+        {
+          "symbol": "SAHAS",
+          "system": "momentum",
+          "rule": "Donchian-50 breakout + trend filter",
+          "entry_date": "2026-11-18",
+          "entry_price": 728.2,
+          "qty": 1373,
+          "stop_loss": 703.94,
+          "trail_stop": 703.94,
+          "target_1": 764.59,
+          "target_2": 800.98,
+          "status": "open",
+          "sessions_held": 0,
+          "current_price": 728.2,
+          "unrealized_pct": 0.0,
+          "data_through": "2026-11-18",
+          "captured_at": "2026-11-20T18:47:22.001236+05:45"
+        },
+        {
+          "symbol": "STC",
+          "system": "momentum",
+          "rule": "Donchian-50 breakout + trend filter",
+          "entry_date": "2026-11-18",
+          "entry_price": 5740,
+          "qty": 174,
+          "stop_loss": 5440.81,
+          "trail_stop": 5440.81,
+          "target_1": 6188.78,
+          "target_2": 6637.56,
+          "status": "open",
+          "sessions_held": 0,
+          "current_price": 5740,
+          "unrealized_pct": 0.0,
+          "data_through": "2026-11-18",
+          "captured_at": "2026-11-20T18:47:22.001236+05:45"
         }
       ],
       "closed": [
@@ -820,9 +856,9 @@
       "stats": {
         "tracking_started": "2026-08-03",
         "data_through": "2026-11-18",
-        "open_positions": 8,
+        "open_positions": 10,
         "closed_trades": 22,
-        "total_signals": 30,
+        "total_signals": 32,
         "wins": 13,
         "losses": 9,
         "win_rate_pct": 59.09,
@@ -845,11 +881,66 @@
           "exit_date": "2026-10-30",
           "exit_reason": "Time exit (20 sessions)"
         },
-        "last_updated": "2026-11-19T19:11:27.546456+05:45"
+        "last_updated": "2026-11-20T18:47:22.279886+05:45"
       }
     },
     "trend-relay": {
-      "open": [],
+      "open": [
+        {
+          "symbol": "MHCL",
+          "system": "trend-relay",
+          "rule": "SMA20/SMA50 golden cross + volume",
+          "entry_date": "2026-11-20",
+          "entry_price": 290.3,
+          "qty": 3445,
+          "stop_loss": 274.4,
+          "trail_stop": 274.4,
+          "target_1": 314.15,
+          "target_2": 338.01,
+          "status": "open",
+          "sessions_held": 0,
+          "current_price": 290.3,
+          "unrealized_pct": 0.0,
+          "data_through": "2026-11-20",
+          "captured_at": "2026-11-20T18:47:22.001236+05:45"
+        },
+        {
+          "symbol": "CFCL",
+          "system": "trend-relay",
+          "rule": "SMA20/SMA50 golden cross + volume",
+          "entry_date": "2026-11-17",
+          "entry_price": 630,
+          "qty": 1587,
+          "stop_loss": 568.81,
+          "trail_stop": 568.81,
+          "target_1": 721.79,
+          "target_2": 813.57,
+          "status": "open",
+          "sessions_held": 1,
+          "current_price": 590,
+          "unrealized_pct": -6.35,
+          "data_through": "2026-11-18",
+          "captured_at": "2026-11-20T18:47:22.001236+05:45"
+        },
+        {
+          "symbol": "MKHC",
+          "system": "trend-relay",
+          "rule": "SMA20/SMA50 golden cross + volume",
+          "entry_date": "2026-11-13",
+          "entry_price": 274,
+          "qty": 3650,
+          "stop_loss": 258.73,
+          "trail_stop": 259.73,
+          "target_1": 296.9,
+          "target_2": 319.81,
+          "status": "open",
+          "sessions_held": 2,
+          "current_price": 275,
+          "unrealized_pct": 0.36,
+          "data_through": "2026-11-18",
+          "captured_at": "2026-11-20T18:47:22.001236+05:45"
+        }
+      ],
       "closed": [
         {
           "symbol": "BNHC",
@@ -1250,10 +1341,10 @@
       ],
       "stats": {
         "tracking_started": "2026-08-03",
-        "data_through": "2026-11-17",
-        "open_positions": 0,
+        "data_through": "2026-11-20",
+        "open_positions": 3,
         "closed_trades": 14,
-        "total_signals": 14,
+        "total_signals": 17,
         "wins": 7,
         "losses": 7,
         "win_rate_pct": 50.0,
@@ -1276,7 +1367,7 @@
           "exit_date": "2026-11-03",
           "exit_reason": "Stop loss hit"
         },
-        "last_updated": "2026-11-19T19:11:27.546593+05:45"
+        "last_updated": "2026-11-20T18:47:22.279986+05:45"
       }
     },
     "reversal": {
@@ -1298,6 +1389,42 @@
           "unrealized_pct": 0.0,
           "data_through": "2026-11-18",
           "captured_at": "2026-11-18T19:11:22.173107+05:45"
+        },
+        {
+          "symbol": "ACLBSL",
+          "system": "reversal",
+          "rule": "RSI(14)<30 + below lower Bollinger Band + bullish rejection",
+          "entry_date": "2026-11-19",
+          "entry_price": 765,
+          "qty": 1307,
+          "stop_loss": 734.94,
+          "trail_stop": 734.94,
+          "target_1": 832.82,
+          "target_2": 825.13,
+          "status": "open",
+          "sessions_held": 0,
+          "current_price": 765,
+          "unrealized_pct": 0.0,
+          "data_through": "2026-11-19",
+          "captured_at": "2026-11-20T18:47:22.001236+05:45"
+        },
+        {
+          "symbol": "OMPL",
+          "system": "reversal",
+          "rule": "RSI(14)<30 + below lower Bollinger Band + bullish rejection",
+          "entry_date": "2026-11-19",
+          "entry_price": 735,
+          "qty": 1361,
+          "stop_loss": 695.92,
+          "trail_stop": 695.92,
+          "target_1": 798.97,
+          "target_2": 813.16,
+          "status": "open",
+          "sessions_held": 0,
+          "current_price": 735,
+          "unrealized_pct": 0.0,
+          "data_through": "2026-11-19",
+          "captured_at": "2026-11-20T18:47:22.001236+05:45"
         }
       ],
       "closed": [
@@ -1476,10 +1603,10 @@
       ],
       "stats": {
         "tracking_started": "2026-08-03",
-        "data_through": "2026-11-18",
-        "open_positions": 1,
+        "data_through": "2026-11-19",
+        "open_positions": 3,
         "closed_trades": 6,
-        "total_signals": 7,
+        "total_signals": 9,
         "wins": 1,
         "losses": 5,
         "win_rate_pct": 16.67,
@@ -1502,7 +1629,7 @@
           "exit_date": "2026-11-05",
           "exit_reason": "Stop loss hit"
         },
-        "last_updated": "2026-11-19T19:11:27.546629+05:45"
+        "last_updated": "2026-11-20T18:47:22.280022+05:45"
       }
     }
   }
