@@ -1,32 +1,32 @@
 {
- "generated_at": "2026-11-13",
- "session_date": "2026-11-13",
+ "generated_at": "2026-11-20",
+ "session_date": "2026-11-20",
  "kind": "predictive-diagnostics",
  "note": "Educational diagnostics from Nepse Decode's own signal/outcome ledgers. Track records are historical measurements, not predictions or calls. warning_hit_probability is a model score validated out-of-sample (VAL->OOS AUC 0.69; top-tercile precision 51.5% vs 34.2% base) \u2014 evidence, not a guarantee. DIST_STALL is an experimental evidence-only flag (weight 0).",
  "class_track_records": {
   "signals:momentum": {
    "n_firings": 500,
    "n_resolved": 500,
-   "success_rate": 0.308,
+   "success_rate": 0.302,
    "by_era": {
     "IS": {
-     "n": 259,
-     "success_rate": 0.37065637065637064
+     "n": 257,
+     "success_rate": 0.3657587548638132
     },
     "VAL": {
-     "n": 109,
-     "success_rate": 0.3669724770642202
+     "n": 108,
+     "success_rate": 0.3611111111111111
     },
     "OOS": {
-     "n": 132,
-     "success_rate": 0.13636363636363635
+     "n": 135,
+     "success_rate": 0.13333333333333333
     }
    }
   },
   "signals:reversal": {
-   "n_firings": 255,
-   "n_resolved": 255,
-   "success_rate": 0.4627450980392157,
+   "n_firings": 256,
+   "n_resolved": 256,
+   "success_rate": 0.4609375,
    "by_era": {
     "IS": {
      "n": 149,
@@ -37,15 +37,15 @@
      "success_rate": 0.6896551724137931
     },
     "OOS": {
-     "n": 77,
-     "success_rate": 0.44155844155844154
+     "n": 78,
+     "success_rate": 0.4358974358974359
     }
    }
   },
   "signals:trend-relay": {
-   "n_firings": 390,
-   "n_resolved": 390,
-   "success_rate": 0.3153846153846154,
+   "n_firings": 392,
+   "n_resolved": 392,
+   "success_rate": 0.3163265306122449,
    "by_era": {
     "IS": {
      "n": 243,
@@ -56,8 +56,8 @@
      "success_rate": 0.43333333333333335
     },
     "OOS": {
-     "n": 87,
-     "success_rate": 0.10344827586206896
+     "n": 89,
+     "success_rate": 0.11235955056179775
     }
    }
   },
@@ -77,22 +77,22 @@
    }
   },
   "verdicts_v2:DISTRIBUTION_WARNING": {
-   "n_firings": 3349,
-   "n_resolved": 2971,
-   "success_rate": 0.3062941770447661,
+   "n_firings": 3402,
+   "n_resolved": 2991,
+   "success_rate": 0.30658642594450014,
    "by_era": {
     "VAL": {
      "n": 2149,
      "success_rate": 0.30200093066542577
     },
     "OOS": {
-     "n": 822,
-     "success_rate": 0.3175182481751825
+     "n": 842,
+     "success_rate": 0.3182897862232779
     }
    }
   },
   "verdicts_v2:DIST_STALL": {
-   "n_firings": 2612,
+   "n_firings": 2613,
    "n_resolved": 2609,
    "success_rate": 0.32196243771559985,
    "by_era": {
@@ -111,19 +111,24 @@
    }
   },
   "verdicts_v2:ELEVATED_RISK": {
-   "n_firings": 85,
-   "n_resolved": 2,
-   "success_rate": 0.5,
-   "by_era": {}
+   "n_firings": 110,
+   "n_resolved": 10,
+   "success_rate": 0.3,
+   "by_era": {
+    "OOS": {
+     "n": 10,
+     "success_rate": 0.3
+    }
+   }
   },
   "verdicts_v2:EXHAUSTION_RISK": {
    "n_firings": 100,
-   "n_resolved": 87,
-   "success_rate": 0.5632183908045977,
+   "n_resolved": 91,
+   "success_rate": 0.5824175824175825,
    "by_era": {
     "OOS": {
-     "n": 87,
-     "success_rate": 0.5632183908045977
+     "n": 91,
+     "success_rate": 0.5824175824175825
     }
    }
   }
@@ -131,27 +136,31 @@
  "sector_track_records": {
   "signals:momentum": {
    "Microfinance": {
-    "n": 108,
-    "success_rate": 0.28703703703703703
+    "n": 110,
+    "success_rate": 0.2727272727272727
    },
    "Manufacturing And Processing": {
     "n": 25,
     "success_rate": 0.36
    },
    "Hydropower": {
-    "n": 149,
-    "success_rate": 0.3422818791946309
+    "n": 146,
+    "success_rate": 0.3424657534246575
    },
    "Banking": {
-    "n": 60,
-    "success_rate": 0.36666666666666664
+    "n": 59,
+    "success_rate": 0.3728813559322034
    },
    "Finance": {
     "n": 36,
-    "success_rate": 0.3055555555555556
+    "success_rate": 0.25
    }
   },
   "signals:reversal": {
+   "Non Life Insurance": {
+    "n": 27,
+    "success_rate": 0.2962962962962963
+   },
    "Microfinance": {
     "n": 65,
     "success_rate": 0.49230769230769234
@@ -161,15 +170,15 @@
     "success_rate": 0.5094339622641509
    },
    "Hydropower": {
-    "n": 59,
-    "success_rate": 0.423728813559322
-   },
-   "Non Life Insurance": {
-    "n": 26,
-    "success_rate": 0.3076923076923077
+    "n": 58,
+    "success_rate": 0.43103448275862066
    }
   },
   "signals:trend-relay": {
+   "Hydropower": {
+    "n": 104,
+    "success_rate": 0.3557692307692308
+   },
    "Microfinance": {
     "n": 93,
     "success_rate": 0.3010752688172043
@@ -177,10 +186,6 @@
    "Banking": {
     "n": 70,
     "success_rate": 0.4
-   },
-   "Hydropower": {
-    "n": 102,
-    "success_rate": 0.3627450980392157
    },
    "Non Life Insurance": {
     "n": 27,
@@ -203,12 +208,12 @@
   },
   "verdicts_v2:DISTRIBUTION_WARNING": {
    "Microfinance": {
-    "n": 594,
-    "success_rate": 0.2558922558922559
+    "n": 596,
+    "success_rate": 0.2550335570469799
    },
    "Hydropower": {
-    "n": 1286,
-    "success_rate": 0.2954898911353033
+    "n": 1295,
+    "success_rate": 0.29498069498069496
    },
    "Finance": {
     "n": 199,
@@ -219,24 +224,24 @@
     "success_rate": 0.36363636363636365
    },
    "Hotels And Tourism": {
-    "n": 57,
-    "success_rate": 0.3333333333333333
+    "n": 58,
+    "success_rate": 0.3448275862068966
    },
    "Life Insurance": {
     "n": 98,
     "success_rate": 0.3469387755102041
    },
    "Banking": {
-    "n": 272,
-    "success_rate": 0.2647058823529412
+    "n": 274,
+    "success_rate": 0.26277372262773724
    },
    "Manufacturing And Processing": {
-    "n": 81,
-    "success_rate": 0.48148148148148145
+    "n": 85,
+    "success_rate": 0.4823529411764706
    },
    "Non Life Insurance": {
-    "n": 122,
-    "success_rate": 0.2786885245901639
+    "n": 124,
+    "success_rate": 0.2903225806451613
    },
    "Others": {
     "n": 49,
@@ -306,31 +311,31 @@
    "n_skipped": 212,
    "base": {
     "IS": {
-     "n": 259,
-     "win_rate": 0.37065637065637064,
-     "mean_pnl_pct": 0.05410439899064817
+     "n": 257,
+     "win_rate": 0.3657587548638132,
+     "mean_pnl_pct": 0.05316895815765511
     },
     "VAL": {
-     "n": 109,
-     "win_rate": 0.3669724770642202,
-     "mean_pnl_pct": 0.03863261242437456
+     "n": 108,
+     "win_rate": 0.3611111111111111,
+     "mean_pnl_pct": 0.04542547608473397
     },
     "OOS": {
-     "n": 130,
-     "win_rate": 0.13846153846153847,
-     "mean_pnl_pct": -0.04764827081761966
+     "n": 133,
+     "win_rate": 0.13533834586466165,
+     "mean_pnl_pct": -0.0464151758801713
     }
    },
    "kept": {
     "IS": {
-     "n": 127,
-     "win_rate": 0.3779527559055118,
-     "mean_pnl_pct": 0.04846664038095257
+     "n": 128,
+     "win_rate": 0.3671875,
+     "mean_pnl_pct": 0.04490083952578722
     },
     "VAL": {
-     "n": 103,
-     "win_rate": 0.3592233009708738,
-     "mean_pnl_pct": 0.03769028638053563
+     "n": 102,
+     "win_rate": 0.35294117647058826,
+     "mean_pnl_pct": 0.04487349176558443
     },
     "OOS": {
      "n": 56,
@@ -338,11 +343,11 @@
      "mean_pnl_pct": -0.05020562506338179
     }
    },
-   "oos_mean_gain_pp": -0.25573542457621307,
+   "oos_mean_gain_pp": -0.379044918321049,
    "era_degradation_pp": [
     [
      "IS",
-     -0.5637758609695599
+     -0.8268118631867896
     ]
    ],
    "status": "REJECTED",
@@ -353,8 +358,8 @@
    "type": "signal_filter",
    "rule": "F1_regime_bear",
    "scope": "trend-relay",
-   "n_total": 389,
-   "n_skipped": 168,
+   "n_total": 391,
+   "n_skipped": 170,
    "base": {
     "IS": {
      "n": 243,
@@ -364,12 +369,12 @@
     "VAL": {
      "n": 60,
      "win_rate": 0.43333333333333335,
-     "mean_pnl_pct": 0.06313810100265721
+     "mean_pnl_pct": 0.05695729476927924
     },
     "OOS": {
-     "n": 86,
-     "win_rate": 0.10465116279069768,
-     "mean_pnl_pct": -0.04060062574397705
+     "n": 88,
+     "win_rate": 0.11363636363636363,
+     "mean_pnl_pct": -0.04039554782380558
     }
    },
    "kept": {
@@ -381,7 +386,7 @@
     "VAL": {
      "n": 54,
      "win_rate": 0.42592592592592593,
-     "mean_pnl_pct": 0.06993127033042527
+     "mean_pnl_pct": 0.06306370784889419
     },
     "OOS": {
      "n": 38,
@@ -389,7 +394,7 @@
      "mean_pnl_pct": -0.03487371654606433
     }
    },
-   "oos_mean_gain_pp": 0.5726909197912716,
+   "oos_mean_gain_pp": 0.5521831277741251,
    "era_degradation_pp": [],
    "status": "PASS",
    "reason": "OOS improves, no era degradation, n adequate",
@@ -406,13 +411,13 @@
    "type": "signal_filter",
    "rule": "F1_regime_bear",
    "scope": "reversal",
-   "n_total": 255,
-   "n_skipped": 162,
+   "n_total": 256,
+   "n_skipped": 163,
    "base": {
     "IS": {
      "n": 149,
      "win_rate": 0.42953020134228187,
-     "mean_pnl_pct": -0.0030311985365361507
+     "mean_pnl_pct": -0.003031198536536151
     },
     "VAL": {
      "n": 29,
@@ -420,9 +425,9 @@
      "mean_pnl_pct": 0.008916687017787535
     },
     "OOS": {
-     "n": 77,
-     "win_rate": 0.44155844155844154,
-     "mean_pnl_pct": -0.019380037464666156
+     "n": 78,
+     "win_rate": 0.4358974358974359,
+     "mean_pnl_pct": -0.018185469373192525
     }
    },
    "kept": {
@@ -442,7 +447,7 @@
      "mean_pnl_pct": -0.04321852033753729
     }
    },
-   "oos_mean_gain_pp": -2.3838482872871136,
+   "oos_mean_gain_pp": -2.503305096434477,
    "era_degradation_pp": [
     [
      "VAL",
@@ -457,35 +462,35 @@
    "type": "signal_filter",
    "rule": "F1_regime_bear",
    "scope": "POOLED",
-   "n_total": 1142,
-   "n_skipped": 542,
+   "n_total": 1145,
+   "n_skipped": 545,
    "base": {
     "IS": {
-     "n": 651,
-     "win_rate": 0.38095238095238093,
-     "mean_pnl_pct": 0.044826707748130204
+     "n": 649,
+     "win_rate": 0.3790446841294299,
+     "mean_pnl_pct": 0.044427688215673736
     },
     "VAL": {
-     "n": 198,
-     "win_rate": 0.43434343434343436,
-     "mean_pnl_pct": 0.04170618554511161
+     "n": 197,
+     "win_rate": 0.43147208121827413,
+     "mean_pnl_pct": 0.04356331485697392
     },
     "OOS": {
-     "n": 293,
-     "win_rate": 0.20819112627986347,
-     "mean_pnl_pct": -0.03815082561451152
+     "n": 299,
+     "win_rate": 0.20735785953177258,
+     "mean_pnl_pct": -0.03727924151059094
     }
    },
    "kept": {
     "IS": {
-     "n": 308,
-     "win_rate": 0.37662337662337664,
-     "mean_pnl_pct": 0.0652364201600843
+     "n": 309,
+     "win_rate": 0.37216828478964403,
+     "mean_pnl_pct": 0.06370505352823867
     },
     "VAL": {
-     "n": 183,
-     "win_rate": 0.4207650273224044,
-     "mean_pnl_pct": 0.042656775484555425
+     "n": 182,
+     "win_rate": 0.4175824175824176,
+     "mean_pnl_pct": 0.04467218792618354
     },
     "OOS": {
      "n": 109,
@@ -493,7 +498,7 @@
      "mean_pnl_pct": -0.04389902786571453
     }
    },
-   "oos_mean_gain_pp": -0.5748202251203011,
+   "oos_mean_gain_pp": -0.6619786355123586,
    "era_degradation_pp": [],
    "status": "REJECTED",
    "reason": "kept subset does not beat baseline OOS"
@@ -504,42 +509,42 @@
    "rule": "F2_t2_recent",
    "scope": "momentum",
    "n_total": 498,
-   "n_skipped": 191,
+   "n_skipped": 187,
    "base": {
     "IS": {
-     "n": 259,
-     "win_rate": 0.37065637065637064,
-     "mean_pnl_pct": 0.05410439899064817
+     "n": 257,
+     "win_rate": 0.3657587548638132,
+     "mean_pnl_pct": 0.05316895815765511
     },
     "VAL": {
-     "n": 109,
-     "win_rate": 0.3669724770642202,
-     "mean_pnl_pct": 0.03863261242437456
+     "n": 108,
+     "win_rate": 0.3611111111111111,
+     "mean_pnl_pct": 0.04542547608473397
     },
     "OOS": {
-     "n": 130,
-     "win_rate": 0.13846153846153847,
-     "mean_pnl_pct": -0.04764827081761966
+     "n": 133,
+     "win_rate": 0.13533834586466165,
+     "mean_pnl_pct": -0.0464151758801713
     }
    },
    "kept": {
     "IS": {
      "n": 150,
-     "win_rate": 0.36,
-     "mean_pnl_pct": 0.05574237357079062
+     "win_rate": 0.35333333333333333,
+     "mean_pnl_pct": 0.05430288833647189
     },
     "VAL": {
-     "n": 56,
-     "win_rate": 0.39285714285714285,
-     "mean_pnl_pct": 0.07590156318280153
+     "n": 57,
+     "win_rate": 0.40350877192982454,
+     "mean_pnl_pct": 0.0882523020724932
     },
     "OOS": {
-     "n": 101,
-     "win_rate": 0.16831683168316833,
-     "mean_pnl_pct": -0.03536550013107199
+     "n": 104,
+     "win_rate": 0.16346153846153846,
+     "mean_pnl_pct": -0.034340340997272886
     }
    },
-   "oos_mean_gain_pp": 1.228277068654767,
+   "oos_mean_gain_pp": 1.2074834882898413,
    "era_degradation_pp": [],
    "status": "PASS",
    "reason": "OOS improves, no era degradation, n adequate",
@@ -556,7 +561,7 @@
    "type": "signal_filter",
    "rule": "F2_t2_recent",
    "scope": "trend-relay",
-   "n_total": 389,
+   "n_total": 391,
    "n_skipped": 118,
    "base": {
     "IS": {
@@ -567,12 +572,12 @@
     "VAL": {
      "n": 60,
      "win_rate": 0.43333333333333335,
-     "mean_pnl_pct": 0.06313810100265721
+     "mean_pnl_pct": 0.05695729476927924
     },
     "OOS": {
-     "n": 86,
-     "win_rate": 0.10465116279069768,
-     "mean_pnl_pct": -0.04060062574397705
+     "n": 88,
+     "win_rate": 0.11363636363636363,
+     "mean_pnl_pct": -0.04039554782380558
     }
    },
    "kept": {
@@ -584,15 +589,15 @@
     "VAL": {
      "n": 41,
      "win_rate": 0.3902439024390244,
-     "mean_pnl_pct": 0.06575236185927759
+     "mean_pnl_pct": 0.05670727956652931
     },
     "OOS": {
-     "n": 68,
-     "win_rate": 0.11764705882352941,
-     "mean_pnl_pct": -0.03617180348939658
+     "n": 70,
+     "win_rate": 0.12857142857142856,
+     "mean_pnl_pct": -0.03604052902559761
     }
    },
-   "oos_mean_gain_pp": 0.4428822254580467,
+   "oos_mean_gain_pp": 0.4355018798207974,
    "era_degradation_pp": [],
    "status": "PASS",
    "reason": "OOS improves, no era degradation, n adequate",
@@ -609,13 +614,13 @@
    "type": "signal_filter",
    "rule": "F2_t2_recent",
    "scope": "reversal",
-   "n_total": 255,
+   "n_total": 256,
    "n_skipped": 4,
    "base": {
     "IS": {
      "n": 149,
      "win_rate": 0.42953020134228187,
-     "mean_pnl_pct": -0.0030311985365361507
+     "mean_pnl_pct": -0.003031198536536151
     },
     "VAL": {
      "n": 29,
@@ -623,9 +628,9 @@
      "mean_pnl_pct": 0.008916687017787535
     },
     "OOS": {
-     "n": 77,
-     "win_rate": 0.44155844155844154,
-     "mean_pnl_pct": -0.019380037464666156
+     "n": 78,
+     "win_rate": 0.4358974358974359,
+     "mean_pnl_pct": -0.018185469373192525
     }
    },
    "kept": {
@@ -640,12 +645,12 @@
      "mean_pnl_pct": 0.014233564316731418
     },
     "OOS": {
-     "n": 75,
-     "win_rate": 0.44,
-     "mean_pnl_pct": -0.02143999417749565
+     "n": 76,
+     "win_rate": 0.4342105263157895,
+     "mean_pnl_pct": -0.020186885441961674
     }
    },
-   "oos_mean_gain_pp": -0.2059956712829495,
+   "oos_mean_gain_pp": -0.2001416068769149,
    "era_degradation_pp": [],
    "status": "STAGED",
    "reason": "insufficient evidence \u2014 the rule fires on only 4 archived trades; a PASS/REJECT on that count would be noise"
@@ -655,51 +660,51 @@
    "type": "signal_filter",
    "rule": "F2_t2_recent",
    "scope": "POOLED",
-   "n_total": 1142,
-   "n_skipped": 313,
+   "n_total": 1145,
+   "n_skipped": 309,
    "base": {
     "IS": {
-     "n": 651,
-     "win_rate": 0.38095238095238093,
-     "mean_pnl_pct": 0.044826707748130204
+     "n": 649,
+     "win_rate": 0.3790446841294299,
+     "mean_pnl_pct": 0.044427688215673736
     },
     "VAL": {
-     "n": 198,
-     "win_rate": 0.43434343434343436,
-     "mean_pnl_pct": 0.04170618554511161
+     "n": 197,
+     "win_rate": 0.43147208121827413,
+     "mean_pnl_pct": 0.04356331485697392
     },
     "OOS": {
-     "n": 293,
-     "win_rate": 0.20819112627986347,
-     "mean_pnl_pct": -0.03815082561451152
+     "n": 299,
+     "win_rate": 0.20735785953177258,
+     "mean_pnl_pct": -0.03727924151059094
     }
    },
    "kept": {
     "IS": {
      "n": 460,
-     "win_rate": 0.3760869565217391,
-     "mean_pnl_pct": 0.040542082676620524
+     "win_rate": 0.3739130434782609,
+     "mean_pnl_pct": 0.040072685317603544
     },
     "VAL": {
-     "n": 125,
-     "win_rate": 0.464,
-     "mean_pnl_pct": 0.05875899340268596
+     "n": 126,
+     "win_rate": 0.46825396825396826,
+     "mean_pnl_pct": 0.061539043501811865
     },
     "OOS": {
-     "n": 244,
-     "win_rate": 0.23770491803278687,
-     "mean_pnl_pct": -0.031309826696022176
+     "n": 250,
+     "win_rate": 0.236,
+     "mean_pnl_pct": -0.0305137431563892
     }
    },
-   "oos_mean_gain_pp": 0.684099891848934,
+   "oos_mean_gain_pp": 0.6765498354201742,
    "era_degradation_pp": [
     [
      "IS",
-     -0.428462507150968
+     -0.43550028980701916
     ]
    ],
    "status": "STAGED",
-   "reason": "OOS improves but IS degrades -0.43pp"
+   "reason": "OOS improves but IS degrades -0.44pp"
   },
   {
    "id": "F3_lockin_near@momentum",
@@ -710,36 +715,36 @@
    "n_skipped": 0,
    "base": {
     "IS": {
-     "n": 259,
-     "win_rate": 0.37065637065637064,
-     "mean_pnl_pct": 0.05410439899064817
+     "n": 257,
+     "win_rate": 0.3657587548638132,
+     "mean_pnl_pct": 0.05316895815765511
     },
     "VAL": {
-     "n": 109,
-     "win_rate": 0.3669724770642202,
-     "mean_pnl_pct": 0.03863261242437456
+     "n": 108,
+     "win_rate": 0.3611111111111111,
+     "mean_pnl_pct": 0.04542547608473397
     },
     "OOS": {
-     "n": 130,
-     "win_rate": 0.13846153846153847,
-     "mean_pnl_pct": -0.04764827081761966
+     "n": 133,
+     "win_rate": 0.13533834586466165,
+     "mean_pnl_pct": -0.0464151758801713
     }
    },
    "kept": {
     "IS": {
-     "n": 259,
-     "win_rate": 0.37065637065637064,
-     "mean_pnl_pct": 0.05410439899064817
+     "n": 257,
+     "win_rate": 0.3657587548638132,
+     "mean_pnl_pct": 0.05316895815765511
     },
     "VAL": {
-     "n": 109,
-     "win_rate": 0.3669724770642202,
-     "mean_pnl_pct": 0.03863261242437456
+     "n": 108,
+     "win_rate": 0.3611111111111111,
+     "mean_pnl_pct": 0.04542547608473397
     },
     "OOS": {
-     "n": 130,
-     "win_rate": 0.13846153846153847,
-     "mean_pnl_pct": -0.04764827081761966
+     "n": 133,
+     "win_rate": 0.13533834586466165,
+     "mean_pnl_pct": -0.0464151758801713
     }
    },
    "oos_mean_gain_pp": 0.0,
@@ -752,7 +757,7 @@
    "type": "signal_filter",
    "rule": "F3_lockin_near",
    "scope": "trend-relay",
-   "n_total": 389,
+   "n_total": 391,
    "n_skipped": 2,
    "base": {
     "IS": {
@@ -763,12 +768,12 @@
     "VAL": {
      "n": 60,
      "win_rate": 0.43333333333333335,
-     "mean_pnl_pct": 0.06313810100265721
+     "mean_pnl_pct": 0.05695729476927924
     },
     "OOS": {
-     "n": 86,
-     "win_rate": 0.10465116279069768,
-     "mean_pnl_pct": -0.04060062574397705
+     "n": 88,
+     "win_rate": 0.11363636363636363,
+     "mean_pnl_pct": -0.04039554782380558
     }
    },
    "kept": {
@@ -780,15 +785,15 @@
     "VAL": {
      "n": 60,
      "win_rate": 0.43333333333333335,
-     "mean_pnl_pct": 0.06313810100265721
+     "mean_pnl_pct": 0.05695729476927924
     },
     "OOS": {
-     "n": 84,
-     "win_rate": 0.10714285714285714,
-     "mean_pnl_pct": -0.03997691389136983
+     "n": 86,
+     "win_rate": 0.11627906976744186,
+     "mean_pnl_pct": -0.0397815716440457
     }
    },
-   "oos_mean_gain_pp": 0.062371185260721995,
+   "oos_mean_gain_pp": 0.06139761797598828,
    "era_degradation_pp": [],
    "status": "STAGED",
    "reason": "insufficient evidence \u2014 the rule fires on only 2 archived trades; a PASS/REJECT on that count would be noise"
@@ -798,13 +803,30 @@
    "type": "signal_filter",
    "rule": "F3_lockin_near",
    "scope": "reversal",
-   "n_total": 255,
+   "n_total": 256,
    "n_skipped": 1,
    "base": {
     "IS": {
      "n": 149,
      "win_rate": 0.42953020134228187,
-     "mean_pnl_pct": -0.0030311985365361507
+     "mean_pnl_pct": -0.003031198536536151
+    },
+    "VAL": {
+     "n": 29,
+     "win_rate": 0.6896551724137931,
+     "mean_pnl_pct": 0.008916687017787535
+    },
+    "OOS": {
+     "n": 78,
+     "win_rate": 0.4358974358974359,
+     "mean_pnl_pct": -0.018185469373192525
+    }
+   },
+   "kept": {
+    "IS": {
+     "n": 149,
+     "win_rate": 0.42953020134228187,
+     "mean_pnl_pct": -0.003031198536536151
     },
     "VAL": {
      "n": 29,
@@ -814,27 +836,10 @@
     "OOS": {
      "n": 77,
      "win_rate": 0.44155844155844154,
-     "mean_pnl_pct": -0.019380037464666156
+     "mean_pnl_pct": -0.016131388543603676
     }
    },
-   "kept": {
-    "IS": {
-     "n": 149,
-     "win_rate": 0.42953020134228187,
-     "mean_pnl_pct": -0.0030311985365361507
-    },
-    "VAL": {
-     "n": 29,
-     "win_rate": 0.6896551724137931,
-     "mean_pnl_pct": 0.008916687017787535
-    },
-    "OOS": {
-     "n": 76,
-     "win_rate": 0.4473684210526316,
-     "mean_pnl_pct": -0.017314647256944215
-    }
-   },
-   "oos_mean_gain_pp": 0.20653902077219405,
+   "oos_mean_gain_pp": 0.20540808295888488,
    "era_degradation_pp": [],
    "status": "STAGED",
    "reason": "insufficient evidence \u2014 the rule fires on only 1 archived trades; a PASS/REJECT on that count would be noise"
@@ -844,43 +849,43 @@
    "type": "signal_filter",
    "rule": "F3_lockin_near",
    "scope": "POOLED",
-   "n_total": 1142,
+   "n_total": 1145,
    "n_skipped": 3,
    "base": {
     "IS": {
-     "n": 651,
-     "win_rate": 0.38095238095238093,
-     "mean_pnl_pct": 0.044826707748130204
+     "n": 649,
+     "win_rate": 0.3790446841294299,
+     "mean_pnl_pct": 0.044427688215673736
     },
     "VAL": {
-     "n": 198,
-     "win_rate": 0.43434343434343436,
-     "mean_pnl_pct": 0.04170618554511161
+     "n": 197,
+     "win_rate": 0.43147208121827413,
+     "mean_pnl_pct": 0.04356331485697392
     },
     "OOS": {
-     "n": 293,
-     "win_rate": 0.20819112627986347,
-     "mean_pnl_pct": -0.03815082561451152
+     "n": 299,
+     "win_rate": 0.20735785953177258,
+     "mean_pnl_pct": -0.03727924151059094
     }
    },
    "kept": {
     "IS": {
-     "n": 651,
-     "win_rate": 0.38095238095238093,
-     "mean_pnl_pct": 0.044826707748130204
+     "n": 649,
+     "win_rate": 0.3790446841294299,
+     "mean_pnl_pct": 0.044427688215673736
     },
     "VAL": {
-     "n": 198,
-     "win_rate": 0.43434343434343436,
-     "mean_pnl_pct": 0.04170618554511161
+     "n": 197,
+     "win_rate": 0.43147208121827413,
+     "mean_pnl_pct": 0.04356331485697392
     },
     "OOS": {
-     "n": 290,
-     "win_rate": 0.2103448275862069,
-     "mean_pnl_pct": -0.037476721257563385
+     "n": 296,
+     "win_rate": 0.20945945945945946,
+     "mean_pnl_pct": -0.036609967808473635
     }
    },
-   "oos_mean_gain_pp": 0.06741043569481325,
+   "oos_mean_gain_pp": 0.06692737021173067,
    "era_degradation_pp": [],
    "status": "STAGED",
    "reason": "insufficient evidence \u2014 the rule fires on only 3 archived trades; a PASS/REJECT on that count would be noise"
@@ -891,46 +896,50 @@
    "rule": "F4_thin_turnover",
    "scope": "momentum",
    "n_total": 498,
-   "n_skipped": 80,
+   "n_skipped": 78,
    "base": {
     "IS": {
-     "n": 259,
-     "win_rate": 0.37065637065637064,
-     "mean_pnl_pct": 0.05410439899064817
+     "n": 257,
+     "win_rate": 0.3657587548638132,
+     "mean_pnl_pct": 0.05316895815765511
     },
     "VAL": {
-     "n": 109,
-     "win_rate": 0.3669724770642202,
-     "mean_pnl_pct": 0.03863261242437456
+     "n": 108,
+     "win_rate": 0.3611111111111111,
+     "mean_pnl_pct": 0.04542547608473397
     },
     "OOS": {
-     "n": 130,
-     "win_rate": 0.13846153846153847,
-     "mean_pnl_pct": -0.04764827081761966
+     "n": 133,
+     "win_rate": 0.13533834586466165,
+     "mean_pnl_pct": -0.0464151758801713
     }
    },
    "kept": {
     "IS": {
-     "n": 212,
-     "win_rate": 0.37264150943396224,
-     "mean_pnl_pct": 0.05274968194864801
+     "n": 211,
+     "win_rate": 0.36492890995260663,
+     "mean_pnl_pct": 0.0508098614605269
     },
     "VAL": {
      "n": 99,
-     "win_rate": 0.3838383838383838,
-     "mean_pnl_pct": 0.03590930637652697
+     "win_rate": 0.37373737373737376,
+     "mean_pnl_pct": 0.042839055164794124
     },
     "OOS": {
-     "n": 107,
-     "win_rate": 0.14018691588785046,
-     "mean_pnl_pct": -0.05079701820596516
+     "n": 110,
+     "win_rate": 0.13636363636363635,
+     "mean_pnl_pct": -0.049220219398277275
     }
    },
-   "oos_mean_gain_pp": -0.3148747388345502,
+   "oos_mean_gain_pp": -0.2805043518105975,
    "era_degradation_pp": [
     [
      "VAL",
-     -0.2723306047847589
+     -0.2586420919939846
+    ],
+    [
+     "IS",
+     -0.23590966971282143
     ]
    ],
    "status": "REJECTED",
@@ -941,7 +950,7 @@
    "type": "signal_filter",
    "rule": "F4_thin_turnover",
    "scope": "trend-relay",
-   "n_total": 389,
+   "n_total": 391,
    "n_skipped": 74,
    "base": {
     "IS": {
@@ -952,12 +961,12 @@
     "VAL": {
      "n": 60,
      "win_rate": 0.43333333333333335,
-     "mean_pnl_pct": 0.06313810100265721
+     "mean_pnl_pct": 0.05695729476927924
     },
     "OOS": {
-     "n": 86,
-     "win_rate": 0.10465116279069768,
-     "mean_pnl_pct": -0.04060062574397705
+     "n": 88,
+     "win_rate": 0.11363636363636363,
+     "mean_pnl_pct": -0.04039554782380558
     }
    },
    "kept": {
@@ -969,15 +978,15 @@
     "VAL": {
      "n": 58,
      "win_rate": 0.4482758620689655,
-     "mean_pnl_pct": 0.06722112479999996
+     "mean_pnl_pct": 0.06082718731719516
     },
     "OOS": {
-     "n": 76,
-     "win_rate": 0.10526315789473684,
-     "mean_pnl_pct": -0.039371778014634345
+     "n": 78,
+     "win_rate": 0.11538461538461539,
+     "mean_pnl_pct": -0.039171916969552245
     }
    },
-   "oos_mean_gain_pp": 0.12288477293427025,
+   "oos_mean_gain_pp": 0.1223630854253338,
    "era_degradation_pp": [
     [
      "IS",
@@ -992,13 +1001,13 @@
    "type": "signal_filter",
    "rule": "F4_thin_turnover",
    "scope": "reversal",
-   "n_total": 255,
+   "n_total": 256,
    "n_skipped": 68,
    "base": {
     "IS": {
      "n": 149,
      "win_rate": 0.42953020134228187,
-     "mean_pnl_pct": -0.0030311985365361507
+     "mean_pnl_pct": -0.003031198536536151
     },
     "VAL": {
      "n": 29,
@@ -1006,16 +1015,16 @@
      "mean_pnl_pct": 0.008916687017787535
     },
     "OOS": {
-     "n": 77,
-     "win_rate": 0.44155844155844154,
-     "mean_pnl_pct": -0.019380037464666156
+     "n": 78,
+     "win_rate": 0.4358974358974359,
+     "mean_pnl_pct": -0.018185469373192525
     }
    },
    "kept": {
     "IS": {
      "n": 101,
      "win_rate": 0.45544554455445546,
-     "mean_pnl_pct": 0.00124335941255547
+     "mean_pnl_pct": 0.0012433594125554706
     },
     "VAL": {
      "n": 24,
@@ -1023,12 +1032,12 @@
      "mean_pnl_pct": 0.002757533681173128
     },
     "OOS": {
-     "n": 62,
-     "win_rate": 0.4032258064516129,
-     "mean_pnl_pct": -0.025768483371631953
+     "n": 63,
+     "win_rate": 0.3968253968253968,
+     "mean_pnl_pct": -0.024188090402712754
     }
    },
-   "oos_mean_gain_pp": -0.6388445906965797,
+   "oos_mean_gain_pp": -0.600262102952023,
    "era_degradation_pp": [
     [
      "VAL",
@@ -1043,47 +1052,47 @@
    "type": "signal_filter",
    "rule": "F4_thin_turnover",
    "scope": "POOLED",
-   "n_total": 1142,
-   "n_skipped": 222,
+   "n_total": 1145,
+   "n_skipped": 220,
    "base": {
     "IS": {
-     "n": 651,
-     "win_rate": 0.38095238095238093,
-     "mean_pnl_pct": 0.044826707748130204
+     "n": 649,
+     "win_rate": 0.3790446841294299,
+     "mean_pnl_pct": 0.044427688215673736
     },
     "VAL": {
-     "n": 198,
-     "win_rate": 0.43434343434343436,
-     "mean_pnl_pct": 0.04170618554511161
+     "n": 197,
+     "win_rate": 0.43147208121827413,
+     "mean_pnl_pct": 0.04356331485697392
     },
     "OOS": {
-     "n": 293,
-     "win_rate": 0.20819112627986347,
-     "mean_pnl_pct": -0.03815082561451152
+     "n": 299,
+     "win_rate": 0.20735785953177258,
+     "mean_pnl_pct": -0.03727924151059094
     }
    },
    "kept": {
     "IS": {
-     "n": 494,
-     "win_rate": 0.3765182186234818,
-     "mean_pnl_pct": 0.038880138729539354
+     "n": 493,
+     "win_rate": 0.37322515212981744,
+     "mean_pnl_pct": 0.03802177835182604
     },
     "VAL": {
      "n": 181,
-     "win_rate": 0.43646408839779005,
-     "mean_pnl_pct": 0.04154711258576974
+     "win_rate": 0.430939226519337,
+     "mean_pnl_pct": 0.04328853112740383
     },
     "OOS": {
-     "n": 245,
-     "win_rate": 0.19591836734693877,
-     "mean_pnl_pct": -0.04091911039261903
+     "n": 251,
+     "win_rate": 0.1952191235059761,
+     "mean_pnl_pct": -0.03981467471237641
     }
    },
-   "oos_mean_gain_pp": -0.27682847781075115,
+   "oos_mean_gain_pp": -0.2535433201785467,
    "era_degradation_pp": [
     [
      "IS",
-     -0.594656901859085
+     -0.6405909863847696
     ]
    ],
    "status": "REJECTED",
@@ -1095,62 +1104,62 @@
    "rule": "F5_breadth_low",
    "scope": "momentum",
    "n_total": 498,
-   "n_skipped": 116,
+   "n_skipped": 118,
    "base": {
     "IS": {
-     "n": 259,
-     "win_rate": 0.37065637065637064,
-     "mean_pnl_pct": 0.05410439899064817
+     "n": 257,
+     "win_rate": 0.3657587548638132,
+     "mean_pnl_pct": 0.05316895815765511
     },
     "VAL": {
-     "n": 109,
-     "win_rate": 0.3669724770642202,
-     "mean_pnl_pct": 0.03863261242437456
+     "n": 108,
+     "win_rate": 0.3611111111111111,
+     "mean_pnl_pct": 0.04542547608473397
     },
     "OOS": {
-     "n": 130,
-     "win_rate": 0.13846153846153847,
-     "mean_pnl_pct": -0.04764827081761966
+     "n": 133,
+     "win_rate": 0.13533834586466165,
+     "mean_pnl_pct": -0.0464151758801713
     }
    },
    "kept": {
     "IS": {
-     "n": 223,
-     "win_rate": 0.3811659192825112,
-     "mean_pnl_pct": 0.04537056213130407
+     "n": 221,
+     "win_rate": 0.3755656108597285,
+     "mean_pnl_pct": 0.04420370254850813
     },
     "VAL": {
-     "n": 83,
-     "win_rate": 0.3373493975903614,
-     "mean_pnl_pct": 0.02439084583898612
+     "n": 82,
+     "win_rate": 0.32926829268292684,
+     "mean_pnl_pct": 0.03316386423817427
     },
     "OOS": {
-     "n": 76,
-     "win_rate": 0.17105263157894737,
-     "mean_pnl_pct": -0.03739927919100456
+     "n": 77,
+     "win_rate": 0.16883116883116883,
+     "mean_pnl_pct": -0.03666047548019761
     }
    },
-   "oos_mean_gain_pp": 1.0248991626615098,
+   "oos_mean_gain_pp": 0.9754700399973691,
    "era_degradation_pp": [
     [
      "VAL",
-     -1.4241766585388438
+     -1.2261611846559697
     ],
     [
      "IS",
-     -0.8733836859344104
+     -0.8965255609146981
     ]
    ],
    "status": "STAGED",
-   "reason": "OOS improves but VAL degrades -1.42pp; IS degrades -0.87pp"
+   "reason": "OOS improves but VAL degrades -1.23pp; IS degrades -0.90pp"
   },
   {
    "id": "F5_breadth_low@trend-relay",
    "type": "signal_filter",
    "rule": "F5_breadth_low",
    "scope": "trend-relay",
-   "n_total": 389,
-   "n_skipped": 70,
+   "n_total": 391,
+   "n_skipped": 71,
    "base": {
     "IS": {
      "n": 243,
@@ -1160,12 +1169,12 @@
     "VAL": {
      "n": 60,
      "win_rate": 0.43333333333333335,
-     "mean_pnl_pct": 0.06313810100265721
+     "mean_pnl_pct": 0.05695729476927924
     },
     "OOS": {
-     "n": 86,
-     "win_rate": 0.10465116279069768,
-     "mean_pnl_pct": -0.04060062574397705
+     "n": 88,
+     "win_rate": 0.11363636363636363,
+     "mean_pnl_pct": -0.04039554782380558
     }
    },
    "kept": {
@@ -1177,15 +1186,15 @@
     "VAL": {
      "n": 48,
      "win_rate": 0.4375,
-     "mean_pnl_pct": 0.07963173479869082
+     "mean_pnl_pct": 0.07190572700696835
     },
     "OOS": {
-     "n": 58,
-     "win_rate": 0.1206896551724138,
-     "mean_pnl_pct": -0.03502392979994358
+     "n": 59,
+     "win_rate": 0.11864406779661017,
+     "mean_pnl_pct": -0.03559420578241839
     }
    },
-   "oos_mean_gain_pp": 0.557669594403347,
+   "oos_mean_gain_pp": 0.4801342041387192,
    "era_degradation_pp": [
     [
      "IS",
@@ -1200,13 +1209,13 @@
    "type": "signal_filter",
    "rule": "F5_breadth_low",
    "scope": "reversal",
-   "n_total": 255,
+   "n_total": 256,
    "n_skipped": 200,
    "base": {
     "IS": {
      "n": 149,
      "win_rate": 0.42953020134228187,
-     "mean_pnl_pct": -0.0030311985365361507
+     "mean_pnl_pct": -0.003031198536536151
     },
     "VAL": {
      "n": 29,
@@ -1214,9 +1223,9 @@
      "mean_pnl_pct": 0.008916687017787535
     },
     "OOS": {
-     "n": 77,
-     "win_rate": 0.44155844155844154,
-     "mean_pnl_pct": -0.019380037464666156
+     "n": 78,
+     "win_rate": 0.4358974358974359,
+     "mean_pnl_pct": -0.018185469373192525
     }
    },
    "kept": {
@@ -1231,12 +1240,12 @@
      "mean_pnl_pct": -0.015018760166453595
     },
     "OOS": {
-     "n": 8,
-     "win_rate": 0.375,
-     "mean_pnl_pct": -0.049516584836184804
+     "n": 9,
+     "win_rate": 0.3333333333333333,
+     "mean_pnl_pct": -0.04892156468635389
     }
    },
-   "oos_mean_gain_pp": -3.0136547371518647,
+   "oos_mean_gain_pp": -3.0736095313161367,
    "era_degradation_pp": [
     [
      "VAL",
@@ -1255,51 +1264,53 @@
    "type": "signal_filter",
    "rule": "F5_breadth_low",
    "scope": "POOLED",
-   "n_total": 1142,
-   "n_skipped": 386,
+   "n_total": 1145,
+   "n_skipped": 389,
    "base": {
     "IS": {
-     "n": 651,
-     "win_rate": 0.38095238095238093,
-     "mean_pnl_pct": 0.044826707748130204
+     "n": 649,
+     "win_rate": 0.3790446841294299,
+     "mean_pnl_pct": 0.044427688215673736
     },
     "VAL": {
-     "n": 198,
-     "win_rate": 0.43434343434343436,
-     "mean_pnl_pct": 0.04170618554511161
+     "n": 197,
+     "win_rate": 0.43147208121827413,
+     "mean_pnl_pct": 0.04356331485697392
     },
     "OOS": {
-     "n": 293,
-     "win_rate": 0.20819112627986347,
-     "mean_pnl_pct": -0.03815082561451152
+     "n": 299,
+     "win_rate": 0.20735785953177258,
+     "mean_pnl_pct": -0.03727924151059094
     }
    },
    "kept": {
     "IS": {
-     "n": 470,
-     "win_rate": 0.3680851063829787,
-     "mean_pnl_pct": 0.0467137211033685
+     "n": 468,
+     "win_rate": 0.36538461538461536,
+     "mean_pnl_pct": 0.046168444073766426
     },
     "VAL": {
-     "n": 144,
-     "win_rate": 0.3888888888888889,
-     "mean_pnl_pct": 0.03924666383895216
+     "n": 143,
+     "win_rate": 0.38461538461538464,
+     "mean_pnl_pct": 0.04178788728462149
     },
     "OOS": {
-     "n": 142,
-     "win_rate": 0.1619718309859155,
-     "mean_pnl_pct": -0.03711173116621516
+     "n": 145,
+     "win_rate": 0.15862068965517243,
+     "mean_pnl_pct": -0.036987647140104045
     }
    },
-   "oos_mean_gain_pp": 0.10390944482963557,
-   "era_degradation_pp": [
-    [
-     "VAL",
-     -0.24595217061594496
-    ]
+   "oos_mean_gain_pp": 0.02915943704868973,
+   "era_degradation_pp": [],
+   "status": "PASS",
+   "reason": "OOS improves, no era degradation, n adequate",
+   "activation_gates": [
+    "re-verify on the FULL uncapped replay history (momentum builder list is capped at 500 of 770)",
+    "portfolio-level simulation (compounded, position-sized) must preserve the improvement",
+    "forward shadow tracking in the weekly loop: live alerts the filter would skip are tagged and their paper outcomes compared for >=20 resolutions",
+    "parent review before any build-signals.js change"
    ],
-   "status": "STAGED",
-   "reason": "OOS improves but VAL degrades -0.25pp"
+   "ship_state": "STAGED-ACTIVE: published in diagnostics as a per-alert lesson; engine behaviour unchanged until gates clear (DIST_STALL precedent)"
   },
   {
    "id": "F6_rsi_hot@momentum",
@@ -1307,57 +1318,57 @@
    "rule": "F6_rsi_hot",
    "scope": "momentum",
    "n_total": 498,
-   "n_skipped": 59,
+   "n_skipped": 56,
    "base": {
     "IS": {
-     "n": 259,
-     "win_rate": 0.37065637065637064,
-     "mean_pnl_pct": 0.05410439899064817
+     "n": 257,
+     "win_rate": 0.3657587548638132,
+     "mean_pnl_pct": 0.05316895815765511
     },
     "VAL": {
-     "n": 109,
-     "win_rate": 0.3669724770642202,
-     "mean_pnl_pct": 0.03863261242437456
+     "n": 108,
+     "win_rate": 0.3611111111111111,
+     "mean_pnl_pct": 0.04542547608473397
     },
     "OOS": {
-     "n": 130,
-     "win_rate": 0.13846153846153847,
-     "mean_pnl_pct": -0.04764827081761966
+     "n": 133,
+     "win_rate": 0.13533834586466165,
+     "mean_pnl_pct": -0.0464151758801713
     }
    },
    "kept": {
     "IS": {
      "n": 226,
      "win_rate": 0.37610619469026546,
-     "mean_pnl_pct": 0.058664248722026795
+     "mean_pnl_pct": 0.057939975721487985
     },
     "VAL": {
      "n": 92,
-     "win_rate": 0.33695652173913043,
-     "mean_pnl_pct": 0.023792928014439302
+     "win_rate": 0.31521739130434784,
+     "mean_pnl_pct": 0.02300584553838921
     },
     "OOS": {
-     "n": 121,
-     "win_rate": 0.14049586776859505,
-     "mean_pnl_pct": -0.04607403688719187
+     "n": 124,
+     "win_rate": 0.13709677419354838,
+     "mean_pnl_pct": -0.044789529428406805
     }
    },
-   "oos_mean_gain_pp": 0.15742339304277916,
+   "oos_mean_gain_pp": 0.16256464517644953,
    "era_degradation_pp": [
     [
      "VAL",
-     -1.4839684409935259
+     -2.241963054634476
     ]
    ],
    "status": "STAGED",
-   "reason": "OOS improves but VAL degrades -1.48pp"
+   "reason": "OOS improves but VAL degrades -2.24pp"
   },
   {
    "id": "F6_rsi_hot@trend-relay",
    "type": "signal_filter",
    "rule": "F6_rsi_hot",
    "scope": "trend-relay",
-   "n_total": 389,
+   "n_total": 391,
    "n_skipped": 48,
    "base": {
     "IS": {
@@ -1368,12 +1379,12 @@
     "VAL": {
      "n": 60,
      "win_rate": 0.43333333333333335,
-     "mean_pnl_pct": 0.06313810100265721
+     "mean_pnl_pct": 0.05695729476927924
     },
     "OOS": {
-     "n": 86,
-     "win_rate": 0.10465116279069768,
-     "mean_pnl_pct": -0.04060062574397705
+     "n": 88,
+     "win_rate": 0.11363636363636363,
+     "mean_pnl_pct": -0.04039554782380558
     }
    },
    "kept": {
@@ -1385,15 +1396,15 @@
     "VAL": {
      "n": 56,
      "win_rate": 0.44642857142857145,
-     "mean_pnl_pct": 0.06588233143724488
+     "mean_pnl_pct": 0.0592600390443399
     },
     "OOS": {
-     "n": 80,
-     "win_rate": 0.1125,
-     "mean_pnl_pct": -0.03772777521368888
+     "n": 82,
+     "win_rate": 0.12195121951219512,
+     "mean_pnl_pct": -0.037577761117170434
     }
    },
-   "oos_mean_gain_pp": 0.2872850530288171,
+   "oos_mean_gain_pp": 0.2817786706635149,
    "era_degradation_pp": [],
    "status": "PASS",
    "reason": "OOS improves, no era degradation, n adequate",
@@ -1410,13 +1421,13 @@
    "type": "signal_filter",
    "rule": "F6_rsi_hot",
    "scope": "reversal",
-   "n_total": 255,
+   "n_total": 256,
    "n_skipped": 0,
    "base": {
     "IS": {
      "n": 149,
      "win_rate": 0.42953020134228187,
-     "mean_pnl_pct": -0.0030311985365361507
+     "mean_pnl_pct": -0.003031198536536151
     },
     "VAL": {
      "n": 29,
@@ -1424,16 +1435,16 @@
      "mean_pnl_pct": 0.008916687017787535
     },
     "OOS": {
-     "n": 77,
-     "win_rate": 0.44155844155844154,
-     "mean_pnl_pct": -0.019380037464666156
+     "n": 78,
+     "win_rate": 0.4358974358974359,
+     "mean_pnl_pct": -0.018185469373192525
     }
    },
    "kept": {
     "IS": {
      "n": 149,
      "win_rate": 0.42953020134228187,
-     "mean_pnl_pct": -0.0030311985365361507
+     "mean_pnl_pct": -0.003031198536536151
     },
     "VAL": {
      "n": 29,
@@ -1441,9 +1452,9 @@
      "mean_pnl_pct": 0.008916687017787535
     },
     "OOS": {
-     "n": 77,
-     "win_rate": 0.44155844155844154,
-     "mean_pnl_pct": -0.019380037464666156
+     "n": 78,
+     "win_rate": 0.4358974358974359,
+     "mean_pnl_pct": -0.018185469373192525
     }
    },
    "oos_mean_gain_pp": 0.0,
@@ -1456,51 +1467,51 @@
    "type": "signal_filter",
    "rule": "F6_rsi_hot",
    "scope": "POOLED",
-   "n_total": 1142,
-   "n_skipped": 107,
+   "n_total": 1145,
+   "n_skipped": 104,
    "base": {
     "IS": {
-     "n": 651,
-     "win_rate": 0.38095238095238093,
-     "mean_pnl_pct": 0.044826707748130204
+     "n": 649,
+     "win_rate": 0.3790446841294299,
+     "mean_pnl_pct": 0.044427688215673736
     },
     "VAL": {
-     "n": 198,
-     "win_rate": 0.43434343434343436,
-     "mean_pnl_pct": 0.04170618554511161
+     "n": 197,
+     "win_rate": 0.43147208121827413,
+     "mean_pnl_pct": 0.04356331485697392
     },
     "OOS": {
-     "n": 293,
-     "win_rate": 0.20819112627986347,
-     "mean_pnl_pct": -0.03815082561451152
+     "n": 299,
+     "win_rate": 0.20735785953177258,
+     "mean_pnl_pct": -0.03727924151059094
     }
    },
    "kept": {
     "IS": {
      "n": 580,
      "win_rate": 0.38448275862068965,
-     "mean_pnl_pct": 0.045529481706189555
+     "mean_pnl_pct": 0.04524726498528995
     },
     "VAL": {
      "n": 177,
-     "win_rate": 0.4293785310734463,
-     "mean_pnl_pct": 0.03467199921655349
+     "win_rate": 0.4180790960451977,
+     "mean_pnl_pct": 0.03216770564706599
     },
     "OOS": {
-     "n": 278,
-     "win_rate": 0.2158273381294964,
-     "mean_pnl_pct": -0.03627857325620367
+     "n": 284,
+     "win_rate": 0.2147887323943662,
+     "mean_pnl_pct": -0.03540050940788534
     }
    },
-   "oos_mean_gain_pp": 0.18722523583078465,
+   "oos_mean_gain_pp": 0.1878732102705602,
    "era_degradation_pp": [
     [
      "VAL",
-     -0.7034186328558116
+     -1.1395609209907933
     ]
    ],
    "status": "STAGED",
-   "reason": "OOS improves but VAL degrades -0.70pp"
+   "reason": "OOS improves but VAL degrades -1.14pp"
   },
   {
    "id": "F7_high_turnover@momentum",
@@ -1511,39 +1522,39 @@
    "n_skipped": 260,
    "base": {
     "IS": {
-     "n": 259,
-     "win_rate": 0.37065637065637064,
-     "mean_pnl_pct": 0.05410439899064817
+     "n": 257,
+     "win_rate": 0.3657587548638132,
+     "mean_pnl_pct": 0.05316895815765511
     },
     "VAL": {
-     "n": 109,
-     "win_rate": 0.3669724770642202,
-     "mean_pnl_pct": 0.03863261242437456
+     "n": 108,
+     "win_rate": 0.3611111111111111,
+     "mean_pnl_pct": 0.04542547608473397
     },
     "OOS": {
-     "n": 130,
-     "win_rate": 0.13846153846153847,
-     "mean_pnl_pct": -0.04764827081761966
+     "n": 133,
+     "win_rate": 0.13533834586466165,
+     "mean_pnl_pct": -0.0464151758801713
     }
    },
    "kept": {
     "IS": {
-     "n": 157,
-     "win_rate": 0.3821656050955414,
-     "mean_pnl_pct": 0.06938398497735072
+     "n": 155,
+     "win_rate": 0.38064516129032255,
+     "mean_pnl_pct": 0.07044092855518708
     },
     "VAL": {
      "n": 30,
-     "win_rate": 0.4,
-     "mean_pnl_pct": 0.10637657114086356
+     "win_rate": 0.43333333333333335,
+     "mean_pnl_pct": 0.1534787281594431
     },
     "OOS": {
-     "n": 51,
-     "win_rate": 0.1568627450980392,
-     "mean_pnl_pct": -0.03979071383575311
+     "n": 53,
+     "win_rate": 0.1509433962264151,
+     "mean_pnl_pct": -0.03887128364401179
     }
    },
-   "oos_mean_gain_pp": 0.7857556981866548,
+   "oos_mean_gain_pp": 0.7543892236159512,
    "era_degradation_pp": [],
    "status": "STAGED",
    "reason": "OOS improves, no era degradation, n adequate; downgraded from PASS \u2014 rule was discovered on this same sample, so forward confirmation is required",
@@ -1554,8 +1565,8 @@
    "type": "signal_filter",
    "rule": "F7_high_turnover",
    "scope": "trend-relay",
-   "n_total": 389,
-   "n_skipped": 131,
+   "n_total": 391,
+   "n_skipped": 132,
    "base": {
     "IS": {
      "n": 243,
@@ -1565,12 +1576,12 @@
     "VAL": {
      "n": 60,
      "win_rate": 0.43333333333333335,
-     "mean_pnl_pct": 0.06313810100265721
+     "mean_pnl_pct": 0.05695729476927924
     },
     "OOS": {
-     "n": 86,
-     "win_rate": 0.10465116279069768,
-     "mean_pnl_pct": -0.04060062574397705
+     "n": 88,
+     "win_rate": 0.11363636363636363,
+     "mean_pnl_pct": -0.04039554782380558
     }
    },
    "kept": {
@@ -1585,12 +1596,12 @@
      "mean_pnl_pct": 0.07666380367676652
     },
     "OOS": {
-     "n": 37,
-     "win_rate": 0.13513513513513514,
-     "mean_pnl_pct": -0.038845300591376225
+     "n": 38,
+     "win_rate": 0.13157894736842105,
+     "mean_pnl_pct": -0.03963016670123363
     }
    },
-   "oos_mean_gain_pp": 0.1755325152600823,
+   "oos_mean_gain_pp": 0.0765381122571955,
    "era_degradation_pp": [],
    "status": "STAGED",
    "reason": "OOS improves, no era degradation, n adequate; downgraded from PASS \u2014 rule was discovered on this same sample, so forward confirmation is required",
@@ -1601,13 +1612,13 @@
    "type": "signal_filter",
    "rule": "F7_high_turnover",
    "scope": "reversal",
-   "n_total": 255,
+   "n_total": 256,
    "n_skipped": 66,
    "base": {
     "IS": {
      "n": 149,
      "win_rate": 0.42953020134228187,
-     "mean_pnl_pct": -0.0030311985365361507
+     "mean_pnl_pct": -0.003031198536536151
     },
     "VAL": {
      "n": 29,
@@ -1615,9 +1626,9 @@
      "mean_pnl_pct": 0.008916687017787535
     },
     "OOS": {
-     "n": 77,
-     "win_rate": 0.44155844155844154,
-     "mean_pnl_pct": -0.019380037464666156
+     "n": 78,
+     "win_rate": 0.4358974358974359,
+     "mean_pnl_pct": -0.018185469373192525
     }
    },
    "kept": {
@@ -1632,12 +1643,12 @@
      "mean_pnl_pct": 0.02090067501168162
     },
     "OOS": {
-     "n": 54,
-     "win_rate": 0.48148148148148145,
-     "mean_pnl_pct": -0.010669319429026311
+     "n": 55,
+     "win_rate": 0.4727272727272727,
+     "mean_pnl_pct": -0.009133581372675344
     }
    },
-   "oos_mean_gain_pp": 0.8710718035639844,
+   "oos_mean_gain_pp": 0.9051888000517181,
    "era_degradation_pp": [],
    "status": "STAGED",
    "reason": "OOS improves, no era degradation, n adequate; downgraded from PASS \u2014 rule was discovered on this same sample, so forward confirmation is required",
@@ -1648,43 +1659,43 @@
    "type": "signal_filter",
    "rule": "F7_high_turnover",
    "scope": "POOLED",
-   "n_total": 1142,
-   "n_skipped": 457,
+   "n_total": 1145,
+   "n_skipped": 458,
    "base": {
     "IS": {
-     "n": 651,
-     "win_rate": 0.38095238095238093,
-     "mean_pnl_pct": 0.044826707748130204
+     "n": 649,
+     "win_rate": 0.3790446841294299,
+     "mean_pnl_pct": 0.044427688215673736
     },
     "VAL": {
-     "n": 198,
-     "win_rate": 0.43434343434343436,
-     "mean_pnl_pct": 0.04170618554511161
+     "n": 197,
+     "win_rate": 0.43147208121827413,
+     "mean_pnl_pct": 0.04356331485697392
     },
     "OOS": {
-     "n": 293,
-     "win_rate": 0.20819112627986347,
-     "mean_pnl_pct": -0.03815082561451152
+     "n": 299,
+     "win_rate": 0.20735785953177258,
+     "mean_pnl_pct": -0.03727924151059094
     }
    },
    "kept": {
     "IS": {
-     "n": 465,
-     "win_rate": 0.4064516129032258,
-     "mean_pnl_pct": 0.05837709870251731
+     "n": 463,
+     "win_rate": 0.4060475161987041,
+     "mean_pnl_pct": 0.05868338916043301
     },
     "VAL": {
      "n": 78,
-     "win_rate": 0.5256410256410257,
-     "mean_pnl_pct": 0.07379355304370518
+     "win_rate": 0.5384615384615384,
+     "mean_pnl_pct": 0.09190976728162037
     },
     "OOS": {
-     "n": 142,
-     "win_rate": 0.2746478873239437,
-     "mean_pnl_pct": -0.028470040680786974
+     "n": 146,
+     "win_rate": 0.2671232876712329,
+     "mean_pnl_pct": -0.027866242077237306
     }
    },
-   "oos_mean_gain_pp": 0.9680784933724543,
+   "oos_mean_gain_pp": 0.9412999433353636,
    "era_degradation_pp": [],
    "status": "STAGED",
    "reason": "OOS improves, no era degradation, n adequate; downgraded from PASS \u2014 rule was discovered on this same sample, so forward confirmation is required",
@@ -1780,31 +1791,31 @@
    "class": "signals:momentum",
    "n": 498,
    "n_by_era": {
-    "IS": 259,
-    "VAL": 109,
-    "OOS": 130
+    "IS": 257,
+    "VAL": 108,
+    "OOS": 133
    },
-   "base_rate": 0.6907630522088354,
+   "base_rate": 0.6967871485943775,
    "models": {
     "histgb": {
-     "auc_val_A": 0.44021739130434784,
-     "auc_oos_A": 0.5575396825396826,
-     "auc_oos_B": 0.5203373015873015,
-     "brier_oos_B": 0.17842854700154356,
+     "auc_val_A": 0.47157190635451496,
+     "auc_oos_A": 0.5294685990338164,
+     "auc_oos_B": 0.5560386473429952,
+     "brier_oos_B": 0.18468862285685622,
      "decision": {
-      "all_mean_pnl_pct": -0.04764827081761966,
-      "kept_mean_pnl_pct": -0.04908732839025436,
-      "kept_n": 78,
-      "oos_n": 130
+      "all_mean_pnl_pct": -0.0464151758801713,
+      "kept_mean_pnl_pct": -0.04151220436759756,
+      "kept_n": 79,
+      "oos_n": 133
      },
      "top_features_val": [
       [
-       "rsi14",
-       0.0128
+       "turn20_rs",
+       0.0111
       ],
       [
-       "age_sessions",
-       0.0037
+       "ret_1",
+       0.0
       ],
       [
        "circ60",
@@ -1833,119 +1844,119 @@
      ]
     },
     "logreg": {
-     "auc_val_A": 0.4670289855072464,
-     "auc_oos_A": 0.5739087301587301,
-     "auc_oos_B": 0.5372023809523809,
-     "brier_oos_B": 0.15436183288231548,
+     "auc_val_A": 0.4604236343366778,
+     "auc_oos_A": 0.5768115942028985,
+     "auc_oos_B": 0.542512077294686,
+     "brier_oos_B": 0.15391014971751302,
      "decision": {
-      "all_mean_pnl_pct": -0.04764827081761966,
-      "kept_mean_pnl_pct": -0.052877156247052984,
-      "kept_n": 65,
-      "oos_n": 130
+      "all_mean_pnl_pct": -0.0464151758801713,
+      "kept_mean_pnl_pct": -0.04948498903749609,
+      "kept_n": 69,
+      "oos_n": 133
      }
     }
    },
    "best_single_feature_val": "breadth",
-   "best_single_feature_oos_auc": 0.6068948412698413,
-   "decision_positive": false,
-   "status": "REJECTED",
-   "reason": "OOS AUC 0.5203373015873015 below 0.55 \u2014 no proven skill"
+   "best_single_feature_oos_auc": 0.6084541062801933,
+   "decision_positive": true,
+   "status": "STAGED",
+   "reason": "some OOS skill but below the ship gate (AUC 0.556, single-feature 0.608, decision +)"
   },
   {
    "class": "signals:trend-relay",
-   "n": 389,
+   "n": 391,
    "n_by_era": {
     "IS": 243,
     "VAL": 60,
-    "OOS": 86
+    "OOS": 88
    },
-   "base_rate": 0.6838046272493573,
+   "base_rate": 0.6828644501278772,
    "models": {
     "histgb": {
-     "auc_val_A": 0.4875565610859729,
-     "auc_oos_A": 0.3708513708513709,
-     "auc_oos_B": 0.3434343434343434,
-     "brier_oos_B": 0.21113756670714015,
+     "auc_val_A": 0.48868778280542996,
+     "auc_oos_A": 0.39487179487179486,
+     "auc_oos_B": 0.2897435897435897,
+     "brier_oos_B": 0.2150006892287581,
      "decision": {
-      "all_mean_pnl_pct": -0.04060062574397705,
-      "kept_mean_pnl_pct": -0.04589664784699031,
-      "kept_n": 66,
-      "oos_n": 86
+      "all_mean_pnl_pct": -0.04039554782380558,
+      "kept_mean_pnl_pct": -0.04781041092894514,
+      "kept_n": 67,
+      "oos_n": 88
      },
      "top_features_val": [
       [
-       "proxy_ret_20",
-       0.0633
-      ],
-      [
        "rsi14",
-       0.05
+       0.0567
       ],
       [
-       "atr_pct",
-       0.0233
+       "proxy_ret_20",
+       0.0533
       ],
       [
        "ret_1",
        0.02
       ],
       [
-       "ret_20",
+       "atr_pct",
        0.02
       ],
       [
-       "breadth",
-       0.0167
-      ],
-      [
        "ret_60",
+       0.02
+      ],
+      [
+       "ret_20",
        0.0167
       ],
       [
-       "age_sessions",
+       "circ60",
+       0.0167
+      ],
+      [
+       "breadth",
        0.0167
       ]
      ]
     },
     "logreg": {
-     "auc_val_A": 0.5192307692307693,
-     "auc_oos_A": 0.47619047619047616,
-     "auc_oos_B": 0.5108225108225108,
-     "brier_oos_B": 0.1675557532459788,
+     "auc_val_A": 0.5452488687782806,
+     "auc_oos_A": 0.45641025641025634,
+     "auc_oos_B": 0.5282051282051282,
+     "brier_oos_B": 0.1713901650294736,
      "decision": {
-      "all_mean_pnl_pct": -0.04060062574397705,
-      "kept_mean_pnl_pct": -0.04094374136621416,
-      "kept_n": 54,
-      "oos_n": 86
+      "all_mean_pnl_pct": -0.04039554782380558,
+      "kept_mean_pnl_pct": -0.04060922193372196,
+      "kept_n": 56,
+      "oos_n": 88
      }
     }
    },
    "best_single_feature_val": "age_sessions",
-   "best_single_feature_oos_auc": 0.5223665223665224,
+   "best_single_feature_oos_auc": 0.5128205128205128,
    "decision_positive": false,
    "status": "REJECTED",
-   "reason": "OOS AUC 0.3434343434343434 below 0.55 \u2014 no proven skill"
+   "reason": "OOS AUC 0.2897435897435897 below 0.55 \u2014 no proven skill"
   },
   {
    "class": "signals:reversal",
-   "n": 255,
+   "n": 256,
    "n_by_era": {
     "IS": 149,
     "VAL": 29,
-    "OOS": 77
+    "OOS": 78
    },
-   "base_rate": 0.5372549019607843,
+   "base_rate": 0.5390625,
    "models": {
     "histgb": {
      "auc_val_A": 0.2777777777777778,
-     "auc_oos_A": 0.3310533515731874,
-     "auc_oos_B": 0.43707250341997267,
-     "brier_oos_B": 0.31312112812200976,
+     "auc_oos_A": 0.32352941176470584,
+     "auc_oos_B": 0.44719251336898397,
+     "brier_oos_B": 0.3102357468749764,
      "decision": {
-      "all_mean_pnl_pct": -0.019380037464666156,
-      "kept_mean_pnl_pct": -0.019460021208002443,
-      "kept_n": 70,
-      "oos_n": 77
+      "all_mean_pnl_pct": -0.018185469373192525,
+      "kept_mean_pnl_pct": -0.01814655226605484,
+      "kept_n": 71,
+      "oos_n": 78
      },
      "top_features_val": [
       [
@@ -1984,97 +1995,97 @@
     },
     "logreg": {
      "auc_val_A": 0.36666666666666664,
-     "auc_oos_A": 0.4589603283173735,
-     "auc_oos_B": 0.6196990424076607,
-     "brier_oos_B": 0.25012151086492357,
+     "auc_oos_A": 0.4652406417112299,
+     "auc_oos_B": 0.625668449197861,
+     "brier_oos_B": 0.24919226457113056,
      "decision": {
-      "all_mean_pnl_pct": -0.019380037464666156,
-      "kept_mean_pnl_pct": -0.017598290648068744,
-      "kept_n": 64,
-      "oos_n": 77
+      "all_mean_pnl_pct": -0.018185469373192525,
+      "kept_mean_pnl_pct": -0.016192220427786504,
+      "kept_n": 65,
+      "oos_n": 78
      }
     }
    },
    "best_single_feature_val": "proxy_ret_20",
-   "best_single_feature_oos_auc": 0.725718194254446,
-   "decision_positive": false,
+   "best_single_feature_oos_auc": 0.7306149732620322,
+   "decision_positive": true,
    "status": "REJECTED",
-   "reason": "OOS AUC 0.43707250341997267 below 0.55 \u2014 no proven skill"
+   "reason": "OOS AUC 0.44719251336898397 below 0.55 \u2014 no proven skill"
   },
   {
    "class": "signals:POOLED",
-   "n": 1142,
+   "n": 1145,
    "n_by_era": {
-    "IS": 651,
-    "VAL": 198,
-    "OOS": 293
+    "IS": 649,
+    "VAL": 197,
+    "OOS": 299
    },
-   "base_rate": 0.6541155866900175,
+   "base_rate": 0.6567685589519651,
    "models": {
     "histgb": {
-     "auc_val_A": 0.5188953488372092,
-     "auc_oos_A": 0.4178208027133974,
-     "auc_oos_B": 0.4884821933295648,
-     "brier_oos_B": 0.21645494490640924,
+     "auc_val_A": 0.5050420168067227,
+     "auc_oos_A": 0.447495576425752,
+     "auc_oos_B": 0.5165033346944331,
+     "brier_oos_B": 0.21583709444780466,
      "decision": {
-      "all_mean_pnl_pct": -0.03815082561451152,
-      "kept_mean_pnl_pct": -0.044629394442494974,
-      "kept_n": 224,
-      "oos_n": 293
+      "all_mean_pnl_pct": -0.03727924151059094,
+      "kept_mean_pnl_pct": -0.04069518230526413,
+      "kept_n": 233,
+      "oos_n": 299
      },
      "top_features_val": [
       [
-       "turn20_rs",
-       0.0172
+       "ret_60",
+       0.0193
+      ],
+      [
+       "proxy_ret_20",
+       0.0142
+      ],
+      [
+       "ret_20",
+       0.0132
+      ],
+      [
+       "sma200_dist",
+       0.0102
       ],
       [
        "markup60",
-       0.0152
-      ],
-      [
-       "circ60",
-       0.0061
+       0.0081
       ],
       [
        "sma50_dist",
-       0.004
+       0.0041
       ],
       [
-       "days_to_lockin",
-       0.0
+       "turn20_rs",
+       0.0041
       ],
       [
-       "broker_top3",
-       0.0
-      ],
-      [
-       "broker_net_ratio",
-       0.0
-      ],
-      [
-       "sma20_gt_50",
-       0.0
+       "breadth",
+       0.003
       ]
      ]
     },
     "logreg": {
-     "auc_val_A": 0.5226328903654486,
-     "auc_oos_A": 0.6241520633126061,
-     "auc_oos_B": 0.6336206896551724,
-     "brier_oos_B": 0.18409682017686954,
+     "auc_val_A": 0.516281512605042,
+     "auc_oos_A": 0.6110317136246086,
+     "auc_oos_B": 0.6124608683816524,
+     "brier_oos_B": 0.19300128546430287,
      "decision": {
-      "all_mean_pnl_pct": -0.03815082561451152,
-      "kept_mean_pnl_pct": -0.03624849986717854,
-      "kept_n": 175,
-      "oos_n": 293
+      "all_mean_pnl_pct": -0.03727924151059094,
+      "kept_mean_pnl_pct": -0.036670404949236256,
+      "kept_n": 192,
+      "oos_n": 299
      }
     }
    },
    "best_single_feature_val": "breadth",
-   "best_single_feature_oos_auc": 0.6301582815149801,
+   "best_single_feature_oos_auc": 0.6356676194365046,
    "decision_positive": false,
    "status": "REJECTED",
-   "reason": "OOS AUC 0.4884821933295648 below 0.55 \u2014 no proven skill"
+   "reason": "OOS AUC 0.5165033346944331 below 0.55 \u2014 no proven skill"
   },
   {
    "class": "verdicts_v2:warnings",
@@ -2129,25 +2140,13 @@
  ],
  "shadow_open_trades": [
   {
-   "symbol": "PHCL",
-   "system": "momentum",
-   "entry_date": "2026-10-07",
-   "entry_price": 344,
-   "would_skip_tags": []
-  },
-  {
    "symbol": "GIBF1",
    "system": "momentum",
    "entry_date": "2026-10-07",
    "entry_price": 10.4,
-   "would_skip_tags": []
-  },
-  {
-   "symbol": "SLBBL",
-   "system": "momentum",
-   "entry_date": "2026-10-06",
-   "entry_price": 828,
-   "would_skip_tags": []
+   "would_skip_tags": [
+    "F5_breadth_low@POOLED"
+   ]
   },
   {
    "symbol": "NMBMF",
@@ -2171,13 +2170,87 @@
    "would_skip_tags": []
   },
   {
-   "symbol": "BNHC",
+   "symbol": "MAKAR",
+   "system": "momentum",
+   "entry_date": "2026-11-17",
+   "entry_price": 463.9,
+   "would_skip_tags": []
+  },
+  {
+   "symbol": "MHNL",
+   "system": "momentum",
+   "entry_date": "2026-11-17",
+   "entry_price": 275,
+   "would_skip_tags": []
+  },
+  {
+   "symbol": "NTC",
+   "system": "momentum",
+   "entry_date": "2026-11-18",
+   "entry_price": 940,
+   "would_skip_tags": []
+  },
+  {
+   "symbol": "PPCL",
+   "system": "momentum",
+   "entry_date": "2026-11-18",
+   "entry_price": 362,
+   "would_skip_tags": []
+  },
+  {
+   "symbol": "SAHAS",
+   "system": "momentum",
+   "entry_date": "2026-11-18",
+   "entry_price": 728.2,
+   "would_skip_tags": []
+  },
+  {
+   "symbol": "STC",
+   "system": "momentum",
+   "entry_date": "2026-11-18",
+   "entry_price": 5740,
+   "would_skip_tags": []
+  },
+  {
+   "symbol": "MKHC",
+   "system": "momentum",
+   "entry_date": "2026-11-17",
+   "entry_price": 278.9,
+   "would_skip_tags": []
+  },
+  {
+   "symbol": "MHCL",
    "system": "trend-relay",
-   "entry_date": "2026-10-29",
-   "entry_price": 282,
+   "entry_date": "2026-11-20",
+   "entry_price": 290.3,
    "would_skip_tags": [
     "F1_regime_bear@trend-relay"
    ]
+  },
+  {
+   "symbol": "CFCL",
+   "system": "trend-relay",
+   "entry_date": "2026-11-17",
+   "entry_price": 630,
+   "would_skip_tags": [
+    "F1_regime_bear@trend-relay"
+   ]
+  },
+  {
+   "symbol": "MKHC",
+   "system": "trend-relay",
+   "entry_date": "2026-11-13",
+   "entry_price": 274,
+   "would_skip_tags": [
+    "F1_regime_bear@trend-relay"
+   ]
+  },
+  {
+   "symbol": "MFIL",
+   "system": "reversal",
+   "entry_date": "2026-11-18",
+   "entry_price": 660,
+   "would_skip_tags": []
   }
  ],
  "scrips": {
@@ -2204,7 +2277,7 @@
    "opportunity_score": 0,
    "sector": "Commercial Bank",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.08473701875107338,
+   "warning_hit_probability": 0.0923906002268487,
    "screener_replay": {
     "n": 68,
     "wins": 0.176,
@@ -2221,13 +2294,10 @@
    "dist_stall_evidence": null
   },
   "AHL": {
-   "verdict_label": "BOUNCE_SETUP",
-   "flags": [
-    "CLIMAX",
-    "BOUNCE_SETUP"
-   ],
-   "pump_score": 0.143,
-   "opportunity_score": 1,
+   "verdict_label": "NEUTRAL",
+   "flags": [],
+   "pump_score": 0,
+   "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false
   },
@@ -2383,8 +2453,10 @@
   },
   "BEDC": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.143,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false
@@ -2398,14 +2470,17 @@
    "dist_stall_evidence": null
   },
   "BFC": {
-   "verdict_label": "NEUTRAL",
+   "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
-    "CLIMAX"
+    "CLIMAX",
+    "WINNER_FADE",
+    "BOUNCE_SETUP"
    ],
    "pump_score": 0,
-   "opportunity_score": 0,
+   "opportunity_score": 1,
    "sector": "Finance",
    "dist_stall_evidence": false,
+   "warning_hit_probability": 0.21185535850405032,
    "screener_replay": {
     "n": 29,
     "wins": 0,
@@ -2414,15 +2489,12 @@
    }
   },
   "BGWT": {
-   "verdict_label": "ELEVATED_RISK",
-   "flags": [
-    "WINNER_FADE"
-   ],
-   "pump_score": 0.357,
+   "verdict_label": "NEUTRAL",
+   "flags": [],
+   "pump_score": 0,
    "opportunity_score": 0,
    "sector": "Hydropower",
-   "dist_stall_evidence": false,
-   "warning_hit_probability": 0.04389873769650147
+   "dist_stall_evidence": false
   },
   "BHCL": {
    "verdict_label": "NEUTRAL",
@@ -2440,8 +2512,10 @@
   },
   "BHDC": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.143,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false
@@ -2496,7 +2570,7 @@
    "pump_score": 0,
    "opportunity_score": 0,
    "sector": "Manufacturing and Processing",
-   "dist_stall_evidence": false,
+   "dist_stall_evidence": null,
    "screener_replay": {
     "n": 52,
     "wins": 0.135,
@@ -2505,10 +2579,12 @@
    }
   },
   "BNT": {
-   "verdict_label": "NEUTRAL",
-   "flags": [],
+   "verdict_label": "BOUNCE_SETUP",
+   "flags": [
+    "BOUNCE_SETUP"
+   ],
    "pump_score": 0,
-   "opportunity_score": 0,
+   "opportunity_score": 1,
    "sector": "Manufacturing and Processing",
    "dist_stall_evidence": false,
    "screener_replay": {
@@ -2524,7 +2600,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": null,
-   "dist_stall_evidence": false
+   "dist_stall_evidence": null
   },
   "BOKD86KA": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -2535,16 +2611,12 @@
    "dist_stall_evidence": null
   },
   "BPCL": {
-   "verdict_label": "DISTRIBUTION_WARNING",
-   "flags": [
-    "CLIMAX",
-    "WINNER_FADE"
-   ],
-   "pump_score": 0.5,
+   "verdict_label": "NEUTRAL",
+   "flags": [],
+   "pump_score": 0,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.10393816171044488,
    "screener_replay": {
     "n": 21,
     "wins": 0.048,
@@ -2572,14 +2644,12 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": null,
-   "dist_stall_evidence": null
+   "dist_stall_evidence": false
   },
   "CBBL": {
    "verdict_label": "NEUTRAL",
-   "flags": [
-    "CLIMAX"
-   ],
-   "pump_score": 0.286,
+   "flags": [],
+   "pump_score": 0,
    "opportunity_score": null,
    "sector": "Microfinance",
    "dist_stall_evidence": false,
@@ -2596,7 +2666,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": null,
-   "dist_stall_evidence": null
+   "dist_stall_evidence": false
   },
   "CCBD88": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -2700,7 +2770,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Commercial Bank",
-   "dist_stall_evidence": null
+   "dist_stall_evidence": false
   },
   "CKHL": {
    "verdict_label": "NEUTRAL",
@@ -2799,7 +2869,7 @@
    "opportunity_score": 0,
    "sector": "Commercial Bank",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.052472979781072425,
+   "warning_hit_probability": 0.07897807670869428,
    "screener_replay": {
     "n": 19,
     "wins": 0,
@@ -2864,10 +2934,13 @@
    }
   },
   "DOLTI": {
-   "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
-   "opportunity_score": 0,
+   "verdict_label": "BOUNCE_SETUP",
+   "flags": [
+    "CLIMAX",
+    "BOUNCE_SETUP"
+   ],
+   "pump_score": 0.143,
+   "opportunity_score": 1,
    "sector": "Hydropower",
    "dist_stall_evidence": false
   },
@@ -2921,7 +2994,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Commercial Bank",
-   "dist_stall_evidence": null
+   "dist_stall_evidence": false
   },
   "EBLEB89": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -2935,7 +3008,7 @@
    "verdict_label": "NEUTRAL",
    "flags": [],
    "pump_score": 0,
-   "opportunity_score": null,
+   "opportunity_score": 0,
    "sector": null,
    "dist_stall_evidence": false
   },
@@ -2973,7 +3046,7 @@
    "verdict_label": "NEUTRAL",
    "flags": [],
    "pump_score": 0,
-   "opportunity_score": null,
+   "opportunity_score": 0,
    "sector": "Microfinance",
    "dist_stall_evidence": false,
    "screener_replay": {
@@ -3038,13 +3111,14 @@
   "GBIME": {
    "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
+    "CLIMAX",
     "WINNER_FADE"
    ],
-   "pump_score": 0.714,
+   "pump_score": 1,
    "opportunity_score": null,
    "sector": "Commercial Bank",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.06115499149509309,
+   "warning_hit_probability": 0.07341014065953311,
    "screener_replay": {
     "n": 65,
     "wins": 0.185,
@@ -3107,7 +3181,7 @@
    "opportunity_score": null,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.2961765124685799,
+   "warning_hit_probability": 0.22494377042547462,
    "screener_replay": {
     "n": 68,
     "wins": 0.279,
@@ -3121,7 +3195,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": null,
-   "dist_stall_evidence": null
+   "dist_stall_evidence": false
   },
   "GILB": {
    "verdict_label": "NEUTRAL",
@@ -3235,7 +3309,7 @@
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.12289246367079684,
+   "warning_hit_probability": 0.14510834117750757,
    "screener_replay": {
     "n": 29,
     "wins": 0.31,
@@ -3442,15 +3516,12 @@
    "dist_stall_evidence": false
   },
   "HPPL": {
-   "verdict_label": "ELEVATED_RISK",
-   "flags": [
-    "WINNER_FADE"
-   ],
-   "pump_score": 0.357,
+   "verdict_label": "NEUTRAL",
+   "flags": [],
+   "pump_score": 0,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.17306641617959811,
    "screener_replay": {
     "n": 13,
     "wins": 0,
@@ -3717,15 +3788,12 @@
    "dist_stall_evidence": null
   },
   "KBSH": {
-   "verdict_label": "ELEVATED_RISK",
-   "flags": [
-    "WINNER_FADE"
-   ],
-   "pump_score": 0.357,
+   "verdict_label": "NEUTRAL",
+   "flags": [],
+   "pump_score": 0,
    "opportunity_score": 0,
    "sector": "Hydropower",
-   "dist_stall_evidence": false,
-   "warning_hit_probability": 0.0678599112379817
+   "dist_stall_evidence": false
   },
   "KDBY": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -3841,7 +3909,7 @@
    "opportunity_score": 0,
    "sector": "Development Bank",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.2061916710918244,
+   "warning_hit_probability": 0.0610404822616601,
    "screener_replay": {
     "n": 41,
     "wins": 0.098,
@@ -3881,8 +3949,10 @@
   },
   "LLBS": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.286,
    "opportunity_score": 0,
    "sector": "Microfinance",
    "dist_stall_evidence": false,
@@ -3912,13 +3982,14 @@
   "LSL": {
    "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
+    "CLIMAX",
     "WINNER_FADE"
    ],
-   "pump_score": 0.714,
+   "pump_score": 1,
    "opportunity_score": null,
    "sector": "Commercial Bank",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.11119293539498859,
+   "warning_hit_probability": 0.08420766709645539,
    "screener_replay": {
     "n": 66,
     "wins": 0.167,
@@ -3965,15 +4036,18 @@
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.18162459684392193
+   "warning_hit_probability": 0.20124443051635504
   },
   "MANDU": {
-   "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "verdict_label": "ELEVATED_RISK",
+   "flags": [
+    "WINNER_FADE"
+   ],
+   "pump_score": 0.357,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
+   "warning_hit_probability": 0.13217357509039848,
    "screener_replay": {
     "n": 21,
     "wins": 0,
@@ -3990,16 +4064,15 @@
    "dist_stall_evidence": false
   },
   "MBJC": {
-   "verdict_label": "DISTRIBUTION_WARNING",
+   "verdict_label": "ELEVATED_RISK",
    "flags": [
-    "CLIMAX",
     "WINNER_FADE"
    ],
-   "pump_score": 0.5,
+   "pump_score": 0.357,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.18218851225087693,
+   "warning_hit_probability": 0.16774849273313258,
    "screener_replay": {
     "n": 24,
     "wins": 0.333,
@@ -4068,10 +4141,13 @@
    }
   },
   "MEHL": {
-   "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
-   "opportunity_score": 0,
+   "verdict_label": "BOUNCE_SETUP",
+   "flags": [
+    "CLIMAX",
+    "BOUNCE_SETUP"
+   ],
+   "pump_score": 0.143,
+   "opportunity_score": 1,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
    "screener_replay": {
@@ -4155,8 +4231,10 @@
   },
   "MHCL": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.143,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false
@@ -4171,7 +4249,7 @@
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.1126004756772148,
+   "warning_hit_probability": 0.24949530928878824,
    "screener_replay": {
     "n": 12,
     "wins": 0,
@@ -4202,20 +4280,19 @@
    "dist_stall_evidence": false
   },
   "MKHC": {
-   "verdict_label": "ELEVATED_RISK",
-   "flags": [
-    "WINNER_FADE"
-   ],
-   "pump_score": 0.357,
-   "opportunity_score": 0,
-   "sector": "Hydropower",
-   "dist_stall_evidence": false,
-   "warning_hit_probability": 0.15865712990407338
-  },
-  "MKHL": {
    "verdict_label": "NEUTRAL",
    "flags": [],
    "pump_score": 0,
+   "opportunity_score": 0,
+   "sector": "Hydropower",
+   "dist_stall_evidence": false
+  },
+  "MKHL": {
+   "verdict_label": "NEUTRAL",
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.143,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
@@ -4246,7 +4323,7 @@
    "pump_score": 0,
    "opportunity_score": 0,
    "sector": "Microfinance",
-   "dist_stall_evidence": null
+   "dist_stall_evidence": false
   },
   "MLBL": {
    "verdict_label": "NEUTRAL",
@@ -4268,7 +4345,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Development Bank",
-   "dist_stall_evidence": null
+   "dist_stall_evidence": false
   },
   "MLBLPO": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -4284,7 +4361,7 @@
    "pump_score": 0,
    "opportunity_score": 0,
    "sector": "Microfinance",
-   "dist_stall_evidence": null
+   "dist_stall_evidence": false
   },
   "MLBSL": {
    "verdict_label": "NEUTRAL",
@@ -4311,7 +4388,7 @@
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.1487775619557844
+   "warning_hit_probability": 0.2031309076511315
   },
   "MNBBL": {
    "verdict_label": "NEUTRAL",
@@ -4368,10 +4445,12 @@
    "dist_stall_evidence": false
   },
   "MSLB": {
-   "verdict_label": "NEUTRAL",
-   "flags": [],
+   "verdict_label": "BOUNCE_SETUP",
+   "flags": [
+    "BOUNCE_SETUP"
+   ],
    "pump_score": 0,
-   "opportunity_score": 0,
+   "opportunity_score": 1,
    "sector": "Microfinance",
    "dist_stall_evidence": false,
    "screener_replay": {
@@ -4423,7 +4502,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Commercial Bank",
-   "dist_stall_evidence": null
+   "dist_stall_evidence": false
   },
   "NADEP": {
    "verdict_label": "NEUTRAL",
@@ -4493,7 +4572,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Commercial Bank",
-   "dist_stall_evidence": null
+   "dist_stall_evidence": false
   },
   "NCCD86": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -4547,8 +4626,10 @@
   },
   "NHDL": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.143,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false
@@ -4581,7 +4662,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": null,
-   "dist_stall_evidence": null
+   "dist_stall_evidence": false
   },
   "NIBLSTF": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -4602,13 +4683,14 @@
   "NICA": {
    "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
+    "CLIMAX",
     "WINNER_FADE"
    ],
-   "pump_score": 0.714,
+   "pump_score": 1,
    "opportunity_score": 0,
    "sector": "Commercial Bank",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.05624217921172012,
+   "warning_hit_probability": 0.027439528462396372,
    "screener_replay": {
     "n": 35,
     "wins": 0.143,
@@ -4622,7 +4704,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Commercial Bank",
-   "dist_stall_evidence": false
+   "dist_stall_evidence": null
   },
   "NICAD85/86": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -4720,7 +4802,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Investment",
-   "dist_stall_evidence": null
+   "dist_stall_evidence": false
   },
   "NIFRAUR85/86": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -4753,7 +4835,7 @@
    "opportunity_score": 0,
    "sector": "Commercial Bank",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.11766679676603027,
+   "warning_hit_probability": 0.10234421224005173,
    "screener_replay": {
     "n": 21,
     "wins": 0.048,
@@ -4816,13 +4898,14 @@
   "NMB": {
    "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
+    "CLIMAX",
     "WINNER_FADE"
    ],
-   "pump_score": 0.714,
+   "pump_score": 1,
    "opportunity_score": null,
    "sector": "Commercial Bank",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.12163944678491156,
+   "warning_hit_probability": 0.1147691231680638,
    "screener_replay": {
     "n": 40,
     "wins": 0.05,
@@ -4908,8 +4991,10 @@
   },
   "NMIC": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.286,
    "opportunity_score": 0,
    "sector": "Non Life Insurance",
    "dist_stall_evidence": false,
@@ -4935,15 +5020,12 @@
    }
   },
   "NRIC": {
-   "verdict_label": "DISTRIBUTION_WARNING",
-   "flags": [
-    "WINNER_FADE"
-   ],
-   "pump_score": 0.714,
+   "verdict_label": "NEUTRAL",
+   "flags": [],
+   "pump_score": 0,
    "opportunity_score": 0,
    "sector": "Non Life Insurance",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.08761163524283148,
    "screener_replay": {
     "n": 8,
     "wins": 0,
@@ -4952,15 +5034,12 @@
    }
   },
   "NRM": {
-   "verdict_label": "DISTRIBUTION_WARNING",
-   "flags": [
-    "WINNER_FADE"
-   ],
-   "pump_score": 0.714,
+   "verdict_label": "NEUTRAL",
+   "flags": [],
+   "pump_score": 0,
    "opportunity_score": 0,
    "sector": null,
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.023271379148667837,
    "screener_replay": {
     "n": 6,
     "wins": 0,
@@ -5000,10 +5079,8 @@
   },
   "NTC": {
    "verdict_label": "NEUTRAL",
-   "flags": [
-    "CLIMAX"
-   ],
-   "pump_score": 0.286,
+   "flags": [],
+   "pump_score": 0,
    "opportunity_score": null,
    "sector": null,
    "dist_stall_evidence": false,
@@ -5124,7 +5201,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": null,
-   "dist_stall_evidence": null
+   "dist_stall_evidence": false
   },
   "PCBL": {
    "verdict_label": "NEUTRAL",
@@ -5179,7 +5256,7 @@
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.16850468215919143,
+   "warning_hit_probability": 0.10909455834477065,
    "screener_replay": {
     "n": 14,
     "wins": 0.929,
@@ -5226,14 +5303,15 @@
    "dist_stall_evidence": null
   },
   "PPCL": {
-   "verdict_label": "NEUTRAL",
+   "verdict_label": "ELEVATED_RISK",
    "flags": [
-    "CLIMAX"
+    "WINNER_FADE"
    ],
-   "pump_score": 0.143,
+   "pump_score": 0.357,
    "opportunity_score": null,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
+   "warning_hit_probability": 0.048837237607146686,
    "screener_replay": {
     "n": 59,
     "wins": 0.339,
@@ -5343,8 +5421,10 @@
   },
   "RAWA": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.143,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
@@ -5361,7 +5441,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": null,
-   "dist_stall_evidence": null
+   "dist_stall_evidence": false
   },
   "RBBD83": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -5487,7 +5567,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": null,
-   "dist_stall_evidence": false
+   "dist_stall_evidence": null
   },
   "RNLI": {
    "verdict_label": "NEUTRAL",
@@ -5505,8 +5585,10 @@
   },
   "RSDC": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.286,
    "opportunity_score": null,
    "sector": "Microfinance",
    "dist_stall_evidence": false,
@@ -5545,7 +5627,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": null,
-   "dist_stall_evidence": null
+   "dist_stall_evidence": false
   },
   "RURU": {
    "verdict_label": "NEUTRAL",
@@ -5617,7 +5699,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": null,
-   "dist_stall_evidence": null
+   "dist_stall_evidence": false
   },
   "SAHAS": {
    "verdict_label": "NEUTRAL",
@@ -5649,8 +5731,10 @@
   },
   "SALICO": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.286,
    "opportunity_score": 0,
    "sector": "Non Life Insurance",
    "dist_stall_evidence": false,
@@ -5678,7 +5762,7 @@
    "opportunity_score": null,
    "sector": "Commercial Bank",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.08078136692715078,
+   "warning_hit_probability": 0.06566458506085802,
    "screener_replay": {
     "n": 85,
     "wins": 0.282,
@@ -5718,7 +5802,7 @@
    "verdict_label": "NEUTRAL",
    "flags": [],
    "pump_score": 0,
-   "opportunity_score": null,
+   "opportunity_score": 0,
    "sector": null,
    "dist_stall_evidence": false
   },
@@ -5762,8 +5846,10 @@
   },
   "SBI": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.286,
    "opportunity_score": null,
    "sector": "Commercial Bank",
    "dist_stall_evidence": false,
@@ -5788,7 +5874,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Commercial Bank",
-   "dist_stall_evidence": false
+   "dist_stall_evidence": null
   },
   "SBID83": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -5796,7 +5882,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Commercial Bank",
-   "dist_stall_evidence": false
+   "dist_stall_evidence": null
   },
   "SBID89": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -5807,15 +5893,12 @@
    "dist_stall_evidence": null
   },
   "SBL": {
-   "verdict_label": "DISTRIBUTION_WARNING",
-   "flags": [
-    "WINNER_FADE"
-   ],
-   "pump_score": 0.714,
+   "verdict_label": "NEUTRAL",
+   "flags": [],
+   "pump_score": 0,
    "opportunity_score": null,
    "sector": "Commercial Bank",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.04528729225105679,
    "screener_replay": {
     "n": 98,
     "wins": 0.327,
@@ -5829,7 +5912,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": "Commercial Bank",
-   "dist_stall_evidence": false
+   "dist_stall_evidence": null
   },
   "SBLD84": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -5845,12 +5928,14 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": null,
-   "dist_stall_evidence": null
+   "dist_stall_evidence": false
   },
   "SCB": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.286,
    "opportunity_score": null,
    "sector": "Commercial Bank",
    "dist_stall_evidence": false,
@@ -5899,7 +5984,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": null,
-   "dist_stall_evidence": null
+   "dist_stall_evidence": false
   },
   "SFMF": {
    "verdict_label": "EXCLUDED_NON_EQUITY",
@@ -5907,7 +5992,7 @@
    "pump_score": null,
    "opportunity_score": null,
    "sector": null,
-   "dist_stall_evidence": null
+   "dist_stall_evidence": false
   },
   "SGHC": {
    "verdict_label": "DISTRIBUTION_WARNING",
@@ -5920,7 +6005,7 @@
    "opportunity_score": 1,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.4661301617771488,
+   "warning_hit_probability": 0.2814161549415945,
    "screener_replay": {
     "n": 13,
     "wins": 0,
@@ -6003,14 +6088,13 @@
   "SHL": {
    "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
-    "CLIMAX",
     "WINNER_FADE"
    ],
-   "pump_score": 1,
+   "pump_score": 0.714,
    "opportunity_score": null,
    "sector": "Hotels and Tourism",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.04499097148794714,
+   "warning_hit_probability": 0.05675984023217953,
    "screener_replay": {
     "n": 24,
     "wins": 0.167,
@@ -6019,26 +6103,20 @@
    }
   },
   "SHLB": {
-   "verdict_label": "BOUNCE_SETUP",
-   "flags": [
-    "BOUNCE_SETUP"
-   ],
+   "verdict_label": "NEUTRAL",
+   "flags": [],
    "pump_score": 0,
-   "opportunity_score": 1,
+   "opportunity_score": 0,
    "sector": "Microfinance",
    "dist_stall_evidence": false
   },
   "SHPC": {
-   "verdict_label": "DISTRIBUTION_WARNING",
-   "flags": [
-    "CLIMAX",
-    "WINNER_FADE"
-   ],
-   "pump_score": 0.5,
+   "verdict_label": "NEUTRAL",
+   "flags": [],
+   "pump_score": 0,
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.1596303531213071,
    "screener_replay": {
     "n": 24,
     "wins": 0,
@@ -6194,10 +6272,8 @@
   },
   "SLBSL": {
    "verdict_label": "NEUTRAL",
-   "flags": [
-    "CLIMAX"
-   ],
-   "pump_score": 0.286,
+   "flags": [],
+   "pump_score": 0,
    "opportunity_score": 0,
    "sector": "Microfinance",
    "dist_stall_evidence": false
@@ -6247,17 +6323,15 @@
    }
   },
   "SMH": {
-   "verdict_label": "DISTRIBUTION_WARNING",
+   "verdict_label": "ELEVATED_RISK",
    "flags": [
-    "CLIMAX",
-    "WINNER_FADE",
-    "BOUNCE_SETUP"
+    "WINNER_FADE"
    ],
-   "pump_score": 0.5,
-   "opportunity_score": 1,
+   "pump_score": 0.357,
+   "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.17062278731773442
+   "warning_hit_probability": 0.19655923134679323
   },
   "SMHL": {
    "verdict_label": "NEUTRAL",
@@ -6268,12 +6342,16 @@
    "dist_stall_evidence": false
   },
   "SMJC": {
-   "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "verdict_label": "DISTRIBUTION_WARNING",
+   "flags": [
+    "CLIMAX",
+    "WINNER_FADE"
+   ],
+   "pump_score": 0.5,
    "opportunity_score": 0,
    "sector": "Hydropower",
-   "dist_stall_evidence": false
+   "dist_stall_evidence": false,
+   "warning_hit_probability": 0.028687559962946144
   },
   "SMPDA": {
    "verdict_label": "NEUTRAL",
@@ -6326,15 +6404,12 @@
    }
   },
   "SONA": {
-   "verdict_label": "DISTRIBUTION_WARNING",
-   "flags": [
-    "WINNER_FADE"
-   ],
-   "pump_score": 0.714,
+   "verdict_label": "NEUTRAL",
+   "flags": [],
+   "pump_score": 0,
    "opportunity_score": 0,
    "sector": "Manufacturing and Processing",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.11260137589975862,
    "screener_replay": {
     "n": 33,
     "wins": 0.182,
@@ -6354,14 +6429,13 @@
    "verdict_label": "DISTRIBUTION_WARNING",
    "flags": [
     "CLIMAX",
-    "WINNER_FADE",
-    "BOUNCE_SETUP"
+    "WINNER_FADE"
    ],
    "pump_score": 0.5,
-   "opportunity_score": 1,
+   "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.15128350282175318,
+   "warning_hit_probability": 0.06336797774349603,
    "screener_replay": {
     "n": 18,
     "wins": 0,
@@ -6399,8 +6473,10 @@
   },
   "SPIL": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.286,
    "opportunity_score": 0,
    "sector": "Non Life Insurance",
    "dist_stall_evidence": false,
@@ -6435,10 +6511,8 @@
   },
   "SRLI": {
    "verdict_label": "NEUTRAL",
-   "flags": [
-    "CLIMAX"
-   ],
-   "pump_score": 0.286,
+   "flags": [],
+   "pump_score": 0,
    "opportunity_score": 0,
    "sector": "Life Insurance",
    "dist_stall_evidence": false,
@@ -6538,7 +6612,7 @@
    "opportunity_score": 0,
    "sector": "Hydropower",
    "dist_stall_evidence": false,
-   "warning_hit_probability": 0.18555671701275245,
+   "warning_hit_probability": 0.144764736485592,
    "screener_replay": {
     "n": 31,
     "wins": 0.839,
@@ -6668,11 +6742,13 @@
   },
   "ULHC": {
    "verdict_label": "NEUTRAL",
-   "flags": [],
-   "pump_score": 0,
+   "flags": [
+    "CLIMAX"
+   ],
+   "pump_score": 0.143,
    "opportunity_score": 0,
    "sector": "Hydropower",
-   "dist_stall_evidence": false,
+   "dist_stall_evidence": true,
    "screener_replay": {
     "n": 35,
     "wins": 0.2,
