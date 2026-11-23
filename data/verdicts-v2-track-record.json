@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-11-20T18:54:05+05:45",
+ "updated_at": "2026-11-23T15:55:45+05:45",
  "engine": "verdict-v2",
  "engine_weights_version": "research-baseline",
  "pump_weights": {
@@ -24,27 +24,27 @@
   "note": "Forward prices come from the site's own OHLC mirror. History is thin while the ledger accumulates; treat early rates as provisional."
  },
  "overall": {
-  "warnings_issued": 531,
-  "resolved": 20,
-  "open": 491,
-  "provisional_hits": 20,
-  "hits": 1,
-  "false_positives": 7,
-  "precision_pct": 5.0,
-  "false_positive_rate_pct": 35.0
+  "warnings_issued": 552,
+  "resolved": 45,
+  "open": 486,
+  "provisional_hits": 21,
+  "hits": 2,
+  "false_positives": 15,
+  "precision_pct": 4.4,
+  "false_positive_rate_pct": 33.3
  },
  "by_verdict": {
   "DISTRIBUTION_WARNING": {
-   "warnings": 408,
-   "resolved": 13,
-   "hits": 0,
-   "hit_rate_pct": 0.0
+   "warnings": 419,
+   "resolved": 32,
+   "hits": 1,
+   "hit_rate_pct": 3.1
   },
   "ELEVATED_RISK": {
-   "warnings": 108,
-   "resolved": 7,
+   "warnings": 118,
+   "resolved": 13,
    "hits": 1,
-   "hit_rate_pct": 14.3
+   "hit_rate_pct": 7.7
   },
   "EXHAUSTION_RISK": {
    "warnings": 15,
@@ -79,28 +79,28 @@
    "hit_rate_pct": null
   },
   "WINNER_FADE": {
-   "warnings": 489,
-   "resolved": 20,
-   "hits": 1,
-   "hit_rate_pct": 5.0
+   "warnings": 510,
+   "resolved": 45,
+   "hits": 2,
+   "hit_rate_pct": 4.4
   },
   "CLIMAX": {
-   "warnings": 300,
-   "resolved": 11,
-   "hits": 0,
-   "hit_rate_pct": 0.0
+   "warnings": 307,
+   "resolved": 26,
+   "hits": 1,
+   "hit_rate_pct": 3.8
   },
   "BOUNCE_SETUP": {
-   "warnings": 38,
-   "resolved": 2,
+   "warnings": 39,
+   "resolved": 4,
    "hits": 0,
    "hit_rate_pct": 0.0
   }
  },
  "recent_warnings": [
   {
-   "symbol": "NICA",
-   "session_date": "2026-11-20",
+   "symbol": "MHL",
+   "session_date": "2026-11-23",
    "verdict": "DISTRIBUTION_WARNING",
    "flags": [
     "CLIMAX",
@@ -110,59 +110,8 @@
    "max_drawdown_20": null
   },
   {
-   "symbol": "NIMB",
-   "session_date": "2026-11-20",
-   "verdict": "DISTRIBUTION_WARNING",
-   "flags": [
-    "WINNER_FADE"
-   ],
-   "status": "open",
-   "max_drawdown_20": null
-  },
-  {
-   "symbol": "NMB",
-   "session_date": "2026-11-20",
-   "verdict": "DISTRIBUTION_WARNING",
-   "flags": [
-    "CLIMAX",
-    "WINNER_FADE"
-   ],
-   "status": "open",
-   "max_drawdown_20": null
-  },
-  {
-   "symbol": "PHCL",
-   "session_date": "2026-11-20",
-   "verdict": "ELEVATED_RISK",
-   "flags": [
-    "WINNER_FADE"
-   ],
-   "status": "open",
-   "max_drawdown_20": null
-  },
-  {
-   "symbol": "PPCL",
-   "session_date": "2026-11-20",
-   "verdict": "ELEVATED_RISK",
-   "flags": [
-    "WINNER_FADE"
-   ],
-   "status": "open",
-   "max_drawdown_20": null
-  },
-  {
-   "symbol": "SANIMA",
-   "session_date": "2026-11-20",
-   "verdict": "DISTRIBUTION_WARNING",
-   "flags": [
-    "WINNER_FADE"
-   ],
-   "status": "open",
-   "max_drawdown_20": null
-  },
-  {
-   "symbol": "SGHC",
-   "session_date": "2026-11-20",
+   "symbol": "MHNL",
+   "session_date": "2026-11-23",
    "verdict": "DISTRIBUTION_WARNING",
    "flags": [
     "CLIMAX",
@@ -173,18 +122,8 @@
    "max_drawdown_20": null
   },
   {
-   "symbol": "SHL",
-   "session_date": "2026-11-20",
-   "verdict": "DISTRIBUTION_WARNING",
-   "flags": [
-    "WINNER_FADE"
-   ],
-   "status": "open",
-   "max_drawdown_20": null
-  },
-  {
-   "symbol": "SMH",
-   "session_date": "2026-11-20",
+   "symbol": "MMKJL",
+   "session_date": "2026-11-23",
    "verdict": "ELEVATED_RISK",
    "flags": [
     "WINNER_FADE"
@@ -193,11 +132,63 @@
    "max_drawdown_20": null
   },
   {
-   "symbol": "SMJC",
-   "session_date": "2026-11-20",
+   "symbol": "NIMB",
+   "session_date": "2026-11-23",
    "verdict": "DISTRIBUTION_WARNING",
    "flags": [
     "CLIMAX",
+    "WINNER_FADE"
+   ],
+   "status": "open",
+   "max_drawdown_20": null
+  },
+  {
+   "symbol": "NMB",
+   "session_date": "2026-11-23",
+   "verdict": "DISTRIBUTION_WARNING",
+   "flags": [
+    "CLIMAX",
+    "WINNER_FADE"
+   ],
+   "status": "open",
+   "max_drawdown_20": null
+  },
+  {
+   "symbol": "PHCL",
+   "session_date": "2026-11-23",
+   "verdict": "ELEVATED_RISK",
+   "flags": [
+    "WINNER_FADE"
+   ],
+   "status": "open",
+   "max_drawdown_20": null
+  },
+  {
+   "symbol": "SANIMA",
+   "session_date": "2026-11-23",
+   "verdict": "DISTRIBUTION_WARNING",
+   "flags": [
+    "WINNER_FADE"
+   ],
+   "status": "open",
+   "max_drawdown_20": null
+  },
+  {
+   "symbol": "SGHC",
+   "session_date": "2026-11-23",
+   "verdict": "DISTRIBUTION_WARNING",
+   "flags": [
+    "CLIMAX",
+    "WINNER_FADE"
+   ],
+   "status": "open",
+   "max_drawdown_20": null
+  },
+  {
+   "symbol": "SMH",
+   "session_date": "2026-11-23",
+   "verdict": "ELEVATED_RISK",
+   "flags": [
     "WINNER_FADE"
    ],
    "status": "open",
@@ -205,10 +196,19 @@
   },
   {
    "symbol": "SPC",
-   "session_date": "2026-11-20",
+   "session_date": "2026-11-23",
+   "verdict": "ELEVATED_RISK",
+   "flags": [
+    "WINNER_FADE"
+   ],
+   "status": "open",
+   "max_drawdown_20": null
+  },
+  {
+   "symbol": "STC",
+   "session_date": "2026-11-23",
    "verdict": "DISTRIBUTION_WARNING",
    "flags": [
-    "CLIMAX",
     "WINNER_FADE"
    ],
    "status": "open",
@@ -216,7 +216,7 @@
   },
   {
    "symbol": "TAMOR",
-   "session_date": "2026-11-20",
+   "session_date": "2026-11-23",
    "verdict": "ELEVATED_RISK",
    "flags": [
     "WINNER_FADE"
