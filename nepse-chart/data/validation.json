@@ -1,30 +1,30 @@
 {
-  "ran_at_npt": "2026-11-24T05:34:00+05:45",
-  "expected_session": "2026-11-23",
+  "ran_at_npt": "2026-11-24T15:43:00+05:45",
+  "expected_session": "2026-11-24",
   "passed": false,
   "gates": [
     {
       "gate": "manifest-present",
       "pass": true,
-      "detail": "data/manifest.json session=2026-11-23",
+      "detail": "data/manifest.json session=2026-11-24",
       "severity": "fail"
     },
     {
       "gate": "live-session-current",
-      "pass": true,
-      "detail": "live=2026-11-23 expected=2026-11-23",
+      "pass": false,
+      "detail": "live=2026-11-23 expected=2026-11-24",
       "severity": "fail"
     },
     {
       "gate": "universe-session-current",
       "pass": false,
-      "detail": "universe=2026-11-06 expected=2026-11-23",
+      "detail": "universe=2026-11-06 expected=2026-11-24",
       "severity": "fail"
     },
     {
       "gate": "security-count-stable",
       "pass": true,
-      "detail": "quotes=360 baseline=348 (last good tag data-2026-11-23-83) drift=3.4% band=±5%",
+      "detail": "quotes=360 baseline=348 (last good tag data-2026-11-24-1) drift=3.4% band=±5%",
       "severity": "fail"
     },
     {
@@ -95,20 +95,20 @@
     },
     {
       "gate": "signals/momentum.json-fresh",
-      "pass": true,
-      "detail": "generated=2026-11-23 expected>=2026-11-23",
+      "pass": false,
+      "detail": "generated=2026-11-23 expected>=2026-11-24",
       "severity": "fail"
     },
     {
       "gate": "signals/trend-relay.json-fresh",
-      "pass": true,
-      "detail": "generated=2026-11-23 expected>=2026-11-23",
+      "pass": false,
+      "detail": "generated=2026-11-23 expected>=2026-11-24",
       "severity": "fail"
     },
     {
       "gate": "signals/reversal.json-fresh",
-      "pass": true,
-      "detail": "generated=2026-11-23 expected>=2026-11-23",
+      "pass": false,
+      "detail": "generated=2026-11-23 expected>=2026-11-24",
       "severity": "fail"
     },
     {
