@@ -226,7 +226,12 @@ jobs:
 
       - name: Wait for github-pages artifact visibility
         if: steps.pages.outputs.build_type == 'workflow'
-        uses: ./.github/actions/wait-artifact
+        uses: ./main-tree/.github/actions/wait-artifact
+        # NOTE: main is checked out into path main-tree (step "Check out
+        # main"), not the workspace root, so the local action path must
+        # include main-tree/ — "./.github/..." does not exist at the root
+        # (run 45542131170 failed on exactly this: "Can't find 'action.yml'
+        # under .../.github/actions/wait-artifact").
         with:
           name: github-pages
           timeout-seconds: 300
