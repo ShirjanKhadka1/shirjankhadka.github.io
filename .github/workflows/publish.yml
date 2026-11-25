@@ -226,42 +226,28 @@ jobs:
 
       - name: Wait for github-pages artifact visibility
         if: steps.pages.outputs.build_type == 'workflow'
-        run: |
-          # deploy-pages lists this run's artifacts through the runner-internal
-          # results service (Twirp ArtifactService.ListArtifacts) and fails
-          # fast when the just-uploaded github-pages artifact is not listed
-          # yet. Five consecutive runs on 2026-11-25 (45528212415,
-          # 45528503202, 45529247980, 45533688013, 45536571769) failed exactly
-          # this way: the upload finalized, then deploy-pages ~0.5s later saw
-          # only the proof artifact ("Found 1 artifact(s)") and errored "No
-          # artifacts named github-pages were found".
-          #
-          # Polling the REST artifacts API is NOT enough: run 45536571769
-          # proved it — the REST list showed github-pages 0.4s after
-          # finalization, but deploy-pages' Twirp list still showed only 1
-          # artifact 1.0s after finalization. So poll the SAME view
-          # deploy-pages uses: DefaultArtifactClient.listArtifacts() from
-          # @actions/artifact (the exact client deploy-pages bundles,
-          # ^2.1.3), until an artifact named github-pages is listed
-          # (max 5 min), then deploy.
-          cd "$RUNNER_TEMP"
-          npm install --no-audit --no-fund @actions/artifact@2 2>&1 | tail -2
-          node -e '
-            const {DefaultArtifactClient} = require("@actions/artifact");
-            (async () => {
-              const client = new DefaultArtifactClient();
-              for (let i = 1; i <= 60; i++) {
-                const {artifacts} = await client.listArtifacts();
-                if (artifacts.some(a => a.name === "github-pages")) {
-                  console.log(`github-pages artifact visible to deploy-pages (check ${i})`);
-                  process.exit(0);
-                }
-                await new Promise(r => setTimeout(r, 5000));
-              }
-              console.error("github-pages artifact never became visible to deploy-pages");
-              process.exit(1);
-            })().catch(e => { console.error(e); process.exit(1); });
-          '
+        uses: ./.github/actions/wait-artifact
+        with:
+          name: github-pages
+          timeout-seconds: 300
+        # deploy-pages lists this run's artifacts through the runner-internal
+        # results service (Twirp ArtifactService.ListArtifacts) and fails fast
+        # when the just-uploaded github-pages artifact is not listed yet.
+        # Six consecutive runs on 2026-11-25 (45528212415, 45528503202,
+        # 45529247980, 45533688013, 45536571769, 45539354606) failed at the
+        # deploy step: the upload finalized, then deploy-pages ~0.5s later
+        # saw only the proof artifact ("Found 1 artifact(s)") and errored
+        # "No artifacts named github-pages were found".
+        #
+        # Polling the REST artifacts API is NOT enough: run 45536571769
+        # proved it — REST showed github-pages 0.4s after finalization, but
+        # deploy-pages' Twirp list still showed 1 artifact 1.0s after
+        # finalization. And the Twirp client cannot run in a `run:` step:
+        # ACTIONS_RUNTIME_TOKEN is only injected into action steps, so run
+        # 45539354606's npm-installed poller died with "Unable to get the
+        # ACTIONS_RUNTIME_TOKEN env variable". Hence this local JS action,
+        # which runs as an action step (token present) and polls the exact
+        # client deploy-pages bundles (@actions/artifact ^2.1.3).
 
       - name: Deploy to GitHub Pages (Actions source only)
         if: steps.pages.outputs.build_type == 'workflow'
