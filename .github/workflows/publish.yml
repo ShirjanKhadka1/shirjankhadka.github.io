@@ -224,6 +224,30 @@ jobs:
           retention-days: 1
           if-no-files-found: error
 
+      - name: Wait for github-pages artifact visibility
+        if: steps.pages.outputs.build_type == 'workflow'
+        run: |
+          # deploy-pages lists this run's artifacts and fails fast when the
+          # just-uploaded github-pages artifact is not listed yet. Four
+          # consecutive runs (45528212415, 45528503202, 45529247980,
+          # 45533688013 on 2026-11-25) failed exactly this way: the upload
+          # finalized, then deploy-pages ~0.5s later saw only the proof
+          # artifact ("Found 1 artifact(s)") and errored "No artifacts
+          # named github-pages were found". Poll the artifacts API until
+          # the artifact is listed (max 5 min), then deploy.
+          for i in $(seq 1 60); do
+            if gh api "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts?per_page=100" \
+                --jq '.artifacts[] | select(.name=="github-pages") | .id' | grep -q .; then
+              echo "github-pages artifact visible (check $i)"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "github-pages artifact never became visible" >&2
+          exit 1
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Deploy to GitHub Pages (Actions source only)
         if: steps.pages.outputs.build_type == 'workflow'
         id: deployment
