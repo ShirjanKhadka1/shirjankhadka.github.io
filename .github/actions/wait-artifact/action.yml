@@ -1,0 +1,17 @@
+name: Wait for artifact visibility
+description: >
+  Poll DefaultArtifactClient.listArtifacts() until an artifact with the
+  given name is visible to deploy-pages (runner-internal Twirp results
+  service, not the REST API), which can lag the upload finalization.
+  Fails after timeout-seconds.
+inputs:
+  name:
+    description: Artifact name to wait for
+    required: true
+  timeout-seconds:
+    description: Maximum seconds to wait
+    required: false
+    default: '300'
+runs:
+  using: node20
+  main: dist/index.js
