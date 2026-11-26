@@ -21,7 +21,7 @@
 'use strict';
 const fs = require('fs');
 
-const REPORT_RE = /quarterly|traimasik|त्रैमासिक|unaudited|financial results|annual report|वार्षिक प्रतिवेदन|\bq[1-4]\b|first quarter|second quarter|third quarter|fourth quarter|qtr/i;
+const REPORT_RE = /quarterly|traimasik|त्रैमासिक|unaudited|financial results|annual report|audit ?report|audited report|interim financial statement|वार्षिक प्रतिवेदन|\bq[1-4]\b|first quarter|second quarter|third quarter|fourth quarter|qtr/i;
 const ACTION_RE = /dividend|bonus|right ?share|hakprad|हकप्रद|agm|annual general|साधारण सभा|promoter|auction|लिलाम|book ?clos/i;
 
 function isQuarterlyReport(title) {
