@@ -1,154 +1,147 @@
-NEPSE universe build — 2026-11-07T06:39:32.571Z
-duration: 278s
-data asof: 2026-11-06
+NEPSE universe build — 2026-11-26T11:59:45.122Z
+duration: 293s
+data asof: 2026-11-26
 
-universe symbols (currently listed): 434
-  monthly-only historical symbols excluded: 173
-  new listings vs last build: none
+universe symbols (currently listed): 432
+  monthly-only historical symbols excluded: 176
+  new listings vs last build: MNMF2
   with scraper OHLC : 363
-  LTP-only fallback : 71 (files in data/ltp: 71)
-  no data at all    : 0
+  LTP-only fallback : 68 (files in data/ltp: 71)
+  no data at all    : 1
 
 by instrument type:
   Debenture: 73
-  Equity: 281
+  Equity: 280
   Mutual fund: 61
-  Promoter share: 19
+  Promoter share: 17
+  null: 1
 
 by verdict:
   Strong Buy: 6
-  Buy: 10
-  Hold: 218
-  Exit / Reduce: 132
-  Strong Exit: 48
-  Insufficient history: 20
+  Buy: 14
+  Hold: 194
+  Exit / Reduce: 127
+  Strong Exit: 77
+  Insufficient history: 14
 
 screener fields:
-  symbols with sector (sec) : 346
+  symbols with sector (sec) : 343
   symbols with stop/target (sl/tp): 362
-  symbols with buy-call track record: 210
-  R2-gated daily verdicts (Buy/SB -> Hold): 82
-  symbols with weekly verdict (>=40 weeks): 349
+  symbols with buy-call track record: 211
+  R2-gated daily verdicts (Buy/SB -> Hold): 84
+  symbols with weekly verdict (>=40 weeks): 352
   symbols with monthly verdict (>=36 months): 294
 
 buy-call track record (win = +4xATR before -2xATR within 20 sessions):
-  EVAL (most recent 250 sessions): 210 securities, 5952 decided calls
-    mean hit rate: 11.1% | median: 4.0%
+  EVAL (most recent 250 sessions): 211 securities, 6067 decided calls
+    mean hit rate: 11.6% | median: 3.8%
     42.1%  (57 calls)  Bullish divergence (RSI, hidden)
     40.0%  (10 calls)  Bearish divergence (MACD, hidden)
-    17.0%  (3085 calls)  Double Bottom
+    18.4%  (3150 calls)  Double Bottom
     15.2%  (33 calls)  Bullish divergence (MACD, regular)
-    13.1%  (1543 calls)  Double Top
-    11.5%  (602 calls)  Inverse Head & Shoulders
-    10.4%  (510 calls)  Head & Shoulders
+    14.2%  (1585 calls)  Double Top
+    12.5%  (511 calls)  Head & Shoulders
+    11.7%  (605 calls)  Inverse Head & Shoulders
     5.6%  (18 calls)  Bearish divergence (RSI, hidden)
     3.4%  (29 calls)  Bullish divergence (RSI, regular)
     0.0%  (26 calls)  Descending Triangle
-  TUNE (250 sessions before eval): 189 securities, 11048 decided calls
-    mean hit rate: 20.4% | median: 17.1%
+  TUNE (250 sessions before eval): 189 securities, 10236 decided calls
+    mean hit rate: 21.3% | median: 17.6%
     35.7%  (14 calls)  Descending Triangle
     35.6%  (45 calls)  Bullish divergence (RSI, hidden)
-    27.7%  (3211 calls)  Double Top
-    25.9%  (2369 calls)  Inverse Head & Shoulders
-    25.3%  (7004 calls)  Double Bottom
-    23.4%  (1309 calls)  Head & Shoulders
+    29.0%  (2954 calls)  Double Top
+    27.0%  (6383 calls)  Double Bottom
+    26.9%  (2278 calls)  Inverse Head & Shoulders
+    23.6%  (1276 calls)  Head & Shoulders
     0.0%  (10 calls)  Bullish divergence (MACD, hidden)
 
-file sizes: universe.json 38.9KB, verdicts.json 213.4KB
+file sizes: universe.json 38.6KB, verdicts.json 213.0KB
 
-LTP-only symbols (71):
+LTP-only symbols (68):
   ADBLB86 (3)
-  APHL (98)
-  BENH (12)
-  CSBY (103)
-  EBLD85 (430)
-  EBLEB89 (29)
-  ECL (71)
-  ELIS (118)
+  APHL (107)
+  BENH (21)
+  CSBY (108)
+  EBLD85 (436)
+  EBLEB89 (30)
+  ECL (80)
+  ELIS (123)
   FMDBLP (32)
-  GBBLPO (90)
-  GBILD84/85 (302)
-  GSYM (137)
-  ICFCD83 (493)
-  KAHL (82)
-  KBLD86 (414)
+  GBILD84/85 (308)
+  GSYM (142)
+  ICFCD83 (495)
+  KAHL (91)
+  KBLD86 (416)
   KBLD89 (258)
-  KHPL (107)
-  KSBBLD87 (277)
-  KSLY (103)
+  KHPL (116)
+  KSBBLD87 (278)
+  KSLY (108)
   LBBLD89 (228)
-  LSD92 (25)
-  LSH12 (57)
+  LSD92 (34)
+  LSH12 (66)
   LSLPO (39)
-  MBLD87 (256)
-  MEPDL (53)
+  MBLD87 (258)
+  MEPDL (62)
   MFLD85 (481)
   MNBBLP (197)
-  MND84/85 (191)
-  MSIP (103)
-  NABILP (11)
-  NADDF (106)
-  NBLD85 (556)
-  NCCD86 (478)
-  NFCF (107)
-  NI31 (107)
-  NIBLSF (118)
-  NICD88 (254)
-  NIFRAUR85/86 (363)
-  NIMBD90 (289)
-  NLO (73)
-  NMBD2085 (332)
+  MND84/85 (192)
+  MSIP (108)
+  NADDF (111)
+  NBLD85 (558)
+  NCCD86 (480)
+  NFCF (112)
+  NI31 (112)
+  NIBLSF (123)
+  NICD88 (256)
+  NIFRAUR85/86 (364)
+  NIMBD90 (293)
+  NMBD2085 (334)
   NMBD89/90 (121)
-  NMBSBFE (103)
-  NMBUR93/94 (36)
+  NMBSBFE (108)
+  NMBUR93/94 (38)
   NMFBSP (46)
   NMLBBLP (8)
   PBD84 (204)
-  PBD93 (35)
-  PCBLP (237)
+  PBD93 (44)
+  PCBLP (238)
   PMLIP (53)
   PROFLP (74)
   PRVUPO (294)
-  PSIS (103)
-  RSY2 (55)
-  SAEF2 (57)
-  SAND2085 (400)
-  SAPIL (52)
-  SBD87 (521)
+  PSIS (108)
+  RSY2 (64)
+  SAEF2 (66)
+  SAND2085 (401)
+  SAPIL (61)
+  SBD87 (522)
   SBD89 (95)
-  SBLD89 (190)
-  SEF2 (58)
-  SFF (103)
-  SGHL (82)
-  SLK (103)
-  SNORL (86)
-  SOPL (100)
-  SRBLD83 (413)
+  SBLD89 (196)
+  SEF2 (67)
+  SFF (108)
+  SGHL (91)
+  SLK (108)
+  SNORL (95)
+  SOPL (109)
+  SRBLD83 (414)
   SRLIP (24)
-  SSIS (103)
-  TPKHL (90)
-  YMHL (90)
+  SSIS (108)
+  TPKHL (99)
+  YMHL (99)
 
-Insufficient history (20):
+Insufficient history (14):
   ADBLB86 (3)
-  BENH (12)
-  EBLEB89 (29)
+  BENH (21)
+  EBLEB89 (30)
   FMDBLP (32)
   JBLBP (28)
-  LSD92 (25)
-  LSH12 (57)
+  LSD92 (34)
   LSLPO (39)
-  MEPDL (53)
-  NABILP (11)
-  NMBUR93/94 (36)
+  MNMF2 (0)
+  NMBUR93/94 (38)
   NMFBSP (46)
   NMLBBLP (8)
-  PBD93 (35)
+  PBD93 (44)
   PMLIP (53)
-  RSY2 (55)
-  SAEF2 (57)
-  SAPIL (52)
-  SEF2 (58)
   SRLIP (24)
 
-Fetch failures — no OHLC and no monthly data (0):
+Fetch failures — no OHLC and no monthly data (1):
+  MNMF2
