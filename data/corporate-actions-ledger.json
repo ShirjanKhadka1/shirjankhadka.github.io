@@ -1,16 +1,27 @@
 {
   "meta": {
-    "built_at_npt": "2026-11-25",
+    "built_at_npt": "2026-11-26",
     "builder": "tools/build-actions-ledger.py",
     "sources": {
-      "corporate_actions_updated": "2026-11-13T06:49:52.744Z",
+      "corporate_actions_updated": "2026-11-26T13:12:48.678Z",
       "div_live_asof": "2026-11-25T01:28:52.339Z"
     },
-    "items_total": 36,
-    "sessions_total": 20,
+    "items_total": 37,
+    "sessions_total": 21,
     "provenance": "sessions group by ANNOUNCED date; recording_runs group by VERIFIED date reconstructed from verifiedAt; no separate run log exists, so earlier runs are not inventable"
   },
   "sessions": [
+    {
+      "date": "2026-11-26",
+      "count": 1,
+      "items": [
+        {
+          "symbol": "SAPIL",
+          "kind": "promoter-share",
+          "headline": "SAPIL – (Ordinary Shares Mutual Fund Lock-in Period Expiry Notice) [SAPIL]"
+        }
+      ]
+    },
     {
       "date": "2026-11-13",
       "count": 2,
@@ -314,6 +325,13 @@
   ],
   "recording_runs": [
     {
+      "date": "2026-11-26",
+      "added": [
+        "promoter-share|SAPIL"
+      ],
+      "count": 1
+    },
+    {
       "date": "2026-11-13",
       "added": [
         "dividend|SBI",
@@ -454,6 +472,18 @@
   ],
   "items": [
     {
+      "symbol": "SAPIL",
+      "kind": "promoter-share",
+      "announced": "2026-11-26",
+      "pdf_date": "2026-11-26",
+      "verified_at": "2026-11-26",
+      "sector": "Manufacturing and Processing",
+      "bookclose": "",
+      "bookclose_source": "none",
+      "status_at_build": null,
+      "first_closed_date": null
+    },
+    {
       "symbol": "SBI",
       "kind": "dividend",
       "announced": "2026-11-13",
@@ -546,7 +576,7 @@
       "sector": "Manufacturing and Processing",
       "bookclose": "2026-11-25",
       "bookclose_source": "div-live",
-      "status_at_build": "Open",
+      "status_at_build": "Closed",
       "first_closed_date": "2026-11-26"
     },
     {
@@ -886,14 +916,7 @@
       "first_closed_date": "2026-10-01"
     }
   ],
-  "upcoming_closes": [
-    {
-      "symbol": "UNL",
-      "kind": "dividend",
-      "bookclose": "2026-11-25",
-      "days_from_build": 0
-    }
-  ],
+  "upcoming_closes": [],
   "data_notes": [
     {
       "level": "WARN",
@@ -1026,6 +1049,13 @@
       "run_date": "2026-11-25",
       "input_hash": "64078c610b7c",
       "items_total": 36,
+      "verifier": "skip",
+      "page_rebuilt": true
+    },
+    {
+      "run_date": "2026-11-26",
+      "input_hash": "55a20ddeed9e",
+      "items_total": 37,
       "verifier": "skip",
       "page_rebuilt": true
     }
